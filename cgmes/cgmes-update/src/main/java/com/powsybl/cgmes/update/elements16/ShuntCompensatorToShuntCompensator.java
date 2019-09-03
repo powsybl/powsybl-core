@@ -1,9 +1,7 @@
 package com.powsybl.cgmes.update.elements16;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
@@ -18,47 +16,35 @@ public class ShuntCompensatorToShuntCompensator extends IidmToCgmes16 implements
     }
 
     @Override
-    public Map<String, Object> mapIidmToCgmesPredicates() {
-        return Collections.unmodifiableMap(Stream.of(
-            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
-            entry("bPerSection", new CgmesPredicateDetails("cim:LinearShuntCompensator.bPerSection", "_EQ", false)),
-            entry("maximumSectionCount",
-                new CgmesPredicateDetails("cim:ShuntCompensator.maximumSections", "_EQ", false)))
-            .collect(entriesToMap()));
-    }
+    public Map<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
 
-    @Override
-    public Map<CgmesPredicateDetails, String> getAllCgmesDetailsOnCreate() {
-
-        Map<CgmesPredicateDetails, String> allCgmesDetails = new HashMap<CgmesPredicateDetails, String>();
-
+        final Map<String, CgmesPredicateDetails> map = new HashMap<>();
         ShuntCompensator newShuntCompensator = (ShuntCompensator) change.getIdentifiable();
 
-        CgmesPredicateDetails rdfType = new CgmesPredicateDetails("rdf:type", "_EQ", false);
-        allCgmesDetails.put(rdfType, "cim:LinearShuntCompensator");
+        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_TP", false, "cim:LinearShuntCompensator"));
 
         String name = newShuntCompensator.getName();
         if (name != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
-                name);
+            map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, name));
         }
 
         String voltageLevelId = newShuntCompensator.getTerminal().getVoltageLevel().getId();
-        CgmesPredicateDetails equipmentContainer = new CgmesPredicateDetails(
-            "cim:Equipment.EquipmentContainer", "_EQ", true);
         if (!voltageLevelId.equals("NaN")) {
-            allCgmesDetails.put(equipmentContainer, voltageLevelId);
+            map.put("equipmentContainer", new CgmesPredicateDetails(
+                "cim:Equipment.EquipmentContainer", "_EQ", true, voltageLevelId));
         }
 
         double bPerSection = newShuntCompensator.getbPerSection();
-        allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("bPerSection"),
-            String.valueOf(bPerSection));
+        map.put("bPerSection", new CgmesPredicateDetails(
+            "cim:LinearShuntCompensator.bPerSection", "_EQ", false, String.valueOf(bPerSection)));
 
         double maximumSectionCount = newShuntCompensator.getMaximumSectionCount();
-        allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("maximumSectionCount"),
-            String.valueOf(maximumSectionCount));
+        map.put("maximumSectionCount", new CgmesPredicateDetails(
+            "cim:ShuntCompensator.maximumSections", "_EQ", false, String.valueOf(maximumSectionCount)));
 
-        return allCgmesDetails;
+        // + nomU + normalSections
+
+        return map;
     }
 
 }

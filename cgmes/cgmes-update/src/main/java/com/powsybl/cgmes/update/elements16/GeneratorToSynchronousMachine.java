@@ -1,97 +1,78 @@
 package com.powsybl.cgmes.update.elements16;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes16;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-public class GeneratorToSynchronousMachine extends IidmToCgmes16 implements ConversionMapper {
+public class GeneratorToSynchronousMachine implements ConversionMapper {
     public GeneratorToSynchronousMachine(IidmChange change, CgmesModel cgmes) {
-        super(change, cgmes);
+        this.change = change;
+        this.cgmes = cgmes;
+        this.generatingUnitId = getGeneratingUnitId();
     }
 
     @Override
-    public Map<String, Object> mapIidmToCgmesPredicates() {
-        return Collections.unmodifiableMap(Stream.of(
-            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
-            entry("minQ", new CgmesPredicateDetails("cim:SynchronousMachine.minQ", "_EQ", false)),
-            entry("maxQ", new CgmesPredicateDetails("cim:SynchronousMachine.maxQ", "_EQ", false)),
-            entry("qPercent", new CgmesPredicateDetails("cim:SynchronousMachine.qPercent", "_EQ", false)),
-            entry("ratedS", new CgmesPredicateDetails("cim:RotatingMachine.ratedS", "_EQ", false)),
-            entry("targetP", new CgmesPredicateDetails("cim:GeneratingUnit.initialP", "_EQ", false, generatingUnitId)),
-            entry("minP",
-                new CgmesPredicateDetails("cim:GeneratingUnit.minOperatingP", "_EQ", false, generatingUnitId)),
-            entry("maxP",
-                new CgmesPredicateDetails("cim:GeneratingUnit.maxOperatingP", "_EQ", false, generatingUnitId)))
-            .collect(entriesToMap()));
-    }
+    public Map<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
 
-    @Override
-    public Map<CgmesPredicateDetails, String> getAllCgmesDetailsOnCreate() {
-
-        Map<CgmesPredicateDetails, String> allCgmesDetails = new HashMap<CgmesPredicateDetails, String>();
-
+        final Map<String, CgmesPredicateDetails> map = new HashMap<>();
         Generator newGenerator = (Generator) change.getIdentifiable();
 
-        CgmesPredicateDetails rdfType = new CgmesPredicateDetails("rdf:type", "_EQ", false);
-        allCgmesDetails.put(rdfType, "cim:SynchronousMachine");
+        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:SynchronousMachine"));
 
         String name = newGenerator.getName();
         if (name != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
-                name);
+            map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, name));
         }
 
         double ratedS = newGenerator.getRatedS();
         if (!String.valueOf(ratedS).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("ratedS"),
-                String.valueOf(ratedS));
+            map.put("ratedS", new CgmesPredicateDetails(
+                "cim:RotatingMachine.ratedS", "_EQ", false, String.valueOf(ratedS)));
         }
 
-        CgmesPredicateDetails generatingUnit = new CgmesPredicateDetails(
-            "cim:RotatingMachine.GeneratingUnit", "_EQ", true);
-        allCgmesDetails.put(generatingUnit, generatingUnitId);
+        map.put("minQ", new CgmesPredicateDetails("cim:SynchronousMachine.minQ", "_EQ", false, String.valueOf(0.0)));
 
+        map.put("maxQ", new CgmesPredicateDetails("cim:SynchronousMachine.maxQ", "_EQ", false, String.valueOf(0.0)));
+
+        map.put("generatingUnit", new CgmesPredicateDetails(
+            "cim:RotatingMachine.GeneratingUnit", "_EQ", true, generatingUnitId));
         /**
          * Create GeneratingUnit element
          */
-        CgmesPredicateDetails rdfTypeGU = new CgmesPredicateDetails("rdf:type", "_EQ", false,
-            generatingUnitId);
-        allCgmesDetails.put(rdfTypeGU, "cim:ThermalGeneratingUnit");
+        map.put("rdfTypeGU", new CgmesPredicateDetails(
+            "rdf:type", "_EQ", false, "cim:ThermalGeneratingUnit", generatingUnitId));
 
-        CgmesPredicateDetails nameGU = new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false,
-            generatingUnitId);
-        allCgmesDetails.put(nameGU, name.concat("_GU"));
-
+        if (name != null) {
+            map.put("nameGU", new CgmesPredicateDetails(
+                "cim:IdentifiedObject.name", "_EQ", false, name.concat("_GU"), generatingUnitId));
+        }
         double targetP = newGenerator.getTargetP();
         if (!String.valueOf(targetP).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("targetP"),
-                String.valueOf(targetP));
+            map.put("targetP", new CgmesPredicateDetails(
+                "cim:GeneratingUnit.initialP", "_EQ", false, String.valueOf(targetP), generatingUnitId));
         }
 
         double maxP = newGenerator.getMaxP();
         if (!String.valueOf(maxP).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("maxP"),
-                String.valueOf(maxP));
+            map.put("maxP", new CgmesPredicateDetails(
+                "cim:GeneratingUnit.maxOperatingP", "_EQ", false, String.valueOf(maxP), generatingUnitId));
         }
 
         double minP = newGenerator.getMinP();
         if (!String.valueOf(minP).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("minP"),
-                String.valueOf(minP));
+            map.put("minP", new CgmesPredicateDetails(
+                "cim:GeneratingUnit.minOperatingP", "_EQ", false, String.valueOf(minP), generatingUnitId));
         }
 
-        return allCgmesDetails;
+        return map;
     }
 
     /**
@@ -114,6 +95,8 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes16 implements Conv
         return currId.concat("_GU");
     }
 
-    private String generatingUnitId = getGeneratingUnitId();
+    private IidmChange change;
+    private CgmesModel cgmes;
+    private String generatingUnitId;
 
 }

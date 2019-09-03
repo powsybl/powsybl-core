@@ -1,94 +1,76 @@
 package com.powsybl.cgmes.update.elements14;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes14;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-public class LoadToEnergyConsumer extends IidmToCgmes14 implements ConversionMapper {
+public class LoadToEnergyConsumer implements ConversionMapper {
 
     public LoadToEnergyConsumer(IidmChange change, CgmesModel cgmes) {
-        super(change, cgmes);
+        this.change = change;
+        this.cgmes = cgmes;
+        this.loadResponseCharacteristicId = getLoadResponseCharacteristicId();
     }
 
     @Override
-    public Map<String, Object> mapIidmToCgmesPredicates() {
-        return Collections.unmodifiableMap(Stream.of(
-            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
-            entry("p0",
-                new CgmesPredicateDetails("cim:LoadResponseCharacteristic.pConstantPower", "_EQ", false,
-                    loadResponseCharacteristicId)),
-            entry("q0",
-                new CgmesPredicateDetails("cim:LoadResponseCharacteristic.qConstantPower", "_EQ", false,
-                    loadResponseCharacteristicId)))
-            .collect(entriesToMap()));
-    }
+    public Map<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
 
-    @Override
-    public Map<CgmesPredicateDetails, String> getAllCgmesDetailsOnCreate() {
-
-        Map<CgmesPredicateDetails, String> allCgmesDetails = new HashMap<CgmesPredicateDetails, String>();
+        final Map<String, CgmesPredicateDetails> map = new HashMap<>();
         Load newLoad = (Load) change.getIdentifiable();
 
-        CgmesPredicateDetails rdfType = new CgmesPredicateDetails("rdf:type", "_EQ", false);
-        allCgmesDetails.put(rdfType, "cim:EnergyConsumer");
+        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_TP", false, "cim:EnergyConsumer"));
 
         String name = newLoad.getName();
         if (name != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
-                name);
+            map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, name));
         }
 
         String voltageLevelId = newLoad.getTerminal().getVoltageLevel().getId();
-        CgmesPredicateDetails equipmentContainer = new CgmesPredicateDetails(
-            "cim:Equipment.MemberOf_EquipmentContainer", "_EQ", true);
         if (!voltageLevelId.equals("NaN")) {
-            allCgmesDetails.put(equipmentContainer, voltageLevelId);
+            map.put("equipmentContainer", new CgmesPredicateDetails(
+                "cim:Equipment.MemberOf_EquipmentContainer", "_EQ", true, voltageLevelId));
         }
 
-        CgmesPredicateDetails energyConsumerLoadResponse = new CgmesPredicateDetails("cim:EnergyConsumer.LoadResponse",
-            "_EQ", true);
-        allCgmesDetails.put(energyConsumerLoadResponse, loadResponseCharacteristicId);
+        map.put("energyConsumerLoadResponse", new CgmesPredicateDetails("cim:EnergyConsumer.LoadResponse",
+            "_EQ", true, loadResponseCharacteristicId));
 
         /**
          * Create LoadResponseCharacteristic element
          */
-        CgmesPredicateDetails rdfTypeLRC = new CgmesPredicateDetails("rdf:type", "_EQ", false,
-            loadResponseCharacteristicId);
-        allCgmesDetails.put(rdfTypeLRC, "cim:LoadResponseCharacteristic");
+        map.put("rdfTypeLRC", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:LoadResponseCharacteristic",
+            loadResponseCharacteristicId));
 
-        CgmesPredicateDetails nameLRC = new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false,
-            loadResponseCharacteristicId);
-        allCgmesDetails.put(nameLRC, name.concat("_LRC"));
+        if (name != null) {
+            map.put("nameLRC", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, name.concat("_LRC"),
+                loadResponseCharacteristicId));
+        }
 
-        CgmesPredicateDetails exponentModelLRC = new CgmesPredicateDetails(
-            "cim:LoadResponseCharacteristic.exponentModel", "_EQ", false,
-            loadResponseCharacteristicId);
-        allCgmesDetails.put(exponentModelLRC, "false");
+        map.put("exponentModelLRC", new CgmesPredicateDetails(
+            "cim:LoadResponseCharacteristic.exponentModel", "_EQ", false, "false", loadResponseCharacteristicId));
 
         double p0 = newLoad.getP0();
         if (!String.valueOf(p0).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("p0"),
-                String.valueOf(p0));
+            map.put("p0",
+                new CgmesPredicateDetails("cim:LoadResponseCharacteristic.pConstantPower", "_EQ", false,
+                    String.valueOf(p0), loadResponseCharacteristicId));
         }
 
         double q0 = newLoad.getQ0();
         if (!String.valueOf(q0).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("q0"),
-                String.valueOf(q0));
+            map.put("q0",
+                new CgmesPredicateDetails("cim:LoadResponseCharacteristic.qConstantPower", "_EQ", false,
+                    String.valueOf(q0), loadResponseCharacteristicId));
         }
 
-        return allCgmesDetails;
+        return map;
     }
 
     /**
@@ -111,6 +93,8 @@ public class LoadToEnergyConsumer extends IidmToCgmes14 implements ConversionMap
         return currId.concat("_LRC");
     }
 
-    private String loadResponseCharacteristicId = getLoadResponseCharacteristicId();
+    private IidmChange change;
+    private CgmesModel cgmes;
+    private String loadResponseCharacteristicId;
 
 }

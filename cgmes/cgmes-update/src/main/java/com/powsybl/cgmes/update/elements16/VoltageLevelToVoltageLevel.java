@@ -1,92 +1,75 @@
 package com.powsybl.cgmes.update.elements16;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes16;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-public class VoltageLevelToVoltageLevel extends IidmToCgmes16 implements ConversionMapper {
+public class VoltageLevelToVoltageLevel implements ConversionMapper {
 
     public VoltageLevelToVoltageLevel(IidmChange change, CgmesModel cgmes) {
-        super(change, cgmes);
+        this.change = change;
+        this.cgmes = cgmes;
+        this.baseVoltageId = getBaseVoltageId();
     }
 
     @Override
-    public Map<String, Object> mapIidmToCgmesPredicates() {
-        return Collections.unmodifiableMap(Stream.of(
-            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
-            entry("highVoltageLimit", new CgmesPredicateDetails("cim:VoltageLevel.highVoltageLimit", "_EQ", false)),
-            entry("lowVoltageLimit", new CgmesPredicateDetails("cim:VoltageLevel.lowVoltageLimit", "_EQ", false)),
-            entry("Substation", new CgmesPredicateDetails("cim:VoltageLevel.MemberOf_Substation", "_EQ", true)),
-            entry("nominalV", new CgmesPredicateDetails("cim:BaseVoltage.nominalVoltage", "_EQ", false, baseVoltageId)))
-            .collect(entriesToMap()));
-    }
+    public Map<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
 
-    @Override
-    public Map<CgmesPredicateDetails, String> getAllCgmesDetailsOnCreate() {
-
-        Map<CgmesPredicateDetails, String> allCgmesDetails = new HashMap<CgmesPredicateDetails, String>();
-
+        final Map<String, CgmesPredicateDetails> map = new HashMap<>();
         VoltageLevel newVoltageLevel = (VoltageLevel) change.getIdentifiable();
 
-        CgmesPredicateDetails rdfType = new CgmesPredicateDetails("rdf:type", "_EQ", false);
-        allCgmesDetails.put(rdfType, "cim:VoltageLevel");
+        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_TP", false, "cim:VoltageLevel"));
 
         String name = newVoltageLevel.getName();
         if (name != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
-                name);
+            map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, name));
         }
 
         double highVoltageLimit = newVoltageLevel.getHighVoltageLimit();
         if (!String.valueOf(highVoltageLimit).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("highVoltageLimit"),
-                String.valueOf(highVoltageLimit));
+            map.put("highVoltageLimit", new CgmesPredicateDetails(
+                "cim:VoltageLevel.highVoltageLimit", "_EQ", false, String.valueOf(highVoltageLimit)));
         }
 
         double lowVoltageLimit = newVoltageLevel.getLowVoltageLimit();
         if (!String.valueOf(lowVoltageLimit).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("lowVoltageLimit"),
-                String.valueOf(lowVoltageLimit));
+            map.put("lowVoltageLimit", new CgmesPredicateDetails(
+                "cim:VoltageLevel.lowVoltageLimit", "_EQ", false, String.valueOf(lowVoltageLimit)));
         }
 
-        String substation = newVoltageLevel.getSubstation().getId();
-        if (substation != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("Substation"),
-                substation.toString());
+        String substationId = newVoltageLevel.getSubstation().getId();
+        if (substationId != null) {
+            map.put("Substation", new CgmesPredicateDetails(
+                "cim:VoltageLevel.MemberOf_Substation", "_EQ", true, substationId));
         }
 
-        CgmesPredicateDetails voltageLevelBaseVoltage = new CgmesPredicateDetails("cim:VoltageLevel.BaseVoltage", "_EQ",
-            true);
-        allCgmesDetails.put(voltageLevelBaseVoltage, baseVoltageId);
-
+        map.put("voltageLevelBaseVoltage", new CgmesPredicateDetails(
+            "cim:VoltageLevel.BaseVoltage", "_EQ", true, baseVoltageId));
         /**
          * Create BaseVoltage element
          */
-        CgmesPredicateDetails rdfTypeBV = new CgmesPredicateDetails("rdf:type", "_EQ", false, baseVoltageId);
-        allCgmesDetails.put(rdfTypeBV, "cim:BaseVoltage");
+        map.put("rdfTypeBV", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:BaseVoltage", baseVoltageId));
 
-        CgmesPredicateDetails nameBV = new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false,
-            baseVoltageId);
-        allCgmesDetails.put(nameBV, name.concat("_BV"));
+        if (name != null) {
+            map.put("nameBV", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, name.concat("_BV"),
+                baseVoltageId));
+        }
 
         double nominalVoltage = newVoltageLevel.getNominalV();
         if (!String.valueOf(nominalVoltage).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("nominalV"),
-                String.valueOf(nominalVoltage));
+            map.put("nominalV", new CgmesPredicateDetails("cim:BaseVoltage.nominalVoltage", "_EQ", false,
+                String.valueOf(nominalVoltage), baseVoltageId));
         }
 
-        return allCgmesDetails;
+        return map;
     }
 
     /**
@@ -95,7 +78,7 @@ public class VoltageLevelToVoltageLevel extends IidmToCgmes16 implements Convers
      * @return the base voltage id
      */
     private String getBaseVoltageId() {
-
+        String currId = change.getIdentifiableId();
         PropertyBags voltageLevels = cgmes.voltageLevels();
         Iterator i = voltageLevels.iterator();
         while (i.hasNext()) {
@@ -109,6 +92,7 @@ public class VoltageLevelToVoltageLevel extends IidmToCgmes16 implements Convers
         return currId.concat("_BV");
     }
 
-    private String currId = change.getIdentifiableId();
-    private String baseVoltageId = getBaseVoltageId();
+    private IidmChange change;
+    private CgmesModel cgmes;
+    private String baseVoltageId;
 }

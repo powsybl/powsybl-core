@@ -8,34 +8,26 @@ package com.powsybl.cgmes.update;
  */
 public class CgmesPredicateDetails {
 
-    public CgmesPredicateDetails(String attributeName, String triplestoreContext, boolean valueIsNode,
-        String newSubject) {
-        this.attributeName = attributeName;
+    public CgmesPredicateDetails(String rdfPredicate, String triplestoreContext, boolean valueIsNode,
+        String value, String newSubject) {
+        this.rdfPredicate = rdfPredicate;
         this.context = triplestoreContext;
         this.valueIsNode = valueIsNode;
+        this.value = value;
         this.newSubject = newSubject;
-        this.computedValue = null;
     }
 
-    public CgmesPredicateDetails(String attributeName, String triplestoreContext, boolean valueIsNode,
-        String newSubject, String computedValue) {
-        this.attributeName = attributeName;
+    public CgmesPredicateDetails(String rdfPredicate, String triplestoreContext, boolean valueIsNode,
+        String value) {
+        this.rdfPredicate = rdfPredicate;
         this.context = triplestoreContext;
         this.valueIsNode = valueIsNode;
+        this.value = value;
         this.newSubject = null;
-        this.computedValue = computedValue;
     }
 
-    public CgmesPredicateDetails(String attributeName, String triplestoreContext, boolean valueIsNode) {
-        this.attributeName = attributeName;
-        this.context = triplestoreContext;
-        this.valueIsNode = valueIsNode;
-        this.newSubject = null;
-        this.computedValue = null;
-    }
-
-    public String getAttributeName() {
-        return attributeName;
+    public String getRdfPredicate() {
+        return rdfPredicate;
     }
 
     public String getContext() {
@@ -46,17 +38,17 @@ public class CgmesPredicateDetails {
         return valueIsNode;
     }
 
+    public String getValue() {
+        return value;
+    }
+
     public String getNewSubject() {
         return newSubject;
     }
 
-    public String getComputedValue() {
-        return computedValue;
-    }
-
-    private String attributeName;
+    private String rdfPredicate;
     private String context;
     private boolean valueIsNode;
     private String newSubject;
-    private String computedValue;
+    private String value;
 }

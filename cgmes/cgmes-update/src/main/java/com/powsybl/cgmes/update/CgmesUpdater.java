@@ -40,7 +40,7 @@ public class CgmesUpdater {
             CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).getCgmesModel();
 
             String cimNamespace = cgmes.getCimNamespace();
-            cimVersion = cimNamespace.substring(cimNamespace.lastIndexOf("cim"));
+            String cimVersion = cimNamespace.substring(cimNamespace.lastIndexOf("cim"));
 
             for (IidmChange change : changes) {
 
@@ -52,35 +52,28 @@ public class CgmesUpdater {
                     LOG.info("Incoming cim verson must be checked. Implemented versions are: \ncim14# ; cim16# ");
                 }
 
-                String instanceClassOfIidmChange = instanceClassOfIidmChange(change);
-                mapDetailsOfChange = iidmToCgmes.convert(instanceClassOfIidmChange);
+                List<CgmesPredicateDetails> allCgmesDetails = iidmToCgmes.convert();
 
                 // we need to iterate over the above map, as for onCreate call there will be
                 // multiples attributes-values pairs.
-                Iterator entries = mapDetailsOfChange.entrySet().iterator();
+                Iterator entries = allCgmesDetails.iterator();
                 while (entries.hasNext()) {
-                    Map.Entry entry = (Map.Entry) entries.next();
-                    CgmesPredicateDetails map = (CgmesPredicateDetails) entry.getKey();
-
+                    CgmesPredicateDetails entry = (CgmesPredicateDetails) entries.next();
                     try {
                         for (String context : cgmes.tripleStore().contextNames()) {
 
-                            currentContext = map.getContext();
+                            String currentContext = entry.getContext();
 
                             if (context.toUpperCase().contains(currentContext)) {
-                                /**
-                                 * For cgmesSubject we might need Id diferent from the incoming Identifiable,
-                                 * e.g. for TwoWindingsTransformer, where End1 and End2 have their oun Ids.
-                                 */
-                                cgmesSubject = (map.getNewSubject() != null) ? map.getNewSubject()
+
+                                String cgmesSubject = (entry.getNewSubject() != null) ? entry.getNewSubject()
                                     : namingStrategy.getCgmesId(change.getIdentifiableId());
 
-                                cgmesPredicate = map.getAttributeName();
-                                cgmesValue = (map.getComputedValue() != null) ? map.getComputedValue()
-                                    : (String) entry.getValue();
-                                valueIsNode = String.valueOf(map.valueIsNode());
+                                String cgmesPredicate = entry.getRdfPredicate();
+                                String cgmesValue = entry.getValue();
+                                String valueIsNode = String.valueOf(entry.valueIsNode());
 
-                                cgmesChanges = new HashMap<>();
+                                Map<String, String> cgmesChanges = new HashMap<>();
                                 cgmesChanges.put("cgmesSubject", cgmesSubject);
                                 cgmesChanges.put("cgmesPredicate", cgmesPredicate);
                                 cgmesChanges.put("cgmesNewValue", cgmesValue);
@@ -113,16 +106,8 @@ public class CgmesUpdater {
     private Network network;
     private CgmesModel cgmes;
     private AbstractIidmToCgmes iidmToCgmes;
-    private String cimVersion;
     private List<IidmChange> changes;
     private NamingStrategy namingStrategy;
-    private String cgmesSubject;
-    private String cgmesPredicate;
-    private String cgmesValue;
-    private String currentContext;
-    private String valueIsNode;
-    private Map<String, String> cgmesChanges;
-    private Map<CgmesPredicateDetails, String> mapDetailsOfChange;
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesUpdater.class);
 }

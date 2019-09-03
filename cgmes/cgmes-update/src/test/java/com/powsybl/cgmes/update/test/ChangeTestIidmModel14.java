@@ -59,19 +59,22 @@ public class ChangeTestIidmModel14 {
             .setName("bus2Name")
             .setId("bus2")
             .add();
+//        BusbarSectionAdder bus3 = voltageLevel2.getNodeBreakerView()
+//            .newBusbarSection();
+
         Generator generator = voltageLevel.newGenerator()
             .setId("_GEN____15_SM")
             .setName("GEN    15")
             .setBus("bus1")
             .setVoltageRegulatorOn(false)
             .setRatedS(150.0)
-            .setTargetP(0.0)
-            .setTargetQ(0.0)
+            .setTargetP(1.0)
+            .setTargetQ(2.0)
             .setMaxP(300.0)
             .setMinP(-300.0)
             .add();
-//        Terminal terminal = generator.getTerminal();
-//        generator.setRegulatingTerminal(terminal);
+////        Terminal terminal = generator.getTerminal();
+////        generator.setRegulatingTerminal(terminal);
         ShuntCompensator shuntCompensator = voltageLevel.newShuntCompensator()
             .setId("_BANK___15_SC")
             .setName("BANK   15")
@@ -120,10 +123,10 @@ public class ChangeTestIidmModel14 {
 ////        tWTransformer.newCurrentLimits2()
 ////            .setPermanentLimit(931.0)
 ////            .add();
-//        BusbarSection busbarSection = voltageLevel.getNodeBreakerView().newBusbarSection()
-//            .setId("_64901aec-5a8a-4bcb-8ca7-a3ddbfcd0e6c")
-//            .setName("BE-Busbar_1")
-//            .add();
+////        BusbarSection busbarSection = voltageLevel.getNodeBreakerView().newBusbarSection()
+////            .setId("_64901aec-5a8a-4bcb-8ca7-a3ddbfcd0e6c")
+////            .setName("BE-Busbar_1")
+////            .add();
         Load load = voltageLevel.newLoad()
             .setId("_LOAD___15_EC")
             .setName("LOAD  15")
@@ -148,15 +151,12 @@ public class ChangeTestIidmModel14 {
 
 //        assertTrue(changes.size() == 1);
 //
-//        /**
-//         * Test onUpdate
-//         */
-//        double p1 = 1.0;
-//        double q1 = 2.0;
-//        lccConverterStation.getTerminal().setP(p1);
-//        lccConverterStation.getTerminal().setQ(q1);
-
+        /**
+         * Test onUpdate
+         */
         // assertTrue(changes.size() == 6);
+        bus2.setV(1.2).setAngle(3.0);
+        network.getBusBreakerView().getBus("_BUS___10_TN").setV(3.3).setAngle(3.33);
         network.getTwoWindingsTransformer("_BUS____4-BUS____7-1_PT").setB(1.0).setG(2.0).setR(3.0)
             .setX(4.0).setRatedU1(11.1).setRatedU2(22.2);
         network.getTwoWindingsTransformer("_BUS____4-BUS____7-1_PT").getRatioTapChanger().setTapPosition(7);
@@ -175,8 +175,14 @@ public class ChangeTestIidmModel14 {
             }
         }
 
-        Bus checkBusBreakerView = network.getLoad("_LOAD__10_EC").getTerminal().getBusBreakerView().getBus();
-        Bus checkBusView = network.getLoad("_LOAD__10_EC").getTerminal().getBusView().getBus();
+//        Bus checkBusBreakerView = network.getLoad("_LOAD__10_EC").getTerminal().getBusBreakerView().getBus();
+//        Bus checkBusView = network.getLoad("_LOAD__10_EC").getTerminal().getBusView().getBus();
+        /**
+         * Test onRemove
+         */
+//        network.getLine("_BUS____2-BUS____3-1_AC").remove();
+//        network.getVoltageLevel("_BUS____3_VL").remove();
+//        network.getTwoWindingsTransformer("_BUS____4-BUS____7-1_PT").remove();
 
 //        assertTrue(changes.size() == 9);
         LOGGER.info("IidmChange list size is {}", changes.size());

@@ -1,92 +1,58 @@
 package com.powsybl.cgmes.update.elements14;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes14;
 import com.powsybl.iidm.network.Line;
 
-public class LineToACLineSegment extends IidmToCgmes14 implements ConversionMapper {
+public class LineToACLineSegment implements ConversionMapper {
 
     public LineToACLineSegment(IidmChange change) {
-        super(change);
+        this.change = change;
     }
 
     @Override
-    public Map<String, Object> mapIidmToCgmesPredicates() {
-        double bchComputedValue = 0.0;
-        double gchComputedValue = 0.0;
-        if (change.getAttribute().equals("b1") || change.getAttribute().equals("b2")) {
-            Line line = (Line) change.getIdentifiable();
-            bchComputedValue = line.getB1() + line.getB2();
-        }
+    public Map<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
 
-        if (change.getAttribute().equals("g1") || change.getAttribute().equals("g2")) {
-            Line line = (Line) change.getIdentifiable();
-            gchComputedValue = line.getG1() + line.getG2();
-        }
-        return Collections.unmodifiableMap(Stream.of(
-            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
-            entry("r", new CgmesPredicateDetails("cim:Conductor.r", "_EQ", false)),
-            entry("x", new CgmesPredicateDetails("cim:Conductor.x", "_EQ", false)),
-            entry("b1",
-                new CgmesPredicateDetails("cim:Conductor.bch", "_EQ", false, null, String.valueOf(bchComputedValue))),
-            entry("b2",
-                new CgmesPredicateDetails("cim:Conductor.bch", "_EQ", false, null, String.valueOf(bchComputedValue))),
-            entry("g1",
-                new CgmesPredicateDetails("cim:Conductor.gch", "_EQ", false, null, String.valueOf(gchComputedValue))),
-            entry("g2",
-                new CgmesPredicateDetails("cim:Conductor.gch", "_EQ", false, null, String.valueOf(gchComputedValue))))
-            .collect(entriesToMap()));
-    }
-
-    @Override
-    public Map<CgmesPredicateDetails, String> getAllCgmesDetailsOnCreate() {
-
-        Map<CgmesPredicateDetails, String> allCgmesDetails = new HashMap<CgmesPredicateDetails, String>();
+        final Map<String, CgmesPredicateDetails> map = new HashMap<>();
         Line newLine = (Line) change.getIdentifiable();
 
-        CgmesPredicateDetails rdfType = new CgmesPredicateDetails("rdf:type", "_EQ", false);
-        allCgmesDetails.put(rdfType, "cim:ACLineSegment");
+        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:ACLineSegment"));
 
         String name = newLine.getName();
         if (name != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
-                name);
+            map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, name ));
         }
 
         double r = newLine.getR();
         if (!String.valueOf(r).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("r"),
-                String.valueOf(r));
+            map.put("r", new CgmesPredicateDetails("cim:Conductor.r", "_EQ", false, String.valueOf(r)));
         }
 
         double x = newLine.getX();
         if (!String.valueOf(x).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("x"),
-                String.valueOf(x));
+            map.put("x", new CgmesPredicateDetails("cim:Conductor.x", "_EQ", false, String.valueOf(x)));
         }
 
-        double b1 = newLine.getB1();
-        double b2 = newLine.getB2();
-        if (!String.valueOf(b1).equals("NaN") && !String.valueOf(b2).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("b1"),
-                String.valueOf(b1 + b2));
-        }
+        double b1 = !String.valueOf(newLine.getB1()).equals("NaN") ? newLine.getB1() : 0.0;
+        double b2 = !String.valueOf(newLine.getB2()).equals("NaN") ? newLine.getB2() : 0.0;
+        map.put("b1",
+            new CgmesPredicateDetails("cim:Conductor.bch", "_EQ", false, String.valueOf(b1 + b2)));
+        map.put("b2",
+            new CgmesPredicateDetails("cim:Conductor.bch", "_EQ", false, String.valueOf(b1 + b2)));
 
-        double g1 = newLine.getG1();
-        double g2 = newLine.getG2();
-        if (!String.valueOf(g1).equals("NaN") && !String.valueOf(g2).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("g1"),
-                String.valueOf(g1 + g2));
-        }
+        double g1 = !String.valueOf(newLine.getG1()).equals("NaN") ? newLine.getG1() : 0.0;
+        double g2 = !String.valueOf(newLine.getG2()).equals("NaN") ? newLine.getG2() : 0.0;
+        map.put("g1",
+            new CgmesPredicateDetails("cim:Conductor.gch", "_EQ", false, String.valueOf(g1 + g2)));
+        map.put("g2",
+            new CgmesPredicateDetails("cim:Conductor.gch", "_EQ", false, String.valueOf(g1 + g2)));
 
-        return allCgmesDetails;
+        return map;
     }
 
+    private IidmChange change;
 }

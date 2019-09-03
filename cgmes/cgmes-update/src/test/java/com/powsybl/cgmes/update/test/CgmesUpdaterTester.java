@@ -31,7 +31,6 @@ public class CgmesUpdaterTester {
         TestGridModel testGridModel16 = cgmesConformity1Catalog.smallBusBranch();
         iidmTestImportFromCgmes14 = new IidmTestImportFromCgmes(testGridModel14);
         iidmTestImportFromCgmes16 = new IidmTestImportFromCgmes(testGridModel16);
-//        cimNamespace = new CgmesOnDataSource(testGridModel.dataSource()).cimNamespace();
     }
 
     // @Test
@@ -43,7 +42,7 @@ public class CgmesUpdaterTester {
         }
     }
 
-    @Test
+    //@Test
     public void mapIidmChangesToCgmesTest14() throws IOException {
         Network network = iidmTestImportFromCgmes14.importTestModelFromCgmes();
         if (modelNotEmpty(network)) {
@@ -53,7 +52,7 @@ public class CgmesUpdaterTester {
         }
     }
 
-    //@Test
+    @Test
     public void mapIidmChangesToCgmesTest16() throws IOException {
         Network network = iidmTestImportFromCgmes16.importTestModelFromCgmes();
         if (modelNotEmpty(network)) {

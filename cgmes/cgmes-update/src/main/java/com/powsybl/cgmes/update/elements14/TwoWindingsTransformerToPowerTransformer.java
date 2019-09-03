@@ -1,16 +1,13 @@
 package com.powsybl.cgmes.update.elements14;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes14;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -23,162 +20,127 @@ import com.powsybl.triplestore.api.PropertyBags;
  * have distinct ID (Subject) and contain reference to the parent
  * PowerTransformer element.
  */
-public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes14 implements ConversionMapper {
+public class TwoWindingsTransformerToPowerTransformer implements ConversionMapper {
 
     public TwoWindingsTransformerToPowerTransformer(IidmChange change, CgmesModel cgmes) {
-        super(change, cgmes);
+        this.change = change;
+        this.cgmes = cgmes;
+        this.currId = change.getIdentifiableId();
+        this.idEnd1 = (getEndsId().get("idEnd1") != null) ? getEndsId().get("idEnd1")
+            : currId.concat("_OR");
+        this.idEnd2 = (getEndsId().get("idEnd2") != null) ? getEndsId().get("idEnd2")
+            : currId.concat("_CL");
+        this.idRTCH = getTapChangerId("RatioTapChanger");
+        this.idPHTC = getTapChangerId("PhaseTapChanger");
     }
 
     @Override
-    public Map<String, Object> mapIidmToCgmesPredicates() {
-        return Collections.unmodifiableMap(Stream.of(
-            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
-            entry("b", new CgmesPredicateDetails("cim:TransformerWinding.b", "_EQ", false, idEnd1)),
-            entry("r", new CgmesPredicateDetails("cim:TransformerWinding.r", "_EQ", false, idEnd1)),
-            entry("x", new CgmesPredicateDetails("cim:TransformerWinding.x", "_EQ", false, idEnd1)),
-            entry("g", new CgmesPredicateDetails("cim:TransformerWinding.g", "_EQ", false, idEnd1)),
-            entry("ratedU1", new CgmesPredicateDetails("cim:TransformerWinding.ratedU", "_EQ", false, idEnd1)),
-            entry("ratedU2", new CgmesPredicateDetails("cim:TransformerWinding.ratedU", "_EQ", false, idEnd2)),
-            entry("ratioTapChanger.tapPosition",
-                new CgmesPredicateDetails("cim:TapChanger.neutralStep", "_EQ", false, idRTCH)),
-            entry("ratioTapChanger.lowTapPosition",
-                new CgmesPredicateDetails("cim:TapChanger.lowStep", "_EQ", false, idRTCH)),
-            entry("phaseTapChanger.tapPosition",
-                new CgmesPredicateDetails("cim:TapChanger.neutralStep", "_EQ", false, idPHTC)),
-            entry("phaseTapChanger.lowTapPosition",
-                new CgmesPredicateDetails("cim:TapChanger.lowStep", "_EQ", false, idPHTC)))
-            .collect(entriesToMap()));
-    }
+    public Map<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
 
-    @Override
-    public Map<CgmesPredicateDetails, String> getAllCgmesDetailsOnCreate() {
-
-        Map<CgmesPredicateDetails, String> allCgmesDetails = new HashMap<CgmesPredicateDetails, String>();
-
+        final Map<String, CgmesPredicateDetails> map = new HashMap<>();
         TwoWindingsTransformer newTwoWindingsTransformer = (TwoWindingsTransformer) change.getIdentifiable();
-
         String ptId = newTwoWindingsTransformer.getId();
 
-        CgmesPredicateDetails rdfType = new CgmesPredicateDetails("rdf:type", "_EQ", false);
-        allCgmesDetails.put(rdfType, "cim:PowerTransformer");
+        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_TP", false, "cim:PowerTransformer"));
 
         String name = newTwoWindingsTransformer.getName();
-        allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
-            name);
+        map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, name));
 
         String substationId = newTwoWindingsTransformer.getSubstation().getId();
-        CgmesPredicateDetails equipmentContainer = new CgmesPredicateDetails(
-            "cim:Equipment.MemberOf_EquipmentContainer", "_EQ",
-            true);
-        allCgmesDetails.put(equipmentContainer, substationId);
+        map.put("equipmentContainer", new CgmesPredicateDetails(
+            "cim:Equipment.MemberOf_EquipmentContainer", "_EQ", true, substationId));
 
         /**
          * PowerTransformerEnd1
          */
-        CgmesPredicateDetails rdfTypeEnd1 = new CgmesPredicateDetails("rdf:type", "_EQ", false, idEnd1);
-        allCgmesDetails.put(rdfTypeEnd1, "cim:TransformerWinding");
+        map.put("rdfTypeEnd1", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:TransformerWinding", idEnd1));
 
-        CgmesPredicateDetails powerTransformerEnd1 = new CgmesPredicateDetails(
-            "cim:TransformerWinding.MemberOf_PowerTransformer",
-            "_EQ", true, idEnd1);
-        allCgmesDetails.put(powerTransformerEnd1, ptId);
+        map.put("powerTransformerEnd1", new CgmesPredicateDetails(
+            "cim:TransformerWinding.MemberOf_PowerTransformer", "_EQ", true, ptId, idEnd1));
 
-        CgmesPredicateDetails end1Type = new CgmesPredicateDetails(
-            "cim:TransformerWinding.windingType",
-            "_EQ", false, idEnd1);
-        allCgmesDetails.put(end1Type, "cim:WindingType.primary");
+        map.put("end1Type", new CgmesPredicateDetails(
+            "cim:TransformerWinding.windingType", "_EQ", false, "cim:WindingType.primary", idEnd1));
 
         double b = newTwoWindingsTransformer.getB();
         if (!String.valueOf(b).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("b"),
-                String.valueOf(b));
+            map.put("b",
+                new CgmesPredicateDetails("cim:TransformerWinding.b", "_EQ", false, String.valueOf(b), idEnd1));
         }
 
         double r = newTwoWindingsTransformer.getR();
         if (!String.valueOf(r).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("r"),
-                String.valueOf(r));
+            map.put("r",
+                new CgmesPredicateDetails("cim:TransformerWinding.r", "_EQ", false, String.valueOf(r), idEnd1));
         }
 
         double x = newTwoWindingsTransformer.getX();
         if (!String.valueOf(x).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("x"),
-                String.valueOf(x));
+            map.put("x",
+                new CgmesPredicateDetails("cim:TransformerWinding.x", "_EQ", false, String.valueOf(x), idEnd1));
         }
 
         double g = newTwoWindingsTransformer.getG();
         if (!String.valueOf(g).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("g"),
-                String.valueOf(g));
+            map.put("g",
+                new CgmesPredicateDetails("cim:TransformerWinding.g", "_EQ", false, String.valueOf(g), idEnd1));
         }
 
         double ratedU1 = newTwoWindingsTransformer.getRatedU1();
         if (!String.valueOf(ratedU1).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("ratedU1"),
-                String.valueOf(ratedU1));
+            map.put("ratedU1", new CgmesPredicateDetails("cim:TransformerWinding.ratedU", "_EQ", false,
+                String.valueOf(ratedU1), idEnd1));
         }
 
         /**
          * PowerTransformerEnd2
          */
+        map.put("rdfTypeEnd2", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:TransformerWinding", idEnd2));
 
-        CgmesPredicateDetails rdfTypeEnd2 = new CgmesPredicateDetails("rdf:type", "_EQ", false, idEnd2);
-        allCgmesDetails.put(rdfTypeEnd2, "cim:TransformerWinding");
+        map.put("powerTransformerEnd2", new CgmesPredicateDetails(
+            "cim:TransformerWinding.MemberOf_PowerTransformer", "_EQ", true, ptId, idEnd2));
 
-        CgmesPredicateDetails powerTransformerEnd2 = new CgmesPredicateDetails(
-            "cim:TransformerWinding.MemberOf_PowerTransformer",
-            "_EQ", true, idEnd2);
-        allCgmesDetails.put(powerTransformerEnd2, ptId);
+        map.put("end2Type", new CgmesPredicateDetails(
+            "cim:TransformerWinding.windingType", "_EQ", false, "cim:WindingType.secondary", idEnd2));
 
-        CgmesPredicateDetails end2Type = new CgmesPredicateDetails(
-            "cim:TransformerWinding.windingType",
-            "_EQ", false, idEnd2);
-        allCgmesDetails.put(end2Type, "cim:WindingType.secondary");
+        map.put("bEnd2", new CgmesPredicateDetails(
+            "cim:TransformerWinding.b", "_EQ", false, String.valueOf(0.0), idEnd2));
 
-        CgmesPredicateDetails bEnd2 = new CgmesPredicateDetails("cim:TransformerWinding.b", "_EQ", false, idEnd2);
-        allCgmesDetails.put(bEnd2, String.valueOf(0.0));
+        map.put("rEnd2", new CgmesPredicateDetails(
+            "cim:TransformerWinding.r", "_EQ", false, String.valueOf(0.0), idEnd2));
 
-        CgmesPredicateDetails rEnd2 = new CgmesPredicateDetails("cim:TransformerWinding.r", "_EQ", false, idEnd2);
-        allCgmesDetails.put(rEnd2, String.valueOf(0.0));
+        map.put("xEnd2", new CgmesPredicateDetails(
+            "cim:TransformerWinding.x", "_EQ", false, String.valueOf(0.0), idEnd2));
 
-        CgmesPredicateDetails xEnd2 = new CgmesPredicateDetails("cim:TransformerWinding.x", "_EQ", false, idEnd2);
-        allCgmesDetails.put(xEnd2, String.valueOf(0.0));
-
-        CgmesPredicateDetails gEnd2 = new CgmesPredicateDetails("cim:TransformerWinding.g", "_EQ", false, idEnd2);
-        allCgmesDetails.put(gEnd2, String.valueOf(0.0));
+        map.put("gEnd2", new CgmesPredicateDetails(
+            "cim:TransformerWinding.g", "_EQ", false, String.valueOf(0.0), idEnd2));
 
         double ratedU2 = newTwoWindingsTransformer.getRatedU2();
         if (!String.valueOf(ratedU1).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("ratedU2"),
-                String.valueOf(ratedU2));
+            map.put("ratedU2", new CgmesPredicateDetails("cim:TransformerWinding.ratedU", "_EQ", false,
+                String.valueOf(ratedU2), idEnd2));
         }
-
         /**
          * PhaseTapChanger
          */
         PhaseTapChanger newPhaseTapChanger = newTwoWindingsTransformer.getPhaseTapChanger();
 
         if (newPhaseTapChanger != null) {
-            CgmesPredicateDetails rdfTypePHTC = new CgmesPredicateDetails("rdf:type", "_EQ", false, idPHTC);
-            allCgmesDetails.put(rdfTypePHTC, "cim:PhaseTapChangerTabular");
+            map.put("rdfTypePHTC", new CgmesPredicateDetails(
+                "rdf:type", "_EQ", false, "cim:PhaseTapChangerTabular", idPHTC));
 
-            CgmesPredicateDetails namePHTC = new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false,
-                idPHTC);
-            allCgmesDetails.put(namePHTC, name);
+            map.put("namePHTC", new CgmesPredicateDetails(
+                "cim:IdentifiedObject.name", "_EQ", false, name.concat("_PHTC"), idPHTC));
 
-            CgmesPredicateDetails TransformerWindingPHTC = new CgmesPredicateDetails(
-                "cim:PhaseTapChanger.TransformerWinding",
-                "_EQ", true, idPHTC);
-            allCgmesDetails.put(TransformerWindingPHTC, idEnd1);
+            map.put("TransformerWindingPHTC", new CgmesPredicateDetails(
+                "cim:PhaseTapChanger.TransformerWinding", "_EQ", true, idEnd1, idPHTC));
 
             int lowTapPositionPHTC = newPhaseTapChanger.getLowTapPosition();
-            allCgmesDetails.put(
-                (CgmesPredicateDetails) mapIidmToCgmesPredicates().get("phaseTapChanger.lowTapPosition"),
-                String.valueOf(lowTapPositionPHTC));
+            map.put("phaseTapChanger.lowTapPosition", new CgmesPredicateDetails(
+                "cim:TapChanger.lowStep", "_EQ", false, String.valueOf(lowTapPositionPHTC), idPHTC));
 
             int tapPositionPHTC = newPhaseTapChanger.getTapPosition();
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("phaseTapChanger.tapPosition"),
-                String.valueOf(tapPositionPHTC + 1));
+            map.put("phaseTapChanger.tapPosition", new CgmesPredicateDetails(
+                "cim:TapChanger.neutralStep", "_EQ", false, String.valueOf(tapPositionPHTC + 1), idPHTC));
         }
         /**
          * RatioTapChanger
@@ -186,28 +148,25 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes14 impl
         RatioTapChanger newRatioTapChanger = newTwoWindingsTransformer.getRatioTapChanger();
 
         if (newRatioTapChanger != null) {
-            CgmesPredicateDetails rdfTypeRTCH = new CgmesPredicateDetails("rdf:type", "_EQ", false, idRTCH);
-            allCgmesDetails.put(rdfTypeRTCH, "cim:RatioTapChanger");
+            map.put("rdfTypeRTCH", new CgmesPredicateDetails(
+                "rdf:type", "_EQ", false, "cim:RatioTapChanger", idRTCH));
 
-            CgmesPredicateDetails nameRTCH = new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false,
-                idRTCH);
-            allCgmesDetails.put(nameRTCH, name);
+            map.put("nameRTCH", new CgmesPredicateDetails(
+                "cim:IdentifiedObject.name", "_EQ", false, name.concat("_RTTC"), idRTCH));
 
-            CgmesPredicateDetails TransformerWindingRTCH = new CgmesPredicateDetails(
-                "cim:RatioTapChanger.TransformerWinding",
-                "_EQ", true, idRTCH);
-            allCgmesDetails.put(TransformerWindingRTCH, idEnd1);
+            map.put("TransformerWindingRTCH", new CgmesPredicateDetails(
+                "cim:RatioTapChanger.TransformerWinding", "_EQ", true, idEnd1, idRTCH));
 
             int lowTapPositionRTCH = newRatioTapChanger.getLowTapPosition();
-            allCgmesDetails.put(
-                (CgmesPredicateDetails) mapIidmToCgmesPredicates().get("ratioTapChanger.lowTapPosition"),
-                String.valueOf(lowTapPositionRTCH));
+            map.put("ratioTapChanger.lowTapPosition", new CgmesPredicateDetails(
+                "cim:TapChanger.lowStep", "_EQ", false, String.valueOf(lowTapPositionRTCH), idRTCH));
 
             int tapPositionRTCH = newRatioTapChanger.getTapPosition();
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("ratioTapChanger.tapPosition"),
-                String.valueOf(tapPositionRTCH + 1));
+            map.put("ratioTapChanger.tapPosition", new CgmesPredicateDetails(
+                "cim:TapChanger.neutralStep", "_EQ", false, String.valueOf(tapPositionRTCH + 1), idRTCH));
         }
-        return allCgmesDetails;
+
+        return map;
     }
 
     /**
@@ -242,27 +201,27 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes14 impl
      * Check if TapChanger elements already exist in grid, if yes - returns the id.
      *
      */
-    private String getTapChangerId(String type) {
-        PropertyBags tapChangers = (type.equals("RatioTapChanger")) ? cgmes.ratioTapChangers()
+    private String getTapChangerId(String tapChangerType) {
+        PropertyBags tapChangers = (tapChangerType.equals("RatioTapChanger")) ? cgmes.ratioTapChangers()
             : cgmes.phaseTapChangers();
         Iterator i = tapChangers.iterator();
 
         while (i.hasNext()) {
             PropertyBag pb = (PropertyBag) i.next();
             if (pb.getId("TransformerWinding").equals(idEnd1)) {
-                return pb.getId(type);
+                return pb.getId(tapChangerType);
             } else {
                 continue;
             }
         }
-        return idEnd1.concat("_TC");
+        return (tapChangerType.equals("RatioTapChanger")) ? idEnd1.concat("_RTTC") : idEnd1.concat("_PHTC");
     }
 
-    private String currId = change.getIdentifiableId();
-    private String idEnd1 = (getEndsId().get("idEnd1") != null) ? getEndsId().get("idEnd1")
-        : currId.concat("_OR");
-    private String idEnd2 = (getEndsId().get("idEnd2") != null) ? getEndsId().get("idEnd2")
-        : currId.concat("_CL");
-    private String idRTCH = getTapChangerId("RatioTapChanger");
-    private String idPHTC = getTapChangerId("PhaseTapChanger");
+    private IidmChange change;
+    private CgmesModel cgmes;
+    private String currId;
+    private String idEnd1;
+    private String idEnd2;
+    private String idRTCH;
+    private String idPHTC;
 }

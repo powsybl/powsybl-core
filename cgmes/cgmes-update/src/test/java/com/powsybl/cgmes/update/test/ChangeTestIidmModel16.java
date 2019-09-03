@@ -67,13 +67,13 @@ public class ChangeTestIidmModel16 {
             .setBus("bus1")
             .setVoltageRegulatorOn(false)
             .setRatedS(150.0)
-            .setTargetP(0.0)
-            .setTargetQ(0.0)
+            .setTargetP(1.0)
+            .setTargetQ(2.0)
             .setMaxP(300.0)
             .setMinP(-300.0)
             .add();
-//        Terminal terminal = generator.getTerminal();
-//        generator.setRegulatingTerminal(terminal);
+////        Terminal terminal = generator.getTerminal();
+////        generator.setRegulatingTerminal(terminal);
         ShuntCompensator shuntCompensator = voltageLevel.newShuntCompensator()
             .setId("_BANK___15_SC")
             .setName("BANK   15")
@@ -161,12 +161,14 @@ public class ChangeTestIidmModel16 {
 //        /**
 //         * Test onUpdate
 //         */
-//        double p1 = 1.0;
-//        double q1 = 2.0;
-//        lccConverterStation.getTerminal().setP(p1);
-//        lccConverterStation.getTerminal().setQ(q1);
+        double p1 = 1.0;
+        double q1 = 2.0;
+        lccConverterStation.getTerminal().setP(p1);
+        lccConverterStation.getTerminal().setQ(q1);
 
         // assertTrue(changes.size() == 6);
+        bus2.setAngle(2.0).setV(3.2);
+        network.getBusBreakerView().getBus("_0471bd2a-c766-11e1-8775-005056c00008").setV(4.4).setAngle(4.44);
         network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008").setB(1.0).setG(2.0).setR(3.0)
             .setX(4.0).setRatedU1(11.1).setRatedU2(22.2);
         network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008").getRatioTapChanger()

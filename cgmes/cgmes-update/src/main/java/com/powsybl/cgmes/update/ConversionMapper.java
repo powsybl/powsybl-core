@@ -4,8 +4,6 @@ import java.util.Map;
 
 public interface ConversionMapper {
 
-    public Map<String, Object> mapIidmToCgmesPredicates();
-
-    public Map<CgmesPredicateDetails, String> getAllCgmesDetailsOnCreate();
+    public Map<String, CgmesPredicateDetails> mapIidmToCgmesPredicates();
 
 }

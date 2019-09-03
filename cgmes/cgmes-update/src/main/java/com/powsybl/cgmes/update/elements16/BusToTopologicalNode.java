@@ -1,80 +1,66 @@
 package com.powsybl.cgmes.update.elements16;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes16;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-public class BusToTopologicalNode extends IidmToCgmes16 implements ConversionMapper {
+public class BusToTopologicalNode implements ConversionMapper {
 
     public BusToTopologicalNode(IidmChange change, CgmesModel cgmes) {
-        super(change, cgmes);
+        this.change = change;
+        this.cgmes = cgmes;
+        this.currId = change.getIdentifiableId();
+        this.svVoltageId = getSvVoltageId();
     }
 
     @Override
-    public Map<String, Object> mapIidmToCgmesPredicates() {
-        return Collections.unmodifiableMap(Stream.of(
-            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_TP", false)),
-            entry("v", new CgmesPredicateDetails("cim:SvVoltage.v", "_SV", false, svVoltageId)),
-            entry("angle", new CgmesPredicateDetails("cim:SvVoltage.angle", "_SV", false, svVoltageId)))
-            .collect(entriesToMap()));
-    }
+    public Map<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
 
-    @Override
-    public Map<CgmesPredicateDetails, String> getAllCgmesDetailsOnCreate() {
-
-        Map<CgmesPredicateDetails, String> allCgmesDetails = new HashMap<CgmesPredicateDetails, String>();
+        final Map<String, CgmesPredicateDetails> map = new HashMap<>();
         Bus newBus = (Bus) change.getIdentifiable();
 
-        CgmesPredicateDetails rdfType = new CgmesPredicateDetails("rdf:type", "_TP", false);
-        allCgmesDetails.put(rdfType, "cim:TopologicalNode");
+        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_TP", false, "cim:TopologicalNode"));
 
         String name = newBus.getName();
         if (name != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
-                name);
+            map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, name));
         }
 
         String baseVoltageId = getBaseVoltageId(newBus);
-        CgmesPredicateDetails baseVoltage = new CgmesPredicateDetails(
-            "cim:TopologicalNode.BaseVoltage", "_TP", true);
         if (!baseVoltageId.equals("NaN")) {
-            allCgmesDetails.put(baseVoltage, baseVoltageId);
+            map.put("baseVoltage", new CgmesPredicateDetails(
+                "cim:TopologicalNode.BaseVoltage", "_TP", true, baseVoltageId));
         }
 
-        // TODO elena fix ConnectivityNodeContainer, might be: cim:VoltageLevel cim:Bay
-        // cim:Line
         String connectivityNodeContainerId = getVoltageId(newBus);
-        CgmesPredicateDetails connectivityNode = new CgmesPredicateDetails(
-            "cim:TopologicalNode.ConnectivityNodeContainer", "_TP", true);
         if (!connectivityNodeContainerId.equals("NaN")) {
-            allCgmesDetails.put(connectivityNode, connectivityNodeContainerId);
+            map.put("connectivityNode", new CgmesPredicateDetails(
+                "cim:TopologicalNode.ConnectivityNodeContainer", "_TP", true, connectivityNodeContainerId));
         }
         /**
          * Create SvVoltage element
          */
-        CgmesPredicateDetails rdfTypeSvVoltage = new CgmesPredicateDetails("rdf:type", "_SV", false, svVoltageId);
-        allCgmesDetails.put(rdfTypeSvVoltage, "cim:SvVoltage");
+        map.put("rdfTypeSvVoltage", new CgmesPredicateDetails("rdf:type", "_SV", false, "cim:SvVoltage", svVoltageId));
 
-        CgmesPredicateDetails topologicalNodeSvVoltage = new CgmesPredicateDetails("cim:SvVoltage.TopologicalNode",
-            "_SV", true, svVoltageId);
-        allCgmesDetails.put(topologicalNodeSvVoltage, currId);
+        map.put("topologicalNodeSvVoltage", new CgmesPredicateDetails("cim:SvVoltage.TopologicalNode",
+            "_SV", true, currId, svVoltageId));
 
-        allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("v"), "0.0");
+        double v = !String.valueOf(newBus.getV()).equals("NaN") ? newBus.getV() : 0.0;
+        map.put("v", new CgmesPredicateDetails("cim:SvVoltage.v", "_SV", false, String.valueOf(v), svVoltageId));
 
-        allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("angle"), "0.0");
+        double angle = !String.valueOf(newBus.getAngle()).equals("NaN") ? newBus.getAngle() : 0.0;
+        map.put("angle",
+            new CgmesPredicateDetails("cim:SvVoltage.angle", "_SV", false, String.valueOf(angle), svVoltageId));
 
-        return allCgmesDetails;
+        return map;
     }
 
     private String getVoltageId(Bus bus) {
@@ -112,7 +98,9 @@ public class BusToTopologicalNode extends IidmToCgmes16 implements ConversionMap
         return currId.concat("_SvVoltage");
     }
 
-    private String currId = change.getIdentifiableId();
-    private String svVoltageId = getSvVoltageId();
+    private IidmChange change;
+    private CgmesModel cgmes;
+    private String currId;
+    private String svVoltageId;
 
 }

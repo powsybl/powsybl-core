@@ -1,10 +1,8 @@
 package com.powsybl.cgmes.update;
 
-import java.util.AbstractMap;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import com.powsybl.cgmes.model.CgmesModel;
 
@@ -19,28 +17,18 @@ public abstract class AbstractIidmToCgmes {
         this.cgmes = null;
     }
 
-    protected Map<CgmesPredicateDetails, String> convert(String instanceClassOfIidmChange) throws Exception {
+    protected List<CgmesPredicateDetails> convert() throws Exception {
 
-        if (instanceClassOfIidmChange.equals("IidmChangeOnUpdate")) {
+        if (change instanceof IidmChangeOnUpdate) {
+            allCgmesDetails = new ArrayList<CgmesPredicateDetails>();
+            allCgmesDetails.add(switcher().get(change.getAttribute()));
 
-            mapIidmToCgmesPredicates = switcher().getMapIidmToCgmesPredicates();
-            String cgmesNewValue = change.getNewValueString();
-
-            CgmesPredicateDetails mapCgmesPredicateDetails = (CgmesPredicateDetails) mapIidmToCgmesPredicates
-                .get(change.getAttribute());
-
-            allCgmesDetails = new HashMap<>();
-            allCgmesDetails.put(mapCgmesPredicateDetails, cgmesNewValue);
-
-        } else if (instanceClassOfIidmChange.equals("IidmChangeOnCreate")) {
+        } else if (change instanceof IidmChangeOnCreate) {
             // for onCreate all fields are inside the Identifiable object.
-            allCgmesDetails = switcher().getAllCgmesDetails();
+            allCgmesDetails = new ArrayList<CgmesPredicateDetails>(switcher().values());
 
-        } else if (instanceClassOfIidmChange.equals("IidmChangeOnRemove")) {
+        } else if (change instanceof IidmChangeOnRemove) {
             // onRemove is pending
-            allCgmesDetails = new HashMap<>();
-            CgmesPredicateDetails mapCgmesPredicateDetails = new CgmesPredicateDetails(null, "_EQ", false);
-            allCgmesDetails.put(mapCgmesPredicateDetails, null);
 
         } else {
 
@@ -53,22 +41,12 @@ public abstract class AbstractIidmToCgmes {
         return change.getIdentifiable().getClass().getSimpleName();
     }
 
-    protected abstract TwoMaps switcher();
-
-    // http://minborgsjavapot.blogspot.com/2014/12/java-8-initializing-maps-in-smartest-way.html
-    // these helpers will be used by all elements to create maps
-    public static <String, Object> Map.Entry<String, Object> entry(String key, Object value) {
-        return new AbstractMap.SimpleEntry<>(key, value);
-    }
-
-    public static <String, Object> Collector<Map.Entry<String, Object>, ?, Map<String, Object>> entriesToMap() {
-        return Collectors.toMap(e -> e.getKey(), e -> e.getValue());
-    }
+    protected abstract Map<String, CgmesPredicateDetails> switcher();
 
     protected IidmChange change;
     protected CgmesModel cgmes;
-    protected Map<String, Object> mapIidmToCgmesPredicates;
-    protected Map<CgmesPredicateDetails, String> allCgmesDetails;
+    protected Map<String, CgmesPredicateDetails> mapIidmToCgmesPredicates;
+    protected List<CgmesPredicateDetails> allCgmesDetails;
 
     public static final String SUBSTATION_IMPL = "SubstationImpl";
     public static final String BUSBREAKER_VOLTAGELEVEL = "BusBreakerVoltageLevel";
@@ -80,23 +58,4 @@ public abstract class AbstractIidmToCgmes {
     public static final String LINE_IMPL = "LineImpl";
     public static final String SHUNTCOMPENSATOR_IMPL = "ShuntCompensatorImpl";
 
-}
-
-class TwoMaps {
-    TwoMaps(Map<String, Object> mapIidmToCgmesPredicates,
-        Map<CgmesPredicateDetails, String> allCgmesDetails) {
-        this.mapIidmToCgmesPredicates = mapIidmToCgmesPredicates;
-        this.allCgmesDetails = allCgmesDetails;
-    }
-
-    Map<String, Object> getMapIidmToCgmesPredicates() {
-        return mapIidmToCgmesPredicates;
-    }
-
-    Map<CgmesPredicateDetails, String> getAllCgmesDetails() {
-        return allCgmesDetails;
-    }
-
-    private Map<String, Object> mapIidmToCgmesPredicates;
-    private Map<CgmesPredicateDetails, String> allCgmesDetails;
 }
