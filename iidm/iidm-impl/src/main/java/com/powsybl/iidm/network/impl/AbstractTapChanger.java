@@ -67,12 +67,13 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return lowTapPosition;
     }
 
-    public void setLowTapPosition(int lowTapPosition) {
+    public C setLowTapPosition(int lowTapPosition) {
         int oldValue = this.lowTapPosition;
         this.lowTapPosition = lowTapPosition;
         parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".lowTapPosition", oldValue, lowTapPosition);
         int variantIndex = network.get().getVariantIndex();
         this.tapPosition.set(variantIndex, getTapPosition() + (this.lowTapPosition - oldValue));
+        return (C) this;
     }
 
     public int getHighTapPosition() {

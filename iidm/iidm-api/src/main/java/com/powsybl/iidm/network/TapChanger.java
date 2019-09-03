@@ -20,7 +20,7 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
     /**
      * Set the lowest tap position corresponding to the first step of the tap changer.
      */
-    void setLowTapPosition(int lowTapPosition);
+    C setLowTapPosition(int lowTapPosition);
 
     /**
      * Get the highest tap position corresponding to the last step of the tap changer.

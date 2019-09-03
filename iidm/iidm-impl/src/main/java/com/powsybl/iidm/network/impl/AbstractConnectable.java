@@ -26,10 +26,11 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         super(id, name);
     }
 
-    public void setName(String name) {
+    public I setName(String name) {
         String oldValue = this.name;
         this.name = name;
         notifyUpdate("name", oldValue, name);
+        return (I) this;
     }
 
     void addTerminal(TerminalExt terminal) {
