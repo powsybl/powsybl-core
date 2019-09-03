@@ -12,9 +12,9 @@ package com.powsybl.iidm.network.impl;
  */
 class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
 
-    private AbstractTapChanger<?, ?, ?> parent;
+    private AbstractTapChanger<?, ?, ?> stepHolder;
 
-    private int position;
+    private final int position;
 
     private double rho;
 
@@ -26,7 +26,8 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
 
     private double b;
 
-    protected TapChangerStepImpl(double rho, double r, double x, double g, double b) {
+    protected TapChangerStepImpl(int position, double rho, double r, double x, double g, double b) {
+        this.position = position;
         this.rho = rho;
         this.r = r;
         this.x = x;
@@ -34,16 +35,12 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
         this.b = b;
     }
 
-    protected void setPosition(int position) {
-        this.position = position;
-    }
-
     protected void setParent(AbstractTapChanger<?, ?, ?> parent) {
-        this.parent = parent;
+        this.stepHolder = parent;
     }
 
     protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
-        this.parent.getNetwork().getListeners().notifyUpdate(this.parent.parent.getTransformer(), () -> this.parent.getTapChangerAttribute() + ".step[" + position + "]." + attribute, oldValue, newValue);
+        stepHolder.getNetwork().getListeners().notifyUpdate(stepHolder.parent.getTransformer(), () -> stepHolder.getTapChangerAttribute() + ".step[" + position + "]." + attribute, oldValue, newValue);
     }
 
     public double getRho() {

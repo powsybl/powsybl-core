@@ -95,8 +95,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
             if (Double.isNaN(b)) {
                 throw new ValidationException(parent, "step b is not set");
             }
-            RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(rho, r, x, g, b);
-            step.setPosition(steps.size());
+            RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(steps.size(), rho, r, x, g, b);
             steps.add(step);
             return RatioTapChangerAdderImpl.this;
         }
