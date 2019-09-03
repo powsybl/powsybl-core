@@ -29,7 +29,7 @@ class TieLineImpl extends LineImpl implements TieLine {
         double b1 = Double.NaN;
         double b2 = Double.NaN;
 
-        public void setParent(TieLineImpl parent) {
+        private void setParent(TieLineImpl parent) {
             this.parent = parent;
         }
 
@@ -166,7 +166,7 @@ class TieLineImpl extends LineImpl implements TieLine {
         }
 
         private String getHalfLineAttribute() {
-            return this == parent.half1 ? "1" : "2";
+            return this == parent.half1 ? "half1" : "half2";
         }
     }
 
