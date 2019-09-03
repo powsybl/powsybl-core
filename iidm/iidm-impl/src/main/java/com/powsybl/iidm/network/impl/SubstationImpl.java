@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -156,9 +155,10 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
         if (tag == null) {
             throw new ValidationException(this, "geographical tag is null");
         }
-        Set<String> oldValue = geographicalTags.stream().map(String::new).collect(Collectors.toSet());
-        geographicalTags.add(tag);
-        getNetwork().getListeners().notifyUpdate(this, "geographicalTags", oldValue, geographicalTags);
+        Set<String> oldValue = new LinkedHashSet<>(this.geographicalTags);
+        if (geographicalTags.add(tag)) {
+            getNetwork().getListeners().notifyUpdate(this, "geographicalTags", oldValue, geographicalTags);
+        }
         return this;
     }
 
