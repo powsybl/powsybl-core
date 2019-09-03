@@ -133,7 +133,7 @@ class TieLineImpl extends LineImpl implements TieLine {
         }
     }
 
-    private String ucteXnodeCode;
+    private final String ucteXnodeCode;
 
     private final HalfLineImpl half1;
 

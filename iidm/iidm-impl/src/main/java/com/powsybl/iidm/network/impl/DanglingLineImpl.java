@@ -28,7 +28,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private double b;
 
-    private String ucteXnodeCode;
+    private final String ucteXnodeCode;
 
     private CurrentLimitsImpl limits;
 
