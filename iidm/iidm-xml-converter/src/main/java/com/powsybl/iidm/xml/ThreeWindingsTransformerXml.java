@@ -79,7 +79,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         if (twt.getLeg3().getPhaseAngleClock2() != 0) {
             XmlUtil.writeInt("phaseAngleClock32", twt.getLeg3().getPhaseAngleClock2(), context.getWriter());
         }
-        if (twt.getRatedU0() != 1.0) {
+        if (twt.getRatedU0() != twt.getLeg1().getRatedU()) {
             XmlUtil.writeDouble("ratedU0", twt.getRatedU0(), context.getWriter());
         }
         writeNodeOrBus(1, twt.getLeg1().getTerminal(), context);
@@ -157,7 +157,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         double ratedU3 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU3");
         int phaseAngleClock31 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "phaseAngleClock31", 0);
         int phaseAngleClock32 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "phaseAngleClock32", 0);
-        double ratedU0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ratedU0", 1.0);
+        double ratedU0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ratedU0", ratedU1);
         LegAdder legAdder1 = adder.newLeg1().setR(r1).setX(x1).setG(g1).setB(b1).setRatedU(ratedU1).setPhaseAngleClock1(phaseAngleClock11).setPhaseAngleClock2(phaseAngleClock12);
         LegAdder legAdder2 = adder.newLeg2().setR(r2).setX(x2).setG(g2).setB(b2).setRatedU(ratedU2).setPhaseAngleClock1(phaseAngleClock21).setPhaseAngleClock2(phaseAngleClock22);
         LegAdder legAdder3 = adder.newLeg3().setR(r3).setX(x3).setG(g3).setB(b3).setRatedU(ratedU3).setPhaseAngleClock1(phaseAngleClock31).setPhaseAngleClock2(phaseAngleClock32);

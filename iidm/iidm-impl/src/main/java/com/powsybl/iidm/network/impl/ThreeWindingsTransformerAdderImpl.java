@@ -221,7 +221,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     private TerminalExt terminal3;
 
-    private double ratedU0 = 1.0;
+    private double ratedU0 = Double.NaN;
 
     ThreeWindingsTransformerAdderImpl(SubstationImpl substation) {
         this.substation = substation;
@@ -277,6 +277,10 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         voltageLevel2.attach(terminal2, true);
         voltageLevel3.attach(terminal3, true);
 
+        // Define ratedU0 equal to ratedU1 if it has not been defined
+        if (Double.isNaN(ratedU0)) {
+            ratedU0 = leg1.getRatedU();
+        }
         ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(id, getName(), leg1, leg2, leg3,
             ratedU0);
         leg1.setTransformer(transformer);
