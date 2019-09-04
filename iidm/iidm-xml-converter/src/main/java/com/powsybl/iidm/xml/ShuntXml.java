@@ -6,12 +6,16 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
+import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
+
+import static com.powsybl.iidm.network.ShuntCompensatorModelType.NON_LINEAR;
 
 /**
  *
@@ -35,8 +39,11 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     @Override
     protected void writeRootElementAttributes(ShuntCompensator sc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("bPerSection", sc.getbPerSection(), context.getWriter());
-        context.getWriter().writeAttribute("maximumSectionCount", Integer.toString(sc.getMaximumSectionCount()));
+        if (sc.getModelType() == NON_LINEAR) {
+            throw new PowsyblException(sc.getId() + " :non linear shunt compensators are not yet supported"); // TODO: support non linear shunt in XIIDM export
+        }
+        XmlUtil.writeDouble("bPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), context.getWriter());
+        context.getWriter().writeAttribute("maximumSectionCount", Integer.toString(sc.getModel(ShuntCompensatorLinearModel.class).getMaximumSectionCount()));
         context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getCurrentSectionCount()));
         writeNodeOrBus(null, sc.getTerminal(), context);
         writePQ(null, sc.getTerminal(), context.getWriter());
@@ -52,8 +59,10 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         double bPerSection = XmlUtil.readDoubleAttribute(context.getReader(), "bPerSection");
         int maximumSectionCount = XmlUtil.readIntAttribute(context.getReader(), "maximumSectionCount");
         int currentSectionCount = XmlUtil.readIntAttribute(context.getReader(), "currentSectionCount");
-        adder.setbPerSection(bPerSection)
-                .setMaximumSectionCount(maximumSectionCount)
+        adder.newShuntCompensatorLinearModel() // TODO: support non linear shunt in XIIDM import
+                    .setbPerSection(bPerSection)
+                    .setMaximumSectionCount(maximumSectionCount)
+                .add()
                 .setCurrentSectionCount(currentSectionCount);
         readNodeOrBus(adder, context);
         ShuntCompensator sc = adder.add();
