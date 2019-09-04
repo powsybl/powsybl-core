@@ -50,4 +50,8 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      */
     double getCurrentB();
 
+    /**
+     * Get the maximum susceptance.
+     */
+    double getMaximumB();
 }

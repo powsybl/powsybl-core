@@ -87,6 +87,11 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
+    public double getMaximumB() {
+        return model.getMaximumB();
+    }
+
+    @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         currentSectionCount.ensureCapacity(currentSectionCount.size() + number);

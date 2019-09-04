@@ -1341,7 +1341,7 @@ public class AmplNetworkWriter {
                 double vb = t.getVoltageLevel().getNominalV();
                 double zb = vb * vb / AmplConstants.SB;
                 double b1 = 0;
-                double b2 = sc.getModel(ShuntCompensatorLinearModel.class).getMaximumB() * zb;
+                double b2 = sc.getMaximumB() * zb;
                 double minB = Math.min(b1, b2);
                 double maxB = Math.max(b1, b2);
                 double b = sc.getCurrentB() * zb;

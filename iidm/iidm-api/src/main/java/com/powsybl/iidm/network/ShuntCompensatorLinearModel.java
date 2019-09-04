@@ -31,9 +31,4 @@ public interface ShuntCompensatorLinearModel extends ShuntCompensatorModel {
      * @return the shunt compensator to chain method calls.
      */
     ShuntCompensatorLinearModel setMaximumSectionCount(int maximumSectionCount);
-
-    /**
-     * Get the susceptance for the maximum section count.
-     */
-    double getMaximumB();
 }

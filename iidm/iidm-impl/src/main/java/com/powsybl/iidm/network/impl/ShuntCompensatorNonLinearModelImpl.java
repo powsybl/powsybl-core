@@ -97,6 +97,11 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
     }
 
     @Override
+    public double getMaximumB() {
+        return sections.values().stream().map(SectionImpl::getB).max(Double::compare).orElseThrow(() -> new PowsyblException("a shunt compensator must have at least one section"));
+    }
+
+    @Override
     public int getMaximumSectionCount() {
         return sections.lastKey();
     }
