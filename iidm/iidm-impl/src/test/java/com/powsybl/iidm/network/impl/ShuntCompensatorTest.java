@@ -40,25 +40,27 @@ public class ShuntCompensatorTest {
                                             .setId("shunt")
                                             .setName("shuntName")
                                             .setConnectableBus("busA")
-                                            .setbPerSection(5.0)
+                                            .newShuntCompensatorLinearModel()
+                                                .setbPerSection(5.0)
+                                                .setMaximumSectionCount(10)
+                                            .add()
                                             .setCurrentSectionCount(6)
-                                            .setMaximumSectionCount(10)
                                         .add();
         assertEquals(ConnectableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
         assertEquals("shuntName", shuntCompensator.getName());
         assertEquals("shunt", shuntCompensator.getId());
-        assertEquals(5.0, shuntCompensator.getbPerSection(), 0.0);
+        assertEquals(5.0, shuntCompensator.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), 0.0);
         assertEquals(6, shuntCompensator.getCurrentSectionCount());
-        assertEquals(10, shuntCompensator.getMaximumSectionCount());
+        assertEquals(10, shuntCompensator.getModel(ShuntCompensatorLinearModel.class).getMaximumSectionCount());
 
         // setter getter
         try {
-            shuntCompensator.setbPerSection(0.0);
+            shuntCompensator.getModel(ShuntCompensatorLinearModel.class).setbPerSection(0.0);
             fail();
         } catch (ValidationException ignored) {
         }
-        shuntCompensator.setbPerSection(1.0);
-        assertEquals(1.0, shuntCompensator.getbPerSection(), 0.0);
+        shuntCompensator.getModel(ShuntCompensatorLinearModel.class).setbPerSection(1.0);
+        assertEquals(1.0, shuntCompensator.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), 0.0);
 
         try {
             shuntCompensator.setCurrentSectionCount(-1);
@@ -75,12 +77,12 @@ public class ShuntCompensatorTest {
         assertEquals(6, shuntCompensator.getCurrentSectionCount());
 
         try {
-            shuntCompensator.setMaximumSectionCount(1);
+            shuntCompensator.getModel(ShuntCompensatorLinearModel.class).setMaximumSectionCount(1);
             fail();
         } catch (ValidationException ignored) {
         }
-        shuntCompensator.setMaximumSectionCount(20);
-        assertEquals(20, shuntCompensator.getMaximumSectionCount());
+        shuntCompensator.getModel(ShuntCompensatorLinearModel.class).setMaximumSectionCount(20);
+        assertEquals(20, shuntCompensator.getModel(ShuntCompensatorLinearModel.class).getMaximumSectionCount());
 
         // remove
         int count = network.getShuntCompensatorCount();
@@ -155,9 +157,11 @@ public class ShuntCompensatorTest {
                     .setId(id)
                     .setName(name)
                     .setConnectableBus("busA")
-                    .setbPerSection(bPerSection)
+                    .newShuntCompensatorLinearModel()
+                        .setbPerSection(bPerSection)
+                        .setMaximumSectionCount(maxSectionCount)
+                    .add()
                     .setCurrentSectionCount(currentSectionCount)
-                    .setMaximumSectionCount(maxSectionCount)
                 .add();
     }
 }

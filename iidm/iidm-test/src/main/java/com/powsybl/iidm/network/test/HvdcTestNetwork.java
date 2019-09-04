@@ -152,9 +152,11 @@ public final class HvdcTestNetwork {
                 .setName("Filter 1")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .setbPerSection(1e-5)
+                .newShuntCompensatorLinearModel()
+                    .setbPerSection(1e-5)
+                    .setMaximumSectionCount(1)
+                .add()
                 .setCurrentSectionCount(1)
-                .setMaximumSectionCount(1)
                 .add();
         shunt1.getTerminal()
                 .setQ(25.0);
@@ -162,9 +164,11 @@ public final class HvdcTestNetwork {
                 .setId("C1_Filter2")
                 .setName("Filter 2")
                 .setConnectableBus("B1")
-                .setbPerSection(2e-5)
+                .newShuntCompensatorLinearModel()
+                    .setbPerSection(2e-5)
+                    .setMaximumSectionCount(1)
+                .add()
                 .setCurrentSectionCount(0)
-                .setMaximumSectionCount(1)
                 .add();
         shunt2.getTerminal()
                 .setQ(25.0);
@@ -217,9 +221,11 @@ public final class HvdcTestNetwork {
                 .setId("C2_Filter1")
                 .setName("Filter 3")
                 .setNode(4)
-                .setbPerSection(3e-5)
+                .newShuntCompensatorLinearModel()
+                    .setbPerSection(3e-5)
+                    .setMaximumSectionCount(1)
+                .add()
                 .setCurrentSectionCount(1)
-                .setMaximumSectionCount(1)
                 .add();
         shunt3.getTerminal()
                 .setQ(12.5);
@@ -227,9 +233,11 @@ public final class HvdcTestNetwork {
                 .setId("C2_Filter2")
                 .setName("Filter 4")
                 .setNode(6)
-                .setbPerSection(4e-5)
+                .newShuntCompensatorLinearModel()
+                    .setbPerSection(4e-5)
+                    .setMaximumSectionCount(1)
+                .add()
                 .setCurrentSectionCount(1)
-                .setMaximumSectionCount(1)
                 .add();
         shunt4.getTerminal()
                 .setQ(12.5);
