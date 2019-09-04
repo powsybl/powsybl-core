@@ -320,34 +320,38 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 double angle = n * Math.toRadians(
                         (configIsInvertVoltageStepIncrementOutOfPhase ? -1 : 1)
                                 * stepPhaseShiftIncrement);
+                double ratio = 1.0;
 
                 // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
                 // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
                 // V2 = V1 * rho and V2 = V1 / ratio
                 // This is why we have: rho=1/ratio and alpha=-angle
                 double alpha = -angle;
+                double rho = 1 / ratio;
 
                 // In IIDM, all PTC must be side one
                 alphas.add(side == 1 ? alpha : -alpha);
-                rhos.add(1.0);
+                rhos.add(side == 1 ? rho : 1 / rho);
             }
         } else {
             for (int step = lowStep; step <= highStep; step++) {
                 int n = step - neutralStep;
                 double dy = (n * du / 2 - du0) * Math.sin(theta);
                 double angle = 2 * Math.asin(dy);
+                double ratio = 1.0;
 
                 // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
                 // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
                 // V2 = V1 * rho and V2 = V1 / ratio
                 // This is why we have: rho=1/ratio and alpha=-angle
                 double alpha = -angle;
+                double rho = 1 / ratio;
 
                 // In IIDM, all PTC must be side one
                 alphas.add(side == 1 ? alpha : -alpha);
-                rhos.add(1.0);
+                rhos.add(side == 1 ? rho : 1 / rho);
 
-                LOG.debug("ACTUAL    n,dy,alpha,rho  {} {} {} {}", n, dy, alpha, 1.0);
+                LOG.debug("ACTUAL    n,dy,alpha,rho  {} {} {} {}", n, dy, alpha, rho);
             }
         }
     }
