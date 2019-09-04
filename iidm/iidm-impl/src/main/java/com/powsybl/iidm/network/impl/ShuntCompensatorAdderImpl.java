@@ -138,7 +138,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         if (model == null) {
             throw new ValidationException(this, "the shunt compensator model is undefined");
         }
-        model.checkCurrentSection(currentSectionCount);
+        model.checkCurrentSection(this, currentSectionCount);
         ShuntCompensatorImpl shunt
                 = new ShuntCompensatorImpl(getNetwork().getRef(),
                 id, getName(), model, currentSectionCount);
