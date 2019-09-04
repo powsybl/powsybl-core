@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
@@ -50,7 +51,7 @@ public class ImportExportPerformanceTest {
     }
 
     private void importExport(List<String> tsImpls, TestGridModel gm) throws IOException {
-        try (FileSystem fs = Jimfs.newFileSystem()) {
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             ReadOnlyDataSource ds = gm.dataSource();
 
             int size = tsImpls.size();

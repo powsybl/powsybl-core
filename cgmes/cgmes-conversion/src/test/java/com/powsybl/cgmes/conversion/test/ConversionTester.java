@@ -7,24 +7,6 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Properties;
-import java.util.function.Consumer;
-
-import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.commons.config.PlatformConfig;
-import org.mockito.Mockito;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conversion.CgmesExport;
@@ -36,18 +18,33 @@ import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.xml.XMLExporter;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
 import com.powsybl.loadflow.validation.ValidationConfig;
 import com.powsybl.loadflow.validation.ValidationType;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Properties;
+import java.util.function.Consumer;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -133,7 +130,7 @@ public class ConversionTester {
         // This is to be able to easily compare the topology computed
         // by powsybl against the topology present in the CGMES model
         iparams.put("createBusbarSectionForEveryConnectivityNode", "true");
-        try (FileSystem fs = Jimfs.newFileSystem()) {
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             PlatformConfig platformConfig = new InMemoryPlatformConfig(fs);
             CgmesImport i = new CgmesImport(platformConfig);
             ReadOnlyDataSource ds = gm.dataSource();
@@ -166,7 +163,7 @@ public class ConversionTester {
 
     private void testConversionOnlyReport(TestGridModel gm) throws IOException {
         String impl = TripleStoreFactory.defaultImplementation();
-        try (FileSystem fs = Jimfs.newFileSystem()) {
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             PlatformConfig platformConfig = new InMemoryPlatformConfig(fs);
             CgmesImport i = new CgmesImport(platformConfig);
             Properties params = new Properties();
@@ -213,7 +210,7 @@ public class ConversionTester {
         new Comparison(expected, actual, config).compare();
     }
 
-    private void validateBusBalances(Network network) throws IOException {
+    public static void validateBusBalances(Network network) throws IOException {
         // Precision required on bus balances (MVA)
         double threshold = 0.01;
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
@@ -226,11 +223,8 @@ public class ConversionTester {
         }
     }
 
-    private ValidationConfig loadFlowValidationConfig(FileSystem fs, double threshold) {
+    private static ValidationConfig loadFlowValidationConfig(FileSystem fs, double threshold) {
         InMemoryPlatformConfig pconfig = new InMemoryPlatformConfig(fs);
-        pconfig
-                .createModuleConfig("componentDefaultConfig")
-                .setStringProperty("LoadFlowFactory", LoadFlowFactoryMock.class.getCanonicalName());
         ValidationConfig config = ValidationConfig.load(pconfig);
         config.setVerbose(true);
         config.setThreshold(threshold);
@@ -240,7 +234,7 @@ public class ConversionTester {
         return config;
     }
 
-    private void computeMissingFlows(Network network, LoadFlowParameters lfparams) {
+    public static void computeMissingFlows(Network network, LoadFlowParameters lfparams) {
         LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(
                 LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,
                 LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT,
