@@ -17,7 +17,9 @@ import java.util.Objects;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,8 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
+
+import static com.powsybl.iidm.network.ShuntCompensatorModelType.NON_LINEAR;
 
 /**
  *
@@ -104,11 +108,15 @@ public final class ShuntCompensatorsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(shuntsWriter);
 
+        if (shunt.getModelType() == NON_LINEAR) {
+            throw new PowsyblException(shunt.getId() + " :non linear shunt compensators are not yet supported"); // TODO: support non linear shunt compensators
+        }
+
         double p = shunt.getTerminal().getP();
         double q = shunt.getTerminal().getQ();
         int currentSectionCount = shunt.getCurrentSectionCount();
-        int maximumSectionCount = shunt.getMaximumSectionCount();
-        double bPerSection = shunt.getbPerSection();
+        int maximumSectionCount = shunt.getModel(ShuntCompensatorLinearModel.class).getMaximumSectionCount();
+        double bPerSection = shunt.getModel(ShuntCompensatorLinearModel.class).getbPerSection();
         double nominalV = shunt.getTerminal().getVoltageLevel().getNominalV();
         double qMax = bPerSection * maximumSectionCount * nominalV * nominalV;
         Bus bus = shunt.getTerminal().getBusView().getBus();
