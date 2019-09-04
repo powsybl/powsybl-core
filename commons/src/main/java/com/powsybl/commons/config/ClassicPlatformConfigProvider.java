@@ -44,9 +44,9 @@ public class ClassicPlatformConfigProvider implements PlatformConfigProvider {
      * "powsybl.config.dirs" or "itools.config.dir".
      * If none is defined, it defaults to the single directory ${HOME}/.itools.
      */
-    public static Path[] getDefaultConfigDirs(FileSystem fileSystem) {
+    public static Path[] getDefaultConfigDirs(FileSystem fileSystem, String directories, String userHome) {
         Objects.requireNonNull(fileSystem);
-        String directories = System.getProperty("powsybl.config.dirs", System.getProperty("itools.config.dir"));
+        Objects.requireNonNull(userHome);
         Path[] configDirs = null;
         if (directories != null) {
             configDirs = Arrays.stream(directories.split(":"))
@@ -55,7 +55,7 @@ public class ClassicPlatformConfigProvider implements PlatformConfigProvider {
                     .toArray(Path[]::new);
         }
         if (configDirs == null || configDirs.length == 0) {
-            configDirs = new Path[] {fileSystem.getPath(System.getProperty("user.home"), ".itools") };
+            configDirs = new Path[] {fileSystem.getPath(userHome, ".itools")};
         }
         return configDirs;
     }
@@ -67,7 +67,7 @@ public class ClassicPlatformConfigProvider implements PlatformConfigProvider {
      * Configuration properties encountered in environment variables take precedence
      * over the values defined in config directories.
      */
-    private static ModuleConfigRepository loadModuleRepository(Path[] configDirs, String configName) {
+    static ModuleConfigRepository loadModuleRepository(Path[] configDirs, String configName) {
         List<ModuleConfigRepository> repositoriesFromPath = Arrays.stream(configDirs)
                 .map(configDir -> PlatformConfig.loadModuleRepository(configDir, configName))
                 .collect(Collectors.toList());
@@ -77,16 +77,15 @@ public class ClassicPlatformConfigProvider implements PlatformConfigProvider {
         return new StackedModuleConfigRepository(repositories);
     }
 
-    private static ModuleConfigRepository getDefaultModuleRepository(Path[] configDirs) {
-        String configName = System.getProperty("powsybl.config.name", System.getProperty("itools.config.name", "config"));
-        return loadModuleRepository(configDirs, configName);
-    }
-
     @Override
     public PlatformConfig getPlatformConfig() {
         FileSystem fileSystem = FileSystems.getDefault();
-        Path[] configDirs = getDefaultConfigDirs(fileSystem);
-        ModuleConfigRepository repository = getDefaultModuleRepository(configDirs);
+        String directories = System.getProperty("powsybl.config.dirs", System.getProperty("itools.config.dir"));
+        String configName = System.getProperty("powsybl.config.name",
+                System.getProperty("itools.config.name", "config"));
+        String userHome = System.getProperty("user.home");
+        Path[] configDirs = getDefaultConfigDirs(fileSystem, directories, userHome);
+        ModuleConfigRepository repository = loadModuleRepository(configDirs, configName);
         return new PlatformConfig(repository, configDirs[0]);
     }
 
