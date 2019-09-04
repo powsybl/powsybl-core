@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,7 @@ import com.powsybl.iidm.network.util.SV;
 
 import static com.powsybl.ampl.converter.AmplConstants.DEFAULT_VARIANT_INDEX;
 import static com.powsybl.ampl.converter.AmplConstants.VARIANT;
+import static com.powsybl.iidm.network.ShuntCompensatorModelType.NON_LINEAR;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -1310,6 +1312,9 @@ public class AmplNetworkWriter {
                      new Column("sections count"))) {
             List<String> skipped = new ArrayList<>();
             for (ShuntCompensator sc : network.getShuntCompensators()) {
+                if (sc.getModelType() == NON_LINEAR) {
+                    throw new PowsyblException(sc.getId() + " :non linear shunt compensators are not yet supported"); // TODO: support non linear shunt in AMPL export
+                }
                 Terminal t = sc.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
                 String busId = null;
@@ -1336,11 +1341,11 @@ public class AmplNetworkWriter {
                 double vb = t.getVoltageLevel().getNominalV();
                 double zb = vb * vb / AmplConstants.SB;
                 double b1 = 0;
-                double b2 = sc.getMaximumB() * zb;
+                double b2 = sc.getModel(ShuntCompensatorLinearModel.class).getMaximumB() * zb;
                 double minB = Math.min(b1, b2);
                 double maxB = Math.max(b1, b2);
                 double b = sc.getCurrentB() * zb;
-                int points = sc.getMaximumSectionCount() < 1 ? 0 : sc.getMaximumSectionCount() - 1;
+                int points = sc.getModel(ShuntCompensatorLinearModel.class).getMaximumSectionCount() < 1 ? 0 : sc.getModel(ShuntCompensatorLinearModel.class).getMaximumSectionCount() - 1;
                 formatter.writeCell(variantIndex)
                         .writeCell(num)
                         .writeCell(busNum)

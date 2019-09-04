@@ -6,6 +6,7 @@
  */
 package com.powsybl.ampl.converter;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
@@ -28,6 +29,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.powsybl.ampl.converter.AmplConstants.DEFAULT_VARIANT_INDEX;
+import static com.powsybl.iidm.network.ShuntCompensatorModelType.NON_LINEAR;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -276,8 +278,11 @@ public class AmplNetworkReader {
         if (sc == null) {
             throw new AmplException("Invalid shunt compensator id '" + id + "'");
         }
+        if (sc.getModelType() == NON_LINEAR) { // TODO: support non linear shunt compensator in AMPL updater
+            throw new PowsyblException(id + " :non linear shunt compensators are not yet supported");
+        }
 
-        sc.setCurrentSectionCount(Math.max(0, Math.min(sc.getMaximumSectionCount(), sections)));
+        sc.setCurrentSectionCount(Math.max(0, Math.min(sc.getModel(ShuntCompensatorLinearModel.class).getMaximumSectionCount(), sections)));
         Terminal t = sc.getTerminal();
         t.setQ(q);
 
