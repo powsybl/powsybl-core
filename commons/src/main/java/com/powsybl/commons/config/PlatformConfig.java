@@ -13,8 +13,6 @@ import com.powsybl.commons.io.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -67,14 +65,6 @@ public class PlatformConfig {
             defaultConfig = new ClassicPlatformConfigProvider().getPlatformConfig();
         }
         return defaultConfig;
-    }
-
-    public PlatformConfig(ModuleConfigRepository repository) {
-        this(repository, FileSystems.getDefault());
-    }
-
-    public PlatformConfig(ModuleConfigRepository repository, FileSystem fileSystem) {
-        this(() -> repository, ClassicPlatformConfigProvider.getDefaultConfigDirs(fileSystem)[0]);
     }
 
     public PlatformConfig(ModuleConfigRepository repository, Path configDir) {
