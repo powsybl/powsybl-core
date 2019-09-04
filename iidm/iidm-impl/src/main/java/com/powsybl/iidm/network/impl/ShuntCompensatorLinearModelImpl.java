@@ -56,7 +56,12 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
 
     @Override
     public void checkCurrentSection(int currentSectionCount) {
-        ValidationUtil.checkSections(shuntCompensator, currentSectionCount, maximumSectionCount);
+        checkCurrentSection(shuntCompensator, currentSectionCount);
+    }
+
+    @Override
+    public void checkCurrentSection(Validable validable, int currentSectionCount) {
+        ValidationUtil.checkSections(validable, currentSectionCount, maximumSectionCount);
     }
 
     @Override

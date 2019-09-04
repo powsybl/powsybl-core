@@ -18,5 +18,7 @@ interface ShuntCompensatorModelHolder extends ShuntCompensatorModel {
 
     void checkCurrentSection(int currentSectionCount);
 
+    void checkCurrentSection(Validable validable, int currentSectionCount);
+
     void setShuntCompensator(ShuntCompensatorImpl shuntCompensator);
 }

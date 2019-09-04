@@ -85,9 +85,14 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
 
     @Override
     public void checkCurrentSection(int currentSectionCount) {
-        ValidationUtil.checkSections(shuntCompensator, currentSectionCount, getMaximumSectionCount());
+        checkCurrentSection(shuntCompensator, currentSectionCount);
+    }
+
+    @Override
+    public void checkCurrentSection(Validable validable, int currentSectionCount) {
+        ValidationUtil.checkSections(validable, currentSectionCount, getMaximumSectionCount());
         if (!sections.containsKey(currentSectionCount)) {
-            throw new ValidationException(shuntCompensator, "the current number of section (" + currentSectionCount + ") is not associated with any susceptance");
+            throw new ValidationException(validable, "the current number of section (" + currentSectionCount + ") is not associated with any susceptance");
         }
     }
 

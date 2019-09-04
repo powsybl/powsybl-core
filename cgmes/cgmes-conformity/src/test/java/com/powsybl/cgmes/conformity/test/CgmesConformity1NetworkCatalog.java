@@ -177,8 +177,10 @@ public class CgmesConformity1NetworkCatalog {
                 .setName("BE_S2")
                 .setConnectableBus(busBrussels380.getId())
                 .setBus(busBrussels380.getId())
-                .setbPerSection(3.46e-4)
-                .setMaximumSectionCount(1)
+                .newShuntCompensatorLinearModel()
+                    .setbPerSection(3.46e-4)
+                    .setMaximumSectionCount(1)
+                .add()
                 .setCurrentSectionCount(1)
                 .add();
         shBrussels380.getTerminal().setQ(-59.058144);
@@ -265,8 +267,10 @@ public class CgmesConformity1NetworkCatalog {
                 .setName("BE_S1")
                 .setConnectableBus(busBrussels110.getId())
                 .setBus(busBrussels110.getId())
-                .setbPerSection(0.024793)
-                .setMaximumSectionCount(1)
+                .newShuntCompensatorLinearModel()
+                    .setbPerSection(0.024793)
+                    .setMaximumSectionCount(1)
+                .add()
                 .setCurrentSectionCount(1)
                 .add();
         shBrussels110.getTerminal().setQ(-330.75);
@@ -865,6 +869,39 @@ public class CgmesConformity1NetworkCatalog {
         network.getDanglingLine("_ed0c5d75-4a54-43c8-b782-b20d7431630b")
                 .setP0(-11.518775)
                 .setQ0(67.377544);
+
+        network.getShuntCompensator("_002b0a40-3957-46db-b84a-30420083558f").remove();
+
+        VoltageLevel vlBrussels380 = network.getVoltageLevel("_469df5f7-058f-4451-a998-57a48e8a56fe");
+        vlBrussels380.newShuntCompensator()
+                .setId("_002b0a40-3957-46db-b84a-30420083558f")
+                .setName("BE_S2")
+                .setConnectableBus(busBrussels380.getId())
+                .setBus(busBrussels380.getId())
+                .newShuntCompensatorNonLinearModel()
+                    .beginSection()
+                        .setSectionNumber(1)
+                        .setB(3.46E-4)
+                    .endSection()
+                    .beginSection()
+                        .setSectionNumber(2)
+                        .setB(1.73E-4)
+                    .endSection()
+                    .beginSection()
+                        .setSectionNumber(3)
+                        .setB(1.39E-4)
+                    .endSection()
+                    .beginSection()
+                        .setSectionNumber(4)
+                        .setB(6.9E-5)
+                    .endSection()
+                    .beginSection()
+                        .setSectionNumber(5)
+                        .setB(3.5E-5)
+                    .endSection()
+                .add()
+                .setCurrentSectionCount(1)
+                .add();
 
         return network;
     }

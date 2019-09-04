@@ -13,31 +13,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.MinMaxReactiveLimits;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChangerStep;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.iidm.network.ReactiveCapabilityCurve;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
-import com.powsybl.iidm.network.ReactiveLimits;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.TapChanger;
-import com.powsybl.iidm.network.TapChangerStep;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
+
+import static com.powsybl.iidm.network.ShuntCompensatorModelType.LINEAR;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -186,15 +166,41 @@ public class Comparison {
         equivalent("VoltageLevel",
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
-        compare("maximumB",
-                expected.getMaximumB(),
-                actual.getMaximumB());
+        compare("modelType",
+                expected.getModelType(),
+                actual.getModelType());
+        compare("currentSectionCount",
+                expected.getCurrentSectionCount(),
+                actual.getCurrentSectionCount());
+        if (expected.getModelType() == LINEAR) {
+            compareShuntLinearModels(expected.getModel(ShuntCompensatorLinearModel.class), actual.getModel(ShuntCompensatorLinearModel.class));
+        } else {
+            compareShuntNonLinearModels(expected.getModel(ShuntCompensatorNonLinearModel.class), actual.getModel(ShuntCompensatorNonLinearModel.class));
+        }
+    }
+
+    private void compareShuntLinearModels(ShuntCompensatorLinearModel expected, ShuntCompensatorLinearModel actual) {
         compare("maximumSectionCount",
                 expected.getMaximumSectionCount(),
                 actual.getMaximumSectionCount());
         compare("bPerSection",
                 expected.getbPerSection(),
                 actual.getbPerSection());
+    }
+
+    private void compareShuntNonLinearModels(ShuntCompensatorNonLinearModel expected, ShuntCompensatorNonLinearModel actual) {
+        compare("number of sections",
+                expected.getSections().size(),
+                actual.getSections().size());
+        for (Map.Entry<Integer, ShuntCompensatorNonLinearModel.Section> s : actual.getSections().entrySet()) {
+            double exp = expected.getB(s.getKey());
+            if (Double.isNaN(exp)) {
+                diff.unexpected("section " + s.getKey() + " with b = " + s.getValue());
+            }
+            compare("b",
+                    exp,
+                    s.getValue().getB());
+        }
     }
 
     private void compareStaticVarCompensators(
