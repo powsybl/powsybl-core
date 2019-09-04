@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Optional;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -25,6 +27,7 @@ public class LoadFlowActionSimulatorTest {
     @Test
     public void test() {
         LoadFlowActionSimulatorConfig loadFlowActionSimulatorConfig = Mockito.mock(LoadFlowActionSimulatorConfig.class);
+        Mockito.when(loadFlowActionSimulatorConfig.getLoadFlowName()).thenReturn(Optional.empty());
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         Network network = Mockito.mock(Network.class);
         TableFormatterConfig formatterConfig = Mockito.mock(TableFormatterConfig.class);

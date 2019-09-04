@@ -6,6 +6,8 @@
  */
 package com.powsybl.commons.config;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.FileUtil;
 import org.slf4j.Logger;
@@ -30,7 +32,7 @@ public class PlatformConfig {
 
     protected final Path configDir;
 
-    protected final ModuleConfigRepository repository;
+    protected final Supplier<ModuleConfigRepository> repositorySupplier;
 
     /**
      * @deprecated Directly pass <code>PlatformConfig</code> instance to the code you want to test.
@@ -122,8 +124,7 @@ public class PlatformConfig {
             Path[] configDirs = getDefaultConfigDirs(fileSystem);
             String configName = System.getProperty("powsybl.config.name", System.getProperty("itools.config.name", "config"));
 
-            ModuleConfigRepository repository = loadModuleRepository(configDirs, configName);
-            defaultConfig = new PlatformConfig(repository, configDirs[0]);
+            defaultConfig = new PlatformConfig(() -> loadModuleRepository(configDirs, configName), configDirs[0]);
         }
         return defaultConfig;
     }
@@ -133,11 +134,15 @@ public class PlatformConfig {
     }
 
     public PlatformConfig(ModuleConfigRepository repository, FileSystem fileSystem) {
-        this(repository, getDefaultConfigDirs(fileSystem)[0]);
+        this(() -> repository, getDefaultConfigDirs(fileSystem)[0]);
     }
 
-    protected PlatformConfig(ModuleConfigRepository repository, Path configDir) {
-        this.repository = Objects.requireNonNull(repository);
+    public PlatformConfig(ModuleConfigRepository repository, Path configDir) {
+        this(() -> repository, configDir);
+    }
+
+    protected PlatformConfig(Supplier<ModuleConfigRepository> repositorySupplier, Path configDir) {
+        this.repositorySupplier = Suppliers.memoize(Objects.requireNonNull(repositorySupplier));
         this.configDir = FileUtil.createDirectory(configDir);
     }
 
@@ -145,15 +150,19 @@ public class PlatformConfig {
         return configDir;
     }
 
+    protected ModuleConfigRepository getRepository() {
+        return Objects.requireNonNull(repositorySupplier.get());
+    }
+
     public boolean moduleExists(String name) {
-        return repository.moduleExists(name);
+        return getRepository().moduleExists(name);
     }
 
     public ModuleConfig getModuleConfig(String name) {
-        return repository.getModuleConfig(name).orElseThrow(() -> new PowsyblException("Module " + name + " not found"));
+        return getRepository().getModuleConfig(name).orElseThrow(() -> new PowsyblException("Module " + name + " not found"));
     }
 
     public Optional<ModuleConfig> getOptionalModuleConfig(String name) {
-        return repository.getModuleConfig(name);
+        return getRepository().getModuleConfig(name);
     }
 }

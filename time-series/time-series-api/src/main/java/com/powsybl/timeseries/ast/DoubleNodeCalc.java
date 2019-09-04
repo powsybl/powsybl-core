@@ -12,6 +12,8 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -35,8 +37,13 @@ public class DoubleNodeCalc implements LiteralNodeCalc {
     }
 
     @Override
-    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg) {
+    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, List<R> children) {
         return visitor.visit(this, arg);
+    }
+
+    @Override
+    public <R, A> List<NodeCalc> acceptIterate(NodeCalcVisitor<R, A> visitor, A arg) {
+        return Collections.emptyList();
     }
 
     public double getValue() {
