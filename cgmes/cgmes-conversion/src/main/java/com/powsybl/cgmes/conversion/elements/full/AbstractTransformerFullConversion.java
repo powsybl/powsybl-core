@@ -729,7 +729,7 @@ public abstract class AbstractTransformerFullConversion
         boolean isLtcFlag = rtc.isLtcFlag();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
-        rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition((int) position);
+        rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position);
 
         rtc.getSteps().forEach(step -> {
             double ratio0 = step.getRatio();
@@ -773,7 +773,7 @@ public abstract class AbstractTransformerFullConversion
         // TODO record LtcFlag
         int lowStep = ptc.getLowTapPosition();
         int position = ptc.getTapPosition();
-        ptca.setLowTapPosition(lowStep).setTapPosition((int) position);
+        ptca.setLowTapPosition(lowStep).setTapPosition(position);
 
         ptc.getSteps().forEach(step -> {
             double ratio0 = step.getRatio();
