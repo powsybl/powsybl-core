@@ -5,7 +5,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.iidm.network;
-
 /**
  * A shunt compensator.
  *
@@ -16,18 +15,9 @@ package com.powsybl.iidm.network;
  */
 public interface ShuntCompensator extends Injection<ShuntCompensator> {
 
-    /**
-     * Get the maximum section count.
-     */
-    int getMaximumSectionCount();
+    ShuntCompensatorModelType getModelType();
 
-    /**
-     * Set the maximum number of section.
-     *
-     * @param maximumSectionCount the maximum number of section
-     * @return the shunt compensator to chain method calls.
-     */
-    ShuntCompensator setMaximumSectionCount(int maximumSectionCount);
+    <M extends ShuntCompensatorModel> M getModel(Class<M> type);
 
     /**
      * Get the current section count.
@@ -51,24 +41,6 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * @return the shunt compensator to chain method calls.
      */
     ShuntCompensator setCurrentSectionCount(int currentSectionCount);
-
-    /**
-     * Get the susceptance per section in S.
-     */
-    double getbPerSection();
-
-    /**
-     * Set the susceptance per section in S.
-     *
-     * @param bPerSection the susceptance per section
-     * @return the shunt compensator to chain method calls.
-     */
-    ShuntCompensator setbPerSection(double bPerSection);
-
-    /**
-     * Get the susceptance for the maximum section count.
-     */
-    double getMaximumB();
 
     /**
      * Get the susceptance for the current section counts.

@@ -6,8 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TIntArrayList;
 
@@ -19,11 +18,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     private final Ref<? extends VariantManagerHolder> network;
 
-    /* susceptance per section */
-    private double bPerSection;
-
-    /* the maximum number of section */
-    private int maximumSectionCount;
+    private final ShuntCompensatorModelHolder model;
 
     // attributes depending on the variant
 
@@ -31,13 +26,13 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     private final TIntArrayList currentSectionCount;
 
     ShuntCompensatorImpl(Ref<? extends VariantManagerHolder> network,
-                         String id, String name, double bPerSection, int maximumSectionCount,
+                         String id, String name,
+                         ShuntCompensatorModelHolder model,
                          int currentSectionCount) {
         super(id, name);
         this.network = network;
-        this.bPerSection = bPerSection;
-        this.maximumSectionCount = maximumSectionCount;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
+        this.model = model;
         this.currentSectionCount = new TIntArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.currentSectionCount.add(currentSectionCount);
@@ -55,31 +50,20 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public double getbPerSection() {
-        return bPerSection;
+    public ShuntCompensatorModelType getModelType() {
+        return model.getType();
     }
 
     @Override
-    public ShuntCompensatorImpl setbPerSection(double bPerSection) {
-        ValidationUtil.checkbPerSection(this, bPerSection);
-        double oldValue = this.bPerSection;
-        this.bPerSection = bPerSection;
-        notifyUpdate("bPerSection", oldValue, bPerSection);
-        return this;
-    }
-
-    @Override
-    public int getMaximumSectionCount() {
-        return maximumSectionCount;
-    }
-
-    @Override
-    public ShuntCompensatorImpl setMaximumSectionCount(int maximumSectionCount) {
-        ValidationUtil.checkSections(this, getCurrentSectionCount(), maximumSectionCount);
-        int oldValue = this.maximumSectionCount;
-        this.maximumSectionCount = maximumSectionCount;
-        notifyUpdate("maximumSectionCount", oldValue, maximumSectionCount);
-        return this;
+    public <M extends ShuntCompensatorModel> M getModel(Class<M> type) {
+        if (type == null) {
+            throw new IllegalArgumentException("type is null");
+        }
+        if (type.isInstance(model)) {
+            return type.cast(model);
+        }
+        throw new ValidationException(this, "incorrect shunt compensator model type "
+                    + type.getName() + ", expected " + model.getClass());
     }
 
     @Override
@@ -89,7 +73,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public ShuntCompensatorImpl setCurrentSectionCount(int currentSectionCount) {
-        ValidationUtil.checkSections(this, currentSectionCount, maximumSectionCount);
+        model.checkCurrentSection(currentSectionCount);
         int variantIndex = network.get().getVariantIndex();
         int oldValue = this.currentSectionCount.set(variantIndex, currentSectionCount);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
@@ -99,12 +83,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public double getCurrentB() {
-        return bPerSection * getCurrentSectionCount();
-    }
-
-    @Override
-    public double getMaximumB() {
-        return bPerSection * maximumSectionCount;
+        return model.getB(currentSectionCount.get(network.get().getVariantIndex()));
     }
 
     @Override
