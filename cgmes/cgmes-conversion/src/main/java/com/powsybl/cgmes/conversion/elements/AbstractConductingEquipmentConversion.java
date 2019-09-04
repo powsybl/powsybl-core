@@ -39,7 +39,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         numTerminals = 1;
         terminals = new TerminalData[] {null, null, null};
         terminals[0] = new TerminalData(CgmesNames.TERMINAL, p, context);
-        equipmentPowerFlow = new PowerFlow(p, "p", "q");
+        steadyStatePowerFlow = new PowerFlow(p, "p", "q");
     }
 
     public AbstractConductingEquipmentConversion(
@@ -58,7 +58,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             int k0 = k - 1;
             terminals[k0] = new TerminalData(CgmesNames.TERMINAL + k, p, context);
         }
-        equipmentPowerFlow = PowerFlow.UNDEFINED;
+        steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
     public AbstractConductingEquipmentConversion(
@@ -75,7 +75,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             int k0 = k - 1;
             terminals[k0] = new TerminalData(CgmesNames.TERMINAL, ps.get(k0), context);
         }
-        equipmentPowerFlow = PowerFlow.UNDEFINED;
+        steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
     @Override
@@ -219,15 +219,15 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminals[n - 1].t.flow();
     }
 
-    PowerFlow equipmentPowerFlow() {
-        return equipmentPowerFlow;
+    PowerFlow steadyStatePowerFlow() {
+        return steadyStatePowerFlow;
     }
 
     PowerFlow powerFlow() {
         // used for state attributes (targetQ, targetP, p0, etc.) outside boundaries
         // SSH files are priority
-        if (equipmentPowerFlow().defined()) {
-            return equipmentPowerFlow();
+        if (steadyStatePowerFlow().defined()) {
+            return steadyStatePowerFlow();
         }
         if (terminalPowerFlow().defined()) {
             return terminalPowerFlow();
@@ -236,13 +236,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     PowerFlow powerFlow(int n) {
-        // used for calculated flows (p, q) or inside boundaries
-        // SV files are priority
+        // used for state attributes (targetQ, targetP, p0, etc.) outside boundaries
+        // SSH files are priority
+        if (steadyStatePowerFlow().defined()) {
+            return steadyStatePowerFlow();
+        }
         if (terminalPowerFlow(n).defined()) {
             return terminalPowerFlow(n);
-        }
-        if (equipmentPowerFlow().defined()) {
-            return equipmentPowerFlow();
         }
         return PowerFlow.UNDEFINED;
     }
@@ -410,5 +410,5 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     private final TerminalData[] terminals;
-    private final PowerFlow equipmentPowerFlow;
+    private final PowerFlow steadyStatePowerFlow;
 }

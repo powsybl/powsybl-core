@@ -102,7 +102,7 @@ public class CgmesConformity1NetworkCatalog {
                 .setName("BE-Line_7")
                 .setConnectableBus(busAnvers220.getId())
                 .setBus(busAnvers220.getId())
-                .setP0(-26.805005)
+                .setP0(-26.805006)
                 .setQ0(1.489867)
                 .setR(4.6)
                 .setX(69.0)
@@ -187,7 +187,7 @@ public class CgmesConformity1NetworkCatalog {
                 .setName("BE-Line_3")
                 .setConnectableBus(busBrussels380.getId())
                 .setBus(busBrussels380.getId())
-                .setP0(-46.816624)
+                .setP0(-46.816625)
                 .setQ0(79.193778)
                 .setR(1.05)
                 .setX(12.0)
@@ -213,8 +213,8 @@ public class CgmesConformity1NetworkCatalog {
                 .setName("BE-Line_5")
                 .setConnectableBus(busBrussels380.getId())
                 .setBus(busBrussels380.getId())
-                .setP0(-90.037004)
-                .setQ0(148.603742)
+                .setP0(-90.037005)
+                .setQ0(148.603743)
                 .setR(0.42)
                 .setX(6.3)
                 .setG(4.2e-5)
@@ -277,8 +277,7 @@ public class CgmesConformity1NetworkCatalog {
         busBrussels21.setAngle(-6.650800);
         {
             double p = -118;
-            double targetQ = 18.720301;
-            double q = -92.612077;
+            double q = -18.720301;
             Generator genBrussels21 = vlBrussels21.newGenerator()
                     .setId("_550ebe0d-f2b2-48c1-991f-cebea43a21aa")
                     .setName("Gen-1229753024")
@@ -287,7 +286,7 @@ public class CgmesConformity1NetworkCatalog {
                     .setMinP(50)
                     .setMaxP(200)
                     .setTargetP(-p)
-                    .setTargetQ(targetQ)
+                    .setTargetQ(-q)
                     .setTargetV(21.987)
                     .setVoltageRegulatorOn(true)
                     .setRatedS(300)
@@ -569,8 +568,7 @@ public class CgmesConformity1NetworkCatalog {
         }
         {
             double p = -90;
-            double targetQ = 100.256;
-            double q = 51.115627;
+            double q = -100.256;
             Generator genBrussels10 = vlBrussels10.newGenerator()
                     .setId("_3a3b27be-b18b-4385-b557-6735d733baf0")
                     .setName("Gen-1229753060")
@@ -579,7 +577,7 @@ public class CgmesConformity1NetworkCatalog {
                     .setMinP(50)
                     .setMaxP(200)
                     .setTargetP(-p)
-                    .setTargetQ(targetQ)
+                    .setTargetQ(-q)
                     .setTargetV(115.5)
                     .setVoltageRegulatorOn(true)
                     // This generator regulates one end point of a power transformer
@@ -738,21 +736,19 @@ public class CgmesConformity1NetworkCatalog {
                 .add();
 
         double p = -118.0;
-        double targetQ = 18.720301;
-        double q = -85.603401;
+        double q = -18.720301;
         Generator genBrussels21 = network
                 .getGenerator("_550ebe0d-f2b2-48c1-991f-cebea43a21aa")
                 .setTargetP(-p)
-                .setTargetQ(targetQ);
+                .setTargetQ(-q);
         genBrussels21.getTerminal().setP(p).setQ(q);
 
         p = -90.0;
-        targetQ = 100.256;
-        q = 84.484905;
+        q = -100.256;
         Generator genBrussels10 = network
                 .getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0")
                 .setTargetP(-p)
-                .setTargetQ(targetQ);
+                .setTargetQ(-q);
         genBrussels10.getTerminal().setP(p).setQ(q);
 
         // Line _df16b3dd comes from a SeriesCompensator in CGMES model
@@ -861,13 +857,13 @@ public class CgmesConformity1NetworkCatalog {
                     .endTemporaryLimit()
                 .add();
         network.getDanglingLine("_78736387-5f60-4832-b3fe-d50daf81b0a6")
-                .setP0(-16.452661)
+                .setP0(-16.452662)
                 .setQ0(64.018020);
         network.getDanglingLine("_b18cd1aa-7808-49b9-a7cf-605eaf07b006")
                 .setP0(-31.579291)
                 .setQ0(120.813763);
         network.getDanglingLine("_ed0c5d75-4a54-43c8-b782-b20d7431630b")
-                .setP0(-11.518775)
+                .setP0(-11.518776)
                 .setQ0(67.377544);
 
         return network;
