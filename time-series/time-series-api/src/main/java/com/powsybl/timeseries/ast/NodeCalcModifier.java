@@ -6,6 +6,8 @@
  */
 package com.powsybl.timeseries.ast;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -31,12 +33,12 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
-    public NodeCalc visit(BinaryOperation nodeCalc, A arg) {
-        NodeCalc newLeft = nodeCalc.getLeft().accept(this, arg);
+    public NodeCalc visit(BinaryOperation nodeCalc, A arg, NodeCalc left, NodeCalc right) {
+        NodeCalc newLeft = left;
         if (newLeft != null) {
             nodeCalc.setLeft(newLeft);
         }
-        NodeCalc newRight = nodeCalc.getRight().accept(this, arg);
+        NodeCalc newRight = right;
         if (newRight != null) {
             nodeCalc.setRight(newRight);
         }
@@ -44,8 +46,13 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
-    public NodeCalc visit(UnaryOperation nodeCalc, A arg) {
-        NodeCalc newChild = nodeCalc.getChild().accept(this, arg);
+    public Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, A arg) {
+        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
+    }
+
+    @Override
+    public NodeCalc visit(UnaryOperation nodeCalc, A arg, NodeCalc child) {
+        NodeCalc newChild = child;
         if (newChild != null) {
             nodeCalc.setChild(newChild);
         }
@@ -53,8 +60,13 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
-    public NodeCalc visit(MinNodeCalc nodeCalc, A arg) {
-        NodeCalc newChild = nodeCalc.getChild().accept(this, arg);
+    public NodeCalc iterate(UnaryOperation nodeCalc, A arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
+    public NodeCalc visit(MinNodeCalc nodeCalc, A arg, NodeCalc child) {
+        NodeCalc newChild = child;
         if (newChild != null) {
             nodeCalc.setChild(newChild);
         }
@@ -62,8 +74,13 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
-    public NodeCalc visit(MaxNodeCalc nodeCalc, A arg) {
-        NodeCalc newChild = nodeCalc.getChild().accept(this, arg);
+    public NodeCalc iterate(MinNodeCalc nodeCalc, A arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
+    public NodeCalc visit(MaxNodeCalc nodeCalc, A arg, NodeCalc child) {
+        NodeCalc newChild = child;
         if (newChild != null) {
             nodeCalc.setChild(newChild);
         }
@@ -71,12 +88,22 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
-    public NodeCalc visit(TimeNodeCalc nodeCalc, A arg) {
-        NodeCalc newChild = nodeCalc.getChild().accept(this, arg);
+    public NodeCalc iterate(MaxNodeCalc nodeCalc, A arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
+    public NodeCalc visit(TimeNodeCalc nodeCalc, A arg, NodeCalc child) {
+        NodeCalc newChild = child;
         if (newChild != null) {
             nodeCalc.setChild(newChild);
         }
         return null;
+    }
+
+    @Override
+    public NodeCalc iterate(TimeNodeCalc nodeCalc, A arg) {
+        return nodeCalc.getChild();
     }
 
     @Override

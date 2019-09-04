@@ -113,7 +113,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         int variantIndex = network.get().getVariantIndex();
         boolean oldValue = this.regulating.set(variantIndex, regulating);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulating", variantId, oldValue, tapPosition);
+        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulating", variantId, oldValue, regulating);
         return (C) this;
     }
 
@@ -140,7 +140,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".targetDeadband", variantId, oldValue, tapPosition);
+        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".targetDeadband", variantId, oldValue, targetDeadband);
         return (C) this;
     }
 
