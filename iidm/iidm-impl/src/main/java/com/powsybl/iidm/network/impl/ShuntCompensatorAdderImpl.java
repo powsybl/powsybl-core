@@ -116,12 +116,12 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     }
 
     @Override
-    public ShuntCompensatorLinearModelAdder newShuntCompensatorLinearModel() {
+    public ShuntCompensatorLinearModelAdder newLinearModel() {
         return new ShuntCompensatorLinearModelAdderImpl();
     }
 
     @Override
-    public ShuntCompensatorNonLinearModelAdder newShuntCompensatorNonLinearModel() {
+    public ShuntCompensatorNonLinearModelAdder newNonLinearModel() {
         return new ShuntCompensatorNonLinearModelAdderImpl();
     }
 

@@ -59,7 +59,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         double bPerSection = XmlUtil.readDoubleAttribute(context.getReader(), "bPerSection");
         int maximumSectionCount = XmlUtil.readIntAttribute(context.getReader(), "maximumSectionCount");
         int currentSectionCount = XmlUtil.readIntAttribute(context.getReader(), "currentSectionCount");
-        adder.newShuntCompensatorLinearModel() // TODO: support non linear shunt in XIIDM import
+        adder.newLinearModel() // TODO: support non linear shunt in XIIDM import
                     .setbPerSection(bPerSection)
                     .setMaximumSectionCount(maximumSectionCount)
                 .add()

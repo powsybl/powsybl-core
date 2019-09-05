@@ -41,12 +41,12 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
                 fixed(CgmesNames.B_PER_SECTION, "Can not be zero", bPerSection, bPerSectionFixed);
                 bPerSection = bPerSectionFixed;
             }
-            adder.newShuntCompensatorLinearModel()
+            adder.newLinearModel()
                     .setbPerSection(bPerSection)
                     .setMaximumSectionCount(maximumSections)
                     .add();
         } else if (p.getId("type").toLowerCase().equals("nonlinearshuntcompensator")) {
-            ShuntCompensatorNonLinearModelAdder modelAdder = adder.newShuntCompensatorNonLinearModel();
+            ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
             PropertyBags ss = context.cgmes().nonlinearShuntCompensatorPoints(id);
             for (PropertyBag s : ss) {
                 modelAdder.beginSection()

@@ -43,7 +43,7 @@ class NetworkExtensionTest {
         network.getVoltageLevel("bbVL").newShuntCompensator().setId("SHUNT")
                 .setBus("Bus1")
                 .setConnectableBus("Bus1")
-                .newShuntCompensatorLinearModel()
+                .newLinearModel()
                     .setbPerSection(5.0)
                     .setMaximumSectionCount(10)
                 .add()

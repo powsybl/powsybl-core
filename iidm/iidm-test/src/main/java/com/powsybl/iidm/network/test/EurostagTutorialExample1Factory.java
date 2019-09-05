@@ -393,7 +393,7 @@ public final class EurostagTutorialExample1Factory {
         vlhv3.newShuntCompensator()
                 .setId("SHUNT")
                 .setConnectableBus(nshunt.getId())
-                .newShuntCompensatorLinearModel()
+                .newLinearModel()
                     .setMaximumSectionCount(1)
                     .setbPerSection(1e-5)
                 .add()
