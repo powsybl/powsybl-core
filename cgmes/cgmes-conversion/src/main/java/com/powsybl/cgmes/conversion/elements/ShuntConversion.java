@@ -60,6 +60,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         }
 
         adder.setCurrentSectionCount(sections);
+        context.regulatingControlMapping().setRegulatingControl(iidmId(), p, adder);
         identify(adder);
         connect(adder);
         ShuntCompensator shunt = adder.add();

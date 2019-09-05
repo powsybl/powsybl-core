@@ -249,6 +249,29 @@ public class RegulatingControlMapping {
         }
     }
 
+    public void setRegulatingControl(String idEq, PropertyBag p, ShuntCompensatorAdder adder) {
+        if (p.containsKey(REGULATING_CONTROL)) {
+            RegulatingControl control = cachedRegulatingControls.get(p.getId(REGULATING_CONTROL));
+            if (control != null) {
+                if (control.mode.toLowerCase().endsWith(VOLTAGE)) {
+                    adder.setTargetV(control.targetValue)
+                            .setTargetDeadband(control.targetDeadband)
+                            .setRegulating(control.enabled);
+                    if (context.terminalMapping().find(control.cgmesTerminal) != null) {
+                        adder.setRegulatingTerminal(context.terminalMapping().find(control.cgmesTerminal));
+                        control.idsEq.put(p.getId("ShuntCompensator"), true);
+                    } else if (!context.terminalMapping().areAssociated(p.getId(TERMINAL), control.topologicalNode)) {
+                        control.idsEq.put(p.getId("ShuntCompensator"), false);
+                    }
+                } else {
+                    context.fixed(control.mode, String.format("Invalid control mode for shunt compensator %s. Regulating control is disabled", idEq));
+                }
+            } else {
+                context.missing(String.format(REGULATING_CONTROL_REF, p.getId(REGULATING_CONTROL)));
+            }
+        }
+    }
+
     public void setAllRemoteRegulatingTerminals() {
         cachedRegulatingControls.entrySet().removeIf(this::setRemoteRegulatingTerminal);
         cachedRegulatingControls.forEach((key, value) -> context.pending("Regulating terminal",
@@ -267,6 +290,8 @@ public class RegulatingControlMapping {
                         correctlySet = correctlySet && setRemoteRegulatingTerminal(idEq, control);
                     } else if (i instanceof Generator) {
                         correctlySet = correctlySet && setRemoteRegulatingTerminal(control, (Generator) i);
+                    } else if (i instanceof ShuntCompensator) {
+                        correctlySet = correctlySet && setRemoteRegulatingTerminal(control, (ShuntCompensator) i);
                     } else {
                         correctlySet = false;
                     }
@@ -332,6 +357,16 @@ public class RegulatingControlMapping {
             return false;
         }
         g.setRegulatingTerminal(regTerminal);
+        return true;
+    }
+
+    private boolean setRemoteRegulatingTerminal(RegulatingControl control, ShuntCompensator sc) {
+        Terminal regTerminal = findRemoteRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
+        if (regTerminal == null) {
+            context.missing(String.format(MISSING_IIDM_TERMINAL, control.topologicalNode));
+            return false;
+        }
+        sc.setRegulatingTerminal(regTerminal);
         return true;
     }
 }
