@@ -76,6 +76,16 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBEPtcSide2() {
+        Network network = new CgmesImport(platformConfig)
+                .importData(catalogModified.microGridBaseCaseBEPtcSide2().dataSource(), null);
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        PhaseTapChanger ptc = twt.getPhaseTapChanger();
+        assertNotNull(ptc);
+        assertSame(twt.getTerminal2(), ptc.getRegulationTerminal());
+    }
+
+    @Test
     public void microBEReactiveCapabilityCurve() {
         Network network = new CgmesImport(platformConfig)
                 .importData(catalogModified.microGridBaseCaseBEReactiveCapabilityCurve().dataSource(), null);
