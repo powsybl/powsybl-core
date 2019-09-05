@@ -36,6 +36,8 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensatorAd
 
     ShuntCompensatorAdder setTargetV(double targetV);
 
+    ShuntCompensatorAdder setTargetDeadband(double targetDeadband);
+
     ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal);
 
     ShuntCompensator add();

@@ -96,4 +96,14 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * @see VariantManager
      */
     ShuntCompensator setTargetV(double targetV);
+
+    /**
+     * Get
+     */
+    double getTargetDeadband();
+
+    /**
+     * Set the deadband (in kV) used to avoid excessive update of discrete control while regulating.
+     */
+    ShuntCompensator setTargetDeadband(double targetDeadband);
 }
