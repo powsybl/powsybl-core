@@ -102,6 +102,9 @@ public class TapChangerTest {
         Terminal terminal2 = twt.getTerminal2();
         phaseTapChanger.setRegulationTerminal(terminal2);
         assertSame(terminal2, phaseTapChanger.getRegulationTerminal());
+        int lowTapPosition = 2;
+        phaseTapChanger.setLowTapPosition(lowTapPosition);
+        assertEquals(lowTapPosition, phaseTapChanger.getLowTapPosition());
 
         try {
             phaseTapChanger.setTapPosition(5);
@@ -366,6 +369,8 @@ public class TapChangerTest {
         assertEquals(0.5, ratioTapChanger.getTargetDeadband(), 0.0);
         ratioTapChanger.setRegulationTerminal(twt.getTerminal2());
         assertSame(twt.getTerminal2(), ratioTapChanger.getRegulationTerminal());
+        ratioTapChanger.setLoadTapChangingCapabilities(true);
+        assertTrue(ratioTapChanger.hasLoadTapChangingCapabilities());
 
         try {
             ratioTapChanger.setTargetDeadband(-1);
