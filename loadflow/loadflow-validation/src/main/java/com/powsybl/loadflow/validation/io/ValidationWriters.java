@@ -15,7 +15,6 @@ import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.Set;
 
-import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.loadflow.validation.ValidationConfig;
 import com.powsybl.loadflow.validation.ValidationType;
 import com.powsybl.loadflow.validation.ValidationUtils;
@@ -30,15 +29,11 @@ public class ValidationWriters implements AutoCloseable {
     final EnumMap<ValidationType, ValidationWriter> validationWritersMap = new EnumMap<>(ValidationType.class);
 
     public ValidationWriters(String networkId, Set<ValidationType> validationTypes, Path folder, ValidationConfig config) {
-        this(networkId, validationTypes, folder, config, TableFormatterConfig.load());
-    }
-
-    public ValidationWriters(String networkId, Set<ValidationType> validationTypes, Path folder, ValidationConfig validationConfig, TableFormatterConfig formatterConfig) {
         validationTypes.forEach(validationType -> {
             try {
                 Writer writer = Files.newBufferedWriter(validationType.getOutputFile(folder), StandardCharsets.UTF_8);
                 writersMap.put(validationType, writer);
-                validationWritersMap.put(validationType, ValidationUtils.createValidationWriter(networkId, validationConfig, formatterConfig, writer, validationType));
+                validationWritersMap.put(validationType, ValidationUtils.createValidationWriter(networkId, config, writer, validationType));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

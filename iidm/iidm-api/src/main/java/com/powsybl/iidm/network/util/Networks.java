@@ -105,10 +105,6 @@ public final class Networks {
     }
 
     public static void printBalanceSummary(String title, Network network, Writer writer) throws IOException {
-        printBalanceSummary(title, network, TableFormatterConfig.load(), writer);
-    }
-
-    public static void printBalanceSummary(String title, Network network, TableFormatterConfig formatterConfig, Writer writer) throws IOException {
         Objects.requireNonNull(title);
         Objects.requireNonNull(network);
         Objects.requireNonNull(writer);
@@ -122,7 +118,7 @@ public final class Networks {
         addGenerators(network, balanceMainCC, balanceOtherCC);
         addShuntCompensators(network, balanceMainCC, balanceOtherCC);
 
-        logOtherCC(writer, title, () -> writeInTable(balanceMainCC, balanceOtherCC, formatterConfig), balanceOtherCC);
+        logOtherCC(writer, title, () -> writeInTable(balanceMainCC, balanceOtherCC), balanceOtherCC);
     }
 
     private static void addBuses(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
@@ -256,9 +252,9 @@ public final class Networks {
         }
     }
 
-    private static String writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC, TableFormatterConfig formatterConfig) {
+    private static String writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
         Writer writer = new StringWriter();
-        try (AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null, formatterConfig,
+        try (AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null,
                 new Column("")
                         .setTitleHorizontalAlignment(HorizontalAlignment.CENTER),
                 new Column("Main CC connected/disconnected")

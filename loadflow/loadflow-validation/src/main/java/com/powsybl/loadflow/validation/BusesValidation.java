@@ -15,10 +15,6 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
-import com.powsybl.commons.io.table.TableFormatterConfig;
-
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,44 +29,30 @@ public final class BusesValidation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BusesValidation.class);
 
-    private static final Supplier<TableFormatterConfig> TABLE_FORMATTER_CONFIG = Suppliers.memoize(TableFormatterConfig::load);
-
-    public static final BusesValidation INSTANCE = new BusesValidation();
-
     private BusesValidation() {
     }
 
-    public boolean checkBuses(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Path file) throws IOException {
+    public static boolean checkBuses(Network network, ValidationConfig config, Path file) throws IOException {
         Objects.requireNonNull(network);
-        Objects.requireNonNull(validationConfig);
-        Objects.requireNonNull(formatterConfig);
+        Objects.requireNonNull(config);
         Objects.requireNonNull(file);
         try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-            return checkBuses(network, validationConfig, formatterConfig, writer);
+            return checkBuses(network, config, writer);
         }
     }
 
-    public boolean checkBuses(Network network, ValidationConfig config, Path file) throws IOException {
-        return checkBuses(network, config, TABLE_FORMATTER_CONFIG.get(), file);
-    }
-
-    public boolean checkBuses(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
+    public static boolean checkBuses(Network network, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(network);
-        Objects.requireNonNull(validationConfig);
-        Objects.requireNonNull(formatterConfig);
+        Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
-        try (ValidationWriter busesWriter = ValidationUtils.createValidationWriter(network.getId(), validationConfig, formatterConfig, writer, ValidationType.BUSES)) {
-            return checkBuses(network, validationConfig, busesWriter);
+        try (ValidationWriter busesWriter = ValidationUtils.createValidationWriter(network.getId(), config, writer, ValidationType.BUSES)) {
+            return checkBuses(network, config, busesWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public boolean checkBuses(Network network, ValidationConfig config, Writer writer) {
-        return checkBuses(network, config, TABLE_FORMATTER_CONFIG.get(), writer);
-    }
-
-    public boolean checkBuses(Network network, ValidationConfig config, ValidationWriter busesWriter) {
+    public static boolean checkBuses(Network network, ValidationConfig config, ValidationWriter busesWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(busesWriter);
@@ -83,24 +65,19 @@ public final class BusesValidation {
                       .orElse(true);
     }
 
-    public boolean checkBuses(Bus bus, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
+    public static boolean checkBuses(Bus bus, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(bus);
-        Objects.requireNonNull(validationConfig);
-        Objects.requireNonNull(formatterConfig);
+        Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter bussWriter = ValidationUtils.createValidationWriter(bus.getId(), validationConfig, formatterConfig, writer, ValidationType.BUSES)) {
-            return checkBuses(bus, validationConfig, bussWriter);
+        try (ValidationWriter bussWriter = ValidationUtils.createValidationWriter(bus.getId(), config, writer, ValidationType.BUSES)) {
+            return checkBuses(bus, config, bussWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public boolean checkBuses(Bus bus, ValidationConfig config, Writer writer) {
-        return checkBuses(bus, config, TABLE_FORMATTER_CONFIG.get(), writer);
-    }
-
-    public boolean checkBuses(Bus bus, ValidationConfig config, ValidationWriter busesWriter) {
+    public static boolean checkBuses(Bus bus, ValidationConfig config, ValidationWriter busesWriter) {
         Objects.requireNonNull(bus);
         Objects.requireNonNull(config);
         Objects.requireNonNull(busesWriter);
@@ -147,31 +124,23 @@ public final class BusesValidation {
         }
     }
 
-    public boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double batP, double batQ,
+    public static boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double batP, double batQ,
                                      double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ,
                                      double lineP, double lineQ, double danglingLineP, double danglingLineQ,
-                                     double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
+                                     double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
-        Objects.requireNonNull(validationConfig);
-        Objects.requireNonNull(formatterConfig);
+        Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter busesWriter = ValidationUtils.createValidationWriter(id, validationConfig, formatterConfig, writer, ValidationType.BUSES)) {
+        try (ValidationWriter busesWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.BUSES)) {
             return checkBuses(id, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ,
-                              danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validationConfig, busesWriter);
+                              danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, config, busesWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double batP, double batQ, double shuntP, double shuntQ,
-                                     double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ, double danglingLineP, double danglingLineQ,
-                                     double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent, ValidationConfig config, Writer writer) {
-        return checkBuses(id, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ,
-                mainComponent, config, TABLE_FORMATTER_CONFIG.get(), writer);
-    }
-
-    public boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double batP, double batQ, double shuntP,
+    public static boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double batP, double batQ, double shuntP,
                                      double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
                                      double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ,
                                      boolean mainComponent, ValidationConfig config, ValidationWriter busesWriter) {
