@@ -290,15 +290,19 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             int n = step - neutralStep;
             double dx = (n * du - du0) * Math.cos(theta);
             double dy = (n * du - du0) * Math.sin(theta);
-            double alpha = Math.atan2(dy, 1 + dx);
-            double rho = Math.hypot(dy, 1 + dx);
+            double angle = Math.atan2(dy, 1 + dx);
+            double ratio = Math.hypot(dy, 1 + dx);
 
             // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
             // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
             // V2 = V1 * rho and V2 = V1 / ratio
             // This is why we have: rho=1/ratio and alpha=-angle
-            alphas.add(-alpha);
-            rhos.add(1 / rho);
+            double alpha = -angle;
+            double rho = 1 / ratio;
+
+            // In IIDM, all PTC must be side one
+            alphas.add(side == 1 ? alpha : -alpha);
+            rhos.add(side == 1 ? rho : 1 / rho);
 
             LOG.debug("ACTUAL    n,dx,dy,alpha,rho  {} {} {} {} {}", n, dx, dy, alpha, rho);
         }
@@ -313,31 +317,39 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         if (stepPhaseShiftIncrementIsSet && stepPhaseShiftIncrement != 0) {
             for (int step = lowStep; step <= highStep; step++) {
                 int n = step - neutralStep;
-                double alpha = n * Math.toRadians(
-                    (configIsInvertVoltageStepIncrementOutOfPhase ? -1 : 1)
-                        * stepPhaseShiftIncrement);
-                double rho = 1.0;
+                double angle = n * Math.toRadians(
+                        (configIsInvertVoltageStepIncrementOutOfPhase ? -1 : 1)
+                                * stepPhaseShiftIncrement);
+                double ratio = 1.0;
 
                 // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
                 // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
                 // V2 = V1 * rho and V2 = V1 / ratio
                 // This is why we have: rho=1/ratio and alpha=-angle
-                alphas.add(-alpha);
-                rhos.add(1 / rho);
+                double alpha = -angle;
+                double rho = 1 / ratio;
+
+                // In IIDM, all PTC must be side one
+                alphas.add(side == 1 ? alpha : -alpha);
+                rhos.add(side == 1 ? rho : 1 / rho);
             }
         } else {
             for (int step = lowStep; step <= highStep; step++) {
                 int n = step - neutralStep;
                 double dy = (n * du / 2 - du0) * Math.sin(theta);
-                double alpha = 2 * Math.asin(dy);
-                double rho = 1.0;
+                double angle = 2 * Math.asin(dy);
+                double ratio = 1.0;
 
                 // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
                 // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
                 // V2 = V1 * rho and V2 = V1 / ratio
                 // This is why we have: rho=1/ratio and alpha=-angle
-                alphas.add(-alpha);
-                rhos.add(1 / rho);
+                double alpha = -angle;
+                double rho = 1 / ratio;
+
+                // In IIDM, all PTC must be side one
+                alphas.add(side == 1 ? alpha : -alpha);
+                rhos.add(side == 1 ? rho : 1 / rho);
 
                 LOG.debug("ACTUAL    n,dy,alpha,rho  {} {} {} {}", n, dy, alpha, rho);
             }
