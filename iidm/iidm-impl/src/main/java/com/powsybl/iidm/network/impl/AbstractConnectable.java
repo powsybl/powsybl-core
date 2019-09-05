@@ -61,6 +61,10 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         network.getListeners().notifyRemoval(this);
     }
 
+    protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
+        getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
+    }
+
     protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
     }
