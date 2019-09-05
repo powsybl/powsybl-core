@@ -138,6 +138,9 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(twtBusView2.getBus()).thenReturn(twtBus2);
         Mockito.when(twtBus2.getLineStream()).thenAnswer(dummy -> Stream.empty());
 
+        VoltageLevel vl2 = Mockito.mock(VoltageLevel.class);
+        Mockito.when(vl2.getNominalV()).thenReturn(380.0);
+
         twtTerminal1 = Mockito.mock(Terminal.class);
         Mockito.when(twtTerminal1.isConnected()).thenReturn(true);
         Mockito.when(twtTerminal1.getP()).thenReturn(twtP1);
@@ -149,6 +152,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(twtTerminal2.getP()).thenReturn(twtP2);
         Mockito.when(twtTerminal2.getQ()).thenReturn(twtQ2);
         Mockito.when(twtTerminal2.getBusView()).thenReturn(twtBusView2);
+        Mockito.when(twtTerminal2.getVoltageLevel()).thenReturn(vl2);
 
         RatioTapChangerStep step = Mockito.mock(RatioTapChangerStep.class);
         Mockito.when(step.getR()).thenReturn(0.0);

@@ -85,6 +85,9 @@ public class FlowsValidationTest extends AbstractValidationTest {
         BusView busView2 = Mockito.mock(BusView.class);
         Mockito.when(busView2.getBus()).thenReturn(bus2);
 
+        VoltageLevel vl2 = Mockito.mock(VoltageLevel.class);
+        Mockito.when(vl2.getNominalV()).thenReturn(20.0);
+
         terminal1 = Mockito.mock(Terminal.class);
         Mockito.when(terminal1.getP()).thenReturn(p1);
         Mockito.when(terminal1.getQ()).thenReturn(q1);
@@ -94,6 +97,7 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(terminal2.getP()).thenReturn(p2);
         Mockito.when(terminal2.getQ()).thenReturn(q2);
         Mockito.when(terminal2.getBusView()).thenReturn(busView2);
+        Mockito.when(terminal2.getVoltageLevel()).thenReturn(vl2);
 
         line1 = Mockito.mock(Line.class);
         Mockito.when(line1.getId()).thenReturn("line1");

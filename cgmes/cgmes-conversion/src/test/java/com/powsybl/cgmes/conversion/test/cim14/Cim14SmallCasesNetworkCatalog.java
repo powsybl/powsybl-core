@@ -131,6 +131,8 @@ public class Cim14SmallCasesNetworkCatalog {
             double u1 = 21.0;
             double rho = u2 / u1;
             double rho2 = rho * rho;
+            double rfix = vlGrid.getNominalV() / u2;
+            double rfix2 = rfix * rfix;
             double r1 = 0.001323;
             double x1 = 0.141114;
             double g1 = 0.0;
@@ -140,9 +142,13 @@ public class Cim14SmallCasesNetworkCatalog {
             double g2 = 0.0;
             double b2 = 0.0;
             double r = r1 * rho2 + r2;
+            r *= rfix2;
             double x = x1 * rho2 + x2;
+            x *= rfix2;
             double g = g1 / rho2 + g2;
+            g /= rfix2;
             double b = b1 / rho2 + b2;
+            b /= rfix2;
             TwoWindingsTransformer tx = sGen.newTwoWindingsTransformer()
                 .setId("_GEN_____-GRID____-1_PT")
                 .setName("GEN     -GRID    -1")
