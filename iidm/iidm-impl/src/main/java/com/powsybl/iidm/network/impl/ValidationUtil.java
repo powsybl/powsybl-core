@@ -64,6 +64,20 @@ public final class ValidationUtil {
         }
     }
 
+    static void checkShuntCompensatorRegulation(Validable validable, Boolean regulating, double targetV, TerminalExt regulatingTerminal) {
+        if (regulating == null) {
+            throw new ValidationException(validable, "shunt regulating status is not set");
+        }
+        if (regulating) {
+            if (Double.isNaN(targetV) || targetV <= 0) {
+                throw createInvalidValueException(validable, targetV, "targetV", "the shunt is regulating");
+            }
+            if (regulatingTerminal == null) {
+                throw new ValidationException(validable, "a regulation terminal has to be set if the shunt is regulating");
+            }
+        }
+    }
+
     static void checkRatedS(Validable validable, double ratedS) {
         if (!Double.isNaN(ratedS) && ratedS <= 0) {
             throw new ValidationException(validable, "Invalid value of rated S " + ratedS);

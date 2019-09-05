@@ -54,4 +54,46 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * Get the maximum susceptance.
      */
     double getMaximumB();
+
+    /**
+     * Get the terminal used for regulation if it exists. Else return null.
+     */
+    Terminal getRegulatingTerminal();
+
+    /**
+     * Set the terminal used for regulation.
+     */
+    ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal);
+
+    /**
+     * Get the shunt compensator's regulating status.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    boolean isRegulating();
+
+    /**
+     * Set the shunt compensator's regulating status.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    ShuntCompensator setRegulating(boolean regulating);
+
+    /**
+     * Get the voltage target in kV if it exists. Else return NaN.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    double getTargetV();
+
+    /**
+     * Set the voltage target in kV.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    ShuntCompensator setTargetV(double targetV);
 }

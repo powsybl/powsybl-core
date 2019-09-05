@@ -32,6 +32,12 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensatorAd
 
     ShuntCompensatorAdder setCurrentSectionCount(int currentSectionCount);
 
+    ShuntCompensatorAdder setRegulating(boolean regulating);
+
+    ShuntCompensatorAdder setTargetV(double targetV);
+
+    ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal);
+
     ShuntCompensator add();
 
 }

@@ -6,8 +6,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
+import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
 /**
@@ -20,22 +22,34 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     private final ShuntCompensatorModelHolder model;
 
+    private TerminalExt regulatingTerminal;
+
     // attributes depending on the variant
 
     /* the current number of section switched on */
     private final TIntArrayList currentSectionCount;
 
+    private final TDoubleArrayList targetV;
+
+    private final TBooleanArrayList regulating;
+
     ShuntCompensatorImpl(Ref<? extends VariantManagerHolder> network,
                          String id, String name,
                          ShuntCompensatorModelHolder model,
-                         int currentSectionCount) {
+                         int currentSectionCount, boolean regulating, double targetV,
+                         TerminalExt regulatingTerminal) {
         super(id, name);
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.model = model;
+        this.regulatingTerminal = regulatingTerminal;
         this.currentSectionCount = new TIntArrayList(variantArraySize);
+        this.targetV = new TDoubleArrayList(variantArraySize);
+        this.regulating = new TBooleanArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.currentSectionCount.add(currentSectionCount);
+            this.regulating.add(regulating);
+            this.targetV.add(targetV);
         }
     }
 
@@ -92,11 +106,57 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
+    public Terminal getRegulatingTerminal() {
+        return regulatingTerminal;
+    }
+
+    @Override
+    public ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
+        ValidationUtil.checkRegulatingTerminal(this, (TerminalExt) regulatingTerminal, getNetwork());
+        this.regulatingTerminal = (TerminalExt) regulatingTerminal;
+        return this;
+    }
+
+    @Override
+    public boolean isRegulating() {
+        return regulating.get(network.get().getVariantIndex());
+    }
+
+    @Override
+    public ShuntCompensator setRegulating(boolean regulating) {
+        int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkShuntCompensatorRegulation(this, regulating, targetV.get(variantIndex), regulatingTerminal);
+        boolean oldValue = this.regulating.set(variantIndex, regulating);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("regulating", variantId, oldValue, regulating);
+        return this;
+    }
+
+    @Override
+    public double getTargetV() {
+        return targetV.get(network.get().getVariantIndex());
+    }
+
+    @Override
+    public ShuntCompensator setTargetV(double targetV) {
+        int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkShuntCompensatorRegulation(this, regulating.get(variantIndex), targetV, regulatingTerminal);
+        double oldValue = this.targetV.set(variantIndex, targetV);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("targetV", variantId, oldValue, targetV);
+        return this;
+    }
+
+    @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         currentSectionCount.ensureCapacity(currentSectionCount.size() + number);
+        regulating.ensureCapacity(regulating.size() + number);
+        targetV.ensureCapacity(targetV.size() + number);
         for (int i = 0; i < number; i++) {
             currentSectionCount.add(currentSectionCount.get(sourceIndex));
+            regulating.add(regulating.get(sourceIndex));
+            targetV.add(targetV.get(sourceIndex));
         }
     }
 
@@ -104,6 +164,8 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
         currentSectionCount.remove(currentSectionCount.size() - number, number);
+        regulating.remove(regulating.size() - number, number);
+        targetV.remove(targetV.size() - number, number);
     }
 
     @Override
@@ -117,6 +179,8 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
             currentSectionCount.set(index, currentSectionCount.get(sourceIndex));
+            regulating.set(index, regulating.get(sourceIndex));
+            targetV.set(index, targetV.get(sourceIndex));
         }
     }
 

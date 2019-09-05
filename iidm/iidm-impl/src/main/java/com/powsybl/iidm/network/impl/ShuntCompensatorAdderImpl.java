@@ -22,6 +22,12 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private int currentSectionCount = -1;
 
+    private boolean regulating = false;
+
+    private double targetV = Double.NaN;
+
+    private TerminalExt regulatingTerminal;
+
     ShuntCompensatorAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
     }
@@ -132,6 +138,24 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     }
 
     @Override
+    public ShuntCompensatorAdder setRegulating(boolean regulating) {
+        this.regulating = regulating;
+        return this;
+    }
+
+    @Override
+    public ShuntCompensatorAdder setTargetV(double targetV) {
+        this.targetV = targetV;
+        return this;
+    }
+
+    @Override
+    public ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
+        this.regulatingTerminal = (TerminalExt) regulatingTerminal;
+        return this;
+    }
+
+    @Override
     public ShuntCompensatorImpl add() {
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
@@ -139,9 +163,11 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
             throw new ValidationException(this, "the shunt compensator model is undefined");
         }
         model.checkCurrentSection(this, currentSectionCount);
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        ValidationUtil.checkShuntCompensatorRegulation(this, regulating, targetV, regulatingTerminal);
         ShuntCompensatorImpl shunt
                 = new ShuntCompensatorImpl(getNetwork().getRef(),
-                id, getName(), model, currentSectionCount);
+                id, getName(), model, currentSectionCount, regulating, targetV, regulatingTerminal);
         model.setShuntCompensator(shunt);
         shunt.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
