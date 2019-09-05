@@ -163,7 +163,7 @@ public class BranchData {
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);
         rho1 = getRho1(twt);
-        rho2 = 1f;
+        rho2 = twt.getTerminal2().getVoltageLevel().getNominalV() / twt.getRatedU2();
         u1 = bus1 != null ? bus1.getV() : Double.NaN;
         u2 = bus2 != null ? bus2.getV() : Double.NaN;
         theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
@@ -222,7 +222,7 @@ public class BranchData {
     }
 
     private double getRho1(TwoWindingsTransformer twt) {
-        double rho = twt.getRatedU2() / twt.getRatedU1();
+        double rho = twt.getTerminal2().getVoltageLevel().getNominalV() / twt.getRatedU1();
         if (twt.getRatioTapChanger() != null) {
             rho *= twt.getRatioTapChanger().getCurrentStep().getRho();
         }
