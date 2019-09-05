@@ -64,7 +64,7 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkShuntCompensatorRegulation(Validable validable, Boolean regulating, double targetV, double targetDeadband, TerminalExt regulatingTerminal) {
+    static void checkShuntCompensatorRegulation(Validable validable, Boolean regulating, double targetV, double targetDeadband) {
         if (regulating == null) {
             throw new ValidationException(validable, "shunt regulating status is not set");
         }
@@ -77,9 +77,6 @@ public final class ValidationUtil {
             }
             if (Double.isNaN(targetDeadband)) {
                 throw createInvalidValueException(validable, targetV, "targetDeadband", "the shunt is regulating");
-            }
-            if (regulatingTerminal == null) {
-                throw new ValidationException(validable, "a regulation terminal has to be set if the shunt is regulating");
             }
         }
     }

@@ -116,7 +116,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, (TerminalExt) regulatingTerminal, getNetwork());
-        this.regulatingTerminal = (TerminalExt) regulatingTerminal;
+        this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
         return this;
     }
 
@@ -128,7 +128,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public ShuntCompensator setRegulating(boolean regulating) {
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkShuntCompensatorRegulation(this, regulating, targetV.get(variantIndex), targetDeadband.get(variantIndex), regulatingTerminal);
+        ValidationUtil.checkShuntCompensatorRegulation(this, regulating, targetV.get(variantIndex), targetDeadband.get(variantIndex));
         boolean oldValue = this.regulating.set(variantIndex, regulating);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("regulating", variantId, oldValue, regulating);
@@ -143,7 +143,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public ShuntCompensator setTargetV(double targetV) {
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkShuntCompensatorRegulation(this, regulating.get(variantIndex), targetV, targetDeadband.get(variantIndex), regulatingTerminal);
+        ValidationUtil.checkShuntCompensatorRegulation(this, regulating.get(variantIndex), targetV, targetDeadband.get(variantIndex));
         double oldValue = this.targetV.set(variantIndex, targetV);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("targetV", variantId, oldValue, targetV);
@@ -158,7 +158,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public ShuntCompensator setTargetDeadband(double targetDeadband) {
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkShuntCompensatorRegulation(this, regulating.get(variantIndex), targetV.get(variantIndex), targetDeadband, regulatingTerminal);
+        ValidationUtil.checkShuntCompensatorRegulation(this, regulating.get(variantIndex), targetV.get(variantIndex), targetDeadband);
         double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("targetDeadband", variantId, oldValue, targetDeadband);

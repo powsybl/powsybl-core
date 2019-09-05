@@ -172,11 +172,11 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         }
         model.checkCurrentSection(this, currentSectionCount);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        ValidationUtil.checkShuntCompensatorRegulation(this, regulating, targetV, targetDeadband, regulatingTerminal);
+        ValidationUtil.checkShuntCompensatorRegulation(this, regulating, targetV, targetDeadband);
         ShuntCompensatorImpl shunt
                 = new ShuntCompensatorImpl(getNetwork().getRef(),
                 id, getName(), model, currentSectionCount, regulating,
-                targetV, targetDeadband, regulatingTerminal);
+                targetV, targetDeadband, regulatingTerminal != null ? regulatingTerminal : terminal);
         model.setShuntCompensator(shunt);
         shunt.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
