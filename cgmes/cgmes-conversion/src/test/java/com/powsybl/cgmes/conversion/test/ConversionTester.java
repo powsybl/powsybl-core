@@ -130,7 +130,7 @@ public class ConversionTester {
         // This is to be able to easily compare the topology computed
         // by powsybl against the topology present in the CGMES model
         iparams.put("createBusbarSectionForEveryConnectivityNode", "true");
-        try (FileSystem fs = Jimfs.newFileSystem()) {
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             PlatformConfig platformConfig = new InMemoryPlatformConfig(fs);
             CgmesImport i = new CgmesImport(platformConfig);
             ReadOnlyDataSource ds = gm.dataSource();
@@ -163,7 +163,7 @@ public class ConversionTester {
 
     private void testConversionOnlyReport(TestGridModel gm) throws IOException {
         String impl = TripleStoreFactory.defaultImplementation();
-        try (FileSystem fs = Jimfs.newFileSystem()) {
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             PlatformConfig platformConfig = new InMemoryPlatformConfig(fs);
             CgmesImport i = new CgmesImport(platformConfig);
             Properties params = new Properties();

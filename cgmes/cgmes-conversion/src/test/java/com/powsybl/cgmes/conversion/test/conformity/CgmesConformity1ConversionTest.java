@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.test.conformity;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1NetworkCatalog;
@@ -49,7 +50,7 @@ public class CgmesConformity1ConversionTest {
 
     @Before
     public void setUp() {
-        fileSystem = Jimfs.newFileSystem();
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
     }
 
