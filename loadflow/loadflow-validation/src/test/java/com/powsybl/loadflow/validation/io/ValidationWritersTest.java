@@ -6,8 +6,17 @@
  */
 package com.powsybl.loadflow.validation.io;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import com.google.common.collect.Sets;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.validation.ValidationConfig;
+import com.powsybl.loadflow.validation.ValidationOutputWriter;
+import com.powsybl.loadflow.validation.ValidationType;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -15,19 +24,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
 
-import com.powsybl.commons.io.table.TableFormatterConfig;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.google.common.collect.Sets;
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
-import com.powsybl.loadflow.validation.ValidationConfig;
-import com.powsybl.loadflow.validation.ValidationOutputWriter;
-import com.powsybl.loadflow.validation.ValidationType;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  *
@@ -37,7 +35,7 @@ public class ValidationWritersTest {
 
     private final TableFormatterConfig formatterConfig = new TableFormatterConfig();
 
-    private final ValidationConfig validationConfig = new ValidationConfig(ValidationConfig.THRESHOLD_DEFAULT, ValidationConfig.VERBOSE_DEFAULT, LoadFlowFactoryMock.class,
+    private final ValidationConfig validationConfig = new ValidationConfig(ValidationConfig.THRESHOLD_DEFAULT, ValidationConfig.VERBOSE_DEFAULT, "LoadFlowMock",
                                                                  ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, ValidationConfig.EPSILON_X_DEFAULT,
                                                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE,
                                                                  new LoadFlowParameters(), ValidationConfig.OK_MISSING_VALUES_DEFAULT,

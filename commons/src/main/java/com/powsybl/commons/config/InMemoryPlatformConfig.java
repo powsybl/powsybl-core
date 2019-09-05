@@ -19,6 +19,6 @@ public class InMemoryPlatformConfig extends PlatformConfig {
     }
 
     public MapModuleConfig createModuleConfig(String name) {
-        return ((InMemoryModuleConfigRepository) repository).createModuleConfig(name);
+        return ((InMemoryModuleConfigRepository) getRepository()).createModuleConfig(name);
     }
 }
