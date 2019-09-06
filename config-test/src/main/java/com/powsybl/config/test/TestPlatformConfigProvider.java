@@ -9,23 +9,23 @@ package com.powsybl.config.test;
 import com.google.auto.service.AutoService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-
 import com.powsybl.commons.config.ModuleConfigRepository;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigProvider;
 
-import org.reflections.Reflections;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.vfs.Vfs;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Set;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Provides a PlatformConfig reading config from the classpath only.
@@ -42,6 +42,7 @@ public class TestPlatformConfigProvider implements PlatformConfigProvider {
 
     private static final String NAME = "test";
 
+    private static final String FILELIST_PATH = "filelist.txt";
     //Using a static for the FileSystem to show that it is a singleton
     //and won't be closed until the jvm is shut down.
     private static final FileSystem JIMFS = Jimfs.newFileSystem(Configuration.unix());
@@ -57,47 +58,32 @@ public class TestPlatformConfigProvider implements PlatformConfigProvider {
     @Override
     public PlatformConfig getPlatformConfig() {
 
-        // ForManifest enriches the default static and context classloaders with
-        // additional jars from the Class-Path attribute.
-        // Needed for maven surefire in manifest-only jar mode (the default) but doesn't
-        // hurt for other cases. Not sure why it is not the default.
-        Reflections reflections = new Reflections(ClasspathHelper.forManifest(), new ResourcesScanner());
-        String thisPackagePath = TestPlatformConfigProvider.class.getPackage().getName().replace('.', '/');
-        Set<String> resources = reflections.getResources(s -> s.startsWith(thisPackagePath));
+        InputStream resourceList = TestPlatformConfigProvider.class.getResourceAsStream(FILELIST_PATH);
+        List<String> resources;
+        if (resourceList != null) {
+            try {
+                resources = IOUtils.readLines(resourceList, StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        } else {
+            resources = Collections.emptyList();
+        }
+
         Path cfgDir;
         try {
             cfgDir = Files.createDirectories(JIMFS.getPath(CONFIG_DIR).toAbsolutePath());
-            ClassLoader classLoader = TestPlatformConfigProvider.class.getClassLoader();
             for (String resource : resources) {
                 // The resources have relative paths (no leading slash) with full package path.
-                Path dest = cfgDir.resolve(resource.substring(resource.lastIndexOf('/') + 1));
+                Path dest = cfgDir.resolve(resource);
                 LOGGER.info("Copying classpath resource: {} -> {}", resource, dest);
-                Files.copy(classLoader.getResourceAsStream(resource), dest);
+                Files.copy(TestPlatformConfigProvider.class.getResourceAsStream(resource), dest);
             }
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to initialize test config", e);
         }
         ModuleConfigRepository repository = PlatformConfig.loadModuleRepository(cfgDir, CONFIG_NAME);
         return new PlatformConfig(repository, cfgDir);
-    }
-
-    // This class must be named ResourceScanner because the getSimpleName is used by
-    // reflections.getResources
-    @SuppressWarnings("squid:S2176")
-    private static class ResourcesScanner extends org.reflections.scanners.ResourcesScanner {
-
-        // To have the full path in the key to filter by directory.
-        @Override
-        public Object scan(Vfs.File file, Object classObject) {
-            getStore().put(file.getRelativePath(), file.getRelativePath());
-            return classObject;
-        }
-
-        // To fix https://github.com/ronmamo/reflections/issues/102
-        @Override
-        public boolean acceptResult(final String fqn) {
-            return false;
-        }
     }
 
 }
