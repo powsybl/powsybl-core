@@ -53,6 +53,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
             this.currentSectionCount.add(currentSectionCount);
             this.regulating.add(regulating);
             this.targetV.add(targetV);
+            this.targetDeadband.add(targetDeadband);
         }
     }
 
@@ -158,10 +159,11 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public ShuntCompensator setTargetDeadband(double targetDeadband) {
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkShuntCompensatorRegulation(this, regulating.get(variantIndex), targetV.get(variantIndex), targetDeadband);
-        double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
+        double newTargetDeadband = Double.isNaN(targetDeadband) ? 0.0 : targetDeadband;
+        ValidationUtil.checkShuntCompensatorRegulation(this, regulating.get(variantIndex), targetV.get(variantIndex), newTargetDeadband);
+        double oldValue = this.targetDeadband.set(variantIndex, newTargetDeadband);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("targetDeadband", variantId, oldValue, targetDeadband);
+        notifyUpdate("targetDeadband", variantId, oldValue, newTargetDeadband);
         return this;
     }
 

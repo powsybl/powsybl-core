@@ -56,7 +56,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     double getMaximumB();
 
     /**
-     * Get the terminal used for regulation if it exists. Else return null.
+     * Get the terminal used for regulation. By default it is the local terminal.
      */
     Terminal getRegulatingTerminal();
 
@@ -98,7 +98,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     ShuntCompensator setTargetV(double targetV);
 
     /**
-     * Get
+     * Get the deadband (in kV) used to avoid excessive update of discrete control while regulating.
      */
     double getTargetDeadband();
 

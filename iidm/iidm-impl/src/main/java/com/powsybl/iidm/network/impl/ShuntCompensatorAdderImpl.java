@@ -26,7 +26,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private double targetV = Double.NaN;
 
-    private double targetDeadband = Double.NaN;
+    private double targetDeadband = 0.0;
 
     private TerminalExt regulatingTerminal;
 
@@ -153,7 +153,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     @Override
     public ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
-        this.targetDeadband = targetDeadband;
+        this.targetDeadband = Double.isNaN(targetDeadband) ? 0.0 : targetDeadband;
         return this;
     }
 
