@@ -151,6 +151,9 @@ public class BranchData {
 
         id = twt.getId();
 
+        double rfix = twt.getTerminal2().getVoltageLevel().getNominalV() / twt.getRatedU2();
+        double rfixSquare = rfix * rfix;
+
         Bus bus1 = twt.getTerminal1().getBusView().getBus();
         Bus bus2 = twt.getTerminal2().getBusView().getBus();
         Bus connectableBus1 = twt.getTerminal1().getBusView().getConnectableBus();
@@ -163,7 +166,7 @@ public class BranchData {
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);
         rho1 = getRho1(twt);
-        rho2 = twt.getTerminal2().getVoltageLevel().getNominalV() / twt.getRatedU2();
+        rho2 = 1f;
         u1 = bus1 != null ? bus1.getV() : Double.NaN;
         u2 = bus2 != null ? bus2.getV() : Double.NaN;
         theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
@@ -171,9 +174,9 @@ public class BranchData {
         alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
         alpha2 = 0f;
         g1 = getG1(twt, specificCompatibility);
-        g2 = specificCompatibility ? twt.getG() / 2 : 0f;
+        g2 = specificCompatibility ? (twt.getG() / 2) * rfixSquare : 0f;
         b1 = getB1(twt, specificCompatibility);
-        b2 = specificCompatibility ? twt.getB() / 2 : 0f;
+        b2 = specificCompatibility ? (twt.getB() / 2) * rfixSquare : 0f;
         p1 = twt.getTerminal1().getP();
         q1 = twt.getTerminal1().getQ();
         p2 = twt.getTerminal2().getP();
@@ -198,31 +201,41 @@ public class BranchData {
     }
 
     private double getR(TwoWindingsTransformer twt) {
+        double rfix = twt.getTerminal2().getVoltageLevel().getNominalV() / twt.getRatedU2();
+        double rfixSquare = rfix * rfix;
         return getValue(twt.getR(),
                         twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getR() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getR() : 0);
+                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getR() : 0) /
+                rfixSquare;
     }
 
     private double getX(TwoWindingsTransformer twt) {
+        double rfix = twt.getTerminal2().getVoltageLevel().getNominalV() / twt.getRatedU2();
+        double rfixSquare = rfix * rfix;
         return getValue(twt.getX(),
                         twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getX() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getX() : 0);
+                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getX() : 0) /
+                rfixSquare;
     }
 
     private double getG1(TwoWindingsTransformer twt, boolean specificCompatibility) {
-        return getValue(specificCompatibility ? twt.getG() / 2 : twt.getG(),
+        double rfix = twt.getTerminal2().getVoltageLevel().getNominalV() / twt.getRatedU2();
+        double rfixSquare = rfix * rfix;
+        return rfixSquare * getValue(specificCompatibility ? twt.getG() / 2 : twt.getG(),
                         twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getG() : 0,
                         twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getG() : 0);
     }
 
     private double getB1(TwoWindingsTransformer twt, boolean specificCompatibility) {
-        return getValue(specificCompatibility ? twt.getB() / 2 : twt.getB(),
+        double rfix = twt.getTerminal2().getVoltageLevel().getNominalV() / twt.getRatedU2();
+        double rfixSquare = rfix * rfix;
+        return rfixSquare * getValue(specificCompatibility ? twt.getB() / 2 : twt.getB(),
                         twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
                         twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }
 
     private double getRho1(TwoWindingsTransformer twt) {
-        double rho = twt.getTerminal2().getVoltageLevel().getNominalV() / twt.getRatedU1();
+        double rho = twt.getRatedU2() / twt.getRatedU1();
         if (twt.getRatioTapChanger() != null) {
             rho *= twt.getRatioTapChanger().getCurrentStep().getRho();
         }
