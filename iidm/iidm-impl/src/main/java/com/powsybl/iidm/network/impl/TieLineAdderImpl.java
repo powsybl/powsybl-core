@@ -186,6 +186,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         voltageLevel1.attach(terminal1, false);
         voltageLevel2.attach(terminal2, false);
         network.getIndex().checkAndAdd(line);
+        getNetwork().getListeners().notifyCreation(line);
         return line;
     }
 

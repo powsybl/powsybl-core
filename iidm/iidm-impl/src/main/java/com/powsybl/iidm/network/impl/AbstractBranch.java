@@ -83,10 +83,14 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     public void setCurrentLimits(Branch.Side side, CurrentLimitsImpl limits) {
         switch (side) {
             case ONE:
+                CurrentLimits oldValue1 = limits1;
                 limits1 = limits;
+                notifyUpdate("currentLimits1", oldValue1, limits1);
                 break;
             case TWO:
+                CurrentLimits oldValue2 = limits2;
                 limits2 = limits;
+                notifyUpdate("currentLimits2", oldValue2, limits2);
                 break;
             default:
                 throw new AssertionError("Unexpected Branch.Side value: " + side);

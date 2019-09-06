@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.test.conformity.modified;
 
+import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
@@ -37,7 +38,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Before
     public void setUp() {
-        fileSystem = Jimfs.newFileSystem();
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
     }
 
@@ -72,6 +73,16 @@ public class CgmesConformity1ModifiedConversionTest {
         for (int k = 1; k <= 4; k++) {
             assertEquals(1.0, ptc.getStep(k).getRho(), 0);
         }
+    }
+
+    @Test
+    public void microBEPtcSide2() {
+        Network network = new CgmesImport(platformConfig)
+                .importData(catalogModified.microGridBaseCaseBEPtcSide2().dataSource(), null);
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        PhaseTapChanger ptc = twt.getPhaseTapChanger();
+        assertNotNull(ptc);
+        assertSame(twt.getTerminal2(), ptc.getRegulationTerminal());
     }
 
     @Test
