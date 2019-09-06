@@ -203,25 +203,23 @@ public class BranchData {
     private double getR(TwoWindingsTransformer twt) {
         double endVoltageRatio = twt.getTerminal2().getVoltageLevel().getNominalV() / twt.getRatedU2();
         double endVoltageRatioSquare = endVoltageRatio * endVoltageRatio;
-        return getValue(twt.getR(),
+        return getValue(twt.getR() / endVoltageRatioSquare,
                         twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getR() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getR() : 0) /
-                endVoltageRatioSquare;
+                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getR() : 0);
     }
 
     private double getX(TwoWindingsTransformer twt) {
         double endVoltageRatio = twt.getTerminal2().getVoltageLevel().getNominalV() / twt.getRatedU2();
         double endVoltageRatioSquare = endVoltageRatio * endVoltageRatio;
-        return getValue(twt.getX(),
+        return getValue(twt.getX() / endVoltageRatioSquare,
                         twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getX() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getX() : 0) /
-                endVoltageRatioSquare;
+                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getX() : 0);
     }
 
     private double getG1(TwoWindingsTransformer twt, boolean specificCompatibility) {
         double endVoltageRatio = twt.getTerminal2().getVoltageLevel().getNominalV() / twt.getRatedU2();
         double endVoltageRatioSquare = endVoltageRatio * endVoltageRatio;
-        return endVoltageRatioSquare * getValue(specificCompatibility ? twt.getG() / 2 : twt.getG(),
+        return getValue(specificCompatibility ? endVoltageRatioSquare * twt.getG() / 2 : twt.getG(),
                         twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getG() : 0,
                         twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getG() : 0);
     }
@@ -229,7 +227,7 @@ public class BranchData {
     private double getB1(TwoWindingsTransformer twt, boolean specificCompatibility) {
         double endVoltageRatio = twt.getTerminal2().getVoltageLevel().getNominalV() / twt.getRatedU2();
         double endVoltageRatioSquare = endVoltageRatio * endVoltageRatio;
-        return endVoltageRatioSquare * getValue(specificCompatibility ? twt.getB() / 2 : twt.getB(),
+        return getValue(specificCompatibility ? endVoltageRatioSquare * twt.getB() / 2 : twt.getB(),
                         twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
                         twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }
