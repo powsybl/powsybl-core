@@ -58,6 +58,7 @@
         <module>commons</module>
         <module>computation</module>
         <module>computation-local</module>
+        <module>config-test</module>
         <module>contingency</module>
         <module>distribution-core</module>
         <module>dsl</module>
@@ -140,6 +141,7 @@
         <jena.version>3.0.0</jena.version>
         <jgrapht.version>1.0.1</jgrapht.version>
         <jimfs.version>1.1</jimfs.version>
+        <reflections.version>0.9.11</reflections.version>
         <jjwt.version>0.9.0</jjwt.version>
         <jodatime.version>2.9.7</jodatime.version>
         <junit.version>4.12</junit.version>
@@ -580,6 +582,11 @@
                 <groupId>com.google.jimfs</groupId>
                 <artifactId>jimfs</artifactId>
                 <version>${jimfs.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.reflections</groupId>
+              <artifactId>reflections</artifactId>
+              <version>${reflections.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.protobuf</groupId>
