@@ -8,6 +8,7 @@ package com.powsybl.commons.config;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.FileUtil;
 import org.slf4j.Logger;
@@ -16,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -24,6 +27,8 @@ import java.util.*;
 public class PlatformConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PlatformConfig.class);
+
+    private static final String KEY = "powsybl.config.provider";
 
     private static PlatformConfig defaultConfig;
 
@@ -62,7 +67,30 @@ public class PlatformConfig {
 
     public static synchronized PlatformConfig defaultConfig() {
         if (defaultConfig == null) {
-            defaultConfig = new ClassicPlatformConfigProvider().getPlatformConfig();
+            String configName = System.getProperty(KEY);
+            if (configName != null) {
+                List<PlatformConfigProvider> platformConfigProviders = Lists
+                        .newArrayList(ServiceLoader.load(PlatformConfigProvider.class));
+                Optional<PlatformConfigProvider> foundProvider = platformConfigProviders.stream()
+                        .filter(platformConfigProvider -> configName.equals(platformConfigProvider.getName()))
+                        .findFirst();
+                if (!foundProvider.isPresent()) {
+                    if (LOGGER.isErrorEnabled()) {
+                        List<String> available = platformConfigProviders.stream().map(PlatformConfigProvider::getName)
+                                .collect(Collectors.toList());
+                        LOGGER.error("Requested platform configuration provider {} = {} not found; available: {}", KEY,
+                                configName, available);
+                    }
+                } else {
+                    LOGGER.info("Using platform configuration provider {} = {}", KEY, configName);
+                    defaultConfig = foundProvider.get().getPlatformConfig();
+                }
+            }
+            if (defaultConfig == null) {
+                LOGGER.info("Using default platform configuration provider {}",
+                        ClassicPlatformConfigProvider.class.getSimpleName());
+                defaultConfig = new ClassicPlatformConfigProvider().getPlatformConfig();
+            }
         }
         return defaultConfig;
     }
