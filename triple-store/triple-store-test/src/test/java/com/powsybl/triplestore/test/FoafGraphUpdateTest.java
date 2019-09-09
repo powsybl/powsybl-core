@@ -13,7 +13,7 @@ public class FoafGraphUpdateTest {
     // TODO elena test class
 
     private static String base = "foo:foaf";
-    private static String[] inputs = {"foaf/abc-nicks.ttl", "foaf/abc-lastNames.ttl"};
+    private static String[] inputs = { "foaf/abc-nicks.ttl", "foaf/abc-lastNames.ttl" };
 
     @BeforeClass
     public static void setUp() {
@@ -23,11 +23,11 @@ public class FoafGraphUpdateTest {
     @Test
     public void testInsertNickName() {
         tester = new TripleStoreTester(
-            TripleStoreFactory.onlyDefaultImplementation(), base, inputs);
+            TripleStoreFactory.allImplementations(), base, inputs);
         tester.load();
         Expected expected = new Expected().expect("nick", "SweetCaroline", "Wonderland");
         tester.testQuery(queries.get("selectNickName"), expected);
-        LOGGER.info("testInsertNickName doing insert.....");
+        LOG.info("*******testInsertNickName doing insert.....");
         tester.testUpdate(queries.get("insertNickName"));
         Expected expected1 = new Expected().expect("nick", "BG", "SweetCaroline", "Wonderland");
         tester.testQuery(queries.get("selectNickName"), expected1);
@@ -40,7 +40,7 @@ public class FoafGraphUpdateTest {
         tester.load();
         Expected expected = new Expected().expect("lastName", "Channing", "Liddell", "Marley");
         tester.testQuery(queries.get("selectLastName"), expected);
-        LOGGER.info("testDeletetLastName doing delele.....");
+        LOG.info("*******testDeletetLastName doing delele.....");
         tester.testUpdate(queries.get("deleteLastName"));
         Expected expected1 = new Expected().expect("lastName", "Liddell", "Marley");
         tester.testQuery(queries.get("selectLastName"), expected1);
@@ -52,7 +52,7 @@ public class FoafGraphUpdateTest {
             TripleStoreFactory.allImplementations(), base, inputs);
         tester.load();
 
-        LOGGER.info("Test delete and insert into the same graph....");
+        LOG.info("Test delete and insert into the same graph....");
 
         Expected expected = new Expected()
             .expect("lastName", "Channing", "Liddell", "Marley")
@@ -85,7 +85,7 @@ public class FoafGraphUpdateTest {
             TripleStoreFactory.allImplementations(), base, inputs);
         tester.load();
 
-        LOGGER.info("Test delete and insert in two graphs....");
+        LOG.info("Test delete and insert in two graphs....");
 
         Expected expected = new Expected()
             .expect("lastName", "Channing", "Liddell", "Marley")
@@ -99,13 +99,28 @@ public class FoafGraphUpdateTest {
                 "contexts:foaf/abc-nicks.ttl");
         tester.testQuery(queries.get("selectLastNameGraphs"), expected);
         tester.testUpdate(queries.get("updatePersonTwoGraphsJena"));
-        LOGGER.info("testUpdatePersonTwoGraphs executed.....");
+        LOG.info("*******testUpdatePersonTwoGraphs executed.....");
         Expected expected1 = new Expected().expect("lastName", "Channing", "Cooper", "Marley");
         tester.testQuery(queries.get("selectLastNameGraphs"), expected1);
     }
 
+    @Test
+    public void testUpdateCloneByInsert() {
+        tester = new TripleStoreTester(
+            TripleStoreFactory.allImplementations(), base, inputs);
+        tester.loadWithClone();
+        Expected expectedBeforeUpdate = new Expected().expect("nick", "SweetCaroline", "Wonderland");
+        tester.testQuery(queries.get("selectNickName"), expectedBeforeUpdate);
+        tester.testQueryClone(queries.get("selectNickName"), expectedBeforeUpdate);
+        LOG.info("*******testInsertNickName doing insert.....");
+        tester.testUpdateClone(queries.get("insertNickName"));
+        Expected expectedAfterUpdate = new Expected().expect("nick", "BG", "SweetCaroline", "Wonderland");
+        tester.testQuery(queries.get("selectNickName"), expectedBeforeUpdate);
+        tester.testQueryClone(queries.get("selectNickName"), expectedAfterUpdate);
+    }
+
     private static TripleStoreTester tester;
     private static QueryCatalog queries;
-    private static final Logger LOGGER = LoggerFactory.getLogger(FoafGraphUpdateTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FoafGraphUpdateTest.class);
 
 }

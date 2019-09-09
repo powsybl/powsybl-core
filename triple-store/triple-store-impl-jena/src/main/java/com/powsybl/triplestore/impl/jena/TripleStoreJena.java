@@ -9,11 +9,6 @@ package com.powsybl.triplestore.impl.jena;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -25,7 +20,6 @@ import java.util.stream.StreamSupport;
 
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.query.LabelExistsException;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QuerySolution;
@@ -163,6 +157,36 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
+    public PropertyBags queryClone(String query) {
+        String query1 = adjustedQuery(query);
+        PropertyBags results = new PropertyBags();
+        // Because Jena in-memory does not support default graph
+        // as the union of named graphs
+        // We use the dataset for maintaining separate graphs,
+        // but query in general against union
+        // Only query against dataset if we found a GRAPH clause in the query text
+        try (QueryExecution q = queryExecutionFromQueryTextClone(query1)) {
+            // If we want to analyze the algebra of the query,
+            // set ARQ.symLogExec to true in the query context
+            ResultSet r = q.execSelect();
+            List<String> names = r.getResultVars();
+            while (r.hasNext()) {
+                QuerySolution s = r.next();
+                PropertyBag result = new PropertyBag(names);
+                names.forEach(name -> {
+                    if (s.contains(name)) {
+                        result.put(name, stringValue(s.get(name)));
+                    }
+                });
+                if (!result.isEmpty()) {
+                    results.add(result);
+                }
+            }
+        }
+        return results;
+    }
+
+    @Override
     public void update(String query) {
         // TODO elena
         // https://jena.apache.org/documentation/query/update.html
@@ -170,78 +194,67 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         UpdateRequest request = UpdateFactory.create(updateStatement);
         UpdateAction.execute(request, dataset);
     }
+    @Override
+    public void updateClone(String query) {
+        // TODO elena
+        String updateStatement = adjustedQuery(query);
+        UpdateRequest request = UpdateFactory.create(updateStatement);
+        UpdateAction.execute(request, datasetClone);
+    }
 
     @Override
     public void duplicate() {
         // TODO elena Clone by statements
-        Dataset datasetClone = null;
-        try {
-            datasetClone = DatasetFactory.createMem();
-            Iterator<String> names = dataset.listNames();
-            while (names.hasNext()) {
-                List<Statement> listStatements = new ArrayList<Statement>();
-                String name = names.next();
-                Model modelClone = datasetClone.getNamedModel(name);
-                if (dataset.containsNamedModel(namedModelFromName(name))) {
-                    Model m = dataset.getNamedModel(namedModelFromName(name));
-                    StmtIterator statements = m.listStatements();
-                    while (statements.hasNext()) {
-                        Statement statement = statements.next();
-                        listStatements.add(statement);
-                    }
-                    modelClone.add(listStatements);
+        datasetClone = DatasetFactory.createMem();
+        Iterator<String> names = dataset.listNames();
+        while (names.hasNext()) {
+            List<Statement> listStatements = new ArrayList<Statement>();
+            String name = names.next();
+            String context = namedModelFromName(name);
+            Model modelClone = datasetClone.getNamedModel(context);
+            if (dataset.containsNamedModel(context)) {
+                Model m = dataset.getNamedModel(context);
+                StmtIterator statements = m.listStatements();
+                while (statements.hasNext()) {
+                    Statement statement = statements.next();
+                    listStatements.add(statement);
                 }
-            }
-            checkClonedRepo(dataset, datasetClone);
-        } finally {
-            if (dataset != null) {
-                dataset.close();
-            }
-            if (datasetClone != null) {
-                datasetClone.close();
+                modelClone.add(listStatements);
             }
         }
+        // checkClonedRepo(dataset, datasetClone);
     }
 
     @Override
     public void duplicateRepo() {
-        // TODO elena clone by repo
-        Dataset datasetClone = null;
-        try {
-            datasetClone = DatasetFactory.createMem();
+        // TODO elena clone by model
+        datasetClone = DatasetFactory.createMem();
 
-            Iterator<String> k = dataset.listNames();
-            while (k.hasNext()) {
-                String n = k.next();
-                if (dataset.containsNamedModel(namedModelFromName(n))) {
-                    Model m = dataset.getNamedModel(namedModelFromName(n));
-                    datasetClone.addNamedModel(namedModelFromName(n), m);
-                    if (datasetClone.containsNamedModel(namedModelFromName(n))) {
-                        Model mClone = datasetClone.getNamedModel(namedModelFromName(n));
-                        LOG.info("Jena cloned model size : {}", mClone.size());
-                    }
-                }
-            }
-            checkClonedRepo(dataset, datasetClone);
-        } finally {
-            if (dataset != null) {
-                dataset.close();
-            }
-            if (datasetClone != null) {
-                datasetClone.close();
+        Iterator<String> k = dataset.listNames();
+        while (k.hasNext()) {
+            String n = k.next();
+            String context = namedModelFromName(n);
+            if (dataset.containsNamedModel(context)) {
+                Model m = dataset.getNamedModel(context);
+                Model mClone = datasetClone.getNamedModel(context);
+                mClone.add(m);
+                unionClone = datasetClone.getNamedModel(context);
+                unionClone = unionClone.union(mClone);
             }
         }
+        // checkClonedRepo(dataset, datasetClone);
     }
 
     private void checkClonedRepo(Dataset dataset, Dataset datasetClone) {
         Iterator<String> names = datasetClone.listNames();
         while (names.hasNext()) {
             String name = names.next();
-            dataset.removeNamedModel(namedModelFromName(name));
-            if (dataset.containsNamedModel(namedModelFromName(name))) {
+            String context = namedModelFromName(name);
+            dataset.removeNamedModel(context);
+            if (dataset.containsNamedModel(context)) {
                 Model m = dataset.getNamedModel(name);
                 LOG.info("***checkClonedRepo***\n dataset contains  " + name + " size : " + m.size());
-            } else if (datasetClone.containsNamedModel(namedModelFromName(name))) {
+            } else if (datasetClone.containsNamedModel(context)) {
                 Model m = datasetClone.getNamedModel(name);
                 LOG.info("***checkClonedRepo***\n datasetClone contains  " + name + " size : " + m.size() +
                     "\n But dataset does not --> they are independent");
@@ -306,6 +319,14 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
             return QueryExecutionFactory.create(query, dataset);
         } else {
             return QueryExecutionFactory.create(query, union);
+        }
+    }
+
+    private QueryExecution queryExecutionFromQueryTextClone(String query) {
+        if (containsGraphClause(query)) {
+            return QueryExecutionFactory.create(query, datasetClone);
+        } else {
+            return QueryExecutionFactory.create(query, unionClone);
         }
     }
 
@@ -379,7 +400,9 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     private final Dataset dataset;
+    private Dataset datasetClone;
     private Model union;
+    private Model unionClone;
     private RDFWriter writer;
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreJena.class);
 }

@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,7 +24,9 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.GraphImpl;
+import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryLanguage;
@@ -46,6 +47,7 @@ import org.eclipse.rdf4j.rio.helpers.BasicParserSettings;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.eclipse.rdf4j.rio.helpers.XMLParserSettings;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import org.eclipse.rdf4j.util.iterators.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,8 +149,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     public PropertyBags query(String query) {
         String query1 = adjustedQuery(query);
         PropertyBags results = new PropertyBags();
-        Repository repoToQuery = (repoClone != null) ? repoClone : repo;
-        try (RepositoryConnection conn = repoToQuery.getConnection()) {
+        try (RepositoryConnection conn = repo.getConnection()) {
             // Default language is SPARQL
             TupleQuery q = conn.prepareTupleQuery(query1);
             // Duplicated triplets are returned in queries
@@ -179,12 +180,55 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     @Override
+    public PropertyBags queryClone(String query) {
+        // TODO elena
+        String query1 = adjustedQuery(query);
+        PropertyBags results = new PropertyBags();
+        // Repository repoToQuery = (repoClone != null) ? repoClone : repo;
+        try (RepositoryConnection connClone = repoClone.getConnection()) {
+            // Default language is SPARQL
+            TupleQuery q = connClone.prepareTupleQuery(query1);
+            try (TupleQueryResult r = QueryResults.distinctResults(q.evaluate())) {
+                List<String> names = r.getBindingNames();
+                while (r.hasNext()) {
+                    BindingSet s = r.next();
+                    PropertyBag result = new PropertyBag(names);
+
+                    names.forEach(name -> {
+                        if (s.hasBinding(name)) {
+                            String value = s.getBinding(name).getValue().stringValue();
+                            result.put(name, value);
+                        }
+                    });
+                    if (result.size() > 0) {
+                        results.add(result);
+                    }
+                }
+            }
+        }
+        return results;
+    }
+
+    @Override
+    public void updateClone(String query) {
+        // TODO elena
+        String updateStatement = adjustedQuery(query);
+        try (RepositoryConnection connClone = repoClone.getConnection()) {
+
+            Update updateQuery = connClone.prepareUpdate(QueryLanguage.SPARQL, updateStatement);
+            updateQuery.execute();
+        } catch (UpdateExecutionException e) {
+            LOG.debug(e.toString());
+        }
+    }
+
+    @Override
     public void update(String query) {
         // TODO elena
         String updateStatement = adjustedQuery(query);
-        try (RepositoryConnection connClone = repo.getConnection()) {
+        try (RepositoryConnection conn = repo.getConnection()) {
 
-            Update updateQuery = connClone.prepareUpdate(QueryLanguage.SPARQL, updateStatement);
+            Update updateQuery = conn.prepareUpdate(QueryLanguage.SPARQL, updateStatement);
             updateQuery.execute();
         } catch (UpdateExecutionException e) {
             LOG.debug(e.toString());
@@ -199,16 +243,17 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             repoClone.initialize();
 
             try (RepositoryConnection connClone = repoClone.getConnection()) {
+                ValueFactory vfac = connClone.getValueFactory();
                 RepositoryResult<Resource> contexts = conn.getContextIDs();
                 while (contexts.hasNext()) {
                     Resource context = contexts.next();
                     RepositoryResult<Statement> statements = conn.getStatements(null, null, null, context);
-//                    //Model asGraph = QueryResults.asModel(statements);
-                    Graph model = QueryResults.addAll(statements, new GraphImpl());
+                    Model model = QueryResults.asModel(statements);
+                    // Graph model = QueryResults.addAll(statements, new GraphImpl());
                     connClone.add(model);
                     statements.close();
                 }
-                //checkClonedRepo(conn, connClone);
+                // checkClonedRepo(conn, connClone);
             }
         }
     }
@@ -231,9 +276,9 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
                         Statement statement = statements.next();
                         connClone.add(statement);
                     }
-                    statements.close();
+                    // statements.close();
                 }
-                //checkClonedRepo(conn, connClone);
+                // checkClonedRepo(conn, connClone);
             }
         }
     }

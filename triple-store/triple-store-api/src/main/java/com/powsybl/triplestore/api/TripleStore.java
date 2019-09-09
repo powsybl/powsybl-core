@@ -43,4 +43,8 @@ public interface TripleStore {
     void duplicate();
 
     void duplicateRepo();
+
+    PropertyBags queryClone(String queryText);
+    
+    void updateClone(String queryText);
 }

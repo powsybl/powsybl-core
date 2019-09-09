@@ -58,6 +58,24 @@ public class TripleStoreTester {
         }
     }
 
+    void loadWithClone() {
+        // TODO elena
+        for (String impl : implementations) {
+            TripleStore ts = TripleStoreFactory.create(impl);
+            assertNotNull(ts);
+            for (String r : inputResourceNames) {
+                try (InputStream is = resourceStream(r)) {
+                    ts.read(base, r, is);
+                    ts.duplicate();
+                } catch (IOException e) {
+                    throw new TripleStoreException(String.format("Reading %s %s", base, r), e);
+                }
+            }
+            ts.print(LOG::info);
+            tripleStores.put(impl, ts);
+        }
+    }
+
     void testQuery(String queryText, Expected expected) {
         for (String impl : implementations) {
             PropertyBags results = tripleStores.get(impl).query(queryText);
@@ -70,6 +88,20 @@ public class TripleStoreTester {
         }
     }
 
+    void testQueryClone(String queryText, Expected expected) {
+        // TODO elena
+        for (String impl : implementations) {
+            PropertyBags results = tripleStores.get(impl).queryClone(queryText);
+            logResults(impl, results, expected);
+            assertTrue(!results.isEmpty());
+            int size = expected.values().iterator().next().size();
+            assertEquals(size, results.size());
+            expected.keySet()
+                .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
+        }
+
+    }
+
     void testUpdate(String queryText) {
         // TODO elena
         for (String impl : implementations) {
@@ -77,11 +109,21 @@ public class TripleStoreTester {
         }
     }
 
-    void testPerformanceCloneRepo() {
+    void testUpdateClone(String queryText) {
+        // TODO elena
+        for (String impl : implementations) {
+            tripleStores.get(impl).updateClone(queryText);
+        }
+    }
+
+    void testPerformanceCloneByModel() {
         // TODO elena
         for (String impl : implementations) {
             start = System.currentTimeMillis();
+            LOG.info("totalMemory, GB: " + Runtime.getRuntime().totalMemory() / 1e+9);
             tripleStores.get(impl).duplicateRepo();
+            LOG.info("usedMemory, GB: " +
+                (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1e+9);
             end = System.currentTimeMillis();
             LOG.info(String.format("Clone repository by Repo for %s took: %d milliseconds", impl, end - start));
         }
@@ -91,7 +133,10 @@ public class TripleStoreTester {
         // TODO elena
         for (String impl : implementations) {
             start = System.currentTimeMillis();
+            LOG.info("totalMemory, GB: " + Runtime.getRuntime().totalMemory() / 1e+9);
             tripleStores.get(impl).duplicate();
+            LOG.info("usedMemory, GB: " +
+                (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1e+9);
             end = System.currentTimeMillis();
             LOG.info(String.format("Clone repository by statementes for %s took: %d milliseconds", impl, end - start));
         }
@@ -102,6 +147,7 @@ public class TripleStoreTester {
         // Load the model for every triple store implementation
         for (String impl : implementations) {
             start = System.currentTimeMillis();
+            LOG.info("totalMemory, GB: " + Runtime.getRuntime().totalMemory() / 1e+9);
             TripleStore ts = TripleStoreFactory.create(impl);
             assertNotNull(ts);
             for (String r : inputResourceNames) {
@@ -111,8 +157,9 @@ public class TripleStoreTester {
                     throw new TripleStoreException(String.format("Reading %s %s", base, r), e);
                 }
             }
-            // ts.print(LOG::info);
             tripleStores.put(impl, ts);
+            LOG.info("usedMemory, GB: " +
+                (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1e+9);
             end = System.currentTimeMillis();
             LOG.info(String.format("Load XML files for %s took: %d milliseconds", impl, end - start));
         }

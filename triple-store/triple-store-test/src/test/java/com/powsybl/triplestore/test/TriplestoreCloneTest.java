@@ -13,7 +13,7 @@ public class TriplestoreCloneTest {
         tester = new TripleStoreTester(
             TripleStoreFactory.allImplementations(), base, inputs);
         tester.load();
-        tester.testPerformanceCloneRepo();
+        tester.testPerformanceCloneByModel();
     }
     
   //@Test
@@ -22,11 +22,12 @@ public class TriplestoreCloneTest {
       String[] inputs = { "cgmes-national-grid/20190312T2330Z_1D_NG_SSH_001.xml",
           "cgmes-national-grid/20190312T2330Z_1D_NG_SV_001.xml",
           "cgmes-national-grid/20190312T2330Z_1D_NG_TP_001.xml",
-          "cgmes-national-grid/20190312T2330Z_NG_EQ_001.xml" };
+          "cgmes-national-grid/20190312T2330Z_NG_EQ_001.xml" 
+          };
       tester = new TripleStoreTester(
           TripleStoreFactory.allImplementations(), base, inputs);
       tester.load();
-      tester.testPerformanceCloneRepo();
+      tester.testPerformanceCloneByModel();
   }
 
     //@Test
