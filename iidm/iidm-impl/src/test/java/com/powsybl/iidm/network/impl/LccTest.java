@@ -72,7 +72,9 @@ public class LccTest {
         assertSame(hvdcLine, cs1.getHvdcLine());
         assertSame(hvdcLine, cs2.getHvdcLine());
         assertSame(cs1, hvdcLine.getConverterStation1());
+        assertSame(cs1, hvdcLine.getConverterStation(HvdcLine.Side.ONE));
         assertSame(cs2, hvdcLine.getConverterStation2());
+        assertSame(cs2, hvdcLine.getConverterStation(HvdcLine.Side.TWO));
     }
 
     @Test
