@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
@@ -57,6 +58,7 @@ public class TapChangerTest {
                                                 .setTapPosition(1)
                                                 .setLowTapPosition(0)
                                                 .setRegulating(true)
+                                                .setTargetDeadband(1.0)
                                                 .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
                                                 .setRegulationValue(10.0)
                                                 .setRegulationTerminal(terminal)
@@ -81,6 +83,7 @@ public class TapChangerTest {
         assertEquals(0, phaseTapChanger.getLowTapPosition());
         assertEquals(1, phaseTapChanger.getHighTapPosition());
         assertTrue(phaseTapChanger.isRegulating());
+        assertEquals(1.0, phaseTapChanger.getTargetDeadband(), 0.0);
         assertEquals(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, phaseTapChanger.getRegulationMode());
         assertEquals(terminal, phaseTapChanger.getRegulationTerminal());
         assertEquals(10.0, phaseTapChanger.getRegulationValue(), 0.0);
@@ -91,6 +94,8 @@ public class TapChangerTest {
         assertSame(phaseTapChanger.getCurrentStep(), phaseTapChanger.getStep(0));
         phaseTapChanger.setRegulationValue(5.0);
         assertEquals(5.0, phaseTapChanger.getRegulationValue(), 0.0);
+        phaseTapChanger.setTargetDeadband(0.5);
+        assertEquals(0.5, phaseTapChanger.getTargetDeadband(), 0.0);
         phaseTapChanger.setRegulating(false);
         assertFalse(phaseTapChanger.isRegulating());
         phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
@@ -98,6 +103,9 @@ public class TapChangerTest {
         Terminal terminal2 = twt.getTerminal2();
         phaseTapChanger.setRegulationTerminal(terminal2);
         assertSame(terminal2, phaseTapChanger.getRegulationTerminal());
+        int lowTapPosition = 2;
+        phaseTapChanger.setLowTapPosition(lowTapPosition);
+        assertEquals(lowTapPosition, phaseTapChanger.getLowTapPosition());
 
         try {
             phaseTapChanger.setTapPosition(5);
@@ -109,7 +117,36 @@ public class TapChangerTest {
             fail();
         } catch (Exception ignored) {
         }
+        try {
+            phaseTapChanger.setTargetDeadband(-1);
+        } catch (Exception ignored) {
+        }
 
+        // Changes listener
+        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        // Add observer changes to current network
+        network.addListener(mockedListener);
+        // Changes will raise notifications
+        PhaseTapChangerStep currentStep = phaseTapChanger.getCurrentStep();
+        currentStep.setR(2.0);
+        currentStep.setX(3.0);
+        currentStep.setG(4.0);
+        currentStep.setB(5.0);
+        currentStep.setAlpha(6.0);
+        currentStep.setRho(7.0);
+        Mockito.verify(mockedListener, Mockito.times(6))
+               .onUpdate(Mockito.any(Identifiable.class), Mockito.anyString(), Mockito.any(), Mockito.any());
+        // Remove observer
+        network.removeListener(mockedListener);
+        // Cancel modification
+        currentStep.setR(1.0);
+        currentStep.setX(2.0);
+        currentStep.setG(3.0);
+        currentStep.setB(4.0);
+        currentStep.setAlpha(5.0);
+        currentStep.setRho(6.0);
+        // Check no notification
+        Mockito.verifyNoMoreInteractions(mockedListener);
         // remove
         phaseTapChanger.remove();
         assertNull(twt.getPhaseTapChanger());
@@ -120,7 +157,7 @@ public class TapChangerTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("incorrect tap position");
         createPhaseTapChangerWith2Steps(3, 0, false,
-                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, terminal);
+                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, 1.0, terminal);
     }
 
     @Test
@@ -128,7 +165,7 @@ public class TapChangerTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("phase regulation mode is not set");
         createPhaseTapChangerWith2Steps(1, 0, true,
-                null, 1.0, terminal);
+                null, 1.0, 1.0, terminal);
     }
 
     @Test
@@ -136,7 +173,7 @@ public class TapChangerTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("phase regulation is on and threshold/setpoint value is not set");
         createPhaseTapChangerWith2Steps(1, 0, true,
-                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, Double.NaN, terminal);
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, Double.NaN, 1.0, terminal);
     }
 
     @Test
@@ -144,7 +181,7 @@ public class TapChangerTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("phase regulation is on and regulated terminal is not set");
         createPhaseTapChangerWith2Steps(1, 0, true,
-                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, null);
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, 1.0, null);
     }
 
     @Test
@@ -152,15 +189,23 @@ public class TapChangerTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("phase regulation cannot be on if mode is FIXED");
         createPhaseTapChangerWith2Steps(1, 0, true,
-                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, terminal);
+                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, 1.0, terminal);
+    }
+
+    @Test
+    public void invalidTargetDeadbandPtc() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("2 windings transformer 'twt': Unexpected value for target deadband of phase tap changer: -1.0");
+        createPhaseTapChangerWith2Steps(1, 0, false,
+                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, -1.0, terminal);
     }
 
     @Test
     public void testTapChangerSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
         createPhaseTapChangerWith2Steps(1, 0, true,
-                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, terminal);
-        createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, terminal);
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, 1.0, terminal);
+        createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, terminal);
         createThreeWindingTransformer();
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer("twt2");
         ThreeWindingsTransformer.Leg2or3 leg2 = threeWindingsTransformer.getLeg2();
@@ -254,13 +299,15 @@ public class TapChangerTest {
     }
 
     private void createPhaseTapChangerWith2Steps(int tapPosition, int lowTap, boolean isRegulating,
-                                                PhaseTapChanger.RegulationMode mode, double value, Terminal terminal) {
+                                                PhaseTapChanger.RegulationMode mode, double value, double deadband,
+                                                 Terminal terminal) {
         twt.newPhaseTapChanger()
                 .setTapPosition(tapPosition)
                 .setLowTapPosition(lowTap)
                 .setRegulating(isRegulating)
                 .setRegulationMode(mode)
                 .setRegulationValue(value)
+                .setTargetDeadband(deadband)
                 .setRegulationTerminal(terminal)
                 .beginStep()
                     .setR(1.0)
@@ -303,6 +350,7 @@ public class TapChangerTest {
                                                 .setTapPosition(1)
                                                 .setLoadTapChangingCapabilities(false)
                                                 .setRegulating(true)
+                                                .setTargetDeadband(1.0)
                                                 .setTargetV(220.0)
                                                 .setRegulationTerminal(twt.getTerminal1())
                                                 .beginStep()
@@ -330,7 +378,8 @@ public class TapChangerTest {
         assertEquals(0, ratioTapChanger.getLowTapPosition());
         assertEquals(1, ratioTapChanger.getTapPosition());
         assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
-        ratioTapChanger.setRegulating(true);
+        assertTrue(ratioTapChanger.isRegulating());
+        assertEquals(1.0, ratioTapChanger.getTargetDeadband(), 0.0);
         assertEquals(220.0, ratioTapChanger.getTargetV(), 0.0);
         assertSame(twt.getTerminal1(), ratioTapChanger.getRegulationTerminal());
         assertEquals(3, ratioTapChanger.getStepCount());
@@ -342,8 +391,18 @@ public class TapChangerTest {
         assertEquals(110.0, ratioTapChanger.getTargetV(), 0.0);
         ratioTapChanger.setRegulating(false);
         assertFalse(ratioTapChanger.isRegulating());
+        ratioTapChanger.setTargetDeadband(0.5);
+        assertEquals(0.5, ratioTapChanger.getTargetDeadband(), 0.0);
         ratioTapChanger.setRegulationTerminal(twt.getTerminal2());
         assertSame(twt.getTerminal2(), ratioTapChanger.getRegulationTerminal());
+        ratioTapChanger.setLoadTapChangingCapabilities(true);
+        assertTrue(ratioTapChanger.hasLoadTapChangingCapabilities());
+
+        try {
+            ratioTapChanger.setTargetDeadband(-1);
+            fail();
+        } catch (Exception ignored) {
+        }
 
         // ratio tap changer step setter/getter
         RatioTapChangerStep step = ratioTapChanger.getStep(0);
@@ -386,38 +445,46 @@ public class TapChangerTest {
     public void invalidTapPosition() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("incorrect tap position");
-        createRatioTapChangerWith3Steps(0, 4, true, false, 10.0, terminal);
+        createRatioTapChangerWith3Steps(0, 4, true, false, 10.0, 1.0, terminal);
     }
 
     @Test
     public void invalidTargetV() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("a target voltage has to be set for a regulating ratio tap changer");
-        createRatioTapChangerWith3Steps(0, 1, true, true, Double.NaN, terminal);
+        createRatioTapChangerWith3Steps(0, 1, true, true, Double.NaN, 1.0, terminal);
     }
 
     @Test
     public void negativeTargetV() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("bad target voltage");
-        createRatioTapChangerWith3Steps(0, 1, true, true, -10.0, terminal);
+        createRatioTapChangerWith3Steps(0, 1, true, true, -10.0, 1.0, terminal);
+    }
+
+    @Test
+    public void invalidTargetDeadbandRtc() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("2 windings transformer 'twt': Unexpected value for target deadband of ratio tap changer: -1.0");
+        createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, -1.0, terminal);
     }
 
     @Test
     public void nullRegulatingTerminal() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("a regulation terminal has to be set for a regulating ratio tap changer");
-        createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, null);
+        createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, null);
     }
 
     private void createRatioTapChangerWith3Steps(int low, int tap, boolean load, boolean regulating,
-                                                 double targetV, Terminal terminal) {
+                                                 double targetV, double deadband, Terminal terminal) {
         twt.newRatioTapChanger()
                 .setLowTapPosition(low)
                 .setTapPosition(tap)
                 .setLoadTapChangingCapabilities(load)
                 .setRegulating(regulating)
                 .setTargetV(targetV)
+                .setTargetDeadband(deadband)
                 .setRegulationTerminal(terminal)
                 .beginStep()
                     .setR(39.78473)

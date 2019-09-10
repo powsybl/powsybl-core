@@ -84,6 +84,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             Terminal terminal = sh.getTerminal();
             if (terminal.isConnected()
                     && Double.isNaN(terminal.getQ())
+                    && terminal.getBusView().getBus() != null
                     && terminal.getBusView().getBus().isInMainConnectedComponent()) {
                 double v = terminal.getBusView().getBus().getV();
                 double q = -sh.getCurrentB() * v * v;
@@ -127,7 +128,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
     }
 
     private void completeTerminalData(Terminal terminal, Side side, BranchData branchData) {
-        if (terminal.isConnected() && terminal.getBusView().getBus().isInMainConnectedComponent()) {
+        if (terminal.isConnected() && terminal.getBusView().getBus() != null && terminal.getBusView().getBus().isInMainConnectedComponent()) {
             if (Double.isNaN(terminal.getP())) {
                 LOGGER.debug("Branch {}, Side {}: setting p = {}", branchData.getId(), side, branchData.getComputedP(side));
                 terminal.setP(branchData.getComputedP(side));
@@ -140,7 +141,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
     }
 
     private void completeTerminalData(Terminal terminal, ThreeWindingsTransformer.Side side, TwtData twtData) {
-        if (terminal.isConnected() && terminal.getBusView().getBus().isInMainConnectedComponent()) {
+        if (terminal.isConnected() && terminal.getBusView().getBus() != null && terminal.getBusView().getBus().isInMainConnectedComponent()) {
             if (Double.isNaN(terminal.getP())) {
                 LOGGER.debug("Twt {}, Side {}: setting p = {}", twtData.getId(), side, twtData.getComputedP(side));
                 terminal.setP(twtData.getComputedP(side));

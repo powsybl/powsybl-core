@@ -8,7 +8,9 @@ package com.powsybl.ucte.network;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static com.powsybl.ucte.network.UcteCountryCode.isUcteCountryCode;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -43,5 +45,13 @@ public class UcteCountryCodeTest {
     @Test(expected = IllegalArgumentException.class)
     public void unknownCountryCode() {
         UcteCountryCode.fromUcteCode('_');
+    }
+
+    @Test
+    public void isUcteCountryCodeTest() {
+        assertTrue(isUcteCountryCode('A'));
+        assertTrue(isUcteCountryCode('1'));
+        assertFalse(isUcteCountryCode('_'));
+        assertFalse(isUcteCountryCode('&'));
     }
 }

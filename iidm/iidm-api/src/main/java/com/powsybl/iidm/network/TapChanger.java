@@ -18,6 +18,11 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
     int getLowTapPosition();
 
     /**
+     * Set the lowest tap position corresponding to the first step of the tap changer.
+     */
+    C setLowTapPosition(int lowTapPosition);
+
+    /**
      * Get the highest tap position corresponding to the last step of the tap changer.
      */
     int getHighTapPosition();
@@ -88,6 +93,14 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      * Set the terminal used for regulation.
      */
     C setRegulationTerminal(Terminal regulationTerminal);
+
+    default double getTargetDeadband() {
+        throw new UnsupportedOperationException();
+    }
+
+    default C setTargetDeadband(double targetDeadband) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Remove the tap changer.

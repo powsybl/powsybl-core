@@ -322,7 +322,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                     }
                 }
                 if (getBusChecker().isValid(graph, nodes, terminals)) {
-                    CalculatedBusImpl bus = new CalculatedBusImpl(busId, NodeBreakerVoltageLevel.this, terminals);
+                    CalculatedBusImpl bus = new CalculatedBusImpl(busId, NodeBreakerVoltageLevel.this, nodes, terminals);
                     id2bus.put(busId, bus);
                     for (int i = 0; i < nodes.size(); i++) {
                         node2bus[nodes.getQuick(i)] = bus;
@@ -1087,6 +1087,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     private void removeAllSwitches() {
         for (SwitchImpl s : graph.getEdgesObject()) {
             getNetwork().getIndex().remove(s);
+            getNetwork().getListeners().notifyRemoval(s);
         }
         graph.removeAllEdges();
         switches.clear();

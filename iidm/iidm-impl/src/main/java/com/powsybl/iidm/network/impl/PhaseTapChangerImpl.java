@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Terminal;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  *
@@ -27,14 +28,22 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
 
     PhaseTapChangerImpl(TwoWindingsTransformerImpl parent, int lowTapPosition,
                         List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal,
-                        int tapPosition, boolean regulating, RegulationMode regulationMode, double regulationValue) {
-        super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating);
+                        int tapPosition, boolean regulating, RegulationMode regulationMode, double regulationValue, double targetDeadband) {
+        super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, targetDeadband);
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.regulationMode = regulationMode;
         this.regulationValue = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.regulationValue.add(regulationValue);
         }
+    }
+
+    protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
+        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), attribute, oldValue, newValue);
+    }
+
+    protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
+        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), attribute, variantId, oldValue, newValue);
     }
 
     @Override
@@ -50,7 +59,9 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
     @Override
     public PhaseTapChangerImpl setRegulationMode(RegulationMode regulationMode) {
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(), getRegulationTerminal(), getNetwork());
+        RegulationMode oldValue = this.regulationMode;
         this.regulationMode = regulationMode;
+        notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
         return this;
     }
 
@@ -62,7 +73,10 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
     @Override
     public PhaseTapChangerImpl setRegulationValue(double regulationValue) {
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, isRegulating(), getRegulationTerminal(), getNetwork());
-        this.regulationValue.set(network.get().getVariantIndex(), regulationValue);
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.regulationValue.set(variantIndex, regulationValue);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate(() -> getTapChangerAttribute() + ".regulationValue", variantId, oldValue, regulationValue);
         return this;
     }
 

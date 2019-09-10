@@ -39,9 +39,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParameterOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParametersFileOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
+import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
 /**
  *
@@ -243,11 +241,12 @@ public class ValidationTool implements Tool {
         });
     }
 
-    private void runLoadflow(Network network, ValidationConfig config, ToolRunningContext context) throws InstantiationException, IllegalAccessException {
+    private void runLoadflow(Network network, ValidationConfig config, ToolRunningContext context) {
         context.getOutputStream().println("Running loadflow on network " + network.getId());
         LoadFlowParameters parameters = LoadFlowParameters.load();
-        LoadFlow loadFlow = config.getLoadFlowFactory().newInstance().create(network, context.getShortTimeExecutionComputationManager(), 0);
-        loadFlow.run(VariantManagerConstants.INITIAL_VARIANT_ID, parameters)
+        String loadFlowName = config.getLoadFlowName().orElse(null);
+        LoadFlow.find(loadFlowName)
+                .runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), parameters)
                 .thenAccept(loadFlowResult -> {
                     if (!loadFlowResult.isOk()) {
                         throw new PowsyblException("Loadflow on network " + network.getId() + " does not converge");

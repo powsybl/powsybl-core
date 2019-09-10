@@ -35,6 +35,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         highStep = rtc.asInt("highStep");
         neutralStep = rtc.asInt("neutralStep");
         position = fromContinuous(p.asDouble("SVtapStep", neutralStep));
+        ltcFlag = rtc.asBoolean("ltcFlag", false);
     }
 
     @Override
@@ -83,7 +84,10 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         } else {
             addStepsFromStepVoltageIncrement(rtca);
         }
+
+        rtca.setLoadTapChangingCapabilities(ltcFlag);
         context.regulatingControlMapping().setRegulatingControl(p, terminal(), rtca);
+
         rtca.add();
     }
 
@@ -120,7 +124,13 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         table.sort(byStep);
         boolean rtcAtSide1 = rtcAtSide1();
         for (PropertyBag point : table) {
+
+            // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
+            // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
+            // V2 = V1 * rho and V2 = V1 / ratio
+            // This is why we have: rho=1/ratio
             double rho = 1 / point.asDouble("ratio", 1.0);
+
             // When given in RatioTapChangerTablePoint
             // r, x, g, b of the step are already percentage deviations of nominal values
             int step = point.asInt("step");
@@ -242,6 +252,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
     private final int highStep;
     private final int neutralStep;
     private final int position;
+    private final boolean ltcFlag;
 
     private static final Logger LOG = LoggerFactory.getLogger(RatioTapChangerConversion.class);
 }

@@ -9,12 +9,15 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ContainerType;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.Substation;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -53,6 +56,18 @@ public class SubstationTest {
         assertEquals(Country.AF, substation.getCountry().orElse(null));
         substation.setTso("new tso");
         assertEquals("new tso", substation.getTso());
+
+        // Create a mocked network listener
+        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        // Add observer changes to current network
+        network.addListener(mockedListener);
+        // Change in order to raise update notification
+        substation.addGeographicalTag("test");
+        // Check notification done
+        Mockito.verify(mockedListener, Mockito.times(1))
+               .onUpdate(Mockito.any(Substation.class), Mockito.anyString(), Mockito.anyCollection(), Mockito.anyCollection());
+        // Remove observer
+        network.removeListener(mockedListener);
     }
 
     @Test

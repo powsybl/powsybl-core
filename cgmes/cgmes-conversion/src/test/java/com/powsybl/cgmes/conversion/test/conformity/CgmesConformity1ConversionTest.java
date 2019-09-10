@@ -7,48 +7,31 @@
 
 package com.powsybl.cgmes.conversion.test.conformity;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.IOException;
-
-import java.util.*;
-
-import java.nio.file.FileSystem;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-
-import java.util.stream.Collectors;
-
+import com.google.common.collect.ImmutableSet;
+import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.test.CgmesConformity1NetworkCatalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.test.ConversionTester;
+import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.*;
+import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.google.common.collect.ImmutableSet;
-import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.test.CgmesConformity1NetworkCatalog;
-import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.test.ConversionTester;
-import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.computation.ComputationManager;
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-
-import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
-import com.powsybl.triplestore.api.TripleStoreFactory;
-
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -67,7 +50,7 @@ public class CgmesConformity1ConversionTest {
 
     @Before
     public void setUp() {
-        fileSystem = Jimfs.newFileSystem();
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
     }
 
@@ -184,7 +167,7 @@ public class CgmesConformity1ConversionTest {
     }
 
     @Test
-    public void miniNodeBreakerBoundary() throws IOException {
+    public void microNodeBreakerBoundary() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         ConversionTester t = new ConversionTester(
@@ -204,6 +187,24 @@ public class CgmesConformity1ConversionTest {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet()));
+    }
+
+    @Test
+    public void miniNodeBreakerBoundary() throws IOException {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
+        ConversionTester t = new ConversionTester(
+                importParams,
+                TripleStoreFactory.onlyDefaultImplementation(),
+                new ComparisonConfig());
+        Network expected = null;
+        t.testConversion(expected, actuals.miniNodeBreaker());
+        Substation substation = t.lastConvertedNetwork().getSubstation("_183d126d-2522-4ff2-a8cd-c5016cf09c1b_S");
+        assertNotNull(substation);
+        assertEquals("boundary", substation.getName());
+        VoltageLevel voltageLevel = t.lastConvertedNetwork().getVoltageLevel("_183d126d-2522-4ff2-a8cd-c5016cf09c1b_VL");
+        assertNotNull(voltageLevel);
+        assertEquals("boundary", voltageLevel.getName());
     }
 
     @Test
@@ -242,11 +243,6 @@ public class CgmesConformity1ConversionTest {
         network.getVariantManager()
             .cloneVariant(network.getVariantManager().getWorkingVariantId(),
                 lfVariantId);
-        new LoadFlowFactoryMock()
-            .create(network,
-                computationManager,
-                1)
-            .run(lfVariantId, new LoadFlowParameters()).join();
         network.getVariantManager().setWorkingVariant(lfVariantId);
         List<String> afterLoadFlowBusIds = network.getBusView().getBusStream()
             .map(Bus::getId).collect(Collectors.toList());

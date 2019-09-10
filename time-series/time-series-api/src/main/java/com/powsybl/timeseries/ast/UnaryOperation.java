@@ -12,6 +12,8 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -62,8 +64,13 @@ public class UnaryOperation extends AbstractSingleChildNodeCalc {
     }
 
     @Override
-    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg) {
-        return visitor.visit(this, arg);
+    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, List<R> children) {
+        return visitor.visit(this, arg, children.get(0));
+    }
+
+    @Override
+    public <R, A> List<NodeCalc> acceptIterate(NodeCalcVisitor<R, A> visitor, A arg) {
+        return Arrays.asList(visitor.iterate(this, arg));
     }
 
     @Override

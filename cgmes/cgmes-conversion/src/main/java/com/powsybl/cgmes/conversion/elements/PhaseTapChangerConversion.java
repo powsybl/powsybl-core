@@ -11,15 +11,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.PhaseTapChangerAdder;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -41,7 +38,13 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         highStep = ptc.asInt("highStep");
         neutralStep = ptc.asInt("neutralStep");
         defaultStep = ptc.asInt("normalStep", neutralStep);
-        side = context.tapChangerTransformers().whichSide(id);
+        if (tx != null) {
+            side = context.tapChangerTransformers().whichSide(id);
+        } else {
+            side = -1;
+        }
+        ltcFlag = ptc.asBoolean("ltcFlag", false);
+        LOG.debug("PhaseTapChanger {} with ltcFlag {}", id, ltcFlag);
     }
 
     @Override
@@ -58,26 +61,26 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 return false;
             } else {
                 String reason0 = String.format(
-                        "Not supported for 3wtx. txId 'name' 'substation': %s '%s' '%s'",
-                        tx3.getId(),
-                        tx3.getName(),
-                        tx3.getSubstation().getName());
+                    "Not supported for 3wtx. txId 'name' 'substation': %s '%s' '%s'",
+                    tx3.getId(),
+                    tx3.getName(),
+                    tx3.getSubstation().getName());
                 // Check if the step is at neutral and regulating control is disabled
                 int position = fromContinuous(p.asDouble("SVtapStep", neutralStep));
                 boolean regulating = p.asBoolean(REGULATING_CONTROL_ENABLED, false);
                 if (position == neutralStep && !regulating) {
                     String reason = String.format(
-                            "%s, but is at neutralStep and regulating control disabled", reason0);
+                        "%s, but is at neutralStep and regulating control disabled", reason0);
                     ignored(reason);
                 } else {
                     String reason = String.format(
-                            "%s, tap step: %d, neutral [low, high]: %d [%d, %d], regulating control enabled: %b",
-                            reason0,
-                            position,
-                            neutralStep,
-                            lowStep,
-                            highStep,
-                            regulating);
+                        "%s, tap step: %d, neutral [low, high]: %d [%d, %d], regulating control enabled: %b",
+                        reason0,
+                        position,
+                        neutralStep,
+                        lowStep,
+                        highStep,
+                        regulating);
                     invalid(reason);
                 }
                 return false;
@@ -100,8 +103,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
     public void convert() {
         int position = fromContinuous(p.asDouble("SVtapStep", defaultStep));
         PhaseTapChangerAdder ptca = tx.newPhaseTapChanger()
-                .setLowTapPosition(lowStep)
-                .setTapPosition(position);
+            .setLowTapPosition(lowStep)
+            .setTapPosition(position);
 
         if (tabular()) {
             addStepsFromTable(ptca);
@@ -121,6 +124,37 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         }
 
         context.regulatingControlMapping().setRegulatingControl(p, regTerminal(), ptca, tx);
+
+        // According to the following CGMES documentation:
+        // IEC TS 61970-600-1, Edition 1.0, 2017-07.
+        // "Energy management system application program interface (EMS-API)
+        // – Part 600-1: Common Grid Model Exchange Specification (CGMES)
+        // – Structure and rules",
+        // "Annex E (normative) implementation guide",
+        // section "E.9 LTCflag" (pages 76-79)
+
+        // The combination: TapChanger.ltcFlag == False
+        // and TapChanger.TapChangerControl Present
+        // Is allowed as:
+        // "An artificial tap changer can be used to simulate control behavior on power
+        // flow"
+
+        // But the ENTSO-E documentation
+        // "QUALITY OF CGMES DATASETS AND CALCULATIONS FOR SYSTEM OPERATIONS"
+        // 3.1 EDITION, 13 June 2019
+
+        // Contains a rule that states that when ltcFlag == False,
+        // Then TapChangerControl should NOT be present
+
+        // Although this combination has been observed in TYNDP test cases,
+        // we will forbid it until an explicit ltcFlag is added to IIDM,
+        // in the meanwhile, when ltcFlag == False,
+        // we avoid regulation by setting RegulationMode in IIDM to FIXED_TAP
+
+        if (!ltcFlag) {
+            ptca.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
+        }
+
         ptca.add();
     }
 
@@ -139,8 +173,14 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         Comparator<PropertyBag> byStep = Comparator.comparingInt((PropertyBag p) -> p.asInt("step"));
         table.sort(byStep);
         for (PropertyBag point : table) {
-            double alpha = point.asDouble("angle");
-            double rho = point.asDouble("ratio", 1.0);
+
+            // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
+            // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
+            // V2 = V1 * rho and V2 = V1 / ratio
+            // This is why we have: rho=1/ratio and alpha=-angle
+            double alpha = -point.asDouble("angle");
+            double rho = 1 / point.asDouble("ratio", 1.0);
+
             // When given in PhaseTapChangerTablePoint
             // r, x, g, b of the step are already percentage deviations of nominal values
             int step = point.asInt("step");
@@ -165,13 +205,13 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             // with dz, dy that appear when moving ideal ratio to side 1
             // R' = R * (1 + r/100) * (1 + dz/100) ==> r' = r + dz + r * dz / 100
             ptca.beginStep()
-                    .setAlpha(alpha * (side == 1 ? 1 : -1))
-                    .setRho(side == 1 ? rho : 1 / rho)
-                    .setR(r + dz + r * dz / 100)
-                    .setX(x + dz + r * dz / 100)
-                    .setG(g + dy + g * dy / 100)
-                    .setB(b + dy + b * dy / 100)
-                    .endStep();
+                .setAlpha(alpha * (side == 1 ? 1 : -1))
+                .setRho(side == 1 ? rho : 1 / rho)
+                .setR(r + dz + r * dz / 100)
+                .setX(x + dz + r * dz / 100)
+                .setG(g + dy + g * dy / 100)
+                .setB(b + dy + b * dy / 100)
+                .endStep();
         }
     }
 
@@ -201,12 +241,12 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         double transformerWindingRatedU = p.asDouble(CgmesNames.TRANSFORMER_WINDING_RATED_U);
         double voltageStepIncrementOutOfPhase = p.asDouble("voltageStepIncrementOutOfPhase");
         boolean voltageStepIncrementOutOfPhaseIsSet = p
-                .containsKey("voltageStepIncrementOutOfPhase");
+            .containsKey("voltageStepIncrementOutOfPhase");
         double voltageStepIncrement = p.asDouble("voltageStepIncrement");
         boolean voltageStepIncrementIsSet = p.containsKey("voltageStepIncrement");
         if (voltageStepIncrementOutOfPhaseIsSet && voltageStepIncrementOutOfPhase != 0) {
             du = (configIsInvertVoltageStepIncrementOutOfPhase ? -1 : 1)
-                    * voltageStepIncrementOutOfPhase / transformerWindingRatedU;
+                * voltageStepIncrementOutOfPhase / transformerWindingRatedU;
         } else if (voltageStepIncrementIsSet && voltageStepIncrement != 0) {
             du = voltageStepIncrement / 100;
         } else {
@@ -232,9 +272,9 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     private void fillAlphasRhos(
-            double du0, double du, double theta,
-            List<Double> alphas,
-            List<Double> rhos) {
+        double du0, double du, double theta,
+        List<Double> alphas,
+        List<Double> rhos) {
         if (asymmetrical()) {
             fillAlphaRhoListsAsymmetrical(du0, du, theta, alphas, rhos);
         } else if (symmetrical()) {
@@ -243,46 +283,73 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     private void fillAlphaRhoListsAsymmetrical(
-            double du0, double du, double theta,
-            List<Double> alphas,
-            List<Double> rhos) {
+        double du0, double du, double theta,
+        List<Double> alphas,
+        List<Double> rhos) {
         for (int step = lowStep; step <= highStep; step++) {
             int n = step - neutralStep;
             double dx = (n * du - du0) * Math.cos(theta);
             double dy = (n * du - du0) * Math.sin(theta);
-            double alpha = Math.atan2(dy, 1 + dx);
-            double rho = 1 / Math.hypot(dy, 1 + dx);
-            alphas.add(alpha);
-            rhos.add(rho);
+            double angle = Math.atan2(dy, 1 + dx);
+            double ratio = Math.hypot(dy, 1 + dx);
+
+            // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
+            // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
+            // V2 = V1 * rho and V2 = V1 / ratio
+            // This is why we have: rho=1/ratio and alpha=-angle
+            double alpha = -angle;
+            double rho = 1 / ratio;
+
+            // In IIDM, all PTC must be side one
+            alphas.add(side == 1 ? alpha : -alpha);
+            rhos.add(side == 1 ? rho : 1 / rho);
 
             LOG.debug("ACTUAL    n,dx,dy,alpha,rho  {} {} {} {} {}", n, dx, dy, alpha, rho);
         }
     }
 
     private void fillAlphaRhoListsSymmetrical(
-            double du0, double du, double theta,
-            List<Double> alphas,
-            List<Double> rhos) {
+        double du0, double du, double theta,
+        List<Double> alphas,
+        List<Double> rhos) {
         double stepPhaseShiftIncrement = p.asDouble("stepPhaseShiftIncrement");
         boolean stepPhaseShiftIncrementIsSet = p.containsKey("stepPhaseShiftIncrement");
         if (stepPhaseShiftIncrementIsSet && stepPhaseShiftIncrement != 0) {
             for (int step = lowStep; step <= highStep; step++) {
                 int n = step - neutralStep;
-                double alpha = n * Math.toRadians(
+                double angle = n * Math.toRadians(
                         (configIsInvertVoltageStepIncrementOutOfPhase ? -1 : 1)
                                 * stepPhaseShiftIncrement);
-                double rho = 1.0;
-                alphas.add(alpha);
-                rhos.add(rho);
+                double ratio = 1.0;
+
+                // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
+                // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
+                // V2 = V1 * rho and V2 = V1 / ratio
+                // This is why we have: rho=1/ratio and alpha=-angle
+                double alpha = -angle;
+                double rho = 1 / ratio;
+
+                // In IIDM, all PTC must be side one
+                alphas.add(side == 1 ? alpha : -alpha);
+                rhos.add(side == 1 ? rho : 1 / rho);
             }
         } else {
             for (int step = lowStep; step <= highStep; step++) {
                 int n = step - neutralStep;
                 double dy = (n * du / 2 - du0) * Math.sin(theta);
-                double alpha = 2 * Math.asin(dy);
-                double rho = 1.0;
-                alphas.add(alpha);
-                rhos.add(rho);
+                double angle = 2 * Math.asin(dy);
+                double ratio = 1.0;
+
+                // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
+                // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
+                // V2 = V1 * rho and V2 = V1 / ratio
+                // This is why we have: rho=1/ratio and alpha=-angle
+                double alpha = -angle;
+                double rho = 1 / ratio;
+
+                // In IIDM, all PTC must be side one
+                alphas.add(side == 1 ? alpha : -alpha);
+                rhos.add(side == 1 ? rho : 1 / rho);
 
                 LOG.debug("ACTUAL    n,dy,alpha,rho  {} {} {} {}", n, dy, alpha, rho);
             }
@@ -290,9 +357,9 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     private void addSteps(
-            List<Double> alphas, List<Double> rhos,
-            double theta,
-            PhaseTapChangerAdder ptca) {
+        List<Double> alphas, List<Double> rhos,
+        double theta,
+        PhaseTapChangerAdder ptca) {
 
         double[] xs = new double[2];
         boolean xStepRangeIsConsistent = gatherxStepMinMax(xs);
@@ -300,9 +367,9 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         double xStepMax = xs[1];
 
         double alphaMax = alphas.stream()
-                .mapToDouble(Double::doubleValue)
-                .max()
-                .orElse(Double.NaN);
+            .mapToDouble(Double::doubleValue)
+            .max()
+            .orElse(Double.NaN);
         LOG.debug("ACTUAL    alphaMax {}", alphaMax);
         LOG.debug("ACTUAL    xStepMin, xStepMax {}, {}", xStepMin, xStepMax);
 
@@ -314,7 +381,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
 
         for (int i = 0; i < alphas.size(); i++) {
             double alpha = alphas.get(i);
-            double rho = rhos.get(i);
+            double rho =  rhos.get(i);
             double x = 0.0;
             if (!xStepRangeIsConsistent || alphaMax == 0) {
                 x = tx.getX();
@@ -328,36 +395,36 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             }
             double dx = (x - tx.getX()) / tx.getX() * 100;
             ptca.beginStep()
-                    .setAlpha(Math.toDegrees(alpha))
-                    .setRho(rho)
-                    .setR(0)
-                    .setX(dx)
-                    .setG(0)
-                    .setB(0)
-                    .endStep();
+                .setAlpha(Math.toDegrees(alpha))
+                .setRho(rho)
+                .setR(0)
+                .setX(dx)
+                .setG(0)
+                .setB(0)
+                .endStep();
             if (LOG.isDebugEnabled()) {
                 int n = (lowStep + i) - neutralStep;
                 LOG.debug("ACTUAL    n,rho,alpha,x,dx   {} {} {} {} {}",
-                        n, rho, Math.toDegrees(alpha), x, dx);
+                    n, rho, Math.toDegrees(alpha), x, dx);
             }
         }
     }
 
     private static double getStepXforAsymmetrical(
-            double xStepMin, double xStepMax,
-            double alpha, double alphaMax,
-            double theta) {
+        double xStepMin, double xStepMax,
+        double alpha, double alphaMax,
+        double theta) {
         double numer = Math.sin(theta) - Math.tan(alphaMax) * Math.cos(theta);
         double denom = Math.sin(theta) - Math.tan(alpha) * Math.cos(theta);
         return xStepMin + (xStepMax - xStepMin)
-                * Math.pow(Math.tan(alpha) / Math.tan(alphaMax) * numer / denom, 2);
+            * Math.pow(Math.tan(alpha) / Math.tan(alphaMax) * numer / denom, 2);
     }
 
     private static double getStepXforSymmetrical(
-            double xStepMin, double xStepMax,
-            double alpha, double alphaMax) {
+        double xStepMin, double xStepMax,
+        double alpha, double alphaMax) {
         return xStepMin + (xStepMax - xStepMin)
-                * Math.pow(Math.sin(alpha / 2) / Math.sin(alphaMax / 2), 2);
+            * Math.pow(Math.sin(alpha / 2) / Math.sin(alphaMax / 2), 2);
     }
 
     private boolean gatherxStepMinMax(double[] xs) {
@@ -391,8 +458,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         if (xStepMin < 0 || xStepMax <= 0 || xStepMin > xStepMax) {
             xStepRangeIsConsistent = false;
             String reason = String.format("Inconsistent xStepMin, xStepMax [%f, %f]",
-                    xStepMin,
-                    xStepMax);
+                xStepMin,
+                xStepMax);
             ignored("xStep range", reason);
         }
 
@@ -443,6 +510,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
     private final int neutralStep;
     private final int defaultStep;
     private final int side;
+    private final boolean ltcFlag;
 
     private boolean configIsInvertVoltageStepIncrementOutOfPhase;
 

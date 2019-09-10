@@ -175,11 +175,11 @@ public class ChangeTestIidmModel16 {
 //            .setX(4.0).setRatedU1(11.1).setRatedU2(22.2);
         Terminal t = network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
             .getTerminal(Branch.Side.ONE);
-        network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
-            .getRatioTapChanger()
-            .setTapPosition(7)
-            .setRegulating(true)
-            .setRegulationTerminal(t);
+//        network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
+//            .getRatioTapChanger()
+//            .setTapPosition(7)
+//            .setRegulating(true)
+//            .setRegulationTerminal(t);
 
         network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
             .newPhaseTapChanger()

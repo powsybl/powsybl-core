@@ -9,6 +9,7 @@ package com.powsybl.triplestore.api;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -19,7 +20,7 @@ import com.powsybl.commons.datasource.DataSource;
  */
 public interface TripleStore {
 
-    void read(String base, String contextName, InputStream is);
+    void read(InputStream is, String base, String contextName);
 
     void write(DataSource ds);
 
@@ -33,7 +34,28 @@ public interface TripleStore {
 
     PropertyBags query(String query);
 
-    void add(String contextName, String type, PropertyBags objects);
+    /**
+     * Add to the triple store statements for creating new resources, instances of a
+     * specific class
+     *
+     * @param contextName context where the statements are added
+     * @param namespace   the namespace of the class of the new resources
+     * @param type        the class of the new resources
+     * @param objects     properties of the resources
+     */
+    void add(String contextName, String namespace, String type, PropertyBags objects);
+
+    /**
+     * Add to the triple store statements for creating a new resource, instance of a
+     * specific class
+     *
+     * @param contextName the context where the statements are added
+     * @param namespace   the namespace of the class of the new resource
+     * @param type        the class of the new resource
+     * @param properties  properties of the resource
+     * @return the id of the new resource
+     */
+    String add(String contextName, String namespace, String type, PropertyBag properties);
 
     Set<String> contextNames();
 
@@ -45,6 +67,22 @@ public interface TripleStore {
     void duplicateRepo();
 
     PropertyBags queryClone(String queryText);
-    
+
     void updateClone(String queryText);
+
+    /**
+     * Add a namespace to the triple store
+     *
+     * @param prefix    the prefix of the namespace
+     * @param namespace the namespace
+     */
+    void addNamespace(String prefix, String namespace);
+
+    /**
+     * Return the namespaces defined in the triple store
+     *
+     * @return the list of namespaces defined in the triple store
+     */
+    List<PrefixNamespace> getNamespaces();
+
 }

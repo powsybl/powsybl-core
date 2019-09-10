@@ -155,7 +155,10 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
         if (tag == null) {
             throw new ValidationException(this, "geographical tag is null");
         }
-        geographicalTags.add(tag);
+        Set<String> oldValue = new LinkedHashSet<>(this.geographicalTags);
+        if (geographicalTags.add(tag)) {
+            getNetwork().getListeners().notifyUpdate(this, "geographicalTags", oldValue, geographicalTags);
+        }
         return this;
     }
 

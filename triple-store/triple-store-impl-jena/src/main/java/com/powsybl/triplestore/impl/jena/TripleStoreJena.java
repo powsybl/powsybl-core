@@ -14,7 +14,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -35,7 +37,6 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.rdf.model.impl.Util;
 import org.apache.jena.shared.PropertyNotFoundException;
-import org.apache.jena.shared.uuid.JenaUUID;
 import org.apache.jena.update.UpdateAction;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateRequest;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
+import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreException;
@@ -72,14 +74,14 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void read(String base, String contextName, InputStream is) {
+    public void read(InputStream is, String baseName, String contextName) {
         Model m = ModelFactory.createDefaultModel();
-        m.read(is, base, formatFromName(contextName));
+        m.read(is, baseName, guessFormatFromName(contextName));
         dataset.addNamedModel(namedModelFromName(contextName), m);
         union = union.union(m);
     }
 
-    private static String formatFromName(String name) {
+    private static String guessFormatFromName(String name) {
         if (name.endsWith(".ttl")) {
             return "TURTLE";
         } else if (name.endsWith(".xml")) {
@@ -194,6 +196,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         UpdateRequest request = UpdateFactory.create(updateStatement);
         UpdateAction.execute(request, dataset);
     }
+
     @Override
     public void updateClone(String query) {
         // TODO elena
@@ -265,42 +268,47 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void add(String graph, String objType, PropertyBags statements) {
-        String name = null;
-        Iterator<String> k = dataset.listNames();
-        while (k.hasNext()) {
-            String n = k.next();
-            if (n.contains("EQ")) {
-                name = n.replace("EQ", graph);
-                break;
-            }
-        }
-
-        String context = name;
-        Model m = dataset.getNamedModel(context);
-        if (m == null) {
-            m = ModelFactory.createDefaultModel();
-            m.setNsPrefixes(union.getNsPrefixMap());
-        }
-
+    public void add(String contextName, String objNs, String objType, PropertyBags statements) {
+        Model m = getModel(contextName);
         for (PropertyBag statement : statements) {
-            createStatements(m, objType, statement);
+            createStatements(m, objNs, objType, statement);
         }
-        dataset.addNamedModel(context, m);
+        dataset.addNamedModel(contextName, m);
         union = union.union(m);
     }
 
-    private void createStatements(Model m, String objType, PropertyBag statement) {
+    @Override
+    public String add(String contextName, String objNs, String objType, PropertyBag properties) {
+        Model m = getModel(contextName);
+        String id = createStatements(m, objNs, objType, properties);
+        dataset.addNamedModel(contextName, m);
+        union = union.union(m);
+        return id;
+    }
 
-        Resource resource = m.createResource(JenaUUID.generate().asString());
+    private Model getModel(String context) {
+        Model m = dataset.getNamedModel(context);
+        if (m == null) {
+            m = ModelFactory.createDefaultModel();
+        }
+        if (m.getNsPrefixMap().isEmpty()) {
+            m.setNsPrefixes(union.getNsPrefixMap());
+        }
+        return m;
+    }
+
+    private String createStatements(Model m, String objNs, String objType, PropertyBag statement) {
+
+        Resource resource = m.createResource(m.getNsPrefixURI("data") + "_" + UUID.randomUUID().toString());
         Property parentPredicate = RDF.type;
-        Resource parentObject = m.createResource(objType);
+        Resource parentObject = m.createResource(objNs + objType);
         Statement parentSt = m.createStatement(resource, parentPredicate, parentObject);
         m.add(parentSt);
 
         List<String> names = statement.propertyNames();
         names.forEach(name -> {
-            Property predicate = m.createProperty(objType + "." + name);
+            String property = statement.isClassProperty(name) ? name : objType + "." + name;
+            Property predicate = m.createProperty(objNs + property);
             Statement st;
             if (statement.isResource(name)) {
                 String namespace = m.getNsPrefixURI(statement.namespacePrefix(name));
@@ -312,6 +320,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
             }
             m.add(st);
         });
+        return resource.getLocalName();
     }
 
     private QueryExecution queryExecutionFromQueryText(String query) {
@@ -399,10 +408,25 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         return namespaceForContexts() + contextName;
     }
 
+    @Override
+    public void addNamespace(String prefix, String namespace) {
+        union.setNsPrefix(prefix, namespace);
+    }
+
+    @Override
+    public List<PrefixNamespace> getNamespaces() {
+        List<PrefixNamespace> namespaces = new ArrayList<>();
+        Map<String, String> namespacesMap = union.getNsPrefixMap();
+        namespacesMap.keySet().forEach(
+            prefix -> namespaces.add(new PrefixNamespace(prefix, namespacesMap.get(prefix))));
+        return namespaces;
+    }
+
     private final Dataset dataset;
     private Dataset datasetClone;
     private Model union;
     private Model unionClone;
     private RDFWriter writer;
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreJena.class);
+
 }

@@ -34,9 +34,9 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
  */
 public class TripleStoreTester {
 
-    public TripleStoreTester(List<String> implementations, String base, String... inputResourceNames) {
+    public TripleStoreTester(List<String> implementations, String baseName, String... inputResourceNames) {
         this.implementations = implementations;
-        this.base = base;
+        this.baseName = baseName;
         this.inputResourceNames = inputResourceNames;
         this.tripleStores = new HashMap<>(implementations.size());
     }
@@ -48,9 +48,9 @@ public class TripleStoreTester {
             assertNotNull(ts);
             for (String r : inputResourceNames) {
                 try (InputStream is = resourceStream(r)) {
-                    ts.read(base, r, is);
+                    ts.read(is, baseName, r);
                 } catch (IOException e) {
-                    throw new TripleStoreException(String.format("Reading %s %s", base, r), e);
+                    throw new TripleStoreException(String.format("Reading %s %s", baseName, r), e);
                 }
             }
             ts.print(LOG::info);
@@ -65,10 +65,10 @@ public class TripleStoreTester {
             assertNotNull(ts);
             for (String r : inputResourceNames) {
                 try (InputStream is = resourceStream(r)) {
-                    ts.read(base, r, is);
+                    ts.read(is,baseName, r);
                     ts.duplicate();
                 } catch (IOException e) {
-                    throw new TripleStoreException(String.format("Reading %s %s", base, r), e);
+                    throw new TripleStoreException(String.format("Reading %s %s", baseName, r), e);
                 }
             }
             ts.print(LOG::info);
@@ -152,9 +152,9 @@ public class TripleStoreTester {
             assertNotNull(ts);
             for (String r : inputResourceNames) {
                 try (InputStream is = resourceStream(r)) {
-                    ts.read(base, r, is);
+                    ts.read(is,baseName, r);
                 } catch (IOException e) {
-                    throw new TripleStoreException(String.format("Reading %s %s", base, r), e);
+                    throw new TripleStoreException(String.format("Reading %s %s", baseName, r), e);
                 }
             }
             tripleStores.put(impl, ts);
@@ -218,7 +218,7 @@ public class TripleStoreTester {
     }
 
     private final List<String> implementations;
-    private final String base;
+    private final String baseName;
     private final String[] inputResourceNames;
     private final Map<String, TripleStore> tripleStores;
     private static long start;

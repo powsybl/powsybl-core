@@ -37,6 +37,7 @@ import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.TapChangerStep;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -261,6 +262,22 @@ public class Comparison {
         compare("ratedS", expected.getRatedS(), actual.getRatedS());
         compare("terminalP", expected.getTerminal().getP(), actual.getTerminal().getP());
         compare("terminalQ", expected.getTerminal().getQ(), actual.getTerminal().getQ());
+        compareQPercents(expected.getExtension(CoordinatedReactiveControl.class), actual.getExtension(CoordinatedReactiveControl.class));
+    }
+
+    private void compareQPercents(CoordinatedReactiveControl expected, CoordinatedReactiveControl actual) {
+        if (expected == null) {
+            if (actual != null) {
+                diff.unexpected("qPercent");
+                return;
+            }
+            return;
+        }
+        if (actual == null) {
+            diff.unexpected("qPercent");
+            return;
+        }
+        diff.compare("qPercent", expected.getQPercent(), actual.getQPercent());
     }
 
     private void compareGeneratorReactiveLimits(ReactiveLimits expected, ReactiveLimits actual) {
@@ -452,6 +469,9 @@ public class Comparison {
             compare("tapChanger.tapPosition",
                     expected.getTapPosition(),
                     actual.getTapPosition());
+            compare("tapChanger.targetDeadband",
+                    expected.getTargetDeadband(),
+                    actual.getTargetDeadband());
             compare("tapChanger.stepCount", expected.getStepCount(), actual.getStepCount());
             // Check steps
             for (int k = expected.getLowTapPosition(); k <= expected.getStepCount(); k++) {
