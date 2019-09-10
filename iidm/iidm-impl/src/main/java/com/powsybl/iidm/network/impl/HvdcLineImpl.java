@@ -63,10 +63,6 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
         return converterStation;
     }
 
-    private void detach(AbstractHvdcConverterStation<?> converterStation) {
-        converterStation.setHvdcLine(null);
-    }
-
     protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
     }

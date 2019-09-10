@@ -83,6 +83,13 @@ public class VscTest {
 
     @Test
     public void testRemove() {
+        try {
+            cs1.remove();
+            fail();
+        } catch (ValidationException e) {
+            // Ignored
+        }
+
         network.getHvdcLine("L").remove();
         assertEquals(0, network.getHvdcLineCount());
 

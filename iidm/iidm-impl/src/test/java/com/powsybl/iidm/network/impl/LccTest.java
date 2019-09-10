@@ -79,6 +79,13 @@ public class LccTest {
 
     @Test
     public void testHvdcLineRemove() {
+        try {
+            cs1.remove();
+            fail();
+        } catch (ValidationException e) {
+            // Ignored
+        }
+
         network.getHvdcLine("L").remove();
         assertEquals(0, network.getHvdcLineCount());
 
