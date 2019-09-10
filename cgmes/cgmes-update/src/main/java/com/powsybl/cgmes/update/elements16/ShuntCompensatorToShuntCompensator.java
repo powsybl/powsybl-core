@@ -9,10 +9,10 @@ import com.powsybl.cgmes.update.IidmChange;
 import com.powsybl.cgmes.update.IidmToCgmes16;
 import com.powsybl.iidm.network.ShuntCompensator;
 
-public class ShuntCompensatorToShuntCompensator extends IidmToCgmes16 implements ConversionMapper {
+public class ShuntCompensatorToShuntCompensator implements ConversionMapper {
 
     public ShuntCompensatorToShuntCompensator(IidmChange change) {
-        super(change);
+        this.change = change;
     }
 
     @Override
@@ -21,7 +21,7 @@ public class ShuntCompensatorToShuntCompensator extends IidmToCgmes16 implements
         final Map<String, CgmesPredicateDetails> map = new HashMap<>();
         ShuntCompensator newShuntCompensator = (ShuntCompensator) change.getIdentifiable();
 
-        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_TP", false, "cim:LinearShuntCompensator"));
+        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:LinearShuntCompensator"));
 
         String name = newShuntCompensator.getName();
         if (name != null) {
@@ -42,9 +42,16 @@ public class ShuntCompensatorToShuntCompensator extends IidmToCgmes16 implements
         map.put("maximumSectionCount", new CgmesPredicateDetails(
             "cim:ShuntCompensator.maximumSections", "_EQ", false, String.valueOf(maximumSectionCount)));
 
-        // + nomU + normalSections
+        double nominalVoltage = newShuntCompensator.getTerminal().getVoltageLevel().getNominalV();
+        map.put("nomU", new CgmesPredicateDetails(
+            "cim:ShuntCompensator.nomU", "_EQ", false, String.valueOf(nominalVoltage)));
+
+        double currentSectionCount = newShuntCompensator.getCurrentSectionCount();
+        map.put("normalSections", new CgmesPredicateDetails(
+            "cim:ShuntCompensator.normalSections", "_EQ", false, String.valueOf(currentSectionCount)));
 
         return map;
     }
 
+    private IidmChange change;
 }

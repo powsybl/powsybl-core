@@ -1,6 +1,6 @@
 package com.powsybl.cgmes.update.test;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -40,9 +40,7 @@ public class IidmTestImportFromCgmes {
             params.put("powsyblTripleStore", impl);
             ReadOnlyDataSource ds = gridModel.dataSource();
             Network network = i.importData(ds, params);
-            if (network.getSubstationCount() == 0) {
-                fail("Model is empty");
-            }
+            assertNotNull(network);
             network.setCaseDate(DateTime.parse(dateFormat.format(date)));
             LOG.info("Imported TestModel From Cgmes method on {}", network.getCaseDate());
 

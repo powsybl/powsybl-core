@@ -19,6 +19,7 @@ public class BusToTopologicalNode implements ConversionMapper {
         this.cgmes = cgmes;
         this.currId = change.getIdentifiableId();
         this.svVoltageId = getSvVoltageId();
+        this.terminalId = getTerminalId();
     }
 
     @Override
@@ -59,12 +60,32 @@ public class BusToTopologicalNode implements ConversionMapper {
         double angle = !String.valueOf(newBus.getAngle()).equals("NaN") ? newBus.getAngle() : 0.0;
         map.put("angle",
             new CgmesPredicateDetails("cim:SvVoltage.angle", "_SV", false, String.valueOf(angle), svVoltageId));
+        /**
+         * Create TP Terminal element
+         */
+        map.put("rdfTypeTerminal_TP", new CgmesPredicateDetails("rdf:type", "_TP", false, "cim:Terminal", terminalId));
+
+        map.put("TerminalTopologicalNode", new CgmesPredicateDetails(
+            "cim:Terminal.TopologicalNode", "_TP", false, currId, terminalId));
+        /**
+         * Create EQ Terminal element
+         */
+        map.put("rdfTypeTerminal_EQ", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:Terminal", terminalId));
+
+        String TeName = newBus.getName().concat("_TE");
+        if (TeName != null) {
+            map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, TeName, terminalId));
+        }
 
         return map;
     }
 
     private String getVoltageId(Bus bus) {
         return bus.getVoltageLevel().getId();
+    }
+    // TODO elena check for existing TerminalID
+    private String getTerminalId() {
+        return currId.concat("_TE");
     }
 
     private String getBaseVoltageId(Bus bus) {
@@ -102,5 +123,6 @@ public class BusToTopologicalNode implements ConversionMapper {
     private CgmesModel cgmes;
     private String currId;
     private String svVoltageId;
+    private String terminalId;
 
 }

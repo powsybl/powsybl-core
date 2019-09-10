@@ -20,7 +20,7 @@ public class ShuntCompensatorToShuntCompensator implements ConversionMapper {
         final Map<String, CgmesPredicateDetails> map = new HashMap<>();
         ShuntCompensator newShuntCompensator = (ShuntCompensator) change.getIdentifiable();
 
-        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_TP", false, "cim:ShuntCompensator"));
+        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:ShuntCompensator"));
 
         String name = newShuntCompensator.getName();
         if (name != null) {

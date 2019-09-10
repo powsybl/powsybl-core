@@ -52,7 +52,7 @@ public class IidmToCgmes16 extends AbstractIidmToCgmes {
                 mapIidmToCgmesPredicates = lcc.mapIidmToCgmesPredicates();
                 break;
             case LINE_IMPL:
-                LineToACLineSegment lac = new LineToACLineSegment(change);
+                LineToACLineSegment lac = new LineToACLineSegment(change, cgmes);
                 mapIidmToCgmesPredicates = lac.mapIidmToCgmesPredicates();
                 break;
             case SHUNTCOMPENSATOR_IMPL:
