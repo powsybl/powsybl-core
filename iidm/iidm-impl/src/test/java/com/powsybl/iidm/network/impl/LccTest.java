@@ -27,12 +27,14 @@ public class LccTest {
     public ExpectedException thrown = ExpectedException.none();
 
     private Network network;
+    private HvdcLine hvdcLine;
     private LccConverterStation cs1;
     private LccConverterStation cs2;
 
     @Before
     public void setUp() {
         network = HvdcTestNetwork.createLcc();
+        hvdcLine = network.getHvdcLine("L");
         cs1 = network.getLccConverterStation("C1");
         cs2 = network.getLccConverterStation("C2");
     }
@@ -67,6 +69,11 @@ public class LccTest {
         assertEquals(cs1, l.getConverterStation1());
         assertEquals(cs2, l.getConverterStation2());
 
+        assertSame(hvdcLine, cs1.getHvdcLine());
+        assertSame(hvdcLine, cs2.getHvdcLine());
+        assertSame(cs1, hvdcLine.getConverterStation1());
+        assertSame(cs2, hvdcLine.getConverterStation2());
+
         // remove
         int count = network.getLccConverterStationCount();
         cs1.remove();
@@ -79,6 +86,9 @@ public class LccTest {
     public void testHvdcLineRemove() {
         network.getHvdcLine("L").remove();
         assertEquals(0, network.getHvdcLineCount());
+
+        assertNull(cs1.getHvdcLine());
+        assertNull(cs2.getHvdcLine());
     }
 
     @Test

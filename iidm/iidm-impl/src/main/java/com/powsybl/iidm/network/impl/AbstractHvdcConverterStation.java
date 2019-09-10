@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.HvdcLine;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -15,11 +16,24 @@ import com.powsybl.iidm.network.HvdcConverterStation;
  */
 abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> extends AbstractConnectable<T> implements HvdcConverterStation<T> {
 
+    private HvdcLine hvdcLine;
+
     private float lossFactor = Float.NaN;
 
     AbstractHvdcConverterStation(String id, String name, float lossFactor) {
         super(id, name);
+        this.hvdcLine = null;
         this.lossFactor = lossFactor;
+    }
+
+    @Override
+    public HvdcLine getHvdcLine() {
+        return hvdcLine;
+    }
+
+    T setHvdcLine(HvdcLine hvdcLine) {
+        this.hvdcLine = hvdcLine;
+        return (T) this;
     }
 
     @Override

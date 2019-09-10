@@ -15,6 +15,11 @@ package com.powsybl.iidm.network;
  */
 public interface HvdcLine extends Identifiable<HvdcLine> {
 
+    enum Side {
+        ONE,
+        TWO
+    }
+
     /**
      * Converters mode used to known the sign of the active power of the HVDC line.
      */

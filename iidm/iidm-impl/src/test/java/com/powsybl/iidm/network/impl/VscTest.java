@@ -23,12 +23,14 @@ import static org.junit.Assert.*;
 public class VscTest {
 
     private Network network;
+    private HvdcLine hvdcLine;
     private VscConverterStation cs1;
     private VscConverterStation cs2;
 
     @Before
     public void setUp() {
         network = HvdcTestNetwork.createVsc();
+        hvdcLine = network.getHvdcLine("L");
         cs1 = network.getVscConverterStation("C1");
         cs2 = network.getVscConverterStation("C2");
     }
@@ -71,6 +73,11 @@ public class VscTest {
         assertNotEquals(l.getConverterStation1().getTerminal().getBusView().getBus().getSynchronousComponent().getNum(),
                         l.getConverterStation2().getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
 
+        assertSame(hvdcLine, cs1.getHvdcLine());
+        assertSame(hvdcLine, cs2.getHvdcLine());
+        assertSame(cs1, hvdcLine.getConverterStation1());
+        assertSame(cs2, hvdcLine.getConverterStation2());
+
         // remove
         int count = network.getVscConverterStationCount();
         cs1.remove();
@@ -83,6 +90,9 @@ public class VscTest {
     public void testRemove() {
         network.getHvdcLine("L").remove();
         assertEquals(0, network.getHvdcLineCount());
+
+        assertNull(cs1.getHvdcLine());
+        assertNull(cs2.getHvdcLine());
     }
 
     @Test
