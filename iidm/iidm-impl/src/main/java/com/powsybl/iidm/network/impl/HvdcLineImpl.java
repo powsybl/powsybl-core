@@ -35,11 +35,11 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
 
     //
 
-    private final AbstractHvdcConverterStation<?> converterStation1;
-
-    private final AbstractHvdcConverterStation<?> converterStation2;
-
     private final Ref<NetworkImpl> networkRef;
+
+    private AbstractHvdcConverterStation<?> converterStation1;
+
+    private AbstractHvdcConverterStation<?> converterStation2;
 
     HvdcLineImpl(String id, String name, double r, double nominalV, double maxP, ConvertersMode convertersMode, double activePowerSetpoint,
                  AbstractHvdcConverterStation<?> converterStation1, AbstractHvdcConverterStation<?> converterStation2,
@@ -162,6 +162,11 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
     }
 
     @Override
+    public AbstractHvdcConverterStation<?> getConverterStation(Side side) {
+        return (side == Side.ONE) ? getConverterStation1() : getConverterStation2();
+    }
+
+    @Override
     public AbstractHvdcConverterStation<?> getConverterStation1() {
         return converterStation1;
     }
@@ -200,8 +205,11 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
 
     @Override
     public void remove() {
-        detach(converterStation1);
-        detach(converterStation2);
+        // Detach converter stations
+        converterStation1.setHvdcLine(null);
+        converterStation2.setHvdcLine(null);
+        converterStation1 = null;
+        converterStation2 = null;
 
         NetworkImpl network = getNetwork();
         network.getIndex().remove(this);

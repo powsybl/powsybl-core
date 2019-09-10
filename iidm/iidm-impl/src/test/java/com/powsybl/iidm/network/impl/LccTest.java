@@ -73,13 +73,6 @@ public class LccTest {
         assertSame(hvdcLine, cs2.getHvdcLine());
         assertSame(cs1, hvdcLine.getConverterStation1());
         assertSame(cs2, hvdcLine.getConverterStation2());
-
-        // remove
-        int count = network.getLccConverterStationCount();
-        cs1.remove();
-        assertNotNull(cs1);
-        assertNull(network.getLccConverterStation("C1"));
-        assertEquals(count - 1, network.getLccConverterStationCount());
     }
 
     @Test
@@ -88,7 +81,16 @@ public class LccTest {
         assertEquals(0, network.getHvdcLineCount());
 
         assertNull(cs1.getHvdcLine());
+        assertNull(hvdcLine.getConverterStation1());
         assertNull(cs2.getHvdcLine());
+        assertNull(hvdcLine.getConverterStation2());
+
+        // remove
+        int count = network.getLccConverterStationCount();
+        cs1.remove();
+        assertNotNull(cs1);
+        assertNull(network.getLccConverterStation("C1"));
+        assertEquals(count - 1, network.getLccConverterStationCount());
     }
 
     @Test

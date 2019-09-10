@@ -60,4 +60,12 @@ abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> e
         return (T) this;
     }
 
+    @Override
+    public void remove() {
+        if (hvdcLine != null) {
+            throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
+        }
+        super.remove();
+    }
+
 }
