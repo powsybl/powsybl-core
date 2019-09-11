@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import java.util.Comparator;
 
+import com.powsybl.cgmes.model.CgmesModelException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +35,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         lowStep = rtc.asInt("lowStep");
         highStep = rtc.asInt("highStep");
         neutralStep = rtc.asInt("neutralStep");
-        int defaultStep = rtc.asInt("normalStep", neutralStep);
-        position = fromContinuous(rtc.asDouble("step", rtc.asDouble("SVtapStep", defaultStep)));
+        position = getTapPosition(rtc.asInt("normalStep", neutralStep));
         ltcFlag = rtc.asBoolean("ltcFlag", false);
     }
 
@@ -245,6 +245,17 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
 
     private boolean tabular() {
         return p.containsKey(CgmesNames.RATIO_TAP_CHANGER_TABLE);
+    }
+
+    private int getTapPosition(int defaultStep) {
+        switch (context.config().getProfileUsedForInitialFlowsValues()) {
+            case SSH:
+                return fromContinuous(p.asDouble("step", p.asDouble("SVtapStep", defaultStep)));
+            case SV:
+                return fromContinuous(p.asDouble("SVtapStep", p.asDouble("step", defaultStep)));
+            default:
+                throw new CgmesModelException("Unexpected profile used for initial flows values: " + context.config().getProfileUsedForInitialFlowsValues());
+        }
     }
 
     private final TwoWindingsTransformer tx2;

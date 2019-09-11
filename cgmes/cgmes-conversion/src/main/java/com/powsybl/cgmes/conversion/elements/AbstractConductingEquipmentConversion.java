@@ -211,38 +211,58 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return context.network().getSubstation(context.substationIdMapping().iidm(sid));
     }
 
-    PowerFlow terminalPowerFlow() {
+    private PowerFlow stateVariablesPowerFlow() {
         return terminals[0].t.flow();
     }
 
-    public PowerFlow terminalPowerFlow(int n) {
+    public PowerFlow stateVariablesPowerFlow(int n) {
         return terminals[n - 1].t.flow();
     }
 
-    PowerFlow steadyStatePowerFlow() {
+    private PowerFlow steadyStateHypothesisPowerFlow() {
         return steadyStatePowerFlow;
     }
 
     PowerFlow powerFlow() {
-        // used for state attributes (targetQ, targetP, p0, etc.) outside boundaries
-        // SSH files are priority
-        if (steadyStatePowerFlow().defined()) {
-            return steadyStatePowerFlow();
-        }
-        if (terminalPowerFlow().defined()) {
-            return terminalPowerFlow();
+        switch (context.config().getProfileUsedForInitialFlowsValues()) {
+            case SSH:
+                if (steadyStateHypothesisPowerFlow().defined()) {
+                    return steadyStateHypothesisPowerFlow();
+                }
+                if (stateVariablesPowerFlow().defined()) {
+                    return stateVariablesPowerFlow();
+                }
+                break;
+            case SV:
+                if (stateVariablesPowerFlow().defined()) {
+                    return stateVariablesPowerFlow();
+                }
+                if (steadyStateHypothesisPowerFlow().defined()) {
+                    return steadyStateHypothesisPowerFlow();
+                }
+                break;
         }
         return PowerFlow.UNDEFINED;
     }
 
     PowerFlow powerFlow(int n) {
-        // used for state attributes (targetQ, targetP, p0, etc.) outside boundaries
-        // SSH files are priority
-        if (steadyStatePowerFlow().defined()) {
-            return steadyStatePowerFlow();
-        }
-        if (terminalPowerFlow(n).defined()) {
-            return terminalPowerFlow(n);
+        switch (context.config().getProfileUsedForInitialFlowsValues()) {
+            case SSH:
+                if (steadyStateHypothesisPowerFlow().defined()) {
+                    return steadyStateHypothesisPowerFlow();
+                }
+                if (stateVariablesPowerFlow().defined()) {
+                    return stateVariablesPowerFlow();
+                }
+                break;
+            case SV:
+                if (stateVariablesPowerFlow(n).defined()) {
+                    return stateVariablesPowerFlow(n);
+                }
+                if (steadyStateHypothesisPowerFlow().defined()) {
+                    return steadyStateHypothesisPowerFlow();
+                }
+                break;
         }
         return PowerFlow.UNDEFINED;
     }
