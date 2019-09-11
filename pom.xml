@@ -168,7 +168,7 @@
         <wildflyarquilliancontainerembedded.version>2.1.0.Final</wildflyarquilliancontainerembedded.version>
         <xmlunit.version>2.3.0</xmlunit.version>
 
-        <powsyblmathnative.version>1.0.0</powsyblmathnative.version>
+        <powsyblmathnative.version>1.0.1</powsyblmathnative.version>
     </properties>
 
     <build>
