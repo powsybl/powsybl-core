@@ -39,7 +39,7 @@ install: true
 # With maven 3.5.2 we can't because we get the exception described in https://issues.apache.org/jira/browse/MNG-6590
 script:
 - mvn -B clean verify -Pjacoco coveralls:report
-- if [ "$TRAVIS_OS_NAME" = "linux" -a "$TRAVIS_JDK_VERSION" = "oraclejdk8" -a "$TRAVIS_EVENT_TYPE" = "pull_request" -a "$TRAVIS_SECURE_ENV_VARS"  = "true" ]; then mvn -B sonar:sonar; fi
+- if [ "$TRAVIS_OS_NAME" = "linux" -a "$TRAVIS_JDK_VERSION" = "oraclejdk8" -a "$TRAVIS_SECURE_ENV_VARS"  = "true" ]; then mvn -B sonar:sonar; fi
 
 before_cache:
 - rm -rf $HOME/.m2/repository/com/powsybl
