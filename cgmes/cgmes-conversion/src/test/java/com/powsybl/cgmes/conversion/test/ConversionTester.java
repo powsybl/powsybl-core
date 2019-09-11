@@ -212,7 +212,7 @@ public class ConversionTester {
 
     public static void validateBusBalances(Network network) throws IOException {
         // Precision required on bus balances (MVA)
-        double threshold = 0.2;
+        double threshold = 0.01;
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             ValidationConfig validationConfig = loadFlowValidationConfig(fs, threshold);
             TableFormatterConfig formatterConfig = new TableFormatterConfig();

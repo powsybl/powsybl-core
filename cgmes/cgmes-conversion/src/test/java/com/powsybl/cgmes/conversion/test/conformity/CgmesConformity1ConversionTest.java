@@ -156,8 +156,11 @@ public class CgmesConformity1ConversionTest {
     public void miniNodeBreakerBusBalanceValidation() throws IOException {
         // This test will check that IIDM buses,
         // that will be computed by IIDM from CGMES node-breaker ConnectivityNodes,
-        // have proper balances
+        // have proper balances from SV values
+        Properties params = new Properties();
+        params.put(CgmesImport.PROFILE_USED_FOR_INITIAL_FLOWS_VALUES, "SV");
         ConversionTester t = new ConversionTester(
+            params,
             TripleStoreFactory.onlyDefaultImplementation(),
             new ComparisonConfig());
         t.setValidateBusBalances(true);
