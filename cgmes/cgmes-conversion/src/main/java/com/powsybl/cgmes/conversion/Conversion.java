@@ -27,6 +27,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static com.powsybl.cgmes.conversion.Conversion.Config.FlowProfile.SSH;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -302,6 +304,12 @@ public class Conversion {
     }
 
     public static class Config {
+
+        public enum FlowProfile {
+            SSH,
+            SV
+        }
+
         public List<String> substationIdsExcludedFromMapping() {
             return Collections.emptyList();
         }
@@ -366,6 +374,22 @@ public class Conversion {
             return this;
         }
 
+        public FlowProfile getProfileUsedForInitialFlowsValues() {
+            return profileUsedForInitialFlowsValues;
+        }
+
+        public Config setProfileUsedForInitialFlowsValues(String profileUsedForInitialFlowsValues) {
+            switch (Objects.requireNonNull(profileUsedForInitialFlowsValues)) {
+                case "SSH":
+                case "SV":
+                    this.profileUsedForInitialFlowsValues = FlowProfile.valueOf(profileUsedForInitialFlowsValues);
+                    break;
+                default:
+                    throw new CgmesModelException("Unexpected profile used for initial flows values: " + profileUsedForInitialFlowsValues);
+            }
+            return this;
+        }
+
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
@@ -373,6 +397,7 @@ public class Conversion {
         private double lowImpedanceLineX = 0.05;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
+        private FlowProfile profileUsedForInitialFlowsValues = SSH;
 
     }
 
