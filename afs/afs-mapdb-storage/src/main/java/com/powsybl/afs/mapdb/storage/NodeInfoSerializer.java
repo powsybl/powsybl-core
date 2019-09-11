@@ -59,7 +59,7 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
 
     @Override
     public NodeInfo deserialize(DataInput2 input, int available) throws IOException {
-        int storageVersion = input.readInt();
+        input.readInt(); // Storage version is retrieved here
         String nodeId = UuidSerializer.INSTANCE.deserialize(input, available).toString();
         String name = input.readUTF();
         String pseudoClass = input.readUTF();
