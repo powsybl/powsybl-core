@@ -388,6 +388,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             BusExt[] connectableBus2 = new BusExt[1];
             graph.traverse(node, (v1, e, v2) -> {
                 if (connectableBus2[0] != null) {
+                    // traverse does not stop the algorithm when TERMINATE, it only stops searching in a given direction
+                    // this condition insures that while checking all the edges (in every direction) of a node, if a bus is found, it will not be lost
                     return TraverseResult.TERMINATE;
                 }
                 connectableBus2[0] = getBus(v2);
