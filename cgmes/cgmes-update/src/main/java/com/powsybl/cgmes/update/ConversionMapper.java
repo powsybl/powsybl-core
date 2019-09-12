@@ -1,9 +1,9 @@
 package com.powsybl.cgmes.update;
 
-import java.util.Map;
+import com.google.common.collect.Multimap;
 
 public interface ConversionMapper {
 
-    public Map<String, CgmesPredicateDetails> mapIidmToCgmesPredicates();
+    Multimap<String, CgmesPredicateDetails> mapIidmToCgmesPredicates();
 
 }

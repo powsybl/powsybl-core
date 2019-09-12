@@ -1,9 +1,9 @@
 package com.powsybl.cgmes.update.elements16;
 
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
@@ -23,9 +23,9 @@ public class BusToTopologicalNode implements ConversionMapper {
     }
 
     @Override
-    public Map<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
+    public Multimap<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
 
-        final Map<String, CgmesPredicateDetails> map = new HashMap<>();
+        final Multimap<String, CgmesPredicateDetails> map = ArrayListMultimap.create();
         Bus newBus = (Bus) change.getIdentifiable();
 
         map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_TP", false, "cim:TopologicalNode"));

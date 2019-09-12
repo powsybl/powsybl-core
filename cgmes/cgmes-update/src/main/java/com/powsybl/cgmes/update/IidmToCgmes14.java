@@ -1,12 +1,18 @@
 package com.powsybl.cgmes.update;
 
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Multimap;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.update.elements14.*;
+import com.powsybl.cgmes.update.elements14.BusToTopologicalNode;
+import com.powsybl.cgmes.update.elements14.GeneratorToSynchronousMachine;
+import com.powsybl.cgmes.update.elements14.LineToACLineSegment;
+import com.powsybl.cgmes.update.elements14.LoadToEnergyConsumer;
+import com.powsybl.cgmes.update.elements14.ShuntCompensatorToShuntCompensator;
+import com.powsybl.cgmes.update.elements14.SubstationToSubstation;
+import com.powsybl.cgmes.update.elements14.TwoWindingsTransformerToPowerTransformer;
+import com.powsybl.cgmes.update.elements14.VoltageLevelToVoltageLevel;
 
 public class IidmToCgmes14 extends AbstractIidmToCgmes {
 
@@ -19,7 +25,7 @@ public class IidmToCgmes14 extends AbstractIidmToCgmes {
     }
 
     @Override
-    protected Map<String, CgmesPredicateDetails> switcher() {
+    protected Multimap<String, CgmesPredicateDetails> switcher() {
         LOG.info("IIDM instance is: " + getIidmInstanceName());
         switch (getIidmInstanceName()) {
             case SUBSTATION_IMPL:

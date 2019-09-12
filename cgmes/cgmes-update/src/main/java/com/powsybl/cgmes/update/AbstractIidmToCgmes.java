@@ -2,8 +2,8 @@ package com.powsybl.cgmes.update;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+import com.google.common.collect.Multimap;
 import com.powsybl.cgmes.model.CgmesModel;
 
 public abstract class AbstractIidmToCgmes {
@@ -21,7 +21,7 @@ public abstract class AbstractIidmToCgmes {
 
         if (change instanceof IidmChangeOnUpdate) {
             allCgmesDetails = new ArrayList<CgmesPredicateDetails>();
-            allCgmesDetails.add(switcher().get(change.getAttribute()));
+            allCgmesDetails.addAll(switcher().get(change.getAttribute()));
 
         } else if (change instanceof IidmChangeOnCreate) {
             // for onCreate all fields are inside the Identifiable object.
@@ -41,11 +41,11 @@ public abstract class AbstractIidmToCgmes {
         return change.getIdentifiable().getClass().getSimpleName();
     }
 
-    protected abstract Map<String, CgmesPredicateDetails> switcher();
+    protected abstract Multimap<String, CgmesPredicateDetails> switcher();
 
     protected IidmChange change;
     protected CgmesModel cgmes;
-    protected Map<String, CgmesPredicateDetails> mapIidmToCgmesPredicates;
+    Multimap<String, CgmesPredicateDetails> mapIidmToCgmesPredicates;
     protected List<CgmesPredicateDetails> allCgmesDetails;
 
     public static final String SUBSTATION_IMPL = "SubstationImpl";

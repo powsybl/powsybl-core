@@ -12,7 +12,7 @@ public class IidmChangeOnUpdate implements IidmChange {
         String variant) {
         this.identifiable = Objects.requireNonNull(identifiable);
         this.attribute = Objects.requireNonNull(attribute);
-        this.oldValue = Objects.requireNonNull(oldValue);
+        this.oldValue = oldValue;
         this.newValue = Objects.requireNonNull(newValue);
         this.variant = Objects.requireNonNull(variant);
     }

@@ -1,10 +1,12 @@
 package com.powsybl.cgmes.update;
 
-import java.util.Map;
+import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.elements16.*;
 
@@ -19,7 +21,7 @@ public class IidmToCgmes16 extends AbstractIidmToCgmes {
     }
 
     @Override
-    protected Map<String, CgmesPredicateDetails> switcher() {
+    protected Multimap<String, CgmesPredicateDetails> switcher() {
         LOG.info("IIDM instance is: " + getIidmInstanceName());
         switch (getIidmInstanceName()) {
             case SUBSTATION_IMPL:
@@ -35,9 +37,20 @@ public class IidmToCgmes16 extends AbstractIidmToCgmes {
                 mapIidmToCgmesPredicates = btn.mapIidmToCgmesPredicates();
                 break;
             case TWOWINDINGS_TRANSFORMER_IMPL:
-                TwoWindingsTransformerToPowerTransformer twpt = new TwoWindingsTransformerToPowerTransformer(change,
-                    cgmes);
-                mapIidmToCgmesPredicates = twpt.mapIidmToCgmesPredicates();
+                TwoWindingsTransformerToPowerTransformer twpt = null;
+                mapIidmToCgmesPredicates = ArrayListMultimap.create();
+                if (change.getAttribute().equals("phaseTapChanger")) {
+                    twpt = new PhaseTapChangerToPhaseTapChanger(change, cgmes);
+                    Collection<CgmesPredicateDetails> list = twpt.mapIidmToCgmesPredicates().values();
+                    mapIidmToCgmesPredicates.putAll("phaseTapChanger", list);
+                } else if (change.getAttribute().equals("ratioTapChanger")) {
+                    twpt = new RatioTapChangerToRatioTapChanger(change, cgmes);
+                    Collection<CgmesPredicateDetails> list = twpt.mapIidmToCgmesPredicates().values();
+                    mapIidmToCgmesPredicates.putAll("ratioTapChanger", list);
+                } else {
+                    twpt = new TwoWindingsTransformerToPowerTransformer(change, cgmes);
+                    mapIidmToCgmesPredicates = twpt.mapIidmToCgmesPredicates();
+                }
                 break;
             case GENERATOR_IMPL:
                 GeneratorToSynchronousMachine gsm = new GeneratorToSynchronousMachine(change, cgmes);

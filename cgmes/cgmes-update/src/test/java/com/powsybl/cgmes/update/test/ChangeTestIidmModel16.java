@@ -30,54 +30,54 @@ public class ChangeTestIidmModel16 {
         /**
          * Test onCreation
          */
-//        Substation substation = network.newSubstation()
-//            .setCountry(Country.FI)
-//            .setName("BUS   15_SS")
-//            .setId("_BUS____15_SS")
-//            .add();
-//        VoltageLevel voltageLevel = substation.newVoltageLevel()
-//            .setTopologyKind(TopologyKind.BUS_BREAKER)
-//            .setId("_BUS____15_VL")
-//            .setName("BUS   15_VL")
-//            .setHighVoltageLimit(380.0)
-//            .setLowVoltageLimit(320.0)
-//            .setNominalV(200.0f)
-//            .add();
-//        VoltageLevel voltageLevel2 = substation.newVoltageLevel()
-//            .setTopologyKind(TopologyKind.BUS_BREAKER)
-//            .setId("_BUS____25_VL")
-//            .setName("BUS   25_VL")
-//            .setHighVoltageLimit(385.0)
-//            .setLowVoltageLimit(325.0)
-//            .setNominalV(205.0f)
-//            .add();
+        Substation substation = network.newSubstation()
+            .setCountry(Country.FI)
+            .setName("BUS   15_SS")
+            .setId("_BUS____15_SS")
+            .add();
+        VoltageLevel voltageLevel = substation.newVoltageLevel()
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .setId("_BUS____15_VL")
+            .setName("BUS   15_VL")
+            .setHighVoltageLimit(380.0)
+            .setLowVoltageLimit(320.0)
+            .setNominalV(200.0f)
+            .add();
+        VoltageLevel voltageLevel2 = substation.newVoltageLevel()
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .setId("_BUS____25_VL")
+            .setName("BUS   25_VL")
+            .setHighVoltageLimit(385.0)
+            .setLowVoltageLimit(325.0)
+            .setNominalV(205.0f)
+            .add();
 ////        BusbarSection node1 = voltageLevel.getNodeBreakerView()
 ////            .newBusbarSection()
 ////            .setId("_BUS____15_VL_Node1")
 ////            .setName("BUS  15_VL Node1")
 ////            .setNode(1)
 ////            .add(); --> vertex 1 not found
-//        Bus bus = voltageLevel.getBusBreakerView()
-//            .newBus()
-//            .setName("bus1Name")
-//            .setId("bus1")
-//            .add();
-//        Bus bus2 = voltageLevel2.getBusBreakerView()
-//            .newBus()
-//            .setName("bus2Name")
-//            .setId("bus2")
-//            .add();
-//        Generator generator = voltageLevel.newGenerator()
-//            .setId("_GEN____15_SM")
-//            .setName("GEN    15")
-//            .setBus("bus1")
-//            .setVoltageRegulatorOn(false)
-//            .setRatedS(150.0)
-//            .setTargetP(1.0)
-//            .setTargetQ(2.0)
-//            .setMaxP(300.0)
-//            .setMinP(-300.0)
-//            .add();
+        Bus bus = voltageLevel.getBusBreakerView()
+            .newBus()
+            .setName("bus1Name")
+            .setId("bus1")
+            .add();
+        Bus bus2 = voltageLevel2.getBusBreakerView()
+            .newBus()
+            .setName("bus2Name")
+            .setId("bus2")
+            .add();
+        Generator generator = voltageLevel.newGenerator()
+            .setId("_GEN____15_SM")
+            .setName("GEN    15")
+            .setBus("bus1")
+            .setVoltageRegulatorOn(false)
+            .setRatedS(150.0)
+            .setTargetP(1.0)
+            .setTargetQ(2.0)
+            .setMaxP(300.0)
+            .setMinP(-300.0)
+            .add();
 //////        Terminal terminal = generator.getTerminal();
 ////        generator.setRegulatingTerminal(terminal);
 //        ShuntCompensator shuntCompensator = voltageLevel.newShuntCompensator()
@@ -170,28 +170,27 @@ public class ChangeTestIidmModel16 {
 //
 //        // assertTrue(changes.size() == 6);
 //        bus2.setAngle(2.0).setV(3.2);
-//        network.getBusBreakerView().getBus("_0471bd2a-c766-11e1-8775-005056c00008").setV(4.4).setAngle(4.44);
-//        network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008").setB(1.0).setG(2.0).setR(3.0)
-//            .setX(4.0).setRatedU1(11.1).setRatedU2(22.2);
-        Terminal t = network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
-            .getTerminal(Branch.Side.ONE);
+        network.getBusBreakerView().getBus("_0471bd2a-c766-11e1-8775-005056c00008").setV(4.4).setAngle(4.44);
+        network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008").setB(1.0).setG(2.0).setR(3.0)
+            .setX(4.0).setRatedU1(11.1).setRatedU2(22.2);
+//        Terminal t = network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
+//            .getTerminal(Branch.Side.ONE);
 //        network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
 //            .getRatioTapChanger()
 //            .setTapPosition(7)
+//            .setLowTapPosition(0);
+//
+//        network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
+//            .newPhaseTapChanger()
+//            .setLowTapPosition(0)
+//            .setTapPosition(1)
+//            .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
+//            .setRegulationValue(930.6667)
 //            .setRegulating(true)
-//            .setRegulationTerminal(t);
-
-        network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
-            .newPhaseTapChanger()
-            .setLowTapPosition(0)
-            .setTapPosition(1)
-            .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
-            .setRegulationValue(930.6667)
-            .setRegulating(true)
-            .setRegulationTerminal(t)
-            .beginStep().setR(-28.091503).setX(-28.091503).setG(0.0).setB(0.0).setRho(1.0).setAlpha(5.42).endStep()
-            .beginStep().setR(39.78473).setX(39.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-42.8).endStep()
-            .add();
+//            .setRegulationTerminal(t)
+//            .beginStep().setR(-28.091503).setX(-28.091503).setG(0.0).setB(0.0).setRho(1.0).setAlpha(5.42).endStep()
+//            .beginStep().setR(39.78473).setX(39.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-42.8).endStep()
+//            .add();
 //        network.getGenerator("_044ca8f0-c766-11e1-8775-005056c00008").setRatedS(100).setMaxP(200.0).setMinP(-200.0)
 //            .setTargetP(1.0);
 //        network.getSubstation("_047c929a-c766-11e1-8775-005056c00008").setCountry(Country.GR);

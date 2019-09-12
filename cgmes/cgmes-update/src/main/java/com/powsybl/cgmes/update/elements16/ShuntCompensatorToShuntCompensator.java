@@ -1,12 +1,10 @@
 package com.powsybl.cgmes.update.elements16;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes16;
 import com.powsybl.iidm.network.ShuntCompensator;
 
 public class ShuntCompensatorToShuntCompensator implements ConversionMapper {
@@ -16,9 +14,9 @@ public class ShuntCompensatorToShuntCompensator implements ConversionMapper {
     }
 
     @Override
-    public Map<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
+    public Multimap<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
 
-        final Map<String, CgmesPredicateDetails> map = new HashMap<>();
+        final Multimap<String, CgmesPredicateDetails> map = ArrayListMultimap.create();
         ShuntCompensator newShuntCompensator = (ShuntCompensator) change.getIdentifiable();
 
         map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:LinearShuntCompensator"));

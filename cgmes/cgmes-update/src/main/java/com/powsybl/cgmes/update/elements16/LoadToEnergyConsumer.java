@@ -1,8 +1,7 @@
 package com.powsybl.cgmes.update.elements16;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
@@ -15,9 +14,9 @@ public class LoadToEnergyConsumer implements ConversionMapper {
     }
 
     @Override
-    public Map<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
+    public Multimap<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
 
-        final Map<String, CgmesPredicateDetails> map = new HashMap<>();
+        final Multimap<String, CgmesPredicateDetails> map = ArrayListMultimap.create();
         Load newLoad = (Load) change.getIdentifiable();
 
         map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_TP", false, "cim:EnergyConsumer"));
@@ -44,7 +43,7 @@ public class LoadToEnergyConsumer implements ConversionMapper {
             map.put("q0", new CgmesPredicateDetails(
                 "cim:EnergyConsumer.qfixed", "_EQ", false, String.valueOf(q0)));
         }
-        
+
         double p = newLoad.getP0();
         if (!String.valueOf(p0).equals("NaN")) {
             map.put("p", new CgmesPredicateDetails("cim:EnergyConsumer.p", "_SSH", false, String.valueOf(p)));
