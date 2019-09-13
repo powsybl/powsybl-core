@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesTerminal;
+import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -38,15 +39,24 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
 
     @Override
     public void convert() {
+        double p0 = p.asDouble("pInjection");
+        double q0 = p.asDouble("qInjection", 0.0);
         LoadAdder adder = voltageLevel.newLoad()
-                .setP0(p.asDouble("pInjection"))
-                .setQ0(p.asDouble("qInjection", 0.0))
+                .setP0(p0)
+                .setQ0(q0)
                 .setLoadType(LoadType.FICTITIOUS);
         identify(adder);
         connect(adder);
         Load load = adder.add();
         if (cgmesTerminal != null) {
-            context.convertedTerminal(cgmesTerminal.id(), load.getTerminal(), 1, cgmesTerminal.flow());
+            PowerFlow f = cgmesTerminal.flow();
+            if (!f.defined()) {
+                f = new PowerFlow(p0, q0);
+            }
+            context.convertedTerminal(cgmesTerminal.id(), load.getTerminal(), 1, f);
+        } else {
+            load.getTerminal().setP(p0);
+            load.getTerminal().setQ(q0);
         }
     }
 
