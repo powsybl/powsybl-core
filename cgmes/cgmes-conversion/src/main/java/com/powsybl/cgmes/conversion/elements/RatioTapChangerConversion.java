@@ -248,13 +248,13 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     private int getTapPosition(int defaultStep) {
-        switch (context.config().getProfileUsedForStateHypothesis()) {
+        switch (context.config().getProfileUsedForInitialStateValues()) {
             case SSH:
                 return fromContinuous(p.asDouble("step", p.asDouble("SVtapStep", defaultStep)));
             case SV:
                 return fromContinuous(p.asDouble("SVtapStep", p.asDouble("step", defaultStep)));
             default:
-                throw new CgmesModelException("Unexpected profile used for initial flows values: " + context.config().getProfileUsedForStateHypothesis());
+                throw new CgmesModelException("Unexpected profile used for initial flows values: " + context.config().getProfileUsedForInitialStateValues());
         }
     }
 

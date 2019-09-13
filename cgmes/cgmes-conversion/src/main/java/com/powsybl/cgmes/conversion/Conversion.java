@@ -374,15 +374,15 @@ public class Conversion {
             return this;
         }
 
-        public StateProfile getProfileUsedForStateHypothesis() {
-            return profileUsedForStateHypothesis;
+        public StateProfile getProfileUsedForInitialStateValues() {
+            return profileUsedForInitialStateValues;
         }
 
-        public Config setProfileUsedForStateHypothesis(String profileUsedForInitialFlowsValues) {
+        public Config setProfileUsedForInitialStateValues(String profileUsedForInitialFlowsValues) {
             switch (Objects.requireNonNull(profileUsedForInitialFlowsValues)) {
                 case "SSH":
                 case "SV":
-                    this.profileUsedForStateHypothesis = StateProfile.valueOf(profileUsedForInitialFlowsValues);
+                    this.profileUsedForInitialStateValues = StateProfile.valueOf(profileUsedForInitialFlowsValues);
                     break;
                 default:
                     throw new CgmesModelException("Unexpected profile used for state hypothesis: " + profileUsedForInitialFlowsValues);
@@ -397,7 +397,7 @@ public class Conversion {
         private double lowImpedanceLineX = 0.05;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
-        private StateProfile profileUsedForStateHypothesis = SSH;
+        private StateProfile profileUsedForInitialStateValues = SSH;
 
     }
 
