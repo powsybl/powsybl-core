@@ -45,13 +45,14 @@ In this other table, I listed all the **powsybl-core** modules and the proposed 
 | powsybl-contingency-dsl | None | N/A |
 | powsybl-dsl | None | N/A |
 | powsybl-entsoe-util | None | N/A |
-| **powsybl-iidm-api** | **artifactId: powsybl-iidm-api -> keep OR powsybl-iidm-network, automatic module name: com.powsybl.iidm.api -> com.powsybl.iidm OR com.powsybl.iidm.network, package: com.powsybl.iidm.network -> keep OR com.powsybl.iidm** | **Network model naming strategy OR API naming strategy** |
+| powsybl-iidm-api | None | Exception for iidm children modules |
 | powsybl-iidm-converter-api | Deleted and merged into powsybl-iidm-api | Issue   [#683](https://github.com/powsybl/powsybl-core/issues/683) |
-| **powsybl-iidm-impl** | **package: com.powsybl.iidm.network.impl -> com.powsybl.iidm.impl OR automatic module name: com.powsybl.iidm.impl -> com.powsybl.iidm.network.impl** | **Good practice is to have the automatic module name identical to root package name** |
-| powsybl-iidm-reducer | None | N/A |
-| **powsybl-iidm-test** | **package: com.powsybl.iidm.network.test -> com.powsybl.iidm.test OR automatic module name: com.powsybl.iidm.test -> com.powsybl.iidm.network.test** | **Good practice is to have the automatic module name identical to root package name** |
-| **powsybl-iidm-util** | **package: com.powsybl.iidm.network.util -> com.powsybl.iidm.util OR automatic module name: com.powsybl.iidm.util -> com.powsybl.iidm.network.util** | **Good practice is to have the automatic module name identical to root package name** |
-| powsybl-iidm-xml-converter | package: com.powsybl.iidm.xml -> com.powsybl.iidm.xml.converter, automatic module name: com.powsybl.iidm.xml -> com.powsybl.iidm.xml.converter | Converter naming strategy |
+| powsybl-iidm-extensions | None | Exception for iidm children modules |
+| powsybl-iidm-impl | None | Exception for iidm children modules |
+| powsybl-iidm-reducer | artifactId: powsybl-iidm-reducer -> powsybl-iidm-extractor, automatic module name: com.powsybl.iidm.reducer -> com.powsybl.iidm.extractor, package: com.powsybl.iidm.reducer -> com.powsybl.iidm.network.extractor  | Rename reducer as extractor + Exception for iidm children modules |
+| powsybl-iidm-test | None | Exception for iidm children modules |
+| powsybl-iidm-util | None | Exception for iidm children modules |
+| powsybl-iidm-xml-converter | package: com.powsybl.iidm.xml -> com.powsybl.iidm.network.xml| Exception for iidm children modules |
 | powsybl-itools-packager | None | N/A |
 | powsybl-loadflow-api | automatic module name: com.powsybl.loadflow.api -> com.powsybl.loadflow | API naming strategy |
 | powsybl-loadflow-results-completion | package: com.powsybl.loadflow.resultscompletion -> com.powsybl.loadflow.results.completion | Good practice is to have the automatic module name identical to root package name |
@@ -62,7 +63,7 @@ In this other table, I listed all the **powsybl-core** modules and the proposed 
 | powsybl-security-analysis-afs-local | None | N/A | 
 | powsybl-security-analysis-api | None | N/A |
 | powsybl-sensitivity-api | automatic module name: com.powsybl.sensitivity.api -> com.powsybl.sensitivity | API naming strategy |
-| **powsybl-simulation-api** | **artifactId: powsybl-simulation-api -> powsybl-time-domain-simulation-api, automatic module name: com.powsybl.simulation.api -> com.powsybl.time.domain.simulation, package: com.powsybl.simulation -> com.powsybl.time.domain.simulation** | **API naming strategy + Name too generic** |
+| powsybl-simulation-api | artifactId: powsybl-simulation-api -> powsybl-time-domain-simulation-api, automatic module name: com.powsybl.simulation.api -> com.powsybl.time.domain.simulation, package: com.powsybl.simulation -> com.powsybl.time.domain.simulation | API naming strategy + Name too generic |
 | powsybl-time-series-api | automatic module name: com.powsybl.timeseries.api -> com.powsybl.timeseries | API naming strategy |
 | powsybl-tools | None | N/A |
 | powsybl-triple-store-api | artifactId: powsybl-triple-store-api -> powsybl-triplestore-api, automatic module name: com.powsybl.triplestore.api -> com.powsybl.triplestore, package: com.powsybl.triplestore.api -> com.powsybl.triplestore | API naming strategy |
