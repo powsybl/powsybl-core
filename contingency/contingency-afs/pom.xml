@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2018, RTE (http://www.rte-france.com)
+    Copyright (c) 2019, RTE (http://www.rte-france.com)
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -10,17 +10,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <artifactId>powsybl-security-analysis</artifactId>
+        <artifactId>powsybl-contingency</artifactId>
         <groupId>com.powsybl</groupId>
         <version>3.0.0-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>powsybl-security-analysis-afs</artifactId>
-    <name>Security analysis AFS</name>
-    <description>Security analysis runner AFS file, and security analysis service interface</description>
+    <artifactId>powsybl-contingency-afs</artifactId>
+    <name>Contingency AFS</name>
+    <description>Contingency store as AFS file</description>
 
     <build>
         <plugins>
@@ -30,17 +29,10 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.security.afs</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.contingency.afs</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
@@ -49,17 +41,12 @@
         <!-- Compilation dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-afs-ext-base</artifactId>
+            <artifactId>powsybl-afs-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-contingency-afs</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-security-analysis-api</artifactId>
+            <artifactId>powsybl-contingency-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -92,18 +79,5 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-impl</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-test</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
-
 </project>

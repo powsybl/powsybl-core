@@ -34,6 +34,7 @@
 /computation/target/
 /config-test/target/
 /contingency/target/
+/contingency/contingency-afs/target/
 /contingency/contingency-api/target/
 /contingency/contingency-dsl/target/
 /distribution-core/target/
