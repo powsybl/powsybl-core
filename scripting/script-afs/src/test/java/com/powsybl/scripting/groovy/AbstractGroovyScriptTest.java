@@ -97,7 +97,8 @@ public abstract class AbstractGroovyScriptTest {
     public void test() throws IOException {
         StringWriter out = new StringWriter();
         try (Reader codeReader = getCodeReader()) {
-            GroovyScripts.run(codeReader, data, getExtensions(), out);
+            List<GroovyScriptExtension> extensions = getExtensions();
+            GroovyScripts.run(codeReader, data, extensions, out);
         } finally {
             out.close();
         }
