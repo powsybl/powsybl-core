@@ -39,7 +39,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         numTerminals = 1;
         terminals = new TerminalData[] {null, null, null};
         terminals[0] = new TerminalData(CgmesNames.TERMINAL, p, context);
-        equipmentPowerFlow = new PowerFlow(p, "p", "q");
+        steadyStatePowerFlow = new PowerFlow(p, "p", "q");
     }
 
     public AbstractConductingEquipmentConversion(
@@ -58,7 +58,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             int k0 = k - 1;
             terminals[k0] = new TerminalData(CgmesNames.TERMINAL + k, p, context);
         }
-        equipmentPowerFlow = PowerFlow.UNDEFINED;
+        steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
     public AbstractConductingEquipmentConversion(
@@ -75,7 +75,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             int k0 = k - 1;
             terminals[k0] = new TerminalData(CgmesNames.TERMINAL, ps.get(k0), context);
         }
-        equipmentPowerFlow = PowerFlow.UNDEFINED;
+        steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
     @Override
@@ -211,26 +211,60 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return context.network().getSubstation(context.substationIdMapping().iidm(sid));
     }
 
-    PowerFlow terminalPowerFlow() {
+    private PowerFlow stateVariablesPowerFlow() {
         return terminals[0].t.flow();
     }
 
-    public PowerFlow terminalPowerFlow(int n) {
+    public PowerFlow stateVariablesPowerFlow(int n) {
         return terminals[n - 1].t.flow();
     }
 
-    PowerFlow equipmentPowerFlow() {
-        return equipmentPowerFlow;
+    private PowerFlow steadyStateHypothesisPowerFlow() {
+        return steadyStatePowerFlow;
     }
 
     PowerFlow powerFlow() {
-        // Could come either from terminal data or from property bag
-        return terminalPowerFlow().defined() ? terminalPowerFlow() : equipmentPowerFlow();
+        switch (context.config().getProfileUsedForInitialStateValues()) {
+            case SSH:
+                if (steadyStateHypothesisPowerFlow().defined()) {
+                    return steadyStateHypothesisPowerFlow();
+                }
+                if (stateVariablesPowerFlow().defined()) {
+                    return stateVariablesPowerFlow();
+                }
+                break;
+            case SV:
+                if (stateVariablesPowerFlow().defined()) {
+                    return stateVariablesPowerFlow();
+                }
+                if (steadyStateHypothesisPowerFlow().defined()) {
+                    return steadyStateHypothesisPowerFlow();
+                }
+                break;
+        }
+        return PowerFlow.UNDEFINED;
     }
 
     PowerFlow powerFlow(int n) {
-        // Could come either from terminal data or from property bag
-        return terminalPowerFlow(n).defined() ? terminalPowerFlow(n) : equipmentPowerFlow();
+        switch (context.config().getProfileUsedForInitialStateValues()) {
+            case SSH:
+                if (steadyStateHypothesisPowerFlow().defined()) {
+                    return steadyStateHypothesisPowerFlow();
+                }
+                if (stateVariablesPowerFlow(n).defined()) {
+                    return stateVariablesPowerFlow(n);
+                }
+                break;
+            case SV:
+                if (stateVariablesPowerFlow(n).defined()) {
+                    return stateVariablesPowerFlow(n);
+                }
+                if (steadyStateHypothesisPowerFlow().defined()) {
+                    return steadyStateHypothesisPowerFlow();
+                }
+                break;
+        }
+        return PowerFlow.UNDEFINED;
     }
 
     // Terminals
@@ -396,5 +430,5 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     private final TerminalData[] terminals;
-    private final PowerFlow equipmentPowerFlow;
+    private final PowerFlow steadyStatePowerFlow;
 }

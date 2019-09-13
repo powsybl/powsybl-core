@@ -86,6 +86,21 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBEUsingSshForRtcPtcEnabled() {
+        Network network = new CgmesImport(platformConfig)
+                .importData(catalogModified.microGridBaseCaseBERtcPtcEnabledBySsh().dataSource(), null);
+
+        RatioTapChanger rtc = network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
+        assertNotNull(rtc);
+        assertTrue(rtc.isRegulating());
+
+        PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0")
+                .getPhaseTapChanger();
+        assertNotNull(ptc);
+        assertTrue(ptc.isRegulating());
+    }
+
+    @Test
     public void microBEReactiveCapabilityCurve() {
         Network network = new CgmesImport(platformConfig)
                 .importData(catalogModified.microGridBaseCaseBEReactiveCapabilityCurve().dataSource(), null);
