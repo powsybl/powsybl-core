@@ -207,6 +207,14 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- In provided scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-config-test</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-contingency-api</artifactId>
