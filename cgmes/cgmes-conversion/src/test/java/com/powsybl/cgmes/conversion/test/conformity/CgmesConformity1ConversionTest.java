@@ -158,7 +158,7 @@ public class CgmesConformity1ConversionTest {
         // that will be computed by IIDM from CGMES node-breaker ConnectivityNodes,
         // have proper balances from SV values
         Properties params = new Properties();
-        params.put(CgmesImport.PROFILE_USED_FOR_INITIAL_FLOWS_VALUES, "SV");
+        params.put(CgmesImport.PROFILE_USED_FOR_STATE_HYPOTHESIS, "SV");
         ConversionTester t = new ConversionTester(
             params,
             TripleStoreFactory.onlyDefaultImplementation(),

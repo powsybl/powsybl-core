@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static com.powsybl.cgmes.conversion.Conversion.Config.FlowProfile.SSH;
+import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -305,7 +305,7 @@ public class Conversion {
 
     public static class Config {
 
-        public enum FlowProfile {
+        public enum StateProfile {
             SSH,
             SV
         }
@@ -374,18 +374,18 @@ public class Conversion {
             return this;
         }
 
-        public FlowProfile getProfileUsedForInitialFlowsValues() {
-            return profileUsedForInitialFlowsValues;
+        public StateProfile getProfileUsedForStateHypothesis() {
+            return profileUsedForStateHypothesis;
         }
 
-        public Config setProfileUsedForInitialFlowsValues(String profileUsedForInitialFlowsValues) {
+        public Config setProfileUsedForStateHypothesis(String profileUsedForInitialFlowsValues) {
             switch (Objects.requireNonNull(profileUsedForInitialFlowsValues)) {
                 case "SSH":
                 case "SV":
-                    this.profileUsedForInitialFlowsValues = FlowProfile.valueOf(profileUsedForInitialFlowsValues);
+                    this.profileUsedForStateHypothesis = StateProfile.valueOf(profileUsedForInitialFlowsValues);
                     break;
                 default:
-                    throw new CgmesModelException("Unexpected profile used for initial flows values: " + profileUsedForInitialFlowsValues);
+                    throw new CgmesModelException("Unexpected profile used for state hypothesis: " + profileUsedForInitialFlowsValues);
             }
             return this;
         }
@@ -397,7 +397,7 @@ public class Conversion {
         private double lowImpedanceLineX = 0.05;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
-        private FlowProfile profileUsedForInitialFlowsValues = SSH;
+        private StateProfile profileUsedForStateHypothesis = SSH;
 
     }
 

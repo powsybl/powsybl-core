@@ -224,7 +224,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     PowerFlow powerFlow() {
-        switch (context.config().getProfileUsedForInitialFlowsValues()) {
+        switch (context.config().getProfileUsedForStateHypothesis()) {
             case SSH:
                 if (steadyStateHypothesisPowerFlow().defined()) {
                     return steadyStateHypothesisPowerFlow();
@@ -246,13 +246,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     PowerFlow powerFlow(int n) {
-        switch (context.config().getProfileUsedForInitialFlowsValues()) {
+        switch (context.config().getProfileUsedForStateHypothesis()) {
             case SSH:
                 if (steadyStateHypothesisPowerFlow().defined()) {
                     return steadyStateHypothesisPowerFlow();
                 }
-                if (stateVariablesPowerFlow().defined()) {
-                    return stateVariablesPowerFlow();
+                if (stateVariablesPowerFlow(n).defined()) {
+                    return stateVariablesPowerFlow(n);
                 }
                 break;
             case SV:

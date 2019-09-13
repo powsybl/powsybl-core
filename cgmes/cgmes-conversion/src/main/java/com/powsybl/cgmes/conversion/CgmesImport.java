@@ -172,11 +172,11 @@ public class CgmesImport implements Importer {
                                 p,
                                 CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
                                 defaultValueConfig))
-                .setProfileUsedForInitialFlowsValues(
+                .setProfileUsedForStateHypothesis(
                         ConversionParameters.readStringParameter(
                                 getFormat(),
                                 p,
-                                PROFILE_USED_FOR_INITIAL_STATE_VALUES_PARAMETER,
+                                PROFILE_USED_FOR_STATE_HYPOTHESIS_PARAMETER,
                                 defaultValueConfig)
                 );
     }
@@ -222,7 +222,7 @@ public class CgmesImport implements Importer {
     public static final String CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE = "iidm.import.cgmes.create-busbar-section-for-every-connectivity-node";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
-    public static final String PROFILE_USED_FOR_INITIAL_FLOWS_VALUES = "iidm.import.cgmes.profile-used-for-initial-flows-values";
+    public static final String PROFILE_USED_FOR_STATE_HYPOTHESIS = "iidm.import.cgmes.profile-used-for-state-hypothesis";
     public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
 
     private static final Parameter ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER = new Parameter(
@@ -259,8 +259,8 @@ public class CgmesImport implements Importer {
             "The triplestore used during the import",
             TripleStoreFactory.defaultImplementation())
             .addAdditionalNames("powsyblTripleStore");
-    private static final Parameter PROFILE_USED_FOR_INITIAL_STATE_VALUES_PARAMETER = new Parameter(
-            PROFILE_USED_FOR_INITIAL_FLOWS_VALUES,
+    private static final Parameter PROFILE_USED_FOR_STATE_HYPOTHESIS_PARAMETER = new Parameter(
+            PROFILE_USED_FOR_STATE_HYPOTHESIS,
             ParameterType.STRING,
             "Profile used for initial state values",
             "SSH"
