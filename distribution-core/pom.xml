@@ -44,6 +44,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-action-dsl-afs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-action-dsl-spi</artifactId>
             <version>${project.version}</version>
         </dependency>

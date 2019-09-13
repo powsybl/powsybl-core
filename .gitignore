@@ -1,6 +1,7 @@
 # Maven projects
 /action/target/
 /action/action-dsl/target/
+/action/action-dsl-afs/target/
 /action/action-dsl-spi/target/
 /action/action-simulator/target/
 /action/action-util/target/
