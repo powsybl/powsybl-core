@@ -21,7 +21,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     protected String name;
 
-    protected Properties properties;
+    protected final Map<String, String> properties = new HashMap<>();
 
     AbstractIdentifiable(String id, String name) {
         this.id = id;
@@ -47,15 +47,32 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public boolean hasProperty() {
-        return properties != null && !properties.isEmpty();
+        return !properties.isEmpty();
     }
 
     @Override
-    public Properties getProperties() {
-        if (properties == null) {
-            properties = new Properties();
-        }
-        return properties;
+    public boolean hasProperty(String key) {
+        return properties.containsKey(key);
+    }
+
+    @Override
+    public String getProperty(String key) {
+        return properties.get(key);
+    }
+
+    @Override
+    public String getProperty(String key, String defaultValue) {
+        return properties.getOrDefault(key, defaultValue);
+    }
+
+    @Override
+    public Object setProperty(String key, String value) {
+        return properties.put(key, value);
+    }
+
+    @Override
+    public Set<String> getPropertyNames() {
+        return properties.keySet();
     }
 
     @Override

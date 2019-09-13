@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Set;
+
 import com.powsybl.commons.extensions.Extendable;
 
 import java.util.Properties;
@@ -35,6 +37,36 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
 
     /**
      * Get properties associated to the object.
+     *
+     * @deprecated Use {@link #getProperty(String)} & {@link #setProperty(String, String)} instead.
      */
-    Properties getProperties();
+    @Deprecated
+    default Properties getProperties() {
+        throw new UnsupportedOperationException("Deprecated");
+    }
+
+    /**
+     * Check that this object has property with specified name.
+     */
+    boolean hasProperty(String key);
+
+    /**
+     * Get property associated to specified key.
+     */
+    String getProperty(String key);
+
+    /**
+     * Get property associated to specified key, with default value.
+     */
+    String getProperty(String key, String defaultValue);
+
+    /**
+     * Set property value associated to specified key.
+     */
+    Object setProperty(String key, String value);
+
+    /**
+     * Get properties key values.
+     */
+    Set<String> getPropertyNames();
 }
