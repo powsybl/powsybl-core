@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -66,17 +67,21 @@ public class LoadFlowExtensionGroovyScriptTest {
     }
 
     @Test
-    public void test() {
+    public void test() throws IOException {
         Binding binding = new Binding();
-        StringWriter writer = new StringWriter();
-        binding.setVariable("out", writer);
+        StringWriter out = null;
+        try (StringWriter writer = new StringWriter()) {
+            binding.setVariable("out", writer);
 
-        CompilerConfiguration conf = new CompilerConfiguration();
-        getExtensions().forEach(it -> it.load(binding, computationManager));
-        GroovyShell shell = new GroovyShell(binding, conf);
-        Object evaluate = shell.evaluate(getCodeReader());
-        StringWriter out = (StringWriter) binding.getProperty("out");
+            CompilerConfiguration conf = new CompilerConfiguration();
+            getExtensions().forEach(it -> it.load(binding, computationManager));
+            GroovyShell shell = new GroovyShell(binding, conf);
+            Object evaluate = shell.evaluate(getCodeReader());
+            out = (StringWriter) binding.getProperty("out");
 
-        assertEquals(getExpectedOutput(), out.toString());
+            assertEquals(getExpectedOutput(), out.toString());
+        } finally {
+            out.close();
+        }
     }
 }
