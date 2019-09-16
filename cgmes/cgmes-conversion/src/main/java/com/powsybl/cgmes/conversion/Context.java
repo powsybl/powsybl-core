@@ -167,7 +167,7 @@ public class Context {
     public void anotherLineConversion(ACLineSegmentConversion c) {
         Objects.requireNonNull(c);
         countLines++;
-        if (c.terminalPowerFlow(1).defined() && c.terminalPowerFlow(2).defined()) {
+        if (c.stateVariablesPowerFlow(1).defined() && c.stateVariablesPowerFlow(2).defined()) {
             countLinesWithSvPowerFlowsAtEnds++;
         }
     }

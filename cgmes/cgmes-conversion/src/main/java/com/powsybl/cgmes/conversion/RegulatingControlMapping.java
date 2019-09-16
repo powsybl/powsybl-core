@@ -22,6 +22,7 @@ public class RegulatingControlMapping {
     private static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES topological node: %s";
     private static final String VOLTAGE = "voltage";
     private static final String REGULATING_CONTROL_REF = "Regulating control %s";
+    private static final String TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
     private static final String PHASE_TAP_CHANGER = "PhaseTapChanger";
 
     private final Context context;
@@ -122,7 +123,7 @@ public class RegulatingControlMapping {
             adder.setRegulating(false)
                     .setTargetV(Double.NaN);
         } else {
-            adder.setRegulating(control.enabled || p.asBoolean("tapChangerControlEnabled", false))
+            adder.setRegulating(control.enabled || p.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false))
                     .setTargetDeadband(control.targetDeadband)
                     .setTargetV(control.targetValue);
         }
@@ -163,14 +164,14 @@ public class RegulatingControlMapping {
         adder.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(getTargetValue(control.targetValue, control.cgmesTerminal, side, t2w))
                 .setTargetDeadband(control.targetDeadband)
-                .setRegulating(control.enabled);
+                .setRegulating(control.enabled || p.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false));
         setRegulatingTerminal(p, control, defaultTerminal, adder);
     }
 
     private void addActivePowerRegControl(PropertyBag p, RegulatingControl control, Terminal defaultTerminal, PhaseTapChangerAdder adder, int side, TwoWindingsTransformer t2w) {
         adder.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
                 .setTargetDeadband(control.targetDeadband)
-                .setRegulating(control.enabled)
+                .setRegulating(control.enabled || p.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false))
                 .setRegulationValue(getTargetValue(-control.targetValue, control.cgmesTerminal, side, t2w));
         setRegulatingTerminal(p, control, defaultTerminal, adder);
     }

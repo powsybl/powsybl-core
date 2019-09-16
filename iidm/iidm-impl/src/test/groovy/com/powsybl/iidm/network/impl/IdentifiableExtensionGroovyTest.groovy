@@ -46,7 +46,7 @@ class IdentifiableExtensionGroovyTest {
         assertFalse(s.hasProperty())
         assertNull(s.greeting)
         s.greeting = "hello"
-        assertEquals("hello", s.getProperties().getProperty("greeting"))
+        assertEquals("hello", s.getProperty("greeting"))
         assertEquals("hello", s.greeting)
     }
 
