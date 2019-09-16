@@ -281,6 +281,18 @@ GRAPH ?graph {
 }
 }
 
+# query: svInjections
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?SvInjection
+        a cim:SvInjection ;
+        cim:SvInjection.TopologicalNode ?TopologicalNode;
+        cim:SvInjection.pNetInjection ?pInjection .
+        OPTIONAL { ?SvInjection cim:SvInjection.qNetInjection ?qInjection }
+}}
+}
+
 # query: shuntCompensators
 SELECT *
 WHERE {

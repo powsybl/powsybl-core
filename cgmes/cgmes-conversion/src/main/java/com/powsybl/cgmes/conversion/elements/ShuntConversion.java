@@ -69,6 +69,6 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
             }
             f = new PowerFlow(Double.NaN, q);
         }
-        convertedTerminal(terminalId(), shunt.getTerminal(), 1, f);
+        context.convertedTerminal(terminalId(), shunt.getTerminal(), 1, f);
     }
 }
