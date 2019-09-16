@@ -6,30 +6,36 @@
  */
 package com.powsybl.loadflow;
 
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.VariantManagerConstants;
-import com.powsybl.scripting.groovy.AbstractGroovyScriptTest;
 import com.powsybl.scripting.groovy.GroovyScriptExtension;
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
+import org.codehaus.groovy.control.CompilerConfiguration;
 import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LoadFlowExtensionGroovyScriptTest extends AbstractGroovyScriptTest {
+public class LoadFlowExtensionGroovyScriptTest {
 
     private Network fooNetwork;
+    private ComputationManager computationManager;
 
     @Before
     public void setUp() throws Exception {
-        super.setUp();
-
         // create variant manager
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         Mockito.when(variantManager.getWorkingVariantId())
@@ -41,22 +47,36 @@ public class LoadFlowExtensionGroovyScriptTest extends AbstractGroovyScriptTest 
                 .thenReturn("test");
         Mockito.when(fooNetwork.getVariantManager())
                 .thenReturn(variantManager);
+
+        computationManager = Mockito.mock(ComputationManager.class);
     }
 
-    @Override
     protected Reader getCodeReader() {
         return new StringReader("r = loadFlow(n)\n" +
                                 "print r.ok");
     }
 
-    @Override
     protected String getExpectedOutput() {
         return "true";
     }
 
-    @Override
     protected List<GroovyScriptExtension> getExtensions() {
         return Arrays.asList(new LoadFlowGroovyScriptExtension(new LoadFlowParameters()),
             (binding, computationManager) -> binding.setVariable("n", fooNetwork));
+    }
+
+    @Test
+    public void test() {
+        Binding binding = new Binding();
+        StringWriter writer = new StringWriter();
+        binding.setVariable("out", writer);
+
+        CompilerConfiguration conf = new CompilerConfiguration();
+        getExtensions().forEach(it -> it.load(binding, computationManager));
+        GroovyShell shell = new GroovyShell(binding, conf);
+        Object evaluate = shell.evaluate(getCodeReader());
+        StringWriter out = (StringWriter) binding.getProperty("out");
+
+        assertEquals(getExpectedOutput(), out.toString());
     }
 }

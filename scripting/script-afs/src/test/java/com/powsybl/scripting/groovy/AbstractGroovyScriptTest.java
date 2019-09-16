@@ -102,6 +102,6 @@ public abstract class AbstractGroovyScriptTest {
         } finally {
             out.close();
         }
-        assertEquals(out.toString(), getExpectedOutput());
+        assertEquals(getExpectedOutput(), out.toString());
     }
 }
