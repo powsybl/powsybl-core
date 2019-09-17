@@ -405,7 +405,7 @@ public class Conversion {
 
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
-        private boolean changeSignForShuntReactivePowerFlowInitialState = false;
+        private boolean changeSignForShuntReactivePowerFlowInitialState = true;
         private double lowImpedanceLineR = 0.05;
         private double lowImpedanceLineX = 0.05;
 

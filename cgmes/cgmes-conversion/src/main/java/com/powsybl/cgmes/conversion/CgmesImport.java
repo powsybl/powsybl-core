@@ -241,7 +241,7 @@ public class CgmesImport implements Importer {
             CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE,
             ParameterType.BOOLEAN,
             "Change the sign of the reactive power flow for shunt in initial state",
-            Boolean.FALSE)
+            Boolean.TRUE)
             .addAdditionalNames("changeSignForShuntReactivePowerFlowInitialState");
     private static final Parameter CONVERT_BOUNDARY_PARAMETER = new Parameter(
             CONVERT_BOUNDARY,
