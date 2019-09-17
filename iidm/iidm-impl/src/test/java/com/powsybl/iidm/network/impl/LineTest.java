@@ -374,6 +374,54 @@ public class LineTest {
         TieLineImpl.HalfLine half1 = tieLine.getHalf1();
         assertEquals(xnodeP, half1.getXnodeP(), 0.0);
         assertEquals(xnodeQ, half1.getXnodeQ(), 0.0);
+
+        TieLineImpl.HalfLine half2 = tieLine.getHalf2();
+        assertEquals(xnodeP, half2.getXnodeP(), 0.0);
+        assertEquals(xnodeQ, half2.getXnodeQ(), 0.0);
+
+        // Check notification on HalfLine changes
+        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        // Add observer changes to current network
+        network.addListener(mockedListener);
+        // Apply changes on Half lines
+        half1.setXnodeP(xnodeP + 1);
+        half1.setXnodeQ(xnodeQ + 1);
+        half1.setR(r + 1);
+        half1.setX(x + 1);
+        half1.setG1(hl1g1 + 1);
+        half1.setG2(hl1g2 + 1);
+        half1.setB1(hl1b1 + 1);
+        half1.setB2(hl1b2 + 1);
+        half2.setXnodeP(xnodeP + 1);
+        half2.setXnodeQ(xnodeQ + 1);
+        half2.setR(r + 1);
+        half2.setX(x + 1);
+        half2.setG1(hl2g1 + 1);
+        half2.setG2(hl2g2 + 1);
+        half2.setB1(hl2b1 + 1);
+        half2.setB2(hl2b2 + 1);
+        Mockito.verify(mockedListener, Mockito.times(16)).onUpdate(Mockito.any(TieLineImpl.class), Mockito.anyString(), Mockito.any(), Mockito.any());
+        // Remove observer
+        network.removeListener(mockedListener);
+        // Cancel changes on Half lines
+        half1.setXnodeP(xnodeP);
+        half1.setXnodeQ(xnodeQ);
+        half1.setR(r);
+        half1.setX(x);
+        half1.setG1(hl1g1);
+        half1.setG2(hl1g2);
+        half1.setB1(hl1b1);
+        half1.setB2(hl1b2);
+        half2.setXnodeP(xnodeP);
+        half2.setXnodeQ(xnodeQ);
+        half2.setR(r);
+        half2.setX(x);
+        half2.setG1(hl2g1);
+        half2.setG2(hl2g2);
+        half2.setB1(hl2b1);
+        half2.setB2(hl2b2);
+        // Check no notification
+        Mockito.verifyNoMoreInteractions(mockedListener);
     }
 
     @Test

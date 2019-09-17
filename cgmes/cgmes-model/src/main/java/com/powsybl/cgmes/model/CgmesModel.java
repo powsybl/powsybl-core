@@ -106,6 +106,8 @@ public interface CgmesModel {
 
     PropertyBags externalNetworkInjections();
 
+    PropertyBags svInjections();
+
     PropertyBags asynchronousMachines();
 
     PropertyBags reactiveCapabilityCurveData();

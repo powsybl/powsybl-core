@@ -51,6 +51,7 @@ public final class FakeCgmesModel implements CgmesModel {
     private PropertyBags synchronousMachines;
     private PropertyBags equivalentInjections;
     private PropertyBags externalNetworkInjections;
+    private PropertyBags svInjections;
     private PropertyBags asynchronousMachines;
     private PropertyBags acDcConverters;
     private PropertyBags dcLineSegments;
@@ -87,6 +88,7 @@ public final class FakeCgmesModel implements CgmesModel {
         synchronousMachines = new PropertyBags();
         equivalentInjections = new PropertyBags();
         externalNetworkInjections = new PropertyBags();
+        svInjections = new PropertyBags();
         asynchronousMachines = new PropertyBags();
         acDcConverters = new PropertyBags();
         dcLineSegments = new PropertyBags();
@@ -413,6 +415,11 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public PropertyBags externalNetworkInjections() {
         return externalNetworkInjections;
+    }
+
+    @Override
+    public PropertyBags svInjections() {
+        return svInjections;
     }
 
     @Override

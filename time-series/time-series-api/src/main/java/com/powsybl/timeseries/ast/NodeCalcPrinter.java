@@ -6,7 +6,7 @@
  */
 package com.powsybl.timeseries.ast;
 
-import java.util.Objects;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -14,8 +14,7 @@ import java.util.Objects;
 public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
 
     public static String print(NodeCalc nodeCalc) {
-        Objects.requireNonNull(nodeCalc);
-        return nodeCalc.accept(new NodeCalcPrinter(), null);
+        return NodeCalcVisitors.visit(nodeCalc, null, new NodeCalcPrinter());
     }
 
     @Override
@@ -39,29 +38,28 @@ public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
     }
 
     @Override
-    public String visit(BinaryOperation nodeCalc, Void arg) {
-        return "(" + nodeCalc.getLeft().accept(this, arg) + " " + nodeCalc.getOperator() +
-                " " + nodeCalc.getRight().accept(this, arg) + ")";
+    public String visit(BinaryOperation nodeCalc, Void arg, String left, String right) {
+        return "(" + left + " " + nodeCalc.getOperator() + " " + right + ")";
     }
 
     @Override
-    public String visit(UnaryOperation nodeCalc, Void arg) {
-        return "(" + nodeCalc.getChild().accept(this, arg) + ")." + nodeCalc.getOperator() + "()";
+    public String visit(UnaryOperation nodeCalc, Void arg, String child) {
+        return "(" + child + ")." + nodeCalc.getOperator() + "()";
     }
 
     @Override
-    public String visit(MinNodeCalc nodeCalc, Void arg) {
-        return nodeCalc.getChild().accept(this, arg) + ".min(" + nodeCalc.getMin() + ")";
+    public String visit(MinNodeCalc nodeCalc, Void arg, String child) {
+        return child + ".min(" + nodeCalc.getMin() + ")";
     }
 
     @Override
-    public String visit(MaxNodeCalc nodeCalc, Void arg) {
-        return nodeCalc.getChild().accept(this, arg) + ".max(" + nodeCalc.getMax() + ")";
+    public String visit(MaxNodeCalc nodeCalc, Void arg, String child) {
+        return child + ".max(" + nodeCalc.getMax() + ")";
     }
 
     @Override
-    public String visit(TimeNodeCalc nodeCalc, Void arg) {
-        return "(" + nodeCalc.getChild().accept(this, arg) + ").time()";
+    public String visit(TimeNodeCalc nodeCalc, Void arg, String child) {
+        return "(" + child + ").time()";
     }
 
     @Override
@@ -73,4 +71,30 @@ public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
     public String visit(TimeSeriesNumNodeCalc nodeCalc, Void arg) {
         return "timeSeries[" + nodeCalc.getTimeSeriesNum() + "]";
     }
+
+    @Override
+    public NodeCalc iterate(TimeNodeCalc nodeCalc, Void arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
+    public Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, Void arg) {
+        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
+    }
+
+    @Override
+    public NodeCalc iterate(UnaryOperation nodeCalc, Void arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
+    public NodeCalc iterate(MinNodeCalc nodeCalc, Void arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
+    public NodeCalc iterate(MaxNodeCalc nodeCalc, Void arg) {
+        return nodeCalc.getChild();
+    }
+
 }

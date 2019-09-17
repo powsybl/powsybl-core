@@ -13,7 +13,7 @@ You may configure the following properties in your platform configuration file.
 <loadflow-validation>
 	<threshold>0.1</threshold>
 	<verbose>false</verbose>
-	<load-flow-factory>com.powsybl.loadflow.mock.LoadFlowFactoryMock</load-flow-factory>
+	<load-flow-name>Mock</load-flow-name>
 	<table-formatter-factory>com.powsybl.commons.io.table.CsvTableFormatterFactory</table-formatter-factory>
 	<epsilon-x>0.1</epsilon-x>
 	<apply-reactance-correction>false</apply-reactance-correction>

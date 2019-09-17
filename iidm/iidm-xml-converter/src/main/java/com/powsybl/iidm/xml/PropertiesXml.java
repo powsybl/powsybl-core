@@ -7,12 +7,11 @@
 
 package com.powsybl.iidm.xml;
 
-import com.powsybl.iidm.network.Identifiable;
+import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
 
 import javax.xml.stream.XMLStreamException;
-import java.util.Properties;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
+import com.powsybl.iidm.network.Identifiable;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -24,11 +23,10 @@ public final class PropertiesXml {
     private static final String NAME = "name";
     private static final String VALUE = "value";
 
-    public static void write(Identifiable identifiable, NetworkXmlWriterContext context) throws XMLStreamException {
+    public static void write(Identifiable<?> identifiable, NetworkXmlWriterContext context) throws XMLStreamException {
         if (identifiable.hasProperty()) {
-            Properties props = identifiable.getProperties();
-            for (String name : props.stringPropertyNames()) {
-                String value = props.getProperty(name);
+            for (String name : identifiable.getPropertyNames()) {
+                String value = identifiable.getProperty(name);
                 context.getWriter().writeEmptyElement(IIDM_URI, PROPERTY);
                 context.getWriter().writeAttribute(NAME, name);
                 context.getWriter().writeAttribute(VALUE, value);
@@ -40,7 +38,7 @@ public final class PropertiesXml {
         assert context.getReader().getLocalName().equals(PROPERTY);
         String name = context.getReader().getAttributeValue(null, NAME);
         String value = context.getReader().getAttributeValue(null, VALUE);
-        identifiable.getProperties().put(name, value);
+        identifiable.setProperty(name, value);
     }
 
     private PropertiesXml() {

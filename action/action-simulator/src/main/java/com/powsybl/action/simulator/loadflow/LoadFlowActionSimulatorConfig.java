@@ -8,9 +8,9 @@ package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.loadflow.LoadFlowFactory;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -26,15 +26,15 @@ public class LoadFlowActionSimulatorConfig {
         Objects.requireNonNull(platformConfig);
 
         ModuleConfig config = platformConfig.getModuleConfig("load-flow-action-simulator");
-        Class<? extends LoadFlowFactory> loadFlowFactoryClass = config.getClassProperty("load-flow-factory", LoadFlowFactory.class);
+        String loadFlowName = config.getOptionalStringProperty("load-flow-name").orElse(null);
         int maxIterations = config.getIntProperty("max-iterations");
         boolean ignorePreContingencyViolations = config.getBooleanProperty("ignore-pre-contingency-violations", false);
         boolean debug = config.getBooleanProperty("debug", false);
         CopyStrategy copyStrategy = config.getEnumProperty("copy-strategy", CopyStrategy.class, CopyStrategy.DEEP);
-        return new LoadFlowActionSimulatorConfig(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug, copyStrategy);
+        return new LoadFlowActionSimulatorConfig(loadFlowName, maxIterations, ignorePreContingencyViolations, debug, copyStrategy);
     }
 
-    private Class<? extends LoadFlowFactory> loadFlowFactoryClass;
+    private String loadFlowName;
 
     private int maxIterations;
 
@@ -44,26 +44,26 @@ public class LoadFlowActionSimulatorConfig {
 
     private CopyStrategy copyStrategy;
 
-    public LoadFlowActionSimulatorConfig(Class<? extends LoadFlowFactory> loadFlowFactoryClass, int maxIterations, boolean ignorePreContingencyViolations,
+    public LoadFlowActionSimulatorConfig(String loadFlowName, int maxIterations, boolean ignorePreContingencyViolations,
                                          boolean debug) {
-        this(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug, CopyStrategy.DEEP);
+        this(loadFlowName, maxIterations, ignorePreContingencyViolations, debug, CopyStrategy.DEEP);
     }
 
-    public LoadFlowActionSimulatorConfig(Class<? extends LoadFlowFactory> loadFlowFactoryClass, int maxIterations, boolean ignorePreContingencyViolations,
+    public LoadFlowActionSimulatorConfig(String loadFlowName, int maxIterations, boolean ignorePreContingencyViolations,
                                          boolean debug, CopyStrategy copyStrategy) {
-        this.loadFlowFactoryClass = Objects.requireNonNull(loadFlowFactoryClass);
+        this.loadFlowName = loadFlowName;
         this.maxIterations = maxIterations;
         this.ignorePreContingencyViolations = ignorePreContingencyViolations;
         this.debug = debug;
         this.copyStrategy = Objects.requireNonNull(copyStrategy);
     }
 
-    public Class<? extends LoadFlowFactory> getLoadFlowFactoryClass() {
-        return loadFlowFactoryClass;
+    public Optional<String> getLoadFlowName() {
+        return Optional.ofNullable(loadFlowName);
     }
 
-    public void setLoadFlowFactoryClass(Class<? extends LoadFlowFactory> loadFlowFactoryClass) {
-        this.loadFlowFactoryClass = Objects.requireNonNull(loadFlowFactoryClass);
+    public void setLoadFlowName(String loadFlowName) {
+        this.loadFlowName = loadFlowName;
     }
 
     public int getMaxIterations() {

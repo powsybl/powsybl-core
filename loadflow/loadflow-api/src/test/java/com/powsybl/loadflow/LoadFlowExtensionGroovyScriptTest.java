@@ -6,7 +6,6 @@
  */
 package com.powsybl.loadflow;
 
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.VariantManagerConstants;
@@ -19,31 +18,17 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class LoadFlowExtensionGroovyScriptTest extends AbstractGroovyScriptTest {
 
-    private LoadFlowFactory loadFlowFactory;
-
     private Network fooNetwork;
 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-
-        // create loadflow factory mock
-        LoadFlowResult result = Mockito.mock(LoadFlowResult.class);
-        Mockito.when(result.isOk())
-                .thenReturn(true);
-        LoadFlow loadFlow = Mockito.mock(LoadFlow.class);
-        Mockito.when(loadFlow.run(Mockito.anyString(), Mockito.any()))
-                .thenReturn(CompletableFuture.completedFuture(result));
-        loadFlowFactory = Mockito.mock(LoadFlowFactory.class);
-        Mockito.when(loadFlowFactory.create(Mockito.any(Network.class), Mockito.any(ComputationManager.class), Mockito.anyInt()))
-                .thenReturn(loadFlow);
 
         // create variant manager
         VariantManager variantManager = Mockito.mock(VariantManager.class);
@@ -71,7 +56,7 @@ public class LoadFlowExtensionGroovyScriptTest extends AbstractGroovyScriptTest 
 
     @Override
     protected List<GroovyScriptExtension> getExtensions() {
-        return Arrays.asList(new LoadFlowGroovyScriptExtension(loadFlowFactory, new LoadFlowParameters()),
+        return Arrays.asList(new LoadFlowGroovyScriptExtension(new LoadFlowParameters()),
             (binding, computationManager) -> binding.setVariable("n", fooNetwork));
     }
 }

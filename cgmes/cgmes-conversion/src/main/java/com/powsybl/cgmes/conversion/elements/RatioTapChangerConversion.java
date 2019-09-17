@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import java.util.Comparator;
 
+import com.powsybl.cgmes.model.CgmesModelException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         lowStep = rtc.asInt("lowStep");
         highStep = rtc.asInt("highStep");
         neutralStep = rtc.asInt("neutralStep");
-        position = fromContinuous(p.asDouble("SVtapStep", neutralStep));
+        position = getTapPosition(rtc.asInt("normalStep", neutralStep));
         ltcFlag = rtc.asBoolean("ltcFlag", false);
     }
 
@@ -124,7 +125,13 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         table.sort(byStep);
         boolean rtcAtSide1 = rtcAtSide1();
         for (PropertyBag point : table) {
+
+            // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
+            // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
+            // V2 = V1 * rho and V2 = V1 / ratio
+            // This is why we have: rho=1/ratio
             double rho = 1 / point.asDouble("ratio", 1.0);
+
             // When given in RatioTapChangerTablePoint
             // r, x, g, b of the step are already percentage deviations of nominal values
             int step = point.asInt("step");
@@ -238,6 +245,17 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
 
     private boolean tabular() {
         return p.containsKey(CgmesNames.RATIO_TAP_CHANGER_TABLE);
+    }
+
+    private int getTapPosition(int defaultStep) {
+        switch (context.config().getProfileUsedForInitialStateValues()) {
+            case SSH:
+                return fromContinuous(p.asDouble("step", p.asDouble("SVtapStep", defaultStep)));
+            case SV:
+                return fromContinuous(p.asDouble("SVtapStep", p.asDouble("step", defaultStep)));
+            default:
+                throw new CgmesModelException("Unexpected profile used for initial flows values: " + context.config().getProfileUsedForInitialStateValues());
+        }
     }
 
     private final TwoWindingsTransformer tx2;
