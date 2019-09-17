@@ -26,7 +26,7 @@ public class VoltageLevelToVoltageLevel implements ConversionMapper {
         final Multimap<String, CgmesPredicateDetails> map = ArrayListMultimap.create();
         VoltageLevel newVoltageLevel = (VoltageLevel) change.getIdentifiable();
 
-        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_TP", false, "cim:VoltageLevel"));
+        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:VoltageLevel"));
 
         String name = newVoltageLevel.getName();
         if (name != null) {

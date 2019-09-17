@@ -23,7 +23,7 @@ public class SubstationToSubstation extends IidmToCgmes16 implements ConversionM
         final Multimap<String, CgmesPredicateDetails> map = ArrayListMultimap.create();
         Substation newSubstation = (Substation) change.getIdentifiable();
 
-        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_TP", false, "cim:Substation"));
+        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:Substation"));
 
         String name = newSubstation.getName();
         if (name != null) {
@@ -35,11 +35,11 @@ public class SubstationToSubstation extends IidmToCgmes16 implements ConversionM
             map.put("country",
                 new CgmesPredicateDetails("cim:Substation.Region", "_EQ", true, country.get().toString()));
         }
-        // TODO elena fix Region/SubRegion/Country
-        if (country.isPresent()) {
-            map.put("subRegionName",
-                new CgmesPredicateDetails("cim:SubGeographicalRegion.Region", "_EQ", true, country.get().toString()));
-        }
+//         TODO elena fix Region/SubRegion/Country
+//        if (country.isPresent()) {
+//            map.put("subRegionName",
+//                new CgmesPredicateDetails("cim:SubGeographicalRegion.Region", "_EQ", true, country.get().toString()));
+//        }
 
         return map;
     }

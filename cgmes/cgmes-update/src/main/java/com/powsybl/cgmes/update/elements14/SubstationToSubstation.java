@@ -22,7 +22,7 @@ public class SubstationToSubstation implements ConversionMapper {
         final Multimap<String, CgmesPredicateDetails> map = ArrayListMultimap.create();
         Substation newSubstation = (Substation) change.getIdentifiable();
 
-        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_TP", false, "cim:Substation"));
+        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:Substation"));
 
         String name = newSubstation.getName();
         if (name != null) {

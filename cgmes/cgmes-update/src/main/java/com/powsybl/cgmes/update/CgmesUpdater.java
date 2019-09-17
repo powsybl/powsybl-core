@@ -63,8 +63,9 @@ public class CgmesUpdater {
                         for (String context : cgmes.tripleStore().contextNames()) {
 
                             String currentContext = entry.getContext();
-
-                            if (context.toUpperCase().contains(currentContext)) {
+                            //TODO elena : will need to add a logic to find the right context
+                            if (context.toUpperCase().contains(currentContext.toUpperCase())
+                                && !context.contains("_BD_")) {
 
                                 String cgmesSubject = (entry.getNewSubject() != null) ? entry.getNewSubject()
                                     : namingStrategy.getCgmesId(change.getIdentifiableId());

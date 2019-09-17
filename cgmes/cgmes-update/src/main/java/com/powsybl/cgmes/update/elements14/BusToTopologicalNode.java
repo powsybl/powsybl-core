@@ -32,7 +32,7 @@ public class BusToTopologicalNode implements ConversionMapper {
 
         String name = newBus.getName();
         if (name != null) {
-            map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, name));
+            map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_TP", false, name));
         }
 
         String baseVoltageId = getBaseVoltageId(newBus);
@@ -72,9 +72,9 @@ public class BusToTopologicalNode implements ConversionMapper {
          */
         map.put("rdfTypeTerminal_EQ", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:Terminal", terminalId));
 
-        String TeName = newBus.getName().concat("_TE");
-        if (TeName != null) {
-            map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, TeName, terminalId));
+        String terminalName = newBus.getName().concat("_TE");
+        if (terminalName != null) {
+            map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, terminalName, terminalId));
         }
 
         return map;
@@ -83,7 +83,8 @@ public class BusToTopologicalNode implements ConversionMapper {
     private String getVoltageId(Bus bus) {
         return bus.getVoltageLevel().getId();
     }
-    //TODO elena check for existing TerminalID
+
+    // TODO elena check for existing TerminalID
     private String getTerminalId() {
         return currId.concat("_TE");
     }

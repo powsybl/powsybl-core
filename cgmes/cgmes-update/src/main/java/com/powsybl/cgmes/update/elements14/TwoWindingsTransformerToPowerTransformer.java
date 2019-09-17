@@ -10,8 +10,6 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -28,12 +26,18 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
         this.change = change;
         this.cgmes = cgmes;
         this.currId = change.getIdentifiableId();
+        this.newTwoWindingsTransformer = (TwoWindingsTransformer) change.getIdentifiable();
+        this.name = newTwoWindingsTransformer.getName();
         this.idEnd1 = (getEndsId().get("idEnd1") != null) ? getEndsId().get("idEnd1")
             : currId.concat("_OR");
         this.idEnd2 = (getEndsId().get("idEnd2") != null) ? getEndsId().get("idEnd2")
             : currId.concat("_CL");
-        this.idRTCH = getTapChangerId("RatioTapChanger");
         this.idPHTC = getTapChangerId("PhaseTapChanger");
+        this.idRTTC = getTapChangerId("RatioTapChanger");
+        this.idPHTC_Table = getTapChangerTableId(idPHTC, "PhaseTapChanger");
+        this.idRTTC_Table = getTapChangerTableId(idRTTC, "RatioTapChanger");
+        this.idPHTC_TablePoint = getTapChangerTablePointId(idPHTC_Table, "PhaseTapChanger");
+        this.idRTTC_TablePoint = getTapChangerTablePointId(idRTTC_Table, "RatioTapChanger");
     }
 
     @Override
@@ -43,7 +47,7 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
         TwoWindingsTransformer newTwoWindingsTransformer = (TwoWindingsTransformer) change.getIdentifiable();
         String ptId = newTwoWindingsTransformer.getId();
 
-        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_TP", false, "cim:PowerTransformer"));
+        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:PowerTransformer"));
 
         String name = newTwoWindingsTransformer.getName();
         map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, name));
@@ -65,32 +69,32 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
 
         double b = newTwoWindingsTransformer.getB();
         if (!String.valueOf(b).equals("NaN")) {
-            map.put("b",
-                new CgmesPredicateDetails("cim:TransformerWinding.b", "_EQ", false, String.valueOf(b), idEnd1));
+            map.put("b", new CgmesPredicateDetails(
+                "cim:TransformerWinding.b", "_EQ", false, String.valueOf(b), idEnd1));
         }
 
         double r = newTwoWindingsTransformer.getR();
         if (!String.valueOf(r).equals("NaN")) {
-            map.put("r",
-                new CgmesPredicateDetails("cim:TransformerWinding.r", "_EQ", false, String.valueOf(r), idEnd1));
+            map.put("r", new CgmesPredicateDetails(
+                "cim:TransformerWinding.r", "_EQ", false, String.valueOf(r), idEnd1));
         }
 
         double x = newTwoWindingsTransformer.getX();
         if (!String.valueOf(x).equals("NaN")) {
-            map.put("x",
-                new CgmesPredicateDetails("cim:TransformerWinding.x", "_EQ", false, String.valueOf(x), idEnd1));
+            map.put("x", new CgmesPredicateDetails(
+                "cim:TransformerWinding.x", "_EQ", false, String.valueOf(x), idEnd1));
         }
 
         double g = newTwoWindingsTransformer.getG();
         if (!String.valueOf(g).equals("NaN")) {
-            map.put("g",
-                new CgmesPredicateDetails("cim:TransformerWinding.g", "_EQ", false, String.valueOf(g), idEnd1));
+            map.put("g", new CgmesPredicateDetails(
+                "cim:TransformerWinding.g", "_EQ", false, String.valueOf(g), idEnd1));
         }
 
         double ratedU1 = newTwoWindingsTransformer.getRatedU1();
         if (!String.valueOf(ratedU1).equals("NaN")) {
-            map.put("ratedU1", new CgmesPredicateDetails("cim:TransformerWinding.ratedU", "_EQ", false,
-                String.valueOf(ratedU1), idEnd1));
+            map.put("ratedU1", new CgmesPredicateDetails(
+                "cim:TransformerWinding.ratedU", "_EQ", false, String.valueOf(ratedU1), idEnd1));
         }
 
         /**
@@ -117,57 +121,24 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
             "cim:TransformerWinding.g", "_EQ", false, String.valueOf(0.0), idEnd2));
 
         double ratedU2 = newTwoWindingsTransformer.getRatedU2();
-        if (!String.valueOf(ratedU1).equals("NaN")) {
+        if (!String.valueOf(ratedU2).equals("NaN")) {
             map.put("ratedU2", new CgmesPredicateDetails("cim:TransformerWinding.ratedU", "_EQ", false,
                 String.valueOf(ratedU2), idEnd2));
         }
         /**
          * PhaseTapChanger
          */
-        PhaseTapChanger newPhaseTapChanger = newTwoWindingsTransformer.getPhaseTapChanger();
-
-        if (newPhaseTapChanger != null) {
-            map.put("rdfTypePHTC", new CgmesPredicateDetails(
-                "rdf:type", "_EQ", false, "cim:PhaseTapChangerTabular", idPHTC));
-
-            map.put("namePHTC", new CgmesPredicateDetails(
-                "cim:IdentifiedObject.name", "_EQ", false, name.concat("_PHTC"), idPHTC));
-
-            map.put("TransformerWindingPHTC", new CgmesPredicateDetails(
-                "cim:PhaseTapChanger.TransformerWinding", "_EQ", true, idEnd1, idPHTC));
-
-            int lowTapPositionPHTC = newPhaseTapChanger.getLowTapPosition();
-            map.put("phaseTapChanger.lowTapPosition", new CgmesPredicateDetails(
-                "cim:TapChanger.lowStep", "_EQ", false, String.valueOf(lowTapPositionPHTC), idPHTC));
-
-            int tapPositionPHTC = newPhaseTapChanger.getTapPosition();
-            map.put("phaseTapChanger.tapPosition", new CgmesPredicateDetails(
-                "cim:TapChanger.neutralStep", "_EQ", false, String.valueOf(tapPositionPHTC + 1), idPHTC));
+        if (newTwoWindingsTransformer.getPhaseTapChanger() != null) {
+            PhaseTapChangerToPhaseTapChanger phtc = new PhaseTapChangerToPhaseTapChanger(change, cgmes);
+            map.putAll(phtc.mapIidmToCgmesPredicates());
         }
         /**
          * RatioTapChanger
          */
-        RatioTapChanger newRatioTapChanger = newTwoWindingsTransformer.getRatioTapChanger();
-
-        if (newRatioTapChanger != null) {
-            map.put("rdfTypeRTCH", new CgmesPredicateDetails(
-                "rdf:type", "_EQ", false, "cim:RatioTapChanger", idRTCH));
-
-            map.put("nameRTCH", new CgmesPredicateDetails(
-                "cim:IdentifiedObject.name", "_EQ", false, name.concat("_RTTC"), idRTCH));
-
-            map.put("TransformerWindingRTCH", new CgmesPredicateDetails(
-                "cim:RatioTapChanger.TransformerWinding", "_EQ", true, idEnd1, idRTCH));
-
-            int lowTapPositionRTCH = newRatioTapChanger.getLowTapPosition();
-            map.put("ratioTapChanger.lowTapPosition", new CgmesPredicateDetails(
-                "cim:TapChanger.lowStep", "_EQ", false, String.valueOf(lowTapPositionRTCH), idRTCH));
-
-            int tapPositionRTCH = newRatioTapChanger.getTapPosition();
-            map.put("ratioTapChanger.tapPosition", new CgmesPredicateDetails(
-                "cim:TapChanger.neutralStep", "_EQ", false, String.valueOf(tapPositionRTCH + 1), idRTCH));
+        if (newTwoWindingsTransformer.getRatioTapChanger() != null) {
+            RatioTapChangerToRatioTapChanger rttc = new RatioTapChangerToRatioTapChanger(change, cgmes);
+            map.putAll(rttc.mapIidmToCgmesPredicates());
         }
-
         return map;
     }
 
@@ -219,11 +190,58 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
         return (tapChangerType.equals("RatioTapChanger")) ? idEnd1.concat("_RTTC") : idEnd1.concat("_PHTC");
     }
 
+    /**
+     * TODO elena check cim14 might have no table Check if TapChangerTable elements
+     * already exist in grid, if yes - returns the id. Otherwise, return
+     * concatenated string.
+     */
+    private String getTapChangerTableId(String tapChangerId, String tapChangerType) {
+
+        String propertyName = tapChangerType.concat("Table");
+        PropertyBags tapChangers = (tapChangerType.equals("RatioTapChanger")) ? cgmes.ratioTapChangers()
+            : cgmes.phaseTapChangers();
+        Iterator i = tapChangers.iterator();
+        while (i.hasNext()) {
+            PropertyBag pb = (PropertyBag) i.next();
+            if (pb.getId(tapChangerType).equals(tapChangerId) && pb.containsKey(propertyName)) {
+
+                return pb.getId(propertyName);
+            } else {
+                continue;
+            }
+        }
+        return tapChangerId.concat("_Table");
+    }
+
+    private String getTapChangerTablePointId(String tapChangerTableId, String tapChangerType) {
+
+        String propertyName = tapChangerType.concat("TablePoint");
+        PropertyBags phaseTapChangerTable = (tapChangerType.equals("RatioTapChanger"))
+            ? cgmes.ratioTapChangerTable(idRTTC_Table)
+            : cgmes.phaseTapChangerTable(idPHTC_Table);
+        Iterator i = phaseTapChangerTable.iterator();
+        while (i.hasNext()) {
+            PropertyBag pb = (PropertyBag) i.next();
+            if (pb.getId("step").equals("check")) {
+                return pb.getId(propertyName);
+            } else {
+                continue;
+            }
+        }
+        return tapChangerTableId.concat("_TablePoint").concat("step number");
+    }
+
     private IidmChange change;
     private CgmesModel cgmes;
-    private String currId;
-    private String idEnd1;
-    private String idEnd2;
-    private String idRTCH;
-    private String idPHTC;
+    TwoWindingsTransformer newTwoWindingsTransformer;
+    String currId;
+    String name;
+    String idEnd1;
+    String idEnd2;
+    String idRTTC;
+    String idPHTC;
+    String idPHTC_Table;
+    String idRTTC_Table;
+    String idPHTC_TablePoint;
+    String idRTTC_TablePoint;
 }

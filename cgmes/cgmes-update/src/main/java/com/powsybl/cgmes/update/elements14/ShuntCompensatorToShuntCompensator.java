@@ -33,13 +33,12 @@ public class ShuntCompensatorToShuntCompensator implements ConversionMapper {
         }
 
         double bPerSection = newShuntCompensator.getbPerSection();
-        map.put("bPerSection",
-            new CgmesPredicateDetails("cim:ShuntCompensator.bPerSection", "_EQ", false,
-                String.valueOf(bPerSection)));
+        map.put("bPerSection", new CgmesPredicateDetails(
+            "cim:ShuntCompensator.bPerSection", "_EQ", false, String.valueOf(bPerSection)));
 
         double maximumSectionCount = newShuntCompensator.getMaximumSectionCount();
-        map.put("maximumSectionCount", new CgmesPredicateDetails("cim:ShuntCompensator.maximumSections", "_EQ", false,
-            String.valueOf(maximumSectionCount)));
+        map.put("maximumSectionCount", new CgmesPredicateDetails(
+            "cim:ShuntCompensator.maximumSections", "_EQ", false, String.valueOf(maximumSectionCount)));
 
         return map;
     }

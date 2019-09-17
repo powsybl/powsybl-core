@@ -42,13 +42,13 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
 
     @Override
     public Multimap<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
-        
+
         final Multimap<String, CgmesPredicateDetails> map = ArrayListMultimap.create();
         TwoWindingsTransformer newTwoWindingsTransformer = (TwoWindingsTransformer) change.getIdentifiable();
 
         String ptId = newTwoWindingsTransformer.getId();
 
-        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_TP", false, "cim:PowerTransformer"));
+        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:PowerTransformer"));
 
         String name = newTwoWindingsTransformer.getName();
         map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, name));

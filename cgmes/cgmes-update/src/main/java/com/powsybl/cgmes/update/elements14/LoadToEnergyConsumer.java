@@ -26,7 +26,7 @@ public class LoadToEnergyConsumer implements ConversionMapper {
         final Multimap<String, CgmesPredicateDetails> map = ArrayListMultimap.create();
         Load newLoad = (Load) change.getIdentifiable();
 
-        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_TP", false, "cim:EnergyConsumer"));
+        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:EnergyConsumer"));
 
         String name = newLoad.getName();
         if (name != null) {
