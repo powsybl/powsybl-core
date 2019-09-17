@@ -60,7 +60,8 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         connect(adder);
         ShuntCompensator shunt = adder.add();
 
-        // At a shunt terminal, only Q can be set
+        // At a shunt terminal, only Q can be set.
+        // CGMES and IIDM sign conventions are opposite for q.
         PowerFlow f = powerFlow();
         if (f.defined()) {
             double q = f.q();
