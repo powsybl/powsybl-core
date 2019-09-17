@@ -46,6 +46,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_NO_GENERATOR_REACTIVE_LIMITS = false;
     public static final boolean DEFAULT_PHASE_SHIFTER_REGULATION_ON = false;
     public static final boolean DEFAULT_SPECIFIC_COMPATIBILITY = false;
+    public static final boolean DEFAULT_WITH_REMOTE_VOLTAGE_GENERATORS = false;
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "loadflow-parameters"));
@@ -84,6 +85,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                     parameters.setNoGeneratorReactiveLimits(config.getBooleanProperty("noGeneratorReactiveLimits", DEFAULT_NO_GENERATOR_REACTIVE_LIMITS));
                     parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
                     parameters.setSpecificCompatibility(config.getBooleanProperty("specificCompatibility", DEFAULT_SPECIFIC_COMPATIBILITY));
+                    parameters.setWithRemoteVoltageGenerators(config.getBooleanProperty("withRemoteVoltageGenerators", DEFAULT_WITH_REMOTE_VOLTAGE_GENERATORS));
                 });
     }
 
@@ -97,13 +99,22 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     private boolean specificCompatibility;
 
+    private boolean withRemoteVoltageGenerators;
+
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
-                              boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn, boolean specificCompatibility) {
+                              boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn, boolean specificCompatibility,
+                              boolean withRemoteVoltageGenerators) {
         this.voltageInitMode = voltageInitMode;
         this.transformerVoltageControlOn = transformerVoltageControlOn;
         this.noGeneratorReactiveLimits = noGeneratorReactiveLimits;
         this.phaseShifterRegulationOn = phaseShifterRegulationOn;
         this.specificCompatibility = specificCompatibility;
+        this.withRemoteVoltageGenerators = withRemoteVoltageGenerators;
+    }
+
+    public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
+                              boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn, boolean specificCompatibility) {
+        this(voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits, phaseShifterRegulationOn, specificCompatibility, DEFAULT_WITH_REMOTE_VOLTAGE_GENERATORS);
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn) {
@@ -125,6 +136,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         noGeneratorReactiveLimits = other.noGeneratorReactiveLimits;
         phaseShifterRegulationOn = other.phaseShifterRegulationOn;
         specificCompatibility = other.specificCompatibility;
+        withRemoteVoltageGenerators = other.withRemoteVoltageGenerators;
     }
 
     public VoltageInitMode getVoltageInitMode() {
@@ -172,12 +184,25 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
+    public boolean isWithRemoteVoltageGenerators() {
+        return withRemoteVoltageGenerators;
+    }
+
+    public LoadFlowParameters setWithRemoteVoltageGenerators(boolean withRemoteVoltageGenerators) {
+        this.withRemoteVoltageGenerators = withRemoteVoltageGenerators;
+        return this;
+    }
+
     protected Map<String, Object> toMap() {
-        return ImmutableMap.of("voltageInitMode", voltageInitMode,
-                "transformerVoltageControlOn", transformerVoltageControlOn,
-                "noGeneratorReactiveLimits", noGeneratorReactiveLimits,
-                "phaseShifterRegulationOn", phaseShifterRegulationOn,
-                "specificCompatibility", specificCompatibility);
+        ImmutableMap.Builder<String, Object> immutableMapBuilder = ImmutableMap.builder();
+        immutableMapBuilder
+                .put("voltageInitMode", voltageInitMode)
+                .put("transformerVoltageControlOn", transformerVoltageControlOn)
+                .put("noGeneratorReactiveLimits", noGeneratorReactiveLimits)
+                .put("phaseShifterRegulationOn", phaseShifterRegulationOn)
+                .put("specificCompatibility", specificCompatibility)
+                .put("withRemoteVoltageGenerators", withRemoteVoltageGenerators);
+        return immutableMapBuilder.build();
     }
 
     public LoadFlowParameters copy() {

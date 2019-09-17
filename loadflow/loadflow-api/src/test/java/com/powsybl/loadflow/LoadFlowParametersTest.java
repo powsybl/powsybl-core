@@ -26,8 +26,8 @@ import static org.junit.Assert.*;
  */
 public class LoadFlowParametersTest {
 
-    InMemoryPlatformConfig platformConfig;
-    FileSystem fileSystem;
+    private InMemoryPlatformConfig platformConfig;
+    private FileSystem fileSystem;
 
     @Before
     public void setUp() {
@@ -42,12 +42,13 @@ public class LoadFlowParametersTest {
 
     private void checkValues(LoadFlowParameters parameters, LoadFlowParameters.VoltageInitMode voltageInitMode,
                              boolean transformerVoltageControlOn, boolean noGeneratorReactiveLimits,
-                             boolean phaseShifterRegulationOn, boolean specificCompatibility) {
+                             boolean phaseShifterRegulationOn, boolean specificCompatibility, boolean withRemoteVoltageGenerators) {
         assertEquals(parameters.getVoltageInitMode(), voltageInitMode);
         assertEquals(parameters.isTransformerVoltageControlOn(), transformerVoltageControlOn);
         assertEquals(parameters.isPhaseShifterRegulationOn(), phaseShifterRegulationOn);
         assertEquals(parameters.isNoGeneratorReactiveLimits(), noGeneratorReactiveLimits);
         assertEquals(parameters.isSpecificCompatibility(), specificCompatibility);
+        assertEquals(parameters.isWithRemoteVoltageGenerators(), withRemoteVoltageGenerators);
     }
 
     @Test
@@ -58,15 +59,17 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
                 LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
-                LoadFlowParameters.DEFAULT_SPECIFIC_COMPATIBILITY);
+                LoadFlowParameters.DEFAULT_SPECIFIC_COMPATIBILITY,
+                LoadFlowParameters.DEFAULT_WITH_REMOTE_VOLTAGE_GENERATORS);
     }
 
     @Test
-    public void checkConfig() throws Exception {
+    public void checkConfig() {
         boolean transformerVoltageControlOn = true;
         boolean noGeneratorReactiveLimits = true;
         boolean phaseShifterRegulationOn = true;
         boolean specificCompatibility = true;
+        boolean withRemoteVoltageGenerators = true;
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.UNIFORM_VALUES;
 
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-default-parameters");
@@ -75,14 +78,15 @@ public class LoadFlowParametersTest {
         moduleConfig.setStringProperty("noGeneratorReactiveLimits", Boolean.toString(noGeneratorReactiveLimits));
         moduleConfig.setStringProperty("phaseShifterRegulationOn", Boolean.toString(phaseShifterRegulationOn));
         moduleConfig.setStringProperty("specificCompatibility", Boolean.toString(specificCompatibility));
+        moduleConfig.setStringProperty("withRemoteVoltageGenerators", Boolean.toString(specificCompatibility));
         LoadFlowParameters parameters = new LoadFlowParameters();
         LoadFlowParameters.load(parameters, platformConfig);
         checkValues(parameters, voltageInitMode, transformerVoltageControlOn,
-                noGeneratorReactiveLimits, phaseShifterRegulationOn, specificCompatibility);
+                noGeneratorReactiveLimits, phaseShifterRegulationOn, specificCompatibility, withRemoteVoltageGenerators);
     }
 
     @Test
-    public void checkIncompleteConfig() throws Exception {
+    public void checkIncompleteConfig() {
         boolean transformerVoltageControlOn = true;
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-default-parameters");
         moduleConfig.setStringProperty("transformerVoltageControlOn", Boolean.toString(transformerVoltageControlOn));
@@ -90,50 +94,56 @@ public class LoadFlowParametersTest {
         LoadFlowParameters.load(parameters, platformConfig);
         checkValues(parameters, LoadFlowParameters.DEFAULT_VOLTAGE_INIT_MODE,
                 transformerVoltageControlOn, LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
-                LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_SPECIFIC_COMPATIBILITY);
+                LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_SPECIFIC_COMPATIBILITY,
+                LoadFlowParameters.DEFAULT_WITH_REMOTE_VOLTAGE_GENERATORS);
     }
 
     @Test
-    public void checkConstructorByVoltageInitMode() throws Exception {
+    public void checkConstructorByVoltageInitMode() {
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
         LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode);
         checkValues(parameters, voltageInitMode, LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
                 LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
-                LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_SPECIFIC_COMPATIBILITY);
+                LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_SPECIFIC_COMPATIBILITY,
+                LoadFlowParameters.DEFAULT_WITH_REMOTE_VOLTAGE_GENERATORS);
     }
 
     @Test
-    public void checkSetters() throws Exception {
+    public void checkSetters() {
         boolean transformerVoltageControlOn = true;
         boolean noGeneratorReactiveLimits = true;
         boolean phaseShifterRegulationOn = true;
         boolean specificCompatibility = true;
+        boolean withRemoteVoltageGenerators = true;
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
 
         LoadFlowParameters parameters = new LoadFlowParameters();
         LoadFlowParameters.load(parameters, platformConfig);
-        parameters.setNoGeneratorReactiveLimits(noGeneratorReactiveLimits);
-        parameters.setPhaseShifterRegulationOn(phaseShifterRegulationOn);
-        parameters.setTransformerVoltageControlOn(transformerVoltageControlOn);
-        parameters.setVoltageInitMode(voltageInitMode);
-        parameters.setSpecificCompatibility(specificCompatibility);
+        parameters.setNoGeneratorReactiveLimits(noGeneratorReactiveLimits)
+                .setPhaseShifterRegulationOn(phaseShifterRegulationOn)
+                .setTransformerVoltageControlOn(transformerVoltageControlOn)
+                .setVoltageInitMode(voltageInitMode)
+                .setSpecificCompatibility(specificCompatibility)
+                .setWithRemoteVoltageGenerators(withRemoteVoltageGenerators);
 
         checkValues(parameters, voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits,
-                phaseShifterRegulationOn, specificCompatibility);
+                phaseShifterRegulationOn, specificCompatibility, withRemoteVoltageGenerators);
     }
 
     @Test
-    public void checkClone() throws Exception {
+    public void checkClone() {
         boolean transformerVoltageControlOn = true;
         boolean noGeneratorReactiveLimits = true;
         boolean phaseShifterRegulationOn = true;
         boolean specificCompatibility = true;
+        boolean withRemoteVoltageGenerators = true;
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.UNIFORM_VALUES;
         LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode, transformerVoltageControlOn,
-                noGeneratorReactiveLimits, phaseShifterRegulationOn, specificCompatibility);
+                noGeneratorReactiveLimits, phaseShifterRegulationOn, specificCompatibility, withRemoteVoltageGenerators);
         LoadFlowParameters parametersCloned = parameters.copy();
         checkValues(parametersCloned, parameters.getVoltageInitMode(), parameters.isTransformerVoltageControlOn(),
-                parameters.isNoGeneratorReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isSpecificCompatibility());
+                parameters.isNoGeneratorReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isSpecificCompatibility(),
+                parameters.isWithRemoteVoltageGenerators());
     }
 
     @Test
