@@ -19,8 +19,6 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.loadflow.LoadFlowFactory;
-import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
@@ -80,8 +78,6 @@ public class SecurityAnalysisTest {
         Executor executor = Runnable::run;
         Mockito.when(computationManager.getExecutor()).thenReturn(executor);
 
-        LoadFlowFactory loadflowFactory = new LoadFlowFactoryMock();
-
         ContingenciesProvider contingenciesProvider = Mockito.mock(ContingenciesProvider.class);
         Contingency contingency = Mockito.mock(Contingency.class);
         Mockito.when(contingency.getId()).thenReturn("NHV1_NHV2_2_contingency");
@@ -98,7 +94,7 @@ public class SecurityAnalysisTest {
 
         LimitViolationFilter filter = new LimitViolationFilter();
 
-        SecurityAnalysis securityAnalysis = new SecurityAnalysisImpl(network, filter, computationManager, loadflowFactory);
+        SecurityAnalysis securityAnalysis = new SecurityAnalysisImpl(network, filter, computationManager);
         securityAnalysis.addInterceptor(new SecurityAnalysisInterceptorMock());
         securityAnalysis.addInterceptor(new CurrentLimitViolationInterceptor());
 

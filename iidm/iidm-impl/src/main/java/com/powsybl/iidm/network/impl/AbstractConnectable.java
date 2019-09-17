@@ -26,6 +26,13 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         super(id, name);
     }
 
+    public I setName(String name) {
+        String oldValue = this.name;
+        this.name = name;
+        notifyUpdate("name", oldValue, name);
+        return (I) this;
+    }
+
     void addTerminal(TerminalExt terminal) {
         terminals.add(terminal);
         terminal.setConnectable(this);
@@ -59,6 +66,10 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
             vl.clean();
         }
         network.getListeners().notifyRemoval(this);
+    }
+
+    protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
+        getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
     }
 
     protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {

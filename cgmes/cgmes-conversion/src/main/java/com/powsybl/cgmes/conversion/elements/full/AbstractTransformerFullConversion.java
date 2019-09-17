@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.Regulati
 import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataRatio;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
 import com.powsybl.cgmes.conversion.elements.full.TapChanger.StepAdder;
+import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
@@ -40,6 +41,7 @@ public abstract class AbstractTransformerFullConversion
     protected static final String STRING_LOW_STEP = "lowStep";
     protected static final String STRING_HIGH_STEP = "highStep";
     protected static final String STRING_NEUTRAL_STEP = "neutralStep";
+    protected static final String STRING_NORMAL_STEP = "normalStep";
     protected static final String STRING_SV_TAP_STEP = "SVtapStep";
     protected static final String STRING_LTC_FLAG = "ltcFlag";
     protected static final String STRING_STEP = "step";
@@ -466,8 +468,8 @@ public abstract class AbstractTransformerFullConversion
         int lowStep = ratioTapChanger.asInt(STRING_LOW_STEP);
         int highStep = ratioTapChanger.asInt(STRING_HIGH_STEP);
         int neutralStep = ratioTapChanger.asInt(STRING_NEUTRAL_STEP);
-        double fposition = ratioTapChanger.asDouble(STRING_SV_TAP_STEP, neutralStep);
-        int position = (int) Math.round(fposition);
+        int normalStep = ratioTapChanger.asInt(STRING_NORMAL_STEP, neutralStep);
+        int position = getTapPosition(ratioTapChanger, normalStep);
         if (position > highStep || position < lowStep) {
             position = neutralStep;
         }
@@ -480,6 +482,17 @@ public abstract class AbstractTransformerFullConversion
 
         addRatioSteps(ratioTapChanger, tapChanger);
         return tapChanger;
+    }
+
+    private int getTapPosition(PropertyBag tapChanger, int defaultStep) {
+        switch (context.config().getProfileUsedForInitialStateValues()) {
+            case SSH:
+                return fromContinuous(tapChanger.asDouble(STRING_STEP, tapChanger.asDouble(STRING_SV_TAP_STEP, defaultStep)));
+            case SV:
+                return fromContinuous(tapChanger.asDouble(STRING_SV_TAP_STEP, tapChanger.asDouble(STRING_STEP, defaultStep)));
+            default:
+                throw new CgmesModelException("Unexpected profile used for initial flows values: " + context.config().getProfileUsedForInitialStateValues());
+        }
     }
 
     private void addRatioSteps(PropertyBag ratioTapChanger, TapChanger tapChanger) {
@@ -547,8 +560,8 @@ public abstract class AbstractTransformerFullConversion
         int lowStep = phaseTapChanger.asInt(STRING_LOW_STEP);
         int highStep = phaseTapChanger.asInt(STRING_HIGH_STEP);
         int neutralStep = phaseTapChanger.asInt(STRING_NEUTRAL_STEP);
-        double fposition = phaseTapChanger.asDouble(STRING_SV_TAP_STEP, neutralStep);
-        int position = (int) Math.round(fposition);
+        int normalStep = phaseTapChanger.asInt(STRING_NORMAL_STEP, neutralStep);
+        int position = getTapPosition(phaseTapChanger, normalStep);
         if (position > highStep || position < lowStep) {
             position = neutralStep;
         }
@@ -697,7 +710,8 @@ public abstract class AbstractTransformerFullConversion
         tapChanger.setId(phaseTapChanger.getId(STRING_PHASE_TAP_CHANGER))
             .setRegulating(rci.regulating)
             .setRegulatingControlId(rci.regulatingControlId)
-            .setSide(side);
+            .setSide(side)
+            .setTapChangerControlEnabled(phaseTapChanger.asBoolean(STRING_TAP_CHANGER_CONTROL_ENABLED, false));
     }
 
     private boolean isSymmetrical(String tapChangerType) {
@@ -763,7 +777,7 @@ public abstract class AbstractTransformerFullConversion
     protected RegulatingDataPhase buildContextRegulatingDataPhase(TapChanger tc) {
         if (tc != null) {
             return context.transformerRegulatingControlMapping().buildRegulatingDataPhase(tc.getId(), tc.isRegulating(),
-                tc.getRegulatingControlId(), tc.getSide());
+                tc.getRegulatingControlId(), tc.getSide(), tc.isTapChangerControlEnabled());
         } else {
             return context.transformerRegulatingControlMapping().buildEmptyRegulatingDataPhase();
         }

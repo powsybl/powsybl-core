@@ -84,17 +84,19 @@ public class TransformerRegulatingControlMapping {
         rtc.regulating = false;
         rtc.regulatingControlId = null;
         rtc.side = 0;
+        rtc.tapChangerControlEnabled = false;
 
         return rtc;
     }
 
     public RegulatingDataPhase buildRegulatingDataPhase(String id, boolean regulating, String regulatingControlId,
-        int side) {
+        int side, boolean tapChangerControlEnabled) {
         RegulatingDataPhase rtc = new RegulatingDataPhase();
         rtc.id = id;
         rtc.regulating = regulating;
         rtc.regulatingControlId = regulatingControlId;
         rtc.side = side;
+        rtc.tapChangerControlEnabled = tapChangerControlEnabled;
 
         return rtc;
     }
@@ -121,6 +123,7 @@ public class TransformerRegulatingControlMapping {
         boolean regulating;
         String regulatingControlId;
         int side;
+        boolean tapChangerControlEnabled;
     }
 
     public static class TwoWindingTransformerRegulatingData {

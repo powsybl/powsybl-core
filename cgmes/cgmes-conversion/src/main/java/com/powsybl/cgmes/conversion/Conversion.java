@@ -29,12 +29,14 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class Conversion {
 
-    private static final boolean EXTENDED_CGMES_CONVERSION = true;
+    private static final boolean EXTENDED_CGMES_CONVERSION = false;
 
     public Conversion(CgmesModel cgmes) {
         this(cgmes, new Config());
@@ -135,6 +137,10 @@ public class Conversion {
             //context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
         }
 
+        if (config.convertSvInjections()) {
+            convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
+        }
+
         voltageAngles(nodes, context);
         if (context.config().debugTopology()) {
             debugTopology(context);
@@ -198,10 +204,10 @@ public class Conversion {
 
     private void assignNetworkProperties(Context context) {
         profiling.start();
-        context.network().getProperties().put(NETWORK_PS_CGMES_MODEL_DETAIL,
-            context.nodeBreaker()
-                ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
-                : NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH);
+        context.network().setProperty(NETWORK_PS_CGMES_MODEL_DETAIL,
+                context.nodeBreaker()
+                        ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
+                        : NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH);
         DateTime modelScenarioTime = cgmes.scenarioTime();
         DateTime modelCreated = cgmes.created();
         long forecastDistance = new Duration(modelCreated, modelScenarioTime).getStandardMinutes();
@@ -360,6 +366,12 @@ public class Conversion {
     }
 
     public static class Config {
+
+        public enum StateProfile {
+            SSH,
+            SV
+        }
+
         public List<String> substationIdsExcludedFromMapping() {
             return Collections.emptyList();
         }
@@ -421,6 +433,32 @@ public class Conversion {
 
         public Config setCreateBusbarSectionForEveryConnectivityNode(boolean b) {
             createBusbarSectionForEveryConnectivityNode = b;
+            return this;
+        }
+
+        public boolean convertSvInjections() {
+            return convertSvInjections;
+        }
+
+        public Config setConvertSvInjections(boolean convertSvInjections) {
+            this.convertSvInjections = convertSvInjections;
+            return this;
+        }
+
+        public StateProfile getProfileUsedForInitialStateValues() {
+            return profileUsedForInitialStateValues;
+        }
+
+        public Config setProfileUsedForInitialStateValues(String profileUsedForInitialFlowsValues) {
+            switch (Objects.requireNonNull(profileUsedForInitialFlowsValues)) {
+                case "SSH":
+                case "SV":
+                    this.profileUsedForInitialStateValues = StateProfile.valueOf(profileUsedForInitialFlowsValues);
+                    break;
+                default:
+                    throw new CgmesModelException(
+                        "Unexpected profile used for state hypothesis: " + profileUsedForInitialFlowsValues);
+            }
             return this;
         }
 
@@ -712,6 +750,8 @@ public class Conversion {
         private double lowImpedanceLineX = 0.05;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
+        private boolean convertSvInjections = true;
+        private StateProfile profileUsedForInitialStateValues = SSH;
 
         // Default configuration
         private boolean xfmr2RatioPhaseEnd1 = false;

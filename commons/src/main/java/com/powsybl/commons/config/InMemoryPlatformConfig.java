@@ -15,10 +15,10 @@ import java.nio.file.FileSystem;
 public class InMemoryPlatformConfig extends PlatformConfig {
 
     public InMemoryPlatformConfig(FileSystem fileSystem) {
-        super(new InMemoryModuleConfigRepository(fileSystem), fileSystem);
+        super(new InMemoryModuleConfigRepository(fileSystem), fileSystem.getPath("inmemory").toAbsolutePath());
     }
 
     public MapModuleConfig createModuleConfig(String name) {
-        return ((InMemoryModuleConfigRepository) repository).createModuleConfig(name);
+        return ((InMemoryModuleConfigRepository) getRepository()).createModuleConfig(name);
     }
 }

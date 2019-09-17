@@ -106,7 +106,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
             if (Double.isNaN(b)) {
                 throw new ValidationException(parent, "step b is not set");
             }
-            PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(alpha, rho, r, x, g, b);
+            PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(steps.size(), alpha, rho, r, x, g, b);
             steps.add(step);
             return PhaseTapChangerAdderImpl.this;
         }

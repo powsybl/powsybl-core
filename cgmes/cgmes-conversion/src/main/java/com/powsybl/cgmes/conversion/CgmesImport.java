@@ -148,36 +148,48 @@ public class CgmesImport implements Importer {
 
     private Conversion.Config config(Properties p) {
         return new Conversion.Config()
-            .setAllowUnsupportedTapChangers(
-                ConversionParameters.readBooleanParameter(
-                    getFormat(),
-                    p,
-                    ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
-                    defaultValueConfig))
-            .setChangeSignForShuntReactivePowerFlowInitialState(
-                ConversionParameters.readBooleanParameter(
-                    getFormat(),
-                    p,
-                    CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
-                    defaultValueConfig))
-            .setConvertBoundary(
-                ConversionParameters.readBooleanParameter(
-                    getFormat(),
-                    p,
-                    CONVERT_BOUNDARY_PARAMETER,
-                    defaultValueConfig))
-            .setCreateBusbarSectionForEveryConnectivityNode(
-                ConversionParameters.readBooleanParameter(
-                    getFormat(),
-                    p,
-                    CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
-                    defaultValueConfig))
-            .setXfmr2StructuralRatio(
-                ConversionParameters.readStringParameter(
-                    getFormat(),
-                    p,
-                    CONVERSION_ALTERNATIVE_XFMR2_STRUCTURAL_RATIO_PARAMETER,
-                    defaultValueConfig));
+                .setAllowUnsupportedTapChangers(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
+                                defaultValueConfig))
+                .setChangeSignForShuntReactivePowerFlowInitialState(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
+                                defaultValueConfig))
+                .setConvertBoundary(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                CONVERT_BOUNDARY_PARAMETER,
+                                defaultValueConfig))
+                .setConvertSvInjections(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                CONVERT_SV_INJECTIONS_PARAMETER,
+                                defaultValueConfig))
+                .setCreateBusbarSectionForEveryConnectivityNode(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
+                                defaultValueConfig))
+                .setProfileUsedForInitialStateValues(
+                        ConversionParameters.readStringParameter(
+                                getFormat(),
+                                p,
+                                PROFILE_USED_FOR_INITIAL_STATE_VALUES_PARAMETER,
+                                defaultValueConfig))
+                        .setXfmr2StructuralRatio(
+                            ConversionParameters.readStringParameter(
+                                getFormat(),
+                                p,
+                                CONVERSION_ALTERNATIVE_XFMR2_STRUCTURAL_RATIO_PARAMETER,
+                                defaultValueConfig));
     }
 
     private List<CgmesImportPostProcessor> activatedPostProcessors(Properties p) {
@@ -215,13 +227,15 @@ public class CgmesImport implements Importer {
     private static final String FORMAT = "CGMES";
 
     public static final String ALLOW_UNSUPPORTED_TAP_CHANGERS = "iidm.import.cgmes.allow-unsupported-tap-changers";
+    public static final String BOUNDARY_LOCATION = "iidm.import.cgmes.boundary-location";
     public static final String CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE = "iidm.import.cgmes.change-sign-for-shunt-reactive-power-flow-initial-state";
     public static final String CONVERT_BOUNDARY = "iidm.import.cgmes.convert-boundary";
+    public static final String CONVERT_SV_INJECTIONS = "iidm.import.cgmes.convert-sv-injections";
     public static final String CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE = "iidm.import.cgmes.create-busbar-section-for-every-connectivity-node";
-    public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
-    public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
-    public static final String BOUNDARY_LOCATION = "iidm.import.cgmes.boundary-location";
+    public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
+    public static final String PROFILE_USED_FOR_INITIAL_STATE_VALUES = "iidm.import.cgmes.profile-used-for-initial-state-values";
+    public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
     public static final String CONVERSION_ALTERNATIVE_XFMR2_STRUCTURAL_RATIO = "iidm.import.cgmes.xfmr2.structural-ratio.alternative";
 
     private static final Parameter ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER = new Parameter(
@@ -241,29 +255,40 @@ public class CgmesImport implements Importer {
             "Convert boundary during import",
             Boolean.FALSE)
             .addAdditionalNames("convertBoundary");
+    private static final Parameter CONVERT_SV_INJECTIONS_PARAMETER = new Parameter(
+            CONVERT_SV_INJECTIONS,
+            ParameterType.BOOLEAN,
+            "Convert SV injections during import",
+            Boolean.TRUE);
     private static final Parameter CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER = new Parameter(
             CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE,
             ParameterType.BOOLEAN,
             "Create busbar section for every connectivity node",
             Boolean.FALSE)
             .addAdditionalNames("createBusbarSectionForEveryConnectivityNode");
+    private static final Parameter POST_PROCESSORS_PARAMETER = new Parameter(
+            POST_PROCESSORS,
+            ParameterType.STRING_LIST,
+            "Post processors",
+            Collections.emptyList());
     private static final Parameter POWSYBL_TRIPLESTORE_PARAMETER = new Parameter(
             POWSYBL_TRIPLESTORE,
             ParameterType.STRING,
             "The triplestore used during the import",
             TripleStoreFactory.defaultImplementation())
             .addAdditionalNames("powsyblTripleStore");
+    private static final Parameter PROFILE_USED_FOR_INITIAL_STATE_VALUES_PARAMETER = new Parameter(
+            PROFILE_USED_FOR_INITIAL_STATE_VALUES,
+            ParameterType.STRING,
+            "Profile used for initial state values",
+            "SSH"
+    );
     private static final Parameter STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,
             "Store the initial CGMES model as a network extension",
             Boolean.TRUE)
             .addAdditionalNames("storeCgmesModelAsNetworkExtension");
-    private static final Parameter POST_PROCESSORS_PARAMETER = new Parameter(
-            POST_PROCESSORS,
-            ParameterType.STRING_LIST,
-            "Post processors",
-            Collections.emptyList());
     private static final Parameter CONVERSION_ALTERNATIVE_XFMR2_STRUCTURAL_RATIO_PARAMETER = new Parameter(
         CONVERSION_ALTERNATIVE_XFMR2_STRUCTURAL_RATIO,
         ParameterType.STRING,

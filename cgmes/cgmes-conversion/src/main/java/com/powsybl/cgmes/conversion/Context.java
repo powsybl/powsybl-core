@@ -17,7 +17,10 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.conversion.Conversion.Config;
 import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.PowerFlow;
+import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
@@ -75,6 +78,20 @@ public class Context {
 
     public TerminalMapping terminalMapping() {
         return terminalMapping;
+    }
+
+    public void convertedTerminal(String terminalId, Terminal t, int n, PowerFlow f) {
+        // Record the mapping between CGMES and IIDM terminals
+        terminalMapping().add(terminalId, t, n);
+        // Update the power flow at terminal. Check that IIDM allows setting it
+        if (f.defined() && setPQAllowed(t)) {
+            t.setP(f.p());
+            t.setQ(f.q());
+        }
+    }
+
+    private boolean setPQAllowed(Terminal t) {
+        return t.getConnectable().getType() != ConnectableType.BUSBAR_SECTION;
     }
 
     public NodeMapping nodeMapping() {
@@ -176,7 +193,7 @@ public class Context {
     public void anotherLineConversion(ACLineSegmentConversion c) {
         Objects.requireNonNull(c);
         countLines++;
-        if (c.terminalPowerFlow(1).defined() && c.terminalPowerFlow(2).defined()) {
+        if (c.stateVariablesPowerFlow(1).defined() && c.stateVariablesPowerFlow(2).defined()) {
             countLinesWithSvPowerFlowsAtEnds++;
         }
     }

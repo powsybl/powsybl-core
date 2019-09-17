@@ -23,12 +23,14 @@ import static org.junit.Assert.*;
 public class VscTest {
 
     private Network network;
+    private HvdcLine hvdcLine;
     private VscConverterStation cs1;
     private VscConverterStation cs2;
 
     @Before
     public void setUp() {
         network = HvdcTestNetwork.createVsc();
+        hvdcLine = network.getHvdcLine("L");
         cs1 = network.getVscConverterStation("C1");
         cs2 = network.getVscConverterStation("C2");
     }
@@ -71,18 +73,35 @@ public class VscTest {
         assertNotEquals(l.getConverterStation1().getTerminal().getBusView().getBus().getSynchronousComponent().getNum(),
                         l.getConverterStation2().getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
 
-        // remove
-        int count = network.getVscConverterStationCount();
-        cs1.remove();
-        assertNull(network.getVscConverterStation("C1"));
-        assertNotNull(cs1);
-        assertEquals(count - 1, network.getVscConverterStationCount());
+        assertSame(hvdcLine, cs1.getHvdcLine());
+        assertSame(hvdcLine, cs2.getHvdcLine());
+        assertSame(cs1, hvdcLine.getConverterStation1());
+        assertSame(cs1, hvdcLine.getConverterStation(HvdcLine.Side.ONE));
+        assertSame(cs2, hvdcLine.getConverterStation2());
+        assertSame(cs2, hvdcLine.getConverterStation(HvdcLine.Side.TWO));
     }
 
     @Test
     public void testRemove() {
+        try {
+            cs1.remove();
+            fail();
+        } catch (ValidationException e) {
+            // Ignored
+        }
+
         network.getHvdcLine("L").remove();
         assertEquals(0, network.getHvdcLineCount());
+
+        assertNull(cs1.getHvdcLine());
+        assertNull(cs2.getHvdcLine());
+
+        // remove
+        int count = network.getVscConverterStationCount();
+        cs1.remove();
+        assertNotNull(cs1);
+        assertNull(network.getVscConverterStation("C1"));
+        assertEquals(count - 1, network.getVscConverterStationCount());
     }
 
     @Test

@@ -200,12 +200,16 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
 
     @Override
     public void setRatioTapChanger(RatioTapChangerImpl ratioTapChanger) {
+        RatioTapChangerImpl oldValue = this.ratioTapChanger;
         this.ratioTapChanger = ratioTapChanger;
+        notifyUpdate("ratioTapChanger", oldValue, ratioTapChanger);
     }
 
     @Override
     public void setPhaseTapChanger(PhaseTapChangerImpl phaseTapChanger) {
+        PhaseTapChangerImpl oldValue = this.phaseTapChanger;
         this.phaseTapChanger = phaseTapChanger;
+        notifyUpdate("phaseTapChanger", oldValue, phaseTapChanger);
     }
 
     @Override

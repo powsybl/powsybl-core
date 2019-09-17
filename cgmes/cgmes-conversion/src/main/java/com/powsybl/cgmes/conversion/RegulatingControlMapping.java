@@ -27,6 +27,7 @@ public class RegulatingControlMapping {
     private static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES topological node: %s";
     private static final String VOLTAGE = "voltage";
     private static final String REGULATING_CONTROL_REF = "Regulating control %s";
+    private static final String TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
     private static final String PHASE_TAP_CHANGER = "PhaseTapChanger";
 
     private final Context context;
@@ -129,9 +130,9 @@ public class RegulatingControlMapping {
             adder.setRegulating(false)
                 .setTargetV(Double.NaN);
         } else {
-            adder.setRegulating(control.enabled || p.asBoolean("tapChangerControlEnabled", false))
-                .setTargetDeadband(control.targetDeadband)
-                .setTargetV(control.targetValue);
+            adder.setRegulating(control.enabled || p.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false))
+                    .setTargetDeadband(control.targetDeadband)
+                    .setTargetV(control.targetValue);
         }
         setRegulatingTerminal(p, control, defaultTerminal, adder);
     }
@@ -171,14 +172,14 @@ public class RegulatingControlMapping {
         adder.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(getTargetValue(control.targetValue, control.cgmesTerminal, side, t2w))
                 .setTargetDeadband(control.targetDeadband)
-                .setRegulating(control.enabled);
+                .setRegulating(control.enabled || p.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false));
         setRegulatingTerminal(p, control, defaultTerminal, adder);
     }
 
     private void addActivePowerRegControl(PropertyBag p, RegulatingControl control, Terminal defaultTerminal, PhaseTapChangerAdder adder, int side, TwoWindingsTransformer t2w) {
         adder.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
                 .setTargetDeadband(control.targetDeadband)
-                .setRegulating(control.enabled)
+                .setRegulating(control.enabled || p.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false))
                 .setRegulationValue(getTargetValue(-control.targetValue, control.cgmesTerminal, side, t2w));
         setRegulatingTerminal(p, control, defaultTerminal, adder);
     }
@@ -606,32 +607,35 @@ public class RegulatingControlMapping {
         }
 
         if (control.mode.endsWith("currentflow")) {
-            setPtcRegulatingControlCurrentFlow(defaultTerminal, control, targetValueSigne, ptc, context);
+            setPtcRegulatingControlCurrentFlow(defaultTerminal, rd.tapChangerControlEnabled, control, targetValueSigne,
+                ptc, context);
         } else if (control.mode.endsWith("activepower")) {
-            setPtcRegulatingControlActivePower(defaultTerminal, control, targetValueSigne, ptc, context);
+            setPtcRegulatingControlActivePower(defaultTerminal, rd.tapChangerControlEnabled, control, targetValueSigne,
+                ptc, context);
         } else if (!control.mode.endsWith("fixed")) {
             context.fixed(control.mode, "Unsupported regulating mode for Phase tap changer. Considered as FIXED_TAP");
         }
     }
 
-    private void setPtcRegulatingControlCurrentFlow(Terminal defaultTerminal, RegulatingControl control,
+    private void setPtcRegulatingControlCurrentFlow(Terminal defaultTerminal, boolean tapChangerControlEnabled,
+        RegulatingControl control,
         int targetValueSigne, PhaseTapChanger ptc, Context context) {
         // order it is important
         ptc.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
             .setTargetDeadband(control.targetDeadband)
             .setRegulationValue(getTargetValue(control.targetValue, targetValueSigne));
-        ptc.setRegulating(control.enabled);
+        ptc.setRegulating(control.enabled || tapChangerControlEnabled);
 
         setRegulatingTerminal(defaultTerminal, control, ptc);
     }
 
-    private void setPtcRegulatingControlActivePower(Terminal defaultTerminal, RegulatingControl control,
+    private void setPtcRegulatingControlActivePower(Terminal defaultTerminal, boolean tapChangerControlEnabled, RegulatingControl control,
         int targetValueSigne, PhaseTapChanger ptc, Context context) {
         // Order it is important
         ptc.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
             .setTargetDeadband(control.targetDeadband)
             .setRegulationValue(getTargetValue(-control.targetValue, targetValueSigne));
-        ptc.setRegulating(control.enabled);
+        ptc.setRegulating(control.enabled || tapChangerControlEnabled);
 
         setRegulatingTerminal(defaultTerminal, control, ptc);
     }

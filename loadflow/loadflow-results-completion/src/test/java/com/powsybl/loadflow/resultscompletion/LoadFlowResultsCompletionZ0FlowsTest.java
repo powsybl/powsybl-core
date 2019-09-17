@@ -9,11 +9,9 @@ package com.powsybl.loadflow.resultscompletion;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import com.powsybl.loadflow.validation.CandidateComputation;
 import com.powsybl.loadflow.validation.ValidationConfig;
 import com.powsybl.loadflow.validation.ValidationType;
@@ -549,9 +547,6 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
 
     private ValidationConfig createValidationConfig() {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-        MapModuleConfig defaultConfig = platformConfig.createModuleConfig("componentDefaultConfig");
-        defaultConfig.setStringProperty("LoadFlowFactory",
-                LoadFlowFactoryMock.class.getCanonicalName());
         ValidationConfig config = ValidationConfig.load(platformConfig);
         config.setVerbose(true);
         config.setLoadFlowParameters(new LoadFlowParameters());

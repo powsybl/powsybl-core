@@ -38,6 +38,10 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
         }
     }
 
+    protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
+        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), attribute, oldValue, newValue);
+    }
+
     protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
         parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), attribute, variantId, oldValue, newValue);
     }
@@ -55,7 +59,9 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     @Override
     public PhaseTapChangerImpl setRegulationMode(RegulationMode regulationMode) {
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(), getRegulationTerminal(), getNetwork());
+        RegulationMode oldValue = this.regulationMode;
         this.regulationMode = regulationMode;
+        notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
         return this;
     }
 

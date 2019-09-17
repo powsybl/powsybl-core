@@ -12,6 +12,10 @@ package com.powsybl.iidm.network.impl;
  */
 class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
 
+    private AbstractTapChanger<?, ?, ?> stepHolder;
+
+    private final int position;
+
     private double rho;
 
     private double r;
@@ -22,7 +26,8 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
 
     private double b;
 
-    protected TapChangerStepImpl(double rho, double r, double x, double g, double b) {
+    protected TapChangerStepImpl(int position, double rho, double r, double x, double g, double b) {
+        this.position = position;
         this.rho = rho;
         this.r = r;
         this.x = x;
@@ -30,12 +35,22 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
         this.b = b;
     }
 
+    protected void setParent(AbstractTapChanger<?, ?, ?> parent) {
+        this.stepHolder = parent;
+    }
+
+    protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
+        stepHolder.getNetwork().getListeners().notifyUpdate(stepHolder.parent.getTransformer(), () -> stepHolder.getTapChangerAttribute() + ".step[" + position + "]." + attribute, oldValue, newValue);
+    }
+
     public double getRho() {
         return rho;
     }
 
     public S setRho(double rho) {
+        double oldValue = this.rho;
         this.rho = rho;
+        notifyUpdate("rho", oldValue, rho);
         return (S) this;
     }
 
@@ -44,7 +59,9 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
     }
 
     public S setR(double r) {
+        double oldValue = this.r;
         this.r = r;
+        notifyUpdate("r", oldValue, r);
         return (S) this;
     }
 
@@ -53,7 +70,9 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
     }
 
     public S setX(double x) {
+        double oldValue = this.x;
         this.x = x;
+        notifyUpdate("x", oldValue, x);
         return (S) this;
     }
 
@@ -62,7 +81,9 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
     }
 
     public S setB(double b) {
+        double oldValue = this.b;
         this.b = b;
+        notifyUpdate("b", oldValue, b);
         return (S) this;
     }
 
@@ -71,7 +92,9 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
     }
 
     public S setG(double g) {
+        double oldValue = this.g;
         this.g = g;
+        notifyUpdate("g", oldValue, g);
         return (S) this;
     }
 

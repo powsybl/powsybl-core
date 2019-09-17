@@ -650,6 +650,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             }
         }
         getNetwork().getIndex().remove(bus);
+        getNetwork().getListeners().notifyRemoval(bus);
         int v = buses.remove(bus.getId());
         graph.removeVertex(v);
     }
@@ -666,6 +667,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
         for (ConfiguredBus bus : graph.getVerticesObj()) {
             getNetwork().getIndex().remove(bus);
+            getNetwork().getListeners().notifyRemoval(bus);
         }
         graph.removeAllVertices();
         buses.clear();
@@ -687,11 +689,13 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
         SwitchImpl aSwitch = graph.removeEdge(e);
         getNetwork().getIndex().remove(aSwitch);
+        getNetwork().getListeners().notifyRemoval(aSwitch);
     }
 
     private void removeAllSwitches() {
         for (SwitchImpl s : graph.getEdgesObject()) {
             getNetwork().getIndex().remove(s);
+            getNetwork().getListeners().notifyRemoval(s);
         }
         graph.removeAllEdges();
         switches.clear();

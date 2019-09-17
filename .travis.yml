@@ -3,6 +3,13 @@ language: java
 dist: trusty
 sudo: required
 
+git:
+  depth: false
+
+cache:
+  directories:
+  - $HOME/.m2
+
 jdk:
 - openjdk11
 - oraclejdk8
@@ -23,6 +30,16 @@ addons:
         token:
             secure: ${SONAR_TOKEN}
 
+before_install:
+- rm -rf $HOME/.m2/repository/com/powsybl
+
+install: true
+
+# When travis starts using maven > 3.6.1, add -T 2.0C to hopefully speed things up.
+# With maven 3.5.2 we can't because we get the exception described in https://issues.apache.org/jira/browse/MNG-6590
 script:
-- mvn clean verify -Pjacoco coveralls:report
-- if [ "$TRAVIS_OS_NAME" = "linux" ]; then mvn sonar:sonar; fi
+- mvn -B clean verify -Pjacoco coveralls:report
+- if [ "$TRAVIS_OS_NAME" = "linux" -a "$TRAVIS_JDK_VERSION" = "oraclejdk8" -a "$TRAVIS_SECURE_ENV_VARS"  = "true" ]; then mvn -B sonar:sonar; fi
+
+before_cache:
+- rm -rf $HOME/.m2/repository/com/powsybl

@@ -6,15 +6,14 @@
  */
 package com.powsybl.loadflow.validation;
 
-import java.util.Objects;
-
-import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
+
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
@@ -37,7 +36,7 @@ public class ValidationConfig {
 
     private double threshold;
     private boolean verbose;
-    private Class<? extends LoadFlowFactory> loadFlowFactory;
+    private String loadFlowName;
     private Class<? extends TableFormatterFactory> tableFormatterFactory;
     private double epsilonX;
     private boolean applyReactanceCorrection;
@@ -57,8 +56,7 @@ public class ValidationConfig {
     public static ValidationConfig load(PlatformConfig platformConfig) {
         double threshold = THRESHOLD_DEFAULT;
         boolean verbose = VERBOSE_DEFAULT;
-        ComponentDefaultConfig componentDefaultConfig = ComponentDefaultConfig.load(platformConfig);
-        Class<? extends LoadFlowFactory> loadFlowFactory = componentDefaultConfig.findFactoryImplClass(LoadFlowFactory.class);
+        String loadFlowName = null;
         Class<? extends TableFormatterFactory> tableFormatterFactory = TABLE_FORMATTER_FACTORY_DEFAULT;
         double epsilonX = EPSILON_X_DEFAULT;
         boolean applyReactanceCorrection = APPLY_REACTANCE_CORRECTION_DEFAULT;
@@ -74,9 +72,7 @@ public class ValidationConfig {
             ModuleConfig config = platformConfig.getModuleConfig("loadflow-validation");
             threshold = config.getDoubleProperty("threshold", THRESHOLD_DEFAULT);
             verbose = config.getBooleanProperty("verbose", VERBOSE_DEFAULT);
-            if (config.hasProperty("load-flow-factory")) {
-                loadFlowFactory = config.getClassProperty("load-flow-factory", LoadFlowFactory.class, componentDefaultConfig.findFactoryImplClass(LoadFlowFactory.class));
-            }
+            loadFlowName = config.getOptionalStringProperty("load-flow-name").orElse(null);
             tableFormatterFactory = config.getClassProperty("table-formatter-factory", TableFormatterFactory.class, TABLE_FORMATTER_FACTORY_DEFAULT);
             epsilonX = config.getDoubleProperty("epsilon-x", EPSILON_X_DEFAULT);
             applyReactanceCorrection = config.getBooleanProperty("apply-reactance-correction", APPLY_REACTANCE_CORRECTION_DEFAULT);
@@ -88,11 +84,13 @@ public class ValidationConfig {
             noRequirementIfSetpointOutsidePowerBounds = config.getBooleanProperty("no-requirement-if-setpoint-outside-power-bounds", NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
             structuralRatioLineOn = config.getBooleanProperty("structural_ratio_line_on", STRUCTURAL_RATIO_LINE_ON);
         }
-        return new ValidationConfig(threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, loadFlowParameter,
-                                    okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds, structuralRatioLineOn);
+        return new ValidationConfig(threshold, verbose, loadFlowName, tableFormatterFactory, epsilonX,
+            applyReactanceCorrection, validationOutputWriter, loadFlowParameter,
+            okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly,
+            noRequirementIfSetpointOutsidePowerBounds, structuralRatioLineOn);
     }
 
-    public ValidationConfig(double threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
+    public ValidationConfig(double threshold, boolean verbose, String loadFlowName,
                             Class<? extends TableFormatterFactory> tableFormatterFactory, double epsilonX,
                             boolean applyReactanceCorrection, ValidationOutputWriter validationOutputWriter, LoadFlowParameters loadFlowParameters,
                             boolean okMissingValues, boolean noRequirementIfReactiveBoundInversion, boolean compareResults, boolean checkMainComponentOnly,
@@ -105,7 +103,7 @@ public class ValidationConfig {
         }
         this.threshold = threshold;
         this.verbose = verbose;
-        this.loadFlowFactory = Objects.requireNonNull(loadFlowFactory);
+        this.loadFlowName = loadFlowName;
         this.tableFormatterFactory = Objects.requireNonNull(tableFormatterFactory);
         this.epsilonX = epsilonX;
         this.applyReactanceCorrection = applyReactanceCorrection;
@@ -127,8 +125,8 @@ public class ValidationConfig {
         return verbose;
     }
 
-    public Class<? extends LoadFlowFactory> getLoadFlowFactory() {
-        return loadFlowFactory;
+    public Optional<String> getLoadFlowName() {
+        return Optional.ofNullable(loadFlowName);
     }
 
     public Class<? extends TableFormatterFactory> getTableFormatterFactory() {
@@ -183,8 +181,8 @@ public class ValidationConfig {
         this.verbose = verbose;
     }
 
-    public void setLoadFlowFactory(Class<? extends LoadFlowFactory> loadFlowFactory) {
-        this.loadFlowFactory = Objects.requireNonNull(loadFlowFactory);
+    public void setLoadFlowName(String loadFlowName) {
+        this.loadFlowName = loadFlowName;
     }
 
     public void setTableFormatterFactory(Class<? extends TableFormatterFactory> tableFormatterFactory) {
@@ -236,7 +234,7 @@ public class ValidationConfig {
         return getClass().getSimpleName() + " [" +
                 "threshold=" + threshold +
                 ", verbose=" + verbose +
-                ", loadFlowFactory=" + loadFlowFactory +
+                ", loadFlowName=" + loadFlowName +
                 ", tableFormatterFactory=" + tableFormatterFactory +
                 ", epsilonX=" + epsilonX +
                 ", applyReactanceCorrection=" + applyReactanceCorrection +
