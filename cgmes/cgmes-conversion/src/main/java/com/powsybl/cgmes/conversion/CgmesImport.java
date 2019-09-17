@@ -166,6 +166,12 @@ public class CgmesImport implements Importer {
                                 p,
                                 CONVERT_BOUNDARY_PARAMETER,
                                 defaultValueConfig))
+                .setConvertSvInjections(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                CONVERT_SV_INJECTIONS_PARAMETER,
+                                defaultValueConfig))
                 .setCreateBusbarSectionForEveryConnectivityNode(
                         ConversionParameters.readBooleanParameter(
                                 getFormat(),
@@ -219,6 +225,7 @@ public class CgmesImport implements Importer {
     public static final String BOUNDARY_LOCATION = "iidm.import.cgmes.boundary-location";
     public static final String CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE = "iidm.import.cgmes.change-sign-for-shunt-reactive-power-flow-initial-state";
     public static final String CONVERT_BOUNDARY = "iidm.import.cgmes.convert-boundary";
+    public static final String CONVERT_SV_INJECTIONS = "iidm.import.cgmes.convert-sv-injections";
     public static final String CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE = "iidm.import.cgmes.create-busbar-section-for-every-connectivity-node";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
@@ -242,6 +249,11 @@ public class CgmesImport implements Importer {
             "Convert boundary during import",
             Boolean.FALSE)
             .addAdditionalNames("convertBoundary");
+    private static final Parameter CONVERT_SV_INJECTIONS_PARAMETER = new Parameter(
+            CONVERT_SV_INJECTIONS,
+            ParameterType.BOOLEAN,
+            "Convert SV injections during import",
+            Boolean.TRUE);
     private static final Parameter CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER = new Parameter(
             CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE,
             ParameterType.BOOLEAN,
