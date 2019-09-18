@@ -1,0 +1,139 @@
+package com.powsybl.iidm.network.impl;
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChangerHolder;
+import com.powsybl.iidm.network.RatioTapChangerHolder;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+
+public class TapChangerAttributeTest {
+
+    @Test
+    public void testTapChangerAttributeName() {
+        Network network = NoEquipmentNetworkFactory.create();
+        Substation substation = network.getSubstation("sub");
+
+        // Check name for two winding transformers
+        TwoWindingsTransformer twt2 = createTwoWindingsTransformer(substation);
+        createPhaseTapChanger(twt2);
+        createRatioTapChanger(twt2);
+        assertEquals("phaseTapChanger", ((AbstractTapChanger) twt2.getPhaseTapChanger()).getTapChangerAttribute().get());
+        assertEquals("ratioTapChanger", ((AbstractTapChanger) twt2.getRatioTapChanger()).getTapChangerAttribute().get());
+
+        // Check name for three winding transformers
+        ThreeWindingsTransformer twt3 = createThreeWindingsTransformer(substation);
+        createRatioTapChanger(twt3.getLeg2());
+        createRatioTapChanger(twt3.getLeg3());
+        assertEquals("ratioTapChanger2",
+            ((AbstractTapChanger) twt3.getLeg2().getRatioTapChanger()).getTapChangerAttribute().get());
+        assertEquals("ratioTapChanger3",
+            ((AbstractTapChanger) twt3.getLeg3().getRatioTapChanger()).getTapChangerAttribute().get());
+    }
+
+    private ThreeWindingsTransformer createThreeWindingsTransformer(Substation substation) {
+        return substation.newThreeWindingsTransformer()
+            .setId("twt3")
+            .setName("twt3_name")
+            .newLeg1()
+            .setR(1.3)
+            .setX(1.4)
+            .setG(1.6)
+            .setB(1.7)
+            .setRatedU(1.1)
+            .setVoltageLevel("vl1")
+            .setConnectableBus("busA")
+            .setBus("busA")
+            .add()
+            .newLeg2()
+            .setR(2.03)
+            .setX(2.04)
+            .setRatedU(2.05)
+            .setVoltageLevel("vl2")
+            .setConnectableBus("busB")
+            .add()
+            .newLeg3()
+            .setR(3.3)
+            .setX(3.4)
+            .setRatedU(3.5)
+            .setVoltageLevel("vl2")
+            .setConnectableBus("busB")
+            .add()
+            .add();
+    }
+
+    private TwoWindingsTransformer createTwoWindingsTransformer(Substation substation) {
+        return substation.newTwoWindingsTransformer()
+            .setId("twt2")
+            .setName("twt2_name")
+            .setR(1.0)
+            .setX(2.0)
+            .setG(3.0)
+            .setB(4.0)
+            .setRatedU1(5.0)
+            .setRatedU2(6.0)
+            .setVoltageLevel1("vl1")
+            .setVoltageLevel2("vl2")
+            .setConnectableBus1("busA")
+            .setConnectableBus2("busB")
+            .add();
+    }
+
+    private void createPhaseTapChanger(PhaseTapChangerHolder ptch) {
+        ptch.newPhaseTapChanger()
+            .setTapPosition(1)
+            .setLowTapPosition(0)
+            .setRegulating(false)
+            .beginStep()
+            .setR(1.0)
+            .setX(2.0)
+            .setG(3.0)
+            .setB(4.0)
+            .setAlpha(5.0)
+            .setRho(6.0)
+            .endStep()
+            .beginStep()
+            .setR(1.0)
+            .setX(2.0)
+            .setG(3.0)
+            .setB(4.0)
+            .setAlpha(5.0)
+            .setRho(6.0)
+            .endStep()
+            .add();
+    }
+
+    private void createRatioTapChanger(RatioTapChangerHolder rtch) {
+        rtch.newRatioTapChanger()
+            .setLowTapPosition(0)
+            .setTapPosition(1)
+            .setLoadTapChangingCapabilities(false)
+            .beginStep()
+            .setR(39.78473)
+            .setX(39.784725)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(1.0)
+            .endStep()
+            .beginStep()
+            .setR(39.78474)
+            .setX(39.784726)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(1.0)
+            .endStep()
+            .beginStep()
+            .setR(39.78475)
+            .setX(39.784727)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(1.0)
+            .endStep()
+            .add();
+    }
+}

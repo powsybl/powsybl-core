@@ -40,7 +40,7 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
     }
 
     protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
-        stepHolder.getNetwork().getListeners().notifyUpdate(stepHolder.parent.getTransformer(), () -> stepHolder.getTapChangerAttribute() + ".step[" + position + "]." + attribute, oldValue, newValue);
+        stepHolder.getNetwork().getListeners().notifyUpdate(stepHolder.parent.getTransformer(), () -> stepHolder.getTapChangerAttribute().get() + ".step[" + position + "]." + attribute, oldValue, newValue);
     }
 
     public double getRho() {
