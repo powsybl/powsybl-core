@@ -35,7 +35,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     private static void writeHalf(TieLine.HalfLine halfLine, NetworkXmlWriterContext context, int side) throws XMLStreamException {
         context.getWriter().writeAttribute("id_" + side, context.getAnonymizer().anonymizeString(halfLine.getId()));
-        if (halfLine.getName() != null) {
+        if (!halfLine.getId().equals(halfLine.getName())) {
             context.getWriter().writeAttribute("name_" + side, context.getAnonymizer().anonymizeString(halfLine.getName()));
         }
         XmlUtil.writeDouble("r_" + side, halfLine.getR(), context.getWriter());
