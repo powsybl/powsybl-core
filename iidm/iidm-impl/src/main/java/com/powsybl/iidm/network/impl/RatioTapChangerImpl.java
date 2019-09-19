@@ -65,7 +65,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
         ValidationUtil.checkRatioTapChangerRegulation(parent, loadTapChangingCapabilities, isRegulating(), regulationTerminal, getTargetV(), getNetwork());
         boolean oldValue = this.loadTapChangingCapabilities;
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
-        notifyUpdate(() -> getTapChangerAttribute().get() + ".loadTapChangingCapabilities", oldValue, loadTapChangingCapabilities);
+        notifyUpdate(() -> getTapChangerAttribute() + ".loadTapChangingCapabilities", oldValue, loadTapChangingCapabilities);
         return this;
     }
 
@@ -80,7 +80,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.targetV.set(variantIndex, targetV);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        notifyUpdate(() -> getTapChangerAttribute().get() + ".targetV", variantId, oldValue, targetV);
+        notifyUpdate(() -> getTapChangerAttribute() + ".targetV", variantId, oldValue, targetV);
         return this;
     }
 
@@ -125,7 +125,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     }
 
     @Override
-    protected Supplier<String> getTapChangerAttribute() {
-        return () -> "ratio" + parent.getTapChangerAttribute();
+    protected String getTapChangerAttribute() {
+        return "ratio" + parent.getTapChangerAttribute();
     }
 }

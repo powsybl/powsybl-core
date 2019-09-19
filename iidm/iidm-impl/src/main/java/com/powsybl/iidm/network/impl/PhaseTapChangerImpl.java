@@ -61,7 +61,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(), getRegulationTerminal(), getNetwork());
         RegulationMode oldValue = this.regulationMode;
         this.regulationMode = regulationMode;
-        notifyUpdate(() -> getTapChangerAttribute().get() + ".regulationMode", oldValue, regulationMode);
+        notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
         return this;
     }
 
@@ -76,7 +76,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.regulationValue.set(variantIndex, regulationValue);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        notifyUpdate(() -> getTapChangerAttribute().get() + ".regulationValue", variantId, oldValue, regulationValue);
+        notifyUpdate(() -> getTapChangerAttribute() + ".regulationValue", variantId, oldValue, regulationValue);
         return this;
     }
 
@@ -121,7 +121,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
     }
 
     @Override
-    protected Supplier<String> getTapChangerAttribute() {
-        return () -> "phase" + parent.getTapChangerAttribute();
+    protected String getTapChangerAttribute() {
+        return "phase" + parent.getTapChangerAttribute();
     }
 }

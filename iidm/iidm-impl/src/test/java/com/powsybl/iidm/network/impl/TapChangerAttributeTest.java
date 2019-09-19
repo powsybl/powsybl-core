@@ -23,17 +23,17 @@ public class TapChangerAttributeTest {
         TwoWindingsTransformer twt2 = createTwoWindingsTransformer(substation);
         createPhaseTapChanger(twt2);
         createRatioTapChanger(twt2);
-        assertEquals("phaseTapChanger", ((AbstractTapChanger) twt2.getPhaseTapChanger()).getTapChangerAttribute().get());
-        assertEquals("ratioTapChanger", ((AbstractTapChanger) twt2.getRatioTapChanger()).getTapChangerAttribute().get());
+        assertEquals("phaseTapChanger", ((AbstractTapChanger) twt2.getPhaseTapChanger()).getTapChangerAttribute());
+        assertEquals("ratioTapChanger", ((AbstractTapChanger) twt2.getRatioTapChanger()).getTapChangerAttribute());
 
         // Check name for three winding transformers
         ThreeWindingsTransformer twt3 = createThreeWindingsTransformer(substation);
         createRatioTapChanger(twt3.getLeg2());
         createRatioTapChanger(twt3.getLeg3());
         assertEquals("ratioTapChanger2",
-            ((AbstractTapChanger) twt3.getLeg2().getRatioTapChanger()).getTapChangerAttribute().get());
+            ((AbstractTapChanger) twt3.getLeg2().getRatioTapChanger()).getTapChangerAttribute());
         assertEquals("ratioTapChanger3",
-            ((AbstractTapChanger) twt3.getLeg3().getRatioTapChanger()).getTapChangerAttribute().get());
+            ((AbstractTapChanger) twt3.getLeg3().getRatioTapChanger()).getTapChangerAttribute());
     }
 
     private ThreeWindingsTransformer createThreeWindingsTransformer(Substation substation) {
