@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -33,6 +34,7 @@ public class CalculatedTopologyTest {
         assertNotNull(ma);
         assertNotNull(mb);
         assertEquals(ma, mb);
+        assertSame(n, ma.getNetwork());
     }
 
     private Network createBusBreaker() {
