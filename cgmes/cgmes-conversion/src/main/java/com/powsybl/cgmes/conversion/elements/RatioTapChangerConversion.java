@@ -196,8 +196,8 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
             double dy = 0;
             if (!rtcAtSide1) {
                 double rho2 = rho * rho;
-                dz = (rho2 - 1) * 100;
-                dy = (1 / rho2 - 1) * 100;
+                dz = (rho2 - 1) * 100;     // Use the initial ratio before moving it
+                dy = (1 / rho2 - 1) * 100; // Use the initial ratio before moving it
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("RTC2to1 corrections  %4d  %12.8f  %12.8f  %12.8f",
                         step, n * du, dz, dy));

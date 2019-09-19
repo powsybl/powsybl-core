@@ -692,7 +692,7 @@ public abstract class AbstractTransformerFullConversion
         tapChanger.getSteps().forEach(step -> {
             double alpha = step.getAngle();
             double x = getStepXforSymmetrical(xMin, xMax, alpha, alphaMax);
-            step.setX((x - xtx) / xtx * 100);
+            step.setX(100 * (x - xtx) / xtx);
         });
     }
 
