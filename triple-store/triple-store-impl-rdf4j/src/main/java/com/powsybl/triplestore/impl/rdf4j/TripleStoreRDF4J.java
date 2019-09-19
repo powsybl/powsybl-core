@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -59,7 +60,9 @@ import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
 import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreException;
+import com.powsybl.triplestore.api.TripleStoreFactoryService;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -69,11 +72,18 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     public TripleStoreRDF4J() {
         repo = new SailRepository(new MemoryStore());
         repo.initialize();
-        repoClone = null;
     }
 
     public Repository getRepository() {
         return repo;
+    }
+
+    // TODO elena
+    @Override
+    public String getImplementationName() {
+        TripleStoreFactoryService ts = new TripleStoreFactoryServiceRDF4J();
+        String implementation = ts.getImplementationName();
+        return implementation;
     }
 
     public void setWriteBySubject(boolean writeBySubject) {
@@ -192,49 +202,6 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public PropertyBags queryClone(String query) {
-        // TODO elena
-        String query1 = adjustedQuery(query);
-        PropertyBags results = new PropertyBags();
-        // Repository repoToQuery = (repoClone != null) ? repoClone : repo;
-        try (RepositoryConnection connClone = repoClone.getConnection()) {
-            // Default language is SPARQL
-            TupleQuery q = connClone.prepareTupleQuery(query1);
-            try (TupleQueryResult r = QueryResults.distinctResults(q.evaluate())) {
-                List<String> names = r.getBindingNames();
-                while (r.hasNext()) {
-                    BindingSet s = r.next();
-                    PropertyBag result = new PropertyBag(names);
-
-                    names.forEach(name -> {
-                        if (s.hasBinding(name)) {
-                            String value = s.getBinding(name).getValue().stringValue();
-                            result.put(name, value);
-                        }
-                    });
-                    if (result.size() > 0) {
-                        results.add(result);
-                    }
-                }
-            }
-        }
-        return results;
-    }
-
-    @Override
-    public void updateClone(String query) {
-        // TODO elena
-        String updateStatement = adjustedQuery(query);
-        try (RepositoryConnection connClone = repoClone.getConnection()) {
-
-            Update updateQuery = connClone.prepareUpdate(QueryLanguage.SPARQL, updateStatement);
-            updateQuery.execute();
-        } catch (UpdateExecutionException e) {
-            LOG.debug(e.toString());
-        }
-    }
-
-    @Override
     public void update(String query) {
         // TODO elena
         String updateStatement = adjustedQuery(query);
@@ -248,61 +215,52 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void duplicateRepo() {
-        // TODO elena
-        try (RepositoryConnection conn = repo.getConnection()) {
-            repoClone = new SailRepository(new MemoryStore());
-            repoClone.initialize();
-
-            try (RepositoryConnection connClone = repoClone.getConnection()) {
-                ValueFactory vfac = connClone.getValueFactory();
-                RepositoryResult<Resource> contexts = conn.getContextIDs();
-                while (contexts.hasNext()) {
-                    Resource context = contexts.next();
-                    RepositoryResult<Statement> statements = conn.getStatements(null, null, null, context);
-                    Model model = QueryResults.asModel(statements);
-                    // Graph model = QueryResults.addAll(statements, new GraphImpl());
-                    connClone.add(model);
-                    statements.close();
-                }
-                // checkClonedRepo(conn, connClone);
-            }
-        }
-    }
-
-    @Override
-    public void duplicate() {
+    public void duplicate(TripleStore origin) {
         // TODO elena clone by statements
-        try (RepositoryConnection conn = repo.getConnection()) {
+        Repository repoOrigin = ((TripleStoreRDF4J) origin).getRepository();
+        try (RepositoryConnection connOrigin = repoOrigin.getConnection()) {
 
-            repoClone = new SailRepository(new MemoryStore());
-            repoClone.initialize();
-            try (RepositoryConnection connClone = repoClone.getConnection()) {
-                RepositoryResult<Resource> contexts = conn.getContextIDs();
+            try (RepositoryConnection conn = repo.getConnection()) {
+                cloneNamespaces(connOrigin,conn);
+                // clone statements
+                RepositoryResult<Resource> contexts = connOrigin.getContextIDs();
                 while (contexts.hasNext()) {
                     Resource context = contexts.next();
                     RepositoryResult<Statement> statements;
-                    statements = conn.getStatements(null, null, null, context);
+                    statements = connOrigin.getStatements(null, null, null, context);
                     // add statements to the new repository
                     while (statements.hasNext()) {
                         Statement statement = statements.next();
-                        connClone.add(statement);
+                        conn.add(statement);
                     }
-                    // statements.close();
                 }
-                // checkClonedRepo(conn, connClone);
+                // checkClonedRepo(connOrigin, conn);
             }
         }
     }
 
-    private void checkClonedRepo(RepositoryConnection conn, RepositoryConnection connClone) {
-        RepositoryResult<Resource> contexts = connClone.getContextIDs();
+    private void cloneNamespaces(RepositoryConnection connOrigin, RepositoryConnection conn) {
+        List<PrefixNamespace> namespaces = new ArrayList<>();
+        RepositoryResult<Namespace> ns = connOrigin.getNamespaces();
+        while (ns.hasNext()) {
+            Namespace namespace = ns.next();
+            namespaces.add(new PrefixNamespace(namespace.getPrefix(), namespace.getName()));
+        }
+        for (PrefixNamespace pn : namespaces) {
+            String prefix = pn.getPrefix();
+            String namespace = pn.getNamespace();
+            conn.setNamespace(prefix, namespace);
+        }
+    }
+
+    private void checkClonedRepo(RepositoryConnection connOrigin, RepositoryConnection conn) {
+        RepositoryResult<Resource> contexts = conn.getContextIDs();
         while (contexts.hasNext()) {
             Resource context = contexts.next();
-            conn.clear(context);
-            LOG.info("***checkClonedRepo***\n For repo # statements for {} is: {}", context,
-                statementsCount(conn, context));
-            LOG.info("\n For repoClone # statements for {} is: {}", context, statementsCount(connClone, context));
+            connOrigin.clear(context);
+            LOG.info("***checkClonedRepo***\n For repoOrigin # statements for {} is: {}", context,
+                statementsCount(connOrigin, context));
+            LOG.info("\n For repo # statements for {} is: {}", context, statementsCount(conn, context));
         }
     }
 
@@ -438,7 +396,6 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     private final Repository repo;
-    private Repository repoClone;
     private boolean writeBySubject = true;
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreRDF4J.class);
 }

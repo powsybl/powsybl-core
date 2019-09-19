@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion;
 import java.util.Objects;
 
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.update.CgmesUpdater;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
 
@@ -18,13 +19,19 @@ import com.powsybl.iidm.network.Network;
 public class CgmesModelExtension extends AbstractExtension<Network> {
 
     private final CgmesModel cgmes;
+    private final CgmesUpdater cgmesUpdater;
 
-    public CgmesModelExtension(CgmesModel cgmes) {
+    public CgmesModelExtension(CgmesModel cgmes, CgmesUpdater cgmesUpdater) {
         this.cgmes = Objects.requireNonNull(cgmes);
+        this.cgmesUpdater = Objects.requireNonNull(cgmesUpdater);
     }
 
     public CgmesModel getCgmesModel() {
         return cgmes;
+    }
+    
+    public CgmesUpdater getCgmesUpdater() {
+        return cgmesUpdater;
     }
 
     @Override

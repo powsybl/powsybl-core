@@ -1,4 +1,4 @@
-package com.powsybl.cgmes.update.test;
+package com.powsybl.cgmes.conversion.test.update;
 
 import static org.junit.Assert.assertNotNull;
 

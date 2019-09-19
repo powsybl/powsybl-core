@@ -545,6 +545,10 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
+    public void clone(CgmesModel cgmes) {
+    }
+
+    @Override
     public String getCimNamespace() {
         return null;
     }

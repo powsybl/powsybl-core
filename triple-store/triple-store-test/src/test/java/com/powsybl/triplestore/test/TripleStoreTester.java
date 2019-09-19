@@ -58,21 +58,11 @@ public class TripleStoreTester {
         }
     }
 
-    void loadWithClone() {
-        // TODO elena
+    void loadClone() {
         for (String impl : implementations) {
-            TripleStore ts = TripleStoreFactory.create(impl);
-            assertNotNull(ts);
-            for (String r : inputResourceNames) {
-                try (InputStream is = resourceStream(r)) {
-                    ts.read(is,baseName, r);
-                    ts.duplicate();
-                } catch (IOException e) {
-                    throw new TripleStoreException(String.format("Reading %s %s", baseName, r), e);
-                }
-            }
-            ts.print(LOG::info);
-            tripleStores.put(impl, ts);
+            ts = TripleStoreFactory.create(impl);
+            TripleStore tsOrigin = tripleStores.get(impl);
+            ts.duplicate(tsOrigin);
         }
     }
 
@@ -91,7 +81,7 @@ public class TripleStoreTester {
     void testQueryClone(String queryText, Expected expected) {
         // TODO elena
         for (String impl : implementations) {
-            PropertyBags results = tripleStores.get(impl).queryClone(queryText);
+            PropertyBags results = ts.query(queryText);
             logResults(impl, results, expected);
             assertTrue(!results.isEmpty());
             int size = expected.values().iterator().next().size();
@@ -111,22 +101,10 @@ public class TripleStoreTester {
 
     void testUpdateClone(String queryText) {
         // TODO elena
-        for (String impl : implementations) {
-            tripleStores.get(impl).updateClone(queryText);
-        }
-    }
-
-    void testPerformanceCloneByModel() {
-        // TODO elena
-        for (String impl : implementations) {
-            start = System.currentTimeMillis();
-            LOG.info("totalMemory, GB: " + Runtime.getRuntime().totalMemory() / 1e+9);
-            tripleStores.get(impl).duplicateRepo();
-            LOG.info("usedMemory, GB: " +
-                (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1e+9);
-            end = System.currentTimeMillis();
-            LOG.info(String.format("Clone repository by Repo for %s took: %d milliseconds", impl, end - start));
-        }
+//        for (String impl : implementations) {
+//            tripleStores.get(impl).update(queryText);
+//        }
+        ts.update(queryText);
     }
 
     void testPerformanceCloneByStatements() {
@@ -134,7 +112,9 @@ public class TripleStoreTester {
         for (String impl : implementations) {
             start = System.currentTimeMillis();
             LOG.info("totalMemory, GB: " + Runtime.getRuntime().totalMemory() / 1e+9);
-            tripleStores.get(impl).duplicate();
+            TripleStore ts = TripleStoreFactory.create(impl);
+            TripleStore tsOrigin = tripleStores.get(impl);
+            ts.duplicate(tsOrigin);
             LOG.info("usedMemory, GB: " +
                 (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1e+9);
             end = System.currentTimeMillis();
@@ -152,7 +132,7 @@ public class TripleStoreTester {
             assertNotNull(ts);
             for (String r : inputResourceNames) {
                 try (InputStream is = resourceStream(r)) {
-                    ts.read(is,baseName, r);
+                    ts.read(is, baseName, r);
                 } catch (IOException e) {
                     throw new TripleStoreException(String.format("Reading %s %s", baseName, r), e);
                 }
@@ -221,6 +201,7 @@ public class TripleStoreTester {
     private final String baseName;
     private final String[] inputResourceNames;
     private final Map<String, TripleStore> tripleStores;
+    private TripleStore ts;
     private static long start;
     private static long end;
 

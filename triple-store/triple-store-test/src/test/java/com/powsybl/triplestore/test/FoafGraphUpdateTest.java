@@ -20,7 +20,7 @@ public class FoafGraphUpdateTest {
         queries = new QueryCatalog("foaf/foaf-graphs-update.sparql");
     }
 
-    @Test
+   @Test
     public void testInsertNickName() {
         tester = new TripleStoreTester(
             TripleStoreFactory.allImplementations(), base, inputs);
@@ -102,21 +102,6 @@ public class FoafGraphUpdateTest {
         LOG.info("*******testUpdatePersonTwoGraphs executed.....");
         Expected expected1 = new Expected().expect("lastName", "Channing", "Cooper", "Marley");
         tester.testQuery(queries.get("selectLastNameGraphs"), expected1);
-    }
-
-    @Test
-    public void testUpdateCloneByInsert() {
-        tester = new TripleStoreTester(
-            TripleStoreFactory.allImplementations(), base, inputs);
-        tester.loadWithClone();
-        Expected expectedBeforeUpdate = new Expected().expect("nick", "SweetCaroline", "Wonderland");
-        tester.testQuery(queries.get("selectNickName"), expectedBeforeUpdate);
-        tester.testQueryClone(queries.get("selectNickName"), expectedBeforeUpdate);
-        LOG.info("*******testInsertNickName doing insert.....");
-        tester.testUpdateClone(queries.get("insertNickName"));
-        Expected expectedAfterUpdate = new Expected().expect("nick", "BG", "SweetCaroline", "Wonderland");
-        tester.testQuery(queries.get("selectNickName"), expectedBeforeUpdate);
-        tester.testQueryClone(queries.get("selectNickName"), expectedAfterUpdate);
     }
 
     private static TripleStoreTester tester;

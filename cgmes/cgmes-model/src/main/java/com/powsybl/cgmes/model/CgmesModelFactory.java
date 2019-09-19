@@ -48,4 +48,14 @@ public final class CgmesModelFactory {
         String cimNamespace = new CgmesOnDataSource(ds).cimNamespace();
         return new CgmesModelTripleStore(cimNamespace, tripleStore);
     }
+
+    // TODO elena
+    public static CgmesModel cloneCgmes(CgmesModel cgmes) {
+        String cimNamespace = cgmes.getCimNamespace();
+        String implementation = cgmes.tripleStore().getImplementationName();
+        TripleStore tripleStore = TripleStoreFactory.create(implementation);
+        CgmesModel cgmesClone = new CgmesModelTripleStore(cimNamespace, tripleStore);
+        cgmesClone.clone(cgmes);
+        return cgmesClone;
+    }
 }

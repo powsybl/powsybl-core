@@ -60,22 +60,9 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>powsybl-iidm-converter-api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>powsybl-cgmes-conversion</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>powsybl-cgmes-model</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!-- dependency> <groupId>${project.groupId}</groupId> <artifactId>powsybl-triple-store-api</artifactId> 
-			<version>${project.version}</version> </dependency -->
-
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -116,7 +103,6 @@
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
-
 		<!-- Test dependencies include all considered triple store engines -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>

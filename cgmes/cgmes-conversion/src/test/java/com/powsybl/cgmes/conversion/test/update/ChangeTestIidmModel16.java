@@ -1,4 +1,4 @@
-package com.powsybl.cgmes.update.test;
+package com.powsybl.cgmes.conversion.test.update;
 
 //import static org.junit.Assert.assertTrue;
 
@@ -9,7 +9,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.update.CgmesUpdater;
 import com.powsybl.cgmes.update.IidmChange;
 import com.powsybl.cgmes.update.IidmToCgmes16;
@@ -19,14 +21,10 @@ public class ChangeTestIidmModel16 {
 
     public ChangeTestIidmModel16(Network network) {
         this.network = network;
-        changes = new ArrayList<>();
-        cgmesUpdater = new CgmesUpdater(network, changes);
+        cgmesUpdater = new CgmesUpdater(network);
     }
 
     public Network updateImportedTestModel() throws IOException {
-
-        cgmesUpdater.addListenerForUpdates();
-
         /**
          * Test onCreation
          */
@@ -35,49 +33,49 @@ public class ChangeTestIidmModel16 {
             .setName("BUS   15_SS")
             .setId("_BUS____15_SS")
             .add();
-        VoltageLevel voltageLevel = substation.newVoltageLevel()
-            .setTopologyKind(TopologyKind.BUS_BREAKER)
-            .setId("_BUS____15_VL")
-            .setName("BUS   15_VL")
-            .setHighVoltageLimit(380.0)
-            .setLowVoltageLimit(320.0)
-            .setNominalV(200.0f)
-            .add();
-        VoltageLevel voltageLevel2 = substation.newVoltageLevel()
-            .setTopologyKind(TopologyKind.BUS_BREAKER)
-            .setId("_BUS____25_VL")
-            .setName("BUS   25_VL")
-            .setHighVoltageLimit(385.0)
-            .setLowVoltageLimit(325.0)
-            .setNominalV(205.0f)
-            .add();
+//        VoltageLevel voltageLevel = substation.newVoltageLevel()
+//            .setTopologyKind(TopologyKind.BUS_BREAKER)
+//            .setId("_BUS____15_VL")
+//            .setName("BUS   15_VL")
+//            .setHighVoltageLimit(380.0)
+//            .setLowVoltageLimit(320.0)
+//            .setNominalV(200.0f)
+//            .add();
+//        VoltageLevel voltageLevel2 = substation.newVoltageLevel()
+//            .setTopologyKind(TopologyKind.BUS_BREAKER)
+//            .setId("_BUS____25_VL")
+//            .setName("BUS   25_VL")
+//            .setHighVoltageLimit(385.0)
+//            .setLowVoltageLimit(325.0)
+//            .setNominalV(205.0f)
+//            .add();
 ////        BusbarSection node1 = voltageLevel.getNodeBreakerView()
 ////            .newBusbarSection()
 ////            .setId("_BUS____15_VL_Node1")
 ////            .setName("BUS  15_VL Node1")
 ////            .setNode(1)
 ////            .add(); --> vertex 1 not found
-        Bus bus = voltageLevel.getBusBreakerView()
-            .newBus()
-            .setName("bus1Name")
-            .setId("bus1")
-            .add();
-        Bus bus2 = voltageLevel2.getBusBreakerView()
-            .newBus()
-            .setName("bus2Name")
-            .setId("bus2")
-            .add();
-        Generator generator = voltageLevel.newGenerator()
-            .setId("_GEN____15_SM")
-            .setName("GEN    15")
-            .setBus("bus1")
-            .setVoltageRegulatorOn(false)
-            .setRatedS(150.0)
-            .setTargetP(1.0)
-            .setTargetQ(2.0)
-            .setMaxP(300.0)
-            .setMinP(-300.0)
-            .add();
+//        Bus bus = voltageLevel.getBusBreakerView()
+//            .newBus()
+//            .setName("bus1Name")
+//            .setId("bus1")
+//            .add();
+//        Bus bus2 = voltageLevel2.getBusBreakerView()
+//            .newBus()
+//            .setName("bus2Name")
+//            .setId("bus2")
+//            .add();
+//        Generator generator = voltageLevel.newGenerator()
+//            .setId("_GEN____15_SM")
+//            .setName("GEN    15")
+//            .setBus("bus1")
+//            .setVoltageRegulatorOn(false)
+//            .setRatedS(150.0)
+//            .setTargetP(1.0)
+//            .setTargetQ(2.0)
+//            .setMaxP(300.0)
+//            .setMinP(-300.0)
+//            .add();
 //////        Terminal terminal = generator.getTerminal();
 ////        generator.setRegulatingTerminal(terminal);
 //        ShuntCompensator shuntCompensator = voltageLevel.newShuntCompensator()
@@ -170,15 +168,15 @@ public class ChangeTestIidmModel16 {
 //
 //        // assertTrue(changes.size() == 6);
 //        bus2.setAngle(2.0).setV(3.2);
-        network.getBusBreakerView().getBus("_0471bd2a-c766-11e1-8775-005056c00008").setV(4.4).setAngle(4.44);
+        network.getBusBreakerView().getBus("_0471bd2a-c766-11e1-8775-005056c00008").setV(4.4).setAngle(4.44);//--> no chnage
         network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008").setB(1.0).setG(2.0).setR(3.0)
             .setX(4.0).setRatedU1(11.1).setRatedU2(22.2);
-//        Terminal t = network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
-//            .getTerminal(Branch.Side.ONE);
-//        network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
-//            .getRatioTapChanger()
-//            .setTapPosition(7)
-//            .setLowTapPosition(0);
+        Terminal t = network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
+            .getTerminal(Branch.Side.ONE);
+        network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
+            .getRatioTapChanger()
+            .setTapPosition(7)
+            .setLowTapPosition(0);
 //
 //        network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
 //            .newPhaseTapChanger()
@@ -193,19 +191,19 @@ public class ChangeTestIidmModel16 {
 //            .add();
 //        network.getGenerator("_044ca8f0-c766-11e1-8775-005056c00008").setRatedS(100).setMaxP(200.0).setMinP(-200.0)
 //            .setTargetP(1.0);
-//        network.getSubstation("_047c929a-c766-11e1-8775-005056c00008").setCountry(Country.GR);
-//        network.getLoad("_0448d86a-c766-11e1-8775-005056c00008").setP0(100.0).setQ0(5.0);
-//        network.getVoltageLevel("_0460f448-c766-11e1-8775-005056c00008").setHighVoltageLimit(2.2 * 380.0)
-//            .setNominalV(10.50);
-//        network.getLine("_044cd006-c766-11e1-8775-005056c00008").setB1(1.0).setB2(2.0).setG1(1.1).setG2(2.1)
-//            .setR(3.0).setX(4.0);
-//        for (ShuntCompensator sc : network.getVoltageLevel("_04728074-c766-11e1-8775-005056c00008")
-//            .getShuntCompensators()) {
-//            if (sc.getId().equals("_04553478-c766-11e1-8775-005056c00008")) {
-//                sc.setbPerSection(2.2)
-//                    .setMaximumSectionCount(9);
-//            }
-//        }
+        network.getSubstation("_047c929a-c766-11e1-8775-005056c00008").setCountry(Country.GR);
+        network.getLoad("_0448d86a-c766-11e1-8775-005056c00008").setP0(100.0).setQ0(5.0);//--> no change
+        network.getVoltageLevel("_0460f448-c766-11e1-8775-005056c00008").setHighVoltageLimit(1.2 * 381.0)
+            .setLowVoltageLimit(302.0).setNominalV(10.50);
+        network.getLine("_044cd006-c766-11e1-8775-005056c00008").setB1(1.0).setB2(2.0).setG1(1.1).setG2(2.1)
+            .setR(3.0).setX(4.0);
+        for (ShuntCompensator sc : network.getVoltageLevel("_04728074-c766-11e1-8775-005056c00008")
+            .getShuntCompensators()) {
+            if (sc.getId().equals("_04553478-c766-11e1-8775-005056c00008")) {
+                sc.setbPerSection(2.2)
+                    .setMaximumSectionCount(9);
+            }
+        }
 
         LOG.info("checkBusBreakerView "
 //            + network.getLoad("_0448d86a-c766-11e1-8775-005056c00008").getTerminal()
@@ -219,19 +217,19 @@ public class ChangeTestIidmModel16 {
         );
 
 //        assertTrue(changes.size() == 9);
-        LOG.info("IidmChange list size is {}", changes.size());
 
         return network;
     }
 
-    public CgmesModel updateTester() {
+    public void updateTester() {
+        CgmesModel cgmesSource = network.getExtension(CgmesModelExtension.class).getCgmesModel();
+        CgmesModel cgmes = CgmesModelFactory.cloneCgmes(cgmesSource);
         try {
-            return cgmesUpdater.update();
+            cgmesUpdater.update(cgmes);
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        return null;
     }
 
     private Network network;

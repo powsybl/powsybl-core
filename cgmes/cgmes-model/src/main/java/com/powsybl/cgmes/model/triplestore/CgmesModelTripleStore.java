@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.model.AbstractCgmesModel;
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
@@ -450,8 +451,9 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         } else if (instanceClassOfIidmChange.equals("IidmChangeOnRemove")) {
             namedQueryFordUpdate("updateCgmesfromIidmRemove", context, subject);
         }
+        PropertyBags r = namedQuery("checkCgmesUpdated", context, subject);
 
-        return namedQuery("checkCgmesUpdated", context, subject);
+        return r;
     }
 
     public PropertyBags namedQuery(String name, String... params) {
@@ -493,12 +495,19 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     public PropertyBags query(String queryText) {
-        return tripleStore.query(queryText);
+        PropertyBags r = tripleStore.query(queryText);
+        return r;
     }
 
     // TODO elena
     public void update(String queryText) {
         tripleStore.update(queryText);
+    }
+
+    // TODO elena
+    @Override
+    public void clone(CgmesModel cgmes) {
+        tripleStore.duplicate(cgmes.tripleStore());
     }
 
     @Override

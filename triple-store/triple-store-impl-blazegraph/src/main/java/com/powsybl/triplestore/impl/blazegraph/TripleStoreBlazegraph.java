@@ -58,7 +58,9 @@ import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
 import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreException;
+import com.powsybl.triplestore.api.TripleStoreFactoryService;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -82,6 +84,18 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         } catch (RepositoryException x) {
             LOG.error("Repository could not be created {}", x.getMessage());
         }
+    }
+
+    public Repository getRepository() {
+        return repo;
+    }
+
+    // TODO elena
+    @Override
+    public String getImplementationName() {
+        TripleStoreFactoryService ts = new TripleStoreFactoryServiceBlazegraph();
+        String implementation = ts.getImplementationName();
+        return implementation;
     }
 
     private void closeConnection(RepositoryConnection cnx, String operation) {
@@ -232,57 +246,6 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public PropertyBags queryClone(String query) {
-        // TODO elena :refactor quiery method to add connClone as an entry parameter
-        RepositoryConnection connClone = null;
-        try {
-            connClone = repoClone.getConnection();
-            return query(connClone, adjustedQuery(query));
-        } catch (RepositoryException x) {
-            LOG.error(x.getMessage());
-            return null;
-        } finally {
-            if (connClone != null) {
-                try {
-                    connClone.close();
-                } catch (RepositoryException x) {
-                    LOG.error(x.getMessage());
-                }
-            }
-        }
-    }
-
-    @Override
-    public void updateClone(String queryText) {
-        // TODO elena : refactor update method to add connClone as an entry parameter
-        RepositoryConnection connClone;
-        String updateStatement = adjustedQuery(queryText);
-        try {
-            connClone = repoClone.getConnection();
-            try {
-                Update updateQuery = connClone.prepareUpdate(QueryLanguage.SPARQL, updateStatement);
-                try {
-                    updateQuery.execute();
-                } catch (UpdateExecutionException e) {
-                    throw new TripleStoreException("Update using blazergraph", e);
-                } finally {
-                    if (connClone != null) {
-                        try {
-                            connClone.close();
-                        } catch (RepositoryException x) {
-                            LOG.error(x.getMessage());
-                        }
-                    }
-                }
-            } catch (MalformedQueryException e) {
-                throw new TripleStoreException(String.format("Query [%s]", queryText), e);
-            }
-        } catch (RepositoryException e) {
-            throw new TripleStoreException(String.format("Opening repo to update using blazergraph"), e);
-        }
-    }
-
-    @Override
     public void update(String query) {
         // TODO elena
         RepositoryConnection cnx;
@@ -313,150 +276,79 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void duplicateRepo() {
-        // TODO elena clone by Repo --> eventually, no way to clone by repo as cloned
-        // keeps links to the original repo. So, it's nearly same as clone by
-        // statements. If not used - will be removed
-        RepositoryConnection conn = null;
-        RepositoryConnection connClone = null;
-        try {
-            conn = repo.getConnection();
-            Properties props = setPropertiesForClone();
-            BigdataSail sailClone = new BigdataSail(props); // instantiate a new sail, otherwise complains foe already
-            // instantiated
-            repoClone = new BigdataSailRepository(sailClone);
-            try {
-                repoClone.initialize();
-            } catch (RepositoryException e) {
-                LOG.error("Clone Repository could not be created {}", e.getMessage());
-            }
-            try {
-                connClone = repoClone.getConnection();
-                connClone.begin();
-                ValueFactory vfac = connClone.getValueFactory();
-                RepositoryResult<Namespace> ns = conn.getNamespaces();
-                while (ns.hasNext()) {
-                    Namespace n = ns.next();
-                    String prefix = n.getPrefix();
-                    String name = n.getName();
-                    connClone.setNamespace(prefix, name);
-                }
-                RepositoryResult<Resource> contexts = conn.getContextIDs();
-                while (contexts.hasNext()) {
-                    Resource context = contexts.next();
-                    RepositoryResult<Statement> statements = conn.getStatements(null, null, null, true, context);
-                    Model model = new LinkedHashModel();
-                    // we need to get StringValue from each item, to get rid of original conn
-                    // references.
-                    while (statements.hasNext()) {
-                        Statement st = statements.next();
-                        String s = st.getSubject().stringValue();
-                        String p = st.getPredicate().stringValue();
-                        String o = st.getObject().stringValue();
-                        String c = st.getContext().stringValue();
-                        URI sClone = vfac.createURI(s);
-                        URI pClone = vfac.createURI(p);
-                        Resource contextClone = vfac.createURI(c);
-                        if (st.getObject() instanceof URI) {
-                            URI oClone = vfac.createURI(o);
-                            Statement statementClone = vfac.createStatement(sClone, pClone, oClone, contextClone);
-                            model.add(statementClone);
-                        } else {
-                            Literal oClone = vfac.createLiteral(o);
-                            Statement statementClone = vfac.createStatement(sClone, pClone, oClone, contextClone);
-                            model.add(statementClone);
-                        }
-                    }
-                    connClone.add(model);
-                }
-                connClone.commit();
-                // checkClonedRepo(conn, connClone);
-            } catch (RepositoryException x) {
-                LOG.error("Exception while cloning to connClone. {}", x.getMessage());
-            } finally {
-                if (connClone != null) {
-                    try {
-                        connClone.close();
-                    } catch (RepositoryException x) {
-                        LOG.error("Exception closing connClone. {}", x.getMessage());
-                    }
-                }
-            }
-        } catch (RepositoryException x) {
-            LOG.error("Exception while duplicating repo. {}", x.getMessage());
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (RepositoryException x) {
-                    LOG.error("Closing repository connection. {}", x.getMessage());
-                }
-            }
-        }
-    }
-
-    @Override
-    public void duplicate() {
+    public void duplicate(TripleStore origin) {
         // TODO elena clone by statements
+        Repository repoOrigin = ((TripleStoreBlazegraph) origin).getRepository();
+        RepositoryConnection connOrigin = null;
         RepositoryConnection conn = null;
-        RepositoryConnection connClone = null;
         try {
-            conn = repo.getConnection();
-            Properties props = setPropertiesForClone();
-            BigdataSail sailClone = new BigdataSail(props); // instantiate a sail
-            repoClone = new BigdataSailRepository(sailClone); // create a Sesame repository
+            connOrigin = repoOrigin.getConnection();
             try {
-                repoClone.initialize();
-            } catch (Exception e) {
-                LOG.error("Repository could not be created {}", e.getMessage());
-            }
-
-            try {
-                connClone = repoClone.getConnection();
-                connClone.begin();
-                RepositoryResult<Namespace> ns = conn.getNamespaces();
+                conn = repo.getConnection();
+                conn.begin();
+                cloneNamespaces(connOrigin, conn);
+                RepositoryResult<Namespace> ns = connOrigin.getNamespaces();
                 while (ns.hasNext()) {
                     Namespace n = ns.next();
                     String prefix = n.getPrefix();
                     String name = n.getName();
-                    connClone.setNamespace(prefix, name);
+                    conn.setNamespace(prefix, name);
                 }
-                replicateStatements(conn, connClone);
-                connClone.commit();
-                // checkClonedRepo(conn, connClone);
+                replicateStatements(connOrigin, conn);
+                conn.commit();
+                // checkClonedRepo(connOrigin, conn);
             } catch (RepositoryException x) {
-                LOG.error("Working with clone repo : {}", x.getMessage());
+                LOG.error("Cloning from origin to repo : {}", x.getMessage());
             } finally {
-                if (connClone != null) {
+                if (conn != null) {
                     try {
-                        connClone.close();
+                        conn.close();
                     } catch (RepositoryException x) {
-                        LOG.error("Closing repoClone : {}", x.getMessage());
+                        LOG.error("Closing connection : {}", x.getMessage());
                     }
                 }
             }
         } catch (RepositoryException x) {
-            LOG.error("getting context names : {}", x.getMessage());
+            LOG.error("Connect to the original repo : {}", x.getMessage());
         } finally {
-            if (conn != null) {
+            if (connOrigin != null) {
                 try {
-                    conn.close();
+                    connOrigin.close();
                 } catch (RepositoryException x) {
-                    LOG.error("closing when getting context names : {}", x.getMessage());
+                    LOG.error("Closing the original repo : {}", x.getMessage());
                 }
             }
         }
     }
 
-    private void checkClonedRepo(RepositoryConnection conn, RepositoryConnection connClone) {
+    private void cloneNamespaces(RepositoryConnection connOrigin, RepositoryConnection conn) {
+        List<PrefixNamespace> namespaces = new ArrayList<>();
+        RepositoryResult<Namespace> ns;
         try {
-            RepositoryResult<Resource> contexts = connClone.getContextIDs();
+            ns = connOrigin.getNamespaces();
+            while (ns.hasNext()) {
+                Namespace namespace = ns.next();
+                namespaces.add(new PrefixNamespace(namespace.getPrefix(), namespace.getName()));
+            }
+            for (PrefixNamespace pn : namespaces) {
+                String prefix = pn.getPrefix();
+                String namespace = pn.getNamespace();
+                conn.setNamespace(prefix, namespace);
+            }
+        } catch (RepositoryException e) {
+            LOG.error("Cloning Namespaces : {}", e.getMessage());
+        }
+    }
+
+    private void checkClonedRepo(RepositoryConnection connOrigin, RepositoryConnection conn) {
+        try {
+            RepositoryResult<Resource> contexts = conn.getContextIDs();
             while (contexts.hasNext()) {
                 Resource context = contexts.next();
-                conn.clear(context);
-                LOG.info("***checkClonedRepo***\n For repo # statements for {} is: {}", context,
-                    statementsCount(conn, context));
-                LOG.info("\n For repoClone # statements for {} is: {}", context, statementsCount(connClone, context));
+                connOrigin.clear(context);
+                LOG.info("***checkClonedRepo***\n For repoOrigin # statements for {} is: {}", context,
+                    statementsCount(connOrigin, context));
+                LOG.info("\n For repo # statements for {} is: {}", context, statementsCount(conn, context));
 
             }
         } catch (RepositoryException | IllegalArgumentException e) {
@@ -464,27 +356,14 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         }
     }
 
-    private Properties setPropertiesForClone() {
-        Properties props = new Properties();
-        props.put(Options.BUFFER_MODE, "MemStore");
-        props.put(AbstractTripleStore.Options.QUADS_MODE, "true");
-        props.put(BigdataSail.Options.TRUTH_MAINTENANCE, "false");
-        props.put(BigdataSail.Options.ALLOW_AUTO_COMMIT, "true");
-
-        // Quiet
-        System.getProperties().setProperty("com.bigdata.Banner.quiet", "true");
-        System.getProperties().setProperty("com.bigdata.util.config.LogUtil.quiet", "true");
-        return props;
-    }
-
-    private void replicateStatements(RepositoryConnection conn,
-        RepositoryConnection connClone) throws RepositoryException {
-        ValueFactory vfac = connClone.getValueFactory();
-        RepositoryResult<Resource> contexts = conn.getContextIDs();
+    private void replicateStatements(RepositoryConnection connOrigin,
+        RepositoryConnection conn) throws RepositoryException {
+        ValueFactory vfac = conn.getValueFactory();
+        RepositoryResult<Resource> contexts = connOrigin.getContextIDs();
         while (contexts.hasNext()) {
             Resource context = contexts.next();
-            RepositoryResult<Statement> statements = conn.getStatements(null, null, null, true, context);
-            // we need to get StringValue from each item, to get rid of original conn
+            RepositoryResult<Statement> statements = connOrigin.getStatements(null, null, null, true, context);
+            // we need to get StringValue from each item, to get rid of the original repo
             // references.
             while (statements.hasNext()) {
                 Statement st = statements.next();
@@ -498,11 +377,11 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                 if (st.getObject() instanceof URI) {
                     URI oClone = vfac.createURI(o);
                     Statement statementClone = vfac.createStatement(sClone, pClone, oClone, contextClone);
-                    connClone.add(statementClone);
+                    conn.add(statementClone);
                 } else {
                     Literal oClone = vfac.createLiteral(o);
                     Statement statementClone = vfac.createStatement(sClone, pClone, oClone, contextClone);
-                    connClone.add(statementClone);
+                    conn.add(statementClone);
                 }
             }
         }
@@ -558,7 +437,8 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         PropertyBag statement,
         Resource context) {
         try {
-            URI resource = cnx.getValueFactory().createURI(cnx.getNamespace("data"), "_" + UUID.randomUUID().toString());
+            URI resource = cnx.getValueFactory().createURI(cnx.getNamespace("data"),
+                "_" + UUID.randomUUID().toString());
             URI parentPredicate = RDF.TYPE;
             URI parentObject = cnx.getValueFactory().createURI(objNs + objType);
             Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
@@ -686,7 +566,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     private final Repository repo;
-    private Repository repoClone;
+//    private Repository repoClone;
     private final Properties props;
 
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreBlazegraph.class);

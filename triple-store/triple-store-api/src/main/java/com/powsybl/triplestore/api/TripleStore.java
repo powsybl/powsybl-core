@@ -62,13 +62,9 @@ public interface TripleStore {
     // TODO elena
     void update(String queryText);
 
-    void duplicate();
+    void duplicate(TripleStore origin);
 
-    void duplicateRepo();
-
-    PropertyBags queryClone(String queryText);
-
-    void updateClone(String queryText);
+    String getImplementationName();
 
     /**
      * Add a namespace to the triple store
@@ -84,5 +80,4 @@ public interface TripleStore {
      * @return the list of namespaces defined in the triple store
      */
     List<PrefixNamespace> getNamespaces();
-
 }

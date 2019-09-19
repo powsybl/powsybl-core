@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conversion;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -14,8 +15,12 @@ import java.util.Properties;
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.CgmesTerminal;
+import com.powsybl.cgmes.update.CgmesUpdater;
+import com.powsybl.cgmes.update.IidmChange;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Bus;
@@ -43,14 +48,34 @@ public class CgmesExport implements Exporter {
         if (ext == null) {
             throw new CgmesModelException("No extension for CGMES model found in Network");
         }
-        CgmesModel cgmes = ext.getCgmesModel();
+        // TODO elena
+        // When export is called, it triggers:
+        // Apply network changes to cgmes:
+        // Create clone repo from the origin; update the clone with changes list;
+        // Refresh/rebuild cache - check AbstractCgmesModel for cached data
+        // Clear the previous SV data - we can keep addStateVariables(network, cgmes)
+        // here,
+        // or distribut between the appropriate elements.
+//        CgmesModel cgmes = ext.getCgmesModel();
+        CgmesModel cgmesSource = ext.getCgmesModel();
+        CgmesModel cgmes = CgmesModelFactory.cloneCgmes(cgmesSource);
+        
+        loadCaches(cgmes);
+
+        CgmesUpdater cgmesUpdater = ext.getCgmesUpdater();
+        try {
+            cgmesUpdater.update(cgmes);
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
 
         // Clear the previous SV data
         cgmes.clear(CgmesSubset.STATE_VARIABLES);
 
         // Fill the SV data of the CgmesModel with the network current state
         addStateVariables(network, cgmes);
-
+        // TODO elena
         cgmes.write(ds);
     }
 
@@ -62,6 +87,20 @@ public class CgmesExport implements Exporter {
     @Override
     public String getFormat() {
         return "CGMES";
+    }
+
+    //TODO elena
+    private void loadCaches(CgmesModel cgmes) {
+        for (PropertyBags tends : cgmes.groupedTransformerEnds().values()) {
+            for (PropertyBag end : tends) {
+                CgmesTerminal t = cgmes.terminal(end.getId(CgmesNames.TERMINAL));
+                cgmes.substation(t);
+                if (cgmes.isNodeBreaker())
+                    t.connectivityNode();
+                else
+                    t.topologicalNode();
+            }
+        }
     }
 
     private void addStateVariables(Network n, CgmesModel cgmes) {
@@ -141,10 +180,11 @@ public class CgmesExport implements Exporter {
         return iidmBusId;
     }
 
-    private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList(CgmesNames.ANGLE, CgmesNames.VOLTAGE, "TopologicalNode");
+    private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList(CgmesNames.ANGLE, CgmesNames.VOLTAGE,
+        "TopologicalNode");
     private static final List<String> SV_POWERFLOW_PROPERTIES = Arrays.asList("p", "q", CgmesNames.TERMINAL);
     private static final List<String> SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES = Arrays.asList("ShuntCompensator",
-            "continuousSections");
+        "continuousSections");
     private static final List<String> SV_TAPSTEP_PROPERTIES = Arrays.asList(CgmesNames.POSITION,
-            CgmesNames.TAP_CHANGER);
+        CgmesNames.TAP_CHANGER);
 }
