@@ -63,7 +63,7 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     /**
      * Set property value associated to specified key.
      */
-    Object setProperty(String key, String value);
+    String setProperty(String key, String value);
 
     /**
      * Get properties key values.
