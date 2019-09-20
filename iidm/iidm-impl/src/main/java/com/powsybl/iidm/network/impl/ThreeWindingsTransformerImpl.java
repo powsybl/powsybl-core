@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
 /**
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author José Antonio Marqués <marquesja at aia.es>
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
