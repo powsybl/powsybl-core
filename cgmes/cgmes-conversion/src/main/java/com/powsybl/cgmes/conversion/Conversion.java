@@ -36,7 +36,7 @@ import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
  */
 public class Conversion {
 
-    private static final boolean EXTENDED_CGMES_CONVERSION = true;
+    public static boolean EXTENDED_CGMES_CONVERSION = true;
 
     public Conversion(CgmesModel cgmes) {
         this(cgmes, new Config());
