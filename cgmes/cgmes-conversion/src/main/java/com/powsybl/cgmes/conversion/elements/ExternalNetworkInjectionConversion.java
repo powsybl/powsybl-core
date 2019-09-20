@@ -59,6 +59,6 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
 
     private void setRegulatingControlContext(String iidmId, PropertyBag sm, double nominalVoltage) {
         RegulatingControlId rci = context.regulatingControlMapping().getGeneratorRegulatingControl(sm);
-        context.generatorRegulatingControlMapping().add(iidmId, rci.regulating, rci.regulatingControlId, nominalVoltage);
+        context.generatorRegulatingControlMapping().add(iidmId, rci.isRegulating(), rci.getRegulatingControlId(), nominalVoltage);
     }
 }

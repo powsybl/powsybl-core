@@ -544,8 +544,8 @@ public abstract class AbstractTransformerFullConversion
         RegulatingControlId rci = context.regulatingControlMapping()
             .getTapChangerRegulatingControl(ratioTapChanger);
         tapChanger.setId(ratioTapChanger.getId(STRING_RATIO_TAP_CHANGER))
-            .setRegulating(rci.regulating)
-            .setRegulatingControlId(rci.regulatingControlId)
+            .setRegulating(rci.isRegulating())
+            .setRegulatingControlId(rci.getRegulatingControlId())
             .setSide(side)
             .setTculControlMode(ratioTapChanger.get(STRING_TCUL_CONTROL_MODE))
             .setTapChangerControlEnabled(ratioTapChanger.asBoolean(STRING_TAP_CHANGER_CONTROL_ENABLED, false));
@@ -708,8 +708,8 @@ public abstract class AbstractTransformerFullConversion
         RegulatingControlId rci = context.regulatingControlMapping()
             .getTapChangerRegulatingControl(phaseTapChanger);
         tapChanger.setId(phaseTapChanger.getId(STRING_PHASE_TAP_CHANGER))
-            .setRegulating(rci.regulating)
-            .setRegulatingControlId(rci.regulatingControlId)
+            .setRegulating(rci.isRegulating())
+            .setRegulatingControlId(rci.getRegulatingControlId())
             .setSide(side)
             .setTapChangerControlEnabled(phaseTapChanger.asBoolean(STRING_TAP_CHANGER_CONTROL_ENABLED, false));
     }
