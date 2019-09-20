@@ -367,8 +367,10 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         double xStepMin = xs[0];
         double xStepMax = xs[1];
 
+        // Take ratio not rho
         double alphaMax = alphas.stream()
-                .mapToDouble(Double::doubleValue)
+                .mapToDouble(v -> -v)
+                //.mapToDouble(Double::doubleValue)
                 .max()
                 .orElse(Double.NaN);
         LOG.debug("ACTUAL    alphaMax {}", alphaMax);
@@ -388,9 +390,11 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 x = tx.getX();
             } else {
                 if (asymmetrical()) {
-                    x = getStepXforAsymmetrical(xStepMin, xStepMax, alpha, alphaMax, theta);
+                    double ratioAlpha = -alpha; // Take ratio not rho
+                    x = getStepXforAsymmetrical(xStepMin, xStepMax, ratioAlpha, alphaMax, theta);
                 } else if (symmetrical()) {
-                    x = getStepXforSymmetrical(xStepMin, xStepMax, alpha, alphaMax);
+                    double ratioAlpha = -alpha; // Take ratio not rho
+                    x = getStepXforSymmetrical(xStepMin, xStepMax, ratioAlpha, alphaMax);
                 }
                 x = adjustx(x, rho0square);
             }
@@ -477,6 +481,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         // Check if in the case conformity/microBE (tap changer 6ebbef67)
         // we should apply formulas for in-phase transformer (fixed tap)
         // and asymmetrical phase shifter
+
+        // phase tap changer at side 1 and structural ratio at side 2
         return x * (side == 1 ? rho0square : 1.0);
     }
 

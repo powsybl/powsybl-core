@@ -118,7 +118,7 @@ public class RegulatingControlMapping {
                 context.missing(String.format(REGULATING_CONTROL_REF, controlId));
             }
         }
-        adder.setLoadTapChangingCapabilities(false);
+        //adder.setLoadTapChangingCapabilities(false);
     }
 
     private void addRegulatingControlVoltage(PropertyBag p, RegulatingControl control, RatioTapChangerAdder adder,
