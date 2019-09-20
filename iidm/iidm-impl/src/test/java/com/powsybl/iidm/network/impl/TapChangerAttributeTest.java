@@ -28,12 +28,24 @@ public class TapChangerAttributeTest {
 
         // Check name for three winding transformers
         ThreeWindingsTransformer twt3 = createThreeWindingsTransformer(substation);
+        createPhaseTapChanger(twt3.getLeg1());
+        createRatioTapChanger(twt3.getLeg1());
+        createPhaseTapChanger(twt3.getLeg2());
         createRatioTapChanger(twt3.getLeg2());
+        createPhaseTapChanger(twt3.getLeg3());
         createRatioTapChanger(twt3.getLeg3());
+        assertEquals("ratioTapChanger1",
+            ((AbstractTapChanger) twt3.getLeg1().getRatioTapChanger()).getTapChangerAttribute());
+        assertEquals("phaseTapChanger1",
+            ((AbstractTapChanger) twt3.getLeg1().getPhaseTapChanger()).getTapChangerAttribute());
         assertEquals("ratioTapChanger2",
             ((AbstractTapChanger) twt3.getLeg2().getRatioTapChanger()).getTapChangerAttribute());
+        assertEquals("phaseTapChanger2",
+            ((AbstractTapChanger) twt3.getLeg2().getPhaseTapChanger()).getTapChangerAttribute());
         assertEquals("ratioTapChanger3",
             ((AbstractTapChanger) twt3.getLeg3().getRatioTapChanger()).getTapChangerAttribute());
+        assertEquals("phaseTapChanger3",
+            ((AbstractTapChanger) twt3.getLeg3().getPhaseTapChanger()).getTapChangerAttribute());
     }
 
     private ThreeWindingsTransformer createThreeWindingsTransformer(Substation substation) {
@@ -53,6 +65,8 @@ public class TapChangerAttributeTest {
             .newLeg2()
             .setR(2.03)
             .setX(2.04)
+            .setG(0.0)
+            .setB(0.0)
             .setRatedU(2.05)
             .setVoltageLevel("vl2")
             .setConnectableBus("busB")
@@ -60,6 +74,8 @@ public class TapChangerAttributeTest {
             .newLeg3()
             .setR(3.3)
             .setX(3.4)
+            .setG(0.0)
+            .setB(0.0)
             .setRatedU(3.5)
             .setVoltageLevel("vl2")
             .setConnectableBus("busB")

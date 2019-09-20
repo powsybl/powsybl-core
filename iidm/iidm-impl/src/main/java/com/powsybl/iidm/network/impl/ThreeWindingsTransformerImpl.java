@@ -231,7 +231,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         @Override
         public String getTapChangerAttribute() {
-            return "ratioTapChanger1";
+            return "TapChanger1";
         }
 
         @Override
