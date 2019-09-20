@@ -17,7 +17,7 @@ import static org.junit.Assert.assertNotNull;
 public class MergedXnodeXmlSerializerTest extends AbstractConverterTest {
 
     private static Network createTestNetwork() {
-        Network network = NetworkFactory.create("test", "test");
+        Network network = Network.create("test", "test");
         network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
         Substation s1 = network.newSubstation()
                 .setId("S1")
@@ -65,7 +65,8 @@ public class MergedXnodeXmlSerializerTest extends AbstractConverterTest {
 
         // extends line
         Line line = network.getLine("L");
-        MergedXnode xnode = new MergedXnode(line, 0.5f, 0.5f, 1.0, 2.0, 3.0, 4.0, "XXXXXX11");
+        MergedXnode xnode = new MergedXnode(line, 0.5f, 0.5f, 1.0, 2.0,
+                3.0, 4.0, "", "", "XXXXXX11");
         line.addExtension(MergedXnode.class, xnode);
 
         Network network2 = roundTripXmlTest(network,

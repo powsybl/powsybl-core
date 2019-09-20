@@ -13,6 +13,7 @@ import com.powsybl.security.PostContingencyResult;
 import com.powsybl.security.interceptors.DefaultSecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.RunningContext;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -28,8 +29,8 @@ public class SubjectInfoInterceptor extends DefaultSecurityAnalysisInterceptor {
                 Branch branch = (Branch) identifiable;
 
                 Set<Country> countries = new TreeSet<>();
-                countries.add(branch.getTerminal1().getVoltageLevel().getSubstation().getCountry());
-                countries.add(branch.getTerminal2().getVoltageLevel().getSubstation().getCountry());
+                branch.getTerminal1().getVoltageLevel().getSubstation().getCountry().ifPresent(countries::add);
+                branch.getTerminal2().getVoltageLevel().getSubstation().getCountry().ifPresent(countries::add);
 
                 Set<Double> nominalVoltages = new TreeSet<>();
                 nominalVoltages.add(branch.getTerminal1().getVoltageLevel().getNominalV());
@@ -38,7 +39,10 @@ public class SubjectInfoInterceptor extends DefaultSecurityAnalysisInterceptor {
                 violation.addExtension(SubjectInfoExtension.class, new SubjectInfoExtension(countries, nominalVoltages));
             } else if (identifiable instanceof VoltageLevel) {
                 VoltageLevel vl = (VoltageLevel) identifiable;
-                violation.addExtension(SubjectInfoExtension.class, new SubjectInfoExtension(vl.getSubstation().getCountry(), vl.getNominalV()));
+                SubjectInfoExtension subjectInfoExtension = vl.getSubstation().getCountry()
+                        .map(country -> new SubjectInfoExtension(country, vl.getNominalV()))
+                        .orElseGet(() -> new SubjectInfoExtension(new TreeSet<>(), Collections.singleton(vl.getNominalV())));
+                violation.addExtension(SubjectInfoExtension.class, subjectInfoExtension);
             }
         }
     }

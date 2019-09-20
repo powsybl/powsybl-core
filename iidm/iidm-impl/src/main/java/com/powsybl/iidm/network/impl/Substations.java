@@ -6,9 +6,11 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  *
@@ -20,14 +22,11 @@ final class Substations {
     }
 
     static Iterable<Substation> filter(Iterable<Substation> substations,
-                                       final Country country,
+                                       final String country,
                                        final String tso,
                                        final String... geographicalTags) {
-        if (geographicalTags.length == 0) {
-            return substations;
-        }
-        return Iterables.filter(substations, substation -> {
-            if (country != null && country != substation.getCountry()) {
+        return StreamSupport.stream(substations.spliterator(), false).filter(substation -> {
+            if (country != null && !country.equals(substation.getCountry().map(Country::getName).orElse(""))) {
                 return false;
             }
             if (tso != null && !tso.equals(substation.getTso())) {
@@ -39,7 +38,7 @@ final class Substations {
                 }
             }
             return true;
-        });
+        }).collect(Collectors.toList());
     }
 
     /**

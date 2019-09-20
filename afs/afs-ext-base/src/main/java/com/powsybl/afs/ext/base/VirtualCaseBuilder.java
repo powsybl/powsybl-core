@@ -86,6 +86,8 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
         // create script link
         context.getStorage().addDependency(info.getId(), VirtualCase.SCRIPT_DEPENDENCY_NAME, script.getId());
 
+        context.getStorage().setConsistent(info.getId());
+
         context.getStorage().flush();
 
         return new VirtualCase(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));

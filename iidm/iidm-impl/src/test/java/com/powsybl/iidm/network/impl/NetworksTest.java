@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.util.Networks;
@@ -26,7 +27,7 @@ public class NetworksTest {
     public void printBalanceSummaryTest() throws IOException {
         try (Writer writer = new StringWriter()) {
             Network network = EurostagTutorialExample1Factory.createWithMultipleConnectedComponents();
-            Networks.printBalanceSummary("", network, writer);
+            Networks.printBalanceSummary("", network, new TableFormatterConfig(), writer);
             assertEquals("Active balance at step '':" + System.lineSeparator() +
                             "+-----------------------+--------------------------------+----------------------------------+\n" +
                             "|                       | Main CC connected/disconnected | Others CC connected/disconnected |\n" +

@@ -252,7 +252,7 @@ public class AmplNetworkWriter {
                         .writeCell(maxV)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
-                        .writeCell(vl.getSubstation().getCountry().toString())
+                        .writeCell(vl.getSubstation().getCountry().map(Enum::toString).orElse(""))
                         .writeCell(vl.getId())
                         .writeCell(vl.getName());
                 addExtensions(num, vl);
@@ -272,7 +272,7 @@ public class AmplNetworkWriter {
                         .writeCell(Float.NaN)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
-                        .writeCell(vl1.getSubstation().getCountry().toString())
+                        .writeCell(vl1.getSubstation().getCountry().map(Enum::toString).orElse(""))
                         .writeCell(vlId)
                         .writeCell("");
                 addExtensions(num, twt);
@@ -294,7 +294,7 @@ public class AmplNetworkWriter {
                         .writeCell(maxV)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
-                        .writeCell(vl.getSubstation().getCountry().toString())
+                        .writeCell(vl.getSubstation().getCountry().map(Enum::toString).orElse(""))
                         .writeCell(dl.getId() + "_voltageLevel")
                         .writeCell("");
                 addExtensions(num, dl);

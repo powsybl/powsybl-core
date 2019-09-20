@@ -18,7 +18,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -265,8 +264,7 @@ public class AmplNetworkReaderTest {
     }
 
     private void testBuses(Network network, AmplNetworkReader reader) throws IOException {
-
-        Optional<Bus> bx = network.getVoltageLevelStream().map(vl -> vl.getBusView().getBus("VLGEN_0")).filter(Objects::nonNull).findFirst();
+        Optional<Bus> bx = Optional.ofNullable(network.getBusView().getBus("VLGEN_0"));
         if (bx.isPresent()) {
             Bus b = bx.get();
             assertTrue(Double.isNaN(b.getAngle()));
@@ -276,8 +274,7 @@ public class AmplNetworkReaderTest {
         }
 
         reader.readBuses();
-
-        Optional<Bus> bx2 = network.getVoltageLevelStream().map(vl -> vl.getBusView().getBus("VLGEN_0")).filter(Objects::nonNull).findFirst();
+        Optional<Bus> bx2 = Optional.ofNullable(network.getBusView().getBus("VLGEN_0"));
         if (bx2.isPresent()) {
             Bus b = bx2.get();
             assertEquals(Math.toDegrees(2d), b.getAngle(), 0.0);

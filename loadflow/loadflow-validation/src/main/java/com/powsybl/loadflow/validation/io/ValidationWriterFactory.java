@@ -8,6 +8,7 @@ package com.powsybl.loadflow.validation.io;
 
 import java.io.Writer;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.loadflow.validation.ValidationType;
 
@@ -17,6 +18,15 @@ import com.powsybl.loadflow.validation.ValidationType;
  */
 public interface ValidationWriterFactory {
 
-    ValidationWriter create(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, Writer writer, boolean verbose, ValidationType validationType, boolean compareResults);
+    /**
+     * @deprecated Use {@link #create(String, Class, TableFormatterConfig, Writer, boolean, ValidationType, boolean)} instead.
+     */
+    @Deprecated
+    default ValidationWriter create(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, Writer writer, boolean verbose, ValidationType validationType, boolean compareResults) {
+        return create(id, formatterFactoryClass, TableFormatterConfig.load(), writer, verbose, validationType, compareResults);
+    }
 
+    default ValidationWriter create(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, TableFormatterConfig formatterConfig, Writer writer, boolean verbose, ValidationType validationType, boolean compareResults) {
+        return null;
+    }
 }

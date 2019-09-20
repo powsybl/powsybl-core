@@ -10,8 +10,9 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -33,6 +34,15 @@ public class DenseMatrixTest extends AbstractMatrixTest {
     }
 
     @Test
+    public void invalidBufferCapacity() {
+        try {
+            new DenseMatrix(2, 2, () -> ByteBuffer.allocate(3));
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+    }
+
+    @Test
     public void testDensePrint() throws IOException {
         Matrix a = createA(matrixFactory);
         String expected = String.join(System.lineSeparator(),
@@ -41,6 +51,7 @@ public class DenseMatrixTest extends AbstractMatrixTest {
                 " 2.0 0.0")
                 + System.lineSeparator();
         assertEquals(expected, print(a, null, null));
+        assertEquals(expected, print(a));
     }
 
     @Test
@@ -58,17 +69,19 @@ public class DenseMatrixTest extends AbstractMatrixTest {
     @Test
     public void testCreateFromColumn() {
         DenseMatrix a = Matrix.createFromColumn(new double[] {1d, 2d, 3d}, matrixFactory).toDense();
-        assertEquals(3, a.getM());
-        assertEquals(1, a.getN());
-        assertEquals(1d, a.getValue(0, 0), 0d);
-        assertEquals(2d, a.getValue(1, 0), 0d);
-        assertEquals(3d, a.getValue(2, 0), 0d);
+        assertEquals(3, a.getRowCount());
+        assertEquals(1, a.getColumnCount());
+        assertEquals(1d, a.get(0, 0), 0d);
+        assertEquals(2d, a.get(1, 0), 0d);
+        assertEquals(3d, a.get(2, 0), 0d);
     }
 
     @Test
     public void testToSparse() {
         DenseMatrix a = (DenseMatrix) createA(matrixFactory);
         SparseMatrix a2 = a.toSparse();
+        assertNotNull(a2);
+        assertSame(a2, a2.toSparse());
         DenseMatrix a3 = a2.toDense();
         assertEquals(a, a3);
     }

@@ -17,11 +17,11 @@ public interface MatrixFactory {
      * Create a matrix with m rows and n column. An estimation of the number of non zero values
      * may be provided for internal capacity reservation.
      *
-     * @param m row count
-     * @param n column count
+     * @param rowCount row count
+     * @param columnCount column count
      * @param estimatedNonZeroValueCount estimation of non zero values
      *
-     * @return a matrix with m rows and n columns
+     * @return a matrix with {@code rowCount} rows and {@code columnCount} columns
      */
-    Matrix create(int m, int n, int estimatedNonZeroValueCount);
+    Matrix create(int rowCount, int columnCount, int estimatedNonZeroValueCount);
 }

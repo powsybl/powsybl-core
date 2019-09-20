@@ -6,7 +6,10 @@
  */
 package com.powsybl.math.matrix;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -18,43 +21,67 @@ import java.util.UUID;
  */
 class SparseLUDecomposition implements LUDecomposition {
 
+    private final SparseMatrix matrix;
+
     private final String id;
 
+    private int valueCount;
+
     SparseLUDecomposition(SparseMatrix matrix) {
-        if (matrix.getM() != matrix.getN()) {
+        this.matrix = Objects.requireNonNull(matrix);
+        if (matrix.getRowCount() != matrix.getColumnCount()) {
             throw new IllegalArgumentException("matrix is not square");
         }
         this.id = UUID.randomUUID().toString();
         init(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues());
+        valueCount = getMatrixValueCount();
+    }
+
+    private int getMatrixValueCount() {
+        int[] columnStart = matrix.getColumnStart();
+        return columnStart[columnStart.length - 1];
     }
 
     private native void init(String id, int[] ap, int[] ai, double[] ax);
 
     private native void release(String id);
 
+    private native void update(String id, int[] ap, int[] ai, double[] ax);
+
     private native void solve(String id, double[] b);
 
     private native void solve2(String id, int m, int n, ByteBuffer b);
 
     /**
-     * {@inheritDoc}
+     * Check no elements have been added since first decomposition
      */
+    private void checkMatrixStructure() {
+        if (getMatrixValueCount() != valueCount) {
+            throw new PowsyblException("Elements have been added to the sparse matrix since initial decomposition");
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The structure of the matrix is not supposed to have changed, only non zero values.
+     */
+    @Override
+    public void update() {
+        checkMatrixStructure();
+        update(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues());
+    }
+
     @Override
     public void solve(double[] b) {
         solve(id, b);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void solve(DenseMatrix b) {
-        solve2(id, b.getM(), b.getN(), b.getBuffer());
+        solve2(id, b.getRowCount(), b.getColumnCount(), b.getBuffer());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void close() {
         release(id);

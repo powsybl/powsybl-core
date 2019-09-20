@@ -22,7 +22,11 @@ public final class EurostagTutorialExample1Factory {
     }
 
     public static Network create() {
-        Network network = NetworkFactory.create("sim1", "test");
+        return create(NetworkFactory.findDefault());
+    }
+
+    public static Network create(NetworkFactory networkFactory) {
+        Network network = networkFactory.createNetwork("sim1", "test");
         Substation p1 = network.newSubstation()
                 .setId("P1")
                 .setCountry(Country.FR)
@@ -183,8 +187,63 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
-    public static Network createWithMoreGenerators() {
+    public static Network createWithLFResults() {
         Network network = create();
+        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+
+        network.getBusBreakerView().getBus("NGEN")
+                .setV(24.500000610351563)
+                .setAngle(2.3259763717651367);
+        network.getBusBreakerView().getBus("NHV1")
+                .setV(402.1428451538086)
+                .setAngle(0.0);
+        network.getBusBreakerView().getBus("NHV2")
+                .setV(389.9526763916016)
+                .setAngle(-3.5063576698303223);
+        network.getBusBreakerView().getBus("NLOAD")
+                .setV(147.57861328125)
+                .setAngle(-9.614486694335938);
+
+        network.getGenerator("GEN").getTerminal()
+                .setP(-605.558349609375)
+                .setQ(-225.2825164794922);
+        network.getTwoWindingsTransformer("NGEN_NHV1").getTerminal1()
+                .setP(605.558349609375)
+                .setQ(225.2825164794922);
+        network.getTwoWindingsTransformer("NGEN_NHV1").getTerminal2()
+                .setP(-604.8909301757812)
+                .setQ(-197.48046875);
+        network.getLoad("LOAD").getTerminal()
+                .setP(600.0)
+                .setQ(200.0);
+        network.getTwoWindingsTransformer("NHV2_NLOAD").getTerminal1()
+                .setP(600.8677978515625)
+                .setQ(274.3769836425781);
+        network.getTwoWindingsTransformer("NHV2_NLOAD").getTerminal2()
+                .setP(-600.0)
+                .setQ(-200.0);
+        network.getLine("NHV1_NHV2_1").getTerminal1()
+                .setP(302.4440612792969)
+                .setQ(98.74027252197266);
+        network.getLine("NHV1_NHV2_1").getTerminal2()
+                .setP(-300.43389892578125)
+                .setQ(-137.18849182128906);
+        network.getLine("NHV1_NHV2_2").getTerminal1()
+                .setP(302.4440612792969)
+                .setQ(98.74027252197266);
+        network.getLine("NHV1_NHV2_2").getTerminal2()
+                .setP(-300.43389892578125)
+                .setQ(-137.188491821289060);
+
+        return network;
+    }
+
+    public static Network createWithMoreGenerators() {
+        return createWithMoreGenerators(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithMoreGenerators(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
 
         VoltageLevel vlgen = network.getVoltageLevel(VLGEN);
         Bus ngen = vlgen.getBusBreakerView().getBus("NGEN");
@@ -259,7 +318,12 @@ public final class EurostagTutorialExample1Factory {
     }
 
     public static Network createWithFixedCurrentLimits() {
-        Network network = EurostagTutorialExample1Factory.create();
+        return createWithFixedCurrentLimits(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithFixedCurrentLimits(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
+
         network.setCaseDate(DateTime.parse("2018-01-01T11:00:00+01:00"));
 
         network.getSubstation("P2").setCountry(Country.BE);
@@ -324,7 +388,11 @@ public final class EurostagTutorialExample1Factory {
     }
 
     public static Network createWithMultipleConnectedComponents() {
-        Network network = create();
+        return createWithMultipleConnectedComponents(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithMultipleConnectedComponents(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
 
         Substation p3 = network.newSubstation()
                 .setId("P3")
@@ -380,6 +448,21 @@ public final class EurostagTutorialExample1Factory {
                 .setCurrentSectionCount(1)
                 .setbPerSection(1e-5)
                 .add();
+
+        return network;
+    }
+
+    public static Network createWithTerminalMockExt() {
+        return createWithTerminalMockExt(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithTerminalMockExt(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
+        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+
+        Load load = network.getLoad("LOAD");
+        TerminalMockExt terminalMockExt = new TerminalMockExt(load);
+        load.addExtension(TerminalMockExt.class, terminalMockExt);
 
         return network;
     }

@@ -329,6 +329,8 @@ public final class NetworkXml {
         // Consider the network has been exported so its extensions will be written also
         context.addExportedEquipment(n);
 
+        PropertiesXml.write(n, context);
+
         for (Substation s : n.getSubstations()) {
             SubstationXml.INSTANCE.write(s, null, context);
         }
@@ -460,6 +462,10 @@ public final class NetworkXml {
     }
 
     public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer) {
+        return read(is, config, anonymizer, NetworkFactory.findDefault());
+    }
+
+    public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer, NetworkFactory networkFactory) {
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
             int state = reader.next();
@@ -471,7 +477,7 @@ public final class NetworkXml {
             int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, FORECAST_DISTANCE, 0);
             String sourceFormat = reader.getAttributeValue(null, SOURCE_FORMAT);
 
-            Network network = NetworkFactory.create(id, sourceFormat);
+            Network network = networkFactory.createNetwork(id, sourceFormat);
             network.setCaseDate(date);
             network.setForecastDistance(forecastDistance);
 
@@ -483,6 +489,10 @@ public final class NetworkXml {
 
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
                 switch (reader.getLocalName()) {
+                    case PropertiesXml.PROPERTY:
+                        PropertiesXml.read(network, context);
+                        break;
+
                     case SubstationXml.ROOT_ELEMENT_NAME:
                         SubstationXml.INSTANCE.read(network, context);
                         break;
@@ -516,6 +526,8 @@ public final class NetworkXml {
                 }
             });
 
+            checkExtensionsNotFound(context, extensionNamesNotFound);
+
             if (modeWarn[0]) {
                 LOGGER.warn("Mode isn't UNIQUE_FILE and some extensions was found in the base file!, some extensions may be overwritten later when reading extensions files");
             }
@@ -527,6 +539,17 @@ public final class NetworkXml {
         }
     }
 
+    private static void checkExtensionsNotFound(NetworkXmlReaderContext context, Set<String> extensionNamesNotFound) {
+        if (!extensionNamesNotFound.isEmpty()) {
+            if (context.getOptions().isThrowExceptionIfExtensionNotFound()) {
+                throw new PowsyblException("Extensions " + extensionNamesNotFound + " " +
+                        "not found !");
+            } else {
+                LOGGER.error("Extensions {} not found", extensionNamesNotFound);
+            }
+        }
+    }
+
     public static Network read(Path xmlFile) {
         try {
             return read(xmlFile, new ImportOptions());
@@ -535,7 +558,7 @@ public final class NetworkXml {
         }
     }
 
-    public static Network read(ReadOnlyDataSource dataSource, ImportOptions options, String dataSourceExt) throws IOException {
+    public static Network read(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, ImportOptions options, String dataSourceExt) throws IOException {
         Objects.requireNonNull(dataSource);
         Network network;
         Anonymizer anonymizer = null;
@@ -548,7 +571,7 @@ public final class NetworkXml {
         }
         //Read the base file with the extensions declared in the extensions list
         try (InputStream isb = dataSource.newInputStream(null, dataSourceExt)) {
-            network = NetworkXml.read(isb, options, anonymizer);
+            network = NetworkXml.read(isb, options, anonymizer, networkFactory);
         }
         if (!options.withNoExtension()) {
             switch (options.getMode()) {
@@ -575,7 +598,7 @@ public final class NetworkXml {
     public static Network read(Path xmlFile, ImportOptions options) throws IOException {
         DataSource dataSource = getDataSourceFromPath(xmlFile);
         String ext = getFileExtensionFromPath(xmlFile);
-        return read(dataSource, options, ext);
+        return read(dataSource, NetworkFactory.findDefault(), options, ext);
     }
 
     public static Network validateAndRead(Path xmlFile) {
@@ -672,6 +695,9 @@ public final class NetworkXml {
                     throw new PowsyblException("Unexpected element: " +  reader.getLocalName());
                 }
             });
+
+            checkExtensionsNotFound(context, extensionNamesNotFound);
+
             return network;
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
@@ -681,39 +707,25 @@ public final class NetworkXml {
     private static void readExtensions(Identifiable identifiable, NetworkXmlReaderContext context,
                                        Set<String> extensionNamesNotFound) throws XMLStreamException {
 
-        XmlUtil.readUntilEndElement(EXTENSION_ELEMENT_NAME, context.getReader(), new XmlUtil.XmlEventHandler() {
+        XmlUtil.readUntilEndElementWithDepth(EXTENSION_ELEMENT_NAME, context.getReader(), elementDepth -> {
+            // extensions root elements are nested directly in 'extension' element, so there is no need
+            // to check for an extension to exist if depth is greater than zero. Furthermore in case of
+            // missing extension serializer, we must not check for an extension in sub elements.
+            if (elementDepth == 0) {
+                String extensionName = context.getReader().getLocalName();
+                if (!context.getOptions().withExtension(extensionName)) {
+                    return;
+                }
 
-            private boolean topLevel = true;
-
-            @Override
-            public void onStartElement() throws XMLStreamException {
-                if (topLevel) {
-                    String extensionName = context.getReader().getLocalName();
-                    if (!context.getOptions().withExtension(extensionName)) {
-                        return;
-                    }
-
-                    ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
-                    if (extensionXmlSerializer != null) {
-                        Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
-                        identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
-                        topLevel = true;
-                    } else {
-                        extensionNamesNotFound.add(extensionName);
-                        topLevel = false;
-                    }
+                ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
+                if (extensionXmlSerializer != null) {
+                    Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
+                    identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
+                } else {
+                    extensionNamesNotFound.add(extensionName);
                 }
             }
         });
-
-        if (!extensionNamesNotFound.isEmpty()) {
-            if (context.getOptions().isThrowExceptionIfExtensionNotFound()) {
-                throw new PowsyblException("Extensions " + extensionNamesNotFound + " " +
-                        "not found !");
-            } else {
-                LOGGER.error("Extensions {} not found", extensionNamesNotFound);
-            }
-        }
     }
 
     public static void update(Network network, InputStream is) {

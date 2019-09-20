@@ -234,7 +234,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
-    public int getMaxVertex() {
+    public int getVertexCapacity() {
         return vertices.size();
     }
 
@@ -310,6 +310,10 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         return edgeObjects;
     }
 
+    /**
+     * Create the adjacency list of this graph.
+     * @return the adjacency list as a {@link TIntArrayList} of {@link TIntArrayList}.
+     */
     private TIntArrayList[] getAdjacencyList() {
         adjacencyListCacheLock.lock();
         try {
@@ -337,6 +341,9 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
     }
 
+    /**
+     * Invalidate the adjacency list.
+     */
     private void invalidateAdjacencyList() {
         adjacencyListCache = null;
     }
@@ -378,19 +385,39 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         traverse(v, traverser, encountered);
     }
 
+    /**
+     * {@inheritDoc}.
+     *
+     * This method allocates a {@link List} of {@link TIntArrayList} to store the paths, a {@link BitSet} to store the encountered vertices
+     * and calls {@link #findAllPaths(int, Function, Function, TIntArrayList, BitSet, List)}.
+     */
     @Override
-    public List<TIntArrayList> findAllPaths(int from, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCanceled) {
+    public List<TIntArrayList> findAllPaths(int from, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCancelled) {
         Objects.requireNonNull(pathComplete);
         List<TIntArrayList> paths = new ArrayList<>();
         BitSet encountered = new BitSet(vertices.size());
         TIntArrayList path = new TIntArrayList(1);
-        findAllPaths(from, pathComplete, pathCanceled, path, encountered, paths);
+        findAllPaths(from, pathComplete, pathCancelled, path, encountered, paths);
         // sort paths by size
         paths.sort((o1, o2) -> o1.size() - o2.size());
         return paths;
     }
 
-    private boolean findAllPaths(int e, int v1or2, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCanceled,
+    /**
+     * This method is called by {@link #findAllPaths(int, Function, Function, TIntArrayList, BitSet, List)} each time a vertex is traversed.
+     * The path is added to the paths list if it's complete, otherwise this method calls the {@link #findAllPaths(int, Function, Function, TIntArrayList, BitSet, List)}
+     * to continue the recursion.
+     *
+     * @param e the index of the current edge.
+     * @param v1or2 the index of the current vertex.
+     * @param pathComplete a function that returns true when the target vertex is found.
+     * @param pathCancelled pathCanceled a function that returns true when the edge must not be traversed.
+     * @param path a list that contains the traversed edges.
+     * @param encountered a BitSet that contains the traversed vertex.
+     * @param paths a list that contains the complete paths.
+     * @return true if the path is complete, false otherwise.
+     */
+    private boolean findAllPaths(int e, int v1or2, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCancelled,
                                  TIntArrayList path, BitSet encountered, List<TIntArrayList> paths) {
         if (encountered.get(v1or2)) {
             return false;
@@ -401,12 +428,23 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             paths.add(path);
             return true;
         } else {
-            findAllPaths(v1or2, pathComplete, pathCanceled, path, encountered, paths);
+            findAllPaths(v1or2, pathComplete, pathCancelled, path, encountered, paths);
             return false;
         }
     }
 
-    private void findAllPaths(int v, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCanceled,
+    /**
+     * This method is called by {@link #findAllPaths(int, Function, Function)} or {@link #findAllPaths(int, int, Function, Function, TIntArrayList, BitSet, List)}.
+     * For each adjacent edges for which the pathCanceled returns {@literal false}, traverse the other vertex calling {@link #findAllPaths(int, int, Function, Function, TIntArrayList, BitSet, List)}.
+     *
+     * @param v the current vertex
+     * @param pathComplete a function that returns true when the target vertex is found.
+     * @param pathCancelled a function that returns true when the edge must not be traversed.
+     * @param path a list that contains the traversed edges.
+     * @param encountered a BitSet that contains the traversed vertex.
+     * @param paths a list that contains the complete paths.
+     */
+    private void findAllPaths(int v, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCancelled,
                               TIntArrayList path, BitSet encountered, List<TIntArrayList> paths) {
         checkVertex(v);
         encountered.set(v, true);
@@ -415,7 +453,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         for (int i = 0; i < adjacentEdges.size(); i++) {
             int e = adjacentEdges.getQuick(i);
             Edge<E> edge = edges.get(e);
-            if (pathCanceled != null && pathCanceled.apply(edge.getObject())) {
+            if (pathCancelled != null && pathCancelled.apply(edge.getObject())) {
                 continue;
             }
             int v1 = edge.getV1();
@@ -431,9 +469,9 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 encountered2 = encountered;
             }
             if (v == v2) {
-                findAllPaths(e, v1, pathComplete, pathCanceled, path2, encountered2, paths);
+                findAllPaths(e, v1, pathComplete, pathCancelled, path2, encountered2, paths);
             } else if (v == v1) {
-                findAllPaths(e, v2, pathComplete, pathCanceled, path2, encountered2, paths);
+                findAllPaths(e, v2, pathComplete, pathCancelled, path2, encountered2, paths);
             } else {
                 throw new AssertionError();
             }
@@ -450,6 +488,9 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         listeners.remove(l);
     }
 
+    /**
+     * Notify all the listeners that the graph has changed.
+     */
     private void notifyListener() {
         for (UndirectedGraphListener l : listeners) {
             l.graphChanged();

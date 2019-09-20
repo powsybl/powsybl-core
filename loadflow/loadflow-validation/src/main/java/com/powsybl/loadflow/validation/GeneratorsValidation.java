@@ -15,6 +15,9 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,30 +34,44 @@ public final class GeneratorsValidation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeneratorsValidation.class);
 
+    private static final Supplier<TableFormatterConfig> TABLE_FORMATTER_CONFIG = Suppliers.memoize(TableFormatterConfig::load);
+
+    public static final GeneratorsValidation INSTANCE = new GeneratorsValidation();
+
     private GeneratorsValidation() {
     }
 
-    public static boolean checkGenerators(Network network, ValidationConfig config, Path file) throws IOException {
+    public boolean checkGenerators(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Path file) throws IOException {
         Objects.requireNonNull(file);
-        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationConfig);
+        Objects.requireNonNull(formatterConfig);
         Objects.requireNonNull(file);
         try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-            return checkGenerators(network, config, writer);
+            return checkGenerators(network, validationConfig, formatterConfig, writer);
         }
     }
 
-    public static boolean checkGenerators(Network network, ValidationConfig config, Writer writer) {
+    public boolean checkGenerators(Network network, ValidationConfig config, Path file) throws IOException {
+        return checkGenerators(network, config, TABLE_FORMATTER_CONFIG.get(), file);
+    }
+
+    public boolean checkGenerators(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
         Objects.requireNonNull(network);
-        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationConfig);
+        Objects.requireNonNull(formatterConfig);
         Objects.requireNonNull(writer);
-        try (ValidationWriter generatorsWriter = ValidationUtils.createValidationWriter(network.getId(), config, writer, ValidationType.GENERATORS)) {
-            return checkGenerators(network, config, generatorsWriter);
+        try (ValidationWriter generatorsWriter = ValidationUtils.createValidationWriter(network.getId(), validationConfig, formatterConfig, writer, ValidationType.GENERATORS)) {
+            return checkGenerators(network, validationConfig, generatorsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static boolean checkGenerators(Network network, ValidationConfig config, ValidationWriter generatorsWriter) {
+    public boolean checkGenerators(Network network, ValidationConfig config, Writer writer) {
+        return checkGenerators(network, config, TABLE_FORMATTER_CONFIG.get(), writer);
+    }
+
+    public boolean checkGenerators(Network network, ValidationConfig config, ValidationWriter generatorsWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(generatorsWriter);
@@ -68,19 +85,24 @@ public final class GeneratorsValidation {
                       .orElse(true);
     }
 
-    public static boolean checkGenerators(Generator gen, ValidationConfig config, Writer writer) {
+    public boolean checkGenerators(Generator gen, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
         Objects.requireNonNull(gen);
-        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationConfig);
+        Objects.requireNonNull(formatterConfig);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter generatorsWriter = ValidationUtils.createValidationWriter(gen.getId(), config, writer, ValidationType.GENERATORS)) {
-            return checkGenerators(gen, config, generatorsWriter, new BalanceTypeGuesser());
+        try (ValidationWriter generatorsWriter = ValidationUtils.createValidationWriter(gen.getId(), validationConfig, formatterConfig, writer, ValidationType.GENERATORS)) {
+            return checkGenerators(gen, validationConfig, generatorsWriter, new BalanceTypeGuesser());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static boolean checkGenerators(Generator gen, ValidationConfig config, ValidationWriter generatorsWriter, BalanceTypeGuesser guesser) {
+    public boolean checkGenerators(Generator gen, ValidationConfig config, Writer writer) {
+        return checkGenerators(gen, config, TABLE_FORMATTER_CONFIG.get(), writer);
+    }
+
+    public boolean checkGenerators(Generator gen, ValidationConfig config, ValidationWriter generatorsWriter, BalanceTypeGuesser guesser) {
         Objects.requireNonNull(gen);
         Objects.requireNonNull(config);
         Objects.requireNonNull(generatorsWriter);
@@ -104,22 +126,30 @@ public final class GeneratorsValidation {
                                mainComponent, config, generatorsWriter, guesser);
     }
 
-    public static boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
+    public boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
                                           boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean connected,
-                                          boolean mainComponent, ValidationConfig config, Writer writer) {
+                                          boolean mainComponent, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
         Objects.requireNonNull(id);
-        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationConfig);
+        Objects.requireNonNull(formatterConfig);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter generatorsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.GENERATORS)) {
-            return checkGenerators(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected, mainComponent, config,
-                                   generatorsWriter, new BalanceTypeGuesser());
+        try (ValidationWriter generatorsWriter = ValidationUtils.createValidationWriter(id, validationConfig, formatterConfig, writer, ValidationType.GENERATORS)) {
+            return checkGenerators(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected, mainComponent, validationConfig,
+                    generatorsWriter, new BalanceTypeGuesser());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
+    public boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
+                                          boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean connected,
+                                          boolean mainComponent, ValidationConfig config, Writer writer) {
+        return checkGenerators(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected, mainComponent, config,
+                TABLE_FORMATTER_CONFIG.get(), writer);
+    }
+
+    public boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
                                           boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean connected,
                                           boolean mainComponent, ValidationConfig config, ValidationWriter generatorsWriter, BalanceTypeGuesser guesser) {
         Objects.requireNonNull(id);

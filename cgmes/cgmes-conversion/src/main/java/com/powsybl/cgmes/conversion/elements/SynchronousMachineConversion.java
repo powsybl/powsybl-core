@@ -12,6 +12,7 @@ import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -25,8 +26,8 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
 
     @Override
     public void convert() {
-        double minP = p.asDouble("minP", 0);
-        double maxP = p.asDouble("maxP", 0);
+        double minP = p.asDouble("minP", -Double.MAX_VALUE);
+        double maxP = p.asDouble("maxP", Double.MAX_VALUE);
         double ratedS = p.asDouble("ratedS");
         ratedS = ratedS > 0 ? ratedS : Double.NaN;
         String generatingUnitType = p.getLocal("generatingUnitType");
@@ -41,23 +42,21 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
             targetQ = -f.q();
         }
 
-        RegulatingControlConversion.Data control = RegulatingControlConversion.convert(
-                iidmId(),
-                p,
-                voltageLevel(),
-                context);
-        GeneratorAdder adder = voltageLevel().newGenerator()
-                .setMinP(minP)
+        GeneratorAdder adder = voltageLevel().newGenerator();
+        context.regulatingControlMapping().setRegulatingControl(iidmId(), p, adder, voltageLevel());
+        adder.setMinP(minP)
                 .setMaxP(maxP)
-                .setVoltageRegulatorOn(control.on())
                 .setTargetP(targetP)
                 .setTargetQ(targetQ)
-                .setTargetV(control.targetV())
                 .setEnergySource(fromGeneratingUnitType(generatingUnitType))
                 .setRatedS(ratedS);
         identify(adder);
         connect(adder);
         Generator g = adder.add();
+        if (p.containsKey("qPercent") && !Double.isNaN(p.asDouble("qPercent"))) {
+            CoordinatedReactiveControl coordinatedReactiveControl = new CoordinatedReactiveControl(g, p.asDouble("qPercent"));
+            g.addExtension(CoordinatedReactiveControl.class, coordinatedReactiveControl);
+        }
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
     }

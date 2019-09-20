@@ -8,6 +8,7 @@ package com.powsybl.loadflow.validation.io;
 
 import java.io.Writer;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.loadflow.validation.ValidationType;
 
@@ -18,8 +19,8 @@ import com.powsybl.loadflow.validation.ValidationType;
 public class ValidationFormatterCsvMultilineWriterFactory implements ValidationWriterFactory {
 
     @Override
-    public ValidationWriter create(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, Writer writer, boolean verbose, ValidationType validationType, boolean compareResults) {
-        return new ValidationFormatterCsvMultilineWriter(id, formatterFactoryClass, writer, verbose, validationType, compareResults);
+    public ValidationWriter create(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, TableFormatterConfig formatterConfig, Writer writer, boolean verbose, ValidationType validationType, boolean compareResults) {
+        return new ValidationFormatterCsvMultilineWriter(id, formatterFactoryClass, formatterConfig, writer, verbose, validationType, compareResults);
     }
 
 }

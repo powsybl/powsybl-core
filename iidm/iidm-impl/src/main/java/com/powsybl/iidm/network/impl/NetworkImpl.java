@@ -75,6 +75,13 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getSwitchCount()).sum();
         }
 
+        @Override
+        public Bus getBus(String id) {
+            return getVoltageLevelStream().map(vl -> vl.getBusBreakerView().getBus(id))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+        }
     }
 
     private final BusBreakerViewImpl busBreakerView = new BusBreakerViewImpl();
@@ -97,6 +104,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             return Collections.unmodifiableList(variants.get().connectedComponentsManager.getConnectedComponents());
         }
 
+        @Override
+        public Bus getBus(String id) {
+            return getVoltageLevelStream().map(vl -> vl.getBusView().getBus(id))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+        }
+
     }
 
     private final BusViewImpl busView = new BusViewImpl();
@@ -105,7 +120,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         super(id, name);
         Objects.requireNonNull(sourceFormat, "source format is null");
         this.sourceFormat = sourceFormat;
-        variantManager = new VariantManagerImpl(index);
+        variantManager = new VariantManagerImpl(this);
         variants = new VariantArray<>(ref, VariantImpl::new);
         // add the network the object list as it is a multi variant object
         // and it needs to be notified when and extension or a reduction of
@@ -171,7 +186,10 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public Set<Country> getCountries() {
-        return getSubstationStream().map(Substation::getCountry).collect(Collectors.toCollection(() -> EnumSet.noneOf(Country.class)));
+        return getSubstationStream()
+                .map(Substation::getCountry)
+                .filter(Optional::isPresent).map(Optional::get)
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(Country.class)));
     }
 
     @Override
@@ -201,6 +219,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public Iterable<Substation> getSubstations(Country country, String tsoId, String... geographicalTags) {
+        return getSubstations(Optional.ofNullable(country).map(Country::getName).orElse(null), tsoId, geographicalTags);
+    }
+
+    @Override
+    public Iterable<Substation> getSubstations(String country, String tsoId, String... geographicalTags) {
         return Substations.filter(getSubstations(), country, tsoId, geographicalTags);
     }
 
@@ -958,8 +981,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.q1 = t1.getQ();
             l.p2 = t2.getP();
             l.q2 = t2.getQ();
-            l.country1 = vl1.getSubstation().getCountry();
-            l.country2 = vl2.getSubstation().getCountry();
+            l.country1 = vl1.getSubstation().getCountry().orElse(null);
+            l.country2 = vl2.getSubstation().getCountry().orElse(null);
             lines.add(l);
 
             // remove the 2 dangling lines

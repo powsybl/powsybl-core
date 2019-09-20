@@ -12,7 +12,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.conversion.elements.AbstractIdentifiedObjectConversion;
 import com.powsybl.iidm.network.Country;
 
 /**
@@ -85,17 +84,6 @@ public final class CountryConversion {
             // Ignore
         }
         return Optional.empty();
-    }
-
-    public static Country defaultCountry(AbstractIdentifiedObjectConversion c) {
-        if (LOG.isWarnEnabled()) {
-            LOG.warn("Default country converting {}", c.what());
-        }
-        return defaultCountry();
-    }
-
-    public static Country defaultCountry() {
-        return Country.values()[0];
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(CountryConversion.class);

@@ -20,6 +20,7 @@
     <xs:element name="network">
         <xs:complexType>
              <xs:sequence>
+                 <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
                  <xs:element name="substation" type="iidm:Substation" minOccurs="0" maxOccurs="unbounded"/>
                  <xs:choice minOccurs="0" maxOccurs="unbounded">
                      <xs:element name="line" type="iidm:Line"/>
@@ -63,7 +64,7 @@
                     </xs:choice>
                 </xs:sequence>
                 <xs:attribute name="tso" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="country" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="country" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="geographicalTags" use="optional" type="iidm:nonEmptyString"/>
             </xs:extension>
         </xs:complexContent>
@@ -423,6 +424,7 @@
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="required" type="xs:int"/>
+        <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
         <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
         <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
         <xs:attribute name="targetV" use="optional" type="xs:double"/>
@@ -441,6 +443,7 @@
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="required" type="xs:int"/>
+        <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
         <xs:attribute name="regulationMode" use="required" type="iidm:PhaseRegulationMode"/>
         <xs:attribute name="regulationValue" use="optional" type="xs:double"/>
         <xs:attribute name="regulating" use="optional" type="xs:boolean"/>

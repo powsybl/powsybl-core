@@ -32,10 +32,20 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkActiveLimits(Validable validable, double minP, double maxP) {
+    static void checkActivePowerLimits(Validable validable, double minP, double maxP) {
         if (minP > maxP) {
-            throw new ValidationException(validable,
-                    "invalid active limits [" + minP + ", " + maxP + "]");
+            throw new ValidationException(validable, "invalid active limits [" + minP + ", " + maxP + "]");
+        }
+    }
+
+    static void checkActivePowerLimits(Validable validable, double minP, double maxP, double p) {
+        checkActivePowerLimits(validable, minP, maxP);
+
+        if (p > maxP) {
+            throw new ValidationException(validable, "invalid active power p > maxP: " + p + " > " + maxP);
+        }
+        if (p < minP) {
+            throw new ValidationException(validable, "invalid active power p < minP: " + p + " < " + minP);
         }
     }
 
@@ -147,12 +157,6 @@ public final class ValidationUtil {
     static void checkB(Validable validable, double b) {
         if (Double.isNaN(b)) {
             throw new ValidationException(validable, "b is invalid");
-        }
-    }
-
-    static void checkCountry(Validable validable, Country country) {
-        if (country == null) {
-            throw new ValidationException(validable, "country is invalid");
         }
     }
 

@@ -24,6 +24,14 @@ public interface HvdcConverterStation<T extends HvdcConverterStation<T>> extends
     }
 
     /**
+     * Return the HVDC line attached to this station.
+     * @return the HVDC line attached to this station or null.
+     */
+    default HvdcLine getHvdcLine() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Get HVDC type.
      * @return HVDC type
      */

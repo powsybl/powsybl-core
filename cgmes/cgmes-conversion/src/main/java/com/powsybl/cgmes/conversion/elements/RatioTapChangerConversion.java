@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import java.util.Comparator;
 
+import com.powsybl.cgmes.model.CgmesModelException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,8 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         lowStep = rtc.asInt("lowStep");
         highStep = rtc.asInt("highStep");
         neutralStep = rtc.asInt("neutralStep");
-        position = fromContinuous(p.asDouble("SVtapStep", neutralStep));
+        position = getTapPosition(rtc.asInt("normalStep", neutralStep));
+        ltcFlag = rtc.asBoolean("ltcFlag", false);
     }
 
     @Override
@@ -83,12 +85,10 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         } else {
             addStepsFromStepVoltageIncrement(rtca);
         }
-        String tapChangerControl = p.getId("TapChangerControl");
-        if (tapChangerControl != null) {
-            addRegulatingControl(rtca);
-        } else {
-            rtca.setLoadTapChangingCapabilities(false);
-        }
+
+        rtca.setLoadTapChangingCapabilities(ltcFlag);
+        context.regulatingControlMapping().setRegulatingControl(p, terminal(), rtca);
+
         rtca.add();
     }
 
@@ -103,7 +103,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
             } else if (side == 2) {
                 return tx3.getLeg2().newRatioTapChanger();
             } else if (side == 3) {
-                return tx3.getLeg2().newRatioTapChanger();
+                return tx3.getLeg3().newRatioTapChanger();
             }
         }
         return null;
@@ -125,7 +125,13 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         table.sort(byStep);
         boolean rtcAtSide1 = rtcAtSide1();
         for (PropertyBag point : table) {
+
+            // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
+            // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
+            // V2 = V1 * rho and V2 = V1 / ratio
+            // This is why we have: rho=1/ratio
             double rho = 1 / point.asDouble("ratio", 1.0);
+
             // When given in RatioTapChangerTablePoint
             // r, x, g, b of the step are already percentage deviations of nominal values
             int step = point.asInt("step");
@@ -217,43 +223,6 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         return false;
     }
 
-    private void addRegulatingControl(RatioTapChangerAdder rtca) {
-        String mode = p.getLocal("regulatingControlMode").toLowerCase();
-        if (mode.endsWith("voltage")) {
-            addRegulatingControlVoltage(rtca);
-        } else if (mode.endsWith("fixed")) {
-            rtca.setLoadTapChangingCapabilities(false);
-        } else {
-            rtca.setLoadTapChangingCapabilities(false);
-            ignored(mode, "Unsupported regulation mode");
-        }
-    }
-
-    private void addRegulatingControlVoltage(RatioTapChangerAdder rtca) {
-        double regulatingControlValue = p.asDouble("regulatingControlTargetValue");
-        boolean regulating = p.asBoolean("regulatingControlEnabled", false);
-        // Even if regulating is false, we reset the target voltage if it is not valid
-        double targetV = regulatingControlValue;
-        if (targetV <= 0) {
-            String reg = p.getId("TapChangerControl");
-            ignored(reg, String.format("Regulating control has a bad target voltage %f", targetV));
-            regulating = false;
-            targetV = Float.NaN;
-        }
-        Terminal regulationTerminal = null;
-        // TODO Find the Network terminal mapped to the rtc terminal,
-        // If original terminal has not been mapped,
-        // find the IIDM terminal of the CGMES topological node
-        // associated with the rtc terminal
-        // (Check code in CIM1 Importer)
-        regulationTerminal = terminal();
-
-        rtca.setLoadTapChangingCapabilities(true)
-            .setRegulating(regulating)
-            .setTargetV(targetV)
-            .setRegulationTerminal(regulationTerminal);
-    }
-
     private Terminal terminal() {
         int side = context.tapChangerTransformers().whichSide(id);
         if (tx2 != null) {
@@ -278,12 +247,24 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         return p.containsKey(CgmesNames.RATIO_TAP_CHANGER_TABLE);
     }
 
+    private int getTapPosition(int defaultStep) {
+        switch (context.config().getProfileUsedForInitialStateValues()) {
+            case SSH:
+                return fromContinuous(p.asDouble("step", p.asDouble("SVtapStep", defaultStep)));
+            case SV:
+                return fromContinuous(p.asDouble("SVtapStep", p.asDouble("step", defaultStep)));
+            default:
+                throw new CgmesModelException("Unexpected profile used for initial flows values: " + context.config().getProfileUsedForInitialStateValues());
+        }
+    }
+
     private final TwoWindingsTransformer tx2;
     private final ThreeWindingsTransformer tx3;
     private final int lowStep;
     private final int highStep;
     private final int neutralStep;
     private final int position;
+    private final boolean ltcFlag;
 
     private static final Logger LOG = LoggerFactory.getLogger(RatioTapChangerConversion.class);
 }

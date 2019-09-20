@@ -26,6 +26,19 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
     }
 
     @Override
+    public boolean valid() {
+        if (!super.valid()) {
+            return false;
+        }
+        if (context.boundary().containsNode(nodeId(1))
+                || context.boundary().containsNode(nodeId(2))) {
+            invalid("2 windings transformer end point at boundary is not supported");
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public void convert() {
 
         double r1 = end1.asDouble("r");
@@ -70,10 +83,10 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
         String ptc2 = end2.getId(ptcPropertyName);
 
         if (context.config().allowUnsupportedTapChangers()) {
-            context.tapChangerTransformers().add(rtc1, tx, 1);
-            context.tapChangerTransformers().add(rtc2, tx, 2);
-            context.tapChangerTransformers().add(ptc1, tx, 1);
-            context.tapChangerTransformers().add(ptc2, tx, 2);
+            context.tapChangerTransformers().add(rtc1, tx, "rtc", 1);
+            context.tapChangerTransformers().add(rtc2, tx, "rtc", 2);
+            context.tapChangerTransformers().add(ptc1, tx, "ptc", 1);
+            context.tapChangerTransformers().add(ptc2, tx, "ptc", 2);
             return;
         }
 
@@ -94,7 +107,7 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
             rtcSide = 2;
         }
         if (rtc != null) {
-            context.tapChangerTransformers().add(rtc, tx, rtcSide);
+            context.tapChangerTransformers().add(rtc, tx, "rtc", rtcSide);
         }
         String ptc = null;
         int ptcSide = 0;
@@ -112,7 +125,7 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
             ptcSide = 2;
         }
         if (ptc != null) {
-            context.tapChangerTransformers().add(ptc, tx, ptcSide);
+            context.tapChangerTransformers().add(ptc, tx, "ptc", ptcSide);
         }
         if (rtcSide > 0 && ptcSide > 0 && rtcSide != ptcSide) {
             String reason = String.format(

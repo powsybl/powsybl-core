@@ -17,7 +17,6 @@ import org.junit.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -58,8 +57,28 @@ public class VariantManagerImplTest {
         }
 
         @Override
-        public Properties getProperties() {
+        public boolean hasProperty(String key) {
+            return false;
+        }
+
+        @Override
+        public String getProperty(String key) {
             return null;
+        }
+
+        @Override
+        public String getProperty(String key, String defaultValue) {
+            return null;
+        }
+
+        @Override
+        public String setProperty(String key, String value) {
+            return null;
+        }
+
+        @Override
+        public Set<String> getPropertyNames() {
+            return Collections.emptySet();
         }
 
         @Override
@@ -147,10 +166,11 @@ public class VariantManagerImplTest {
 
     @Test
     public void test() {
-        NetworkIndex index = new NetworkIndex();
+        NetworkImpl network = (NetworkImpl) Network.create("test", "no-format");
+        NetworkIndex index = network.getIndex();
         IdentifiableMock identifiable1 = new IdentifiableMock("1");
         index.checkAndAdd(identifiable1);
-        VariantManagerImpl variantManager = new VariantManagerImpl(index);
+        VariantManagerImpl variantManager = network.getVariantManager();
         // initial variant test
         assertEquals(1, variantManager.getVariantArraySize());
         assertEquals(Collections.singleton(VariantManagerConstants.INITIAL_VARIANT_ID), variantManager.getVariantIds());
@@ -184,6 +204,14 @@ public class VariantManagerImplTest {
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager.getWorkingVariantId());
         variantManager.setWorkingVariant("ClonedVariant1");
         assertEquals("ClonedVariant1", variantManager.getWorkingVariantId());
+        // clone test with overwriting
+        variantManager.cloneVariant("ClonedVariant2", VariantManagerConstants.INITIAL_VARIANT_ID, true);
+        assertEquals(3, variantManager.getVariantArraySize());
+        assertEquals(Sets.newHashSet(VariantManagerConstants.INITIAL_VARIANT_ID, "ClonedVariant1", "ClonedVariant2"), variantManager.getVariantIds());
+        assertEquals(Sets.newHashSet(0, 1, 2), variantManager.getVariantIndexes());
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager.getWorkingVariantId());
+        variantManager.setWorkingVariant("ClonedVariant1");
         // "middle" variant removing test
         variantManager.removeVariant("ClonedVariant1");
         try {
@@ -212,13 +240,14 @@ public class VariantManagerImplTest {
 
     @Test
     public void testMultipleNetworks() {
-        NetworkIndex index = new NetworkIndex();
+        Network network1 = Network.create("network1", "no-format");
+        Network network2 = Network.create("network2", "no-format");
 
-        VariantManager variantManager1 = new VariantManagerImpl(index);
+        VariantManager variantManager1 = network1.getVariantManager();
         variantManager1.allowVariantMultiThreadAccess(true);
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager1.getWorkingVariantId());
 
-        VariantManager variantManager2 = new VariantManagerImpl(index);
+        VariantManager variantManager2 = network2.getVariantManager();
         variantManager2.allowVariantMultiThreadAccess(true);
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager1.getWorkingVariantId());
 
@@ -266,5 +295,27 @@ public class VariantManagerImplTest {
 
         manager.removeVariant(variante2);
         assertEquals(100.0, loadExtension.getValue(), 0.0);
+    }
+
+    @Test
+    public void overwriteVariant() {
+        String variante1 = "v1";
+
+        Network network = EurostagTutorialExample1Factory.create();
+        VariantManager manager = network.getVariantManager();
+
+        Generator generator = network.getGenerator("GEN");
+        assertEquals(607.0, generator.getTargetP(), 0.0);
+
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variante1);
+        manager.setWorkingVariant(variante1);
+        assertEquals(607.0, generator.getTargetP(), 0.0);
+        generator.setTargetP(605);
+        assertEquals(605.0, generator.getTargetP(), 0.0);
+        manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(607.0, generator.getTargetP(), 0.0);
+        manager.cloneVariant(variante1, VariantManagerConstants.INITIAL_VARIANT_ID, true);
+        manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(605.0, generator.getTargetP(), 0.0);
     }
 }

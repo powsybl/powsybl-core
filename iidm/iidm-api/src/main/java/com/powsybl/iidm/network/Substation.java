@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -25,9 +26,15 @@ public interface Substation extends Container<Substation> {
     Network getNetwork();
 
     /**
-     * Get the country to which the substation belongs.
+     * Get an optional containing the country to which the substation belongs if it is defined, Optional.empty() if not.
      */
-    Country getCountry();
+    Optional<Country> getCountry();
+
+    /**
+     * Get country to which the substation belongs if it is defined, null otherwise.
+     * @return the country to which the substation belongs if it is defined, null otherwise.
+     */
+    Country getNullableCountry();
 
     Substation setCountry(Country country);
 

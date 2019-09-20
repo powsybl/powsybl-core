@@ -14,7 +14,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.export.ExportersLoader;
 import com.powsybl.iidm.export.ExportersLoaderList;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.XMLExporter;
 import org.junit.After;
 import org.junit.Before;
@@ -50,7 +49,7 @@ public class CaseExporterTest {
         tmpDir = Files.createDirectory(fileSystem.getPath("/tmp"));
 
         contingency = new Contingency("contingency");
-        network = NetworkFactory.create("id", "test");
+        network = Network.create("id", "test");
     }
 
     @After

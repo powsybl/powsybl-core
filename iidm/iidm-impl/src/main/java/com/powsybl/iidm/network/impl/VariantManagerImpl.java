@@ -38,9 +38,12 @@ public class VariantManagerImpl implements VariantManager {
 
     private final Deque<Integer> unusedIndexes = new ArrayDeque<>();
 
-    VariantManagerImpl(NetworkIndex networkIndex) {
+    private final NetworkImpl network;
+
+    VariantManagerImpl(NetworkImpl network) {
+        this.network = network;
         this.variantContext = new MultiVariantContext(INITIAL_VARIANT_INDEX);
-        this.networkIndex = networkIndex;
+        this.networkIndex = network.getIndex();
         // the network has always a zero index initial variant
         id2index.put(VariantManagerConstants.INITIAL_VARIANT_ID, INITIAL_VARIANT_INDEX);
         variantArraySize = INITIAL_VARIANT_INDEX + 1;
@@ -81,10 +84,14 @@ public class VariantManagerImpl implements VariantManager {
         return index;
     }
 
+    public String getVariantId(int variantIndex) {
+        return id2index.inverse().get(variantIndex);
+    }
+
     @Override
     public String getWorkingVariantId() {
         int index = variantContext.getVariantIndex();
-        return id2index.inverse().get(index);
+        return getVariantId(index);
     }
 
     @Override
@@ -99,11 +106,21 @@ public class VariantManagerImpl implements VariantManager {
 
     @Override
     public void cloneVariant(String sourceVariantId, String targetVariantId) {
-        cloneVariant(sourceVariantId, Collections.singletonList(targetVariantId));
+        cloneVariant(sourceVariantId, Collections.singletonList(targetVariantId), false);
+    }
+
+    @Override
+    public void cloneVariant(String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
+        cloneVariant(sourceVariantId, Collections.singletonList(targetVariantId), mayOverwrite);
     }
 
     @Override
     public void cloneVariant(String sourceVariantId, List<String> targetVariantIds) {
+        cloneVariant(sourceVariantId, targetVariantIds, false);
+    }
+
+    @Override
+    public void cloneVariant(String sourceVariantId, List<String> targetVariantIds, boolean mayOverwrite) {
         if (targetVariantIds.isEmpty()) {
             throw new IllegalArgumentException("Empty target variant id list");
         }
@@ -112,22 +129,44 @@ public class VariantManagerImpl implements VariantManager {
         int initVariantArraySize = variantArraySize;
         int extendedCount = 0;
         List<Integer> recycled = new ArrayList<>();
+        List<Integer> overwritten = new ArrayList<>();
         for (String targetVariantId : targetVariantIds) {
             if (id2index.containsKey(targetVariantId)) {
-                throw new PowsyblException("Target variant '" + targetVariantId + "' already exists");
-            }
-            if (unusedIndexes.isEmpty()) {
+                if (mayOverwrite) {
+                    overwritten.add(id2index.get(targetVariantId));
+
+                    network.getListeners().notifyVariantOverwritten(sourceVariantId, targetVariantId);
+                } else {
+                    throw new PowsyblException("Target variant '" + targetVariantId + "' already exists");
+                }
+            } else if (unusedIndexes.isEmpty()) {
                 // extend variant array size
                 id2index.put(targetVariantId, variantArraySize);
                 variantArraySize++;
                 extendedCount++;
+
+                network.getListeners().notifyVariantCreated(sourceVariantId, targetVariantId);
             } else {
                 // recycle an index
                 int index = unusedIndexes.pollLast();
                 id2index.put(targetVariantId, index);
                 recycled.add(index);
+
+                network.getListeners().notifyVariantCreated(sourceVariantId, targetVariantId);
             }
         }
+
+        allocateVariantArrayElements(sourceIndex, recycled, overwritten);
+
+        if (extendedCount > 0) {
+            for (MultiVariantObject obj : getStafulObjects()) {
+                obj.extendVariantArraySize(initVariantArraySize, extendedCount, sourceIndex);
+            }
+            LOGGER.trace("Extending variant array size to {} (+{})", variantArraySize, extendedCount);
+        }
+    }
+
+    private void allocateVariantArrayElements(Integer sourceIndex, List<Integer> recycled, List<Integer> overwritten) {
         if (!recycled.isEmpty()) {
             int[] indexes = Ints.toArray(recycled);
             for (MultiVariantObject obj : getStafulObjects()) {
@@ -137,11 +176,14 @@ public class VariantManagerImpl implements VariantManager {
                 LOGGER.trace("Recycling variant array indexes {}", Arrays.toString(indexes));
             }
         }
-        if (extendedCount > 0) {
+        if (!overwritten.isEmpty()) {
+            int[] indexes = Ints.toArray(overwritten);
             for (MultiVariantObject obj : getStafulObjects()) {
-                obj.extendVariantArraySize(initVariantArraySize, extendedCount, sourceIndex);
+                obj.allocateVariantArrayElement(indexes, sourceIndex);
             }
-            LOGGER.trace("Extending variant array size to {} (+{})", variantArraySize, extendedCount);
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Overwriting variant array indexes {}", Arrays.toString(indexes));
+            }
         }
     }
 
@@ -156,14 +198,16 @@ public class VariantManagerImpl implements VariantManager {
         if (index == variantArraySize - 1) {
             // remove consecutive unsused index starting from the end
             int number = 0; // number of elements to remove
+            Set<Integer> removed = new HashSet<>();
             for (int j = index; j >= 0; j--) {
                 if (id2index.containsValue(j)) {
                     break;
                 } else {
                     number++;
-                    unusedIndexes.remove(j);
+                    removed.add(j);
                 }
             }
+            unusedIndexes.removeAll(removed);
             // reduce variant array size
             for (MultiVariantObject obj : getStafulObjects()) {
                 obj.reduceVariantArraySize(number);
@@ -181,6 +225,8 @@ public class VariantManagerImpl implements VariantManager {
         }
         // if the removed variant is the working variant, unset the working variant
         variantContext.resetIfVariantIndexIs(index);
+
+        network.getListeners().notifyVariantRemoved(variantId);
     }
 
     @Override
@@ -210,5 +256,4 @@ public class VariantManagerImpl implements VariantManager {
             variantContext.setVariantIndex(currentVariantIndex);
         }
     }
-
 }

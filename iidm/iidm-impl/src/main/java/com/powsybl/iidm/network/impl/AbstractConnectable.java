@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.Connectable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  *
@@ -22,6 +24,13 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     AbstractConnectable(String id, String name) {
         super(id, name);
+    }
+
+    public I setName(String name) {
+        String oldValue = this.name;
+        this.name = name;
+        notifyUpdate("name", oldValue, name);
+        return (I) this;
     }
 
     void addTerminal(TerminalExt terminal) {
@@ -37,7 +46,14 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         if (terminals.isEmpty()) {
             throw new PowsyblException(id + " is not attached to a network");
         }
-        return terminals.get(0).getVoltageLevel().getNetwork();
+
+        // During the removal of a multi terminals component (Line, 2WT or 3WT), terminals are detached from the voltage level
+        return terminals.stream()
+                        .map(TerminalExt::getVoltageLevel)
+                        .filter(Objects::nonNull)
+                        .map(VoltageLevelExt::getNetwork)
+                        .findFirst()
+                        .orElse(null);
     }
 
     @Override
@@ -52,8 +68,20 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         network.getListeners().notifyRemoval(this);
     }
 
+    protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
+        getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
+    }
+
     protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
+    }
+
+    protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
+        getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
+    }
+
+    protected void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
+        getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
     }
 
     @Override

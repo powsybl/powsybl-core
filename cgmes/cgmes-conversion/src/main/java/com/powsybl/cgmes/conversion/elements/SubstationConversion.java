@@ -36,7 +36,7 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
 
         Country country = CountryConversion.fromRegionName(regionName)
                 .orElseGet(() -> CountryConversion.fromSubregionName(subRegionName)
-                        .orElseGet(() -> CountryConversion.defaultCountry(this)));
+                        .orElse(null));
         String geo = subRegion;
 
         // TODO add naminStrategy (for regions and substations)

@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +46,7 @@ public class SecurityAnalysisResultComparisonWriterTest {
         similarLineViolation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "PermanentLimit", Integer.MAX_VALUE, 1000.0, 1, 1100.09, Branch.Side.ONE);
         actions = Arrays.asList("action1", "action2");
         writer = new StringWriter();
-        comparisonWriter = new SecurityAnalysisResultComparisonWriter(writer);
+        comparisonWriter = new SecurityAnalysisResultComparisonWriter(writer, new TableFormatterConfig());
     }
 
     @After

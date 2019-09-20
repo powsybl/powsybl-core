@@ -134,7 +134,7 @@ public abstract class AbstractNodeBase<F> {
         return node.isFolder() && !isAncestorOf(node);
     }
 
-    boolean isAncestorOf(AbstractNodeBase<F> node) {
+    public boolean isAncestorOf(AbstractNodeBase<F> node) {
         Optional<NodeInfo> current = storage.getParentNode(node.getId());
         while (current.isPresent()) {
             if (current.get().getId().equals(info.getId())) {

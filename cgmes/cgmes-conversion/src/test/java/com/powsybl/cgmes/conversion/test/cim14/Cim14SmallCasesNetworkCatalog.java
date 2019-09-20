@@ -7,25 +7,15 @@
 
 package com.powsybl.cgmes.conversion.test.cim14;
 
-import org.mockito.Mockito;
-
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.XMLImporter;
+import org.mockito.Mockito;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -33,22 +23,19 @@ import com.powsybl.iidm.xml.XMLImporter;
 public class Cim14SmallCasesNetworkCatalog {
 
     public Network smallcase1() {
-        Country defaultCountry = Country.AF;
         String sGenGeoTag = "_SGR_1_";
         String sInfGeoTag = "_SGR_1_";
         String genName = "GEN     ";
         String genInfName = "INF     ";
-        Network network = NetworkFactory.create("unknown", "no-format");
+        Network network = Network.create("unknown", "no-format");
         Substation sGen = network.newSubstation()
             .setId("_GEN______SS")
             .setName("GEN     _SS")
-            .setCountry(defaultCountry)
             .setGeographicalTags(sGenGeoTag)
             .add();
         Substation sInf = network.newSubstation()
             .setId("_INF______SS")
             .setName("INF     _SS")
-            .setCountry(defaultCountry)
             .setGeographicalTags(sInfGeoTag)
             .add();
         VoltageLevel vlInf = sInf.newVoltageLevel()

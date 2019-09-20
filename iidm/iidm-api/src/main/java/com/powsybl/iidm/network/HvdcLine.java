@@ -15,6 +15,11 @@ package com.powsybl.iidm.network;
  */
 public interface HvdcLine extends Identifiable<HvdcLine> {
 
+    enum Side {
+        ONE,
+        TWO
+    }
+
     /**
      * Converters mode used to known the sign of the active power of the HVDC line.
      */
@@ -93,6 +98,14 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      * @return the HVDC line itself to allow method chaining
      */
     HvdcLine setMaxP(double maxP);
+
+    /**
+     * Get the HVDC converter station connected to a side
+     * @return the HVDC converter station connected to the side
+     */
+    default HvdcConverterStation<?> getConverterStation(Side side) {
+        return (side == Side.ONE) ? getConverterStation1() : getConverterStation2();
+    }
 
     /**
      * Get the HVDC converter station connected on side 1.

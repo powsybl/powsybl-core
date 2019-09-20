@@ -45,16 +45,20 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     }
 
     @Override
-    public Country getCountry() {
+    public Optional<Country> getCountry() {
+        return Optional.ofNullable(country);
+    }
+
+    @Override
+    public Country getNullableCountry() {
         return country;
     }
 
     @Override
     public SubstationImpl setCountry(Country country) {
-        ValidationUtil.checkCountry(this, country);
-        Country oldValue = this.country;
+        String oldValue = Optional.ofNullable(this.country).map(Enum::toString).orElse("");
         this.country = country;
-        getNetwork().getListeners().notifyUpdate(this, "country", oldValue.toString(), country.toString());
+        getNetwork().getListeners().notifyUpdate(this, "country", oldValue, Optional.ofNullable(country).map(Enum::toString).orElse(""));
         return this;
     }
 
@@ -151,7 +155,10 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
         if (tag == null) {
             throw new ValidationException(this, "geographical tag is null");
         }
-        geographicalTags.add(tag);
+        Set<String> oldValue = new LinkedHashSet<>(this.geographicalTags);
+        if (geographicalTags.add(tag)) {
+            getNetwork().getListeners().notifyUpdate(this, "geographicalTags", oldValue, geographicalTags);
+        }
         return this;
     }
 

@@ -11,16 +11,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Terminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Conversion.Config;
 import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.PowerFlow;
+import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
@@ -46,10 +46,10 @@ public class Context {
         tapChangerTransformers = new TapChangerTransformers();
         dcMapping = new DcMapping(this);
         currentLimitsMapping = new CurrentLimitsMapping(this);
+        regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping();
 
         ratioTapChangerTables = new HashMap<>();
-        remoteRegulatingTerminals = new HashMap<>();
         reactiveCapabilityCurveData = new HashMap<>();
     }
 
@@ -77,6 +77,20 @@ public class Context {
         return terminalMapping;
     }
 
+    public void convertedTerminal(String terminalId, Terminal t, int n, PowerFlow f) {
+        // Record the mapping between CGMES and IIDM terminals
+        terminalMapping().add(terminalId, t, n);
+        // Update the power flow at terminal. Check that IIDM allows setting it
+        if (f.defined() && setPQAllowed(t)) {
+            t.setP(f.p());
+            t.setQ(f.q());
+        }
+    }
+
+    private boolean setPQAllowed(Terminal t) {
+        return t.getConnectable().getType() != ConnectableType.BUSBAR_SECTION;
+    }
+
     public NodeMapping nodeMapping() {
         return nodeMapping;
     }
@@ -99,6 +113,10 @@ public class Context {
 
     public CurrentLimitsMapping currentLimitsMapping() {
         return currentLimitsMapping;
+    }
+
+    public RegulatingControlMapping regulatingControlMapping() {
+        return regulatingControlMapping;
     }
 
     public static String boundaryVoltageLevelId(String nodeId) {
@@ -141,31 +159,6 @@ public class Context {
         return ratioTapChangerTables.get(tableId);
     }
 
-    public void putRemoteRegulatingTerminal(String idEq, String topologicalNode) {
-        remoteRegulatingTerminals.put(idEq, topologicalNode);
-    }
-
-    public void setAllRemoteRegulatingTerminals() {
-        remoteRegulatingTerminals.entrySet().removeIf(this::setRegulatingTerminal);
-        remoteRegulatingTerminals.forEach((key, value) -> pending("Regulating terminal", String.format("The setting of the regulating terminal of the equipment %s is not handled.", key)));
-    }
-
-    private boolean setRegulatingTerminal(Map.Entry<String, String> entry) {
-        Identifiable i = network.getIdentifiable(entry.getKey());
-        if (i instanceof Generator) {
-            Generator g = (Generator) i;
-            Terminal regTerminal = terminalMapping.findFromTopologicalNode(entry.getValue());
-            if (regTerminal == null) {
-                missing(String.format("IIDM terminal for this CGMES topological node: %s", entry.getValue()));
-            } else {
-                g.setRegulatingTerminal(regTerminal);
-                return true;
-            }
-        }
-        // TODO add cases for ratioTapChangers and phaseTapChangers
-        return false;
-    }
-
     public void startLinesConversion() {
         countLines = 0;
         countLinesWithSvPowerFlowsAtEnds = 0;
@@ -174,7 +167,7 @@ public class Context {
     public void anotherLineConversion(ACLineSegmentConversion c) {
         Objects.requireNonNull(c);
         countLines++;
-        if (c.terminalPowerFlow(1).defined() && c.terminalPowerFlow(2).defined()) {
+        if (c.stateVariablesPowerFlow(1).defined() && c.stateVariablesPowerFlow(2).defined()) {
             countLinesWithSvPowerFlowsAtEnds++;
         }
     }
@@ -227,9 +220,9 @@ public class Context {
     private final TapChangerTransformers tapChangerTransformers;
     private final DcMapping dcMapping;
     private final CurrentLimitsMapping currentLimitsMapping;
+    private final RegulatingControlMapping regulatingControlMapping;
 
     private final Map<String, PropertyBags> ratioTapChangerTables;
-    private final Map<String, String> remoteRegulatingTerminals;
     private final Map<String, PropertyBags> reactiveCapabilityCurveData;
 
     private int countLines;

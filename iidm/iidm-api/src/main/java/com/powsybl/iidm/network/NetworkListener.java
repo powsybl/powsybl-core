@@ -17,4 +17,20 @@ public interface NetworkListener {
 
     void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue);
 
+    default void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue,
+            Object newValue) {
+        // empty default implementation
+    }
+
+    default void onVariantCreated(String sourceVariantId, String targetVariantId) {
+        // empty default implementation
+    }
+
+    default void onVariantOverwritten(String sourceVariantId, String targetVariantId) {
+        // empty default implementation
+    }
+
+    default void onVariantRemoved(String variantId) {
+        // empty default implementation
+    }
 }

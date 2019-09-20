@@ -60,8 +60,16 @@ class UcteRecordParser {
     }
 
     String parseString(int beginIndex, int endIndex, boolean trim) {
-        String untrimmed = line == null || endIndex > line.length() ? null : line.substring(beginIndex, endIndex);
-        return untrimmed == null || !trim ? untrimmed : untrimmed.trim();
+        if (line == null) {
+            return null;
+        }
+        // Sometimes, the line is already trimmed but contains data
+        int lastIndex = Math.min(endIndex, line.length());
+        if (lastIndex < beginIndex) {
+            return null;
+        }
+        String untrimmed = line.substring(beginIndex, lastIndex);
+        return trim ? untrimmed.trim() : untrimmed;
     }
 
     Character parseChar(int index) {

@@ -39,9 +39,9 @@ public class UcteImporterTest {
 
         Network network = new UcteImporter().importData(dataSource, null);
 
-        assertEquals(Country.ES, network.getSubstation("EHORTA").getCountry());
+        assertEquals(Country.ES, network.getSubstation("EHORTA").getCountry().orElse(null));
         assertEquals(1, network.getSubstation("EHORTA").getVoltageLevelStream().count());
-        assertEquals(Country.BE, network.getSubstation("BHORTA").getCountry());
+        assertEquals(Country.BE, network.getSubstation("BHORTA").getCountry().orElse(null));
         assertEquals(1, network.getSubstation("BHORTA").getVoltageLevelStream().count());
 
     }
@@ -77,14 +77,14 @@ public class UcteImporterTest {
 
         Network network = new UcteImporter().importData(dataSource, null);
         // Test Element name Line
-        assertEquals("Test Line", network.getLine("F_SU1_12 F_SU2_11 1").getProperties().getProperty("elementName"));
+        assertEquals("Test Line", network.getLine("F_SU1_12 F_SU2_11 1").getProperty("elementName"));
         // Test Dangling Line element name
-        assertEquals("Test DL", network.getDanglingLine("XG__F_21 F_SU1_21 1").getProperties().getProperty("elementName"));
+        assertEquals("Test DL", network.getDanglingLine("XG__F_21 F_SU1_21 1").getProperty("elementName"));
         // Test Switch element name
-        assertEquals("Test Coupler", network.getSwitch("F_SU1_12 F_SU1_11 1").getProperties().getProperty("elementName"));
+        assertEquals("Test Coupler", network.getSwitch("F_SU1_12 F_SU1_11 1").getProperty("elementName"));
         // Test 2WT element name
-        assertEquals("Test 2WT 1", network.getBranch("F_SU1_11 F_SU1_21 1").getProperties().getProperty("elementName"));
-        assertEquals("Test 2WT 2", network.getBranch("B_SU1_11 B_SU1_21 1").getProperties().getProperty("elementName"));
+        assertEquals("Test 2WT 1", network.getBranch("F_SU1_11 F_SU1_21 1").getProperty("elementName"));
+        assertEquals("Test 2WT 2", network.getBranch("B_SU1_11 B_SU1_21 1").getProperty("elementName"));
         // Test tie line
         // cannot refer to side of tieline directly cause order of half lines may change
         // at import : due to HashSet iterator on dangling lines ?
@@ -95,8 +95,8 @@ public class UcteImporterTest {
                 }).findAny().get();
         String expectedElementName1 = tieLine1.getHalf1().getId().equals("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
         String expectedElementName2 = tieLine1.getHalf2().getId().equals("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
-        assertEquals(expectedElementName1, tieLine1.getProperties().getProperty("elementName_1"));
-        assertEquals(expectedElementName2, tieLine1.getProperties().getProperty("elementName_2"));
+        assertEquals(expectedElementName1, tieLine1.getProperty("elementName_1"));
+        assertEquals(expectedElementName2, tieLine1.getProperty("elementName_2"));
 
         TieLine tieLine2 = (TieLine) network.getLineStream().filter(Line::isTieLine)
                 .filter(line -> {
@@ -105,8 +105,8 @@ public class UcteImporterTest {
                 }).findAny().get();
         expectedElementName1 = tieLine2.getHalf1().getId().equals("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
         expectedElementName2 = tieLine2.getHalf2().getId().equals("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
-        assertEquals(expectedElementName1, tieLine2.getProperties().getProperty("elementName_1"));
-        assertEquals(expectedElementName2, tieLine2.getProperties().getProperty("elementName_2"));
+        assertEquals(expectedElementName1, tieLine2.getProperty("elementName_1"));
+        assertEquals(expectedElementName2, tieLine2.getProperty("elementName_2"));
     }
 
     @Test
