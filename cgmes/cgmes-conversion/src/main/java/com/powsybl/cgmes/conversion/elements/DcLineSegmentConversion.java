@@ -34,35 +34,86 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         cconverter2 = context.dc().cgmesConverterFor(iconverter2);
     }
 
-    private void updateConverterStations(double pAC) {
+    private static double getPAc(PropertyBag p) {
+        return Double.isNaN(p.asDouble(TARGET_PPCC)) ? 0 : p.asDouble(TARGET_PPCC); // targetPpcc is the real power injection target in the AC grid in CGMES
+    }
 
-        // poleLossP is the active power loss at a DC Pole
-        // for lossless operation: P(DC) = P(AC) => lossFactor = 0
-        // for rectifier operation with losses: P(DC) = P(AC) - poleLossP => P(DC) / P(AC) = 1 - poleLossP1 / P(AC) = 1 - lossFactor
-        // for inverter operation with losses: P(DC) = P(AC) + poleLossP => P(AC) / P(DC) = 1 - poleLossP / P(DC) = 1 - poleLossP / (P(AC) + poleLossP) = 1 - lossFactor
-        double poleLossP1 = cconverter1.asDouble("poleLossP");
-        double poleLossP2 = cconverter2.asDouble("poleLossP");
-
-        float lossFactor = 0;
-        if (decodeMode().equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) && pAC != 0) {
-            lossFactor = (float) (poleLossP1 / pAC) * 100;
-        } else if (decodeMode().equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) && pAC + poleLossP1 != 0) {
-            lossFactor = (float) (poleLossP1 / (pAC + poleLossP1)) * 100;
+    private void updateLossFactor1(double pAC1, double poleLossP1, HvdcLine.ConvertersMode mode) {
+        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
+            iconverter1.setLossFactor((float) (poleLossP1 / pAC1) * 100);
+        } else if (pAC1 + poleLossP1 != 0) {
+            iconverter1.setLossFactor((float) (poleLossP1 / (pAC1 + poleLossP1)) * 100);
         }
-        iconverter1.setLossFactor(lossFactor);
+    }
 
-        lossFactor = 0;
-        if (decodeMode().equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) && pAC != 0) {
-            lossFactor = (float) (poleLossP2 / Math.abs(pAC)) * 100;
-        } else if (decodeMode().equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) && Math.abs(pAC) + poleLossP2 != 0) {
-            lossFactor = (float) (poleLossP2 / (Math.abs(pAC) + poleLossP2)) * 100;
+    private void updateLossFactor2(double pAC2, double poleLossP2, HvdcLine.ConvertersMode mode) {
+        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) {
+            iconverter2.setLossFactor((float) (poleLossP2 / Math.abs(pAC2)) * 100);
+        } else if (Math.abs(pAC2) + poleLossP2 != 0) {
+            iconverter2.setLossFactor((float) (poleLossP2 / Math.abs(pAC2) + poleLossP2) * 100);
         }
-        iconverter2.setLossFactor(lossFactor);
+    }
 
+    private void updatePowerFactor(double pAC1, double pAC2) {
         if (iconverter1.getHvdcType() == HvdcConverterStation.HvdcType.LCC) {
-            ((LccConverterStation) iconverter1).setPowerFactor(pAC == 0 || Double.isNaN(iconverter1.getTerminal().getQ()) ? 0.8f : (float) Math.abs(iconverter1.getTerminal().getQ() / pAC));
-            ((LccConverterStation) iconverter2).setPowerFactor(pAC == 0 || Double.isNaN(iconverter2.getTerminal().getQ()) ? 0.8f : (float) Math.abs(iconverter2.getTerminal().getQ() / pAC));
+            ((LccConverterStation) iconverter1).setPowerFactor(pAC1 == 0 || Double.isNaN(iconverter1.getTerminal().getQ()) ? 0.8f : (float) Math.abs(iconverter1.getTerminal().getQ() / pAC1));
+            ((LccConverterStation) iconverter2).setPowerFactor(pAC2 == 0 || Double.isNaN(iconverter2.getTerminal().getQ()) ? 0.8f : (float) Math.abs(iconverter2.getTerminal().getQ() / pAC2));
         }
+    }
+
+    private void updateConverterStations(double pAC1, double pAC2, double poleLossP1, double poleLossP2, HvdcLine.ConvertersMode mode) {
+
+        // update loss factors
+        if (pAC1 != 0 && pAC2 != 0) {
+            updateLossFactor1(pAC1, poleLossP1, mode);
+            updateLossFactor2(pAC2, poleLossP2, mode);
+        } else if (pAC1 != 0) {
+            updateLossFactor1(pAC1, poleLossP1, mode);
+            if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) && pAC1 - poleLossP1 + poleLossP2 != 0) {
+                iconverter2.setLossFactor((float) (poleLossP2 / (pAC1 - poleLossP1 + poleLossP2)) * 100);
+            } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) && pAC1 - poleLossP1 != 0) {
+                iconverter2.setLossFactor((float) (poleLossP2 / (pAC1 - poleLossP1)) * 100);
+            }
+        } else if (pAC2 != 0) {
+            updateLossFactor2(pAC2, poleLossP2, mode);
+            if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) && Math.abs(pAC2) - poleLossP2 != 0) {
+                iconverter1.setLossFactor((float) (poleLossP1 / (Math.abs(pAC2) - poleLossP2)) * 100);
+            } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) && Math.abs(pAC2) - poleLossP2 + poleLossP1 != 0) {
+                iconverter1.setLossFactor((float) (poleLossP1 / (Math.abs(pAC2) - poleLossP2 + poleLossP1)) * 100);
+            }
+        }
+
+        // update power factors
+        updatePowerFactor(pAC1, pAC2);
+    }
+
+    private static double getPDc(double pAC1, double pAC2, double poleLossP1, double poleLossP2, HvdcLine.ConvertersMode mode) {
+        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
+            if (pAC1 != 0) {
+                return pAC1 - poleLossP1;
+            } else if (pAC2 != 0) {
+                return Math.abs(pAC2) + poleLossP2;
+            }
+        }
+        if (pAC2 != 0) {
+            return Math.abs(pAC2) - poleLossP2;
+        } else if (pAC1 != 0) {
+            return pAC1 + poleLossP1;
+        }
+        return 0;
+    }
+
+    private static double getMaxP(double pAC1, double pAC2, HvdcLine.ConvertersMode mode) {
+        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
+            if (pAC1 != 0) {
+                return 1.2 * pAC1;
+            }
+            return 1.2 * pAC2;
+        }
+        if (pAC2 != 0) {
+            return 1.2 * pAC2;
+        }
+        return 1.2 * pAC1;
     }
 
     @Override
@@ -94,20 +145,35 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         Objects.requireNonNull(iconverter1);
         Objects.requireNonNull(iconverter2);
 
-        double pAC1 = Double.isNaN(cconverter1.asDouble(TARGET_PPCC)) ? 0 : cconverter1.asDouble(TARGET_PPCC);
-        double pAC2 = Double.isNaN(cconverter2.asDouble(TARGET_PPCC)) ? 0 : cconverter2.asDouble(TARGET_PPCC);
-        double pAC = Math.abs(decodeMode().equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) && pAC1 != 0 || pAC2 == 0 ? pAC1 : pAC2);
-        updateConverterStations(pAC);
+        HvdcLine.ConvertersMode mode = decodeMode();
 
-        double maxP = pAC * 1.2; // arbitrary value because there is no maxP attribute in CGMES
+        // poleLossP is the active power loss at a DC Pole
+        // for lossless operation: P(DC) = P(AC) => lossFactor = 0
+        // for rectifier operation (conversion from AC to DC) with losses: P(DC) = P(AC) - poleLossP
+        // In IIDM, for rectifier operation P(DC) / P(AC) = 1 - lossFactor / 100
+        // => P(DC) / P(AC) = 1 - poleLossP / P(AC) = 1 - lossFactor / 100
+        // for inverter operation (conversion from DC to AC) with losses: P(DC) = P(AC) + poleLossP
+        // In IIDM, for inverter operation P(AC) / P(DC) = 1 - lossFactor / 100
+        // => P(AC) / P(DC) = 1 - poleLossP / P(DC) = 1 - poleLossP / (P(AC) + poleLossP) = 1 - lossFactor / 100
+        double poleLossP1 = cconverter1.asDouble("poleLossP");
+        double poleLossP2 = cconverter2.asDouble("poleLossP");
+
+        // load sign convention is used i.e. positive sign means flow out from a node
+        // i.e. pAC1 >= 0 and pAC2 <= 0
+        double pAC1 = getPAc(cconverter1);
+        double pAC2 = getPAc(cconverter2);
+
+        updateConverterStations(pAC1, pAC2, poleLossP1, poleLossP2, mode);
+
+        double maxP = getMaxP(pAC1, pAC2, mode); // arbitrary value because there is no maxP attribute in CGMES
         missing("maxP", maxP);
 
         HvdcLineAdder adder = context.network().newHvdcLine()
                 .setR(r())
                 .setNominalV(ratedUdc())
-                .setActivePowerSetpoint(pAC)
+                .setActivePowerSetpoint(getPDc(pAC1, pAC2, poleLossP1, poleLossP2, mode))
                 .setMaxP(maxP)
-                .setConvertersMode(decodeMode())
+                .setConvertersMode(mode)
                 .setConverterStationId1(iconverter1.getId())
                 .setConverterStationId2(iconverter2.getId());
         identify(adder);
