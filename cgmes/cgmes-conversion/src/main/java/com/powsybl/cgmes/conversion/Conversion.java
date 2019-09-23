@@ -38,11 +38,11 @@ public class Conversion {
 
     // TODO This flag should be removed after refactored conversion is approved
     private static boolean useExtendedCgmesConversion = true;
-    
+
     public static void activateExtendedCgmesConversion() {
         useExtendedCgmesConversion = true;
     }
-    
+
     public static void deactivateExtendedCgmesConversion() {
         useExtendedCgmesConversion = false;
     }
