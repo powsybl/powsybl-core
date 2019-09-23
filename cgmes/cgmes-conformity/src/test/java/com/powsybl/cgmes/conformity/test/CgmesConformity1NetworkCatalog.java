@@ -659,8 +659,7 @@ public class CgmesConformity1NetworkCatalog {
                     .setVoltageLevel(vlBrussels21.getId())
                 .add()
             .add();
-            
-            
+
             int low = 1;
             int high = 33;
             int neutral = 17;
@@ -676,12 +675,12 @@ public class CgmesConformity1NetworkCatalog {
                 double dz = 0;
                 double dy = 0;
                 rtca.beginStep()
-                        .setRho(rhok)
-                        .setR(dz)
-                        .setX(dz)
-                        .setG(dy)
-                        .setB(dy)
-                .endStep();
+                    .setRho(rhok)
+                    .setR(dz)
+                    .setX(dz)
+                    .setG(dy)
+                    .setB(dy)
+                    .endStep();
             }
             rtca.setLoadTapChangingCapabilities(true)
                 .setRegulating(false)
