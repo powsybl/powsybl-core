@@ -8,6 +8,7 @@ package com.powsybl.commons.config;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.FileUtil;
 import org.slf4j.Logger;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.ServiceLoader;
 
 /**
  *
@@ -62,7 +64,18 @@ public class PlatformConfig {
 
     public static synchronized PlatformConfig defaultConfig() {
         if (defaultConfig == null) {
-            defaultConfig = new ClassicPlatformConfigProvider().getPlatformConfig();
+            List<PlatformConfigProvider> providers = Lists.newArrayList(ServiceLoader.load(PlatformConfigProvider.class));
+            if (providers.isEmpty()) {
+                LOGGER.error("Platform configuration provider not found. For tests, consider using TestPlatformConfigProvider in powsybl-config-test. Otherwise, consider using ClassicPlatformConfigProvider from powsybl-config-classic.");
+                throw new PowsyblException("Platform configuration provider not found");
+            }
+            if (providers.size() > 1) {
+                LOGGER.error("Multiple platform configuration providers found: {}", providers);
+                throw new PowsyblException("Multiple platform configuration providers found");
+            }
+            PlatformConfigProvider p = providers.get(0);
+            LOGGER.info("Using platform configuration provider {}", p.getName());
+            defaultConfig = p.getPlatformConfig();
         }
         return defaultConfig;
     }
@@ -95,4 +108,5 @@ public class PlatformConfig {
     public Optional<ModuleConfig> getOptionalModuleConfig(String name) {
         return getRepository().getModuleConfig(name);
     }
+
 }

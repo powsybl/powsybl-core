@@ -42,12 +42,23 @@ class IdentifiableExtensionGroovyTest {
     }
 
     @Test
-    void testProperty() {
+    void testStringProperty() {
         assertFalse(s.hasProperty())
         assertNull(s.greeting)
         s.greeting = "hello"
         assertEquals("hello", s.getProperty("greeting"))
         assertEquals("hello", s.greeting)
+    }
+
+    @Test
+    void testBooleanProperty() {
+        assertFalse(s.hasProperty())
+        assertNull(s.ok)
+        s.ok = true
+        assertEquals("true", s.getProperty("ok"))
+        assertEquals("true", s.ok)
+        s.ok = null
+        assertNull(s.ok)
     }
 
     @Test

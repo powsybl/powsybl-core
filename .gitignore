@@ -32,6 +32,7 @@
 /commons/target/
 /computation-local/target/
 /computation/target/
+/config-classic/target/
 /config-test/target/
 /contingency/target/
 /contingency/contingency-afs/target/

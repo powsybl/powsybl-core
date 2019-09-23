@@ -21,7 +21,7 @@ class IdentifiableExtension {
     }
 
     static void propertyMissing(Identifiable self, String name, Object value) {
-        self.setProperty(name, value)
+        self.setProperty(name, value != null ? value.toString() : value)
     }
 
     /**

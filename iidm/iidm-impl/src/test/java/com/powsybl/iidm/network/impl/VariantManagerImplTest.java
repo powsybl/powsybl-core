@@ -72,7 +72,7 @@ public class VariantManagerImplTest {
         }
 
         @Override
-        public Object setProperty(String key, String value) {
+        public String setProperty(String key, String value) {
             return null;
         }
 
