@@ -216,9 +216,11 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
     private boolean rtcAtSide1() {
         // From CIM1 converter:
         // For 2 winding transformers, rho is 1/(1 + n*du) if rtc is at side 1
-        // For 3 winding transformers rho is always 1 + n*du
+        // For 3 winding transformers rho is always considered at side 1 (network side)
         if (tx2 != null) {
             return context.tapChangerTransformers().whichSide(id) == 1;
+        } else if (tx3 != null) {
+            return true;
         }
         return false;
     }
