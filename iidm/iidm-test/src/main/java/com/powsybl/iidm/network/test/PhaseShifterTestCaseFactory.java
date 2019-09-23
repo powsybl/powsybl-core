@@ -174,4 +174,12 @@ public final class PhaseShifterTestCaseFactory {
         l2.getTerminal2().setP(-50.0).setQ(-25.0);
         return network;
     }
+
+    public static Network createWithTargetDeadband() {
+        Network network = create();
+        network.getTwoWindingsTransformer("PS1")
+                .getPhaseTapChanger()
+                .setTargetDeadband(10.0);
+        return network;
+    }
 }

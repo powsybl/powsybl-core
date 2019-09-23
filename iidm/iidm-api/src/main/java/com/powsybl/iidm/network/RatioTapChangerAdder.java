@@ -39,6 +39,10 @@ public interface RatioTapChangerAdder {
 
     RatioTapChangerAdder setRegulationTerminal(Terminal regulationTerminal);
 
+    default RatioTapChangerAdder setTargetDeadband(double targetDeadband) {
+        throw new UnsupportedOperationException();
+    }
+
     StepAdder beginStep();
 
     RatioTapChanger add();

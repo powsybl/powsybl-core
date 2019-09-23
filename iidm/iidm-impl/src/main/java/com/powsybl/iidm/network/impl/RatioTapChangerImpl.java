@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.Terminal;
 import gnu.trove.list.array.TDoubleArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  *
@@ -25,14 +26,22 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     RatioTapChangerImpl(RatioTapChangerParent parent, int lowTapPosition,
                         List<RatioTapChangerStepImpl> steps, TerminalExt regulationTerminal, boolean loadTapChangingCapabilities,
-                        int tapPosition, boolean regulating, double targetV) {
-        super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating);
+                        int tapPosition, boolean regulating, double targetV, double targetDeadband) {
+        super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, targetDeadband);
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.targetV = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.targetV.add(targetV);
         }
+    }
+
+    protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
+        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), attribute, oldValue, newValue);
+    }
+
+    protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
+        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), attribute, variantId, oldValue, newValue);
     }
 
     @Override
@@ -52,6 +61,15 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     }
 
     @Override
+    public RatioTapChangerImpl setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
+        ValidationUtil.checkRatioTapChangerRegulation(parent, loadTapChangingCapabilities, isRegulating(), regulationTerminal, getTargetV(), getNetwork());
+        boolean oldValue = this.loadTapChangingCapabilities;
+        this.loadTapChangingCapabilities = loadTapChangingCapabilities;
+        notifyUpdate(() -> getTapChangerAttribute() + ".loadTapChangingCapabilities", oldValue, loadTapChangingCapabilities);
+        return this;
+    }
+
+    @Override
     public double getTargetV() {
         return targetV.get(network.get().getVariantIndex());
     }
@@ -59,7 +77,10 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public RatioTapChangerImpl setTargetV(double targetV) {
         ValidationUtil.checkRatioTapChangerRegulation(parent, loadTapChangingCapabilities, isRegulating(), regulationTerminal, targetV, getNetwork());
-        this.targetV.set(network.get().getVariantIndex(), targetV);
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.targetV.set(variantIndex, targetV);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate(() -> getTapChangerAttribute() + ".targetV", variantId, oldValue, targetV);
         return this;
     }
 
@@ -105,6 +126,6 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     protected String getTapChangerAttribute() {
-        return parent.getTapChangerAttribute();
+        return "ratio" + parent.getTapChangerAttribute();
     }
 }

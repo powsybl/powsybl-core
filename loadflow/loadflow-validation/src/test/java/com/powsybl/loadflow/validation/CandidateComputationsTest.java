@@ -11,11 +11,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.loadflow.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,8 +21,6 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
-import java.util.Collections;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
@@ -93,7 +89,6 @@ public class CandidateComputationsTest {
     public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
-        PlatformConfig.setDefaultConfig(platformConfig);
     }
 
     @After
@@ -101,35 +96,9 @@ public class CandidateComputationsTest {
         fileSystem.close();
     }
 
-    public static class LoadFlowFactoryMock implements LoadFlowFactory {
-
-        @Override
-        public LoadFlow create(Network network, ComputationManager computationManager, int priority) {
-            return new LoadFlow() {
-
-                @Override
-                public String getName() {
-                    return "loadflow-mock";
-                }
-
-                @Override
-                public String getVersion() {
-                    return null;
-                }
-
-                @Override
-                public CompletableFuture<LoadFlowResult> run(String workingStateId, LoadFlowParameters parameters) {
-                    network.getGenerator("GEN").getTerminal().setP(92f);
-                    return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
-                }
-            };
-        }
-    }
-
     @Test
     public void runLoadFlowMock() {
-
-        platformConfig.createModuleConfig("loadflow-validation").setClassProperty("load-flow-factory", LoadFlowFactoryMock.class);
+        platformConfig.createModuleConfig("loadflow-validation").setStringProperty("load-flow-name", "LoadFlowMock");
 
         Network network = EurostagTutorialExample1Factory.create();
 

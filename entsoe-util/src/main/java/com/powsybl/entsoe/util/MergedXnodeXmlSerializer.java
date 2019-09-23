@@ -7,6 +7,7 @@
 package com.powsybl.entsoe.util;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
@@ -14,47 +15,16 @@ import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Line;
 
 import javax.xml.stream.XMLStreamException;
-import java.io.InputStream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class MergedXnodeXmlSerializer implements ExtensionXmlSerializer<Line, MergedXnode> {
+public class MergedXnodeXmlSerializer extends AbstractExtensionXmlSerializer<Line, MergedXnode> {
 
-    @Override
-    public String getExtensionName() {
-        return "mergedXnode";
-    }
-
-    @Override
-    public String getCategoryName() {
-        return "network";
-    }
-
-    @Override
-    public Class<MergedXnode> getExtensionClass() {
-        return MergedXnode.class;
-    }
-
-    @Override
-    public boolean hasSubElements() {
-        return false;
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/mergedXnode.xsd");
-    }
-
-    @Override
-    public String getNamespaceUri() {
-        return "http://www.itesla_project.eu/schema/iidm/ext/merged_xnode/1_0";
-    }
-
-    @Override
-    public String getNamespacePrefix() {
-        return "mxn";
+    public MergedXnodeXmlSerializer() {
+        super("mergedXnode", "network", MergedXnode.class, false, "mergedXnode.xsd",
+                "http://www.itesla_project.eu/schema/iidm/ext/merged_xnode/1_0", "mxn");
     }
 
     @Override
@@ -77,6 +47,6 @@ public class MergedXnodeXmlSerializer implements ExtensionXmlSerializer<Line, Me
         double xnodeP2 = XmlUtil.readDoubleAttribute(context.getReader(), "xnodeP2");
         double xnodeQ2 = XmlUtil.readDoubleAttribute(context.getReader(), "xnodeQ2");
         String code = context.getReader().getAttributeValue(null, "code");
-        return new MergedXnode(line, rdp, xdp, xnodeP1, xnodeQ1, xnodeP2, xnodeQ2, code);
+        return new MergedXnode(line, rdp, xdp, xnodeP1, xnodeQ1, xnodeP2, xnodeQ2, "", "", code);
     }
 }

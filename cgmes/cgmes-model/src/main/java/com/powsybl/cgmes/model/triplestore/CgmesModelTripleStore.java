@@ -9,6 +9,8 @@ package com.powsybl.cgmes.model.triplestore;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -21,7 +23,7 @@ import com.powsybl.cgmes.model.AbstractCgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.cgmes.model.Subset;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -43,8 +45,9 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         Objects.requireNonNull(queryCatalog);
     }
 
-    public void read(String base, String contextName, InputStream is) {
-        tripleStore.read(base, contextName, is);
+    @Override
+    public void read(InputStream is, String baseName, String contextName) {
+        tripleStore.read(is, baseName, contextName);
     }
 
     @Override
@@ -85,7 +88,10 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                     return true;
                 }
             }
-            return false; // If we have a query for model profiles but none of the profiles contains "EquipmentCore", equipment core is not available
+
+            // We have a query for model profiles
+            // but none of the FullModel objects contains EquipmentCore profile
+            return false;
         }
         // If we do not have a query for model profiles we assume equipment core is
         // available
@@ -127,22 +133,46 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     public boolean isNodeBreaker() {
         // Optimization hint: consider caching the results of the query for model
         // profiles
-        if (queryCatalog.containsKey(MODEL_PROFILES)) {
-            PropertyBags r = namedQuery(MODEL_PROFILES);
-            if (r == null) {
-                return false;
-            }
-            for (PropertyBag m : r) {
-                String p = m.get(PROFILE);
-                if (p != null && p.contains("/EquipmentOperation/")) {
+        if (!queryCatalog.containsKey(MODEL_PROFILES)) {
+            return false;
+        }
+        PropertyBags r = namedQuery(MODEL_PROFILES);
+        if (r == null) {
+            return false;
+        }
+        // Only consider is node breaker if all models that have profile
+        // EquipmentCore or EquipmentBoundary
+        // also have EquipmentOperation or EquipmentBoundaryOperation
+        Map<String, Boolean> eqModelHasEquipmentOperationProfile = new HashMap<>();
+        for (PropertyBag mp : r) {
+            String m = mp.get("FullModel");
+            String p = mp.get(PROFILE);
+            if (p != null) {
+                if (p.contains("/EquipmentCore/") || p.contains("/EquipmentBoundary/")) {
+                    eqModelHasEquipmentOperationProfile.putIfAbsent(m, false);
+                }
+                if (p.contains("/EquipmentOperation/") || p.contains("/EquipmentBoundaryOperation/")) {
+                    eqModelHasEquipmentOperationProfile.put(m, true);
                     if (LOG.isInfoEnabled()) {
-                        LOG.info("Model is considered node-breaker because {} has profile {}", m.get("FullModel"), p);
+                        LOG.info("Model {} is considered node-breaker", m);
                     }
-                    return true;
                 }
             }
         }
-        return false;
+        boolean isNodeBreaker = eqModelHasEquipmentOperationProfile.values().stream().allMatch(Boolean::valueOf);
+        if (isNodeBreaker) {
+            LOG.info(
+                "All FullModel objects have EquipmentOperation profile, so conversion will be considered node-breaker");
+        } else {
+            LOG.info(
+                "Following FullModel objects do not have EquipmentOperation profile, so conversion will not be considered node-breaker:");
+            eqModelHasEquipmentOperationProfile.entrySet().forEach(meqop -> {
+                if (!meqop.getValue()) {
+                    LOG.info("    {}", meqop.getKey());
+                }
+            });
+        }
+        return isNodeBreaker;
     }
 
     @Override
@@ -354,6 +384,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags svInjections() {
+        return namedQuery("svInjections");
+    }
+
+    @Override
     public PropertyBags asynchronousMachines() {
         return namedQuery("asynchronousMachines");
     }
@@ -431,7 +466,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     // Updates
 
     @Override
-    public void clear(Subset subset) {
+    public void clear(CgmesSubset subset) {
         // TODO Remove all contexts that are related to the profile of the subset
         // For example for state variables:
         // <md:Model.profile>http://entsoe.eu/CIM/StateVariables/4/1</md:Model.profile>
@@ -445,16 +480,38 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public void add(String contextName, String type, PropertyBags objects) {
+    public void add(CgmesSubset subset, String type, PropertyBags objects) {
+        String contextName = contextNameFor(subset);
         try {
-            tripleStore.add(contextName, cimNamespace + type, objects);
+            tripleStore.add(contextName, cimNamespace, type, objects);
         } catch (TripleStoreException x) {
-            String msg = String.format("Adding objects of type %s to context %s", type, contextName);
+            String msg = String.format("Adding objects of type %s to subset %s, context %s", type, subset, contextName);
             throw new CgmesModelException(msg, x);
         }
     }
 
-    // Private
+    private String contextNameFor(CgmesSubset subset) {
+        String contextNameEQ = contextNameForEquipmentSubset();
+        return contextNameEQ != null
+            ? buildContextNameForSubsetFrom(contextNameEQ, subset)
+            : modelId() + "_" + subset + ".xml";
+    }
+
+    private String contextNameForEquipmentSubset() {
+        String eq = CgmesSubset.EQUIPMENT.getIdentifier();
+        String eqBD = CgmesSubset.EQUIPMENT_BOUNDARY.getIdentifier();
+        for (String contextName : tripleStore.contextNames()) {
+            if (contextName.contains(eq) && !contextName.contains(eqBD)) {
+                return contextName;
+            }
+        }
+        return null;
+    }
+
+    private String buildContextNameForSubsetFrom(String contextNameEQ, CgmesSubset subset) {
+        String eq = CgmesSubset.EQUIPMENT.getIdentifier();
+        return contextNameEQ.replace(eq, subset.getIdentifier());
+    }
 
     private QueryCatalog queryCatalogFor(String cimNamespace) {
         QueryCatalog qc = null;

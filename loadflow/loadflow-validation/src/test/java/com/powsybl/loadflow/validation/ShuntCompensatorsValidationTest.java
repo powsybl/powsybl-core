@@ -10,7 +10,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.Properties;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.output.NullWriter;
@@ -74,10 +73,7 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
         Mockito.when(shunt.getCurrentSectionCount()).thenReturn(currentSectionCount);
         Mockito.when(shunt.getMaximumSectionCount()).thenReturn(maximumSectionCount);
         Mockito.when(shunt.getbPerSection()).thenReturn(bPerSection);
-
-        Properties shuntProperties = new Properties();
-        shuntProperties.put("qMax", Double.toString(qMax));
-        Mockito.when(shunt.getProperties()).thenReturn(shuntProperties);
+        Mockito.when(shunt.getProperty("qMax")).thenReturn(Double.toString(qMax));
     }
 
     @Test

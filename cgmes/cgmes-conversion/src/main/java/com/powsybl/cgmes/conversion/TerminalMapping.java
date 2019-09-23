@@ -64,6 +64,10 @@ public class TerminalMapping {
         return null;
     }
 
+    public String findCgmesTerminalFromTopologicalNode(String topologicalNode) {
+        return topologicalNodesMapping.containsKey(topologicalNode) ? topologicalNodesMapping.get(topologicalNode).get(0) : null;
+    }
+
     private final Map<String, Terminal> terminals;
     // This is a somewhat dirty way of storing the side for the CGMES terminal
     // (only mapped when the terminal is connected to a branch)

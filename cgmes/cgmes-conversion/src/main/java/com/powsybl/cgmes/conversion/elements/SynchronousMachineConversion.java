@@ -12,6 +12,7 @@ import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -52,6 +53,10 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         identify(adder);
         connect(adder);
         Generator g = adder.add();
+        if (p.containsKey("qPercent") && !Double.isNaN(p.asDouble("qPercent"))) {
+            CoordinatedReactiveControl coordinatedReactiveControl = new CoordinatedReactiveControl(g, p.asDouble("qPercent"));
+            g.addExtension(CoordinatedReactiveControl.class, coordinatedReactiveControl);
+        }
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
     }
