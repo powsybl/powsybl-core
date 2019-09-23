@@ -103,10 +103,10 @@ public class ConversionTester {
     }
 
     public void testConversion(Network expected, TestGridModel gm) throws IOException {
-        Conversion.EXTENDED_CGMES_CONVERSION = true;
+        Conversion.activateExtendedCgmesConversion();
         testConversion(expected, gm, this.networkComparison);
         Network nfull = lastConvertedNetwork();
-        Conversion.EXTENDED_CGMES_CONVERSION = false;
+        Conversion.deactivateExtendedCgmesConversion();
         testConversion(expected, gm, this.networkComparison);
         Network nold = lastConvertedNetwork();
         if (nold == null && nfull == null) {

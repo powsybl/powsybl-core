@@ -36,7 +36,16 @@ import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
  */
 public class Conversion {
 
-    public static boolean EXTENDED_CGMES_CONVERSION = true;
+    // TODO This flag should be removed after refactored conversion is approved
+    private static boolean useExtendedCgmesConversion = true;
+    
+    public static void activateExtendedCgmesConversion() {
+        useExtendedCgmesConversion = true;
+    }
+    
+    public static void deactivateExtendedCgmesConversion() {
+        useExtendedCgmesConversion = false;
+    }
 
     public Conversion(CgmesModel cgmes) {
         this(cgmes, new Config());
@@ -76,7 +85,8 @@ public class Conversion {
         Context context = createContext(network);
         assignNetworkProperties(context);
 
-        context.setExtendedCgmesConversion(EXTENDED_CGMES_CONVERSION); // JAM TODO Eliminar
+        // JAM TODO This flag should be removed
+        context.setExtendedCgmesConversion(useExtendedCgmesConversion);
 
         Function<PropertyBag, AbstractObjectConversion> convf;
 
@@ -114,7 +124,7 @@ public class Conversion {
         convert(cgmes.equivalentBranches(), eqb -> new EquivalentBranchConversion(eqb, context));
         convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
 
-        if (EXTENDED_CGMES_CONVERSION) {
+        if (useExtendedCgmesConversion) {
             convertFullTransformers(context);
         } else {
             convertTransformers(context);
@@ -130,7 +140,7 @@ public class Conversion {
         context.currentLimitsMapping().addAll();
 
         context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
-        if (EXTENDED_CGMES_CONVERSION) {
+        if (useExtendedCgmesConversion) {
             context.regulatingControlMapping().setAllRegulatingControls(network);
         } else {
             // set all remote regulating terminals
