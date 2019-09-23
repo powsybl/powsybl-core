@@ -293,7 +293,7 @@ public class CgmesImport implements Importer {
         CONVERSION_ALTERNATIVE_XFMR2_STRUCTURAL_RATIO,
         ParameterType.STRING,
         "Conversion Alternative Xfmr2 Structural Ratio",
-        "end2");
+        "x");
 
     private static final List<Parameter> STATIC_PARAMETERS = ImmutableList.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,

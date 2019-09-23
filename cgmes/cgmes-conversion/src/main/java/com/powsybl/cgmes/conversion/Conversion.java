@@ -582,7 +582,6 @@ public class Conversion {
                 setXfmr2Ratio0End2(false);
                 setXfmr2Ratio0Rtc(true);
                 setXfmr2Ratio0X(false);
-
             } else if (value.equals("x")) {
                 setXfmr2Ratio0End1(false);
                 setXfmr2Ratio0End2(false);
@@ -768,9 +767,9 @@ public class Conversion {
         private boolean xfmr2PhaseAngleClock1Negate = false;
         private boolean xfmr2PhaseAngleClock2Negate = false;
         private boolean xfmr2Ratio0End1 = false;
-        private boolean xfmr2Ratio0End2 = true;
+        private boolean xfmr2Ratio0End2 = false;
         private boolean xfmr2Ratio0Rtc = false;
-        private boolean xfmr2Ratio0X = false;
+        private boolean xfmr2Ratio0X = true;
 
         private boolean xfmr3RatioPhaseNetworkSide = true;
         private boolean xfmr3ShuntNetworkSide = true;
