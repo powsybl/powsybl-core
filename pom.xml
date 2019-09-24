@@ -431,7 +431,10 @@
         <profile>
             <id>checks</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>powsyblchecks</name>
+                    <value>!false</value>
+                </property>
             </activation>
             <build>
                 <plugins>
