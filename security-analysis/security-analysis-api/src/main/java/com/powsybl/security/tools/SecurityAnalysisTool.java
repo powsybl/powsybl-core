@@ -303,8 +303,8 @@ public class SecurityAnalysisTool implements Tool {
 
         SecurityAnalysisExecution execution = buildExecution(options, executionBuilder);
 
-        ComputationManager computationManager = options.hasOption(TASK) ? context.getLongTimeExecutionComputationManager() :
-                context.getShortTimeExecutionComputationManager();
+        ComputationManager computationManager = options.hasOption(TASK) ? context.getShortTimeExecutionComputationManager() :
+                context.getLongTimeExecutionComputationManager();
 
         SecurityAnalysisResult result = options.getPath(OUTPUT_LOG_OPTION)
                 .map(logPath -> runSecurityAnalysisWithLog(computationManager, execution, executionInput, logPath))

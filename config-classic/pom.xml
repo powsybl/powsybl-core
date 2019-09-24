@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2018, RTE (http://www.rte-france.com)
+    Copyright (c) 2019, RTE (http://www.rte-france.com)
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -13,14 +13,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>powsybl-iidm</artifactId>
         <groupId>com.powsybl</groupId>
+        <artifactId>powsybl-core</artifactId>
         <version>3.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>powsybl-iidm-reducer</artifactId>
-    <name>IIDM Reducer</name>
-    <description>A network reducer for IIDM model</description>
+    <artifactId>powsybl-config-classic</artifactId>
+    <name>Config Classic</name>
+    <description>Classic Config Provider</description>
 
     <build>
         <plugins>
@@ -30,7 +30,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.iidm.reducer</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.config.classic</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -41,34 +41,30 @@
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service</artifactId>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-api</artifactId>
+            <artifactId>powsybl-commons</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
+        <dependency>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-impl</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-test</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
-
 </project>
+
