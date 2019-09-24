@@ -58,6 +58,7 @@
         <module>commons</module>
         <module>computation</module>
         <module>computation-local</module>
+        <module>config-classic</module>
         <module>config-test</module>
         <module>contingency</module>
         <module>distribution-core</module>
