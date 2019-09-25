@@ -41,6 +41,7 @@ public class NetworkTest {
     @Test
     public void testNetwork1() {
         Network network = NetworkTest1Factory.create();
+        assertSame(network, network.getNetwork());
         assertEquals(1, Iterables.size(network.getCountries()));
         assertEquals(1, network.getCountryCount());
         Country country1 = network.getCountries().iterator().next();
