@@ -52,6 +52,11 @@ public class VariantManagerImplTest {
         }
 
         @Override
+        public Network getNetwork() {
+            return null;
+        }
+
+        @Override
         public boolean hasProperty() {
             return false;
         }

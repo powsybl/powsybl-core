@@ -38,6 +38,9 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         return name != null ? name : id;
     }
 
+    @Override
+    public abstract NetworkImpl getNetwork();
+
     protected abstract String getTypeDescription();
 
     @Override

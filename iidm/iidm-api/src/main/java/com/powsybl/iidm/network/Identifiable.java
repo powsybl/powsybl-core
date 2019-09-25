@@ -21,6 +21,11 @@ import java.util.Properties;
 public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
 
     /**
+     * Get the network associated to the object.
+     */
+    Network getNetwork();
+
+    /**
      * Get the unique identifier of the object.
      */
     String getId();
