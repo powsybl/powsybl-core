@@ -379,10 +379,7 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
             convertedModel.winding3.end1.ratioTapChanger);
         RegulatingDataPhase rdPtc3 = buildContextRegulatingDataPhase(
             convertedModel.winding3.end1.phaseTapChanger);
-        if (context.isExtendedCgmesConversion()) {
-            context.transformerRegulatingControlMapping().add(tx.getId(), rdRtc1, rdPtc1, rdRtc2, rdPtc2, rdRtc3,
-                rdPtc3);
-        }
+        context.transformerRegulatingControlMapping().add(tx.getId(), rdRtc1, rdPtc1, rdRtc2, rdPtc2, rdRtc3, rdPtc3);
     }
 
     protected RatioTapChangerAdder newRatioTapChanger(ConvertedModel convertedModel, Connectable<?> tx,

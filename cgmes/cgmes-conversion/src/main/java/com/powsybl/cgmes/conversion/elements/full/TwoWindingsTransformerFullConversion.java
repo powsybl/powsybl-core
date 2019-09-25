@@ -371,9 +371,7 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
     private void setRegulatingControlContext(Connectable<?> tx, ConvertedModel convertedModel) {
         RegulatingDataRatio rdRtc = buildContextRegulatingDataRatio(convertedModel.end1.ratioTapChanger);
         RegulatingDataPhase rdPtc = buildContextRegulatingDataPhase(convertedModel.end1.phaseTapChanger);
-        if (context.isExtendedCgmesConversion()) {
-            context.transformerRegulatingControlMapping().add(tx.getId(), rdRtc, rdPtc);
-        }
+        context.transformerRegulatingControlMapping().add(tx.getId(), rdRtc, rdPtc);
     }
 
     protected RatioTapChangerAdder newRatioTapChanger(Connectable<?> tx) {
