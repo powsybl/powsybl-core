@@ -97,6 +97,32 @@ class NetworkListenerList {
         }
     }
 
+    void notifyElementAdded(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue, Object newValue) {
+        if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
+            notifyElementAdded(identifiable, attribute.get(), oldValue, newValue);
+        }
+    }
+
+    void notifyElementAdded(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onElementAdded(identifiable, attribute, oldValue, newValue);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    void notifyElementRemoved(Identifiable<?> identifiable, String attribute, Object oldValue) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onElementRemoved(identifiable, attribute, oldValue);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
     void notifyVariantCreated(String sourceVariantId, String targetVariantId) {
         for (NetworkListener listener : listeners) {
             try {

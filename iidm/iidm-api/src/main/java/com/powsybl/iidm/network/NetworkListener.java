@@ -22,6 +22,14 @@ public interface NetworkListener {
         // empty default implementation
     }
 
+    default void onElementAdded(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
+        // empty default implementation
+    }
+
+    default void onElementRemoved(Identifiable identifiable, String attribute, Object oldValue) {
+        // empty default implementation
+    }
+
     default void onVariantCreated(String sourceVariantId, String targetVariantId) {
         // empty default implementation
     }

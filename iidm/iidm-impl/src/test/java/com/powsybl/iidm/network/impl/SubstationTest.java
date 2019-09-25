@@ -57,15 +57,21 @@ public class SubstationTest {
         substation.setTso("new tso");
         assertEquals("new tso", substation.getTso());
 
-        // Create a mocked network listener
+        // Create mocked network listeners
+        NetworkListener exceptionListener = Mockito.mock(DefaultNetworkListener.class);
+        Mockito.doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementAdded(Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any());
         NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        // Test without listeners registered
+        substation.addGeographicalTag("no listeners");
+        Mockito.verifyNoMoreInteractions(mockedListener);
         // Add observer changes to current network
+        network.addListener(exceptionListener);
         network.addListener(mockedListener);
         // Change in order to raise update notification
         substation.addGeographicalTag("test");
         // Check notification done
         Mockito.verify(mockedListener, Mockito.times(1))
-               .onUpdate(Mockito.any(Substation.class), Mockito.anyString(), Mockito.anyCollection(), Mockito.anyCollection());
+               .onElementAdded(Mockito.any(Substation.class), Mockito.anyString(), Mockito.isNull(), Mockito.anyString());
         // Remove observer
         network.removeListener(mockedListener);
     }

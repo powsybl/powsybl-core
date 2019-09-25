@@ -15,6 +15,7 @@ import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -137,6 +138,11 @@ public class NetworkTest {
         assertSame(busCalc, generator1.getTerminal().getBusView().getBus());
         assertEquals(0, busCalc.getConnectedComponent().getNum());
 
+        // Changes listener
+        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        // Add observer changes to current network
+        network.addListener(mockedListener);
+
         // Identifiable properties
         String key = "keyTest";
         String value = "ValueTest";
@@ -148,6 +154,19 @@ public class NetworkTest {
         assertEquals(value, busCalc.getProperty(key));
         assertEquals("default", busCalc.getProperty("invalid", "default"));
         assertEquals(1, busCalc.getPropertyNames().size());
+
+        // Check notification done
+        Mockito.verify(mockedListener, Mockito.times(1))
+                .onElementAdded(busCalc, "properties[" + key + "]", null, value);
+        // Check no notification on same property
+        busCalc.setProperty(key, value);
+        Mockito.verifyNoMoreInteractions(mockedListener);
+        // Remove changes observer
+        network.removeListener(mockedListener);
+        // Adding same property without listener registered
+        busCalc.setProperty(key, value);
+        // Check no notification
+        Mockito.verifyNoMoreInteractions(mockedListener);
     }
 
     @Test
