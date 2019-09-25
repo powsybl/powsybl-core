@@ -97,19 +97,41 @@ class NetworkListenerList {
         }
     }
 
-    void notifyElementAdded(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue, Object newValue) {
-        if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
-            notifyElementAdded(identifiable, attribute.get(), oldValue, newValue);
+    void notifyElementAdded(Identifiable<?> identifiable, Supplier<String> attribute, Object newValue) {
+        if (!listeners.isEmpty()) {
+            notifyElementAdded(identifiable, attribute.get(), newValue);
         }
     }
 
-    void notifyElementAdded(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
+    void notifyElementAdded(Identifiable<?> identifiable, String attribute, Object newValue) {
         for (NetworkListener listener : listeners) {
             try {
-                listener.onElementAdded(identifiable, attribute, oldValue, newValue);
+                listener.onElementAdded(identifiable, attribute, newValue);
             } catch (Exception t) {
                 LOGGER.error(t.toString(), t);
             }
+        }
+    }
+
+    void notifyElementReplaced(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue, Object newValue) {
+        if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
+            notifyElementReplaced(identifiable, attribute.get(), oldValue, newValue);
+        }
+    }
+
+    void notifyElementReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onElementReplaced(identifiable, attribute, oldValue, newValue);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    void notifyElementRemoved(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue) {
+        if (!listeners.isEmpty()) {
+            notifyElementRemoved(identifiable, attribute.get(), oldValue);
         }
     }
 

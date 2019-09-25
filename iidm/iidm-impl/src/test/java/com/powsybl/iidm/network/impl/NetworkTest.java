@@ -139,27 +139,43 @@ public class NetworkTest {
         assertEquals(0, busCalc.getConnectedComponent().getNum());
 
         // Changes listener
+        NetworkListener exceptionListener = Mockito.mock(DefaultNetworkListener.class);
+        Mockito.doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementAdded(Mockito.any(), Mockito.anyString(), Mockito.any());
+        Mockito.doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementReplaced(Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any());
         NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
-        // Add observer changes to current network
-        network.addListener(mockedListener);
 
         // Identifiable properties
         String key = "keyTest";
         String value = "ValueTest";
         assertFalse(busCalc.hasProperty());
         assertTrue(busCalc.getPropertyNames().isEmpty());
+        // Test without listeners registered
+        busCalc.setProperty("listeners", "no listeners");
+        // Test without listeners registered & same values
+        busCalc.setProperty("listeners", "no listeners");
+        Mockito.verifyNoMoreInteractions(mockedListener);
+        Mockito.verifyNoMoreInteractions(exceptionListener);
+        // Add observer changes to current network
+        network.addListener(mockedListener);
+        network.addListener(exceptionListener);
+        // Test with listeners registered
         busCalc.setProperty(key, value);
         assertTrue(busCalc.hasProperty());
         assertTrue(busCalc.hasProperty(key));
         assertEquals(value, busCalc.getProperty(key));
         assertEquals("default", busCalc.getProperty("invalid", "default"));
-        assertEquals(1, busCalc.getPropertyNames().size());
+        assertEquals(2, busCalc.getPropertyNames().size());
 
         // Check notification done
         Mockito.verify(mockedListener, Mockito.times(1))
-                .onElementAdded(busCalc, "properties[" + key + "]", null, value);
+               .onElementAdded(busCalc, "properties[" + key + "]", value);
         // Check no notification on same property
-        busCalc.setProperty(key, value);
+        String value2 = "ValueTest2";
+        busCalc.setProperty(key, value2);
+        Mockito.verify(mockedListener, Mockito.times(1))
+               .onElementReplaced(busCalc, "properties[" + key + "]", value, value2);
+        // Check no notification on same property
+        busCalc.setProperty(key, value2);
         Mockito.verifyNoMoreInteractions(mockedListener);
         // Remove changes observer
         network.removeListener(mockedListener);

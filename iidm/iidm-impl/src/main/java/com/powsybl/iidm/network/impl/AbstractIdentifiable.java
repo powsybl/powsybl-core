@@ -71,7 +71,11 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     @Override
     public String setProperty(String key, String value) {
         String oldValue = properties.put(key, value);
-        getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", oldValue, value);
+        if (Objects.isNull(oldValue)) {
+            getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", value);
+        } else {
+            getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, value);
+        }
         return oldValue;
     }
 

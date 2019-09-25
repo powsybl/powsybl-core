@@ -156,7 +156,7 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
             throw new ValidationException(this, "geographical tag is null");
         }
         if (geographicalTags.add(tag)) {
-            getNetwork().getListeners().notifyElementAdded(this, "geographicalTags", null, tag);
+            getNetwork().getListeners().notifyElementAdded(this, "geographicalTags", tag);
         }
         return this;
     }
