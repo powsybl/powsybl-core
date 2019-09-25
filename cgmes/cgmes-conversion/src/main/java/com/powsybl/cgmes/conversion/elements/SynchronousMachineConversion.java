@@ -83,6 +83,9 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
 
     private void setRegulatingControlContext(String genId, PropertyBag sm, double nominalVoltage) {
         RegulatingControlId rci = context.regulatingControlMapping().getGeneratorRegulatingControl(sm);
-        context.generatorRegulatingControlMapping().add(genId, rci.isRegulating(), rci.getRegulatingControlId(), nominalVoltage);
+        if (context.isExtendedCgmesConversion()) {
+            context.generatorRegulatingControlMapping().add(genId, rci.isRegulating(), rci.getRegulatingControlId(),
+                nominalVoltage);
+        }
     }
 }

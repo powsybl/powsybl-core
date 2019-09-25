@@ -124,7 +124,9 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             addSteps(alphas, rhos, theta, ptca);
         }
 
-        context.regulatingControlMapping().setRegulatingControl(p, regTerminal(), ptca, tx);
+        if (!context.isExtendedCgmesConversion()) {
+            context.regulatingControlMapping().setRegulatingControl(p, regTerminal(), ptca, tx);
+        }
 
         // According to the following CGMES documentation:
         // IEC TS 61970-600-1, Edition 1.0, 2017-07.

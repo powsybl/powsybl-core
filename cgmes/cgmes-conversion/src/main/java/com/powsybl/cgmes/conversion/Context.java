@@ -27,7 +27,7 @@ import com.powsybl.triplestore.api.PropertyBags;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class Context {
-    public Context(CgmesModel cgmes, Config config, Network network) {
+    public Context(CgmesModel cgmes, Config config, Network network, boolean useExtendedCgmesConversion) {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
         this.network = Objects.requireNonNull(network);
@@ -43,13 +43,22 @@ public class Context {
         boundary = new Boundary(cgmes);
         substationIdMapping = new SubstationIdMapping(this);
         terminalMapping = new TerminalMapping();
-        tapChangerTransformers = new TapChangerTransformers();
+        //tapChangerTransformers = new TapChangerTransformers();
         dcMapping = new DcMapping(this);
         currentLimitsMapping = new CurrentLimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping();
-        transformerRegulatingControlMapping = new TransformerRegulatingControlMapping();
-        generatorRegulatingControlMapping = new GeneratorRegulatingControlMapping();
+
+        this.extendedCgmesConversion = useExtendedCgmesConversion;
+        if (this.isExtendedCgmesConversion()) {
+            tapChangerTransformers = null;
+            transformerRegulatingControlMapping = new TransformerRegulatingControlMapping();
+            generatorRegulatingControlMapping = new GeneratorRegulatingControlMapping();
+        } else {
+            tapChangerTransformers = new TapChangerTransformers();
+            transformerRegulatingControlMapping = null;
+            generatorRegulatingControlMapping = null;
+        }
 
         ratioTapChangerTables = new HashMap<>();
         phaseTapChangerTables = new HashMap<>();

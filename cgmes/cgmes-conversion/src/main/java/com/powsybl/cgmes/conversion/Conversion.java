@@ -82,14 +82,11 @@ public class Conversion {
             throw new CgmesModelException("Data source does not contain EquipmentCore data");
         }
         Network network = createNetwork();
-        Context context = createContext(network);
+        // JAM TODO This flag, useExtendedCgmesConversion, should be removed
+        Context context = createContext(network, useExtendedCgmesConversion);
         assignNetworkProperties(context);
 
-        // JAM TODO This flag should be removed
-        context.setExtendedCgmesConversion(useExtendedCgmesConversion);
-
         Function<PropertyBag, AbstractObjectConversion> convf;
-
         cgmes.terminals().forEach(p -> context.terminalMapping().buildTopologicalNodesMapping(p));
         cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().cacheRegulatingControls(p));
 
@@ -124,7 +121,7 @@ public class Conversion {
         convert(cgmes.equivalentBranches(), eqb -> new EquivalentBranchConversion(eqb, context));
         convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
 
-        if (useExtendedCgmesConversion) {
+        if (context.isExtendedCgmesConversion()) {
             convertFullTransformers(context);
         } else {
             convertTransformers(context);
@@ -139,12 +136,11 @@ public class Conversion {
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.currentLimitsMapping().addAll();
 
-        context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
-        if (useExtendedCgmesConversion) {
+        if (context.isExtendedCgmesConversion()) {
             context.regulatingControlMapping().setAllRegulatingControls(network);
         } else {
             // set all remote regulating terminals
-            //context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
+            context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
         }
 
         if (config.convertSvInjections()) {
@@ -200,9 +196,9 @@ public class Conversion {
         return network;
     }
 
-    private Context createContext(Network network) {
+    private Context createContext(Network network, boolean useExtendedCgmesConversion) {
         profiling.start();
-        Context context = new Context(cgmes, config, network);
+        Context context = new Context(cgmes, config, network, useExtendedCgmesConversion);
         context.substationIdMapping().build();
         context.dc().initialize();
         context.loadRatioTapChangerTables();
@@ -762,7 +758,7 @@ public class Conversion {
         private boolean convertSvInjections = true;
         private StateProfile profileUsedForInitialStateValues = SSH;
 
-        // Default configuration
+        // Default configuration. See CgmesImport.java config()
         private boolean xfmr2RatioPhaseEnd1 = false;
         private boolean xfmr2RatioPhaseEnd2 = false;
         private boolean xfmr2RatioPhaseEnd1End2 = true;
