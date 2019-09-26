@@ -175,6 +175,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public NetworkImpl getNetwork() {
+        return this;
+    }
+
+    @Override
     public VariantManagerImpl getVariantManager() {
         return variantManager;
     }
