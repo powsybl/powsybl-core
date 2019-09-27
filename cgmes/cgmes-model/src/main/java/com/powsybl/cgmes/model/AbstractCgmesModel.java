@@ -202,6 +202,12 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     public void setBasename(String baseName) {
         this.baseName = Objects.requireNonNull(baseName);
     }
+    
+    @Override
+    //TODO elena
+    public String getBaseName() {
+        return this.baseName;
+    }
 
     @Override
     public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary) {

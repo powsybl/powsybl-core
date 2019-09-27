@@ -183,11 +183,12 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void duplicate(TripleStore origin) {
+    public void duplicate(TripleStore origin, String baseName) {
         // TODO elena Clone by statements
+        Iterator<String> names = null;
         Dataset datasetOrigin = ((TripleStoreJena) origin).getDataset();
-
-        Iterator<String> names = datasetOrigin.listNames();
+        cloneNamespaces(datasetOrigin, baseName);
+        names = datasetOrigin.listNames();
         while (names.hasNext()) {
             List<Statement> listStatements = new ArrayList<Statement>();
             String name = names.next();
@@ -202,23 +203,23 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
                 }
                 model.add(listStatements);
                 union = union.union(model);
-                cloneNamespaces(datasetOrigin);
             }
         }
         // checkClonedRepo(datasetOrigin, dataset);
     }
 
-    private void cloneNamespaces(Dataset datasetOrigin) {
-        // get namespaces from origin
+    private void cloneNamespaces(Dataset datasetOrigin, String baseName) {
+
         Model unionOrigin = ModelFactory.createDefaultModel();
         Iterator<String> names = datasetOrigin.listNames();
         while (names.hasNext()) {
             String name = names.next();
-            String context = namedModelFromName(name);
             Model m = datasetOrigin.getNamedModel(name);
-
             unionOrigin = unionOrigin.union(m);
         }
+        // override data namespase
+        unionOrigin.setNsPrefix("data", baseName.concat("#"));
+        // get namespaces from union origin
         Map<String, String> namespacesMap = unionOrigin.getNsPrefixMap();
         // set these namespaces to the destination
         List<PrefixNamespace> namespaces = new ArrayList<>();

@@ -905,22 +905,13 @@ WHERE {
     }}
 }
 
-# query: getCurrentResource
-SELECT ?resource
-WHERE { GRAPH <{0}> {
-	?s  ?p ?v ;
-	FILTER ( CONTAINS(STR(?s), "/#"))
-	BIND ( CONCAT(STRBEFORE(STR(?s),"/#"),"/#") AS ?resource ).
-}}
-LIMIT 1
-
 # query: updateCgmesfromIidmRemove
 
 # query: checkCgmesUpdated
 SELECT ?subject  ?predicate  ?value 
 WHERE
 {     
-    { GRAPH ?graph
+    { GRAPH <{0}>
           { ?subject  ?predicate  ?value .
             FILTER ( STRENDS(STR(?subject), "{1}") #&& STRENDS(STR(?predicate), STRAFTER( "{2}", "cim:")) 
             )

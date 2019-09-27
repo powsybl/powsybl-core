@@ -7,7 +7,6 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -20,7 +19,6 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.update.CgmesUpdater;
-import com.powsybl.cgmes.update.IidmChange;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Bus;
@@ -52,21 +50,16 @@ public class CgmesExport implements Exporter {
         // When export is called, it triggers:
         // Apply network changes to cgmes:
         // Create clone repo from the origin; update the clone with changes list;
-        // Refresh/rebuild cache - check AbstractCgmesModel for cached data
+        // Refresh/rebuild caches --> done in clone code 
         // Clear the previous SV data - we can keep addStateVariables(network, cgmes)
-        // here,
-        // or distribut between the appropriate elements.
-//        CgmesModel cgmes = ext.getCgmesModel();
+        // here, or distribut between the appropriate elements.
         CgmesModel cgmesSource = ext.getCgmesModel();
         CgmesModel cgmes = CgmesModelFactory.cloneCgmes(cgmesSource);
-        
-        loadCaches(cgmes);
 
         CgmesUpdater cgmesUpdater = ext.getCgmesUpdater();
         try {
             cgmesUpdater.update(cgmes);
         } catch (Exception e) {
-
             e.printStackTrace();
         }
 
@@ -87,20 +80,6 @@ public class CgmesExport implements Exporter {
     @Override
     public String getFormat() {
         return "CGMES";
-    }
-
-    //TODO elena
-    private void loadCaches(CgmesModel cgmes) {
-        for (PropertyBags tends : cgmes.groupedTransformerEnds().values()) {
-            for (PropertyBag end : tends) {
-                CgmesTerminal t = cgmes.terminal(end.getId(CgmesNames.TERMINAL));
-                cgmes.substation(t);
-                if (cgmes.isNodeBreaker())
-                    t.connectivityNode();
-                else
-                    t.topologicalNode();
-            }
-        }
     }
 
     private void addStateVariables(Network n, CgmesModel cgmes) {
@@ -145,16 +124,23 @@ public class CgmesExport implements Exporter {
             // TODO If we could store an identifier for the tap changer in IIDM
             // then we would not need to query the CGMES model
             if (t.getPhaseTapChanger() != null) {
-                p.put(CgmesNames.POSITION, is(t.getPhaseTapChanger().getTapPosition()));
+                p.put(nameTapChangerPosition(cgmes), is(t.getPhaseTapChanger().getTapPosition()));
                 p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerForPowerTransformer(t.getId()));
                 tapSteps.add(p);
             } else if (t.getRatioTapChanger() != null) {
-                p.put(CgmesNames.POSITION, is(t.getRatioTapChanger().getTapPosition()));
+                p.put(nameTapChangerPosition(cgmes), is(t.getRatioTapChanger().getTapPosition()));
                 p.put(CgmesNames.TAP_CHANGER, cgmes.ratioTapChangerForPowerTransformer(t.getId()));
                 tapSteps.add(p);
             }
         }
         cgmes.add(CgmesSubset.STATE_VARIABLES, "SvTapStep", tapSteps);
+    }
+
+    private String nameTapChangerPosition(CgmesModel cgmes) {
+        String nameTapChangerPosition = (cgmes.getCimNamespace().indexOf("cim14#")!= -1)
+            ? CgmesNames.CONTINUOUS_POSITION
+            : CgmesNames.POSITION;
+        return nameTapChangerPosition;
     }
 
     private PropertyBag createPowerFlowProperties(CgmesModel cgmes, Terminal terminal) {

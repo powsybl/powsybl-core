@@ -276,7 +276,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void duplicate(TripleStore origin) {
+    public void duplicate(TripleStore origin, String baseName) {
         // TODO elena clone by statements
         Repository repoOrigin = ((TripleStoreBlazegraph) origin).getRepository();
         RepositoryConnection connOrigin = null;
@@ -286,14 +286,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
             try {
                 conn = repo.getConnection();
                 conn.begin();
-                cloneNamespaces(connOrigin, conn);
-                RepositoryResult<Namespace> ns = connOrigin.getNamespaces();
-                while (ns.hasNext()) {
-                    Namespace n = ns.next();
-                    String prefix = n.getPrefix();
-                    String name = n.getName();
-                    conn.setNamespace(prefix, name);
-                }
+                cloneNamespaces(connOrigin, conn, baseName);
                 replicateStatements(connOrigin, conn);
                 conn.commit();
                 // checkClonedRepo(connOrigin, conn);
@@ -321,10 +314,13 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         }
     }
 
-    private void cloneNamespaces(RepositoryConnection connOrigin, RepositoryConnection conn) {
+    private void cloneNamespaces(RepositoryConnection connOrigin, RepositoryConnection conn,
+        String baseName) {
         List<PrefixNamespace> namespaces = new ArrayList<>();
         RepositoryResult<Namespace> ns;
         try {
+            // first, override data namespase in origin
+            connOrigin.setNamespace("data", baseName.concat("#"));
             ns = connOrigin.getNamespaces();
             while (ns.hasNext()) {
                 Namespace namespace = ns.next();

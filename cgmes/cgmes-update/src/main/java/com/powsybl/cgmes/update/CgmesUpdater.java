@@ -56,7 +56,8 @@ public class CgmesUpdater {
                         String currentContext = entry.getContext();
                         // TODO elena : will need to add a logic to find the right context
                         if (context.toUpperCase().contains(currentContext.toUpperCase())
-                            && !context.contains("_BD_")) {
+                            && !context.toUpperCase().contains("BD")
+                            && !context.toUpperCase().contains("BOUNDARY")) {
 
                             String cgmesSubject = (entry.getNewSubject() != null) ? entry.getNewSubject()
                                 : change.getIdentifiableId();

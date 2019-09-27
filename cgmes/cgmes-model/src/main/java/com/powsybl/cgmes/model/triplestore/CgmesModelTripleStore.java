@@ -10,6 +10,7 @@ package com.powsybl.cgmes.model.triplestore;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -26,6 +27,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
@@ -439,8 +441,15 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         String predicate = cgmesChanges.get("cgmesPredicate");
         String value = cgmesChanges.get("cgmesNewValue");
         String valueIsNode = cgmesChanges.get("valueIsNode");
-        String resource = namedQuery("getCurrentResource",
-            context).get(0).get("resource").trim();
+
+        List<PrefixNamespace> prefixes = tripleStore.getNamespaces();
+        String resource = "#";
+        for(PrefixNamespace px : prefixes) {
+            String g = px.getPrefix();
+            if(px.getPrefix().equals("data")) {
+                resource = px.getNamespace();
+            }
+        }
         LOG.info("\n*****{}, {}, {}, {}******", context, subject, predicate, value);
         if (instanceClassOfIidmChange.equals("IidmChangeOnUpdate")) {
             namedQueryFordUpdate("updateCgmesfromIidm", context, subject, predicate, value, resource,
@@ -507,7 +516,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     // TODO elena
     @Override
     public void clone(CgmesModel cgmes) {
-        tripleStore.duplicate(cgmes.tripleStore());
+        tripleStore.duplicate(cgmes.tripleStore(), cgmes.getBaseName());
     }
 
     @Override

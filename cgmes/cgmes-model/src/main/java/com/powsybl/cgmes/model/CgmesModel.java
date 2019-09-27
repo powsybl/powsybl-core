@@ -146,6 +146,8 @@ public interface CgmesModel {
     }
 
     void setBasename(String baseName);
+    
+    String getBaseName();
 
     void write(DataSource ds);
 

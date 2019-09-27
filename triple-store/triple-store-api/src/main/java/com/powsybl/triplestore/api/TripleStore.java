@@ -62,7 +62,7 @@ public interface TripleStore {
     // TODO elena
     void update(String queryText);
 
-    void duplicate(TripleStore origin);
+    void duplicate(TripleStore origin, String baseName);
 
     String getImplementationName();
 

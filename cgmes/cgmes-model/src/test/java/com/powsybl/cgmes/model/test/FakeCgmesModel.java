@@ -552,6 +552,11 @@ public final class FakeCgmesModel implements CgmesModel {
     public String getCimNamespace() {
         return null;
     }
+    
+    @Override
+    public String getBaseName() {
+        return null;
+    }
 
     @Override
     public void setBasename(String baseName) {

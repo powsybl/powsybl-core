@@ -11,6 +11,8 @@ import java.util.Objects;
 
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
@@ -55,7 +57,23 @@ public final class CgmesModelFactory {
         String implementation = cgmes.tripleStore().getImplementationName();
         TripleStore tripleStore = TripleStoreFactory.create(implementation);
         CgmesModel cgmesClone = new CgmesModelTripleStore(cimNamespace, tripleStore);
+        cgmesClone.setBasename(cgmes.getBaseName());
         cgmesClone.clone(cgmes);
+        loadCaches(cgmesClone);
         return cgmesClone;
+    }
+    
+    //TODO elena
+    private static void loadCaches(CgmesModel cgmes) {
+        for (PropertyBags tends : cgmes.groupedTransformerEnds().values()) {
+            for (PropertyBag end : tends) {
+                CgmesTerminal t = cgmes.terminal(end.getId(CgmesNames.TERMINAL));
+                cgmes.substation(t);
+                if (cgmes.isNodeBreaker())
+                    t.connectivityNode();
+                else
+                    t.topologicalNode();
+            }
+        }
     }
 }

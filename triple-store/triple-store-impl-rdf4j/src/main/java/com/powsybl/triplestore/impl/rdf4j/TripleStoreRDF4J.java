@@ -215,13 +215,13 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void duplicate(TripleStore origin) {
+    public void duplicate(TripleStore origin, String baseName) {
         // TODO elena clone by statements
         Repository repoOrigin = ((TripleStoreRDF4J) origin).getRepository();
         try (RepositoryConnection connOrigin = repoOrigin.getConnection()) {
 
             try (RepositoryConnection conn = repo.getConnection()) {
-                cloneNamespaces(connOrigin,conn);
+                cloneNamespaces(connOrigin, conn);
                 // clone statements
                 RepositoryResult<Resource> contexts = connOrigin.getContextIDs();
                 while (contexts.hasNext()) {
