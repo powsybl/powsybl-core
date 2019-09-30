@@ -248,7 +248,8 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     }
 
     @Override
-    public List<DoubleTimeSeries> split(int chunkCount) {
+    public List<DoubleTimeSeries> split(int newChunkSize) {
+        int chunkCount = TimeSeries.computeChunkCount(index, newChunkSize);
         return Collections.nCopies(chunkCount, this);
     }
 
