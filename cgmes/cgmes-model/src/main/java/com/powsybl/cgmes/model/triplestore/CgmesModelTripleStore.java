@@ -386,6 +386,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags svInjections() {
+        return namedQuery("svInjections");
+    }
+
+    @Override
     public PropertyBags asynchronousMachines() {
         return namedQuery("asynchronousMachines");
     }

@@ -122,6 +122,6 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
 
     @Override
     protected String getTapChangerAttribute() {
-        return "phaseTapChanger";
+        return "phase" + parent.getTapChangerAttribute();
     }
 }

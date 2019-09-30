@@ -126,6 +126,6 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     protected String getTapChangerAttribute() {
-        return parent.getTapChangerAttribute();
+        return "ratio" + parent.getTapChangerAttribute();
     }
 }

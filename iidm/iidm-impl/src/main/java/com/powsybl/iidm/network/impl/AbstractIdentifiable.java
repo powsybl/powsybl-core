@@ -21,7 +21,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     protected String name;
 
-    protected Properties properties;
+    protected final Map<String, String> properties = new HashMap<>();
 
     AbstractIdentifiable(String id, String name) {
         this.id = id;
@@ -38,6 +38,9 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         return name != null ? name : id;
     }
 
+    @Override
+    public abstract NetworkImpl getNetwork();
+
     protected abstract String getTypeDescription();
 
     @Override
@@ -47,15 +50,38 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public boolean hasProperty() {
-        return properties != null && !properties.isEmpty();
+        return !properties.isEmpty();
     }
 
     @Override
-    public Properties getProperties() {
-        if (properties == null) {
-            properties = new Properties();
+    public boolean hasProperty(String key) {
+        return properties.containsKey(key);
+    }
+
+    @Override
+    public String getProperty(String key) {
+        return properties.get(key);
+    }
+
+    @Override
+    public String getProperty(String key, String defaultValue) {
+        return properties.getOrDefault(key, defaultValue);
+    }
+
+    @Override
+    public String setProperty(String key, String value) {
+        String oldValue = properties.put(key, value);
+        if (Objects.isNull(oldValue)) {
+            getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", value);
+        } else {
+            getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, value);
         }
-        return properties;
+        return oldValue;
+    }
+
+    @Override
+    public Set<String> getPropertyNames() {
+        return properties.keySet();
     }
 
     @Override

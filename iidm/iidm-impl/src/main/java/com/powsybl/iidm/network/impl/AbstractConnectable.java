@@ -42,7 +42,8 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         return terminals;
     }
 
-    protected NetworkImpl getNetwork() {
+    @Override
+    public NetworkImpl getNetwork() {
         if (terminals.isEmpty()) {
             throw new PowsyblException(id + " is not attached to a network");
         }

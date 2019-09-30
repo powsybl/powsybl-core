@@ -17,7 +17,6 @@ import org.junit.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -53,13 +52,38 @@ public class VariantManagerImplTest {
         }
 
         @Override
+        public Network getNetwork() {
+            return null;
+        }
+
+        @Override
         public boolean hasProperty() {
             return false;
         }
 
         @Override
-        public Properties getProperties() {
+        public boolean hasProperty(String key) {
+            return false;
+        }
+
+        @Override
+        public String getProperty(String key) {
             return null;
+        }
+
+        @Override
+        public String getProperty(String key, String defaultValue) {
+            return null;
+        }
+
+        @Override
+        public String setProperty(String key, String value) {
+            return null;
+        }
+
+        @Override
+        public Set<String> getPropertyNames() {
+            return Collections.emptySet();
         }
 
         @Override

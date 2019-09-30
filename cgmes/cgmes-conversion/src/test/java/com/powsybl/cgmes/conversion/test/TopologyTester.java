@@ -40,7 +40,7 @@ public class TopologyTester {
     public boolean test(boolean strict) {
         // Only makes sense if the network has been obtained
         // from CGMES node-breaker detailed data
-        if (!network.getProperties().getProperty(Conversion.NETWORK_PS_CGMES_MODEL_DETAIL)
+        if (!network.getProperty(Conversion.NETWORK_PS_CGMES_MODEL_DETAIL)
                 .equals(Conversion.NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER)) {
             return true;
         }
