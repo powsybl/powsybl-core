@@ -7,7 +7,7 @@
 package com.powsybl.timeseries.ast;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -50,15 +50,15 @@ public final class NodeCalcVisitors {
         // the result and push it to the childrenQueue stack.
         ArrayDeque<NodeWrapper> visitQueue = new ArrayDeque<>();
         ArrayDeque<Optional<R>> childrenQueue = new ArrayDeque<>();
-        visitQueue.push(new NodeWrapper(root, true));
+        visitQueue.push(new NodeWrapper(root));
         while (!visitQueue.isEmpty()) {
             NodeWrapper nodeWrapper = visitQueue.peek();
-            if (nodeWrapper.beforechildren) {
-                nodeWrapper.beforechildren = false;
-                iterate(arg, visitor, visitQueue, nodeWrapper);
-            } else {
+            if (nodeWrapper.afterChildren) {
                 visitQueue.pop();
                 visit(arg, visitor, childrenQueue, nodeWrapper);
+            } else {
+                nodeWrapper.afterChildren = true;
+                iterate(arg, visitor, visitQueue, nodeWrapper);
             }
         }
         return childrenQueue.pop().orElse(null);
@@ -68,25 +68,26 @@ public final class NodeCalcVisitors {
             NodeWrapper nodeWrapper) {
         if (nodeWrapper.node != null) {
             List<NodeCalc> children = nodeWrapper.node.acceptIterate(visitor, arg);
-            Collections.reverse(children);
-            for (NodeCalc child : children) {
-                visitQueue.push(new NodeWrapper(child, true));
+            int size = children.size();
+            for (int i = size - 1; i >= 0; i--) {
+                visitQueue.push(new NodeWrapper(children.get(i)));
             }
-            nodeWrapper.childcount = children.size();
+            nodeWrapper.childCount = children.size();
         } else {
-            nodeWrapper.childcount = 0;
+            nodeWrapper.childCount = 0;
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static <R, A> void visit(A arg, NodeCalcVisitor<R, A> visitor, ArrayDeque<Optional<R>> childrenQueue,
             NodeWrapper nodeWrapper) {
         List<R> results;
-        if (nodeWrapper.childcount > 0) {
-            results = new ArrayList<>();
-            for (int i = 0; i < nodeWrapper.childcount; i++) {
-                results.add(childrenQueue.pop().orElse(null));
+        int size = nodeWrapper.childCount;
+        if (size > 0) {
+            results = (List<R>) Arrays.asList(new Object[size]);
+            for (int i = size - 1; i >= 0; i--) {
+                results.set(i, childrenQueue.pop().orElse(null));
             }
-            Collections.reverse(results);
         } else {
             results = Collections.emptyList();
         }
@@ -97,12 +98,11 @@ public final class NodeCalcVisitors {
     private static class NodeWrapper {
 
         private NodeCalc node;
-        private boolean beforechildren;
-        private int childcount = -1;
+        private boolean afterChildren;
+        private int childCount;
 
-        public NodeWrapper(NodeCalc node, boolean beforechildren) {
+        public NodeWrapper(NodeCalc node) {
             this.node = node;
-            this.beforechildren = beforechildren;
         }
     }
 }
