@@ -83,4 +83,80 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      */
     double getCurrentB();
 
+    /**
+     * Get the terminal used for regulation.
+     */
+    default Terminal getRegulatingTerminal() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Set the terminal used for regulation.
+     * If null is passed as regulating terminal, the regulation is considered local.
+     */
+    default ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get the shunt compensator's regulating status.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default boolean isVoltageRegulatorOn() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Set the shunt compensator's regulating status.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get the shunt compensator's voltage target in kV if it exists. Else return NaN.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default double getTargetV() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Set the shunt compensator's voltage target in kV.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default ShuntCompensator setTargetV(double targetV) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get the shunt compensator's deadband (in kV) used to avoid excessive update of discrete control while regulating.
+     * This attribute is necessary only if the shunt compensator is regulating.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default double getTargetDeadband() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Set the shunt compensator's deadband (in kV) used to avoid excessive update of discrete control while regulating.
+     * This attribute is necessary only if the shunt compensator is regulating. It must be positive.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default ShuntCompensator setTargetDeadband(double targetDeadband) {
+        throw new UnsupportedOperationException();
+    }
 }

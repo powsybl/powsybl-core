@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
@@ -24,18 +25,30 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
  */
 public abstract class AbstractXmlConverterTest extends AbstractConverterTest {
 
+    /**
+     * Return path (as String) of the test resource directory containing all IIDM-XML files of a given IIDM-XML version.
+     */
     public static String getVersionDir(IidmXmlVersion version) {
         return "/V" + version.toString("_") + "/";
     }
 
+    /**
+     * Return path (as String) of the test resource IIDM-XML file with a given file name in a given IIDM-XML version.
+     */
     public static String getVersionedNetworkPath(String fileName, IidmXmlVersion version) {
         return getVersionDir(version) + fileName;
     }
 
+    /**
+     * Return an input stream of the test resource IIDM-XML file with a given file name in a given IIDM-XML version.
+     */
     protected InputStream getVersionedNetworkAsStream(String fileName, IidmXmlVersion version) {
         return getClass().getResourceAsStream(getVersionedNetworkPath(fileName, version));
     }
 
+    /**
+     * Execute a round trip test on the test resource IIDM-XML file with a given file name for the given IIDM-XML versions.
+     */
     protected void roundTripVersionedXmlTest(String file, IidmXmlVersion... versions) throws IOException {
         for (IidmXmlVersion version : versions) {
             roundTripXmlTest(NetworkXml.read(getVersionedNetworkAsStream(file, version)),
@@ -45,14 +58,40 @@ public abstract class AbstractXmlConverterTest extends AbstractConverterTest {
         }
     }
 
+    /**
+     * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM-XML versions
+     * strictly older than the current IIDM-XML version.
+     */
     protected void roundTripAllPreviousVersionedXmlTest(String file) throws IOException {
         roundTripVersionedXmlTest(file, Stream.of(IidmXmlVersion.values())
                 .filter(v -> v.compareTo(CURRENT_IIDM_XML_VERSION) < 0)
                 .toArray(IidmXmlVersion[]::new));
     }
 
+    /**
+     * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM-XML versions
+     * equals or more recent than a given minimum IIDM-XML version <b>and</b> strictly older than the current IIDM-XML version.
+     */
+    protected void roundTripVersionedXmlFromMinToCurrentVersionTest(String file, IidmXmlVersion minVersion) throws IOException {
+        roundTripVersionedXmlTest(file, Stream.of(IidmXmlVersion.values())
+                .filter(v -> v.compareTo(minVersion) >= 0 && v.compareTo(CURRENT_IIDM_XML_VERSION) < 0)
+                .toArray(IidmXmlVersion[]::new));
+    }
+
+    /**
+     * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM-XML versions.
+     */
     protected void roundTripAllVersionedXmlTest(String file) throws IOException {
         roundTripVersionedXmlTest(file, IidmXmlVersion.values());
+    }
+
+    /**
+     * Execute a given test for all IIDM-XML versions strictly older than a given maximum IIDM-XML version.
+     */
+    protected void testForAllPreviousVersions(IidmXmlVersion maxVersion, Consumer<IidmXmlVersion> test) {
+        Stream.of(IidmXmlVersion.values())
+                .filter(v -> v.compareTo(maxVersion) < 0)
+                .forEach(test);
     }
 
     /**

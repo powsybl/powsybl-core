@@ -428,6 +428,7 @@ public class IeeeCdfImporter implements Importer {
                 .setRegulating(regulating)
                 .setRegulationTerminal(regulatingTerminal)
                 .setTargetV(targetV)
+                .setTargetDeadband(regulating ? 0.0 : Double.NaN)
                 .setTapPosition(0);
         for (double rho : rhos) {
             ratioTapChangerAdder.beginStep()
