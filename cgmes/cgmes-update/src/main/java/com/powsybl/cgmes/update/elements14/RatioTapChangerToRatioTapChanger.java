@@ -49,15 +49,15 @@ public class RatioTapChangerToRatioTapChanger extends TwoWindingsTransformerToPo
              * RatioTapChangerTable TODO elena check names and predicates for cim14
              */
             mapRTTC.put("ratioTapChangerTable", new CgmesPredicateDetails(
-                "rdf:type", "_EQ", false, "cim:RatioTapChangerTable", idRTTC_Table));
+                "rdf:type", "_EQ", false, "cim:RatioTapChangerTable", idRTTCTable));
 
             mapRTTC.put("nameRTTCTable", new CgmesPredicateDetails(
-                "cim:IdentifiedObject.name", "_EQ", false, name.concat("_RTTC_Name"), idRTTC_Table));
+                "cim:IdentifiedObject.name", "_EQ", false, name.concat("_RTTC_Name"), idRTTCTable));
             /**
              * RatioTapChangerTablePoint
              */
             mapRTTC.put("RatioTapChangerTablePoint", new CgmesPredicateDetails(
-                "rdf:type", "_EQ", false, "cim:RatioTapChangerTablePoint", idRTTC_TablePoint));
+                "rdf:type", "_EQ", false, "cim:RatioTapChangerTablePoint", idRTTCTablePoint));
         }
 
         return mapRTTC;

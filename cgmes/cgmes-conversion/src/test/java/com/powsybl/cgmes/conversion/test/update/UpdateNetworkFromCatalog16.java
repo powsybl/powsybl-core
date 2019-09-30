@@ -19,20 +19,15 @@ import com.powsybl.iidm.network.*;
 
 public class UpdateNetworkFromCatalog16 {
 
-    public UpdateNetworkFromCatalog16(Network network) {
-        this.network = network;
-        cgmesUpdater = new CgmesUpdater(network);
-    }
-
-    public Network updateNetwork() throws IOException {
+    public static void updateNetwork(Network network) throws IOException {
         /**
          * Test onCreation
          */
-        Substation substation = network.newSubstation()
-            .setCountry(Country.FI)
-            .setName("BUS   15_SS")
-            .setId("_BUS____15_SS")
-            .add();
+//        Substation substation = network.newSubstation()
+//            .setCountry(Country.FI)
+//            .setName("BUS   15_SS")
+//            .setId("_BUS____15_SS")
+//            .add();
 //        VoltageLevel voltageLevel = substation.newVoltageLevel()
 //            .setTopologyKind(TopologyKind.BUS_BREAKER)
 //            .setId("_BUS____15_VL")
@@ -161,23 +156,34 @@ public class UpdateNetworkFromCatalog16 {
         /**
          * Test onUpdate
          */
-//        double p1 = 1.0;
-//        double q1 = 2.0;
-//        lccConverterStation.getTerminal().setP(p1);
-//        lccConverterStation.getTerminal().setQ(q1);
-//
-//        // assertTrue(changes.size() == 6);
-//        bus2.setAngle(2.0).setV(3.2);
-        network.getBusBreakerView().getBus("_0471bd2a-c766-11e1-8775-005056c00008").setV(4.4).setAngle(4.44);//--> no chnage
-        network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008").setB(1.0).setG(2.0).setR(3.0)
-            .setX(4.0).setRatedU1(11.1).setRatedU2(22.2);
-        Terminal t = network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
-            .getTerminal(Branch.Side.ONE);
+//        network.getVoltageLevel("_0460f448-c766-11e1-8775-005056c00008")
+//            .setHighVoltageLimit(1.2 * 381.0)
+//            .setLowVoltageLimit(302.0);// .setNominalV(400);
+//        network.getBusBreakerView().getBus("_0471bd2a-c766-11e1-8775-005056c00008")
+//            .setV(4.4).setAngle(4.44);
+//        network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
+//            .setR(0.3).setB(0.1).setG(0.2).setX(19.15)
+//            .setRatedU1(132).setRatedU2(220);
+//        network.getGenerator("_044ca8f0-c766-11e1-8775-005056c00008")
+//            .setRatedS(100).setMaxP(200.0).setMinP(-200.0);
+//        // .setTargetP(83.0); no iidm change notified.
+//        network.getLine("_044cd006-c766-11e1-8775-005056c00008")
+//            .setR(6.0).setX(18.0)
+//            .setB1(0.1).setB2(0.1)
+//            .setG1(0.01).setG2(0.01);
+
         network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
             .getRatioTapChanger()
-            .setTapPosition(7)
-            .setLowTapPosition(0);
+            .setTapPosition(4);// --> no iidm change notified. sv position, default to neutralStep;
+        // .setLowTapPosition(2) --> will update indirectly highStep in cgmes
+
+//      double p1 = 1.0;
+//      double q1 = 2.0;
+//      lccConverterStation.getTerminal().setP(p1);
+//      lccConverterStation.getTerminal().setQ(q1);
 //
+//      Terminal t = network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
+//          .getTerminal(Branch.Side.ONE);
 //        network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
 //            .newPhaseTapChanger()
 //            .setLowTapPosition(0)
@@ -189,21 +195,16 @@ public class UpdateNetworkFromCatalog16 {
 //            .beginStep().setR(-28.091503).setX(-28.091503).setG(0.0).setB(0.0).setRho(1.0).setAlpha(5.42).endStep()
 //            .beginStep().setR(39.78473).setX(39.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-42.8).endStep()
 //            .add();
-//        network.getGenerator("_044ca8f0-c766-11e1-8775-005056c00008").setRatedS(100).setMaxP(200.0).setMinP(-200.0)
-//            .setTargetP(1.0);
-        network.getSubstation("_047c929a-c766-11e1-8775-005056c00008").setCountry(Country.GR);
-        network.getLoad("_0448d86a-c766-11e1-8775-005056c00008").setP0(100.0).setQ0(5.0);//--> no change
-        network.getVoltageLevel("_0460f448-c766-11e1-8775-005056c00008").setHighVoltageLimit(1.2 * 381.0)
-            .setLowVoltageLimit(302.0).setNominalV(10.50);
-        network.getLine("_044cd006-c766-11e1-8775-005056c00008").setB1(1.0).setB2(2.0).setG1(1.1).setG2(2.1)
-            .setR(3.0).setX(4.0);
-        for (ShuntCompensator sc : network.getVoltageLevel("_04728074-c766-11e1-8775-005056c00008")
-            .getShuntCompensators()) {
-            if (sc.getId().equals("_04553478-c766-11e1-8775-005056c00008")) {
-                sc.setbPerSection(2.2)
-                    .setMaximumSectionCount(9);
-            }
-        }
+//        network.getSubstation("_047c929a-c766-11e1-8775-005056c00008").setCountry(Country.GR);
+//        network.getLoad("_0448d86a-c766-11e1-8775-005056c00008").setP0(13.0).setQ0(5.0);// --> no change
+
+//        for (ShuntCompensator sc : network.getVoltageLevel("_04728074-c766-11e1-8775-005056c00008")
+//            .getShuntCompensators()) {
+//            if (sc.getId().equals("_04553478-c766-11e1-8775-005056c00008")) {
+//                sc.setbPerSection(2.2)
+//                    .setMaximumSectionCount(9);
+//            }
+//        }
 
         LOG.info("checkBusBreakerView "
 //            + network.getLoad("_0448d86a-c766-11e1-8775-005056c00008").getTerminal()
@@ -218,23 +219,7 @@ public class UpdateNetworkFromCatalog16 {
 
 //        assertTrue(changes.size() == 9);
 
-        return network;
     }
 
-    public void updateTester() {
-        CgmesModel cgmesSource = network.getExtension(CgmesModelExtension.class).getCgmesModel();
-        CgmesModel cgmes = CgmesModelFactory.cloneCgmes(cgmesSource);
-        try {
-            cgmesUpdater.update(cgmes);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
-    private Network network;
-    List<IidmChange> changes;
-    IidmToCgmes16 iidmToCgmes;
-    CgmesUpdater cgmesUpdater;
     private static final Logger LOG = LoggerFactory.getLogger(UpdateNetworkFromCatalog16.class);
 }

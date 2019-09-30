@@ -44,18 +44,21 @@ public class LineToACLineSegment implements ConversionMapper {
         }
 
         double b1 = !String.valueOf(newLine.getB1()).equals("NaN") ? newLine.getB1() : 0.0;
+        map.put("b1", new CgmesPredicateDetails(
+            "cim:ACLineSegment.bch", "_EQ", false, String.valueOf(b1 * 2)));
+
         double b2 = !String.valueOf(newLine.getB2()).equals("NaN") ? newLine.getB2() : 0.0;
-        map.put("b1",
-            new CgmesPredicateDetails("cim:ACLineSegment.bch", "_EQ", false, String.valueOf(b1 + b2)));
-        map.put("b2",
-            new CgmesPredicateDetails("cim:ACLineSegment.bch", "_EQ", false, String.valueOf(b1 + b2)));
+        map.put("b2", new CgmesPredicateDetails(
+            "cim:ACLineSegment.bch", "_EQ", false, String.valueOf(b2 * 2)));
 
         double g1 = !String.valueOf(newLine.getG1()).equals("NaN") ? newLine.getG1() : 0.0;
+
+        map.put("g1", new CgmesPredicateDetails(
+            "cim:ACLineSegment.gch", "_EQ", false, String.valueOf(g1 * 2)));
+
         double g2 = !String.valueOf(newLine.getG2()).equals("NaN") ? newLine.getG2() : 0.0;
-        map.put("g1",
-            new CgmesPredicateDetails("cim:ACLineSegment.gch", "_EQ", false, String.valueOf(g1 + g2)));
-        map.put("g2",
-            new CgmesPredicateDetails("cim:ACLineSegment.gch", "_EQ", false, String.valueOf(g1 + g2)));
+        map.put("g2", new CgmesPredicateDetails(
+            "cim:ACLineSegment.gch", "_EQ", false, String.valueOf(g1 * 2)));
 
         String baseVoltageId = getBaseVoltageId(newLine);
         map.put("BaseVoltage", new CgmesPredicateDetails(

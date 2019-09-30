@@ -1,22 +1,36 @@
 package com.powsybl.cgmes.conversion.test.update;
 
-import java.io.IOException;
+import static org.junit.Assert.fail;
 
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Properties;
+
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
 public class CgmesUpdaterTester {
-
-    IidmImportFromCgmesTest im;
 
     @BeforeClass
     public static void setUp() throws IOException {
@@ -30,26 +44,30 @@ public class CgmesUpdaterTester {
 
     @After
     public void tearDown() throws IOException {
-        im.fileSystem.close();
+        fileSystem.close();
     }
 
-    @Test
-    public void mapIidmChangesToCgmes14Test() throws IOException {
+    //@Test
+    public void updateCgmes14Test() throws IOException {
 
-        for (String impl : TripleStoreFactory.onlyDefaultImplementation()) {
+        for (String impl : TripleStoreFactory.allImplementations()) {
 
-            im = new IidmImportFromCgmesTest(testGridModel14, impl);
+            CgmesImport i = new CgmesImport(new InMemoryPlatformConfig(fileSystem));
+            ReadOnlyDataSource ds = testGridModel14.dataSource();
+            Network network0 = i.importData(ds, importParameters(impl));
 
-            Network network0 = im.loadNetwork();
-            if (im.modelNotEmpty(network0)) {
-                network0 = new UpdateNetworkFromCatalog14(network0).updateNetwork();
+            if (modelNotEmpty(network0)) {
 
-                Network network1= im.exportAndLoadNetworkUpdated(network0);
-                
+                UpdateNetworkFromCatalog14.updateNetwork(network0);
+                DataSource tmp = tmpDataSource(impl);
+                CgmesExport e = new CgmesExport();
+
+                e.export(network0, new Properties(), tmp);
+
+                Network network1 = i.importData(tmp, importParameters(impl));
+
                 ComparisonConfig config = new ComparisonConfig()
                     .checkNetworkId(false)
-                    // Expected cases are read using CIM1Importer, that uses floats to read numbers
-                    // IIDM and CGMES now stores numbers as doubles
                     .tolerance(2.4e-4);
                 Comparison comparison = new Comparison(network0, network1, config);
                 comparison.compare();
@@ -58,24 +76,61 @@ public class CgmesUpdaterTester {
         }
     }
 
-    // @Test
-    public void mapIidmChangesToCgmes16Test() throws IOException {
+    @Test
+    public void updateCgmes16Test() throws IOException {
 
         for (String impl : TripleStoreFactory.onlyDefaultImplementation()) {
+            CgmesImport i = new CgmesImport(new InMemoryPlatformConfig(fileSystem));
+            ReadOnlyDataSource ds = testGridModel16.dataSource();
+            Network network0 = i.importData(ds, importParameters(impl));
 
-            im = new IidmImportFromCgmesTest(testGridModel16, impl);
+            if (modelNotEmpty(network0)) {
 
-            Network network = im.loadNetwork();
-            if (im.modelNotEmpty(network)) {
-                UpdateNetworkFromCatalog16 up = new UpdateNetworkFromCatalog16(network);
-                up.updateNetwork();
+                UpdateNetworkFromCatalog16.updateNetwork(network0);
+                DataSource tmp = tmpDataSource(impl);
+                CgmesExport e = new CgmesExport();
 
-                Network networkUpdated = im.exportAndLoadNetworkUpdated(network);
+                e.export(network0, new Properties(), tmp);
+
+                Network network1 = i.importData(tmp, importParameters(impl));
+
+                ComparisonConfig config = new ComparisonConfig()
+                    .checkNetworkId(false)
+                    .tolerance(2.4e-4);
+                Comparison comparison = new Comparison(network0, network1, config);
+                comparison.compare();
 
             }
         }
     }
 
+    private boolean modelNotEmpty(Network network) {
+        if (network.getSubstationCount() == 0) {
+            fail("Model is empty");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private Properties importParameters(String impl) {
+        importParameters = new Properties();
+        importParameters.put("powsyblTripleStore", impl);
+        importParameters.put("storeCgmesModelAsNetworkExtension", "true");
+        return importParameters;
+    }
+
+    private DataSource tmpDataSource(String impl) throws IOException {
+//      Path exportFolder = fileSystem.getPath("impl-" + impl);
+        Path exportFolder = Paths.get(".\\tmp\\", impl);
+        FileUtils.cleanDirectory(exportFolder.toFile());
+        Files.createDirectories(exportFolder);
+        DataSource tmpDataSource = new FileDataSource(exportFolder, "");
+        return tmpDataSource;
+    }
+
+    private FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
+    private Properties importParameters;
     private static TestGridModel testGridModel14;
     private static TestGridModel testGridModel16;
     private static Cim14SmallCasesCatalog smallCasesCatalog;

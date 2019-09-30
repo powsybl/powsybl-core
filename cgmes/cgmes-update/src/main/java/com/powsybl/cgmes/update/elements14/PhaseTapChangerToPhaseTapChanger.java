@@ -41,22 +41,22 @@ public class PhaseTapChangerToPhaseTapChanger extends TwoWindingsTransformerToPo
                 "cim:TapChanger.neutralStep", "_EQ", false, String.valueOf(tapPositionPHTC + 1), idPHTC));
         
             mapPHTC.put("phaseTapChanger.PhaseTapChangerTable", new CgmesPredicateDetails(
-                "cim:PhaseTapChangerTabular.PhaseTapChangerTable", "_EQ", true, idPHTC_Table, idPHTC));
+                "cim:PhaseTapChangerTabular.PhaseTapChangerTable", "_EQ", true, idPHTCTable, idPHTC));
 
             /**
              * PhaseTapChangerTable
              * TODO elena check names and table predicates for cim14
              */
             mapPHTC.put("phaseTapChangerTable", new CgmesPredicateDetails(
-                "rdf:type", "_EQ", false, "cim:PhaseTapChangerTable", idPHTC_Table));
+                "rdf:type", "_EQ", false, "cim:PhaseTapChangerTable", idPHTCTable));
 
             mapPHTC.put("namePHTCTable", new CgmesPredicateDetails(
-                "cim:IdentifiedObject.name", "_EQ", false, name.concat("_PHTC_Name"), idPHTC_Table));
+                "cim:IdentifiedObject.name", "_EQ", false, name.concat("_PHTC_Name"), idPHTCTable));
             /**
              * PhaseTapChangerTablePoint
              */
             mapPHTC.put("PhaseTapChangerTablePoint", new CgmesPredicateDetails(
-                "rdf:type", "_EQ", false, "cim:PhaseTapChangerTablePoint", idPHTC_TablePoint));
+                "rdf:type", "_EQ", false, "cim:PhaseTapChangerTablePoint", idPHTCTablePoint));
         }
         
         return mapPHTC;

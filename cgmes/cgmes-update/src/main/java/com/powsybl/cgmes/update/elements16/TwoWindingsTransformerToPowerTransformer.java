@@ -32,12 +32,12 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
             : currId.concat("_OR");
         this.idEnd2 = (getEndsId().get("idEnd2") != null) ? getEndsId().get("idEnd2")
             : currId.concat("_CL");
-        this.idPHTC = getTapChangerId("PhaseTapChanger");
-        this.idRTTC = getTapChangerId("RatioTapChanger");
-        this.idPHTC_Table = getTapChangerTableId(idPHTC, "PhaseTapChanger");
-        this.idRTTC_Table = getTapChangerTableId(idRTTC, "RatioTapChanger");
-        this.idPHTC_TablePoint = getTapChangerTablePointId(idPHTC_Table, "PhaseTapChanger");
-        this.idRTTC_TablePoint = getTapChangerTablePointId(idRTTC_Table, "RatioTapChanger");
+        this.idPTC = getTapChangerId("PhaseTapChanger");
+        this.idRTC = getTapChangerId("RatioTapChanger");
+        this.idPTCTable = getTapChangerTableId(idPTC, "PhaseTapChanger");
+        this.idRTCTable = getTapChangerTableId(idRTC, "RatioTapChanger");
+        this.idPTCTablePoint = getTapChangerTablePointId(idPTCTable, "PhaseTapChanger");
+        this.idRTCTablePoint = getTapChangerTablePointId(idRTCTable, "RatioTapChanger");
     }
 
     @Override
@@ -68,31 +68,44 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
         map.put("end1Type", new CgmesPredicateDetails(
             "cim:TransformerEnd.endNumber", "_EQ", false, "1", idEnd1));
 
-        double b = newTwoWindingsTransformer.getB();
-        if (!String.valueOf(b).equals("NaN")) {
-            map.put("b", new CgmesPredicateDetails(
-                "cim:PowerTransformerEnd.b", "_EQ", false, String.valueOf(b), idEnd1));
-        }
-
-        double r = newTwoWindingsTransformer.getR();
-        if (!String.valueOf(r).equals("NaN")) {
-            map.put("r", new CgmesPredicateDetails(
-                "cim:PowerTransformerEnd.r", "_EQ", false, String.valueOf(r), idEnd1));
-        }
-
-        double x = newTwoWindingsTransformer.getX();
-        if (!String.valueOf(x).equals("NaN")) {
-            map.put("x", new CgmesPredicateDetails(
-                "cim:PowerTransformerEnd.x", "_EQ", false, String.valueOf(x), idEnd1));
-        }
-
-        double g = newTwoWindingsTransformer.getG();
-        if (!String.valueOf(g).equals("NaN")) {
-            map.put("g", new CgmesPredicateDetails(
-                "cim:PowerTransformerEnd.g", "_EQ", false, String.valueOf(g), idEnd1));
-        }
-
+        double r0 = newTwoWindingsTransformer.getR();
+        double x0 = newTwoWindingsTransformer.getX();
+        double b0 = newTwoWindingsTransformer.getB();
+        double g0 = newTwoWindingsTransformer.getG();
+        double r2 = 0;
+        double x2 = 0;
+        double b2 = 0;
+        double g2 = 0;
         double ratedU1 = newTwoWindingsTransformer.getRatedU1();
+        double ratedU2 = newTwoWindingsTransformer.getRatedU2();
+        double rho0 = ratedU2 / ratedU1;
+        double rho0Square = rho0 * rho0;
+        double r1 = (r0 - r2) / rho0Square;
+        double x1 = (x0 - x2) / rho0Square;
+        double b1 = (b0 + b2) * rho0Square;
+        double g1 = (g0 + g2) * rho0Square;
+
+        if (!String.valueOf(b1).equals("NaN")) {
+            map.put("b", new CgmesPredicateDetails(
+                "cim:PowerTransformerEnd.b", "_EQ", false, String.valueOf(b1), idEnd1));
+        }
+
+        if (!String.valueOf(r1).equals("NaN")) {
+            map.put("r", new CgmesPredicateDetails(
+                "cim:PowerTransformerEnd.r", "_EQ", false, String.valueOf(r1), idEnd1));
+        }
+
+        if (!String.valueOf(x1).equals("NaN")) {
+            map.put("x", new CgmesPredicateDetails(
+                "cim:PowerTransformerEnd.x", "_EQ", false, String.valueOf(x1), idEnd1));
+        }
+
+        if (!String.valueOf(g1).equals("NaN")) {
+            map.put("g", new CgmesPredicateDetails(
+                "cim:PowerTransformerEnd.g", "_EQ", false, String.valueOf(g1), idEnd1));
+        }
+
+//        ratedU1 = newTwoWindingsTransformer.getRatedU1();
         if (!String.valueOf(ratedU1).equals("NaN")) {
             map.put("ratedU1", new CgmesPredicateDetails(
                 "cim:PowerTransformerEnd.ratedU", "_EQ", false, String.valueOf(ratedU1), idEnd1));
@@ -109,18 +122,18 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
             "cim:TransformerEnd.endNumber", "_EQ", false, "2", idEnd2));
 
         map.put("bEnd2", new CgmesPredicateDetails(
-            "cim:PowerTransformerEnd.b", "_EQ", false, String.valueOf(0.0), idEnd2));
+            "cim:PowerTransformerEnd.b", "_EQ", false, String.valueOf(b2), idEnd2));
 
         map.put("rEnd2", new CgmesPredicateDetails(
-            "cim:PowerTransformerEnd.r", "_EQ", false, String.valueOf(0.0), idEnd2));
+            "cim:PowerTransformerEnd.r", "_EQ", false, String.valueOf(r2), idEnd2));
 
         map.put("xEnd2", new CgmesPredicateDetails(
-            "cim:PowerTransformerEnd.x", "_EQ", false, String.valueOf(0.0), idEnd2));
+            "cim:PowerTransformerEnd.x", "_EQ", false, String.valueOf(x2), idEnd2));
 
         map.put("gEnd2", new CgmesPredicateDetails(
-            "cim:PowerTransformerEnd.g", "_EQ", false, String.valueOf(0.0), idEnd2));
+            "cim:PowerTransformerEnd.g", "_EQ", false, String.valueOf(g2), idEnd2));
 
-        double ratedU2 = newTwoWindingsTransformer.getRatedU2();
+//        ratedU2 = newTwoWindingsTransformer.getRatedU2();
         if (!String.valueOf(ratedU2).equals("NaN")) {
             map.put("ratedU2", new CgmesPredicateDetails(
                 "cim:PowerTransformerEnd.ratedU", "_EQ", false, String.valueOf(ratedU2), idEnd2));
@@ -216,8 +229,8 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
 
         String propertyName = tapChangerType.concat("TablePoint");
         PropertyBags phaseTapChangerTable = (tapChangerType.equals("RatioTapChanger"))
-            ? cgmes.ratioTapChangerTable(idRTTC_Table)
-            : cgmes.phaseTapChangerTable(idPHTC_Table);
+            ? cgmes.ratioTapChangerTable(idRTCTable)
+            : cgmes.phaseTapChangerTable(idPTCTable);
         Iterator i = phaseTapChangerTable.iterator();
         while (i.hasNext()) {
             PropertyBag pb = (PropertyBag) i.next();
@@ -237,10 +250,10 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
     String name;
     String idEnd1;
     String idEnd2;
-    String idRTTC;
-    String idPHTC;
-    String idPHTC_Table;
-    String idRTTC_Table;
-    String idPHTC_TablePoint;
-    String idRTTC_TablePoint;
+    String idRTC;
+    String idPTC;
+    String idPTCTable;
+    String idRTCTable;
+    String idPTCTablePoint;
+    String idRTCTablePoint;
 }

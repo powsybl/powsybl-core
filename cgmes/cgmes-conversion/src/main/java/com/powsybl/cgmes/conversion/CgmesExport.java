@@ -50,7 +50,7 @@ public class CgmesExport implements Exporter {
         // When export is called, it triggers:
         // Apply network changes to cgmes:
         // Create clone repo from the origin; update the clone with changes list;
-        // Refresh/rebuild caches --> done in clone code 
+        // Refresh/rebuild caches --> done in clone code
         // Clear the previous SV data - we can keep addStateVariables(network, cgmes)
         // here, or distribut between the appropriate elements.
         CgmesModel cgmesSource = ext.getCgmesModel();
@@ -119,6 +119,8 @@ public class CgmesExport implements Exporter {
         cgmes.add(CgmesSubset.STATE_VARIABLES, "SvShuntCompensatorSections", shuntCompensatorSections);
 
         PropertyBags tapSteps = new PropertyBags();
+        final List<String> SV_TAPSTEP_PROPERTIES = Arrays.asList(nameTapChangerPosition(cgmes),
+            CgmesNames.TAP_CHANGER);
         for (TwoWindingsTransformer t : n.getTwoWindingsTransformers()) {
             PropertyBag p = new PropertyBag(SV_TAPSTEP_PROPERTIES);
             // TODO If we could store an identifier for the tap changer in IIDM
@@ -137,7 +139,7 @@ public class CgmesExport implements Exporter {
     }
 
     private String nameTapChangerPosition(CgmesModel cgmes) {
-        String nameTapChangerPosition = (cgmes.getCimNamespace().indexOf("cim14#")!= -1)
+        String nameTapChangerPosition = (cgmes.getCimNamespace().indexOf("cim14#") != -1)
             ? CgmesNames.CONTINUOUS_POSITION
             : CgmesNames.POSITION;
         return nameTapChangerPosition;
@@ -171,6 +173,4 @@ public class CgmesExport implements Exporter {
     private static final List<String> SV_POWERFLOW_PROPERTIES = Arrays.asList("p", "q", CgmesNames.TERMINAL);
     private static final List<String> SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES = Arrays.asList("ShuntCompensator",
         "continuousSections");
-    private static final List<String> SV_TAPSTEP_PROPERTIES = Arrays.asList(CgmesNames.POSITION,
-        CgmesNames.TAP_CHANGER);
 }

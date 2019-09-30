@@ -21,12 +21,7 @@ import com.powsybl.iidm.network.ShuntCompensator;
 
 public class UpdateNetworkFromCatalog14 {
 
-    public UpdateNetworkFromCatalog14(Network network) {
-        this.network = network;
-//        cgmesUpdater = new CgmesUpdater(network);
-    }
-
-    public Network updateNetwork() throws IOException {
+    public static void updateNetwork(Network network) throws IOException {
         /**
          * Test onCreation
          */
@@ -194,12 +189,6 @@ public class UpdateNetworkFromCatalog14 {
 
 //        assertTrue(changes.size() == 9);
 
-        return network;
     }
-
-    private Network network;
-//    List<IidmChange> changes;
-//    IidmToCgmes14 iidmToCgmes;
-//    CgmesUpdater cgmesUpdater;
     private static final Logger LOG = LoggerFactory.getLogger(UpdateNetworkFromCatalog14.class);
 }
