@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.cgmes.conversion.GeneratorRegulatingControlMapping.GeneratorRegulatingData;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -253,8 +254,8 @@ public class RegulatingControlMapping {
     public void setAllRemoteRegulatingTerminals() {
         cachedRegulatingControls.entrySet().removeIf(this::setRemoteRegulatingTerminal);
         cachedRegulatingControls.forEach((key, value) -> context.pending("Regulating terminal",
-                String.format("The setting of the regulating terminal of the regulating control %s is not entirely handled.", key)));
-        cachedRegulatingControls.clear();
+            String.format("The setting of the regulating terminal of the regulating control %s is not entirely handled.", key)));
+        // cachedRegulatingControls.clear();
     }
 
     private boolean setRemoteRegulatingTerminal(Map.Entry<String, RegulatingControl> entry) {
@@ -334,5 +335,109 @@ public class RegulatingControlMapping {
         }
         g.setRegulatingTerminal(regTerminal);
         return true;
+    }
+
+    public void setAllRegulatingControls(Network network) {
+        setGeneratorsRegulatingControl(network);
+
+        cachedRegulatingControls.clear();
+    }
+
+    private void setGeneratorsRegulatingControl(Network network) {
+        network.getGeneratorStream().forEach(gen -> {
+            setGeneratorRegulatingControl(gen);
+        });
+    }
+
+    private void setGeneratorRegulatingControl(Generator gen) {
+        GeneratorRegulatingData rd = context.generatorRegulatingControlMapping().find(gen.getId());
+        setGeneratorRegulatingControl(gen.getId(), rd, gen);
+    }
+
+    private void setGeneratorRegulatingControl(String genId, GeneratorRegulatingData rd,
+        Generator gen) {
+        if (rd == null || !rd.regulating) {
+            return;
+        }
+
+        String controlId = rd.regulatingControlId;
+        if (controlId == null) {
+            context.missing(String.format("Regulating control Id not defined"));
+            return;
+        }
+
+        RegulatingControl control = cachedRegulatingControls.get(controlId);
+        if (control == null) {
+            context.missing(String.format("Regulating control %s", controlId));
+            return;
+        }
+
+        if (isControlModeVoltage(control.mode)) {
+            GeneratorControlVoltage gcv = getGeneratorRegulatingControlVoltage(controlId, control, context, gen);
+            setGeneratorRegulatingControlVoltage(gcv, gen);
+        } else {
+            context.ignored(control.mode, String.format("Unsupported regulation mode for generator %s", genId));
+        }
+    }
+
+    private GeneratorControlVoltage getGeneratorRegulatingControlVoltage(String controlId,
+        RegulatingControl control, Context context, Generator gen) {
+
+        Terminal terminal = findRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
+        if (terminal == null) {
+            return null;
+        }
+
+        double targetV = Double.NaN;
+        if (control.targetValue <= 0.0 || Double.isNaN(control.targetValue)) {
+            targetV = terminalNominalVoltage(terminal);
+            context.fixed(controlId, "Invalid value for regulating target value", control.targetValue, targetV);
+        } else {
+            targetV = control.targetValue;
+        }
+
+        boolean voltageRegulatorOn = false;
+        if (control.enabled) {
+            voltageRegulatorOn = true;
+        }
+
+        GeneratorControlVoltage gcv = new GeneratorControlVoltage();
+        gcv.terminal = terminal;
+        gcv.targetV = targetV;
+        gcv.voltageRegulatorOn = voltageRegulatorOn;
+        
+        return gcv;
+    }
+
+    private void setGeneratorRegulatingControlVoltage(GeneratorControlVoltage gcv, Generator gen) {
+
+        if (gcv == null) {
+            return;
+        }
+        gen.setRegulatingTerminal(gcv.terminal);
+        gen.setTargetV(gcv.targetV);
+        gen.setVoltageRegulatorOn(gcv.voltageRegulatorOn);
+    }
+
+     private boolean isControlModeVoltage(String controlMode) {
+        if (controlMode != null && controlMode.endsWith("voltage")) {
+            return true;
+        }
+        return false;
+    }
+
+    private Terminal findRegulatingTerminal(String cgmesTerminal, String topologicalNode) {
+        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminal))
+            .orElseGet(() -> context.terminalMapping().findFromTopologicalNode(topologicalNode));
+    }
+    
+    private double terminalNominalVoltage(Terminal terminal) {
+        return terminal.getVoltageLevel().getNominalV();
+    }
+
+    static class GeneratorControlVoltage {
+        Terminal terminal;
+        double targetV;
+        boolean voltageRegulatorOn;
     }
 }
