@@ -30,7 +30,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.security.api</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.sensitivity.api</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -72,6 +72,12 @@
             <artifactId>powsybl-commons</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-config-test</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -6,29 +6,16 @@
  */
 package com.powsybl.iidm.reducer;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import com.powsybl.iidm.xml.XMLImporter;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.util.Collections;
-import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -41,31 +28,12 @@ public class DefaultNetworkReducerTest {
 
     private static final String NHV1_NHV2_2 = "NHV1_NHV2_2";
 
-    private FileSystem fileSystem;
-
-    private PlatformConfig platformConfig;
-
-    private ReadOnlyDataSource dataSource;
-
     @Rule
     public final ExpectedException thrown = ExpectedException.none();
 
-    @Before
-    public void setUp() {
-        fileSystem = Jimfs.newFileSystem(Configuration.unix());
-        platformConfig = new InMemoryPlatformConfig(fileSystem);
-
-        dataSource = new ResourceDataSource("eurostag-tutorial1-lf", new ResourceSet("/", "eurostag-tutorial1-lf.xml"));
-    }
-
-    @After
-    public void tearDown() throws IOException {
-        fileSystem.close();
-    }
-
     @Test
     public void testLoad() {
-        Network network = new XMLImporter(platformConfig).importData(dataSource, new Properties());
+        Network network = EurostagTutorialExample1Factory.createWithLFResults();
 
         NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
 
@@ -113,7 +81,7 @@ public class DefaultNetworkReducerTest {
 
     @Test
     public void testLoad2() {
-        Network network = new XMLImporter(platformConfig).importData(dataSource, new Properties());
+        Network network = EurostagTutorialExample1Factory.createWithLFResults();
 
         NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
 
@@ -161,7 +129,7 @@ public class DefaultNetworkReducerTest {
 
     @Test
     public void testDanglingLine() {
-        Network network = new XMLImporter(platformConfig).importData(dataSource, new Properties());
+        Network network = EurostagTutorialExample1Factory.createWithLFResults();
 
         NetworkReducer reducer = NetworkReducer.builder()
                 .withNetworkPredicate(IdentifierNetworkPredicate.of("P2"))

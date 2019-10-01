@@ -127,11 +127,11 @@
     <cim:SvPowerFlow.Terminal rdf:resource="#_22af3121-1a66-4546-bd80-4371f417c644"/>
   </cim:SvPowerFlow>
   <cim:SvTapStep rdf:ID="_fa13ed94-f598-425a-bb22-49f9e8d6d143">
-    <cim:SvTapStep.position>2</cim:SvTapStep.position>
+    <cim:SvTapStep.position>16</cim:SvTapStep.position>
     <cim:SvTapStep.TapChanger rdf:resource="#_6ebbef67-3061-4236-a6fd-6ccc4595f6c3"/>
   </cim:SvTapStep>
   <cim:SvTapStep rdf:ID="_16bd83a4-f7c5-4377-a45f-2653dfadf827">
-    <cim:SvTapStep.position>4</cim:SvTapStep.position>
+    <cim:SvTapStep.position>10</cim:SvTapStep.position>
     <cim:SvTapStep.TapChanger rdf:resource="#_955d9cd0-4a10-4031-b008-60c0dc340a07"/>
   </cim:SvTapStep>
   <cim:SvTapStep rdf:ID="_f8826f07-2071-4ad3-82f3-d2394df0c2b0">
@@ -150,4 +150,9 @@
     <cim:SvShuntCompensatorSections.sections>1</cim:SvShuntCompensatorSections.sections>
     <cim:SvShuntCompensatorSections.ShuntCompensator rdf:resource="#_002b0a40-3957-46db-b84a-30420083558f"/>
   </cim:SvShuntCompensatorSections>
+  <cim:SvInjection rdf:ID="SvInjection">
+    <cim:SvInjection.pInjection>-0.2</cim:SvInjection.pInjection>
+    <cim:SvInjection.qInjection>-13.8</cim:SvInjection.qInjection>
+    <cim:SvInjection.TopologicalNode rdf:resource="#topologicalNode"/>
+  </cim:SvInjection>
 </rdf:RDF>

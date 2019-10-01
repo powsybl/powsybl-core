@@ -49,15 +49,17 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
     @Deployment
     public static WebArchive createTestArchive() {
         File[] filesLib = Maven.configureResolver()
-                .useLegacyLocalRepo(true)
-                .withMavenCentralRepo(false)
-                .withClassPathResolution(true)
-                .loadPomFromFile("pom.xml")
-                .importRuntimeDependencies()
-                .resolve("org.mockito:mockito-all",
-                        "com.powsybl:powsybl-afs-mapdb")
-                .withTransitivity()
-                .asFile();
+
+                               .useLegacyLocalRepo(true)
+                               .withMavenCentralRepo(false)
+                               .withClassPathResolution(true)
+                               .loadPomFromFile("pom.xml")
+                               .importRuntimeDependencies()
+                               .resolve("org.mockito:mockito-all",
+                                        "com.powsybl:powsybl-config-test",
+                                        "com.powsybl:powsybl-afs-mapdb")
+                               .withTransitivity()
+                               .asFile();
 
         return ShrinkWrap.create(WebArchive.class, "afs-ws-server-test.war")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")

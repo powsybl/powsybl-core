@@ -38,6 +38,10 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
         }
     }
 
+    protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
+        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), attribute, oldValue, newValue);
+    }
+
     protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
         parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), attribute, variantId, oldValue, newValue);
     }
@@ -55,7 +59,9 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
     @Override
     public PhaseTapChangerImpl setRegulationMode(RegulationMode regulationMode) {
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(), getRegulationTerminal(), getNetwork());
+        RegulationMode oldValue = this.regulationMode;
         this.regulationMode = regulationMode;
+        notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
         return this;
     }
 
@@ -116,6 +122,6 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
 
     @Override
     protected String getTapChangerAttribute() {
-        return "phaseTapChanger";
+        return "phase" + parent.getTapChangerAttribute();
     }
 }
