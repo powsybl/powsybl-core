@@ -109,7 +109,7 @@ public abstract class AbstractAppStorageTest {
 
         // 2) create a test folder
         NodeInfo testFolderInfo = storage.createNode(rootFolderInfo.getId(), "test", FOLDER_PSEUDO_CLASS, "", 0,
-                new NodeGenericMetadata().setString("k", "v"), new NodeAccessRights().setUserRights("user1", (short) 6));
+                new NodeGenericMetadata().setString("k", "v"), new NodeAccessRights().setUserRights("user1", 6));
         storage.flush();
 
         assertFalse(storage.isConsistent(testFolderInfo.getId()));
@@ -176,7 +176,7 @@ public abstract class AbstractAppStorageTest {
                                          .setDouble("d1", 1d)
                                          .setInt("i1", 2)
                                          .setBoolean("b1", false),
-                new NodeAccessRights().setUserRights("user1", (short) 2).setUserRights("user2", (short) 4).setGroupRights("group1", (short) 6));
+                new NodeAccessRights().setUserRights("user1", 2).setUserRights("user2", 4).setGroupRights("group1", 6));
         NodeInfo testData3Info = storage.createNode(testFolderInfo.getId(), "data3", DATA_FILE_CLASS, "", 0, new NodeGenericMetadata(), new NodeAccessRights());
         storage.setConsistent(testDataInfo.getId());
         storage.setConsistent(testData2Info.getId());

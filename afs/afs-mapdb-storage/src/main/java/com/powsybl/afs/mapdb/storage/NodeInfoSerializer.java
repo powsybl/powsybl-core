@@ -56,18 +56,18 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
             out.writeBoolean(e.getValue());
         }
         out.writeInt(nodeInfo.getAccessRights().getUsersRights().size());
-        for (Map.Entry<String, Short> e : nodeInfo.getAccessRights().getUsersRights().entrySet()) {
+        for (Map.Entry<String, Integer> e : nodeInfo.getAccessRights().getUsersRights().entrySet()) {
             out.writeUTF(e.getKey());
-            out.writeShort(e.getValue());
+            out.writeInt(e.getValue());
         }
         out.writeInt(nodeInfo.getAccessRights().getGroupsRights().size());
-        for (Map.Entry<String, Short> e : nodeInfo.getAccessRights().getGroupsRights().entrySet()) {
+        for (Map.Entry<String, Integer> e : nodeInfo.getAccessRights().getGroupsRights().entrySet()) {
             out.writeUTF(e.getKey());
-            out.writeShort(e.getValue());
+            out.writeInt(e.getValue());
         }
         out.writeInt(Objects.isNull(nodeInfo.getAccessRights().getOthersRights()) ? 0 : 1);
         if (!Objects.isNull(nodeInfo.getAccessRights().getOthersRights())) {
-            out.writeShort(nodeInfo.getAccessRights().getOthersRights());
+            out.writeInt(nodeInfo.getAccessRights().getOthersRights());
         }
     }
 
@@ -101,15 +101,15 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
         NodeAccessRights accessRights = new NodeAccessRights();
         int usersRightsSize = input.readInt();
         for (int i = 0; i < usersRightsSize; i++) {
-            accessRights.setUserRights(input.readUTF(), input.readShort());
+            accessRights.setUserRights(input.readUTF(), input.readInt());
         }
         int groupsRightsSize = input.readInt();
         for (int i = 0; i < groupsRightsSize; i++) {
-            accessRights.setGroupRights(input.readUTF(), input.readShort());
+            accessRights.setGroupRights(input.readUTF(), input.readInt());
         }
         int othersRightsSize = input.readInt();
         for (int i = 0; i < othersRightsSize; i++) {
-            accessRights.setOthersRights(input.readShort());
+            accessRights.setOthersRights(input.readInt());
         }
 
         return new NodeInfo(nodeId, name, pseudoClass, description, creationTime, modificationTime, version, metadata, accessRights);

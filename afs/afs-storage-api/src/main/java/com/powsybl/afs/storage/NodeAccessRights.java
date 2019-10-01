@@ -12,47 +12,47 @@ import java.util.Objects;
 
 public class NodeAccessRights {
 
-    private final Map<String, Short> usersRights;
+    private final Map<String, Integer> usersRights;
 
-    private final Map<String, Short> groupsRights;
+    private final Map<String, Integer> groupsRights;
 
-    private Short othersRights;
+    private Integer othersRights;
 
     public NodeAccessRights() {
         this(new HashMap<>(), new HashMap<>(), null);
     }
 
-    public NodeAccessRights(Map<String, Short> usersRights, Map<String, Short> groupsRights, Short othersRights) {
+    public NodeAccessRights(Map<String, Integer> usersRights, Map<String, Integer> groupsRights, Integer othersRights) {
         this.usersRights = Objects.requireNonNull(usersRights);
         this.groupsRights = Objects.requireNonNull(groupsRights);
         this.othersRights = othersRights;
     }
 
-    public Map<String, Short> getUsersRights() {
+    public Map<String, Integer> getUsersRights() {
         return usersRights;
     }
 
-    public NodeAccessRights setUserRights(String user, Short rights) {
+    public NodeAccessRights setUserRights(String user, Integer rights) {
         Objects.requireNonNull(user);
         usersRights.put(user, rights);
         return this;
     }
 
-    public Map<String, Short> getGroupsRights() {
+    public Map<String, Integer> getGroupsRights() {
         return groupsRights;
     }
 
-    public NodeAccessRights setGroupRights(String group, Short rights) {
+    public NodeAccessRights setGroupRights(String group, Integer rights) {
         Objects.requireNonNull(group);
         groupsRights.put(group, rights);
         return this;
     }
 
-    public Short getOthersRights() {
+    public Integer getOthersRights() {
         return othersRights;
     }
 
-    public NodeAccessRights setOthersRights(Short rights) {
+    public NodeAccessRights setOthersRights(Integer rights) {
         othersRights = rights;
         return this;
     }

@@ -39,13 +39,13 @@ public class NodeAccessRightsJsonDeserializer  extends StdDeserializer<NodeAcces
                 jsonParser.nextToken();
                 switch (parsingContext.type) {
                     case NodeAccessRightsJsonSerializer.USER:
-                        parsingContext.accessRights.setUserRights(parsingContext.name, (short) jsonParser.getValueAsInt());
+                        parsingContext.accessRights.setUserRights(parsingContext.name, jsonParser.getValueAsInt());
                         break;
                     case NodeAccessRightsJsonSerializer.GROUP:
-                        parsingContext.accessRights.setGroupRights(parsingContext.name, (short) jsonParser.getValueAsInt());
+                        parsingContext.accessRights.setGroupRights(parsingContext.name, jsonParser.getValueAsInt());
                         break;
                     case NodeAccessRightsJsonSerializer.OTHERS:
-                        parsingContext.accessRights.setOthersRights((short) jsonParser.getValueAsInt());
+                        parsingContext.accessRights.setOthersRights(jsonParser.getValueAsInt());
                         break;
                     default:
                         throw new AssertionError("Unexpected access right type " + parsingContext.type);

@@ -66,7 +66,7 @@ public abstract class AbstractAppStorageArchiveTest {
 
         NodeInfo folder1Info = storage.createNode(rootFolderInfo.getId(), "folder1", AbstractAppStorageTest.FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata(), new NodeAccessRights());
         storage.setConsistent(folder1Info.getId());
-        NodeInfo file1Info = storage.createNode(folder1Info.getId(), "file1", AbstractAppStorageTest.DATA_FILE_CLASS, "", 0, new NodeGenericMetadata().setInt("i1", 1), new NodeAccessRights().setUserRights("user1", (short) 7));
+        NodeInfo file1Info = storage.createNode(folder1Info.getId(), "file1", AbstractAppStorageTest.DATA_FILE_CLASS, "", 0, new NodeGenericMetadata().setInt("i1", 1), new NodeAccessRights().setUserRights("user1", 7));
         storage.setConsistent(file1Info.getId());
 
         try (OutputStream os = storage.writeBinaryData(file1Info.getId(), "data1")) {
@@ -86,7 +86,7 @@ public abstract class AbstractAppStorageArchiveTest {
         NodeInfo folder2Info = storage.createNode(rootFolderInfo.getId(), "folder2", AbstractAppStorageTest.FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata(), new NodeAccessRights());
         storage.setConsistent(folder2Info.getId());
         NodeInfo file2Info = storage.createNode(folder2Info.getId(), "file2", AbstractAppStorageTest.DATA_FILE_CLASS, "", 0, new NodeGenericMetadata()
-                .setString("s1", "a"), new NodeAccessRights().setGroupRights("group1", (short) 5));
+                .setString("s1", "a"), new NodeAccessRights().setGroupRights("group1", 5));
         storage.setConsistent(file2Info.getId());
 
         storage.addDependency(file1Info.getId(), "dependency1", file2Info.getId());

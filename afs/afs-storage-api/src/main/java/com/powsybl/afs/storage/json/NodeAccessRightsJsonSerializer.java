@@ -24,14 +24,14 @@ public class NodeAccessRightsJsonSerializer  extends StdSerializer<NodeAccessRig
     @Override
     public void serialize(NodeAccessRights nodeAccessRights, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartArray();
-        for (Map.Entry<String, Short> e : nodeAccessRights.getUsersRights().entrySet()) {
+        for (Map.Entry<String, Integer> e : nodeAccessRights.getUsersRights().entrySet()) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(TYPE, USER);
             jsonGenerator.writeStringField(NAME, e.getKey());
             jsonGenerator.writeNumberField(VALUE, e.getValue());
             jsonGenerator.writeEndObject();
         }
-        for (Map.Entry<String, Short> e : nodeAccessRights.getGroupsRights().entrySet()) {
+        for (Map.Entry<String, Integer> e : nodeAccessRights.getGroupsRights().entrySet()) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(TYPE, GROUP);
             jsonGenerator.writeStringField(NAME, e.getKey());
