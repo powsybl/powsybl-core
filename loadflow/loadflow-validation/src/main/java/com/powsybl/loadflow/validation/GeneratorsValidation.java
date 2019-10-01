@@ -37,7 +37,7 @@ public final class GeneratorsValidation {
     }
 
     public boolean checkGenerators(Network network, ValidationConfig config, Path file) throws IOException {
-        Objects.requireNonNull(file);
+        Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(file);
         try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
