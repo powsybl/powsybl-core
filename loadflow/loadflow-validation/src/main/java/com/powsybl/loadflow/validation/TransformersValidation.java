@@ -9,9 +9,7 @@ package com.powsybl.loadflow.validation;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -33,40 +31,20 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public final class TransformersValidation {
+public final class TransformersValidation extends AbstractTransformersValidation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransformersValidation.class);
+
+    public static final TransformersValidation INSTANCE = new TransformersValidation();
 
     private TransformersValidation() {
     }
 
-    public static boolean checkTransformers(Network network, ValidationConfig config, Path file) throws IOException {
-        Objects.requireNonNull(network);
-        Objects.requireNonNull(config);
-        Objects.requireNonNull(file);
-
-        try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-            return checkTransformers(network, config, writer);
-        }
-    }
-
-    public static boolean checkTransformers(Network network, ValidationConfig config, Writer writer) {
-        Objects.requireNonNull(network);
-        Objects.requireNonNull(config);
-        Objects.requireNonNull(writer);
-
-        try (ValidationWriter twtsWriter = ValidationUtils.createValidationWriter(network.getId(), config, writer, ValidationType.TWTS)) {
-            return checkTransformers(network, config, twtsWriter);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public static boolean checkTransformers(Network network, ValidationConfig config, ValidationWriter twtsWriter) {
+    @Override
+    public boolean checkTransformers(Network network, ValidationConfig config, ValidationWriter twtsWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(twtsWriter);
-
         LOGGER.info("Checking transformers of network {}", network.getId());
         return network.getTwoWindingsTransformerStream()
                       .filter(TransformersValidation::filterTwt)
@@ -80,7 +58,7 @@ public final class TransformersValidation {
         return twt.getRatioTapChanger() != null && twt.getRatioTapChanger().isRegulating();
     }
 
-    public static boolean checkTransformer(TwoWindingsTransformer twt, ValidationConfig config, Writer writer) {
+    public boolean checkTransformer(TwoWindingsTransformer twt, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -92,7 +70,7 @@ public final class TransformersValidation {
         }
     }
 
-    public static boolean checkTransformer(TwoWindingsTransformer twt, ValidationConfig config, ValidationWriter twtsWriter) {
+    public boolean checkTransformer(TwoWindingsTransformer twt, ValidationConfig config, ValidationWriter twtsWriter) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(twtsWriter);
@@ -131,7 +109,7 @@ public final class TransformersValidation {
                                  targetV, regulatedSide, v, connected, mainComponent, config, twtsWriter);
     }
 
-    public static boolean checkTransformer(String id, double rho, double rhoPreviousStep, double rhoNextStep, int tapPosition,
+    public boolean checkTransformer(String id, double rho, double rhoPreviousStep, double rhoNextStep, int tapPosition,
                                            int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v,
                                            boolean connected, boolean mainComponent, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
@@ -140,13 +118,13 @@ public final class TransformersValidation {
 
         try (ValidationWriter twtsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.TWTS)) {
             return checkTransformer(id, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
-                                     targetV, regulatedSide, v, connected, mainComponent, config, twtsWriter);
+                    targetV, regulatedSide, v, connected, mainComponent, config, twtsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static boolean checkTransformer(String id, double rho, double rhoPreviousStep, double rhoNextStep, int tapPosition,
+    public boolean checkTransformer(String id, double rho, double rhoPreviousStep, double rhoNextStep, int tapPosition,
                                            int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v,
                                            boolean connected, boolean mainComponent, ValidationConfig config, ValidationWriter twtsWriter) {
         Objects.requireNonNull(id);

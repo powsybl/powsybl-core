@@ -32,10 +32,12 @@ public final class StaticVarCompensatorsValidation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StaticVarCompensatorsValidation.class);
 
+    public static final StaticVarCompensatorsValidation INSTANCE = new StaticVarCompensatorsValidation();
+
     private StaticVarCompensatorsValidation() {
     }
 
-    public static boolean checkSVCs(Network network, ValidationConfig config, Path file) throws IOException {
+    public boolean checkSVCs(Network network, ValidationConfig config, Path file) throws IOException {
         Objects.requireNonNull(file);
         Objects.requireNonNull(config);
         Objects.requireNonNull(file);
@@ -44,7 +46,7 @@ public final class StaticVarCompensatorsValidation {
         }
     }
 
-    public static boolean checkSVCs(Network network, ValidationConfig config, Writer writer) {
+    public boolean checkSVCs(Network network, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -55,7 +57,7 @@ public final class StaticVarCompensatorsValidation {
         }
     }
 
-    public static boolean checkSVCs(Network network, ValidationConfig config, ValidationWriter svcsWriter) {
+    public boolean checkSVCs(Network network, ValidationConfig config, ValidationWriter svcsWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(svcsWriter);
@@ -67,7 +69,7 @@ public final class StaticVarCompensatorsValidation {
                       .orElse(true);
     }
 
-    public static boolean checkSVCs(StaticVarCompensator svc, ValidationConfig config, Writer writer) {
+    public boolean checkSVCs(StaticVarCompensator svc, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(svc);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -79,7 +81,7 @@ public final class StaticVarCompensatorsValidation {
         }
     }
 
-    public static boolean checkSVCs(StaticVarCompensator svc, ValidationConfig config, ValidationWriter svcsWriter) {
+    public boolean checkSVCs(StaticVarCompensator svc, ValidationConfig config, ValidationWriter svcsWriter) {
         Objects.requireNonNull(svc);
         Objects.requireNonNull(config);
         Objects.requireNonNull(svcsWriter);
@@ -100,7 +102,7 @@ public final class StaticVarCompensatorsValidation {
         return checkSVCs(svc.getId(), p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, config, svcsWriter);
     }
 
-    public static boolean checkSVCs(String id, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+    public boolean checkSVCs(String id, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
                                     RegulationMode regulationMode, double bMin, double bMax, boolean connected, boolean mainComponent,
                                     ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
@@ -114,7 +116,7 @@ public final class StaticVarCompensatorsValidation {
         }
     }
 
-    public static boolean checkSVCs(String id, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+    public boolean checkSVCs(String id, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
                                     RegulationMode regulationMode, double bMin, double bMax, boolean connected, boolean mainComponent,
                                     ValidationConfig config, ValidationWriter svcsWriter) {
         Objects.requireNonNull(id);
