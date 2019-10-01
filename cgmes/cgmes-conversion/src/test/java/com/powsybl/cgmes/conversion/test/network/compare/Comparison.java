@@ -103,6 +103,10 @@ public class Comparison {
                 actual.getTwoWindingsTransformerStream(),
                 this::compareTwoWindingTransformers);
         compare(
+                expected.getThreeWindingsTransformerStream(),
+                actual.getThreeWindingsTransformerStream(),
+                this::compareThreeWindingsTransformers);
+        compare(
                 expected.getDanglingLineStream(),
                 actual.getDanglingLineStream(),
                 this::compareDanglingLines);
