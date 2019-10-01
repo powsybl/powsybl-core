@@ -32,6 +32,8 @@ public enum ValidationType {
         this.file = Objects.requireNonNull(file);
     }
 
+    private static final String UNEXPECTED_VALIDATION_TYPE_VALUE = "Unexpected ValidationType value: ";
+
     public boolean check(Network network, ValidationConfig config, Path folder) throws IOException {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
@@ -52,7 +54,7 @@ public enum ValidationType {
             case TWTS3W:
                 return Transformers3WValidation.INSTANCE.checkTransformers(network, config, folder.resolve(file));
             default:
-                throw new AssertionError("Unexpected ValidationType value: " + this);
+                throw new AssertionError(UNEXPECTED_VALIDATION_TYPE_VALUE + this);
         }
     }
 
@@ -76,7 +78,7 @@ public enum ValidationType {
             case TWTS3W:
                 return Transformers3WValidation.INSTANCE.checkTransformers(network, config, validationWriter);
             default:
-                throw new AssertionError("Unexpected ValidationType value: " + this);
+                throw new AssertionError(UNEXPECTED_VALIDATION_TYPE_VALUE + this);
         }
     }
 
