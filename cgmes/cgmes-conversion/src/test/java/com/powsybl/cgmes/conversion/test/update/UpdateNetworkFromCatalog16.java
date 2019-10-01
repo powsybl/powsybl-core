@@ -156,25 +156,30 @@ public class UpdateNetworkFromCatalog16 {
         /**
          * Test onUpdate
          */
-//        network.getVoltageLevel("_0460f448-c766-11e1-8775-005056c00008")
-//            .setHighVoltageLimit(1.2 * 381.0)
-//            .setLowVoltageLimit(302.0);// .setNominalV(400);
-//        network.getBusBreakerView().getBus("_0471bd2a-c766-11e1-8775-005056c00008")
-//            .setV(4.4).setAngle(4.44);
-//        network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
-//            .setR(0.3).setB(0.1).setG(0.2).setX(19.15)
-//            .setRatedU1(132).setRatedU2(220);
-//        network.getGenerator("_044ca8f0-c766-11e1-8775-005056c00008")
-//            .setRatedS(100).setMaxP(200.0).setMinP(-200.0);
-//        // .setTargetP(83.0); no iidm change notified.
-//        network.getLine("_044cd006-c766-11e1-8775-005056c00008")
-//            .setR(6.0).setX(18.0)
-//            .setB1(0.1).setB2(0.1)
-//            .setG1(0.01).setG2(0.01);
-
+        network.getVoltageLevel("_0460f448-c766-11e1-8775-005056c00008")
+            .setHighVoltageLimit(1.2 * 381.0)
+            .setLowVoltageLimit(302.0);// .setNominalV(400);
+        network.getBusBreakerView().getBus("_0471bd2a-c766-11e1-8775-005056c00008")
+            .setV(4.4).setAngle(4.44);
         network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
-            .getRatioTapChanger()
-            .setTapPosition(4);// --> no iidm change notified. sv position, default to neutralStep;
+            .setR(0.3).setB(0.1)
+            .setG(0.2).setX(19.15)
+            .setRatedU1(132).setRatedU2(220);
+        network.getGenerator("_044ca8f0-c766-11e1-8775-005056c00008")
+            .setRatedS(201)
+            .setMaxP(161.0).setMinP(-51.0);
+            //.setTargetP(84.0);--> need loadflow to set. 
+        network.getLine("_044cd006-c766-11e1-8775-005056c00008")
+            .setR(6.0).setX(18.0)
+            .setB1(0.1).setB2(0.1)
+            .setG1(0.01).setG2(0.01);
+//        network.getLoad("_0448d86a-c766-11e1-8775-005056c00008")
+//            .setP0(13.0).setQ0(5.0); // --> need loadflow to set. In Comparison: compare("p",
+//                                     // expected.getTerminal().getP()...
+
+//        network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
+//            .getRatioTapChanger()
+//            .setTapPosition(4);// --> no iidm change notified. sv position, default to neutralStep;
         // .setLowTapPosition(2) --> will update indirectly highStep in cgmes
 
 //      double p1 = 1.0;
@@ -196,7 +201,6 @@ public class UpdateNetworkFromCatalog16 {
 //            .beginStep().setR(39.78473).setX(39.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-42.8).endStep()
 //            .add();
 //        network.getSubstation("_047c929a-c766-11e1-8775-005056c00008").setCountry(Country.GR);
-//        network.getLoad("_0448d86a-c766-11e1-8775-005056c00008").setP0(13.0).setQ0(5.0);// --> no change
 
 //        for (ShuntCompensator sc : network.getVoltageLevel("_04728074-c766-11e1-8775-005056c00008")
 //            .getShuntCompensators()) {

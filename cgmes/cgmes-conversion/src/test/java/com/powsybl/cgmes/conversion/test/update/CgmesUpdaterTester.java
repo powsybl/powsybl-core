@@ -28,6 +28,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
 public class CgmesUpdaterTester {
@@ -87,6 +88,10 @@ public class CgmesUpdaterTester {
             if (modelNotEmpty(network0)) {
 
                 UpdateNetworkFromCatalog16.updateNetwork(network0);
+                
+                // Run a LoadFlow
+//                LoadFlow.run(network0);
+                
                 DataSource tmp = tmpDataSource(impl);
                 CgmesExport e = new CgmesExport();
 

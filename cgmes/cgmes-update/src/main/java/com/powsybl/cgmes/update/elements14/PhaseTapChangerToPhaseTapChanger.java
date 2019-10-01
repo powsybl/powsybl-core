@@ -22,43 +22,42 @@ public class PhaseTapChangerToPhaseTapChanger extends TwoWindingsTransformerToPo
 
         if (newPhaseTapChanger != null) {
             mapPHTC = ArrayListMultimap.create();
-            
+
             mapPHTC.put("rdfTypePHTC", new CgmesPredicateDetails(
-                "rdf:type", "_EQ", false, "cim:PhaseTapChangerTabular", idPHTC));
+                "rdf:type", "_EQ", false, "cim:PhaseTapChangerTabular", idPTC));
 
             mapPHTC.put("namePHTC", new CgmesPredicateDetails(
-                "cim:IdentifiedObject.name", "_EQ", false, name.concat("_PHTC"), idPHTC));
+                "cim:IdentifiedObject.name", "_EQ", false, name.concat("_PHTC"), idPTC));
 
             mapPHTC.put("TransformerWindingPHTC", new CgmesPredicateDetails(
-                "cim:PhaseTapChanger.TransformerWinding", "_EQ", true, idEnd1, idPHTC));
+                "cim:PhaseTapChanger.TransformerWinding", "_EQ", true, idEnd1, idPTC));
 
             int lowTapPositionPHTC = newPhaseTapChanger.getLowTapPosition();
             mapPHTC.put("phaseTapChanger.lowTapPosition", new CgmesPredicateDetails(
-                "cim:TapChanger.lowStep", "_EQ", false, String.valueOf(lowTapPositionPHTC), idPHTC));
+                "cim:TapChanger.lowStep", "_EQ", false, String.valueOf(lowTapPositionPHTC), idPTC));
 
             int tapPositionPHTC = newPhaseTapChanger.getTapPosition();
             mapPHTC.put("phaseTapChanger.tapPosition", new CgmesPredicateDetails(
-                "cim:TapChanger.neutralStep", "_EQ", false, String.valueOf(tapPositionPHTC + 1), idPHTC));
-        
+                "cim:TapChanger.neutralStep", "_EQ", false, String.valueOf(tapPositionPHTC + 1), idPTC));
+
             mapPHTC.put("phaseTapChanger.PhaseTapChangerTable", new CgmesPredicateDetails(
-                "cim:PhaseTapChangerTabular.PhaseTapChangerTable", "_EQ", true, idPHTCTable, idPHTC));
+                "cim:PhaseTapChangerTabular.PhaseTapChangerTable", "_EQ", true, idPTCtable, idPTC));
 
             /**
-             * PhaseTapChangerTable
-             * TODO elena check names and table predicates for cim14
+             * PhaseTapChangerTable TODO elena check names and table predicates for cim14
              */
             mapPHTC.put("phaseTapChangerTable", new CgmesPredicateDetails(
-                "rdf:type", "_EQ", false, "cim:PhaseTapChangerTable", idPHTCTable));
+                "rdf:type", "_EQ", false, "cim:PhaseTapChangerTable", idPTCtable));
 
             mapPHTC.put("namePHTCTable", new CgmesPredicateDetails(
-                "cim:IdentifiedObject.name", "_EQ", false, name.concat("_PHTC_Name"), idPHTCTable));
+                "cim:IdentifiedObject.name", "_EQ", false, name.concat("_PHTC_Name"), idPTCtable));
             /**
              * PhaseTapChangerTablePoint
              */
             mapPHTC.put("PhaseTapChangerTablePoint", new CgmesPredicateDetails(
-                "rdf:type", "_EQ", false, "cim:PhaseTapChangerTablePoint", idPHTCTablePoint));
+                "rdf:type", "_EQ", false, "cim:PhaseTapChangerTablePoint", idPTCtablePoint));
         }
-        
+
         return mapPHTC;
     }
 

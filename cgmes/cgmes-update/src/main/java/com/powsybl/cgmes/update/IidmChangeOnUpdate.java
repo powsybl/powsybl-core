@@ -14,7 +14,7 @@ public class IidmChangeOnUpdate implements IidmChange {
         this.attribute = Objects.requireNonNull(attribute);
         this.oldValue = oldValue;
         this.newValue = Objects.requireNonNull(newValue);
-        this.variant = Objects.requireNonNull(variant);
+        this.variant = variant;
     }
 
     // TODO remove get methods

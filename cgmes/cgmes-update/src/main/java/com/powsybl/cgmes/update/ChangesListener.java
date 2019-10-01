@@ -25,7 +25,7 @@ public class ChangesListener implements NetworkListener {
     @Override
     public void onCreation(Identifiable identifiable) {
         LOG.info("Calling onCreation method...");
-        String variant = network.getVariantManager().getWorkingVariantId();
+        String variant = null;
         IidmChangeOnCreate change = new IidmChangeOnCreate(identifiable, variant);
         changeList.add(change);
         // TODO remove prints
@@ -38,21 +38,29 @@ public class ChangesListener implements NetworkListener {
     @Override
     public void onRemoval(Identifiable identifiable) {
         LOG.info("Calling onRemoval method...");
-        String variant = network.getVariantManager().getWorkingVariantId();
+        String variant = null;
         IidmChangeOnRemove change = new IidmChangeOnRemove(identifiable, variant);
         changeList.add(change);
     }
 
     @Override
-    public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
+    public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue,
+        Object newValue) {
         LOG.info("Calling onUpdate method...");
-        String variant = network.getVariantManager().getWorkingVariantId();
-        IidmChangeOnUpdate change = new IidmChangeOnUpdate(identifiable, attribute, oldValue, newValue, variant);
+        IidmChangeOnUpdate change = new IidmChangeOnUpdate(identifiable, attribute, oldValue, newValue, variantId);
         changeList.add(change);
         System.out.println("variant is " + change.getVariant()
             + "\nidentifiableName " + identifiable.getName()
             + "\nidentifiableID " + identifiable.getId()
             + "\nattribute is " + change.getAttribute());
+    }
+
+    @Override
+    public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
+        LOG.info("Calling onUpdate method...");
+//        String variantId = network.getVariantManager().getWorkingVariantId();
+        String variantId = null;
+        onUpdate(identifiable, attribute, variantId, oldValue, newValue);
     }
 
     private final Network network;

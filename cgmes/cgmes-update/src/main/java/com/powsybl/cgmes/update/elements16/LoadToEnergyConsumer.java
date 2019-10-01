@@ -32,26 +32,28 @@ public class LoadToEnergyConsumer implements ConversionMapper {
                 "cim:Equipment.EquipmentContainer", "_EQ", true, voltageLevelId));
         }
 
-        double p0 = newLoad.getP0();
-        if (!String.valueOf(p0).equals("NaN")) {
-            map.put("p0", new CgmesPredicateDetails(
-                "cim:EnergyConsumer.pfixed", "_EQ", false, String.valueOf(p0)));
-        }
-
-        double q0 = newLoad.getQ0();
-        if (!String.valueOf(q0).equals("NaN")) {
-            map.put("q0", new CgmesPredicateDetails(
-                "cim:EnergyConsumer.qfixed", "_EQ", false, String.valueOf(q0)));
-        }
+//        double p0 = newLoad.getP0();
+//        if (!String.valueOf(p0).equals("NaN")) {
+//            map.put("p0", new CgmesPredicateDetails(
+//                "cim:EnergyConsumer.pfixed", "_EQ", false, String.valueOf(p0)));
+//        }
+//
+//        double q0 = newLoad.getQ0();
+//        if (!String.valueOf(q0).equals("NaN")) {
+//            map.put("q0", new CgmesPredicateDetails(
+//                "cim:EnergyConsumer.qfixed", "_EQ", false, String.valueOf(q0)));
+//        }
 
         double p = newLoad.getP0();
-        if (!String.valueOf(p0).equals("NaN")) {
-            map.put("p", new CgmesPredicateDetails("cim:EnergyConsumer.p", "_SSH", false, String.valueOf(p)));
+        if (!String.valueOf(p).equals("NaN")) {
+            map.put("p0", new CgmesPredicateDetails(
+                "cim:EnergyConsumer.p", "_SSH", false, String.valueOf(p)));
         }
 
         double q = newLoad.getQ0();
-        if (!String.valueOf(q0).equals("NaN")) {
-            map.put("q", new CgmesPredicateDetails("cim:EnergyConsumer.q", "_SSH", false, String.valueOf(q)));
+        if (!String.valueOf(q).equals("NaN")) {
+            map.put("q0", new CgmesPredicateDetails(
+                "cim:EnergyConsumer.q", "_SSH", false, String.valueOf(q)));
         }
 
         return map;

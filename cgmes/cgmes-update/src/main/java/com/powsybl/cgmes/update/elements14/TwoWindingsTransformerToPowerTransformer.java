@@ -32,12 +32,12 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
             : currId.concat("_OR");
         this.idEnd2 = (getEndsId().get("idEnd2") != null) ? getEndsId().get("idEnd2")
             : currId.concat("_CL");
-        this.idPHTC = getTapChangerId("PhaseTapChanger");
-        this.idRTTC = getTapChangerId("RatioTapChanger");
-        this.idPHTCTable = getTapChangerTableId(idPHTC, "PhaseTapChanger");
-        this.idRTTCTable = getTapChangerTableId(idRTTC, "RatioTapChanger");
-        this.idPHTCTablePoint = getTapChangerTablePointId(idPHTCTable, "PhaseTapChanger");
-        this.idRTTCTablePoint = getTapChangerTablePointId(idRTTCTable, "RatioTapChanger");
+        this.idPTC = getTapChangerId("PhaseTapChanger");
+        this.idRTC = getTapChangerId("RatioTapChanger");
+        this.idPTCtable = getTapChangerTableId(idPTC, "PhaseTapChanger");
+        this.idRTCtable = getTapChangerTableId(idRTC, "RatioTapChanger");
+        this.idPTCtablePoint = getTapChangerTablePointId(idPTCtable, "PhaseTapChanger");
+        this.idRTCtablePoint = getTapChangerTablePointId(idRTCtable, "RatioTapChanger");
     }
 
     @Override
@@ -83,7 +83,7 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
         double x1 = (x0 - x2) / rho0Square;
         double b1 = (b0 + b2) * rho0Square;
         double g1 = (g0 + g2) * rho0Square;
-        
+
         if (!String.valueOf(b1).equals("NaN")) {
             map.put("b", new CgmesPredicateDetails(
                 "cim:TransformerWinding.b", "_EQ", false, String.valueOf(b1), idEnd1));
@@ -228,8 +228,8 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
 
         String propertyName = tapChangerType.concat("TablePoint");
         PropertyBags phaseTapChangerTable = (tapChangerType.equals("RatioTapChanger"))
-            ? cgmes.ratioTapChangerTable(idRTTCTable)
-            : cgmes.phaseTapChangerTable(idPHTCTable);
+            ? cgmes.ratioTapChangerTable(idRTCtable)
+            : cgmes.phaseTapChangerTable(idPTCtable);
         Iterator i = phaseTapChangerTable.iterator();
         while (i.hasNext()) {
             PropertyBag pb = (PropertyBag) i.next();
@@ -249,10 +249,10 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
     String name;
     String idEnd1;
     String idEnd2;
-    String idRTTC;
-    String idPHTC;
-    String idPHTCTable;
-    String idRTTCTable;
-    String idPHTCTablePoint;
-    String idRTTCTablePoint;
+    String idRTC;
+    String idPTC;
+    String idPTCtable;
+    String idRTCtable;
+    String idPTCtablePoint;
+    String idRTCtablePoint;
 }
