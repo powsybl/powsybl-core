@@ -21,13 +21,11 @@ import java.util.Map;
  */
 public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
 
-    private static final int STORAGE_VERSION = 0;
-
     public static final NodeInfoSerializer INSTANCE = new NodeInfoSerializer();
 
     @Override
     public void serialize(DataOutput2 out, NodeInfo nodeInfo) throws IOException {
-        out.writeInt(STORAGE_VERSION);
+        out.writeInt(MapDbStorageConstants.STORAGE_VERSION);
         UuidSerializer.INSTANCE.serialize(out, MapDbAppStorage.checkNodeId(nodeInfo.getId()));
         out.writeUTF(nodeInfo.getName());
         out.writeUTF(nodeInfo.getPseudoClass());
