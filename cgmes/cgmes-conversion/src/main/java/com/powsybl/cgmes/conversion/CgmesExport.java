@@ -56,9 +56,11 @@ public class CgmesExport implements Exporter {
         CgmesModel cgmesSource = ext.getCgmesModel();
         CgmesModel cgmes = CgmesModelFactory.cloneCgmes(cgmesSource);
 
+        String variantId = network.getVariantManager().getWorkingVariantId();
+
         CgmesUpdater cgmesUpdater = ext.getCgmesUpdater();
         try {
-            cgmesUpdater.update(cgmes);
+            cgmesUpdater.update(cgmes, variantId);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -68,6 +70,7 @@ public class CgmesExport implements Exporter {
 
         // Fill the SV data of the CgmesModel with the network current state
         addStateVariables(network, cgmes);
+
         // TODO elena
         cgmes.write(ds);
     }

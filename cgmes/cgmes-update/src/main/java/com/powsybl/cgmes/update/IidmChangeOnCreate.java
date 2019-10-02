@@ -8,13 +8,18 @@ public class IidmChangeOnCreate implements IidmChange {
 
     public IidmChangeOnCreate(Identifiable identifiable, String variant) {
         this.identifiable = Objects.requireNonNull(identifiable);
-        this.variant = Objects.requireNonNull(variant);
+        this.variant = variant;
     }
 
     // TODO elena
     @Override
     public String getVariant() {
         return variant;
+    }
+
+    @Override
+    public void setVariant(String variant) {
+        this.variant = variant;
     }
 
     @Override
@@ -58,5 +63,5 @@ public class IidmChangeOnCreate implements IidmChange {
     }
 
     private final Identifiable identifiable;
-    private final String variant;
+    private String variant;
 }

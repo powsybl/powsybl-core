@@ -156,23 +156,31 @@ public class UpdateNetworkFromCatalog16 {
         /**
          * Test onUpdate
          */
-        network.getVoltageLevel("_0460f448-c766-11e1-8775-005056c00008")
-            .setHighVoltageLimit(1.2 * 381.0)
-            .setLowVoltageLimit(302.0);// .setNominalV(400);
-        network.getBusBreakerView().getBus("_0471bd2a-c766-11e1-8775-005056c00008")
-            .setV(4.4).setAngle(4.44);
-        network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
-            .setR(0.3).setB(0.1)
-            .setG(0.2).setX(19.15)
-            .setRatedU1(132).setRatedU2(220);
-        network.getGenerator("_044ca8f0-c766-11e1-8775-005056c00008")
-            .setRatedS(201)
-            .setMaxP(161.0).setMinP(-51.0);
-            //.setTargetP(84.0);--> need loadflow to set. 
+//        network.getVoltageLevel("_0460f448-c766-11e1-8775-005056c00008")
+//            .setHighVoltageLimit(1.2 * 381.0)
+//            .setLowVoltageLimit(302.0);// .setNominalV(400);
+//        network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008")
+//            .setR(0.3).setB(0.1)
+//            .setG(0.2).setX(19.15)
+//            .setRatedU1(132).setRatedU2(220);
+//        network.getGenerator("_044ca8f0-c766-11e1-8775-005056c00008")
+//            .setRatedS(201)
+//            .setMaxP(161.0).setMinP(-51.0);
+//        // .setTargetP(84.0);--> need loadflow to set.
         network.getLine("_044cd006-c766-11e1-8775-005056c00008")
-            .setR(6.0).setX(18.0)
-            .setB1(0.1).setB2(0.1)
-            .setG1(0.01).setG2(0.01);
+            .setR(6.0).setX(18.0);
+//            .setB1(0.1).setB2(0.1)
+//            .setG1(0.01).setG2(0.01);
+
+        network.getBusBreakerView().getBus("_0471bd2a-c766-11e1-8775-005056c00008")
+            .setV(129.0); // variant InitialState
+
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "1");
+        network.getVariantManager().setWorkingVariant("1");
+
+        network.getBusBreakerView().getBus("_0471bd2a-c766-11e1-8775-005056c00008")
+            .setAngle(-19.0); // variant 1
+
 //        network.getLoad("_0448d86a-c766-11e1-8775-005056c00008")
 //            .setP0(13.0).setQ0(5.0); // --> need loadflow to set. In Comparison: compare("p",
 //                                     // expected.getTerminal().getP()...

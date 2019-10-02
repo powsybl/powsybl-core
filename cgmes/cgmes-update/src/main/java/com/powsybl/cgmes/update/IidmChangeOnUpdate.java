@@ -24,6 +24,11 @@ public class IidmChangeOnUpdate implements IidmChange {
     }
 
     @Override
+    public void setVariant(String variant) {
+        this.variant = variant;
+    }
+
+    @Override
     public String getAttribute() {
         return attribute;
     }
@@ -75,6 +80,6 @@ public class IidmChangeOnUpdate implements IidmChange {
     private String attribute;
     private Object oldValue;
     private Object newValue;
-    private final String variant;
+    private String variant;
 
 }
