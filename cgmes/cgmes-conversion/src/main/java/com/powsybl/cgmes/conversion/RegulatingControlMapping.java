@@ -6,9 +6,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.cgmes.conversion.GeneratorRegulatingControlMapping.GeneratorRegulatingData;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.*;
@@ -18,29 +16,39 @@ import java.util.*;
  */
 public class RegulatingControlMapping {
 
-    private static final String REGULATING_CONTROL = "RegulatingControl";
-    private static final String TAP_CHANGER_CONTROL = "TapChangerControl";
-    private static final String TERMINAL = "Terminal";
-    private static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES topological node: %s";
-    private static final String VOLTAGE = "voltage";
-    private static final String REGULATING_CONTROL_REF = "Regulating control %s";
-    private static final String TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
-    private static final String PHASE_TAP_CHANGER = "PhaseTapChanger";
-    private static final String QPERCENT = "qPercent";
+    static final String REGULATING_CONTROL = "RegulatingControl";
+    static final String TAP_CHANGER_CONTROL = "TapChangerControl";
+    static final String TERMINAL = "Terminal";
+    static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES topological node: %s";
+    static final String VOLTAGE = "voltage";
+    static final String REGULATING_CONTROL_REF = "Regulating control %s";
+    static final String TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
+    static final String PHASE_TAP_CHANGER = "PhaseTapChanger";
+    static final String QPERCENT = "qPercent";
 
     private final Context context;
+    private final RegulatingControlMappingForGenerators regulatingControlMappingForGenerators;
 
     public RegulatingControlMapping(Context context) {
         this.context = context;
+        regulatingControlMappingForGenerators = new RegulatingControlMappingForGenerators(this);
     }
 
-    class RegulatingControl {
-        private final String mode;
-        private final String cgmesTerminal;
-        private final String topologicalNode;
-        private final boolean enabled;
-        private final double targetValue;
-        private final double targetDeadband;
+    public RegulatingControlMappingForGenerators forGenerators() {
+        return regulatingControlMappingForGenerators;
+    }
+
+    public Context context() {
+        return context;
+    }
+
+    static class RegulatingControl {
+        final String mode;
+        final String cgmesTerminal;
+        final String topologicalNode;
+        final boolean enabled;
+        final double targetValue;
+        final double targetDeadband;
 
         private final Map<String, Boolean> idsEq = new HashMap<>();
 
@@ -55,6 +63,10 @@ public class RegulatingControlMapping {
     }
 
     private Map<String, RegulatingControl> cachedRegulatingControls = new HashMap<>();
+
+    public Map<String, RegulatingControl> cachedRegulatingControls() {
+        return cachedRegulatingControls;
+    }
 
     public void cacheRegulatingControls(PropertyBag p) {
         cachedRegulatingControls.put(p.getId(REGULATING_CONTROL), new RegulatingControl(p));
@@ -298,182 +310,17 @@ public class RegulatingControlMapping {
     }
 
     public void setAllRegulatingControls(Network network) {
-        setGeneratorsRegulatingControl(network);
+        regulatingControlMappingForGenerators.apply(network);
 
         cachedRegulatingControls.clear();
     }
 
-    private void setGeneratorsRegulatingControl(Network network) {
-        network.getGeneratorStream().forEach(gen -> {
-            setGeneratorRegulatingControl(gen);
-        });
-    }
-
-    private void setGeneratorRegulatingControl(Generator gen) {
-        GeneratorRegulatingData rd = context.generatorRegulatingControlMapping().find(gen.getId());
-        setGeneratorRegulatingControl(gen.getId(), rd, gen);
-    }
-
-    private void setGeneratorRegulatingControl(String genId, GeneratorRegulatingData rd,
-        Generator gen) {
-        if (rd == null || !rd.regulating) {
-            return;
-        }
-
-        String controlId = rd.regulatingControlId;
-        if (controlId == null) {
-            context.missing(String.format("Regulating control Id not defined"));
-            return;
-        }
-
-        RegulatingControl control = cachedRegulatingControls.get(controlId);
-        if (control == null) {
-            context.missing(String.format("Regulating control %s", controlId));
-            return;
-        }
-
-        if (isControlModeVoltage(control.mode)) {
-            GeneratorControlVoltage gcv = getGeneratorRegulatingControlVoltage(controlId, control, rd.qPercent, context,
-                gen);
-            setGeneratorRegulatingControlVoltage(gcv, gen);
-        } else {
-            context.ignored(control.mode, String.format("Unsupported regulation mode for generator %s", genId));
-        }
-    }
-
-    private GeneratorControlVoltage getGeneratorRegulatingControlVoltage(String controlId,
-        RegulatingControl control, double qPercent, Context context, Generator gen) {
-
-        // Take default terminal if it has not been defined
-        Terminal terminal = getGeneratorRegulatingTerminal(gen, control.cgmesTerminal, control.topologicalNode);
-        if (terminal == null) {
-            context.missing(String.format(MISSING_IIDM_TERMINAL, control.topologicalNode));
-            return null;
-        }
-
-        double targetV = Double.NaN;
-        if (control.targetValue <= 0.0 || Double.isNaN(control.targetValue)) {
-            targetV = terminalNominalVoltage(terminal);
-            context.fixed(controlId, "Invalid value for regulating target value", control.targetValue, targetV);
-        } else {
-            targetV = control.targetValue;
-        }
-
-        boolean voltageRegulatorOn = false;
-        if (control.enabled) {
-            voltageRegulatorOn = true;
-        }
-
-        GeneratorControlVoltage gcv = new GeneratorControlVoltage();
-        gcv.terminal = terminal;
-        gcv.targetV = targetV;
-        gcv.voltageRegulatorOn = voltageRegulatorOn;
-        gcv.qPercent = qPercent;
-
-        return gcv;
-    }
-
-    public void initializeGeneratorRegulatingControl(GeneratorAdder adder) {
-        adder.setRegulatingTerminal(null);
-        adder.setTargetV(Double.NaN);
-        adder.setVoltageRegulatorOn(false);
-    }
-
-    private void setGeneratorRegulatingControlVoltage(GeneratorControlVoltage gcv, Generator gen) {
-        if (gcv == null) {
-            return;
-        }
-        gen.setRegulatingTerminal(gcv.terminal);
-        gen.setTargetV(gcv.targetV);
-        gen.setVoltageRegulatorOn(gcv.voltageRegulatorOn);
-
-        // add qPercent as an extension
-        if (!Double.isNaN(gcv.qPercent)) {
-            CoordinatedReactiveControl coordinatedReactiveControl = new CoordinatedReactiveControl(gen, gcv.qPercent);
-            gen.addExtension(CoordinatedReactiveControl.class, coordinatedReactiveControl);
-        }
-    }
-
-    private boolean isControlModeVoltage(String controlMode) {
-        if (controlMode != null && controlMode.endsWith("voltage")) {
-            return true;
-        }
-        return false;
-    }
-
-    private Terminal getGeneratorRegulatingTerminal(Generator gen, String cgmesTerminal, String topologicalNode) {
-        // Will take default terminal ONLY if it has not been explicitly defined in CGMES
-        Terminal terminal = getGeneratorDefaultTerminal(gen);
-        if (cgmesTerminal != null || topologicalNode != null) {
-            terminal = findRegulatingTerminal(cgmesTerminal, topologicalNode);
-            // If terminal is null here it means that no IIDM terminal has been found
-            // from the initial CGMES terminal or topological node,
-            // we will consider the regulating control invalid,
-            // in this case we will not use the default terminal
-            // (no localization of regulating controls)
-        }
-        return terminal;
-    }
-
-    private Terminal getGeneratorDefaultTerminal(Generator gen) {
-        return gen.getTerminal();
-    }
-
-    private Terminal findRegulatingTerminal(String cgmesTerminal, String topologicalNode) {
+    public Terminal findRegulatingTerminal(String cgmesTerminal, String topologicalNode) {
         return Optional.ofNullable(context.terminalMapping().find(cgmesTerminal))
             .orElseGet(() -> context.terminalMapping().findFromTopologicalNode(topologicalNode));
     }
 
-    private double terminalNominalVoltage(Terminal terminal) {
+    public double terminalNominalVoltage(Terminal terminal) {
         return terminal.getVoltageLevel().getNominalV();
-    }
-
-    static class GeneratorControlVoltage {
-        Terminal terminal;
-        double targetV;
-        boolean voltageRegulatorOn;
-        double qPercent;
-    }
-
-    public RegulatingControlId getGeneratorRegulatingControlId(PropertyBag p) {
-        boolean regulating = false;
-        String regulatingControlId = null;
-
-        if (p.containsKey(REGULATING_CONTROL)) {
-            String controlId = p.getId(REGULATING_CONTROL);
-            RegulatingControl control = cachedRegulatingControls.get(controlId);
-            if (control != null) {
-                regulating = true;
-                regulatingControlId = controlId;
-            }
-        }
-
-        return new RegulatingControlId(regulating, regulatingControlId);
-    }
-
-    public double getGeneratorQpercent(PropertyBag p) {
-        double qPercent = Double.NaN;
-        if (p.containsKey(QPERCENT)) {
-            qPercent = p.asDouble(QPERCENT);
-        }
-        return qPercent;
-    }
-
-    public static class RegulatingControlId {
-        RegulatingControlId(boolean regulating, String regulatingControlIdValue) {
-            this.regulating = regulating;
-            this.regulatingControlIdValue = regulatingControlIdValue;
-        }
-
-        public boolean isRegulating() {
-            return regulating;
-        }
-
-        public String getRegulatingControlId() {
-            return this.regulatingControlIdValue;
-        }
-
-        private final boolean regulating;
-        private final String regulatingControlIdValue;
     }
 }

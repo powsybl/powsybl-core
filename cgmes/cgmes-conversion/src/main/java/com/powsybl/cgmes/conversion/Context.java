@@ -48,9 +48,6 @@ public class Context {
         currentLimitsMapping = new CurrentLimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping();
-
-        generatorRegulatingControlMapping = new GeneratorRegulatingControlMapping();
-
         ratioTapChangerTables = new HashMap<>();
         reactiveCapabilityCurveData = new HashMap<>();
     }
@@ -95,10 +92,6 @@ public class Context {
 
     public NodeMapping nodeMapping() {
         return nodeMapping;
-    }
-
-    public GeneratorRegulatingControlMapping generatorRegulatingControlMapping() {
-        return generatorRegulatingControlMapping;
     }
 
     public TapChangerTransformers tapChangerTransformers() {
@@ -227,7 +220,6 @@ public class Context {
     private final DcMapping dcMapping;
     private final CurrentLimitsMapping currentLimitsMapping;
     private final RegulatingControlMapping regulatingControlMapping;
-    private final GeneratorRegulatingControlMapping generatorRegulatingControlMapping;
 
     private final Map<String, PropertyBags> ratioTapChangerTables;
     private final Map<String, PropertyBags> reactiveCapabilityCurveData;
