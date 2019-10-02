@@ -7,22 +7,23 @@
 package com.powsybl.afs.ext.base;
 
 import com.google.common.io.CharStreams;
+import com.powsybl.afs.OrderedDependencyManager;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.events.AppStorageListener;
 import com.powsybl.afs.storage.events.NodeDataUpdated;
 import com.powsybl.afs.storage.events.NodeEvent;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractModificationScript extends ProjectFile implements StorableScript {
+public abstract class AbstractScript<T extends AbstractScript> extends ProjectFile implements StorableScript {
 
     private static final String  NODE_DATA_UPDATED = "NODE_DATA_UPDATED";
 
@@ -32,7 +33,11 @@ public abstract class AbstractModificationScript extends ProjectFile implements 
 
     private final AppStorageListener l = eventList -> processEvents(eventList.getEvents(), info.getId(), listeners);
 
-    public AbstractModificationScript(ProjectFileCreationContext context, int codeVersion, String scriptContentName) {
+    private static final String INCLUDED_SCRIPTS_DEPENDENCY_NAME = "scriptIncludes";
+    private static final String DEFAULT_SCRIPTS_DELIMITER = "\n\n";
+    protected final OrderedDependencyManager orderedDependencyManager = new OrderedDependencyManager(this);
+
+    public AbstractScript(ProjectFileCreationContext context, int codeVersion, String scriptContentName) {
         super(context, codeVersion);
         this.scriptContentName = Objects.requireNonNull(scriptContentName);
         storage.getEventsBus().addListener(l);
@@ -40,7 +45,7 @@ public abstract class AbstractModificationScript extends ProjectFile implements 
 
     private void processEvents(List<NodeEvent> events, String nodeId, List<ScriptListener> listeners) {
         for (NodeEvent event : events) {
-            if (event.getType().equals(NODE_DATA_UPDATED)) {
+            if (NODE_DATA_UPDATED.equals(event.getType())) {
                 NodeDataUpdated dataUpdated = (NodeDataUpdated) event;
                 if (dataUpdated.getId().equals(nodeId) && scriptContentName.equals(dataUpdated.getDataName())) {
                     for (ScriptListener listener : listeners) {
@@ -49,6 +54,32 @@ public abstract class AbstractModificationScript extends ProjectFile implements 
                 }
             }
         }
+    }
+
+    public void addScript(T includeScript) {
+        orderedDependencyManager.appendDependencies(INCLUDED_SCRIPTS_DEPENDENCY_NAME, Collections.singletonList(includeScript));
+    }
+
+    public void removeScript(String scriptNodeId) {
+        orderedDependencyManager.removeDependencies(INCLUDED_SCRIPTS_DEPENDENCY_NAME, Collections.singletonList(scriptNodeId));
+    }
+
+    @Override
+    public String readScript(boolean withIncludes) {
+        String ownContent = readScript();
+        if (withIncludes) {
+            String includesScript = orderedDependencyManager
+                    .getDependencies(INCLUDED_SCRIPTS_DEPENDENCY_NAME, AbstractScript.class)
+                    .stream()
+                    // TODO add commented header for script ? (script project node name ?)
+                    .map(script -> script.readScript(true))
+                    .collect(Collectors.joining(DEFAULT_SCRIPTS_DELIMITER));
+            if (StringUtils.isNotBlank(includesScript)) {
+                includesScript += DEFAULT_SCRIPTS_DELIMITER;
+            }
+            return includesScript + ownContent;
+        }
+        return ownContent;
     }
 
     @Override
@@ -63,7 +94,7 @@ public abstract class AbstractModificationScript extends ProjectFile implements 
     @Override
     public void writeScript(String content) {
         try (Reader reader = new StringReader(content);
-             Writer writer = new OutputStreamWriter(storage.writeBinaryData(info.getId(), scriptContentName), StandardCharsets.UTF_8)) {
+            Writer writer = new OutputStreamWriter(storage.writeBinaryData(info.getId(), scriptContentName), StandardCharsets.UTF_8)) {
             CharStreams.copy(reader, writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
