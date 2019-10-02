@@ -417,10 +417,15 @@ public class RegulatingControlMapping {
     }
 
     private Terminal getGeneratorRegulatingTerminal(Generator gen, String cgmesTerminal, String topologicalNode) {
-        // Take default terminal if it has not been defined
+        // Will take default terminal ONLY if it has not been explicitly defined in CGMES
         Terminal terminal = getGeneratorDefaultTerminal(gen);
-        if (cgmesTerminal != null) {
+        if (cgmesTerminal != null || topologicalNode != null) {
             terminal = findRegulatingTerminal(cgmesTerminal, topologicalNode);
+            // If terminal is null here it means that no IIDM terminal has been found
+            // from the initial CGMES terminal or topological node,
+            // we will consider the regulating control invalid,
+            // in this case we will not use the default terminal
+            // (no localization of regulating controls)
         }
         return terminal;
     }
