@@ -13,7 +13,6 @@ import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
-//import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
