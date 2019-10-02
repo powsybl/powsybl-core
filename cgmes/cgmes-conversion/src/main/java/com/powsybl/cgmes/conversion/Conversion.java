@@ -122,6 +122,9 @@ public class Conversion {
         // set all remote regulating terminals
         context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
 
+        // set all regulating controls
+        context.regulatingControlMapping().setAllRegulatingControls(network);
+
         if (config.convertSvInjections()) {
             convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
         }

@@ -8,11 +8,12 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControlId;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
+//import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -43,7 +44,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         }
 
         GeneratorAdder adder = voltageLevel().newGenerator();
-        context.regulatingControlMapping().setRegulatingControl(iidmId(), p, adder, voltageLevel());
+        context.regulatingControlMapping().initializeGeneratorRegulatingControl(adder);
         adder.setMinP(minP)
                 .setMaxP(maxP)
                 .setTargetP(targetP)
@@ -53,12 +54,10 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         identify(adder);
         connect(adder);
         Generator g = adder.add();
-        if (p.containsKey("qPercent") && !Double.isNaN(p.asDouble("qPercent"))) {
-            CoordinatedReactiveControl coordinatedReactiveControl = new CoordinatedReactiveControl(g, p.asDouble("qPercent"));
-            g.addExtension(CoordinatedReactiveControl.class, coordinatedReactiveControl);
-        }
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
+
+        setRegulatingControlContext(g.getId(), p);
     }
 
     private static EnergySource fromGeneratingUnitType(String gut) {
@@ -73,5 +72,12 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
             es = EnergySource.WIND;
         }
         return es;
+    }
+
+    private void setRegulatingControlContext(String genId, PropertyBag sm) {
+        RegulatingControlId rci = context.regulatingControlMapping().getGeneratorRegulatingControlId(sm);
+        double qPercent = context.regulatingControlMapping().getGeneratorQpercent(sm);
+        context.generatorRegulatingControlMapping().add(genId, rci.isRegulating(), rci.getRegulatingControlId(),
+            qPercent);
     }
 }

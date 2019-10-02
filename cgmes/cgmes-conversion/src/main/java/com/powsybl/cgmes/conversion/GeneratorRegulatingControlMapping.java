@@ -24,6 +24,19 @@ public class GeneratorRegulatingControlMapping {
         GeneratorRegulatingData rd = new GeneratorRegulatingData();
         rd.regulating = regulating;
         rd.regulatingControlId = regulatingControlId;
+        rd.qPercent = Double.NaN;
+        generator.put(generatorId, rd);
+    }
+
+    public void add(String generatorId, boolean regulating, String regulatingControlId, double qPercent) {
+        if (generator.containsKey(generatorId)) {
+            throw new CgmesModelException("Generator already added, Generator id : " + generatorId);
+        }
+
+        GeneratorRegulatingData rd = new GeneratorRegulatingData();
+        rd.regulating = regulating;
+        rd.regulatingControlId = regulatingControlId;
+        rd.qPercent = qPercent;
         generator.put(generatorId, rd);
     }
 
@@ -34,6 +47,7 @@ public class GeneratorRegulatingControlMapping {
     public static class GeneratorRegulatingData {
         boolean regulating;
         String regulatingControlId;
+        double qPercent;
     }
 
     private final Map<String, GeneratorRegulatingData> generator;
