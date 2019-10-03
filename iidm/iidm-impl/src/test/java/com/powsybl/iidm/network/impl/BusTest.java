@@ -69,6 +69,7 @@ public class BusTest {
         vscConverterStation.getTerminal().setQ(q2);
 
         assertSame(voltageLevel, bus.getVoltageLevel());
+        assertSame(network, bus.getNetwork());
         try {
             bus.setV(-1.0);
             fail();

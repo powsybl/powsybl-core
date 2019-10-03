@@ -55,7 +55,7 @@ public class ClassicPlatformConfigProvider implements PlatformConfigProvider {
         Objects.requireNonNull(fileSystem);
         Objects.requireNonNull(userHome);
         Path[] configDirs = null;
-        if (directories != null) {
+        if (directories != null && !directories.isEmpty()) {
             configDirs = Arrays.stream(directories.split(":"))
                     .map(PlatformEnv::substitute)
                     .map(fileSystem::getPath)
