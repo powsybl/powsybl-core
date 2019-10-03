@@ -21,10 +21,6 @@
     <name>Scripting AFS</name>
     <description>A tool to run scripts over IIDM and AFS</description>
 
-    <properties>
-        <jline2.version>2.12</jline2.version>
-    </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -61,7 +57,6 @@
         <dependency>
             <groupId>jline</groupId>
             <artifactId>jline</artifactId>
-            <version>${jline2.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>junit</artifactId>
@@ -72,11 +67,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -97,6 +87,13 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-tools</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <!-- Provided dependencies -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Test dependencies -->
