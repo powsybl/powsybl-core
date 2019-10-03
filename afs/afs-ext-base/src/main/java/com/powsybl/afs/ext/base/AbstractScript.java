@@ -27,14 +27,11 @@ public abstract class AbstractScript<T extends AbstractScript> extends ProjectFi
 
     private static final String  NODE_DATA_UPDATED = "NODE_DATA_UPDATED";
 
-    private final String scriptContentName;
-
-    private final List<ScriptListener> listeners = new ArrayList<>();
-
-    private final AppStorageListener l = eventList -> processEvents(eventList.getEvents(), info.getId(), listeners);
-
     private static final String INCLUDED_SCRIPTS_DEPENDENCY_NAME = "scriptIncludes";
     private static final String DEFAULT_SCRIPTS_DELIMITER = "\n\n";
+    private final String scriptContentName;
+    private final List<ScriptListener> listeners = new ArrayList<>();
+    private final AppStorageListener l = eventList -> processEvents(eventList.getEvents(), info.getId(), listeners);
     protected final OrderedDependencyManager orderedDependencyManager = new OrderedDependencyManager(this);
 
     public AbstractScript(ProjectFileCreationContext context, int codeVersion, String scriptContentName) {
@@ -54,6 +51,10 @@ public abstract class AbstractScript<T extends AbstractScript> extends ProjectFi
                 }
             }
         }
+    }
+
+    public void addGenericScript(GenericScript genericScript) {
+        orderedDependencyManager.appendDependencies(INCLUDED_SCRIPTS_DEPENDENCY_NAME, Collections.singletonList(genericScript));
     }
 
     public void addScript(T includeScript) {
