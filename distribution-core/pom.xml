@@ -332,13 +332,13 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-script-afs</artifactId>
+            <artifactId>powsybl-scripting-afs</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-script-extension</artifactId>
+            <artifactId>powsybl-scripting-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 

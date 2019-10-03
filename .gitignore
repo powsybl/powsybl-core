@@ -63,8 +63,8 @@
 /sensitivity-api/target/
 /simulation-api/target/
 /scripting/target/
-/scripting/script-afs/target/
-/scripting/script-extension/target/
+/scripting/scripting-afs/target/
+/scripting/scripting-extension/target/
 /target
 /time-series/target/
 /time-series/time-series-api/target/

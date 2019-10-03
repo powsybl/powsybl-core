@@ -24,8 +24,8 @@
     <description>Scripting aggregator module</description>
 
     <modules>
-        <module>script-afs</module>
-        <module>script-extension</module>
+        <module>scripting-afs</module>
+        <module>scripting-extension</module>
     </modules>
 
 </project>

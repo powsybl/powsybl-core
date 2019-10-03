@@ -65,7 +65,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-script-extension</artifactId>
+            <artifactId>powsybl-scripting-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
