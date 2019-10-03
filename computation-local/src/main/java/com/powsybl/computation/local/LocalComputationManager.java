@@ -42,8 +42,6 @@ public class LocalComputationManager implements ComputationManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalComputationManager.class);
 
-    private static final String CANCEL_BY_CALLER_MSG = "Cancelled by submitter";
-
     private final LocalComputationConfig config;
 
     private final WorkingDirectory commonDir;
@@ -325,8 +323,8 @@ public class LocalComputationManager implements ComputationManager {
     public <R> CompletableFuture<R> execute(ExecutionEnvironment environment, ExecutionHandler<R> handler, ComputationParameters parameters) {
         Objects.requireNonNull(environment);
         Objects.requireNonNull(handler);
-        CompletableFuture<R> f = new CompletableFuture<>();
-        threadPools.execute(() -> doExecute(f, environment, handler, parameters));
+        CompletableFutureTask<R> f = new CompletableFutureTask<>(() -> doExecute(environment, handler, parameters));
+        threadPools.execute(f);
         return f;
     }
 
@@ -334,43 +332,20 @@ public class LocalComputationManager implements ComputationManager {
      * Executes commands described by the specified handler,
      * checking for cancel at various execution points.
      */
-    private <R> void doExecute(CompletableFuture<R> future, ExecutionEnvironment environment, ExecutionHandler<R> handler, ComputationParameters parameters) {
-
-        if (future.isCancelled()) {
-            return;
-        }
+    private <R> R doExecute(ExecutionEnvironment environment, ExecutionHandler<R> handler, ComputationParameters parameters) throws IOException, InterruptedException {
 
         try (WorkingDirectory workingDir = new WorkingDirectory(config.getLocalDir(), environment.getWorkingDirPrefix(), environment.isDebug())) {
 
             List<CommandExecution> commandExecutionList = handler.before(workingDir.toPath());
 
-            //From this point, we want to cancel the command execution if it has started
-            //TODO: there is a small gap where cancel could be called after this point and before command is actually started,
-            //      where the cancel will not be able to cancel the command execution
-            //      To handle this completely, we need to change the command executor API
-            registerExecutionStopOnCancellation(future, workingDir);
-            if (future.isCancelled()) {
-                return;
-            }
-            ExecutionReport report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
-
-            //Post processing will not be executed in case of cancel
-            if (future.isCancelled()) {
-                return;
-            }
-            R result = handler.after(workingDir.toPath(), report);
-            future.complete(result);
-        } catch (Throwable t) {
-            future.completeExceptionally(t);
-        }
-    }
-
-    private <T> void registerExecutionStopOnCancellation(CompletableFuture<T> future, WorkingDirectory workingDir) {
-        future.whenComplete((r, ex) -> {
-            if (ex instanceof CancellationException) {
+            try {
+                ExecutionReport report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
+                return handler.after(workingDir.toPath(), report);
+            } catch (InterruptedException exc) {
                 localCommandExecutor.stop(workingDir.toPath());
+                throw exc;
             }
-        });
+        }
     }
 
     @Override
