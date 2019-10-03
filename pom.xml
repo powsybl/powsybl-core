@@ -58,6 +58,7 @@
         <module>commons</module>
         <module>computation</module>
         <module>computation-local</module>
+        <module>config-classic</module>
         <module>config-test</module>
         <module>contingency</module>
         <module>distribution-core</module>
@@ -430,7 +431,10 @@
         <profile>
             <id>checks</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>powsyblchecks</name>
+                    <value>!false</value>
+                </property>
             </activation>
             <build>
                 <plugins>

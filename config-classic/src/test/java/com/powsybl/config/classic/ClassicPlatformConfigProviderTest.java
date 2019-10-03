@@ -4,12 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.commons.config;
+package com.powsybl.config.classic;
 
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.ModuleConfigRepository;
 
 import org.junit.After;
 import org.junit.Before;
@@ -43,7 +44,8 @@ public class ClassicPlatformConfigProviderTest {
 
     private List<String> getAbsolutePaths(String configDirs) {
         Path[] paths = ClassicPlatformConfigProvider.getDefaultConfigDirs(fileSystem, configDirs, "/");
-        return Arrays.stream(paths).map(Path::toAbsolutePath).map(Path::toString).collect(Collectors.toList());
+        return Arrays.stream(paths).map(Path::toAbsolutePath).map(Path::normalize).map(Path::toString)
+                .collect(Collectors.toList());
     }
 
     @Test
@@ -52,11 +54,18 @@ public class ClassicPlatformConfigProviderTest {
     }
 
     @Test
+    public void testEdgeCaseEmptyAfterSplit() {
+        assertEquals(Arrays.asList("/.itools"), getAbsolutePaths(":"));
+    }
+
+    @Test
+    public void workDir() {
+        assertEquals(Arrays.asList("/work"), getAbsolutePaths("."));
+    }
+
+    @Test
     public void testEmptyConfigDirs() {
-        // "FIXME: should return the same as with null but currently returns the working
-        // dir")
-        // assertEquals(Arrays.asList("/.itools"), getAbsolutePaths(""));
-        assertEquals(Arrays.asList("/work"), getAbsolutePaths(""));
+        assertEquals(Arrays.asList("/.itools"), getAbsolutePaths(""));
     }
 
     @Test
