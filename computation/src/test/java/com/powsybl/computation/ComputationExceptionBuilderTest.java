@@ -86,6 +86,17 @@ public class ComputationExceptionBuilderTest {
         assertEquals("errLog", IOUtils.toString(Objects.requireNonNull(strZipFile.getInputStream("err")), StandardCharsets.UTF_8));
         assertEquals("foo", IOUtils.toString(Objects.requireNonNull(strZipFile.getInputStream("f1.out")), StandardCharsets.UTF_8));
 
+        ComputationExceptionBuilder ceb3 = new ComputationExceptionBuilder(runtimeException);
+        String key = "bytesKey";
+        ceb3.addBytes(key, "someBytes".getBytes());
+        ComputationException computationException3 = ceb3.build();
+        byte[] bytes1 = computationException3.getFileBytes().get(key);
+        assertEquals("someBytes", new String(bytes1));
+
+        // test after serialized
+        IOUtils.copy(new ByteArrayInputStream(computationException3.toZipBytes()), Files.newOutputStream(workingDir.resolve("test3.zip")));
+        ZipFile test3 = new ZipFile(workingDir.resolve("test3.zip"));
+        assertEquals("someBytes", IOUtils.toString(test3.getInputStream(key), StandardCharsets.UTF_8));
     }
 
     @After
