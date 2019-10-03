@@ -73,7 +73,7 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
             // For activePower, setpoint is targetPpcc
             LccConverterStationAdder adder = voltageLevel().newLccConverterStation()
                     .setLossFactor(0.0f)
-                    .setPowerFactor((float) 0.8);
+                    .setPowerFactor(0.8f);
             identify(adder);
             connect(adder);
             c = adder.add();
