@@ -9,6 +9,7 @@ package com.powsybl.loadflow.validation;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.output.NullWriter;
@@ -46,7 +47,9 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     private BusView shuntBusView;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
+        super.setUp();
+
         Bus shuntBus = Mockito.mock(Bus.class);
         Mockito.when(shuntBus.getV()).thenReturn(v);
         Mockito.when(shuntBus.isInMainConnectedComponent()).thenReturn(mainComponent);
@@ -117,12 +120,14 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkNetworkShunts() {
+    public void checkNetworkShunts() throws IOException {
         Network network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
         Mockito.when(network.getShuntCompensatorStream()).thenAnswer(dummy -> Stream.of(shunt));
 
-        assertTrue(ShuntCompensatorsValidation.INSTANCE.checkShunts(network, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(ShuntCompensatorsValidation.INSTANCE.checkShunts(network, strictConfig, data));
+
+        assertTrue(ValidationType.SHUNTS.check(network, strictConfig, tmpDir));
 
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), strictConfig, NullWriter.NULL_WRITER, ValidationType.SHUNTS);
         assertTrue(ValidationType.SHUNTS.check(network, strictConfig, validationWriter));

@@ -9,6 +9,7 @@ package com.powsybl.loadflow.validation;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.*;
@@ -51,7 +52,9 @@ public class BusesValidationTest extends AbstractValidationTest {
     private Bus bus;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
+        super.setUp();
+
         Terminal loadTerminal = Mockito.mock(Terminal.class);
         Mockito.when(loadTerminal.getP()).thenReturn(loadP);
         Mockito.when(loadTerminal.getQ()).thenReturn(loadQ);
@@ -149,15 +152,18 @@ public class BusesValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkNetworkBuses() {
+    public void checkNetworkBuses() throws IOException {
         Network.BusView networkBusView = Mockito.mock(Network.BusView.class);
         Mockito.when(networkBusView.getBusStream()).thenAnswer(dummy -> Stream.of(bus));
         Network network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
         Mockito.when(network.getBusView()).thenReturn(networkBusView);
 
-        assertTrue(BusesValidation.INSTANCE.checkBuses(network, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(BusesValidation.INSTANCE.checkBuses(network, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(BusesValidation.INSTANCE.checkBuses(network, looseConfig, data));
+        assertFalse(BusesValidation.INSTANCE.checkBuses(network, strictConfig, data));
+
+        assertTrue(ValidationType.BUSES.check(network, looseConfig, tmpDir));
+        assertFalse(ValidationType.BUSES.check(network, strictConfig, tmpDir));
 
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.NULL_WRITER, ValidationType.BUSES);
         assertTrue(ValidationType.BUSES.check(network, looseConfig, validationWriter));

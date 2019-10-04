@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.stream.Stream;
 
@@ -60,7 +61,9 @@ public class FlowsValidationTest extends AbstractValidationTest {
     private ValidationConfig strictConfigSpecificCompatibility;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
+        super.setUp();
+
         double p1 = 39.5056;
         double q1 = -3.72344;
         double p2 = -39.5122;
@@ -207,7 +210,7 @@ public class FlowsValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkNetworkFlows() {
+    public void checkNetworkFlows() throws IOException {
         Line line2 = Mockito.mock(Line.class);
         Mockito.when(line2.getId()).thenReturn("line2");
         Mockito.when(line2.getTerminal1()).thenReturn(terminal1);
@@ -239,8 +242,11 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(network.getLineStream()).thenAnswer(dummy -> Stream.of(line2, line1));
         Mockito.when(network.getTwoWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(transformer2, transformer1));
 
-        assertTrue(FlowsValidation.INSTANCE.checkFlows(network, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(FlowsValidation.INSTANCE.checkFlows(network, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(FlowsValidation.INSTANCE.checkFlows(network, looseConfig, data));
+        assertFalse(FlowsValidation.INSTANCE.checkFlows(network, strictConfig, data));
+
+        assertTrue(ValidationType.FLOWS.check(network, looseConfig, tmpDir));
+        assertFalse(ValidationType.FLOWS.check(network, strictConfig, tmpDir));
 
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.NULL_WRITER, ValidationType.FLOWS);
         assertTrue(ValidationType.FLOWS.check(network, looseConfig, validationWriter));
