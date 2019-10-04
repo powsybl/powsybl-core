@@ -290,7 +290,7 @@ public class LocalComputationManagerTest {
                 }
             });
 
-            awaitUninterruptibly(waitForBefore);
+            waitForBefore.await();
             result.cancel(true);
             waitForCancel.countDown();
 
@@ -299,10 +299,11 @@ public class LocalComputationManagerTest {
     }
 
     @Test
-    public void cancelDuringExecutionShouldThrowAndEventuallyStopExecution() {
+    public void cancelDuringExecutionShouldThrowAndEventuallyStopExecution() throws InterruptedException {
 
         CountDownLatch waitForExecution = new CountDownLatch(1);
-        CountDownLatch execution = new CountDownLatch(1);
+        CountDownLatch execution = new CountDownLatch(1); // Will be interrupted, not decremented
+        CountDownLatch waitForInterruption = new CountDownLatch(1);
 
         MutableBoolean stopped = new MutableBoolean(false);
         LocalCommandExecutor localCommandExecutor = new AbstractLocalCommandExecutor() {
@@ -313,18 +314,20 @@ public class LocalComputationManagerTest {
             @Override
             public int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {
                 waitForExecution.countDown();
-                execution.await();
+                execution.await(); //Simulates process running
                 return 0;
             }
 
             @Override
             public void stop(Path workingDir) {
                 stopped.setTrue();
+                waitForInterruption.countDown();
             }
 
             @Override
             public void stopForcibly(Path workingDir) {
                 stopped.setTrue();
+                waitForInterruption.countDown();
             }
         };
 
@@ -343,7 +346,7 @@ public class LocalComputationManagerTest {
                 }
             });
 
-            awaitUninterruptibly(waitForExecution);
+            waitForExecution.await();
             result.cancel(true);
             result.get();
             fail();
@@ -353,6 +356,7 @@ public class LocalComputationManagerTest {
             fail();
         }
 
+        waitForInterruption.await(10, TimeUnit.SECONDS);
         assertTrue(stopped.isTrue());
     }
 }
