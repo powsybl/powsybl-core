@@ -323,9 +323,8 @@ public class LocalComputationManager implements ComputationManager {
     public <R> CompletableFuture<R> execute(ExecutionEnvironment environment, ExecutionHandler<R> handler, ComputationParameters parameters) {
         Objects.requireNonNull(environment);
         Objects.requireNonNull(handler);
-        CompletableFutureTask<R> f = new CompletableFutureTask<>(() -> doExecute(environment, handler, parameters));
-        threadPools.execute(f);
-        return f;
+
+        return CompletableFutureTask.runAsync(() -> doExecute(environment, handler, parameters), threadPools);
     }
 
     /**

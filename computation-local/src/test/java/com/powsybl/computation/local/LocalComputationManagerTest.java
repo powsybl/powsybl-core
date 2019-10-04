@@ -299,10 +299,10 @@ public class LocalComputationManagerTest {
     }
 
     @Test
-    public void cancelDuringExecutionShouldThrowAndEventuallyStopExecution() throws Exception {
+    public void cancelDuringExecutionShouldThrowAndEventuallyStopExecution() {
 
         CountDownLatch waitForExecution = new CountDownLatch(1);
-        CountDownLatch waitForCancel = new CountDownLatch(1);
+        CountDownLatch execution = new CountDownLatch(1);
 
         MutableBoolean stopped = new MutableBoolean(false);
         LocalCommandExecutor localCommandExecutor = new AbstractLocalCommandExecutor() {
@@ -313,7 +313,7 @@ public class LocalComputationManagerTest {
             @Override
             public int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {
                 waitForExecution.countDown();
-                awaitUninterruptibly(waitForCancel);
+                execution.await();
                 return 0;
             }
 
@@ -334,7 +334,6 @@ public class LocalComputationManagerTest {
                 @Override
                 public List<CommandExecution> before(Path workingDir) {
                     return dummyExecutions();
-
                 }
 
                 @Override
@@ -346,8 +345,6 @@ public class LocalComputationManagerTest {
 
             awaitUninterruptibly(waitForExecution);
             result.cancel(true);
-            waitForCancel.countDown();
-
             result.get();
             fail();
         } catch (CancellationException exc) {

@@ -6,10 +6,7 @@
  */
 package com.powsybl.computation;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.*;
 
 /**
  *
@@ -51,6 +48,26 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
         } catch (Throwable exc) {
             completeExceptionally(exc);
         }
+    }
+
+    /**
+     * Submits this task to the specified executor.
+     * @param executor The executor which will execute this task.
+     * @return         This.
+     */
+    public CompletableFutureTask<R> runAsync(Executor executor) {
+        executor.execute(this);
+        return this;
+    }
+
+    /**
+     * Creates a completable future task and submits it to the specified executor.
+     * @param task     The task to be executed.
+     * @param executor The executor which will execute the task.
+     * @return         A {@link CompletableFutureTask} bound to the specified task.
+     */
+    public static <T> CompletableFutureTask<T> runAsync(Callable<T> task, Executor executor) {
+        return new CompletableFutureTask<>(task).runAsync(executor);
     }
 
     /**
