@@ -91,6 +91,19 @@ public class ComputationExceptionBuilder {
     }
 
     /**
+     * Add bytes.
+     * @param key The name of bytes.
+     * @param bytes Bytes.
+     * @return
+     */
+    public ComputationExceptionBuilder addBytes(String key, byte[] bytes) {
+        Objects.requireNonNull(bytes);
+        Objects.requireNonNull(key);
+        bytesByFileName.put(key, bytes);
+        return this;
+    }
+
+    /**
      * If the exception is {@literal Null}, do nothing. Otherwise, this exception is logged in a {@literal List}
      * @param exception
      * @return
