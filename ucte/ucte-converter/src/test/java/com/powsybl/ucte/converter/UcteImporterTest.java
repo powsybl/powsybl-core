@@ -136,5 +136,12 @@ public class UcteImporterTest {
         assertEquals(1, network.getTwoWindingsTransformerCount());
         assertEquals(1, network.getSwitchStream().count());
     }
+
+    @Test
+    public void testCouplerToXnodeImport() {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("couplerToXnodeExample", new ResourceSet("/", "couplerToXnodeExample.uct"));
+        Network network = new UcteImporter().importData(dataSource, null);
+        assertEquals(1, network.getBusBreakerView().getBusStream().count());
+    }
 }
 
