@@ -87,8 +87,11 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         }
 
         rtca.setLoadTapChangingCapabilities(ltcFlag);
-        context.regulatingControlMapping().setRegulatingControl(p, terminal(), rtca);
-
+        if (tx3 != null) {
+            context.regulatingControlMapping().setRegulatingControl(p, terminal(), rtca);
+        } else {
+            context.regulatingControlMapping().forTransformers().initializeRatioTapChanger(rtca);
+        }
         rtca.add();
     }
 

@@ -51,7 +51,7 @@ public class RegulatingControlMappingForTransformers {
     }
 
     public RegulatingControlRatio buildRegulatingControlRatio(String id, PropertyBag tc) {
-        String regulatingControlId = parent.getRegulatingControlId(tc);
+        String regulatingControlId = getRegulatingControlId(tc);
         String tculControlMode = tc.get("tculControlMode");
         boolean tapChangerControlEnabled = tc.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false);
         return buildRegulatingControlRatio(id, regulatingControlId, tculControlMode, tapChangerControlEnabled);
@@ -64,7 +64,6 @@ public class RegulatingControlMappingForTransformers {
         rtc.regulatingControlId = regulatingControlId;
         rtc.tculControlMode = tculControlMode;
         rtc.tapChangerControlEnabled = tapChangerControlEnabled;
-
         return rtc;
     }
 
@@ -77,7 +76,7 @@ public class RegulatingControlMappingForTransformers {
     }
 
     public RegulatingControlPhase buildRegulatingControlPhase(PropertyBag tc) {
-        String regulatingControlId = parent.getRegulatingControlId(tc);
+        String regulatingControlId = getRegulatingControlId(tc);
         boolean tapChangerControlEnabled = tc.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false);
         return buildRegulatingControlPhase(regulatingControlId, tapChangerControlEnabled);
     }
@@ -102,7 +101,7 @@ public class RegulatingControlMappingForTransformers {
         adder.setRegulationTerminal(null);
         adder.setRegulationValue(Double.NaN);
         adder.setTargetDeadband(Double.NaN);
-        adder.setRegulationMode(null);
+        adder.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
         adder.setRegulating(false);
     }
 
@@ -185,9 +184,9 @@ public class RegulatingControlMappingForTransformers {
 
         RegulatingControlPhaseAttributes rca = null;
         if (control.mode.endsWith("currentflow")) {
-            rca = getPtcRegulatingControlActivePower(rc.tapChangerControlEnabled, control, context);
-        } else if (control.mode.endsWith("activepower")) {
             rca = getPtcRegulatingControlCurrentFlow(rc.tapChangerControlEnabled, control, context);
+        } else if (control.mode.endsWith("activepower")) {
+            rca = getPtcRegulatingControlActivePower(rc.tapChangerControlEnabled, control, context);
         } else if (!control.mode.endsWith("fixed")) {
             context.fixed(control.mode, "Unsupported regulating mode for Phase tap changer. Considered as FIXED_TAP");
         }
@@ -269,11 +268,25 @@ public class RegulatingControlMappingForTransformers {
             return;
         }
         // Order it is important
-        ptc.setRegulationMode(rca.regulationMode)
-            .setRegulationTerminal(rca.terminal)
+        ptc.setRegulationTerminal(rca.terminal)
             .setTargetDeadband(rca.targetDeadband)
-            .setRegulationValue(rca.targetValue);
+            .setRegulationValue(rca.targetValue)
+            .setRegulationMode(rca.regulationMode);
         ptc.setRegulating(rca.regulating);
+    }
+
+    private String getRegulatingControlId(PropertyBag p) {
+        String regulatingControlId = null;
+
+        if (p.containsKey(RegulatingControlMapping.TAP_CHANGER_CONTROL)) {
+            String controlId = p.getId(RegulatingControlMapping.TAP_CHANGER_CONTROL);
+            RegulatingControl control = parent.cachedRegulatingControls().get(controlId);
+            if (control != null) {
+                regulatingControlId = controlId;
+            }
+        }
+
+        return regulatingControlId;
     }
 
     private boolean isControlModeVoltage(String controlMode, String tculControlMode) {

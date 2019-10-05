@@ -6,7 +6,6 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -119,60 +118,6 @@ public class RegulatingControlMapping {
             adder.setRegulationTerminal(defaultTerminal);
             if (!context.terminalMapping().areAssociated(p.getId(TERMINAL), control.topologicalNode)) {
                 control.idsEq.put(p.getId("RatioTapChanger"), false);
-            }
-        }
-    }
-
-    public void setRegulatingControl(PropertyBag p, Terminal defaultTerminal, PhaseTapChangerAdder adder, TwoWindingsTransformer t2w) {
-        if (p.containsKey(TAP_CHANGER_CONTROL)) {
-            RegulatingControl control = cachedRegulatingControls.get(p.getId(TAP_CHANGER_CONTROL));
-            if (control != null) {
-                int side = context.tapChangerTransformers().whichSide(p.getId(PHASE_TAP_CHANGER));
-                if (control.mode.endsWith("currentflow")) {
-                    addCurrentFlowRegControl(p, control, defaultTerminal, adder, side, t2w);
-                } else if (control.mode.endsWith("activepower")) {
-                    addActivePowerRegControl(p, control, defaultTerminal, adder, side, t2w);
-                } else if (!control.mode.endsWith("fixed")) {
-                    context.fixed(control.mode, "Unsupported regulating mode for Phase tap changer. Considered as FIXED_TAP");
-                }
-            } else {
-                context.missing(String.format(REGULATING_CONTROL_REF, p.getId(TAP_CHANGER_CONTROL)));
-            }
-        }
-    }
-
-    private void addCurrentFlowRegControl(PropertyBag p, RegulatingControl control, Terminal defaultTerminal, PhaseTapChangerAdder adder, int side, TwoWindingsTransformer t2w) {
-        adder.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
-                .setRegulationValue(getTargetValue(control.targetValue, control.cgmesTerminal, side, t2w))
-                .setTargetDeadband(control.targetDeadband)
-                .setRegulating(control.enabled || p.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false));
-        setRegulatingTerminal(p, control, defaultTerminal, adder);
-    }
-
-    private void addActivePowerRegControl(PropertyBag p, RegulatingControl control, Terminal defaultTerminal, PhaseTapChangerAdder adder, int side, TwoWindingsTransformer t2w) {
-        adder.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
-                .setTargetDeadband(control.targetDeadband)
-                .setRegulating(control.enabled || p.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false))
-                .setRegulationValue(getTargetValue(-control.targetValue, control.cgmesTerminal, side, t2w));
-        setRegulatingTerminal(p, control, defaultTerminal, adder);
-    }
-
-    private double getTargetValue(double targetValue, String regTerminalId, int side, TwoWindingsTransformer t2w) {
-        if ((context.terminalMapping().find(regTerminalId).equals(t2w.getTerminal1()) && side == 2)
-                || (context.terminalMapping().find(regTerminalId).equals(t2w.getTerminal2()) && side == 1)) {
-            return -targetValue;
-        }
-        return targetValue;
-    }
-
-    private void setRegulatingTerminal(PropertyBag p, RegulatingControl control, Terminal defaultTerminal, PhaseTapChangerAdder adder) {
-        if (context.terminalMapping().find(control.cgmesTerminal) != null) {
-            adder.setRegulationTerminal(context.terminalMapping().find(control.cgmesTerminal));
-            control.idsEq.put(p.getId(PHASE_TAP_CHANGER), true);
-        } else {
-            adder.setRegulationTerminal(defaultTerminal);
-            if (!context.terminalMapping().areAssociated(p.getId(TERMINAL), control.topologicalNode)) {
-                control.idsEq.put(p.getId(PHASE_TAP_CHANGER), false);
             }
         }
     }
@@ -321,20 +266,6 @@ public class RegulatingControlMapping {
         regulatingControlMappingForTransformers.applyTwoWindings(network);
 
         cachedRegulatingControls.clear();
-    }
-
-    public String getRegulatingControlId(PropertyBag p) {
-        String regulatingControlId = null;
-
-        if (p.containsKey(RegulatingControlMapping.REGULATING_CONTROL)) {
-            String controlId = p.getId(RegulatingControlMapping.REGULATING_CONTROL);
-            RegulatingControl control = cachedRegulatingControls().get(controlId);
-            if (control != null) {
-                regulatingControlId = controlId;
-            }
-        }
-
-        return regulatingControlId;
     }
 
     public Terminal findRegulatingTerminal(String cgmesTerminal, String topologicalNode) {

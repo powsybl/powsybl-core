@@ -95,6 +95,27 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
             context.tapChangerTransformers().add(rtc2, tx, "rtc", 2);
             context.tapChangerTransformers().add(ptc1, tx, "ptc", 1);
             context.tapChangerTransformers().add(ptc2, tx, "ptc", 2);
+
+            boolean supported = true;
+            String rtc = null;
+            String ptc = null;
+            if (rtc1 != null && rtc2 != null) {
+                supported = false;
+            } else if (rtc1 != null && rtc2 == null) {
+                rtc = rtc1;
+            } else if (rtc1 == null && rtc2 != null) {
+                rtc = rtc2;
+            }
+            if (ptc1 != null && ptc2 != null) {
+                supported = false;
+            } else if (ptc1 != null && ptc2 == null) {
+                ptc = ptc1;
+            } else if (ptc1 == null && ptc2 != null) {
+                ptc = ptc2;
+            }
+            if (supported) {
+                setRegulatingControlContext(tx, rtc, ptc);
+            }
             return;
         }
 
