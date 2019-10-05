@@ -253,6 +253,17 @@ public class Conversion {
 
     private void convertTransformers(Context context) {
         profiling.start();
+        Map<String, PropertyBag> powerTransformerRatioTapChanger = new HashMap<>();
+        Map<String, PropertyBag> powerTransformerPhaseTapChanger = new HashMap<>();
+        cgmes.ratioTapChangers().forEach(ratio -> {
+            String id = ratio.getId("RatioTapChanger");
+            powerTransformerRatioTapChanger.put(id, ratio);
+        });
+        cgmes.phaseTapChangers().forEach(phase -> {
+            String id = phase.getId("PhaseTapChanger");
+            powerTransformerPhaseTapChanger.put(id, phase);
+        });
+
         cgmes.groupedTransformerEnds().entrySet()
                 .forEach(tends -> {
                     String t = tends.getKey();
@@ -263,7 +274,7 @@ public class Conversion {
                     }
                     AbstractConductingEquipmentConversion c = null;
                     if (ends.size() == 2) {
-                        c = new TwoWindingsTransformerConversion(ends, context);
+                        c = new TwoWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
                     } else if (ends.size() == 3) {
                         c = new ThreeWindingsTransformerConversion(ends, context);
                     } else {

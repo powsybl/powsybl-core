@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -28,14 +29,20 @@ public class RegulatingControlMapping {
 
     private final Context context;
     private final RegulatingControlMappingForGenerators regulatingControlMappingForGenerators;
+    private final RegulatingControlMappingForTransformers regulatingControlMappingForTransformers;
 
     public RegulatingControlMapping(Context context) {
         this.context = context;
         regulatingControlMappingForGenerators = new RegulatingControlMappingForGenerators(this);
+        regulatingControlMappingForTransformers = new RegulatingControlMappingForTransformers(this);
     }
 
     public RegulatingControlMappingForGenerators forGenerators() {
         return regulatingControlMappingForGenerators;
+    }
+
+    public RegulatingControlMappingForTransformers forTransformers() {
+        return regulatingControlMappingForTransformers;
     }
 
     public Context context() {
@@ -311,8 +318,23 @@ public class RegulatingControlMapping {
 
     public void setAllRegulatingControls(Network network) {
         regulatingControlMappingForGenerators.apply(network);
+        regulatingControlMappingForTransformers.applyTwoWindings(network);
 
         cachedRegulatingControls.clear();
+    }
+
+    public String getRegulatingControlId(PropertyBag p) {
+        String regulatingControlId = null;
+
+        if (p.containsKey(RegulatingControlMapping.REGULATING_CONTROL)) {
+            String controlId = p.getId(RegulatingControlMapping.REGULATING_CONTROL);
+            RegulatingControl control = cachedRegulatingControls().get(controlId);
+            if (control != null) {
+                regulatingControlId = controlId;
+            }
+        }
+
+        return regulatingControlId;
     }
 
     public Terminal findRegulatingTerminal(String cgmesTerminal, String topologicalNode) {
@@ -322,5 +344,12 @@ public class RegulatingControlMapping {
 
     public double terminalNominalVoltage(Terminal terminal) {
         return terminal.getVoltageLevel().getNominalV();
+    }
+
+    public boolean isControlModeVoltage(String controlMode) {
+        if (controlMode != null && controlMode.endsWith("voltage")) {
+            return true;
+        }
+        return false;
     }
 }

@@ -32,7 +32,7 @@ public class RegulatingControlMappingForGenerators {
     }
 
     public void add(String iidmId, PropertyBag sm) {
-        String rcId = getRegulatingControlId(sm);
+        String rcId = parent.getRegulatingControlId(sm);
         double qPercent = sm.asDouble(RegulatingControlMapping.QPERCENT);
         add(iidmId, rcId, qPercent);
     }
@@ -63,7 +63,7 @@ public class RegulatingControlMappingForGenerators {
             return;
         }
 
-        if (isControlModeVoltage(control.mode)) {
+        if (parent.isControlModeVoltage(control.mode)) {
             RegulatingControlVoltage gcv = getRegulatingControlVoltage(controlId, control, rc.qPercent, context, gen);
             apply(gcv, gen);
         } else {
@@ -118,13 +118,6 @@ public class RegulatingControlMappingForGenerators {
         }
     }
 
-    private boolean isControlModeVoltage(String controlMode) {
-        if (controlMode != null && controlMode.endsWith("voltage")) {
-            return true;
-        }
-        return false;
-    }
-
     private Terminal getRegulatingTerminal(Generator gen, String cgmesTerminal, String topologicalNode) {
         // Will take default terminal ONLY if it has not been explicitly defined in
         // CGMES
@@ -153,20 +146,6 @@ public class RegulatingControlMappingForGenerators {
         rd.regulatingControlId = cgmesRegulatingControlId;
         rd.qPercent = Double.NaN;
         mapping.put(iidmGeneratorId, rd);
-    }
-
-    private String getRegulatingControlId(PropertyBag p) {
-        String regulatingControlId = null;
-
-        if (p.containsKey(RegulatingControlMapping.REGULATING_CONTROL)) {
-            String controlId = p.getId(RegulatingControlMapping.REGULATING_CONTROL);
-            RegulatingControl control = parent.cachedRegulatingControls().get(controlId);
-            if (control != null) {
-                regulatingControlId = controlId;
-            }
-        }
-
-        return regulatingControlId;
     }
 
     private static class RegulatingControlForGenerator {

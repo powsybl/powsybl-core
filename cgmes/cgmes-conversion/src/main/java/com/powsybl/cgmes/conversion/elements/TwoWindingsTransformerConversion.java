@@ -7,7 +7,11 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import java.util.Map;
+
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.RegulatingControlPhase;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.RegulatingControlRatio;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
@@ -19,10 +23,13 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class TwoWindingsTransformerConversion extends AbstractConductingEquipmentConversion {
 
-    public TwoWindingsTransformerConversion(PropertyBags ends, Context context) {
+    public TwoWindingsTransformerConversion(PropertyBags ends, Map<String, PropertyBag> powerTransformerRatioTapChanger,
+        Map<String, PropertyBag> powerTransformerPhaseTapChanger, Context context) {
         super("PowerTransformer", ends, context);
         end1 = ends.get(0);
         end2 = ends.get(1);
+        this.powerTransformerRatioTapChanger = powerTransformerRatioTapChanger;
+        this.powerTransformerPhaseTapChanger = powerTransformerPhaseTapChanger;
     }
 
     @Override
@@ -82,6 +89,7 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
         String ptc1 = end1.getId(ptcPropertyName);
         String ptc2 = end2.getId(ptcPropertyName);
 
+        // unused, will be delete in the full conversion
         if (context.config().allowUnsupportedTapChangers()) {
             context.tapChangerTransformers().add(rtc1, tx, "rtc", 1);
             context.tapChangerTransformers().add(rtc2, tx, "rtc", 2);
@@ -134,8 +142,34 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
                     ptc);
             invalid(reason);
         }
+
+        setRegulatingControlContext(tx, rtc, ptc);
+    }
+
+    private void setRegulatingControlContext(TwoWindingsTransformer tx, String rtcId, String ptcId) {
+        RegulatingControlRatio rcRtc = null;
+        if (rtcId != null) {
+            PropertyBag tc = powerTransformerRatioTapChanger.get(rtcId);
+            rcRtc = context.regulatingControlMapping().forTransformers().buildRegulatingControlRatio(rtcId, tc);
+        } else {
+            rcRtc = context.regulatingControlMapping().forTransformers().buildEmptyRegulatingControlRatio();
+        }
+
+        RegulatingControlPhase rcPtc = null;
+        if (ptcId != null) {
+            PropertyBag tc = powerTransformerPhaseTapChanger.get(ptcId);
+            rcPtc = context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(tc);
+        } else {
+            rcPtc = context.regulatingControlMapping().forTransformers().buildEmptyRegulatingControlPhase();
+        }
+
+        context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc, rcPtc);
     }
 
     private final PropertyBag end1;
     private final PropertyBag end2;
+    private final Map<String, PropertyBag> powerTransformerRatioTapChanger;
+    private final Map<String, PropertyBag> powerTransformerPhaseTapChanger;
 }
+
+
