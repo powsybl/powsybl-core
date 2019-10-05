@@ -17,14 +17,13 @@ import java.util.*;
 public class RegulatingControlMapping {
 
     static final String REGULATING_CONTROL = "RegulatingControl";
-    static final String TAP_CHANGER_CONTROL = "TapChangerControl";
-    static final String TERMINAL = "Terminal";
+    private static final String TAP_CHANGER_CONTROL = "TapChangerControl";
+    private static final String TERMINAL = "Terminal";
     static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES topological node: %s";
-    static final String VOLTAGE = "voltage";
-    static final String REGULATING_CONTROL_REF = "Regulating control %s";
-    static final String TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
-    static final String PHASE_TAP_CHANGER = "PhaseTapChanger";
-    static final String QPERCENT = "qPercent";
+    private static final String VOLTAGE = "voltage";
+    private static final String REGULATING_CONTROL_REF = "Regulating control %s";
+    private static final String TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
+    private static final String PHASE_TAP_CHANGER = "PhaseTapChanger";
 
     private final Context context;
     private final RegulatingControlMappingForGenerators regulatingControlMappingForGenerators;
@@ -64,11 +63,11 @@ public class RegulatingControlMapping {
 
     private Map<String, RegulatingControl> cachedRegulatingControls = new HashMap<>();
 
-    public Map<String, RegulatingControl> cachedRegulatingControls() {
+    Map<String, RegulatingControl> cachedRegulatingControls() {
         return cachedRegulatingControls;
     }
 
-    public void cacheRegulatingControls(PropertyBag p) {
+    void cacheRegulatingControls(PropertyBag p) {
         cachedRegulatingControls.put(p.getId(REGULATING_CONTROL), new RegulatingControl(p));
     }
 
@@ -95,11 +94,11 @@ public class RegulatingControlMapping {
         if (control.targetValue <= 0) {
             context.ignored(p.getId(TAP_CHANGER_CONTROL), String.format("Regulating control has a bad target voltage %f", control.targetValue));
             adder.setRegulating(false)
-                    .setTargetV(Double.NaN);
+                .setTargetV(Double.NaN);
         } else {
             adder.setRegulating(control.enabled || p.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false))
-                    .setTargetDeadband(control.targetDeadband)
-                    .setTargetV(control.targetValue);
+                .setTargetDeadband(control.targetDeadband)
+                .setTargetV(control.targetValue);
         }
         setRegulatingTerminal(p, control, defaultTerminal, adder);
     }
@@ -136,23 +135,23 @@ public class RegulatingControlMapping {
 
     private void addCurrentFlowRegControl(PropertyBag p, RegulatingControl control, Terminal defaultTerminal, PhaseTapChangerAdder adder, int side, TwoWindingsTransformer t2w) {
         adder.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
-                .setRegulationValue(getTargetValue(control.targetValue, control.cgmesTerminal, side, t2w))
-                .setTargetDeadband(control.targetDeadband)
-                .setRegulating(control.enabled || p.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false));
+            .setRegulationValue(getTargetValue(control.targetValue, control.cgmesTerminal, side, t2w))
+            .setTargetDeadband(control.targetDeadband)
+            .setRegulating(control.enabled || p.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false));
         setRegulatingTerminal(p, control, defaultTerminal, adder);
     }
 
     private void addActivePowerRegControl(PropertyBag p, RegulatingControl control, Terminal defaultTerminal, PhaseTapChangerAdder adder, int side, TwoWindingsTransformer t2w) {
         adder.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
-                .setTargetDeadband(control.targetDeadband)
-                .setRegulating(control.enabled || p.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false))
-                .setRegulationValue(getTargetValue(-control.targetValue, control.cgmesTerminal, side, t2w));
+            .setTargetDeadband(control.targetDeadband)
+            .setRegulating(control.enabled || p.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false))
+            .setRegulationValue(getTargetValue(-control.targetValue, control.cgmesTerminal, side, t2w));
         setRegulatingTerminal(p, control, defaultTerminal, adder);
     }
 
     private double getTargetValue(double targetValue, String regTerminalId, int side, TwoWindingsTransformer t2w) {
         if ((context.terminalMapping().find(regTerminalId).equals(t2w.getTerminal1()) && side == 2)
-                || (context.terminalMapping().find(regTerminalId).equals(t2w.getTerminal2()) && side == 1)) {
+            || (context.terminalMapping().find(regTerminalId).equals(t2w.getTerminal2()) && side == 1)) {
             return -targetValue;
         }
         return targetValue;
@@ -186,7 +185,7 @@ public class RegulatingControlMapping {
                     setRegulatingControl(control, adder, idEq);
                 } else {
                     context.pending(String.format("Remote control for static var compensator %s replaced by voltage local control at nominal voltage", idEq),
-                            "IIDM model does not support remote control for static var compensators");
+                        "IIDM model does not support remote control for static var compensators");
                     setDefaultRegulatingControl(p, adder, idEq);
                 }
             } else {
@@ -201,10 +200,10 @@ public class RegulatingControlMapping {
     private void setDefaultRegulatingControl(PropertyBag p, StaticVarCompensatorAdder adder, String idEq) {
         if (p.getId("controlMode").toLowerCase().endsWith(VOLTAGE)) {
             adder.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                    .setVoltageSetPoint(p.asDouble("voltageSetPoint"));
+                .setVoltageSetPoint(p.asDouble("voltageSetPoint"));
         } else if (p.getId("controlMode").toLowerCase().endsWith("reactivepower")) {
             adder.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
-                    .setReactivePowerSetPoint(p.asDouble("q"));
+                .setReactivePowerSetPoint(p.asDouble("q"));
         } else {
             context.fixed("SVCControlMode", String.format("Invalid control mode for static var compensator %s. Regulating control is disabled", idEq));
             adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
@@ -214,10 +213,10 @@ public class RegulatingControlMapping {
     private void setRegulatingControl(RegulatingControl control, StaticVarCompensatorAdder adder, String idEq) {
         if (control.mode.toLowerCase().endsWith(VOLTAGE)) {
             adder.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                    .setVoltageSetPoint(control.targetValue);
+                .setVoltageSetPoint(control.targetValue);
         } else if (control.mode.toLowerCase().endsWith("reactivepower")) {
             adder.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
-                    .setReactivePowerSetPoint(control.targetValue);
+                .setReactivePowerSetPoint(control.targetValue);
         } else {
             context.fixed(control.mode, String.format("Invalid control mode for static var compensator %s. Regulating control is disabled", idEq));
             adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
@@ -253,7 +252,7 @@ public class RegulatingControlMapping {
 
     private Terminal findRemoteRegulatingTerminal(String cgmesTerminal, String topologicalNode) {
         return Optional.ofNullable(context.terminalMapping().find(cgmesTerminal))
-                .orElseGet(() -> context.terminalMapping().findFromTopologicalNode(topologicalNode));
+            .orElseGet(() -> context.terminalMapping().findFromTopologicalNode(topologicalNode));
     }
 
     private boolean setRemoteRegulatingTerminal(String tc, RegulatingControl control) {
@@ -310,7 +309,7 @@ public class RegulatingControlMapping {
     }
 
     public void setAllRegulatingControls(Network network) {
-        regulatingControlMappingForGenerators.apply(network);
+        regulatingControlMappingForGenerators.applyRegulatingControls(network);
 
         cachedRegulatingControls.clear();
     }
@@ -318,9 +317,5 @@ public class RegulatingControlMapping {
     public Terminal findRegulatingTerminal(String cgmesTerminal, String topologicalNode) {
         return Optional.ofNullable(context.terminalMapping().find(cgmesTerminal))
             .orElseGet(() -> context.terminalMapping().findFromTopologicalNode(topologicalNode));
-    }
-
-    public double terminalNominalVoltage(Terminal terminal) {
-        return terminal.getVoltageLevel().getNominalV();
     }
 }
