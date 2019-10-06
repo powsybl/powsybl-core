@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -27,6 +28,7 @@ public class RegulatingControlMappingForTransformers {
         this.parent = parent;
         this.context = parent.context();
         t2xMapping = new HashMap<>();
+        t3xMapping = new HashMap<>();
     }
 
     public void add(String transformerId, RegulatingControlRatio rcRtc, RegulatingControlPhase rcPtc) {
@@ -38,6 +40,32 @@ public class RegulatingControlMappingForTransformers {
         rc.ratioTapChanger = rcRtc;
         rc.phaseTapChanger = rcPtc;
         t2xMapping.put(transformerId, rc);
+    }
+
+    public void add(String transformerId, RegulatingControlRatio rdRtc1, RegulatingControlPhase rdPtc1,
+        RegulatingControlRatio rdRtc2, RegulatingControlPhase rdPtc2, RegulatingControlRatio rdRtc3,
+        RegulatingControlPhase rdPtc3) {
+        if (t3xMapping.containsKey(transformerId)) {
+            throw new CgmesModelException("Transformer already added, Transformer id : " + transformerId);
+        }
+
+        RegulatingControlForTwoWingingsTransformer rc1 = new RegulatingControlForTwoWingingsTransformer();
+        rc1.ratioTapChanger = rdRtc1;
+        rc1.phaseTapChanger = rdPtc1;
+
+        RegulatingControlForTwoWingingsTransformer rc2 = new RegulatingControlForTwoWingingsTransformer();
+        rc2.ratioTapChanger = rdRtc2;
+        rc2.phaseTapChanger = rdPtc2;
+
+        RegulatingControlForTwoWingingsTransformer rc3 = new RegulatingControlForTwoWingingsTransformer();
+        rc3.ratioTapChanger = rdRtc3;
+        rc3.phaseTapChanger = rdPtc3;
+
+        RegulatingControlForThreeWingingsTransformer rc = new RegulatingControlForThreeWingingsTransformer();
+        rc.winding1 = rc1;
+        rc.winding2 = rc2;
+        rc.winding3 = rc3;
+        t3xMapping.put(transformerId, rc);
     }
 
     public RegulatingControlRatio buildEmptyRegulatingControlRatio() {
@@ -118,24 +146,49 @@ public class RegulatingControlMappingForTransformers {
         if (rc == null) {
             return;
         }
-        if (twt.getRatioTapChanger() != null && twt.getPhaseTapChanger() != null) {
-            RegulatingControlRatioAttributes rcaRatio = getRatioTapChanger(rc.ratioTapChanger);
-            RegulatingControlPhaseAttributes rcaPhase = getPhaseTapChanger(rc.phaseTapChanger);
 
-            if (rcaRatio.regulating && rcaPhase.regulating) {
-                context.fixed(twt.getId(), "Unsupported two regulating controls enabled. Disable the ratioTapChanger");
-                rcaRatio.regulating = false;
-            }
+        RegulatingControlRatioAttributes rcaRatio = getRatioTapChanger(rc.ratioTapChanger);
+        RegulatingControlPhaseAttributes rcaPhase = getPhaseTapChanger(rc.phaseTapChanger);
 
-            applyRatioTapChanger(rcaRatio, twt.getRatioTapChanger());
-            applyPhaseTapChanger(rcaPhase, twt.getPhaseTapChanger());
-        } else if (twt.getRatioTapChanger() != null) {
-            RegulatingControlRatioAttributes rca = getRatioTapChanger(rc.ratioTapChanger);
-            applyRatioTapChanger(rca, twt.getRatioTapChanger());
-        } else if (twt.getPhaseTapChanger() != null) {
-            RegulatingControlPhaseAttributes rca = getPhaseTapChanger(rc.phaseTapChanger);
-            applyPhaseTapChanger(rca, twt.getPhaseTapChanger());
+        if (isRegulatingControlPhaseEnabled(rcaPhase)) {
+            disableRegulatingControlRatio(twt.getId(), rcaRatio);
         }
+
+        applyRatioTapChanger(rcaRatio, twt.getRatioTapChanger());
+        applyPhaseTapChanger(rcaPhase, twt.getPhaseTapChanger());
+    }
+
+    public void applyThreeWindings(Network network) {
+        network.getThreeWindingsTransformerStream().forEach(this::applyThreeWindings);
+    }
+
+    private void applyThreeWindings(ThreeWindingsTransformer twt) {
+        RegulatingControlForThreeWingingsTransformer rc = t3xMapping.get(twt.getId());
+        applyThreeWindings(twt, rc);
+    }
+
+    private void applyThreeWindings(ThreeWindingsTransformer twt, RegulatingControlForThreeWingingsTransformer rc) {
+        if (rc == null) {
+            return;
+        }
+
+        // RegulatingControlRatioAttributes rcaRatio1 = getRatioTapChanger(rc.winding1.ratioTapChanger);
+        // RegulatingControlPhaseAttributes rcaPhase1 = getPhaseTapChanger(rc.winding1.phaseTapChanger);
+        RegulatingControlRatioAttributes rcaRatio2 = getRatioTapChanger(rc.winding2.ratioTapChanger);
+        // RegulatingControlPhaseAttributes rcaPhase2 = getPhaseTapChanger(rc.winding2.phaseTapChanger);
+        RegulatingControlRatioAttributes rcaRatio3 = getRatioTapChanger(rc.winding3.ratioTapChanger);
+        // RegulatingControlPhaseAttributes rcaPhase3 = getPhaseTapChanger(rc.winding3.phaseTapChanger);
+
+        if (isRegulatingControlRatioEnabled(rcaRatio2)) {
+            disableRegulatingControlRatio(twt.getId(), rcaRatio3);
+        }
+
+        // applyRatioTapChanger(rcaRatio1, twt.getLeg1().getRatioTapChanger());
+        // applyPhaseTapChanger(rcaPhase1, twt.getLeg1().getPhaseTapChanger());
+        applyRatioTapChanger(rcaRatio2, twt.getLeg2().getRatioTapChanger());
+        // applyPhaseTapChanger(rcaPhase2, twt.getLeg2().getPhaseTapChanger());
+        applyRatioTapChanger(rcaRatio3, twt.getLeg3().getRatioTapChanger());
+        // applyPhaseTapChanger(rcaPhase3, twt.getLeg3().getPhaseTapChanger());
     }
 
     private RegulatingControlRatioAttributes getRatioTapChanger(RegulatingControlRatio rc) {
@@ -253,7 +306,7 @@ public class RegulatingControlMappingForTransformers {
     }
 
     private void applyRatioTapChanger(RegulatingControlRatioAttributes rca, RatioTapChanger rtc) {
-        if (rca == null) {
+        if (rca == null || rtc == null) {
             return;
         }
         // order it is important
@@ -264,7 +317,7 @@ public class RegulatingControlMappingForTransformers {
     }
 
     private void applyPhaseTapChanger(RegulatingControlPhaseAttributes rca, PhaseTapChanger ptc) {
-        if (rca == null) {
+        if (rca == null || ptc == null) {
             return;
         }
         // Order it is important
@@ -306,6 +359,34 @@ public class RegulatingControlMappingForTransformers {
         return false;
     }
 
+    private void disableRegulatingControlRatio(String transformerId, RegulatingControlRatioAttributes rca) {
+        if (isRegulatingControlRatioEnabled(rca)) {
+            context.fixed(transformerId, "Unsupported more than one regulating control enabled. RatioTapChanger disabled");
+            rca.regulating = false;
+        }
+    }
+
+    private void disableRegulatingControlPhase(String transformerId, RegulatingControlPhaseAttributes rca) {
+        if (isRegulatingControlPhaseEnabled(rca)) {
+            context.fixed(transformerId, "Unsupported more than one regulating control enabled. PhaseTapChanger disabled");
+            rca.regulating = false;
+        }
+    }
+
+    private static boolean isRegulatingControlRatioEnabled(RegulatingControlRatioAttributes rca) {
+        if (rca != null && rca.regulating) {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isRegulatingControlPhaseEnabled(RegulatingControlPhaseAttributes rca) {
+        if (rca != null && rca.regulating) {
+            return true;
+        }
+        return false;
+    }
+
     private static class RegulatingControlRatioAttributes {
         Terminal terminal;
         double targetValue;
@@ -338,7 +419,14 @@ public class RegulatingControlMappingForTransformers {
         RegulatingControlPhase phaseTapChanger;
     }
 
+    private static class RegulatingControlForThreeWingingsTransformer {
+        RegulatingControlForTwoWingingsTransformer winding1;
+        RegulatingControlForTwoWingingsTransformer winding2;
+        RegulatingControlForTwoWingingsTransformer winding3;
+    }
+
     private final RegulatingControlMapping parent;
     private final Context context;
     private final Map<String, RegulatingControlForTwoWingingsTransformer> t2xMapping;
+    private final Map<String, RegulatingControlForThreeWingingsTransformer> t3xMapping;
 }

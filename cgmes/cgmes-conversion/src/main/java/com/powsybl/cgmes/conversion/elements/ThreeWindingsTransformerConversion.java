@@ -7,7 +7,11 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import java.util.Map;
+
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.RegulatingControlPhase;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.RegulatingControlRatio;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.Leg1Adder;
@@ -21,11 +25,15 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class ThreeWindingsTransformerConversion extends AbstractConductingEquipmentConversion {
 
-    public ThreeWindingsTransformerConversion(PropertyBags ends, Context context) {
+    public ThreeWindingsTransformerConversion(PropertyBags ends,
+        Map<String, PropertyBag> powerTransformerRatioTapChanger,
+        Map<String, PropertyBag> powerTransformerPhaseTapChanger, Context context) {
         super("PowerTransformer", ends, context);
         winding1 = ends.get(0);
         winding2 = ends.get(1);
         winding3 = ends.get(2);
+        this.powerTransformerRatioTapChanger = powerTransformerRatioTapChanger;
+        this.powerTransformerPhaseTapChanger = powerTransformerPhaseTapChanger;
     }
 
     @Override
@@ -34,8 +42,8 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
             return false;
         }
         if (context.boundary().containsNode(nodeId(1))
-                || context.boundary().containsNode(nodeId(2))
-                || context.boundary().containsNode(nodeId(3))) {
+            || context.boundary().containsNode(nodeId(2))
+            || context.boundary().containsNode(nodeId(3))) {
             invalid("3 windings transformer end point at boundary is not supported");
             return false;
         }
@@ -43,7 +51,7 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         // The substationIdMapping should ensure all three ends
         // are in the same IIDM substation
         if (voltageLevel(1).getSubstation() != voltageLevel(2).getSubstation() ||
-                voltageLevel(1).getSubstation() != voltageLevel(3).getSubstation()) {
+            voltageLevel(1).getSubstation() != voltageLevel(3).getSubstation()) {
             String name1 = voltageLevel(1).getSubstation().getName();
             String name2 = voltageLevel(2).getSubstation().getName();
             String name3 = voltageLevel(3).getSubstation().getName();
@@ -98,19 +106,19 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         identify(txadder);
 
         LegAdder<Leg1Adder> l1adder = txadder.newLeg1()
-                .setR(ir1)
-                .setX(ix1)
-                .setG(ig1)
-                .setB(ib1)
-                .setRatedU(ratedU1);
+            .setR(ir1)
+            .setX(ix1)
+            .setG(ig1)
+            .setB(ib1)
+            .setRatedU(ratedU1);
         LegAdder<Leg2or3Adder> l2adder = txadder.newLeg2()
-                .setR(ir2)
-                .setX(ix2)
-                .setRatedU(ratedU2);
+            .setR(ir2)
+            .setX(ix2)
+            .setRatedU(ratedU2);
         LegAdder<Leg2or3Adder> l3adder = txadder.newLeg3()
-                .setR(ir3)
-                .setX(ix3)
-                .setRatedU(ratedU3);
+            .setR(ir3)
+            .setX(ix3)
+            .setRatedU(ratedU3);
         connect(l1adder, 1);
         connect(l2adder, 2);
         connect(l3adder, 3);
@@ -120,9 +128,9 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         ThreeWindingsTransformer tx = txadder.add();
 
         convertedTerminals(
-                tx.getLeg1().getTerminal(),
-                tx.getLeg2().getTerminal(),
-                tx.getLeg3().getTerminal());
+            tx.getLeg1().getTerminal(),
+            tx.getLeg2().getTerminal(),
+            tx.getLeg3().getTerminal());
 
         // We do not follow here the same schema of two-windings,
         // we are saving for later all possible tap changers
@@ -132,9 +140,49 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         context.tapChangerTransformers().add(ptc1, tx, "ptc", 1);
         context.tapChangerTransformers().add(ptc2, tx, "ptc", 2);
         context.tapChangerTransformers().add(ptc3, tx, "ptc", 3);
+
+        setRegulatingControlContext(tx, rtc1, ptc1, rtc2, ptc2, rtc3, ptc3);
+    }
+
+    private void setRegulatingControlContext(ThreeWindingsTransformer tx, String rtc1Id, String ptc1Id, String rtc2Id,
+        String ptc2Id, String rtc3Id, String ptc3Id) {
+
+        RegulatingControlRatio rcRtc1 = getRegulatingControlContextRatio(rtc1Id);
+        RegulatingControlPhase rcPtc1 = getRegulatingControlContextPhase(ptc1Id);
+        RegulatingControlRatio rcRtc2 = getRegulatingControlContextRatio(rtc2Id);
+        RegulatingControlPhase rcPtc2 = getRegulatingControlContextPhase(ptc2Id);
+        RegulatingControlRatio rcRtc3 = getRegulatingControlContextRatio(rtc3Id);
+        RegulatingControlPhase rcPtc3 = getRegulatingControlContextPhase(ptc3Id);
+
+        context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc1, rcPtc1, rcRtc2, rcPtc2, rcRtc3,
+            rcPtc3);
+    }
+
+    private RegulatingControlRatio getRegulatingControlContextRatio(String rtcId) {
+        RegulatingControlRatio rcRtc = null;
+        if (rtcId != null) {
+            PropertyBag tc = powerTransformerRatioTapChanger.get(rtcId);
+            rcRtc = context.regulatingControlMapping().forTransformers().buildRegulatingControlRatio(rtcId, tc);
+        } else {
+            rcRtc = context.regulatingControlMapping().forTransformers().buildEmptyRegulatingControlRatio();
+        }
+        return rcRtc;
+    }
+
+    private RegulatingControlPhase getRegulatingControlContextPhase(String ptcId) {
+        RegulatingControlPhase rcPtc = null;
+        if (ptcId != null) {
+            PropertyBag tc = powerTransformerPhaseTapChanger.get(ptcId);
+            rcPtc = context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(tc);
+        } else {
+            rcPtc = context.regulatingControlMapping().forTransformers().buildEmptyRegulatingControlPhase();
+        }
+        return rcPtc;
     }
 
     private final PropertyBag winding1;
     private final PropertyBag winding2;
     private final PropertyBag winding3;
+    private final Map<String, PropertyBag> powerTransformerRatioTapChanger;
+    private final Map<String, PropertyBag> powerTransformerPhaseTapChanger;
 }

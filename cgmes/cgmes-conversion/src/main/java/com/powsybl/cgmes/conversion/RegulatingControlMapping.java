@@ -56,8 +56,6 @@ public class RegulatingControlMapping {
         final double targetValue;
         final double targetDeadband;
 
-        private final Map<String, Boolean> idsEq = new HashMap<>();
-
         RegulatingControl(PropertyBag p) {
             this.mode = p.get("mode").toLowerCase();
             this.cgmesTerminal = p.getId(TERMINAL);
@@ -76,50 +74,6 @@ public class RegulatingControlMapping {
 
     public void cacheRegulatingControls(PropertyBag p) {
         cachedRegulatingControls.put(p.getId(REGULATING_CONTROL), new RegulatingControl(p));
-    }
-
-    public void setRegulatingControl(PropertyBag p, Terminal defaultTerminal, RatioTapChangerAdder adder) {
-        if (p.containsKey(TAP_CHANGER_CONTROL)) {
-            String controlId = p.getId(TAP_CHANGER_CONTROL);
-            RegulatingControl control = cachedRegulatingControls.get(controlId);
-            if (control != null) {
-                if (control.mode.endsWith(VOLTAGE) || (p.containsKey("tculControlMode") && p.get("tculControlMode").endsWith("volt"))) {
-                    addRegulatingControlVoltage(p, control, adder, defaultTerminal, context);
-                    return;
-                } else if (!control.mode.endsWith("fixed")) {
-                    context.fixed(control.mode, "Unsupported regulation mode for Ratio tap changer. Considered as a fixed ratio tap changer.");
-                }
-            } else {
-                context.missing(String.format(REGULATING_CONTROL_REF, controlId));
-            }
-        }
-        adder.setLoadTapChangingCapabilities(false);
-    }
-
-    private void addRegulatingControlVoltage(PropertyBag p, RegulatingControl control, RatioTapChangerAdder adder, Terminal defaultTerminal, Context context) {
-        // Even if regulating is false, we reset the target voltage if it is not valid
-        if (control.targetValue <= 0) {
-            context.ignored(p.getId(TAP_CHANGER_CONTROL), String.format("Regulating control has a bad target voltage %f", control.targetValue));
-            adder.setRegulating(false)
-                    .setTargetV(Double.NaN);
-        } else {
-            adder.setRegulating(control.enabled || p.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false))
-                    .setTargetDeadband(control.targetDeadband)
-                    .setTargetV(control.targetValue);
-        }
-        setRegulatingTerminal(p, control, defaultTerminal, adder);
-    }
-
-    private void setRegulatingTerminal(PropertyBag p, RegulatingControl control, Terminal defaultTerminal, RatioTapChangerAdder adder) {
-        if (context.terminalMapping().find(control.cgmesTerminal) != null) {
-            adder.setRegulationTerminal(context.terminalMapping().find(control.cgmesTerminal));
-            control.idsEq.put(p.getId("RatioTapChanger"), true);
-        } else {
-            adder.setRegulationTerminal(defaultTerminal);
-            if (!context.terminalMapping().areAssociated(p.getId(TERMINAL), control.topologicalNode)) {
-                control.idsEq.put(p.getId("RatioTapChanger"), false);
-            }
-        }
     }
 
     public void setRegulatingControl(String idEq, PropertyBag p, StaticVarCompensatorAdder adder) {
@@ -176,94 +130,10 @@ public class RegulatingControlMapping {
         }
     }
 
-    public void setAllRemoteRegulatingTerminals() {
-        cachedRegulatingControls.entrySet().removeIf(this::setRemoteRegulatingTerminal);
-        cachedRegulatingControls.forEach((key, value) -> context.pending("Regulating terminal",
-                String.format("The setting of the regulating terminal of the regulating control %s is not entirely handled.", key)));
-    }
-
-    private boolean setRemoteRegulatingTerminal(Map.Entry<String, RegulatingControl> entry) {
-        RegulatingControl control = entry.getValue();
-        if (!control.idsEq.isEmpty()) {
-            boolean correctlySet = true;
-            for (String idEq : control.idsEq.keySet()) {
-                if (!control.idsEq.get(idEq)) {
-                    Identifiable i = context.network().getIdentifiable(idEq);
-                    if (i == null) {
-                        correctlySet = correctlySet && setRemoteRegulatingTerminal(idEq, control);
-                    } else if (i instanceof Generator) {
-                        correctlySet = correctlySet && setRemoteRegulatingTerminal(control, (Generator) i);
-                    } else {
-                        correctlySet = false;
-                    }
-                }
-            }
-            return correctlySet;
-        }
-        return false;
-    }
-
-    private Terminal findRemoteRegulatingTerminal(String cgmesTerminal, String topologicalNode) {
-        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminal))
-                .orElseGet(() -> context.terminalMapping().findFromTopologicalNode(topologicalNode));
-    }
-
-    private boolean setRemoteRegulatingTerminal(String tc, RegulatingControl control) {
-        if (context.tapChangerTransformers().transformer2(tc) != null) {
-            return setRemoteRegulatingTerminal(tc, control, context.tapChangerTransformers().transformer2(tc));
-        } else if (context.tapChangerTransformers().transformer3(tc) != null) {
-            return setRemoteRegulatingTerminal(tc, control, context.tapChangerTransformers().transformer3(tc));
-        }
-        return false;
-    }
-
-    private boolean setRemoteRegulatingTerminal(String tc, RegulatingControl control, TwoWindingsTransformer t2w) {
-        Terminal regTerminal = findRemoteRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
-        if (regTerminal == null) {
-            context.missing(String.format(MISSING_IIDM_TERMINAL, control.topologicalNode));
-            return false;
-        }
-        if (context.tapChangerTransformers().type(tc).equals("rtc")) {
-            t2w.getRatioTapChanger().setRegulationTerminal(regTerminal);
-            return true;
-        } else if (context.tapChangerTransformers().type(tc).equals("ptc")) {
-            t2w.getPhaseTapChanger().setRegulationTerminal(regTerminal);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean setRemoteRegulatingTerminal(String tc, RegulatingControl control, ThreeWindingsTransformer t3w) {
-        Terminal regTerminal = findRemoteRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
-        if (regTerminal == null) {
-            context.missing(String.format(MISSING_IIDM_TERMINAL, control.topologicalNode));
-            return false;
-        }
-        if (context.tapChangerTransformers().type(tc).equals("rtc")) {
-            if (context.tapChangerTransformers().whichSide(tc) == 2) {
-                t3w.getLeg2().getRatioTapChanger().setRegulationTerminal(regTerminal);
-                return true;
-            } else if (context.tapChangerTransformers().whichSide(tc) == 3) {
-                t3w.getLeg3().getRatioTapChanger().setRegulationTerminal(regTerminal);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean setRemoteRegulatingTerminal(RegulatingControl control, Generator g) {
-        Terminal regTerminal = findRemoteRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
-        if (regTerminal == null) {
-            context.missing(String.format(MISSING_IIDM_TERMINAL, control.topologicalNode));
-            return false;
-        }
-        g.setRegulatingTerminal(regTerminal);
-        return true;
-    }
-
     public void setAllRegulatingControls(Network network) {
         regulatingControlMappingForGenerators.apply(network);
         regulatingControlMappingForTransformers.applyTwoWindings(network);
+        regulatingControlMappingForTransformers.applyThreeWindings(network);
 
         cachedRegulatingControls.clear();
     }
