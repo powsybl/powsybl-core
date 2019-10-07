@@ -32,10 +32,13 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
         StaticVarCompensatorAdder adder = voltageLevel().newStaticVarCompensator()
                 .setBmin(-1 / capacitiveRating)
                 .setBmax(-1 / inductiveRating);
-        context.regulatingControlMapping().setRegulatingControl(iidmId(), p, adder);
+
+        context.regulatingControlMapping().forStaticVarCompensators().initialize(adder);
         identify(adder);
         connect(adder);
         StaticVarCompensator svc = adder.add();
         convertedTerminals(svc.getTerminal());
+
+        context.regulatingControlMapping().forStaticVarCompensators().add(svc.getId(), p);
     }
 }
