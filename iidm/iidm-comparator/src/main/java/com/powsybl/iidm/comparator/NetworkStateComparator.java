@@ -277,6 +277,12 @@ public class NetworkStateComparator {
 
     private static final InjectionVColumnMapper<Generator> GEN_V = new InjectionVColumnMapper<>();
 
+    private static final InjectionPColumnMapper<HvdcConverterStation> HVDC_P = new InjectionPColumnMapper<>();
+
+    private static final InjectionQColumnMapper<HvdcConverterStation> HVDC_Q = new InjectionQColumnMapper<>();
+
+    private static final InjectionVColumnMapper<HvdcConverterStation> HVDC_V = new InjectionVColumnMapper<>();
+
     private static final InjectionPColumnMapper<Load> LOAD_P = new InjectionPColumnMapper<>();
 
     private static final InjectionQColumnMapper<Load> LOAD_Q = new InjectionQColumnMapper<>();
@@ -378,6 +384,8 @@ public class NetworkStateComparator {
     private static final List<ColumnMapper<TwoWindingsTransformer>> TRANSFO_MAPPERS = ImmutableList.of(TWT_P1, TWT_P2, TWT_Q1, TWT_Q2, TWT_RATIO_TAP, TWT_PHASE_TAP, TWT_RATIO, TWT_DEPHA);
 
     private static final List<ColumnMapper<Generator>> GENERATOR_MAPPERS = ImmutableList.of(GEN_P, GEN_Q, GEN_V);
+
+    private static final List<ColumnMapper<HvdcConverterStation>> HVDC_MAPPERS = ImmutableList.of(HVDC_P, HVDC_Q, HVDC_V);
 
     private static final List<ColumnMapper<Load>> LOAD_MAPPERS = ImmutableList.of(LOAD_P, LOAD_Q);
 
@@ -492,6 +500,7 @@ public class NetworkStateComparator {
         createSheet(Lists.newArrayList(network.getLines()), wb, titleCellStyle, "Lines", LINE_MAPPERS);
         createSheet(Lists.newArrayList(network.getTwoWindingsTransformers()), wb, titleCellStyle, "Transformers", TRANSFO_MAPPERS);
         createSheet(Lists.newArrayList(network.getGenerators()), wb, titleCellStyle, "Generators", GENERATOR_MAPPERS);
+        createSheet(Lists.newArrayList(network.getHvdcConverterStations()), wb, titleCellStyle, "HVDC converter stations", HVDC_MAPPERS);
         createSheet(Lists.newArrayList(network.getLoads()), wb, titleCellStyle, "Loads", LOAD_MAPPERS);
         createSheet(Lists.newArrayList(network.getShuntCompensators()), wb, titleCellStyle, "Shunts", SHUNT_MAPPERS);
     }
