@@ -80,16 +80,18 @@ public class NetworkStateComparatorTest {
 
         try (InputStream is = Files.newInputStream(xlsFile)) {
             Workbook wb = new XSSFWorkbook(is);
-            assertEquals(6, wb.getNumberOfSheets());
+            assertEquals(7, wb.getNumberOfSheets());
             Sheet busesSheet = wb.getSheet("Buses");
             Sheet linesSheet = wb.getSheet("Lines");
             Sheet transformersSheet = wb.getSheet("Transformers");
             Sheet generatorsSheet = wb.getSheet("Generators");
+            Sheet hvdcConverterStationsSheet = wb.getSheet("HVDC converter stations");
             Sheet loadsSheet = wb.getSheet("Loads");
             Sheet shuntsSheet = wb.getSheet("Shunts");
             assertNotNull(busesSheet);
             assertNotNull(linesSheet);
             assertNotNull(transformersSheet);
+            assertNotNull(hvdcConverterStationsSheet);
             assertNotNull(generatorsSheet);
             assertNotNull(loadsSheet);
             assertNotNull(shuntsSheet);
