@@ -67,6 +67,10 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         return createString(name, index, new String[0]);
     }
 
+    static int computeChunkCount(TimeSeriesIndex index, int newChunkSize) {
+        return (int) Math.ceil((double) index.getPointCount() / newChunkSize);
+    }
+
     static StringTimeSeries createString(String name, TimeSeriesIndex index, String... values) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(index);
@@ -104,7 +108,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             throw new IllegalArgumentException("New chunk size " + newChunkSize + " is greater than point count "
                     + index.getPointCount());
         }
-        int chunkCount = (int) Math.ceil((double) index.getPointCount() / newChunkSize);
+        int chunkCount = computeChunkCount(index, newChunkSize);
         List<List<T>> splitList = new ArrayList<>(chunkCount);
         for (int i = 0; i < chunkCount; i++) {
             splitList.add(new ArrayList<>(timeSeriesList.size()));
