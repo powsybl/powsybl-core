@@ -238,8 +238,6 @@ public class RegulatingControlMapping {
                     Identifiable i = context.network().getIdentifiable(idEq);
                     if (i == null) {
                         correctlySet = correctlySet && setRemoteRegulatingTerminal(idEq, control);
-                    } else if (i instanceof Generator) {
-                        correctlySet = correctlySet && setRemoteRegulatingTerminal(control, (Generator) i);
                     } else {
                         correctlySet = false;
                     }
@@ -296,16 +294,6 @@ public class RegulatingControlMapping {
             }
         }
         return false;
-    }
-
-    private boolean setRemoteRegulatingTerminal(RegulatingControl control, Generator g) {
-        Terminal regTerminal = findRemoteRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
-        if (regTerminal == null) {
-            context.missing(String.format(MISSING_IIDM_TERMINAL, control.topologicalNode));
-            return false;
-        }
-        g.setRegulatingTerminal(regTerminal);
-        return true;
     }
 
     public void setAllRegulatingControls(Network network) {
