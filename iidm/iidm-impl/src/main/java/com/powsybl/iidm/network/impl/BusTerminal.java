@@ -41,8 +41,12 @@ class BusTerminal extends AbstractTerminal {
         @Override
         public void setConnectableBus(String busId) {
             Objects.requireNonNull(busId);
-            VoltageLevelExt vl = voltageLevel;
-            voltageLevel.detach(BusTerminal.this);
+            BusBreakerVoltageLevel vl = (BusBreakerVoltageLevel) voltageLevel;
+
+            // Assert that the new bus exists
+            vl.getBus(busId, true);
+
+            vl.detach(BusTerminal.this);
             setConnectableBusId(busId);
             vl.attach(BusTerminal.this, false);
         }
