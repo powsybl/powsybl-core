@@ -70,7 +70,7 @@ public class TerminalMapping {
         // if no connected terminal is found associated with the given topological node
         // returns a disconnected terminal associated with the given topological node
         // if no terminal found, returns null
-        return disconnectedTerminal; 
+        return disconnectedTerminal;
     }
 
     public String findCgmesTerminalFromTopologicalNode(String topologicalNode) {
