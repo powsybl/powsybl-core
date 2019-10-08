@@ -44,12 +44,27 @@ public class ShuntCompensatorTest {
                                             .setCurrentSectionCount(6)
                                             .setMaximumSectionCount(10)
                                         .add();
+
+        ShuntCompensator shuntCompensatorNeg = network.getVoltageLevel("vl2")
+                                        .newShuntCompensator()
+                                            .setId("shuntNeg")
+                                            .setConnectableBus("busB")
+                                            .setbPerSection(-1.0)
+                                            .setCurrentSectionCount(1)
+                                            .setMaximumSectionCount(7)
+                                        .add();
+
         assertEquals(ConnectableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
         assertEquals("shuntName", shuntCompensator.getName());
         assertEquals("shunt", shuntCompensator.getId());
         assertEquals(5.0, shuntCompensator.getbPerSection(), 0.0);
         assertEquals(6, shuntCompensator.getCurrentSectionCount());
         assertEquals(10, shuntCompensator.getMaximumSectionCount());
+        assertEquals(50, shuntCompensator.getMaximumB(), 0.0);
+        assertEquals(0, shuntCompensator.getMinimumB(), 0.0);
+
+        assertEquals(0.0, shuntCompensatorNeg.getMaximumB(), 0.0);
+        assertEquals(-7.0, shuntCompensatorNeg.getMinimumB(), 0.0);
 
         // setter getter
         try {
@@ -57,8 +72,13 @@ public class ShuntCompensatorTest {
             fail();
         } catch (ValidationException ignored) {
         }
-        shuntCompensator.setbPerSection(1.0);
-        assertEquals(1.0, shuntCompensator.getbPerSection(), 0.0);
+        shuntCompensator.setbPerSection(0.1);
+        assertEquals(0.1, shuntCompensator.getbPerSection(), 0.0);
+        assertEquals(0.1, shuntCompensator.getMaximumB(), 0.0);
+
+        shuntCompensatorNeg.setbPerSection(-0.1);
+        assertEquals(-0.1, shuntCompensatorNeg.getbPerSection(), 0.0);
+        assertEquals(-0.1, shuntCompensatorNeg.getMinimumB(), 0.0);
 
         try {
             shuntCompensator.setCurrentSectionCount(-1);

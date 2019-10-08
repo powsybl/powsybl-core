@@ -104,7 +104,24 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public double getMaximumB() {
-        return bPerSection * maximumSectionCount;
+        if (bPerSection >= 1) {
+            return bPerSection * maximumSectionCount;
+        }
+        if (bPerSection > 0) {
+            return bPerSection * 1;
+        }
+        return 0;
+    }
+
+    @Override
+    public double getMinimumB() {
+        if (bPerSection <= -1) {
+            return bPerSection * maximumSectionCount;
+        }
+        if (bPerSection < 0) {
+            return bPerSection * 1;
+        }
+        return 0;
     }
 
     @Override

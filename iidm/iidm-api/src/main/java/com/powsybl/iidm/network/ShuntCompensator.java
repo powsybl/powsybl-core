@@ -66,9 +66,22 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     ShuntCompensator setbPerSection(double bPerSection);
 
     /**
-     * Get the susceptance for the maximum section count.
+     * Get the maximum susceptance in S.
+     * If bPerSection >= 1, returns the susceptance of the maximum section count.
+     * If 1 > bPerSection > 0, returns the susceptance of the section 1.
+     * If bPerSection < 0, returns 0.
      */
     double getMaximumB();
+
+    /**
+     * Get the minimum susceptance in S.
+     * If bPerSection > 0, returns 0.
+     * If 0 > bPerSection > -1, returns the susceptance of the section 1.
+     * If -1 >= bPerSection, returns the susceptance of the maximum section count.
+     */
+    default double getMinimumB() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Get the susceptance for the current section counts.
