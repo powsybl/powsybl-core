@@ -39,39 +39,39 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
     }
 
     private void updateLossFactor1(double pAC1, double poleLossP1, HvdcLine.ConvertersMode mode) {
-        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
+        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) { // pAC1 > 0
             iconverter1.setLossFactor((float) (poleLossP1 / pAC1) * 100);
-        } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) && pAC1 + poleLossP1 != 0) {
-            iconverter1.setLossFactor((float) (poleLossP1 / (pAC1 + poleLossP1)) * 100);
+        } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) && Math.abs(pAC1) + poleLossP1 != 0) { // pAC1 < 0
+            iconverter1.setLossFactor((float) (poleLossP1 / (Math.abs(pAC1) + poleLossP1)) * 100);
         }
     }
 
     private void updateLossFactor1FromPAC2(double pAC2, double poleLossP1, double poleLossP2, HvdcLine.ConvertersMode mode) {
-        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) && (Math.abs(pAC2) + poleLossP2 + poleLossP1) != 0) {
+        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) && (Math.abs(pAC2) + poleLossP2 + poleLossP1) != 0) { // pAC2 < 0
             // lossFactor1 = poleLossP1 / pAC1 * 100
             // pAC1 = pDC + poleLossP1 = pAC2 + poleLossP2 + poleLossP1
             iconverter1.setLossFactor((float) (poleLossP1 / (Math.abs(pAC2) + poleLossP2 + poleLossP1)) * 100);
-        } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) && (Math.abs(pAC2) - poleLossP2) != 0) {
+        } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) && (pAC2 - poleLossP2) != 0) { // pAC2 > 0
             // lossFactor1 = poleLossP1 / pDC * 100
             // pDC = pAC2 - poleLossP2
-            iconverter1.setLossFactor((float) (poleLossP1 / (Math.abs(pAC2) - poleLossP2)) * 100);
+            iconverter1.setLossFactor((float) (poleLossP1 / (pAC2 - poleLossP2)) * 100);
         }
     }
 
     private void updateLossFactor2(double pAC2, double poleLossP2, HvdcLine.ConvertersMode mode) {
-        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) {
-            iconverter2.setLossFactor((float) (poleLossP2 / Math.abs(pAC2)) * 100);
-        } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) && Math.abs(pAC2) + poleLossP2 != 0) {
+        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) { // pAC2 > 0
+            iconverter2.setLossFactor((float) (poleLossP2 / pAC2) * 100);
+        } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) && Math.abs(pAC2) + poleLossP2 != 0) { // pAC2 < 0
             iconverter2.setLossFactor((float) (poleLossP2 / (Math.abs(pAC2) + poleLossP2)) * 100);
         }
     }
 
     private void updateLossFactor2FromPAC1(double pAC1, double poleLossP1, double poleLossP2, HvdcLine.ConvertersMode mode) {
-        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) && (pAC1 - poleLossP1) != 0) {
+        if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) && (pAC1 - poleLossP1) != 0) { // pAC1 > 0
             // lossFactor2 = poleLossP2 / pDC * 100
             // pDC = pAC1 - poleLossP1
             iconverter2.setLossFactor((float) (poleLossP2 / (pAC1 - poleLossP1)) * 100);
-        } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) && (pAC1 + poleLossP1 + poleLossP2) != 0) {
+        } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER) && (Math.abs(pAC1) + poleLossP1 + poleLossP2) != 0) { // pAC1 < 0
             // lossFactor2 = poleLossP2 / (pDC + poleLossP2) * 100
             // pDC = pAC1 + poleLossP1
             iconverter2.setLossFactor((float) (poleLossP2 / (Math.abs(pAC1) + poleLossP1 + poleLossP2)) * 100);
@@ -188,7 +188,7 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         double poleLossP2 = cconverter2.asDouble("poleLossP");
 
         // load sign convention is used i.e. positive sign means flow out from a node
-        // i.e. pAC1 >= 0 and pAC2 <= 0
+        // i.e. pACx >= 0 if converterx is rectifier and pACx <= 0 if converterx is inverter
         double pAC1 = getPAc(cconverter1);
         double pAC2 = getPAc(cconverter2);
 
