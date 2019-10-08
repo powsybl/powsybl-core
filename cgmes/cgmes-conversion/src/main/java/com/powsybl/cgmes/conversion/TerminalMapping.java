@@ -54,14 +54,23 @@ public class TerminalMapping {
     }
 
     public Terminal findFromTopologicalNode(String topologicalNode) {
+        Terminal disconnectedTerminal = null;
         if (topologicalNodesMapping.containsKey(topologicalNode)) {
             for (String cgmesTerminalId : topologicalNodesMapping.get(topologicalNode)) {
-                if (find(cgmesTerminalId) != null) {
-                    return find(cgmesTerminalId);
+                Terminal terminal = find(cgmesTerminalId);
+                if (terminal != null) {
+                    if (terminal.isConnected()) { // returns the first connected terminal associated with the given topological node
+                        return terminal;
+                    } else if (disconnectedTerminal == null) {
+                        disconnectedTerminal = terminal;
+                    }
                 }
             }
         }
-        return null;
+        // if no connected terminal is found associated with the given topological node
+        // returns a disconnected terminal associated with the given topological node
+        // if no terminal found, returns null
+        return disconnectedTerminal; 
     }
 
     public String findCgmesTerminalFromTopologicalNode(String topologicalNode) {
