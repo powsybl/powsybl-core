@@ -38,11 +38,6 @@ public class ForwardingAppStorage implements AppStorage {
     }
 
     @Override
-    public boolean isLocalSystem() {
-        return storage.isLocalSystem();
-    }
-
-    @Override
     public NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass) {
         return storage.createRootNodeIfNotExists(name, nodePseudoClass);
     }
