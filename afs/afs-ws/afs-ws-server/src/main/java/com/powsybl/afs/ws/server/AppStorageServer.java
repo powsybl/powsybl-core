@@ -104,12 +104,9 @@ public class AppStorageServer {
     public Response createNode(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
                                @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId,
                                @ApiParam(value = "Child Name") @PathParam("childName") String childName,
-                               @ApiParam(value = "Description") @QueryParam("description") String description,
-                               @ApiParam(value = "Node Pseudo Class") @QueryParam("nodePseudoClass") String nodePseudoClass,
-                               @ApiParam(value = "Version") @QueryParam("version") int version,
-                               @ApiParam(value = "Node Meta Data") NodeGenericMetadata nodeMetadata) {
+                               @ApiParam(value = "Node Meta Data") NodeInfo nodeInfo) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
-        NodeInfo newNodeInfo =  storage.createNode(nodeId, childName, nodePseudoClass, description, version, nodeMetadata, new NodeAccessRights());
+        NodeInfo newNodeInfo =  storage.createNode(nodeId, childName, nodeInfo.getPseudoClass(), nodeInfo.getDescription(), nodeInfo.getVersion(), nodeInfo.getGenericMetadata(), nodeInfo.getAccessRights());
         return Response.ok().entity(newNodeInfo).build();
     }
 

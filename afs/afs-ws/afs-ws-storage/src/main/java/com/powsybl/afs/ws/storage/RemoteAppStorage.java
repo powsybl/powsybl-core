@@ -8,11 +8,7 @@ package com.powsybl.afs.ws.storage;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.UncheckedExecutionException;
-import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.NodeDependency;
-import com.powsybl.afs.storage.NodeGenericMetadata;
-import com.powsybl.afs.storage.NodeAccessRights;
-import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.*;
 import com.powsybl.afs.storage.buffer.StorageChangeBuffer;
 import com.powsybl.afs.ws.client.utils.ClientUtils;
 import com.powsybl.afs.ws.utils.AfsRestApi;
@@ -36,6 +32,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.*;
 import java.io.*;
 import java.net.URI;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -321,14 +318,12 @@ public class RemoteAppStorage implements AppStorage {
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate(NODE_ID, parentNodeId)
                 .resolveTemplate("childName", name)
-                .queryParam("nodePseudoClass", nodePseudoClass)
-                .queryParam("description", description)
-                .queryParam(VERSION, version)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .header(HttpHeaders.CONTENT_ENCODING, "gzip")
                 .acceptEncoding("gzip")
-                .post(Entity.json(genericMetadata));
+                .post(Entity.json(new NodeInfo(parentNodeId, name, nodePseudoClass, description, ZonedDateTime.now().toInstant().toEpochMilli(),
+                                               ZonedDateTime.now().toInstant().toEpochMilli(), version, genericMetadata, accessRights)));
         try {
             return readEntityIfOk(response, NodeInfo.class);
         } finally {
