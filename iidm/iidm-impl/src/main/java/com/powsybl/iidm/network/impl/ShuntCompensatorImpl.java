@@ -102,7 +102,10 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         return bPerSection * getCurrentSectionCount();
     }
 
-    @Override
+    /**
+     * @deprecated Use {@link #getbPerSection()} * {@link #getMaximumSectionCount()} instead.
+     */
+    @Deprecated
     public double getMaximumB() {
         return bPerSection * maximumSectionCount;
     }

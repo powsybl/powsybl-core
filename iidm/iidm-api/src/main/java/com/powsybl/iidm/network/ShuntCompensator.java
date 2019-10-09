@@ -67,7 +67,10 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
 
     /**
      * Get the susceptance for the maximum section count.
+     *
+     * @deprecated Use {@link #getbPerSection()} * {@link #getMaximumSectionCount()} instead.
      */
+    @Deprecated
     double getMaximumB();
 
     /**
