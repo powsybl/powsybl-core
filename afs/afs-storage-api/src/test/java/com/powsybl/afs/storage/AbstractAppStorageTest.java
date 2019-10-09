@@ -140,6 +140,10 @@ public abstract class AbstractAppStorageTest {
         assertEquals("", storage.getNodeInfo(testFolderInfo.getId()).getDescription());
         assertTrue(storage.getNodeInfo(testFolderInfo.getId()).getCreationTime() > 0);
         assertTrue(storage.getNodeInfo(testFolderInfo.getId()).getModificationTime() > 0);
+        assertEquals(testFolderInfo.getAccessRights(), storage.getNodeInfo(testFolderInfo.getId()).getAccessRights());
+        assertEquals(Collections.singletonMap("user1", 6), storage.getNodeInfo(testFolderInfo.getId()).getAccessRights().getUsersRights());
+        assertTrue(storage.getNodeInfo(testFolderInfo.getId()).getAccessRights().getGroupsRights().isEmpty());
+        assertNull(storage.getNodeInfo(testFolderInfo.getId()).getAccessRights().getOthersRights());
 
         // check test folder is empty
         assertTrue(storage.getChildNodes(testFolderInfo.getId()).isEmpty());
@@ -294,6 +298,8 @@ public abstract class AbstractAppStorageTest {
         assertEquals(ImmutableMap.of("d1", 1d), testData2Info.getGenericMetadata().getDoubles());
         assertEquals(ImmutableMap.of("i1", 2), testData2Info.getGenericMetadata().getInts());
         assertEquals(ImmutableMap.of("b1", false), testData2Info.getGenericMetadata().getBooleans());
+        assertEquals(ImmutableMap.of("user1", 2, "user2", 4), testData2Info.getAccessRights().getUsersRights());
+        assertEquals(ImmutableMap.of("group1", 6), testData2Info.getAccessRights().getGroupsRights());
 
         // 10) check data node 2 binary data write
         try (OutputStream os = storage.writeBinaryData(testData2Info.getId(), "blob")) {

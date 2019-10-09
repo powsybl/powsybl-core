@@ -104,7 +104,7 @@ public class AppStorageServer {
     public Response createNode(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
                                @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId,
                                @ApiParam(value = "Child Name") @PathParam("childName") String childName,
-                               @ApiParam(value = "Node Meta Data") NodeInfo nodeInfo) {
+                               @ApiParam(value = "Node Data") NodeInfo nodeInfo) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
         NodeInfo newNodeInfo =  storage.createNode(nodeId, childName, nodeInfo.getPseudoClass(), nodeInfo.getDescription(), nodeInfo.getVersion(), nodeInfo.getGenericMetadata(), nodeInfo.getAccessRights());
         return Response.ok().entity(newNodeInfo).build();
@@ -188,7 +188,7 @@ public class AppStorageServer {
     @ApiOperation (value = "")
     @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 500, message = "Error")})
     public Response setDescription(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
-                                   @ApiParam(value = "File system name") @PathParam("nodeId") String nodeId,
+                                   @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId,
                                    @ApiParam(value = "Description") String description) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
         storage.setDescription(nodeId, description);
@@ -201,7 +201,7 @@ public class AppStorageServer {
     @ApiOperation (value = "")
     @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 500, message = "Error")})
     public Response setConsistent(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
-                                   @ApiParam(value = "File system name") @PathParam("nodeId") String nodeId) {
+                                   @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
         storage.setConsistent(nodeId);
         return Response.ok().build();
@@ -213,7 +213,7 @@ public class AppStorageServer {
     @ApiOperation (value = "")
     @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 500, message = "Error")})
     public Response renameNode(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
-                                   @ApiParam(value = "File system name") @PathParam("nodeId") String nodeId,
+                                   @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId,
                                    @ApiParam(value = "Name") String name) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
         storage.renameNode(nodeId, name);
