@@ -220,71 +220,6 @@ public class UcteImporter implements Importer {
                 .add();
     }
 
-    private static void createXnodeCoupler(UcteNetworkExt ucteNetwork, UcteLine ucteLine,
-                                           UcteNodeCode ucteXnodeCode, UcteVoltageLevel ucteXvoltageLevel,
-                                           UcteNodeCode ucteOtherNodeCode, Network network) {
-        // coupler connected to a XNODE
-        // creation of an intermediate YNODE and small impedance line:
-        // otherNode--coupler--XNODE => otherNode--coupler--YNODE--line--XNODE
-        String xNodeName = ucteXnodeCode.toString();
-        String yNodeName = "Y" + xNodeName.substring(1);
-
-        VoltageLevel xNodeVoltageLevel = network.getVoltageLevel(ucteXvoltageLevel.getName());
-
-        // create YNODE
-        xNodeVoltageLevel.getBusBreakerView().newBus()
-                .setId(yNodeName)
-                .add();
-
-        UcteNode ucteXnode = ucteNetwork.getNode(ucteXnodeCode);
-
-        LOGGER.warn("Create small impedance dangling line '{}{}' (coupler connected to XNODE '{}')",
-                xNodeName, yNodeName, ucteXnode.getCode());
-
-        float p0 = 0;
-        if (isValueValid(ucteXnode.getActiveLoad())) {
-            p0 += ucteXnode.getActiveLoad();
-        }
-        if (isValueValid(ucteXnode.getActivePowerGeneration())) {
-            p0 += ucteXnode.getActivePowerGeneration();
-        }
-        float q0 = 0;
-        if (isValueValid(ucteXnode.getReactiveLoad())) {
-            q0 += ucteXnode.getReactiveLoad();
-        }
-        if (isValueValid(ucteXnode.getReactivePowerGeneration())) {
-            q0 += ucteXnode.getReactivePowerGeneration();
-        }
-
-        // create small impedance dangling line connected to the YNODE
-        DanglingLine xNodeDanglingLine = xNodeVoltageLevel.newDanglingLine()
-                .setId(xNodeName + yNodeName)
-                .setBus(yNodeName)
-                .setConnectableBus(yNodeName)
-                .setR(0.0f)
-                .setX(LINE_MIN_Z)
-                .setG(0f)
-                .setB(0f)
-                .setP0(p0)
-                .setQ0(q0)
-                .setUcteXnodeCode(ucteXnode.getCode().toString())
-                .add();
-
-        addElementNameProperty(ucteLine, xNodeDanglingLine);
-        addGeographicalNameProperty(ucteXnode, xNodeDanglingLine);
-
-        xNodeDanglingLine.addExtension(Xnode.class, new Xnode(xNodeDanglingLine, ucteXnode.getCode().toString()));
-
-        // create coupler between YNODE and other node
-        xNodeVoltageLevel.getBusBreakerView().newSwitch()
-                .setEnsureIdUnicity(true)
-                .setId(ucteLine.getId().toString())
-                .setBus1(yNodeName)
-                .setBus2(ucteOtherNodeCode.toString())
-                .setOpen(ucteLine.getStatus() == UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION)
-                .add();
-    }
-
     private static void createDanglingLine(UcteLine ucteLine, boolean connected,
                                            UcteNode xnode, UcteNodeCode nodeCode, UcteVoltageLevel ucteVoltageLevel,
                                            Network network) {
@@ -341,30 +276,19 @@ public class UcteImporter implements Importer {
             throw new UcteException("Coupler between two different voltage levels");
         }
 
+        boolean connected = ucteLine.getStatus() == UcteElementStatus.BUSBAR_COUPLER_IN_OPERATION;
+
         if (nodeCode1.getUcteCountryCode() == UcteCountryCode.XX &&
                 nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
-            // coupler connected to a XNODE
-            createXnodeCoupler(ucteNetwork, ucteLine, nodeCode1, ucteVoltageLevel1, nodeCode2, network);
-
+            // coupler connected to a XNODE (side 1)
+            createDanglingLine(ucteLine, connected, ucteNetwork.getNode(nodeCode1), nodeCode2, ucteVoltageLevel2, network);
         } else if (nodeCode2.getUcteCountryCode() == UcteCountryCode.XX &&
                 nodeCode1.getUcteCountryCode() != UcteCountryCode.XX) {
-            // coupler connected to a XNODE
-            createXnodeCoupler(ucteNetwork, ucteLine, nodeCode2, ucteVoltageLevel2, nodeCode1, network);
-
+            // coupler connected to a XNODE (side 2)
+            createDanglingLine(ucteLine, connected, ucteNetwork.getNode(nodeCode2), nodeCode1, ucteVoltageLevel1, network);
         } else {
-            // standard coupler
-            VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
-            Switch couplerSwitch = voltageLevel.getBusBreakerView().newSwitch()
-                    .setEnsureIdUnicity(true)
-                    .setId(ucteLine.getId().toString())
-                    .setBus1(nodeCode1.toString())
-                    .setBus2(nodeCode2.toString())
-                    .setOpen(ucteLine.getStatus() == UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION)
-                    .add();
-
-            addCurrentLimitProperty(ucteLine, couplerSwitch);
-            addOrderCodeProperty(ucteLine, couplerSwitch);
-            addElementNameProperty(ucteLine, couplerSwitch);
+            double z = Math.hypot(ucteLine.getResistance(), ucteLine.getReactance());
+            createCouplerFromLowImpedanceLine(network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, connected, z);
         }
     }
 
