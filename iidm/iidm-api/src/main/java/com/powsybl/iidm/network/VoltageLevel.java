@@ -1003,6 +1003,12 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     BusView getBusView();
 
     /**
+     * Clean the topology. The behavior of this method is implementation specific
+     * and depends on the type of VoltageLevel (Node/Breaker or Bus/Breaker)
+     */
+    void cleanTopology();
+
+    /**
      * Print an ASCII representation of the topology on the standard ouput.
      */
     void printTopology();

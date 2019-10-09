@@ -724,7 +724,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                         + "' not found in substation voltage level '" + id + "'");
             }
             SwitchImpl aSwitch = graph.removeEdge(e);
-            clean();
 
             getNetwork().getIndex().remove(aSwitch);
             getNetwork().getListeners().notifyRemoval(aSwitch);
@@ -944,7 +943,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public void clean() {
+    public void cleanTopology() {
         GraphUtil.removeIsolatedVertices(graph);
     }
 

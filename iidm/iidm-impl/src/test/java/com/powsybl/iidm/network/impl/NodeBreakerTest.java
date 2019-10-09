@@ -189,7 +189,7 @@ public class NodeBreakerTest {
 
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
         assertEquals(10, topo.getNodeCount());
-        vl.clean();
+        vl.cleanTopology();
 
         // Check useless nodes have been removed from the topology
         assertEquals(6, topo.getNodeCount());
@@ -203,13 +203,16 @@ public class NodeBreakerTest {
         assertNotNull(vl);
 
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
-        vl.clean();
+        vl.cleanTopology();
 
         assertEquals(6, topo.getNodeCount());
         assertNotNull(topo.getSwitch("load1Disconnector1"));
         assertNotNull(topo.getSwitch("load1Breaker1"));
+
+        // Remove switches and clean the topology
         topo.removeSwitch("load1Disconnector1");
         topo.removeSwitch("load1Breaker1");
+        vl.cleanTopology();
 
         // Check the 2 switches and the intermediate node have been removed from the topology.
         assertNull(topo.getSwitch("load1Disconnector1"));

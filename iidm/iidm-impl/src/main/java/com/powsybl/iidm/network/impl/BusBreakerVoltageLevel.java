@@ -757,7 +757,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public void clean() {
+    public void cleanTopology() {
         // nothing to do
     }
 
