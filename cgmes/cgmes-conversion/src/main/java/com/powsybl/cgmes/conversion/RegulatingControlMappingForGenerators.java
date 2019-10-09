@@ -55,7 +55,7 @@ public class RegulatingControlMappingForGenerators {
 
         String controlId = rc.regulatingControlId;
         if (controlId == null) {
-            context.missing(String.format("Regulating control Id not defined"));
+            context.missing("Regulating control Id not defined");
             return;
         }
 
@@ -83,7 +83,7 @@ public class RegulatingControlMappingForGenerators {
             return null;
         }
 
-        double targetV = Double.NaN;
+        double targetV;
         if (control.targetValue <= 0.0 || Double.isNaN(control.targetValue)) {
             targetV = terminal.getVoltageLevel().getNominalV();
             context.fixed(controlId, "Invalid value for regulating target value", control.targetValue, targetV);
@@ -121,10 +121,7 @@ public class RegulatingControlMappingForGenerators {
     }
 
     private static boolean isControlModeVoltage(String controlMode) {
-        if (controlMode != null && controlMode.endsWith("voltage")) {
-            return true;
-        }
-        return false;
+        return controlMode != null && controlMode.endsWith("voltage");
     }
 
     private Terminal getRegulatingTerminal(Generator gen, String cgmesTerminal, String topologicalNode) {
