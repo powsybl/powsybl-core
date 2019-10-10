@@ -38,6 +38,8 @@
 /contingency/contingency-dsl/target/
 /distribution-core/target/
 /dsl/target/
+/dynamic-simulation/target/
+/dynamic-simulation/dynamic-simulation-api/target/
 /entsoe-util/target/
 /iidm/target/
 /iidm/iidm-api/target
@@ -75,6 +77,9 @@
 /ucte/ucte-network/target/
 /ucte/target/
 
+/.apt_generated/
+/.apt_generated_tests/
+
 # IntelliJ
 /.idea
 *.iml
@@ -84,10 +89,12 @@ install.cfg
 
 # Eclipse projects
 .classpath
+.factorypath
 .project
 org.eclipse.core.resources.prefs
 org.eclipse.jdt.core.prefs
 org.eclipse.m2e.core.prefs
+org.eclipse.jdt.apt.core.prefs
 org.eclipse.jdt.groovy.core.prefs
 
 # Log files
