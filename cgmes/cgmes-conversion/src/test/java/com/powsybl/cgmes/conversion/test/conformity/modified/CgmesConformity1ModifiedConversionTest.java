@@ -389,6 +389,14 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(-13.8, load.getQ0(), 0.0);
     }
 
+    @Test
+    public void smallNodeBreakerHvdcDcLine2Inverter1Rectifier2() {
+        // Small Grid Node Breaker HVDC modified so in the dcLine2
+        // SVC1 (that is at side 2 of the DC line) is interpreted as a rectifier and
+        // SVC2 (that is at side 1 of the line) is interpreted as an inverter
+        assertNotNull(new CgmesImport(platformConfig).importData(catalogModified.smallNodeBreakerHvdcDcLine2Inverter1Rectifier2().dataSource(), null));
+    }
+
     private static CgmesConformity1Catalog catalog;
     private static CgmesConformity1ModifiedCatalog catalogModified;
 
