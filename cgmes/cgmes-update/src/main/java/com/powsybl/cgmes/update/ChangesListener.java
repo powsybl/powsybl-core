@@ -30,7 +30,7 @@ public class ChangesListener implements NetworkListener {
         changeList.add(change);
         // TODO remove prints
         System.out.println("variant is " + change.getVariant()
-            + "\nidentifiableName " + identifiable.getName()
+            + "\nidentifiable " + identifiable.getClass().getSimpleName()
             + "\nidentifiableID " + identifiable.getId()
             + "\nattribute is " + change.getAttribute());
     }
@@ -48,7 +48,7 @@ public class ChangesListener implements NetworkListener {
         IidmChangeOnUpdate change = new IidmChangeOnUpdate(identifiable, attribute, oldValue, newValue, variantId);
         changeList.add(change);
         System.out.println("variant is " + change.getVariant()
-            + "\nidentifiableName " + identifiable.getName()
+            + "\nidentifiable " + identifiable.getClass().getSimpleName()
             + "\nidentifiableID " + identifiable.getId()
             + "\nattribute is " + change.getAttribute());
     }

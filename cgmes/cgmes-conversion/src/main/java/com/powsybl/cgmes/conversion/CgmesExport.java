@@ -17,7 +17,6 @@ import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
-import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.update.CgmesUpdater;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
@@ -42,6 +41,7 @@ public class CgmesExport implements Exporter {
         // Right now the network must contain the original CgmesModel
         // In the future it should be possible to export to CGMES
         // directly from an IIDM Network
+    	profiling.start();
         CgmesModelExtension ext = network.getExtension(CgmesModelExtension.class);
         if (ext == null) {
             throw new CgmesModelException("No extension for CGMES model found in Network");
@@ -64,15 +64,23 @@ public class CgmesExport implements Exporter {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        profiling.end("Update CGMES from IIDM");
         // Clear the previous SV data
+        profiling.start();
         cgmes.clear(CgmesSubset.STATE_VARIABLES);
-
+        profiling.end("Clear State Variables");
         // Fill the SV data of the CgmesModel with the network current state
+        profiling.start();
         addStateVariables(network, cgmes);
-
+        profiling.end("Add State Variables");
         // TODO elena
+        profiling.start();
         cgmes.write(ds);
+        profiling.end("Export updated CGMES");
+    }
+
+    public void getProfiling() {
+        profiling.report();
     }
 
     @Override
@@ -176,4 +184,6 @@ public class CgmesExport implements Exporter {
     private static final List<String> SV_POWERFLOW_PROPERTIES = Arrays.asList("p", "q", CgmesNames.TERMINAL);
     private static final List<String> SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES = Arrays.asList("ShuntCompensator",
         "continuousSections");
+    
+    private Profiling profiling = new Profiling();;
 }

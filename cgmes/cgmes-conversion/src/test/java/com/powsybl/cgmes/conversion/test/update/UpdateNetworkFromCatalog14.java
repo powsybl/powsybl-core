@@ -159,7 +159,8 @@ public class UpdateNetworkFromCatalog14 {
 //            .setR(3.0).setX(4.0).setRatedU1(11.1).setRatedU2(22.2);
 //        network.getTwoWindingsTransformer("_BUS____4-BUS____7-1_PT").getRatioTapChanger()
 //            .setTapPosition(7);// ?? --> not in change
-        network.getGenerator("_GEN____3_SM").setRatedS(100).setMaxP(200.0).setMinP(-200.0);
+		network.getGenerator("_GEN____3_SM").setRatedS(100).setMaxP(200.0).setMinP(-200.0);
+        //.setTargetP(1.0);
 //        network.getGenerator("_GEN____2_SM").setTargetP(11.1);// ??setTargetP --> not in change
 //        network.getSubstation("_BUS____4_SS").setCountry(Country.GR);
 //        network.getLoad("_LOAD__10_EC").setP0(100.0).setQ0(5.0);// ??? --> not in change

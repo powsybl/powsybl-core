@@ -58,8 +58,8 @@ public class GeneratorToSynchronousMachine implements ConversionMapper {
         if (!String.valueOf(targetP).equals("NaN")) {
             map.put("targetP", new CgmesPredicateDetails(
                 "cim:GeneratingUnit.initialP", "_EQ", false, String.valueOf(targetP), generatingUnitId));
-//            map.put("targetP", new CgmesPredicateDetails(
-//                "cim:RotatingMachine.p", "_SSH", false, String.valueOf(-targetP)));
+            map.put("targetP", new CgmesPredicateDetails(
+                "cim:RotatingMachine.p", "_SSH", false, String.valueOf(-targetP)));
         }
 
         double maxP = newGenerator.getMaxP();
