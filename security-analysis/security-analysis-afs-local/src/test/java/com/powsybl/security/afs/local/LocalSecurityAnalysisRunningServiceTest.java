@@ -6,6 +6,7 @@
  */
 package com.powsybl.security.afs.local;
 
+import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.ServiceExtension;
 import com.powsybl.afs.ext.base.LocalNetworkCacheServiceExtension;
@@ -25,35 +26,32 @@ import java.util.concurrent.CompletableFuture;
  */
 public class LocalSecurityAnalysisRunningServiceTest extends SecurityAnalysisRunnerTest {
 
-    private static class SecurityAnalysisFactoryMock implements SecurityAnalysisFactory {
+    private static final String PROVIDER_NAME = "LocalProvider";
+
+    @AutoService(SecurityAnalysisProvider.class)
+    public static class LocalProvider implements SecurityAnalysisProvider {
+
         @Override
-        public SecurityAnalysis create(Network network, ComputationManager computationManager, int priority) {
-            return new SecurityAnalysis() {
+        public CompletableFuture<SecurityAnalysisResult> run(Network network, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
+            LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, ImmutableList.of(new LimitViolation("s1", LimitViolationType.HIGH_VOLTAGE, 400.0, 1f, 440.0)));
+            SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, Collections.emptyList());
+            return CompletableFuture.completedFuture(result);
+        }
 
-                @Override
-                public void addInterceptor(SecurityAnalysisInterceptor interceptor) {
-                    // Not implemented
-                }
+        @Override
+        public String getName() {
+            return PROVIDER_NAME;
+        }
 
-                @Override
-                public boolean removeInterceptor(SecurityAnalysisInterceptor interceptor) {
-                    // Not implemented
-                    return false;
-                }
-
-                @Override
-                public CompletableFuture<SecurityAnalysisResult> run(String workingStateId, SecurityAnalysisParameters securityAnalysisParameters, ContingenciesProvider contingenciesProvider) {
-                    LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, ImmutableList.of(new LimitViolation("s1", LimitViolationType.HIGH_VOLTAGE, 400.0, 1f, 440.0)));
-                    SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, Collections.emptyList());
-                    return CompletableFuture.completedFuture(result);
-                }
-            };
+        @Override
+        public String getVersion() {
+            return "1.0";
         }
     }
 
     @Override
     protected List<ServiceExtension> getServiceExtensions() {
-        return ImmutableList.of(new LocalSecurityAnalysisRunningServiceExtension(SecurityAnalysisFactoryMock::new),
+        return ImmutableList.of(new LocalSecurityAnalysisRunningServiceExtension(PROVIDER_NAME),
                 new LocalNetworkCacheServiceExtension());
     }
 }

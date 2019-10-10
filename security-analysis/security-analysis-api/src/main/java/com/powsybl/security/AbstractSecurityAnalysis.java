@@ -23,7 +23,7 @@ import java.util.Objects;
  *
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public abstract class AbstractSecurityAnalysis implements SecurityAnalysis {
+public abstract class AbstractSecurityAnalysis {
 
     protected final Network network;
     protected final LimitViolationDetector violationDetector;
@@ -42,13 +42,11 @@ public abstract class AbstractSecurityAnalysis implements SecurityAnalysis {
         this.interceptors = new ArrayList<>();
     }
 
-    @Override
-    public void addInterceptor(SecurityAnalysisInterceptor interceptor) {
+    protected void addInterceptor(SecurityAnalysisInterceptor interceptor) {
         interceptors.add(Objects.requireNonNull(interceptor));
     }
 
-    @Override
-    public boolean removeInterceptor(SecurityAnalysisInterceptor interceptor) {
+    protected boolean removeInterceptor(SecurityAnalysisInterceptor interceptor) {
         return interceptors.remove(interceptor);
     }
 

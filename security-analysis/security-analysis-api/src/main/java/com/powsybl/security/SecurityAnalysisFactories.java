@@ -12,6 +12,7 @@ import com.powsybl.commons.config.PlatformConfig;
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
+@Deprecated
 public final class SecurityAnalysisFactories {
 
     private SecurityAnalysisFactories() {

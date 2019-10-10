@@ -19,9 +19,11 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptorMock;
 import org.junit.After;
 import org.junit.Before;
@@ -30,7 +32,9 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import static org.junit.Assert.*;
@@ -93,13 +97,16 @@ public class SecurityAnalysisTest {
         Mockito.when(contingenciesProvider.getContingencies(network)).thenReturn(Collections.singletonList(contingency));
 
         LimitViolationFilter filter = new LimitViolationFilter();
+        LimitViolationDetector detector = new DefaultLimitViolationDetector();
+        List<SecurityAnalysisInterceptor> interceptors = new ArrayList<>();
+        interceptors.add(new SecurityAnalysisInterceptorMock());
+        interceptors.add(new CurrentLimitViolationInterceptor());
 
-        SecurityAnalysis securityAnalysis = new SecurityAnalysisImpl(network, filter, computationManager);
-        securityAnalysis.addInterceptor(new SecurityAnalysisInterceptorMock());
-        securityAnalysis.addInterceptor(new CurrentLimitViolationInterceptor());
-
-        SecurityAnalysisResult result = securityAnalysis.run(VariantManagerConstants.INITIAL_VARIANT_ID, SecurityAnalysisParameters.load(platformConfig), contingenciesProvider).join();
-
+        SecurityAnalysisResult result = SecurityAnalysis.find("SecurityAnalysisImpl")
+                .run(network, detector, filter, computationManager,
+                        VariantManagerConstants.INITIAL_VARIANT_ID,
+                        SecurityAnalysisParameters.load(platformConfig), contingenciesProvider, interceptors)
+                .join();
         assertTrue(result.getPreContingencyResult().isComputationOk());
         assertEquals(0, result.getPreContingencyResult().getLimitViolations().size());
         PostContingencyResult postcontingencyResult = result.getPostContingencyResults().get(0);

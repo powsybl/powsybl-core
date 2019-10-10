@@ -7,6 +7,7 @@
 package com.powsybl.security;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
@@ -15,6 +16,7 @@ import com.powsybl.security.detectors.DefaultLimitViolationDetector;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(SecurityAnalysisFactory.class)
+@Deprecated
 public class SecurityAnalysisFactoryImpl implements SecurityAnalysisFactory {
 
     @Override
@@ -30,6 +32,6 @@ public class SecurityAnalysisFactoryImpl implements SecurityAnalysisFactory {
     @Override
     public SecurityAnalysis create(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
                                     ComputationManager computationManager, int priority) {
-        return new SecurityAnalysisImpl(network, detector, filter, computationManager);
+        throw new PowsyblException("Deprecated");
     }
 }

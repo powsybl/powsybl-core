@@ -6,10 +6,12 @@
  */
 package com.powsybl.security.execution;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
 import com.powsybl.security.distributed.DistributedSecurityAnalysisExecution;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
@@ -20,14 +22,11 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
@@ -35,7 +34,7 @@ import static org.mockito.Mockito.when;
 public class SecurityAnalysisExecutionBuilderTest {
 
     private SecurityAnalysis analysis;
-    private AtomicReference<ContingenciesProvider> actualProvider;
+    private static AtomicReference<ContingenciesProvider> actualProvider;
     private SecurityAnalysisExecutionBuilder builder;
 
     @Before
@@ -46,31 +45,10 @@ public class SecurityAnalysisExecutionBuilderTest {
 
         actualProvider = new AtomicReference<>();
 
-        analysis = new SecurityAnalysis() {
-            @Override
-            public void addInterceptor(SecurityAnalysisInterceptor interceptor) {
-            }
-
-            @Override
-            public boolean removeInterceptor(SecurityAnalysisInterceptor interceptor) {
-                return false;
-            }
-
-            @Override
-            public CompletableFuture<SecurityAnalysisResult> run(String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider) {
-                actualProvider.set(contingenciesProvider);
-                return null;
-            }
-        };
-
-        SecurityAnalysisFactory factory = mock(SecurityAnalysisFactory.class);
-        when(factory.create(any(), any(), any(), any(), anyInt()))
-                .thenReturn(analysis);
-
         builder = new SecurityAnalysisExecutionBuilder(ExternalSecurityAnalysisConfig::new,
-            () -> factory,
+                "BuilderTestProvider",
             execInput -> new SecurityAnalysisInput(Mockito.mock(NetworkVariant.class))
-                    .setContingencies(provider));
+                        .setContingencies(provider));
     }
 
     @Test
@@ -112,6 +90,27 @@ public class SecurityAnalysisExecutionBuilderTest {
 
         assertNotNull(actualProvider.get());
         assertEquals(5, actualProvider.get().getContingencies(null).size());
+    }
+
+    @AutoService(SecurityAnalysisProvider.class)
+    public static class BuilderTestProvider implements SecurityAnalysisProvider {
+
+        @Override
+        public CompletableFuture<SecurityAnalysisResult> run(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
+                                                             ComputationManager computationManager, String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
+            actualProvider.set(contingenciesProvider);
+            return null;
+        }
+
+        @Override
+        public String getName() {
+            return "BuilderTestProvider";
+        }
+
+        @Override
+        public String getVersion() {
+            return null;
+        }
     }
 
 }

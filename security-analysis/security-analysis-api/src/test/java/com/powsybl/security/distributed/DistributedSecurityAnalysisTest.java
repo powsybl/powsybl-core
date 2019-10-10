@@ -18,7 +18,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.security.SecurityAnalysis;
 import com.powsybl.security.SecurityAnalysisParameters;
 import org.junit.After;
 import org.junit.Before;
@@ -84,7 +83,7 @@ public class DistributedSecurityAnalysisTest {
     @Test
     public void testDistributed() throws IOException {
         ExternalSecurityAnalysisConfig config = new ExternalSecurityAnalysisConfig();
-        SecurityAnalysis analysis = new DistributedSecurityAnalysis(config, network, cm, Collections.emptyList(), 5);
+        DistributedSecurityAnalysis analysis = new DistributedSecurityAnalysis(config, network, cm, Collections.emptyList(), 5);
 
         analysis.run(VariantManagerConstants.INITIAL_VARIANT_ID, new SecurityAnalysisParameters(), contingencies);
 
@@ -95,7 +94,7 @@ public class DistributedSecurityAnalysisTest {
     @Test
     public void testDistributedWithLog() throws IOException {
         ExternalSecurityAnalysisConfig config = new ExternalSecurityAnalysisConfig();
-        SecurityAnalysis analysis = new DistributedSecurityAnalysis(config, network, cm, Collections.emptyList(), 5);
+        DistributedSecurityAnalysis analysis = new DistributedSecurityAnalysis(config, network, cm, Collections.emptyList(), 5);
 
         analysis.runWithLog(VariantManagerConstants.INITIAL_VARIANT_ID, new SecurityAnalysisParameters(), contingencies);
 
@@ -127,7 +126,7 @@ public class DistributedSecurityAnalysisTest {
     @Test
     public void testExternal() throws IOException {
         ExternalSecurityAnalysisConfig config = new ExternalSecurityAnalysisConfig();
-        SecurityAnalysis analysis = new ExternalSecurityAnalysis(config, network, cm, Collections.emptyList(), 5);
+        ExternalSecurityAnalysis analysis = new ExternalSecurityAnalysis(config, network, cm, Collections.emptyList(), 5);
 
         analysis.run(VariantManagerConstants.INITIAL_VARIANT_ID, new SecurityAnalysisParameters(), contingencies);
 

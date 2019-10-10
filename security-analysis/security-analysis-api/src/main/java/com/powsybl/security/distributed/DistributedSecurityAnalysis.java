@@ -6,7 +6,8 @@
  */
 package com.powsybl.security.distributed;
 
-import com.powsybl.computation.*;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.ExecutionEnvironment;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
@@ -55,7 +56,6 @@ public class DistributedSecurityAnalysis extends ExternalSecurityAnalysis {
                 SecurityAnalysisExecutionHandlers.distributed(input, actualTaskCount));
     }
 
-    @Override
     public CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider) {
         LOGGER.debug("Starting distributed security analysis(with log).");
 

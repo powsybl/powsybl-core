@@ -16,6 +16,7 @@ import com.powsybl.security.detectors.DefaultLimitViolationDetector;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@Deprecated
 public interface SecurityAnalysisFactory {
 
     /**

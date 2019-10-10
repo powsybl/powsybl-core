@@ -11,7 +11,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.ExecutionEnvironment;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.SecurityAnalysis;
 import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
@@ -39,7 +38,7 @@ import static java.util.Objects.requireNonNull;
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 @Deprecated
-public class ExternalSecurityAnalysis implements SecurityAnalysis {
+public class ExternalSecurityAnalysis {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExternalSecurityAnalysis.class);
 
@@ -68,17 +67,14 @@ public class ExternalSecurityAnalysis implements SecurityAnalysis {
         this(config, network, computationManager, extensions, Integer.valueOf(taskCount));
     }
 
-    @Override
     public void addInterceptor(SecurityAnalysisInterceptor interceptor) {
         throw new UnsupportedOperationException("External security analysis does not support interceptors. Use extension names instead.");
     }
 
-    @Override
     public boolean removeInterceptor(SecurityAnalysisInterceptor interceptor) {
         throw new UnsupportedOperationException("External security analysis does not support interceptors.");
     }
 
-    @Override
     public CompletableFuture<SecurityAnalysisResult> run(String workingStateId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider) {
         LOGGER.debug("Starting external security analysis.");
 

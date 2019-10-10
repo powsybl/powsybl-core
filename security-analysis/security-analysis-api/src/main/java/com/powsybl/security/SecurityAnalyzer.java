@@ -18,6 +18,7 @@ import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
@@ -26,6 +27,7 @@ import java.util.Set;
  * @author Giovanni Ferrari <giovanni.ferrari@techrain.it>
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
+@Deprecated
 public class SecurityAnalyzer {
 
     private final LimitViolationFilter filter;
@@ -33,8 +35,6 @@ public class SecurityAnalyzer {
     private final ComputationManager computationManager;
 
     private final int priority;
-
-    private final SecurityAnalysisFactory securityAnalysisFactory;
 
     private final ContingenciesProviderFactory contingenciesProviderFactory;
 
@@ -51,7 +51,6 @@ public class SecurityAnalyzer {
         this.interceptors = Objects.requireNonNull(interceptors);
 
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
-        securityAnalysisFactory = defaultConfig.newFactoryImpl(SecurityAnalysisFactory.class);
         contingenciesProviderFactory = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class);
     }
 
@@ -98,9 +97,8 @@ public class SecurityAnalyzer {
 
         network.getVariantManager().allowVariantMultiThreadAccess(true);
 
-        SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, filter, computationManager, priority);
-        interceptors.forEach(securityAnalysis::addInterceptor);
-
-        return securityAnalysis.run(network.getVariantManager().getWorkingVariantId(), parameters, contingenciesProvider).join();
+        String id = network.getVariantManager().getWorkingVariantId();
+        return SecurityAnalysis.find().run(network, filter, computationManager,
+                id, parameters, contingenciesProvider, new ArrayList<>(interceptors)).join();
     }
 }

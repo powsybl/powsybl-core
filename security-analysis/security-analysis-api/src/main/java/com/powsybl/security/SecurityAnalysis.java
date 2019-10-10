@@ -6,10 +6,21 @@
  */
 package com.powsybl.security;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -28,23 +39,81 @@ import java.util.concurrent.CompletableFuture;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public interface SecurityAnalysis {
+public final class SecurityAnalysis {
 
-    void addInterceptor(SecurityAnalysisInterceptor interceptor);
+    private SecurityAnalysis() {
+    }
 
-    boolean removeInterceptor(SecurityAnalysisInterceptor interceptor);
+    private static final Supplier<List<SecurityAnalysisProvider>> PROVIDERS_SUPPLIERS
+            = Suppliers.memoize(() -> new ServiceLoaderCache<>(SecurityAnalysisProvider.class).getServices());
 
-    CompletableFuture<SecurityAnalysisResult> run(String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider);
+    public static class Runner {
+
+        private final SecurityAnalysisProvider provider;
+
+        public static Runner initByProvider(SecurityAnalysisProvider provider) {
+            return new Runner(provider);
+        }
+
+        public Runner(SecurityAnalysisProvider provider) {
+            this.provider = Objects.requireNonNull(provider);
+        }
+
+        public CompletableFuture<SecurityAnalysisResult> run(Network network,
+                                                             ComputationManager computationManager,
+                                                             String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider,
+                                                             List<SecurityAnalysisInterceptor> interceptors) {
+            return provider.run(network, computationManager, workingVariantId, parameters, contingenciesProvider, interceptors);
+        }
+
+        public CompletableFuture<SecurityAnalysisResult> run(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
+                                                             ComputationManager computationManager,
+                                                             String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider,
+                                                             List<SecurityAnalysisInterceptor> interceptors) {
+            return provider.run(network, detector, filter, computationManager, workingVariantId, parameters, contingenciesProvider, interceptors);
+        }
+
+        public CompletableFuture<SecurityAnalysisResult> run(Network network, LimitViolationFilter filter,
+                                                             ComputationManager computationManager,
+                                                             String workingVariantId, SecurityAnalysisParameters parameters,
+                                                             ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
+            return provider.run(network, filter, computationManager, workingVariantId, parameters, contingenciesProvider, interceptors);
+        }
+
+        public CompletableFuture<SecurityAnalysisResult> run(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
+                                                             ComputationManager computationManager,
+                                                             String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider) {
+            return provider.run(network, detector, filter, computationManager, workingVariantId, parameters, contingenciesProvider, Collections.emptyList());
+        }
+
+        public CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
+                                                                           ComputationManager computationManager,
+                                                             String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider,
+                                                             List<SecurityAnalysisInterceptor> interceptors) {
+            return provider.runWithLog(network, detector, filter, computationManager, workingVariantId, parameters, contingenciesProvider, interceptors);
+        }
+
+        public CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
+                                                                           ComputationManager computationManager,
+                                                             String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider) {
+            return provider.runWithLog(network, detector, filter, computationManager, workingVariantId, parameters, contingenciesProvider, Collections.emptyList());
+        }
+    }
+
+    public static CompletableFuture<SecurityAnalysisResult> run(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
+                                                                ComputationManager computationManager, String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
+        return find().run(network, detector, filter, computationManager, workingVariantId, parameters, contingenciesProvider, interceptors);
+    }
 
     /**
-     * To be consistent with {@link #run(String, SecurityAnalysisParameters, ContingenciesProvider)}, this method would also complete exceptionally
+     * To be consistent with {@link #run(Network, LimitViolationDetector, LimitViolationFilter, ComputationManager, String, SecurityAnalysisParameters, ContingenciesProvider, List)}, this method would also complete exceptionally
      * if there are exceptions thrown. But the original exception would be wrapped in {@link com.powsybl.computation.ComputationException}, and those .out/.err log file's contents
      * are be collected in the {@link com.powsybl.computation.ComputationException} too.
      *
      *
      * <pre> {@code
      * try {
-     *       SecurityAnalysisResultWithLog resultWithLog = securityAnalysis.runWithLog(currentState, parameters, contingenciesProvider).join();
+     *       SecurityAnalysisResultWithLog resultWithLog = SecurityAnalysis.runWithLog(network, detector, filter, computationManager, workingVariantId, parameters, contingenciesProvider, interceptors).join();
      *       result = resultWithLog.getResult();
      *   } catch (CompletionException e) {
      *       if (e.getCause() instanceof ComputationException) {
@@ -67,8 +136,71 @@ public interface SecurityAnalysis {
      * @param contingenciesProvider
      * @return
      */
-    default CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider) {
-        return run(workingVariantId, parameters, contingenciesProvider).thenApply(r -> new SecurityAnalysisResultWithLog(r, null));
+    public static CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
+                                                                              ComputationManager computationManager, String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
+        return run(network, detector, filter, computationManager, workingVariantId, parameters, contingenciesProvider, interceptors).thenApply(r -> new SecurityAnalysisResultWithLog(r, null));
+    }
+
+    /**
+     * Get a runner for security-analysis implementation named {@code name}. In the case of a null {@code name}, default
+     * implementation is used.
+     *
+     * @param name name of the security-analysis implementation, null if we want to use default one
+     * @return a runner for security-analysis implementation named {@code name}
+     */
+    public static Runner find(String name) {
+        PROVIDERS_SUPPLIERS.get();
+        return find(name, PROVIDERS_SUPPLIERS.get(), PlatformConfig.defaultConfig());
+    }
+
+    public static Runner find() {
+        return find(null);
+    }
+
+    // TODO generailize
+    /**
+     * A variant of {@link SecurityAnalysis#find(String)} intended to be used for unit testing that allow passing
+     * an explicit provider list instead of relying on service loader and an explicit {@link PlatformConfig}
+     * instead of global one.
+     *
+     * @param name name of the security-analysis implementation, null if we want to use default one
+     * @param providers SecurityAnalysis provider list
+     * @param platformConfig platform config to look for default SecurityAnalysis implementation name
+     * @return a runner for SecurityAnalysis implementation named {@code name}
+     */
+    public static Runner find(String name, List<SecurityAnalysisProvider> providers, PlatformConfig platformConfig) {
+        Objects.requireNonNull(providers);
+        Objects.requireNonNull(platformConfig);
+
+        if (providers.isEmpty()) {
+            throw new PowsyblException("No SecurityAnalysis providers found");
+        }
+
+        // if no SecurityAnalysis implementation name is provided through the API we look for information
+        // in platform configuration
+        String securityAnalysisName = name != null ? name : platformConfig.getOptionalModuleConfig("security-analysis")
+                .flatMap(mc -> mc.getOptionalStringProperty("default"))
+                .orElse(null);
+        SecurityAnalysisProvider provider;
+        if (providers.size() == 1 && securityAnalysisName == null) {
+            // no information to select the implementation but only one provider, so we can use it by default
+            // (that is be the most common use case)
+            provider = providers.get(0);
+        } else {
+            if (providers.size() > 1 && securityAnalysisName == null) {
+                // several providers and no information to select which one to choose, we can only throw
+                // an exception
+                List<String> securityAnalysisNames = providers.stream().map(SecurityAnalysisProvider::getName).collect(Collectors.toList());
+                throw new PowsyblException("Several SecurityAnalysis implementations found (" + securityAnalysisNames
+                        + "), you must add configuration to select the implementation");
+            }
+            provider = providers.stream()
+                    .filter(p -> p.getName().equals(securityAnalysisName))
+                    .findFirst()
+                    .orElseThrow(() -> new PowsyblException("SecurityAnalysis '" + securityAnalysisName + "' not found"));
+        }
+
+        return new Runner(provider);
     }
 
 }

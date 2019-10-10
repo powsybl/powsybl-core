@@ -15,7 +15,6 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
-import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
 import java.util.List;
 import java.util.Objects;
@@ -48,17 +47,6 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
         interceptors.add(new CurrentLimitViolationInterceptor());
     }
 
-    @Override
-    public void addInterceptor(SecurityAnalysisInterceptor interceptor) {
-        interceptors.add(Objects.requireNonNull(interceptor));
-    }
-
-    @Override
-    public boolean removeInterceptor(SecurityAnalysisInterceptor interceptor) {
-        return interceptors.remove(interceptor);
-    }
-
-    @Override
     public CompletableFuture<SecurityAnalysisResult> run(String workingStateId, SecurityAnalysisParameters securityAnalysisParameters, ContingenciesProvider contingenciesProvider) {
         Objects.requireNonNull(workingStateId);
         Objects.requireNonNull(securityAnalysisParameters);
