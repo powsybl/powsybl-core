@@ -397,6 +397,20 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(new CgmesImport(platformConfig).importData(catalogModified.smallNodeBreakerHvdcDcLine2Inverter1Rectifier2().dataSource(), null));
     }
 
+    @Test
+    public void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier() {
+        // Small Grid Node Breaker HVDC modified so in the dcLine
+        // both converters have targetPpcc consistent with side 1 inverter side 2 rectifier
+        assertNotNull(new CgmesImport(platformConfig).importData(catalogModified.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier().dataSource(), null));
+    }
+
+    @Test
+    public void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter() {
+        // Small Grid Node Breaker HVDC modified so in the dcLine
+        // both converters have targetPpcc consistent with side 1 rectifier side 2 inverter
+        assertNotNull(new CgmesImport(platformConfig).importData(catalogModified.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter().dataSource(), null));
+    }
+
     private static CgmesConformity1Catalog catalog;
     private static CgmesConformity1ModifiedCatalog catalogModified;
 
