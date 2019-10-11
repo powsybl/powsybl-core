@@ -223,10 +223,8 @@ public class RegulatingControlMapping {
         }
     }
 
-    public void setAllRemoteRegulatingTerminals() {
+    private void setAllRemoteRegulatingTerminals() {
         cachedRegulatingControls.entrySet().removeIf(this::setRemoteRegulatingTerminal);
-        cachedRegulatingControls.forEach((key, value) -> context.pending("Regulating terminal",
-                String.format("The setting of the regulating terminal of the regulating control %s is not entirely handled.", key)));
     }
 
     private boolean setRemoteRegulatingTerminal(Map.Entry<String, RegulatingControl> entry) {
@@ -297,8 +295,12 @@ public class RegulatingControlMapping {
     }
 
     public void setAllRegulatingControls(Network network) {
+        setAllRemoteRegulatingTerminals();
+
         regulatingControlMappingForGenerators.applyRegulatingControls(network);
 
+        cachedRegulatingControls.forEach((key, value) -> context.pending("Regulating terminal",
+            String.format("The setting of the regulating terminal of the regulating control %s is not entirely handled.", key)));
         cachedRegulatingControls.clear();
     }
 

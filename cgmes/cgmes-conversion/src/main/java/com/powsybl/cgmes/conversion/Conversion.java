@@ -119,9 +119,6 @@ public class Conversion {
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.currentLimitsMapping().addAll();
 
-        // set all remote regulating terminals
-        context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
-
         // set all regulating controls
         context.regulatingControlMapping().setAllRegulatingControls(network);
 

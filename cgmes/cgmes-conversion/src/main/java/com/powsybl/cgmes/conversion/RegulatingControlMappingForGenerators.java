@@ -68,6 +68,10 @@ public class RegulatingControlMappingForGenerators {
         if (isControlModeVoltage(control.mode)) {
             RegulatingControlVoltage gcv = getRegulatingControlVoltage(controlId, control, rc.qPercent, gen);
             apply(gcv, gen);
+            if (gcv != null) {
+                // To write warning messages in the logger for regulating controls remaining in the cache
+                parent.cachedRegulatingControls().remove(controlId);
+            }
         } else {
             context.ignored(control.mode, String.format("Unsupported regulation mode for generator %s", gen.getId()));
         }
