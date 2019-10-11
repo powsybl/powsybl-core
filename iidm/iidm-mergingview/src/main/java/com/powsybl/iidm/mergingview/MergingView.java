@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -57,10 +57,9 @@ import org.slf4j.LoggerFactory;
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public final class MergingView implements Network {
-    /** Logger */
-    private static final Logger LOGGER = LoggerFactory.getLogger(MergingView.class);
+    public static final PowsyblException NOT_IMPLEMENTED_EXCEPTION = new PowsyblException("Not implemented exception");
 
-    public static final PowsyblException NOT_IMPLEMENTED_EXCEPTION = new PowsyblException("Not implemented extension");
+    private static final Logger LOGGER = LoggerFactory.getLogger(MergingView.class);
 
     /** Indexing of all Identifiable into current merging view */
     private final MergingViewIndex index;
@@ -77,9 +76,9 @@ public final class MergingView implements Network {
 
         index = new MergingViewIndex(this);
         // Use working network as temporary Network as a merging network
-        this.workingNetwork = factory.createNetwork("workingNetwork", "iidm");
+        workingNetwork = factory.createNetwork("workingNetwork", "iidm");
         // Add working network as merging network
-        index.checkAndAdd(this.workingNetwork);
+        index.checkAndAdd(workingNetwork);
         workingNetwork.addListener(listener);
     }
 
@@ -115,13 +114,19 @@ public final class MergingView implements Network {
     @Override
     public String getId() {
         // Only get merging Networks (do not use Working Network)
-        return index.getMergingNetworkStream().filter(n -> !workingNetwork.equals(n)).map(Identifiable::getId).collect(Collectors.joining(", "));
+        return index.getMergingNetworkStream()
+                .filter(n -> !workingNetwork.equals(n))
+                .map(Identifiable::getId)
+                .collect(Collectors.joining(", "));
     }
 
     @Override
     public String getName() {
         // Only get merging Networks (do not use Working Network)
-        return index.getMergingNetworkStream().filter(n -> !workingNetwork.equals(n)).map(Identifiable::getName).collect(Collectors.joining(", "));
+        return index.getMergingNetworkStream()
+                .filter(n -> !workingNetwork.equals(n))
+                .map(Identifiable::getName)
+                .collect(Collectors.joining(", "));
     }
 
     @Override
@@ -148,17 +153,20 @@ public final class MergingView implements Network {
 
     @Override
     public boolean hasProperty() {
-        return index.getMergingNetworkStream().anyMatch(n -> n.hasProperty());
+        return index.getMergingNetworkStream()
+                .anyMatch(Network::hasProperty);
     }
 
     @Override
     public boolean hasProperty(final String key) {
-        return index.getMergingNetworkStream().anyMatch(n -> n.hasProperty(key));
+        return index.getMergingNetworkStream()
+                .anyMatch(n -> n.hasProperty(key));
     }
 
     @Override
     public String getProperty(final String key) {
-        return index.getMergingNetworkStream().map(n -> n.getProperty(key))
+        return index.getMergingNetworkStream()
+                .map(n -> n.getProperty(key))
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
@@ -166,7 +174,8 @@ public final class MergingView implements Network {
 
     @Override
     public String getProperty(final String key, final String defaultValue) {
-        return index.getMergingNetworkStream().map(n -> n.getProperty(key, defaultValue))
+        return index.getMergingNetworkStream()
+                .map(n -> n.getProperty(key, defaultValue))
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(defaultValue);
@@ -180,7 +189,8 @@ public final class MergingView implements Network {
 
     @Override
     public Set<String> getPropertyNames() {
-        return index.getMergingNetworkStream().map(Network::getPropertyNames)
+        return index.getMergingNetworkStream()
+                .map(Network::getPropertyNames)
                 .flatMap(Set<String>::stream)
                 .collect(Collectors.toSet());
     }
@@ -189,8 +199,10 @@ public final class MergingView implements Network {
     public String getSourceFormat() {
         String format = "hybrid";
         // If all Merging Network has same format
-        final Set<String> formats = index.getMergingNetworkStream().map(Network::getSourceFormat).collect(Collectors.toSet());
-        if (formats.size() <= 1) {
+        final Set<String> formats = index.getMergingNetworkStream()
+                .map(Network::getSourceFormat)
+                .collect(Collectors.toSet());
+        if (formats.size() == 1) {
             format = formats.iterator().next();
         }
         return format;
@@ -200,7 +212,8 @@ public final class MergingView implements Network {
     public Set<Country> getCountries() {
         return getSubstationStream()
                 .map(Substation::getCountry)
-                .filter(Optional::isPresent).map(Optional::get)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toCollection(() -> EnumSet.noneOf(Country.class)));
     }
 
@@ -211,7 +224,8 @@ public final class MergingView implements Network {
 
     @Override
     public Identifiable<?> getIdentifiable(final String id) {
-        return index.getMergingNetworkStream().map(n -> n.getIdentifiable(id))
+        return index.getMergingNetworkStream()
+                .map(n -> n.getIdentifiable(id))
                 .filter(Objects::nonNull)
                 .map(index::getIdentifiable)
                 .findFirst()
@@ -245,8 +259,7 @@ public final class MergingView implements Network {
 
     @Override
     public Iterable<Substation> getSubstations(final Country country, final String tsoId, final String... geographicalTags) {
-        return getSubstations(Optional.ofNullable(country).map(Country::getName)
-                .orElse(null), tsoId, geographicalTags);
+        return getSubstations(Optional.ofNullable(country).map(Country::getName).orElse(null), tsoId, geographicalTags);
     }
 
     @Override
@@ -269,7 +282,10 @@ public final class MergingView implements Network {
 
     @Override
     public Substation getSubstation(final String id) {
-        return getSubstationStream().filter(s -> id.compareTo(s.getId()) == 0).findFirst().orElse(null);
+        return getSubstationStream()
+                .filter(s -> id.compareTo(s.getId()) == 0)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override

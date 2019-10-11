@@ -1,10 +1,12 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.iidm.mergingview;
+
+import java.util.Objects;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.SubstationAdder;
@@ -14,18 +16,18 @@ import com.powsybl.iidm.network.SubstationAdder;
  */
 class SubstationAdderAdapter implements SubstationAdder {
 
-    private final SubstationAdder internal;
+    private final SubstationAdder delegate;
 
     private final MergingViewIndex index;
 
-    SubstationAdderAdapter(final SubstationAdder internal, final MergingViewIndex index) {
-        this.internal = internal;
-        this.index = index;
+    SubstationAdderAdapter(final SubstationAdder delegate, final MergingViewIndex index) {
+        this.delegate = Objects.requireNonNull(delegate, "delegate is null");
+        this.index = Objects.requireNonNull(index, "merging view index is null");
     }
 
     @Override
     public SubstationAdapter add() {
-        return index.getSubstation(internal.add());
+        return index.getSubstation(delegate.add());
     }
 
     // -------------------------------
@@ -33,37 +35,37 @@ class SubstationAdderAdapter implements SubstationAdder {
     // -------------------------------
     @Override
     public SubstationAdderAdapter setId(final String id) {
-        this.internal.setId(id);
+        delegate.setId(id);
         return this;
     }
 
     @Override
     public SubstationAdderAdapter setEnsureIdUnicity(final boolean ensureIdUnicity) {
-        this.internal.setEnsureIdUnicity(ensureIdUnicity);
+        delegate.setEnsureIdUnicity(ensureIdUnicity);
         return this;
     }
 
     @Override
     public SubstationAdderAdapter setName(final String name) {
-        this.internal.setName(name);
+        delegate.setName(name);
         return this;
     }
 
     @Override
     public SubstationAdderAdapter setCountry(final Country country) {
-        this.internal.setCountry(country);
+        delegate.setCountry(country);
         return this;
     }
 
     @Override
     public SubstationAdderAdapter setTso(final String tso) {
-        this.internal.setTso(tso);
+        delegate.setTso(tso);
         return this;
     }
 
     @Override
     public SubstationAdderAdapter setGeographicalTags(final String... tags) {
-        this.internal.setGeographicalTags(tags);
+        delegate.setGeographicalTags(tags);
         return this;
     }
 }

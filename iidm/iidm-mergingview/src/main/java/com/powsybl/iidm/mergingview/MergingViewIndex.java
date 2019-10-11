@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -36,9 +36,8 @@ class MergingViewIndex {
 
     /** Constructor */
     MergingViewIndex(final MergingView currentView) {
-        Objects.requireNonNull(currentView);
         // Keep reference on current view
-        this.currentView = currentView;
+        this.currentView = Objects.requireNonNull(currentView);
     }
 
     /** @return current merging view instance */
@@ -77,7 +76,8 @@ class MergingViewIndex {
     /** @return all adapters according to all Identifiables */
     Stream<Identifiable<?>> getIdentifiableStream() {
         // Search into merging & working networks and return Adapters
-        return getMergingNetworkStream().map(Network::getIdentifiables)
+        return getMergingNetworkStream()
+                .map(Network::getIdentifiables)
                 .filter(n -> !(n instanceof Network))
                 .flatMap(Collection::stream)
                 .map(this::getIdentifiable);
@@ -92,7 +92,8 @@ class MergingViewIndex {
     /** @return all Adapters according to all Substations into merging view */
     Collection<Substation> getSubstations() {
         // Search Substations into merging & working networks and return Adapters
-        return getMergingNetworkStream().flatMap(Network::getSubstationStream)
+        return getMergingNetworkStream()
+                .flatMap(Network::getSubstationStream)
                 .map(this::getSubstation)
                 .collect(Collectors.toSet());
     }

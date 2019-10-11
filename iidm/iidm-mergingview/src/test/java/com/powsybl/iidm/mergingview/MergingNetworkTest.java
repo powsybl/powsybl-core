@@ -1,10 +1,9 @@
 /**
- * Copyright (c) 2018, RTE (http://www.rte-france.com)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
 package com.powsybl.iidm.mergingview;
 
 import static org.junit.Assert.assertEquals;
@@ -26,6 +25,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+/**
+ * @author Thomas Adam <tadam at silicom.fr>
+ */
 public class MergingNetworkTest {
 
     @Rule
@@ -95,6 +97,9 @@ public class MergingNetworkTest {
         assertFalse(mergingView.getSubstations(Country.FR, "RTE", "B").iterator().hasNext());
 
         // Not implemented yet !
+        thrown.expect(PowsyblException.class);
+        thrown.expectMessage("Not implemented exception");
+
         TestUtil.notImplemented(mergingView::getVariantManager);
         TestUtil.notImplemented(mergingView::getVoltageLevels);
         TestUtil.notImplemented(mergingView::getVoltageLevelStream);

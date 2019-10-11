@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -42,8 +42,8 @@ import com.powsybl.iidm.network.util.ShortIdDictionary;
  */
 class VoltageLevelAdapter extends AbstractAdapter<VoltageLevel> implements VoltageLevel {
 
-    public VoltageLevelAdapter(final VoltageLevel internal, final MergingViewIndex index) {
-        super(internal, index);
+    public VoltageLevelAdapter(final VoltageLevel delegate, final MergingViewIndex index) {
+        super(delegate, index);
     }
 
     @Override

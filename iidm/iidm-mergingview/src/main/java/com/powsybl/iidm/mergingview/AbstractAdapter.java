@@ -1,10 +1,9 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
 package com.powsybl.iidm.mergingview;
 
 import java.util.Collection;
@@ -24,11 +23,11 @@ abstract class AbstractAdapter<I extends Identifiable<I>> implements Identifiabl
     private final MergingViewIndex index;
 
     protected AbstractAdapter(final I delegate, final MergingViewIndex index) {
-        Objects.requireNonNull(delegate, "delegate is null");
-        this.delegate = delegate;
-        this.index = index;
+        this.delegate = Objects.requireNonNull(delegate, "delegate is null");
+        this.index = Objects.requireNonNull(index, "merging view index is null");
     }
 
+    @Override
     public MergingView getNetwork() {
         return index.getView();
     }
