@@ -355,6 +355,7 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNull(tx1s.getCurrentLimits2());
     }
 
+    @Test
     public void miniNodeBreakerInvalidT2w() {
         platformConfig.createModuleConfig("import-export-parameters-default-value")
                 .setStringProperty("iidm.import.cgmes.convert-boundary", "true");
