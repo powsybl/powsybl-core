@@ -411,6 +411,12 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(new CgmesImport(platformConfig).importData(catalogModified.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter().dataSource(), null));
     }
 
+    @Test
+    public void smallNodeBreakerHvdcVscReactiveQPcc() {
+        // Small Grid Node Breaker HVDC modified so VSC converter are regulating in reactive power and not in voltage
+        assertNotNull(new CgmesImport(platformConfig).importData(catalogModified.smallNodeBreakerHvdcVscReactiveQPcc().dataSource(), null));
+    }
+
     private static CgmesConformity1Catalog catalog;
     private static CgmesConformity1ModifiedCatalog catalogModified;
 

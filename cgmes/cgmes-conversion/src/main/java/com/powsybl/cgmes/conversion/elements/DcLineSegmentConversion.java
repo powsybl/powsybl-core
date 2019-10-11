@@ -213,7 +213,7 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         double r = p.asDouble("r", 0);
         if (r < 0) {
             double r1 = 0.1;
-            fixed("resistance", "was zero", r, r1);
+            fixed("resistance", "was negative", r, r1);
             r = r1;
         }
         return r;
