@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
@@ -37,7 +38,7 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
         }
 
         GeneratorAdder adder = voltageLevel().newGenerator();
-        context.regulatingControlMapping().setRegulatingControl(iidmId(), p, adder, voltageLevel());
+        RegulatingControlMappingForGenerators.initialize(adder);
         adder.setMinP(minP)
                 .setMaxP(maxP)
                 .setTargetP(targetP)
@@ -48,5 +49,8 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
         Generator g = adder.add();
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
+
+        context.regulatingControlMapping().forGenerators().add(g.getId(), p);
     }
+
 }

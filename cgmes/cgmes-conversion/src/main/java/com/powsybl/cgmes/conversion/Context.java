@@ -48,7 +48,6 @@ public class Context {
         currentLimitsMapping = new CurrentLimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping();
-
         ratioTapChangerTables = new HashMap<>();
         reactiveCapabilityCurveData = new HashMap<>();
     }
