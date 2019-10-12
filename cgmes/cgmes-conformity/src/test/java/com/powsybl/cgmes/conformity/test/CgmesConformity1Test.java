@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conformity.test;
 
 import java.io.IOException;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.powsybl.cgmes.model.test.CgmesModelTester;
@@ -19,50 +18,43 @@ import com.powsybl.cgmes.model.test.CgmesModelTester;
  */
 public class CgmesConformity1Test {
 
-    @BeforeClass
-    public static void setUp() {
-        catalog = new CgmesConformity1Catalog();
-    }
-
     @Test
     public void microGridBaseCaseBE() throws IOException {
-        new CgmesModelTester(catalog.microGridBaseCaseBE()).test();
+        new CgmesModelTester(CgmesConformity1Catalog.microGridBaseCaseBE()).test();
     }
 
     @Test
     public void microGridBaseCaseNL() throws IOException {
-        new CgmesModelTester(catalog.microGridBaseCaseNL()).test();
+        new CgmesModelTester(CgmesConformity1Catalog.microGridBaseCaseNL()).test();
     }
 
     @Test
     public void microGridBaseCaseAssembled() throws IOException {
-        new CgmesModelTester(catalog.microGridBaseCaseAssembled()).test();
+        new CgmesModelTester(CgmesConformity1Catalog.microGridBaseCaseAssembled()).test();
     }
 
     @Test
     public void microGridType4BE() throws IOException {
-        new CgmesModelTester(catalog.microGridType4BE()).test();
+        new CgmesModelTester(CgmesConformity1Catalog.microGridType4BE()).test();
     }
 
     @Test
     public void miniBusBranch() throws IOException {
-        new CgmesModelTester(catalog.miniBusBranch()).test();
+        new CgmesModelTester(CgmesConformity1Catalog.miniBusBranch()).test();
     }
 
     @Test
     public void miniNodeBreaker() throws IOException {
-        new CgmesModelTester(catalog.miniNodeBreaker()).test();
+        new CgmesModelTester(CgmesConformity1Catalog.miniNodeBreaker()).test();
     }
 
     @Test
     public void smallBusBranch() throws IOException {
-        new CgmesModelTester(catalog.smallBusBranch()).test();
+        new CgmesModelTester(CgmesConformity1Catalog.smallBusBranch()).test();
     }
 
     @Test
     public void smallNodeBreaker() throws IOException {
-        new CgmesModelTester(catalog.smallNodeBreaker()).test();
+        new CgmesModelTester(CgmesConformity1Catalog.smallNodeBreaker()).test();
     }
-
-    private static CgmesConformity1Catalog catalog;
 }
