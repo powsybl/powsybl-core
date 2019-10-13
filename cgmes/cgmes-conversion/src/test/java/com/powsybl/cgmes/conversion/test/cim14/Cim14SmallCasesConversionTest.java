@@ -23,8 +23,6 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 public class Cim14SmallCasesConversionTest {
     @BeforeClass
     public static void setUp() {
-        actuals = new Cim14SmallCasesCatalog();
-        expected = new Cim14SmallCasesNetworkCatalog();
         tester = new ConversionTester(
                 TripleStoreFactory.onlyDefaultImplementation(),
                 new ComparisonConfig()
@@ -36,30 +34,28 @@ public class Cim14SmallCasesConversionTest {
 
     @Test
     public void txMicroBEAdapted() throws IOException {
-        tester.testConversion(expected.txMicroBEAdapted(), actuals.txMicroBEAdapted());
+        tester.testConversion(Cim14SmallCasesNetworkCatalog.txMicroBEAdapted(), Cim14SmallCasesCatalog.txMicroBEAdapted());
     }
 
     @Test
     public void smallcase1() throws IOException {
-        tester.testConversion(expected.smallcase1(), actuals.small1());
+        tester.testConversion(Cim14SmallCasesNetworkCatalog.smallcase1(), Cim14SmallCasesCatalog.small1());
     }
 
     @Test
     public void ieee14() throws IOException {
-        tester.testConversion(expected.ieee14(), actuals.ieee14());
+        tester.testConversion(Cim14SmallCasesNetworkCatalog.ieee14(), Cim14SmallCasesCatalog.ieee14());
     }
 
     @Test
     public void nordic32() throws IOException {
-        tester.testConversion(expected.nordic32(), actuals.nordic32());
+        tester.testConversion(Cim14SmallCasesNetworkCatalog.nordic32(), Cim14SmallCasesCatalog.nordic32());
     }
 
     @Test
     public void m7buses() throws IOException {
-        tester.testConversion(expected.m7buses(), actuals.m7buses());
+        tester.testConversion(Cim14SmallCasesNetworkCatalog.m7buses(), Cim14SmallCasesCatalog.m7buses());
     }
 
-    private static Cim14SmallCasesCatalog actuals;
-    private static Cim14SmallCasesNetworkCatalog expected;
     private static ConversionTester tester;
 }
