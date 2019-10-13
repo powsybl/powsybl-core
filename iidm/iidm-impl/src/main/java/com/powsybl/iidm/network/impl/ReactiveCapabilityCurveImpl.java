@@ -83,9 +83,11 @@ public class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         Objects.requireNonNull(points);
         TreeMap<Double, Point> pointMap = Arrays.stream(points)
                 .collect(Collectors.toMap(PointImpl::getP,
-                                          Function.identity(),
-                                          (point, point2) -> { throw new IllegalArgumentException("Duplicate point at p=" + point.getP()); },
-                                          TreeMap::new));
+                    Function.identity(),
+                    (point, point2) -> {
+                        throw new IllegalArgumentException("Duplicate point at p=" + point.getP());
+                    },
+                    TreeMap::new));
         return new ReactiveCapabilityCurveImpl(pointMap);
     }
 
