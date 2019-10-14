@@ -129,12 +129,16 @@ public class RegulatingControlMappingForTransformers {
 
             applyRatioTapChanger(rcaRatio, twt.getRatioTapChanger());
             applyPhaseTapChanger(rcaPhase, twt.getPhaseTapChanger());
+            removeRatioControlIdFromCachedRegulatingControls(rcaRatio,rc.ratioTapChanger.regulatingControlId);
+            removePhaseControlIdFromCachedRegulatingControls(rcaPhase,rc.phaseTapChanger.regulatingControlId);
         } else if (twt.getRatioTapChanger() != null) {
             RegulatingControlRatioAttributes rca = getRatioTapChanger(rc.ratioTapChanger);
             applyRatioTapChanger(rca, twt.getRatioTapChanger());
+            removeRatioControlIdFromCachedRegulatingControls(rca,rc.ratioTapChanger.regulatingControlId);
         } else if (twt.getPhaseTapChanger() != null) {
             RegulatingControlPhaseAttributes rca = getPhaseTapChanger(rc.phaseTapChanger);
             applyPhaseTapChanger(rca, twt.getPhaseTapChanger());
+            removePhaseControlIdFromCachedRegulatingControls(rca,rc.phaseTapChanger.regulatingControlId);
         }
     }
 
@@ -277,6 +281,17 @@ public class RegulatingControlMappingForTransformers {
             .setRegulationValue(rca.targetValue)
             .setRegulationMode(rca.regulationMode);
         ptc.setRegulating(rca.regulating);
+    }
+
+    private void removeRatioControlIdFromCachedRegulatingControls(RegulatingControlRatioAttributes rcaRatio, String controlId) {
+        if (rcaRatio != null) {
+            parent.cachedRegulatingControls().remove(controlId);
+        }
+    }
+    private void removePhaseControlIdFromCachedRegulatingControls(RegulatingControlPhaseAttributes rcaPhase, String controlId) {
+        if (rcaPhase != null) {
+            parent.cachedRegulatingControls().remove(controlId);
+        }
     }
 
     private String getRegulatingControlId(PropertyBag p) {
