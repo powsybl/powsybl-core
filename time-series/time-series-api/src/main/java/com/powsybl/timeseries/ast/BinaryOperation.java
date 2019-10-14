@@ -10,13 +10,12 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.timeseries.TimeSeriesException;
+import com.powsybl.timeseries.ast.NodeCalcVisitors.NodeWrapper;
 
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Deque;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -130,9 +129,10 @@ public class BinaryOperation implements NodeCalc {
     }
 
     @Override
-    public <R, A> List<NodeCalc> acceptIterate(NodeCalcVisitor<R, A> visitor, A arg) {
+    public <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<NodeWrapper> visitQueue) {
         Pair<NodeCalc, NodeCalc> p = visitor.iterate(this, arg);
-        return Arrays.asList(p.getLeft(), p.getRight());
+        visitQueue.push(new NodeWrapper(p.getRight()));
+        visitQueue.push(new NodeWrapper(p.getLeft()));
     }
 
     @Override

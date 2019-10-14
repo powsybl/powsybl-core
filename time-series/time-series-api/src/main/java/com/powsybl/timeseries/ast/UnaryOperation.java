@@ -10,11 +10,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.timeseries.TimeSeriesException;
+import com.powsybl.timeseries.ast.NodeCalcVisitors.NodeWrapper;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Deque;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -71,8 +70,8 @@ public class UnaryOperation extends AbstractSingleChildNodeCalc {
     }
 
     @Override
-    public <R, A> List<NodeCalc> acceptIterate(NodeCalcVisitor<R, A> visitor, A arg) {
-        return Arrays.asList(visitor.iterate(this, arg));
+    public <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<NodeWrapper> visitQueue) {
+        visitQueue.push(new NodeWrapper(visitor.iterate(this, arg)));
     }
 
     @Override

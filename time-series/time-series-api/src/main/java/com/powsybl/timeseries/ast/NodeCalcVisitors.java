@@ -7,7 +7,6 @@
 package com.powsybl.timeseries.ast;
 
 import java.util.ArrayDeque;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -65,11 +64,7 @@ public final class NodeCalcVisitors {
     private static <A, R> void iterate(A arg, NodeCalcVisitor<R, A> visitor, ArrayDeque<NodeWrapper> visitQueue,
             NodeWrapper nodeWrapper) {
         if (nodeWrapper.node != null) {
-            List<NodeCalc> children = nodeWrapper.node.acceptIterate(visitor, arg);
-            int size = children.size();
-            for (int i = size - 1; i >= 0; i--) {
-                visitQueue.push(new NodeWrapper(children.get(i)));
-            }
+            nodeWrapper.node.acceptIterate(visitor, arg, visitQueue);
         }
     }
 
@@ -79,7 +74,7 @@ public final class NodeCalcVisitors {
         childrenQueue.push(Optional.ofNullable(result));
     }
 
-    private static class NodeWrapper {
+    static class NodeWrapper {
 
         private NodeCalc node;
         private boolean afterChildren;
