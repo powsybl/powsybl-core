@@ -225,17 +225,13 @@ public class RegulatingControlMappingForTransformers {
     private RegulatingControlPhaseAttributes getPtcRegulatingControlCurrentFlow(boolean tapChangerControlEnabled,
         boolean ltcFlag, RegulatingControl control, Context context) {
         RegulatingControlPhaseAttributes rca = getPtcRegulatingControl(tapChangerControlEnabled, control, context);
-        rca = setRegulatingMode(rca, ltcFlag, PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
-
-        return rca;
+        return setRegulatingMode(rca, ltcFlag, PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
     }
 
     private RegulatingControlPhaseAttributes getPtcRegulatingControlActivePower(boolean tapChangerControlEnabled,
         boolean ltcFlag, RegulatingControl control, Context context) {
         RegulatingControlPhaseAttributes rca = getPtcRegulatingControl(tapChangerControlEnabled, control, context);
-        rca = setRegulatingMode(rca, ltcFlag, PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
-
-        return rca;
+        return setRegulatingMode(rca, ltcFlag, PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
     }
 
     private RegulatingControlPhaseAttributes getPtcRegulatingControl(boolean tapChangerControlEnabled,
