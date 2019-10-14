@@ -156,8 +156,7 @@ public class RegulatingControlMapping {
             adder.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
                 .setReactivePowerSetPoint(p.asDouble("q"));
         } else {
-            context.fixed("SVCControlMode", String
-                .format("Invalid control mode for static var compensator %s. Regulating control is disabled", idEq));
+            context.fixed("SVCControlMode", String.format("Invalid control mode for static var compensator %s. Regulating control is disabled", idEq));
             adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
         }
     }
@@ -254,7 +253,6 @@ public class RegulatingControlMapping {
 
         cachedRegulatingControls.forEach((key, value) -> context.pending("Regulating terminal",
             String.format("The setting of the regulating terminal of the regulating control %s is not entirely handled.", key)));
-
         cachedRegulatingControls.clear();
     }
 
