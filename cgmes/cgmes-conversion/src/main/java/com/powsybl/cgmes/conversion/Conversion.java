@@ -122,9 +122,6 @@ public class Conversion {
         // set all regulating controls
         context.regulatingControlMapping().setAllRegulatingControls(network);
 
-        // set all regulating controls
-        context.regulatingControlMapping().setAllRegulatingControls(network);
-
         if (config.convertSvInjections()) {
             convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
         }
