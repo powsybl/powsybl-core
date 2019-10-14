@@ -10,8 +10,10 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -29,8 +31,8 @@ public class MinNodeCalc extends AbstractMinMaxNodeCalc {
     }
 
     @Override
-    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, List<R> children) {
-        return visitor.visit(this, arg, children.get(0));
+    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, Deque<Optional<R>> children) {
+        return visitor.visit(this, arg, children.pop().orElse(null));
     }
 
     @Override

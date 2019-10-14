@@ -15,8 +15,10 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -122,8 +124,9 @@ public class BinaryOperation implements NodeCalc {
     }
 
     @Override
-    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, List<R> children) {
-        return visitor.visit(this, arg, children.get(0), children.get(1));
+    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, Deque<Optional<R>> children) {
+        R other = children.pop().orElse(null);
+        return visitor.visit(this, arg, children.pop().orElse(null), other);
     }
 
     @Override
