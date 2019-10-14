@@ -25,13 +25,6 @@ public class SecurityAnalysisImplProvider implements SecurityAnalysisProvider {
     private static final String PROVIDER_VERSION = "1.0";
 
     @Override
-    public CompletableFuture<SecurityAnalysisResult> run(Network network, ComputationManager computationManager, String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
-        SecurityAnalysisImpl securityAnalysis = new SecurityAnalysisImpl(network, computationManager);
-        interceptors.forEach(securityAnalysis::addInterceptor);
-        return securityAnalysis.run(workingVariantId, parameters, contingenciesProvider);
-    }
-
-    @Override
     public CompletableFuture<SecurityAnalysisResult> run(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
                                                          ComputationManager computationManager, String workingVariantId,
                                                          SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider,

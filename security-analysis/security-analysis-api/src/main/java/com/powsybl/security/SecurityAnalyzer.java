@@ -98,7 +98,10 @@ public class SecurityAnalyzer {
         network.getVariantManager().allowVariantMultiThreadAccess(true);
 
         String id = network.getVariantManager().getWorkingVariantId();
-        return SecurityAnalysis.find().run(network, filter, computationManager,
-                id, parameters, contingenciesProvider, new ArrayList<>(interceptors)).join();
+        return SecurityAnalysis.find()
+                .with(filter)
+                .with(id)
+                .with(new ArrayList<>(interceptors))
+                .run(network, computationManager, parameters, contingenciesProvider).join();
     }
 }

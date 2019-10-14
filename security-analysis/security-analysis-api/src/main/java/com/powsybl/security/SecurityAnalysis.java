@@ -16,7 +16,6 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -51,94 +50,90 @@ public final class SecurityAnalysis {
 
         private final SecurityAnalysisProvider provider;
 
-        public static Runner initByProvider(SecurityAnalysisProvider provider) {
-            return new Runner(provider);
-        }
+        private LimitViolationDetector detector;
+        private LimitViolationFilter filter;
+        private String workingVariantId;
+        private List<SecurityAnalysisInterceptor> interceptors;
 
         public Runner(SecurityAnalysisProvider provider) {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<SecurityAnalysisResult> run(Network network,
-                                                             ComputationManager computationManager,
-                                                             String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider,
-                                                             List<SecurityAnalysisInterceptor> interceptors) {
-            return provider.run(network, computationManager, workingVariantId, parameters, contingenciesProvider, interceptors);
+        public Runner with(LimitViolationDetector detector) {
+            this.detector = Objects.requireNonNull(detector);
+            return this;
         }
 
-        public CompletableFuture<SecurityAnalysisResult> run(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
-                                                             ComputationManager computationManager,
-                                                             String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider,
-                                                             List<SecurityAnalysisInterceptor> interceptors) {
-            return provider.run(network, detector, filter, computationManager, workingVariantId, parameters, contingenciesProvider, interceptors);
+        public Runner with(LimitViolationFilter filter) {
+            this.filter = Objects.requireNonNull(filter);
+            return this;
         }
 
-        public CompletableFuture<SecurityAnalysisResult> run(Network network, LimitViolationFilter filter,
-                                                             ComputationManager computationManager,
-                                                             String workingVariantId, SecurityAnalysisParameters parameters,
-                                                             ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
-            return provider.run(network, filter, computationManager, workingVariantId, parameters, contingenciesProvider, interceptors);
+        public Runner with(String workingVariantId) {
+            this.workingVariantId = Objects.requireNonNull(workingVariantId);
+            return this;
         }
 
-        public CompletableFuture<SecurityAnalysisResult> run(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
-                                                             ComputationManager computationManager,
-                                                             String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider) {
-            return provider.run(network, detector, filter, computationManager, workingVariantId, parameters, contingenciesProvider, Collections.emptyList());
+        public Runner with(List<SecurityAnalysisInterceptor> interceptors) {
+            this.interceptors = Objects.requireNonNull(interceptors);
+            return this;
         }
 
-        public CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
-                                                                           ComputationManager computationManager,
-                                                             String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider,
-                                                             List<SecurityAnalysisInterceptor> interceptors) {
-            return provider.runWithLog(network, detector, filter, computationManager, workingVariantId, parameters, contingenciesProvider, interceptors);
+        public CompletableFuture<SecurityAnalysisResult> run(Network network, ComputationManager computationManager,
+                                                             SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider) {
+            Objects.requireNonNull(network);
+            Objects.requireNonNull(computationManager);
+            Objects.requireNonNull(parameters);
+            Objects.requireNonNull(contingenciesProvider);
+            return provider.run(network, detector == null ? provider.getDefaultLimitViolationDetector() : detector,
+                    filter == null ? provider.getDefaultLimitViolationFilter() : filter, computationManager,
+                    workingVariantId == null ? network.getVariantManager().getWorkingVariantId() : workingVariantId,
+                    parameters, contingenciesProvider, interceptors == null ? provider.getDefaultInterceptors() : interceptors);
         }
 
-        public CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
-                                                                           ComputationManager computationManager,
-                                                             String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider) {
-            return provider.runWithLog(network, detector, filter, computationManager, workingVariantId, parameters, contingenciesProvider, Collections.emptyList());
+        /**
+         * To be consistent with {@link #run(Network, ComputationManager, SecurityAnalysisParameters, ContingenciesProvider)}, this method would also complete exceptionally
+         * if there are exceptions thrown. But the original exception would be wrapped in {@link com.powsybl.computation.ComputationException}, and those .out/.err log file's contents
+         * are be collected in the {@link com.powsybl.computation.ComputationException} too.
+         *
+         *
+         * <pre> {@code
+         * try {
+         *       SecurityAnalysisResultWithLog resultWithLog = SecurityAnalysis.find()
+         *                  .runWithLog(network, computationManager, parameters, contingenciesProvider).join();
+         *       result = resultWithLog.getResult();
+         *   } catch (CompletionException e) {
+         *       if (e.getCause() instanceof ComputationException) {
+         *           ComputationException computationException = (ComputationException) e.getCause();
+         *           System.out.println("Consume exception...");
+         *           computationException.getOutLogs().forEach((name, content) -> {
+         *               System.out.println("-----" + name + "----");
+         *               System.out.println(content);
+         *           });
+         *           computationException.getErrLogs().forEach((name, content) -> {
+         *               System.out.println("-----" + name + "----");
+         *               System.out.println(content);
+         *           });
+         *       }
+         *       throw e;
+         *   }
+         * }</pre>
+         * @param workingVariantId
+         * @param parameters
+         * @param contingenciesProvider
+         * @return
+         */
+        public CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(Network network, ComputationManager computationManager,
+                                                             SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider) {
+            Objects.requireNonNull(network);
+            Objects.requireNonNull(computationManager);
+            Objects.requireNonNull(parameters);
+            Objects.requireNonNull(contingenciesProvider);
+            return provider.runWithLog(network, detector == null ? provider.getDefaultLimitViolationDetector() : detector,
+                    filter == null ? provider.getDefaultLimitViolationFilter() : filter, computationManager,
+                    workingVariantId == null ? network.getVariantManager().getWorkingVariantId() : workingVariantId,
+                    parameters, contingenciesProvider, interceptors == null ? provider.getDefaultInterceptors() : interceptors);
         }
-    }
-
-    public static CompletableFuture<SecurityAnalysisResult> run(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
-                                                                ComputationManager computationManager, String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
-        return find().run(network, detector, filter, computationManager, workingVariantId, parameters, contingenciesProvider, interceptors);
-    }
-
-    /**
-     * To be consistent with {@link #run(Network, LimitViolationDetector, LimitViolationFilter, ComputationManager, String, SecurityAnalysisParameters, ContingenciesProvider, List)}, this method would also complete exceptionally
-     * if there are exceptions thrown. But the original exception would be wrapped in {@link com.powsybl.computation.ComputationException}, and those .out/.err log file's contents
-     * are be collected in the {@link com.powsybl.computation.ComputationException} too.
-     *
-     *
-     * <pre> {@code
-     * try {
-     *       SecurityAnalysisResultWithLog resultWithLog = SecurityAnalysis.runWithLog(network, detector, filter, computationManager, workingVariantId, parameters, contingenciesProvider, interceptors).join();
-     *       result = resultWithLog.getResult();
-     *   } catch (CompletionException e) {
-     *       if (e.getCause() instanceof ComputationException) {
-     *           ComputationException computationException = (ComputationException) e.getCause();
-     *           System.out.println("Consume exception...");
-     *           computationException.getOutLogs().forEach((name, content) -> {
-     *               System.out.println("-----" + name + "----");
-     *               System.out.println(content);
-     *           });
-     *           computationException.getErrLogs().forEach((name, content) -> {
-     *               System.out.println("-----" + name + "----");
-     *               System.out.println(content);
-     *           });
-     *       }
-     *       throw e;
-     *   }
-     * }</pre>
-     * @param workingVariantId
-     * @param parameters
-     * @param contingenciesProvider
-     * @return
-     */
-    public static CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
-                                                                              ComputationManager computationManager, String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
-        return run(network, detector, filter, computationManager, workingVariantId, parameters, contingenciesProvider, interceptors).thenApply(r -> new SecurityAnalysisResultWithLog(r, null));
     }
 
     /**

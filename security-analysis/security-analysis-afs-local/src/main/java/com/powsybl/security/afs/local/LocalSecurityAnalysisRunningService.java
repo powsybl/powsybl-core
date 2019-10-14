@@ -65,7 +65,10 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
             }
 
             logger.log("Running security analysis...");
-            SecurityAnalysis.find(securityAnalysisName).run(network, computationManager, network.getVariantManager().getWorkingVariantId(), parameters, contingencyListProvider, interceptors)
+            SecurityAnalysis.find(securityAnalysisName)
+                    .with(network.getVariantManager().getWorkingVariantId())
+                    .with(interceptors)
+                    .run(network, computationManager, parameters, contingencyListProvider)
                     .handleAsync((result, throwable) -> {
                         if (throwable == null) {
                             logger.log("Security analysis complete, storing results...");

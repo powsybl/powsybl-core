@@ -103,9 +103,11 @@ public class SecurityAnalysisTest {
         interceptors.add(new CurrentLimitViolationInterceptor());
 
         SecurityAnalysisResult result = SecurityAnalysis.find("SecurityAnalysisImpl")
-                .run(network, detector, filter, computationManager,
-                        VariantManagerConstants.INITIAL_VARIANT_ID,
-                        SecurityAnalysisParameters.load(platformConfig), contingenciesProvider, interceptors)
+                .with(detector)
+                .with(filter)
+                .with(VariantManagerConstants.INITIAL_VARIANT_ID)
+                .with(interceptors)
+                .run(network, computationManager, SecurityAnalysisParameters.load(platformConfig), contingenciesProvider)
                 .join();
         assertTrue(result.getPreContingencyResult().isComputationOk());
         assertEquals(0, result.getPreContingencyResult().getLimitViolations().size());

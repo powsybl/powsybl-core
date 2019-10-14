@@ -27,6 +27,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
@@ -36,6 +38,7 @@ public class SecurityAnalysisExecutionBuilderTest {
     private SecurityAnalysis analysis;
     private static AtomicReference<ContingenciesProvider> actualProvider;
     private SecurityAnalysisExecutionBuilder builder;
+    private SecurityAnalysisExecutionInput input;
 
     @Before
     public void setUp() {
@@ -43,11 +46,18 @@ public class SecurityAnalysisExecutionBuilderTest {
         Contingency contingency = new Contingency("cont");
         ContingenciesProvider provider = network -> Collections.nCopies(10, contingency);
 
+        NetworkVariant networkVariant = mock(NetworkVariant.class);
+        Network network = mock(Network.class);
+        input = mock(SecurityAnalysisExecutionInput.class);
+        when(input.getNetworkVariant()).thenReturn(networkVariant);
+        when(networkVariant.getNetwork()).thenReturn(network);
+        when(networkVariant.getVariantId()).thenReturn("mock");
+
         actualProvider = new AtomicReference<>();
 
         builder = new SecurityAnalysisExecutionBuilder(ExternalSecurityAnalysisConfig::new,
                 "BuilderTestProvider",
-            execInput -> new SecurityAnalysisInput(Mockito.mock(NetworkVariant.class))
+            execInput -> new SecurityAnalysisInput(networkVariant)
                         .setContingencies(provider));
     }
 
@@ -56,7 +66,7 @@ public class SecurityAnalysisExecutionBuilderTest {
         SecurityAnalysisExecution execution = builder.build();
         assertTrue(execution instanceof SecurityAnalysisExecutionImpl);
 
-        execution.execute(Mockito.mock(ComputationManager.class), new SecurityAnalysisExecutionInput());
+        execution.execute(mock(ComputationManager.class), input);
 
         assertNotNull(actualProvider.get());
         assertEquals(10, actualProvider.get().getContingencies(null).size());
@@ -86,7 +96,7 @@ public class SecurityAnalysisExecutionBuilderTest {
         SecurityAnalysisExecution execution = builder.subTask(new Partition(1, 2)).build();
         assertTrue(execution instanceof SecurityAnalysisExecutionImpl);
 
-        execution.execute(Mockito.mock(ComputationManager.class), new SecurityAnalysisExecutionInput());
+        execution.execute(Mockito.mock(ComputationManager.class), input);
 
         assertNotNull(actualProvider.get());
         assertEquals(5, actualProvider.get().getContingencies(null).size());

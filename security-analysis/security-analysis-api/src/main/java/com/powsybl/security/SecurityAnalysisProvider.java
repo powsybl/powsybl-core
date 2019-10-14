@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -20,27 +21,6 @@ import java.util.concurrent.CompletableFuture;
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public interface SecurityAnalysisProvider extends Versionable {
-
-    default CompletableFuture<SecurityAnalysisResult> run(Network network,
-                                                  ComputationManager computationManager, String workingVariantId,
-                                                  SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider,
-                                                  List<SecurityAnalysisInterceptor> interceptors) {
-        return run(network, new DefaultLimitViolationDetector(), computationManager, workingVariantId, parameters, contingenciesProvider, interceptors);
-    }
-
-    default CompletableFuture<SecurityAnalysisResult> run(Network network, LimitViolationDetector detector,
-                                                  ComputationManager computationManager, String workingVariantId,
-                                                  SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider,
-                                                  List<SecurityAnalysisInterceptor> interceptors) {
-        return run(network, detector, new LimitViolationFilter(), computationManager, workingVariantId, parameters, contingenciesProvider, interceptors);
-    }
-
-    default CompletableFuture<SecurityAnalysisResult> run(Network network, LimitViolationFilter filter,
-                                                  ComputationManager computationManager, String workingVariantId,
-                                                  SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider,
-                                                  List<SecurityAnalysisInterceptor> interceptors) {
-        return run(network, new DefaultLimitViolationDetector(), new LimitViolationFilter(), computationManager, workingVariantId, parameters, contingenciesProvider, interceptors);
-    }
 
     CompletableFuture<SecurityAnalysisResult> run(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
                                                   ComputationManager computationManager, String workingVariantId,
@@ -52,6 +32,18 @@ public interface SecurityAnalysisProvider extends Versionable {
                                                                         SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider,
                                                                         List<SecurityAnalysisInterceptor> interceptors) {
         return run(network, detector, filter, computationManager, workingVariantId, parameters, contingenciesProvider, interceptors).thenApply(r -> new SecurityAnalysisResultWithLog(r, null));
+    }
+
+    default LimitViolationDetector getDefaultLimitViolationDetector() {
+        return new DefaultLimitViolationDetector();
+    }
+
+    default LimitViolationFilter getDefaultLimitViolationFilter() {
+        return new LimitViolationFilter();
+    }
+
+    default List<SecurityAnalysisInterceptor> getDefaultInterceptors() {
+        return Collections.emptyList();
     }
 
 }

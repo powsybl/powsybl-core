@@ -13,6 +13,7 @@ import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.SecurityAnalysisResultWithLog;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
 import static java.util.Objects.requireNonNull;
@@ -60,13 +61,21 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
     public CompletableFuture<SecurityAnalysisResult> execute(ComputationManager computationManager, SecurityAnalysisExecutionInput data) {
         SecurityAnalysisInput input = buildInput(data);
         return SecurityAnalysis.find(securityAnalysisName)
-                .run(input.getNetworkVariant().getNetwork(), input.getLimitViolationDetector(), input.getFilter(), computationManager, input.getNetworkVariant().getVariantId(), input.getParameters(), input.getContingenciesProvider());
+                .with(new ArrayList<>(input.getInterceptors()))
+                .with(input.getLimitViolationDetector())
+                .with(input.getFilter())
+                .with(input.getNetworkVariant().getVariantId())
+                .run(input.getNetworkVariant().getNetwork(), computationManager, input.getParameters(), input.getContingenciesProvider());
     }
 
     @Override
     public CompletableFuture<SecurityAnalysisResultWithLog> executeWithLog(ComputationManager computationManager, SecurityAnalysisExecutionInput data) {
         SecurityAnalysisInput input = buildInput(data);
         return SecurityAnalysis.find(securityAnalysisName)
-                .runWithLog(input.getNetworkVariant().getNetwork(), input.getLimitViolationDetector(), input.getFilter(), computationManager, input.getNetworkVariant().getVariantId(), input.getParameters(), input.getContingenciesProvider());
+                .with(new ArrayList<>(input.getInterceptors()))
+                .with(input.getLimitViolationDetector())
+                .with(input.getFilter())
+                .with(input.getNetworkVariant().getVariantId())
+                .runWithLog(input.getNetworkVariant().getNetwork(), computationManager, input.getParameters(), input.getContingenciesProvider());
     }
 }
