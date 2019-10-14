@@ -72,7 +72,7 @@ public abstract class AbstractScript<T extends AbstractScript> extends ProjectFi
             String includesScript = orderedDependencyManager
                     .getDependencies(INCLUDED_SCRIPTS_DEPENDENCY_NAME, AbstractScript.class)
                     .stream()
-                    // TODO add commented header for script ? (script project node name ?)
+                    // TODO(mathbagu) add commented header for script ? (script project node name ?)
                     .map(script -> script.readScript(true))
                     .collect(Collectors.joining(DEFAULT_SCRIPTS_DELIMITER));
             if (StringUtils.isNotBlank(includesScript)) {
@@ -95,7 +95,7 @@ public abstract class AbstractScript<T extends AbstractScript> extends ProjectFi
     @Override
     public void writeScript(String content) {
         try (Reader reader = new StringReader(content);
-            Writer writer = new OutputStreamWriter(storage.writeBinaryData(info.getId(), scriptContentName), StandardCharsets.UTF_8)) {
+             Writer writer = new OutputStreamWriter(storage.writeBinaryData(info.getId(), scriptContentName), StandardCharsets.UTF_8)) {
             CharStreams.copy(reader, writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.afs;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -11,14 +17,17 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
+ */
 public class OrderedDependencyManager {
 
-    private ProjectFile projectFile;
+    private final ProjectFile projectFile;
 
     private List<ProjectDependency<ProjectNode>> dependencyCache = null;
 
     public OrderedDependencyManager(ProjectFile projectFile) {
-        this.projectFile = projectFile;
+        this.projectFile = Objects.requireNonNull(projectFile);
         projectFile.addListener(new DefaultProjectFileListener() {
             @Override
             public void dependencyChanged(String name) {
@@ -46,8 +55,11 @@ public class OrderedDependencyManager {
     }
 
     public void removeDependencies(String name, List<String> nodeIds) {
-        List<ProjectNode> nodes = getDependencies(name);
-        setDependencies(name, nodes.stream().filter(dep -> !nodeIds.contains(dep.getId())).collect(Collectors.toList()));
+        List<ProjectNode> nodes = getDependencies(name)
+                .stream()
+                .filter(dep -> !nodeIds.contains(dep.getId()))
+                .collect(Collectors.toList());
+        setDependencies(name, nodes);
     }
 
     public void setDependencies(String name, List<ProjectNode> projectNodes) {
