@@ -38,7 +38,7 @@ public class RatioTapChangerToRatioTapChanger extends TwoWindingsTransformerToPo
 
             int tapPositionRTTC = newRatioTapChanger.getTapPosition();
             mapRTTC.put("ratioTapChanger.tapPosition", new CgmesPredicateDetails(
-                "cim:TapChanger.neutralStep", "_EQ", false, String.valueOf(tapPositionRTTC + 1), idRTC));
+                "cim:SvTapStep.continuousPosition", "_SV", false, String.valueOf(tapPositionRTTC), idRTC));
 
 //            int highTapPositionRTTC = newRatioTapChanger.getHighTapPosition();
             int highTapPositionRTTC = 2;

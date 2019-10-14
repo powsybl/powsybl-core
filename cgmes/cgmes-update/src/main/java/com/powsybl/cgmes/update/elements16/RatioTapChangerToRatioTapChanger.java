@@ -38,7 +38,9 @@ public class RatioTapChangerToRatioTapChanger extends TwoWindingsTransformerToPo
 
             int tapPositionRTTC = newRatioTapChanger.getTapPosition();
             mapRTTC.put("ratioTapChanger.tapPosition", new CgmesPredicateDetails(
-                "cim:TapChanger.neutralStep", "_EQ", false, String.valueOf(tapPositionRTTC + 1), idRTC));
+                    "cim:TapChanger.step", "_SSH", false, String.valueOf(tapPositionRTTC), idRTC));
+            mapRTTC.put("ratioTapChanger.tapPosition", new CgmesPredicateDetails(
+                    "cim:SvTapStep.position", "_SV", false, String.valueOf(tapPositionRTTC), idRTC));
 
             /**
              * RatioTapChangerTable TODO elena check names

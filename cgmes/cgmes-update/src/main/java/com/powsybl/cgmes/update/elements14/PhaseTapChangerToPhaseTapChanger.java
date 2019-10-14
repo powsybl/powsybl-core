@@ -38,7 +38,7 @@ public class PhaseTapChangerToPhaseTapChanger extends TwoWindingsTransformerToPo
 
             int tapPositionPHTC = newPhaseTapChanger.getTapPosition();
             mapPHTC.put("phaseTapChanger.tapPosition", new CgmesPredicateDetails(
-                "cim:TapChanger.neutralStep", "_EQ", false, String.valueOf(tapPositionPHTC + 1), idPTC));
+                "cim:SvTapStep.continuousPosition", "_SV", false, String.valueOf(tapPositionPHTC), idPTC));
 
             mapPHTC.put("phaseTapChanger.PhaseTapChangerTable", new CgmesPredicateDetails(
                 "cim:PhaseTapChangerTabular.PhaseTapChangerTable", "_EQ", true, idPTCtable, idPTC));
