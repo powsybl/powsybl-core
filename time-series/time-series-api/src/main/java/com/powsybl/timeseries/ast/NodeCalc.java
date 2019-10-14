@@ -14,8 +14,10 @@ import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,7 +26,7 @@ public interface NodeCalc {
 
     <R, A> List<NodeCalc> acceptIterate(NodeCalcVisitor<R, A> visitor, A arg);
 
-    <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, List<R> children);
+    <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, Deque<Optional<R>> childrenQueue);
 
     void writeJson(JsonGenerator generator) throws IOException;
 

@@ -7,8 +7,6 @@
 package com.powsybl.timeseries.ast;
 
 import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -72,26 +70,12 @@ public final class NodeCalcVisitors {
             for (int i = size - 1; i >= 0; i--) {
                 visitQueue.push(new NodeWrapper(children.get(i)));
             }
-            nodeWrapper.childCount = children.size();
-        } else {
-            nodeWrapper.childCount = 0;
         }
     }
 
-    @SuppressWarnings("unchecked")
     private static <R, A> void visit(A arg, NodeCalcVisitor<R, A> visitor, ArrayDeque<Optional<R>> childrenQueue,
             NodeWrapper nodeWrapper) {
-        List<R> results;
-        int size = nodeWrapper.childCount;
-        if (size > 0) {
-            results = (List<R>) Arrays.asList(new Object[size]);
-            for (int i = size - 1; i >= 0; i--) {
-                results.set(i, childrenQueue.pop().orElse(null));
-            }
-        } else {
-            results = Collections.emptyList();
-        }
-        R result = nodeWrapper.node != null ? nodeWrapper.node.acceptVisit(visitor, arg, results) : null;
+        R result = nodeWrapper.node != null ? nodeWrapper.node.acceptVisit(visitor, arg, childrenQueue) : null;
         childrenQueue.push(Optional.ofNullable(result));
     }
 
@@ -99,7 +83,6 @@ public final class NodeCalcVisitors {
 
         private NodeCalc node;
         private boolean afterChildren;
-        private int childCount;
 
         public NodeWrapper(NodeCalc node) {
             this.node = node;
