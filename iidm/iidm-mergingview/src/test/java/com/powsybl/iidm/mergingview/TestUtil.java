@@ -6,6 +6,10 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import static org.junit.Assert.fail;
+
+import com.powsybl.commons.PowsyblException;
+
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -15,6 +19,12 @@ public final class TestUtil {
     }
 
     static void notImplemented(final Runnable execute) {
-        execute.run();
+        // Using Try/catch in order to make sure executed code is covered by test
+        try {
+            execute.run();
+            fail("Implementation done -> this test must be updated");
+        } catch (final PowsyblException ex) {
+            // Ignored
+        }
     }
 }

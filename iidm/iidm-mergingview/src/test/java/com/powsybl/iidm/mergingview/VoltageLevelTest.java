@@ -10,7 +10,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ContainerType;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Substation;
@@ -18,24 +17,19 @@ import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class VoltageLevelTest {
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     private MergingView mergingView;
     private Substation substation;
 
     @Before
     public void setUp() {
-        mergingView = MergingView.create();
+        mergingView = MergingView.create("VoltageLevelTest", "iidm");
         substation = mergingView.newSubstation()
                 .setCountry(Country.AF)
                 .setTso("tso")
@@ -76,8 +70,6 @@ public class VoltageLevelTest {
         assertEquals(TopologyKind.BUS_BREAKER, voltageLevel.getTopologyKind());
 
         // Not implemented yet !
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Not implemented exception");
 
         // Generator
         TestUtil.notImplemented(voltageLevel::newGenerator);

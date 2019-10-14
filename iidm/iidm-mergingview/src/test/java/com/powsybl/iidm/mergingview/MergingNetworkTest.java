@@ -33,14 +33,14 @@ public class MergingNetworkTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    MergingView mergingView;
-    Network n1;
-    Network n2;
-    Network n3;
+    private MergingView mergingView;
+    private Network n1;
+    private Network n2;
+    private Network n3;
 
     @Before
     public void setup() {
-        mergingView = MergingView.create();
+        mergingView = MergingView.create("MergingNetworkTest", "iidm");
 
         n1 = Network.create("n1", "iidm");
         n2 = Network.create("n2", "iidm");
@@ -53,8 +53,8 @@ public class MergingNetworkTest {
         assertSame(mergingView, mergingView.getNetwork());
         assertSame(mergingView, mergingView.getIdentifiable("n1").getNetwork());
         assertSame(mergingView, mergingView.getIdentifiable("n2").getNetwork());
-        assertEquals("n1, n2", mergingView.getId());
-        assertEquals("n1, n2", mergingView.getName());
+        assertEquals("MergingNetworkTest", mergingView.getId());
+        assertEquals("MergingNetworkTest", mergingView.getName());
 
         final DateTime caseDate = new DateTime();
         mergingView.setCaseDate(caseDate);
@@ -97,9 +97,6 @@ public class MergingNetworkTest {
         assertFalse(mergingView.getSubstations(Country.FR, "RTE", "B").iterator().hasNext());
 
         // Not implemented yet !
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Not implemented exception");
-
         TestUtil.notImplemented(mergingView::getVariantManager);
         TestUtil.notImplemented(mergingView::getVoltageLevels);
         TestUtil.notImplemented(mergingView::getVoltageLevelStream);
@@ -196,7 +193,7 @@ public class MergingNetworkTest {
         addSubstation(n1, "P1", Country.FR);
         addSubstation(n2, "P1", Country.FR);
         thrown.expect(PowsyblException.class);
-        thrown.expectMessage("The following object(s) exist(s) in both networks: P1");
+        thrown.expectMessage("The object 'P1' already exists into merging view");
         mergingView.merge(n1, n2);
     }
 
@@ -204,7 +201,7 @@ public class MergingNetworkTest {
     public void failAddSameObj() {
         addSubstation(mergingView, "P1", Country.FR);
         thrown.expect(PowsyblException.class);
-        thrown.expectMessage("The network workingNetwork already contains an object 'SubstationImpl' with the id 'P1'");
+        thrown.expectMessage("The network MergingNetworkTest already contains an object 'SubstationImpl' with the id 'P1'");
         addSubstation(mergingView, "P1", Country.FR);
     }
 

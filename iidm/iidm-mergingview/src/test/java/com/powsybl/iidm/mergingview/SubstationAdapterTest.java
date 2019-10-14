@@ -14,7 +14,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.ContainerType;
 import com.powsybl.iidm.network.Country;
@@ -23,23 +22,18 @@ import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class SubstationAdapterTest {
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    MergingView mergingView;
+    private MergingView mergingView;
 
     @Before
     public void setup() {
-        mergingView = MergingView.create();
+        mergingView = MergingView.create("SubstationAdapterTest", "iidm");
     }
 
     @Test
@@ -107,9 +101,6 @@ public class SubstationAdapterTest {
         assertSame(v1, substation.getVoltageLevels().iterator().next());
 
         // Not implemented yet !
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Not implemented exception");
-
         TestUtil.notImplemented(substation::newTwoWindingsTransformer);
         TestUtil.notImplemented(substation::getTwoWindingsTransformers);
         TestUtil.notImplemented(substation::getTwoWindingsTransformerStream);

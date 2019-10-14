@@ -21,7 +21,7 @@ public final class ValidationUtil {
     private ValidationUtil() {
     }
 
-    public static void checkEmptyVariant(final Network other) {
+    public static void checkSingleyVariant(final Network other) {
         // this check must not be done on the number of variants but on the size
         // of the internal variant array because the network can have only
         // one variant but an internal array with a size greater that one and
@@ -31,12 +31,13 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkUniqueId(final Network other, final MergingViewIndex index) {
+    public static void checkUniqueIds(final Network other, final MergingViewIndex index) {
         // check mergeability
-        final Collection<String> otherIds = other.getIdentifiables().stream().map(Identifiable::getId).collect(Collectors.toList());
-        final Collection<String> intersection = index.getIdentifiableStream().map(Identifiable::getId).filter(otherIds::contains).collect(Collectors.toList());
-        if (!intersection.isEmpty()) {
-            throw new PowsyblException("The following object(s) exist(s) in both networks: " + String.join(", ", intersection));
-        }
+        final Collection<String> otherIds = other.getIdentifiables().stream().map(Identifiable::getId).collect(Collectors.toSet());
+        index.getIdentifiableStream().map(Identifiable::getId).forEach(id -> {
+            if (otherIds.contains(id)) {
+                throw new PowsyblException("The object '" + id + "' already exists into merging view");
+            }
+        });
     }
 }

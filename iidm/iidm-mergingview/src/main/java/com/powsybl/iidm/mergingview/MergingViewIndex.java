@@ -29,7 +29,7 @@ class MergingViewIndex {
     private final Map<Identifiable<?>, AbstractAdapter<?>> adaptersCacheMap = new WeakHashMap<>();
 
     /** Network asked to be merged */
-    private final Collection<Network> mergingNetworks = new ArrayList<>();
+    private final Collection<Network> networks = new ArrayList<>();
 
     /** Current merging view reference */
     private final MergingView currentView;
@@ -46,18 +46,18 @@ class MergingViewIndex {
     }
 
     /** @return stream of merging network */
-    Stream<Network> getMergingNetworkStream() {
-        return mergingNetworks.stream();
+    Stream<Network> getNetworkStream() {
+        return networks.stream();
     }
 
     /** Validate all networks added into merging network list */
     void checkAndAdd(final Network other) {
         // Check multi-variants network
-        ValidationUtil.checkEmptyVariant(other);
+        ValidationUtil.checkSingleyVariant(other);
         // Check unique identifiable network
-        ValidationUtil.checkUniqueId(other, this);
+        ValidationUtil.checkUniqueIds(other, this);
         // Local storage for mergeable network
-        mergingNetworks.add(other);
+        networks.add(other);
     }
 
     /** @return adapter according to given parameter */
@@ -76,7 +76,7 @@ class MergingViewIndex {
     /** @return all adapters according to all Identifiables */
     Stream<Identifiable<?>> getIdentifiableStream() {
         // Search into merging & working networks and return Adapters
-        return getMergingNetworkStream()
+        return getNetworkStream()
                 .map(Network::getIdentifiables)
                 .filter(n -> !(n instanceof Network))
                 .flatMap(Collection::stream)
@@ -86,16 +86,16 @@ class MergingViewIndex {
     /** @return all adapters according to all Identifiables */
     Collection<Identifiable<?>> getIdentifiables() {
         // Search into merging & working networks and return Adapters
-        return getIdentifiableStream().collect(Collectors.toSet());
+        return getIdentifiableStream().collect(Collectors.toList());
     }
 
     /** @return all Adapters according to all Substations into merging view */
     Collection<Substation> getSubstations() {
         // Search Substations into merging & working networks and return Adapters
-        return getMergingNetworkStream()
+        return getNetworkStream()
                 .flatMap(Network::getSubstationStream)
                 .map(this::getSubstation)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     /** @return adapter according to given Substation */
@@ -105,6 +105,6 @@ class MergingViewIndex {
 
     /** @return adapter according to given VoltageLevel */
     VoltageLevelAdapter getVoltageLevel(final VoltageLevel vl) {
-        return vl == null ? null : (VoltageLevelAdapter) adaptersCacheMap.computeIfAbsent(vl, k -> new VoltageLevelAdapter((VoltageLevel) k, this));
+        return vl == null ? null : (VoltageLevelAdapter) adaptersCacheMap.computeIfAbsent(vl, key -> new VoltageLevelAdapter((VoltageLevel) key, this));
     }
 }
