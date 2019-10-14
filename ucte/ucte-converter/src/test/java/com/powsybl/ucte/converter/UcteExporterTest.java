@@ -83,4 +83,10 @@ public class UcteExporterTest extends AbstractConverterTest {
         assertEquals("IIDM to UCTE converter", exporter.getComment());
         assertNotEquals("UCTE to IIDM converter", exporter.getComment());
     }
+
+    @Test
+    public void testCouplerToXnodeImport() throws IOException {
+        Network network = loadNetworkFromResourceFile("/couplerToXnodeExample.uct");
+        testExporter(network, "/couplerToXnodeExample.uct");
+    }
 }

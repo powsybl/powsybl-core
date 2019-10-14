@@ -27,7 +27,7 @@ public class AlternativeQueriesForGeneratorsTest {
 
     @BeforeClass
     public static void setUp()  {
-        TestGridModel model = new CgmesConformity1Catalog().smallBusBranch();
+        TestGridModel model = CgmesConformity1Catalog.smallBusBranch();
         Expected expected = new Expected()
                 .resultSize(19)
                 .propertyCount("regulatingControlTargetValue", 19)
