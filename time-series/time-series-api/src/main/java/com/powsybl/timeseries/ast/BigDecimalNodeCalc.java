@@ -10,12 +10,11 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.timeseries.TimeSeriesException;
+import com.powsybl.timeseries.ast.NodeCalcVisitors.NodeWrapper;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.Deque;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -43,8 +42,8 @@ public class BigDecimalNodeCalc implements LiteralNodeCalc {
     }
 
     @Override
-    public <R, A> List<NodeCalc> acceptIterate(NodeCalcVisitor<R, A> visitor, A arg) {
-        return Collections.emptyList();
+    public <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<NodeWrapper> visitQueue) {
+        // nothing to do
     }
 
     public BigDecimal getValue() {

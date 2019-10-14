@@ -7,11 +7,10 @@
 package com.powsybl.timeseries.ast;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.powsybl.timeseries.ast.NodeCalcVisitors.NodeWrapper;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Deque;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -36,8 +35,8 @@ public class MaxNodeCalc extends AbstractMinMaxNodeCalc {
     }
 
     @Override
-    public <R, A> List<NodeCalc> acceptIterate(NodeCalcVisitor<R, A> visitor, A arg) {
-        return Arrays.asList(visitor.iterate(this, arg));
+    public <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<NodeWrapper> visitQueue) {
+        visitQueue.push(new NodeWrapper(visitor.iterate(this, arg)));
     }
 
     @Override
