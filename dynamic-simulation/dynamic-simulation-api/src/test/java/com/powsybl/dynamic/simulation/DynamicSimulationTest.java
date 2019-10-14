@@ -26,6 +26,9 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 
+/**
+ * @author Marcos de Miguel <demiguelm at aia.es>
+ */
 public class DynamicSimulationTest {
 
     private FileSystem fileSystem;
