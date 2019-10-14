@@ -90,14 +90,14 @@ public class RegulatingControlMappingForTransformers {
         return rtc;
     }
 
-    public void initializeRatioTapChanger(RatioTapChangerAdder adder) {
+    public static void initializeRatioTapChanger(RatioTapChangerAdder adder) {
         adder.setRegulationTerminal(null);
         adder.setTargetV(Double.NaN);
         adder.setTargetDeadband(Double.NaN);
         adder.setRegulating(false);
     }
 
-    public void initializePhaseTapChanger(PhaseTapChangerAdder adder) {
+    public static void initializePhaseTapChanger(PhaseTapChangerAdder adder) {
         adder.setRegulationTerminal(null);
         adder.setRegulationValue(Double.NaN);
         adder.setTargetDeadband(Double.NaN);
@@ -105,7 +105,7 @@ public class RegulatingControlMappingForTransformers {
         adder.setRegulating(false);
     }
 
-    public void applyTwoWindings(Network network) {
+    void applyTwoWindings(Network network) {
         network.getTwoWindingsTransformerStream().forEach(this::applyTwoWindings);
     }
 
@@ -256,7 +256,7 @@ public class RegulatingControlMappingForTransformers {
         return rca;
     }
 
-    private void applyRatioTapChanger(RegulatingControlRatioAttributes rca, RatioTapChanger rtc) {
+    private static void applyRatioTapChanger(RegulatingControlRatioAttributes rca, RatioTapChanger rtc) {
         if (rca == null) {
             return;
         }
@@ -267,7 +267,7 @@ public class RegulatingControlMappingForTransformers {
         rtc.setRegulating(rca.regulating);
     }
 
-    private void applyPhaseTapChanger(RegulatingControlPhaseAttributes rca, PhaseTapChanger ptc) {
+    private static void applyPhaseTapChanger(RegulatingControlPhaseAttributes rca, PhaseTapChanger ptc) {
         if (rca == null) {
             return;
         }
