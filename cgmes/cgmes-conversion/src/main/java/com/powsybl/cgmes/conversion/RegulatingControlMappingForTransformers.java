@@ -34,7 +34,7 @@ public class RegulatingControlMappingForTransformers {
             throw new CgmesModelException("Transformer already added, Transformer id : " + transformerId);
         }
 
-        RegulatingControlForTwoWingingsTransformer rc = new RegulatingControlForTwoWingingsTransformer();
+        RegulatingControlForTwoWindingsTransformer rc = new RegulatingControlForTwoWindingsTransformer();
         rc.ratioTapChanger = rcRtc;
         rc.phaseTapChanger = rcPtc;
         t2xMapping.put(transformerId, rc);
@@ -111,11 +111,11 @@ public class RegulatingControlMappingForTransformers {
     }
 
     private void applyTwoWindings(TwoWindingsTransformer twt) {
-        RegulatingControlForTwoWingingsTransformer rc = t2xMapping.get(twt.getId());
+        RegulatingControlForTwoWindingsTransformer rc = t2xMapping.get(twt.getId());
         applyTwoWindings(twt, rc);
     }
 
-    private void applyTwoWindings(TwoWindingsTransformer twt, RegulatingControlForTwoWingingsTransformer rc) {
+    private void applyTwoWindings(TwoWindingsTransformer twt, RegulatingControlForTwoWindingsTransformer rc) {
         if (rc == null) {
             return;
         }
@@ -145,19 +145,8 @@ public class RegulatingControlMappingForTransformers {
     }
 
     private RegulatingControlRatioAttributes getRatioTapChanger(RegulatingControlRatio rc) {
-        if (rc == null) {
-            return null;
-        }
-
-        String controlId = rc.regulatingControlId;
-        if (controlId == null) {
-            context.missing("Regulating control Id not defined");
-            return null;
-        }
-
-        RegulatingControl control = parent.cachedRegulatingControls().get(controlId);
+        RegulatingControl control = getTapChangerControl(rc);
         if (control == null) {
-            context.missing(String.format("Regulating control %s", controlId));
             return null;
         }
 
@@ -172,6 +161,23 @@ public class RegulatingControlMappingForTransformers {
     }
 
     private RegulatingControlPhaseAttributes getPhaseTapChanger(RegulatingControlPhase rc) {
+        RegulatingControl control = getTapChangerControl(rc);
+        if (control == null) {
+            return null;
+        }
+
+        RegulatingControlPhaseAttributes rca = null;
+        if (control.mode.endsWith("currentflow")) {
+            rca = getPtcRegulatingControlCurrentFlow(rc.tapChangerControlEnabled, rc.ltcFlag, control, context);
+        } else if (control.mode.endsWith("activepower")) {
+            rca = getPtcRegulatingControlActivePower(rc.tapChangerControlEnabled, rc.ltcFlag, control, context);
+        } else if (!control.mode.endsWith("fixed")) {
+            context.fixed(control.mode, "Unsupported regulating mode for Phase tap changer. Considered as FIXED_TAP");
+        }
+        return rca;
+    }
+
+    private RegulatingControl getTapChangerControl(RegulatingControlReference rc) {
         if (rc == null) {
             return null;
         }
@@ -188,15 +194,7 @@ public class RegulatingControlMappingForTransformers {
             return null;
         }
 
-        RegulatingControlPhaseAttributes rca = null;
-        if (control.mode.endsWith("currentflow")) {
-            rca = getPtcRegulatingControlCurrentFlow(rc.tapChangerControlEnabled, rc.ltcFlag, control, context);
-        } else if (control.mode.endsWith("activepower")) {
-            rca = getPtcRegulatingControlActivePower(rc.tapChangerControlEnabled, rc.ltcFlag, control, context);
-        } else if (!control.mode.endsWith("fixed")) {
-            context.fixed(control.mode, "Unsupported regulating mode for Phase tap changer. Considered as FIXED_TAP");
-        }
-        return rca;
+        return control;
     }
 
     private RegulatingControlRatioAttributes getRtcRegulatingControlVoltage(String rtcId, boolean tapChangerControlEnabled,
@@ -372,25 +370,26 @@ public class RegulatingControlMappingForTransformers {
         boolean regulating;
     }
 
-    public static class RegulatingControlRatio {
+    public static class RegulatingControlRatio extends RegulatingControlReference {
         String id;
-        String regulatingControlId;
         String tculControlMode;
-        boolean tapChangerControlEnabled;
     }
 
-    public static class RegulatingControlPhase {
-        String regulatingControlId;
-        boolean tapChangerControlEnabled;
+    public static class RegulatingControlPhase extends RegulatingControlReference {
         boolean ltcFlag;
     }
 
-    private static class RegulatingControlForTwoWingingsTransformer {
+    private static class RegulatingControlReference {
+        String regulatingControlId;
+        boolean tapChangerControlEnabled;
+    }
+
+    private static class RegulatingControlForTwoWindingsTransformer {
         RegulatingControlRatio ratioTapChanger;
         RegulatingControlPhase phaseTapChanger;
     }
 
     private final RegulatingControlMapping parent;
     private final Context context;
-    private final Map<String, RegulatingControlForTwoWingingsTransformer> t2xMapping;
+    private final Map<String, RegulatingControlForTwoWindingsTransformer> t2xMapping;
 }
