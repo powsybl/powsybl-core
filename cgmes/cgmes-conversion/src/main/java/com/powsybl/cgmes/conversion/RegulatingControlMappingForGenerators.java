@@ -65,7 +65,7 @@ public class RegulatingControlMappingForGenerators {
             return;
         }
 
-        if (isControlModeVoltage(control.mode)) {
+        if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
             RegulatingControlVoltage gcv = getRegulatingControlVoltage(controlId, control, rc.qPercent, gen);
             apply(gcv, gen);
             if (gcv != null) {
@@ -122,10 +122,6 @@ public class RegulatingControlMappingForGenerators {
             CoordinatedReactiveControl coordinatedReactiveControl = new CoordinatedReactiveControl(gen, rcv.qPercent);
             gen.addExtension(CoordinatedReactiveControl.class, coordinatedReactiveControl);
         }
-    }
-
-    private static boolean isControlModeVoltage(String controlMode) {
-        return controlMode != null && controlMode.endsWith("voltage");
     }
 
     private Terminal getRegulatingTerminal(Generator gen, String cgmesTerminal, String topologicalNode) {

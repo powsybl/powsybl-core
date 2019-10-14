@@ -122,7 +122,7 @@ public class RegulatingControlMappingForTransformers {
             RegulatingControlRatioAttributes rcaRatio = getRatioTapChanger(rc.ratioTapChanger);
             RegulatingControlPhaseAttributes rcaPhase = getPhaseTapChanger(rc.phaseTapChanger);
 
-            if (rcaRatio.regulating && rcaPhase.regulating) {
+            if (rcaRatio != null && rcaPhase != null && rcaRatio.regulating && rcaPhase.regulating) {
                 context.fixed(twt.getId(), "Unsupported two regulating controls enabled. Disable the ratioTapChanger");
                 rcaRatio.regulating = false;
             }
@@ -145,7 +145,7 @@ public class RegulatingControlMappingForTransformers {
 
         String controlId = rc.regulatingControlId;
         if (controlId == null) {
-            context.missing(String.format("Regulating control Id not defined"));
+            context.missing("Regulating control Id not defined");
             return null;
         }
 
@@ -172,7 +172,7 @@ public class RegulatingControlMappingForTransformers {
 
         String controlId = rc.regulatingControlId;
         if (controlId == null) {
-            context.missing(String.format("Regulating control Id not defined"));
+            context.missing("Regulating control Id not defined");
             return null;
         }
 
@@ -221,7 +221,9 @@ public class RegulatingControlMappingForTransformers {
     private RegulatingControlPhaseAttributes getPtcRegulatingControlCurrentFlow(boolean tapChangerControlEnabled,
         RegulatingControl control, Context context) {
         RegulatingControlPhaseAttributes rca = getPtcRegulatingControl(tapChangerControlEnabled, control, context);
-        rca.regulationMode = PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
+        if (rca != null) {
+            rca.regulationMode = PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
+        }
 
         return rca;
     }
@@ -229,7 +231,9 @@ public class RegulatingControlMappingForTransformers {
     private RegulatingControlPhaseAttributes getPtcRegulatingControlActivePower(boolean tapChangerControlEnabled,
         RegulatingControl control, Context context) {
         RegulatingControlPhaseAttributes rca = getPtcRegulatingControl(tapChangerControlEnabled, control, context);
-        rca.regulationMode = PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL;
+        if (rca != null) {
+            rca.regulationMode = PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL;
+        }
 
         return rca;
     }
@@ -289,21 +293,15 @@ public class RegulatingControlMappingForTransformers {
         return regulatingControlId;
     }
 
-    private boolean isControlModeVoltage(String controlMode, String tculControlMode) {
-        if (parent.isControlModeVoltage(controlMode)) {
+    private static boolean isControlModeVoltage(String controlMode, String tculControlMode) {
+        if (RegulatingControlMapping.isControlModeVoltage(controlMode)) {
             return true;
         }
-        if (tculControlMode != null && tculControlMode.endsWith("volt")) {
-            return true;
-        }
-        return false;
+        return tculControlMode != null && tculControlMode.endsWith("volt");
     }
 
-    private boolean isControlModeFixed(String controlMode) {
-        if (controlMode != null && controlMode.endsWith("fixed")) {
-            return true;
-        }
-        return false;
+    private static boolean isControlModeFixed(String controlMode) {
+        return controlMode != null && controlMode.endsWith("fixed");
     }
 
     private static class RegulatingControlRatioAttributes {

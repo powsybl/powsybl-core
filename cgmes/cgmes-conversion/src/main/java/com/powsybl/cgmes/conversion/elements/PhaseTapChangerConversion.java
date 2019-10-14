@@ -124,8 +124,6 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             addSteps(alphas, rhos, theta, ptca);
         }
 
-        //context.regulatingControlMapping().setRegulatingControl(p, regTerminal(), ptca, tx);
-
         // According to the following CGMES documentation:
         // IEC TS 61970-600-1, Edition 1.0, 2017-07.
         // "Energy management system application program interface (EMS-API)
@@ -152,9 +150,6 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         // in the meanwhile, when ltcFlag == False,
         // we avoid regulation by setting RegulationMode in IIDM to FIXED_TAP
 
-        //if (!ltcFlag) {
-        //   ptca.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
-        //}
         context.regulatingControlMapping().forTransformers().initializePhaseTapChanger(ptca);
 
         ptca.add();

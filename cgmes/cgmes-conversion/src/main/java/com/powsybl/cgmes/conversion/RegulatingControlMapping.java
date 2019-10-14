@@ -261,14 +261,7 @@ public class RegulatingControlMapping {
             .orElseGet(() -> context.terminalMapping().findFromTopologicalNode(topologicalNode));
     }
 
-    public double terminalNominalVoltage(Terminal terminal) {
-        return terminal.getVoltageLevel().getNominalV();
-    }
-
-    public boolean isControlModeVoltage(String controlMode) {
-        if (controlMode != null && controlMode.endsWith("voltage")) {
-            return true;
-        }
-        return false;
+    static boolean isControlModeVoltage(String controlMode) {
+        return controlMode != null && controlMode.endsWith(VOLTAGE);
     }
 }

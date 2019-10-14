@@ -101,16 +101,16 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
             String ptc = null;
             if (rtc1 != null && rtc2 != null) {
                 supported = false;
-            } else if (rtc1 != null && rtc2 == null) {
+            } else if (rtc1 != null) {
                 rtc = rtc1;
-            } else if (rtc1 == null && rtc2 != null) {
+            } else if (rtc2 != null) {
                 rtc = rtc2;
             }
             if (ptc1 != null && ptc2 != null) {
                 supported = false;
-            } else if (ptc1 != null && ptc2 == null) {
+            } else if (ptc1 != null) {
                 ptc = ptc1;
-            } else if (ptc1 == null && ptc2 != null) {
+            } else if (ptc2 != null) {
                 ptc = ptc2;
             }
             if (supported) {
