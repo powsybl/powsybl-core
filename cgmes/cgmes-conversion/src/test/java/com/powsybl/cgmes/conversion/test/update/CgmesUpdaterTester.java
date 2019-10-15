@@ -15,13 +15,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.CgmesExport.Operations;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.Profiling;
 import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.test.TestGridModel;
@@ -59,7 +63,7 @@ public class CgmesUpdaterTester {
 		fileSystem.close();
 	}
 
-	//@Test
+	@Test
 	public void updateCgmes14Test() throws IOException {
 
 		for (String impl : TripleStoreFactory.onlyDefaultImplementation()) {
@@ -70,6 +74,7 @@ public class CgmesUpdaterTester {
 
 			if (modelNotEmpty(network0)) {
 				UpdateNetworkFromCatalog14.updateNetwork(network0);
+
 				runLoadFlow(network0);
 
 				// update clone and export
@@ -84,7 +89,6 @@ public class CgmesUpdaterTester {
 				ComparisonConfig config = new ComparisonConfig().checkNetworkId(false).tolerance(2.4e-4);
 				Comparison comparison = new Comparison(network0, network1, config);
 				comparison.compare();
-				e.getProfiling();
 			}
 		}
 	}
@@ -93,15 +97,17 @@ public class CgmesUpdaterTester {
 	public void updateCgmes16Test() throws IOException {
 
 		for (String impl : TripleStoreFactory.onlyDefaultImplementation()) {
+
 			CgmesImport i = new CgmesImport(new InMemoryPlatformConfig(fileSystem));
 			ReadOnlyDataSource ds = testGridModel16.dataSource();
 			Network network0 = i.importData(ds, importParameters(impl));
 
 			if (modelNotEmpty(network0)) {
 				UpdateNetworkFromCatalog16.updateNetwork(network0);
+				int changesBeforeLoadFlow = UpdateNetworkFromCatalog16.changes.size();
+
 				runLoadFlow(network0);
 
-				// update clone and export
 				DataSource tmp = tmpDataSource(impl);
 				CgmesExport e = new CgmesExport();
 				e.export(network0, new Properties(), tmp);
@@ -113,9 +119,51 @@ public class CgmesUpdaterTester {
 				ComparisonConfig config = new ComparisonConfig().checkNetworkId(false).tolerance(2.4e-4);
 				Comparison comparison = new Comparison(network0, network1, config);
 				comparison.compare();
-				e.getProfiling();
 			}
 		}
+	}
+
+	@Test
+	public void UpdateLoadsGeneratorsTest() throws IOException {
+
+		for (String impl : TripleStoreFactory.onlyDefaultImplementation()) {
+			profiling = new Profiling();
+			profiling.start();
+			CgmesImport i = new CgmesImport(new InMemoryPlatformConfig(fileSystem));
+			ReadOnlyDataSource ds = testGridModel16.dataSource();
+			Network network0 = i.importData(ds, importParameters(impl));
+			profiling.end(String.valueOf(Operations.LOAD_CGMES_TO_IIDM));
+
+			if (modelNotEmpty(network0)) {
+				UpdateLoadsGenerators.updateNetwork(network0);
+				int changesBeforeLoadFlow = UpdateLoadsGenerators.changes.size();
+
+				profiling.start();
+				runLoadFlow(network0);
+				profiling.end(String.valueOf(Operations.RUN_LOAD_FLOW));
+
+				DataSource tmp = tmpDataSource(impl);
+				CgmesExport e = new CgmesExport();
+				e.export(network0, new Properties(), tmp);
+
+				// import new network to compare
+				Network network1 = i.importData(tmp, importParameters(impl));
+				runLoadFlow(network1);
+
+				ComparisonConfig config = new ComparisonConfig().checkNetworkId(false).tolerance(2.4e-4);
+				Comparison comparison = new Comparison(network0, network1, config);
+				comparison.compare();
+
+				getProfilingForAllSteps(impl, changesBeforeLoadFlow, e );
+			}
+		}
+	}
+
+	private void getProfilingForAllSteps(String impl, int changesBeforeLoadFlow,CgmesExport e) {
+		LOG.info("Profiling for {} ",impl);
+		LOG.info("# of changes before LoadFlow run: "+changesBeforeLoadFlow);
+		profiling.report();
+		e.profilingReport();
 	}
 
 	private void runLoadFlow(Network network) {
@@ -164,4 +212,7 @@ public class CgmesUpdaterTester {
 	private static TestGridModel testGridModel16;
 	private static Cim14SmallCasesCatalog smallCasesCatalog;
 	private static CgmesConformity1Catalog cgmesConformity1Catalog;
+
+	private Profiling profiling;
+	private static final Logger LOG = LoggerFactory.getLogger(CgmesUpdaterTester.class);
 }

@@ -1,25 +1,21 @@
 package com.powsybl.cgmes.conversion.test.update;
 
-//import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.update.CgmesUpdater;
+import com.powsybl.cgmes.update.ChangesListener;
 import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes16;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
 
 public class UpdateNetworkFromCatalog16 {
 
 	public static void updateNetwork(Network network) {
+		changes = new ArrayList<>();
+	    ChangesListener changeListener = new ChangesListener(changes);
+		network.addListener(changeListener);
 		/**
 		 * Test onCreation
 		 */
@@ -167,34 +163,29 @@ public class UpdateNetworkFromCatalog16 {
 			// .setR(0.3).setB(0.1)
 			// .setG(0.2).setX(19.15)
 			// .setRatedU1(132).setRatedU2(220);
-			 network.getGenerator("_044ca8f0-c766-11e1-8775-005056c00008")
-			 .setRatedS(201).setMaxP(161.0).setMinP(-51.0)
-			 .setTargetQ(1).setTargetP(84.0)
-			 .getTerminal().setQ(-1).setP(-84.0);//Terminal p/q should be set by loadflow
+			network.getGenerator("_044ca8f0-c766-11e1-8775-005056c00008").setRatedS(201).setMaxP(161.0).setMinP(-51.0)
+					.setTargetQ(1).setTargetP(84.0).getTerminal().setQ(-1).setP(-84.0);// Terminal p/q should be set by
+																						// loadflow
 			//
 			// network.getLine("_044cd006-c766-11e1-8775-005056c00008").setR(6.0).setX(18.0).setB1(0.1).setB2(0.1).setG1(0.01)
 			// .setG2(0.01);
 			//
 			// network.getBusBreakerView().getBus("_0471bd2a-c766-11e1-8775-005056c00008").setV(129.0);
 			// // variant InitialState
-			//
-			// network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(),
-			// "1");
-			// network.getVariantManager().setWorkingVariant("1");
-			//
-			// network.getBusBreakerView().getBus("_0471bd2a-c766-11e1-8775-005056c00008").setAngle(-19.0);
-			// // variant 1
-			//
-			 network.getLoad("_0448d86a-c766-11e1-8775-005056c00008")
-			 .setP0(13.0).setQ0(5.0).getTerminal().setP(13.0).setQ(5.0);
-			 //Terminal p/q should be set by loadflow
+			network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "1");
+			network.getVariantManager().setWorkingVariant("1");
+			
+			network.getBusBreakerView().getBus("_0471bd2a-c766-11e1-8775-005056c00008").setAngle(-19.0);
+			// variant 1
 
-			network.getTwoWindingsTransformer(
-					"_045c1248-c766-11e1-8775-005056c00008").getRatioTapChanger()
+			network.getLoad("_0448d86a-c766-11e1-8775-005056c00008").setP0(13.0).setQ0(5.0).getTerminal().setP(13.0)
+					.setQ(5.0);
+			// Terminal p/q should be set by loadflow
+
+			network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008").getRatioTapChanger()
 					.setTapPosition(2);
 			// .setLowTapPosition(2) --> will update indirectly highStep in cgmes
-			network.getTwoWindingsTransformer(
-					"_045c1248-c766-11e1-8775-005056c00008").getPhaseTapChanger()
+			network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008").getPhaseTapChanger()
 					.setTapPosition(2);
 
 			// double p1 = 1.0;
@@ -226,7 +217,6 @@ public class UpdateNetworkFromCatalog16 {
 			// .setMaximumSectionCount(9);
 			// }
 			// }
-
 			LOG.info("checkBusBreakerView "
 			// +
 			// network.getLoad("_0448d86a-c766-11e1-8775-005056c00008").getTerminal()
@@ -242,13 +232,12 @@ public class UpdateNetworkFromCatalog16 {
 			// .getBusView().getBus().getId() // --> VoltageLevel ID + 0
 			);
 
-			// assertTrue(changes.size() == 9);
 		} catch (Exception e) {
 			LOG.info(e.getMessage());
 		}
 
 	}
 
-	private static final Logger LOG = LoggerFactory
-			.getLogger(UpdateNetworkFromCatalog16.class);
+    static List<IidmChange> changes;
+	private static final Logger LOG = LoggerFactory.getLogger(UpdateNetworkFromCatalog16.class);
 }

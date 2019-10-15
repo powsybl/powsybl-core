@@ -38,10 +38,10 @@ public class CgmesExport implements Exporter {
     @Override
     public void export(Network network, Properties params, DataSource ds) {
 
+        profiling = new Profiling();
         // Right now the network must contain the original CgmesModel
         // In the future it should be possible to export to CGMES
         // directly from an IIDM Network
-    	profiling.start();
         CgmesModelExtension ext = network.getExtension(CgmesModelExtension.class);
         if (ext == null) {
             throw new CgmesModelException("No extension for CGMES model found in Network");
@@ -54,32 +54,35 @@ public class CgmesExport implements Exporter {
         // Clear the previous SV data - we can keep addStateVariables(network, cgmes)
         // here, or distribut between the appropriate elements.
         CgmesModel cgmesSource = ext.getCgmesModel();
+        profiling.start();
         CgmesModel cgmes = CgmesModelFactory.cloneCgmes(cgmesSource);
+        profiling.end(String.valueOf(Operations.CLONE_CGMES_TRIPLESTORE));
 
         String variantId = network.getVariantManager().getWorkingVariantId();
 
         CgmesUpdater cgmesUpdater = ext.getCgmesUpdater();
+        profiling.start();
         try {
             cgmesUpdater.update(cgmes, variantId);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        profiling.end("Update CGMES from IIDM");
+		profiling.end(String.valueOf(Operations.UPDATE_CGMES_FROM_IIDM));
         // Clear the previous SV data
         profiling.start();
         cgmes.clear(CgmesSubset.STATE_VARIABLES);
-        profiling.end("Clear State Variables");
+
         // Fill the SV data of the CgmesModel with the network current state
-        profiling.start();
         addStateVariables(network, cgmes);
-        profiling.end("Add State Variables");
-        // TODO elena
+        profiling.end(String.valueOf(Operations.ADD_STATE_VARIABLES));
+
         profiling.start();
         cgmes.write(ds);
-        profiling.end("Export updated CGMES");
+        profiling.end(String.valueOf(Operations.EXPORT_UPDATED_CGMES));
+
     }
 
-    public void getProfiling() {
+    public void profilingReport() {
         profiling.report();
     }
 
@@ -91,6 +94,16 @@ public class CgmesExport implements Exporter {
     @Override
     public String getFormat() {
         return "CGMES";
+    }
+
+    public enum Operations {
+		LOAD_CGMES_TO_IIDM
+        ,RUN_LOAD_FLOW
+		,CLONE_CGMES_TRIPLESTORE
+		,CLONE_VARIANT
+		,UPDATE_CGMES_FROM_IIDM
+		,ADD_STATE_VARIABLES
+		,EXPORT_UPDATED_CGMES;
     }
 
     private void addStateVariables(Network n, CgmesModel cgmes) {
@@ -150,10 +163,9 @@ public class CgmesExport implements Exporter {
     }
 
     private String nameTapChangerPosition(CgmesModel cgmes) {
-        String nameTapChangerPosition = (cgmes.getCimNamespace().indexOf("cim14#") != -1)
+		return (cgmes.getCimNamespace().indexOf("cim14#") != -1)
             ? CgmesNames.CONTINUOUS_POSITION
             : CgmesNames.POSITION;
-        return nameTapChangerPosition;
     }
 
     private PropertyBag createPowerFlowProperties(CgmesModel cgmes, Terminal terminal) {
@@ -184,6 +196,6 @@ public class CgmesExport implements Exporter {
     private static final List<String> SV_POWERFLOW_PROPERTIES = Arrays.asList("p", "q", CgmesNames.TERMINAL);
     private static final List<String> SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES = Arrays.asList("ShuntCompensator",
         "continuousSections");
-    
-    private Profiling profiling = new Profiling();;
+
+    private Profiling profiling;
 }

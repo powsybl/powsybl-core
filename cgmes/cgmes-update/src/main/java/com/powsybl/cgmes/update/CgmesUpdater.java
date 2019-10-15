@@ -81,7 +81,7 @@ public class CgmesUpdater {
                         }
                     } catch (java.lang.NullPointerException e) {
                         LOG.error("Requested attribute {} is not available for conversion\n{}", change.getAttribute(),
-                            e.toString());
+                            e.getMessage());
                     }
                 }
             }

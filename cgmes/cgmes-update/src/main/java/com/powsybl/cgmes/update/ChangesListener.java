@@ -28,11 +28,6 @@ public class ChangesListener implements NetworkListener {
         String variant = null;
         IidmChangeOnCreate change = new IidmChangeOnCreate(identifiable, variant);
         changeList.add(change);
-        // TODO remove prints
-        System.out.println("variant is " + change.getVariant()
-            + "\nidentifiable " + identifiable.getClass().getSimpleName()
-            + "\nidentifiableID " + identifiable.getId()
-            + "\nattribute is " + change.getAttribute());
     }
 
     @Override
@@ -47,10 +42,10 @@ public class ChangesListener implements NetworkListener {
         Object newValue) {
         IidmChangeOnUpdate change = new IidmChangeOnUpdate(identifiable, attribute, oldValue, newValue, variantId);
         changeList.add(change);
-        System.out.println("variant is " + change.getVariant()
-            + "\nidentifiable " + identifiable.getClass().getSimpleName()
-            + "\nidentifiableID " + identifiable.getId()
-            + "\nattribute is " + change.getAttribute());
+//        LOG.info("variant is " + change.getVariant()
+//            + "\nidentifiable " + identifiable.getClass().getSimpleName()
+//            + "\nidentifiableID " + identifiable.getId()
+//            + "\nattribute is " + change.getAttribute());
     }
 
     @Override
@@ -78,7 +73,7 @@ public class ChangesListener implements NetworkListener {
 
         changeList.addAll(tmp);
     }
-
+    
     private List<IidmChange> changeList;
 
     private static final Logger LOG = LoggerFactory.getLogger(ChangesListener.class);
