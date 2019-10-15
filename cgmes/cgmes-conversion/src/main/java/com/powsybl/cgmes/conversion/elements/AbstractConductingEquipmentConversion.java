@@ -13,7 +13,6 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.BranchAdder;
-import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.InjectionAdder;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.Terminal;
@@ -39,7 +38,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         numTerminals = 1;
         terminals = new TerminalData[] {null, null, null};
         terminals[0] = new TerminalData(CgmesNames.TERMINAL, p, context);
-        equipmentPowerFlow = new PowerFlow(p, "p", "q");
+        steadyStatePowerFlow = new PowerFlow(p, "p", "q");
     }
 
     public AbstractConductingEquipmentConversion(
@@ -58,7 +57,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             int k0 = k - 1;
             terminals[k0] = new TerminalData(CgmesNames.TERMINAL + k, p, context);
         }
-        equipmentPowerFlow = PowerFlow.UNDEFINED;
+        steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
     public AbstractConductingEquipmentConversion(
@@ -75,7 +74,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             int k0 = k - 1;
             terminals[k0] = new TerminalData(CgmesNames.TERMINAL, ps.get(k0), context);
         }
-        equipmentPowerFlow = PowerFlow.UNDEFINED;
+        steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
     @Override
@@ -211,51 +210,71 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return context.network().getSubstation(context.substationIdMapping().iidm(sid));
     }
 
-    PowerFlow terminalPowerFlow() {
+    private PowerFlow stateVariablesPowerFlow() {
         return terminals[0].t.flow();
     }
 
-    public PowerFlow terminalPowerFlow(int n) {
+    public PowerFlow stateVariablesPowerFlow(int n) {
         return terminals[n - 1].t.flow();
     }
 
-    PowerFlow equipmentPowerFlow() {
-        return equipmentPowerFlow;
+    private PowerFlow steadyStateHypothesisPowerFlow() {
+        return steadyStatePowerFlow;
     }
 
     PowerFlow powerFlow() {
-        // Could come either from terminal data or from property bag
-        return terminalPowerFlow().defined() ? terminalPowerFlow() : equipmentPowerFlow();
+        switch (context.config().getProfileUsedForInitialStateValues()) {
+            case SSH:
+                if (steadyStateHypothesisPowerFlow().defined()) {
+                    return steadyStateHypothesisPowerFlow();
+                }
+                if (stateVariablesPowerFlow().defined()) {
+                    return stateVariablesPowerFlow();
+                }
+                break;
+            case SV:
+                if (stateVariablesPowerFlow().defined()) {
+                    return stateVariablesPowerFlow();
+                }
+                if (steadyStateHypothesisPowerFlow().defined()) {
+                    return steadyStateHypothesisPowerFlow();
+                }
+                break;
+        }
+        return PowerFlow.UNDEFINED;
     }
 
     PowerFlow powerFlow(int n) {
-        // Could come either from terminal data or from property bag
-        return terminalPowerFlow(n).defined() ? terminalPowerFlow(n) : equipmentPowerFlow();
+        switch (context.config().getProfileUsedForInitialStateValues()) {
+            case SSH:
+                if (steadyStateHypothesisPowerFlow().defined()) {
+                    return steadyStateHypothesisPowerFlow();
+                }
+                if (stateVariablesPowerFlow(n).defined()) {
+                    return stateVariablesPowerFlow(n);
+                }
+                break;
+            case SV:
+                if (stateVariablesPowerFlow(n).defined()) {
+                    return stateVariablesPowerFlow(n);
+                }
+                if (steadyStateHypothesisPowerFlow().defined()) {
+                    return steadyStateHypothesisPowerFlow();
+                }
+                break;
+        }
+        return PowerFlow.UNDEFINED;
     }
 
     // Terminals
-
-    void convertedTerminal(String terminalId, Terminal t, int n, PowerFlow f) {
-        // Record the mapping between CGMES and IIDM terminals
-        context.terminalMapping().add(terminalId, t, n);
-        // Update the power flow at terminal. Check that IIDM allows setting it
-        if (f.defined() && setPQAllowed(t)) {
-            t.setP(f.p());
-            t.setQ(f.q());
-        }
-    }
 
     void convertedTerminals(Terminal... ts) {
         assert ts.length == numTerminals;
         for (int k = 0; k < ts.length; k++) {
             int n = k + 1;
             Terminal t = ts[k];
-            convertedTerminal(terminalId(n), t, n, powerFlow(n));
+            context.convertedTerminal(terminalId(n), t, n, powerFlow(n));
         }
-    }
-
-    private boolean setPQAllowed(Terminal t) {
-        return t.getConnectable().getType() != ConnectableType.BUSBAR_SECTION;
     }
 
     private final int numTerminals;
@@ -396,5 +415,5 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     private final TerminalData[] terminals;
-    private final PowerFlow equipmentPowerFlow;
+    private final PowerFlow steadyStatePowerFlow;
 }

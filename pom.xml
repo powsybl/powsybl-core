@@ -58,6 +58,8 @@
         <module>commons</module>
         <module>computation</module>
         <module>computation-local</module>
+        <module>config-classic</module>
+        <module>config-test</module>
         <module>contingency</module>
         <module>distribution-core</module>
         <module>dsl</module>
@@ -82,7 +84,6 @@
         <!-- javac's source and target arguments accept both 1.8 and 8, but release accepts only 8 -->
         <java.version>8</java.version>
 
-        <maven.antrun.version>1.8</maven.antrun.version>
         <maven.assembly.version>3.1.0</maven.assembly.version>
         <maven.build-helper.version>3.0.0</maven.build-helper.version>
         <maven.buildnumber.version>1.4</maven.buildnumber.version>
@@ -109,11 +110,12 @@
         <maven.templating.version>1.0.0</maven.templating.version>
         <maven.versions.version>2.7</maven.versions.version>
 
-        <sonar.jacoco.reportPaths>
-            ../target/jacoco-merge.exec,
-            ../../target/jacoco-merge.exec,
-            ../../../target/jacoco-merge.exec
-        </sonar.jacoco.reportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>
+            ../distribution-core/target/site/jacoco-aggregate/jacoco.xml,
+            ../../distribution-core/target/site/jacoco-aggregate/jacoco.xml,
+            ../../../distribution-core/target/site/jacoco-aggregate/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
+
         <sonar.exclusions>
             **/generated/**/*
         </sonar.exclusions>
@@ -168,7 +170,7 @@
         <wildflyarquilliancontainerembedded.version>2.1.0.Final</wildflyarquilliancontainerembedded.version>
         <xmlunit.version>2.3.0</xmlunit.version>
 
-        <powsyblmathnative.version>1.0.0</powsyblmathnative.version>
+        <powsyblmathnative.version>1.0.1</powsyblmathnative.version>
     </properties>
 
     <build>
@@ -414,9 +416,12 @@
                                 <goals>
                                     <goal>prepare-agent</goal>
                                 </goals>
-                                <configuration>
-                                    <destFile>${project.build.directory}/jacoco-${project.artifactId}.exec</destFile>
-                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>
@@ -426,7 +431,10 @@
         <profile>
             <id>checks</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>powsyblchecks</name>
+                    <value>!false</value>
+                </property>
             </activation>
             <build>
                 <plugins>
@@ -463,7 +471,6 @@
                                 <configuration>
                                     <fail>false</fail>
                                     <rules>
-                                        <dependencyConvergence/>
                                         <requireMavenVersion>
                                             <version>${maven.core.version}</version>
                                         </requireMavenVersion>

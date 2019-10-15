@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -24,11 +25,22 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         super("ShuntCompensator", sh, context);
     }
 
+    private int getSections(PropertyBag p, int normalSections) {
+        switch (context.config().getProfileUsedForInitialStateValues()) {
+            case SSH:
+                return fromContinuous(p.asDouble("SSHsections", p.asDouble("SVsections", normalSections)));
+            case SV:
+                return fromContinuous(p.asDouble("SVsections", p.asDouble("SSHsections", normalSections)));
+            default:
+                throw new PowsyblException("Unexpected profile used for initial state values");
+        }
+    }
+
     @Override
     public void convert() {
         int maximumSections = p.asInt("maximumSections", 0);
         int normalSections = p.asInt("normalSections", 0);
-        int sections = fromContinuous(p.asDouble("SVsections", p.asDouble("SSHsections", normalSections)));
+        int sections = getSections(p, normalSections);
         sections = Math.abs(sections);
         maximumSections = Math.max(maximumSections, sections);
         double bPerSection = 0;
@@ -69,6 +81,6 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
             }
             f = new PowerFlow(Double.NaN, q);
         }
-        convertedTerminal(terminalId(), shunt.getTerminal(), 1, f);
+        context.convertedTerminal(terminalId(), shunt.getTerminal(), 1, f);
     }
 }

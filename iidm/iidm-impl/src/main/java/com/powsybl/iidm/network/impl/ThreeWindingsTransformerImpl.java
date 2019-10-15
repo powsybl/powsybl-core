@@ -50,7 +50,9 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             if (Double.isNaN(r)) {
                 throw new ValidationException(this, "r is invalid");
             }
+            double oldValue = this.r;
             this.r = r;
+            transformer.notifyUpdate(() -> getLegAttribute() + ".r", oldValue, r);
             return (T) this;
         }
 
@@ -62,7 +64,9 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             if (Double.isNaN(x)) {
                 throw new ValidationException(this, "x is invalid");
             }
+            double oldValue = this.x;
             this.x = x;
+            transformer.notifyUpdate(() -> getLegAttribute() + ".x", oldValue, x);
             return (T) this;
         }
 
@@ -74,13 +78,17 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             if (Double.isNaN(ratedU)) {
                 throw new ValidationException(this, "rated U is invalid");
             }
+            double oldValue = this.ratedU;
             this.ratedU = ratedU;
+            transformer.notifyUpdate(() -> getLegAttribute() + ".ratedU", oldValue, x);
             return (T) this;
         }
 
         @Override
         public void setCurrentLimits(Void side, CurrentLimitsImpl limits) {
+            CurrentLimits oldValue = this.limits;
             this.limits = limits;
+            transformer.notifyUpdate(() -> getLegAttribute() + ".currentLimits", oldValue, x);
         }
 
         public CurrentLimits getCurrentLimits() {
@@ -91,7 +99,14 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             return new CurrentLimitsAdderImpl<>(null, this);
         }
 
-        protected abstract String getTypeDescription();
+        protected String getTypeDescription() {
+            return "3 windings transformer " + getLegAttribute();
+        }
+
+        @Override
+        public String toString() {
+            return transformer.getId() + " " + getLegAttribute();
+        }
 
         public Identifiable getTransformer() {
             return transformer;
@@ -102,6 +117,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             return getTypeDescription() + " '" + transformer.getId() + "': ";
         }
 
+        protected abstract String getLegAttribute();
     }
 
     static class Leg1Impl extends AbstractLegBase<Leg1Impl> implements Leg1 {
@@ -126,7 +142,9 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             if (Double.isNaN(g)) {
                 throw new ValidationException(this, "g is invalid");
             }
+            double oldValue = this.g;
             this.g = g;
+            transformer.notifyUpdate(() -> getLegAttribute() + ".g", oldValue, g);
             return this;
         }
 
@@ -140,25 +158,16 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             if (Double.isNaN(b)) {
                 throw new ValidationException(this, "b is invalid");
             }
+            double oldValue = this.b;
             this.b = b;
+            transformer.notifyUpdate(() -> getLegAttribute() + ".b", oldValue, b);
             return this;
         }
 
         @Override
-        public TerminalExt getTerminal() {
-            return transformer.terminals.get(0);
+        protected String getLegAttribute() {
+            return "leg1";
         }
-
-        @Override
-        public String getTypeDescription() {
-            return "3 windings transformer leg 1";
-        }
-
-        @Override
-        public String toString() {
-            return transformer.getId() + " leg 1";
-        }
-
     }
 
     private abstract static class AbstractLeg2or3<T extends AbstractLeg2or3<T>> extends AbstractLegBase<T> implements RatioTapChangerParent {
@@ -184,9 +193,10 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         @Override
         public void setRatioTapChanger(RatioTapChangerImpl ratioTapChanger) {
+            RatioTapChangerImpl oldValue = this.ratioTapChanger;
             this.ratioTapChanger = ratioTapChanger;
+            transformer.notifyUpdate(() -> getLegAttribute() + "." + getTapChangerAttribute(), oldValue, ratioTapChanger);
         }
-
     }
 
     static class Leg2Impl extends AbstractLeg2or3<Leg2Impl> implements Leg2or3 {
@@ -202,19 +212,13 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         @Override
         public String getTapChangerAttribute() {
-            return "ratioTapChanger2";
+            return "TapChanger2";
         }
 
         @Override
-        public String getTypeDescription() {
-            return "3 windings transformer leg 2";
+        protected String getLegAttribute() {
+            return "leg2";
         }
-
-        @Override
-        public String toString() {
-            return transformer.getId() + " leg 2";
-        }
-
     }
 
     static class Leg3Impl extends AbstractLeg2or3<Leg3Impl> implements Leg2or3 {
@@ -230,19 +234,13 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         @Override
         public String getTapChangerAttribute() {
-            return "ratioTapChanger3";
+            return "TapChanger3";
         }
 
         @Override
-        public String getTypeDescription() {
-            return "3 windings transformer leg 3";
+        protected String getLegAttribute() {
+            return "leg3";
         }
-
-        @Override
-        public String toString() {
-            return transformer.getId() + " leg 3";
-        }
-
     }
 
     private final Leg1Impl leg1;

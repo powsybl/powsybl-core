@@ -6,6 +6,8 @@
  */
 package com.powsybl.timeseries.ast;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -31,34 +33,53 @@ public class DefaultNodeCalcVisitor<R, A> implements NodeCalcVisitor<R, A> {
     }
 
     @Override
-    public R visit(BinaryOperation nodeCalc, A arg) {
-        nodeCalc.getLeft().accept(this, arg);
-        nodeCalc.getRight().accept(this, arg);
+    public R visit(BinaryOperation nodeCalc, A arg, R left, R right) {
         return null;
     }
 
     @Override
-    public R visit(UnaryOperation nodeCalc, A arg) {
-        nodeCalc.getChild().accept(this, arg);
+    public Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, A arg) {
+        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
+    }
+
+    @Override
+    public R visit(UnaryOperation nodeCalc, A arg, R child) {
         return null;
     }
 
     @Override
-    public R visit(MinNodeCalc nodeCalc, A arg) {
-        nodeCalc.getChild().accept(this, arg);
+    public NodeCalc iterate(UnaryOperation nodeCalc, A arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
+    public R visit(MinNodeCalc nodeCalc, A arg, R child) {
         return null;
     }
 
     @Override
-    public R visit(MaxNodeCalc nodeCalc, A arg) {
-        nodeCalc.getChild().accept(this, arg);
+    public NodeCalc iterate(MinNodeCalc nodeCalc, A arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
+    public R visit(MaxNodeCalc nodeCalc, A arg, R child) {
         return null;
     }
 
     @Override
-    public R visit(TimeNodeCalc nodeCalc, A arg) {
-        nodeCalc.getChild().accept(this, arg);
+    public NodeCalc iterate(MaxNodeCalc nodeCalc, A arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
+    public R visit(TimeNodeCalc nodeCalc, A arg, R child) {
         return null;
+    }
+
+    @Override
+    public NodeCalc iterate(TimeNodeCalc nodeCalc, A arg) {
+        return nodeCalc.getChild();
     }
 
     @Override

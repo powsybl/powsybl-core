@@ -97,4 +97,82 @@ class NetworkListenerList {
         }
     }
 
+    void notifyElementAdded(Identifiable<?> identifiable, Supplier<String> attribute, Object newValue) {
+        if (!listeners.isEmpty()) {
+            notifyElementAdded(identifiable, attribute.get(), newValue);
+        }
+    }
+
+    void notifyElementAdded(Identifiable<?> identifiable, String attribute, Object newValue) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onElementAdded(identifiable, attribute, newValue);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    void notifyElementReplaced(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue, Object newValue) {
+        if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
+            notifyElementReplaced(identifiable, attribute.get(), oldValue, newValue);
+        }
+    }
+
+    void notifyElementReplaced(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onElementReplaced(identifiable, attribute, oldValue, newValue);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    void notifyElementRemoved(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue) {
+        if (!listeners.isEmpty()) {
+            notifyElementRemoved(identifiable, attribute.get(), oldValue);
+        }
+    }
+
+    void notifyElementRemoved(Identifiable<?> identifiable, String attribute, Object oldValue) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onElementRemoved(identifiable, attribute, oldValue);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    void notifyVariantCreated(String sourceVariantId, String targetVariantId) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onVariantCreated(sourceVariantId, targetVariantId);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    void notifyVariantOverwritten(String sourceVariantId, String targetVariantId) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onVariantOverwritten(sourceVariantId, targetVariantId);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    void notifyVariantRemoved(String variantId) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onVariantRemoved(variantId);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
 }

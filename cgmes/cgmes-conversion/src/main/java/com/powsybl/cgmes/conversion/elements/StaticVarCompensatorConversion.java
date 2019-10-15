@@ -28,27 +28,11 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
 
         double capacitiveRating = p.asDouble("capacitiveRating", 0.0);
         double inductiveRating = p.asDouble("inductiveRating", 0.0);
-        String controlMode = p.getId("controlMode");
-        double voltageSetPoint = p.asDouble("voltageSetPoint", 1.0);
-        boolean controlEnabled = p.asBoolean("controlEnabled", true);
-
-        StaticVarCompensator.RegulationMode regulationMode;
-        regulationMode = StaticVarCompensator.RegulationMode.OFF;
-        if (controlEnabled) {
-            if (controlMode.toLowerCase().endsWith("voltage")) {
-                regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
-            } else if (controlMode.toLowerCase().endsWith("reactivePower")) {
-                regulationMode = StaticVarCompensator.RegulationMode.REACTIVE_POWER;
-            }
-        }
 
         StaticVarCompensatorAdder adder = voltageLevel().newStaticVarCompensator()
-                // TODO in IIDM Bmin and Bmax a susceptance,
-                // while CGMES defines the limits as reactances
-                .setBmin(inductiveRating)
-                .setBmax(capacitiveRating)
-                .setVoltageSetPoint(voltageSetPoint)
-                .setRegulationMode(regulationMode);
+                .setBmin(1 / inductiveRating)
+                .setBmax(1 / capacitiveRating);
+        context.regulatingControlMapping().setRegulatingControl(iidmId(), p, adder);
         identify(adder);
         connect(adder);
         StaticVarCompensator svc = adder.add();

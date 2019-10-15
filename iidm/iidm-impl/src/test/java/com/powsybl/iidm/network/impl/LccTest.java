@@ -27,12 +27,14 @@ public class LccTest {
     public ExpectedException thrown = ExpectedException.none();
 
     private Network network;
+    private HvdcLine hvdcLine;
     private LccConverterStation cs1;
     private LccConverterStation cs2;
 
     @Before
     public void setUp() {
         network = HvdcTestNetwork.createLcc();
+        hvdcLine = network.getHvdcLine("L");
         cs1 = network.getLccConverterStation("C1");
         cs2 = network.getLccConverterStation("C2");
     }
@@ -67,18 +69,37 @@ public class LccTest {
         assertEquals(cs1, l.getConverterStation1());
         assertEquals(cs2, l.getConverterStation2());
 
+        assertSame(hvdcLine, cs1.getHvdcLine());
+        assertSame(hvdcLine, cs2.getHvdcLine());
+        assertSame(cs1, hvdcLine.getConverterStation1());
+        assertSame(cs1, hvdcLine.getConverterStation(HvdcLine.Side.ONE));
+        assertSame(cs2, hvdcLine.getConverterStation2());
+        assertSame(cs2, hvdcLine.getConverterStation(HvdcLine.Side.TWO));
+    }
+
+    @Test
+    public void testHvdcLineRemove() {
+        try {
+            cs1.remove();
+            fail();
+        } catch (ValidationException e) {
+            // Ignored
+        }
+
+        network.getHvdcLine("L").remove();
+        assertEquals(0, network.getHvdcLineCount());
+
+        assertNull(cs1.getHvdcLine());
+        assertNull(hvdcLine.getConverterStation1());
+        assertNull(cs2.getHvdcLine());
+        assertNull(hvdcLine.getConverterStation2());
+
         // remove
         int count = network.getLccConverterStationCount();
         cs1.remove();
         assertNotNull(cs1);
         assertNull(network.getLccConverterStation("C1"));
         assertEquals(count - 1, network.getLccConverterStationCount());
-    }
-
-    @Test
-    public void testHvdcLineRemove() {
-        network.getHvdcLine("L").remove();
-        assertEquals(0, network.getHvdcLineCount());
     }
 
     @Test

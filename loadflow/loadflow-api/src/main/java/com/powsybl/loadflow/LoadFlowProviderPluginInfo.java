@@ -13,9 +13,9 @@ import com.powsybl.commons.plugins.PluginInfo;
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 @AutoService(PluginInfo.class)
-public class LoadFlowFactoryPluginInfo extends PluginInfo<LoadFlowFactory> {
+public class LoadFlowProviderPluginInfo extends PluginInfo<LoadFlowProvider> {
 
-    public LoadFlowFactoryPluginInfo() {
-        super(LoadFlowFactory.class);
+    public LoadFlowProviderPluginInfo() {
+        super(LoadFlowProvider.class);
     }
 }

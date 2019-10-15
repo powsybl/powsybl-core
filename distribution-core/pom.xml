@@ -159,10 +159,34 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- In test scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-cgmes-conformity</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-cgmes-model</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <!-- In test scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-cgmes-model-alternatives</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- In provided scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-cim-anonymiser</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -181,6 +205,21 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-computation-local</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-config-classic</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- In provided scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-config-test</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -210,6 +249,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-comparator</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -372,7 +417,6 @@
             <artifactId>powsybl-ucte-network</artifactId>
             <version>${project.version}</version>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -404,32 +448,44 @@
 
     <profiles>
         <profile>
+            <id>checks</id>
+            <activation>
+                <property>
+                    <name>powsyblchecks</name>
+                    <value>!false</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>${maven.enforcer.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <fail>false</fail>
+                                    <rules>
+                                      <dependencyConvergence/>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>jacoco</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>${maven.antrun.version}</version>
-                        <executions>
-                            <execution>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <target name="copy jacoco reports">
-                                        <copy todir="${project.build.directory}/jacoco" flatten="true">
-                                            <fileset dir=".." includes="**/jacoco*.exec" />
-                                        </copy>
-                                    </target>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
@@ -442,21 +498,6 @@
                                 </goals>
                                 <configuration>
                                     <title>${project.parent.name}</title>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>merge</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>merge</goal>
-                                </goals>
-                                <configuration>
-                                    <destFile>${project.parent.build.directory}/jacoco-merge.exec</destFile>
-                                    <fileSets>
-                                        <fileSet>
-                                            <directory>${project.build.directory}/jacoco</directory>
-                                        </fileSet>
-                                    </fileSets>
                                 </configuration>
                             </execution>
                         </executions>

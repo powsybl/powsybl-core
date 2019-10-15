@@ -7,10 +7,8 @@
 package com.powsybl.security;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 
 /**
@@ -32,8 +30,6 @@ public class SecurityAnalysisFactoryImpl implements SecurityAnalysisFactory {
     @Override
     public SecurityAnalysis create(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
                                     ComputationManager computationManager, int priority) {
-        ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
-        LoadFlowFactory loadFlowFactory = defaultConfig.newFactoryImpl(LoadFlowFactory.class);
-        return new SecurityAnalysisImpl(network, detector, filter, computationManager, loadFlowFactory);
+        return new SecurityAnalysisImpl(network, detector, filter, computationManager);
     }
 }

@@ -17,7 +17,6 @@ import org.junit.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -53,13 +52,38 @@ public class VariantManagerImplTest {
         }
 
         @Override
+        public Network getNetwork() {
+            return null;
+        }
+
+        @Override
         public boolean hasProperty() {
             return false;
         }
 
         @Override
-        public Properties getProperties() {
+        public boolean hasProperty(String key) {
+            return false;
+        }
+
+        @Override
+        public String getProperty(String key) {
             return null;
+        }
+
+        @Override
+        public String getProperty(String key, String defaultValue) {
+            return null;
+        }
+
+        @Override
+        public String setProperty(String key, String value) {
+            return null;
+        }
+
+        @Override
+        public Set<String> getPropertyNames() {
+            return Collections.emptySet();
         }
 
         @Override
@@ -147,10 +171,11 @@ public class VariantManagerImplTest {
 
     @Test
     public void test() {
-        NetworkIndex index = new NetworkIndex();
+        NetworkImpl network = (NetworkImpl) Network.create("test", "no-format");
+        NetworkIndex index = network.getIndex();
         IdentifiableMock identifiable1 = new IdentifiableMock("1");
         index.checkAndAdd(identifiable1);
-        VariantManagerImpl variantManager = new VariantManagerImpl(index);
+        VariantManagerImpl variantManager = network.getVariantManager();
         // initial variant test
         assertEquals(1, variantManager.getVariantArraySize());
         assertEquals(Collections.singleton(VariantManagerConstants.INITIAL_VARIANT_ID), variantManager.getVariantIds());
@@ -220,13 +245,14 @@ public class VariantManagerImplTest {
 
     @Test
     public void testMultipleNetworks() {
-        NetworkIndex index = new NetworkIndex();
+        Network network1 = Network.create("network1", "no-format");
+        Network network2 = Network.create("network2", "no-format");
 
-        VariantManager variantManager1 = new VariantManagerImpl(index);
+        VariantManager variantManager1 = network1.getVariantManager();
         variantManager1.allowVariantMultiThreadAccess(true);
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager1.getWorkingVariantId());
 
-        VariantManager variantManager2 = new VariantManagerImpl(index);
+        VariantManager variantManager2 = network2.getVariantManager();
         variantManager2.allowVariantMultiThreadAccess(true);
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager1.getWorkingVariantId());
 
