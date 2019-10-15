@@ -415,7 +415,7 @@ public final class CgmesConformity1ModifiedCatalog {
                 "MiniGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public TestGridModelResources smallNodeBreakerHvdcDcLine2Inverter1Rectifier2() {
+    public static TestGridModelResources smallNodeBreakerHvdcDcLine2Inverter1Rectifier2() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
             + "/SmallGrid/HVDC_dcLine2_targetPpcc_for_1inverter_2rectifier";
         String baseOriginal = ENTSOE_CONFORMITY_1
@@ -435,7 +435,7 @@ public final class CgmesConformity1ModifiedCatalog {
                 "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public TestGridModelResources smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier() {
+    public static TestGridModelResources smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
             + "/SmallGrid/HVDC_dcLine2_targetPpcc_both_1inverter_2rectifier";
         String baseOriginal = ENTSOE_CONFORMITY_1
@@ -455,7 +455,7 @@ public final class CgmesConformity1ModifiedCatalog {
                 "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public TestGridModelResources smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter() {
+    public static TestGridModelResources smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
             + "/SmallGrid/HVDC_dcLine2_targetPpcc_both_1rectifier_2inverter";
         String baseOriginal = ENTSOE_CONFORMITY_1
@@ -475,7 +475,7 @@ public final class CgmesConformity1ModifiedCatalog {
                 "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public TestGridModelResources smallNodeBreakerHvdcVscReactiveQPcc() {
+    public static TestGridModelResources smallNodeBreakerHvdcVscReactiveQPcc() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_vsc_reactive_qPccControl";
         String baseOriginal = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";

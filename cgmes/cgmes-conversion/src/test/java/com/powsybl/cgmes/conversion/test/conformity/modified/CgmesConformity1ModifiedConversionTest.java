@@ -416,6 +416,7 @@ public class CgmesConformity1ModifiedConversionTest {
         // Small Grid Node Breaker HVDC modified so targetPpcc are NaN
         assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcNanTargetPpcc().dataSource(), null));
     }
+
     private FileSystem fileSystem;
     private InMemoryPlatformConfig platformConfig;
 }
