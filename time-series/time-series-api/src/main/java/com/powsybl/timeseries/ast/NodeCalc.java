@@ -11,22 +11,20 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.TimeSeriesException;
-import com.powsybl.timeseries.ast.NodeCalcVisitors.NodeWrapper;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Deque;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface NodeCalc {
 
-    <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<NodeWrapper> visitQueue);
+    <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> visitQueue);
 
-    <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, Deque<Optional<R>> childrenQueue);
+    <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> childrenQueue);
 
     void writeJson(JsonGenerator generator) throws IOException;
 

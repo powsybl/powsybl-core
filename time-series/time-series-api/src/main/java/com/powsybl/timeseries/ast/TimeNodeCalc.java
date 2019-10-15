@@ -10,11 +10,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.timeseries.TimeSeriesException;
-import com.powsybl.timeseries.ast.NodeCalcVisitors.NodeWrapper;
 
 import java.io.IOException;
 import java.util.Deque;
-import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -28,13 +26,16 @@ public class TimeNodeCalc extends AbstractSingleChildNodeCalc {
     }
 
     @Override
-    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, Deque<Optional<R>> children) {
-        return visitor.visit(this, arg, children.pop().orElse(null));
+    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> children) {
+        Object o = children.pop();
+        o = o == NodeCalcVisitors.NULL ? null : o;
+        return visitor.visit(this, arg, (R) o);
     }
 
     @Override
-    public <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<NodeWrapper> visitQueue) {
-        visitQueue.push(new NodeWrapper(visitor.iterate(this, arg)));
+    public <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> visitQueue) {
+        NodeCalc n = visitor.iterate(this, arg);
+        visitQueue.push(n == null ? NodeCalcVisitors.NULL : n);
     }
 
     @Override

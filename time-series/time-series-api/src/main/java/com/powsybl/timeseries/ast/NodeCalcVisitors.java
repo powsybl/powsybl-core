@@ -8,7 +8,6 @@ package com.powsybl.timeseries.ast;
 
 import java.util.ArrayDeque;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
@@ -18,6 +17,8 @@ import java.util.Optional;
  *         {@link NodeCalcVisitor}.
  */
 public final class NodeCalcVisitors {
+
+    public static final Object NULL = new Object();
 
     private NodeCalcVisitors() {
     }
@@ -45,42 +46,25 @@ public final class NodeCalcVisitors {
         // The second time that we handle a node in the visitQueue stack, we pop it,
         // we pop the results of the children from the childrenQueue stack, we compute
         // the result and push it to the childrenQueue stack.
-        ArrayDeque<NodeWrapper> visitQueue = new ArrayDeque<>();
-        ArrayDeque<Optional<R>> childrenQueue = new ArrayDeque<>();
-        visitQueue.push(new NodeWrapper(root));
-        while (!visitQueue.isEmpty()) {
-            NodeWrapper nodeWrapper = visitQueue.peek();
-            if (nodeWrapper.afterChildren) {
-                visitQueue.pop();
-                visit(arg, visitor, childrenQueue, nodeWrapper);
-            } else {
-                nodeWrapper.afterChildren = true;
-                iterate(arg, visitor, visitQueue, nodeWrapper);
+        ArrayDeque<Object> prepareQueue = new ArrayDeque<>();
+        ArrayDeque<Object> visitQueue = new ArrayDeque<>();
+        prepareQueue.push(root);
+        while (!prepareQueue.isEmpty()) {
+            Object nodeWrapper = prepareQueue.pop();
+            visitQueue.push(nodeWrapper);
+            if (nodeWrapper != NULL) {
+                ((NodeCalc) nodeWrapper).acceptIterate(visitor, arg, prepareQueue);
             }
         }
-        return childrenQueue.pop().orElse(null);
-    }
-
-    private static <A, R> void iterate(A arg, NodeCalcVisitor<R, A> visitor, ArrayDeque<NodeWrapper> visitQueue,
-            NodeWrapper nodeWrapper) {
-        if (nodeWrapper.node != null) {
-            nodeWrapper.node.acceptIterate(visitor, arg, visitQueue);
+        // reuse prepareQueue for performance, it's empty but as the correct capacity
+        ArrayDeque<Object> childrenQueue = prepareQueue;
+        while (!visitQueue.isEmpty()) {
+            Object nodeWrapper = visitQueue.pop();
+            R result = nodeWrapper != NULL ? ((NodeCalc) nodeWrapper).acceptVisit(visitor, arg, childrenQueue) : null;
+            childrenQueue.push(result == null ? NULL : result);
         }
+        Object result = childrenQueue.pop();
+        return result == NULL ? null : (R) result;
     }
 
-    private static <R, A> void visit(A arg, NodeCalcVisitor<R, A> visitor, ArrayDeque<Optional<R>> childrenQueue,
-            NodeWrapper nodeWrapper) {
-        R result = nodeWrapper.node != null ? nodeWrapper.node.acceptVisit(visitor, arg, childrenQueue) : null;
-        childrenQueue.push(Optional.ofNullable(result));
-    }
-
-    static class NodeWrapper {
-
-        private NodeCalc node;
-        private boolean afterChildren;
-
-        public NodeWrapper(NodeCalc node) {
-            this.node = node;
-        }
-    }
 }

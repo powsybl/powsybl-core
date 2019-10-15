@@ -10,14 +10,12 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.timeseries.TimeSeriesException;
-import com.powsybl.timeseries.ast.NodeCalcVisitors.NodeWrapper;
 
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.util.Deque;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -123,16 +121,23 @@ public class BinaryOperation implements NodeCalc {
     }
 
     @Override
-    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, Deque<Optional<R>> children) {
-        R other = children.pop().orElse(null);
-        return visitor.visit(this, arg, children.pop().orElse(null), other);
+    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> children) {
+        Object other = children.pop();
+        other = other == NodeCalcVisitors.NULL ? null : other;
+        Object first = children.pop();
+        first = first == NodeCalcVisitors.NULL ? null : first;
+        return visitor.visit(this, arg, (R) first, (R) other);
     }
 
     @Override
-    public <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<NodeWrapper> visitQueue) {
+    public <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> visitQueue) {
         Pair<NodeCalc, NodeCalc> p = visitor.iterate(this, arg);
-        visitQueue.push(new NodeWrapper(p.getRight()));
-        visitQueue.push(new NodeWrapper(p.getLeft()));
+        Object left = p.getLeft();
+        left = left == null ? NodeCalcVisitors.NULL : left;
+        Object right = p.getRight();
+        right = right == null ? NodeCalcVisitors.NULL : right;
+        visitQueue.push(left);
+        visitQueue.push(right);
     }
 
     @Override
