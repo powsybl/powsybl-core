@@ -8,8 +8,8 @@ package com.powsybl.cgmes.conversion;
 
 import java.util.Objects;
 
+import com.powsybl.cgmes.conversion.update.CgmesUpdater;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.update.CgmesUpdater;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
 

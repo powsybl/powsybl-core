@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.CgmesExport.Operations;
-import com.powsybl.cgmes.update.ChangesListener;
-import com.powsybl.cgmes.update.IidmChange;
+import com.powsybl.cgmes.conversion.update.ChangesListener;
+import com.powsybl.cgmes.conversion.update.IidmChange;
 import com.powsybl.cgmes.conversion.Profiling;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;

@@ -6,8 +6,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.update.ChangesListener;
-import com.powsybl.cgmes.update.IidmChange;
+import com.powsybl.cgmes.conversion.update.ChangesListener;
+import com.powsybl.cgmes.conversion.update.IidmChange;
 import com.powsybl.iidm.network.Network;
 
 public class UpdateNetworkFromCatalog16 {
@@ -174,7 +174,7 @@ public class UpdateNetworkFromCatalog16 {
 			// // variant InitialState
 			network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "1");
 			network.getVariantManager().setWorkingVariant("1");
-			
+
 			network.getBusBreakerView().getBus("_0471bd2a-c766-11e1-8775-005056c00008").setAngle(-19.0);
 			// variant 1
 
