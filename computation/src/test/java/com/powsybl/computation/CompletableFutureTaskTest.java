@@ -1,18 +1,50 @@
 package com.powsybl.computation;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
+@RunWith(Parameterized.class)
 public class CompletableFutureTaskTest {
 
-    private final Executor executor = Executors.newSingleThreadExecutor();
+    private final Executor executor;
+
+    public CompletableFutureTaskTest(Executor executor) {
+        this.executor = executor;
+    }
+
+    /**
+     * Check the behaviour is the same with different types of executors.
+     * In particular, {@link ThreadPoolExecutor} and {@link ForkJoinPool}
+     * have some behaviour discrepancies, which should be hidden by our implementation.
+     */
+    @Parameterized.Parameters
+    public static Collection<Object[]> parameters() {
+        return executors().stream()
+                .map(e -> new Object[] {e})
+                .collect(Collectors.toList());
+    }
+
+    private static List<Executor> executors() {
+        return ImmutableList.of(
+                Executors.newSingleThreadExecutor(),
+                Executors.newCachedThreadPool(),
+                Executors.newWorkStealingPool(),
+                ForkJoinPool.commonPool()
+        );
+    }
 
     @Test
     public void whenSupplyObjectThenReturnIt() throws Exception {

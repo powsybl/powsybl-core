@@ -338,13 +338,14 @@ public class LocalComputationManager implements ComputationManager {
 
             List<CommandExecution> commandExecutionList = handler.before(workingDir.toPath());
 
+            ExecutionReport report;
             try {
-                ExecutionReport report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
-                return handler.after(workingDir.toPath(), report);
+                report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
             } catch (InterruptedException exc) {
                 localCommandExecutor.stop(workingDir.toPath());
                 throw exc;
             }
+            return handler.after(workingDir.toPath(), report);
         }
     }
 

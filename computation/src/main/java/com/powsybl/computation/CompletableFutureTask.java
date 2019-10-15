@@ -15,7 +15,7 @@ import java.util.concurrent.*;
  * interrupt the thread executing the bound task.
  *
  * <p>Similarly to {@link FutureTask}, this class implements {@link Runnable} and
- * can therefore be submitted to and {@link java.util.concurrent.Executor} for execution.
+ * can therefore be submitted to an {@link java.util.concurrent.Executor} for execution.
  *
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
@@ -26,7 +26,7 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
     /**
      * Creates a completable future bound to the specified task. This task will be executed
      * on a call to {@link #run()}, for instance by submitting this object to
-     * and {@link java.util.concurrent.Executor}.
+     * an {@link java.util.concurrent.Executor}.
      *
      * @param task The task to be bound to this future.
      */
