@@ -102,14 +102,6 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         return bPerSection * getCurrentSectionCount();
     }
 
-    /**
-     * @deprecated Use {@link #getbPerSection()} * {@link #getMaximumSectionCount()} instead.
-     */
-    @Deprecated
-    public double getMaximumB() {
-        return bPerSection * maximumSectionCount;
-    }
-
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);

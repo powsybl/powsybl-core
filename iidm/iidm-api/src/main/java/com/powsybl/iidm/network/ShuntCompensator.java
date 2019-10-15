@@ -71,7 +71,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * @deprecated Use {@link #getbPerSection()} * {@link #getMaximumSectionCount()} instead.
      */
     @Deprecated
-    double getMaximumB();
+    default double getMaximumB() {
+        return getbPerSection() * getMaximumSectionCount();
+    }
 
     /**
      * Get the susceptance for the current section counts.

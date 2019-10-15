@@ -58,6 +58,10 @@ public class LccTest {
         assertEquals(1e-5, network.getShuntCompensator("C1_Filter1").getCurrentB(), 0.0);
         assertTrue(network.getShuntCompensator("C1_Filter1").getTerminal().isConnected());
         assertEquals(0.0, network.getShuntCompensator("C1_Filter2").getCurrentB(), 0.0);
+
+        // TODO: delete this line when getMaximumB() is deleted
+        assertEquals(2e-5, network.getShuntCompensator("C1_Filter2").getMaximumB(), 0.0);
+
         assertFalse(network.getShuntCompensator("C1_Filter2").getTerminal().isConnected());
         assertEquals(1, network.getHvdcLineCount());
         HvdcLine l = network.getHvdcLine("L");
