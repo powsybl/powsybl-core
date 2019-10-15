@@ -22,9 +22,11 @@ import java.util.Objects;
  */
 public interface NodeCalc {
 
-    <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> visitQueue);
+    <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth);
 
-    <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> childrenQueue);
+    <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> nodesStack);
+
+    <R, A> R acceptHandle(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> resultsStack);
 
     void writeJson(JsonGenerator generator) throws IOException;
 

@@ -121,23 +121,44 @@ public class BinaryOperation implements NodeCalc {
     }
 
     @Override
-    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> children) {
-        Object other = children.pop();
-        other = other == NodeCalcVisitors.NULL ? null : other;
-        Object first = children.pop();
-        first = first == NodeCalcVisitors.NULL ? null : first;
-        return visitor.visit(this, arg, (R) first, (R) other);
+    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
+        if (depth < NodeCalcVisitors.RECURSION_THRESHOLD) {
+            Pair<NodeCalc, NodeCalc> p = visitor.iterate(this, arg);
+            R leftValue = null;
+            NodeCalc leftNode = p.getLeft();
+            if (leftNode != null) {
+                leftValue = leftNode.accept(visitor, arg, depth + 1);
+            }
+            R rightValue = null;
+            NodeCalc rightNode = p.getRight();
+            if (rightNode != null) {
+                rightValue = rightNode.accept(visitor, arg, depth + 1);
+            }
+            return visitor.visit(this, arg, leftValue, rightValue);
+        } else {
+            return NodeCalcVisitors.visit(this, arg, visitor);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <R, A> R acceptHandle(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> resultsStack) {
+        Object rightResult = resultsStack.pop();
+        rightResult = rightResult == NodeCalcVisitors.NULL ? null : rightResult;
+        Object leftResult = resultsStack.pop();
+        leftResult = leftResult == NodeCalcVisitors.NULL ? null : leftResult;
+        return visitor.visit(this, arg, (R) leftResult, (R) rightResult);
     }
 
     @Override
-    public <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> visitQueue) {
+    public <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> nodesStack) {
         Pair<NodeCalc, NodeCalc> p = visitor.iterate(this, arg);
-        Object left = p.getLeft();
-        left = left == null ? NodeCalcVisitors.NULL : left;
-        Object right = p.getRight();
-        right = right == null ? NodeCalcVisitors.NULL : right;
-        visitQueue.push(left);
-        visitQueue.push(right);
+        Object leftNode = p.getLeft();
+        leftNode = leftNode == null ? NodeCalcVisitors.NULL : leftNode;
+        Object rightNode = p.getRight();
+        rightNode = rightNode == null ? NodeCalcVisitors.NULL : rightNode;
+        nodesStack.push(leftNode);
+        nodesStack.push(rightNode);
     }
 
     @Override

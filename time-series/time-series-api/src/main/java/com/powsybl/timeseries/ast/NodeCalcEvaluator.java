@@ -16,7 +16,7 @@ import org.apache.commons.lang3.tuple.Pair;
 public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoint> {
 
     public static double eval(NodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
-        return NodeCalcVisitors.visit(nodeCalc, multiPoint, new NodeCalcEvaluator());
+        return nodeCalc.accept(new NodeCalcEvaluator(), multiPoint, 0);
     }
 
     @Override
@@ -123,4 +123,5 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     public Double visit(TimeSeriesNameNodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
         throw new AssertionError("NodeCalc should have been resolved before");
     }
+
 }

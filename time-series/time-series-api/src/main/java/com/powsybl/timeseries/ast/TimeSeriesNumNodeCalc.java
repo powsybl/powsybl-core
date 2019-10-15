@@ -30,12 +30,17 @@ public class TimeSeriesNumNodeCalc implements NodeCalc {
     }
 
     @Override
-    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> children) {
+    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
         return visitor.visit(this, arg);
     }
 
     @Override
-    public <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> visitQueue) {
+    public <R, A> R acceptHandle(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> resultsStack) {
+        return visitor.visit(this, arg);
+    }
+
+    @Override
+    public <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> nodesStack) {
         // nothing to do
     }
 

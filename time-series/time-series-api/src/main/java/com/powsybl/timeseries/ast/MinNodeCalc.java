@@ -28,16 +28,31 @@ public class MinNodeCalc extends AbstractMinMaxNodeCalc {
     }
 
     @Override
-    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> children) {
-        Object o = children.pop();
-        o = o == NodeCalcVisitors.NULL ? null : o;
-        return visitor.visit(this, arg, (R) o);
+    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
+        if (depth < NodeCalcVisitors.RECURSION_THRESHOLD) {
+            NodeCalc child = visitor.iterate(this, arg);
+            R childValue = null;
+            if (child != null) {
+                childValue = child.accept(visitor, arg, depth + 1);
+            }
+            return visitor.visit(this, arg, childValue);
+        } else {
+            return NodeCalcVisitors.visit(this, arg, visitor);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <R, A> R acceptHandle(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> resultsStack) {
+        Object childResult = resultsStack.pop();
+        childResult = childResult == NodeCalcVisitors.NULL ? null : childResult;
+        return visitor.visit(this, arg, (R) childResult);
     }
 
     @Override
-    public <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> visitQueue) {
-        NodeCalc n = visitor.iterate(this, arg);
-        visitQueue.push(n == null ? NodeCalcVisitors.NULL : n);
+    public <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> nodesStack) {
+        NodeCalc childNode = visitor.iterate(this, arg);
+        nodesStack.push(childNode == null ? NodeCalcVisitors.NULL : childNode);
     }
 
     @Override

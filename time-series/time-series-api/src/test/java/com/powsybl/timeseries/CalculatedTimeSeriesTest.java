@@ -41,7 +41,7 @@ public class CalculatedTimeSeriesTest {
         timeSeries = new CalculatedTimeSeries("ts1", new IntegerNodeCalc(1));
     }
 
-    private void evaluate(String expr, double expectedValue) {
+    private void evaluateShallow(String expr, double expectedValue) {
         // create time series space mock
         TimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-07-20T00:00:00Z"), Duration.ofDays(200));
 
@@ -94,6 +94,22 @@ public class CalculatedTimeSeriesTest {
             }
         });
         assertEquals(expectedValue, calculatedValue, 0d);
+    }
+
+    private void evaluate(String expr, double expectedValue) {
+        evaluateShallow(expr, expectedValue);
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
+        sb.append(expr);
+        sb.append(")");
+        int range = 2;
+        for (int i = 0; i < NodeCalcVisitors.RECURSION_THRESHOLD - range; i++) {
+            sb.append("+0");
+        }
+        for (int i = NodeCalcVisitors.RECURSION_THRESHOLD - range; i <= NodeCalcVisitors.RECURSION_THRESHOLD + range; i++) {
+            sb.append("+0");
+            evaluateShallow(sb.toString(), expectedValue);
+        }
     }
 
     @Test
