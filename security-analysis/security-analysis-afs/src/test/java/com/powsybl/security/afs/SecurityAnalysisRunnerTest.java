@@ -175,6 +175,7 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         assertTrue(runner.getCase().isPresent());
         assertEquals(importedCase.getId(), runner.getCase().get().getId());
         assertTrue(runner.getContingencyStore().isPresent());
+        assertFalse(runner.mandatoryDependenciesAreMissing());
         assertEquals(contingencyStore.getId(), runner.getContingencyStore().get().getId());
 
         // check there is no results
@@ -214,5 +215,16 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         assertEquals(importedCase2.getId(), runner.getCase().get().getId());
         assertTrue(runner.getContingencyStore().isPresent());
         assertEquals(contingencyStore2.getId(), runner.getContingencyStore().get().getId());
+
+        //test missing dependencies
+        SecurityAnalysisRunner runner2 = project.getRootFolder().fileBuilder(SecurityAnalysisRunnerBuilder.class)
+                .withName("sar")
+                .withCase(importedCase)
+                .withContingencyStore(contingencyStore)
+                .build();
+
+        contingencyStore.delete();
+        assertTrue(runner2.mandatoryDependenciesAreMissing());
+
     }
 }
