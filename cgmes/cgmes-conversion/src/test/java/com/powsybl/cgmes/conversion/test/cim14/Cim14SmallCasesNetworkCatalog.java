@@ -20,9 +20,12 @@ import org.mockito.Mockito;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class Cim14SmallCasesNetworkCatalog {
+public final class Cim14SmallCasesNetworkCatalog {
 
-    public Network smallcase1() {
+    private Cim14SmallCasesNetworkCatalog() {
+    }
+
+    public static Network smallcase1() {
         String sGenGeoTag = "_SGR_1_";
         String sInfGeoTag = "_SGR_1_";
         String genName = "GEN     ";
@@ -166,28 +169,26 @@ public class Cim14SmallCasesNetworkCatalog {
         return network;
     }
 
-    public Network ieee14() {
-        return loadNetwork(catalog.ieee14());
+    public static Network ieee14() {
+        return loadNetwork(Cim14SmallCasesCatalog.ieee14());
     }
 
-    public Network nordic32() {
-        return loadNetwork(catalog.nordic32());
+    public static Network nordic32() {
+        return loadNetwork(Cim14SmallCasesCatalog.nordic32());
     }
 
-    public Network m7buses() {
-        return loadNetwork(catalog.m7buses());
+    public static Network m7buses() {
+        return loadNetwork(Cim14SmallCasesCatalog.m7buses());
     }
 
-    public Network txMicroBEAdapted() {
-        return loadNetwork(catalog.txMicroBEAdapted());
+    public static Network txMicroBEAdapted() {
+        return loadNetwork(Cim14SmallCasesCatalog.txMicroBEAdapted());
     }
 
-    private Network loadNetwork(TestGridModel gm) {
+    private static Network loadNetwork(TestGridModel gm) {
         XMLImporter xmli = new XMLImporter(Mockito.mock(PlatformConfig.class));
         ReadOnlyDataSource ds = new ResourceDataSource(gm.name(), new ResourceSet("/cim14", gm.name() + ".xiidm"));
         Network n = xmli.importData(ds, null);
         return n;
     }
-
-    private final Cim14SmallCasesCatalog catalog = new Cim14SmallCasesCatalog();
 }

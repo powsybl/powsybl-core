@@ -123,7 +123,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         }
         if (chunk.getLength() > newChunkSize) {
             // compute lower intersection index with new chunk size
-            int newChunkLowIndex = Math.round(0.5f + (float) chunk.getOffset() / newChunkSize) * newChunkSize;
+            int newChunkLowIndex = (int) Math.round(0.5f + (double) chunk.getOffset() / newChunkSize) * newChunkSize;
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("   At index {}", newChunkLowIndex);
             }

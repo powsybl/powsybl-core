@@ -14,7 +14,6 @@ import org.junit.Test;
 
 import com.powsybl.cgmes.alternatives.test.AlternativeQueriesTester.Expected;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
-import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
@@ -25,14 +24,13 @@ public class AlternativeQueriesForSwitchesTest {
 
     @BeforeClass
     public static void setUp() {
-        TestGridModel model = new CgmesConformity1Catalog().smallNodeBreaker();
         // Expected number of results when querying switches
         // We expected two results for each switch, one result for each side
         Expected expected = new Expected().resultSize(738);
         tester = new AlternativeQueriesTester(
                 TripleStoreFactory.allImplementations(),
                 new QueryCatalog("switches.sparql"),
-                model,
+                CgmesConformity1Catalog.smallNodeBreaker(),
                 expected);
         tester.load();
     }

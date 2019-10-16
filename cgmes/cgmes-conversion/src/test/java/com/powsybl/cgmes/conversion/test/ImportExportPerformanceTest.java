@@ -21,7 +21,6 @@ import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStoreFactory;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,14 +39,9 @@ public class ImportExportPerformanceTest {
     // TODO We should build tests that check that re-imported exported models
     // are equivalent to the original models
 
-    @BeforeClass
-    public static void setUp() {
-        catalog = new Cim14SmallCasesCatalog();
-    }
-
     @Test
     public void smallcase1() throws IOException {
-        importExport(TripleStoreFactory.onlyDefaultImplementation(), catalog.small1());
+        importExport(TripleStoreFactory.onlyDefaultImplementation(), Cim14SmallCasesCatalog.small1());
     }
 
     private void importExport(List<String> tsImpls, TestGridModel gm) throws IOException {
@@ -88,8 +82,6 @@ public class ImportExportPerformanceTest {
         DataSource exportDataSource = new FileDataSource(exportFolder, "");
         e.export(n, new Properties(), exportDataSource);
     }
-
-    private static Cim14SmallCasesCatalog catalog;
 
     private static final Logger LOG = LoggerFactory.getLogger(ImportExportPerformanceTest.class);
 }
