@@ -76,15 +76,13 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
      *
      * @param mayInterruptIfRunning if {@code true}, and if the bound task is under execution,
      *                              the thread executing the task will be interrupted
-     * @return {@code true} if the task has been cancelled.
+     * @return {@code false} if the task could not be cancelled,
+     *         typically because it has already completed;
+     *         {@code true} otherwise
      */
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        boolean cancelled = super.cancel(mayInterruptIfRunning);
-        if (cancelled) {
-            future.cancel(mayInterruptIfRunning);
-        }
-        return cancelled;
+        return super.cancel(mayInterruptIfRunning) && future.cancel(mayInterruptIfRunning);
     }
 
 }

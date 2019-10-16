@@ -114,6 +114,7 @@ public class CompletableFutureTaskTest {
         waitForStart.await();
         boolean cancelled = task.cancel(true);
         assertTrue(cancelled);
+
         try {
             task.get();
             fail();
@@ -122,8 +123,13 @@ public class CompletableFutureTaskTest {
         } catch (Throwable exc) {
             fail();
         }
+
         waitForInterruption.await();
         assertTrue(interrupted.get());
+
+        //Second call to cancel should return false
+        cancelled = task.cancel(true);
+        assertFalse(cancelled);
     }
 
     @Test
