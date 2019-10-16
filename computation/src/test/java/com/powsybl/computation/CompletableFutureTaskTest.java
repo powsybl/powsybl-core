@@ -50,9 +50,7 @@ public class CompletableFutureTaskTest {
     public void whenSupplyObjectThenReturnIt() throws Exception {
 
         Object res = new Object();
-        CompletableFutureTask<Object> task = new CompletableFutureTask<>(() -> res);
-        executor.execute(task);
-
+        CompletableFutureTask<Object> task = CompletableFutureTask.runAsync(() -> res, executor);
         assertSame(res, task.get());
     }
 
@@ -62,10 +60,10 @@ public class CompletableFutureTaskTest {
     @Test
     public void whenTaskThrowsThenThrowExecutionException() {
 
-        CompletableFutureTask<Integer> task = new CompletableFutureTask<>(() -> {
+        CompletableFutureTask<Integer> task = CompletableFutureTask.runAsync(() -> {
             throw new MyException();
-        });
-        executor.execute(task);
+        }, executor);
+
         try {
             task.get();
             fail();
@@ -85,7 +83,7 @@ public class CompletableFutureTaskTest {
         });
         boolean cancelled = task.cancel(true);
         assertTrue(cancelled);
-        executor.execute(task);
+        task.runAsync(executor);
         task.get();
     }
 
@@ -97,7 +95,7 @@ public class CompletableFutureTaskTest {
         CountDownLatch waitForInterruption = new CountDownLatch(1);
 
         AtomicBoolean interrupted = new AtomicBoolean(false);
-        CompletableFutureTask<Integer> task = new CompletableFutureTask<>(() -> {
+        CompletableFutureTask<Integer> task = CompletableFutureTask.runAsync(() -> {
             waitForStart.countDown();
             try {
                 waitIndefinitely.await();
@@ -107,8 +105,7 @@ public class CompletableFutureTaskTest {
                 waitForInterruption.countDown();
             }
             return null;
-        });
-        executor.execute(task);
+        }, executor);
 
         //Cancel after task has actually started
         waitForStart.await();
@@ -136,8 +133,7 @@ public class CompletableFutureTaskTest {
     public void cancelAfterExecutionShouldDoNothing() throws Exception {
 
         Object res = new Object();
-        CompletableFutureTask<Object> task = new CompletableFutureTask<>(() -> res);
-        executor.execute(task);
+        CompletableFutureTask<Object> task = CompletableFutureTask.runAsync(() -> res, executor);
 
         assertSame(res, task.get());
 
