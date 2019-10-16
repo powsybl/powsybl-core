@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -204,25 +205,9 @@ public class RegulatingControlMapping {
 
     private boolean setRemoteRegulatingTerminal(String tc, RegulatingControl control) {
         if (context.tapChangerTransformers().transformer2(tc) != null) {
-            return setRemoteRegulatingTerminal(tc, control, context.tapChangerTransformers().transformer2(tc));
+            throw new PowsyblException("Unexpeted RemoteRegulatinTerminal for two windings transformer");
         } else if (context.tapChangerTransformers().transformer3(tc) != null) {
             return setRemoteRegulatingTerminal(tc, control, context.tapChangerTransformers().transformer3(tc));
-        }
-        return false;
-    }
-
-    private boolean setRemoteRegulatingTerminal(String tc, RegulatingControl control, TwoWindingsTransformer t2w) {
-        Terminal regTerminal = findRemoteRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
-        if (regTerminal == null) {
-            context.missing(String.format(MISSING_IIDM_TERMINAL, control.topologicalNode));
-            return false;
-        }
-        if (context.tapChangerTransformers().type(tc).equals("rtc")) {
-            t2w.getRatioTapChanger().setRegulationTerminal(regTerminal);
-            return true;
-        } else if (context.tapChangerTransformers().type(tc).equals("ptc")) {
-            t2w.getPhaseTapChanger().setRegulationTerminal(regTerminal);
-            return true;
         }
         return false;
     }
