@@ -10,8 +10,6 @@ package com.powsybl.cgmes.conversion.elements;
 import java.util.Map;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.RegulatingControlPhase;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.RegulatingControlRatio;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
@@ -89,7 +87,7 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
         String ptc1 = end1.getId(ptcPropertyName);
         String ptc2 = end2.getId(ptcPropertyName);
 
-        // unused, will be delete in the full conversion
+        // used only for debugging in the current conversion, it will not be needed in the full conversion
         if (context.config().allowUnsupportedTapChangers()) {
             context.tapChangerTransformers().add(rtc1, tx, "rtc", 1);
             context.tapChangerTransformers().add(rtc2, tx, "rtc", 2);
@@ -168,23 +166,16 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
     }
 
     private void setRegulatingControlContext(TwoWindingsTransformer tx, String rtcId, String ptcId) {
-        RegulatingControlRatio rcRtc = null;
+        PropertyBag rtc = null;
         if (rtcId != null) {
-            PropertyBag tc = powerTransformerRatioTapChanger.get(rtcId);
-            rcRtc = context.regulatingControlMapping().forTransformers().buildRegulatingControlRatio(rtcId, tc);
-        } else {
-            rcRtc = context.regulatingControlMapping().forTransformers().buildEmptyRegulatingControlRatio();
+            rtc = powerTransformerRatioTapChanger.get(rtcId);
         }
 
-        RegulatingControlPhase rcPtc = null;
+        PropertyBag ptc = null;
         if (ptcId != null) {
-            PropertyBag tc = powerTransformerPhaseTapChanger.get(ptcId);
-            rcPtc = context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(tc);
-        } else {
-            rcPtc = context.regulatingControlMapping().forTransformers().buildEmptyRegulatingControlPhase();
+            ptc = powerTransformerPhaseTapChanger.get(ptcId);
         }
-
-        context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc, rcPtc);
+        context.regulatingControlMapping().forTransformers().add(tx.getId(), rtcId, rtc, ptc);
     }
 
     private final PropertyBag end1;

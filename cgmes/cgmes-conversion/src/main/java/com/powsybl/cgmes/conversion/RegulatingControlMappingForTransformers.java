@@ -7,9 +7,7 @@ import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -29,37 +27,33 @@ public class RegulatingControlMappingForTransformers {
         t2xMapping = new HashMap<>();
     }
 
-    public void add(String transformerId, RegulatingControlRatio rcRtc, RegulatingControlPhase rcPtc) {
+    public void add(String transformerId, String rtcId, PropertyBag rtc, PropertyBag ptc) {
         if (t2xMapping.containsKey(transformerId)) {
             throw new CgmesModelException("Transformer already added, Transformer id : " + transformerId);
         }
 
-        RegulatingControlForTwoWindingsTransformer rc = new RegulatingControlForTwoWindingsTransformer();
+        CgmesRegulatingControlRatio rcRtc = null;
+        if (rtc != null) {
+            rcRtc = buildRegulatingControlRatio(rtcId, rtc);
+        }
+
+        CgmesRegulatingControlPhase rcPtc = null;
+        if (ptc != null) {
+            rcPtc = context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(ptc);
+        }
+
+        CgmesRegulatingControlForTwoWindingsTransformer rc = new CgmesRegulatingControlForTwoWindingsTransformer();
         rc.ratioTapChanger = rcRtc;
         rc.phaseTapChanger = rcPtc;
         t2xMapping.put(transformerId, rc);
     }
 
-    public RegulatingControlRatio buildEmptyRegulatingControlRatio() {
-        RegulatingControlRatio rtc = new RegulatingControlRatio();
-        rtc.id = null;
-        rtc.regulatingControlId = null;
-        rtc.tculControlMode = null;
-        rtc.tapChangerControlEnabled = false;
-
-        return rtc;
-    }
-
-    public RegulatingControlRatio buildRegulatingControlRatio(String id, PropertyBag tc) {
+    private CgmesRegulatingControlRatio buildRegulatingControlRatio(String id, PropertyBag tc) {
         String regulatingControlId = getRegulatingControlId(tc);
         String tculControlMode = tc.get("tculControlMode");
         boolean tapChangerControlEnabled = tc.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false);
-        return buildRegulatingControlRatio(id, regulatingControlId, tculControlMode, tapChangerControlEnabled);
-    }
 
-    private RegulatingControlRatio buildRegulatingControlRatio(String id, String regulatingControlId,
-        String tculControlMode, boolean tapChangerControlEnabled) {
-        RegulatingControlRatio rtc = new RegulatingControlRatio();
+        CgmesRegulatingControlRatio rtc = new CgmesRegulatingControlRatio();
         rtc.id = id;
         rtc.regulatingControlId = regulatingControlId;
         rtc.tculControlMode = tculControlMode;
@@ -67,43 +61,16 @@ public class RegulatingControlMappingForTransformers {
         return rtc;
     }
 
-    public RegulatingControlPhase buildEmptyRegulatingControlPhase() {
-        RegulatingControlPhase rtc = new RegulatingControlPhase();
-        rtc.regulatingControlId = null;
-        rtc.tapChangerControlEnabled = false;
-
-        return rtc;
-    }
-
-    public RegulatingControlPhase buildRegulatingControlPhase(PropertyBag tc) {
+    private CgmesRegulatingControlPhase buildRegulatingControlPhase(PropertyBag tc) {
         String regulatingControlId = getRegulatingControlId(tc);
         boolean tapChangerControlEnabled = tc.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false);
         boolean ltcFlag = tc.asBoolean("ltcFlag", false);
-        return buildRegulatingControlPhase(regulatingControlId, tapChangerControlEnabled, ltcFlag);
-    }
 
-    private RegulatingControlPhase buildRegulatingControlPhase(String regulatingControlId,
-        boolean tapChangerControlEnabled, boolean ltcFlag) {
-        RegulatingControlPhase rtc = new RegulatingControlPhase();
+        CgmesRegulatingControlPhase rtc = new CgmesRegulatingControlPhase();
         rtc.regulatingControlId = regulatingControlId;
         rtc.tapChangerControlEnabled = tapChangerControlEnabled;
         rtc.ltcFlag = ltcFlag;
         return rtc;
-    }
-
-    public static void initializeRatioTapChanger(RatioTapChangerAdder adder) {
-        adder.setRegulationTerminal(null);
-        adder.setTargetV(Double.NaN);
-        adder.setTargetDeadband(Double.NaN);
-        adder.setRegulating(false);
-    }
-
-    public static void initializePhaseTapChanger(PhaseTapChangerAdder adder) {
-        adder.setRegulationTerminal(null);
-        adder.setRegulationValue(Double.NaN);
-        adder.setTargetDeadband(Double.NaN);
-        adder.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
-        adder.setRegulating(false);
     }
 
     void applyTwoWindings(Network network) {
@@ -111,11 +78,11 @@ public class RegulatingControlMappingForTransformers {
     }
 
     private void applyTwoWindings(TwoWindingsTransformer twt) {
-        RegulatingControlForTwoWindingsTransformer rc = t2xMapping.get(twt.getId());
+        CgmesRegulatingControlForTwoWindingsTransformer rc = t2xMapping.get(twt.getId());
         applyTwoWindings(twt, rc);
     }
 
-    private void applyTwoWindings(TwoWindingsTransformer twt, RegulatingControlForTwoWindingsTransformer rc) {
+    private void applyTwoWindings(TwoWindingsTransformer twt, CgmesRegulatingControlForTwoWindingsTransformer rc) {
         if (rc == null) {
             return;
         }
@@ -144,7 +111,7 @@ public class RegulatingControlMappingForTransformers {
         }
     }
 
-    private RegulatingControlRatioAttributes getRatioTapChanger(RegulatingControlRatio rc) {
+    private RegulatingControlRatioAttributes getRatioTapChanger(CgmesRegulatingControlRatio rc) {
         RegulatingControl control = getTapChangerControl(rc);
         if (control == null) {
             return null;
@@ -160,7 +127,7 @@ public class RegulatingControlMappingForTransformers {
         return rca;
     }
 
-    private RegulatingControlPhaseAttributes getPhaseTapChanger(RegulatingControlPhase rc) {
+    private RegulatingControlPhaseAttributes getPhaseTapChanger(CgmesRegulatingControlPhase rc) {
         RegulatingControl control = getTapChangerControl(rc);
         if (control == null) {
             return null;
@@ -177,7 +144,7 @@ public class RegulatingControlMappingForTransformers {
         return rca;
     }
 
-    private RegulatingControl getTapChangerControl(RegulatingControlReference rc) {
+    private RegulatingControl getTapChangerControl(CgmesRegulatingControl rc) {
         if (rc == null) {
             return null;
         }
@@ -351,6 +318,7 @@ public class RegulatingControlMappingForTransformers {
         return controlMode != null && controlMode.endsWith("fixed");
     }
 
+    // Attributes needed in the IIDM model, ratio tap changer
     private static class RegulatingControlRatioAttributes {
         Terminal terminal;
         double targetValue;
@@ -358,6 +326,7 @@ public class RegulatingControlMappingForTransformers {
         boolean regulating;
     }
 
+    // Attributes needed in the IIDM model, phase tap changer
     private static class RegulatingControlPhaseAttributes {
         PhaseTapChanger.RegulationMode regulationMode;
         Terminal terminal;
@@ -366,26 +335,27 @@ public class RegulatingControlMappingForTransformers {
         boolean regulating;
     }
 
-    public static class RegulatingControlRatio extends RegulatingControlReference {
+    // Cgmes data needed to get the IIDM attributes
+    private static class CgmesRegulatingControlForTwoWindingsTransformer {
+        CgmesRegulatingControlRatio ratioTapChanger;
+        CgmesRegulatingControlPhase phaseTapChanger;
+    }
+
+    private static class CgmesRegulatingControlRatio extends CgmesRegulatingControl {
         String id;
         String tculControlMode;
     }
 
-    public static class RegulatingControlPhase extends RegulatingControlReference {
+    private static class CgmesRegulatingControlPhase extends CgmesRegulatingControl {
         boolean ltcFlag;
     }
 
-    private static class RegulatingControlReference {
+    private static class CgmesRegulatingControl {
         String regulatingControlId;
         boolean tapChangerControlEnabled;
     }
 
-    private static class RegulatingControlForTwoWindingsTransformer {
-        RegulatingControlRatio ratioTapChanger;
-        RegulatingControlPhase phaseTapChanger;
-    }
-
     private final RegulatingControlMapping parent;
     private final Context context;
-    private final Map<String, RegulatingControlForTwoWindingsTransformer> t2xMapping;
+    private final Map<String, CgmesRegulatingControlForTwoWindingsTransformer> t2xMapping;
 }

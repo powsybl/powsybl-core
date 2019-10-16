@@ -124,8 +124,6 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             addSteps(alphas, rhos, theta, ptca);
         }
 
-        context.regulatingControlMapping().forTransformers().initializePhaseTapChanger(ptca);
-
         ptca.add();
     }
 
