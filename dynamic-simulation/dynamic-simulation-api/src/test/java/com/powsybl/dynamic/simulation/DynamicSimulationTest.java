@@ -11,6 +11,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.nio.file.FileSystem;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -64,6 +66,18 @@ public class DynamicSimulationTest {
         assertEquals("DynamicSimulationMock", defaultDynamicSimulation.getName());
         DynamicSimulationResult result = defaultDynamicSimulation.run(network, computationManager, new DynamicSimulationParameters());
         assertNotNull(result);
+    }
+
+    @Test
+    public void testAsyncDefaultOneProvider() {
+        // case with only one provider, no need for config
+        DynamicSimulation.Runner defaultDynamicSimulation = DynamicSimulation.find(null, ImmutableList.of(new DynamicSimulationProviderMock()), platformConfig);
+        assertEquals("DynamicSimulationMock", defaultDynamicSimulation.getName());
+        CompletableFuture<DynamicSimulationResult> result = defaultDynamicSimulation.runAsync(network, computationManager, new DynamicSimulationParameters());
+        try {
+            assertNotNull(result.get());
+        } catch (InterruptedException | ExecutionException e) {
+        }
     }
 
     @Test
