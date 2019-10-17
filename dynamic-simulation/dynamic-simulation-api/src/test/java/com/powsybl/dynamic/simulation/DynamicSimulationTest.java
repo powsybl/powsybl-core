@@ -76,7 +76,7 @@ public class DynamicSimulationTest {
         CompletableFuture<DynamicSimulationResult> result = defaultDynamicSimulation.runAsync(network, computationManager, new DynamicSimulationParameters());
         try {
             assertNotNull(result.get());
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException ignored) {
         }
     }
 
