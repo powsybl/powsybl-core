@@ -16,7 +16,8 @@ public interface PhaseTapChanger extends TapChanger<PhaseTapChanger, PhaseTapCha
     enum RegulationMode {
         CURRENT_LIMITER,
         ACTIVE_POWER_CONTROL,
-        FIXED_TAP
+        FIXED_TAP,
+        DELTA_TAP
     }
 
     /**
