@@ -331,7 +331,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         List<String> duplicates = new ArrayList<>();
         Set<String> namesWithoutDuplicates = new HashSet<>();
         for (String token : tokens) {
-            if (! namesWithoutDuplicates.add(token)) {
+            if (!namesWithoutDuplicates.add(token)) {
                 duplicates.add(token);
             }
         }
