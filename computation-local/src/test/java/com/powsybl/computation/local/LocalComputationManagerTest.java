@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.computation.*;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,14 +24,14 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.google.common.util.concurrent.Uninterruptibles.awaitUninterruptibly;
 import static org.junit.Assert.*;
 
 /**
@@ -240,5 +241,122 @@ public class LocalComputationManagerTest {
             // check that code is not hanging anymore when a java.lang.Error is thrown inside before
             result.get(100, TimeUnit.MILLISECONDS);
         }
+    }
+
+    private static List<CommandExecution> dummyExecutions() {
+        // run the command
+        Command command = new SimpleCommandBuilder()
+                .id("prog1_cmd")
+                .program("prog1")
+                .args("arg1", "arg2")
+                .build();
+        return Collections.singletonList(new CommandExecution(command, 1));
+    }
+
+    @Test(expected = CancellationException.class)
+    public void cancelBeforeExecutionShouldThrowAndNotExecute() throws Exception {
+        LocalCommandExecutor localCommandExecutor = new AbstractLocalCommandExecutor() {
+            @Override
+            void nonZeroLog(List<String> cmdLs, int exitCode) {
+            }
+
+            @Override
+            public int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {
+                fail();
+                return 0;
+            }
+        };
+
+        CountDownLatch waitForBefore = new CountDownLatch(1);
+        CountDownLatch waitForCancel = new CountDownLatch(1);
+
+        try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
+
+            Lock lock = new ReentrantLock();
+            lock.lock();
+
+            CompletableFuture<Object> result = computationManager.execute(ExecutionEnvironment.createDefault(), new AbstractExecutionHandler<Object>() {
+                @Override
+                public List<CommandExecution> before(Path workingDir) {
+                    waitForBefore.countDown();
+                    awaitUninterruptibly(waitForCancel);
+                    return dummyExecutions();
+                }
+
+                @Override
+                public Object after(Path workingDir, ExecutionReport report) throws IOException {
+                    fail();
+                    return super.after(workingDir, report);
+                }
+            });
+
+            waitForBefore.await();
+            result.cancel(true);
+            waitForCancel.countDown();
+
+            result.get();
+        }
+    }
+
+    @Test
+    public void cancelDuringExecutionShouldThrowAndEventuallyStopExecution() throws InterruptedException {
+
+        CountDownLatch waitForExecution = new CountDownLatch(1);
+        CountDownLatch execution = new CountDownLatch(1); // Will be interrupted, not decremented
+        CountDownLatch waitForInterruption = new CountDownLatch(1);
+
+        MutableBoolean stopped = new MutableBoolean(false);
+        LocalCommandExecutor localCommandExecutor = new AbstractLocalCommandExecutor() {
+            @Override
+            void nonZeroLog(List<String> cmdLs, int exitCode) {
+            }
+
+            @Override
+            public int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {
+                waitForExecution.countDown();
+                execution.await(); //Simulates process running
+                return 0;
+            }
+
+            @Override
+            public void stop(Path workingDir) {
+                stopped.setTrue();
+                waitForInterruption.countDown();
+            }
+
+            @Override
+            public void stopForcibly(Path workingDir) {
+                stopped.setTrue();
+                waitForInterruption.countDown();
+            }
+        };
+
+        try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
+
+            CompletableFuture<Object> result = computationManager.execute(ExecutionEnvironment.createDefault(), new AbstractExecutionHandler<Object>() {
+                @Override
+                public List<CommandExecution> before(Path workingDir) {
+                    return dummyExecutions();
+                }
+
+                @Override
+                public Object after(Path workingDir, ExecutionReport report) throws IOException {
+                    fail();
+                    return super.after(workingDir, report);
+                }
+            });
+
+            waitForExecution.await();
+            result.cancel(true);
+            result.get();
+            fail();
+        } catch (CancellationException exc) {
+            //OK
+        } catch (Throwable t) {
+            fail();
+        }
+
+        waitForInterruption.await(10, TimeUnit.SECONDS);
+        assertTrue(stopped.isTrue());
     }
 }
