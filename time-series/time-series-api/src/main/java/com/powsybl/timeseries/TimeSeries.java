@@ -351,7 +351,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         String separatorStr = Character.toString(separator);
 
         try {
-            CsvListReader csvListReader = new CsvListReader(reader, new CsvPreference.Builder('"', separator, "\n").build());
+            CsvListReader csvListReader = new CsvListReader(reader, new CsvPreference.Builder('"', separator, System.lineSeparator()).build());
             CsvParsingContext context = readCsvHeader(csvListReader, separatorStr);
             readCsvValues(csvListReader, context, timeSeriesPerVersion);
         } catch (IOException e) {
