@@ -8,11 +8,14 @@ package com.powsybl.timeseries;
 
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.Assert.*;
 
 /**
@@ -70,6 +73,28 @@ public class TimeSeriesTest {
 
         });
 
+        String emptyCsv = "";
+        assertThatCode(() -> TimeSeries.parseCsv(emptyCsv, ';')).hasMessage("CSV header is missing").isInstanceOf(TimeSeriesException.class);
+
+        String badHeader = String.join(System.lineSeparator(),
+            "Time;Verison;ts1;ts2",
+            "1970-01-01T01:00:00.000+01:00;1;1.0;",
+            "1970-01-01T02:00:00.000+01:00;1;;a",
+            "1970-01-01T03:00:00.000+01:00;1;3.0;b",
+            "1970-01-01T01:00:00.000+01:00;2;4.0;c",
+            "1970-01-01T02:00:00.000+01:00;2;5.0;",
+            "1970-01-01T03:00:00.000+01:00;2;6.0;d") + System.lineSeparator();
+        assertThatCode(() -> TimeSeries.parseCsv(badHeader, ';')).hasMessage("Bad CSV header, should be \nTime;Version;...").isInstanceOf(TimeSeriesException.class);
+
+        String duplicates = String.join(System.lineSeparator(),
+                "Time;Version;ts1;ts1",
+                "1970-01-01T01:00:00.000+01:00;1;1.0;",
+                "1970-01-01T02:00:00.000+01:00;1;;a",
+                "1970-01-01T03:00:00.000+01:00;1;3.0;b",
+                "1970-01-01T01:00:00.000+01:00;2;4.0;c",
+                "1970-01-01T02:00:00.000+01:00;2;5.0;",
+                "1970-01-01T03:00:00.000+01:00;2;6.0;d") + System.lineSeparator();
+        assertThatCode(() -> TimeSeries.parseCsv(duplicates, ';')).hasMessageContaining("Bad CSV header, there are duplicates in time series names").isInstanceOf(TimeSeriesException.class);
     }
 
     @Test

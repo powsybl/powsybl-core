@@ -295,7 +295,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
     }
 
-    static void readCsvValues(CsvListReader reader, String separatorStr, CsvParsingContext context,
+    static void readCsvValues(CsvListReader reader, CsvParsingContext context,
                               Map<Integer, List<TimeSeries>> timeSeriesPerVersion) throws IOException {
         List<String> tokens;
         int currentVersion = Integer.MIN_VALUE;
@@ -330,9 +330,9 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
         List<String> duplicates = new ArrayList<>();
         Set<String> namesWithoutDuplicates = new HashSet<>();
-        for (int i = 0; i < tokens.length; i++) {
-            if (!namesWithoutDuplicates.add(tokens[i])) {
-                duplicates.add(tokens[i]);
+        for (String token : tokens) {
+            if (! namesWithoutDuplicates.add(token)) {
+                duplicates.add(token);
             }
         }
         if (!duplicates.isEmpty()) {
@@ -353,7 +353,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         try {
             CsvListReader csvListReader = new CsvListReader(reader, new CsvPreference.Builder('"', separator, "\n").build());
             CsvParsingContext context = readCsvHeader(csvListReader, separatorStr);
-            readCsvValues(csvListReader, separatorStr, context, timeSeriesPerVersion);
+            readCsvValues(csvListReader, context, timeSeriesPerVersion);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
