@@ -126,7 +126,6 @@ public class RunDynamicSimulationTool implements Tool {
         Path outputFile = null;
         Format format = null;
 
-        ImportConfig importConfig = (!skipPostProc) ? ImportConfig.load() : new ImportConfig();
         // process a single network: output-file/output-format options available
         if (line.hasOption(OUTPUT_FILE)) {
             outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE));
@@ -138,6 +137,7 @@ public class RunDynamicSimulationTool implements Tool {
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
+        ImportConfig importConfig = (!skipPostProc) ? ImportConfig.load() : new ImportConfig();
         Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(),
             importConfig, inputParams);
         if (network == null) {
