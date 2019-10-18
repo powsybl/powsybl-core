@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControlId;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
@@ -38,30 +38,19 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
         }
 
         GeneratorAdder adder = voltageLevel().newGenerator();
+        RegulatingControlMappingForGenerators.initialize(adder);
         adder.setMinP(minP)
                 .setMaxP(maxP)
                 .setTargetP(targetP)
                 .setTargetQ(targetQ)
                 .setEnergySource(EnergySource.OTHER);
-        if (!context.isExtendedCgmesConversion()) {
-            context.regulatingControlMapping().setRegulatingControl(iidmId(), p, adder, voltageLevel());
-        }
-
         identify(adder);
         connect(adder);
         Generator g = adder.add();
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
-        if (context.isExtendedCgmesConversion()) {
-            setRegulatingControlContext(g.getId(), p, voltageLevel().getNominalV());
-        }
+
+        context.regulatingControlMapping().forGenerators().add(g.getId(), p);
     }
 
-    private void setRegulatingControlContext(String iidmId, PropertyBag sm, double nominalVoltage) {
-        RegulatingControlId rci = context.regulatingControlMapping().getGeneratorRegulatingControl(sm);
-        if (context.isExtendedCgmesConversion()) {
-            context.generatorRegulatingControlMapping().add(iidmId, rci.isRegulating(), rci.getRegulatingControlId(),
-                nominalVoltage);
-        }
-    }
 }

@@ -136,12 +136,8 @@ public class Conversion {
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.currentLimitsMapping().addAll();
 
-        if (context.isExtendedCgmesConversion()) {
-            context.regulatingControlMapping().setAllRegulatingControls(network);
-        } else {
-            // set all remote regulating terminals
-            context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
-        }
+        // set all regulating controls
+        context.regulatingControlMapping().setAllRegulatingControls(network);
 
         if (config.convertSvInjections()) {
             convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));

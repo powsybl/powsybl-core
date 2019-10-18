@@ -8,12 +8,11 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControlId;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -44,27 +43,20 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         }
 
         GeneratorAdder adder = voltageLevel().newGenerator();
+        RegulatingControlMappingForGenerators.initialize(adder);
         adder.setMinP(minP)
                 .setMaxP(maxP)
                 .setTargetP(targetP)
                 .setTargetQ(targetQ)
                 .setEnergySource(fromGeneratingUnitType(generatingUnitType))
                 .setRatedS(ratedS);
-        if (!context.isExtendedCgmesConversion()) {
-            context.regulatingControlMapping().setRegulatingControl(iidmId(), p, adder, voltageLevel());
-        }
         identify(adder);
         connect(adder);
         Generator g = adder.add();
-        if (p.containsKey("qPercent") && !Double.isNaN(p.asDouble("qPercent"))) {
-            CoordinatedReactiveControl coordinatedReactiveControl = new CoordinatedReactiveControl(g, p.asDouble("qPercent"));
-            g.addExtension(CoordinatedReactiveControl.class, coordinatedReactiveControl);
-        }
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
-        if (context.isExtendedCgmesConversion()) {
-            setRegulatingControlContext(g.getId(), p, voltageLevel().getNominalV());
-        }
+
+        context.regulatingControlMapping().forGenerators().add(g.getId(), p);
     }
 
     private static EnergySource fromGeneratingUnitType(String gut) {
@@ -79,13 +71,5 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
             es = EnergySource.WIND;
         }
         return es;
-    }
-
-    private void setRegulatingControlContext(String genId, PropertyBag sm, double nominalVoltage) {
-        RegulatingControlId rci = context.regulatingControlMapping().getGeneratorRegulatingControl(sm);
-        if (context.isExtendedCgmesConversion()) {
-            context.generatorRegulatingControlMapping().add(genId, rci.isRegulating(), rci.getRegulatingControlId(),
-                nominalVoltage);
-        }
     }
 }
