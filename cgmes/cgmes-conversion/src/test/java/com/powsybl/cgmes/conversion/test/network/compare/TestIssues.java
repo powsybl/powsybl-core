@@ -30,6 +30,10 @@ public class TestIssues {
         // Previously two identifiables equal to null made comparison fail
         n.getGenerator("G1").getTerminal().disconnect();
         n.getLine("Line12").getTerminal2().disconnect();
+        // NOTE:
+        // Disconnecting the terminal of the generator or the regulated terminal
+        // do not deactivate voltage regulation
+        assertTrue(n.getGenerator("G1").isVoltageRegulatorOn());
         c.compare();
     }
 
