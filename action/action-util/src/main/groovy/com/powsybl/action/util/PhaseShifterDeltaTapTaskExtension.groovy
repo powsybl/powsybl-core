@@ -9,7 +9,7 @@ class PhaseShifterDeltaTapTaskExtension implements DslTaskExtension {
 
     @Override
     void addToSpec(MetaClass tasksSpecMetaClass, List<ModificationTask> tasks, Binding binding) {
-        tasksSpecMetaClass.phaseShifterFixedTap = { String id, int delta ->
+        tasksSpecMetaClass.phaseShifterDeltaTap = { String id, int delta ->
             tasks.add(new PhaseShifterDeltaTapTask(id, delta))
         }
     }

@@ -78,7 +78,7 @@ public class ActionDslLoaderTest {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
         Action fixedTapAction = actionDb.getAction("fixedTap");
         assertNotNull(fixedTapAction);
-        addPhaseShifter();
+        addPhaseShifter(0);
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("NGEN_NHV1").getPhaseTapChanger();
         assertEquals(0, phaseTapChanger.getTapPosition());
         assertTrue(phaseTapChanger.isRegulating());
@@ -86,6 +86,22 @@ public class ActionDslLoaderTest {
         fixedTapAction.run(network, null);
         assertEquals(1, phaseTapChanger.getTapPosition());
         assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
+        assertFalse(phaseTapChanger.isRegulating());
+    }
+
+    @Test
+    public void testDeltaTapDslExtension() {
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
+        Action deltaTapAction = actionDb.getAction("deltaTap");
+        assertNotNull(deltaTapAction);
+        addPhaseShifter(1);
+        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("NGEN_NHV1").getPhaseTapChanger();
+        assertEquals(1, phaseTapChanger.getTapPosition());
+        assertTrue(phaseTapChanger.isRegulating());
+        assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
+        deltaTapAction.run(network, null);
+        assertEquals(0, phaseTapChanger.getTapPosition());
+        assertEquals(PhaseTapChanger.RegulationMode.DELTA_TAP, phaseTapChanger.getRegulationMode());
         assertFalse(phaseTapChanger.isRegulating());
     }
 
@@ -127,14 +143,22 @@ public class ActionDslLoaderTest {
         verify(handler, times(1)).addRule(argThat(matches(c -> c.getId().equals("rule"))));
     }
 
-    private void addPhaseShifter() {
+    private void addPhaseShifter(int initTapPosition) {
         network.getTwoWindingsTransformer("NGEN_NHV1").newPhaseTapChanger()
-                .setTapPosition(0)
+                .setTapPosition(initTapPosition)
                 .setLowTapPosition(0)
                 .setRegulating(true)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationTerminal(network.getTwoWindingsTransformer("NGEN_NHV1").getTerminal2())
                 .setRegulationValue(1.0)
+                .beginStep()
+                    .setR(1.0)
+                    .setX(2.0)
+                    .setG(3.0)
+                    .setB(4.0)
+                    .setAlpha(5.0)
+                    .setRho(6.0)
+                .endStep()
                 .beginStep()
                     .setR(1.0)
                     .setX(2.0)
