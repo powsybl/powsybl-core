@@ -18,7 +18,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
