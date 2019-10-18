@@ -43,6 +43,6 @@ action ('fixedTap') {
 
 action ('deltaTap') {
     tasks {
-        phaseShifterDeltaTap('NGEN_NHV1', -1)
+        phaseShifterDeltaTap('NGEN_NHV1', 2)
     }
 }

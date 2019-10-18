@@ -29,10 +29,21 @@ public class PhaseShifterDeltaTapTask implements ModificationTask {
         if (phaseShifter.getPhaseTapChanger() == null) {
             throw new PowsyblException("Transformer '" + phaseShifterId + "' is not a phase shifter");
         }
-        phaseShifter.getPhaseTapChanger().setTapPosition(
-                phaseShifter.getPhaseTapChanger().getTapPosition() + this.tapDelta);
+        adjustTapPosition(phaseShifter);
         phaseShifter.getPhaseTapChanger().setRegulating(false);
         phaseShifter.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.DELTA_TAP);
 
+    }
+
+    private void adjustTapPosition(TwoWindingsTransformer phaseShifter) {
+        if (tapDelta >= 0) {
+            phaseShifter.getPhaseTapChanger().setTapPosition(
+                    Math.min(phaseShifter.getPhaseTapChanger().getTapPosition() + tapDelta,
+                            phaseShifter.getPhaseTapChanger().getHighTapPosition()));
+        } else {
+            phaseShifter.getPhaseTapChanger().setTapPosition(
+                    Math.max(phaseShifter.getPhaseTapChanger().getTapPosition() + tapDelta,
+                            phaseShifter.getPhaseTapChanger().getLowTapPosition()));
+        }
     }
 }
