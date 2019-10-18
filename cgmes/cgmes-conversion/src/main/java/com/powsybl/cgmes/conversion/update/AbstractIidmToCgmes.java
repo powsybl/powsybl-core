@@ -19,22 +19,22 @@ public abstract class AbstractIidmToCgmes {
 
     protected List<CgmesPredicateDetails> convert() throws Exception {
 
+		List<CgmesPredicateDetails> list = null;
+
         if (change instanceof IidmChangeOnUpdate) {
-            allCgmesDetails = new ArrayList<CgmesPredicateDetails>();
-            allCgmesDetails.addAll(switcher().get(change.getAttribute()));
+			list = new ArrayList<CgmesPredicateDetails>();
+			list.addAll(switcher().get(change.getAttribute()));
 
         } else if (change instanceof IidmChangeOnCreate) {
             // for onCreate all fields are inside the Identifiable object.
-            allCgmesDetails = new ArrayList<CgmesPredicateDetails>(switcher().values());
+			return new ArrayList<CgmesPredicateDetails>(switcher().values());
 
         } else if (change instanceof IidmChangeOnRemove) {
             // onRemove is pending
-
         } else {
 
         }
-
-        return allCgmesDetails;
+		return list;
     }
 
     public String getIidmInstanceName() {
@@ -46,7 +46,6 @@ public abstract class AbstractIidmToCgmes {
     protected IidmChange change;
     protected CgmesModel cgmes;
     Multimap<String, CgmesPredicateDetails> mapIidmToCgmesPredicates;
-    protected List<CgmesPredicateDetails> allCgmesDetails;
 
     public static final String SUBSTATION_IMPL = "SubstationImpl";
     public static final String BUSBREAKER_VOLTAGELEVEL = "BusBreakerVoltageLevel";

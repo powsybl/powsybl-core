@@ -99,3 +99,5 @@ powsybl.log
 *.jpg
 *.ucls
 *.xml
+*/.factorypath
+*/.settings

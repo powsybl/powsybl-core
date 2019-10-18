@@ -57,7 +57,7 @@ public class IidmToCgmes16 extends AbstractIidmToCgmes {
                 mapIidmToCgmesPredicates = gsm.mapIidmToCgmesPredicates();
                 break;
             case LOAD_IMPL:
-                LoadToEnergyConsumer lec = new LoadToEnergyConsumer(change);
+			LoadToEnergyConsumer lec = new LoadToEnergyConsumer(change, cgmes);
                 mapIidmToCgmesPredicates = lec.mapIidmToCgmesPredicates();
                 break;
             case LCCCONVERTER_STATION_IMPL:

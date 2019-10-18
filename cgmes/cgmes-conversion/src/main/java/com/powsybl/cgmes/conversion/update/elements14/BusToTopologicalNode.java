@@ -1,6 +1,7 @@
 package com.powsybl.cgmes.conversion.update.elements14;
 
 import java.util.Iterator;
+import java.util.UUID;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -86,7 +87,7 @@ public class BusToTopologicalNode implements ConversionMapper {
 
     // TODO elena check for existing TerminalID
     private String getTerminalId() {
-        return currId.concat("_TE");
+		return UUID.randomUUID().toString();
     }
 
     private String getBaseVoltageId(Bus bus) {
@@ -110,14 +111,13 @@ public class BusToTopologicalNode implements ConversionMapper {
         while (i.hasNext()) {
             PropertyBag pb = (PropertyBag) i.next();
             if (pb.getId("TopologicalNode").equals(currId)) {
-                String svVoltageId = (pb.getId("SvVoltage") != null) ? pb.getId("SvVoltage")
-                    : currId.concat("_SvVoltage");
-                return svVoltageId;
+				return (pb.getId("SvVoltage") != null) ? pb.getId("SvVoltage")
+						: UUID.randomUUID().toString();
             } else {
                 continue;
             }
         }
-        return currId.concat("_SvVoltage");
+		return UUID.randomUUID().toString();
     }
 
     private IidmChange change;
@@ -125,5 +125,4 @@ public class BusToTopologicalNode implements ConversionMapper {
     private String currId;
     private String svVoltageId;
     private String terminalId;
-
 }

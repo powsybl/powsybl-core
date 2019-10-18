@@ -24,7 +24,6 @@ import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
-import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.RDF;
@@ -94,8 +93,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     @Override
     public String getImplementationName() {
         TripleStoreFactoryService ts = new TripleStoreFactoryServiceBlazegraph();
-        String implementation = ts.getImplementationName();
-        return implementation;
+		return ts.getImplementationName();
     }
 
     private void closeConnection(RepositoryConnection cnx, String operation) {

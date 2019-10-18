@@ -62,11 +62,13 @@ public class CgmesExport implements Exporter {
 
         CgmesUpdater cgmesUpdater = ext.getCgmesUpdater();
         profiling.start();
-        try {
-            cgmesUpdater.update(cgmes, variantId);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+		if (cgmesUpdater.getNumberOfChanges() > 0) {
+			try {
+				cgmesUpdater.update(cgmes, variantId);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		profiling.end(String.valueOf(Operations.UPDATE_CGMES_FROM_IIDM));
         // Clear the previous SV data
         profiling.start();
