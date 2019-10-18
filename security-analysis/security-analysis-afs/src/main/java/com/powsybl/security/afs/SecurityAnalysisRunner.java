@@ -129,4 +129,9 @@ public class SecurityAnalysisRunner extends ProjectFile {
         }
         storage.flush();
     }
+
+    @Override
+    public boolean mandatoryDependenciesAreMissing() {
+        return !getCase().isPresent() || !getContingencyStore().isPresent();
+    }
 }
