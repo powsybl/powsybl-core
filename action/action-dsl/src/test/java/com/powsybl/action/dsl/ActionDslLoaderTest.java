@@ -100,7 +100,7 @@ public class ActionDslLoaderTest {
         assertTrue(phaseTapChanger.isRegulating());
         assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
         deltaTapAction.run(network, null);
-        assertEquals(0, phaseTapChanger.getTapPosition());
+        assertEquals(3, phaseTapChanger.getTapPosition());
         assertEquals(PhaseTapChanger.RegulationMode.DELTA_TAP, phaseTapChanger.getRegulationMode());
         assertFalse(phaseTapChanger.isRegulating());
     }
@@ -152,28 +152,36 @@ public class ActionDslLoaderTest {
                 .setRegulationTerminal(network.getTwoWindingsTransformer("NGEN_NHV1").getTerminal2())
                 .setRegulationValue(1.0)
                 .beginStep()
-                    .setR(1.0)
-                    .setX(2.0)
-                    .setG(3.0)
-                    .setB(4.0)
-                    .setAlpha(5.0)
-                    .setRho(6.0)
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setAlpha(5.0)
+                .setRho(6.0)
                 .endStep()
                 .beginStep()
-                    .setR(1.0)
-                    .setX(2.0)
-                    .setG(3.0)
-                    .setB(4.0)
-                    .setAlpha(5.0)
-                    .setRho(6.0)
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setAlpha(5.0)
+                .setRho(6.0)
                 .endStep()
                 .beginStep()
-                    .setR(1.0)
-                    .setX(2.0)
-                    .setG(3.0)
-                    .setB(4.0)
-                    .setAlpha(5.0)
-                    .setRho(6.0)
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setAlpha(5.0)
+                .setRho(6.0)
+                .endStep()
+                .beginStep()
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setAlpha(5.0)
+                .setRho(6.0)
                 .endStep()
                 .add();
     }
