@@ -43,20 +43,13 @@ public class Context {
         boundary = new Boundary(cgmes);
         substationIdMapping = new SubstationIdMapping(this);
         terminalMapping = new TerminalMapping();
-        //tapChangerTransformers = new TapChangerTransformers();
+        tapChangerTransformers = new TapChangerTransformers();
         dcMapping = new DcMapping(this);
         currentLimitsMapping = new CurrentLimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping();
 
-        this.extendedCgmesConversion = useExtendedCgmesConversion;
-        if (this.isExtendedCgmesConversion()) {
-            tapChangerTransformers = null;
-            transformerRegulatingControlMapping = new TransformerRegulatingControlMapping();
-        } else {
-            tapChangerTransformers = new TapChangerTransformers();
-            transformerRegulatingControlMapping = null;
-        }
+        transformerRegulatingControlMapping = new TransformerRegulatingControlMapping();
 
         ratioTapChangerTables = new HashMap<>();
         phaseTapChangerTables = new HashMap<>();
@@ -242,6 +235,9 @@ public class Context {
     }
 
     public boolean isExtendedCgmesConversion() {
+        if (true) {
+            return true;
+        }
         return extendedCgmesConversion;
     }
 
