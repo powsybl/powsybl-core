@@ -1,6 +1,7 @@
 package com.powsybl.cgmes.conversion.update.elements16;
 
 import java.util.Iterator;
+import java.util.UUID;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -58,7 +59,7 @@ public class LineToACLineSegment implements ConversionMapper {
 
         double g2 = !String.valueOf(newLine.getG2()).equals("NaN") ? newLine.getG2() : 0.0;
         map.put("g2", new CgmesPredicateDetails(
-            "cim:ACLineSegment.gch", "_EQ", false, String.valueOf(g1 * 2)));
+				"cim:ACLineSegment.gch", "_EQ", false, String.valueOf(g2 * 2)));
 
         String baseVoltageId = getBaseVoltageId(newLine);
         map.put("BaseVoltage", new CgmesPredicateDetails(
@@ -71,18 +72,18 @@ public class LineToACLineSegment implements ConversionMapper {
      * @return the base voltage id
      */
     private String getBaseVoltageId(Line newLine) {
-        String VoltageLevelId = newLine.getTerminal(Branch.Side.ONE).getVoltageLevel().getId();
+        String voltageLevelId = newLine.getTerminal(Branch.Side.ONE).getVoltageLevel().getId();
         PropertyBags voltageLevels = cgmes.voltageLevels();
         Iterator i = voltageLevels.iterator();
         while (i.hasNext()) {
             PropertyBag pb = (PropertyBag) i.next();
-            if (pb.getId("VoltageLevel").equals(VoltageLevelId)) {
+            if (pb.getId("VoltageLevel").equals(voltageLevelId)) {
                 return pb.getId("BaseVoltage");
             } else {
                 continue;
             }
         }
-        return VoltageLevelId.concat("_BV");
+		return UUID.randomUUID().toString();
     }
 
     private IidmChange change;

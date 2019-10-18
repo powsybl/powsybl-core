@@ -3,6 +3,7 @@ package com.powsybl.cgmes.conversion.update.elements16;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -28,29 +29,27 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
         this.currId = change.getIdentifiableId();
         this.newTwoWindingsTransformer = (TwoWindingsTransformer) change.getIdentifiable();
         this.name = newTwoWindingsTransformer.getName();
-        this.idEnd1 = (getEndsId().get("idEnd1") != null) ? getEndsId().get("idEnd1")
+		this.idEnd1 = (getEndsId().get(ID_END1) != null) ? getEndsId().get(ID_END1)
             : currId.concat("_OR");
-        this.idEnd2 = (getEndsId().get("idEnd2") != null) ? getEndsId().get("idEnd2")
+		this.idEnd2 = (getEndsId().get(ID_END2) != null) ? getEndsId().get(ID_END2)
             : currId.concat("_CL");
-        this.idPTC = getTapChangerId("PhaseTapChanger");
-        this.idRTC = getTapChangerId("RatioTapChanger");
-        this.idPTCTable = getTapChangerTableId(idPTC, "PhaseTapChanger");
-        this.idRTCTable = getTapChangerTableId(idRTC, "RatioTapChanger");
-        this.idPTCTablePoint = getTapChangerTablePointId(idPTCTable, "PhaseTapChanger");
-        this.idRTCTablePoint = getTapChangerTablePointId(idRTCTable, "RatioTapChanger");
+		this.idPTC = getTapChangerId(PHASE_TAP_CHANGER);
+		this.idRTC = getTapChangerId(RATIO_TAP_CHANGER);
+		this.idPTCTable = getTapChangerTableId(idPTC, PHASE_TAP_CHANGER);
+		this.idRTCTable = getTapChangerTableId(idRTC, RATIO_TAP_CHANGER);
+		this.idPTCTablePoint = getTapChangerTablePointId(PHASE_TAP_CHANGER);
+		this.idRTCTablePoint = getTapChangerTablePointId(RATIO_TAP_CHANGER);
     }
 
     @Override
     public Multimap<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
 
         final Multimap<String, CgmesPredicateDetails> map = ArrayListMultimap.create();
-        TwoWindingsTransformer newTwoWindingsTransformer = (TwoWindingsTransformer) change.getIdentifiable();
 
         String ptId = newTwoWindingsTransformer.getId();
 
         map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:PowerTransformer"));
 
-        String name = newTwoWindingsTransformer.getName();
         map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, name));
 
         String substationId = newTwoWindingsTransformer.getSubstation().getId();
@@ -168,14 +167,15 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
         while (i.hasNext()) {
             PropertyBag pb = (PropertyBag) i.next();
             String windingType = pb.get("endNumber");
-            if (pb.getId("PowerTransformer").equals(currId)
+			if (pb.getId(POWER_TRANSFORMER).equals(currId)
                 && windingType.equals("1")) {
-                idEnd1 = pb.getId("TransformerEnd");
-                ids.put("idEnd1", idEnd1);
-            } else if (pb.getId("PowerTransformer").equals(currId)
+				idEnd1 = pb.getId(TRANSFORMER_END);
+				ids.put(ID_END1, idEnd1);
+
+			} else if (pb.getId(POWER_TRANSFORMER).equals(currId)
                 && windingType.equals("2")) {
-                idEnd2 = pb.getId("TransformerEnd");
-                ids.put("idEnd2", idEnd2);
+				idEnd2 = pb.getId(TRANSFORMER_END);
+				ids.put(ID_END2, idEnd2);
             } else {
                 continue;
             }
@@ -188,19 +188,19 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
      * TapChanger is on End1;
      */
     private String getTapChangerId(String tapChangerType) {
-        PropertyBags tapChangers = (tapChangerType.equals("RatioTapChanger")) ? cgmes.ratioTapChangers()
+		PropertyBags tapChangers = (tapChangerType.equals(RATIO_TAP_CHANGER)) ? cgmes.ratioTapChangers()
             : cgmes.phaseTapChangers();
         Iterator i = tapChangers.iterator();
 
         while (i.hasNext()) {
             PropertyBag pb = (PropertyBag) i.next();
-            if (pb.getId("TransformerEnd").equals(idEnd1)) {
+			if (pb.getId(TRANSFORMER_END).equals(idEnd1)) {
                 return pb.getId(tapChangerType);
             } else {
                 continue;
             }
         }
-        return (tapChangerType.equals("RatioTapChanger")) ? idEnd1.concat("_RTTC") : idEnd1.concat("_PHTC");
+		return UUID.randomUUID().toString();
     }
 
     /**
@@ -210,7 +210,7 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
     private String getTapChangerTableId(String tapChangerId, String tapChangerType) {
 
         String propertyName = tapChangerType.concat("Table");
-        PropertyBags tapChangers = (tapChangerType.equals("RatioTapChanger")) ? cgmes.ratioTapChangers()
+		PropertyBags tapChangers = (tapChangerType.equals(RATIO_TAP_CHANGER)) ? cgmes.ratioTapChangers()
             : cgmes.phaseTapChangers();
         Iterator i = tapChangers.iterator();
         while (i.hasNext()) {
@@ -222,13 +222,13 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
                 continue;
             }
         }
-        return tapChangerId.concat("_Table");
+		return UUID.randomUUID().toString();
     }
 
-    private String getTapChangerTablePointId(String tapChangerTableId, String tapChangerType) {
+	private String getTapChangerTablePointId(String tapChangerType) {
 
         String propertyName = tapChangerType.concat("TablePoint");
-        PropertyBags phaseTapChangerTable = (tapChangerType.equals("RatioTapChanger"))
+		PropertyBags phaseTapChangerTable = (tapChangerType.equals(RATIO_TAP_CHANGER))
             ? cgmes.ratioTapChangerTable(idRTCTable)
             : cgmes.phaseTapChangerTable(idPTCTable);
         Iterator i = phaseTapChangerTable.iterator();
@@ -240,7 +240,7 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
                 continue;
             }
         }
-        return tapChangerTableId.concat("_TablePoint").concat("step number");
+		return UUID.randomUUID().toString();
     }
 
     private IidmChange change;

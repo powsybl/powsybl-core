@@ -1,6 +1,7 @@
 package com.powsybl.cgmes.conversion.update.elements14;
 
 import java.util.Iterator;
+import java.util.UUID;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -70,10 +71,11 @@ public class VoltageLevelToVoltageLevel implements ConversionMapper {
     }
 
     /**
-     * Check if BaseVoltage element already exists in grid, if yes - returns the id
-     *
-     * @return the base voltage id
-     */
+	 * Check if BaseVoltage element already exists in grid, if yes - returns its id,
+	 * otherwise new id if new element is created
+	 *
+	 * @return the base voltage id
+	 */
     private String getBaseVoltageId() {
         String currId = this.change.getIdentifiableId();
         PropertyBags voltageLevels = cgmes.voltageLevels();
@@ -86,7 +88,7 @@ public class VoltageLevelToVoltageLevel implements ConversionMapper {
                 continue;
             }
         }
-        return currId.concat("_BV");
+		return UUID.randomUUID().toString();
     }
 
     private String baseVoltageId;

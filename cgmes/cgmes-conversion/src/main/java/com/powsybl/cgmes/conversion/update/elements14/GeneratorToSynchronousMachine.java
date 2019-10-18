@@ -1,6 +1,7 @@
 package com.powsybl.cgmes.conversion.update.elements14;
 
 import java.util.Iterator;
+import java.util.UUID;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -94,7 +95,7 @@ public class GeneratorToSynchronousMachine implements ConversionMapper {
                 continue;
             }
         }
-        return currId.concat("_GU");
+		return UUID.randomUUID().toString();
     }
 
     private IidmChange change;

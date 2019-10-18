@@ -7,12 +7,10 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.jimfs.Configuration;
@@ -31,12 +29,12 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 
 public class ExportCgmesUpdateTester {
 
-	@BeforeClass
-	public static void setUp() throws IOException {
-		smallCasesCatalog = new Cim14SmallCasesCatalog();
-		testGridModel14 = smallCasesCatalog.ieee14();
-		cgmesConformity1Catalog = new CgmesConformity1Catalog();
-		testGridModel16 = cgmesConformity1Catalog.microGridBaseCaseBE();
+	@Before
+	public void setUp() throws IOException {
+		testGridModel14 = Cim14SmallCasesCatalog.ieee14();
+		testGridModel16 = CgmesConformity1Catalog.microGridBaseCaseBE();
+		fileSystem = Jimfs.newFileSystem(Configuration.unix());
+		i = new CgmesImport(new InMemoryPlatformConfig(fileSystem));
 	}
 
 	@After
@@ -48,7 +46,6 @@ public class ExportCgmesUpdateTester {
 	public void exportIidmChangesToCgmes14Test() throws IOException {
 		for (String impl : TripleStoreFactory.allImplementations()) {
 
-			CgmesImport i = new CgmesImport(new InMemoryPlatformConfig(fileSystem));
 			ReadOnlyDataSource ds = testGridModel14.dataSource();
 			Network network = i.importData(ds, importParameters(impl));
 
@@ -73,7 +70,6 @@ public class ExportCgmesUpdateTester {
 	public void exportIidmChangesToCgmes16Test() throws IOException {
 		for (String impl : TripleStoreFactory.allImplementations()) {
 
-			CgmesImport i = new CgmesImport(new InMemoryPlatformConfig(fileSystem));
 			ReadOnlyDataSource ds = testGridModel16.dataSource();
 			Network network = i.importData(ds, importParameters(impl));
 
@@ -114,18 +110,13 @@ public class ExportCgmesUpdateTester {
 
 	private DataSource tmpDataSource(String impl) throws IOException {
         Path exportFolder = fileSystem.getPath("impl-" + impl);
-//		Path exportFolder = Paths.get(".\\tmp\\", impl);
-//		if (Files.exists(exportFolder)) {
-//			FileUtils.cleanDirectory(exportFolder.toFile());
-//		}
 		Files.createDirectories(exportFolder);
 		DataSource tmpDataSource = new FileDataSource(exportFolder, "");
 		return tmpDataSource;
 	}
 
-	private FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
+	private static FileSystem fileSystem;
 	private static TestGridModel testGridModel14;
 	private static TestGridModel testGridModel16;
-	private static Cim14SmallCasesCatalog smallCasesCatalog;
-	private static CgmesConformity1Catalog cgmesConformity1Catalog;
+	private static CgmesImport i;
 }

@@ -1,6 +1,7 @@
 package com.powsybl.cgmes.conversion.update.elements14;
 
 import java.util.Iterator;
+import java.util.UUID;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -90,7 +91,7 @@ public class LoadToEnergyConsumer implements ConversionMapper {
                 continue;
             }
         }
-        return currId.concat("_LRC");
+		return UUID.randomUUID().toString();
     }
 
     private IidmChange change;

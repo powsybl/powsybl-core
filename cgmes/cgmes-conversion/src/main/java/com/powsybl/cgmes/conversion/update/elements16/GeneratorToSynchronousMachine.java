@@ -1,6 +1,7 @@
 package com.powsybl.cgmes.conversion.update.elements16;
 
 import java.util.Iterator;
+import java.util.UUID;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -25,7 +26,7 @@ public class GeneratorToSynchronousMachine implements ConversionMapper {
         final Multimap<String, CgmesPredicateDetails> map = ArrayListMultimap.create();
         Generator newGenerator = (Generator) change.getIdentifiable();
 
-        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:SynchronousMachine"));
+		map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:SynchronousMachine"));
 
         String name = newGenerator.getName();
         if (name != null) {
@@ -54,15 +55,15 @@ public class GeneratorToSynchronousMachine implements ConversionMapper {
             map.put("nameGU", new CgmesPredicateDetails(
                 "cim:IdentifiedObject.name", "_EQ", false, name.concat("_GU"), generatingUnitId));
         }
-        
+
         double targetP = newGenerator.getTargetP();
         if (!String.valueOf(targetP).equals("NaN")) {
-            map.put("targetP", new CgmesPredicateDetails(
-                "cim:GeneratingUnit.initialP", "_EQ", false, String.valueOf(targetP), generatingUnitId));
+//            map.put("targetP", new CgmesPredicateDetails(
+//                "cim:GeneratingUnit.initialP", "_EQ", false, String.valueOf(targetP), generatingUnitId));
             map.put("targetP", new CgmesPredicateDetails(
                 "cim:RotatingMachine.p", "_SSH", false, String.valueOf(-targetP)));
         }
-        
+
         double targetQ = newGenerator.getTargetQ();
         if (!String.valueOf(targetP).equals("NaN")) {
             map.put("targetQ", new CgmesPredicateDetails(
@@ -101,7 +102,7 @@ public class GeneratorToSynchronousMachine implements ConversionMapper {
                 continue;
             }
         }
-        return currId.concat("_GU");
+		return UUID.randomUUID().toString();
     }
 
     private IidmChange change;

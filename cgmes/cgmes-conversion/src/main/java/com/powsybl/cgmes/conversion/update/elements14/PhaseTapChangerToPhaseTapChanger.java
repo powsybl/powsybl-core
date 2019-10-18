@@ -13,6 +13,7 @@ public class PhaseTapChangerToPhaseTapChanger extends TwoWindingsTransformerToPo
         super(change, cgmes);
     }
 
+    @Override
     public Multimap<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
         /**
          * PhaseTapChanger

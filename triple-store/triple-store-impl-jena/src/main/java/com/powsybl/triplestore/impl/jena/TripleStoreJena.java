@@ -37,7 +37,6 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.rdf.model.impl.Util;
 import org.apache.jena.shared.PropertyNotFoundException;
-import org.apache.jena.sparql.core.DatasetImpl;
 import org.apache.jena.update.UpdateAction;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateRequest;
@@ -84,8 +83,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     @Override
     public String getImplementationName() {
         TripleStoreFactoryService ts = new TripleStoreFactoryServiceJena();
-        String implementation = ts.getImplementationName();
-        return implementation;
+		return ts.getImplementationName();
     }
 
     @Override
