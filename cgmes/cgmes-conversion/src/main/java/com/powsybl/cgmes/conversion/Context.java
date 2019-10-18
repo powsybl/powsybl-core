@@ -53,11 +53,9 @@ public class Context {
         if (this.isExtendedCgmesConversion()) {
             tapChangerTransformers = null;
             transformerRegulatingControlMapping = new TransformerRegulatingControlMapping();
-            generatorRegulatingControlMapping = new GeneratorRegulatingControlMapping();
         } else {
             tapChangerTransformers = new TapChangerTransformers();
             transformerRegulatingControlMapping = null;
-            generatorRegulatingControlMapping = null;
         }
 
         ratioTapChangerTables = new HashMap<>();
@@ -109,10 +107,6 @@ public class Context {
 
     public TransformerRegulatingControlMapping transformerRegulatingControlMapping() {
         return transformerRegulatingControlMapping;
-    }
-
-    public GeneratorRegulatingControlMapping generatorRegulatingControlMapping() {
-        return generatorRegulatingControlMapping;
     }
 
     public TapChangerTransformers tapChangerTransformers() {
@@ -265,7 +259,6 @@ public class Context {
     private final CurrentLimitsMapping currentLimitsMapping;
     private final RegulatingControlMapping regulatingControlMapping;
     private final TransformerRegulatingControlMapping transformerRegulatingControlMapping;
-    private final GeneratorRegulatingControlMapping generatorRegulatingControlMapping;
 
     private final Map<String, PropertyBags> ratioTapChangerTables;
     private final Map<String, PropertyBags> phaseTapChangerTables;
