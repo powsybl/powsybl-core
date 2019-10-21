@@ -93,7 +93,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     @Override
     public String getImplementationName() {
         TripleStoreFactoryService ts = new TripleStoreFactoryServiceBlazegraph();
-		return ts.getImplementationName();
+        return ts.getImplementationName();
     }
 
     private void closeConnection(RepositoryConnection cnx, String operation) {
@@ -257,12 +257,10 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                 } catch (UpdateExecutionException e) {
                     throw new TripleStoreException("Update using blazergraph", e);
                 } finally {
-                    if (cnx != null) {
-                        try {
-                            cnx.close();
-                        } catch (RepositoryException x) {
-                            LOG.error(x.getMessage());
-                        }
+                    try {
+                        cnx.close();
+                    } catch (RepositoryException x) {
+                        LOG.error(x.getMessage());
                     }
                 }
             } catch (MalformedQueryException e) {
@@ -287,7 +285,6 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                 cloneNamespaces(connOrigin, conn, baseName);
                 replicateStatements(connOrigin, conn);
                 conn.commit();
-                // checkClonedRepo(connOrigin, conn);
             } catch (RepositoryException x) {
                 LOG.error("Cloning from origin to repo : {}", x.getMessage());
             } finally {
@@ -331,22 +328,6 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
             }
         } catch (RepositoryException e) {
             LOG.error("Cloning Namespaces : {}", e.getMessage());
-        }
-    }
-
-    private void checkClonedRepo(RepositoryConnection connOrigin, RepositoryConnection conn) {
-        try {
-            RepositoryResult<Resource> contexts = conn.getContextIDs();
-            while (contexts.hasNext()) {
-                Resource context = contexts.next();
-                connOrigin.clear(context);
-                LOG.info("***checkClonedRepo***\n For repoOrigin # statements for {} is: {}", context,
-                    statementsCount(connOrigin, context));
-                LOG.info("\n For repo # statements for {} is: {}", context, statementsCount(conn, context));
-
-            }
-        } catch (RepositoryException | IllegalArgumentException e) {
-            LOG.warn("closing when checkClonedRepo : {}", e.getMessage());
         }
     }
 

@@ -11,7 +11,7 @@ public class TriplestoreCloneTest {
     @Test
     public void testCgmesRtcsClone() {
         String base = "foo:cgmes-rtcs";
-        String[] inputs = { "cgmes-rtcs/rtc-EQ.xml", "cgmes-rtcs/rtc-SSH.xml" };
+        String[] inputs = {"cgmes-rtcs/rtc-EQ.xml", "cgmes-rtcs/rtc-SSH.xml" };
         tester = new TripleStoreTester(
             TripleStoreFactory.allImplementations(), base, inputs);
         tester.load();
@@ -21,7 +21,7 @@ public class TriplestoreCloneTest {
     @Test
     public void testUpdateClone() {
         String base = "foo:foaf";
-        String[] inputs = { "foaf/abc-nicks.ttl", "foaf/abc-lastNames.ttl" };
+        String[] inputs = {"foaf/abc-nicks.ttl", "foaf/abc-lastNames.ttl" };
         QueryCatalog queries = new QueryCatalog("foaf/foaf-graphs-update.sparql");
         tester = new TripleStoreTester(
             TripleStoreFactory.allImplementations(), base, inputs);
@@ -39,7 +39,7 @@ public class TriplestoreCloneTest {
     //@Test
     public void testNationalGridCloneByStatements() {
         String base = "foo:cgmes-national-grid";
-        String[] inputs = { "cgmes-national-grid/20190312T2330Z_1D_NG_SSH_001.xml",
+        String[] inputs = {"cgmes-national-grid/20190312T2330Z_1D_NG_SSH_001.xml",
             "cgmes-national-grid/20190312T2330Z_1D_NG_SV_001.xml",
             "cgmes-national-grid/20190312T2330Z_1D_NG_TP_001.xml",
             "cgmes-national-grid/20190312T2330Z_NG_EQ_001.xml" };
@@ -52,7 +52,7 @@ public class TriplestoreCloneTest {
     // @Test
     public void testNationalGridImportFiles() {
         String base = "foo:cgmes-national-grid";
-        String[] inputs = { "cgmes-national-grid/20190312T2330Z_1D_NG_SSH_001.xml",
+        String[] inputs = {"cgmes-national-grid/20190312T2330Z_1D_NG_SSH_001.xml",
             "cgmes-national-grid/20190312T2330Z_1D_NG_SV_001.xml",
             "cgmes-national-grid/20190312T2330Z_1D_NG_TP_001.xml",
             "cgmes-national-grid/20190312T2330Z_NG_EQ_001.xml" };

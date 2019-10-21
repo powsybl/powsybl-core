@@ -76,7 +76,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     @Override
     public String getImplementationName() {
         TripleStoreFactoryService ts = new TripleStoreFactoryServiceRDF4J();
-		return ts.getImplementationName();
+        return ts.getImplementationName();
     }
 
     public void setWriteBySubject(boolean writeBySubject) {
@@ -227,7 +227,6 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
                         conn.add(statement);
                     }
                 }
-                // checkClonedRepo(connOrigin, conn);
             }
         }
     }
@@ -243,17 +242,6 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             String prefix = pn.getPrefix();
             String namespace = pn.getNamespace();
             conn.setNamespace(prefix, namespace);
-        }
-    }
-
-    private void checkClonedRepo(RepositoryConnection connOrigin, RepositoryConnection conn) {
-        RepositoryResult<Resource> contexts = conn.getContextIDs();
-        while (contexts.hasNext()) {
-            Resource context = contexts.next();
-            connOrigin.clear(context);
-            LOG.info("***checkClonedRepo***\n For repoOrigin # statements for {} is: {}", context,
-                statementsCount(connOrigin, context));
-            LOG.info("\n For repo # statements for {} is: {}", context, statementsCount(conn, context));
         }
     }
 

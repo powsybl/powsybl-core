@@ -83,7 +83,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     @Override
     public String getImplementationName() {
         TripleStoreFactoryService ts = new TripleStoreFactoryServiceJena();
-		return ts.getImplementationName();
+        return ts.getImplementationName();
     }
 
     @Override
@@ -191,7 +191,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
             List<Statement> listStatements = new ArrayList<Statement>();
             String name = names.next();
             String context = namedModelFromName(name);
-            Model model = dataset.getNamedModel(context);// creates new named model
+            Model model = dataset.getNamedModel(context);
             if (datasetOrigin.containsNamedModel(context)) {
                 Model m = datasetOrigin.getNamedModel(context);
                 StmtIterator statements = m.listStatements();
@@ -203,7 +203,6 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
                 union = union.union(model);
             }
         }
-        // checkClonedRepo(datasetOrigin, dataset);
     }
 
     private void cloneNamespaces(Dataset datasetOrigin, String baseName) {
@@ -228,25 +227,6 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
             String prefix = pn.getPrefix();
             String namespace = pn.getNamespace();
             union.setNsPrefix(prefix, namespace);
-        }
-    }
-
-    private void checkClonedRepo(Dataset datasetOrigin, Dataset dataset) {
-        Iterator<String> names = dataset.listNames();
-        while (names.hasNext()) {
-            String name = names.next();
-            String context = namedModelFromName(name);
-            datasetOrigin.removeNamedModel(context);
-            if (datasetOrigin.containsNamedModel(context)) {
-                Model m = datasetOrigin.getNamedModel(name);
-                LOG.info("***checkClonedRepo***\n datasetOrigin still contains  " + name + " size : " + m.size());
-            } else if (dataset.containsNamedModel(context)) {
-                Model m = dataset.getNamedModel(name);
-                LOG.info("***checkClonedRepo***\n dataset contains  " + name + " size : " + m.size() +
-                    "\n But datasetOrigin does not --> they are independent");
-            } else {
-                LOG.info("Neither datasetOrigin nor dataset contains " + name);
-            }
         }
     }
 
