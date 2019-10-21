@@ -11,11 +11,15 @@ import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.DefaultListenableAppStorage;
 import com.powsybl.computation.ComputationManager;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -186,6 +190,28 @@ public class AfsBaseTest {
         ProjectFolder dir7 = rootFolder.createFolder("dir7");
         dir7.rename("dir77");
         assertEquals("dir77", dir7.getName());
+
+        Path tmpDir = Paths.get("/tmp");
+        String destFilePath = tmpDir + FileSystems.getDefault().getSeparator() + dir7.getId();
+        java.io.File file = new java.io.File(destFilePath);
+        if (file.exists()) {
+            try {
+                FileUtils.deleteDirectory(file);
+            } catch (Exception ignored) {
+            }
+        }
+        dir7.archive(tmpDir);
+        assertTrue(file.exists());
+
+        ProjectFolder dir8 = rootFolder.createFolder("dir8");
+        assertEquals(0, dir8.getChildren().size());
+        dir8.unarchive(Paths.get(destFilePath));
+        assertEquals(1, dir8.getChildren().size());
+        assertEquals("dir77", dir8.getChildren().get(0).getName());
+        try {
+            FileUtils.deleteDirectory(file);
+        } catch (Exception ignored) {
+        }
     }
 
     @Test
