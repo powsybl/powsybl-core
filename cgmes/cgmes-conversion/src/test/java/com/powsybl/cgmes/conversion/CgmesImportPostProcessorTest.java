@@ -61,7 +61,7 @@ public class CgmesImportPostProcessorTest {
     @Before
     public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
-        modelResources = new CgmesConformity1Catalog().microGridBaseCaseBE();
+        modelResources = CgmesConformity1Catalog.microGridBaseCaseBE();
         platformConfig = new InMemoryPlatformConfig(fileSystem);
     }
 
