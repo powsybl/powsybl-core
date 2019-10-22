@@ -70,11 +70,17 @@ public final class MergingView implements Network {
     /** To listen events from merging network */
     private final NetworkListener listener = new MergingNetworkListener();
 
+    private final BusBreakerViewAdapter busBreakerView;
+
+    private final BusViewAdapter busView;
+
     /** Constructor */
     private MergingView(final NetworkFactory factory, final String id, final String format) {
         Objects.requireNonNull(factory, "factory is null");
 
         index = new MergingViewIndex(this);
+        busBreakerView = new BusBreakerViewAdapter(index);
+        busView = new BusViewAdapter(index);
         // Working network will store view informations
         workingNetwork = factory.createNetwork(id, format);
         // Add working network as merging network
@@ -275,14 +281,343 @@ public final class MergingView implements Network {
     @Override
     public Substation getSubstation(final String id) {
         return getSubstationStream()
-                .filter(s -> id.compareTo(s.getId()) == 0)
+                .filter(s -> id.equals(s.getId()))
                 .findFirst()
                 .orElse(null);
     }
 
+    // VoltageLevel
     @Override
     public Network getNetwork() {
         return this;
+    }
+
+    @Override
+    public Iterable<VoltageLevel> getVoltageLevels() {
+        return Collections.unmodifiableCollection(index.getVoltageLevels());
+    }
+
+    @Override
+    public Stream<VoltageLevel> getVoltageLevelStream() {
+        return index.getVoltageLevels().stream();
+    }
+
+    @Override
+    public int getVoltageLevelCount() {
+        return index.getVoltageLevels().size();
+    }
+
+    @Override
+    public VoltageLevel getVoltageLevel(final String id) {
+        return getVoltageLevelStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
+    // Battery
+    @Override
+    public Iterable<Battery> getBatteries() {
+        return Collections.unmodifiableCollection(index.getBatteries());
+    }
+
+    @Override
+    public Stream<Battery> getBatteryStream() {
+        return index.getBatteries().stream();
+    }
+
+    @Override
+    public int getBatteryCount() {
+        return index.getBatteries().size();
+    }
+
+    @Override
+    public Battery getBattery(final String id) {
+        return getBatteryStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
+    // VscConverterStation
+    @Override
+    public Iterable<VscConverterStation> getVscConverterStations() {
+        return Collections.unmodifiableCollection(index.getVscConverterStations());
+    }
+
+    @Override
+    public Stream<VscConverterStation> getVscConverterStationStream() {
+        return index.getVscConverterStations().stream();
+    }
+
+    @Override
+    public int getVscConverterStationCount() {
+        return index.getVscConverterStations().size();
+    }
+
+    @Override
+    public VscConverterStation getVscConverterStation(final String id) {
+        return getVscConverterStationStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
+    // TwoWindingsTransformer
+    @Override
+    public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
+        return Collections.unmodifiableCollection(index.getTwoWindingsTransformers());
+    }
+
+    @Override
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
+        return index.getTwoWindingsTransformers().stream();
+    }
+
+    @Override
+    public int getTwoWindingsTransformerCount() {
+        return index.getTwoWindingsTransformers().size();
+    }
+
+    @Override
+    public TwoWindingsTransformer getTwoWindingsTransformer(final String id) {
+        return getTwoWindingsTransformerStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
+    // Switches
+    @Override
+    public Switch getSwitch(final String id) {
+        return getSwitchStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
+    @Override
+    public Iterable<Switch> getSwitches() {
+        return Collections.unmodifiableCollection(index.getSwitches());
+    }
+
+    @Override
+    public Stream<Switch> getSwitchStream() {
+        return index.getSwitches().stream();
+    }
+
+    @Override
+    public int getSwitchCount() {
+        return index.getSwitches().size();
+    }
+
+    // StaticVarCompensator
+    @Override
+    public Iterable<StaticVarCompensator> getStaticVarCompensators() {
+        return Collections.unmodifiableCollection(index.getStaticVarCompensators());
+    }
+
+    @Override
+    public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
+        return index.getStaticVarCompensators().stream();
+    }
+
+    @Override
+    public int getStaticVarCompensatorCount() {
+        return index.getStaticVarCompensators().size();
+    }
+
+    @Override
+    public StaticVarCompensator getStaticVarCompensator(final String id) {
+        return getStaticVarCompensatorStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
+    // ShuntCompensators
+    @Override
+    public Iterable<ShuntCompensator> getShuntCompensators() {
+        return Collections.unmodifiableCollection(index.getShuntCompensators());
+    }
+
+    @Override
+    public Stream<ShuntCompensator> getShuntCompensatorStream() {
+        return index.getShuntCompensators().stream();
+    }
+
+    @Override
+    public int getShuntCompensatorCount() {
+        return index.getShuntCompensators().size();
+    }
+
+    @Override
+    public ShuntCompensator getShuntCompensator(final String id) {
+        return getShuntCompensatorStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
+    // Loads
+    @Override
+    public Iterable<Load> getLoads() {
+        return Collections.unmodifiableCollection(index.getLoads());
+    }
+
+    @Override
+    public Stream<Load> getLoadStream() {
+        return index.getLoads().stream();
+    }
+
+    @Override
+    public int getLoadCount() {
+        return index.getLoads().size();
+    }
+
+    @Override
+    public Load getLoad(final String id) {
+        return getLoadStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
+    // Generators
+    @Override
+    public Iterable<Generator> getGenerators() {
+        return Collections.unmodifiableCollection(index.getGenerators());
+    }
+
+    @Override
+    public Stream<Generator> getGeneratorStream() {
+        return index.getGenerators().stream();
+    }
+
+    @Override
+    public int getGeneratorCount() {
+        return index.getGenerators().size();
+    }
+
+    @Override
+    public Generator getGenerator(final String id) {
+        return getGeneratorStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
+    // BusbarSections
+    @Override
+    public BusbarSection getBusbarSection(final String id) {
+        return getBusbarSectionStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
+    @Override
+    public Iterable<BusbarSection> getBusbarSections() {
+        return Collections.unmodifiableCollection(index.getBusbarSections());
+    }
+
+    @Override
+    public Stream<BusbarSection> getBusbarSectionStream() {
+        return index.getBusbarSections().stream();
+    }
+
+    @Override
+    public int getBusbarSectionCount() {
+        return index.getBusbarSections().size();
+    }
+
+    // LccConverterStations
+    @Override
+    public Iterable<LccConverterStation> getLccConverterStations() {
+        return Collections.unmodifiableCollection(index.getLccConverterStations());
+    }
+
+    @Override
+    public Stream<LccConverterStation> getLccConverterStationStream() {
+        return index.getLccConverterStations().stream();
+    }
+
+    @Override
+    public int getLccConverterStationCount() {
+        return index.getLccConverterStations().size();
+    }
+
+    @Override
+    public LccConverterStation getLccConverterStation(final String id) {
+        return getLccConverterStationStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
+    // HvdcConverterStations
+    @Override
+    public Iterable<HvdcConverterStation<?>> getHvdcConverterStations() {
+        return Collections.unmodifiableCollection(index.getHvdcConverterStations());
+    }
+
+    @Override
+    public Stream<HvdcConverterStation<?>> getHvdcConverterStationStream() {
+        return index.getHvdcConverterStations().stream();
+    }
+
+    @Override
+    public int getHvdcConverterStationCount() {
+        return index.getHvdcConverterStations().size();
+    }
+
+    @Override
+    public HvdcConverterStation<?> getHvdcConverterStation(final String id) {
+        return getHvdcConverterStationStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
+    // Branches
+    @Override
+    public Branch getBranch(final String id) {
+        return getBranchStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
+    @Override
+    public Iterable<Branch> getBranches() {
+        return Collections.unmodifiableCollection(index.getBranches());
+    }
+
+    @Override
+    public Stream<Branch> getBranchStream() {
+        return index.getBranches().stream();
+    }
+
+    @Override
+    public int getBranchCount() {
+        return index.getBranches().size();
+    }
+
+    // ThreeWindingsTransformers
+    @Override
+    public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
+        return Collections.unmodifiableCollection(index.getThreeWindingsTransformers());
+    }
+
+    @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
+        return index.getThreeWindingsTransformers().stream();
+    }
+
+    @Override
+    public int getThreeWindingsTransformerCount() {
+        return index.getThreeWindingsTransformers().size();
+    }
+
+    @Override
+    public ThreeWindingsTransformer getThreeWindingsTransformer(final String id) {
+        return getThreeWindingsTransformerStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
+    @Override
+    public BusBreakerViewAdapter getBusBreakerView() {
+        return busBreakerView;
+    }
+
+    @Override
+    public BusView getBusView() {
+        return busView;
+    }
+
+    @Override
+    public <E extends Extension<Network>> void addExtension(final Class<? super E> type, final E extension) {
+        workingNetwork.addExtension(type, extension);
+    }
+
+    @Override
+    public <E extends Extension<Network>> E getExtension(final Class<? super E> type) {
+        return workingNetwork.getExtension(type);
+    }
+
+    @Override
+    public <E extends Extension<Network>> E getExtensionByName(final String name) {
+        return workingNetwork.getExtensionByName(name);
+    }
+
+    @Override
+    public <E extends Extension<Network>> boolean removeExtension(final Class<E> type) {
+        return workingNetwork.removeExtension(type);
+    }
+
+    @Override
+    public <E extends Extension<Network>> Collection<E> getExtensions() {
+        return workingNetwork.getExtensions();
     }
 
     // -------------------------------
@@ -295,52 +630,12 @@ public final class MergingView implements Network {
     }
 
     @Override
-    public Iterable<VoltageLevel> getVoltageLevels() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<VoltageLevel> getVoltageLevelStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getVoltageLevelCount() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public VoltageLevel getVoltageLevel(final String id) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public LineAdder newLine() {
         throw NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
     public Iterable<Line> getLines() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Branch getBranch(final String branchId) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<Branch> getBranches() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Branch> getBranchStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getBranchCount() {
         throw NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -365,126 +660,6 @@ public final class MergingView implements Network {
     }
 
     @Override
-    public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getTwoWindingsTransformerCount() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public TwoWindingsTransformer getTwoWindingsTransformer(final String id) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getThreeWindingsTransformerCount() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ThreeWindingsTransformer getThreeWindingsTransformer(final String id) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<Generator> getGenerators() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Generator> getGeneratorStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getGeneratorCount() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Generator getGenerator(final String id) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<Battery> getBatteries() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Battery> getBatteryStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getBatteryCount() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Battery getBattery(final String id) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<Load> getLoads() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Load> getLoadStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getLoadCount() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Load getLoad(final String id) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<ShuntCompensator> getShuntCompensators() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<ShuntCompensator> getShuntCompensatorStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getShuntCompensatorCount() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ShuntCompensator getShuntCompensator(final String id) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public Iterable<DanglingLine> getDanglingLines() {
         throw NOT_IMPLEMENTED_EXCEPTION;
     }
@@ -501,126 +676,6 @@ public final class MergingView implements Network {
 
     @Override
     public DanglingLine getDanglingLine(final String id) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<StaticVarCompensator> getStaticVarCompensators() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getStaticVarCompensatorCount() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public StaticVarCompensator getStaticVarCompensator(final String id) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Switch getSwitch(final String id) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<Switch> getSwitches() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Switch> getSwitchStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getSwitchCount() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public BusbarSection getBusbarSection(final String id) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<BusbarSection> getBusbarSections() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<BusbarSection> getBusbarSectionStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getBusbarSectionCount() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<HvdcConverterStation<?>> getHvdcConverterStations() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<HvdcConverterStation<?>> getHvdcConverterStationStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getHvdcConverterStationCount() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public HvdcConverterStation<?> getHvdcConverterStation(final String id) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<LccConverterStation> getLccConverterStations() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<LccConverterStation> getLccConverterStationStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getLccConverterStationCount() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public LccConverterStation getLccConverterStation(final String id) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<VscConverterStation> getVscConverterStations() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<VscConverterStation> getVscConverterStationStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getVscConverterStationCount() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public VscConverterStation getVscConverterStation(final String id) {
         throw NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -650,47 +705,12 @@ public final class MergingView implements Network {
     }
 
     @Override
-    public BusBreakerView getBusBreakerView() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public BusView getBusView() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public void addListener(final NetworkListener listener) {
         throw NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
     public void removeListener(final NetworkListener listener) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public <E extends Extension<Network>> void addExtension(final Class<? super E> type, final E extension) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public <E extends Extension<Network>> E getExtension(final Class<? super E> type) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public <E extends Extension<Network>> E getExtensionByName(final String name) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public <E extends Extension<Network>> boolean removeExtension(final Class<E> type) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public <E extends Extension<Network>> Collection<E> getExtensions() {
         throw NOT_IMPLEMENTED_EXCEPTION;
     }
 }

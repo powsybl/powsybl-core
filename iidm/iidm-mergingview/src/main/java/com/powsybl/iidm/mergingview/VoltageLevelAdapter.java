@@ -14,33 +14,25 @@ import java.util.Random;
 import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.ContainerType;
 import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.DanglingLineAdder;
 import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.LccConverterStationAdder;
 import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorAdder;
 import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.TopologyVisitor;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VscConverterStation;
-import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-class VoltageLevelAdapter extends AbstractAdapter<VoltageLevel> implements VoltageLevel {
+class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> implements VoltageLevel {
 
     public VoltageLevelAdapter(final VoltageLevel delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -52,7 +44,7 @@ class VoltageLevelAdapter extends AbstractAdapter<VoltageLevel> implements Volta
     }
 
     // -------------------------------
-    // Not implemented methods --------------
+    // Not implemented methods -------
     // -------------------------------
     @Override
     public <T extends Connectable> T getConnectable(final String id, final Class<T> aClass) {
@@ -90,7 +82,7 @@ class VoltageLevelAdapter extends AbstractAdapter<VoltageLevel> implements Volta
     }
 
     @Override
-    public GeneratorAdder newGenerator() {
+    public GeneratorAdderAdapter newGenerator() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -105,7 +97,7 @@ class VoltageLevelAdapter extends AbstractAdapter<VoltageLevel> implements Volta
     }
 
     @Override
-    public BatteryAdder newBattery() {
+    public BatteryAdderAdapter newBattery() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -120,7 +112,7 @@ class VoltageLevelAdapter extends AbstractAdapter<VoltageLevel> implements Volta
     }
 
     @Override
-    public LoadAdder newLoad() {
+    public LoadAdderAdapter newLoad() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -140,7 +132,7 @@ class VoltageLevelAdapter extends AbstractAdapter<VoltageLevel> implements Volta
     }
 
     @Override
-    public ShuntCompensatorAdder newShuntCompensator() {
+    public ShuntCompensatorAdderAdapter newShuntCompensator() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -155,7 +147,7 @@ class VoltageLevelAdapter extends AbstractAdapter<VoltageLevel> implements Volta
     }
 
     @Override
-    public DanglingLineAdder newDanglingLine() {
+    public DanglingLineAdderAdapter newDanglingLine() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -175,7 +167,7 @@ class VoltageLevelAdapter extends AbstractAdapter<VoltageLevel> implements Volta
     }
 
     @Override
-    public StaticVarCompensatorAdder newStaticVarCompensator() {
+    public StaticVarCompensatorAdderAdapter newStaticVarCompensator() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -190,7 +182,7 @@ class VoltageLevelAdapter extends AbstractAdapter<VoltageLevel> implements Volta
     }
 
     @Override
-    public VscConverterStationAdder newVscConverterStation() {
+    public VscConverterStationAdderAdapter newVscConverterStation() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -205,7 +197,7 @@ class VoltageLevelAdapter extends AbstractAdapter<VoltageLevel> implements Volta
     }
 
     @Override
-    public LccConverterStationAdder newLccConverterStation() {
+    public LccConverterStationAdderAdapter newLccConverterStation() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -220,17 +212,17 @@ class VoltageLevelAdapter extends AbstractAdapter<VoltageLevel> implements Volta
     }
 
     @Override
-    public NodeBreakerView getNodeBreakerView() {
+    public VoltageLevelNodeBreakerViewAdapter getNodeBreakerView() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public BusBreakerView getBusBreakerView() {
+    public VoltageLevelBusBreakerViewAdapter getBusBreakerView() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public BusView getBusView() {
+    public VoltageLevelBusViewAdapter getBusView() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -278,8 +270,9 @@ class VoltageLevelAdapter extends AbstractAdapter<VoltageLevel> implements Volta
     }
 
     @Override
-    public VoltageLevel setNominalV(final double nominalV) {
-        return getDelegate().setNominalV(nominalV);
+    public VoltageLevelAdapter setNominalV(final double nominalV) {
+        getDelegate().setNominalV(nominalV);
+        return this;
     }
 
     @Override
@@ -288,8 +281,9 @@ class VoltageLevelAdapter extends AbstractAdapter<VoltageLevel> implements Volta
     }
 
     @Override
-    public VoltageLevel setLowVoltageLimit(final double lowVoltageLimit) {
-        return getDelegate().setLowVoltageLimit(lowVoltageLimit);
+    public VoltageLevelAdapter setLowVoltageLimit(final double lowVoltageLimit) {
+        getDelegate().setLowVoltageLimit(lowVoltageLimit);
+        return this;
     }
 
     @Override
@@ -298,8 +292,9 @@ class VoltageLevelAdapter extends AbstractAdapter<VoltageLevel> implements Volta
     }
 
     @Override
-    public VoltageLevel setHighVoltageLimit(final double highVoltageLimit) {
-        return getDelegate().setHighVoltageLimit(highVoltageLimit);
+    public VoltageLevelAdapter setHighVoltageLimit(final double highVoltageLimit) {
+        getDelegate().setHighVoltageLimit(highVoltageLimit);
+        return this;
     }
 
     @Override
