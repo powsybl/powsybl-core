@@ -51,7 +51,6 @@ public final class CgmesModelFactory {
         return new CgmesModelTripleStore(cimNamespace, tripleStore);
     }
 
-    // TODO elena
     public static CgmesModel cloneCgmes(CgmesModel cgmes) {
         String cimNamespace = cgmes.getCimNamespace();
         String implementation = cgmes.tripleStore().getImplementationName();
@@ -62,8 +61,7 @@ public final class CgmesModelFactory {
         loadCaches(cgmesClone);
         return cgmesClone;
     }
-    
-    //TODO elena
+
     private static void loadCaches(CgmesModel cgmes) {
         for (PropertyBags tends : cgmes.groupedTransformerEnds().values()) {
             for (PropertyBag end : tends) {

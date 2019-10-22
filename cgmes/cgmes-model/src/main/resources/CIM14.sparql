@@ -409,16 +409,6 @@ WHERE {
 }
 
 # query: updateCgmesfromIidmRemove
-# delete is under construction
-SELECT ?subject  ?predicate  ?value
-WHERE
-{     
-    { GRAPH ?graph
-          { ?subject  ?predicate  ?value .
-            FILTER ( STRENDS(STR(?subject), "{1}") )
-          }
-      }
-}
 
 # query: checkCgmesUpdated
 SELECT ?subject  ?predicate  ?value 

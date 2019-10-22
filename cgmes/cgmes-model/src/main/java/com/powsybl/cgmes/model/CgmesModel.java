@@ -126,7 +126,6 @@ public interface CgmesModel {
 
     PropertyBags dcTerminalsTP();
 
-    // TODO (elena) implement method
     public void clone(CgmesModel cgmes);
     
     PropertyBags updateCgmes(String context, Map<String, String> cgmesChanges,String changeInstanceName);

@@ -204,7 +204,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
     
     @Override
-    //TODO elena
     public String getBaseName() {
         return this.baseName;
     }
