@@ -35,31 +35,28 @@ public interface TripleStore {
     PropertyBags query(String query);
 
     /**
-     * Add to the triple store statements for creating new resources, instances of a
-     * specific class
+     * Add to the triple store statements for creating new resources, instances of a specific class
      *
      * @param contextName context where the statements are added
-     * @param namespace   the namespace of the class of the new resources
-     * @param type        the class of the new resources
-     * @param objects     properties of the resources
+     * @param namespace the namespace of the class of the new resources
+     * @param type the class of the new resources
+     * @param objects properties of the resources
      */
     void add(String contextName, String namespace, String type, PropertyBags objects);
 
     /**
-     * Add to the triple store statements for creating a new resource, instance of a
-     * specific class
+     * Add to the triple store statements for creating a new resource, instance of a specific class
      *
      * @param contextName the context where the statements are added
-     * @param namespace   the namespace of the class of the new resource
-     * @param type        the class of the new resource
-     * @param properties  properties of the resource
+     * @param namespace the namespace of the class of the new resource
+     * @param type the class of the new resource
+     * @param properties properties of the resource
      * @return the id of the new resource
      */
     String add(String contextName, String namespace, String type, PropertyBag properties);
 
     Set<String> contextNames();
 
-    // TODO elena
     void update(String queryText);
 
     void duplicate(TripleStore origin, String baseName);
@@ -69,7 +66,7 @@ public interface TripleStore {
     /**
      * Add a namespace to the triple store
      *
-     * @param prefix    the prefix of the namespace
+     * @param prefix the prefix of the namespace
      * @param namespace the namespace
      */
     void addNamespace(String prefix, String namespace);
@@ -80,4 +77,5 @@ public interface TripleStore {
      * @return the list of namespaces defined in the triple store
      */
     List<PrefixNamespace> getNamespaces();
+
 }

@@ -41,8 +41,6 @@ import org.apache.jena.update.UpdateAction;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateRequest;
 import org.apache.jena.vocabulary.RDF;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
@@ -79,7 +77,6 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         return dataset;
     }
 
-    // TODO elena
     @Override
     public String getImplementationName() {
         TripleStoreFactoryService ts = new TripleStoreFactoryServiceJena();
@@ -173,8 +170,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
     @Override
     public void update(String query) {
-        // TODO elena
-        // https://jena.apache.org/documentation/query/update.html
+
         String updateStatement = adjustedQuery(query);
         UpdateRequest request = UpdateFactory.create(updateStatement);
         UpdateAction.execute(request, dataset);
@@ -182,7 +178,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
     @Override
     public void duplicate(TripleStore origin, String baseName) {
-        // TODO elena Clone by statements
+
         Iterator<String> names = null;
         Dataset datasetOrigin = ((TripleStoreJena) origin).getDataset();
         cloneNamespaces(datasetOrigin, baseName);
@@ -216,7 +212,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         }
         // override data namespase
         unionOrigin.setNsPrefix("data", baseName.concat("#"));
-        // get namespaces from union origin
+
         Map<String, String> namespacesMap = unionOrigin.getNsPrefixMap();
         // set these namespaces to the destination
         List<PrefixNamespace> namespaces = new ArrayList<>();
@@ -380,6 +376,5 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     private final Dataset dataset;
     private Model union;
     private RDFWriter writer;
-    private static final Logger LOG = LoggerFactory.getLogger(TripleStoreJena.class);
 
 }

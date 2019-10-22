@@ -67,10 +67,11 @@ import com.powsybl.triplestore.api.TripleStoreFactoryService;
 public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
 
     public TripleStoreBlazegraph() {
-        props = new Properties();
+        final Properties props = new Properties();
         props.put(Options.BUFFER_MODE, "MemStore");
         props.put(AbstractTripleStore.Options.QUADS_MODE, "true");
         props.put(BigdataSail.Options.TRUTH_MAINTENANCE, "false");
+
         // Quiet
         System.getProperties().setProperty("com.bigdata.Banner.quiet", "true");
         System.getProperties().setProperty("com.bigdata.util.config.LogUtil.quiet", "true");
@@ -89,7 +90,6 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         return repo;
     }
 
-    // TODO elena
     @Override
     public String getImplementationName() {
         TripleStoreFactoryService ts = new TripleStoreFactoryServiceBlazegraph();
@@ -245,7 +245,6 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
 
     @Override
     public void update(String query) {
-        // TODO elena
         RepositoryConnection cnx;
         String updateStatement = adjustedQuery(query);
         try {
@@ -273,7 +272,6 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
 
     @Override
     public void duplicate(TripleStore origin, String baseName) {
-        // TODO elena clone by statements
         Repository repoOrigin = ((TripleStoreBlazegraph) origin).getRepository();
         RepositoryConnection connOrigin = null;
         RepositoryConnection conn = null;
@@ -412,8 +410,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         PropertyBag statement,
         Resource context) {
         try {
-            URI resource = cnx.getValueFactory().createURI(cnx.getNamespace("data"),
-                "_" + UUID.randomUUID().toString());
+            URI resource = cnx.getValueFactory().createURI(cnx.getNamespace("data"), "_" + UUID.randomUUID().toString());
             URI parentPredicate = RDF.TYPE;
             URI parentObject = cnx.getValueFactory().createURI(objNs + objType);
             Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
@@ -541,8 +538,6 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     private final Repository repo;
-//    private Repository repoClone;
-    private final Properties props;
 
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreBlazegraph.class);
 
