@@ -70,7 +70,6 @@ public class VoltageLevelTest {
         assertEquals(TopologyKind.BUS_BREAKER, voltageLevel.getTopologyKind());
 
         // Not implemented yet !
-
         // Generator
         TestUtil.notImplemented(voltageLevel::newGenerator);
         TestUtil.notImplemented(voltageLevel::getGenerators);
