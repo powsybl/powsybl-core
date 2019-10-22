@@ -6,8 +6,17 @@
  */
 package com.powsybl.timeseries.ast;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Jon Harper <jon.harper at rte-france.com>
+ *
+ *         The iterate methods allow the visitor to describe which children are
+ *         traversed and their order. The visit methods compute results for
+ *         nodes from the node and all the results of the children.
+ *
+ * @see NodeCalcVisitors
  */
 public interface NodeCalcVisitor<R, A> {
 
@@ -19,15 +28,25 @@ public interface NodeCalcVisitor<R, A> {
 
     R visit(BigDecimalNodeCalc nodeCalc, A arg);
 
-    R visit(TimeNodeCalc nodeCalc, A arg);
+    R visit(TimeNodeCalc nodeCalc, A arg, R child);
 
-    R visit(BinaryOperation nodeCalc, A arg);
+    NodeCalc iterate(TimeNodeCalc nodeCalc, A arg);
 
-    R visit(UnaryOperation nodeCalc, A arg);
+    R visit(BinaryOperation nodeCalc, A arg, R left, R right);
 
-    R visit(MinNodeCalc nodeCalc, A arg);
+    Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, A arg);
 
-    R visit(MaxNodeCalc nodeCalc, A arg);
+    R visit(UnaryOperation nodeCalc, A arg, R child);
+
+    NodeCalc iterate(UnaryOperation nodeCalc, A arg);
+
+    R visit(MinNodeCalc nodeCalc, A arg, R child);
+
+    NodeCalc iterate(MinNodeCalc nodeCalc, A arg);
+
+    R visit(MaxNodeCalc nodeCalc, A arg, R child);
+
+    NodeCalc iterate(MaxNodeCalc nodeCalc, A arg);
 
     R visit(TimeSeriesNameNodeCalc nodeCalc, A arg);
 

@@ -136,12 +136,14 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
 
         // create network.net
-        storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "", Case.VERSION,
+        NodeInfo caseNode = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "", Case.VERSION,
                 new NodeGenericMetadata().setString(Case.FORMAT, ImporterMock.FORMAT));
 
         // create network2.net
-        storage.createNode(rootFolderInfo.getId(), "network2", Case.PSEUDO_CLASS, "", Case.VERSION,
+        NodeInfo caseNode2 = storage.createNode(rootFolderInfo.getId(), "network2", Case.PSEUDO_CLASS, "", Case.VERSION,
                 new NodeGenericMetadata().setString(Case.FORMAT, ImporterMock.FORMAT));
+        storage.setConsistent(caseNode.getId());
+        storage.setConsistent(caseNode2.getId());
     }
 
     @Test
@@ -212,5 +214,30 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         assertEquals(importedCase2.getId(), runner.getCase().get().getId());
         assertTrue(runner.getContingencyStore().isPresent());
         assertEquals(contingencyStore2.getId(), runner.getContingencyStore().get().getId());
+
+        //test missing dependencies
+        SecurityAnalysisRunner runner2 = project.getRootFolder().fileBuilder(SecurityAnalysisRunnerBuilder.class)
+                .withName("sar")
+                .withCase(importedCase)
+                .withContingencyStore(contingencyStore)
+                .build();
+
+        contingencyStore.delete();
+        assertTrue(runner2.mandatoryDependenciesAreMissing());
+        importedCase.delete();
+        assertTrue(runner2.mandatoryDependenciesAreMissing());
+
+        ImportedCase importedCase3 = project.getRootFolder().fileBuilder(ImportedCaseBuilder.class)
+                .withCase(aCase)
+                .build();
+        runner2.setCase(importedCase3);
+
+        ContingencyStore contingencyStore3 = project.getRootFolder().fileBuilder(ContingencyStoreBuilder.class)
+                .withName("contingencies3")
+                .build();
+        contingencyStore3.write(new Contingency("c3", new BranchContingency("l3")));
+        runner2.setContingencyStore(contingencyStore3);
+        assertFalse(runner2.mandatoryDependenciesAreMissing());
+
     }
 }

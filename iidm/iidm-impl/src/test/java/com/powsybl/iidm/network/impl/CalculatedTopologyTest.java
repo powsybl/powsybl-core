@@ -6,18 +6,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+import com.powsybl.iidm.network.*;
 import org.junit.Test;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -40,11 +34,12 @@ public class CalculatedTopologyTest {
         assertNotNull(ma);
         assertNotNull(mb);
         assertEquals(ma, mb);
+        assertSame(n, ma.getNetwork());
     }
 
     private Network createBusBreaker() {
         // For the buses to be valid they have to be connected to at least one branch
-        Network network = NetworkFactory.create("test", "test");
+        Network network = Network.create("test", "test");
         Substation s1 = network.newSubstation()
                 .setId("S1")
                 .setCountry(Country.ES)
@@ -117,7 +112,7 @@ public class CalculatedTopologyTest {
 
     private Network createNodeBreaker() {
         // For the buses to be valid they have to be connected to at least one branch
-        Network network = NetworkFactory.create("test", "test");
+        Network network = Network.create("test", "test");
         Substation s1 = network.newSubstation()
                 .setId("S1")
                 .setCountry(Country.ES)

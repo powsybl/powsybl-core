@@ -15,7 +15,7 @@ public class BusTest {
 
     @Test
     public void testSetterGetter() {
-        Network network = NetworkFactory.create("test", "test");
+        Network network = Network.create("test", "test");
         Substation substation = network.newSubstation()
                                     .setCountry(Country.AF)
                                     .setTso("tso")
@@ -69,6 +69,7 @@ public class BusTest {
         vscConverterStation.getTerminal().setQ(q2);
 
         assertSame(voltageLevel, bus.getVoltageLevel());
+        assertSame(network, bus.getNetwork());
         try {
             bus.setV(-1.0);
             fail();

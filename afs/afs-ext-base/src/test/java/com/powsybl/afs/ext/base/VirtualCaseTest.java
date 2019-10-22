@@ -58,8 +58,9 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
     public void setup() throws IOException {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
-        storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "", Case.VERSION,
+        NodeInfo nodeInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "", Case.VERSION,
                 new NodeGenericMetadata().setString(Case.FORMAT, TestImporter.FORMAT));
+        storage.setConsistent(nodeInfo.getId());
     }
 
     @Test
@@ -126,6 +127,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
         assertEquals(1, importedCase.getBackwardDependencies().size());
         assertEquals(1, script.getBackwardDependencies().size());
         assertNotNull(virtualCase.getNetwork());
+        assertFalse(virtualCase.mandatoryDependenciesAreMissing());
 
         // test cache invalidation
         script.writeScript("print 'bye'");
@@ -155,5 +157,24 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
             assertNotNull(e.getError());
             assertTrue(e.getError().getMessage().contains("No signature of method: test.prin() is applicable"));
         }
+
+        //test missing dependencies
+        VirtualCase virtualCase3 = folder.fileBuilder(VirtualCaseBuilder.class)
+                .withName("network3")
+                .withCase(importedCase)
+                .withScript(scriptWithError)
+                .build();
+
+        importedCase.delete();
+        assertTrue(virtualCase3.mandatoryDependenciesAreMissing());
+
+        ImportedCase importedCase2 = folder.fileBuilder(ImportedCaseBuilder.class)
+                .withCase(aCase)
+                .build();
+
+        virtualCase3.setCase(importedCase2);
+
+        scriptWithError.delete();
+        assertTrue(virtualCase3.mandatoryDependenciesAreMissing());
     }
 }

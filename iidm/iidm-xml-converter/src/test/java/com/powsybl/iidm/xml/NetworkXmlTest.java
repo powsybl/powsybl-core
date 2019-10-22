@@ -51,7 +51,7 @@ public class NetworkXmlTest extends AbstractConverterTest {
     @Test
     public void testValidationIssueWithProperties() throws Exception {
         Network network = createEurostagTutorialExample1();
-        network.getGenerator("GEN").getProperties().setProperty("test", "foo");
+        network.getGenerator("GEN").setProperty("test", "foo");
         Path xmlFile = tmpDir.resolve("n.xml");
         NetworkXml.writeAndValidate(network, xmlFile);
     }

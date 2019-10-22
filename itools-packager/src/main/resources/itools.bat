@@ -34,13 +34,8 @@ if "%~1"=="" ( goto done ) else (
     set powsybl_config_name=%2
     shift
   ) else (
-    if "%~1" == "--parallel" (
-      set parallel=true
-      echo WARNING : '--parallel' option not currently supported on Windows
-    ) else (
-        set args=%args% %1 %2
-        shift
-      )
+    set args=%args% %1 %2
+    shift
   )
   shift
   goto continue

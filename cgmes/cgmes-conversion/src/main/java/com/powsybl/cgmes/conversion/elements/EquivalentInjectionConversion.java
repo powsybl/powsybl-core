@@ -19,14 +19,16 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerConversion {
 
+    private static final String REGULATION_TARGET = "regulationTarget";
+
     public EquivalentInjectionConversion(PropertyBag sm, Context context) {
         super("EquivalentInjection", sm, context);
     }
 
     @Override
     public void convert() {
-        double minP = p.asDouble("minP", 0);
-        double maxP = p.asDouble("maxP", 0);
+        double minP = p.asDouble("minP", -Double.MAX_VALUE);
+        double maxP = p.asDouble("maxP", Double.MAX_VALUE);
         EnergySource energySource = EnergySource.OTHER;
         PowerFlow f = powerFlow();
 
@@ -36,14 +38,19 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             targetP = -f.p();
             targetQ = -f.q();
         }
+
         boolean regulationCapability = p.asBoolean("regulationCapability", false);
-        boolean regulationStatus = p.asBoolean("regulationStatus", regulationCapability);
+        boolean regulationStatus = p.asBoolean("regulationStatus", false) && regulationCapability;
+        if (!p.containsKey("regulationStatus") || !p.containsKey(REGULATION_TARGET)) {
+            context.missing(String.format("Missing regulationStatus or regulationTarget for EquivalentInjection %s. Voltage regulation is considered as off.", id));
+        }
+
         regulationStatus = regulationStatus && terminalConnected();
         double targetV = Double.NaN;
         if (terminalConnected() && regulationStatus) {
-            targetV = p.asDouble("regulationTarget");
+            targetV = p.asDouble(REGULATION_TARGET);
             if (targetV == 0) {
-                fixed("regulationTarget", "Target voltage value can not be zero", targetV,
+                fixed(REGULATION_TARGET, "Target voltage value can not be zero", targetV,
                         voltageLevel().getNominalV());
                 targetV = voltageLevel().getNominalV();
             }

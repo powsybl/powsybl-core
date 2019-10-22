@@ -90,19 +90,16 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public ShuntCompensatorImpl setCurrentSectionCount(int currentSectionCount) {
         ValidationUtil.checkSections(this, currentSectionCount, maximumSectionCount);
-        int oldValue = this.currentSectionCount.set(network.get().getVariantIndex(), currentSectionCount);
-        notifyUpdate("currentSectionCount", oldValue, currentSectionCount);
+        int variantIndex = network.get().getVariantIndex();
+        int oldValue = this.currentSectionCount.set(variantIndex, currentSectionCount);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("currentSectionCount", variantId, oldValue, currentSectionCount);
         return this;
     }
 
     @Override
     public double getCurrentB() {
         return bPerSection * getCurrentSectionCount();
-    }
-
-    @Override
-    public double getMaximumB() {
-        return bPerSection * maximumSectionCount;
     }
 
     @Override

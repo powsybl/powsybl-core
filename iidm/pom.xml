@@ -25,7 +25,9 @@
 
     <modules>
         <module>iidm-api</module>
+        <module>iidm-comparator</module>
         <module>iidm-converter-api</module>
+        <module>iidm-extensions</module>
         <module>iidm-impl</module>
         <module>iidm-reducer</module>
         <module>iidm-test</module>

@@ -151,7 +151,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         identify(adder);
         connect(adder, modelSide);
         DanglingLine dl = adder.add();
-        convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
+        context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
 
         // If we do not have power flow at model side and we can compute it,
         // do it and assign the result at the terminal of the dangling line
@@ -282,8 +282,8 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             connect(adder, iidmVoltageLevelId1, mbus1, mt1connected, mnode1, iidmVoltageLevelId2, mbus2, mt2connected, mnode2);
             mline = adder.add();
         }
-        convertedTerminal(terminalId(thisEnd), mline.getTerminal1(), 1, powerFlow(thisEnd));
-        convertedTerminal(otherc.terminalId(otherEnd), mline.getTerminal2(), 2, otherc.powerFlow(otherEnd));
+        context.convertedTerminal(terminalId(thisEnd), mline.getTerminal1(), 1, powerFlow(thisEnd));
+        context.convertedTerminal(otherc.terminalId(otherEnd), mline.getTerminal2(), 2, otherc.powerFlow(otherEnd));
     }
 
     static class PiModel {

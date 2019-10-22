@@ -13,6 +13,8 @@ import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -34,8 +36,13 @@ public class BigDecimalNodeCalc implements LiteralNodeCalc {
     }
 
     @Override
-    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg) {
+    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, List<R> children) {
         return visitor.visit(this, arg);
+    }
+
+    @Override
+    public <R, A> List<NodeCalc> acceptIterate(NodeCalcVisitor<R, A> visitor, A arg) {
+        return Collections.emptyList();
     }
 
     public BigDecimal getValue() {

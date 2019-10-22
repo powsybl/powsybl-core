@@ -35,8 +35,10 @@ import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.TapChangerStep;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -100,6 +102,10 @@ public class Comparison {
                 expected.getTwoWindingsTransformerStream(),
                 actual.getTwoWindingsTransformerStream(),
                 this::compareTwoWindingTransformers);
+        compare(
+                expected.getThreeWindingsTransformerStream(),
+                actual.getThreeWindingsTransformerStream(),
+                this::compareThreeWindingsTransformers);
         compare(
                 expected.getDanglingLineStream(),
                 actual.getDanglingLineStream(),
@@ -185,9 +191,6 @@ public class Comparison {
         equivalent("VoltageLevel",
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
-        compare("maximumB",
-                expected.getMaximumB(),
-                actual.getMaximumB());
         compare("maximumSectionCount",
                 expected.getMaximumSectionCount(),
                 actual.getMaximumSectionCount());
@@ -261,6 +264,22 @@ public class Comparison {
         compare("ratedS", expected.getRatedS(), actual.getRatedS());
         compare("terminalP", expected.getTerminal().getP(), actual.getTerminal().getP());
         compare("terminalQ", expected.getTerminal().getQ(), actual.getTerminal().getQ());
+        compareQPercents(expected.getExtension(CoordinatedReactiveControl.class), actual.getExtension(CoordinatedReactiveControl.class));
+    }
+
+    private void compareQPercents(CoordinatedReactiveControl expected, CoordinatedReactiveControl actual) {
+        if (expected == null) {
+            if (actual != null) {
+                diff.unexpected("qPercent");
+                return;
+            }
+            return;
+        }
+        if (actual == null) {
+            diff.unexpected("qPercent");
+            return;
+        }
+        diff.compare("qPercent", expected.getQPercent(), actual.getQPercent());
     }
 
     private void compareGeneratorReactiveLimits(ReactiveLimits expected, ReactiveLimits actual) {
@@ -401,6 +420,33 @@ public class Comparison {
         comparePhaseTapChanger(expected.getPhaseTapChanger(), actual.getPhaseTapChanger());
     }
 
+    private void compareThreeWindingsTransformers(ThreeWindingsTransformer expected,
+        ThreeWindingsTransformer actual) {
+        compareLeg(expected.getLeg1(), actual.getLeg1(), expected, actual);
+        compareLeg(expected.getLeg2(), actual.getLeg2(), expected, actual);
+        compareLeg(expected.getLeg3(), actual.getLeg3(), expected, actual);
+    }
+
+    private void compareLeg(ThreeWindingsTransformer.LegBase expected, ThreeWindingsTransformer.LegBase actual,
+        ThreeWindingsTransformer expectedt, ThreeWindingsTransformer actualt) {
+        equivalent("VoltageLevel",
+            expected.getTerminal().getVoltageLevel(),
+            actual.getTerminal().getVoltageLevel());
+        compare("r", expected.getR(), actual.getR());
+        compare("x", expected.getX(), actual.getX());
+        if (actual instanceof ThreeWindingsTransformer.Leg1) {
+            compare("g", ((ThreeWindingsTransformer.Leg1) expected).getG(), ((ThreeWindingsTransformer.Leg1) actual).getG());
+            compare("b", ((ThreeWindingsTransformer.Leg1) expected).getB(), ((ThreeWindingsTransformer.Leg1) actual).getB());
+        }
+        compare("ratedU", expected.getRatedU(), actual.getRatedU());
+        compareCurrentLimits(expectedt, actualt,
+            expected.getCurrentLimits(),
+            actual.getCurrentLimits());
+        if (actual instanceof ThreeWindingsTransformer.Leg2or3) {
+            compareRatioTapChanger(((ThreeWindingsTransformer.Leg2or3) expected).getRatioTapChanger(), ((ThreeWindingsTransformer.Leg2or3) actual).getRatioTapChanger());
+        }
+    }
+
     private void compareRatioTapChanger(
             RatioTapChanger expected,
             RatioTapChanger actual) {
@@ -452,9 +498,12 @@ public class Comparison {
             compare("tapChanger.tapPosition",
                     expected.getTapPosition(),
                     actual.getTapPosition());
+            compare("tapChanger.targetDeadband",
+                    expected.getTargetDeadband(),
+                    actual.getTargetDeadband());
             compare("tapChanger.stepCount", expected.getStepCount(), actual.getStepCount());
             // Check steps
-            for (int k = expected.getLowTapPosition(); k <= expected.getStepCount(); k++) {
+            for (int k = expected.getLowTapPosition(); k <= expected.getHighTapPosition(); k++) {
                 TCS stepExpected = expected.getStep(k);
                 TCS stepActual = actual.getStep(k);
                 compareTapChangerStep(stepExpected, stepActual, testTapChangerStep1);

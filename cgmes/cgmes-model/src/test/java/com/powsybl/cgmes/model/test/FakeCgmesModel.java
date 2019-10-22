@@ -1,5 +1,6 @@
 package com.powsybl.cgmes.model.test;
 
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collections;
@@ -7,17 +8,18 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
 
-import com.powsybl.triplestore.api.TripleStore;
 import org.joda.time.DateTime;
+import org.mockito.Mockito;
 
 import com.powsybl.cgmes.model.CgmesContainer;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesTerminal;
-import com.powsybl.cgmes.model.Subset;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
-import org.mockito.Mockito;
+import com.powsybl.triplestore.api.TripleStore;
 
 public final class FakeCgmesModel implements CgmesModel {
     private final Properties properties;
@@ -49,6 +51,7 @@ public final class FakeCgmesModel implements CgmesModel {
     private PropertyBags synchronousMachines;
     private PropertyBags equivalentInjections;
     private PropertyBags externalNetworkInjections;
+    private PropertyBags svInjections;
     private PropertyBags asynchronousMachines;
     private PropertyBags acDcConverters;
     private PropertyBags dcLineSegments;
@@ -85,6 +88,7 @@ public final class FakeCgmesModel implements CgmesModel {
         synchronousMachines = new PropertyBags();
         equivalentInjections = new PropertyBags();
         externalNetworkInjections = new PropertyBags();
+        svInjections = new PropertyBags();
         asynchronousMachines = new PropertyBags();
         acDcConverters = new PropertyBags();
         dcLineSegments = new PropertyBags();
@@ -414,6 +418,11 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags svInjections() {
+        return svInjections;
+    }
+
+    @Override
     public PropertyBags asynchronousMachines() {
         return asynchronousMachines;
     }
@@ -478,12 +487,12 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public void clear(Subset subset) {
+    public void clear(CgmesSubset subset) {
         // FakeCgmesModel, no need to implement clear
     }
 
     @Override
-    public void add(String contextName, String type, PropertyBags objects) {
+    public void add(CgmesSubset subset, String type, PropertyBags objects) {
         // FakeCgmesModel, no need to implement storage of objects
     }
 
@@ -531,5 +540,25 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public double nominalVoltage(String baseVoltageId) {
         return Double.NaN;
+    }
+
+    @Override
+    public void setBasename(String baseName) {
+        // TODO Review if required by current tests
+    }
+
+    @Override
+    public void read(ReadOnlyDataSource ds) {
+        // TODO Review if required by current tests
+    }
+
+    @Override
+    public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary) {
+        // TODO Review if required by current tests
+    }
+
+    @Override
+    public void read(InputStream is, String baseName, String contextName) {
+        // TODO Review if required by current tests
     }
 }

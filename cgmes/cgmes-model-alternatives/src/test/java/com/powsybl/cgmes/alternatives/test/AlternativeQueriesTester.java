@@ -7,14 +7,10 @@
 
 package com.powsybl.cgmes.alternatives.test;
 
-import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.test.TestGridModel;
-import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.triplestore.api.QueryCatalog;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,7 +19,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static org.junit.Assert.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelFactory;
+import com.powsybl.cgmes.model.test.TestGridModel;
+import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.QueryCatalog;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -31,28 +36,28 @@ import static org.junit.Assert.*;
 public class AlternativeQueriesTester {
 
     public AlternativeQueriesTester(List<String> tripleStoreImplementations,
-            QueryCatalog queries,
-            TestGridModel gridModel,
-            Expected expected) {
+        QueryCatalog queries,
+        TestGridModel gridModel,
+        Expected expected) {
         // By default, execute the tests without caching the models
         this(tripleStoreImplementations, queries, gridModel, expected, 1, true, null, false);
     }
 
     public AlternativeQueriesTester(List<String> tripleStoreImplementations,
-            QueryCatalog queries,
-            TestGridModel gridModel,
-            Expected expected,
-            boolean cacheModels) {
+        QueryCatalog queries,
+        TestGridModel gridModel,
+        Expected expected,
+        boolean cacheModels) {
         this(tripleStoreImplementations, queries, gridModel, expected, 1, true, null, cacheModels);
     }
 
     public AlternativeQueriesTester(List<String> tripleStoreImplementations,
-            QueryCatalog queries,
-            TestGridModel gridModel,
-            Expected expected, int experiments,
-            boolean doAssert,
-            Consumer<PropertyBags> consumer,
-            boolean cacheModels) {
+        QueryCatalog queries,
+        TestGridModel gridModel,
+        Expected expected, int experiments,
+        boolean doAssert,
+        Consumer<PropertyBags> consumer,
+        boolean cacheModels) {
         this.implementations = tripleStoreImplementations;
         this.queries = queries;
         this.gridModel = gridModel;
@@ -73,8 +78,9 @@ public class AlternativeQueriesTester {
             // Load the model for every triple store implementation
             for (String impl : implementations) {
                 ReadOnlyDataSource dataSource = gridModel.dataSource();
-                CgmesModelTripleStore cgmes = CgmesModelFactory.create(dataSource, impl);
-                cachedModels.put(impl, cgmes);
+                CgmesModel cgmes = CgmesModelFactory.create(dataSource, impl);
+                assertTrue(cgmes instanceof CgmesModelTripleStore);
+                cachedModels.put(impl, (CgmesModelTripleStore) cgmes);
             }
         }
     }
@@ -159,9 +165,9 @@ public class AlternativeQueriesTester {
         }
         if (experiments > 1 && LOG.isInfoEnabled()) {
             LOG.info("{} {} dt avg {} ms {} experiments, dts: {} {}", alternative, impl, dt / experiments,
-                    experiments,
-                    dt0,
-                    Arrays.toString(dts));
+                experiments,
+                dt0,
+                Arrays.toString(dts));
         }
     }
 
@@ -170,7 +176,7 @@ public class AlternativeQueriesTester {
             assertEquals(expected.resultSize, result.size());
         } else if (LOG.isInfoEnabled()) {
             LOG.info("{} {} results {} {} {}", alternative, impl, expected, result.size(),
-                    expected.resultSize == result.size() ? "OK" : "FAIL");
+                expected.resultSize == result.size() ? "OK" : "FAIL");
         }
         for (String p : expected.propertyCount.keySet()) {
             long expectedPropertyCount = expected.propertyCount.get(p);
@@ -179,7 +185,7 @@ public class AlternativeQueriesTester {
                 assertEquals(expectedPropertyCount, actualPropertyCount);
             } else if (LOG.isInfoEnabled()) {
                 LOG.info("{} {} {} {} {} {}", alternative, impl, p, expectedPropertyCount, actualPropertyCount,
-                        expectedPropertyCount == actualPropertyCount ? "OK" : "FAIL");
+                    expectedPropertyCount == actualPropertyCount ? "OK" : "FAIL");
             }
         }
     }
@@ -188,8 +194,9 @@ public class AlternativeQueriesTester {
         if (cacheModels) {
             return cachedModels.get(implementation);
         } else {
-            ReadOnlyDataSource dataSource = gridModel.dataSource();
-            return CgmesModelFactory.create(dataSource, implementation);
+            CgmesModel cgmes = CgmesModelFactory.create(gridModel.dataSource(), implementation);
+            assertTrue(cgmes instanceof CgmesModelTripleStore);
+            return (CgmesModelTripleStore) cgmes;
         }
     }
 

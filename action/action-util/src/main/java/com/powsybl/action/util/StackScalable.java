@@ -9,6 +9,7 @@ package com.powsybl.action.util;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,12 +19,19 @@ import java.util.Objects;
 class StackScalable extends AbstractCompoundScalable {
     private static final double EPSILON = 1e-5;
 
+    private final List<Scalable> scalables;
+
     StackScalable(Scalable... scalables) {
         this(Arrays.asList(scalables));
     }
 
     StackScalable(List<Scalable> scalables) {
-        super(scalables);
+        this.scalables = Objects.requireNonNull(scalables);
+    }
+
+    @Override
+    Collection<Scalable> getScalables() {
+        return scalables;
     }
 
     @Override
@@ -41,5 +49,4 @@ class StackScalable extends AbstractCompoundScalable {
         }
         return done;
     }
-
 }

@@ -8,9 +8,9 @@ package com.powsybl.action.util;
 
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.loadflow.LoadFlowFactory;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,22 +24,22 @@ public class LoadFlowBasedPhaseShifterOptimizerConfig {
     public static LoadFlowBasedPhaseShifterOptimizerConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         ModuleConfig config = platformConfig.getModuleConfig("load-flow-based-phase-shifter-optimizer");
-        Class<? extends LoadFlowFactory> loadFlowFactoryClass = config.getClassProperty("load-flow-factory", LoadFlowFactory.class);
-        return new LoadFlowBasedPhaseShifterOptimizerConfig(loadFlowFactoryClass);
+        String loadFlowName = config.getOptionalStringProperty("load-flow-name").orElse(null);
+        return new LoadFlowBasedPhaseShifterOptimizerConfig(loadFlowName);
 
     }
 
-    private Class<? extends LoadFlowFactory> loadFlowFactoryClass;
+    private String loadFlowName;
 
-    public LoadFlowBasedPhaseShifterOptimizerConfig(Class<? extends LoadFlowFactory> loadFlowFactoryClass) {
-        this.loadFlowFactoryClass = Objects.requireNonNull(loadFlowFactoryClass);
+    public LoadFlowBasedPhaseShifterOptimizerConfig(String loadFlowName) {
+        this.loadFlowName = loadFlowName;
     }
 
-    public Class<? extends LoadFlowFactory> getLoadFlowFactoryClass() {
-        return loadFlowFactoryClass;
+    public Optional<String> getLoadFlowName() {
+        return Optional.ofNullable(loadFlowName);
     }
 
-    public void setLoadFlowFactoryClass(Class<? extends LoadFlowFactory> loadFlowFactoryClass) {
-        this.loadFlowFactoryClass = Objects.requireNonNull(loadFlowFactoryClass);
+    public void setLoadFlowName(String loadFlowName) {
+        this.loadFlowName = loadFlowName;
     }
 }

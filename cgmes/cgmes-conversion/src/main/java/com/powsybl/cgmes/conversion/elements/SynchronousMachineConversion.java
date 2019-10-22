@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
@@ -25,8 +26,8 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
 
     @Override
     public void convert() {
-        double minP = p.asDouble("minP", 0);
-        double maxP = p.asDouble("maxP", 0);
+        double minP = p.asDouble("minP", -Double.MAX_VALUE);
+        double maxP = p.asDouble("maxP", Double.MAX_VALUE);
         double ratedS = p.asDouble("ratedS");
         ratedS = ratedS > 0 ? ratedS : Double.NaN;
         String generatingUnitType = p.getLocal("generatingUnitType");
@@ -42,7 +43,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         }
 
         GeneratorAdder adder = voltageLevel().newGenerator();
-        context.regulatingControlMapping().setRegulatingControl(iidmId(), p, adder, voltageLevel());
+        RegulatingControlMappingForGenerators.initialize(adder);
         adder.setMinP(minP)
                 .setMaxP(maxP)
                 .setTargetP(targetP)
@@ -54,6 +55,8 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         Generator g = adder.add();
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
+
+        context.regulatingControlMapping().forGenerators().add(g.getId(), p);
     }
 
     private static EnergySource fromGeneratingUnitType(String gut) {

@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 public class NodeBreakerTest {
 
     private Network createNetwork() {
-        Network network = NetworkFactory.create("test", "test");
+        Network network = Network.create("test", "test");
         Substation s = network.newSubstation()
                 .setId("S")
                 .setCountry(Country.FR)
@@ -65,6 +65,90 @@ public class NodeBreakerTest {
                 .setNode1(1)
                 .setNode2(3)
                 .setOpen(false)
+                .add();
+        return network;
+    }
+
+    private static Network createIsolatedLoadNetwork() {
+        Network network = Network.create("test", "test");
+        Substation s1 = network.newSubstation().setId("S").add();
+        VoltageLevel vl1 = s1.newVoltageLevel().setId("VL").setNominalV(1f)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+
+        vl1.getNodeBreakerView()
+                .setNodeCount(11)
+                .newBusbarSection()
+                .setId("B0")
+                .setNode(0)
+                .add();
+        vl1.getNodeBreakerView()
+                .newBusbarSection()
+                .setId("B1")
+                .setNode(1)
+                .add();
+        vl1.getNodeBreakerView()
+                .newBusbarSection()
+                .setId("B2")
+                .setNode(2)
+                .add();
+
+        vl1.newLoad()
+                .setId("L0")
+                .setNode(6)
+                .setP0(0)
+                .setQ0(0)
+                .add();
+        vl1.newLoad()
+                .setId("L1")
+                .setNode(3)
+                .setP0(0)
+                .setQ0(0)
+                .add();
+        vl1.newLoad()
+                .setId("L2")
+                .setNode(4)
+                .setP0(0)
+                .setQ0(0)
+                .add();
+        vl1.newLoad()
+                .setId("L3")
+                .setNode(5)
+                .setP0(0)
+                .setQ0(0)
+                .add();
+
+        vl1.getNodeBreakerView().newBreaker()
+                .setId("L0-node")
+                .setOpen(false)
+                .setNode1(0)
+                .setNode2(6)
+                .add();
+        vl1.getNodeBreakerView().newBreaker()
+                .setId("L1-node")
+                .setOpen(true)
+                .setNode1(4)
+                .setNode2(10)
+                .add();
+        vl1.getNodeBreakerView().newBreaker()
+                .setId("L0-B0")
+                .setOpen(false)
+                .setNode1(3)
+                .setNode2(1)
+                .add();
+        vl1.getNodeBreakerView().newBreaker()
+                .setId("B0-node")
+                .setOpen(true)
+                .setNode1(1)
+                .setNode2(10)
+                .setRetained(true)
+                .add();
+        vl1.getNodeBreakerView().newBreaker()
+                .setId("node-B1")
+                .setOpen(false)
+                .setNode1(10)
+                .setNode2(2)
+                .setRetained(true)
                 .add();
         return network;
     }
@@ -177,5 +261,27 @@ public class NodeBreakerTest {
         // Check thew load is connected to the correct bus bar.
         BusbarSection bb = vl.getNodeBreakerView().getBusbarSection("voltageLevel1BusbarSection1");
         assertEquals(getBus(bb), getBus(l2));
+    }
+
+    @Test
+    public void testIsolatedLoadBusBranch() {
+        Network network = createIsolatedLoadNetwork();
+        assertEquals(2, network.getBusView().getBusStream().count());
+
+        // load "L0" is connected to bus "VL_0"
+        assertNotNull(getBus(network.getLoad("L0")));
+        assertEquals("VL_0", getConnectableBus(network.getLoad("L0")).getId());
+
+        // load "L1" is connected to bus "VL_1"
+        assertNotNull(getBus(network.getLoad("L1")));
+        assertEquals("VL_1", getConnectableBus(network.getLoad("L1")).getId());
+
+        // load "L2" is not connected but is connectable to bus "VL_1"
+        assertNull(getBus(network.getLoad("L2")));
+        assertEquals("VL_1", getConnectableBus(network.getLoad("L2")).getId());
+
+        // load "L3" is not connected and has no connectable bus (the first bus is taken as connectable bus in this case)
+        assertNull(getBus(network.getLoad("L3")));
+        assertEquals("VL_0", getConnectableBus(network.getLoad("L3")).getId());
     }
 }

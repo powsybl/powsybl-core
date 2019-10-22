@@ -9,7 +9,6 @@ package com.powsybl.cgmes.model.test.cim14;
 
 import java.io.IOException;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.powsybl.cgmes.model.test.CgmesModelTester;
@@ -18,30 +17,24 @@ import com.powsybl.cgmes.model.test.CgmesModelTester;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class Cim14SmallCasesTest {
-    @BeforeClass
-    public static void setUp() {
-        catalog = new Cim14SmallCasesCatalog();
-    }
 
     @Test
     public void small1() throws IOException {
-        new CgmesModelTester(catalog.small1()).test();
+        new CgmesModelTester(Cim14SmallCasesCatalog.small1()).test();
     }
 
     @Test
     public void m7Buses() throws IOException {
-        new CgmesModelTester(catalog.m7buses()).test();
+        new CgmesModelTester(Cim14SmallCasesCatalog.m7buses()).test();
     }
 
     @Test
     public void ieee14() throws IOException {
-        new CgmesModelTester(catalog.ieee14()).test();
+        new CgmesModelTester(Cim14SmallCasesCatalog.ieee14()).test();
     }
 
     @Test
     public void nordic32() throws IOException {
-        new CgmesModelTester(catalog.nordic32()).test();
+        new CgmesModelTester(Cim14SmallCasesCatalog.nordic32()).test();
     }
-
-    private static Cim14SmallCasesCatalog catalog;
 }

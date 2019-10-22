@@ -322,7 +322,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                     }
                 }
                 if (getBusChecker().isValid(graph, nodes, terminals)) {
-                    CalculatedBusImpl bus = new CalculatedBusImpl(busId, NodeBreakerVoltageLevel.this, terminals);
+                    CalculatedBusImpl bus = new CalculatedBusImpl(busId, NodeBreakerVoltageLevel.this, nodes, terminals);
                     id2bus.put(busId, bus);
                     for (int i = 0; i < nodes.size(); i++) {
                         node2bus[nodes.getQuick(i)] = bus;
@@ -387,6 +387,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             // node associated to a bus
             BusExt[] connectableBus2 = new BusExt[1];
             graph.traverse(node, (v1, e, v2) -> {
+                if (connectableBus2[0] != null) {
+                    // traverse does not stop the algorithm when TERMINATE, it only stops searching in a given direction
+                    // this condition insures that while checking all the edges (in every direction) of a node, if a bus is found, it will not be lost
+                    return TraverseResult.TERMINATE;
+                }
                 connectableBus2[0] = getBus(v2);
                 if (connectableBus2[0] != null) {
                     return TraverseResult.TERMINATE;
@@ -394,7 +399,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 return TraverseResult.CONTINUE;
             });
             // if nothing found, just take the first bus
-            if (connectableBus2[0] != null) {
+            if (connectableBus2[0] == null) {
                 Iterator<CalculatedBus> it = getBuses().iterator();
                 if (!it.hasNext()) {
                     throw new AssertionError("Should not happen");
@@ -1087,6 +1092,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     private void removeAllSwitches() {
         for (SwitchImpl s : graph.getEdgesObject()) {
             getNetwork().getIndex().remove(s);
+            getNetwork().getListeners().notifyRemoval(s);
         }
         graph.removeAllEdges();
         switches.clear();

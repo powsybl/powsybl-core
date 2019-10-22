@@ -27,6 +27,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -41,9 +43,15 @@ public class Conversion {
     }
 
     public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) {
+        this(cgmes, config, postProcessors, NetworkFactory.findDefault());
+    }
+
+    public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors,
+                      NetworkFactory networkFactory) {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
         this.postProcessors = Objects.requireNonNull(postProcessors);
+        this.networkFactory = Objects.requireNonNull(networkFactory);
     }
 
     public void report(Consumer<String> out) {
@@ -111,8 +119,12 @@ public class Conversion {
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.currentLimitsMapping().addAll();
 
-        // set all remote regulating terminals
-        context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
+        // set all regulating controls
+        context.regulatingControlMapping().setAllRegulatingControls(network);
+
+        if (config.convertSvInjections()) {
+            convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
+        }
 
         voltageAngles(nodes, context);
         if (context.config().debugTopology()) {
@@ -158,7 +170,7 @@ public class Conversion {
         profiling.start();
         String networkId = cgmes.modelId();
         String sourceFormat = "CGMES";
-        Network network = NetworkFactory.create(networkId, sourceFormat);
+        Network network = networkFactory.createNetwork(networkId, sourceFormat);
         profiling.end("createNetwork");
         return network;
     }
@@ -176,7 +188,7 @@ public class Conversion {
 
     private void assignNetworkProperties(Context context) {
         profiling.start();
-        context.network().getProperties().put(NETWORK_PS_CGMES_MODEL_DETAIL,
+        context.network().setProperty(NETWORK_PS_CGMES_MODEL_DETAIL,
                 context.nodeBreaker()
                         ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
                         : NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH);
@@ -296,6 +308,12 @@ public class Conversion {
     }
 
     public static class Config {
+
+        public enum StateProfile {
+            SSH,
+            SV
+        }
+
         public List<String> substationIdsExcludedFromMapping() {
             return Collections.emptyList();
         }
@@ -360,6 +378,31 @@ public class Conversion {
             return this;
         }
 
+        public boolean convertSvInjections() {
+            return convertSvInjections;
+        }
+
+        public Config setConvertSvInjections(boolean convertSvInjections) {
+            this.convertSvInjections = convertSvInjections;
+            return this;
+        }
+
+        public StateProfile getProfileUsedForInitialStateValues() {
+            return profileUsedForInitialStateValues;
+        }
+
+        public Config setProfileUsedForInitialStateValues(String profileUsedForInitialFlowsValues) {
+            switch (Objects.requireNonNull(profileUsedForInitialFlowsValues)) {
+                case "SSH":
+                case "SV":
+                    this.profileUsedForInitialStateValues = StateProfile.valueOf(profileUsedForInitialFlowsValues);
+                    break;
+                default:
+                    throw new CgmesModelException("Unexpected profile used for state hypothesis: " + profileUsedForInitialFlowsValues);
+            }
+            return this;
+        }
+
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
@@ -367,12 +410,15 @@ public class Conversion {
         private double lowImpedanceLineX = 0.05;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
+        private boolean convertSvInjections = true;
+        private StateProfile profileUsedForInitialStateValues = SSH;
 
     }
 
     private final CgmesModel cgmes;
     private final Config config;
     private final List<CgmesImportPostProcessor> postProcessors;
+    private final NetworkFactory networkFactory;
 
     private Profiling profiling;
 

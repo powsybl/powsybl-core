@@ -12,7 +12,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
@@ -31,24 +30,20 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
     private final ComputationManager computationManager;
 
-    private final LoadFlowFactory loadFlowFactory;
-
-    public SecurityAnalysisImpl(Network network, ComputationManager computationManager,
-                                LoadFlowFactory loadFlowFactory) {
-        this(network, new LimitViolationFilter(), computationManager, loadFlowFactory);
+    public SecurityAnalysisImpl(Network network, ComputationManager computationManager) {
+        this(network, new LimitViolationFilter(), computationManager);
     }
 
     public SecurityAnalysisImpl(Network network, LimitViolationFilter filter,
-                                ComputationManager computationManager, LoadFlowFactory loadFlowFactory) {
-        this(network, new DefaultLimitViolationDetector(), filter, computationManager, loadFlowFactory);
+                                ComputationManager computationManager) {
+        this(network, new DefaultLimitViolationDetector(), filter, computationManager);
     }
 
     public SecurityAnalysisImpl(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
-                                ComputationManager computationManager, LoadFlowFactory loadFlowFactory) {
+                                ComputationManager computationManager) {
         super(network, detector, filter);
 
         this.computationManager = Objects.requireNonNull(computationManager);
-        this.loadFlowFactory = Objects.requireNonNull(loadFlowFactory);
 
         interceptors.add(new CurrentLimitViolationInterceptor());
     }
@@ -71,12 +66,12 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
         LoadFlowParameters loadFlowParameters = securityAnalysisParameters.getLoadFlowParameters();
 
-        LoadFlow loadFlow = loadFlowFactory.create(network, computationManager, 0);
-
         // start post contingency LF from pre-contingency state variables
         LoadFlowParameters postContParameters = loadFlowParameters.copy().setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES);
 
-        return loadFlow.run(workingStateId, loadFlowParameters) // run base load flow
+        network.getVariantManager().allowVariantMultiThreadAccess(true);
+
+        return LoadFlow.runAsync(network, workingStateId, computationManager, loadFlowParameters) // run base load flow
                 .thenComposeAsync(loadFlowResult -> {
                     network.getVariantManager().setWorkingVariant(workingStateId);
 
@@ -112,7 +107,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
                                         return null;
                                     }, computationManager.getExecutor())
-                                    .thenComposeAsync(aVoid -> loadFlow.run(postContStateId, postContParameters), computationManager.getExecutor())
+                                    .thenComposeAsync(aVoid -> LoadFlow.runAsync(network, postContStateId, computationManager, postContParameters), computationManager.getExecutor())
                                     .handleAsync((lfResult, throwable) -> {
                                         network.getVariantManager().setWorkingVariant(postContStateId);
 

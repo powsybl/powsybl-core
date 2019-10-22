@@ -43,6 +43,11 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
     }
 
     @Override
+    public NetworkImpl getNetwork() {
+        return voltageLevel.getNetwork();
+    }
+
+    @Override
     public VoltageLevelExt getVoltageLevel() {
         return voltageLevel;
     }
@@ -54,24 +59,25 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     @Override
     public boolean isOpen() {
-        return open.get(voltageLevel.getNetwork().getVariantIndex());
+        return open.get(getNetwork().getVariantIndex());
     }
 
     @Override
     public void setOpen(boolean open) {
-        NetworkImpl network = voltageLevel.getNetwork();
+        NetworkImpl network = getNetwork();
         int index = network.getVariantIndex();
         boolean oldValue = this.open.get(index);
         if (oldValue != open) {
             this.open.set(index, open);
+            String variantId = network.getVariantManager().getVariantId(index);
+            network.getListeners().notifyUpdate(this, "open", variantId, oldValue, open);
             voltageLevel.invalidateCache();
-            network.getListeners().notifyUpdate(this, "open", oldValue, open);
         }
     }
 
     @Override
     public boolean isRetained() {
-        return retained.get(voltageLevel.getNetwork().getVariantIndex());
+        return retained.get(getNetwork().getVariantIndex());
     }
 
     @Override
@@ -79,13 +85,14 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
             throw new ValidationException(this, "retain status is not modifiable in a non node/breaker voltage level");
         }
-        NetworkImpl network = voltageLevel.getNetwork();
+        NetworkImpl network = getNetwork();
         int index = network.getVariantIndex();
         boolean oldValue = this.retained.get(index);
         if (oldValue != retained) {
             this.retained.set(index, retained);
+            String variantId = network.getVariantManager().getVariantId(index);
+            network.getListeners().notifyUpdate(this, "retained", variantId, oldValue, retained);
             voltageLevel.invalidateCache();
-            network.getListeners().notifyUpdate(this, "retained", oldValue, retained);
         }
     }
 
@@ -100,7 +107,7 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         if (oldValue != fictitious) {
             this.fictitious = fictitious;
             voltageLevel.invalidateCache();
-            NetworkImpl network = voltageLevel.getNetwork();
+            NetworkImpl network = getNetwork();
             network.getListeners().notifyUpdate(this, "fictitious", oldValue, fictitious);
         }
     }
