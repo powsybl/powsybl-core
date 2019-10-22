@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.Assert.*;
 
 /**
@@ -31,32 +32,67 @@ public class TimeSeriesTest {
                 "1970-01-01T02:00:00.000+01:00;2;5.0;",
                 "1970-01-01T03:00:00.000+01:00;2;6.0;d") + System.lineSeparator();
 
-        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, ';');
+        String csvWithQuotes = String.join(System.lineSeparator(),
+                "\"Time\";\"Version\";\"ts1\";\"ts2\"",
+                "\"1970-01-01T01:00:00.000+01:00\";\"1\";\"1.0\";",
+                "\"1970-01-01T02:00:00.000+01:00\";\"1\";;\"a\"",
+                "\"1970-01-01T03:00:00.000+01:00\";\"1\";\"3.0\";\"b\"",
+                "\"1970-01-01T01:00:00.000+01:00\";\"2\";\"4.0\";\"c\"",
+                "\"1970-01-01T02:00:00.000+01:00\";\"2\";\"5.0\";",
+                "\"1970-01-01T03:00:00.000+01:00\";\"2\";\"6.0\";\"d\"") + System.lineSeparator();
 
-        assertEquals(2, timeSeriesPerVersion.size());
-        assertEquals(2, timeSeriesPerVersion.get(1).size());
-        assertEquals(2, timeSeriesPerVersion.get(2).size());
+        Arrays.asList(csv, csvWithQuotes).forEach(data -> {
+            Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(data, ';');
 
-        TimeSeries ts1v1 = timeSeriesPerVersion.get(1).get(0);
-        TimeSeries ts2v1 = timeSeriesPerVersion.get(1).get(1);
-        TimeSeries ts1v2 = timeSeriesPerVersion.get(2).get(0);
-        TimeSeries ts2v2 = timeSeriesPerVersion.get(2).get(1);
+            assertEquals(2, timeSeriesPerVersion.size());
+            assertEquals(2, timeSeriesPerVersion.get(1).size());
+            assertEquals(2, timeSeriesPerVersion.get(2).size());
 
-        assertEquals("ts1", ts1v1.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.DOUBLE, ts1v1.getMetadata().getDataType());
-        assertArrayEquals(new double[] {1, Double.NaN, 3}, ((DoubleTimeSeries) ts1v1).toArray(), 0);
+            TimeSeries ts1v1 = timeSeriesPerVersion.get(1).get(0);
+            TimeSeries ts2v1 = timeSeriesPerVersion.get(1).get(1);
+            TimeSeries ts1v2 = timeSeriesPerVersion.get(2).get(0);
+            TimeSeries ts2v2 = timeSeriesPerVersion.get(2).get(1);
 
-        assertEquals("ts2", ts2v1.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.STRING, ts2v1.getMetadata().getDataType());
-        assertArrayEquals(new String[] {null, "a", "b"}, ((StringTimeSeries) ts2v1).toArray());
+            assertEquals("ts1", ts1v1.getMetadata().getName());
+            assertEquals(TimeSeriesDataType.DOUBLE, ts1v1.getMetadata().getDataType());
+            assertArrayEquals(new double[] {1, Double.NaN, 3}, ((DoubleTimeSeries) ts1v1).toArray(), 0);
 
-        assertEquals("ts1", ts1v2.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.DOUBLE, ts1v2.getMetadata().getDataType());
-        assertArrayEquals(new double[] {4, 5, 6}, ((DoubleTimeSeries) ts1v2).toArray(), 0);
+            assertEquals("ts2", ts2v1.getMetadata().getName());
+            assertEquals(TimeSeriesDataType.STRING, ts2v1.getMetadata().getDataType());
+            assertArrayEquals(new String[] {null, "a", "b"}, ((StringTimeSeries) ts2v1).toArray());
 
-        assertEquals("ts2", ts2v2.getMetadata().getName());
-        assertEquals(TimeSeriesDataType.STRING, ts2v2.getMetadata().getDataType());
-        assertArrayEquals(new String[] {"c", null, "d"}, ((StringTimeSeries) ts2v2).toArray());
+            assertEquals("ts1", ts1v2.getMetadata().getName());
+            assertEquals(TimeSeriesDataType.DOUBLE, ts1v2.getMetadata().getDataType());
+            assertArrayEquals(new double[] {4, 5, 6}, ((DoubleTimeSeries) ts1v2).toArray(), 0);
+
+            assertEquals("ts2", ts2v2.getMetadata().getName());
+            assertEquals(TimeSeriesDataType.STRING, ts2v2.getMetadata().getDataType());
+            assertArrayEquals(new String[] {"c", null, "d"}, ((StringTimeSeries) ts2v2).toArray());
+
+        });
+
+        String emptyCsv = "";
+        assertThatCode(() -> TimeSeries.parseCsv(emptyCsv, ';')).hasMessage("CSV header is missing").isInstanceOf(TimeSeriesException.class);
+
+        String badHeader = String.join(System.lineSeparator(),
+            "Time;Verison;ts1;ts2",
+            "1970-01-01T01:00:00.000+01:00;1;1.0;",
+            "1970-01-01T02:00:00.000+01:00;1;;a",
+            "1970-01-01T03:00:00.000+01:00;1;3.0;b",
+            "1970-01-01T01:00:00.000+01:00;2;4.0;c",
+            "1970-01-01T02:00:00.000+01:00;2;5.0;",
+            "1970-01-01T03:00:00.000+01:00;2;6.0;d") + System.lineSeparator();
+        assertThatCode(() -> TimeSeries.parseCsv(badHeader, ';')).hasMessage("Bad CSV header, should be \nTime;Version;...").isInstanceOf(TimeSeriesException.class);
+
+        String duplicates = String.join(System.lineSeparator(),
+                "Time;Version;ts1;ts1",
+                "1970-01-01T01:00:00.000+01:00;1;1.0;",
+                "1970-01-01T02:00:00.000+01:00;1;;a",
+                "1970-01-01T03:00:00.000+01:00;1;3.0;b",
+                "1970-01-01T01:00:00.000+01:00;2;4.0;c",
+                "1970-01-01T02:00:00.000+01:00;2;5.0;",
+                "1970-01-01T03:00:00.000+01:00;2;6.0;d") + System.lineSeparator();
+        assertThatCode(() -> TimeSeries.parseCsv(duplicates, ';')).hasMessageContaining("Bad CSV header, there are duplicates in time series names").isInstanceOf(TimeSeriesException.class);
     }
 
     @Test
