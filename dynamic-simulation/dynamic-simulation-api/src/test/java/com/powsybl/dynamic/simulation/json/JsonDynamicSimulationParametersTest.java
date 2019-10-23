@@ -32,7 +32,7 @@ public class JsonDynamicSimulationParametersTest extends AbstractConverterTest {
     public void roundTrip() throws IOException {
         DynamicSimulationParameters parameters = new DynamicSimulationParameters()
                 .setStartTime(0)
-                .setStopTime(30);
+                .setStopTime(1);
         roundTripTest(parameters, JsonDynamicSimulationParameters::write, JsonDynamicSimulationParameters::read, "/DynamicSimulationParameters.json");
     }
 
