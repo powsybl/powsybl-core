@@ -91,6 +91,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                     return true;
                 }
             }
+
             // We have a query for model profiles
             // but none of the FullModel objects contains EquipmentCore profile
             return false;
@@ -440,7 +441,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     @Override
     public PropertyBags updateCgmes(String context, Map<String, String> cgmesChanges,
         String instanceClassOfIidmChange) {
-        // TODO elena
         Objects.requireNonNull(cimNamespace);
         String subject = cgmesChanges.get("cgmesSubject");
         String predicate = cgmesChanges.get("cgmesPredicate");
@@ -489,7 +489,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         return r;
     }
 
-    // TODO elena
     public void namedQueryFordUpdate(String name, String... params) {
         String queryText = queryCatalog.get(name);
         if (queryText == null) {
@@ -502,23 +501,19 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         LOG.info("Query {} took {} ms", name, t1 - t0);
     }
 
-    // TODO elena
     @Override
     public String getCimNamespace() {
         return cimNamespace;
     }
 
     public PropertyBags query(String queryText) {
-        PropertyBags r = tripleStore.query(queryText);
-        return r;
+        return tripleStore.query(queryText);
     }
 
-    // TODO elena
     public void update(String queryText) {
         tripleStore.update(queryText);
     }
 
-    // TODO elena
     @Override
     public void clone(CgmesModel cgmes) {
         tripleStore.duplicate(cgmes.tripleStore(), cgmes.getBaseName());
