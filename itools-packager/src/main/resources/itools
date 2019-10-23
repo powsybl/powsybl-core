@@ -56,5 +56,5 @@ options[2]=-Dlogback.configurationFile=$logFile
 $JAVA_BIN \
 -Xmx$java_xmx \
 -cp "$installDir/share/java/*" \
-"${options[0]}" "${options[1]}" "${options[2]}" \
+"${options[@]}" \
 com.powsybl.tools.Main "${args[@]}"
