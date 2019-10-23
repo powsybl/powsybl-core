@@ -934,8 +934,7 @@ WHERE
 {     
     { GRAPH <{0}>
           { ?subject  ?predicate  ?value .
-            FILTER ( STRENDS(STR(?subject), "{1}")) 
-            )
+            FILTER ( STRENDS(STR(?subject), "{1}"))
           }
       }
     
