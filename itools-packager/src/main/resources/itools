@@ -35,7 +35,7 @@ for ((i=0; i<${#args[@]}; i++)); do
 done
 
 options=()
-[ -n "$powsybl_config_dirs" ] || powsybl_config_dirs="$installDir/etc:${HOME}/.itools"
+[ -n "$powsybl_config_dirs" ] || powsybl_config_dirs="${HOME}/.itools:$installDir/etc"
 options[0]=-Dpowsybl.config.dirs=$powsybl_config_dirs
 [ -n "$powsybl_config_name" ] && options[1]=-Dpowsybl.config.name=$powsybl_config_name
 
