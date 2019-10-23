@@ -17,61 +17,71 @@ public class VscConverterStationAdderAdapter extends AbstractAdapter<VscConverte
         super(delegate, index);
     }
 
+    @Override
+    public VscConverterStationAdapter add() {
+        return getIndex().getVscConverterStation(getDelegate().add());
+    }
+
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public VscConverterStationAdderAdapter setLossFactor(final float lossFactor) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setLossFactor(lossFactor);
+        return this;
     }
 
     @Override
     public VscConverterStationAdderAdapter setNode(final int node) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setNode(node);
+        return this;
     }
 
     @Override
     public VscConverterStationAdderAdapter setBus(final String bus) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setBus(bus);
+        return this;
     }
 
     @Override
     public VscConverterStationAdderAdapter setConnectableBus(final String connectableBus) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setConnectableBus(connectableBus);
+        return this;
     }
 
     @Override
     public VscConverterStationAdderAdapter setId(final String id) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setId(id);
+        return this;
     }
 
     @Override
     public VscConverterStationAdderAdapter setEnsureIdUnicity(final boolean ensureIdUnicity) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setEnsureIdUnicity(ensureIdUnicity);
+        return this;
     }
 
     @Override
     public VscConverterStationAdderAdapter setName(final String name) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setName(name);
+        return this;
     }
 
     @Override
     public VscConverterStationAdderAdapter setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setVoltageRegulatorOn(voltageRegulatorOn);
+        return this;
     }
 
     @Override
     public VscConverterStationAdderAdapter setVoltageSetpoint(final double voltageSetpoint) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setVoltageSetpoint(voltageSetpoint);
+        return this;
     }
 
     @Override
     public VscConverterStationAdderAdapter setReactivePowerSetpoint(final double reactivePowerSetpoint) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public VscConverterStationAdapter add() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setReactivePowerSetpoint(reactivePowerSetpoint);
+        return this;
     }
 }

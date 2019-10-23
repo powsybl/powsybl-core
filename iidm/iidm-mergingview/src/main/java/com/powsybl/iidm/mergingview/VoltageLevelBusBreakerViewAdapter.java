@@ -22,6 +22,11 @@ public class VoltageLevelBusBreakerViewAdapter extends AbstractAdapter<VoltageLe
         super(delegate, index);
     }
 
+    @Override
+    public BusAdderAdapter newBus() {
+        return new BusAdderAdapter(getDelegate().newBus(), getIndex());
+    }
+
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
@@ -37,11 +42,6 @@ public class VoltageLevelBusBreakerViewAdapter extends AbstractAdapter<VoltageLe
 
     @Override
     public BusAdapter getBus(final String id) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public BusAdderAdapter newBus() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 

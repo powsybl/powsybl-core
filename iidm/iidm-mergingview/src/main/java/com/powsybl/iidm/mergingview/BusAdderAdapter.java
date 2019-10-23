@@ -17,27 +17,29 @@ public class BusAdderAdapter extends AbstractAdapter<BusAdder> implements BusAdd
         super(delegate, index);
     }
 
+    @Override
+    public BusAdapter add() {
+        return getIndex().getBus(getDelegate().add());
+    }
+
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public BusAdderAdapter setId(final String id) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setId(id);
+        return this;
     }
 
     @Override
     public BusAdderAdapter setEnsureIdUnicity(final boolean ensureIdUnicity) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setEnsureIdUnicity(ensureIdUnicity);
+        return this;
     }
 
     @Override
     public BusAdderAdapter setName(final String name) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setName(name);
+        return this;
     }
-
-    @Override
-    public BusAdapter add() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
 }

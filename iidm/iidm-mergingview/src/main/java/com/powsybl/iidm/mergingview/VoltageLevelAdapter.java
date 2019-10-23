@@ -11,6 +11,7 @@ import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.util.Random;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.Battery;
@@ -34,6 +35,8 @@ import com.powsybl.iidm.network.util.ShortIdDictionary;
  */
 class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> implements VoltageLevel {
 
+    private VoltageLevelBusBreakerViewAdapter busBreakerViewAdapter;
+
     public VoltageLevelAdapter(final VoltageLevel delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
@@ -41,6 +44,29 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public SubstationAdapter getSubstation() {
         return getIndex().getSubstation(getDelegate().getSubstation());
+    }
+
+    @Override
+    public VscConverterStationAdderAdapter newVscConverterStation() {
+        return new VscConverterStationAdderAdapter(getDelegate().newVscConverterStation(), getIndex());
+    }
+
+    @Override
+    public VoltageLevelBusBreakerViewAdapter getBusBreakerView() {
+        if (busBreakerViewAdapter == null) {
+            busBreakerViewAdapter = new VoltageLevelBusBreakerViewAdapter(getDelegate().getBusBreakerView(), getIndex());
+        }
+        return busBreakerViewAdapter;
+    }
+
+    @Override
+    public Iterable<VscConverterStation> getVscConverterStations() {
+        return getVscConverterStationStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<VscConverterStation> getVscConverterStationStream() {
+        return getDelegate().getVscConverterStationStream().map(getIndex()::getVscConverterStation);
     }
 
     // -------------------------------
@@ -182,21 +208,6 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public VscConverterStationAdderAdapter newVscConverterStation() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<VscConverterStation> getVscConverterStations() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<VscConverterStation> getVscConverterStationStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public LccConverterStationAdderAdapter newLccConverterStation() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
@@ -213,11 +224,6 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
 
     @Override
     public VoltageLevelNodeBreakerViewAdapter getNodeBreakerView() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public VoltageLevelBusBreakerViewAdapter getBusBreakerView() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
