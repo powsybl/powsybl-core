@@ -52,8 +52,10 @@ set logFile=%installDir%\etc\logback-itools.xml
 for %%G in ("%powsybl_config_dirs:;=";"%") do (
     if exist "%%~G\logback-itools.xml" (
         set logFile=%%~G\logback-itools.xml
+        goto doneLogback
     )
 )
+:doneLogback
 set options=%options%%logFile%"
 
 if "%java_xmx%"=="" ( set java_xmx=8G )

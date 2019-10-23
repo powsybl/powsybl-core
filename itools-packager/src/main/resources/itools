@@ -44,7 +44,10 @@ separator=$IFS
 IFS=':'
 read -ra list <<< "$powsybl_config_dirs"
 for dir in "${list[@]}"; do
-    [ -f "$dir/logback-itools.xml" ] && logFile=$dir/logback-itools.xml
+    if [ -f "$dir/logback-itools.xml" ]; then
+      logFile=$dir/logback-itools.xml
+      break;
+    fi
 done
 IFS=$separator
 options[2]=-Dlogback.configurationFile=$logFile
