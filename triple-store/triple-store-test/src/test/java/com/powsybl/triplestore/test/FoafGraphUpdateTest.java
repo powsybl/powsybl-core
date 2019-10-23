@@ -101,7 +101,6 @@ public class FoafGraphUpdateTest {
         tester.testQuery(queries.get("selectLastNameGraphs"), expected1);
     }
 
-
     @Test(expected = TripleStoreException.class)
     public void testMalformedQuery() {
         tester = new TripleStoreTester(
