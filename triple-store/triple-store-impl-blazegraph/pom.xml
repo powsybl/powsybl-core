@@ -43,16 +43,16 @@
         <dependency>
             <groupId>com.blazegraph</groupId>
             <artifactId>bigdata-core</artifactId>
-            <!-- exclusions>
+            <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
-                <exclusion>
+                <!--exclusion>
                     <groupId>log4j</groupId>
                     <artifactId>log4j</artifactId>
-                </exclusion>
-            </exclusions-->
+                </exclusion-->
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

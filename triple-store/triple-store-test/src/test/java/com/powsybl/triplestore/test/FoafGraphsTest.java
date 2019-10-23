@@ -23,13 +23,13 @@ public class FoafGraphsTest {
     public static void setUp() {
         queries = new QueryCatalog("foaf/foaf-graphs.sparql");
         String base = "foo:foaf";
-        String[] inputs = {"foaf/abc-nicks.ttl", "foaf/abc-lastNames.ttl" };
+        String[] inputs = {"foaf/abc-nicks.ttl", "foaf/abc-lastNames.ttl"};
         tester = new TripleStoreTester(
-            TripleStoreFactory.allImplementations(), base, inputs);
+                TripleStoreFactory.allImplementations(), base, inputs);
         testerOnlyImplAllowingNestedGraphs = new TripleStoreTester(
-            TripleStoreFactory.implementationsWorkingWithNestedGraphClauses(), base, inputs);
+                TripleStoreFactory.implementationsWorkingWithNestedGraphClauses(), base, inputs);
         testerOnlyImplBadNestedGraphs = new TripleStoreTester(
-            TripleStoreFactory.implementationsBadNestedGraphClauses(), base, inputs);
+                TripleStoreFactory.implementationsBadNestedGraphClauses(), base, inputs);
         tester.load();
         testerOnlyImplAllowingNestedGraphs.load();
         testerOnlyImplBadNestedGraphs.load();

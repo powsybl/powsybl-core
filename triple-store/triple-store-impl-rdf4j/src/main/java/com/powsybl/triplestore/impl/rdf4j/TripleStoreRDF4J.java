@@ -72,7 +72,6 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         return repo;
     }
 
-    // TODO elena
     @Override
     public String getImplementationName() {
         TripleStoreFactoryService ts = new TripleStoreFactoryServiceRDF4J();
@@ -196,7 +195,6 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
     @Override
     public void update(String query) {
-        // TODO elena
         String updateStatement = adjustedQuery(query);
         try (RepositoryConnection conn = repo.getConnection()) {
 
@@ -209,7 +207,6 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
     @Override
     public void duplicate(TripleStore origin, String baseName) {
-        // TODO elena clone by statements
         Repository repoOrigin = ((TripleStoreRDF4J) origin).getRepository();
         try (RepositoryConnection connOrigin = repoOrigin.getConnection()) {
 

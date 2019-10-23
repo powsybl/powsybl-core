@@ -79,7 +79,6 @@ public class TripleStoreTester {
     }
 
     void testQueryClone(String queryText, Expected expected) {
-        // TODO elena
         for (String impl : implementations) {
             PropertyBags results = ts.query(queryText);
             logResults(impl, results, expected);
@@ -89,26 +88,19 @@ public class TripleStoreTester {
             expected.keySet()
                 .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
         }
-
     }
 
     void testUpdate(String queryText) {
-        // TODO elena
         for (String impl : implementations) {
             tripleStores.get(impl).update(queryText);
         }
     }
 
     void testUpdateClone(String queryText) {
-        // TODO elena
-//        for (String impl : implementations) {
-//            tripleStores.get(impl).update(queryText);
-//        }
         ts.update(queryText);
     }
 
     void testPerformanceCloneByStatements() {
-        // TODO elena
         for (String impl : implementations) {
             start = System.currentTimeMillis();
             LOG.info("totalMemory, GB: " + Runtime.getRuntime().totalMemory() / 1e+9);
@@ -123,7 +115,6 @@ public class TripleStoreTester {
     }
 
     void testPerformanceImportFiles() {
-        // TODO elena
         // Load the model for every triple store implementation
         for (String impl : implementations) {
             start = System.currentTimeMillis();

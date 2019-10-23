@@ -170,7 +170,6 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
     @Override
     public void update(String query) {
-
         String updateStatement = adjustedQuery(query);
         UpdateRequest request = UpdateFactory.create(updateStatement);
         UpdateAction.execute(request, dataset);
@@ -178,7 +177,6 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
     @Override
     public void duplicate(TripleStore origin, String baseName) {
-
         Iterator<String> names = null;
         Dataset datasetOrigin = ((TripleStoreJena) origin).getDataset();
         cloneNamespaces(datasetOrigin, baseName);
@@ -202,7 +200,6 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     private void cloneNamespaces(Dataset datasetOrigin, String baseName) {
-
         Model unionOrigin = ModelFactory.createDefaultModel();
         Iterator<String> names = datasetOrigin.listNames();
         while (names.hasNext()) {
@@ -210,7 +207,6 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
             Model m = datasetOrigin.getNamedModel(name);
             unionOrigin = unionOrigin.union(m);
         }
-        // override data namespase
         unionOrigin.setNsPrefix("data", baseName.concat("#"));
 
         Map<String, String> namespacesMap = unionOrigin.getNsPrefixMap();

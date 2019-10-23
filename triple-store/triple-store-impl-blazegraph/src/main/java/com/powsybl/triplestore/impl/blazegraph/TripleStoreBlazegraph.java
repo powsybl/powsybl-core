@@ -256,17 +256,13 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                 } catch (UpdateExecutionException e) {
                     throw new TripleStoreException("Update using blazergraph", e);
                 } finally {
-                    try {
-                        cnx.close();
-                    } catch (RepositoryException x) {
-                        LOG.error(x.getMessage());
-                    }
+                    closeConnection(cnx);
                 }
             } catch (MalformedQueryException e) {
                 throw new TripleStoreException(String.format("Query [%s]", query), e);
             }
         } catch (RepositoryException e) {
-            throw new TripleStoreException(String.format("Opening repo to update using blazergraph"), e);
+            throw new TripleStoreException(String.format("Opening repo for update"), e);
         }
     }
 
@@ -283,26 +279,24 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                 cloneNamespaces(connOrigin, conn, baseName);
                 replicateStatements(connOrigin, conn);
                 conn.commit();
-            } catch (RepositoryException x) {
-                LOG.error("Cloning from origin to repo : {}", x.getMessage());
+            } catch (RepositoryException e) {
+                LOG.error("Cloning from origin to repo : {}", e.getMessage());
             } finally {
-                if (conn != null) {
-                    try {
-                        conn.close();
-                    } catch (RepositoryException x) {
-                        LOG.error("Closing connection : {}", x.getMessage());
-                    }
-                }
+                closeConnection(conn);
             }
-        } catch (RepositoryException x) {
-            LOG.error("Connect to the original repo : {}", x.getMessage());
+        } catch (RepositoryException e) {
+            LOG.error("Connect to the original repo : {}", e.getMessage());
         } finally {
-            if (connOrigin != null) {
-                try {
-                    connOrigin.close();
-                } catch (RepositoryException x) {
-                    LOG.error("Closing the original repo : {}", x.getMessage());
-                }
+            closeConnection(connOrigin);
+        }
+    }
+
+    private void closeConnection(RepositoryConnection conn) {
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (RepositoryException e) {
+                LOG.error("Closing connection : {}", e.getMessage());
             }
         }
     }
@@ -312,7 +306,6 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         List<PrefixNamespace> namespaces = new ArrayList<>();
         RepositoryResult<Namespace> ns;
         try {
-            // first, override data namespase in origin
             connOrigin.setNamespace("data", baseName.concat("#"));
             ns = connOrigin.getNamespaces();
             while (ns.hasNext()) {
@@ -340,19 +333,15 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
             // references.
             while (statements.hasNext()) {
                 Statement st = statements.next();
-                String s = st.getSubject().stringValue();
-                String p = st.getPredicate().stringValue();
-                String o = st.getObject().stringValue();
-                String c = st.getContext().stringValue();
-                URI sClone = vfac.createURI(s);
-                URI pClone = vfac.createURI(p);
-                Resource contextClone = vfac.createURI(c);
+                URI sClone = vfac.createURI(st.getSubject().stringValue());
+                URI pClone = vfac.createURI(st.getPredicate().stringValue());
+                Resource contextClone = vfac.createURI(st.getContext().stringValue());
                 if (st.getObject() instanceof URI) {
-                    URI oClone = vfac.createURI(o);
+                    URI oClone = vfac.createURI(st.getObject().stringValue());
                     Statement statementClone = vfac.createStatement(sClone, pClone, oClone, contextClone);
                     conn.add(statementClone);
                 } else {
-                    Literal oClone = vfac.createLiteral(o);
+                    Literal oClone = vfac.createLiteral(st.getObject().stringValue());
                     Statement statementClone = vfac.createStatement(sClone, pClone, oClone, contextClone);
                     conn.add(statementClone);
                 }

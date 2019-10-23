@@ -264,3 +264,4 @@ scripting/.settings/org.eclipse.jdt.apt.core.prefs
 sensitivity-api/.settings/org.eclipse.jdt.apt.core.prefs
 simulation-api/.settings/org.eclipse.jdt.apt.core.prefs
 tools/.settings/org.eclipse.jdt.apt.core.prefs
+*.bak

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.triplestore.api.QueryCatalog;
+import com.powsybl.triplestore.api.TripleStoreException;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.test.TripleStoreTester.Expected;
 
@@ -26,10 +27,9 @@ public class FoafGraphUpdateTest {
         tester.load();
         Expected expected = new Expected().expect("nick", "SweetCaroline", "Wonderland");
         tester.testQuery(queries.get("selectNickName"), expected);
-        LOG.info("*******testInsertNickName doing insert.....");
         tester.testUpdate(queries.get("insertNickName"));
-        Expected expected1 = new Expected().expect("nick", "BG", "SweetCaroline", "Wonderland");
-        tester.testQuery(queries.get("selectNickName"), expected1);
+        Expected expectedUpdated = new Expected().expect("nick", "BG", "SweetCaroline", "Wonderland");
+        tester.testQuery(queries.get("selectNickName"), expectedUpdated);
     }
 
     @Test
@@ -39,10 +39,9 @@ public class FoafGraphUpdateTest {
         tester.load();
         Expected expected = new Expected().expect("lastName", "Channing", "Liddell", "Marley");
         tester.testQuery(queries.get("selectLastName"), expected);
-        LOG.info("*******testDeletetLastName doing delele.....");
         tester.testUpdate(queries.get("deleteLastName"));
-        Expected expected1 = new Expected().expect("lastName", "Liddell", "Marley");
-        tester.testQuery(queries.get("selectLastName"), expected1);
+        Expected expectedUpdated = new Expected().expect("lastName", "Liddell", "Marley");
+        tester.testQuery(queries.get("selectLastName"), expectedUpdated);
     }
 
     @Test
@@ -65,7 +64,7 @@ public class FoafGraphUpdateTest {
                 "contexts:foaf/abc-nicks.ttl");
         tester.testQuery(queries.get("selectLastNameGraphs"), expected);
         tester.testUpdate(queries.get("updateLastNameGraph"));
-        Expected expected1 = new Expected()
+        Expected expectedUpdated = new Expected()
             .expect("lastName", "Channing", "Grebenshchikov", "Liddell")
             .expect("graphLastnames",
                 "contexts:foaf/abc-lastNames.ttl",
@@ -75,7 +74,7 @@ public class FoafGraphUpdateTest {
                 "contexts:foaf/abc-nicks.ttl",
                 "contexts:foaf/abc-nicks.ttl",
                 "contexts:foaf/abc-nicks.ttl");
-        tester.testQuery(queries.get("selectLastNameGraphs"), expected1);
+        tester.testQuery(queries.get("selectLastNameGraphs"), expectedUpdated);
     }
 
     @Test
@@ -97,10 +96,18 @@ public class FoafGraphUpdateTest {
                 "contexts:foaf/abc-nicks.ttl",
                 "contexts:foaf/abc-nicks.ttl");
         tester.testQuery(queries.get("selectLastNameGraphs"), expected);
-        tester.testUpdate(queries.get("updatePersonTwoGraphsJena"));
-        LOG.info("*******testUpdatePersonTwoGraphs executed.....");
+        tester.testUpdate(queries.get("updatePersonTwoGraphs"));
         Expected expected1 = new Expected().expect("lastName", "Channing", "Cooper", "Marley");
         tester.testQuery(queries.get("selectLastNameGraphs"), expected1);
+    }
+
+
+    @Test(expected = TripleStoreException.class)
+    public void testMalformedQuery() {
+        tester = new TripleStoreTester(
+            TripleStoreFactory.allImplementations(), base, inputs);
+        tester.load();
+        tester.testUpdate(queries.get("deleteLastNameMalformed"));
     }
 
     private static TripleStoreTester tester;
