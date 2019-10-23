@@ -16,10 +16,10 @@ else
     JAVA_BIN=$JAVA_HOME/bin/java
 fi
 
-installBinDir=$(dirname $(readlink -f $0))
+installBinDir=$(dirname "$(readlink -f $0)")
 installDir=${installBinDir%/*}
 
-. $installDir/etc/itools.conf
+. "$installDir/etc/itools.conf"
 
 args=("$@")
 for ((i=0; i<${#args[@]}; i++)); do

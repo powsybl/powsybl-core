@@ -21,7 +21,7 @@ setlocal EnableDelayedExpansion
 set installBinDir=%~dp0
 set installDir=%installBinDir%..
 
-for /f "delims=" %%x in (%installDir%\etc\itools.conf) do (
+for /f "usebackq delims=" %%x in ("%installDir%\etc\itools.conf") do (
   set var=%%x
   if not "!var:~0,1!" == "#" ( set "!var!" )
 )
@@ -44,20 +44,20 @@ if "%~1"=="" ( goto done ) else (
 
 set options=
 if not defined powsybl_config_dirs ( set powsybl_config_dirs=%installDir%\etc;%HOMEDRIVE%%HOMEPATH%\.itools)
-set options=%options% -Dpowsybl.config.dirs=%powsybl_config_dirs%
+set options=%options% -Dpowsybl.config.dirs="%powsybl_config_dirs%"
 if not "%powsybl_config_name%" == "" ( set options=%options% -Dpowsybl.config.name=%powsybl_config_name%)
 
-set options=%options% -Dlogback.configurationFile=
+set options=%options% -Dlogback.configurationFile="
 set logFile=%installDir%\etc\logback-itools.xml
-for %%G in (%powsybl_config_dirs:;=","%) do (
+for %%G in ("%powsybl_config_dirs:;=";"%") do (
     if exist "%%~G\logback-itools.xml" (
-        set logFile="%%~G\logback-itools.xml"
+        set logFile=%%~G\logback-itools.xml
     )
 )
-set options=%options%%logFile%
+set options=%options%%logFile%"
 
 if "%java_xmx%"=="" ( set java_xmx=8G )
 
-"%JAVA_BIN%" -Xmx%java_xmx% -cp %installDir%\share\java\* %options% com.powsybl.tools.Main %args%
+"%JAVA_BIN%" -Xmx%java_xmx% -cp "%installDir%\share\java\*" %options% com.powsybl.tools.Main %args%
 
 endlocal
