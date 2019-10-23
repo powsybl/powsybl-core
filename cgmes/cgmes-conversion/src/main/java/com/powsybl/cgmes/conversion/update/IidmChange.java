@@ -5,7 +5,7 @@ import com.powsybl.iidm.network.Identifiable;
 public interface IidmChange {
 
     public String getVariant();
-    
+
     public void setVariant(String variant);
 
     public String getAttribute();

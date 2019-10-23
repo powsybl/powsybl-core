@@ -29,16 +29,16 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
         this.currId = change.getIdentifiableId();
         this.newTwoWindingsTransformer = (TwoWindingsTransformer) change.getIdentifiable();
         this.name = newTwoWindingsTransformer.getName();
-		this.idEnd1 = (getEndsId().get(ID_END1) != null) ? getEndsId().get(ID_END1)
+        this.idEnd1 = (getEndsId().get(ID_END1) != null) ? getEndsId().get(ID_END1)
             : currId.concat("_OR");
-		this.idEnd2 = (getEndsId().get(ID_END2) != null) ? getEndsId().get(ID_END2)
+        this.idEnd2 = (getEndsId().get(ID_END2) != null) ? getEndsId().get(ID_END2)
             : currId.concat("_CL");
-		this.idPTC = getTapChangerId(PHASE_TAP_CHANGER);
-		this.idRTC = getTapChangerId(RATIO_TAP_CHANGER);
-		this.idPTCTable = getTapChangerTableId(idPTC, PHASE_TAP_CHANGER);
-		this.idRTCTable = getTapChangerTableId(idRTC, RATIO_TAP_CHANGER);
-		this.idPTCTablePoint = getTapChangerTablePointId(PHASE_TAP_CHANGER);
-		this.idRTCTablePoint = getTapChangerTablePointId(RATIO_TAP_CHANGER);
+        this.idPTC = getTapChangerId(PHASE_TAP_CHANGER);
+        this.idRTC = getTapChangerId(RATIO_TAP_CHANGER);
+        this.idPTCTable = getTapChangerTableId(idPTC, PHASE_TAP_CHANGER);
+        this.idRTCTable = getTapChangerTableId(idRTC, RATIO_TAP_CHANGER);
+        this.idPTCTablePoint = getTapChangerTablePointId(PHASE_TAP_CHANGER);
+        this.idRTCTablePoint = getTapChangerTablePointId(RATIO_TAP_CHANGER);
     }
 
     @Override
@@ -167,15 +167,15 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
         while (i.hasNext()) {
             PropertyBag pb = (PropertyBag) i.next();
             String windingType = pb.get("endNumber");
-			if (pb.getId(POWER_TRANSFORMER).equals(currId)
+            if (pb.getId(POWER_TRANSFORMER).equals(currId)
                 && windingType.equals("1")) {
-				idEnd1 = pb.getId(TRANSFORMER_END);
-				ids.put(ID_END1, idEnd1);
+                idEnd1 = pb.getId(TRANSFORMER_END);
+                ids.put(ID_END1, idEnd1);
 
-			} else if (pb.getId(POWER_TRANSFORMER).equals(currId)
+            } else if (pb.getId(POWER_TRANSFORMER).equals(currId)
                 && windingType.equals("2")) {
-				idEnd2 = pb.getId(TRANSFORMER_END);
-				ids.put(ID_END2, idEnd2);
+                idEnd2 = pb.getId(TRANSFORMER_END);
+                ids.put(ID_END2, idEnd2);
             } else {
                 continue;
             }
@@ -188,19 +188,19 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
      * TapChanger is on End1;
      */
     private String getTapChangerId(String tapChangerType) {
-		PropertyBags tapChangers = (tapChangerType.equals(RATIO_TAP_CHANGER)) ? cgmes.ratioTapChangers()
+        PropertyBags tapChangers = (tapChangerType.equals(RATIO_TAP_CHANGER)) ? cgmes.ratioTapChangers()
             : cgmes.phaseTapChangers();
         Iterator i = tapChangers.iterator();
 
         while (i.hasNext()) {
             PropertyBag pb = (PropertyBag) i.next();
-			if (pb.getId(TRANSFORMER_END).equals(idEnd1)) {
+            if (pb.getId(TRANSFORMER_END).equals(idEnd1)) {
                 return pb.getId(tapChangerType);
             } else {
                 continue;
             }
         }
-		return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString();
     }
 
     /**
@@ -210,7 +210,7 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
     private String getTapChangerTableId(String tapChangerId, String tapChangerType) {
 
         String propertyName = tapChangerType.concat("Table");
-		PropertyBags tapChangers = (tapChangerType.equals(RATIO_TAP_CHANGER)) ? cgmes.ratioTapChangers()
+        PropertyBags tapChangers = (tapChangerType.equals(RATIO_TAP_CHANGER)) ? cgmes.ratioTapChangers()
             : cgmes.phaseTapChangers();
         Iterator i = tapChangers.iterator();
         while (i.hasNext()) {
@@ -222,13 +222,13 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
                 continue;
             }
         }
-		return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString();
     }
 
-	private String getTapChangerTablePointId(String tapChangerType) {
+    private String getTapChangerTablePointId(String tapChangerType) {
 
         String propertyName = tapChangerType.concat("TablePoint");
-		PropertyBags phaseTapChangerTable = (tapChangerType.equals(RATIO_TAP_CHANGER))
+        PropertyBags phaseTapChangerTable = (tapChangerType.equals(RATIO_TAP_CHANGER))
             ? cgmes.ratioTapChangerTable(idRTCTable)
             : cgmes.phaseTapChangerTable(idPTCTable);
         Iterator i = phaseTapChangerTable.iterator();
@@ -240,7 +240,7 @@ public class TwoWindingsTransformerToPowerTransformer implements ConversionMappe
                 continue;
             }
         }
-		return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString();
     }
 
     private IidmChange change;

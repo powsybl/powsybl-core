@@ -101,6 +101,7 @@ public final class FakeCgmesModel implements CgmesModel {
         return Mockito.mock(TripleStore.class);
     }
 
+    @Override
     public boolean hasEquipmentCore() {
         return true;
     }
@@ -120,10 +121,12 @@ public final class FakeCgmesModel implements CgmesModel {
         return this;
     }
 
+    @Override
     public boolean isNodeBreaker() {
         return isNodeBreaker;
     }
 
+    @Override
     public boolean hasBoundary() {
         return false;
     }
@@ -241,7 +244,7 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     private void fakeObjectsFromIdentifiers(String propertyNameId, String[] ids, PropertyBags objects) {
-        String[] propertyNames = {propertyNameId};
+        String[] propertyNames = {propertyNameId };
         for (String id : ids) {
             PropertyBag p = new PropertyBag(Arrays.asList(propertyNames));
             p.put(propertyNameId, id);
@@ -555,7 +558,7 @@ public final class FakeCgmesModel implements CgmesModel {
     public String getCimNamespace() {
         return null;
     }
-    
+
     @Override
     public String getBaseName() {
         return null;

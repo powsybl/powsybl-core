@@ -3,23 +3,15 @@ package com.powsybl.cgmes.conversion.test.update;
 //import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
-import com.powsybl.cgmes.conversion.update.CgmesUpdater;
-import com.powsybl.cgmes.conversion.update.IidmChange;
-import com.powsybl.cgmes.conversion.update.IidmToCgmes14;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
 
-public class UpdateNetworkFromCatalog14 {
+public final class UpdateNetworkFromCatalog14 {
+    private UpdateNetworkFromCatalog14() {
+    }
 
     public static void updateNetwork(Network network) throws IOException {
         /**
@@ -159,8 +151,8 @@ public class UpdateNetworkFromCatalog14 {
 //            .setR(3.0).setX(4.0).setRatedU1(11.1).setRatedU2(22.2);
 //        network.getTwoWindingsTransformer("_BUS____4-BUS____7-1_PT").getRatioTapChanger()
 //            .setTapPosition(7);// ?? --> not in change
-		network.getGenerator("_GEN____3_SM").setRatedS(100).setMaxP(200.0).setMinP(-200.0);
-        //.setTargetP(1.0);
+        network.getGenerator("_GEN____3_SM").setRatedS(100).setMaxP(200.0).setMinP(-200.0);
+        // .setTargetP(1.0);
 //        network.getGenerator("_GEN____2_SM").setTargetP(11.1);// ??setTargetP --> not in change
 //        network.getSubstation("_BUS____4_SS").setCountry(Country.GR);
 //        network.getLoad("_LOAD__10_EC").setP0(100.0).setQ0(5.0);// ??? --> not in change
@@ -191,5 +183,6 @@ public class UpdateNetworkFromCatalog14 {
 //        assertTrue(changes.size() == 9);
 
     }
+
     private static final Logger LOG = LoggerFactory.getLogger(UpdateNetworkFromCatalog14.class);
 }

@@ -59,7 +59,7 @@ public class LineToACLineSegment implements ConversionMapper {
 
         double g2 = !String.valueOf(newLine.getG2()).equals("NaN") ? newLine.getG2() : 0.0;
         map.put("g2", new CgmesPredicateDetails(
-				"cim:ACLineSegment.gch", "_EQ", false, String.valueOf(g2 * 2)));
+            "cim:ACLineSegment.gch", "_EQ", false, String.valueOf(g2 * 2)));
 
         String baseVoltageId = getBaseVoltageId(newLine);
         map.put("BaseVoltage", new CgmesPredicateDetails(
@@ -83,7 +83,7 @@ public class LineToACLineSegment implements ConversionMapper {
                 continue;
             }
         }
-		return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString();
     }
 
     private IidmChange change;

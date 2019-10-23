@@ -95,7 +95,7 @@ public class GeneratorToSynchronousMachine implements ConversionMapper {
                 continue;
             }
         }
-		return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString();
     }
 
     private IidmChange change;

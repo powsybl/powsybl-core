@@ -127,9 +127,9 @@ public interface CgmesModel {
     PropertyBags dcTerminalsTP();
 
     public void clone(CgmesModel cgmes);
-    
-    PropertyBags updateCgmes(String context, Map<String, String> cgmesChanges,String changeInstanceName);
-    
+
+    PropertyBags updateCgmes(String context, Map<String, String> cgmesChanges, String changeInstanceName);
+
     String getCimNamespace();
 
     void clear(CgmesSubset subset);
@@ -147,7 +147,7 @@ public interface CgmesModel {
     }
 
     void setBasename(String baseName);
-    
+
     String getBaseName();
 
     void write(DataSource ds);

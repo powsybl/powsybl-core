@@ -10,12 +10,9 @@ package com.powsybl.cgmes.conversion.test.update;
 import com.powsybl.cgmes.model.test.TestGridModelResources;
 import com.powsybl.commons.datasource.ResourceSet;
 
-/**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- */
 public class TinyCasesCatalog {
 
-    public TestGridModelResources TinyTest14() {
+    public TestGridModelResources tinyTest14() {
         return new TestGridModelResources("case1_EQ", null,
             new ResourceSet("/TinyRdfTest/", "case1_EQ.xml"));
     }

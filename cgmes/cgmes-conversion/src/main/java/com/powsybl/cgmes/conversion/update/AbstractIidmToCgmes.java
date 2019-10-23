@@ -19,22 +19,22 @@ public abstract class AbstractIidmToCgmes {
 
     protected List<CgmesPredicateDetails> convert() throws Exception {
 
-		List<CgmesPredicateDetails> list = null;
+        List<CgmesPredicateDetails> list = null;
 
         if (change instanceof IidmChangeOnUpdate) {
-			list = new ArrayList<CgmesPredicateDetails>();
-			list.addAll(switcher().get(change.getAttribute()));
+            list = new ArrayList<CgmesPredicateDetails>();
+            list.addAll(switcher().get(change.getAttribute()));
 
         } else if (change instanceof IidmChangeOnCreate) {
             // for onCreate all fields are inside the Identifiable object.
-			return new ArrayList<CgmesPredicateDetails>(switcher().values());
+            return new ArrayList<CgmesPredicateDetails>(switcher().values());
 
         } else if (change instanceof IidmChangeOnRemove) {
             // onRemove is pending
         } else {
 
         }
-		return list;
+        return list;
     }
 
     public String getIidmInstanceName() {

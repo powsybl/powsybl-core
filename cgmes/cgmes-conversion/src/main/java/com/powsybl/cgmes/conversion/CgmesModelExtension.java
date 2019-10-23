@@ -29,7 +29,7 @@ public class CgmesModelExtension extends AbstractExtension<Network> {
     public CgmesModel getCgmesModel() {
         return cgmes;
     }
-    
+
     public CgmesUpdater getCgmesUpdater() {
         return cgmesUpdater;
     }

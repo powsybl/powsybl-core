@@ -71,11 +71,11 @@ public class VoltageLevelToVoltageLevel implements ConversionMapper {
     }
 
     /**
-	 * Check if BaseVoltage element already exists in grid, if yes - returns its id,
-	 * otherwise new id if new element is created
-	 *
-	 * @return the base voltage id
-	 */
+     * Check if BaseVoltage element already exists in grid, if yes - returns its id,
+     * otherwise new id if new element is created
+     *
+     * @return the base voltage id
+     */
     private String getBaseVoltageId() {
         String currId = this.change.getIdentifiableId();
         PropertyBags voltageLevels = cgmes.voltageLevels();
@@ -88,7 +88,7 @@ public class VoltageLevelToVoltageLevel implements ConversionMapper {
                 continue;
             }
         }
-		return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString();
     }
 
     private String baseVoltageId;

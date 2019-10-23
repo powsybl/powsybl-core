@@ -51,7 +51,7 @@ public class LineToACLineSegment implements ConversionMapper {
 
         double b2 = !String.valueOf(newLine.getB2()).equals("NaN") ? newLine.getB2() : 0.0;
         map.put("b2", new CgmesPredicateDetails(
-			"cim:Conductor.bch", "_EQ", false, String.valueOf(b2 * 2)));
+            "cim:Conductor.bch", "_EQ", false, String.valueOf(b2 * 2)));
 
         double g1 = !String.valueOf(newLine.getG1()).equals("NaN") ? newLine.getG1() : 0.0;
 
@@ -60,7 +60,7 @@ public class LineToACLineSegment implements ConversionMapper {
 
         double g2 = !String.valueOf(newLine.getG2()).equals("NaN") ? newLine.getG2() : 0.0;
         map.put("g2", new CgmesPredicateDetails(
-			"cim:Conductor.gch", "_EQ", false, String.valueOf(g2 * 2)));
+            "cim:Conductor.gch", "_EQ", false, String.valueOf(g2 * 2)));
 
         String baseVoltageId = getBaseVoltageId(newLine);
         map.put("BaseVoltage", new CgmesPredicateDetails(
@@ -73,18 +73,18 @@ public class LineToACLineSegment implements ConversionMapper {
      * @return the base voltage id
      */
     private String getBaseVoltageId(Line newLine) {
-		String voltageLevelId = newLine.getTerminal(Branch.Side.ONE).getVoltageLevel().getId();
+        String voltageLevelId = newLine.getTerminal(Branch.Side.ONE).getVoltageLevel().getId();
         PropertyBags voltageLevels = cgmes.voltageLevels();
         Iterator i = voltageLevels.iterator();
         while (i.hasNext()) {
             PropertyBag pb = (PropertyBag) i.next();
-			if (pb.getId("VoltageLevel").equals(voltageLevelId)) {
+            if (pb.getId("VoltageLevel").equals(voltageLevelId)) {
                 return pb.getId("BaseVoltage");
             } else {
                 continue;
             }
         }
-		return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString();
     }
 
     private IidmChange change;

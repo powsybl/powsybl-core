@@ -67,10 +67,11 @@ public final class CgmesModelFactory {
             for (PropertyBag end : tends) {
                 CgmesTerminal t = cgmes.terminal(end.getId(CgmesNames.TERMINAL));
                 cgmes.substation(t);
-                if (cgmes.isNodeBreaker())
+                if (cgmes.isNodeBreaker()) {
                     t.connectivityNode();
-                else
+                } else {
                     t.topologicalNode();
+                }
             }
         }
     }

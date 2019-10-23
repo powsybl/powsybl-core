@@ -202,7 +202,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     public void setBasename(String baseName) {
         this.baseName = Objects.requireNonNull(baseName);
     }
-    
+
     @Override
     public String getBaseName() {
         return this.baseName;

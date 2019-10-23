@@ -449,9 +449,9 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
         List<PrefixNamespace> prefixes = tripleStore.getNamespaces();
         String resource = "#";
-        for(PrefixNamespace px : prefixes) {
+        for (PrefixNamespace px : prefixes) {
             String g = px.getPrefix();
-            if(px.getPrefix().equals("data")) {
+            if (px.getPrefix().equals("data")) {
                 resource = px.getNamespace();
             }
         }

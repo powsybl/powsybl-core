@@ -73,7 +73,7 @@ public class ChangesListener implements NetworkListener {
 
         changeList.addAll(tmp);
     }
-    
+
     private List<IidmChange> changeList;
 
     private static final Logger LOG = LoggerFactory.getLogger(ChangesListener.class);

@@ -4,14 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Multimap;
-import com.powsybl.cgmes.conversion.update.elements14.BusToTopologicalNode;
-import com.powsybl.cgmes.conversion.update.elements14.GeneratorToSynchronousMachine;
-import com.powsybl.cgmes.conversion.update.elements14.LineToACLineSegment;
-import com.powsybl.cgmes.conversion.update.elements14.LoadToEnergyConsumer;
-import com.powsybl.cgmes.conversion.update.elements14.ShuntCompensatorToShuntCompensator;
-import com.powsybl.cgmes.conversion.update.elements14.SubstationToSubstation;
-import com.powsybl.cgmes.conversion.update.elements14.TwoWindingsTransformerToPowerTransformer;
-import com.powsybl.cgmes.conversion.update.elements14.VoltageLevelToVoltageLevel;
+import com.powsybl.cgmes.conversion.update.elements14.*;
 import com.powsybl.cgmes.model.CgmesModel;
 
 public class IidmToCgmes14 extends AbstractIidmToCgmes {

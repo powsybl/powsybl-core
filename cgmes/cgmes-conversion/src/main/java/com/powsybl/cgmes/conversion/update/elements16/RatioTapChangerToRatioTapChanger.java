@@ -19,45 +19,45 @@ public class RatioTapChangerToRatioTapChanger extends TwoWindingsTransformerToPo
          * RatioTapChanger
          */
         RatioTapChanger newRatioTapChanger = newTwoWindingsTransformer.getRatioTapChanger();
-        Multimap<String, CgmesPredicateDetails> mapRTTC = null;
+        Multimap<String, CgmesPredicateDetails> mapRTC = null;
 
         if (newRatioTapChanger != null) {
-            mapRTTC = ArrayListMultimap.create();
+            mapRTC = ArrayListMultimap.create();
 
-            mapRTTC.put("rdfTypeRTTC", new CgmesPredicateDetails(
+            mapRTC.put("rdfTypeRTC", new CgmesPredicateDetails(
                 "rdf:type", "_EQ", false, "cim:RatioTapChanger", idRTC));
 
-            mapRTTC.put("nameRTTC", new CgmesPredicateDetails(
+            mapRTC.put("nameRTC", new CgmesPredicateDetails(
                 "cim:IdentifiedObject.name", "_EQ", false, name, idRTC));
 
-            mapRTTC.put("TransformerWindingRTTC", new CgmesPredicateDetails(
+            mapRTC.put("TransformerWindingRTC", new CgmesPredicateDetails(
                 "cim:RatioTapChanger.TransformerEnd", "_EQ", true, idEnd1, idRTC));
 
-            int lowTapPositionRTTC = newRatioTapChanger.getLowTapPosition();
-            mapRTTC.put("ratioTapChanger.lowTapPosition", new CgmesPredicateDetails(
-                "cim:TapChanger.lowStep", "_EQ", false, String.valueOf(lowTapPositionRTTC), idRTC));
+            int lowTapPositionRTC = newRatioTapChanger.getLowTapPosition();
+            mapRTC.put("ratioTapChanger.lowTapPosition", new CgmesPredicateDetails(
+                "cim:TapChanger.lowStep", "_EQ", false, String.valueOf(lowTapPositionRTC), idRTC));
 
-            int tapPositionRTTC = newRatioTapChanger.getTapPosition();
-            mapRTTC.put("ratioTapChanger.tapPosition", new CgmesPredicateDetails(
-                    "cim:TapChanger.step", "_SSH", false, String.valueOf(tapPositionRTTC), idRTC));
-            mapRTTC.put("ratioTapChanger.tapPosition", new CgmesPredicateDetails(
-                    "cim:SvTapStep.position", "_SV", false, String.valueOf(tapPositionRTTC), idRTC));
+            int tapPositionRTC = newRatioTapChanger.getTapPosition();
+            mapRTC.put("ratioTapChanger.tapPosition", new CgmesPredicateDetails(
+                    "cim:TapChanger.step", "_SSH", false, String.valueOf(tapPositionRTC), idRTC));
+            mapRTC.put("ratioTapChanger.tapPosition", new CgmesPredicateDetails(
+                    "cim:SvTapStep.position", "_SV", false, String.valueOf(tapPositionRTC), idRTC));
 
             /**
              * RatioTapChangerTable TODO elena check names
              */
-            mapRTTC.put("ratioTapChangerTable", new CgmesPredicateDetails(
+            mapRTC.put("ratioTapChangerTable", new CgmesPredicateDetails(
                 "rdf:type", "_EQ", false, "cim:RatioTapChangerTable", idRTCTable));
 
-            mapRTTC.put("nameRTTCTable", new CgmesPredicateDetails(
-                "cim:IdentifiedObject.name", "_EQ", false, name.concat("_RTTC_Name"), idRTCTable));
+            mapRTC.put("nameRTCTable", new CgmesPredicateDetails(
+                "cim:IdentifiedObject.name", "_EQ", false, name.concat("_RTC_Name"), idRTCTable));
             /**
              * RatioTapChangerTablePoint
              */
-            mapRTTC.put("RatioTapChangerTablePoint", new CgmesPredicateDetails(
+            mapRTC.put("RatioTapChangerTablePoint", new CgmesPredicateDetails(
                 "rdf:type", "_EQ", false, "cim:RatioTapChangerTablePoint", idRTCTablePoint));
         }
 
-        return mapRTTC;
+        return mapRTC;
     }
 }

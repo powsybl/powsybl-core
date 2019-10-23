@@ -75,7 +75,8 @@ public class BusToTopologicalNode implements ConversionMapper {
 
         String terminalName = newBus.getName().concat("_TE");
         if (terminalName != null) {
-            map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, terminalName, terminalId));
+            map.put("name",
+                new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, terminalName, terminalId));
         }
 
         return map;
@@ -87,7 +88,7 @@ public class BusToTopologicalNode implements ConversionMapper {
 
     // TODO elena check for existing TerminalID
     private String getTerminalId() {
-		return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString();
     }
 
     private String getBaseVoltageId(Bus bus) {
@@ -111,12 +112,12 @@ public class BusToTopologicalNode implements ConversionMapper {
         while (i.hasNext()) {
             PropertyBag pb = (PropertyBag) i.next();
             if (pb.getId("TopologicalNode").equals(currId)) {
-				return (pb.getId("SvVoltageT") != null) ? pb.getId("SvVoltageT") : UUID.randomUUID().toString();
+                return (pb.getId("SvVoltageT") != null) ? pb.getId("SvVoltageT") : UUID.randomUUID().toString();
             } else {
                 continue;
             }
         }
-		return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString();
     }
 
     private IidmChange change;

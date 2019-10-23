@@ -68,11 +68,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>powsybl-cgmes-update</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-        <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.gdata</artifactId>
         </dependency>

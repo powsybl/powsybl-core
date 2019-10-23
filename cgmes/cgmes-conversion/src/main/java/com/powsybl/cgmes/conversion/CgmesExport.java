@@ -62,14 +62,14 @@ public class CgmesExport implements Exporter {
 
         CgmesUpdater cgmesUpdater = ext.getCgmesUpdater();
         profiling.start();
-		if (cgmesUpdater.getNumberOfChanges() > 0) {
-			try {
-				cgmesUpdater.update(cgmes, variantId);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		profiling.end(String.valueOf(Operations.UPDATE_CGMES_FROM_IIDM));
+        if (cgmesUpdater.getNumberOfChanges() > 0) {
+            try {
+                cgmesUpdater.update(cgmes, variantId);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        profiling.end(String.valueOf(Operations.UPDATE_CGMES_FROM_IIDM));
         // Clear the previous SV data
         profiling.start();
         cgmes.clear(CgmesSubset.STATE_VARIABLES);
@@ -99,13 +99,8 @@ public class CgmesExport implements Exporter {
     }
 
     public enum Operations {
-		LOAD_CGMES_TO_IIDM
-        ,RUN_LOAD_FLOW
-		,CLONE_CGMES_TRIPLESTORE
-		,CLONE_VARIANT
-		,UPDATE_CGMES_FROM_IIDM
-		,ADD_STATE_VARIABLES
-		,EXPORT_UPDATED_CGMES;
+        LOAD_CGMES_TO_IIDM, RUN_LOAD_FLOW, CLONE_CGMES_TRIPLESTORE, CLONE_VARIANT, UPDATE_CGMES_FROM_IIDM,
+        ADD_STATE_VARIABLES, EXPORT_UPDATED_CGMES;
     }
 
     private void addStateVariables(Network n, CgmesModel cgmes) {
@@ -145,10 +140,10 @@ public class CgmesExport implements Exporter {
         cgmes.add(CgmesSubset.STATE_VARIABLES, "SvShuntCompensatorSections", shuntCompensatorSections);
 
         PropertyBags tapSteps = new PropertyBags();
-        final List<String> SV_TAPSTEP_PROPERTIES = Arrays.asList(nameTapChangerPosition(cgmes),
+        final List<String> svTapStepProperties = Arrays.asList(nameTapChangerPosition(cgmes),
             CgmesNames.TAP_CHANGER);
         for (TwoWindingsTransformer t : n.getTwoWindingsTransformers()) {
-            PropertyBag p = new PropertyBag(SV_TAPSTEP_PROPERTIES);
+            PropertyBag p = new PropertyBag(svTapStepProperties);
             // TODO If we could store an identifier for the tap changer in IIDM
             // then we would not need to query the CGMES model
             if (t.getPhaseTapChanger() != null) {
@@ -165,7 +160,7 @@ public class CgmesExport implements Exporter {
     }
 
     private String nameTapChangerPosition(CgmesModel cgmes) {
-		return (cgmes.getCimNamespace().indexOf("cim14#") != -1)
+        return (cgmes.getCimNamespace().indexOf("cim14#") != -1)
             ? CgmesNames.CONTINUOUS_POSITION
             : CgmesNames.POSITION;
     }
