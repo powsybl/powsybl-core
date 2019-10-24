@@ -126,6 +126,7 @@ public class Conversion {
             convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
         }
 
+        clearUnattachedHvdcConverterStations(network, context); // in case of faulty CGMES files, remove HVDC Converter Stations without HVDC lines
         voltageAngles(nodes, context);
         if (context.config().debugTopology()) {
             debugTopology(context);
@@ -290,6 +291,13 @@ public class Conversion {
             }
         }
         profiling.end("voltageAngles");
+    }
+
+    private void clearUnattachedHvdcConverterStations(Network network, Context context) {
+        network.getHvdcConverterStationStream().filter(converter -> converter.getHvdcLine() == null).forEach(converter -> {
+            context.ignored(String.format("HVDC Converter Station %s", converter.getId()), "No correct linked HVDC line found.");
+            converter.remove();
+        });
     }
 
     private void debugTopology(Context context) {
