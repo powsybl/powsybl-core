@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.UncheckedIOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -211,6 +212,13 @@ public class AfsBaseTest {
         try {
             FileUtils.deleteDirectory(file);
         } catch (Exception ignored) {
+        }
+
+        Path testDirNotExists = Paths.get("/tmp/testDirNotExists");
+        try {
+            dir7.archive(testDirNotExists);
+            fail();
+        } catch (UncheckedIOException ignored) {
         }
     }
 
