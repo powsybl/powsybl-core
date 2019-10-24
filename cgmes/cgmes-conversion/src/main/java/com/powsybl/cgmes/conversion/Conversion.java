@@ -406,8 +406,8 @@ public class Conversion {
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
-        private double lowImpedanceLineR = 0.05;
-        private double lowImpedanceLineX = 0.05;
+        private double lowImpedanceLineR = 7.0E-5;
+        private double lowImpedanceLineX = 7.0E-5;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
