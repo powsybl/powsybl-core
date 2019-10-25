@@ -19,92 +19,115 @@ public class RatioTapChangerAdapter extends AbstractAdapter<RatioTapChanger> imp
         super(delegate, index);
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
-    @Override
-    public int getLowTapPosition() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public RatioTapChangerAdapter setLowTapPosition(final int lowTapPosition) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getHighTapPosition() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getTapPosition() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public RatioTapChangerAdapter setTapPosition(final int tapPosition) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getStepCount() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public RatioTapChangerStep getStep(final int tapPosition) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public RatioTapChangerStep getCurrentStep() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean isRegulating() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public RatioTapChangerAdapter setRegulating(final boolean regulating) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
     @Override
     public TerminalAdapter getRegulationTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getTerminal(getDelegate().getRegulationTerminal());
     }
 
     @Override
     public RatioTapChangerAdapter setRegulationTerminal(final Terminal regulationTerminal) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        Terminal param = regulationTerminal;
+        if (param instanceof AbstractAdapter<?>) {
+            param = ((AbstractAdapter<Terminal>) param).getDelegate();
+        }
+        getDelegate().setRegulationTerminal(param);
+        return this;
+    }
+
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
+    @Override
+    public int getLowTapPosition() {
+        return getDelegate().getLowTapPosition();
     }
 
     @Override
-    public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public RatioTapChangerAdapter setLowTapPosition(final int lowTapPosition) {
+        getDelegate().setLowTapPosition(lowTapPosition);
+        return this;
+    }
+
+    @Override
+    public int getHighTapPosition() {
+        return getDelegate().getHighTapPosition();
+    }
+
+    @Override
+    public int getTapPosition() {
+        return getDelegate().getTapPosition();
+    }
+
+    @Override
+    public RatioTapChangerAdapter setTapPosition(final int tapPosition) {
+        getDelegate().setTapPosition(tapPosition);
+        return this;
+    }
+
+    @Override
+    public int getStepCount() {
+        return getDelegate().getStepCount();
+    }
+
+    @Override
+    public RatioTapChangerStep getStep(final int tapPosition) {
+        return getDelegate().getStep(tapPosition);
+    }
+
+    @Override
+    public RatioTapChangerStep getCurrentStep() {
+        return getDelegate().getCurrentStep();
+    }
+
+    @Override
+    public boolean isRegulating() {
+        return getDelegate().isRegulating();
+    }
+
+    @Override
+    public RatioTapChangerAdapter setRegulating(final boolean regulating) {
+        getDelegate().setRegulating(regulating);
+        return this;
     }
 
     @Override
     public double getTargetV() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getTargetV();
     }
 
     @Override
     public RatioTapChangerAdapter setTargetV(final double targetV) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setTargetV(targetV);
+        return this;
     }
 
     @Override
     public boolean hasLoadTapChangingCapabilities() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().hasLoadTapChangingCapabilities();
     }
 
     @Override
     public RatioTapChangerAdapter setLoadTapChangingCapabilities(final boolean status) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setLoadTapChangingCapabilities(status);
+        return this;
     }
 
+    @Override
+    public double getTargetDeadband() {
+        return getDelegate().getTargetDeadband();
+    }
+
+    @Override
+    public RatioTapChangerAdapter setTargetDeadband(final double targetDeadband) {
+        getDelegate().setTargetDeadband(targetDeadband);
+        return this;
+    }
+
+    // -------------------------------
+    // Not implemented methods -------
+    // -------------------------------
+    @Override
+    public void remove() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
 }

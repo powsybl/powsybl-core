@@ -24,6 +24,16 @@ public class PhaseTapChangerAdderAdapter extends AbstractAdapter<PhaseTapChanger
         return getIndex().getPhaseTapChanger(getDelegate().add());
     }
 
+    @Override
+    public PhaseTapChangerAdderAdapter setRegulationTerminal(final Terminal regulationTerminal) {
+        // PhaseTapChangerAdderImpl.setRegulationTerminal is casting parameter to
+        // TerminalExt
+        // So, we need to check if parameter is adapted or not
+        final boolean isAdapted = regulationTerminal instanceof AbstractAdapter<?>;
+        getDelegate().setRegulationTerminal(isAdapted ? ((AbstractAdapter<Terminal>) regulationTerminal).getDelegate() : regulationTerminal);
+        return this;
+    }
+
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------
@@ -54,16 +64,6 @@ public class PhaseTapChangerAdderAdapter extends AbstractAdapter<PhaseTapChanger
     @Override
     public PhaseTapChangerAdderAdapter setRegulationValue(final double regulationValue) {
         getDelegate().setRegulationValue(regulationValue);
-        return this;
-    }
-
-    @Override
-    public PhaseTapChangerAdderAdapter setRegulationTerminal(final Terminal regulationTerminal) {
-        // PhaseTapChangerAdderImpl.setRegulationTerminal is casting parameter to
-        // TerminalExt
-        // So, we need to check if parameter is adapted or not
-        final boolean isAdapted = regulationTerminal instanceof AbstractAdapter<?>;
-        getDelegate().setRegulationTerminal(isAdapted ? ((AbstractAdapter<Terminal>) regulationTerminal).getDelegate() : regulationTerminal);
         return this;
     }
 
