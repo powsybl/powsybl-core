@@ -415,6 +415,104 @@ public final class CgmesConformity1ModifiedCatalog {
                 "MiniGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
+    public static TestGridModelResources smallNodeBreakerHvdcDcLine2Inverter1Rectifier2() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+            + "/SmallGrid/HVDC_dcLine2_targetPpcc_for_1inverter_2rectifier";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+            + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+            + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+        return new TestGridModelResources(
+            "SmallGrid-NodeBreaker-HVDC-Line2",
+            null,
+            new ResourceSet(baseOriginal, "SmallGridTestConfiguration_HVDC_DL_v3.0.0.xml",
+                "SmallGridTestConfiguration_HVDC_EQ_v3.0.0.xml",
+                "SmallGridTestConfiguration_HVDC_GL_v3.0.0.xml",
+                "SmallGridTestConfiguration_HVDC_SV_v3.0.0.xml",
+                "SmallGridTestConfiguration_HVDC_TP_v3.0.0.xml"),
+            new ResourceSet(base, "SmallGridTestConfiguration_HVDC_SSH_v3.0.0.xml"),
+            new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+            + "/SmallGrid/HVDC_dcLine2_targetPpcc_both_1inverter_2rectifier";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+            + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+            + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+        return new TestGridModelResources(
+            "SmallGrid-NodeBreaker-HVDC-Line2",
+            null,
+            new ResourceSet(baseOriginal, "SmallGridTestConfiguration_HVDC_DL_v3.0.0.xml",
+                "SmallGridTestConfiguration_HVDC_EQ_v3.0.0.xml",
+                "SmallGridTestConfiguration_HVDC_GL_v3.0.0.xml",
+                "SmallGridTestConfiguration_HVDC_SV_v3.0.0.xml",
+                "SmallGridTestConfiguration_HVDC_TP_v3.0.0.xml"),
+            new ResourceSet(base, "SmallGridTestConfiguration_HVDC_SSH_v3.0.0.xml"),
+            new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+            + "/SmallGrid/HVDC_dcLine2_targetPpcc_both_1rectifier_2inverter";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+            + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+            + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+        return new TestGridModelResources(
+            "SmallGrid-NodeBreaker-HVDC-Line2",
+            null,
+            new ResourceSet(baseOriginal, "SmallGridTestConfiguration_HVDC_DL_v3.0.0.xml",
+                "SmallGridTestConfiguration_HVDC_EQ_v3.0.0.xml",
+                "SmallGridTestConfiguration_HVDC_GL_v3.0.0.xml",
+                "SmallGridTestConfiguration_HVDC_SV_v3.0.0.xml",
+                "SmallGridTestConfiguration_HVDC_TP_v3.0.0.xml"),
+            new ResourceSet(base, "SmallGridTestConfiguration_HVDC_SSH_v3.0.0.xml"),
+            new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources smallNodeBreakerHvdcVscReactiveQPcc() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_vsc_reactive_qPccControl";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+        return new TestGridModelResources(
+                "SmallGrid-NodeBreaker-HVDC-VSC-Reactive",
+                null,
+                new ResourceSet(baseOriginal, "SmallGridTestConfiguration_HVDC_DL_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_EQ_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_GL_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_SV_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_TP_v3.0.0.xml"),
+                new ResourceSet(base, "SmallGridTestConfiguration_HVDC_SSH_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources smallNodeBrokerHvdcNanTargetPpcc() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_NaN_targetPpcc";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+        return new TestGridModelResources(
+                "SmallGrid-NodeBreaker-HVDC-NaN-targetPpcc",
+                null,
+                new ResourceSet(baseOriginal, "SmallGridTestConfiguration_HVDC_DL_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_EQ_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_GL_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_SV_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_TP_v3.0.0.xml"),
+                new ResourceSet(base, "SmallGridTestConfiguration_HVDC_SSH_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
     private static final String ENTSOE_CONFORMITY_1 = "/conformity/cas-1.1.3-data-4.0.3";
     private static final String ENTSOE_CONFORMITY_1_MODIFIED = "/conformity-modified/cas-1.1.3-data-4.0.3";
 }

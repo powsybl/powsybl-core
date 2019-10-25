@@ -65,13 +65,10 @@ public class RegulatingControlMappingForGenerators {
             return;
         }
 
-        if (isControlModeVoltage(control.mode)) {
+        if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
             RegulatingControlVoltage gcv = getRegulatingControlVoltage(controlId, control, rc.qPercent, gen);
             apply(gcv, gen);
-            if (gcv != null) {
-                // To write warning messages in the logger for regulating controls remaining in the cache
-                parent.cachedRegulatingControls().remove(controlId);
-            }
+            control.hasCorrectlySetEq(gen.getId());
         } else {
             context.ignored(control.mode, String.format("Unsupported regulation mode for generator %s", gen.getId()));
         }
@@ -122,10 +119,6 @@ public class RegulatingControlMappingForGenerators {
             CoordinatedReactiveControl coordinatedReactiveControl = new CoordinatedReactiveControl(gen, rcv.qPercent);
             gen.addExtension(CoordinatedReactiveControl.class, coordinatedReactiveControl);
         }
-    }
-
-    private static boolean isControlModeVoltage(String controlMode) {
-        return controlMode != null && controlMode.endsWith("voltage");
     }
 
     private Terminal getRegulatingTerminal(Generator gen, String cgmesTerminal, String topologicalNode) {
