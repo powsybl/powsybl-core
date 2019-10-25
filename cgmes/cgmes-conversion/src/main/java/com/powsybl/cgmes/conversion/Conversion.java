@@ -126,6 +126,7 @@ public class Conversion {
             convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
         }
 
+        clearUnattachedHvdcConverterStations(network, context); // in case of faulty CGMES files, remove HVDC Converter Stations without HVDC lines
         voltageAngles(nodes, context);
         if (context.config().debugTopology()) {
             debugTopology(context);
@@ -292,6 +293,13 @@ public class Conversion {
         profiling.end("voltageAngles");
     }
 
+    private void clearUnattachedHvdcConverterStations(Network network, Context context) {
+        network.getHvdcConverterStationStream().filter(converter -> converter.getHvdcLine() == null).forEach(converter -> {
+            context.ignored(String.format("HVDC Converter Station %s", converter.getId()), "No correct linked HVDC line found.");
+            converter.remove();
+        });
+    }
+
     private void debugTopology(Context context) {
         profiling.start();
         context.network().getVoltageLevels().forEach(vl -> {
@@ -406,8 +414,8 @@ public class Conversion {
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
-        private double lowImpedanceLineR = 0.05;
-        private double lowImpedanceLineX = 0.05;
+        private double lowImpedanceLineR = 7.0E-5;
+        private double lowImpedanceLineX = 7.0E-5;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
