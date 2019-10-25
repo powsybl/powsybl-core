@@ -124,38 +124,6 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             addSteps(alphas, rhos, theta, ptca);
         }
 
-        context.regulatingControlMapping().setRegulatingControl(p, regTerminal(), ptca, tx);
-
-        // According to the following CGMES documentation:
-        // IEC TS 61970-600-1, Edition 1.0, 2017-07.
-        // "Energy management system application program interface (EMS-API)
-        // – Part 600-1: Common Grid Model Exchange Specification (CGMES)
-        // – Structure and rules",
-        // "Annex E (normative) implementation guide",
-        // section "E.9 LTCflag" (pages 76-79)
-
-        // The combination: TapChanger.ltcFlag == False
-        // and TapChanger.TapChangerControl Present
-        // Is allowed as:
-        // "An artificial tap changer can be used to simulate control behavior on power
-        // flow"
-
-        // But the ENTSO-E documentation
-        // "QUALITY OF CGMES DATASETS AND CALCULATIONS FOR SYSTEM OPERATIONS"
-        // 3.1 EDITION, 13 June 2019
-
-        // Contains a rule that states that when ltcFlag == False,
-        // Then TapChangerControl should NOT be present
-
-        // Although this combination has been observed in TYNDP test cases,
-        // we will forbid it until an explicit ltcFlag is added to IIDM,
-        // in the meanwhile, when ltcFlag == False,
-        // we avoid regulation by setting RegulationMode in IIDM to FIXED_TAP
-
-        if (!ltcFlag) {
-            ptca.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
-        }
-
         ptca.add();
     }
 
