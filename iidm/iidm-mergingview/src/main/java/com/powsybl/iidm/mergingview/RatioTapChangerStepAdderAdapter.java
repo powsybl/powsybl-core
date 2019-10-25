@@ -14,40 +14,49 @@ import com.powsybl.iidm.network.RatioTapChangerAdder.StepAdder;
  */
 public class RatioTapChangerStepAdderAdapter extends AbstractAdapter<RatioTapChangerAdder.StepAdder> implements RatioTapChangerAdder.StepAdder {
 
-    protected RatioTapChangerStepAdderAdapter(final StepAdder delegate, final MergingViewIndex index) {
+    private final RatioTapChangerAdderAdapter parentDelegate;
+
+    protected RatioTapChangerStepAdderAdapter(final RatioTapChangerAdderAdapter parentDelegate, final StepAdder delegate, final MergingViewIndex index) {
         super(delegate, index);
-    }
-
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
-    @Override
-    public RatioTapChangerStepAdderAdapter setRho(final double rho) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public RatioTapChangerStepAdderAdapter setR(final double r) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public RatioTapChangerStepAdderAdapter setX(final double x) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public RatioTapChangerStepAdderAdapter setG(final double g) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public RatioTapChangerStepAdderAdapter setB(final double b) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        this.parentDelegate = parentDelegate;
     }
 
     @Override
     public RatioTapChangerAdderAdapter endStep() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().endStep();
+        return this.parentDelegate;
+    }
+
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
+    @Override
+    public RatioTapChangerStepAdderAdapter setRho(final double rho) {
+        getDelegate().setRho(rho);
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerStepAdderAdapter setR(final double r) {
+        getDelegate().setR(r);
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerStepAdderAdapter setX(final double x) {
+        getDelegate().setX(x);
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerStepAdderAdapter setG(final double g) {
+        getDelegate().setG(g);
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerStepAdderAdapter setB(final double b) {
+        getDelegate().setB(b);
+        return this;
     }
 }

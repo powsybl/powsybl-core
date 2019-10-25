@@ -13,50 +13,61 @@ import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.Leg2or3Adder;
  */
 public class Leg2or3AdderAdapter extends AbstractAdapter<Leg2or3Adder> implements Leg2or3Adder {
 
-    protected Leg2or3AdderAdapter(final Leg2or3Adder delegate, final MergingViewIndex index) {
+    private final ThreeWindingsTransformerAdderAdapter parentDelegate;
+
+    protected Leg2or3AdderAdapter(final ThreeWindingsTransformerAdderAdapter parentDelegate, final Leg2or3Adder delegate, final MergingViewIndex index) {
         super(delegate, index);
-    }
-
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
-    @Override
-    public Leg2or3AdderAdapter setVoltageLevel(final String voltageLevelId) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Leg2or3AdderAdapter setNode(final int node) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Leg2or3AdderAdapter setBus(final String bus) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Leg2or3AdderAdapter setConnectableBus(final String connectableBus) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Leg2or3AdderAdapter setR(final double r) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Leg2or3AdderAdapter setX(final double x) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Leg2or3AdderAdapter setRatedU(final double ratedU) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        this.parentDelegate = parentDelegate;
     }
 
     @Override
     public ThreeWindingsTransformerAdderAdapter add() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().add();
+        return this.parentDelegate;
+    }
+
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
+    @Override
+    public Leg2or3AdderAdapter setVoltageLevel(final String voltageLevelId) {
+        getDelegate().setVoltageLevel(voltageLevelId);
+        return this;
+    }
+
+    @Override
+    public Leg2or3AdderAdapter setNode(final int node) {
+        getDelegate().setNode(node);
+        return this;
+    }
+
+    @Override
+    public Leg2or3AdderAdapter setBus(final String bus) {
+        getDelegate().setBus(bus);
+        return this;
+    }
+
+    @Override
+    public Leg2or3AdderAdapter setConnectableBus(final String connectableBus) {
+        getDelegate().setConnectableBus(connectableBus);
+        return this;
+    }
+
+    @Override
+    public Leg2or3AdderAdapter setR(final double r) {
+        getDelegate().setR(r);
+        return this;
+    }
+
+    @Override
+    public Leg2or3AdderAdapter setX(final double x) {
+        getDelegate().setX(x);
+        return this;
+    }
+
+    @Override
+    public Leg2or3AdderAdapter setRatedU(final double ratedU) {
+        getDelegate().setRatedU(ratedU);
+        return this;
     }
 }

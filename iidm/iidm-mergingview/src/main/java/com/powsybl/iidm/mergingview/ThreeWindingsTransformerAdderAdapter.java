@@ -17,41 +17,44 @@ public class ThreeWindingsTransformerAdderAdapter extends AbstractAdapter<ThreeW
         super(delegate, index);
     }
 
+    @Override
+    public ThreeWindingsTransformerAdapter add() {
+        return getIndex().getThreeWindingsTransformer(getDelegate().add());
+    }
+
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public ThreeWindingsTransformerAdderAdapter setId(final String id) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setId(id);
+        return this;
     }
 
     @Override
     public ThreeWindingsTransformerAdderAdapter setEnsureIdUnicity(final boolean ensureIdUnicity) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setEnsureIdUnicity(ensureIdUnicity);
+        return this;
     }
 
     @Override
     public ThreeWindingsTransformerAdderAdapter setName(final String name) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setName(name);
+        return this;
     }
 
     @Override
     public Leg1AdderAdapter newLeg1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new Leg1AdderAdapter(this, getDelegate().newLeg1(), getIndex());
     }
 
     @Override
     public Leg2or3AdderAdapter newLeg2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new Leg2or3AdderAdapter(this, getDelegate().newLeg2(), getIndex());
     }
 
     @Override
     public Leg2or3AdderAdapter newLeg3() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ThreeWindingsTransformerAdapter add() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new Leg2or3AdderAdapter(this, getDelegate().newLeg3(), getIndex());
     }
 }

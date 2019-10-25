@@ -21,71 +21,76 @@ public class Leg1Adapter extends AbstractAdapter<ThreeWindingsTransformer.Leg1> 
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public TerminalAdapter getTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getTerminal(getDelegate().getTerminal());
     }
 
     @Override
     public double getR() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getR();
     }
 
     @Override
     public Leg1Adapter setR(final double r) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setR(r);
+        return this;
     }
 
     @Override
     public double getX() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getX();
     }
 
     @Override
     public Leg1Adapter setX(final double x) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setX(x);
+        return this;
     }
 
     @Override
     public double getRatedU() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getRatedU();
     }
 
     @Override
     public Leg1Adapter setRatedU(final double ratedU) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRatedU(ratedU);
+        return this;
     }
 
     @Override
     public CurrentLimits getCurrentLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getCurrentLimits();
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().newCurrentLimits();
     }
 
     @Override
     public double getG() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getG();
     }
 
     @Override
     public Leg1Adapter setG(final double g) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setG(g);
+        return this;
     }
 
     @Override
     public double getB() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getB();
     }
 
     @Override
     public Leg1Adapter setB(final double b) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setB(b);
+        return this;
     }
 
 }

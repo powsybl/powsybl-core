@@ -6,15 +6,22 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Branch.Side;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -28,63 +35,169 @@ public class TwoWindingsTransformerAdapterTest {
     @Before
     public void setup() {
         mergingView = MergingView.create("TwoWindingsTransformerAdapterTest", "iidm");
-        mergingView.merge(EurostagTutorialExample1Factory.create());
+        mergingView.merge(NoEquipmentNetworkFactory.create());
     }
 
     @Test
     public void testSetterGetter() {
-        final TwoWindingsTransformer twt = mergingView.getTwoWindingsTransformer("NGEN_NHV1");
+        final Substation substation = mergingView.getSubstation("sub");
+
+        // adder
+        final TwoWindingsTransformer twt = substation.newTwoWindingsTransformer()
+                .setId("twt")
+                .setName("twt_name")
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setRatedU1(5.0)
+                .setRatedU2(6.0)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB")
+                .add();
         assertNotNull(twt);
-        assertSame(twt, mergingView.getBranch("NGEN_NHV1"));
+        assertSame(mergingView.getTwoWindingsTransformer("twt"), mergingView.getBranch("twt"));
         assertTrue(twt instanceof TwoWindingsTransformerAdapter);
         assertSame(mergingView, twt.getNetwork());
 
-        assertNull(twt.getPhaseTapChanger());
-        assertNull(twt.getRatioTapChanger());
+        assertEquals(ConnectableType.TWO_WINDINGS_TRANSFORMER, twt.getType());
+        assertSame(substation, twt.getSubstation());
+
+        final RatioTapChanger ratioTapChanger = twt.newRatioTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(1)
+                .setLoadTapChangingCapabilities(false)
+                .setRegulating(true)
+                .setTargetDeadband(1.0)
+                .setTargetV(220.0)
+                .setRegulationTerminal(twt.getTerminal1())
+                .beginStep()
+                .setR(39.78473)
+                .setX(39.784725)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(1.0)
+                .endStep()
+                .beginStep()
+                .setR(39.78474)
+                .setX(39.784726)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(1.0)
+                .endStep()
+                .beginStep()
+                .setR(39.78475)
+                .setX(39.784727)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(1.0)
+                .endStep()
+                .add();
+        assertTrue(ratioTapChanger instanceof RatioTapChangerAdapter);
+        assertNotNull(twt.getRatioTapChanger());
+
+        final PhaseTapChanger phaseTapChanger = twt.newPhaseTapChanger()
+                .setTapPosition(1)
+                .setLowTapPosition(0)
+                .setRegulating(true)
+                .setTargetDeadband(1.0)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setRegulationValue(10.0)
+                .setRegulationTerminal(twt.getTerminal1())
+                .beginStep()
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setAlpha(5.0)
+                .setRho(6.0)
+                .endStep()
+                .beginStep()
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setAlpha(5.0)
+                .setRho(6.0)
+                .endStep()
+                .add();
+        assertTrue(phaseTapChanger instanceof PhaseTapChangerAdapter);
+        assertNotNull(twt.getPhaseTapChanger());
+
+        // setter getter
+        final double r = 0.5;
+        assertTrue(twt.setR(r) instanceof AbstractAdapter<?>);
+        assertEquals(r, twt.getR(), 0.0);
+        final double b = 1.0;
+        assertTrue(twt.setB(b) instanceof AbstractAdapter<?>);
+        assertEquals(b, twt.getB(), 0.0);
+        final double g = 2.0;
+        assertTrue(twt.setG(g) instanceof AbstractAdapter<?>);
+        assertEquals(g, twt.getG(), 0.0);
+        final double x = 4.0;
+        assertTrue(twt.setX(x) instanceof AbstractAdapter<?>);
+        assertEquals(x, twt.getX(), 0.0);
+        final double ratedU1 = 8.0;
+        assertTrue(twt.setRatedU1(ratedU1) instanceof AbstractAdapter<?>);
+        assertEquals(ratedU1, twt.getRatedU1(), 0.0);
+        final double ratedU2 = 16.0;
+        assertTrue(twt.setRatedU2(ratedU2) instanceof AbstractAdapter<?>);
+        assertEquals(ratedU2, twt.getRatedU2(), 0.0);
+
+        assertEquals(substation.getTwoWindingsTransformerStream().count(), substation.getTwoWindingsTransformerCount());
+
+        assertEquals(2, twt.getTerminals().size());
+        assertEquals(twt.getTerminal1(), twt.getTerminal(Side.ONE));
+        assertEquals(twt.getTerminal2(), twt.getTerminal(Side.TWO));
+        assertEquals(Side.ONE, twt.getSide(twt.getTerminal1()));
+        assertEquals(Side.TWO, twt.getSide(twt.getTerminal2()));
+        assertEquals(twt.getTerminal1(), twt.getTerminal("vl1"));
+        assertEquals(twt.getTerminal2(), twt.getTerminal("vl2"));
+        final CurrentLimits currentLimits1 = twt.newCurrentLimits1()
+                .setPermanentLimit(100)
+                .beginTemporaryLimit()
+                .setName("5'")
+                .setAcceptableDuration(5 * 60)
+                .setValue(1400)
+                .endTemporaryLimit()
+                .add();
+        final CurrentLimits currentLimits2 = twt.newCurrentLimits2()
+                .setPermanentLimit(50)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200)
+                .endTemporaryLimit()
+                .add();
+        assertFalse(currentLimits1 instanceof AbstractAdapter<?>);
+        assertFalse(currentLimits2 instanceof AbstractAdapter<?>);
+        assertEquals(twt.getCurrentLimits(Side.ONE), twt.getCurrentLimits1());
+        assertEquals(twt.getCurrentLimits(Side.TWO), twt.getCurrentLimits2());
+        assertFalse(twt.isOverloaded());
+        assertFalse(twt.isOverloaded(0.0f));
+        assertEquals(Integer.MAX_VALUE, twt.getOverloadDuration());
+
+        assertFalse(twt.checkPermanentLimit(Branch.Side.ONE));
+        assertFalse(twt.checkPermanentLimit(Branch.Side.ONE, 0.9f));
+        assertFalse(twt.checkPermanentLimit1());
+        assertFalse(twt.checkPermanentLimit1(0.9f));
+        assertNull(twt.checkTemporaryLimits(Branch.Side.ONE, 0.9f));
+        assertNull(twt.checkTemporaryLimits(Branch.Side.ONE));
+        assertNull(twt.checkTemporaryLimits1());
+        assertNull(twt.checkTemporaryLimits1(0.9f));
+
+        assertFalse(twt.checkPermanentLimit(Branch.Side.TWO, 0.9f));
+        assertFalse(twt.checkPermanentLimit(Branch.Side.TWO));
+        assertFalse(twt.checkPermanentLimit2());
+        assertFalse(twt.checkPermanentLimit2(0.9f));
+        assertNull(twt.checkTemporaryLimits(Branch.Side.TWO, 0.9f));
+        assertNull(twt.checkTemporaryLimits(Branch.Side.TWO));
+        assertNull(twt.checkTemporaryLimits2());
+        assertNull(twt.checkTemporaryLimits2(0.9f));
 
         // Not implemented yet !
-        TestUtil.notImplemented(twt::getTerminal1);
-        TestUtil.notImplemented(twt::getTerminal2);
-        TestUtil.notImplemented(() -> twt.getTerminal((Side) null));
-        TestUtil.notImplemented(() -> twt.getTerminal(""));
-        TestUtil.notImplemented(() -> twt.getSide((Terminal) null));
-        TestUtil.notImplemented(() -> twt.getCurrentLimits(null));
-        TestUtil.notImplemented(twt::getCurrentLimits1);
-        TestUtil.notImplemented(twt::newCurrentLimits1);
-        TestUtil.notImplemented(twt::getCurrentLimits2);
-        TestUtil.notImplemented(twt::newCurrentLimits2);
-        TestUtil.notImplemented(twt::isOverloaded);
-        TestUtil.notImplemented(() -> twt.isOverloaded(0.0f));
-        TestUtil.notImplemented(twt::getOverloadDuration);
-        TestUtil.notImplemented(() -> twt.checkPermanentLimit((Side) null, 0.0f));
-        TestUtil.notImplemented(() -> twt.checkPermanentLimit((Side) null));
-        TestUtil.notImplemented(() -> twt.checkPermanentLimit1(0.0f));
-        TestUtil.notImplemented(twt::checkPermanentLimit1);
-        TestUtil.notImplemented(() -> twt.checkPermanentLimit2(0.0f));
-        TestUtil.notImplemented(twt::checkPermanentLimit2);
-        TestUtil.notImplemented(() -> twt.checkTemporaryLimits((Side) null, 0.0f));
-        TestUtil.notImplemented(() -> twt.checkTemporaryLimits((Side) null));
-        TestUtil.notImplemented(() -> twt.checkTemporaryLimits1(0.0f));
-        TestUtil.notImplemented(twt::checkTemporaryLimits1);
-        TestUtil.notImplemented(() -> twt.checkTemporaryLimits2(0.0f));
-        TestUtil.notImplemented(twt::checkTemporaryLimits2);
-        TestUtil.notImplemented(twt::getType);
-        TestUtil.notImplemented(twt::getTerminals);
         TestUtil.notImplemented(twt::remove);
-        TestUtil.notImplemented(twt::newRatioTapChanger);
-        TestUtil.notImplemented(twt::newPhaseTapChanger);
-        TestUtil.notImplemented(twt::getSubstation);
-        TestUtil.notImplemented(twt::getR);
-        TestUtil.notImplemented(() -> twt.setR(0.0d));
-        TestUtil.notImplemented(twt::getX);
-        TestUtil.notImplemented(() -> twt.setX(0.0d));
-        TestUtil.notImplemented(twt::getG);
-        TestUtil.notImplemented(() -> twt.setG(0.0d));
-        TestUtil.notImplemented(twt::getB);
-        TestUtil.notImplemented(() -> twt.setB(0.0d));
-        TestUtil.notImplemented(twt::getRatedU1);
-        TestUtil.notImplemented(() -> twt.setRatedU1(0.0d));
-        TestUtil.notImplemented(twt::getRatedU2);
-        TestUtil.notImplemented(() -> twt.setRatedU2(0.0d));
     }
 }

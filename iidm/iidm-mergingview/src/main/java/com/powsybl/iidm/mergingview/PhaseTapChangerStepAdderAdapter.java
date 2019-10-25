@@ -14,45 +14,55 @@ import com.powsybl.iidm.network.PhaseTapChangerAdder.StepAdder;
  */
 public class PhaseTapChangerStepAdderAdapter extends AbstractAdapter<PhaseTapChangerAdder.StepAdder> implements PhaseTapChangerAdder.StepAdder {
 
-    protected PhaseTapChangerStepAdderAdapter(final StepAdder delegate, final MergingViewIndex index) {
+    private final PhaseTapChangerAdderAdapter parentDelegate;
+
+    protected PhaseTapChangerStepAdderAdapter(final PhaseTapChangerAdderAdapter parentDelegate, final StepAdder delegate, final MergingViewIndex index) {
         super(delegate, index);
-    }
-
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
-    @Override
-    public PhaseTapChangerStepAdderAdapter setAlpha(final double alpha) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public PhaseTapChangerStepAdderAdapter setRho(final double rho) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public PhaseTapChangerStepAdderAdapter setR(final double r) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public PhaseTapChangerStepAdderAdapter setX(final double x) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public PhaseTapChangerStepAdderAdapter setG(final double g) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public PhaseTapChangerStepAdderAdapter setB(final double b) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        this.parentDelegate = parentDelegate;
     }
 
     @Override
     public PhaseTapChangerAdderAdapter endStep() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().endStep();
+        return parentDelegate;
+    }
+
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
+    @Override
+    public PhaseTapChangerStepAdderAdapter setAlpha(final double alpha) {
+        getDelegate().setAlpha(alpha);
+        return this;
+    }
+
+    @Override
+    public PhaseTapChangerStepAdderAdapter setRho(final double rho) {
+        getDelegate().setRho(rho);
+        return this;
+    }
+
+    @Override
+    public PhaseTapChangerStepAdderAdapter setR(final double r) {
+        getDelegate().setR(r);
+        return this;
+    }
+
+    @Override
+    public PhaseTapChangerStepAdderAdapter setX(final double x) {
+        getDelegate().setX(x);
+        return this;
+    }
+
+    @Override
+    public PhaseTapChangerStepAdderAdapter setG(final double g) {
+        getDelegate().setG(g);
+        return this;
+    }
+
+    @Override
+    public PhaseTapChangerStepAdderAdapter setB(final double b) {
+        getDelegate().setB(b);
+        return this;
     }
 }

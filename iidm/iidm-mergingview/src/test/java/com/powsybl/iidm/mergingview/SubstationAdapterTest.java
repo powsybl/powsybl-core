@@ -18,8 +18,11 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.ContainerType;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,17 +42,17 @@ public class SubstationAdapterTest {
     @Test
     public void baseTests() {
         // adder
-        final Substation substation = mergingView.newSubstation()
-                .setId("sub")
-                .setName("sub_name")
+        Substation substation = mergingView.newSubstation()
+                .setId("subAdapted")
+                .setName("subAdapted_name")
                 .setCountry(Country.AD)
                 .setTso("TSO")
                 .setEnsureIdUnicity(false)
                 .setGeographicalTags("geoTag1", "geoTag2")
                 .add();
         assertTrue(substation instanceof SubstationAdapter);
-        assertEquals("sub", substation.getId());
-        assertEquals("sub_name", substation.getName());
+        assertEquals("subAdapted", substation.getId());
+        assertEquals("subAdapted_name", substation.getName());
         assertEquals(Country.AD, substation.getCountry().orElse(null));
         assertEquals("TSO", substation.getTso());
         assertEquals(ContainerType.SUBSTATION, substation.getContainerType());
@@ -100,12 +103,59 @@ public class SubstationAdapterTest {
         assertTrue(substation.getVoltageLevelStream().findAny().isPresent());
         assertSame(v1, substation.getVoltageLevels().iterator().next());
 
-        // Not implemented yet !
-        TestUtil.notImplemented(substation::newTwoWindingsTransformer);
-        TestUtil.notImplemented(substation::getTwoWindingsTransformers);
-        TestUtil.notImplemented(substation::getTwoWindingsTransformerStream);
-        TestUtil.notImplemented(substation::newThreeWindingsTransformer);
-        TestUtil.notImplemented(substation::getThreeWindingsTransformers);
-        TestUtil.notImplemented(substation::getThreeWindingsTransformerStream);
+        // TwoWindingsTransformer
+        mergingView.merge(NoEquipmentNetworkFactory.create());
+        substation = mergingView.getSubstation("sub");
+        final TwoWindingsTransformer t2wt = substation.newTwoWindingsTransformer()
+                .setId("2wt")
+                .setName("twt_name")
+                .setEnsureIdUnicity(false)
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setRatedU1(5.0)
+                .setRatedU2(6.0)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setBus1("busA")
+                .setConnectableBus1("busA")
+                .setBus2("busB")
+                .setConnectableBus2("busB")
+                .add();
+        assertSame(t2wt, substation.getTwoWindingsTransformers().iterator().next());
+
+        // TwoWindingsTransformer
+        final ThreeWindingsTransformer t3wt = substation.newThreeWindingsTransformer()
+                .setId("3wt")
+                .setName("twtName")
+                .setEnsureIdUnicity(false)
+                .newLeg1()
+                .setR(1.3)
+                .setX(1.4)
+                .setG(1.6)
+                .setB(1.7)
+                .setRatedU(1.1)
+                .setVoltageLevel("vl1")
+                .setConnectableBus("busA")
+                .setBus("busA")
+                .add()
+                .newLeg2()
+                .setR(2.03)
+                .setX(2.04)
+                .setRatedU(2.05)
+                .setVoltageLevel("vl2")
+                .setConnectableBus("busB")
+                .add()
+                .newLeg3()
+                .setR(3.3)
+                .setX(3.4)
+                .setRatedU(3.5)
+                .setVoltageLevel("vl2")
+                .setBus("busB")
+                .setConnectableBus("busB")
+                .add()
+                .add();
+        assertSame(t3wt, substation.getThreeWindingsTransformers().iterator().next());
     }
 }

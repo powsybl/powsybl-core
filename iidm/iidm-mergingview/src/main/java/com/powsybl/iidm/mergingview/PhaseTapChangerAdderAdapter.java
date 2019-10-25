@@ -19,46 +19,62 @@ public class PhaseTapChangerAdderAdapter extends AbstractAdapter<PhaseTapChanger
         super(delegate, index);
     }
 
+    @Override
+    public PhaseTapChangerAdapter add() {
+        return getIndex().getPhaseTapChanger(getDelegate().add());
+    }
+
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public PhaseTapChangerAdderAdapter setLowTapPosition(final int lowTapPosition) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setLowTapPosition(lowTapPosition);
+        return this;
     }
 
     @Override
     public PhaseTapChangerAdderAdapter setTapPosition(final int tapPosition) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setTapPosition(tapPosition);
+        return this;
     }
 
     @Override
     public PhaseTapChangerAdderAdapter setRegulating(final boolean regulating) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRegulating(regulating);
+        return this;
     }
 
     @Override
     public PhaseTapChangerAdderAdapter setRegulationMode(final RegulationMode regulationMode) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRegulationMode(regulationMode);
+        return this;
     }
 
     @Override
     public PhaseTapChangerAdderAdapter setRegulationValue(final double regulationValue) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRegulationValue(regulationValue);
+        return this;
     }
 
     @Override
     public PhaseTapChangerAdderAdapter setRegulationTerminal(final Terminal regulationTerminal) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        // PhaseTapChangerAdderImpl.setRegulationTerminal is casting parameter to
+        // TerminalExt
+        // So, we need to check if parameter is adapted or not
+        final boolean isAdapted = regulationTerminal instanceof AbstractAdapter<?>;
+        getDelegate().setRegulationTerminal(isAdapted ? ((AbstractAdapter<Terminal>) regulationTerminal).getDelegate() : regulationTerminal);
+        return this;
+    }
+
+    @Override
+    public PhaseTapChangerAdderAdapter setTargetDeadband(final double targetDeadband) {
+        getDelegate().setTargetDeadband(targetDeadband);
+        return this;
     }
 
     @Override
     public PhaseTapChangerStepAdderAdapter beginStep() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public PhaseTapChangerAdapter add() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new PhaseTapChangerStepAdderAdapter(this, getDelegate().beginStep(), getIndex());
     }
 }

@@ -7,6 +7,7 @@
 package com.powsybl.iidm.mergingview;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.CurrentLimits;
@@ -33,222 +34,236 @@ public class TwoWindingsTransformerAdapter extends AbstractIdentifiableAdapter<T
         return getIndex().getRatioTapChanger(getDelegate().getRatioTapChanger());
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
     public TerminalAdapter getTerminal1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getTerminal(getDelegate().getTerminal1());
     }
 
     @Override
     public TerminalAdapter getTerminal2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getTerminal(getDelegate().getTerminal2());
     }
 
     @Override
     public TerminalAdapter getTerminal(final Side side) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getTerminal(getDelegate().getTerminal(side));
     }
 
     @Override
     public TerminalAdapter getTerminal(final String voltageLevelId) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getTerminal(getDelegate().getTerminal(voltageLevelId));
     }
 
     @Override
     public Side getSide(final Terminal terminal) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public CurrentLimits getCurrentLimits(final Side side) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public CurrentLimits getCurrentLimits1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public CurrentLimitsAdder newCurrentLimits1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public CurrentLimits getCurrentLimits2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public CurrentLimitsAdder newCurrentLimits2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean isOverloaded() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean isOverloaded(final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getOverloadDuration() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean checkPermanentLimit(final Side side, final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean checkPermanentLimit(final Side side) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean checkPermanentLimit1(final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean checkPermanentLimit1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean checkPermanentLimit2(final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean checkPermanentLimit2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Overload checkTemporaryLimits(final Side side, final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Overload checkTemporaryLimits(final Side side) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Overload checkTemporaryLimits1(final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Overload checkTemporaryLimits1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Overload checkTemporaryLimits2(final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Overload checkTemporaryLimits2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ConnectableType getType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        Terminal param = terminal;
+        if (terminal instanceof AbstractAdapter<?>) {
+            param = ((AbstractAdapter<Terminal>) terminal).getDelegate();
+        }
+        return getDelegate().getSide(param);
     }
 
     @Override
     public List<? extends TerminalAdapter> getTerminals() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getTerminals().stream()
+                .map(getIndex()::getTerminal)
+                .collect(Collectors.toList());
     }
 
     @Override
     public RatioTapChangerAdderAdapter newRatioTapChanger() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new RatioTapChangerAdderAdapter(getDelegate().newRatioTapChanger(), getIndex());
     }
 
     @Override
     public PhaseTapChangerAdderAdapter newPhaseTapChanger() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new PhaseTapChangerAdderAdapter(getDelegate().newPhaseTapChanger(), getIndex());
     }
 
     @Override
     public SubstationAdapter getSubstation() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getSubstation(getDelegate().getSubstation());
+    }
+
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
+    @Override
+    public CurrentLimits getCurrentLimits(final Side side) {
+        return getDelegate().getCurrentLimits(side);
+    }
+
+    @Override
+    public CurrentLimits getCurrentLimits1() {
+        return getDelegate().getCurrentLimits1();
+    }
+
+    @Override
+    public CurrentLimitsAdder newCurrentLimits1() {
+        return getDelegate().newCurrentLimits1();
+    }
+
+    @Override
+    public CurrentLimits getCurrentLimits2() {
+        return getDelegate().getCurrentLimits2();
+    }
+
+    @Override
+    public CurrentLimitsAdder newCurrentLimits2() {
+        return getDelegate().newCurrentLimits2();
+    }
+
+    @Override
+    public boolean isOverloaded() {
+        return getDelegate().isOverloaded();
+    }
+
+    @Override
+    public boolean isOverloaded(final float limitReduction) {
+        return getDelegate().isOverloaded(limitReduction);
+    }
+
+    @Override
+    public int getOverloadDuration() {
+        return getDelegate().getOverloadDuration();
+    }
+
+    @Override
+    public boolean checkPermanentLimit(final Side side, final float limitReduction) {
+        return getDelegate().checkPermanentLimit(side, limitReduction);
+    }
+
+    @Override
+    public boolean checkPermanentLimit(final Side side) {
+        return getDelegate().checkPermanentLimit(side);
+    }
+
+    @Override
+    public boolean checkPermanentLimit1(final float limitReduction) {
+        return getDelegate().checkPermanentLimit1(limitReduction);
+    }
+
+    @Override
+    public boolean checkPermanentLimit1() {
+        return getDelegate().checkPermanentLimit1();
+    }
+
+    @Override
+    public boolean checkPermanentLimit2(final float limitReduction) {
+        return getDelegate().checkPermanentLimit2(limitReduction);
+    }
+
+    @Override
+    public boolean checkPermanentLimit2() {
+        return getDelegate().checkPermanentLimit2();
+    }
+
+    @Override
+    public Overload checkTemporaryLimits(final Side side, final float limitReduction) {
+        return getDelegate().checkTemporaryLimits(side, limitReduction);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits(final Side side) {
+        return getDelegate().checkTemporaryLimits(side);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits1(final float limitReduction) {
+        return getDelegate().checkTemporaryLimits1(limitReduction);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits1() {
+        return getDelegate().checkTemporaryLimits1();
+    }
+
+    @Override
+    public Overload checkTemporaryLimits2(final float limitReduction) {
+        return getDelegate().checkTemporaryLimits2(limitReduction);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits2() {
+        return getDelegate().checkTemporaryLimits2();
+    }
+
+    @Override
+    public ConnectableType getType() {
+        return getDelegate().getType();
     }
 
     @Override
     public double getR() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getR();
     }
 
     @Override
     public TwoWindingsTransformerAdapter setR(final double r) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setR(r);
+        return this;
     }
 
     @Override
     public double getX() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getX();
     }
 
     @Override
     public TwoWindingsTransformerAdapter setX(final double x) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setX(x);
+        return this;
     }
 
     @Override
     public double getG() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getG();
     }
 
     @Override
     public TwoWindingsTransformerAdapter setG(final double g) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setG(g);
+        return this;
     }
 
     @Override
     public double getB() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getB();
     }
 
     @Override
     public TwoWindingsTransformerAdapter setB(final double b) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setB(b);
+        return this;
     }
 
     @Override
     public double getRatedU1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getRatedU1();
     }
 
     @Override
     public TwoWindingsTransformerAdapter setRatedU1(final double ratedU1) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRatedU1(ratedU1);
+        return this;
     }
 
     @Override
     public double getRatedU2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getRatedU2();
     }
 
     @Override
     public TwoWindingsTransformerAdapter setRatedU2(final double ratedU2) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRatedU2(ratedU2);
+        return this;
     }
 
+    // -------------------------------
+    // Not implemented methods -------
+    // -------------------------------
+    @Override
+    public void remove() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
 }

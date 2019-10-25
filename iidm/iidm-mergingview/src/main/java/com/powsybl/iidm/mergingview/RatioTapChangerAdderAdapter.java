@@ -18,46 +18,61 @@ public class RatioTapChangerAdderAdapter extends AbstractAdapter<RatioTapChanger
         super(delegate, index);
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
-    public RatioTapChangerAdderAdapter setLowTapPosition(final int lowTapPosition) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public RatioTapChangerAdderAdapter setTapPosition(final int tapPosition) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public RatioTapChangerAdderAdapter setLoadTapChangingCapabilities(final boolean loadTapChangingCapabilities) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public RatioTapChangerAdderAdapter setRegulating(final boolean regulating) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public RatioTapChangerAdderAdapter setTargetV(final double targetV) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public RatioTapChangerAdapter add() {
+        return getIndex().getRatioTapChanger(getDelegate().add());
     }
 
     @Override
     public RatioTapChangerAdderAdapter setRegulationTerminal(final Terminal regulationTerminal) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        // RatioTapChangerAdderImpl.setRegulationTerminal is casting parameter to TerminalExt
+        // So, we need to check if parameter is adapted or not
+        final boolean isAdapted = regulationTerminal instanceof AbstractAdapter<?>;
+        getDelegate().setRegulationTerminal(isAdapted ? ((AbstractAdapter<Terminal>) regulationTerminal).getDelegate() : regulationTerminal);
+        return this;
+    }
+
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
+    @Override
+    public RatioTapChangerAdderAdapter setLowTapPosition(final int lowTapPosition) {
+        getDelegate().setLowTapPosition(lowTapPosition);
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerAdderAdapter setTapPosition(final int tapPosition) {
+        getDelegate().setTapPosition(tapPosition);
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerAdderAdapter setLoadTapChangingCapabilities(final boolean loadTapChangingCapabilities) {
+        getDelegate().setLoadTapChangingCapabilities(loadTapChangingCapabilities);
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerAdderAdapter setRegulating(final boolean regulating) {
+        getDelegate().setRegulating(regulating);
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerAdderAdapter setTargetV(final double targetV) {
+        getDelegate().setTargetV(targetV);
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerAdderAdapter setTargetDeadband(final double targetDeadband) {
+        getDelegate().setTargetDeadband(targetDeadband);
+        return this;
     }
 
     @Override
     public RatioTapChangerStepAdderAdapter beginStep() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public RatioTapChangerAdapter add() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new RatioTapChangerStepAdderAdapter(this, getDelegate().beginStep(), getIndex());
     }
 }

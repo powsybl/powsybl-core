@@ -17,97 +17,113 @@ public class TwoWindingsTransformerAdderAdapter extends AbstractAdapter<TwoWindi
         super(delegate, index);
     }
 
+    @Override
+    public TwoWindingsTransformerAdapter add() {
+        return getIndex().getTwoWindingsTransformer(getDelegate().add());
+    }
+
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public TwoWindingsTransformerAdderAdapter setVoltageLevel1(final String voltageLevelId1) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setVoltageLevel1(voltageLevelId1);
+        return this;
     }
 
     @Override
     public TwoWindingsTransformerAdderAdapter setNode1(final int node1) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setNode1(node1);
+        return this;
     }
 
     @Override
     public TwoWindingsTransformerAdderAdapter setBus1(final String bus1) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setBus1(bus1);
+        return this;
     }
 
     @Override
     public TwoWindingsTransformerAdderAdapter setConnectableBus1(final String connectableBus1) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setConnectableBus1(connectableBus1);
+        return this;
     }
 
     @Override
     public TwoWindingsTransformerAdderAdapter setVoltageLevel2(final String voltageLevelId2) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setVoltageLevel2(voltageLevelId2);
+        return this;
     }
 
     @Override
     public TwoWindingsTransformerAdderAdapter setNode2(final int node2) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setNode2(node2);
+        return this;
     }
 
     @Override
     public TwoWindingsTransformerAdderAdapter setBus2(final String bus2) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setBus2(bus2);
+        return this;
     }
 
     @Override
     public TwoWindingsTransformerAdderAdapter setConnectableBus2(final String connectableBus2) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setConnectableBus2(connectableBus2);
+        return this;
     }
 
     @Override
     public TwoWindingsTransformerAdderAdapter setId(final String id) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setId(id);
+        return this;
     }
 
     @Override
     public TwoWindingsTransformerAdderAdapter setEnsureIdUnicity(final boolean ensureIdUnicity) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setEnsureIdUnicity(ensureIdUnicity);
+        return this;
     }
 
     @Override
     public TwoWindingsTransformerAdderAdapter setName(final String name) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setName(name);
+        return this;
     }
 
     @Override
     public TwoWindingsTransformerAdderAdapter setR(final double r) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setR(r);
+        return this;
     }
 
     @Override
     public TwoWindingsTransformerAdderAdapter setX(final double x) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setX(x);
+        return this;
     }
 
     @Override
     public TwoWindingsTransformerAdderAdapter setB(final double b) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setB(b);
+        return this;
     }
 
     @Override
     public TwoWindingsTransformerAdderAdapter setG(final double g) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setG(g);
+        return this;
     }
 
     @Override
     public TwoWindingsTransformerAdderAdapter setRatedU1(final double ratedU1) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRatedU1(ratedU1);
+        return this;
     }
 
     @Override
     public TwoWindingsTransformerAdderAdapter setRatedU2(final double ratedU2) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRatedU2(ratedU2);
+        return this;
     }
-
-    @Override
-    public TwoWindingsTransformerAdapter add() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
 }

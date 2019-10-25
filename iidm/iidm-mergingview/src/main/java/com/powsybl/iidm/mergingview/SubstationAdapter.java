@@ -43,37 +43,34 @@ class SubstationAdapter extends AbstractIdentifiableAdapter<Substation> implemen
         return Collections.unmodifiableSet(getVoltageLevelStream().collect(Collectors.toSet()));
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
     public TwoWindingsTransformerAdderAdapter newTwoWindingsTransformer() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new TwoWindingsTransformerAdderAdapter(getDelegate().newTwoWindingsTransformer(), getIndex());
     }
 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return Collections.unmodifiableSet(getTwoWindingsTransformerStream().collect(Collectors.toSet()));
     }
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getTwoWindingsTransformerStream().map(getIndex()::getTwoWindingsTransformer);
     }
 
     @Override
     public ThreeWindingsTransformerAdderAdapter newThreeWindingsTransformer() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new ThreeWindingsTransformerAdderAdapter(getDelegate().newThreeWindingsTransformer(), getIndex());
     }
 
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return Collections.unmodifiableSet(getThreeWindingsTransformerStream().collect(Collectors.toSet()));
     }
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getThreeWindingsTransformerStream().map(getIndex()::getThreeWindingsTransformer);
     }
 
     // -------------------------------

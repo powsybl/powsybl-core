@@ -19,61 +19,64 @@ public class Leg2or3Adapter extends AbstractAdapter<ThreeWindingsTransformer.Leg
         super(delegate, index);
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
     public TerminalAdapter getTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getR() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Leg2or3Adapter setR(final double r) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getX() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Leg2or3Adapter setX(final double x) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getRatedU() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Leg2or3Adapter setRatedU(final double ratedU) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public CurrentLimits getCurrentLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public CurrentLimitsAdder newCurrentLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getTerminal(getDelegate().getTerminal());
     }
 
     @Override
     public RatioTapChangerAdderAdapter newRatioTapChanger() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new RatioTapChangerAdderAdapter(getDelegate().newRatioTapChanger(), getIndex());
     }
 
     @Override
     public RatioTapChangerAdapter getRatioTapChanger() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getRatioTapChanger(getDelegate().getRatioTapChanger());
+    }
+
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
+    @Override
+    public double getR() {
+        return getDelegate().getR();
+    }
+
+    @Override
+    public Leg2or3Adapter setR(final double r) {
+        getDelegate().setR(r);
+        return this;
+    }
+
+    @Override
+    public double getX() {
+        return getDelegate().getX();
+    }
+
+    @Override
+    public Leg2or3Adapter setX(final double x) {
+        getDelegate().setX(x);
+        return this;
+    }
+
+    @Override
+    public double getRatedU() {
+        return getDelegate().getRatedU();
+    }
+
+    @Override
+    public Leg2or3Adapter setRatedU(final double ratedU) {
+        getDelegate().setRatedU(ratedU);
+        return this;
+    }
+
+    @Override
+    public CurrentLimits getCurrentLimits() {
+        return getDelegate().getCurrentLimits();
+    }
+
+    @Override
+    public CurrentLimitsAdder newCurrentLimits() {
+        return getDelegate().newCurrentLimits();
     }
 }
