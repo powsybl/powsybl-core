@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 
-public class TestIssues {
+public class IssuesTest {
 
     @Test
     public void testFixIdentifiablesEquivalentIfBothNull() {
@@ -36,7 +36,7 @@ public class TestIssues {
         c.compare();
     }
 
-    private Network createNetwork() {
+    private static Network createNetwork() {
         // For the buses to be valid they have to be connected to at least one branch
         Network network = Network.create("test", "test");
         Substation s1 = network.newSubstation()
