@@ -81,50 +81,6 @@ public class RegulatingControlMapping {
         cachedRegulatingControls.put(p.getId(REGULATING_CONTROL), new RegulatingControl(p));
     }
 
-    public void setRegulatingControl(PropertyBag p, Terminal defaultTerminal, RatioTapChangerAdder adder) {
-        if (p.containsKey(TAP_CHANGER_CONTROL)) {
-            String controlId = p.getId(TAP_CHANGER_CONTROL);
-            RegulatingControl control = cachedRegulatingControls.get(controlId);
-            if (control != null) {
-                if (control.mode.endsWith(VOLTAGE) || (p.containsKey("tculControlMode") && p.get("tculControlMode").endsWith("volt"))) {
-                    addRegulatingControlVoltage(p, control, adder, defaultTerminal, context);
-                    return;
-                } else if (!control.mode.endsWith("fixed")) {
-                    context.fixed(control.mode, "Unsupported regulation mode for Ratio tap changer. Considered as a fixed ratio tap changer.");
-                }
-            } else {
-                context.missing(String.format(REGULATING_CONTROL_REF, controlId));
-            }
-        }
-        adder.setLoadTapChangingCapabilities(false);
-    }
-
-    private void addRegulatingControlVoltage(PropertyBag p, RegulatingControl control, RatioTapChangerAdder adder, Terminal defaultTerminal, Context context) {
-        // Even if regulating is false, we reset the target voltage if it is not valid
-        if (control.targetValue <= 0) {
-            context.ignored(p.getId(TAP_CHANGER_CONTROL), String.format("Regulating control has a bad target voltage %f", control.targetValue));
-            adder.setRegulating(false)
-                    .setTargetV(Double.NaN);
-        } else {
-            adder.setRegulating(control.enabled || p.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false))
-                    .setTargetDeadband(control.targetDeadband)
-                    .setTargetV(control.targetValue);
-        }
-        setRegulatingTerminal(p, control, defaultTerminal, adder);
-    }
-
-    private void setRegulatingTerminal(PropertyBag p, RegulatingControl control, Terminal defaultTerminal, RatioTapChangerAdder adder) {
-        if (context.terminalMapping().find(control.cgmesTerminal) != null) {
-            adder.setRegulationTerminal(context.terminalMapping().find(control.cgmesTerminal));
-            control.idsEq.put(p.getId("RatioTapChanger"), true);
-        } else {
-            adder.setRegulationTerminal(defaultTerminal);
-            if (!context.terminalMapping().areAssociated(p.getId(TERMINAL), control.topologicalNode)) {
-                control.idsEq.put(p.getId("RatioTapChanger"), false);
-            }
-        }
-    }
-
     public void setRegulatingControl(String idEq, PropertyBag p, StaticVarCompensatorAdder adder) {
         if (!p.asBoolean("controlEnabled", false)) {
             adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
