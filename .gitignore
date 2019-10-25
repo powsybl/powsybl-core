@@ -41,6 +41,7 @@
 /entsoe-util/target/
 /iidm/target/
 /iidm/iidm-api/target
+/iidm/iidm-comparator/target/
 /iidm/iidm-converter-api/target/
 /iidm/iidm-extensions/target/
 /iidm/iidm-impl/target/
