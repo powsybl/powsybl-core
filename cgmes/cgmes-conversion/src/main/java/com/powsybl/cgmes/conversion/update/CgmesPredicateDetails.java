@@ -2,8 +2,8 @@ package com.powsybl.cgmes.conversion.update;
 
 /**
  * The Class CgmesPredicateDetails contains details we need to know to construct
- * a triple: the predicate name, the triplestrore context, if the value is
- * Literal or a node, and the new Subject if we need to create new element (e.g
+ * a triple: the predicate name, the triplestore context, if the value is node or
+ * Literal, and the new Subject if we need to create new element (e.g
  * transformer end)
  */
 public class CgmesPredicateDetails {

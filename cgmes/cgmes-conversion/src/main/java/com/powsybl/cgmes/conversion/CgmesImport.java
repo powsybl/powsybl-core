@@ -10,7 +10,7 @@ package com.powsybl.cgmes.conversion;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
-import com.powsybl.cgmes.conversion.update.CgmesUpdater;
+import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
@@ -104,7 +104,7 @@ public class CgmesImport implements Importer {
             // Store a reference to the original CGMES model inside the IIDM network
             // We could also add listeners to be aware of changes in IIDM data
             // CgmesUpdater contains the listener
-            CgmesUpdater cgmesUpdater = new CgmesUpdater(network);
+            CgmesUpdate cgmesUpdater = new CgmesUpdate(network);
             network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes, cgmesUpdater));
         }
         return network;

@@ -10,7 +10,6 @@ package com.powsybl.cgmes.model.triplestore;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -27,7 +26,6 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
@@ -439,35 +437,27 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags updateCgmes(String context, Map<String, String> cgmesChanges,
-        String instanceClassOfIidmChange) {
+    public PropertyBags updateCgmes(String queryName, String context, String baseName, Map<String, String> cgmesChanges) {
         Objects.requireNonNull(cimNamespace);
         String subject = cgmesChanges.get("cgmesSubject");
         String predicate = cgmesChanges.get("cgmesPredicate");
         String value = cgmesChanges.get("cgmesNewValue");
         String valueIsNode = cgmesChanges.get("valueIsNode");
 
-        List<PrefixNamespace> prefixes = tripleStore.getNamespaces();
-        String resource = "#";
-        for (PrefixNamespace px : prefixes) {
-            String g = px.getPrefix();
-            if (px.getPrefix().equals("data")) {
-                resource = px.getNamespace();
-            }
-        }
-        LOG.info("\n*****{}, {}, {}, {}******", context, subject, predicate, value);
-        if (instanceClassOfIidmChange.equals("IidmChangeOnUpdate")) {
-            namedQueryFordUpdate("updateCgmesfromIidm", context, subject, predicate, value, resource,
-                cimNamespace, valueIsNode);
-        } else if (instanceClassOfIidmChange.equals("IidmChangeOnCreate")) {
-            namedQueryFordUpdate("updateCgmesfromIidmCreate", context, subject, predicate, value, resource,
-                cimNamespace, valueIsNode);
-        } else if (instanceClassOfIidmChange.equals("IidmChangeOnRemove")) {
-            namedQueryFordUpdate("updateCgmesfromIidmRemove", context, subject);
-        }
-        PropertyBags r = namedQuery("checkCgmesUpdated", context, subject);
+        LOG.info("\n*****{},{}, {}, {}, {}******", context, setBaseUri(baseName), subject, predicate, value);
 
-        return r;
+        namedQueryUpdate(queryName, context, subject, predicate, value, setBaseUri(baseName),
+            cimNamespace, valueIsNode);
+
+        return namedQuery("checkCgmesUpdated", context, subject);
+    }
+
+    private String setBaseUri(String baseName) {
+        if (tripleStore.getImplementationName().equals("rdf4j")) {
+            return baseName + "/#";
+        } else {
+            return baseName + "#";
+        }
     }
 
     public PropertyBags namedQuery(String name, String... params) {
@@ -489,16 +479,13 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         return r;
     }
 
-    public void namedQueryFordUpdate(String name, String... params) {
+    public void namedQueryUpdate(String name, String... params) {
         String queryText = queryCatalog.get(name);
         if (queryText == null) {
             LOG.warn("Query [{}] not found in catalog", name);
         }
         queryText = injectParams(queryText, params);
-        final long t0 = System.currentTimeMillis();
         update(queryText);
-        final long t1 = System.currentTimeMillis();
-        LOG.info("Query {} took {} ms", name, t1 - t0);
     }
 
     @Override

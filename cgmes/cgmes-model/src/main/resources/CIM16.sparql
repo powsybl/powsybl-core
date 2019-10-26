@@ -880,7 +880,7 @@ WHERE {
 }}
 }
 
-# query: updateCgmesfromIidm
+# query: updateCgmes
 DELETE { GRAPH <{0}>
 	{ ?subject ?predicate ?value }
 	}
@@ -906,7 +906,7 @@ WHERE
     }
 }
 
-# query: updateCgmesfromIidmCreate
+# query: updateCgmesCreate
 # this will construct resource iri for subject ID;
 # it will add cim prefix if required, and 
 # create value as object or literal, depending on the "valueIsNode".
@@ -926,7 +926,7 @@ WHERE {
     }}
 }
 
-# query: updateCgmesfromIidmRemove
+# query: updateCgmesRemove
 
 # query: checkCgmesUpdated
 SELECT ?subject  ?predicate  ?value 

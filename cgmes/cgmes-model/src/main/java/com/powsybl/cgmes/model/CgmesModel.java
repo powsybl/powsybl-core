@@ -128,7 +128,7 @@ public interface CgmesModel {
 
     public void clone(CgmesModel cgmes);
 
-    PropertyBags updateCgmes(String context, Map<String, String> cgmesChanges, String changeInstanceName);
+    PropertyBags updateCgmes(String queryName, String context, String baseName, Map<String, String> cgmesChanges);
 
     String getCimNamespace();
 

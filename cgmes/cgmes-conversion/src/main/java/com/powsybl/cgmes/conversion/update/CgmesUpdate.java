@@ -13,9 +13,9 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBags;
 
-public class CgmesUpdater {
+public class CgmesUpdate {
 
-    public CgmesUpdater(Network network) {
+    public CgmesUpdate(Network network) {
         this.network = network;
         this.changes = new ArrayList<>();
         ChangesListener changeListener = new ChangesListener(changes);
@@ -31,9 +31,7 @@ public class CgmesUpdater {
 
         String cimNamespace = cgmes.getCimNamespace();
         String cimVersion = cimNamespace.substring(cimNamespace.lastIndexOf("cim"));
-
         for (IidmChange change : changes) {
-
             if (change.getVariant() == null || change.getVariant().equals(variantId)) {
 
                 List<CgmesPredicateDetails> allCgmesDetails = iidmToCgmes(cimVersion, change, cgmes).convert();
@@ -45,15 +43,13 @@ public class CgmesUpdater {
                     CgmesPredicateDetails entry = (CgmesPredicateDetails) entries.next();
                     try {
                         for (String context : cgmes.tripleStore().contextNames()) {
-
-                            String currentContext = entry.getContext();
                             // TODO elena : will need to add a logic to find the right context
-                            if (context.toUpperCase().contains(currentContext.toUpperCase())
+                            if (context.toUpperCase().contains(entry.getContext().toUpperCase())
                                 && !context.toUpperCase().contains("BD")
                                 && !context.toUpperCase().contains("BOUNDARY")) {
 
-                                PropertyBags result = cgmes.updateCgmes(context, getCgmesChanges(entry, change),
-                                    instanceClassOfIidmChange(change));
+                                PropertyBags result = cgmes.updateCgmes(context, cgmes.getBaseName(),
+                                    getCgmesChanges(entry, change), queryName(change));
 
                                 LOG.info(result.tabulate());
                             }
@@ -67,9 +63,21 @@ public class CgmesUpdater {
         }
     }
 
+    private String queryName(IidmChange change) {
+        String queryName = null;
+        if (change instanceof IidmChangeOnUpdate) {
+            queryName = "updateCgmes";
+        } else if (change instanceof IidmChangeOnCreate) {
+            queryName = "updateCgmesCreate";
+        } else if (change instanceof IidmChangeOnRemove) {
+            queryName = "updateCgmesRemove";
+        }
+
+        return queryName;
+    }
+
     private AbstractIidmToCgmes iidmToCgmes(String cimVersion, IidmChange change, CgmesModel cgmes) {
         AbstractIidmToCgmes iidmToCgmes = null;
-
         if (cimVersion.equals("cim14#")) {
             iidmToCgmes = new IidmToCgmes14(change, cgmes);
         } else {
@@ -79,7 +87,6 @@ public class CgmesUpdater {
     }
 
     private Map<String, String> getCgmesChanges(CgmesPredicateDetails entry, IidmChange change) {
-
         Map<String, String> cgmesChanges = new HashMap<>();
         cgmesChanges.put("cgmesSubject",
             (entry.getNewSubject() != null) ? entry.getNewSubject() : change.getIdentifiableId());
@@ -90,17 +97,12 @@ public class CgmesUpdater {
         return cgmesChanges;
     }
 
-    private String instanceClassOfIidmChange(IidmChange change) {
-        return change.getClass().getSimpleName();
-    }
-
     public int getNumberOfChanges() {
         return changes.size();
     }
 
     private Network network;
-
     private List<IidmChange> changes;
 
-    private static final Logger LOG = LoggerFactory.getLogger(CgmesUpdater.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesUpdate.class);
 }

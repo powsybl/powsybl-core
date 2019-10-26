@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Properties;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.cgmes.conversion.update.CgmesUpdater;
+import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesModelFactory;
@@ -60,7 +60,7 @@ public class CgmesExport implements Exporter {
 
         String variantId = network.getVariantManager().getWorkingVariantId();
 
-        CgmesUpdater cgmesUpdater = ext.getCgmesUpdater();
+        CgmesUpdate cgmesUpdater = ext.getCgmesUpdater();
         profiling.start();
         if (cgmesUpdater.getNumberOfChanges() > 0) {
             try {

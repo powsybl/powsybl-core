@@ -101,6 +101,7 @@ public final class FakeCgmesModel implements CgmesModel {
         return Mockito.mock(TripleStore.class);
     }
 
+    @Override
     public boolean hasEquipmentCore() {
         return true;
     }
@@ -120,10 +121,12 @@ public final class FakeCgmesModel implements CgmesModel {
         return this;
     }
 
+    @Override
     public boolean isNodeBreaker() {
         return isNodeBreaker;
     }
 
+    @Override
     public boolean hasBoundary() {
         return false;
     }
@@ -543,7 +546,7 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags updateCgmes(String context, Map<String, String> cgmesChange, String instanceClassOfIidmChang) {
+    public PropertyBags updateCgmes(String queryName, String context, String baseName, Map<String, String> cgmesChange) {
         return null;
     }
 
