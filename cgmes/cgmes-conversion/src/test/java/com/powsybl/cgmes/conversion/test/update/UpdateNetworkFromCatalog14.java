@@ -7,7 +7,10 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.VoltageLevel;
 
 public final class UpdateNetworkFromCatalog14 {
     private UpdateNetworkFromCatalog14() {
@@ -18,7 +21,8 @@ public final class UpdateNetworkFromCatalog14 {
          * Test onCreation
          */
 //        Substation substation = network.newSubstation()
-//            .setCountry(Country.FI)
+//            .setCountry(Country.DE)
+//            .setGeographicalTags("_SGR_01")
 //            .setName("BUS   15_SS")
 //            .setId("_BUS____15_SS")
 //            .add();
