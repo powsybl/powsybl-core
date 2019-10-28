@@ -123,21 +123,6 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public BatteryAdderAdapter newBattery() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<Battery> getBatteries() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Battery> getBatteryStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public LoadAdderAdapter newLoad() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
@@ -346,5 +331,20 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public void exportTopology(final Writer writer) throws IOException {
         getDelegate().exportTopology(writer);
+    }
+
+    @Override
+    public BatteryAdderAdapter newBattery() {
+        return new BatteryAdderAdapter(getDelegate().newBattery(), getIndex());
+    }
+
+    @Override
+    public Iterable<Battery> getBatteries() {
+        return getDelegate().getBatteries();
+    }
+
+    @Override
+    public Stream<Battery> getBatteryStream() {
+        return getDelegate().getBatteryStream();
     }
 }

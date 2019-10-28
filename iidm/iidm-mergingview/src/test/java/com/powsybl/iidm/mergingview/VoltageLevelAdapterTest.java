@@ -6,24 +6,17 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
-import com.powsybl.iidm.network.ContainerType;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.network.*;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.*;
+
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class VoltageLevelTest {
+public class VoltageLevelAdapterTest {
 
     private MergingView mergingView;
     private Substation substation;
@@ -72,26 +65,44 @@ public class VoltageLevelTest {
 
         // Bus
         voltageLevel.getBusBreakerView().newBus()
-                .setId("B1")
-                .setName("B1")
-                .setEnsureIdUnicity(false)
-                .add();
+            .setId("B1")
+            .setName("B1")
+            .setEnsureIdUnicity(false)
+            .add();
 
         // VscConverterStation
         final VscConverterStation cs1 = voltageLevel.newVscConverterStation()
-                .setId("C1")
-                .setName("Converter1")
-                .setConnectableBus("B1")
-                .setBus("B1")
-                .setLossFactor(0.011f)
-                .setVoltageSetpoint(405.0)
-                .setVoltageRegulatorOn(true)
-                .setReactivePowerSetpoint(123)
-                .setEnsureIdUnicity(false)
-                .add();
+            .setId("C1")
+            .setName("Converter1")
+            .setConnectableBus("B1")
+            .setBus("B1")
+            .setLossFactor(0.011f)
+            .setVoltageSetpoint(405.0)
+            .setVoltageRegulatorOn(true)
+            .setReactivePowerSetpoint(123)
+            .setEnsureIdUnicity(false)
+            .add();
         assertTrue(cs1 instanceof VscConverterStationAdapter);
         assertTrue(voltageLevel.getVscConverterStations().iterator().hasNext());
         assertEquals(1, voltageLevel.getVscConverterStationCount());
+
+        // Not implemented
+        /* Bus nbat = voltageLevel.getBusBreakerView()
+            .newBus()
+            .setId("NBAT")
+            .add();
+        voltageLevel.newBattery().setId("BAT")
+            .setConnectableBus("NBAT")
+            .setMaxP(9999.99)
+            .setMinP(-9999.99)
+            .setP0(15)
+            .setQ0(-15)
+            .add();
+        Iterable<Battery> batteries = voltageLevel.getBatteries();
+        for (Battery battery : batteries) {
+            assertTrue(battery instanceof BatteryAdapter);
+        }
+        assertEquals(1, voltageLevel.getBatteryCount());*/
 
         // Not implemented yet !
         // Generator
@@ -99,11 +110,6 @@ public class VoltageLevelTest {
         TestUtil.notImplemented(voltageLevel::getGenerators);
         TestUtil.notImplemented(voltageLevel::getGeneratorStream);
         assertEquals(0, voltageLevel.getGeneratorCount());
-        // Battery
-        TestUtil.notImplemented(voltageLevel::newBattery);
-        TestUtil.notImplemented(voltageLevel::getBatteries);
-        TestUtil.notImplemented(voltageLevel::getBatteryStream);
-        assertEquals(0, voltageLevel.getBatteryCount());
         // Load
         TestUtil.notImplemented(voltageLevel::newLoad);
         TestUtil.notImplemented(voltageLevel::getLoads);
