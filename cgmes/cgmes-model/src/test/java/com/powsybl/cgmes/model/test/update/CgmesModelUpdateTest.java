@@ -43,14 +43,13 @@ public class CgmesModelUpdateTest {
         for (String impl : implementations) {
 
             CgmesModel cgmes = load(ds, impl);
-            String baseName = cgmes.getBaseName();
 
             for (String context : cgmes.tripleStore().contextNames()) {
                 if (context.toUpperCase().contains(currentContext.toUpperCase())
                     && !context.toUpperCase().contains("BD")
                     && !context.toUpperCase().contains("BOUNDARY")) {
 
-                    cgmes.updateCgmes("updateCgmes", context, baseName, change());
+                    cgmes.updateCgmes("updateCgmes", context, cgmes.getBaseName(), change());
 
                     PropertyBags actuals = cgmes.terminals();
                     PropertyBags expecteds = expected();
@@ -123,7 +122,6 @@ public class CgmesModelUpdateTest {
         expected.add(p3);
         expected.add(p4);
         expected.add(p5);
-
         p0.put(graph, graphEQValue);
         p1.put(graph, graphEQValue);
         p2.put(graph, graphEQValue);

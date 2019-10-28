@@ -48,8 +48,8 @@ public class CgmesUpdate {
                                 && !context.toUpperCase().contains("BD")
                                 && !context.toUpperCase().contains("BOUNDARY")) {
 
-                                PropertyBags result = cgmes.updateCgmes(context, cgmes.getBaseName(),
-                                    getCgmesChanges(entry, change), queryName(change));
+                                PropertyBags result = cgmes.updateCgmes(queryName(change), context, cgmes.getBaseName(),
+                                    getCgmesChanges(entry, change));
 
                                 LOG.info(result.tabulate());
                             }
