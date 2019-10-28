@@ -69,6 +69,16 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         return getDelegate().getVscConverterStationStream().map(getIndex()::getVscConverterStation);
     }
 
+    @Override
+    public Iterable<Battery> getBatteries() {
+        return getBatteryStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<Battery> getBatteryStream() {
+        return getDelegate().getBatteryStream().map(getIndex()::getBattery);
+    }
+
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
@@ -336,15 +346,5 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public BatteryAdderAdapter newBattery() {
         return new BatteryAdderAdapter(getDelegate().newBattery(), getIndex());
-    }
-
-    @Override
-    public Iterable<Battery> getBatteries() {
-        return getDelegate().getBatteries();
-    }
-
-    @Override
-    public Stream<Battery> getBatteryStream() {
-        return getDelegate().getBatteryStream();
     }
 }

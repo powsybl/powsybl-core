@@ -87,12 +87,8 @@ public class VoltageLevelAdapterTest {
         assertEquals(1, voltageLevel.getVscConverterStationCount());
 
         // Not implemented
-        /* Bus nbat = voltageLevel.getBusBreakerView()
-            .newBus()
-            .setId("NBAT")
-            .add();
         voltageLevel.newBattery().setId("BAT")
-            .setConnectableBus("NBAT")
+            .setConnectableBus("B1")
             .setMaxP(9999.99)
             .setMinP(-9999.99)
             .setP0(15)
@@ -102,7 +98,7 @@ public class VoltageLevelAdapterTest {
         for (Battery battery : batteries) {
             assertTrue(battery instanceof BatteryAdapter);
         }
-        assertEquals(1, voltageLevel.getBatteryCount());*/
+        assertEquals(1, voltageLevel.getBatteryCount());
 
         // Not implemented yet !
         // Generator
