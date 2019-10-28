@@ -46,8 +46,6 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
     @Override
     public void convert() {
         Objects.requireNonNull(converterType);
-        double lossFactor = p.asDouble("lossFactor", 0);
-
         HvdcConverterStation<?> c = null;
         if (converterType.equals(HvdcType.VSC)) {
             VscRegulation vscRegulation = decodeVscRegulation(p.getLocal("qPccControl"));
@@ -58,10 +56,10 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
                 voltageRegulatorOn = true;
                 voltageSetpoint = p.asDouble("targetUpcc");
             } else if (vscRegulation == VscRegulation.REACTIVE_POWER) {
-                reactivePowerSetpoint = p.asDouble("targetQpcc");
+                reactivePowerSetpoint = -p.asDouble("targetQpcc");
             }
             VscConverterStationAdder adder = voltageLevel().newVscConverterStation()
-                    .setLossFactor((float) lossFactor)
+                    .setLossFactor(0.0f) // this attribute will be updated when the HVDC line attached to this station is imported
                     .setVoltageRegulatorOn(voltageRegulatorOn)
                     .setVoltageSetpoint(voltageSetpoint)
                     .setReactivePowerSetpoint(reactivePowerSetpoint);
@@ -69,12 +67,13 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
             connect(adder);
             c = adder.add();
         } else if (converterType.equals(HvdcType.LCC)) {
+
             // TODO: There are two modes of control: dcVoltage and activePower
             // For dcVoltage, setpoint is targetUdc,
             // For activePower, setpoint is targetPpcc
             LccConverterStationAdder adder = voltageLevel().newLccConverterStation()
-                    .setLossFactor((float) lossFactor)
-                    .setPowerFactor((float) 0.8);
+                    .setLossFactor(0.0f)
+                    .setPowerFactor(0.8f);
             identify(adder);
             connect(adder);
             c = adder.add();

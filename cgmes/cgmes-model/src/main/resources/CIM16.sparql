@@ -795,20 +795,28 @@ WHERE {
         cim:ACDCConverter.ratedUdc ?ratedUdc .
     ?Terminal cim:Terminal.ConductingEquipment ?ACDCConverter .
     # ?DCTerminal cim:ACDCConverterDCTerminal.DCConductingEquipment ?ACDCConverter .
-    VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter } .
+    VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter }
+}}
+{ GRAPH ?graphSSH {
+    ?ACDCConverter
+        cim:ACDCConverter.targetPpcc ?targetPpcc ;
+        cim:ACDCConverter.p ?p ;
+        cim:ACDCConverter.q ?q .
+}}
+{ GRAPH ?graphSV {
+    ?ACDCConverter cim:ACDCConverter.poleLossP ?poleLossP
 }}
 # For Current Source Converter
 OPTIONAL {
-	?ACDCConverter a cim:CsConverter . 
+	?ACDCConverter a cim:CsConverter .
    	?ACDCConverter
        	cim:CsConverter.operatingMode ?operatingMode ;
        	cim:CsConverter.pPccControl ?controlMode .
    	OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetUdc ?targetUdc }
-   	OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetPpcc ?targetPpcc }
 }
 # For Voltage Source Converter
-OPTIONAL { 
-	?ACDCConverter a cim:VsConverter . 
+OPTIONAL {
+	?ACDCConverter a cim:VsConverter .
    	?ACDCConverter
        	cim:VsConverter.qPccControl ?qPccControl ;
        	cim:VsConverter.pPccControl ?pPccControl .
