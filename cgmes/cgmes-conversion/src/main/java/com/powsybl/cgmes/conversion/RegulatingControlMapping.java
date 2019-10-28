@@ -23,7 +23,6 @@ public class RegulatingControlMapping {
     static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES topological node: %s";
     private static final String VOLTAGE = "voltage";
     private static final String REGULATING_CONTROL_REF = "Regulating control %s";
-    private static final String TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
 
     private final Context context;
     private final RegulatingControlMappingForGenerators regulatingControlMappingForGenerators;
@@ -194,7 +193,7 @@ public class RegulatingControlMapping {
         setAllRemoteRegulatingTerminals();
 
         regulatingControlMappingForGenerators.applyRegulatingControls(network);
-        regulatingControlMappingForTransformers.applyTwoWindingsTapChangersRegulatingControl(network);
+        regulatingControlMappingForTransformers.applyTapChangersRegulatingControl(network);
 
         cachedRegulatingControls.entrySet().removeIf(entry -> {
             if (entry.getValue().idsEq.isEmpty()) {

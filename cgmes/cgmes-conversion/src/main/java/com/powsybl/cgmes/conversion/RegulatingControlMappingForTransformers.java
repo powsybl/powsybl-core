@@ -96,7 +96,7 @@ public class RegulatingControlMappingForTransformers {
         return rtc;
     }
 
-    void applyTwoWindingsTapChangersRegulatingControl(Network network) {
+    void applyTapChangersRegulatingControl(Network network) {
         network.getTwoWindingsTransformerStream().forEach(this::applyTapChangersRegulatingControl);
         network.getThreeWindingsTransformerStream().forEach(this::applyTapChangersRegulatingControl);
     }
