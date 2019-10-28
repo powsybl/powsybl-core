@@ -120,7 +120,7 @@ public class RegulatingControlMappingForTransformers {
             setPhaseTapChangerControl(rc.phaseTapChanger, ptcControl, twt.getPhaseTapChanger());
             // only one regulatingControl enabled
             if (rc.ratioTapChanger != null && rtcRegulating && twt.getPhaseTapChanger().isRegulating()) {
-                context.fixed(twt.getId(), "Unsupported two regulating controls enabled. Disable the ratioTapChanger");
+                context.fixed(twt.getId(), "Unsupported two regulating controls enabled. Disable ratioTapChanger");
                 rtcRegulating = false;
             }
             setRatioTapChangerControl(rtcRegulating, rc.ratioTapChanger, rtcControl, twt.getRatioTapChanger());
@@ -151,7 +151,7 @@ public class RegulatingControlMappingForTransformers {
             setRatioTapChangerControl(rtcRegulating2, rc.ratioTapChanger2, rtcControl2, twt.getLeg2().getRatioTapChanger());
             // only one regulatingControl enabled
             if (rc.ratioTapChanger2 != null && rtcRegulating3 && twt.getLeg2().getRatioTapChanger().isRegulating()) {
-                context.fixed(twt.getId(), "Unsupported two regulating controls enabled. Disable the ratioTapChanger at Leg3");
+                context.fixed(twt.getId(), "Unsupported two regulating controls enabled. Disable ratioTapChanger at Leg3");
                 rtcRegulating3 = false;
             }
             setRatioTapChangerControl(rtcRegulating3, rc.ratioTapChanger3, rtcControl3, twt.getLeg3().getRatioTapChanger());
