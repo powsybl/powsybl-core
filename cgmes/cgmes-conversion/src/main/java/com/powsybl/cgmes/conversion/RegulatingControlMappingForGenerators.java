@@ -37,11 +37,11 @@ public class RegulatingControlMappingForGenerators {
     }
 
     private void apply(Generator gen) {
-        RegulatingControlForGenerator rd = mapping.get(gen.getId());
+        CgmesRegulatingControlForGenerator rd = mapping.get(gen.getId());
         apply(gen, rd);
     }
 
-    private void apply(Generator gen, RegulatingControlForGenerator rc) {
+    private void apply(Generator gen, CgmesRegulatingControlForGenerator rc) {
         if (rc == null) {
             return;
         }
@@ -59,7 +59,7 @@ public class RegulatingControlMappingForGenerators {
         }
 
         if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
-            RegulatingControlVoltage gcv = getRegulatingControlVoltage(controlId, control, rc.qPercent, gen);
+            RegulatingControlVoltageAttributes gcv = getRegulatingControlVoltage(controlId, control, rc.qPercent, gen);
             apply(gcv, gen);
             if (gcv != null) {
                 control.hasCorrectlySet();
@@ -69,7 +69,7 @@ public class RegulatingControlMappingForGenerators {
         }
     }
 
-    private RegulatingControlVoltage getRegulatingControlVoltage(String controlId,
+    private RegulatingControlVoltageAttributes getRegulatingControlVoltage(String controlId,
         RegulatingControl control, double qPercent, Generator gen) {
 
         // Take default terminal if it has not been defined
@@ -92,7 +92,7 @@ public class RegulatingControlMappingForGenerators {
             voltageRegulatorOn = true;
         }
 
-        RegulatingControlVoltage gcv = new RegulatingControlVoltage();
+        RegulatingControlVoltageAttributes gcv = new RegulatingControlVoltageAttributes();
         gcv.terminal = terminal;
         gcv.targetV = targetV;
         gcv.voltageRegulatorOn = voltageRegulatorOn;
@@ -101,7 +101,7 @@ public class RegulatingControlMappingForGenerators {
         return gcv;
     }
 
-    private static void apply(RegulatingControlVoltage rcv, Generator gen) {
+    private static void apply(RegulatingControlVoltageAttributes rcv, Generator gen) {
         if (rcv == null) {
             return;
         }
@@ -140,7 +140,7 @@ public class RegulatingControlMappingForGenerators {
             throw new CgmesModelException("Generator already added, IIDM Generator Id : " + iidmGeneratorId);
         }
 
-        RegulatingControlForGenerator rd = new RegulatingControlForGenerator();
+        CgmesRegulatingControlForGenerator rd = new CgmesRegulatingControlForGenerator();
         rd.regulatingControlId = cgmesRegulatingControlId;
         rd.qPercent = qPercent;
         mapping.put(iidmGeneratorId, rd);
@@ -160,12 +160,12 @@ public class RegulatingControlMappingForGenerators {
         return regulatingControlId;
     }
 
-    private static class RegulatingControlForGenerator {
+    private static class CgmesRegulatingControlForGenerator {
         String regulatingControlId;
         double qPercent;
     }
 
-    private static class RegulatingControlVoltage {
+    private static class RegulatingControlVoltageAttributes {
         Terminal terminal;
         double targetV;
         boolean voltageRegulatorOn;
@@ -173,6 +173,6 @@ public class RegulatingControlMappingForGenerators {
     }
 
     private final RegulatingControlMapping parent;
-    private final Map<String, RegulatingControlForGenerator> mapping;
+    private final Map<String, CgmesRegulatingControlForGenerator> mapping;
     private final Context context;
 }
