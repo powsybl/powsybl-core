@@ -22,15 +22,26 @@ public class RegulatingControlMappingForStaticVarCompensators {
         mapping = new HashMap<>();
     }
 
-    public void add(String iidmId, PropertyBag sm) {
-        String rcId = getRegulatingControlId(sm);
+    public void add(String staticVarCompensatorId, PropertyBag sm) {
+        String cgmesRegulatingControlId = getRegulatingControlId(sm);
         boolean controlEnabledProperty = sm.asBoolean("controlEnabled", false);
         double defaultTargetVoltage = sm.asDouble("voltageSetPoint");
         double defaultTargetReactivePower = sm.asDouble("q");
         String defaultRegulationMode = sm.getId("controlMode");
 
-        add(iidmId, rcId, controlEnabledProperty, defaultTargetVoltage, defaultTargetReactivePower,
-            defaultRegulationMode);
+        if (mapping.containsKey(staticVarCompensatorId)) {
+            throw new CgmesModelException(
+                "StaticVarCompensator already added, IIDM StaticVarCompensator Id : " + staticVarCompensatorId);
+        }
+
+        CgmesRegulatingControlForStaticVarCompensator rc = new CgmesRegulatingControlForStaticVarCompensator();
+        rc.regulatingControlId = cgmesRegulatingControlId;
+        rc.controlEnabledProperty = controlEnabledProperty;
+        rc.defaultTargetVoltage = defaultTargetVoltage;
+        rc.defaultTargetReactivePower = defaultTargetReactivePower;
+        rc.defaultRegulationMode = defaultRegulationMode;
+
+        mapping.put(staticVarCompensatorId, rc);
     }
 
     void applyRegulatingControls(Network network) {
@@ -142,23 +153,6 @@ public class RegulatingControlMappingForStaticVarCompensators {
         svc.setVoltageSetPoint(rcSvc.targetVoltage);
         svc.setReactivePowerSetPoint(rcSvc.targetReactivePower);
         svc.setRegulationMode(rcSvc.regulationMode);
-    }
-
-    private void add(String iidmStaticVarCompensatorId, String cgmesRegulatingControlId, boolean controlEnabledProperty,
-        double defaultTargetVoltage, double defaultTargetReactivePower, String defaultRegulationMode) {
-        if (mapping.containsKey(iidmStaticVarCompensatorId)) {
-            throw new CgmesModelException(
-                "StaticVarCompensator already added, IIDM StaticVarCompensator Id : " + iidmStaticVarCompensatorId);
-        }
-
-        CgmesRegulatingControlForStaticVarCompensator rc = new CgmesRegulatingControlForStaticVarCompensator();
-        rc.regulatingControlId = cgmesRegulatingControlId;
-        rc.controlEnabledProperty = controlEnabledProperty;
-        rc.defaultTargetVoltage = defaultTargetVoltage;
-        rc.defaultTargetReactivePower = defaultTargetReactivePower;
-        rc.defaultRegulationMode = defaultRegulationMode;
-
-        mapping.put(iidmStaticVarCompensatorId, rc);
     }
 
     private String getRegulatingControlId(PropertyBag p) {

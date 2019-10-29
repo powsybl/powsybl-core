@@ -26,10 +26,18 @@ public class RegulatingControlMappingForGenerators {
         mapping = new HashMap<>();
     }
 
-    public void add(String iidmId, PropertyBag sm) {
-        String rcId = getRegulatingControlId(sm);
+    public void add(String generatorId, PropertyBag sm) {
+        String cgmesRegulatingControlId = getRegulatingControlId(sm);
         double qPercent = sm.asDouble(QPERCENT);
-        add(iidmId, rcId, qPercent);
+
+        if (mapping.containsKey(generatorId)) {
+            throw new CgmesModelException("Generator already added, IIDM Generator Id : " + generatorId);
+        }
+
+        CgmesRegulatingControlForGenerator rd = new CgmesRegulatingControlForGenerator();
+        rd.regulatingControlId = cgmesRegulatingControlId;
+        rd.qPercent = qPercent;
+        mapping.put(generatorId, rd);
     }
 
     void applyRegulatingControls(Network network) {
@@ -133,17 +141,6 @@ public class RegulatingControlMappingForGenerators {
 
     private static Terminal getDefaultTerminal(Generator gen) {
         return gen.getTerminal();
-    }
-
-    private void add(String iidmGeneratorId, String cgmesRegulatingControlId, double qPercent) {
-        if (mapping.containsKey(iidmGeneratorId)) {
-            throw new CgmesModelException("Generator already added, IIDM Generator Id : " + iidmGeneratorId);
-        }
-
-        CgmesRegulatingControlForGenerator rd = new CgmesRegulatingControlForGenerator();
-        rd.regulatingControlId = cgmesRegulatingControlId;
-        rd.qPercent = qPercent;
-        mapping.put(iidmGeneratorId, rd);
     }
 
     private String getRegulatingControlId(PropertyBag p) {
