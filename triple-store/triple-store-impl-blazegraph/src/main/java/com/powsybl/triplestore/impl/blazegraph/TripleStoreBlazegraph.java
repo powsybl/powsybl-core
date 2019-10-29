@@ -262,12 +262,12 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                 throw new TripleStoreException(String.format("Query [%s]", query), e);
             }
         } catch (RepositoryException e) {
-            throw new TripleStoreException(String.format("Opening repo for update"), e);
+            throw new TripleStoreException("Opening repo for update", e);
         }
     }
 
     @Override
-    public void duplicate(TripleStore origin, String baseName) {
+    public void clone(TripleStore origin, String baseName) {
         Repository repoOrigin = ((TripleStoreBlazegraph) origin).getRepository();
         RepositoryConnection connOrigin = null;
         RepositoryConnection conn = null;

@@ -62,7 +62,7 @@ public class TripleStoreTester {
         for (String impl : implementations) {
             ts = TripleStoreFactory.create(impl);
             TripleStore tsOrigin = tripleStores.get(impl);
-            ts.duplicate(tsOrigin, baseName);
+            ts.clone(tsOrigin, baseName);
         }
     }
 
@@ -106,7 +106,7 @@ public class TripleStoreTester {
             LOG.info("totalMemory, GB: " + Runtime.getRuntime().totalMemory() / 1e+9);
             TripleStore ts = TripleStoreFactory.create(impl);
             TripleStore tsOrigin = tripleStores.get(impl);
-            ts.duplicate(tsOrigin, baseName);
+            ts.clone(tsOrigin, baseName);
             LOG.info("usedMemory, GB: " +
                 (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1e+9);
             end = System.currentTimeMillis();

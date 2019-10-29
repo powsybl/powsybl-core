@@ -206,7 +206,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void duplicate(TripleStore origin, String baseName) {
+    public void clone(TripleStore origin, String baseName) {
         Repository repoOrigin = ((TripleStoreRDF4J) origin).getRepository();
         try (RepositoryConnection connOrigin = repoOrigin.getConnection()) {
 

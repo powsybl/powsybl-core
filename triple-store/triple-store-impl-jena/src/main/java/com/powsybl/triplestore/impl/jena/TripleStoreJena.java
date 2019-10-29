@@ -176,7 +176,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void duplicate(TripleStore origin, String baseName) {
+    public void clone(TripleStore origin, String baseName) {
         Iterator<String> names = null;
         Dataset datasetOrigin = ((TripleStoreJena) origin).getDataset();
         cloneNamespaces(datasetOrigin, baseName);
