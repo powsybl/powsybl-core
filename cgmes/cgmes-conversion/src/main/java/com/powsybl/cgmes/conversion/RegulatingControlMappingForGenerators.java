@@ -19,13 +19,15 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 public class RegulatingControlMappingForGenerators {
 
+    private static final String QPERCENT = "qPercent";
+
     public RegulatingControlMappingForGenerators(RegulatingControlMapping parent) {
         this.parent = parent;
         this.context = parent.context();
         mapping = new HashMap<>();
     }
 
-    public void initialize(GeneratorAdder adder) {
+    public static void initialize(GeneratorAdder adder) {
         adder.setRegulatingTerminal(null);
         adder.setTargetV(Double.NaN);
         adder.setVoltageRegulatorOn(false);
@@ -33,11 +35,11 @@ public class RegulatingControlMappingForGenerators {
 
     public void add(String iidmId, PropertyBag sm) {
         String rcId = getRegulatingControlId(sm);
-        double qPercent = sm.asDouble(RegulatingControlMapping.QPERCENT);
+        double qPercent = sm.asDouble(QPERCENT);
         add(iidmId, rcId, qPercent);
     }
 
-    public void apply(Network network) {
+    void applyRegulatingControls(Network network) {
         network.getGeneratorStream().forEach(this::apply);
     }
 
@@ -53,7 +55,7 @@ public class RegulatingControlMappingForGenerators {
 
         String controlId = rc.regulatingControlId;
         if (controlId == null) {
-            context.missing(String.format("Regulating control Id not defined"));
+            context.missing("Regulating control Id not defined");
             return;
         }
 
@@ -63,16 +65,17 @@ public class RegulatingControlMappingForGenerators {
             return;
         }
 
-        if (parent.isControlModeVoltage(control.mode)) {
-            RegulatingControlVoltage gcv = getRegulatingControlVoltage(controlId, control, rc.qPercent, context, gen);
+        if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
+            RegulatingControlVoltage gcv = getRegulatingControlVoltage(controlId, control, rc.qPercent, gen);
             apply(gcv, gen);
+            control.hasCorrectlySetEq(gen.getId());
         } else {
             context.ignored(control.mode, String.format("Unsupported regulation mode for generator %s", gen.getId()));
         }
     }
 
     private RegulatingControlVoltage getRegulatingControlVoltage(String controlId,
-        RegulatingControl control, double qPercent, Context context, Generator gen) {
+        RegulatingControl control, double qPercent, Generator gen) {
 
         // Take default terminal if it has not been defined
         Terminal terminal = getRegulatingTerminal(gen, control.cgmesTerminal, control.topologicalNode);
@@ -81,9 +84,9 @@ public class RegulatingControlMappingForGenerators {
             return null;
         }
 
-        double targetV = Double.NaN;
+        double targetV;
         if (control.targetValue <= 0.0 || Double.isNaN(control.targetValue)) {
-            targetV = parent.terminalNominalVoltage(terminal);
+            targetV = terminal.getVoltageLevel().getNominalV();
             context.fixed(controlId, "Invalid value for regulating target value", control.targetValue, targetV);
         } else {
             targetV = control.targetValue;
@@ -103,7 +106,7 @@ public class RegulatingControlMappingForGenerators {
         return gcv;
     }
 
-    private void apply(RegulatingControlVoltage rcv, Generator gen) {
+    private static void apply(RegulatingControlVoltage rcv, Generator gen) {
         if (rcv == null) {
             return;
         }
@@ -133,7 +136,7 @@ public class RegulatingControlMappingForGenerators {
         return terminal;
     }
 
-    private Terminal getDefaultTerminal(Generator gen) {
+    private static Terminal getDefaultTerminal(Generator gen) {
         return gen.getTerminal();
     }
 
@@ -144,7 +147,7 @@ public class RegulatingControlMappingForGenerators {
 
         RegulatingControlForGenerator rd = new RegulatingControlForGenerator();
         rd.regulatingControlId = cgmesRegulatingControlId;
-        rd.qPercent = Double.NaN;
+        rd.qPercent = qPercent;
         mapping.put(iidmGeneratorId, rd);
     }
 

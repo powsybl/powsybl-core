@@ -188,6 +188,20 @@ public class CalculatedTimeSeriesTest {
     }
 
     @Test
+    public void splitSmallChunkTest() {
+        timeSeries.synchronize(new RegularTimeSeriesIndex(0, 99, 1));
+        List<List<DoubleTimeSeries>> list = TimeSeries.split(Arrays.asList(timeSeries), 50);
+        assertEquals(2, list.size());
+    }
+
+    @Test
+    public void splitBigChunkTest() {
+        timeSeries.synchronize(new RegularTimeSeriesIndex(0, 99, 1));
+        List<List<DoubleTimeSeries>> list = TimeSeries.split(Arrays.asList(timeSeries), 2);
+        assertEquals(50, list.size());
+    }
+
+    @Test
     public void jsonTest() throws IOException {
         TimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-07-20T00:00:00Z"), Duration.ofDays(200));
         DoubleTimeSeries ts = TimeSeries.createDouble("ts", index, 1d, 2d);

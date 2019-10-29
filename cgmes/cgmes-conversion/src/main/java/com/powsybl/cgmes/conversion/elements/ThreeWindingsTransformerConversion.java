@@ -10,8 +10,6 @@ package com.powsybl.cgmes.conversion.elements;
 import java.util.Map;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.RegulatingControlPhase;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.RegulatingControlRatio;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.Leg1Adder;
@@ -27,13 +25,12 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
 
     public ThreeWindingsTransformerConversion(PropertyBags ends,
         Map<String, PropertyBag> powerTransformerRatioTapChanger,
-        Map<String, PropertyBag> powerTransformerPhaseTapChanger, Context context) {
+        Context context) {
         super("PowerTransformer", ends, context);
         winding1 = ends.get(0);
         winding2 = ends.get(1);
         winding3 = ends.get(2);
         this.powerTransformerRatioTapChanger = powerTransformerRatioTapChanger;
-        this.powerTransformerPhaseTapChanger = powerTransformerPhaseTapChanger;
     }
 
     @Override
@@ -141,48 +138,25 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         context.tapChangerTransformers().add(ptc2, tx, "ptc", 2);
         context.tapChangerTransformers().add(ptc3, tx, "ptc", 3);
 
-        setRegulatingControlContext(tx, rtc1, ptc1, rtc2, ptc2, rtc3, ptc3);
+        setRegulatingControlContext(tx, rtc2, rtc3);
     }
 
-    private void setRegulatingControlContext(ThreeWindingsTransformer tx, String rtc1Id, String ptc1Id, String rtc2Id,
-        String ptc2Id, String rtc3Id, String ptc3Id) {
+    private void setRegulatingControlContext(ThreeWindingsTransformer tx, String rtc2Id, String rtc3Id) {
 
-        RegulatingControlRatio rcRtc1 = getRegulatingControlContextRatio(rtc1Id);
-        RegulatingControlPhase rcPtc1 = getRegulatingControlContextPhase(ptc1Id);
-        RegulatingControlRatio rcRtc2 = getRegulatingControlContextRatio(rtc2Id);
-        RegulatingControlPhase rcPtc2 = getRegulatingControlContextPhase(ptc2Id);
-        RegulatingControlRatio rcRtc3 = getRegulatingControlContextRatio(rtc3Id);
-        RegulatingControlPhase rcPtc3 = getRegulatingControlContextPhase(ptc3Id);
-
-        context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc1, rcPtc1, rcRtc2, rcPtc2, rcRtc3,
-            rcPtc3);
-    }
-
-    private RegulatingControlRatio getRegulatingControlContextRatio(String rtcId) {
-        RegulatingControlRatio rcRtc = null;
-        if (rtcId != null) {
-            PropertyBag tc = powerTransformerRatioTapChanger.get(rtcId);
-            rcRtc = context.regulatingControlMapping().forTransformers().buildRegulatingControlRatio(rtcId, tc);
-        } else {
-            rcRtc = context.regulatingControlMapping().forTransformers().buildEmptyRegulatingControlRatio();
+        PropertyBag rtc2 = null;
+        if (rtc2Id != null) {
+            rtc2 = powerTransformerRatioTapChanger.get(rtc2Id);
         }
-        return rcRtc;
-    }
-
-    private RegulatingControlPhase getRegulatingControlContextPhase(String ptcId) {
-        RegulatingControlPhase rcPtc = null;
-        if (ptcId != null) {
-            PropertyBag tc = powerTransformerPhaseTapChanger.get(ptcId);
-            rcPtc = context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(tc);
-        } else {
-            rcPtc = context.regulatingControlMapping().forTransformers().buildEmptyRegulatingControlPhase();
+        PropertyBag rtc3 = null;
+        if (rtc3Id != null) {
+            rtc3 = powerTransformerRatioTapChanger.get(rtc3Id);
         }
-        return rcPtc;
+
+        context.regulatingControlMapping().forTransformers().add(tx.getId(), rtc2Id, rtc2, rtc3Id, rtc3);
     }
 
     private final PropertyBag winding1;
     private final PropertyBag winding2;
     private final PropertyBag winding3;
     private final Map<String, PropertyBag> powerTransformerRatioTapChanger;
-    private final Map<String, PropertyBag> powerTransformerPhaseTapChanger;
 }

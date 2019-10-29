@@ -30,10 +30,8 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
         double inductiveRating = p.asDouble("inductiveRating", 0.0);
 
         StaticVarCompensatorAdder adder = voltageLevel().newStaticVarCompensator()
-                .setBmin(-1 / capacitiveRating)
-                .setBmax(-1 / inductiveRating);
-
-        context.regulatingControlMapping().forStaticVarCompensators().initialize(adder);
+                .setBmin(1 / inductiveRating)
+                .setBmax(1 / capacitiveRating);
         identify(adder);
         connect(adder);
         StaticVarCompensator svc = adder.add();

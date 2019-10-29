@@ -18,13 +18,9 @@ public class RegulatingControlMapping {
 
     static final String REGULATING_CONTROL = "RegulatingControl";
     static final String TAP_CHANGER_CONTROL = "TapChangerControl";
-    static final String TERMINAL = "Terminal";
+    private static final String TERMINAL = "Terminal";
     static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES topological node: %s";
-    static final String VOLTAGE = "voltage";
-    static final String REGULATING_CONTROL_REF = "Regulating control %s";
-    static final String TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
-    static final String PHASE_TAP_CHANGER = "PhaseTapChanger";
-    static final String QPERCENT = "qPercent";
+    private static final String VOLTAGE = "voltage";
 
     private final Context context;
     private final RegulatingControlMappingForGenerators regulatingControlMappingForGenerators;
@@ -62,6 +58,8 @@ public class RegulatingControlMapping {
         final double targetValue;
         final double targetDeadband;
 
+        private final Map<String, Boolean> idsEq = new HashMap<>();
+
         RegulatingControl(PropertyBag p) {
             this.mode = p.get("mode").toLowerCase();
             this.cgmesTerminal = p.getId(TERMINAL);
@@ -70,40 +68,50 @@ public class RegulatingControlMapping {
             this.targetValue = p.asDouble("targetValue");
             this.targetDeadband = p.asDouble("targetDeadband", Double.NaN);
         }
+
+        void hasCorrectlySetEq(String id) {
+            idsEq.put(id, true);
+        }
     }
 
     private Map<String, RegulatingControl> cachedRegulatingControls = new HashMap<>();
 
-    public Map<String, RegulatingControl> cachedRegulatingControls() {
+    Map<String, RegulatingControl> cachedRegulatingControls() {
         return cachedRegulatingControls;
     }
 
-    public void cacheRegulatingControls(PropertyBag p) {
+    void cacheRegulatingControls(PropertyBag p) {
         cachedRegulatingControls.put(p.getId(REGULATING_CONTROL), new RegulatingControl(p));
     }
 
     public void setAllRegulatingControls(Network network) {
-        regulatingControlMappingForGenerators.apply(network);
-        regulatingControlMappingForTransformers.applyTwoWindings(network);
-        regulatingControlMappingForTransformers.applyThreeWindings(network);
+        regulatingControlMappingForGenerators.applyRegulatingControls(network);
+        regulatingControlMappingForTransformers.applyTapChangersRegulatingControl(network);
         regulatingControlMappingForStaticVarCompensators.apply(network);
 
+        cachedRegulatingControls.entrySet().removeIf(entry -> {
+            if (entry.getValue().idsEq.isEmpty()) {
+                return false;
+            }
+            for (Map.Entry<String, Boolean> e : entry.getValue().idsEq.entrySet()) {
+                if (!e.getValue()) {
+                    return false;
+                }
+            }
+            return true;
+        });
+
+        cachedRegulatingControls.forEach((key, value) -> context.pending("Regulating terminal",
+                String.format("The setting of the regulating terminal of the regulating control %s is not entirely handled.", key)));
         cachedRegulatingControls.clear();
     }
 
     public Terminal findRegulatingTerminal(String cgmesTerminal, String topologicalNode) {
         return Optional.ofNullable(context.terminalMapping().find(cgmesTerminal))
-            .orElseGet(() -> context.terminalMapping().findFromTopologicalNode(topologicalNode));
+                .orElseGet(() -> context.terminalMapping().findFromTopologicalNode(topologicalNode));
     }
 
-    public double terminalNominalVoltage(Terminal terminal) {
-        return terminal.getVoltageLevel().getNominalV();
-    }
-
-    public boolean isControlModeVoltage(String controlMode) {
-        if (controlMode != null && controlMode.endsWith("voltage")) {
-            return true;
-        }
-        return false;
+    static boolean isControlModeVoltage(String controlMode) {
+        return controlMode != null && controlMode.endsWith(VOLTAGE);
     }
 }

@@ -92,6 +92,10 @@ public class ProjectFile extends ProjectNode {
         storage.flush();
     }
 
+    public boolean mandatoryDependenciesAreMissing() {
+        return false;
+    }
+
     public void addListener(ProjectFileListener listener) {
         listeners.add(listener);
     }
