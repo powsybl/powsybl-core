@@ -3,8 +3,6 @@ package com.powsybl.cgmes.conversion.update.elements14;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -13,7 +11,6 @@ import com.powsybl.cgmes.conversion.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.conversion.update.ConversionMapper;
 import com.powsybl.cgmes.conversion.update.IidmChange;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -24,6 +21,7 @@ public class SubstationToSubstation implements ConversionMapper {
         this.change = change;
         this.cgmes = cgmes;
     }
+
     // TODO elena fix Region/SubRegion/Country
     @Override
     public Multimap<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
@@ -59,7 +57,7 @@ public class SubstationToSubstation implements ConversionMapper {
             new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:SubGeographicalRegion", subRegionId));
 
         map.put("subRegionId",
-            new CgmesPredicateDetails("cim:SubGeographicalRegion.Region", "_EQ", true,regionId, subRegionId));
+            new CgmesPredicateDetails("cim:SubGeographicalRegion.Region", "_EQ", true, regionId, subRegionId));
 
         return map;
     }
