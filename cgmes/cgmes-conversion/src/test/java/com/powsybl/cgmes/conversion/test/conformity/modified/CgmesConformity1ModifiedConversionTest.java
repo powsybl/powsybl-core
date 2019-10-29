@@ -139,7 +139,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
         assertNotNull(rtc);
-        assertFalse(rtc.hasLoadTapChangingCapabilities());
+        assertTrue(rtc.hasLoadTapChangingCapabilities());
         assertTrue(Double.isNaN(rtc.getTargetV()));
         assertFalse(rtc.isRegulating());
         assertNull(rtc.getRegulationTerminal());
@@ -166,7 +166,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
         assertNotNull(rtc);
-        assertFalse(rtc.hasLoadTapChangingCapabilities());
+        assertTrue(rtc.hasLoadTapChangingCapabilities());
         assertTrue(Double.isNaN(rtc.getTargetV()));
         assertFalse(rtc.isRegulating());
         assertNull(rtc.getRegulationTerminal());
@@ -381,6 +381,40 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(load);
         assertEquals(-0.2, load.getP0(), 0.0);
         assertEquals(-13.8, load.getQ0(), 0.0);
+    }
+
+    @Test
+    public void smallNodeBreakerHvdcDcLine2Inverter1Rectifier2() {
+        // Small Grid Node Breaker HVDC modified so in the dcLine2
+        // SVC1 (that is at side 2 of the DC line) is interpreted as a rectifier and
+        // SVC2 (that is at side 1 of the line) is interpreted as an inverter
+        assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2Inverter1Rectifier2().dataSource(), null));
+    }
+
+    @Test
+    public void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier() {
+        // Small Grid Node Breaker HVDC modified so in the dcLine
+        // both converters have targetPpcc consistent with side 1 inverter side 2 rectifier
+        assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier().dataSource(), null));
+    }
+
+    @Test
+    public void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter() {
+        // Small Grid Node Breaker HVDC modified so in the dcLine
+        // both converters have targetPpcc consistent with side 1 rectifier side 2 inverter
+        assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter().dataSource(), null));
+    }
+
+    @Test
+    public void smallNodeBreakerHvdcVscReactiveQPcc() {
+        // Small Grid Node Breaker HVDC modified so VSC converter are regulating in reactive power and not in voltage
+        assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcVscReactiveQPcc().dataSource(), null));
+    }
+
+    @Test
+    public void smallNodeBrokerHvdcNanTargetPpcc() {
+        // Small Grid Node Breaker HVDC modified so targetPpcc are NaN
+        assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcNanTargetPpcc().dataSource(), null));
     }
 
     private FileSystem fileSystem;

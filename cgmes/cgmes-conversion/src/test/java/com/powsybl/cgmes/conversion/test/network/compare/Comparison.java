@@ -191,9 +191,6 @@ public class Comparison {
         equivalent("VoltageLevel",
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
-        compare("maximumB",
-                expected.getMaximumB(),
-                actual.getMaximumB());
         compare("maximumSectionCount",
                 expected.getMaximumSectionCount(),
                 actual.getMaximumSectionCount());
