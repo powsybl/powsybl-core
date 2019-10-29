@@ -78,6 +78,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
         RegulatingControlSvc rcSvc = getRegulatingControlSvc(control, rc, svc.getId());
         apply(rcSvc, svc);
+        control.hasCorrectlySetEq(svc.getId());
     }
 
     private RegulatingControlSvc getRegulatingControlSvc(RegulatingControl control,
