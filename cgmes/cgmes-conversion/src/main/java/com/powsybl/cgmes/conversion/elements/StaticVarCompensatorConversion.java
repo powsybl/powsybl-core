@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForStaticVarCompensators;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -35,7 +34,6 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
             .setBmax(1 / capacitiveRating);
         identify(adder);
         connect(adder);
-        RegulatingControlMappingForStaticVarCompensators.initialize(adder);
 
         StaticVarCompensator svc = adder.add();
         convertedTerminals(svc.getTerminal());

@@ -7,7 +7,6 @@ import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -21,12 +20,6 @@ public class RegulatingControlMappingForStaticVarCompensators {
         this.parent = parent;
         this.context = parent.context();
         mapping = new HashMap<>();
-    }
-
-    public static void initialize(StaticVarCompensatorAdder adder) {
-        adder.setVoltageSetPoint(Double.NaN);
-        adder.setReactivePowerSetPoint(Double.NaN);
-        adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
     }
 
     public void add(String iidmId, PropertyBag sm) {

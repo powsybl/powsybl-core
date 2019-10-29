@@ -26,7 +26,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
 
     private double reactivePowerSetPoint = Double.NaN;
 
-    private StaticVarCompensator.RegulationMode regulationMode;
+    private StaticVarCompensator.RegulationMode regulationMode = StaticVarCompensator.RegulationMode.OFF;
 
     StaticVarCompensatorAdderImpl(VoltageLevelExt vl) {
         this.vl = Objects.requireNonNull(vl);
