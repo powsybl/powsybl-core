@@ -18,7 +18,7 @@ public class BatteryAdderAdapter extends AbstractAdapter<BatteryAdder> implement
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public BatteryAdderAdapter setNode(final int node) {
@@ -80,28 +80,9 @@ public class BatteryAdderAdapter extends AbstractAdapter<BatteryAdder> implement
         return this;
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
     public BatteryAdapter add() {
         return new BatteryAdapter(getDelegate().add(), getIndex());
-
-        /* String id = checkAndGetUniqueId();
-        TerminalAdapter terminal = checkAndGetTerminal();
-        ValidationUtil.checkP0(this, p0);
-        ValidationUtil.checkQ0(this, q0);
-        ValidationUtil.checkMinP(this, minP);
-        ValidationUtil.checkMaxP(this, maxP);
-        ValidationUtil.checkActivePowerLimits(this, minP, maxP, p0);
-
-        BatteryAdapter battery = new BatteryAdapter(getNetwork().getRef(), id, getName(), p0, q0, minP, maxP);
-
-        battery.addTerminal(terminal);
-        voltageLevel.attach(terminal, false);
-        getNetwork().getIndex().checkAndAdd(battery);
-        getNetwork().getListeners().notifyCreation(battery);
-        return battery;*/
     }
 
 }

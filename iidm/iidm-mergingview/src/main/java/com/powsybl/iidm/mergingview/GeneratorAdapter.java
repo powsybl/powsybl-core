@@ -7,6 +7,7 @@
 package com.powsybl.iidm.mergingview;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.EnergySource;
@@ -25,137 +26,151 @@ public class GeneratorAdapter extends AbstractIdentifiableAdapter<Generator> imp
         super(delegate, index);
     }
 
+    @Override
+    public List<? extends TerminalAdapter> getTerminals() {
+        return getDelegate().getTerminals().stream()
+            .map(getIndex()::getTerminal)
+            .collect(Collectors.toList());
+    }
+
+
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public TerminalAdapter getTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getTerminal(getDelegate().getTerminal());
     }
 
     @Override
     public ConnectableType getType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public List<? extends TerminalAdapter> getTerminals() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getType();
     }
 
     @Override
     public ReactiveLimits getReactiveLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getReactiveLimits();
     }
 
     @Override
     public <L extends ReactiveLimits> L getReactiveLimits(final Class<L> type) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getReactiveLimits(type);
     }
 
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().newReactiveCapabilityCurve();
     }
 
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().newMinMaxReactiveLimits();
     }
 
     @Override
     public EnergySource getEnergySource() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getEnergySource();
     }
 
     @Override
     public GeneratorAdapter setEnergySource(final EnergySource energySource) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setEnergySource(energySource);
+        return this;
     }
 
     @Override
     public double getMaxP() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getMaxP();
     }
 
     @Override
     public GeneratorAdapter setMaxP(final double maxP) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setMaxP(maxP);
+        return this;
     }
 
     @Override
     public double getMinP() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getMinP();
     }
 
     @Override
     public GeneratorAdapter setMinP(final double minP) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setMinP(minP);
+        return this;
     }
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().isVoltageRegulatorOn();
     }
 
     @Override
     public GeneratorAdapter setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public TerminalAdapter getRegulatingTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public GeneratorAdapter setRegulatingTerminal(final Terminal regulatingTerminal) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setVoltageRegulatorOn(voltageRegulatorOn);
+        return this;
     }
 
     @Override
     public double getTargetV() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getTargetV();
     }
 
     @Override
     public GeneratorAdapter setTargetV(final double targetV) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setTargetV(targetV);
+        return this;
     }
 
     @Override
     public double getTargetP() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getTargetP();
     }
 
     @Override
     public GeneratorAdapter setTargetP(final double targetP) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setTargetP(targetP);
+        return this;
     }
 
     @Override
     public double getTargetQ() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getTargetQ();
     }
 
     @Override
     public GeneratorAdapter setTargetQ(final double targetQ) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setTargetQ(targetQ);
+        return this;
     }
 
     @Override
     public double getRatedS() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getRatedS();
     }
 
     @Override
     public GeneratorAdapter setRatedS(final double ratedS) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRatedS(ratedS);
+        return this;
     }
 
+    @Override
+    public TerminalAdapter getRegulatingTerminal() {
+        return getIndex().getTerminal(getDelegate().getRegulatingTerminal());
+    }
+
+    @Override
+    public GeneratorAdapter setRegulatingTerminal(final Terminal regulatingTerminal) {
+        getDelegate().setRegulatingTerminal(regulatingTerminal);
+        return this;
+    }
+
+    // -------------------------------
+    // Not implemented methods -------
+    // -------------------------------
+    @Override
+    public void remove() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
 }

@@ -86,7 +86,7 @@ public class VoltageLevelAdapterTest {
         assertTrue(voltageLevel.getVscConverterStations().iterator().hasNext());
         assertEquals(1, voltageLevel.getVscConverterStationCount());
 
-        // Not implemented
+        // Battery
         voltageLevel.newBattery().setId("BAT")
             .setConnectableBus("B1")
             .setMaxP(9999.99)
@@ -100,12 +100,22 @@ public class VoltageLevelAdapterTest {
         }
         assertEquals(1, voltageLevel.getBatteryCount());
 
-        // Not implemented yet !
         // Generator
-        TestUtil.notImplemented(voltageLevel::newGenerator);
-        TestUtil.notImplemented(voltageLevel::getGenerators);
-        TestUtil.notImplemented(voltageLevel::getGeneratorStream);
-        assertEquals(0, voltageLevel.getGeneratorCount());
+        voltageLevel.newGenerator().setId("GEN").setVoltageRegulatorOn(true)
+            .setConnectableBus("B1")
+            .setMaxP(9999.99)
+            .setMinP(-9999.99)
+            .setTargetV(25.5)
+            .setTargetP(600.05)
+            .setTargetQ(300.5)
+            .setEnsureIdUnicity(true).add();
+        Iterable<Generator> generators = voltageLevel.getGenerators();
+        for (Generator generator : generators) {
+            assertTrue(generator instanceof GeneratorAdapter);
+        }
+        assertEquals(1, voltageLevel.getGeneratorCount());
+
+        // Not implemented yet !
         // Load
         TestUtil.notImplemented(voltageLevel::newLoad);
         TestUtil.notImplemented(voltageLevel::getLoads);
