@@ -6,6 +6,7 @@
  */
 package com.powsybl.config.classic;
 
+import java.io.File;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -51,12 +52,12 @@ public class ClassicPlatformConfigProvider implements PlatformConfigProvider {
      * "powsybl.config.dirs" or "itools.config.dir".
      * If none is defined, it defaults to the single directory ${HOME}/.itools.
      */
-    public static Path[] getDefaultConfigDirs(FileSystem fileSystem, String directories, String userHome) {
+    public static Path[] getDefaultConfigDirs(FileSystem fileSystem, String directories, String userHome, String pathSeparator) {
         Objects.requireNonNull(fileSystem);
         Objects.requireNonNull(userHome);
         Path[] configDirs = null;
-        if (directories != null) {
-            configDirs = Arrays.stream(directories.split(":"))
+        if (directories != null && !directories.isEmpty()) {
+            configDirs = Arrays.stream(directories.split(pathSeparator))
                     .map(PlatformEnv::substitute)
                     .map(fileSystem::getPath)
                     .toArray(Path[]::new);
@@ -91,7 +92,7 @@ public class ClassicPlatformConfigProvider implements PlatformConfigProvider {
         String configName = System.getProperty("powsybl.config.name",
                 System.getProperty("itools.config.name", "config"));
         String userHome = System.getProperty("user.home");
-        Path[] configDirs = getDefaultConfigDirs(fileSystem, directories, userHome);
+        Path[] configDirs = getDefaultConfigDirs(fileSystem, directories, userHome, File.pathSeparator);
         ModuleConfigRepository repository = loadModuleRepository(configDirs, configName);
         return new PlatformConfig(repository, configDirs[0]);
     }
