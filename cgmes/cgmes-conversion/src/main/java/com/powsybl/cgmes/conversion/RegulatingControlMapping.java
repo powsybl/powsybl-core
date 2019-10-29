@@ -87,7 +87,7 @@ public class RegulatingControlMapping {
     public void setAllRegulatingControls(Network network) {
         regulatingControlMappingForGenerators.applyRegulatingControls(network);
         regulatingControlMappingForTransformers.applyTapChangersRegulatingControl(network);
-        regulatingControlMappingForStaticVarCompensators.apply(network);
+        regulatingControlMappingForStaticVarCompensators.applyRegulatingControls(network);
 
         cachedRegulatingControls.entrySet().removeIf(entry -> {
             if (entry.getValue().idsEq.isEmpty()) {

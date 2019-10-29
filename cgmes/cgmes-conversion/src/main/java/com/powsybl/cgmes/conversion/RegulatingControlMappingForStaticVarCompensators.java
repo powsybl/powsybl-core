@@ -23,7 +23,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         mapping = new HashMap<>();
     }
 
-    public void initialize(StaticVarCompensatorAdder adder) {
+    public static void initialize(StaticVarCompensatorAdder adder) {
         adder.setVoltageSetPoint(Double.NaN);
         adder.setReactivePowerSetPoint(Double.NaN);
         adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
@@ -40,7 +40,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
             defaultRegulationMode);
     }
 
-    public void apply(Network network) {
+    void applyRegulatingControls(Network network) {
         network.getStaticVarCompensatorStream().forEach(this::apply);
     }
 
@@ -59,7 +59,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
         String controlId = rc.regulatingControlId;
         if (controlId == null) {
-            context.missing(String.format("Regulating control Id not defined"));
+            context.missing("Regulating control Id not defined");
             RegulatingControlSvc rcSvc = getDefaultRegulatingControl(rc);
             apply(rcSvc, svc);
             return;
@@ -76,11 +76,11 @@ public class RegulatingControlMappingForStaticVarCompensators {
             return;
         }
 
-        RegulatingControlSvc rcSvc = getRegulatingControlSvc(controlId, control, rc, svc.getId());
+        RegulatingControlSvc rcSvc = getRegulatingControlSvc(control, rc, svc.getId());
         apply(rcSvc, svc);
     }
 
-    private RegulatingControlSvc getRegulatingControlSvc(String controlId, RegulatingControl control,
+    private RegulatingControlSvc getRegulatingControlSvc(RegulatingControl control,
         RegulatingControlForStaticVarCompensator rc, String svcId) {
         if (context.terminalMapping().areAssociated(control.cgmesTerminal, control.topologicalNode)) {
             return getRegulatingControl(control);
@@ -101,7 +101,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         double targetReactivePower = Double.NaN;
         StaticVarCompensator.RegulationMode regulationMode = StaticVarCompensator.RegulationMode.OFF;
 
-        if (parent.isControlModeVoltage(control.mode.toLowerCase())) {
+        if (RegulatingControlMapping.isControlModeVoltage(control.mode.toLowerCase())) {
             regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
             targetVoltage = control.targetValue;
         } else if (control.mode.toLowerCase().endsWith("reactivepower")) {
@@ -123,7 +123,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         double targetReactivePower = Double.NaN;
         StaticVarCompensator.RegulationMode regulationMode = StaticVarCompensator.RegulationMode.OFF;
 
-        if (parent.isControlModeVoltage(rc.defaultRegulationMode.toLowerCase())) {
+        if (RegulatingControlMapping.isControlModeVoltage(rc.defaultRegulationMode.toLowerCase())) {
             regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
             targetVoltage = rc.defaultTargetVoltage;
         } else if (rc.defaultRegulationMode.toLowerCase().endsWith("reactivepower")) {
