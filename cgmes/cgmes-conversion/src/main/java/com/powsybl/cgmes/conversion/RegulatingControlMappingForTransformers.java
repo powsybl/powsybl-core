@@ -174,7 +174,7 @@ public class RegulatingControlMappingForTransformers {
                     "Unsupported regulation mode for Ratio tap changer. Considered as a fixed ratio tap changer.");
         }
 
-        control.hasCorrectlySetEq(rc.id);
+        control.hasCorrectlySetEq();
     }
 
     private void setRtcRegulatingControlVoltage(String rtcId, boolean regulating, RegulatingControl control, RatioTapChanger rtc, Context context) {
@@ -211,7 +211,7 @@ public class RegulatingControlMappingForTransformers {
             context.fixed(control.mode, "Unsupported regulating mode for Phase tap changer. Considered as FIXED_TAP");
         }
 
-        control.hasCorrectlySetEq(rc.id);
+        control.hasCorrectlySetEq();
     }
 
     private void setPtcRegulatingControlCurrentFlow(boolean tapChangerControlEnabled, boolean ltcFlag, RegulatingControl control, PhaseTapChanger ptc, Context context) {

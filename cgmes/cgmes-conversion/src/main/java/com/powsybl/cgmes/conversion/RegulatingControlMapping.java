@@ -57,8 +57,7 @@ public class RegulatingControlMapping {
         final boolean enabled;
         final double targetValue;
         final double targetDeadband;
-
-        private final Map<String, Boolean> idsEq = new HashMap<>();
+        private Boolean correctlySet = false;
 
         RegulatingControl(PropertyBag p) {
             this.mode = p.get("mode").toLowerCase();
@@ -69,8 +68,8 @@ public class RegulatingControlMapping {
             this.targetDeadband = p.asDouble("targetDeadband", Double.NaN);
         }
 
-        void hasCorrectlySetEq(String id) {
-            idsEq.put(id, true);
+        void hasCorrectlySetEq() {
+            correctlySet = true;
         }
     }
 
@@ -90,15 +89,10 @@ public class RegulatingControlMapping {
         regulatingControlMappingForStaticVarCompensators.applyRegulatingControls(network);
 
         cachedRegulatingControls.entrySet().removeIf(entry -> {
-            if (entry.getValue().idsEq.isEmpty()) {
-                return false;
+            if (entry.getValue().correctlySet) {
+                return true;
             }
-            for (Map.Entry<String, Boolean> e : entry.getValue().idsEq.entrySet()) {
-                if (!e.getValue()) {
-                    return false;
-                }
-            }
-            return true;
+            return false;
         });
 
         cachedRegulatingControls.forEach((key, value) -> context.pending("Regulating terminal",
