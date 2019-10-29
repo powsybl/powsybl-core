@@ -68,7 +68,9 @@ public class RegulatingControlMappingForGenerators {
         if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
             RegulatingControlVoltage gcv = getRegulatingControlVoltage(controlId, control, rc.qPercent, gen);
             apply(gcv, gen);
-            control.hasCorrectlySetEq();
+            if (gcv != null) {
+                control.hasCorrectlySet();
+            }
         } else {
             context.ignored(control.mode, String.format("Unsupported regulation mode for generator %s", gen.getId()));
         }

@@ -79,7 +79,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         RegulatingControlSvc rcSvc = getRegulatingControlSvc(control, rc, svc.getId());
         apply(rcSvc, svc);
         if (rcSvc != null) {
-            control.hasCorrectlySetEq();
+            control.hasCorrectlySet();
         }
     }
 

@@ -68,7 +68,7 @@ public class RegulatingControlMapping {
             this.targetDeadband = p.asDouble("targetDeadband", Double.NaN);
         }
 
-        void hasCorrectlySetEq() {
+        void hasCorrectlySet() {
             correctlySet = true;
         }
     }
