@@ -13,6 +13,7 @@ import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.DefaultListenableAppStorage;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.NetworkFactoryService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -217,6 +218,12 @@ public class AfsBaseTest {
             dir7.archive(testDirNotExists);
             fail();
         } catch (UncheckedIOException ignored) {
+        }
+
+        try {
+            dir8.findService(NetworkFactoryService.class);
+            fail();
+        } catch (AfsException ignored) {
         }
     }
 
