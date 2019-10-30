@@ -19,21 +19,21 @@ public class TerminalBusBreakerViewAdapter extends AbstractAdapter<Terminal.BusB
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public BusAdapter getBus() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getBus(getDelegate().getBus());
     }
 
     @Override
     public BusAdapter getConnectableBus() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getBus(getDelegate().getConnectableBus());
     }
 
     @Override
     public void setConnectableBus(final String busId) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setConnectableBus(busId);
     }
 
 }
