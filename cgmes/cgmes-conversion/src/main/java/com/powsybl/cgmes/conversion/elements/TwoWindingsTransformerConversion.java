@@ -13,6 +13,7 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
+import com.powsybl.iidm.network.extensions.PhaseAngleClockTwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -20,6 +21,8 @@ import com.powsybl.triplestore.api.PropertyBags;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class TwoWindingsTransformerConversion extends AbstractConductingEquipmentConversion {
+
+    protected static final String STRING_PHASE_ANGLE_CLOCK = "phaseAngleClock";
 
     public TwoWindingsTransformerConversion(PropertyBags ends, Map<String, PropertyBag> powerTransformerRatioTapChanger,
         Map<String, PropertyBag> powerTransformerPhaseTapChanger, Context context) {
@@ -77,6 +80,16 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
         convertedTerminals(tx.getTerminal1(), tx.getTerminal2());
 
         addTapChangers(tx);
+
+        int phaseAngleClock1 = end1.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
+        int phaseAngleClock2 = end2.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
+
+        // add phaseAngleClock as an extension
+        if (phaseAngleClock1 != 0 || phaseAngleClock2 != 0) {
+            PhaseAngleClockTwoWindingsTransformer phaseAngleClock = new PhaseAngleClockTwoWindingsTransformer(tx,
+                phaseAngleClock1, phaseAngleClock2);
+            tx.addExtension(PhaseAngleClockTwoWindingsTransformer.class, phaseAngleClock);
+        }
     }
 
     private void addTapChangers(TwoWindingsTransformer tx) {

@@ -39,6 +39,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
+import com.powsybl.iidm.network.extensions.PhaseAngleClockTwoWindingsTransformer;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -418,6 +419,24 @@ public class Comparison {
 
         compareRatioTapChanger(expected.getRatioTapChanger(), actual.getRatioTapChanger());
         comparePhaseTapChanger(expected.getPhaseTapChanger(), actual.getPhaseTapChanger());
+        comparePhaseAngleClock(expected.getExtension(PhaseAngleClockTwoWindingsTransformer.class), actual.getExtension(PhaseAngleClockTwoWindingsTransformer.class));
+    }
+
+    private void comparePhaseAngleClock(PhaseAngleClockTwoWindingsTransformer expected,
+        PhaseAngleClockTwoWindingsTransformer actual) {
+        if (expected == null) {
+            if (actual != null) {
+                diff.unexpected("phaseAngleClock");
+                return;
+            }
+            return;
+        }
+        if (actual == null) {
+            diff.unexpected("phaseAngleClock");
+            return;
+        }
+        diff.compare("phaseAngleClock1", expected.getPhaseAngleClock1(), actual.getPhaseAngleClock1());
+        diff.compare("phaseAngleClock2", expected.getPhaseAngleClock2(), actual.getPhaseAngleClock2());
     }
 
     private void compareThreeWindingsTransformers(ThreeWindingsTransformer expected,
