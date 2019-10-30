@@ -8,11 +8,9 @@ package com.powsybl.loadflow.validation;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.After;
 import org.junit.Before;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -29,8 +27,6 @@ public abstract class AbstractValidationTest {
 
     protected Path tmpDir;
     protected Path data;
-
-    protected final TableFormatterConfig formatterConfig = Mockito.mock(TableFormatterConfig.class);
 
     protected final ValidationConfig looseConfig = new ValidationConfig(0.1, true, "LoadFlowMock", ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                                                                         ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT,
