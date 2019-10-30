@@ -24,8 +24,26 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
 
     private VoltageLevelBusBreakerViewAdapter busBreakerView;
 
+    private VoltageLevelNodeBreakerViewAdapter nodeBreakerView;
+
     VoltageLevelAdapter(final VoltageLevel delegate, final MergingViewIndex index) {
         super(delegate, index);
+    }
+
+    @Override
+    public VoltageLevel.BusBreakerView getBusBreakerView() {
+        if (busBreakerView == null) {
+            busBreakerView = new VoltageLevelBusBreakerViewAdapter(getDelegate().getBusBreakerView(), getIndex());
+        }
+        return busBreakerView;
+    }
+
+    @Override
+    public VoltageLevel.NodeBreakerView getNodeBreakerView() {
+        if (nodeBreakerView == null) {
+            nodeBreakerView = new VoltageLevelNodeBreakerViewAdapter(getDelegate().getNodeBreakerView(), getIndex());
+        }
+        return nodeBreakerView;
     }
 
     @Override
@@ -36,14 +54,6 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public VscConverterStationAdder newVscConverterStation() {
         return new VscConverterStationAdderAdapter(getDelegate().newVscConverterStation(), getIndex());
-    }
-
-    @Override
-    public VoltageLevel.BusBreakerView getBusBreakerView() {
-        if (busBreakerView == null) {
-            busBreakerView = new VoltageLevelBusBreakerViewAdapter(getDelegate().getBusBreakerView(), getIndex());
-        }
-        return busBreakerView;
     }
 
     @Override
@@ -132,6 +142,12 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         return getDelegate().getStaticVarCompensatorStream().map(getIndex()::getStaticVarCompensator);
     }
 
+    @Override
+    public Iterable<Switch> getSwitches() {
+        return Iterables.transform(getDelegate().getSwitches(),
+                                   getIndex()::getSwitch);
+    }
+
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
@@ -171,11 +187,6 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public Iterable<Switch> getSwitches() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public DanglingLineAdder newDanglingLine() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
@@ -207,11 +218,6 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
 
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public VoltageLevel.NodeBreakerView getNodeBreakerView() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 

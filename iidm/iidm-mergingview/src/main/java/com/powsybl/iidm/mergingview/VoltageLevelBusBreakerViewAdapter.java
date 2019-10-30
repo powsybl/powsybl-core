@@ -9,6 +9,8 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.BusBreakerView;
 
+import java.util.Collections;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -25,24 +27,64 @@ public class VoltageLevelBusBreakerViewAdapter extends AbstractAdapter<VoltageLe
         return new BusAdderAdapter(getDelegate().newBus(), getIndex());
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
+    @Override
+    public Bus getBus(final String id) {
+        return getIndex().getBus(getDelegate().getBus(id));
+    }
+
     @Override
     public Iterable<Bus> getBuses() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return Collections.unmodifiableSet(getBusStream().collect(Collectors.toSet()));
     }
 
     @Override
     public Stream<Bus> getBusStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getBusStream()
+                .map(getIndex()::getBus);
     }
 
     @Override
-    public Bus getBus(final String id) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public Iterable<Switch> getSwitches() {
+        return Collections.unmodifiableSet(getSwitchStream().collect(Collectors.toSet()));
     }
 
+    @Override
+    public Stream<Switch> getSwitchStream() {
+        return getDelegate().getSwitchStream()
+                .map(getIndex()::getSwitch);
+    }
+
+    @Override
+    public Bus getBus1(final String switchId) {
+        return getIndex().getBus(getDelegate().getBus1(switchId));
+    }
+
+    @Override
+    public Bus getBus2(final String switchId) {
+        return getIndex().getBus(getDelegate().getBus2(switchId));
+    }
+
+    @Override
+    public Switch getSwitch(final String switchId) {
+        return getIndex().getSwitch(getDelegate().getSwitch(switchId));
+    }
+
+    @Override
+    public VoltageLevel.BusBreakerView.SwitchAdder newSwitch() {
+        return new VoltageLevelBusBreakerViewSwitchAdderAdapter(getDelegate().newSwitch(), getIndex());
+    }
+
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
+    @Override
+    public int getSwitchCount() {
+        return getDelegate().getSwitchCount();
+    }
+
+    // -------------------------------
+    // Not implemented methods -------
+    // -------------------------------
     @Override
     public void removeBus(final String busId) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
@@ -54,47 +96,12 @@ public class VoltageLevelBusBreakerViewAdapter extends AbstractAdapter<VoltageLe
     }
 
     @Override
-    public Iterable<Switch> getSwitches() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Switch> getSwitchStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getSwitchCount() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public void removeSwitch(final String switchId) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
     public void removeAllSwitches() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Bus getBus1(final String switchId) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Bus getBus2(final String switchId) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Switch getSwitch(final String switchId) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public VoltageLevel.BusBreakerView.SwitchAdder newSwitch() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 }

@@ -23,7 +23,7 @@ public class GeneratorAdderAdapter extends AbstractInjectionAdderAdapter<Generat
     @Override
     public Generator add() {
         checkAndSetUniqueId();
-        return new GeneratorAdapter(getDelegate().add(), getIndex());
+        return getIndex().getGenerator(getDelegate().add());
     }
 
     @Override
