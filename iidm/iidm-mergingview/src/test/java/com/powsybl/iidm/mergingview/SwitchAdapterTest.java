@@ -6,15 +6,14 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
 import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -35,14 +34,20 @@ public class SwitchAdapterTest {
         assertTrue(sw instanceof SwitchAdapter);
         assertSame(mergingView, sw.getNetwork());
 
-        // Not implemented yet !
-        TestUtil.notImplemented(sw::getVoltageLevel);
-        TestUtil.notImplemented(sw::getKind);
-        TestUtil.notImplemented(sw::isOpen);
-        TestUtil.notImplemented(() -> sw.setOpen(false));
-        TestUtil.notImplemented(sw::isRetained);
-        TestUtil.notImplemented(() -> sw.setRetained(false));
-        TestUtil.notImplemented(sw::isFictitious);
-        TestUtil.notImplemented(() -> sw.setFictitious(false));
+        assertFalse(sw.isOpen());
+        sw.setOpen(true);
+        assertTrue(sw.isOpen());
+
+        sw.setRetained(true);
+        assertTrue(sw.isRetained());
+        sw.setFictitious(true);
+        assertTrue(sw.isFictitious());
+
+        assertTrue(sw.getKind() instanceof SwitchKind);
+        assertSame(SwitchKind.DISCONNECTOR, sw.getKind());
+
+        assertTrue(sw.getVoltageLevel() instanceof VoltageLevelAdapter);
+        assertEquals("voltageLevel1", sw.getVoltageLevel().getId());
+
     }
 }
