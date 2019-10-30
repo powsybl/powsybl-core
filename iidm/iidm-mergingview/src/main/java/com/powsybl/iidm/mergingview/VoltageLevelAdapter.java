@@ -69,6 +69,36 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         return getDelegate().getVscConverterStationStream().map(getIndex()::getVscConverterStation);
     }
 
+    @Override
+    public Iterable<Battery> getBatteries() {
+        return getBatteryStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<Battery> getBatteryStream() {
+        return getDelegate().getBatteryStream().map(getIndex()::getBattery);
+    }
+
+    @Override
+    public Iterable<Generator> getGenerators() {
+        return getGeneratorStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<Generator> getGeneratorStream() {
+        return getDelegate().getGeneratorStream().map(getIndex()::getGenerator);
+    }
+
+    @Override
+    public Iterable<Load> getLoads() {
+        return getLoadStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<Load> getLoadStream() {
+        return getDelegate().getLoadStream().map(getIndex()::getLoad);
+    }
+
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
@@ -104,51 +134,6 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
 
     @Override
     public int getConnectableCount() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public GeneratorAdderAdapter newGenerator() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<Generator> getGenerators() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Generator> getGeneratorStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public BatteryAdderAdapter newBattery() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<Battery> getBatteries() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Battery> getBatteryStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public LoadAdderAdapter newLoad() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<Load> getLoads() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Load> getLoadStream() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -346,5 +331,20 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public void exportTopology(final Writer writer) throws IOException {
         getDelegate().exportTopology(writer);
+    }
+
+    @Override
+    public BatteryAdderAdapter newBattery() {
+        return new BatteryAdderAdapter(getDelegate().newBattery(), getIndex());
+    }
+
+    @Override
+    public GeneratorAdderAdapter newGenerator() {
+        return new GeneratorAdderAdapter(getDelegate().newGenerator(), getIndex());
+    }
+
+    @Override
+    public LoadAdderAdapter newLoad() {
+        return new LoadAdderAdapter(getDelegate().newLoad(), getIndex());
     }
 }

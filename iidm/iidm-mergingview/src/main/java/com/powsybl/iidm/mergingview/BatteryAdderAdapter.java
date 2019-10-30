@@ -18,61 +18,71 @@ public class BatteryAdderAdapter extends AbstractAdapter<BatteryAdder> implement
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public BatteryAdderAdapter setNode(final int node) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setNode(node);
+        return this;
     }
 
     @Override
     public BatteryAdderAdapter setBus(final String bus) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setBus(bus);
+        return this;
     }
 
     @Override
     public BatteryAdderAdapter setConnectableBus(final String connectableBus) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setConnectableBus(connectableBus);
+        return this;
     }
 
     @Override
     public BatteryAdderAdapter setId(final String id) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setId(id);
+        return this;
     }
 
     @Override
     public BatteryAdderAdapter setEnsureIdUnicity(final boolean ensureIdUnicity) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setEnsureIdUnicity(ensureIdUnicity);
+        return this;
     }
 
     @Override
     public BatteryAdderAdapter setName(final String name) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setName(name);
+        return this;
     }
 
     @Override
     public BatteryAdderAdapter setP0(final double p0) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setP0(p0);
+        return this;
     }
 
     @Override
     public BatteryAdderAdapter setQ0(final double q0) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setQ0(q0);
+        return this;
     }
 
     @Override
     public BatteryAdderAdapter setMinP(final double minP) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setMinP(minP);
+        return this;
     }
 
     @Override
     public BatteryAdderAdapter setMaxP(final double maxP) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setMaxP(maxP);
+        return this;
     }
 
     @Override
     public BatteryAdapter add() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new BatteryAdapter(getDelegate().add(), getIndex());
     }
 
 }

@@ -7,12 +7,9 @@
 package com.powsybl.iidm.mergingview;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.MinMaxReactiveLimitsAdder;
-import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
-import com.powsybl.iidm.network.ReactiveLimits;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -23,86 +20,95 @@ public class BatteryAdapter extends AbstractIdentifiableAdapter<Battery> impleme
         super(delegate, index);
     }
 
+    @Override
+    public List<? extends TerminalAdapter> getTerminals() {
+        return getDelegate().getTerminals().stream()
+            .map(getIndex()::getTerminal)
+            .collect(Collectors.toList());
+    }
+
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public TerminalAdapter getTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getTerminal(getDelegate().getTerminal());
     }
 
     @Override
     public ConnectableType getType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public List<? extends TerminalAdapter> getTerminals() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getType();
     }
 
     @Override
     public ReactiveLimits getReactiveLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getReactiveLimits();
     }
 
     @Override
     public <L extends ReactiveLimits> L getReactiveLimits(final Class<L> type) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getReactiveLimits(type);
     }
 
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().newReactiveCapabilityCurve();
     }
 
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().newMinMaxReactiveLimits();
     }
 
     @Override
     public double getP0() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getP0();
     }
 
     @Override
-    public Battery setP0(final double p0) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public BatteryAdapter setP0(final double p0) {
+        getDelegate().setP0(p0);
+        return this;
     }
 
     @Override
     public double getQ0() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getQ0();
     }
 
     @Override
-    public Battery setQ0(final double q0) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public BatteryAdapter setQ0(final double q0) {
+        getDelegate().setQ0(q0);
+        return this;
     }
 
     @Override
     public double getMinP() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getMinP();
     }
 
     @Override
-    public Battery setMinP(final double minP) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public BatteryAdapter setMinP(final double minP) {
+        getDelegate().setMinP(minP);
+        return this;
     }
 
     @Override
     public double getMaxP() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getMaxP();
     }
 
     @Override
-    public Battery setMaxP(final double maxP) {
+    public BatteryAdapter setMaxP(final double maxP) {
+        getDelegate().setMaxP(maxP);
+        return this;
+    }
+
+    // -------------------------------
+    // Not implemented methods -------
+    // -------------------------------
+    @Override
+    public void remove() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 

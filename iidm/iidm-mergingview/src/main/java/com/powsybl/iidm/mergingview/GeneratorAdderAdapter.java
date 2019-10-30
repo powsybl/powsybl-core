@@ -20,85 +20,100 @@ public class GeneratorAdderAdapter extends AbstractAdapter<GeneratorAdder> imple
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public GeneratorAdderAdapter setNode(final int node) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setNode(node);
+        return this;
     }
 
     @Override
     public GeneratorAdderAdapter setBus(final String bus) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setBus(bus);
+        return this;
     }
 
     @Override
     public GeneratorAdderAdapter setConnectableBus(final String connectableBus) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setConnectableBus(connectableBus);
+        return this;
     }
 
     @Override
     public GeneratorAdderAdapter setId(final String id) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setId(id);
+        return this;
     }
 
     @Override
     public GeneratorAdderAdapter setEnsureIdUnicity(final boolean ensureIdUnicity) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setEnsureIdUnicity(ensureIdUnicity);
+        return this;
     }
 
     @Override
     public GeneratorAdderAdapter setName(final String name) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setName(name);
+        return this;
     }
 
     @Override
     public GeneratorAdderAdapter setEnergySource(final EnergySource energySource) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public GeneratorAdderAdapter setMaxP(final double maxP) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setEnergySource(energySource);
+        return this;
     }
 
     @Override
     public GeneratorAdderAdapter setMinP(final double minP) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setMinP(minP);
+        return this;
+    }
+
+    @Override
+    public GeneratorAdderAdapter setMaxP(final double maxP) {
+        getDelegate().setMaxP(maxP);
+        return this;
     }
 
     @Override
     public GeneratorAdderAdapter setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setVoltageRegulatorOn(voltageRegulatorOn);
+        return this;
     }
 
     @Override
     public GeneratorAdderAdapter setRegulatingTerminal(final Terminal regulatingTerminal) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRegulatingTerminal(regulatingTerminal);
+        return this;
     }
 
     @Override
     public GeneratorAdderAdapter setTargetP(final double targetP) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setTargetP(targetP);
+        return this;
     }
 
     @Override
     public GeneratorAdderAdapter setTargetQ(final double targetQ) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setTargetQ(targetQ);
+        return this;
     }
 
     @Override
     public GeneratorAdderAdapter setTargetV(final double targetV) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setTargetV(targetV);
+        return this;
     }
 
     @Override
     public GeneratorAdderAdapter setRatedS(final double ratedS) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRatedS(ratedS);
+        return this;
     }
 
     @Override
     public GeneratorAdapter add() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new GeneratorAdapter(getDelegate().add(), getIndex());
     }
 }
