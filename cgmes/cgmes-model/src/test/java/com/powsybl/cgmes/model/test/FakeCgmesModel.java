@@ -543,15 +543,6 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public void copyCgmes(CgmesModel cgmes) {
-    }
-
-    @Override
-    public String getBaseName() {
-        return null;
-    }
-
-    @Override
     public void setBasename(String baseName) {
         // TODO Review if required by current tests
     }

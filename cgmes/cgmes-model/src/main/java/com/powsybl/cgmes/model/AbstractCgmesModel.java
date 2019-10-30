@@ -204,11 +204,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public String getBaseName() {
-        return this.baseName;
-    }
-
-    @Override
     public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary) {
         setBasename(CgmesModel.baseName(mainDataSource));
         read(mainDataSource);
