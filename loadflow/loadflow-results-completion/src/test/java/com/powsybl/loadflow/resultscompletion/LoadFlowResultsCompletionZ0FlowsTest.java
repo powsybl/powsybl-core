@@ -9,7 +9,6 @@ package com.powsybl.loadflow.resultscompletion;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.CandidateComputation;
@@ -85,10 +84,9 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
     }
 
     private boolean validateBuses(Network network) throws IOException {
-        ValidationConfig validationConfig = createValidationConfig();
-        TableFormatterConfig formatterConfig = new TableFormatterConfig();
+        ValidationConfig config = createValidationConfig();
         Path working = Files.createDirectories(fileSystem.getPath("temp-validation"));
-        return ValidationType.BUSES.check(network, validationConfig, formatterConfig, working);
+        return ValidationType.BUSES.check(network, config, working);
     }
 
     private Network createNetwork() {
