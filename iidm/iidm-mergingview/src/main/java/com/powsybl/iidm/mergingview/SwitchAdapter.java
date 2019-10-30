@@ -19,45 +19,45 @@ public class SwitchAdapter extends AbstractIdentifiableAdapter<Switch> implement
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
-    public VoltageLevelAdapter getVoltageLevel() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public SwitchKind getKind() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getKind();
     }
 
     @Override
     public boolean isOpen() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().isOpen();
     }
 
     @Override
     public void setOpen(final boolean open) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setOpen(open);
     }
 
     @Override
     public boolean isRetained() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().isRetained();
     }
 
     @Override
     public void setRetained(final boolean retained) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRetained(retained);
     }
 
     @Override
     public boolean isFictitious() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().isFictitious();
     }
 
     @Override
     public void setFictitious(final boolean fictitious) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setFictitious(fictitious);
+    }
+
+    @Override
+    public VoltageLevelAdapter getVoltageLevel() {
+        return getIndex().getVoltageLevel(getDelegate().getVoltageLevel());
     }
 }
