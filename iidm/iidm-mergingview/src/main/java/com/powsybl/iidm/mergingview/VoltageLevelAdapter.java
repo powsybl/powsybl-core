@@ -89,6 +89,16 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         return getDelegate().getGeneratorStream().map(getIndex()::getGenerator);
     }
 
+    @Override
+    public Iterable<Load> getLoads() {
+        return getLoadStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<Load> getLoadStream() {
+        return getDelegate().getLoadStream().map(getIndex()::getLoad);
+    }
+
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
@@ -124,21 +134,6 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
 
     @Override
     public int getConnectableCount() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public LoadAdderAdapter newLoad() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<Load> getLoads() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Load> getLoadStream() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -346,5 +341,10 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public GeneratorAdderAdapter newGenerator() {
         return new GeneratorAdderAdapter(getDelegate().newGenerator(), getIndex());
+    }
+
+    @Override
+    public LoadAdderAdapter newLoad() {
+        return new LoadAdderAdapter(getDelegate().newLoad(), getIndex());
     }
 }

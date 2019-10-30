@@ -33,7 +33,6 @@ public class GeneratorAdapter extends AbstractIdentifiableAdapter<Generator> imp
             .collect(Collectors.toList());
     }
 
-
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------

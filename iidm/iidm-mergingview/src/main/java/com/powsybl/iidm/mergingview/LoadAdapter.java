@@ -7,6 +7,7 @@
 package com.powsybl.iidm.mergingview;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Load;
@@ -21,57 +22,64 @@ public class LoadAdapter extends AbstractIdentifiableAdapter<Load> implements Lo
         super(delegate, index);
     }
 
+    @Override
+    public List<? extends TerminalAdapter> getTerminals() {
+        return getDelegate().getTerminals().stream()
+            .map(getIndex()::getTerminal)
+            .collect(Collectors.toList());
+    }
+
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public TerminalAdapter getTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getTerminal(getDelegate().getTerminal());
     }
 
     @Override
     public ConnectableType getType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public List<? extends TerminalAdapter> getTerminals() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public LoadType getLoadType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public LoadAdapter setLoadType(final LoadType loadType) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getType();
     }
 
     @Override
     public double getP0() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getP0();
     }
 
     @Override
     public LoadAdapter setP0(final double p0) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setP0(p0);
+        return this;
     }
 
     @Override
     public double getQ0() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getQ0();
     }
 
     @Override
     public LoadAdapter setQ0(final double q0) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setQ0(q0);
+        return this;
     }
 
+    @Override
+    public LoadType getLoadType() {
+        return getDelegate().getLoadType();
+    }
+
+    @Override
+    public LoadAdapter setLoadType(final LoadType loadType) {
+        getDelegate().setLoadType(loadType);
+        return this;
+    }
+
+    // -------------------------------
+    // Not implemented methods -------
+    // -------------------------------
+    @Override
+    public void remove() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
 }

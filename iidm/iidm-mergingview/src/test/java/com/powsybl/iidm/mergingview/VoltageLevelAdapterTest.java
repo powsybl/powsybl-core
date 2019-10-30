@@ -115,12 +115,19 @@ public class VoltageLevelAdapterTest {
         }
         assertEquals(1, voltageLevel.getGeneratorCount());
 
-        // Not implemented yet !
         // Load
-        TestUtil.notImplemented(voltageLevel::newLoad);
-        TestUtil.notImplemented(voltageLevel::getLoads);
-        TestUtil.notImplemented(voltageLevel::getLoadStream);
-        assertEquals(0, voltageLevel.getLoadCount());
+        voltageLevel.newLoad().setId("LOAD")
+            .setConnectableBus("B1")
+            .setP0(9999.99)
+            .setQ0(-9999.99)
+            .setEnsureIdUnicity(true).add();
+        Iterable<Load> loads = voltageLevel.getLoads();
+        for (Load load : loads) {
+            assertTrue(load instanceof LoadAdapter);
+        }
+        assertEquals(1, voltageLevel.getLoadCount());
+
+        // Not implemented yet !
         // Switch
         TestUtil.notImplemented(voltageLevel::getSwitches);
         assertEquals(0, voltageLevel.getSwitchCount());
