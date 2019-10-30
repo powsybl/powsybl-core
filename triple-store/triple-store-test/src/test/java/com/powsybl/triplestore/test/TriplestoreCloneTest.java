@@ -12,7 +12,7 @@ public class TriplestoreCloneTest {
     public void testCloneUndependent() {
         String base = "foo:foaf";
         String[] inputs = {"foaf/abc-nicks.ttl", "foaf/abc-lastNames.ttl" };
-        QueryCatalog queries = new QueryCatalog("foaf/foaf-graphs-update.sparql");
+        QueryCatalog queries = new QueryCatalog("foaf/foaf.sparql");
         tester = new TripleStoreTester(
             TripleStoreFactory.allImplementations(), base, inputs);
         tester.load();
