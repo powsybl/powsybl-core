@@ -250,22 +250,12 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
             } catch (RepositoryException e) {
                 LOG.error("Cloning from origin to repo : {}", e.getMessage());
             } finally {
-                closeConnection(conn);
+                closeConnection(conn, "Copying from origin");
             }
         } catch (RepositoryException e) {
             LOG.error("Connect to the original repo : {}", e.getMessage());
         } finally {
-            closeConnection(connOrigin);
-        }
-    }
-
-    private void closeConnection(RepositoryConnection conn) {
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (RepositoryException e) {
-                LOG.error("Closing connection : {}", e.getMessage());
-            }
+            closeConnection(connOrigin, "Copying from origin");
         }
     }
 

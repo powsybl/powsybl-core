@@ -90,42 +90,6 @@ public class TripleStoreTester {
         }
     }
 
-    void testPerformanceCloneByStatements() {
-        for (String impl : implementations) {
-            start = System.currentTimeMillis();
-            LOG.info("totalMemory, GB: " + Runtime.getRuntime().totalMemory() / 1e+9);
-            TripleStore ts = TripleStoreFactory.create(impl);
-            TripleStore tsOrigin = tripleStores.get(impl);
-            ts.copyFrom(tsOrigin, baseName);
-            LOG.info("usedMemory, GB: " +
-                (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1e+9);
-            end = System.currentTimeMillis();
-            LOG.info(String.format("Clone repository by statementes for %s took: %d milliseconds", impl, end - start));
-        }
-    }
-
-    void testPerformanceImportFiles() {
-        // Load the model for every triple store implementation
-        for (String impl : implementations) {
-            start = System.currentTimeMillis();
-            LOG.info("totalMemory, GB: " + Runtime.getRuntime().totalMemory() / 1e+9);
-            TripleStore ts = TripleStoreFactory.create(impl);
-            assertNotNull(ts);
-            for (String r : inputResourceNames) {
-                try (InputStream is = resourceStream(r)) {
-                    ts.read(is, baseName, r);
-                } catch (IOException e) {
-                    throw new TripleStoreException(String.format("Reading %s %s", baseName, r), e);
-                }
-            }
-            tripleStores.put(impl, ts);
-            LOG.info("usedMemory, GB: " +
-                (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1e+9);
-            end = System.currentTimeMillis();
-            LOG.info(String.format("Load XML files for %s took: %d milliseconds", impl, end - start));
-        }
-    }
-
     public void testClear(String contextName, String namespace) {
         for (String impl : implementations) {
             TripleStore ts = tripleStores.get(impl);

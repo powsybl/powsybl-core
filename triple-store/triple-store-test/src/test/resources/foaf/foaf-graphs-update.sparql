@@ -1,0 +1,9 @@
+
+# query: selectNickName
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT * {
+	GRAPH ?graphPersons
+				{ ?x 
+                foaf:mailbox ?mbox ;
+			    foaf:nick ?nick	}
+	}
