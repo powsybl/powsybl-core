@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.model.AbstractCgmesModel;
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
@@ -456,6 +457,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     public PropertyBags query(String queryText) {
         return tripleStore.query(queryText);
+    }
+
+    @Override
+    public void copyCgmes(CgmesModel cgmes) {
+        tripleStore.copyFrom(cgmes.tripleStore(), cgmes.getBaseName());
     }
 
     @Override

@@ -126,6 +126,8 @@ public interface CgmesModel {
 
     PropertyBags dcTerminalsTP();
 
+    public void copyCgmes(CgmesModel cgmes);
+
     void clear(CgmesSubset subset);
 
     void add(CgmesSubset subset, String type, PropertyBags objects);
@@ -141,6 +143,8 @@ public interface CgmesModel {
     }
 
     void setBasename(String baseName);
+
+    String getBaseName();
 
     void write(DataSource ds);
 

@@ -24,6 +24,7 @@ import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.BindingSet;
@@ -54,6 +55,7 @@ import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
 import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreException;
 
 /**
@@ -79,6 +81,10 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         } catch (RepositoryException x) {
             LOG.error("Repository could not be created {}", x.getMessage());
         }
+    }
+
+    public Repository getRepository() {
+        return repo;
     }
 
     private void closeConnection(RepositoryConnection cnx, String operation) {
@@ -225,6 +231,89 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
             return null;
         } finally {
             closeConnection(cnx, "Querying");
+        }
+    }
+
+    @Override
+    public void copyFrom(TripleStore origin, String baseName) {
+        Repository repoOrigin = ((TripleStoreBlazegraph) origin).getRepository();
+        RepositoryConnection connOrigin = null;
+        RepositoryConnection conn = null;
+        try {
+            connOrigin = repoOrigin.getConnection();
+            try {
+                conn = repo.getConnection();
+                conn.begin();
+                cloneNamespaces(connOrigin, conn, baseName);
+                replicateStatements(connOrigin, conn);
+                conn.commit();
+            } catch (RepositoryException e) {
+                LOG.error("Cloning from origin to repo : {}", e.getMessage());
+            } finally {
+                closeConnection(conn);
+            }
+        } catch (RepositoryException e) {
+            LOG.error("Connect to the original repo : {}", e.getMessage());
+        } finally {
+            closeConnection(connOrigin);
+        }
+    }
+
+    private void closeConnection(RepositoryConnection conn) {
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (RepositoryException e) {
+                LOG.error("Closing connection : {}", e.getMessage());
+            }
+        }
+    }
+
+    private void cloneNamespaces(RepositoryConnection connOrigin, RepositoryConnection conn,
+        String baseName) {
+        List<PrefixNamespace> namespaces = new ArrayList<>();
+        RepositoryResult<Namespace> ns;
+        try {
+            connOrigin.setNamespace("data", baseName.concat("#"));
+            ns = connOrigin.getNamespaces();
+            while (ns.hasNext()) {
+                Namespace namespace = ns.next();
+                namespaces.add(new PrefixNamespace(namespace.getPrefix(), namespace.getName()));
+            }
+            for (PrefixNamespace pn : namespaces) {
+                String prefix = pn.getPrefix();
+                String namespace = pn.getNamespace();
+                conn.setNamespace(prefix, namespace);
+            }
+        } catch (RepositoryException e) {
+            LOG.error("Cloning Namespaces : {}", e.getMessage());
+        }
+    }
+
+    private void replicateStatements(RepositoryConnection connOrigin,
+        RepositoryConnection conn) throws RepositoryException {
+        ValueFactory vfac = conn.getValueFactory();
+        RepositoryResult<Resource> contexts = connOrigin.getContextIDs();
+        while (contexts.hasNext()) {
+            Resource context = contexts.next();
+            RepositoryResult<Statement> statements = connOrigin.getStatements(null, null, null, true, context);
+            // we need to get StringValue from each item, to get rid of the original repo
+            // references.
+            while (statements.hasNext()) {
+                Statement st = statements.next();
+                URI sClone = vfac.createURI(st.getSubject().stringValue());
+                URI pClone = vfac.createURI(st.getPredicate().stringValue());
+                Resource contextClone = vfac.createURI(st.getContext().stringValue());
+                if (st.getObject() instanceof URI) {
+                    URI oClone = vfac.createURI(st.getObject().stringValue());
+                    Statement statementClone = vfac.createStatement(sClone, pClone, oClone, contextClone);
+                    conn.add(statementClone);
+                } else {
+                    Literal oClone = vfac.createLiteral(st.getObject().stringValue());
+                    Statement statementClone = vfac.createStatement(sClone, pClone, oClone, contextClone);
+                    conn.add(statementClone);
+                }
+            }
         }
     }
 

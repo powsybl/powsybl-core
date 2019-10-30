@@ -51,6 +51,7 @@ import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
 import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreException;
 
 /**
@@ -180,6 +181,43 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             }
         }
         return results;
+    }
+
+    @Override
+    public void copyFrom(TripleStore origin, String baseName) {
+        Repository repoOrigin = ((TripleStoreRDF4J) origin).getRepository();
+        try (RepositoryConnection connOrigin = repoOrigin.getConnection()) {
+
+            try (RepositoryConnection conn = repo.getConnection()) {
+                cloneNamespaces(connOrigin, conn);
+                // clone statements
+                RepositoryResult<Resource> contexts = connOrigin.getContextIDs();
+                while (contexts.hasNext()) {
+                    Resource context = contexts.next();
+                    RepositoryResult<Statement> statements;
+                    statements = connOrigin.getStatements(null, null, null, context);
+                    // add statements to the new repository
+                    while (statements.hasNext()) {
+                        Statement statement = statements.next();
+                        conn.add(statement);
+                    }
+                }
+            }
+        }
+    }
+
+    private void cloneNamespaces(RepositoryConnection connOrigin, RepositoryConnection conn) {
+        List<PrefixNamespace> namespaces = new ArrayList<>();
+        RepositoryResult<Namespace> ns = connOrigin.getNamespaces();
+        while (ns.hasNext()) {
+            Namespace namespace = ns.next();
+            namespaces.add(new PrefixNamespace(namespace.getPrefix(), namespace.getName()));
+        }
+        for (PrefixNamespace pn : namespaces) {
+            String prefix = pn.getPrefix();
+            String namespace = pn.getNamespace();
+            conn.setNamespace(prefix, namespace);
+        }
     }
 
     @Override

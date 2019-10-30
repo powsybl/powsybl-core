@@ -58,6 +58,14 @@ public class TripleStoreTester {
         }
     }
 
+    void loadClone() {
+        for (String impl : implementations) {
+            ts = TripleStoreFactory.create(impl);
+            TripleStore tsOrigin = tripleStores.get(impl);
+            ts.copyFrom(tsOrigin, baseName);
+        }
+    }
+
     void testQuery(String queryText, Expected expected) {
         for (String impl : implementations) {
             PropertyBags results = tripleStores.get(impl).query(queryText);
@@ -67,6 +75,54 @@ public class TripleStoreTester {
             assertEquals(size, results.size());
             expected.keySet()
                 .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
+        }
+    }
+
+    void testQueryClone(String queryText, Expected expected) {
+        for (String impl : implementations) {
+            PropertyBags results = ts.query(queryText);
+            logResults(impl, results, expected);
+            assertTrue(!results.isEmpty());
+            int size = expected.values().iterator().next().size();
+            assertEquals(size, results.size());
+            expected.keySet()
+                .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
+        }
+    }
+
+    void testPerformanceCloneByStatements() {
+        for (String impl : implementations) {
+            start = System.currentTimeMillis();
+            LOG.info("totalMemory, GB: " + Runtime.getRuntime().totalMemory() / 1e+9);
+            TripleStore ts = TripleStoreFactory.create(impl);
+            TripleStore tsOrigin = tripleStores.get(impl);
+            ts.copyFrom(tsOrigin, baseName);
+            LOG.info("usedMemory, GB: " +
+                (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1e+9);
+            end = System.currentTimeMillis();
+            LOG.info(String.format("Clone repository by statementes for %s took: %d milliseconds", impl, end - start));
+        }
+    }
+
+    void testPerformanceImportFiles() {
+        // Load the model for every triple store implementation
+        for (String impl : implementations) {
+            start = System.currentTimeMillis();
+            LOG.info("totalMemory, GB: " + Runtime.getRuntime().totalMemory() / 1e+9);
+            TripleStore ts = TripleStoreFactory.create(impl);
+            assertNotNull(ts);
+            for (String r : inputResourceNames) {
+                try (InputStream is = resourceStream(r)) {
+                    ts.read(is, baseName, r);
+                } catch (IOException e) {
+                    throw new TripleStoreException(String.format("Reading %s %s", baseName, r), e);
+                }
+            }
+            tripleStores.put(impl, ts);
+            LOG.info("usedMemory, GB: " +
+                (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1e+9);
+            end = System.currentTimeMillis();
+            LOG.info(String.format("Load XML files for %s took: %d milliseconds", impl, end - start));
         }
     }
 
@@ -126,6 +182,9 @@ public class TripleStoreTester {
     private final String baseName;
     private final String[] inputResourceNames;
     private final Map<String, TripleStore> tripleStores;
+    private TripleStore ts;
+    private static long start;
+    private static long end;
 
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreTester.class);
 }

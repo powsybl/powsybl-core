@@ -34,6 +34,7 @@ import org.apache.jena.rdf.model.RDFWriter;
 import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.rdf.model.impl.Util;
 import org.apache.jena.shared.PropertyNotFoundException;
 import org.apache.jena.vocabulary.RDF;
@@ -43,6 +44,7 @@ import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
 import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreException;
 
 /**
@@ -65,6 +67,10 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         // graph
         // https://stackoverflow.com/questions/6981467/jena-arq-difference-between-model-graph-and-dataset
         union = ModelFactory.createDefaultModel();
+    }
+
+    public Dataset getDataset() {
+        return dataset;
     }
 
     @Override
@@ -150,6 +156,53 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
             }
         }
         return results;
+    }
+
+    @Override
+    public void copyFrom(TripleStore origin, String baseName) {
+        Iterator<String> names = null;
+        Dataset datasetOrigin = ((TripleStoreJena) origin).getDataset();
+        cloneNamespaces(datasetOrigin, baseName);
+        names = datasetOrigin.listNames();
+        while (names.hasNext()) {
+            List<Statement> listStatements = new ArrayList<Statement>();
+            String name = names.next();
+            String context = namedModelFromName(name);
+            Model model = dataset.getNamedModel(context);
+            if (datasetOrigin.containsNamedModel(context)) {
+                Model m = datasetOrigin.getNamedModel(context);
+                StmtIterator statements = m.listStatements();
+                while (statements.hasNext()) {
+                    Statement statement = statements.next();
+                    listStatements.add(statement);
+                }
+                model.add(listStatements);
+                union = union.union(model);
+            }
+        }
+    }
+
+    private void cloneNamespaces(Dataset datasetOrigin, String baseName) {
+        Model unionOrigin = ModelFactory.createDefaultModel();
+        Iterator<String> names = datasetOrigin.listNames();
+        while (names.hasNext()) {
+            String name = names.next();
+            Model m = datasetOrigin.getNamedModel(name);
+            unionOrigin = unionOrigin.union(m);
+        }
+        unionOrigin.setNsPrefix("data", baseName.concat("#"));
+
+        Map<String, String> namespacesMap = unionOrigin.getNsPrefixMap();
+        // set these namespaces to the destination
+        List<PrefixNamespace> namespaces = new ArrayList<>();
+        namespacesMap.keySet().forEach(
+            prefix -> namespaces.add(new PrefixNamespace(prefix, namespacesMap.get(prefix))));
+
+        for (PrefixNamespace pn : namespaces) {
+            String prefix = pn.getPrefix();
+            String namespace = pn.getNamespace();
+            union.setNsPrefix(prefix, namespace);
+        }
     }
 
     @Override
