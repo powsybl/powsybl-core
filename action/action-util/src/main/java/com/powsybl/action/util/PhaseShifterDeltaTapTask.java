@@ -25,6 +25,10 @@ public class PhaseShifterDeltaTapTask implements ModificationTask {
         this.tapDelta = tapDelta;
     }
 
+    public int getTapDelta() {
+        return tapDelta;
+    }
+
     @Override
     public void modify(Network network, ComputationManager computationManager) {
         Objects.requireNonNull(network);
@@ -32,24 +36,18 @@ public class PhaseShifterDeltaTapTask implements ModificationTask {
         if (phaseShifter == null) {
             throw new PowsyblException("Transformer '" + phaseShifterId + "' not found");
         }
-        if (phaseShifter.getPhaseTapChanger() == null) {
+        PhaseTapChanger phaseTapChanger = phaseShifter.getPhaseTapChanger();
+        Objects.requireNonNull(phaseTapChanger);
+        if (phaseTapChanger == null) {
             throw new PowsyblException("Transformer '" + phaseShifterId + "' is not a phase shifter");
         }
-        adjustTapPosition(phaseShifter);
-        phaseShifter.getPhaseTapChanger().setRegulating(false);
-        phaseShifter.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.DELTA_TAP);
-
+        adjustTapPosition(phaseTapChanger);
+        phaseTapChanger.setRegulating(false);
+        phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
     }
 
-    private void adjustTapPosition(TwoWindingsTransformer phaseShifter) {
-        if (tapDelta >= 0) {
-            phaseShifter.getPhaseTapChanger().setTapPosition(
-                    Math.min(phaseShifter.getPhaseTapChanger().getTapPosition() + tapDelta,
-                            phaseShifter.getPhaseTapChanger().getHighTapPosition()));
-        } else {
-            phaseShifter.getPhaseTapChanger().setTapPosition(
-                    Math.max(phaseShifter.getPhaseTapChanger().getTapPosition() + tapDelta,
-                            phaseShifter.getPhaseTapChanger().getLowTapPosition()));
-        }
+    private void adjustTapPosition(PhaseTapChanger phaseTapChanger) {
+        phaseTapChanger.setTapPosition(Math.min(Math.max(phaseTapChanger.getTapPosition() + tapDelta,
+                phaseTapChanger.getLowTapPosition()), phaseTapChanger.getHighTapPosition()));
     }
 }
