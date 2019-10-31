@@ -147,6 +147,14 @@ public class TripleStoreTester {
         }
     }
 
+    TripleStore tripleStore(String impl) {
+        return tripleStores.get(impl);
+    }
+
+    TripleStore tripleStoreCopy(String impl) {
+        return tripleStoreCopies.get(impl);
+    }
+
     private final List<String> implementations;
     private final String baseName;
     private final String[] inputResourceNames;

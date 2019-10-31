@@ -24,11 +24,9 @@ public class TripleStoreFactoryServiceRDF4J implements TripleStoreFactoryService
 
     @Override
     public TripleStore copy(TripleStore source) {
-        // FIXME use a copy constructor
+        // FIXME use a copy constructor?
         TripleStore ts = new TripleStoreRDF4J();
-        // FIXME why baseName is needed
-        String baseName = "";
-        ts.copyFrom(source, baseName);
+        ts.copyFrom(source);
         return ts;
     }
 

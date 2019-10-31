@@ -57,7 +57,7 @@ public interface TripleStore {
 
     Set<String> contextNames();
 
-    void copyFrom(TripleStore origin, String baseName);
+    void copyFrom(TripleStore source);
 
     /**
      * Add a namespace to the triple store

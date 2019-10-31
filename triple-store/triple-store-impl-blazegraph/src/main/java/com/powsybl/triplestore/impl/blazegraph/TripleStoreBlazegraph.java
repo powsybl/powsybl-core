@@ -242,74 +242,72 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void copyFrom(TripleStore origin, String baseName) {
-        Repository repoOrigin = ((TripleStoreBlazegraph) origin).getRepository();
-        RepositoryConnection connOrigin = null;
-        RepositoryConnection conn = null;
+    public void copyFrom(TripleStore source) {
+        Repository sourceRepository = ((TripleStoreBlazegraph) source).getRepository();
+        RepositoryConnection sourceConn = null;
         try {
-            connOrigin = repoOrigin.getConnection();
-            try {
-                conn = repo.getConnection();
-                conn.begin();
-                cloneNamespaces(connOrigin, conn, baseName);
-                replicateStatements(connOrigin, conn);
-                conn.commit();
-            } catch (RepositoryException e) {
-                LOG.error("Cloning from origin to repo : {}", e.getMessage());
-            } finally {
-                closeConnection(conn, "Copying from origin");
-            }
+            sourceConn = sourceRepository.getConnection();
+            copyFrom(sourceConn);
         } catch (RepositoryException e) {
-            LOG.error("Connect to the original repo : {}", e.getMessage());
+            LOG.error("Connecting to the source repository : {}", e.getMessage());
         } finally {
-            closeConnection(connOrigin, "Copying from origin");
+            if (sourceConn != null) {
+                closeConnection(sourceConn, "Copying from source");
+            }
         }
     }
 
-    private void cloneNamespaces(RepositoryConnection connOrigin, RepositoryConnection conn,
-        String baseName) {
-        List<PrefixNamespace> namespaces = new ArrayList<>();
-        RepositoryResult<Namespace> ns;
+    private void copyFrom(RepositoryConnection sourceConn) {
+        RepositoryConnection targetConn = null;
         try {
-            connOrigin.setNamespace("data", baseName.concat("#"));
-            ns = connOrigin.getNamespaces();
+            targetConn = repo.getConnection();
+            targetConn.begin();
+            copyNamespaces(sourceConn, targetConn);
+            copyStatements(sourceConn, targetConn);
+            targetConn.commit();
+        } catch (RepositoryException e) {
+            LOG.error("Copying from source : {}", e.getMessage());
+        } finally {
+            if (targetConn != null) {
+                closeConnection(targetConn, "Copying from source");
+            }
+        }
+    }
+
+    private static void copyNamespaces(RepositoryConnection source, RepositoryConnection target) {
+        try {
+            RepositoryResult<Namespace> ns = source.getNamespaces();
             while (ns.hasNext()) {
                 Namespace namespace = ns.next();
-                namespaces.add(new PrefixNamespace(namespace.getPrefix(), namespace.getName()));
-            }
-            for (PrefixNamespace pn : namespaces) {
-                String prefix = pn.getPrefix();
-                String namespace = pn.getNamespace();
-                conn.setNamespace(prefix, namespace);
+                target.setNamespace(namespace.getPrefix(), namespace.getName());
             }
         } catch (RepositoryException e) {
-            LOG.error("Cloning Namespaces : {}", e.getMessage());
+            LOG.error("Copying Namespaces : {}", e.getMessage());
         }
     }
 
-    private void replicateStatements(RepositoryConnection connOrigin,
-        RepositoryConnection conn) throws RepositoryException {
-        ValueFactory vfac = conn.getValueFactory();
-        RepositoryResult<Resource> contexts = connOrigin.getContextIDs();
+    private static void copyStatements(RepositoryConnection sourceConn, RepositoryConnection targetConn) throws RepositoryException {
+        ValueFactory vfac = targetConn.getValueFactory();
+        RepositoryResult<Resource> contexts = sourceConn.getContextIDs();
         while (contexts.hasNext()) {
             Resource context = contexts.next();
-            RepositoryResult<Statement> statements = connOrigin.getStatements(null, null, null, true, context);
-            // we need to get StringValue from each item, to get rid of the original repo
+            RepositoryResult<Statement> statements = sourceConn.getStatements(null, null, null, true, context);
+            // we need to get StringValue from each item, to get rid of the source repo
             // references.
             while (statements.hasNext()) {
                 Statement st = statements.next();
-                URI sClone = vfac.createURI(st.getSubject().stringValue());
-                URI pClone = vfac.createURI(st.getPredicate().stringValue());
-                Resource contextClone = vfac.createURI(st.getContext().stringValue());
+                URI s = vfac.createURI(st.getSubject().stringValue());
+                URI p = vfac.createURI(st.getPredicate().stringValue());
+                Resource targetContext = vfac.createURI(st.getContext().stringValue());
+                Statement targetStatement;
                 if (st.getObject() instanceof URI) {
-                    URI oClone = vfac.createURI(st.getObject().stringValue());
-                    Statement statementClone = vfac.createStatement(sClone, pClone, oClone, contextClone);
-                    conn.add(statementClone);
+                    URI o = vfac.createURI(st.getObject().stringValue());
+                    targetStatement = vfac.createStatement(s, p, o, targetContext);
                 } else {
-                    Literal oClone = vfac.createLiteral(st.getObject().stringValue());
-                    Statement statementClone = vfac.createStatement(sClone, pClone, oClone, contextClone);
-                    conn.add(statementClone);
+                    Literal o = vfac.createLiteral(st.getObject().stringValue());
+                    targetStatement = vfac.createStatement(s, p, o, targetContext);
                 }
+                targetConn.add(targetStatement);
             }
         }
     }

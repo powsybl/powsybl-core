@@ -25,8 +25,7 @@ public class TripleStoreFactoryServiceBlazegraph implements TripleStoreFactorySe
     @Override
     public TripleStore copy(TripleStore source) {
         TripleStore ts = new TripleStoreBlazegraph();
-        String baseName = "";
-        ts.copyFrom(source, baseName);
+        ts.copyFrom(source);
         return ts;
     }
 

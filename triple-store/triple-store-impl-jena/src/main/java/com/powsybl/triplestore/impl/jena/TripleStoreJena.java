@@ -166,50 +166,29 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void copyFrom(TripleStore origin, String baseName) {
-        Iterator<String> names = null;
-        Dataset datasetOrigin = ((TripleStoreJena) origin).getDataset();
-        cloneNamespaces(datasetOrigin, baseName);
-        names = datasetOrigin.listNames();
+    public void copyFrom(TripleStore source) {
+        Dataset sourceDataset = ((TripleStoreJena) source).getDataset();
+        Iterator<String> names = sourceDataset.listNames();
         while (names.hasNext()) {
-            List<Statement> listStatements = new ArrayList<Statement>();
             String name = names.next();
             String context = namedModelFromName(name);
-            Model model = dataset.getNamedModel(context);
-            if (datasetOrigin.containsNamedModel(context)) {
-                Model m = datasetOrigin.getNamedModel(context);
-                StmtIterator statements = m.listStatements();
-                while (statements.hasNext()) {
-                    Statement statement = statements.next();
-                    listStatements.add(statement);
+            if (sourceDataset.containsNamedModel(context)) {
+                Model targetModel = ModelFactory.createDefaultModel();
+                Model sourceModel = sourceDataset.getNamedModel(context);
+                copyNamespaces(sourceModel, targetModel);
+
+                StmtIterator sourceStatements = sourceModel.listStatements();
+                while (sourceStatements.hasNext()) {
+                    targetModel.add(sourceStatements.next());
                 }
-                model.add(listStatements);
-                union = union.union(model);
+                dataset.addNamedModel(context, targetModel);
+                union = union.union(targetModel);
             }
         }
     }
 
-    private void cloneNamespaces(Dataset datasetOrigin, String baseName) {
-        Model unionOrigin = ModelFactory.createDefaultModel();
-        Iterator<String> names = datasetOrigin.listNames();
-        while (names.hasNext()) {
-            String name = names.next();
-            Model m = datasetOrigin.getNamedModel(name);
-            unionOrigin = unionOrigin.union(m);
-        }
-        unionOrigin.setNsPrefix("data", baseName.concat("#"));
-
-        Map<String, String> namespacesMap = unionOrigin.getNsPrefixMap();
-        // set these namespaces to the destination
-        List<PrefixNamespace> namespaces = new ArrayList<>();
-        namespacesMap.keySet().forEach(
-            prefix -> namespaces.add(new PrefixNamespace(prefix, namespacesMap.get(prefix))));
-
-        for (PrefixNamespace pn : namespaces) {
-            String prefix = pn.getPrefix();
-            String namespace = pn.getNamespace();
-            union.setNsPrefix(prefix, namespace);
-        }
+    private void copyNamespaces(Model source, Model target) {
+        source.getNsPrefixMap().entrySet().forEach(e -> target.setNsPrefix(e.getKey(), e.getValue()));
     }
 
     @Override

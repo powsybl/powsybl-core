@@ -191,39 +191,34 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void copyFrom(TripleStore origin, String baseName) {
-        Repository repoOrigin = ((TripleStoreRDF4J) origin).getRepository();
-        try (RepositoryConnection connOrigin = repoOrigin.getConnection()) {
-
-            try (RepositoryConnection conn = repo.getConnection()) {
-                cloneNamespaces(connOrigin, conn);
-                // clone statements
-                RepositoryResult<Resource> contexts = connOrigin.getContextIDs();
+    public void copyFrom(TripleStore source) {
+        Repository sourceRepo = ((TripleStoreRDF4J) source).getRepository();
+        try (RepositoryConnection sourceConn = sourceRepo.getConnection()) {
+            try (RepositoryConnection targetConn = repo.getConnection()) {
+                copyNamespaces(sourceConn, targetConn);
+                // copy statements
+                RepositoryResult<Resource> contexts = sourceConn.getContextIDs();
                 while (contexts.hasNext()) {
-                    Resource context = contexts.next();
+                    Resource sourceContext = contexts.next();
+                    Resource targetContext = context(targetConn, sourceContext.stringValue());
+
                     RepositoryResult<Statement> statements;
-                    statements = connOrigin.getStatements(null, null, null, context);
+                    statements = sourceConn.getStatements(null, null, null, sourceContext);
                     // add statements to the new repository
                     while (statements.hasNext()) {
                         Statement statement = statements.next();
-                        conn.add(statement);
+                        targetConn.add(statement, targetContext);
                     }
                 }
             }
         }
     }
 
-    private void cloneNamespaces(RepositoryConnection connOrigin, RepositoryConnection conn) {
-        List<PrefixNamespace> namespaces = new ArrayList<>();
-        RepositoryResult<Namespace> ns = connOrigin.getNamespaces();
+    private static void copyNamespaces(RepositoryConnection sourceConn, RepositoryConnection targetConn) {
+        RepositoryResult<Namespace> ns = sourceConn.getNamespaces();
         while (ns.hasNext()) {
             Namespace namespace = ns.next();
-            namespaces.add(new PrefixNamespace(namespace.getPrefix(), namespace.getName()));
-        }
-        for (PrefixNamespace pn : namespaces) {
-            String prefix = pn.getPrefix();
-            String namespace = pn.getNamespace();
-            conn.setNamespace(prefix, namespace);
+            targetConn.setNamespace(namespace.getPrefix(), namespace.getName());
         }
     }
 
@@ -332,7 +327,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         cnx.setNamespace("data", base + "/#");
     }
 
-    private Resource context(RepositoryConnection conn, String contextName) {
+    private static Resource context(RepositoryConnection conn, String contextName) {
         // Remove the namespaceForContexts from contextName if it already starts with it
         String name1 = contextName.replace(namespaceForContexts(), "");
         return conn.getValueFactory().createIRI(namespaceForContexts(), name1);
