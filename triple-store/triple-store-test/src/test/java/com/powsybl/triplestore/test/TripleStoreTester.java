@@ -58,7 +58,7 @@ public class TripleStoreTester {
         }
     }
 
-    void loadClone() {
+    void createCopies() {
         for (String impl : implementations) {
             ts = TripleStoreFactory.create(impl);
             TripleStore tsOrigin = tripleStores.get(impl);
@@ -70,15 +70,19 @@ public class TripleStoreTester {
         for (String impl : implementations) {
             PropertyBags results = tripleStores.get(impl).query(queryText);
             logResults(impl, results, expected);
-            assertTrue(!results.isEmpty());
-            int size = expected.values().iterator().next().size();
-            assertEquals(size, results.size());
-            expected.keySet()
-                .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
+            if (expected.isEmpty()) {
+                assertTrue(results.isEmpty());
+            } else {
+                assertTrue(!results.isEmpty());
+                int size = expected.values().iterator().next().size();
+                assertEquals(size, results.size());
+                expected.keySet()
+                    .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
+            }
         }
     }
 
-    void testQueryClone(String queryText, Expected expected) {
+    void testQueryOnCopies(String queryText, Expected expected) {
         for (String impl : implementations) {
             PropertyBags results = ts.query(queryText);
             logResults(impl, results, expected);
@@ -90,7 +94,7 @@ public class TripleStoreTester {
         }
     }
 
-    public void testClear(String contextName, String namespace) {
+    public void clear(String contextName, String namespace) {
         for (String impl : implementations) {
             TripleStore ts = tripleStores.get(impl);
             Set<String> before = ts.contextNames();
