@@ -59,9 +59,16 @@ import com.powsybl.triplestore.api.TripleStoreException;
  */
 public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
+    static final String NAME = "rdf4j";
+
     public TripleStoreRDF4J() {
         repo = new SailRepository(new MemoryStore());
         repo.initialize();
+    }
+
+    @Override
+    public String getImplementationName() {
+        return NAME;
     }
 
     public Repository getRepository() {
@@ -355,5 +362,4 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     private boolean writeBySubject = true;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TripleStoreRDF4J.class);
-
 }

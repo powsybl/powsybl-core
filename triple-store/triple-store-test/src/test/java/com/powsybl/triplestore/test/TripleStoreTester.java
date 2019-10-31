@@ -39,6 +39,7 @@ public class TripleStoreTester {
         this.baseName = baseName;
         this.inputResourceNames = inputResourceNames;
         this.tripleStores = new HashMap<>(implementations.size());
+        this.tripleStoreCopies = new HashMap<>(implementations.size());
     }
 
     void load() {
@@ -60,38 +61,38 @@ public class TripleStoreTester {
 
     void createCopies() {
         for (String impl : implementations) {
-            ts = TripleStoreFactory.create(impl);
-            TripleStore tsOrigin = tripleStores.get(impl);
-            ts.copyFrom(tsOrigin, baseName);
+            TripleStore source = tripleStores.get(impl);
+            TripleStore target = TripleStoreFactory.copy(source);
+            tripleStoreCopies.put(impl, target);
         }
     }
 
     void testQuery(String queryText, Expected expected) {
         for (String impl : implementations) {
             PropertyBags results = tripleStores.get(impl).query(queryText);
-            logResults(impl, results, expected);
-            if (expected.isEmpty()) {
-                assertTrue(results.isEmpty());
-            } else {
-                assertTrue(!results.isEmpty());
-                int size = expected.values().iterator().next().size();
-                assertEquals(size, results.size());
-                expected.keySet()
-                    .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
-            }
+            testQueryResults(impl, results, expected);
         }
     }
 
     void testQueryOnCopies(String queryText, Expected expected) {
         for (String impl : implementations) {
-            PropertyBags results = ts.query(queryText);
-            logResults(impl, results, expected);
+            PropertyBags results = tripleStoreCopies.get(impl).query(queryText);
+            testQueryResults(impl, results, expected);
+        }
+    }
+
+    void testQueryResults(String impl, PropertyBags results, Expected expected) {
+        logResults(impl, results, expected);
+        if (expected.isEmpty()) {
+            assertTrue(results.isEmpty());
+        } else {
             assertTrue(!results.isEmpty());
             int size = expected.values().iterator().next().size();
             assertEquals(size, results.size());
             expected.keySet()
                 .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
         }
+
     }
 
     public void clear(String contextName, String namespace) {
@@ -150,9 +151,7 @@ public class TripleStoreTester {
     private final String baseName;
     private final String[] inputResourceNames;
     private final Map<String, TripleStore> tripleStores;
-    private TripleStore ts;
-    private static long start;
-    private static long end;
+    private final Map<String, TripleStore> tripleStoreCopies;
 
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreTester.class);
 }

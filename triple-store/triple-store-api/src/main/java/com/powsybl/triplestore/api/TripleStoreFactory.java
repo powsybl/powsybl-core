@@ -29,6 +29,17 @@ public final class TripleStoreFactory {
         return create(DEFAULT_IMPLEMENTATION);
     }
 
+    public static TripleStore copy(TripleStore source) {
+        // Use the same implementation of the source TripleStore
+        String impl = source.getImplementationName();
+        for (TripleStoreFactoryService ts : LOADER.getServices()) {
+            if (ts.getImplementationName().equals(impl)) {
+                return ts.copy(source);
+            }
+        }
+        throw new PowsyblException("No implementation available for triple store " + impl);
+    }
+
     public static TripleStore create(String impl) {
         Objects.requireNonNull(impl);
         for (TripleStoreFactoryService ts : LOADER.getServices()) {

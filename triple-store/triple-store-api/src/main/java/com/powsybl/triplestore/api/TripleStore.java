@@ -74,4 +74,6 @@ public interface TripleStore {
      */
     List<PrefixNamespace> getNamespaces();
 
+    String getImplementationName();
+
 }

@@ -14,6 +14,8 @@ public interface TripleStoreFactoryService {
 
     TripleStore create();
 
+    TripleStore copy(TripleStore source);
+
     String getImplementationName();
 
     boolean isWorkingWithNestedGraphClauses();

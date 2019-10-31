@@ -52,6 +52,8 @@ import com.powsybl.triplestore.api.TripleStoreException;
  */
 public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
+    static final String NAME = "jena";
+
     public TripleStoreJena() {
         // creates an in-memory Jena model that is able to contain multiple graphs
         dataset = DatasetFactory.createMem();
@@ -67,6 +69,11 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         // graph
         // https://stackoverflow.com/questions/6981467/jena-arq-difference-between-model-graph-and-dataset
         union = ModelFactory.createDefaultModel();
+    }
+
+    @Override
+    public String getImplementationName() {
+        return NAME;
     }
 
     public Dataset getDataset() {
@@ -355,5 +362,4 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     private final Dataset dataset;
     private Model union;
     private RDFWriter writer;
-
 }

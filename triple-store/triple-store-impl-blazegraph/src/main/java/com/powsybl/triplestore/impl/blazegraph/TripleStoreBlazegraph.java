@@ -63,6 +63,8 @@ import com.powsybl.triplestore.api.TripleStoreException;
  */
 public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
 
+    static final String NAME = "blazegraph";
+
     public TripleStoreBlazegraph() {
         final Properties props = new Properties();
         props.put(Options.BUFFER_MODE, "MemStore");
@@ -81,6 +83,11 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         } catch (RepositoryException x) {
             LOG.error("Repository could not be created {}", x.getMessage());
         }
+    }
+
+    @Override
+    public String getImplementationName() {
+        return NAME;
     }
 
     public Repository getRepository() {
@@ -489,5 +496,4 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreBlazegraph.class);
 
     private static final boolean PRINT_ALL_STATEMENTS = false;
-
 }
