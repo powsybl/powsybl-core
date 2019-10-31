@@ -127,14 +127,23 @@ public class VoltageLevelAdapterTest {
         }
         assertEquals(1, voltageLevel.getLoadCount());
 
+        // ShuntCompensator
+        voltageLevel.newShuntCompensator().setId("SHUNT")
+            .setConnectableBus("B1")
+            .setBus("B1")
+            .setbPerSection(1e-5)
+            .setCurrentSectionCount(1)
+            .setMaximumSectionCount(1).add();
+        Iterable<ShuntCompensator> shunts = voltageLevel.getShuntCompensators();
+        for (ShuntCompensator shunt : shunts) {
+            assertTrue(shunt instanceof ShuntCompensatorAdapter);
+        }
+        assertEquals(1, voltageLevel.getShuntCompensatorCount());
+
         // Not implemented yet !
         // Switch
         TestUtil.notImplemented(voltageLevel::getSwitches);
         assertEquals(0, voltageLevel.getSwitchCount());
-        // ShuntCompensator
-        TestUtil.notImplemented(voltageLevel::newShuntCompensator);
-        TestUtil.notImplemented(voltageLevel::getShuntCompensators);
-        TestUtil.notImplemented(voltageLevel::getShuntCompensatorStream);
         // DanglingLine
         TestUtil.notImplemented(voltageLevel::newDanglingLine);
         TestUtil.notImplemented(voltageLevel::getDanglingLines);
