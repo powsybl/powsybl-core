@@ -37,10 +37,16 @@ public class GeneratorModificationTask implements ModificationTask {
             g.setMaxP(modifs.getMaxP());
         }
 
+        boolean skipOtherConnectionChange = false;
+        if (modifs.getConnected() != null) {
+            changeConnectionState(g, modifs.getConnected());
+            skipOtherConnectionChange = true;
+        }
+
         if (modifs.getTargetP() != null) {
-            setTargetpWithinBoundaries(g, modifs.getTargetP());
+            setTargetpWithinBoundaries(g, modifs.getTargetP(), skipOtherConnectionChange);
         } else if (modifs.getpDelta() != null) {
-            setTargetpWithinBoundaries(g, g.getTargetP() + modifs.getpDelta());
+            setTargetpWithinBoundaries(g, g.getTargetP() + modifs.getpDelta(), skipOtherConnectionChange);
         }
 
         if (modifs.getTargetV() != null) {
@@ -54,9 +60,21 @@ public class GeneratorModificationTask implements ModificationTask {
         }
     }
 
-    private void setTargetpWithinBoundaries(Generator g, double targetP) {
-        if (!g.getTerminal().isConnected()) {
-            g.getTerminal().connect();
+    private void changeConnectionState(Generator g, boolean connect) {
+        if (connect) {
+            if (!g.getTerminal().isConnected()) {
+                g.getTerminal().connect();
+            }
+        } else {
+            if (g.getTerminal().isConnected()) {
+                g.getTerminal().disconnect();
+            }
+        }
+    }
+
+    private void setTargetpWithinBoundaries(Generator g, double targetP, boolean skipConnect) {
+        if (!skipConnect) {
+            changeConnectionState(g, true);
         }
         g.setTargetP(Math.min(g.getMaxP(), Math.max(g.getMinP(), targetP)));
     }
@@ -69,6 +87,7 @@ public class GeneratorModificationTask implements ModificationTask {
         private Double targetV;
         private Double targetQ;
         private Boolean voltageRegulatorOn;
+        private Boolean connected;
 
         Double getMinP() {
             return minP;
@@ -124,6 +143,14 @@ public class GeneratorModificationTask implements ModificationTask {
 
         public void setVoltageRegulatorOn(Boolean voltageRegulatorOn) {
             this.voltageRegulatorOn = voltageRegulatorOn;
+        }
+
+        Boolean getConnected() {
+            return connected;
+        }
+
+        public void setConnected(Boolean connected) {
+            this.connected = connected;
         }
     }
 }

@@ -23,7 +23,6 @@ class GeneratorModificationTaskExtension implements DslTaskExtension {
             if (spec.hasTargetP() && spec.haspDelta()) {
                 throw new PowsyblException("targetP/pDelta actions are both found in generatorModification on '" + id + "'");
             }
-
             tasks.add(new GeneratorModificationTask(id, spec.computeModifs()));
         }
     }
@@ -36,6 +35,7 @@ class GeneratorModificationTaskExtension implements DslTaskExtension {
         private Double targetV;
         private Double targetQ;
         private Boolean voltageRegulatorOn;
+        private Boolean connected;
 
         GeneratorModificationTask.Modifs computeModifs() {
             GeneratorModificationTask.Modifs modifs = new GeneratorModificationTask.Modifs();
@@ -46,6 +46,7 @@ class GeneratorModificationTaskExtension implements DslTaskExtension {
             modifs.setTargetV(targetV);
             modifs.setTargetQ(targetQ);
             modifs.setVoltageRegulatorOn(voltageRegulatorOn);
+            modifs.setConnected(connected);
             return modifs;
         }
 
@@ -69,6 +70,9 @@ class GeneratorModificationTaskExtension implements DslTaskExtension {
         }
         void voltageRegulatorOn(Boolean voltageRegulatorOn) {
             this.voltageRegulatorOn = voltageRegulatorOn;
+        }
+        void connected(Boolean connected) {
+            this.connected = connected;
         }
         boolean hasTargetP() {
             return targetP != null;

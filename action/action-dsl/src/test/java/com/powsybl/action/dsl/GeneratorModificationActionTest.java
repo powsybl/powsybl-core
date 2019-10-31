@@ -18,7 +18,7 @@ import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-
+import static org.junit.Assert.assertTrue;
 
 public class GeneratorModificationActionTest {
 
@@ -33,7 +33,6 @@ public class GeneratorModificationActionTest {
         network = EurostagTutorialExample1Factory.create();
         g = network.getGenerator("GEN");
     }
-
 
     @Test
     public void testFullModification() {
@@ -93,6 +92,43 @@ public class GeneratorModificationActionTest {
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("targetP/pDelta actions are both found in generatorModification on 'GEN'");
         new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/exception-generator-modification-action.groovy"))).load(network);
+    }
+
+    @Test
+    public void testConnectionOnOff() {
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
+        Action action = actionDb.getAction("disconnect");
+        action.run(network, null);
+        assertFalse(g.getTerminal().isConnected());
+        action = actionDb.getAction("connect");
+        action.run(network, null);
+        assertTrue(g.getTerminal().isConnected());
+    }
+
+    @Test
+    public void testConnectionOnOffWithTargetpChange() {
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
+        Action action = actionDb.getAction("disconnect with targetP change");
+        action.run(network, null);
+        assertFalse(g.getTerminal().isConnected());
+        assertEquals(50.0, g.getTargetP(), 0.5);
+        action = actionDb.getAction("connect with targetP change");
+        action.run(network, null);
+        assertTrue(g.getTerminal().isConnected());
+        assertEquals(100.0, g.getTargetP(), 0.5);
+    }
+
+    @Test
+    public void testAlreadyAtTheConnectionStateAsked() {
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
+        Action action = actionDb.getAction("connect");
+        action.run(network, null);
+        assertTrue(g.getTerminal().isConnected());
+        action = actionDb.getAction("disconnect");
+        action.run(network, null);
+        assertFalse(g.getTerminal().isConnected());
+        action.run(network, null);
+        assertFalse(g.getTerminal().isConnected());
     }
 
 }

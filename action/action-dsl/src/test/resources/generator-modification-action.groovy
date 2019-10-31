@@ -57,3 +57,37 @@ action('targetP upper boundary overflow') {
         }
     }
 }
+
+action('connect') {
+    tasks {
+        generatorModification('GEN') {
+            connected true
+        }
+    }
+}
+
+action('connect with targetP change') {
+    tasks {
+        generatorModification('GEN') {
+            connected true
+            targetP 100.0
+        }
+    }
+}
+
+action('disconnect') {
+    tasks {
+        generatorModification('GEN') {
+            connected false
+        }
+    }
+}
+
+action('disconnect with targetP change') {
+    tasks {
+        generatorModification('GEN') {
+            connected false
+            targetP 50.0
+        }
+    }
+}
