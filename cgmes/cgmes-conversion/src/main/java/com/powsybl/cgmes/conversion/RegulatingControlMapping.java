@@ -6,7 +6,6 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -134,64 +133,7 @@ public class RegulatingControlMapping {
         }
     }
 
-    private void setAllRemoteRegulatingTerminals() {
-        cachedRegulatingControls.entrySet().removeIf(this::setRemoteRegulatingTerminal);
-    }
-
-    private boolean setRemoteRegulatingTerminal(Map.Entry<String, RegulatingControl> entry) {
-        RegulatingControl control = entry.getValue();
-        if (!control.idsEq.isEmpty()) {
-            boolean correctlySet = true;
-            for (String idEq : control.idsEq.keySet()) {
-                if (!control.idsEq.get(idEq)) {
-                    Identifiable i = context.network().getIdentifiable(idEq);
-                    if (i == null) {
-                        correctlySet = correctlySet && setRemoteRegulatingTerminal(idEq, control);
-                    } else {
-                        correctlySet = false;
-                    }
-                }
-            }
-            return correctlySet;
-        }
-        return false;
-    }
-
-    private Terminal findRemoteRegulatingTerminal(String cgmesTerminal, String topologicalNode) {
-        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminal))
-                .orElseGet(() -> context.terminalMapping().findFromTopologicalNode(topologicalNode));
-    }
-
-    private boolean setRemoteRegulatingTerminal(String tc, RegulatingControl control) {
-        if (context.tapChangerTransformers().transformer2(tc) != null) {
-            throw new PowsyblException("Unexpeted RemoteRegulatinTerminal for two windings transformer");
-        } else if (context.tapChangerTransformers().transformer3(tc) != null) {
-            return setRemoteRegulatingTerminal(tc, control, context.tapChangerTransformers().transformer3(tc));
-        }
-        return false;
-    }
-
-    private boolean setRemoteRegulatingTerminal(String tc, RegulatingControl control, ThreeWindingsTransformer t3w) {
-        Terminal regTerminal = findRemoteRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
-        if (regTerminal == null) {
-            context.missing(String.format(MISSING_IIDM_TERMINAL, control.topologicalNode));
-            return false;
-        }
-        if (context.tapChangerTransformers().type(tc).equals("rtc")) {
-            if (context.tapChangerTransformers().whichSide(tc) == 2) {
-                t3w.getLeg2().getRatioTapChanger().setRegulationTerminal(regTerminal);
-                return true;
-            } else if (context.tapChangerTransformers().whichSide(tc) == 3) {
-                t3w.getLeg3().getRatioTapChanger().setRegulationTerminal(regTerminal);
-                return true;
-            }
-        }
-        return false;
-    }
-
     public void setAllRegulatingControls(Network network) {
-        setAllRemoteRegulatingTerminals();
-
         regulatingControlMappingForGenerators.applyRegulatingControls(network);
         regulatingControlMappingForTransformers.applyTapChangersRegulatingControl(network);
 
