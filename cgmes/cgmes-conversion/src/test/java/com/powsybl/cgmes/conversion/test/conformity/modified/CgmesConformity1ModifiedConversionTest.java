@@ -310,6 +310,24 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void miniBusBranchT3xTwoRegulatingControlsEnabled() {
+        Network network = new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.miniBusBranchT3xTwoRegulatingControlsEnabled().dataSource(), null);
+
+        ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer("_5d38b7ed-73fd-405a-9cdb-78425e003773");
+        RatioTapChanger rtc2 = twt3.getLeg2().getRatioTapChanger();
+        assertNotNull(rtc2);
+        Terminal regulatingTerminal2 = rtc2.getRegulationTerminal();
+        assertNotNull(regulatingTerminal2);
+        assertTrue(rtc2.isRegulating());
+
+        RatioTapChanger rtc3 = twt3.getLeg3().getRatioTapChanger();
+        assertNotNull(rtc3);
+        Terminal regulatingTerminal3 = rtc3.getRegulationTerminal();
+        assertNotNull(regulatingTerminal3);
+        assertFalse(rtc3.isRegulating());
+    }
+
+    @Test
     public void miniNodeBreakerTestLimits() {
         // Original test case
         Network network0 = new CgmesImport(platformConfig).importData(CgmesConformity1Catalog.miniNodeBreaker().dataSource(), null);
