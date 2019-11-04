@@ -194,6 +194,31 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
+    public void modifyUserAccessRights(String nodeId, String userName, Integer rights) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public void modifyGroupAccessRights(String nodeId, String groupName, Integer rights) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public void modifyOthersAccessRights(String nodeId, Integer rights) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public boolean removeUserAccessRights(String nodeId, String userName) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public boolean removeGroupAccessRights(String nodeId, String groupName) {
+        throw new AssertionError();
+    }
+
+    @Override
     public void setConsistent(String nodeId) {
         throw new AssertionError();
     }

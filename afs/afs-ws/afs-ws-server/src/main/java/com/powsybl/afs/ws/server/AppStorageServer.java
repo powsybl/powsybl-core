@@ -196,6 +196,73 @@ public class AppStorageServer {
     }
 
     @PUT
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/userRights/{userName}")
+    @ApiOperation (value = "")
+    @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 500, message = "Error")})
+    public Response modifyUserAccessRights(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
+                                           @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId,
+                                           @ApiParam(value = "User Name") @PathParam("userName") String userName,
+                                           @ApiParam(value = "Rights") @QueryParam("rights") Integer rights) {
+        AppStorage storage = appDataBean.getStorage(fileSystemName);
+        storage.modifyUserAccessRights(nodeId, userName, rights);
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/groupRights/{groupName}")
+    @ApiOperation (value = "")
+    @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 500, message = "Error")})
+    public Response modifyGroupAccessRights(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
+                                            @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId,
+                                            @ApiParam(value = "Group Name") @PathParam("groupName") String groupName,
+                                            @ApiParam(value = "Rights") @QueryParam("rights") Integer rights) {
+        AppStorage storage = appDataBean.getStorage(fileSystemName);
+        storage.modifyGroupAccessRights(nodeId, groupName, rights);
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/othersRights")
+    @ApiOperation (value = "")
+    @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 500, message = "Error")})
+    public Response modifyUserAccessRights(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
+                                           @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId,
+                                           @ApiParam(value = "Rights") @QueryParam("rights") Integer rights) {
+        AppStorage storage = appDataBean.getStorage(fileSystemName);
+        storage.modifyOthersAccessRights(nodeId, rights);
+        return Response.ok().build();
+    }
+
+    @DELETE
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/userRights/{userName}")
+    @ApiOperation (value = "", response = Boolean.class)
+    @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 404, message = ""), @ApiResponse(code = 500, message = "Error")})
+    public Response removeUserAccessRights(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
+                                     @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId,
+                                     @ApiParam(value = "User name") @PathParam("userName") String userName) {
+        AppStorage storage = appDataBean.getStorage(fileSystemName);
+        boolean removed = storage.removeUserAccessRights(nodeId, userName);
+        return Response.ok().entity(removed).build();
+    }
+
+    @DELETE
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/groupRights/{groupName}")
+    @ApiOperation (value = "", response = Boolean.class)
+    @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 404, message = ""), @ApiResponse(code = 500, message = "Error")})
+    public Response removeGroupAccessRights(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
+                                     @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId,
+                                     @ApiParam(value = "Group name") @PathParam("groupName") String groupName) {
+        AppStorage storage = appDataBean.getStorage(fileSystemName);
+        boolean removed = storage.removeGroupAccessRights(nodeId, groupName);
+        return Response.ok().entity(removed).build();
+    }
+
+    @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/consistent")
     @ApiOperation (value = "")

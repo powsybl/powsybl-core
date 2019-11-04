@@ -309,6 +309,55 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
+    public void modifyUserAccessRights(String nodeId, String userName, Integer rights) {
+        UUID nodeUuid = checkNodeId(nodeId);
+        Objects.requireNonNull(userName);
+        Objects.requireNonNull(rights);
+        NodeInfo nodeInfo = getNodeInfo(nodeId);
+        nodeInfo.getAccessRights().setUserRights(userName, rights);
+        nodeInfoMap.put(nodeUuid, nodeInfo);
+    }
+
+    @Override
+    public void modifyGroupAccessRights(String nodeId, String groupName, Integer rights) {
+        UUID nodeUuid = checkNodeId(nodeId);
+        Objects.requireNonNull(groupName);
+        Objects.requireNonNull(rights);
+        NodeInfo nodeInfo = getNodeInfo(nodeId);
+        nodeInfo.getAccessRights().setGroupRights(groupName, rights);
+        nodeInfoMap.put(nodeUuid, nodeInfo);
+    }
+
+    @Override
+    public void modifyOthersAccessRights(String nodeId, Integer rights) {
+        UUID nodeUuid = checkNodeId(nodeId);
+        Objects.requireNonNull(rights);
+        NodeInfo nodeInfo = getNodeInfo(nodeId);
+        nodeInfo.getAccessRights().setOthersRights(rights);
+        nodeInfoMap.put(nodeUuid, nodeInfo);
+    }
+
+    @Override
+    public boolean removeUserAccessRights(String nodeId, String userName) {
+        UUID nodeUuid = checkNodeId(nodeId);
+        Objects.requireNonNull(userName);
+        NodeInfo nodeInfo = getNodeInfo(nodeId);
+        nodeInfo.getAccessRights().getUsersRights().remove(userName);
+        nodeInfoMap.put(nodeUuid, nodeInfo);
+        return !nodeInfo.getAccessRights().getUsersRights().containsKey(userName);
+    }
+
+    @Override
+    public boolean removeGroupAccessRights(String nodeId, String groupName) {
+        UUID nodeUuid = checkNodeId(nodeId);
+        Objects.requireNonNull(groupName);
+        NodeInfo nodeInfo = getNodeInfo(nodeId);
+        nodeInfo.getAccessRights().getGroupsRights().remove(groupName);
+        nodeInfoMap.put(nodeUuid, nodeInfo);
+        return !nodeInfo.getAccessRights().getGroupsRights().containsKey(groupName);
+    }
+
+    @Override
     public void setConsistent(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         nodeConsistencyMap.put(nodeUuid, true);

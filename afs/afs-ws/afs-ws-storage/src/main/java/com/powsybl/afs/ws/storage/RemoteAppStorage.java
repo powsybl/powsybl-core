@@ -226,6 +226,137 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
+    public void modifyUserAccessRights(String nodeId, String userName, Integer rights) {
+        Objects.requireNonNull(nodeId);
+        Objects.requireNonNull(userName);
+        Objects.requireNonNull(rights);
+
+        // flush buffer to keep change order
+        changeBuffer.flush();
+
+        LOGGER.debug("modifyUserAccessRights(fileSystemName={}, nodeId={}, userName={}, rights={})", fileSystemName, nodeId, userName, rights);
+
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/userRights/{userName}")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
+                .resolveTemplate("userName", userName)
+                .queryParam("rights", rights)
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .header(HttpHeaders.CONTENT_ENCODING, "gzip")
+                .acceptEncoding("gzip")
+                .put(Entity.text(""));
+        try {
+            checkOk(response);
+        } finally {
+            response.close();
+        }
+    }
+
+    @Override
+    public void modifyGroupAccessRights(String nodeId, String groupName, Integer rights) {
+        Objects.requireNonNull(nodeId);
+        Objects.requireNonNull(groupName);
+        Objects.requireNonNull(rights);
+
+        // flush buffer to keep change order
+        changeBuffer.flush();
+
+        LOGGER.debug("modifyGroupAccessRights(fileSystemName={}, nodeId={}, groupName={}, rights={})", fileSystemName, nodeId, groupName, rights);
+
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/groupRights/{groupName}")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
+                .resolveTemplate("groupName", groupName)
+                .queryParam("rights", rights)
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .header(HttpHeaders.CONTENT_ENCODING, "gzip")
+                .acceptEncoding("gzip")
+                .put(Entity.text(""));
+        try {
+            checkOk(response);
+        } finally {
+            response.close();
+        }
+    }
+
+    @Override
+    public void modifyOthersAccessRights(String nodeId, Integer rights) {
+        Objects.requireNonNull(nodeId);
+        Objects.requireNonNull(rights);
+
+        // flush buffer to keep change order
+        changeBuffer.flush();
+
+        LOGGER.debug("modifyOthersAccessRights(fileSystemName={}, nodeId={}, rights={})", fileSystemName, nodeId, rights);
+
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/othersRights")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
+                .queryParam("rights", rights)
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .header(HttpHeaders.CONTENT_ENCODING, "gzip")
+                .acceptEncoding("gzip")
+                .put(Entity.text(""));
+        try {
+            checkOk(response);
+        } finally {
+            response.close();
+        }
+    }
+
+    @Override
+    public boolean removeUserAccessRights(String nodeId, String userName) {
+        Objects.requireNonNull(nodeId);
+        Objects.requireNonNull(userName);
+
+        // flush buffer to keep change order
+        changeBuffer.flush();
+
+        LOGGER.debug("removeUserAccessRights(fileSystemName={}, nodeId={}, userName={})", fileSystemName, nodeId, userName);
+
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/userRights/{userName}")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
+                .resolveTemplate("userName", userName)
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .delete();
+        try {
+            return readEntityIfOk(response, Boolean.class);
+        } finally {
+            response.close();
+        }
+
+    }
+
+    @Override
+    public boolean removeGroupAccessRights(String nodeId, String groupName) {
+        Objects.requireNonNull(nodeId);
+        Objects.requireNonNull(groupName);
+
+        // flush buffer to keep change order
+        changeBuffer.flush();
+
+        LOGGER.debug("removeGroupAccessRights(fileSystemName={}, nodeId={}, userName={})", fileSystemName, nodeId, groupName);
+
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/groupRights/{groupName}")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
+                .resolveTemplate("groupName", groupName)
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .delete();
+        try {
+            return readEntityIfOk(response, Boolean.class);
+        } finally {
+            response.close();
+        }
+    }
+
+    @Override
     public void setConsistent(String nodeId) {
         Objects.requireNonNull(nodeId);
 

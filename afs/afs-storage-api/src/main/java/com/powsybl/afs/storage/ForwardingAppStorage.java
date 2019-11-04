@@ -63,6 +63,31 @@ public class ForwardingAppStorage implements AppStorage {
     }
 
     @Override
+    public void modifyUserAccessRights(String nodeId, String userName, Integer rights) {
+        storage.modifyUserAccessRights(nodeId, userName, rights);
+    }
+
+    @Override
+    public void modifyGroupAccessRights(String nodeId, String groupName, Integer rights) {
+        storage.modifyGroupAccessRights(nodeId, groupName, rights);
+    }
+
+    @Override
+    public void modifyOthersAccessRights(String nodeId, Integer rights) {
+        storage.modifyOthersAccessRights(nodeId, rights);
+    }
+
+    @Override
+    public boolean removeUserAccessRights(String nodeId, String userName) {
+        return storage.removeUserAccessRights(nodeId, userName);
+    }
+
+    @Override
+    public boolean removeGroupAccessRights(String nodeId, String groupName) {
+        return storage.removeGroupAccessRights(nodeId, groupName);
+    }
+
+    @Override
     public void setConsistent(String nodeId) {
         storage.setConsistent(nodeId);
     }

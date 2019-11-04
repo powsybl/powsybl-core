@@ -60,6 +60,43 @@ public interface AppStorage extends AutoCloseable {
     void setDescription(String nodeId, String description);
 
     /**
+     *
+     * @param nodeId Id of the node whose user rights have to be modified
+     * @param userName User name
+     * @param rights Access rights for the user
+     */
+    void modifyUserAccessRights(String nodeId, String userName, Integer rights);
+
+    /**
+     *
+     * @param nodeId Id of the node whose group rights have to be modified
+     * @param groupName Group name
+     * @param rights Access rights for the group
+     */
+    void modifyGroupAccessRights(String nodeId, String groupName, Integer rights);
+
+    /**
+     *
+     * @param nodeId Id of the node whose others rights have to be modified
+     * @param rights Access rights for other users
+     */
+    void modifyOthersAccessRights(String nodeId, Integer rights);
+
+    /**
+     *
+     * @param nodeId Id of the node whose user rights have to be removed
+     * @param userName User name
+     */
+    boolean removeUserAccessRights(String nodeId, String userName);
+
+    /**
+     *
+     * @param nodeId Id of the node whose group rights have to be removed
+     * @param groupName User name
+     */
+    boolean removeGroupAccessRights(String nodeId, String groupName);
+
+    /**
      * mark the node with ID {@code nodeId} as consistent node.
      */
     default void setConsistent(String nodeId) {

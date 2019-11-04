@@ -298,8 +298,24 @@ public abstract class AbstractAppStorageTest {
         assertEquals(ImmutableMap.of("d1", 1d), testData2Info.getGenericMetadata().getDoubles());
         assertEquals(ImmutableMap.of("i1", 2), testData2Info.getGenericMetadata().getInts());
         assertEquals(ImmutableMap.of("b1", false), testData2Info.getGenericMetadata().getBooleans());
+
+        // check access rights
         assertEquals(ImmutableMap.of("user1", 2, "user2", 4), testData2Info.getAccessRights().getUsersRights());
         assertEquals(ImmutableMap.of("group1", 6), testData2Info.getAccessRights().getGroupsRights());
+
+        storage.modifyUserAccessRights(testData2Info.getId(), "user1", 4);
+        storage.modifyGroupAccessRights(testData2Info.getId(), "group1", 4);
+        storage.flush();
+
+        assertEquals(ImmutableMap.of("user1", 4, "user2", 4), storage.getNodeInfo(testData2Info.getId()).getAccessRights().getUsersRights());
+        assertEquals(ImmutableMap.of("group1", 4), storage.getNodeInfo(testData2Info.getId()).getAccessRights().getGroupsRights());
+
+        storage.removeUserAccessRights(testData2Info.getId(), "user1");
+        storage.removeGroupAccessRights(testData2Info.getId(), "group1");
+        storage.flush();
+
+        assertEquals(ImmutableMap.of("user2", 4), storage.getNodeInfo(testData2Info.getId()).getAccessRights().getUsersRights());
+        assertEquals(ImmutableMap.of(), storage.getNodeInfo(testData2Info.getId()).getAccessRights().getGroupsRights());
 
         // 10) check data node 2 binary data write
         try (OutputStream os = storage.writeBinaryData(testData2Info.getId(), "blob")) {
