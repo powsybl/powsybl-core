@@ -17,7 +17,6 @@ import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.TestGridModel;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
@@ -29,7 +28,6 @@ import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameter
 import com.powsybl.loadflow.validation.ValidationConfig;
 import com.powsybl.loadflow.validation.ValidationType;
 import com.powsybl.triplestore.api.TripleStoreFactory;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -174,7 +172,7 @@ public class ConversionTester {
     private void exportXiidm(String name, String impl, Network expected, Network actual) throws IOException {
         String name1 = name.replace('/', '-');
         Path path = Files.createTempDirectory("temp-conversion-" + name1 + "-" + impl + "-");
-        XMLExporter xmlExporter = new XMLExporter(Mockito.mock(PlatformConfig.class));
+        XMLExporter xmlExporter = new XMLExporter();
         // Last component of the path is the name for the exported XML
         if (expected != null) {
             xmlExporter.export(expected, null, new FileDataSource(path, "expected"));

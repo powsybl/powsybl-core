@@ -9,13 +9,11 @@ package com.powsybl.cgmes.conversion.test.cim14;
 
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.XMLImporter;
-import org.mockito.Mockito;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -186,7 +184,7 @@ public final class Cim14SmallCasesNetworkCatalog {
     }
 
     private static Network loadNetwork(TestGridModel gm) {
-        XMLImporter xmli = new XMLImporter(Mockito.mock(PlatformConfig.class));
+        XMLImporter xmli = new XMLImporter();
         ReadOnlyDataSource ds = new ResourceDataSource(gm.name(), new ResourceSet("/cim14", gm.name() + ".xiidm"));
         Network n = xmli.importData(ds, null);
         return n;
