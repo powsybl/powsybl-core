@@ -8,9 +8,12 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
+import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -188,6 +191,12 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         }
         PhaseTapChangerImpl tapChanger
                 = new PhaseTapChangerImpl(transformer, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
+
+        Set<TapChanger> tapChangers = new HashSet<TapChanger>();
+        tapChangers.addAll(transformer.getAllTapChangers());
+        tapChangers.remove(transformer.getPhaseTapChanger());
+        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(transformer, tapChangers, regulating);
+
         transformer.setPhaseTapChanger(tapChanger);
         return tapChanger;
     }
