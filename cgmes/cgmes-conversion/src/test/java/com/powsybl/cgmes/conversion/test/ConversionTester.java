@@ -17,7 +17,6 @@ import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.TestGridModel;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -51,7 +50,7 @@ import static org.junit.Assert.fail;
 public class ConversionTester {
 
     public ConversionTester(Properties importParams, List<String> tripleStoreImplementations,
-            ComparisonConfig networkComparison) {
+                            ComparisonConfig networkComparison) {
         this.importParams = importParams;
         this.tripleStoreImplementations = tripleStoreImplementations;
         this.networkComparison = networkComparison;
@@ -130,8 +129,7 @@ public class ConversionTester {
         // by powsybl against the topology present in the CGMES model
         iparams.put("createBusbarSectionForEveryConnectivityNode", "true");
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
-            PlatformConfig platformConfig = new InMemoryPlatformConfig(fs);
-            CgmesImport i = new CgmesImport(platformConfig);
+            CgmesImport i = new CgmesImport();
             ReadOnlyDataSource ds = gm.dataSource();
             Network network = i.importData(ds, new NetworkFactoryImpl(), iparams);
             if (network.getSubstationCount() == 0) {
@@ -160,20 +158,17 @@ public class ConversionTester {
         }
     }
 
-    private void testConversionOnlyReport(TestGridModel gm) throws IOException {
+    private void testConversionOnlyReport(TestGridModel gm) {
         String impl = TripleStoreFactory.defaultImplementation();
-        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
-            PlatformConfig platformConfig = new InMemoryPlatformConfig(fs);
-            CgmesImport i = new CgmesImport(platformConfig);
-            Properties params = new Properties();
-            params.put("storeCgmesModelAsNetworkExtension", "true");
-            params.put("powsyblTripleStore", impl);
-            ReadOnlyDataSource ds = gm.dataSource();
-            LOG.info("Importer.exists() == {}", i.exists(ds));
-            Network n = i.importData(ds, new NetworkFactoryImpl(), params);
-            CgmesModel m = n.getExtension(CgmesModelExtension.class).getCgmesModel();
-            new Conversion(m).report(reportConsumer);
-        }
+        CgmesImport i = new CgmesImport();
+        Properties params = new Properties();
+        params.put("storeCgmesModelAsNetworkExtension", "true");
+        params.put("powsyblTripleStore", impl);
+        ReadOnlyDataSource ds = gm.dataSource();
+        LOG.info("Importer.exists() == {}", i.exists(ds));
+        Network n = i.importData(ds, new NetworkFactoryImpl(), params);
+        CgmesModel m = n.getExtension(CgmesModelExtension.class).getCgmesModel();
+        new Conversion(m).report(reportConsumer);
     }
 
     private void exportXiidm(String name, String impl, Network expected, Network actual) throws IOException {
@@ -196,7 +191,7 @@ public class ConversionTester {
     }
 
     private void testExportImportCgmes(Network network, FileSystem fs, CgmesImport i, Properties iparams,
-            ComparisonConfig config) throws IOException {
+                                       ComparisonConfig config) throws IOException {
 
         Path path = fs.getPath("temp-export-cgmes");
         Files.createDirectories(path);
@@ -212,7 +207,7 @@ public class ConversionTester {
         // Precision required on bus balances (MVA)
         double threshold = 0.01;
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
-            ValidationConfig config = loadFlowValidationConfig(fs, threshold);
+            ValidationConfig config = loadFlowValidationConfig(threshold);
             Path working = Files.createDirectories(fs.getPath("lf-validation"));
 
             computeMissingFlows(network, config.getLoadFlowParameters());
@@ -220,9 +215,8 @@ public class ConversionTester {
         }
     }
 
-    private static ValidationConfig loadFlowValidationConfig(FileSystem fs, double threshold) {
-        InMemoryPlatformConfig pconfig = new InMemoryPlatformConfig(fs);
-        ValidationConfig config = ValidationConfig.load(pconfig);
+    private static ValidationConfig loadFlowValidationConfig(double threshold) {
+        ValidationConfig config = ValidationConfig.load();
         config.setVerbose(true);
         config.setThreshold(threshold);
         config.setOkMissingValues(false);
