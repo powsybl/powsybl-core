@@ -10,7 +10,6 @@ import com.powsybl.action.dsl.*;
 import com.powsybl.action.dsl.ast.*;
 import com.powsybl.action.simulator.ActionSimulator;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.dsl.ast.ExpressionNode;
@@ -44,9 +43,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private final ComputationManager computationManager;
 
-    private final LoadFlowActionSimulatorConfig loadFlowActionSimulatorConfig;
-
-    private final TableFormatterConfig tableFormatterConfig;
+    private final LoadFlowActionSimulatorConfig config;
 
     private final boolean applyIfSolvedViolations;
 
@@ -58,37 +55,26 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         this(network, computationManager, LoadFlowActionSimulatorConfig.load(), false, Collections.emptyList());
     }
 
-    public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig loadFlowActionSimulatorConfig,
+    public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig config,
                                    boolean applyIfSolvedViolations, LoadFlowActionSimulatorObserver... observers) {
-        this(network, computationManager, loadFlowActionSimulatorConfig, applyIfSolvedViolations, Arrays.asList(observers));
+        this(network, computationManager, config, applyIfSolvedViolations, Arrays.asList(observers));
     }
 
-    public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig loadFlowActionSimulatorConfig,
+    public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig config,
                                    boolean applyIfSolvedViolations, List<LoadFlowActionSimulatorObserver> observers) {
-        this(network, computationManager, loadFlowActionSimulatorConfig, TableFormatterConfig.load(), applyIfSolvedViolations, LoadFlowParameters.load(), observers);
+        this(network, computationManager, config, applyIfSolvedViolations, LoadFlowParameters.load(), observers);
     }
 
-    public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig loadFlowActionSimulatorConfig,
-                                   TableFormatterConfig tableFormatterConfig, boolean applyIfSolvedViolations, LoadFlowActionSimulatorObserver... observers) {
-        this(network, computationManager, loadFlowActionSimulatorConfig, tableFormatterConfig, applyIfSolvedViolations, LoadFlowParameters.load(), observers);
+    public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig config,
+                                   boolean applyIfSolvedViolations, LoadFlowParameters parameters, LoadFlowActionSimulatorObserver... observers) {
+        this(network, computationManager, config, applyIfSolvedViolations, parameters, Arrays.asList(observers));
     }
 
-    public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig loadFlowActionSimulatorConfig,
-                                   TableFormatterConfig tableFormatterConfig, boolean applyIfSolvedViolations, LoadFlowParameters parameters, LoadFlowActionSimulatorObserver... observers) {
-        this(network, computationManager, loadFlowActionSimulatorConfig, tableFormatterConfig, applyIfSolvedViolations, parameters, Arrays.asList(observers));
-    }
-
-    public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig loadFlowActionSimulatorConfig,
-                                   TableFormatterConfig tableFormatterConfig, boolean applyIfSolvedViolations, List<LoadFlowActionSimulatorObserver> observers) {
-        this(network, computationManager, loadFlowActionSimulatorConfig, tableFormatterConfig, applyIfSolvedViolations, LoadFlowParameters.load(), observers);
-    }
-
-    public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig loadFlowActionSimulatorConfig,
-                                   TableFormatterConfig tableFormatterConfig, boolean applyIfSolvedViolations, LoadFlowParameters parameters, List<LoadFlowActionSimulatorObserver> observers) {
+    public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig config,
+                                   boolean applyIfSolvedViolations, LoadFlowParameters parameters, List<LoadFlowActionSimulatorObserver> observers) {
         this.network = Objects.requireNonNull(network);
         this.computationManager = Objects.requireNonNull(computationManager);
-        this.loadFlowActionSimulatorConfig = Objects.requireNonNull(loadFlowActionSimulatorConfig);
-        this.tableFormatterConfig = Objects.requireNonNull(tableFormatterConfig);
+        this.config = Objects.requireNonNull(config);
         this.observers = Objects.requireNonNull(observers);
         this.applyIfSolvedViolations = applyIfSolvedViolations;
         this.parameters = Objects.requireNonNull(parameters);
@@ -103,12 +89,8 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         return computationManager;
     }
 
-    LoadFlowActionSimulatorConfig getLoadFlowActionSimulatorConfig() {
-        return loadFlowActionSimulatorConfig;
-    }
-
-    TableFormatterConfig getTableFormatterConfig() {
-        return tableFormatterConfig;
+    LoadFlowActionSimulatorConfig getConfig() {
+        return config;
     }
 
     protected Network getNetwork() {
@@ -136,9 +118,9 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
         observers.forEach(LoadFlowActionSimulatorObserver::afterPreContingencyAnalysis);
 
-        NetworkCopyStrategy strategy = NetworkCopyStrategy.getInstance(loadFlowActionSimulatorConfig.getCopyStrategy(), runningContext.getNetwork());
+        NetworkCopyStrategy strategy = NetworkCopyStrategy.getInstance(config.getCopyStrategy(), runningContext.getNetwork());
 
-        if (preContingencyAnalysisOk || loadFlowActionSimulatorConfig.isIgnorePreContingencyViolations()) {
+        if (preContingencyAnalysisOk || config.isIgnorePreContingencyViolations()) {
             for (String contingencyId : contingencyIds) {
                 Contingency contingency = actionDb.getContingency(contingencyId);
                 Network network2 = strategy.createState(contingencyId);
@@ -263,10 +245,10 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
 
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, network, NO_FILTER, tableFormatterConfig));
+            LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, network, NO_FILTER));
         }
 
-        if (context.getRound() + 1 == loadFlowActionSimulatorConfig.getMaxIterations()) {
+        if (context.getRound() + 1 == config.getMaxIterations()) {
             LOGGER.info("Max number of iterations reached");
             observers.forEach(o -> o.maxIterationsReached(context));
             return false;
@@ -317,7 +299,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         LOGGER.info("Running loadflow");
         LoadFlowResult result;
         try {
-            String loadFlowName = loadFlowActionSimulatorConfig.getLoadFlowName().orElse(null);
+            String loadFlowName = config.getLoadFlowName().orElse(null);
             result = LoadFlow.find(loadFlowName).run(context.getNetwork(), context.getNetwork().getVariantManager().getWorkingVariantId(), computationManager, parameters);
         } catch (Exception e) {
             throw new PowsyblException(e);
@@ -367,7 +349,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             return;
         }
 
-        NetworkCopyStrategy strategy = NetworkCopyStrategy.getInstance(loadFlowActionSimulatorConfig.getCopyStrategy(), context.getNetwork());
+        NetworkCopyStrategy strategy = NetworkCopyStrategy.getInstance(config.getCopyStrategy(), context.getNetwork());
 
         for (String actionId : testActionIds) {
             Action action = actionDb.getAction(actionId);
@@ -413,7 +395,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         action.run(networkForTry, computationManager);
         try {
             observers.forEach(o -> o.beforeTest(context, actionId));
-            String loadFlowName = loadFlowActionSimulatorConfig.getLoadFlowName().orElse(null);
+            String loadFlowName = config.getLoadFlowName().orElse(null);
             LoadFlowResult testResult = LoadFlow.find(loadFlowName)
                                                 .run(networkForTry, networkForTry.getVariantManager().getWorkingVariantId(), computationManager, parameters);
             observers.forEach(o -> o.afterTest(context, actionId));
