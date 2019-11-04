@@ -153,6 +153,10 @@ public class MergingNetworkTest {
         assertFalse(mergingView.getThreeWindingsTransformers().iterator().hasNext());
         assertEquals(0, mergingView.getThreeWindingsTransformerCount());
 
+        // Lines
+        assertFalse(mergingView.getLines().iterator().hasNext());
+        assertEquals(0, mergingView.getLineCount());
+
         // Others
         assertNotNull(mergingView.getBusBreakerView());
         assertNotNull(mergingView.getBusView());
@@ -168,10 +172,6 @@ public class MergingNetworkTest {
         TestUtil.notImplemented(mergingView::getVariantManager);
         // Lines
         TestUtil.notImplemented(mergingView::newLine);
-        TestUtil.notImplemented(mergingView::getLines);
-        TestUtil.notImplemented(mergingView::getLineStream);
-        TestUtil.notImplemented(mergingView::getLineCount);
-        TestUtil.notImplemented(() -> mergingView.getLine(""));
         TestUtil.notImplemented(mergingView::newTieLine);
         // DanglingLines
         TestUtil.notImplemented(mergingView::getDanglingLines);

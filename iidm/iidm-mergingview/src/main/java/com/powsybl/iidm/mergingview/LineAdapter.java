@@ -7,6 +7,7 @@
 package com.powsybl.iidm.mergingview;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.CurrentLimits;
@@ -23,215 +24,224 @@ public class LineAdapter extends AbstractIdentifiableAdapter<Line> implements Li
         super(delegate, index);
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
+    @Override
+    public List<? extends TerminalAdapter> getTerminals() {
+        return getDelegate().getTerminals().stream().map(getIndex()::getTerminal).distinct().collect(Collectors.toList());
+    }
+
     @Override
     public TerminalAdapter getTerminal1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getTerminal(getDelegate().getTerminal1());
     }
 
     @Override
     public TerminalAdapter getTerminal2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getTerminal(getDelegate().getTerminal2());
     }
 
     @Override
     public TerminalAdapter getTerminal(final Side side) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getTerminal(getDelegate().getTerminal(side));
     }
 
     @Override
     public TerminalAdapter getTerminal(final String voltageLevelId) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getTerminal(getDelegate().getTerminal(voltageLevelId));
     }
 
     @Override
     public Side getSide(final Terminal terminal) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        Terminal param = terminal;
+        if (terminal instanceof AbstractAdapter<?>) {
+            param = ((AbstractAdapter<Terminal>) terminal).getDelegate();
+        }
+        return getDelegate().getSide(param);
     }
 
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
     @Override
     public CurrentLimits getCurrentLimits(final Side side) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getCurrentLimits(side);
     }
 
     @Override
     public CurrentLimits getCurrentLimits1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getCurrentLimits1();
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().newCurrentLimits1();
     }
 
     @Override
     public CurrentLimits getCurrentLimits2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getCurrentLimits2();
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().newCurrentLimits2();
     }
 
     @Override
     public boolean isOverloaded() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().isOverloaded();
     }
 
     @Override
     public boolean isOverloaded(final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-
+        return getDelegate().isOverloaded(limitReduction);
     }
 
     @Override
     public int getOverloadDuration() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getOverloadDuration();
     }
 
     @Override
     public boolean checkPermanentLimit(final Side side, final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().checkPermanentLimit(side, limitReduction);
     }
 
     @Override
     public boolean checkPermanentLimit(final Side side) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().checkPermanentLimit(side);
     }
 
     @Override
     public boolean checkPermanentLimit1(final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-
+        return getDelegate().checkPermanentLimit1(limitReduction);
     }
 
     @Override
     public boolean checkPermanentLimit1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().checkPermanentLimit1();
     }
 
     @Override
     public boolean checkPermanentLimit2(final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().checkPermanentLimit2(limitReduction);
     }
 
     @Override
     public boolean checkPermanentLimit2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().checkPermanentLimit2();
     }
 
     @Override
     public Overload checkTemporaryLimits(final Side side, final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().checkTemporaryLimits(side, limitReduction);
     }
 
     @Override
     public Overload checkTemporaryLimits(final Side side) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().checkTemporaryLimits(side);
     }
 
     @Override
     public Overload checkTemporaryLimits1(final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().checkTemporaryLimits1(limitReduction);
     }
 
     @Override
     public Overload checkTemporaryLimits1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().checkTemporaryLimits1();
     }
 
     @Override
     public Overload checkTemporaryLimits2(final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().checkTemporaryLimits2(limitReduction);
     }
 
     @Override
     public Overload checkTemporaryLimits2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-
+        return getDelegate().checkTemporaryLimits2();
     }
 
     @Override
     public ConnectableType getType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public List<? extends TerminalAdapter> getTerminals() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getType();
     }
 
     @Override
     public double getR() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getR();
     }
 
     @Override
     public LineAdapter setR(final double r) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setR(r);
+        return this;
     }
 
     @Override
     public double getX() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getX();
     }
 
     @Override
     public LineAdapter setX(final double x) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setX(x);
+        return this;
     }
 
     @Override
     public double getG1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getG1();
     }
 
     @Override
     public LineAdapter setG1(final double g1) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setG1(g1);
+        return this;
     }
 
     @Override
     public double getG2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getG2();
     }
 
     @Override
     public LineAdapter setG2(final double g2) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setG2(g2);
+        return this;
     }
 
     @Override
     public double getB1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getB1();
     }
 
     @Override
     public LineAdapter setB1(final double b1) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setB1(b1);
+        return this;
     }
 
     @Override
     public double getB2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getB2();
     }
 
     @Override
     public LineAdapter setB2(final double b2) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setB2(b2);
+        return this;
     }
 
     @Override
     public boolean isTieLine() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().isTieLine();
     }
 
+    // -------------------------------
+    // Not implemented methods -------
+    // -------------------------------
+    @Override
+    public void remove() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
 }

@@ -585,6 +585,27 @@ public final class MergingView implements Network {
         return getThreeWindingsTransformerStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
     }
 
+    // Lines
+    @Override
+    public Iterable<Line> getLines() {
+        return Collections.unmodifiableCollection(index.getLines());
+    }
+
+    @Override
+    public Stream<Line> getLineStream() {
+        return index.getLines().stream();
+    }
+
+    @Override
+    public int getLineCount() {
+        return index.getLines().size();
+    }
+
+    @Override
+    public Line getLine(final String id) {
+        return getLineStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
     @Override
     public NetworkBusBreakerViewAdapter getBusBreakerView() {
         return busBreakerView;
@@ -623,7 +644,6 @@ public final class MergingView implements Network {
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
-
     @Override
     public VariantManager getVariantManager() {
         throw NOT_IMPLEMENTED_EXCEPTION;
@@ -631,26 +651,6 @@ public final class MergingView implements Network {
 
     @Override
     public LineAdder newLine() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<Line> getLines() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Line> getLineStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getLineCount() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Line getLine(final String id) {
         throw NOT_IMPLEMENTED_EXCEPTION;
     }
 
