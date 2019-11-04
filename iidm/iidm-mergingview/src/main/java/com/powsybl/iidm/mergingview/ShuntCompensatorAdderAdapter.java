@@ -18,55 +18,64 @@ public class ShuntCompensatorAdderAdapter extends AbstractAdapter<ShuntCompensat
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public ShuntCompensatorAdderAdapter setNode(final int node) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setNode(node);
+        return this;
     }
 
     @Override
     public ShuntCompensatorAdderAdapter setBus(final String bus) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setBus(bus);
+        return this;
     }
 
     @Override
     public ShuntCompensatorAdderAdapter setConnectableBus(final String connectableBus) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setConnectableBus(connectableBus);
+        return this;
     }
 
     @Override
     public ShuntCompensatorAdderAdapter setId(final String id) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setId(id);
+        return this;
     }
 
     @Override
     public ShuntCompensatorAdderAdapter setEnsureIdUnicity(final boolean ensureIdUnicity) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setEnsureIdUnicity(ensureIdUnicity);
+        return this;
     }
 
     @Override
     public ShuntCompensatorAdderAdapter setName(final String name) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setName(name);
+        return this;
     }
 
     @Override
     public ShuntCompensatorAdderAdapter setbPerSection(final double bPerSection) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setbPerSection(bPerSection);
+        return this;
     }
 
     @Override
     public ShuntCompensatorAdderAdapter setMaximumSectionCount(final int maximumSectionCount) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setMaximumSectionCount(maximumSectionCount);
+        return this;
     }
 
     @Override
     public ShuntCompensatorAdderAdapter setCurrentSectionCount(final int currentSectionCount) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setCurrentSectionCount(currentSectionCount);
+        return this;
     }
 
     @Override
     public ShuntCompensatorAdapter add() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new ShuntCompensatorAdapter(getDelegate().add(), getIndex());
     }
 }

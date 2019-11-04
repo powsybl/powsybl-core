@@ -99,6 +99,16 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         return getDelegate().getLoadStream().map(getIndex()::getLoad);
     }
 
+    @Override
+    public Iterable<ShuntCompensator> getShuntCompensators() {
+        return getShuntCompensatorStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<ShuntCompensator> getShuntCompensatorStream() {
+        return getDelegate().getShuntCompensatorStream().map(getIndex()::getShuntCompensator);
+    }
+
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
@@ -139,21 +149,6 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
 
     @Override
     public Iterable<Switch> getSwitches() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ShuntCompensatorAdderAdapter newShuntCompensator() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<ShuntCompensator> getShuntCompensators() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<ShuntCompensator> getShuntCompensatorStream() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -346,5 +341,10 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public LoadAdderAdapter newLoad() {
         return new LoadAdderAdapter(getDelegate().newLoad(), getIndex());
+    }
+
+    @Override
+    public ShuntCompensatorAdderAdapter newShuntCompensator() {
+        return new ShuntCompensatorAdderAdapter(getDelegate().newShuntCompensator(), getIndex());
     }
 }
