@@ -310,7 +310,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void miniBusBranchT3xTwoRegulatingControlsEnabled() {
-        Network network = new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.miniBusBranchT3xTwoRegulatingControlsEnabled().dataSource(), null);
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.miniBusBranchT3xTwoRegulatingControlsEnabled().dataSource(), null);
 
         ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer("_5d38b7ed-73fd-405a-9cdb-78425e003773");
         RatioTapChanger rtc2 = twt3.getLeg2().getRatioTapChanger();
