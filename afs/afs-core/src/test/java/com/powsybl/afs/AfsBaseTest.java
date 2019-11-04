@@ -7,15 +7,21 @@
 package com.powsybl.afs;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.DefaultListenableAppStorage;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.NetworkFactoryService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.*;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -25,6 +31,8 @@ import static org.junit.Assert.*;
  */
 public class AfsBaseTest {
 
+    private FileSystem fileSystem;
+
     private AppStorage storage;
 
     private AppFileSystem afs;
@@ -33,6 +41,7 @@ public class AfsBaseTest {
 
     @Before
     public void setup() {
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
         storage = new DefaultListenableAppStorage(MapDbAppStorage.createMem("mem"));
 
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
@@ -43,8 +52,9 @@ public class AfsBaseTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         storage.close();
+        fileSystem.close();
     }
 
     @Test
@@ -186,6 +196,35 @@ public class AfsBaseTest {
         ProjectFolder dir7 = rootFolder.createFolder("dir7");
         dir7.rename("dir77");
         assertEquals("dir77", dir7.getName());
+
+        Path rootDir = fileSystem.getPath("/root");
+        try {
+            Files.createDirectories(rootDir);
+        } catch (IOException ignored) {
+        }
+
+        dir7.archive(rootDir);
+        Path child = rootDir.resolve(dir7.getId());
+        assertTrue(Files.exists(child));
+
+        ProjectFolder dir8 = rootFolder.createFolder("dir8");
+        assertEquals(0, dir8.getChildren().size());
+        dir8.unarchive(child);
+        assertEquals(1, dir8.getChildren().size());
+        assertEquals("dir77", dir8.getChildren().get(0).getName());
+
+        Path testDirNotExists = rootDir.resolve("testDirNotExists");
+        try {
+            dir7.archive(testDirNotExists);
+            fail();
+        } catch (UncheckedIOException ignored) {
+        }
+
+        try {
+            dir8.findService(NetworkFactoryService.class);
+            fail();
+        } catch (AfsException ignored) {
+        }
     }
 
     @Test
