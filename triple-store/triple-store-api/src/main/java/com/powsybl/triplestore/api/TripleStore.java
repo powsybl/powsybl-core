@@ -59,6 +59,8 @@ public interface TripleStore {
 
     void copyFrom(TripleStore source);
 
+    void update(String queryText);
+
     /**
      * Add a namespace to the triple store
      *

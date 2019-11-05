@@ -95,6 +95,18 @@ public class TripleStoreTester {
 
     }
 
+    void testUpdate(String queryText) {
+        for (String impl : implementations) {
+            tripleStores.get(impl).update(queryText);
+        }
+    }
+
+    void testUpdateOnCopies(String queryText) {
+        for (String impl : implementations) {
+            tripleStoreCopies.get(impl).update(queryText);
+        }
+    }
+
     public void clear(String contextName, String namespace) {
         for (String impl : implementations) {
             TripleStore ts = tripleStores.get(impl);

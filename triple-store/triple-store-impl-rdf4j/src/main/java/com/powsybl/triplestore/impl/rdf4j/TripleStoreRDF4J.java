@@ -29,9 +29,11 @@ import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.util.URIUtil;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.query.UpdateExecutionException;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryResult;
@@ -219,6 +221,15 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         while (ns.hasNext()) {
             Namespace namespace = ns.next();
             targetConn.setNamespace(namespace.getPrefix(), namespace.getName());
+        }
+    }
+
+    @Override
+    public void update(String query) {
+        try (RepositoryConnection conn = repo.getConnection()) {
+            conn.prepareUpdate(QueryLanguage.SPARQL, adjustedQuery(query)).execute();
+        } catch (UpdateExecutionException e) {
+            LOGGER.debug(e.getMessage());
         }
     }
 

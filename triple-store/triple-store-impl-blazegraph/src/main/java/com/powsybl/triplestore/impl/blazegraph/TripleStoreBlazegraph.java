@@ -34,6 +34,7 @@ import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.QueryResults;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -309,6 +310,26 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                 }
                 targetConn.add(targetStatement);
             }
+        }
+    }
+
+    @Override
+    public void update(String query) {
+        try {
+            RepositoryConnection conn = repo.getConnection();
+            update(conn, adjustedQuery(query));
+        } catch (RepositoryException e) {
+            throw new TripleStoreException("Opening repo for update", e);
+        }
+    }
+
+    private void update(RepositoryConnection conn, String query) {
+        try {
+            conn.prepareUpdate(QueryLanguage.SPARQL, query).execute();
+        } catch (MalformedQueryException | UpdateExecutionException | RepositoryException e) {
+            throw new TripleStoreException(String.format("Query [%s]", query), e);
+        } finally {
+            closeConnection(conn, "Update operation");
         }
     }
 
