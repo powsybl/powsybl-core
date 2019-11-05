@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import java.util.Map;
+
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
@@ -21,11 +23,14 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class ThreeWindingsTransformerConversion extends AbstractConductingEquipmentConversion {
 
-    public ThreeWindingsTransformerConversion(PropertyBags ends, Context context) {
+    public ThreeWindingsTransformerConversion(PropertyBags ends,
+        Map<String, PropertyBag> powerTransformerRatioTapChanger,
+        Context context) {
         super("PowerTransformer", ends, context);
         winding1 = ends.get(0);
         winding2 = ends.get(1);
         winding3 = ends.get(2);
+        this.powerTransformerRatioTapChanger = powerTransformerRatioTapChanger;
     }
 
     @Override
@@ -34,8 +39,8 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
             return false;
         }
         if (context.boundary().containsNode(nodeId(1))
-                || context.boundary().containsNode(nodeId(2))
-                || context.boundary().containsNode(nodeId(3))) {
+            || context.boundary().containsNode(nodeId(2))
+            || context.boundary().containsNode(nodeId(3))) {
             invalid("3 windings transformer end point at boundary is not supported");
             return false;
         }
@@ -43,7 +48,7 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         // The substationIdMapping should ensure all three ends
         // are in the same IIDM substation
         if (voltageLevel(1).getSubstation() != voltageLevel(2).getSubstation() ||
-                voltageLevel(1).getSubstation() != voltageLevel(3).getSubstation()) {
+            voltageLevel(1).getSubstation() != voltageLevel(3).getSubstation()) {
             String name1 = voltageLevel(1).getSubstation().getName();
             String name2 = voltageLevel(2).getSubstation().getName();
             String name3 = voltageLevel(3).getSubstation().getName();
@@ -98,19 +103,19 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         identify(txadder);
 
         LegAdder<Leg1Adder> l1adder = txadder.newLeg1()
-                .setR(ir1)
-                .setX(ix1)
-                .setG(ig1)
-                .setB(ib1)
-                .setRatedU(ratedU1);
+            .setR(ir1)
+            .setX(ix1)
+            .setG(ig1)
+            .setB(ib1)
+            .setRatedU(ratedU1);
         LegAdder<Leg2or3Adder> l2adder = txadder.newLeg2()
-                .setR(ir2)
-                .setX(ix2)
-                .setRatedU(ratedU2);
+            .setR(ir2)
+            .setX(ix2)
+            .setRatedU(ratedU2);
         LegAdder<Leg2or3Adder> l3adder = txadder.newLeg3()
-                .setR(ir3)
-                .setX(ix3)
-                .setRatedU(ratedU3);
+            .setR(ir3)
+            .setX(ix3)
+            .setRatedU(ratedU3);
         connect(l1adder, 1);
         connect(l2adder, 2);
         connect(l3adder, 3);
@@ -120,9 +125,9 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         ThreeWindingsTransformer tx = txadder.add();
 
         convertedTerminals(
-                tx.getLeg1().getTerminal(),
-                tx.getLeg2().getTerminal(),
-                tx.getLeg3().getTerminal());
+            tx.getLeg1().getTerminal(),
+            tx.getLeg2().getTerminal(),
+            tx.getLeg3().getTerminal());
 
         // We do not follow here the same schema of two-windings,
         // we are saving for later all possible tap changers
@@ -132,9 +137,26 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         context.tapChangerTransformers().add(ptc1, tx, "ptc", 1);
         context.tapChangerTransformers().add(ptc2, tx, "ptc", 2);
         context.tapChangerTransformers().add(ptc3, tx, "ptc", 3);
+
+        setRegulatingControlContext(tx, rtc2, rtc3);
+    }
+
+    private void setRegulatingControlContext(ThreeWindingsTransformer tx, String rtc2Id, String rtc3Id) {
+
+        PropertyBag rtc2 = null;
+        if (rtc2Id != null) {
+            rtc2 = powerTransformerRatioTapChanger.get(rtc2Id);
+        }
+        PropertyBag rtc3 = null;
+        if (rtc3Id != null) {
+            rtc3 = powerTransformerRatioTapChanger.get(rtc3Id);
+        }
+
+        context.regulatingControlMapping().forTransformers().add(tx.getId(), rtc2Id, rtc2, rtc3Id, rtc3);
     }
 
     private final PropertyBag winding1;
     private final PropertyBag winding2;
     private final PropertyBag winding3;
+    private final Map<String, PropertyBag> powerTransformerRatioTapChanger;
 }
