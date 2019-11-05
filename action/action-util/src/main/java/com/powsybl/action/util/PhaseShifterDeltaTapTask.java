@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -15,6 +15,9 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import java.util.Objects;
 
+/**
+ * @author Hamou AMROUN <hamou.amroun at rte-france.com>
+ */
 public class PhaseShifterDeltaTapTask implements ModificationTask {
 
     private final String phaseShifterId;
@@ -37,7 +40,6 @@ public class PhaseShifterDeltaTapTask implements ModificationTask {
             throw new PowsyblException("Transformer '" + phaseShifterId + "' not found");
         }
         PhaseTapChanger phaseTapChanger = phaseShifter.getPhaseTapChanger();
-        Objects.requireNonNull(phaseTapChanger);
         if (phaseTapChanger == null) {
             throw new PowsyblException("Transformer '" + phaseShifterId + "' is not a phase shifter");
         }

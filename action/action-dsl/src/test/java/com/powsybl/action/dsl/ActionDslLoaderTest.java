@@ -205,40 +205,37 @@ public class ActionDslLoaderTest {
                 .add();
     }
 
-    public static class DeltaTapData {
+    private static final class DeltaTapData {
 
         private int iniTapPosition;
         private int expectedTapPosition;
         private int deltaTap;
         private String testName;
 
-        public DeltaTapData() {
-        }
-
-        public DeltaTapData(int iniTapPosition, int expectedTapPosition, int deltaTap, String testName) {
+        private DeltaTapData(int iniTapPosition, int expectedTapPosition, int deltaTap, String testName) {
             this.iniTapPosition = iniTapPosition;
             this.expectedTapPosition = expectedTapPosition;
             this.deltaTap = deltaTap;
             this.testName = testName;
         }
 
-        public int getIniTapPosition() {
+        private int getIniTapPosition() {
             return iniTapPosition;
         }
 
-        public int getExpectedTapPosition() {
+        private int getExpectedTapPosition() {
             return expectedTapPosition;
         }
 
-        public int getDeltaTap() {
+        private int getDeltaTap() {
             return deltaTap;
         }
 
-        public String getTestName() {
+        private String getTestName() {
             return testName;
         }
 
-        public void setIniTapPosition(int iniTapPosition) {
+        private void setIniTapPosition(int iniTapPosition) {
             this.iniTapPosition = iniTapPosition;
         }
 
