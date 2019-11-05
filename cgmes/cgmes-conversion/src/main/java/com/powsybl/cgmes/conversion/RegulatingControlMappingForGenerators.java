@@ -27,7 +27,7 @@ public class RegulatingControlMappingForGenerators {
     }
 
     public void add(String generatorId, PropertyBag sm) {
-        String cgmesRegulatingControlId = getRegulatingControlId(sm);
+        String cgmesRegulatingControlId = parent.getRegulatingControlId(sm);
         double qPercent = sm.asDouble(QPERCENT);
 
         if (mapping.containsKey(generatorId)) {
@@ -141,20 +141,6 @@ public class RegulatingControlMappingForGenerators {
 
     private static Terminal getDefaultTerminal(Generator gen) {
         return gen.getTerminal();
-    }
-
-    private String getRegulatingControlId(PropertyBag p) {
-        String regulatingControlId = null;
-
-        if (p.containsKey(RegulatingControlMapping.REGULATING_CONTROL)) {
-            String controlId = p.getId(RegulatingControlMapping.REGULATING_CONTROL);
-            RegulatingControl control = parent.cachedRegulatingControls().get(controlId);
-            if (control != null) {
-                regulatingControlId = controlId;
-            }
-        }
-
-        return regulatingControlId;
     }
 
     private static class CgmesRegulatingControlForGenerator {
