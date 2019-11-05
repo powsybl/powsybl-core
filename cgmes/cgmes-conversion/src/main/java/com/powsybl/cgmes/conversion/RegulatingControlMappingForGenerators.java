@@ -34,7 +34,7 @@ public class RegulatingControlMappingForGenerators {
     }
 
     public void add(String iidmId, PropertyBag sm) {
-        String rcId = getRegulatingControlId(sm);
+        String rcId = parent.getRegulatingControlId(sm);
         double qPercent = sm.asDouble(QPERCENT);
         add(iidmId, rcId, qPercent);
     }
@@ -149,20 +149,6 @@ public class RegulatingControlMappingForGenerators {
         rd.regulatingControlId = cgmesRegulatingControlId;
         rd.qPercent = qPercent;
         mapping.put(iidmGeneratorId, rd);
-    }
-
-    private String getRegulatingControlId(PropertyBag p) {
-        String regulatingControlId = null;
-
-        if (p.containsKey(RegulatingControlMapping.REGULATING_CONTROL)) {
-            String controlId = p.getId(RegulatingControlMapping.REGULATING_CONTROL);
-            RegulatingControl control = parent.cachedRegulatingControls().get(controlId);
-            if (control != null) {
-                regulatingControlId = controlId;
-            }
-        }
-
-        return regulatingControlId;
     }
 
     private static class RegulatingControlForGenerator {
