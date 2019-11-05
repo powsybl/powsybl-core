@@ -90,7 +90,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         } else {
             context.pending(
                 String.format(
-                    "Remote control for static var compensator %s replaced by voltage local control at nominal voltage",
+                    "Remote regulating control for static var compensator %s replaced by control defined at Equipment",
                     svc.getId()),
                 "IIDM model does not support remote control for static var compensators");
 
