@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -96,16 +97,31 @@ public class RegulatingControlMapping {
         });
 
         cachedRegulatingControls.forEach((key, value) -> context.pending("Regulating terminal",
-                String.format("The setting of the regulating terminal of the regulating control %s is not entirely handled.", key)));
+            String.format(
+                "The setting of the regulating terminal of the regulating control %s is not entirely handled.", key)));
         cachedRegulatingControls.clear();
     }
 
     public Terminal findRegulatingTerminal(String cgmesTerminal, String topologicalNode) {
         return Optional.ofNullable(context.terminalMapping().find(cgmesTerminal))
-                .orElseGet(() -> context.terminalMapping().findFromTopologicalNode(topologicalNode));
+            .orElseGet(() -> context.terminalMapping().findFromTopologicalNode(topologicalNode));
     }
 
     static boolean isControlModeVoltage(String controlMode) {
         return controlMode != null && controlMode.endsWith(VOLTAGE);
+    }
+
+    String getRegulatingControlId(PropertyBag p) {
+        String regulatingControlId = null;
+
+        if (p.containsKey(REGULATING_CONTROL)) {
+            String controlId = p.getId(REGULATING_CONTROL);
+            RegulatingControl control = cachedRegulatingControls().get(controlId);
+            if (control != null) {
+                regulatingControlId = controlId;
+            }
+        }
+
+        return regulatingControlId;
     }
 }

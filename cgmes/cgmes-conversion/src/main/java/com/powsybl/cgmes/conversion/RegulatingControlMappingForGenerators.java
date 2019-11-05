@@ -27,7 +27,7 @@ public class RegulatingControlMappingForGenerators {
     }
 
     public void add(String generatorId, PropertyBag sm) {
-        String cgmesRegulatingControlId = getRegulatingControlId(sm);
+        String cgmesRegulatingControlId = parent.getRegulatingControlId(sm);
         double qPercent = sm.asDouble(QPERCENT);
 
         if (mapping.containsKey(generatorId)) {
@@ -67,24 +67,20 @@ public class RegulatingControlMappingForGenerators {
         }
 
         if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
-            RegulatingControlVoltageAttributes gcv = getRegulatingControlVoltage(controlId, control, rc.qPercent, gen);
-            apply(gcv, gen);
-            if (gcv != null) {
-                control.hasCorrectlySet();
-            }
+            setRegulatingControlVoltage(controlId, control, rc.qPercent, gen);
         } else {
             context.ignored(control.mode, String.format("Unsupported regulation mode for generator %s", gen.getId()));
         }
     }
 
-    private RegulatingControlVoltageAttributes getRegulatingControlVoltage(String controlId,
+    private void setRegulatingControlVoltage(String controlId,
         RegulatingControl control, double qPercent, Generator gen) {
 
         // Take default terminal if it has not been defined
         Terminal terminal = getRegulatingTerminal(gen, control.cgmesTerminal, control.topologicalNode);
         if (terminal == null) {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.topologicalNode));
-            return null;
+            return;
         }
 
         double targetV;
@@ -100,28 +96,17 @@ public class RegulatingControlMappingForGenerators {
             voltageRegulatorOn = true;
         }
 
-        RegulatingControlVoltageAttributes gcv = new RegulatingControlVoltageAttributes();
-        gcv.terminal = terminal;
-        gcv.targetV = targetV;
-        gcv.voltageRegulatorOn = voltageRegulatorOn;
-        gcv.qPercent = qPercent;
-
-        return gcv;
-    }
-
-    private static void apply(RegulatingControlVoltageAttributes rcv, Generator gen) {
-        if (rcv == null) {
-            return;
-        }
-        gen.setRegulatingTerminal(rcv.terminal);
-        gen.setTargetV(rcv.targetV);
-        gen.setVoltageRegulatorOn(rcv.voltageRegulatorOn);
+        gen.setRegulatingTerminal(terminal);
+        gen.setTargetV(targetV);
+        gen.setVoltageRegulatorOn(voltageRegulatorOn);
 
         // add qPercent as an extension
-        if (!Double.isNaN(rcv.qPercent)) {
-            CoordinatedReactiveControl coordinatedReactiveControl = new CoordinatedReactiveControl(gen, rcv.qPercent);
+        if (!Double.isNaN(qPercent)) {
+            CoordinatedReactiveControl coordinatedReactiveControl = new CoordinatedReactiveControl(gen, qPercent);
             gen.addExtension(CoordinatedReactiveControl.class, coordinatedReactiveControl);
         }
+
+        control.hasCorrectlySet();
     }
 
     private Terminal getRegulatingTerminal(Generator gen, String cgmesTerminal, String topologicalNode) {
@@ -143,29 +128,8 @@ public class RegulatingControlMappingForGenerators {
         return gen.getTerminal();
     }
 
-    private String getRegulatingControlId(PropertyBag p) {
-        String regulatingControlId = null;
-
-        if (p.containsKey(RegulatingControlMapping.REGULATING_CONTROL)) {
-            String controlId = p.getId(RegulatingControlMapping.REGULATING_CONTROL);
-            RegulatingControl control = parent.cachedRegulatingControls().get(controlId);
-            if (control != null) {
-                regulatingControlId = controlId;
-            }
-        }
-
-        return regulatingControlId;
-    }
-
     private static class CgmesRegulatingControlForGenerator {
         String regulatingControlId;
-        double qPercent;
-    }
-
-    private static class RegulatingControlVoltageAttributes {
-        Terminal terminal;
-        double targetV;
-        boolean voltageRegulatorOn;
         double qPercent;
     }
 
