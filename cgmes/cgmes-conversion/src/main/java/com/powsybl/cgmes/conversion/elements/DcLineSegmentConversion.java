@@ -233,19 +233,37 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         String mode2 = cconverter2.getLocal("operatingMode");
 
         if (iconverter1.getHvdcType().equals(HvdcConverterStation.HvdcType.LCC)) {
-            if (inverter(mode1) && rectifier(mode2)) {
-                return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
-            } else if (rectifier(mode1) && inverter(mode2)) {
-                return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
-            }
-        } else {
+            return decodeLccMode(mode1, mode2);
+        } else if (iconverter1.getHvdcType().equals(HvdcConverterStation.HvdcType.VSC)) {
             if (cconverter1.asDouble(TARGET_PPCC) > 0 || cconverter2.asDouble(TARGET_PPCC) < 0) {
                 return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
             } else {
                 return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             }
         }
-        throw new PowsyblException("Unexpected HVDC type: " + iconverter1.getHvdcType());
+        throw new PowsyblException("Unexpected HVDC type for HVDC line " + id + ": " + iconverter1.getHvdcType());
+    }
+
+    private HvdcLine.ConvertersMode decodeLccMode(String mode1, String mode2) {
+        String unexpected = "Unexpected modes for LCC Converter stations of " + id;
+        if (inverter(mode1)) {
+            if (!rectifier(mode2)) {
+                context.ignored("ConverterStation2's mode",
+                         unexpected + ": " + mode1 + "-" + mode2 + ". Only ConverterStation1's mode is considered.");
+            }
+            return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
+        } else if (rectifier(mode1)) {
+            if (!inverter(mode2)) {
+                context.ignored("ConverterStation2's mode",
+                        unexpected + ": " + mode1 + "-" + mode2 + ". Only ConverterStation1's mode is considered.");
+            }
+            return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
+        } else if (inverter(mode2) || rectifier(mode2)) {
+            context.ignored("ConverterStation1's mode",
+                    "Unexpected mode for LCC Converter Station 1 of " + id + ": " + mode1 + ". Only ConverterStation2's mode is considered");
+            return inverter(mode2) ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
+        }
+        throw new PowsyblException(unexpected + ": " + mode1 + "-" + mode2);
     }
 
     private static boolean inverter(String operatingMode) {
