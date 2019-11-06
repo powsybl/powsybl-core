@@ -22,12 +22,14 @@ public class TimeSeriesChunkKeySerializer implements Serializer<TimeSeriesChunkK
 
     @Override
     public void serialize(DataOutput2 out, TimeSeriesChunkKey chunkKey) throws IOException {
+        out.writeInt(MapDbStorageConstants.STORAGE_VERSION);
         TimeSeriesKeySerializer.INSTANCE.serialize(out, chunkKey.getTimeSeriesKey());
         out.writeInt(chunkKey.getChunk());
     }
 
     @Override
     public TimeSeriesChunkKey deserialize(DataInput2 input, int available) throws IOException {
+        input.readInt(); // Storage version is retrieved here
         TimeSeriesKey timeSeriesKey = TimeSeriesKeySerializer.INSTANCE.deserialize(input, available);
         int chunk = input.readInt();
         return new TimeSeriesChunkKey(timeSeriesKey, chunk);
