@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>3.0.0-SNAPSHOT</version>
+        <version>3.1.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -39,6 +39,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-action-dsl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-action-dsl-afs</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -224,6 +230,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-contingency-afs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-contingency-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -254,6 +266,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-comparator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-converter-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -272,10 +290,16 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-reducer</artifactId>
+            <artifactId>powsybl-iidm-mergingview</artifactId>
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-reducer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-test</artifactId>
@@ -320,7 +344,13 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-scripting</artifactId>
+            <artifactId>powsybl-scripting-afs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-scripting-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -376,20 +406,21 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>
             <version>${project.version}</version>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-triple-store-impl-jena</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-triple-store-impl-blazegraph</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- In provided scope, so that coverage is correctly reported but the jar is not packaged for distribution -->

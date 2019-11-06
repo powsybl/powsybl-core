@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -87,8 +86,6 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         }
 
         rtca.setLoadTapChangingCapabilities(ltcFlag);
-        context.regulatingControlMapping().setRegulatingControl(p, terminal(), rtca);
-
         rtca.add();
     }
 
@@ -196,8 +193,8 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
             double dy = 0;
             if (!rtcAtSide1) {
                 double rho2 = rho * rho;
-                dz = (rho2 - 1) * 100;
-                dy = (1 / rho2 - 1) * 100;
+                dz = (rho2 - 1) * 100;     // Use the initial ratio before moving it
+                dy = (1 / rho2 - 1) * 100; // Use the initial ratio before moving it
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("RTC2to1 corrections  %4d  %12.8f  %12.8f  %12.8f",
                         step, n * du, dz, dy));
@@ -216,31 +213,13 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
     private boolean rtcAtSide1() {
         // From CIM1 converter:
         // For 2 winding transformers, rho is 1/(1 + n*du) if rtc is at side 1
-        // For 3 winding transformers rho is always 1 + n*du
+        // For 3 winding transformers rho is always considered at side 1 (network side)
         if (tx2 != null) {
             return context.tapChangerTransformers().whichSide(id) == 1;
+        } else if (tx3 != null) {
+            return true;
         }
         return false;
-    }
-
-    private Terminal terminal() {
-        int side = context.tapChangerTransformers().whichSide(id);
-        if (tx2 != null) {
-            if (side == 1) {
-                return tx2.getTerminal1();
-            } else if (side == 2) {
-                return tx2.getTerminal2();
-            }
-        } else if (tx3 != null) {
-            if (side == 1) {
-                // invalid
-            } else if (side == 2) {
-                return tx3.getLeg2().getTerminal();
-            } else if (side == 3) {
-                return tx3.getLeg3().getTerminal();
-            }
-        }
-        return null;
     }
 
     private boolean tabular() {

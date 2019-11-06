@@ -17,9 +17,12 @@ import java.util.List;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class CgmesConformity1NetworkCatalog {
+public final class CgmesConformity1NetworkCatalog {
 
-    public Network microBE(String modelId) {
+    private CgmesConformity1NetworkCatalog() {
+    }
+
+    private static Network microBE(String modelId) {
         Network network = Network.create(modelId, "no-format");
 
         Substation sBrussels = network.newSubstation()
@@ -606,10 +609,86 @@ public class CgmesConformity1NetworkCatalog {
             genBrussels10.getTerminal().setQ(q);
         }
 
+        ThreeWindingsTransformer txBETR3;
+        {
+            double ratedU1 = 400.0;
+            double ratedU2 = 220.0;
+            double ratedU3 = 21.0;
+            double ratedU0 = ratedU1;
+            double r1 = 0.898462;
+            double x1 = 17.204128;
+            double g1 = 0.0;
+            double b1 = 0.0000024375;
+            double r2 = 0.323908;
+            double x2 = 5.949086;
+            double g2 = 0.0;
+            double b2 = 0.0;
+            double r3 = 0.013332;
+            double x3 = 0.059978;
+            double g3 = 0.0;
+            double b3 = 0.0;
+            txBETR3 = sBrussels.newThreeWindingsTransformer()
+                .setId("_84ed55f4-61f5-4d9d-8755-bba7b877a246")
+                .setName("BE-TR3_1")
+                .newLeg1()
+                    .setRatedU(ratedU1)
+                    .setR(r1)
+                    .setX(x1)
+                    .setG(g1)
+                    .setB(b1)
+                    .setConnectableBus(busBrussels380.getId())
+                    .setBus(busBrussels380.getId())
+                    .setVoltageLevel(vlBrussels380.getId())
+                .add()
+                .newLeg2()
+                    .setRatedU(ratedU2)
+                    .setR(r2 * (ratedU0 / ratedU2) * (ratedU0 / ratedU2))
+                    .setX(x2 * (ratedU0 / ratedU2) * (ratedU0 / ratedU2))
+                    .setConnectableBus(busBrussels225.getId())
+                    .setBus(busBrussels225.getId())
+                    .setVoltageLevel(vlBrussels225.getId())
+                .add()
+                .newLeg3()
+                    .setRatedU(ratedU3)
+                    .setR(r3 * (ratedU0 / ratedU3) * (ratedU0 / ratedU3))
+                    .setX(x3 * (ratedU0 / ratedU3) * (ratedU0 / ratedU3))
+                    .setConnectableBus(busBrussels21.getId())
+                    .setBus(busBrussels21.getId())
+                    .setVoltageLevel(vlBrussels21.getId())
+                .add()
+            .add();
+
+            int low = 1;
+            int high = 33;
+            int neutral = 17;
+            int position = 17;
+            double voltageInc = 0.625;
+            RatioTapChangerAdder rtca = txBETR3.getLeg2().newRatioTapChanger()
+                .setLowTapPosition(low)
+                .setTapPosition(position);
+            for (int k = low; k <= high; k++) {
+                int n = k - neutral;
+                double du = voltageInc / 100;
+                double rhok = 1 / (1 + n * du);
+                double dz = 0;
+                double dy = 0;
+                rtca.beginStep()
+                    .setRho(rhok)
+                    .setR(dz)
+                    .setX(dz)
+                    .setG(dy)
+                    .setB(dy)
+                    .endStep();
+            }
+            rtca.setLoadTapChangingCapabilities(true)
+                .setRegulating(false)
+                .setTargetV(Float.NaN);
+            rtca.add();
+        }
         return network;
     }
 
-    public Network microBaseCaseBE() {
+    public static Network microBaseCaseBE() {
         String modelId = "urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73";
         Network network = microBE(modelId);
         DanglingLine be1 = network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da");
@@ -664,7 +743,7 @@ public class CgmesConformity1NetworkCatalog {
         return network;
     }
 
-    public Network microType4BE() {
+    public static Network microType4BE() {
         String modelId = "urn:uuid:96adadbe-902b-4cd6-9fc8-01a56ecbee79";
         Network network = microBE(modelId);
         // Add voltage level in Anvers
@@ -873,7 +952,7 @@ public class CgmesConformity1NetworkCatalog {
         ASYMMETRICAL, SYMMETRICAL
     };
 
-    private void addPhaseTapChanger(
+    private static void addPhaseTapChanger(
             TwoWindingsTransformer tx,
             PhaseTapChangerType type,
             int low, int high, int neutral, int position,

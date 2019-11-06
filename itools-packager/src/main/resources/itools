@@ -16,10 +16,10 @@ else
     JAVA_BIN=$JAVA_HOME/bin/java
 fi
 
-installBinDir=$(dirname $(readlink -f $0))
+installBinDir=$(dirname "$(readlink -f $0)")
 installDir=${installBinDir%/*}
 
-. $installDir/etc/itools.conf
+. "$installDir/etc/itools.conf"
 
 args=("$@")
 for ((i=0; i<${#args[@]}; i++)); do
@@ -34,16 +34,27 @@ for ((i=0; i<${#args[@]}; i++)); do
     esac
 done
 
-[ -n "$powsybl_config_dirs" ] || powsybl_config_dirs="$installDir/etc:${HOME}/.itools"
-options+=" -Dpowsybl.config.dirs=$powsybl_config_dirs"
-[ -n "$powsybl_config_name" ] && options+=" -Dpowsybl.config.name=$powsybl_config_name"
-options+=" -Dlogback.configurationFile="
-[ -f "$powsybl_config_dirs/logback-itools.xml" ] && options+="$powsybl_config_dirs" || options+="$installDir/etc"
-options+="/logback-itools.xml"
-[ -z "$java_xmx" ] && java_xmx=8G
+options=()
+[ -n "$powsybl_config_dirs" ] || powsybl_config_dirs="${HOME}/.itools:$installDir/etc"
+options[0]=-Dpowsybl.config.dirs=$powsybl_config_dirs
+[ -n "$powsybl_config_name" ] && options[1]=-Dpowsybl.config.name=$powsybl_config_name
 
+logFile="$installDir/etc/logback-itools.xml"
+separator=$IFS
+IFS=':'
+read -ra list <<< "$powsybl_config_dirs"
+for dir in "${list[@]}"; do
+    if [ -f "$dir/logback-itools.xml" ]; then
+      logFile=$dir/logback-itools.xml
+      break;
+    fi
+done
+IFS=$separator
+options[2]=-Dlogback.configurationFile=$logFile
+
+[ -z "$java_xmx" ] && java_xmx=8G
 $JAVA_BIN \
 -Xmx$java_xmx \
 -cp "$installDir/share/java/*" \
-$options \
+"${options[@]}" \
 com.powsybl.tools.Main "${args[@]}"

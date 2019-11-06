@@ -1,6 +1,7 @@
 # Maven projects
 /action/target/
 /action/action-dsl/target/
+/action/action-dsl-afs/target/
 /action/action-dsl-spi/target/
 /action/action-simulator/target/
 /action/action-util/target/
@@ -34,6 +35,7 @@
 /config-classic/target/
 /config-test/target/
 /contingency/target/
+/contingency/contingency-afs/target/
 /contingency/contingency-api/target/
 /contingency/contingency-dsl/target/
 /distribution-core/target/
@@ -41,6 +43,7 @@
 /entsoe-util/target/
 /iidm/target/
 /iidm/iidm-api/target
+/iidm/iidm-comparator/target/
 /iidm/iidm-converter-api/target/
 /iidm/iidm-extensions/target/
 /iidm/iidm-impl/target/
@@ -61,6 +64,8 @@
 /sensitivity-api/target/
 /simulation-api/target/
 /scripting/target/
+/scripting/scripting-afs/target/
+/scripting/scripting-extension/target/
 /target
 /time-series/target/
 /time-series/time-series-api/target/

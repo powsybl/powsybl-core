@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016-2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -49,7 +50,7 @@ public class LocalComputationManager implements ComputationManager {
 
     private final Semaphore permits;
 
-    private final Executor threadPools;
+    private final Executor threadPool;
 
     private final LocalCommandExecutor localCommandExecutor;
 
@@ -111,7 +112,7 @@ public class LocalComputationManager implements ComputationManager {
     public LocalComputationManager(LocalComputationConfig config, LocalCommandExecutor localCommandExecutor, Executor executor) throws IOException {
         this.config = Objects.requireNonNull(config);
         this.localCommandExecutor = Objects.requireNonNull(localCommandExecutor);
-        this.threadPools = Objects.requireNonNull(executor);
+        this.threadPool = Objects.requireNonNull(executor);
         status = new LocalComputationResourcesStatus(config.getAvailableCore());
         permits = new Semaphore(config.getAvailableCore());
         //make sure the localdir exists
@@ -322,39 +323,29 @@ public class LocalComputationManager implements ComputationManager {
     public <R> CompletableFuture<R> execute(ExecutionEnvironment environment, ExecutionHandler<R> handler, ComputationParameters parameters) {
         Objects.requireNonNull(environment);
         Objects.requireNonNull(handler);
-        MyCf<R> f = new MyCf<>();
-        threadPools.execute(() -> {
-            f.setThread(Thread.currentThread());
-            try {
-                try (WorkingDirectory workingDir = new WorkingDirectory(config.getLocalDir(), environment.getWorkingDirPrefix(), environment.isDebug())) {
-                    f.setWorkingDir(workingDir.toPath());
-                    List<CommandExecution> commandExecutionList = handler.before(workingDir.toPath());
-                    ExecutionReport report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
-                    R result = handler.after(workingDir.toPath(), report);
-                    f.complete(result);
-                }
-            } catch (Throwable t) {
-                f.completeExceptionally(t);
-            }
-        });
-        return f;
+
+        return CompletableFutureTask.runAsync(() -> doExecute(environment, handler, parameters), threadPool);
     }
 
-    private class MyCf<R> extends ThreadInterruptedCompletableFuture<R> {
+    /**
+     * Executes commands described by the specified handler. If the executing thread is interrupted,
+     * for example by a call to {@link CompletableFutureTask#cancel(boolean)}, the underlying process
+     * execution will be stopped.
+     */
+    private <R> R doExecute(ExecutionEnvironment environment, ExecutionHandler<R> handler, ComputationParameters parameters) throws IOException, InterruptedException {
 
-        private Path workingDir;
+        try (WorkingDirectory workingDir = new WorkingDirectory(config.getLocalDir(), environment.getWorkingDirPrefix(), environment.isDebug())) {
 
-        private void setWorkingDir(Path workingDir) {
-            this.workingDir = workingDir;
-        }
+            List<CommandExecution> commandExecutionList = handler.before(workingDir.toPath());
 
-        @Override
-        public boolean cancel(boolean mayInterruptIfRunning) {
-            super.cancel(mayInterruptIfRunning);
-            if (mayInterruptIfRunning) {
-                localCommandExecutor.stop(workingDir);
+            ExecutionReport report;
+            try {
+                report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
+            } catch (InterruptedException exc) {
+                localCommandExecutor.stop(workingDir.toPath());
+                throw exc;
             }
-            return true;
+            return handler.after(workingDir.toPath(), report);
         }
     }
 
@@ -365,7 +356,7 @@ public class LocalComputationManager implements ComputationManager {
 
     @Override
     public Executor getExecutor() {
-        return threadPools;
+        return threadPool;
     }
 
     @Override

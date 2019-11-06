@@ -14,7 +14,7 @@
 
     <groupId>com.powsybl</groupId>
     <artifactId>powsybl-core</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>powsybl</name>
@@ -143,6 +143,7 @@
         <jgrapht.version>1.0.1</jgrapht.version>
         <jimfs.version>1.1</jimfs.version>
         <jjwt.version>0.9.0</jjwt.version>
+        <jline2.version>2.12</jline2.version>
         <jodatime.version>2.9.7</jodatime.version>
         <junit.version>4.12</junit.version>
         <logback.version>1.1.8</logback.version>
@@ -333,7 +334,7 @@
                             <sourceDirectory>${project.basedir}/dsl/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/iidm/iidm-api/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/loadflow/loadflow-api/src/main/groovy</sourceDirectory>
-                            <sourceDirectory>${project.basedir}/scripting/src/main/groovy</sourceDirectory>
+                            <sourceDirectory>${project.basedir}/scripting/scripting-afs/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/time-series/time-series-api/src/main/groovy</sourceDirectory>
                         </sourceDirectories>
                         <jacocoReports>
@@ -635,6 +636,11 @@
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>${jaxb-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jline</groupId>
+                <artifactId>jline</artifactId>
+                <version>${jline2.version}</version>
             </dependency>
             <dependency>
                 <groupId>joda-time</groupId>
