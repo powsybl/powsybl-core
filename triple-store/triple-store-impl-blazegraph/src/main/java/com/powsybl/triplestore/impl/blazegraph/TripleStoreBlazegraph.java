@@ -241,7 +241,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void copyFrom(TripleStore source) {
+    public void add(TripleStore source) {
         Objects.requireNonNull(source);
         Repository sourceRepository;
         if (source instanceof TripleStoreBlazegraph) {
@@ -291,7 +291,8 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         }
     }
 
-    private static void copyStatements(RepositoryConnection sourceConn, RepositoryConnection targetConn) throws RepositoryException {
+    private static void copyStatements(RepositoryConnection sourceConn, RepositoryConnection targetConn)
+        throws RepositoryException {
         ValueFactory vfac = targetConn.getValueFactory();
 
         for (Resource context : Iterations.asList(sourceConn.getContextIDs())) {
@@ -389,7 +390,8 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         PropertyBag statement,
         Resource context) {
         try {
-            URI resource = cnx.getValueFactory().createURI(cnx.getNamespace("data"), "_" + UUID.randomUUID().toString());
+            URI resource = cnx.getValueFactory().createURI(cnx.getNamespace("data"),
+                "_" + UUID.randomUUID().toString());
             URI parentPredicate = RDF.TYPE;
             URI parentObject = cnx.getValueFactory().createURI(objNs + objType);
             Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);

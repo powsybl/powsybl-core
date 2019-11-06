@@ -16,22 +16,72 @@ import java.util.function.Consumer;
 import com.powsybl.commons.datasource.DataSource;
 
 /**
+ * A Triplestore database.
+ * A Triplestore database is a database for the storage and retrieval of triples.
+ * A triple is a data entity composed of subject-predicate-object.
+ * Adding a name to a triple allows to separate them in contexts or named graphs.
+ *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public interface TripleStore {
 
+    /**
+     * Read statements from an input stream and store them in the Triplestore under the given context name.
+     *
+     * @param is input stream containing statements that will be added to the Triplestore
+     * @param base the base URI used to convert relative URI's to absolute URI's
+     * @param contextName name of the context where statements will be added
+     */
     void read(InputStream is, String base, String contextName);
 
+    /**
+     * Write the contents of the Triplestore in the given data source.
+     * Statements in each context will be written to separate fileNames in the output data source
+     * @param ds the output data source
+     */
     void write(DataSource ds);
 
+    /**
+     * Print a summary of the contents of the Triplestore.
+     * Typically a list of contexts and its size (number of statements).
+     *
+     * @param out output stream where the summary will be written
+     */
     void print(PrintStream out);
 
+    /**
+     * Print a summary of the contents of the Triplestore.
+     * Typically a list of contexts and its size (number of statements).
+     *
+     * @param liner a function that accepts strings (the lines of the summary report)
+     */
     void print(Consumer<String> liner);
 
+    /**
+     * Delete all the statements in a given context.
+     *
+     * @param contextName the context to be cleared
+     */
     void clear(String contextName);
 
+    /**
+     * Define namespace prefix bindings that will be used in the text of queries.
+     * Example:
+     * <code>
+     * tripleStore.defineQueryPrefix("foaf", "http://xmlns.com/foaf/0.1/");
+     * </code>
+     *
+     * @param prefix the prefix to be used in the text of queries as a replacement for the namespace
+     * @param namespace the URL of the namespace
+     */
     void defineQueryPrefix(String prefix, String namespace);
 
+    /**
+     * Perform a SPARQL query on the Triplestore.
+     *
+     * @param query the text of the query, written in SPARQL query language
+     * @return the solution sequence of the query (the ways in which the query matches the data)
+     */
     PropertyBags query(String query);
 
     /**
@@ -55,10 +105,25 @@ public interface TripleStore {
      */
     String add(String contextName, String namespace, String type, PropertyBag properties);
 
+    /**
+     * Add all statements of the source Triplestore to this Triplestore.
+     *
+     * @param source the Triplestore containing statements to be added to this Triplestore
+     */
+    void add(TripleStore source);
+
+    /**
+     * Get all the context names currently defined in the Triplestore.
+     *
+     * @return a set of all context names
+     */
     Set<String> contextNames();
 
-    void copyFrom(TripleStore source);
-
+      /**
+     * Perform a SPARQL update on the Triplestore.
+     *
+     * @param query the text of the query, written in SPARQL Update language
+     */
     void update(String queryText);
 
     /**

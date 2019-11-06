@@ -102,7 +102,7 @@ public class TripleStoreUpdateTest {
 
     @Test(expected = TripleStoreException.class)
     public void testMalformedQuery() {
-        tester.testUpdateOnCopies(queries.get("deleteLastNameMalformed"));
+        tester.testUpdateOnCopies(queries.get("malformedQuery"));
     }
 
     private static TripleStoreTester tester;

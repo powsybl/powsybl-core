@@ -25,7 +25,7 @@ public class TripleStoreFactoryServiceRDF4J implements TripleStoreFactoryService
     @Override
     public TripleStore copy(TripleStore source) {
         TripleStore ts = new TripleStoreRDF4J();
-        ts.copyFrom(source);
+        ts.add(source);
         return ts;
     }
 

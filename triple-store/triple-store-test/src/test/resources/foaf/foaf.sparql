@@ -88,3 +88,13 @@ SELECT * {
     { GRAPH ?graphPersons { ?person foaf:mailbox ?mbox } }
 }
 
+# query: malformedQuery
+prefix : <http://example/>
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+DELETE { ?x foaf:lastName ?y 
+WHERE {
+    ?x foaf:lastName ?y .
+    FILTER (?y = "Channing")
+}
+
+
