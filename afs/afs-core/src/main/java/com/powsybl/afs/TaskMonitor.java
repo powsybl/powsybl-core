@@ -7,16 +7,64 @@
 package com.powsybl.afs;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface TaskMonitor extends AutoCloseable {
+
+    class NotACancelableTaskMonitor extends Exception {
+        public NotACancelableTaskMonitor() {
+            super();
+        }
+
+        public NotACancelableTaskMonitor(String messsage) {
+            super(messsage);
+        }
+    }
+
+    class NotCancelableException extends Exception {
+
+    }
+
+    class CancelableTask extends Task {
+
+        @JsonIgnore
+        private Future future;
+
+        public CancelableTask(String name, String message, long revision, String projectId) {
+            super(name, message, revision, projectId);
+        }
+
+        protected CancelableTask(Task other) {
+            super(other);
+        }
+
+        public void setFuture(Future future) {
+            this.future = future;
+        }
+
+        public boolean isCancellable() {
+            return future != null;
+        }
+
+        void cancel() throws NotCancelableException {
+            if (future != null) {
+                future.cancel(true);
+            } else {
+                throw new NotCancelableException();
+            }
+        }
+
+    }
 
     class Task {
 
@@ -80,6 +128,11 @@ public interface TaskMonitor extends AutoCloseable {
             this.revision = revision;
         }
 
+        @JsonIgnore
+        public boolean isCancellable() {
+            return false;
+        }
+
         String getProjectId() {
             return projectId;
         }
@@ -140,19 +193,68 @@ public interface TaskMonitor extends AutoCloseable {
         }
     }
 
+    /**
+     * Create a task monitoring object
+     * @param projectFile related project file
+     * @return the newly created task
+     */
     Task startTask(ProjectFile projectFile);
 
+    /**
+     * Create a task monitoring object
+     * @param name name of the task
+     * @param project related project
+     * @return the newly created task
+     */
     Task startTask(String name, Project project);
 
+    /**
+     * Remove the task monitoring object.
+     * To stop the process monitored by this task, use {@link TaskMonitor#cancelTaskComputation}
+     * @param id id of the task
+     */
     void stopTask(UUID id);
 
+    /**
+     * Update the display status of the task
+     * @param id id of the task
+     * @param message new status message
+     */
     void updateTaskMessage(UUID id, String message);
 
+    /**
+     * Return the complete state of tasks related to a project
+     * @param projectId related project
+     * @return
+     */
     Snapshot takeSnapshot(String projectId);
 
+    /**
+     * Try cancel/stop the computation process monitored by this task.
+     * @param id the id of the task
+     * @throws NotCancelableException
+     */
+    void cancelTaskComputation(UUID id) throws NotCancelableException;
+
+    /**
+     * Add a listener to task events
+     * @param listener
+     */
     void addListener(TaskListener listener);
 
+    /**
+     * Remove a listener of task events
+     * @param listener
+     */
     void removeListener(TaskListener listener);
+
+    /**
+     * Update the future of the computation process monitored by this task
+     * @param taskId
+     * @param future
+     * @throws NotACancelableTaskMonitor in case the task monitor is operating as a remote task monitor
+     */
+    void updateTaskCancelableFuture(UUID taskId, Future future) throws NotACancelableTaskMonitor;
 
     @Override
     void close();

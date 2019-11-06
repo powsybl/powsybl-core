@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.Future;
 
 import static com.powsybl.afs.ws.client.utils.ClientUtils.checkOk;
 import static com.powsybl.afs.ws.client.utils.ClientUtils.readEntityIfOk;
@@ -162,6 +163,23 @@ public class RemoteTaskMonitor implements TaskMonitor {
     }
 
     @Override
+    public void cancelTaskComputation(UUID id) {
+        LOGGER.debug("cancel(fileSystemName={}, id={})", fileSystemName, id);
+
+        Response response = webTarget.path("fileSystems/{fileSystemName}/tasks/{taskId}/_cancel")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate("taskId", id)
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .put(null);
+        try {
+            checkOk(response);
+        } finally {
+            response.close();
+        }
+    }
+
+    @Override
     public void addListener(TaskListener listener) {
         Objects.requireNonNull(listener);
 
@@ -194,6 +212,11 @@ public class RemoteTaskMonitor implements TaskMonitor {
                 throw new UncheckedIOException(e);
             }
         }
+    }
+
+    @Override
+    public void updateTaskCancelableFuture(UUID taskId, Future future) throws NotACancelableTaskMonitor {
+        throw new NotACancelableTaskMonitor("Cannot update task future from remote");
     }
 
     @Override

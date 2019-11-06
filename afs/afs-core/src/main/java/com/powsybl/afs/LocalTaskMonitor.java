@@ -6,7 +6,11 @@
  */
 package com.powsybl.afs;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
+import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -16,7 +20,8 @@ import java.util.stream.Collectors;
  */
 public class LocalTaskMonitor implements TaskMonitor {
 
-    private final Map<UUID, Task> tasks = new HashMap<>();
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalTaskMonitor.class);
+    private final Map<UUID, CancelableTask> tasks = new HashMap<>();
 
     private long revision = 0L;
 
@@ -39,7 +44,7 @@ public class LocalTaskMonitor implements TaskMonitor {
         lock.lock();
         try {
             revision++;
-            Task task = new Task(name, null, revision, project.getId());
+            CancelableTask task = new CancelableTask(name, null, revision, project.getId());
             tasks.put(task.getId(), task);
 
             // notification
@@ -58,7 +63,8 @@ public class LocalTaskMonitor implements TaskMonitor {
         try {
             Task task = tasks.remove(id);
             if (task == null) {
-                throw new IllegalArgumentException("Task '" + id + "' not found");
+                LOGGER.warn("The task did not exist. Maybe it was cancelled or already stopped");
+                return;
             }
             revision++;
 
@@ -80,6 +86,12 @@ public class LocalTaskMonitor implements TaskMonitor {
         } finally {
             lock.unlock();
         }
+    }
+
+    @Override
+    public void cancelTaskComputation(UUID id) throws NotCancelableException {
+        tasks.get(id).cancel();
+        stopTask(id);
     }
 
     @Override
@@ -127,6 +139,26 @@ public class LocalTaskMonitor implements TaskMonitor {
         lock.lock();
         try {
             listeners.remove(listener);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void updateTaskCancelableFuture(UUID taskId, Future future) {
+        Objects.requireNonNull(taskId);
+        lock.lock();
+        try {
+            CancelableTask task = tasks.get(taskId);
+            if (task == null) {
+                throw new IllegalArgumentException("Task '" + taskId + "' not found");
+            }
+            revision++;
+            task.setFuture(future);
+            task.setRevision(revision);
+
+            // notification
+            notifyListeners(new TaskCancelableStatusChangeEvent(taskId, revision, task.isCancellable()), task.getProjectId());
         } finally {
             lock.unlock();
         }
