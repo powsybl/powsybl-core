@@ -20,60 +20,70 @@ public class VoltageLevelNodeBreakerViewSwitchAdderAdapter extends AbstractAdapt
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public VoltageLevelNodeBreakerViewSwitchAdderAdapter setId(final String id) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setId(id);
+        return this;
     }
 
     @Override
     public VoltageLevelNodeBreakerViewSwitchAdderAdapter setEnsureIdUnicity(final boolean ensureIdUnicity) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setEnsureIdUnicity(ensureIdUnicity);
+        return this;
     }
 
     @Override
     public VoltageLevelNodeBreakerViewSwitchAdderAdapter setName(final String name) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setName(name);
+        return this;
     }
 
     @Override
     public VoltageLevelNodeBreakerViewSwitchAdderAdapter setNode1(final int node1) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setNode1(node1);
+        return this;
     }
 
     @Override
     public VoltageLevelNodeBreakerViewSwitchAdderAdapter setNode2(final int node2) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setNode2(node2);
+        return this;
     }
 
     @Override
     public VoltageLevelNodeBreakerViewSwitchAdderAdapter setKind(final SwitchKind kind) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setKind(kind);
+        return this;
     }
 
     @Override
     public VoltageLevelNodeBreakerViewSwitchAdderAdapter setKind(final String kind) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setKind(kind);
+        return this;
     }
 
     @Override
     public VoltageLevelNodeBreakerViewSwitchAdderAdapter setOpen(final boolean open) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setOpen(open);
+        return this;
     }
 
     @Override
     public VoltageLevelNodeBreakerViewSwitchAdderAdapter setRetained(final boolean retained) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRetained(retained);
+        return this;
     }
 
     @Override
     public VoltageLevelNodeBreakerViewSwitchAdderAdapter setFictitious(final boolean fictitious) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setFictitious(fictitious);
+        return this;
     }
 
     @Override
     public SwitchAdapter add() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new SwitchAdapter(getDelegate().add(), getIndex());
     }
 }

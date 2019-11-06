@@ -7,6 +7,7 @@
 package com.powsybl.iidm.mergingview;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.ConnectableType;
@@ -20,36 +21,41 @@ public class BusbarSectionAdapter extends AbstractIdentifiableAdapter<BusbarSect
         super(delegate, index);
     }
 
+    @Override
+    public List<? extends TerminalAdapter> getTerminals() {
+        return getDelegate().getTerminals().stream()
+            .map(getIndex()::getTerminal)
+            .collect(Collectors.toList());
+    }
+
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public TerminalAdapter getTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getTerminal(getDelegate().getTerminal());
     }
 
     @Override
     public ConnectableType getType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public List<? extends TerminalAdapter> getTerminals() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getType();
     }
 
     @Override
     public double getV() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getV();
     }
 
     @Override
     public double getAngle() {
+        return getDelegate().getAngle();
+    }
+
+    // -------------------------------
+    // Not implemented methods -------
+    // -------------------------------
+    @Override
+    public void remove() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 

@@ -17,31 +17,36 @@ public class BusbarSectionAdderAdapter extends AbstractAdapter<BusbarSectionAdde
         super(delegate, index);
     }
 
+
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public BusbarSectionAdderAdapter setId(final String id) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setId(id);
+        return this;
     }
 
     @Override
     public BusbarSectionAdderAdapter setEnsureIdUnicity(final boolean ensureIdUnicity) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setEnsureIdUnicity(ensureIdUnicity);
+        return this;
     }
 
     @Override
     public BusbarSectionAdderAdapter setName(final String name) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setName(name);
+        return this;
     }
 
     @Override
     public BusbarSectionAdderAdapter setNode(final int node) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setNode(node);
+        return this;
     }
 
     @Override
     public BusbarSectionAdapter add() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new BusbarSectionAdapter(getDelegate().add(), getIndex());
     }
 }

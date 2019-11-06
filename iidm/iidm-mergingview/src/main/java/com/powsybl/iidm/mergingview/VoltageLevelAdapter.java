@@ -36,6 +36,7 @@ import com.powsybl.iidm.network.util.ShortIdDictionary;
 class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> implements VoltageLevel {
 
     private VoltageLevelBusBreakerViewAdapter busBreakerViewAdapter;
+    private VoltageLevelNodeBreakerViewAdapter nodeBreakerViewAdapter;
 
     public VoltageLevelAdapter(final VoltageLevel delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -57,6 +58,14 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
             busBreakerViewAdapter = new VoltageLevelBusBreakerViewAdapter(getDelegate().getBusBreakerView(), getIndex());
         }
         return busBreakerViewAdapter;
+    }
+
+    @Override
+    public VoltageLevelNodeBreakerViewAdapter getNodeBreakerView() {
+        if (nodeBreakerViewAdapter == null) {
+            nodeBreakerViewAdapter = new VoltageLevelNodeBreakerViewAdapter(getDelegate().getNodeBreakerView(), getIndex());
+        }
+        return nodeBreakerViewAdapter;
     }
 
     @Override
@@ -199,11 +208,6 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
 
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public VoltageLevelNodeBreakerViewAdapter getNodeBreakerView() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 

@@ -11,6 +11,10 @@ import com.powsybl.iidm.network.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
+
 import static org.junit.Assert.*;
 
 /**
@@ -159,7 +163,6 @@ public class VoltageLevelAdapterTest {
         TestUtil.notImplemented(voltageLevel::getLccConverterStations);
         TestUtil.notImplemented(voltageLevel::getLccConverterStationStream);
         // Bus
-        TestUtil.notImplemented(voltageLevel::getNodeBreakerView);
         TestUtil.notImplemented(voltageLevel::getBusView);
         // Connectables
         TestUtil.notImplemented(() -> voltageLevel.getConnectable("", null));
@@ -169,5 +172,134 @@ public class VoltageLevelAdapterTest {
         TestUtil.notImplemented(voltageLevel::getConnectables);
         TestUtil.notImplemented(voltageLevel::getConnectableStream);
         TestUtil.notImplemented(voltageLevel::getConnectableCount);
+    }
+
+    @Test
+    public void nodeBreakerViewTest() {
+        final VoltageLevel voltageLevelNB = substation.newVoltageLevel()
+            .setTopologyKind(TopologyKind.NODE_BREAKER)
+            .setTopologyKind(TopologyKind.NODE_BREAKER.name())
+            .setId("nbVL")
+            .setName("nbVL_name")
+            .setNominalV(200.0)
+            .setLowVoltageLimit(100.0)
+            .setHighVoltageLimit(200.0)
+            .setEnsureIdUnicity(false)
+            .add();
+        VoltageLevel.NodeBreakerView nbView = voltageLevelNB.getNodeBreakerView();
+        nbView.setNodeCount(5);
+        voltageLevelNB.newBattery().setId("BAT2")
+            .setNode(0)
+            .setMaxP(9999.99)
+            .setMinP(-9999.99)
+            .setP0(15)
+            .setQ0(-15)
+            .add();
+        voltageLevelNB.newGenerator().setId("GEN2").setVoltageRegulatorOn(true)
+            .setNode(1)
+            .setMaxP(9999.99)
+            .setMinP(-9999.99)
+            .setTargetV(25.5)
+            .setTargetP(600.05)
+            .setTargetQ(300.5)
+            .setEnsureIdUnicity(true).add();
+        voltageLevelNB.newLoad().setId("LOAD2")
+            .setNode(2)
+            .setP0(9999.99)
+            .setQ0(-9999.99)
+            .setEnsureIdUnicity(true).add();
+        nbView.newSwitch().setId("SWITCH")
+            .setName("nb_switch")
+            .setFictitious(true)
+            .setRetained(true)
+            .setOpen(true)
+            .setKind(SwitchKind.BREAKER)
+            .setKind(SwitchKind.BREAKER.name())
+            .setNode1(3)
+            .setNode2(4)
+            .setEnsureIdUnicity(true).add();
+
+        assertTrue(nbView.newBusbarSection().setId("BUS_BREAKER")
+            .setName("bb_name")
+            .setNode(4)
+            .setEnsureIdUnicity(true).add() instanceof BusbarSectionAdapter);
+
+        assertTrue(nbView.newBreaker().setId("BREAKER")
+            .setName("breaker_name")
+            .setNode1(1)
+            .setNode2(2)
+            .setKind(SwitchKind.BREAKER)
+            .setEnsureIdUnicity(true).add() instanceof SwitchAdapter);
+
+        assertTrue(nbView.newDisconnector().setId("DISCONNECTOR")
+            .setName("disconnector_name")
+            .setNode1(1)
+            .setNode2(2)
+            .setOpen(true)
+            .setFictitious(true)
+            .setKind(SwitchKind.DISCONNECTOR)
+            .setEnsureIdUnicity(true).add() instanceof SwitchAdapter);
+
+        nbView.newInternalConnection().setId("INTERNAL_CONNECTION")
+            .setName("inter_co_name")
+            .setNode1(1)
+            .setNode2(3)
+            .setEnsureIdUnicity(true).add();
+
+        assertTrue(nbView instanceof VoltageLevelNodeBreakerViewAdapter);
+        assertEquals(5, nbView.getNodeCount());
+        assertEquals(5, nbView.getNodes().length);
+        assertEquals(4, nbView.getSwitchCount());
+        assertEquals(3, nbView.getNode1("SWITCH"));
+        assertEquals(4, nbView.getNode2("SWITCH"));
+
+        List<String> switchesNames = new ArrayList<String>();
+        switchesNames.add("nb_switch");
+        switchesNames.add("breaker_name");
+        switchesNames.add("disconnector_name");
+
+        for (Switch sw : nbView.getSwitches()) {
+            if (sw != null) {
+                assertTrue(sw instanceof SwitchAdapter);
+                assertTrue(switchesNames.contains(sw.getName()));
+            }
+        }
+        assertTrue(nbView.getSwitch("SWITCH") instanceof SwitchAdapter);
+        assertTrue(nbView.getSwitch("SWITCH").isFictitious());
+        assertTrue(nbView.getSwitch("SWITCH").isOpen());
+        assertTrue(nbView.getSwitch("SWITCH").isRetained());
+
+        assertEquals(1, nbView.getInternalConnectionCount());
+        for (VoltageLevel.NodeBreakerView.InternalConnection intCo : nbView.getInternalConnections()) {
+            assertTrue(intCo instanceof VoltageLevel.NodeBreakerView.InternalConnection);
+        }
+        assertTrue(nbView.getInternalConnectionStream() instanceof Stream);
+
+        assertEquals(1, nbView.getBusbarSectionCount());
+        assertEquals("bb_name", nbView.getBusbarSection("BUS_BREAKER").getName());
+        for (BusbarSection bus : nbView.getBusbarSections()) {
+            assertTrue(bus instanceof BusbarSectionAdapter);
+        }
+
+        assertSame(nbView.getTerminal(3), nbView.getTerminal1("SWITCH"));
+        assertSame(nbView.getTerminal(4), nbView.getTerminal2("SWITCH"));
+
+        nbView.removeSwitch("DISCONNECTOR");
+        assertEquals(null, nbView.getSwitch("DISCONNECTOR"));
+
+        List<String> traversed = new ArrayList<>();
+        nbView.traverse(1, new VoltageLevel.NodeBreakerView.Traverser() {
+            @Override
+            public boolean traverse(int node1, Switch sw, int node2) {
+                if (node2 == node1 + 1) {
+                    traversed.add(sw.getName());
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        assertEquals(1, traversed.size());
+        assertTrue(traversed.contains("breaker_name"));
     }
 }
