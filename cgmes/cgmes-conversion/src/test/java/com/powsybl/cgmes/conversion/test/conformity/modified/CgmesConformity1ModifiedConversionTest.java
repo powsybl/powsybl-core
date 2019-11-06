@@ -11,6 +11,7 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.iidm.network.*;
 import org.junit.After;
@@ -404,35 +405,115 @@ public class CgmesConformity1ModifiedConversionTest {
     @Test
     public void smallNodeBreakerHvdcDcLine2Inverter1Rectifier2() {
         // Small Grid Node Breaker HVDC modified so in the dcLine2
-        // SVC1 (that is at side 2 of the DC line) is interpreted as a rectifier and
-        // SVC2 (that is at side 1 of the line) is interpreted as an inverter
-        assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2Inverter1Rectifier2().dataSource(), null));
+        // VSC1 (that is at side 2 of the DC line) is interpreted as a rectifier and
+        // VSC2 (that is at side 1 of the line) is interpreted as an inverter
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2Inverter1Rectifier2().dataSource(), null);
+        assertNotNull(network);
+        HvdcLine line = network.getHvdcLine("_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b");
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, line.getConvertersMode());
     }
 
     @Test
     public void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier() {
         // Small Grid Node Breaker HVDC modified so in the dcLine
         // both converters have targetPpcc consistent with side 1 inverter side 2 rectifier
-        assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier().dataSource(), null));
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier().dataSource(), null);
+        assertNotNull(network);
+        HvdcLine line = network.getHvdcLine("_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b");
+        HvdcConverterStation converterStation1 = line.getConverterStation1();
+        HvdcConverterStation converterStation2 = line.getConverterStation2();
+        assertEquals(0.49261084, converterStation1.getLossFactor(), 10e-8);
+        assertEquals(0.4901961, converterStation2.getLossFactor(), 10e-8);
     }
 
     @Test
     public void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter() {
         // Small Grid Node Breaker HVDC modified so in the dcLine
         // both converters have targetPpcc consistent with side 1 rectifier side 2 inverter
-        assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter().dataSource(), null));
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter().dataSource(), null);
+        assertNotNull(network);
+        HvdcLine line = network.getHvdcLine("_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b");
+        HvdcConverterStation converterStation1 = line.getConverterStation1();
+        HvdcConverterStation converterStation2 = line.getConverterStation2();
+        assertEquals(0.5, converterStation1.getLossFactor(), 10e-8);
+        assertEquals(0.50251257, converterStation2.getLossFactor(), 10e-8);
     }
 
     @Test
     public void smallNodeBreakerHvdcVscReactiveQPcc() {
         // Small Grid Node Breaker HVDC modified so VSC converter are regulating in reactive power and not in voltage
-        assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcVscReactiveQPcc().dataSource(), null));
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcVscReactiveQPcc().dataSource(), null);
+        assertNotNull(network);
+        HvdcLine line = network.getHvdcLine("_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b");
+        VscConverterStation converterStation1 = (VscConverterStation) line.getConverterStation1();
+        VscConverterStation converterStation2 = (VscConverterStation) line.getConverterStation2();
+        assertFalse(converterStation1.isVoltageRegulatorOn());
+        assertFalse(converterStation2.isVoltageRegulatorOn());
     }
 
     @Test
-    public void smallNodeBrokerHvdcNanTargetPpcc() {
+    public void smallNodeBreakerHvdcNanTargetPpcc() {
         // Small Grid Node Breaker HVDC modified so targetPpcc are NaN
-        assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcNanTargetPpcc().dataSource(), null));
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcNanTargetPpcc().dataSource(), null);
+        assertNotNull(network);
+        HvdcLine line = network.getHvdcLine("_11d10c55-94cc-47e4-8e24-bc5ac4d026c0");
+        HvdcConverterStation converterStation1 = line.getConverterStation1();
+        HvdcConverterStation converterStation2 = line.getConverterStation2();
+        assertEquals(0.0, converterStation1.getLossFactor(), 0.0);
+        assertEquals(0.0, converterStation2.getLossFactor(), 0.0);
+    }
+
+    @Test
+    public void smallNodeBreakerHvdcLccRectifierRectifier() {
+        // Small Grid Node Breaker HVDC modified so LCC line is rectifier-rectifier
+        // corrected in IIDM conversion as rectifier-inverter
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcLccRectifierRectifier().dataSource(), null);
+        assertNotNull(network);
+        HvdcLine line = network.getHvdcLine("_11d10c55-94cc-47e4-8e24-bc5ac4d026c0");
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, line.getConvertersMode());
+    }
+
+    @Test
+    public void smallNodeBreakerHvdcLccInverterInverter() {
+        // Small Grid Node Breaker HVDC modified so LCC line is inverter-inverter
+        // corrected in IIDM conversion as inverter-rectifier
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcLccInverterInverter().dataSource(), null);
+        assertNotNull(network);
+        HvdcLine line = network.getHvdcLine("_11d10c55-94cc-47e4-8e24-bc5ac4d026c0");
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, line.getConvertersMode());
+    }
+
+    @Test
+    public void smallNodeBreakerHvdcLccUnexpectedInverter() {
+        // Small Grid Node Breaker HVDC modified so LCC line is unexpected-inverter
+        // corrected in IIDM conversion as rectifier-inverter
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcLccUnexpectedInverter().dataSource(), null);
+        assertNotNull(network);
+        HvdcLine line = network.getHvdcLine("_11d10c55-94cc-47e4-8e24-bc5ac4d026c0");
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, line.getConvertersMode());
+    }
+
+    @Test
+    public void smallNodeBreakerHvdcLccUnexpectedRectifier() {
+        // Small Grid Node Breaker HVDC modified so LCC line is unexpected-rectifier
+        // corrected in IIDM conversion as inverter-rectifier
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcLccUnexpectedRectifier().dataSource(), null);
+        assertNotNull(network);
+        HvdcLine line = network.getHvdcLine("_11d10c55-94cc-47e4-8e24-bc5ac4d026c0");
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, line.getConvertersMode());
+    }
+
+    @Test
+    public void smallNodeBreakerHvdcLccUnexpectedUnexpected() {
+        // Small Grid Node Breaker HVDC modified so LCC line is unexpected-unexpected
+        // explicit exception is thrown
+        try {
+            new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcLccUnexpectedUnexpected().dataSource(), null);
+        } catch (PowsyblException e) {
+            assertEquals("Unexpected modes for LCC Converter stations of _11d10c55-94cc-47e4-8e24-bc5ac4d026c0: " +
+                            "CsOperatingModeKind.unexpected-CsOperatingModeKind.unexpected",
+                    e.getMessage());
+        }
     }
 
     private FileSystem fileSystem;
