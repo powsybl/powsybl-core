@@ -74,6 +74,11 @@ public interface TripleStore {
      */
     List<PrefixNamespace> getNamespaces();
 
+    /**
+     * Return the implementation name defined in the triple store
+     *
+     * @return the string implementation name of the triplestore object
+     */
     String getImplementationName();
 
 }
