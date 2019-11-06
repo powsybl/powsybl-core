@@ -240,7 +240,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void copyFrom(TripleStore source) {
+    public void add(TripleStore source) {
         Objects.requireNonNull(source);
         Repository sourceRepository;
         if (source instanceof TripleStoreBlazegraph) {

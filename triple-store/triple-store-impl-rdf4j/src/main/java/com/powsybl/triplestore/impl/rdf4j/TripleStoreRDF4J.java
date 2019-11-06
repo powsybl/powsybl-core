@@ -193,7 +193,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void copyFrom(TripleStore source) {
+    public void add(TripleStore source) {
         Objects.requireNonNull(source);
         Repository sourceRepo;
         if (source instanceof TripleStoreRDF4J) {

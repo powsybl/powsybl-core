@@ -163,7 +163,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void copyFrom(TripleStore source) {
+    public void add(TripleStore source) {
         Objects.requireNonNull(source);
         Dataset sourceDataset;
         if (source instanceof TripleStoreJena) {

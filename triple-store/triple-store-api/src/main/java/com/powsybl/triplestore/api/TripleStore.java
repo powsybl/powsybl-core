@@ -76,6 +76,12 @@ public interface TripleStore {
      */
     void defineQueryPrefix(String prefix, String namespace);
 
+    /**
+     * Perform a SPARQL query on the Triplestore.
+     *
+     * @param query the text of the query, written in SPARQL query language
+     * @return the solution sequence of the query (the ways in which the query matches the data)
+     */
     PropertyBags query(String query);
 
     /**
@@ -99,9 +105,19 @@ public interface TripleStore {
      */
     String add(String contextName, String namespace, String type, PropertyBag properties);
 
-    Set<String> contextNames();
+    /**
+     * Add all statements of the source Triplestore to this Triplestore.
+     *
+     * @param source the Triplestore containing statements to be added to this Triplestore
+     */
+    void add(TripleStore source);
 
-    void copyFrom(TripleStore source);
+    /**
+     * Get all the context names currently defined in the Triplestore.
+     *
+     * @return a set of all context names
+     */
+    Set<String> contextNames();
 
     /**
      * Add a namespace to the triple store
