@@ -92,10 +92,6 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         return NAME;
     }
 
-    public Repository getRepository() {
-        return repo;
-    }
-
     private void closeConnection(RepositoryConnection cnx, String operation) {
         if (cnx != null) {
             try {
@@ -248,7 +244,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         Objects.requireNonNull(source);
         Repository sourceRepository;
         if (source instanceof TripleStoreBlazegraph) {
-            sourceRepository = ((TripleStoreBlazegraph) source).getRepository();
+            sourceRepository = ((TripleStoreBlazegraph) source).repo;
             RepositoryConnection sourceConn = null;
             try {
                 sourceConn = sourceRepository.getConnection();
