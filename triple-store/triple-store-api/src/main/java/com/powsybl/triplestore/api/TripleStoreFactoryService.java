@@ -8,18 +8,39 @@
 package com.powsybl.triplestore.api;
 
 /**
-* Class TripleStoreFactoryService used to create in-memory triplestore object for different implementations
+* A factory service that allows creation of Triplestore databases.
 *
 * @author Luma Zamarreño <zamarrenolm at aia.es>
 */
 public interface TripleStoreFactoryService {
 
+    /**
+     * Create an instance of a Triplestore.
+     *
+     * @return Triplestore instance
+     */
     TripleStore create();
 
+    /**
+     * Create an instance of a Triplestore that is a copy of a given Triplestore.
+     *
+     * @param source the source Triplestore
+     * @return a copy of the source Triplestore
+     */
     TripleStore copy(TripleStore source);
 
+    /**
+     * Get name of the Triplestore factory.
+     *
+     * @return name of the Triplestore factory
+     */
     String getImplementationName();
 
+    /**
+     * Check if Triplestores from this factory support SPARQL queries with nested graph clauses.
+     *
+     * @return true if the Triplestores created by this factory support SPARQL queries with nested graph clauses
+     */
     boolean isWorkingWithNestedGraphClauses();
 
 }
