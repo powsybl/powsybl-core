@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.cgmes.conversion;
 
 import java.util.HashMap;
@@ -24,8 +30,6 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     public static void initialize(StaticVarCompensatorAdder adder) {
-        adder.setVoltageSetPoint(Double.NaN);
-        adder.setReactivePowerSetPoint(Double.NaN);
         adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
     }
 
@@ -38,7 +42,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
         if (mapping.containsKey(iidmId)) {
             throw new CgmesModelException(
-                "StaticVarCompensator already added, IIDM StaticVarCompensator Id : " + iidmId);
+                "StaticVarCompensator already added, IIDM StaticVarCompensator Id: " + iidmId);
         }
 
         RegulatingControlForStaticVarCompensator rc = new RegulatingControlForStaticVarCompensator();
