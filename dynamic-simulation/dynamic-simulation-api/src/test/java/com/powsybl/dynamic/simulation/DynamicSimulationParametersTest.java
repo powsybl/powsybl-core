@@ -16,11 +16,14 @@ import java.nio.file.FileSystem;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import com.google.auto.service.AutoService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
@@ -30,6 +33,9 @@ import com.powsybl.commons.extensions.AbstractExtension;
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 public class DynamicSimulationParametersTest {
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     private InMemoryPlatformConfig platformConfig;
     private FileSystem fileSystem;
@@ -57,6 +63,36 @@ public class DynamicSimulationParametersTest {
         DynamicSimulationParameters.load(parameters, platformConfig);
         checkValues(parameters, DynamicSimulationParameters.DEFAULT_START_TIME,
                 DynamicSimulationParameters.DEFAULT_STOP_TIME);
+    }
+
+    @Test
+    public void testConstructorStartTimeAsssertion() {
+        exception.expect(AssertionError.class);
+        exception.expectMessage("Start time should be zero or positive");
+        new DynamicSimulationParameters(-1, 0);
+    }
+
+    @Test
+    public void testConstructorStopTimeAsssertion() {
+        exception.expect(AssertionError.class);
+        exception.expectMessage("Stop time should be greater than start time");
+        new DynamicSimulationParameters(0, 0);
+    }
+
+    @Test
+    public void testStartTimeAsssertion() {
+        DynamicSimulationParameters parameters = new DynamicSimulationParameters();
+        exception.expect(AssertionError.class);
+        exception.expectMessage("Start time should be zero or positive");
+        parameters.setStartTime(-1);
+    }
+
+    @Test
+    public void testStopTimeAsssertion() {
+        DynamicSimulationParameters parameters = new DynamicSimulationParameters();
+        exception.expect(AssertionError.class);
+        exception.expectMessage("Stop time should be greater than start time");
+        parameters.setStopTime(0);
     }
 
     @Test

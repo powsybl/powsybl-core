@@ -84,7 +84,7 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
         if (startTime < 0) {
             throw new AssertionError("Start time should be zero or positive");
         }
-        if (stopTime < startTime) {
+        if (stopTime <= startTime) {
             throw new AssertionError("Stop time should be greater than start time");
         }
         this.startTime = startTime;
@@ -130,7 +130,7 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
      * @return
      */
     public DynamicSimulationParameters setStopTime(int stopTime) {
-        if (stopTime < startTime) {
+        if (stopTime <= startTime) {
             throw new AssertionError("Stop time should be greater than start time");
         }
         this.stopTime = stopTime;
