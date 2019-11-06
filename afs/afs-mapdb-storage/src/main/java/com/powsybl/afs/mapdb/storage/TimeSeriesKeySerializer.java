@@ -22,6 +22,7 @@ public class TimeSeriesKeySerializer implements Serializer<TimeSeriesKey>, Seria
 
     @Override
     public void serialize(DataOutput2 out, TimeSeriesKey key) throws IOException {
+        out.writeInt(MapDbStorageConstants.STORAGE_VERSION);
         UuidSerializer.INSTANCE.serialize(out, key.getNodeUuid());
         out.writeInt(key.getVersion());
         out.writeUTF(key.getTimeSeriesName());
@@ -29,6 +30,7 @@ public class TimeSeriesKeySerializer implements Serializer<TimeSeriesKey>, Seria
 
     @Override
     public TimeSeriesKey deserialize(DataInput2 input, int available) throws IOException {
+        input.readInt(); // Storage version is retrieved here
         java.util.UUID nodeUuid = UuidSerializer.INSTANCE.deserialize(input, available);
         int version = input.readInt();
         String timeSeriesName = input.readUTF();

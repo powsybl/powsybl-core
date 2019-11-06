@@ -44,6 +44,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-action-dsl-afs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-action-dsl-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -224,6 +230,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-contingency-afs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-contingency-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -338,7 +350,13 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-scripting</artifactId>
+            <artifactId>powsybl-scripting-afs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-scripting-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
 
