@@ -29,7 +29,7 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
      *
      * @param <E> The extension class
      */
-    public static interface ConfigLoader<E extends Extension<DynamicSimulationParameters>>
+    public interface ConfigLoader<E extends Extension<DynamicSimulationParameters>>
         extends ExtensionConfigLoader<DynamicSimulationParameters, E> {
     }
 

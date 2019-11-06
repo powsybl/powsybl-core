@@ -19,7 +19,7 @@
     <packaging>pom</packaging>
     <artifactId>powsybl-dynamic-simulation</artifactId>
     <name>Dynamic simulation</name>
-    <description>Dinamic Simulation aggregator module</description>
+    <description>Dynamic Simulation aggregator module</description>
 
     <modules>
         <module>dynamic-simulation-api</module>

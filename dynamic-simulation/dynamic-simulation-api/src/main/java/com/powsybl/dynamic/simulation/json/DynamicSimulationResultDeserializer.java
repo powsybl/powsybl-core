@@ -34,7 +34,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
 
     @Override
     public DynamicSimulationResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
-        Boolean isOK = null;
+        boolean isOK = false;
         String logs = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
