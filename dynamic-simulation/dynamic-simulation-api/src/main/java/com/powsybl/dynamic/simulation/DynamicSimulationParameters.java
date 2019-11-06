@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2017, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -24,7 +24,9 @@ import com.powsybl.commons.extensions.ExtensionProviders;
 public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimulationParameters> {
 
     /**
-     * A configuration loader interface for the DynamicSimulationParameters extensions loaded from the platform configuration
+     * A configuration loader interface for the DynamicSimulationParameters
+     * extensions loaded from the platform configuration
+     *
      * @param <E> The extension class
      */
     public static interface ConfigLoader<E extends Extension<DynamicSimulationParameters>>
@@ -70,7 +72,21 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
 
     private int stopTime;
 
+    /**
+     * Constructor with given parameters
+     *
+     * @param startTime instant of time at which the dynamic simulation begins, in
+     *                  seconds
+     * @param stopTime  instant of time at which the dynamic simulation ends, in
+     *                  seconds
+     */
     public DynamicSimulationParameters(int startTime, int stopTime) {
+        if (startTime < 0) {
+            throw new AssertionError("Start time should be zero or positive");
+        }
+        if (stopTime < startTime) {
+            throw new AssertionError("Stop time should be greater than start time");
+        }
         this.startTime = startTime;
         this.stopTime = stopTime;
     }
@@ -89,7 +105,16 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
         return startTime;
     }
 
+    /**
+     *
+     * @param startTime instant of time at which the dynamic simulation begins, in
+     *                  seconds
+     * @return
+     */
     public DynamicSimulationParameters setStartTime(int startTime) {
+        if (startTime < 0) {
+            throw new AssertionError("Start time should be zero or positive");
+        }
         this.startTime = startTime;
         return this;
     }
@@ -98,7 +123,16 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
         return stopTime;
     }
 
+    /**
+     *
+     * @param stopTime instant of time at which the dynamic simulation ends, in
+     *                 seconds
+     * @return
+     */
     public DynamicSimulationParameters setStopTime(int stopTime) {
+        if (stopTime < startTime) {
+            throw new AssertionError("Stop time should be greater than start time");
+        }
         this.stopTime = stopTime;
         return this;
     }

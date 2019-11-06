@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2017, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -16,22 +16,17 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.Column;
-import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
@@ -56,12 +51,6 @@ public class RunDynamicSimulationTool implements Tool {
     private static final String CASE_FILE = "case-file";
     private static final String SKIP_POSTPROC = "skip-postproc";
     private static final String OUTPUT_FILE = "output-file";
-    private static final String OUTPUT_FORMAT = "output-format";
-
-    private enum Format {
-        CSV,
-        JSON
-    }
 
     @Override
     public Command getCommand() {
@@ -96,11 +85,6 @@ public class RunDynamicSimulationTool implements Tool {
                     .hasArg()
                     .argName("FILE")
                     .build());
-                options.addOption(Option.builder().longOpt(OUTPUT_FORMAT)
-                    .desc("dynamic simulation results output format " + Arrays.toString(Format.values()))
-                    .hasArg()
-                    .argName("FORMAT")
-                    .build());
                 options.addOption(Option.builder().longOpt(SKIP_POSTPROC)
                     .desc("skip network importer post processors (when configured)")
                     .build());
@@ -124,15 +108,10 @@ public class RunDynamicSimulationTool implements Tool {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE));
         boolean skipPostProc = line.hasOption(SKIP_POSTPROC);
         Path outputFile = null;
-        Format format = null;
 
         // process a single network: output-file/output-format options available
         if (line.hasOption(OUTPUT_FILE)) {
             outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE));
-            if (!line.hasOption(OUTPUT_FORMAT)) {
-                throw new ParseException("Missing required option: " + OUTPUT_FORMAT);
-            }
-            format = Format.valueOf(line.getOptionValue(OUTPUT_FORMAT));
         }
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
@@ -149,20 +128,17 @@ public class RunDynamicSimulationTool implements Tool {
             context.getShortTimeExecutionComputationManager(), params);
 
         if (outputFile != null) {
-            exportResult(result, context, outputFile, format);
+            exportResult(result, context, outputFile);
         } else {
             printResult(result, context);
         }
     }
 
-    private void printDynamicSimulationResult(DynamicSimulationResult result, Path outputFile,
-        TableFormatterFactory formatterFactory,
-        TableFormatterConfig formatterConfig) {
-        try (Writer writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8)) {
-            printDynamicSimulationResult(result, writer, formatterFactory, formatterConfig);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+    private void printResult(DynamicSimulationResult result, ToolRunningContext context) {
+        Writer writer = new OutputStreamWriter(context.getOutputStream());
+
+        AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
+        printDynamicSimulationResult(result, writer, asciiTableFormatterFactory, TableFormatterConfig.load());
     }
 
     private void printDynamicSimulationResult(DynamicSimulationResult result, Writer writer,
@@ -174,31 +150,13 @@ public class RunDynamicSimulationTool implements Tool {
             new Column("Result"),
             new Column("Metrics"))) {
             formatter.writeCell(result.isOk());
-            formatter.writeCell(result.getMetrics().toString());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private void printResult(DynamicSimulationResult result, ToolRunningContext context) {
-        Writer writer = new OutputStreamWriter(context.getOutputStream());
-
-        AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
-        printDynamicSimulationResult(result, writer, asciiTableFormatterFactory, TableFormatterConfig.load());
-    }
-
-    private void exportResult(DynamicSimulationResult result, ToolRunningContext context, Path outputFile,
-        Format format) {
+    private void exportResult(DynamicSimulationResult result, ToolRunningContext context, Path outputFile) {
         context.getOutputStream().println("Writing results to '" + outputFile + "'");
-        switch (format) {
-            case CSV:
-                CsvTableFormatterFactory csvTableFormatterFactory = new CsvTableFormatterFactory();
-                printDynamicSimulationResult(result, outputFile, csvTableFormatterFactory, TableFormatterConfig.load());
-                break;
-
-            case JSON:
-                DynamicSimulationResultSerializer.write(result, outputFile);
-                break;
-        }
+        DynamicSimulationResultSerializer.write(result, outputFile);
     }
 }

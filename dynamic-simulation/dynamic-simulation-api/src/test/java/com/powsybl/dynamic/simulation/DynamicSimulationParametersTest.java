@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2017, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -11,6 +11,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.nio.file.FileSystem;
 
 import org.junit.After;
@@ -30,8 +31,8 @@ import com.powsybl.commons.extensions.AbstractExtension;
  */
 public class DynamicSimulationParametersTest {
 
-    InMemoryPlatformConfig platformConfig;
-    FileSystem fileSystem;
+    private InMemoryPlatformConfig platformConfig;
+    private FileSystem fileSystem;
 
     @Before
     public void setUp() {
@@ -40,11 +41,11 @@ public class DynamicSimulationParametersTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() throws IOException {
         fileSystem.close();
     }
 
-    private void checkValues(DynamicSimulationParameters parameters, int startTime,
+    private static void checkValues(DynamicSimulationParameters parameters, int startTime,
                              int stopTime) {
         assertEquals(parameters.getStartTime(), startTime);
         assertEquals(parameters.getStopTime(), stopTime);
@@ -59,7 +60,7 @@ public class DynamicSimulationParametersTest {
     }
 
     @Test
-    public void checkConfig() throws Exception {
+    public void checkConfig() {
         int startTime = 1;
         int stopTime = 100;
 
@@ -72,7 +73,7 @@ public class DynamicSimulationParametersTest {
     }
 
     @Test
-    public void checkSetters() throws Exception {
+    public void checkSetters() {
         int startTime = 1;
         int stopTime = 100;
 
@@ -85,7 +86,7 @@ public class DynamicSimulationParametersTest {
     }
 
     @Test
-    public void checkClone() throws Exception {
+    public void checkClone() {
         int startTime = 1;
         int stopTime = 100;
         DynamicSimulationParameters parameters = new DynamicSimulationParameters(startTime, stopTime);

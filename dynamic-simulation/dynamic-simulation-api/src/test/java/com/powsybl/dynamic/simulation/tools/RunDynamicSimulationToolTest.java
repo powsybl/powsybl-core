@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2017, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -12,10 +12,8 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.ParseException;
 import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.powsybl.tools.AbstractToolTest;
@@ -46,10 +44,9 @@ public class RunDynamicSimulationToolTest extends AbstractToolTest {
     public void assertCommand() {
         Command command = tool.getCommand();
 
-        assertCommand(command, "dynamic-simulation", 8, 1);
+        assertCommand(command, "dynamic-simulation", 7, 1);
         assertOption(command.getOptions(), "case-file", true, true);
         assertOption(command.getOptions(), "output-file", false, true);
-        assertOption(command.getOptions(), "output-format", false, true);
         assertOption(command.getOptions(), "skip-postproc", false, false);
     }
 
@@ -61,15 +58,4 @@ public class RunDynamicSimulationToolTest extends AbstractToolTest {
         commandLine = mock(CommandLine.class);
         when(commandLine.getOptionValue("case-file")).thenReturn("/path-case-file");
     }
-
-    @Test
-    public void failedOutputFormatOptions() throws Exception {
-        when(commandLine.hasOption("output-file")).thenReturn(true);
-        when(commandLine.getOptionValue("output-file")).thenReturn("/outfile");
-        when(commandLine.hasOption("output-format")).thenReturn(false);
-        thrown.expect(ParseException.class);
-        thrown.expectMessage("Missing required option: output-format");
-        tool.run(commandLine, runningContext);
-    }
-
 }

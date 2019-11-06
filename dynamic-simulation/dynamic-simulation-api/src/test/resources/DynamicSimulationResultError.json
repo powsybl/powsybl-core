@@ -1,7 +1,6 @@
 {
   "version" : "1.0",
   "isOK" : true,
-  "metrics" : {
-    "metrics1" : "4"
-  }
+  "logs" : "",
+  "metrics" : "4"
 }

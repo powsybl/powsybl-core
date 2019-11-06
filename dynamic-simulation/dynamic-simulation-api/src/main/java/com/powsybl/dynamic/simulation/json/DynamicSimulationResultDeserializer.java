@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2017, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -11,8 +11,6 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -37,8 +35,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
     @Override
     public DynamicSimulationResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
         Boolean isOK = null;
-        Map<String, String> metrics = null;
-        String log = null;
+        String logs = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -51,9 +48,9 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
                     isOK = parser.readValueAs(Boolean.class);
                     break;
 
-                case "metrics":
+                case "logs":
                     parser.nextToken();
-                    metrics = parser.readValueAs(HashMap.class);
+                    logs = parser.readValueAs(String.class);
                     break;
 
                 default:
@@ -61,7 +58,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
             }
         }
 
-        return new DynamicSimulationResultImpl(isOK, metrics, log);
+        return new DynamicSimulationResultImpl(isOK, logs);
     }
 
     public static DynamicSimulationResult read(InputStream is) throws IOException {
