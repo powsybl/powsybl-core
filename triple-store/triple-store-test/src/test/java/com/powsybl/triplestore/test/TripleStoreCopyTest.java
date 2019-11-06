@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.triplestore.test;
 
 import static org.junit.Assert.assertEquals;
@@ -9,6 +15,10 @@ import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.test.TripleStoreTester.Expected;
 
+/**
+ * @author Elena Kaltakova <kaltakovae at aia.es>
+ *
+ */
 public class TripleStoreCopyTest {
 
     @Test

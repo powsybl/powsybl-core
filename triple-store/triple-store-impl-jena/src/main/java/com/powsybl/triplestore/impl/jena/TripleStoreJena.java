@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -34,9 +35,9 @@ import org.apache.jena.rdf.model.RDFWriter;
 import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.rdf.model.impl.Util;
 import org.apache.jena.shared.PropertyNotFoundException;
+import org.apache.jena.util.IteratorCollection;
 import org.apache.jena.update.UpdateAction;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.vocabulary.RDF;
@@ -76,10 +77,6 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     @Override
     public String getImplementationName() {
         return NAME;
-    }
-
-    public Dataset getDataset() {
-        return dataset;
     }
 
     @Override
@@ -169,23 +166,27 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
     @Override
     public void copyFrom(TripleStore source) {
-        Dataset sourceDataset = ((TripleStoreJena) source).getDataset();
-        Iterator<String> names = sourceDataset.listNames();
-        while (names.hasNext()) {
-            String name = names.next();
-            String context = namedModelFromName(name);
-            if (sourceDataset.containsNamedModel(context)) {
-                Model targetModel = ModelFactory.createDefaultModel();
-                Model sourceModel = sourceDataset.getNamedModel(context);
-                copyNamespaces(sourceModel, targetModel);
+        Objects.requireNonNull(source);
+        Dataset sourceDataset;
+        if (source instanceof TripleStoreJena) {
+            sourceDataset = ((TripleStoreJena) source).dataset;
+            for (String name : IteratorCollection.iteratorToList(sourceDataset.listNames())) {
+                String context = namedModelFromName(name);
+                if (sourceDataset.containsNamedModel(context)) {
+                    Model targetModel = ModelFactory.createDefaultModel();
+                    Model sourceModel = sourceDataset.getNamedModel(context);
+                    copyNamespaces(sourceModel, targetModel);
 
-                StmtIterator sourceStatements = sourceModel.listStatements();
-                while (sourceStatements.hasNext()) {
-                    targetModel.add(sourceStatements.next());
+                    for (Statement st : IteratorCollection.iteratorToList(sourceModel.listStatements())) {
+                        targetModel.add(st);
+                    }
+                    dataset.addNamedModel(context, targetModel);
+                    union = union.union(targetModel);
                 }
-                dataset.addNamedModel(context, targetModel);
-                union = union.union(targetModel);
             }
+        } else {
+            throw new TripleStoreException(String.format("Add to %s from source %s is not supported",
+                getImplementationName(), source.getImplementationName()));
         }
     }
 
@@ -195,6 +196,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
     @Override
     public void update(String query) {
+        Objects.requireNonNull(dataset);
         UpdateAction.execute(UpdateFactory.create(adjustedQuery(query)), dataset);
     }
 

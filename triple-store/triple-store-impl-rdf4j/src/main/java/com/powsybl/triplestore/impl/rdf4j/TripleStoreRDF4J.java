@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -195,32 +196,36 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
     @Override
     public void copyFrom(TripleStore source) {
-        Repository sourceRepo = ((TripleStoreRDF4J) source).getRepository();
-        try (RepositoryConnection sourceConn = sourceRepo.getConnection()) {
-            try (RepositoryConnection targetConn = repo.getConnection()) {
-                copyNamespaces(sourceConn, targetConn);
-                // copy statements
-                RepositoryResult<Resource> contexts = sourceConn.getContextIDs();
-                while (contexts.hasNext()) {
-                    Resource sourceContext = contexts.next();
-                    Resource targetContext = context(targetConn, sourceContext.stringValue());
+        Objects.requireNonNull(source);
+        Repository sourceRepo;
+        if (source instanceof TripleStoreRDF4J) {
+            sourceRepo = ((TripleStoreRDF4J) source).repo;
+            try (RepositoryConnection sourceConn = sourceRepo.getConnection()) {
+                try (RepositoryConnection targetConn = repo.getConnection()) {
+                    copyNamespacesToRepository(sourceConn, targetConn);
+                    // copy statements
+                    RepositoryResult<Resource> contexts = sourceConn.getContextIDs();
+                    for (Resource sourceContext : Iterations.asList(contexts)) {
+                        Resource targetContext = context(targetConn, sourceContext.stringValue());
 
-                    RepositoryResult<Statement> statements;
-                    statements = sourceConn.getStatements(null, null, null, sourceContext);
-                    // add statements to the new repository
-                    while (statements.hasNext()) {
-                        Statement statement = statements.next();
-                        targetConn.add(statement, targetContext);
+                        RepositoryResult<Statement> statements;
+                        statements = sourceConn.getStatements(null, null, null, sourceContext);
+                        // add statements to the new repository
+                        for (Statement statement : Iterations.asList(statements)) {
+                            targetConn.add(statement, targetContext);
+                        }
                     }
                 }
             }
+        } else {
+            throw new TripleStoreException(String.format("Add to %s from source %s is not supported",
+                getImplementationName(), source.getImplementationName()));
         }
     }
 
-    private static void copyNamespaces(RepositoryConnection sourceConn, RepositoryConnection targetConn) {
+    private static void copyNamespacesToRepository(RepositoryConnection sourceConn, RepositoryConnection targetConn) {
         RepositoryResult<Namespace> ns = sourceConn.getNamespaces();
-        while (ns.hasNext()) {
-            Namespace namespace = ns.next();
+        for (Namespace namespace : Iterations.asList(ns)) {
             targetConn.setNamespace(namespace.getPrefix(), namespace.getName());
         }
     }
@@ -230,7 +235,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         try (RepositoryConnection conn = repo.getConnection()) {
             conn.prepareUpdate(QueryLanguage.SPARQL, adjustedQuery(query)).execute();
         } catch (UpdateExecutionException e) {
-            LOGGER.debug(e.getMessage());
+            throw new TripleStoreException(String.format("Query [%s]", query), e);
         }
     }
 

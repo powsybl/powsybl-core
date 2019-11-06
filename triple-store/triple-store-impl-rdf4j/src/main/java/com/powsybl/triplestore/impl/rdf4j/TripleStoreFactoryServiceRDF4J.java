@@ -24,7 +24,6 @@ public class TripleStoreFactoryServiceRDF4J implements TripleStoreFactoryService
 
     @Override
     public TripleStore copy(TripleStore source) {
-        // FIXME use a copy constructor?
         TripleStore ts = new TripleStoreRDF4J();
         ts.copyFrom(source);
         return ts;

@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.triplestore.test;
 
 import org.junit.Before;
@@ -8,6 +15,10 @@ import com.powsybl.triplestore.api.TripleStoreException;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.test.TripleStoreTester.Expected;
 
+/**
+ * @author Elena Kaltakova <kaltakovae at aia.es>
+ *
+ */
 public class TripleStoreUpdateTest {
 
     @Before
@@ -64,7 +75,7 @@ public class TripleStoreUpdateTest {
                 "mailto:alice@example",
                 "mailto:bob@example",
                 "mailto:carol@example");
-        tester.testQuery(queries.get("selectLastNameTwoGraphs"), expectedContents);
+        tester.testQuery(queries.get("selectPersonTwoGraphs"), expectedContents);
         tester.testUpdate(queries.get("updatePersonTwoGraphs"));
         Expected expectedUpdated = new Expected().expect("lastName", "Channing", "Marley", "Walker")
             .expect("person",
@@ -75,7 +86,7 @@ public class TripleStoreUpdateTest {
                 "mailto:aliceNowWalker@example",
                 "mailto:bob@example",
                 "mailto:carol@example");
-        tester.testQuery(queries.get("selectLastNameTwoGraphs"), expectedUpdated);
+        tester.testQuery(queries.get("selectPersonTwoGraphs"), expectedUpdated);
     }
 
     @Test

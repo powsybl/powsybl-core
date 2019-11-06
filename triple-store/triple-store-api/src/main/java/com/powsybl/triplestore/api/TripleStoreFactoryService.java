@@ -8,8 +8,10 @@
 package com.powsybl.triplestore.api;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
- */
+* Class TripleStoreFactoryService used to create triplestore object for different implementations
+*
+* @author Luma Zamarreño <zamarrenolm at aia.es>
+*/
 public interface TripleStoreFactoryService {
 
     TripleStore create();

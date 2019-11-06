@@ -14,10 +14,12 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
+import info.aduna.iteration.Iterations;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Namespace;
@@ -89,10 +91,6 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     @Override
     public String getImplementationName() {
         return NAME;
-    }
-
-    public Repository getRepository() {
-        return repo;
     }
 
     private void closeConnection(RepositoryConnection cnx, String operation) {
@@ -244,17 +242,24 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
 
     @Override
     public void copyFrom(TripleStore source) {
-        Repository sourceRepository = ((TripleStoreBlazegraph) source).getRepository();
-        RepositoryConnection sourceConn = null;
-        try {
-            sourceConn = sourceRepository.getConnection();
-            copyFrom(sourceConn);
-        } catch (RepositoryException e) {
-            LOG.error("Connecting to the source repository : {}", e.getMessage());
-        } finally {
-            if (sourceConn != null) {
-                closeConnection(sourceConn, "Copying from source");
+        Objects.requireNonNull(source);
+        Repository sourceRepository;
+        if (source instanceof TripleStoreBlazegraph) {
+            sourceRepository = ((TripleStoreBlazegraph) source).repo;
+            RepositoryConnection sourceConn = null;
+            try {
+                sourceConn = sourceRepository.getConnection();
+                copyFrom(sourceConn);
+            } catch (RepositoryException e) {
+                LOG.error("Connecting to the source repository : {}", e.getMessage());
+            } finally {
+                if (sourceConn != null) {
+                    closeConnection(sourceConn, "Copying from source");
+                }
             }
+        } else {
+            throw new TripleStoreException(String.format("Add to %s from source %s is not supported",
+                getImplementationName(), source.getImplementationName()));
         }
     }
 
@@ -278,8 +283,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     private static void copyNamespaces(RepositoryConnection source, RepositoryConnection target) {
         try {
             RepositoryResult<Namespace> ns = source.getNamespaces();
-            while (ns.hasNext()) {
-                Namespace namespace = ns.next();
+            for (Namespace namespace : Iterations.asList(ns)) {
                 target.setNamespace(namespace.getPrefix(), namespace.getName());
             }
         } catch (RepositoryException e) {
@@ -289,14 +293,12 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
 
     private static void copyStatements(RepositoryConnection sourceConn, RepositoryConnection targetConn) throws RepositoryException {
         ValueFactory vfac = targetConn.getValueFactory();
-        RepositoryResult<Resource> contexts = sourceConn.getContextIDs();
-        while (contexts.hasNext()) {
-            Resource context = contexts.next();
+
+        for (Resource context : Iterations.asList(sourceConn.getContextIDs())) {
             RepositoryResult<Statement> statements = sourceConn.getStatements(null, null, null, true, context);
             // we need to get StringValue from each item, to get rid of the source repo
             // references.
-            while (statements.hasNext()) {
-                Statement st = statements.next();
+            for (Statement st : Iterations.asList(statements)) {
                 URI s = vfac.createURI(st.getSubject().stringValue());
                 URI p = vfac.createURI(st.getPredicate().stringValue());
                 Resource targetContext = vfac.createURI(st.getContext().stringValue());
@@ -304,10 +306,14 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                 if (st.getObject() instanceof URI) {
                     URI o = vfac.createURI(st.getObject().stringValue());
                     targetStatement = vfac.createStatement(s, p, o, targetContext);
-                } else {
+                } else if (st.getObject() instanceof Literal) {
                     Literal o = vfac.createLiteral(st.getObject().stringValue());
                     targetStatement = vfac.createStatement(s, p, o, targetContext);
+                } else {
+                    throw new TripleStoreException(String.format("Unsupported value: %s for subject %s",
+                        st.getObject().stringValue(), s.stringValue()));
                 }
+                Objects.requireNonNull(targetStatement);
                 targetConn.add(targetStatement);
             }
         }
