@@ -8,6 +8,7 @@ package com.powsybl.scripting;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.afs.*;
+import com.powsybl.commons.io.UnclosableOutputStream;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.scripting.groovy.GroovyScripts;
 import com.powsybl.tools.Command;
@@ -100,8 +101,7 @@ public class RunScriptTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path file = context.getFileSystem().getPath(line.getOptionValue(FILE));
-        Writer writer = new OutputStreamWriter(context.getOutputStream());
-        try {
+        try (Writer writer = new OutputStreamWriter(new UnclosableOutputStream(context.getOutputStream()))) {
             try (AppData data = new AppData(context.getShortTimeExecutionComputationManager(),
                     context.getLongTimeExecutionComputationManager(), fileSystemProviders,
                     fileExtensions, projectFileExtensions, serviceExtensions)) {
@@ -114,16 +114,14 @@ public class RunScriptTool implements Tool {
                         Binding binding = new Binding();
                         binding.setProperty("args", line.getArgs());
                         GroovyScripts.run(file, data, binding, writer);
-                    } catch (Throwable t) {
-                        Throwable rootCause = StackTraceUtils.sanitizeRootCause(t);
+                    } catch (Exception e) {
+                        Throwable rootCause = StackTraceUtils.sanitizeRootCause(e);
                         rootCause.printStackTrace(context.getErrorStream());
                     }
                 } else {
                     throw new IllegalArgumentException("Script type not supported");
                 }
             }
-        } finally {
-            writer.flush();
         }
     }
 }
