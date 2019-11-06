@@ -12,8 +12,6 @@ import java.util.Map;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.Leg1Adder;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.Leg2or3Adder;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -102,17 +100,17 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         ThreeWindingsTransformerAdder txadder = substation().newThreeWindingsTransformer();
         identify(txadder);
 
-        LegAdder<Leg1Adder> l1adder = txadder.newLeg1()
+        LegAdder l1adder = txadder.newLeg1()
             .setR(ir1)
             .setX(ix1)
             .setG(ig1)
             .setB(ib1)
             .setRatedU(ratedU1);
-        LegAdder<Leg2or3Adder> l2adder = txadder.newLeg2()
+        LegAdder l2adder = txadder.newLeg2()
             .setR(ir2)
             .setX(ix2)
             .setRatedU(ratedU2);
-        LegAdder<Leg2or3Adder> l3adder = txadder.newLeg3()
+        LegAdder l3adder = txadder.newLeg3()
             .setR(ir3)
             .setX(ix3)
             .setRatedU(ratedU3);

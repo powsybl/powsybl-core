@@ -446,24 +446,21 @@ public class Comparison {
         compareLeg(expected.getLeg3(), actual.getLeg3(), expected, actual);
     }
 
-    private void compareLeg(ThreeWindingsTransformer.LegBase expected, ThreeWindingsTransformer.LegBase actual,
+    private void compareLeg(ThreeWindingsTransformer.Leg expected, ThreeWindingsTransformer.Leg actual,
         ThreeWindingsTransformer expectedt, ThreeWindingsTransformer actualt) {
         equivalent("VoltageLevel",
             expected.getTerminal().getVoltageLevel(),
             actual.getTerminal().getVoltageLevel());
         compare("r", expected.getR(), actual.getR());
         compare("x", expected.getX(), actual.getX());
-        if (actual instanceof ThreeWindingsTransformer.Leg1) {
-            compare("g", ((ThreeWindingsTransformer.Leg1) expected).getG(), ((ThreeWindingsTransformer.Leg1) actual).getG());
-            compare("b", ((ThreeWindingsTransformer.Leg1) expected).getB(), ((ThreeWindingsTransformer.Leg1) actual).getB());
-        }
+        compare("g", expected.getG(), actual.getG());
+        compare("b", expected.getB(), actual.getB());
+
         compare("ratedU", expected.getRatedU(), actual.getRatedU());
         compareCurrentLimits(expectedt, actualt,
             expected.getCurrentLimits(),
             actual.getCurrentLimits());
-        if (actual instanceof ThreeWindingsTransformer.Leg2or3) {
-            compareRatioTapChanger(((ThreeWindingsTransformer.Leg2or3) expected).getRatioTapChanger(), ((ThreeWindingsTransformer.Leg2or3) actual).getRatioTapChanger());
-        }
+        compareRatioTapChanger(expected.getRatioTapChanger(), actual.getRatioTapChanger());
     }
 
     private void compareRatioTapChanger(

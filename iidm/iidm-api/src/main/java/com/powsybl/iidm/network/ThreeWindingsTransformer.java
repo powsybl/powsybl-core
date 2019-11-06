@@ -16,7 +16,7 @@ package com.powsybl.iidm.network;
  * </div>
  * <p>Side 1 is the primary (high voltage), side 2 and side 3 can be indifferently
  * the secondary (medium voltage) or the tertiary voltage (low voltage).
- * <p>b1 and g1 unit is siemens.
+ * <p>b1, b2, b3 and g1, g2, g3 unit is siemens.
  * <p>r1, r2, r3, x1, x2 and x3 unit is ohm.
  * <p>A 3 windings transformer is connected to 3 voltage levels (side 1, side 2 and side 3)
  * that belong to the same substation.
@@ -34,7 +34,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         THREE
     }
 
-    interface LegBase<L extends LegBase> {
+    public interface Leg extends RatioTapChangerHolder, PhaseTapChangerHolder {
 
         /**
          * Get the terminal the leg is connected to.
@@ -51,7 +51,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
          * Set the nominal series resistance specified in ohm at the voltage of
          * the leg.
          */
-        L setR(double r);
+        Leg setR(double r);
 
         /**
          * Get the nominal series reactance specified in ohm at the voltage of
@@ -63,28 +63,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
          * Set the nominal series reactance specified in ohm at the voltage of
          * the leg.
          */
-        L setX(double x);
-
-        /**
-         * Get the rated voltage in kV.
-         */
-        double getRatedU();
-
-        /**
-         * Set the rated voltage in kV.
-         */
-        L setRatedU(double ratedU);
-
-        CurrentLimits getCurrentLimits();
-
-        CurrentLimitsAdder newCurrentLimits();
-
-    }
-
-    /**
-     * Leg 1 of the equivalent star model.
-     */
-    interface Leg1 extends LegBase<Leg1> {
+        Leg setX(double x);
 
         /**
          * Get the nominal magnetizing conductance specified in S at the voltage
@@ -96,7 +75,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
          * Set the nominal magnetizing conductance specified in S at the voltage
          * of the leg.
          */
-        Leg1 setG(double g);
+        Leg setG(double g);
 
         /**
          * Get the nominal magnetizing susceptance specified in S at the voltage
@@ -108,14 +87,21 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
          * Set the nominal magnetizing susceptance specified in S at the voltage
          * of the leg.
          */
-        Leg1 setB(double b);
+        Leg setB(double b);
 
-    }
+        /**
+         * Get the rated voltage in kV.
+         */
+        double getRatedU();
 
-    /**
-     * Leg 2 or 3 of the equivalent star model.
-     */
-    interface Leg2or3 extends LegBase<Leg2or3>, RatioTapChangerHolder {
+        /**
+         * Set the rated voltage in kV.
+         */
+        Leg setRatedU(double ratedU);
+
+        CurrentLimits getCurrentLimits();
+
+        CurrentLimitsAdder newCurrentLimits();
 
     }
 
@@ -134,16 +120,22 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     /**
      * Get the leg at the primary side.
      */
-    Leg1 getLeg1();
+    Leg getLeg1();
 
     /**
      * Get the leg at the secondary side.
      */
-    Leg2or3 getLeg2();
+    Leg getLeg2();
 
     /**
      * Get the leg at the tertiary side.
      */
-    Leg2or3 getLeg3();
+    Leg getLeg3();
 
+    /**
+     * Get the ratedU at the fictitious  bus (also used as nominal voltage)
+     */
+    double getRatedU0();
+
+    ThreeWindingsTransformer setRatedU0(double ratedU0);
 }

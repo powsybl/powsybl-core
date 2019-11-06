@@ -18,7 +18,8 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> implements TwoWindingsTransformer, RatioTapChangerParent {
+class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
+    implements TwoWindingsTransformer, RatioTapChangerParent, PhaseTapChangerParent {
 
     private final SubstationImpl substation;
 
@@ -189,7 +190,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
         notifyUpdate("ratioTapChanger", oldValue, ratioTapChanger);
     }
 
-    void setPhaseTapChanger(PhaseTapChangerImpl phaseTapChanger) {
+    public void setPhaseTapChanger(PhaseTapChangerImpl phaseTapChanger) {
         PhaseTapChangerImpl oldValue = this.phaseTapChanger;
         this.phaseTapChanger = phaseTapChanger;
         notifyUpdate("phaseTapChanger", oldValue, phaseTapChanger);
