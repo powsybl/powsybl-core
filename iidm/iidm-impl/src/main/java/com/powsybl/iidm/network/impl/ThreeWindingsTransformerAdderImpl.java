@@ -13,7 +13,8 @@ import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeWindingsTransformerAdderImpl> implements ThreeWindingsTransformerAdder {
+class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeWindingsTransformerAdderImpl>
+    implements ThreeWindingsTransformerAdder {
 
     class LegAdderImpl implements Validable, LegAdder {
 
@@ -102,10 +103,10 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected TerminalExt checkAndGetTerminal() {
             return new TerminalBuilder(getNetwork().getRef(), this)
-                    .setNode(node)
-                    .setBus(bus)
-                    .setConnectableBus(connectableBus)
-                    .build();
+                .setNode(node)
+                .setBus(bus)
+                .setConnectableBus(connectableBus)
+                .build();
         }
 
         protected VoltageLevelExt checkAndGetVoltageLevel() {
@@ -115,12 +116,12 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             VoltageLevelExt voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
             if (voltageLevel == null) {
                 throw new ValidationException(this, "voltage level '" + voltageLevelId
-                        + "' not found");
+                    + "' not found");
             }
             if (voltageLevel.getSubstation() != substation) {
                 throw new ValidationException(this,
                     "voltage level shall belong to the substation '"
-                    + substation.getId() + "'");
+                        + substation.getId() + "'");
             }
             return voltageLevel;
         }
@@ -226,7 +227,8 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             throw new ValidationException(this, "Leg3 is not set");
         }
 
-        // check that the 3 windings transformer is attachable on the 3 sides
+        // check that the 3 windings transformer is attachable on the 3 sides (only
+        // verify)
         voltageLevel1.attach(terminal1, true);
         voltageLevel2.attach(terminal2, true);
         voltageLevel3.attach(terminal3, true);
@@ -236,8 +238,8 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             ratedU0 = leg1.getRatedU();
         }
 
-        ThreeWindingsTransformerImpl transformer
-                = new ThreeWindingsTransformerImpl(id, getName(), leg1, leg2, leg3, ratedU0);
+        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(id, getName(), leg1, leg2, leg3,
+            ratedU0);
         leg1.setTransformer(transformer);
         leg2.setTransformer(transformer);
         leg3.setTransformer(transformer);
@@ -248,6 +250,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         transformer.addTerminal(terminal2);
         transformer.addTerminal(terminal3);
 
+        // do attach
         voltageLevel1.attach(terminal1, false);
         voltageLevel2.attach(terminal2, false);
         voltageLevel3.attach(terminal3, false);

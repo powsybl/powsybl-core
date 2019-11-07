@@ -56,7 +56,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public TerminalExt getTerminal() {
-            return transformer.terminals.get(0);
+            return transformer.terminals.get(legNumber - 1);
         }
 
         public double getR() {
@@ -210,11 +210,23 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         @Override
         public Set<TapChanger> getAllTapChangers() {
             Set<TapChanger> tapChangers = new HashSet<TapChanger>();
+            if (transformer.leg1.getRatioTapChanger() != null) {
+                tapChangers.add(transformer.leg1.getRatioTapChanger());
+            }
+            if (transformer.leg1.getPhaseTapChanger() != null) {
+                tapChangers.add(transformer.leg1.getPhaseTapChanger());
+            }
             if (transformer.leg2.getRatioTapChanger() != null) {
                 tapChangers.add(transformer.leg2.getRatioTapChanger());
             }
+            if (transformer.leg2.getPhaseTapChanger() != null) {
+                tapChangers.add(transformer.leg2.getPhaseTapChanger());
+            }
             if (transformer.leg3.getRatioTapChanger() != null) {
                 tapChangers.add(transformer.leg3.getRatioTapChanger());
+            }
+            if (transformer.leg3.getPhaseTapChanger() != null) {
+                tapChangers.add(transformer.leg3.getPhaseTapChanger());
             }
             return tapChangers;
         }

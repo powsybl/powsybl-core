@@ -109,10 +109,14 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         LegAdder l2adder = txadder.newLeg2()
             .setR(ir2)
             .setX(ix2)
+            .setG(0.0)
+            .setB(0.0)
             .setRatedU(ratedU2);
         LegAdder l3adder = txadder.newLeg3()
             .setR(ir3)
             .setX(ix3)
+            .setG(0.0)
+            .setB(0.0)
             .setRatedU(ratedU3);
         connect(l1adder, 1);
         connect(l2adder, 2);
