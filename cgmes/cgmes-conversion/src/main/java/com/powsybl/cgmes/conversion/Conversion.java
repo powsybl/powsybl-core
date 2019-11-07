@@ -274,7 +274,7 @@ public class Conversion {
                     if (ends.size() == 2) {
                         c = new TwoWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
                     } else if (ends.size() == 3) {
-                        c = new ThreeWindingsTransformerConversion(ends, context);
+                        c = new ThreeWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, context);
                     } else {
                         String what = String.format("PowerTransformer %s", t);
                         String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",

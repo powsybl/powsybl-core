@@ -9,6 +9,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -25,6 +26,7 @@ public class RegulatingControlMappingForTransformers {
         this.parent = parent;
         this.context = parent.context();
         t2xMapping = new HashMap<>();
+        t3xMapping = new HashMap<>();
     }
 
     public void add(String transformerId, String rtcId, PropertyBag rtc, PropertyBag ptc) {
@@ -46,6 +48,27 @@ public class RegulatingControlMappingForTransformers {
         rc.ratioTapChanger = rcRtc;
         rc.phaseTapChanger = rcPtc;
         t2xMapping.put(transformerId, rc);
+    }
+
+    public void add(String transformerId, String rtcId2, PropertyBag rtc2, String rtcId3, PropertyBag rtc3) {
+        if (t3xMapping.containsKey(transformerId)) {
+            throw new CgmesModelException("Transformer already added, Transformer id : " + transformerId);
+        }
+
+        CgmesRegulatingControlRatio rcRtc2 = null;
+        if (rtc2 != null) {
+            rcRtc2 = buildRegulatingControlRatio(rtcId2, rtc2);
+        }
+
+        CgmesRegulatingControlRatio rcRtc3 = null;
+        if (rtc3 != null) {
+            rcRtc3 = buildRegulatingControlRatio(rtcId3, rtc3);
+        }
+
+        CgmesRegulatingControlForThreeWindingsTransformer rc = new CgmesRegulatingControlForThreeWindingsTransformer();
+        rc.ratioTapChanger2 = rcRtc2;
+        rc.ratioTapChanger3 = rcRtc3;
+        t3xMapping.put(transformerId, rc);
     }
 
     private CgmesRegulatingControlRatio buildRegulatingControlRatio(String id, PropertyBag tc) {
@@ -73,8 +96,9 @@ public class RegulatingControlMappingForTransformers {
         return rtc;
     }
 
-    void applyTwoWindingsTapChangersRegulatingControl(Network network) {
+    void applyTapChangersRegulatingControl(Network network) {
         network.getTwoWindingsTransformerStream().forEach(this::applyTapChangersRegulatingControl);
+        network.getThreeWindingsTransformerStream().forEach(this::applyTapChangersRegulatingControl);
     }
 
     private void applyTapChangersRegulatingControl(TwoWindingsTransformer twt) {
@@ -96,7 +120,7 @@ public class RegulatingControlMappingForTransformers {
             setPhaseTapChangerControl(rc.phaseTapChanger, ptcControl, twt.getPhaseTapChanger());
             // only one regulatingControl enabled
             if (rc.ratioTapChanger != null && rtcRegulating && twt.getPhaseTapChanger().isRegulating()) {
-                context.fixed(twt.getId(), "Unsupported two regulating controls enabled. Disable the ratioTapChanger");
+                context.fixed(twt.getId(), "Unsupported two regulating controls enabled. Disable ratioTapChanger");
                 rtcRegulating = false;
             }
             setRatioTapChangerControl(rtcRegulating, rc.ratioTapChanger, rtcControl, twt.getRatioTapChanger());
@@ -104,6 +128,37 @@ public class RegulatingControlMappingForTransformers {
             setRatioTapChangerControl(rtcRegulating, rc.ratioTapChanger, rtcControl, twt.getRatioTapChanger());
         } else if (twt.getPhaseTapChanger() != null) {
             setPhaseTapChangerControl(rc.phaseTapChanger, ptcControl, twt.getPhaseTapChanger());
+        }
+    }
+
+    private void applyTapChangersRegulatingControl(ThreeWindingsTransformer twt) {
+        CgmesRegulatingControlForThreeWindingsTransformer rc = t3xMapping.get(twt.getId());
+        applyTapChangersRegulatingControl(twt, rc);
+    }
+
+    private void applyTapChangersRegulatingControl(ThreeWindingsTransformer twt, CgmesRegulatingControlForThreeWindingsTransformer rc) {
+        if (rc == null) {
+            return;
+        }
+
+        RegulatingControl rtcControl2 = getTapChangerControl(rc.ratioTapChanger2);
+        boolean rtcRegulating2 = rtcControl2 != null && (rtcControl2.enabled || rc.ratioTapChanger2.tapChangerControlEnabled);
+
+        RegulatingControl rtcControl3 = getTapChangerControl(rc.ratioTapChanger3);
+        boolean rtcRegulating3 = rtcControl3 != null && (rtcControl3.enabled || rc.ratioTapChanger3.tapChangerControlEnabled);
+
+        if (twt.getLeg2().getRatioTapChanger() != null && twt.getLeg3().getRatioTapChanger() != null) {
+            setRatioTapChangerControl(rtcRegulating2, rc.ratioTapChanger2, rtcControl2, twt.getLeg2().getRatioTapChanger());
+            // only one regulatingControl enabled
+            if (rc.ratioTapChanger2 != null && rtcRegulating3 && twt.getLeg2().getRatioTapChanger().isRegulating()) {
+                context.fixed(twt.getId(), "Unsupported two regulating controls enabled. Disable ratioTapChanger at Leg3");
+                rtcRegulating3 = false;
+            }
+            setRatioTapChangerControl(rtcRegulating3, rc.ratioTapChanger3, rtcControl3, twt.getLeg3().getRatioTapChanger());
+        } else if (twt.getLeg2().getRatioTapChanger() != null) {
+            setRatioTapChangerControl(rtcRegulating2, rc.ratioTapChanger2, rtcControl2, twt.getLeg2().getRatioTapChanger());
+        } else if (twt.getLeg3().getRatioTapChanger() != null) {
+            setRatioTapChangerControl(rtcRegulating3, rc.ratioTapChanger3, rtcControl3, twt.getLeg3().getRatioTapChanger());
         }
     }
 
@@ -261,6 +316,11 @@ public class RegulatingControlMappingForTransformers {
         return controlMode != null && controlMode.endsWith("fixed");
     }
 
+    private static class CgmesRegulatingControlForThreeWindingsTransformer {
+        CgmesRegulatingControlRatio ratioTapChanger2;
+        CgmesRegulatingControlRatio ratioTapChanger3;
+    }
+
     private static class CgmesRegulatingControlForTwoWindingsTransformer {
         CgmesRegulatingControlRatio ratioTapChanger;
         CgmesRegulatingControlPhase phaseTapChanger;
@@ -283,4 +343,5 @@ public class RegulatingControlMappingForTransformers {
     private final RegulatingControlMapping parent;
     private final Context context;
     private final Map<String, CgmesRegulatingControlForTwoWindingsTransformer> t2xMapping;
+    private final Map<String, CgmesRegulatingControlForThreeWindingsTransformer> t3xMapping;
 }

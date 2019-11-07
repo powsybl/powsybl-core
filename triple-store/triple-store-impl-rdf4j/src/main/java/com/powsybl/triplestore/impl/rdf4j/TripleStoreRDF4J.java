@@ -92,6 +92,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             // This is the default behavior for other triple store engines (Jena)
             conn.getParserConfig().addNonFatalError(XMLParserSettings.FAIL_ON_INVALID_NCNAME);
             conn.getParserConfig().addNonFatalError(BasicParserSettings.VERIFY_URI_SYNTAX);
+            conn.getParserConfig().addNonFatalError(XMLParserSettings.FAIL_ON_DUPLICATE_RDF_ID);
 
             Resource context = context(conn, contextName);
             // We add data with a context (graph) to keep the source of information
