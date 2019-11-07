@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.cgmes.conversion;
 
 import java.util.HashMap;
@@ -7,6 +13,7 @@ import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -22,6 +29,10 @@ public class RegulatingControlMappingForStaticVarCompensators {
         mapping = new HashMap<>();
     }
 
+    public static void initialize(StaticVarCompensatorAdder adder) {
+        adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
+    }
+
     public void add(String iidmId, PropertyBag sm) {
         String rcId = parent.getRegulatingControlId(sm);
         boolean controlEnabledProperty = sm.asBoolean("controlEnabled", false);
@@ -31,10 +42,10 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
         if (mapping.containsKey(iidmId)) {
             throw new CgmesModelException(
-                "StaticVarCompensator already added, IIDM StaticVarCompensator Id : " + iidmId);
+                "StaticVarCompensator already added, IIDM StaticVarCompensator Id: " + iidmId);
         }
 
-        RegulatingControlForStaticVarCompensator rc = new RegulatingControlForStaticVarCompensator();
+        CgmesRegulatingControlForStaticVarCompensator rc = new CgmesRegulatingControlForStaticVarCompensator();
         rc.regulatingControlId = rcId;
         rc.controlEnabledProperty = controlEnabledProperty;
         rc.defaultTargetVoltage = defaultTargetVoltage;
@@ -49,11 +60,11 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     private void apply(StaticVarCompensator svc) {
-        RegulatingControlForStaticVarCompensator rd = mapping.get(svc.getId());
+        CgmesRegulatingControlForStaticVarCompensator rd = mapping.get(svc.getId());
         apply(svc, rd);
     }
 
-    private void apply(StaticVarCompensator svc, RegulatingControlForStaticVarCompensator rc) {
+    private void apply(StaticVarCompensator svc, CgmesRegulatingControlForStaticVarCompensator rc) {
         if (rc == null) {
             return;
         }
@@ -115,7 +126,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         control.hasCorrectlySet();
     }
 
-    private void setDefaultRegulatingControl(RegulatingControlForStaticVarCompensator rc, StaticVarCompensator svc) {
+    private void setDefaultRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, StaticVarCompensator svc) {
 
         double targetVoltage = Double.NaN;
         double targetReactivePower = Double.NaN;
@@ -141,7 +152,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         return controlMode != null && controlMode.endsWith("reactivepower");
     }
 
-    private static class RegulatingControlForStaticVarCompensator {
+    private static class CgmesRegulatingControlForStaticVarCompensator {
         String regulatingControlId;
         boolean controlEnabledProperty;
         double defaultTargetVoltage;
@@ -150,6 +161,6 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     private final RegulatingControlMapping parent;
-    private final Map<String, RegulatingControlForStaticVarCompensator> mapping;
+    private final Map<String, CgmesRegulatingControlForStaticVarCompensator> mapping;
     private final Context context;
 }

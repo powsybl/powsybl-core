@@ -28,6 +28,7 @@ public final class DoubleDataChunkSerializer implements Serializer<DoubleDataChu
 
     @Override
     public void serialize(DataOutput2 out, DoubleDataChunk chunk) throws IOException {
+        out.writeInt(MapDbStorageConstants.STORAGE_VERSION);
         if (chunk instanceof UncompressedDoubleDataChunk) {
             UncompressedDoubleDataChunk uncompressedChunk = (UncompressedDoubleDataChunk) chunk;
             out.writeUTF("uncompressed");
@@ -56,6 +57,7 @@ public final class DoubleDataChunkSerializer implements Serializer<DoubleDataChu
 
     @Override
     public DoubleDataChunk deserialize(DataInput2 input, int available) throws IOException {
+        input.readInt(); // Storage version is retrieved here
         String type = input.readUTF();
         if ("uncompressed".equals(type)) {
             int offset = input.readInt();
