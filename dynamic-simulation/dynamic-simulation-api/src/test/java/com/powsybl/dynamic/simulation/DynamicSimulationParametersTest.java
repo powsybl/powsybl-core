@@ -95,6 +95,12 @@ public class DynamicSimulationParametersTest {
     }
 
     @Test
+    public void testToString() {
+        DynamicSimulationParameters parameters = new DynamicSimulationParameters(0, 1000);
+        assertEquals("{startTime=0, stopTime=1000}", parameters.toString());
+    }
+
+    @Test
     public void checkConfig() {
         int startTime = 1;
         int stopTime = 100;

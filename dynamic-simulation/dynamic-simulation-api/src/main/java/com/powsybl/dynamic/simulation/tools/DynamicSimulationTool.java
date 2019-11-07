@@ -46,7 +46,7 @@ import com.powsybl.tools.ToolRunningContext;
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 @AutoService(Tool.class)
-public class RunDynamicSimulationTool implements Tool {
+public class DynamicSimulationTool implements Tool {
 
     private static final String CASE_FILE = "case-file";
     private static final String SKIP_POSTPROC = "skip-postproc";
