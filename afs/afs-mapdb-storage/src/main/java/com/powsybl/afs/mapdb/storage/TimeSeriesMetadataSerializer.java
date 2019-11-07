@@ -30,6 +30,7 @@ public final class TimeSeriesMetadataSerializer implements Serializer<TimeSeries
 
     @Override
     public void serialize(DataOutput2 out, TimeSeriesMetadata metadata) throws IOException {
+        out.writeInt(MapDbStorageConstants.STORAGE_VERSION);
         out.writeUTF(metadata.getName());
         out.writeUTF(metadata.getDataType().name());
         out.writeInt(metadata.getTags().size());
@@ -42,6 +43,7 @@ public final class TimeSeriesMetadataSerializer implements Serializer<TimeSeries
 
     @Override
     public TimeSeriesMetadata deserialize(DataInput2 input, int available) throws IOException {
+        input.readInt(); // Storage version is retrieved here
         String name = input.readUTF();
         TimeSeriesDataType dataType = TimeSeriesDataType.valueOf(input.readUTF());
         Map<String, String> tags = new HashMap<>();

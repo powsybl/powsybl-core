@@ -22,12 +22,14 @@ public class NamedLinkSerializer implements Serializer<NamedLink>, Serializable 
 
     @Override
     public void serialize(DataOutput2 out, NamedLink namedLink) throws IOException {
+        out.writeInt(MapDbStorageConstants.STORAGE_VERSION);
         UuidSerializer.INSTANCE.serialize(out, namedLink.getNodeUuid());
         out.writeUTF(namedLink.getName());
     }
 
     @Override
     public NamedLink deserialize(DataInput2 input, int available) throws IOException {
+        input.readInt(); // Storage version is retrieved here
         java.util.UUID nodeUuid = UuidSerializer.INSTANCE.deserialize(input, available);
         String name = input.readUTF();
         return new NamedLink(nodeUuid, name);
