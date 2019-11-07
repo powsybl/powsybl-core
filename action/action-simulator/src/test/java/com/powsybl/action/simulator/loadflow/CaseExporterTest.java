@@ -8,7 +8,6 @@ package com.powsybl.action.simulator.loadflow;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.export.ExportersLoader;
@@ -18,7 +17,6 @@ import com.powsybl.iidm.xml.XMLExporter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -41,7 +39,7 @@ public class CaseExporterTest {
 
     private Network network;
 
-    private final ExportersLoader loader = new ExportersLoaderList(new XMLExporter(Mockito.mock(PlatformConfig.class)));
+    private final ExportersLoader loader = new ExportersLoaderList(new XMLExporter());
 
     @Before
     public void setUp() throws IOException {

@@ -38,7 +38,7 @@ public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractConv
         exportProperties.put(XMLExporter.EXTENSIONS_LIST, extensions);
 
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter(platformConfig).export(network, exportProperties, dataSource);
+        new XMLExporter().export(network, exportProperties, dataSource);
 
         return dataSource;
     }
@@ -47,7 +47,7 @@ public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractConv
         Properties importProperties = new Properties();
         importProperties.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
         importProperties.put(XMLImporter.EXTENSIONS_LIST, extensions);
-        return new XMLImporter(platformConfig).importData(dataSource, importProperties);
+        return new XMLImporter().importData(dataSource, importProperties);
     }
 
     @Test
