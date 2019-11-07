@@ -29,6 +29,7 @@
         <module>iidm-converter-api</module>
         <module>iidm-extensions</module>
         <module>iidm-impl</module>
+        <module>iidm-mergingview</module>
         <module>iidm-reducer</module>
         <module>iidm-test</module>
         <module>iidm-util</module>
