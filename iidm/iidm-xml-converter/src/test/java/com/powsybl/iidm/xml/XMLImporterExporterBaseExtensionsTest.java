@@ -31,8 +31,7 @@ public class XMLImporterExporterBaseExtensionsTest extends AbstractConverterTest
         List<String> exportExtensionsList = Arrays.asList("loadFoo", "loadBar");
         exportProperties.put(XMLExporter.EXTENSIONS_LIST, exportExtensionsList);
 
-        XMLImporter importer;
-        importer = new XMLImporter(platformConfig);
+        XMLImporter importer = new XMLImporter();
 
         Properties importProperties = new Properties();
         importProperties.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));
@@ -43,7 +42,7 @@ public class XMLImporterExporterBaseExtensionsTest extends AbstractConverterTest
         assertEquals(1, network.getLoad("LOAD2").getExtensions().size());
 
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter(platformConfig).export(network, exportProperties, dataSource);
+        new XMLExporter().export(network, exportProperties, dataSource);
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
             compareXml(getClass().getResourceAsStream(xiidmBaseRef), is);

@@ -28,7 +28,7 @@ public class XMLExporterTest extends AbstractConverterTest {
         properties.put(XMLExporter.ANONYMISED, "false");
 
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter(platformConfig).export(network, properties, dataSource);
+        new XMLExporter().export(network, properties, dataSource);
         // check the exported file and compare it to iidm reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
             compareXml(getClass().getResourceAsStream(xiidmRef), is);

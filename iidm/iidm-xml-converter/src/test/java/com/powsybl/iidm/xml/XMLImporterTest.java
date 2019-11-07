@@ -85,7 +85,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         }
         writeNetworkWithComment("/test7.xiidm");
 
-        importer = new XMLImporter(platformConfig);
+        importer = new XMLImporter();
     }
 
     @Test
