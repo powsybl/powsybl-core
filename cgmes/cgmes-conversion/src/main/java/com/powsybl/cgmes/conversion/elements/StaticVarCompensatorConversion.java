@@ -35,7 +35,6 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
             .setBmax(1 / capacitiveRating);
         identify(adder);
         connect(adder);
-
         RegulatingControlMappingForStaticVarCompensators.initialize(adder);
 
         StaticVarCompensator svc = adder.add();
