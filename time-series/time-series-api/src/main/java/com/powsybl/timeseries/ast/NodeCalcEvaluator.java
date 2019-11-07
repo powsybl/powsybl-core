@@ -123,5 +123,4 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     public Double visit(TimeSeriesNameNodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
         throw new AssertionError("NodeCalc should have been resolved before");
     }
-
 }

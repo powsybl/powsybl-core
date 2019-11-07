@@ -81,5 +81,4 @@ public class IntegerNodeCalc implements LiteralNodeCalc {
         }
         return false;
     }
-
 }

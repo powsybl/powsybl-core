@@ -9,17 +9,14 @@ package com.powsybl.timeseries.ast;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
+ * A NodeCalcVisitor controls the traversal and performs a computation on {@link NodeCalc} trees.
+ *
+ * <p>The iterate methods allow the visitor to describe which children are
+ * traversed and their order. The visit methods compute results for
+ * nodes from the node and all the results of the children.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Jon Harper <jon.harper at rte-france.com>
- *
- *         The iterate methods allow the visitor to describe which children are
- *         traversed and their order. The handle methods compute results for
- *         nodes from the node and all the results of the children. The visit
- *         methods use the iterate and handle methods and recurse in the
- *         children up to a limit because performance is almost 5 times better
- *         when using recursion compared to the iterative algorithm using
- *         stacks.
- *
  * @see NodeCalcVisitors
  */
 public interface NodeCalcVisitor<R, A> {

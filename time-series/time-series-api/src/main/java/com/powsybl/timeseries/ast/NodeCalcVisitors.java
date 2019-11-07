@@ -13,11 +13,12 @@ import java.util.Deque;
 import java.util.Objects;
 
 /**
+ * This utility class implements the core iterative algorithm to perform
+ * a post-order {@link NodeCalc} tree traversal using a
+ * {@link NodeCalcVisitor}.
+ *
  * @author Jon Harper <jon.harper at rte-france.com>
  *
- *         This utility class implements the core iterative algorithm to perform
- *         a post-order {@link NodeCalc} tree traversal using a
- *         {@link NodeCalcVisitor}.
  */
 public final class NodeCalcVisitors {
 
