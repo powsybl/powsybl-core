@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.cgmes.conversion;
 
 import java.util.HashMap;
@@ -6,6 +12,7 @@ import java.util.Map;
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
@@ -24,6 +31,10 @@ public class RegulatingControlMappingForGenerators {
         this.parent = parent;
         this.context = parent.context();
         mapping = new HashMap<>();
+    }
+
+    public static void initialize(GeneratorAdder adder) {
+        adder.setVoltageRegulatorOn(false);
     }
 
     public void add(String generatorId, PropertyBag sm) {

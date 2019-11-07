@@ -58,7 +58,7 @@ public class RegulatingControlMapping {
         final boolean enabled;
         final double targetValue;
         final double targetDeadband;
-        private Boolean correctlySet = false;
+        private boolean correctlySet = false;
 
         RegulatingControl(PropertyBag p) {
             this.mode = p.get("mode").toLowerCase();

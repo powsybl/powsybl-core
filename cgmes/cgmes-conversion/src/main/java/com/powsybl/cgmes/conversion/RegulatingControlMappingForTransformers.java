@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.cgmes.conversion;
 
 import java.util.HashMap;
@@ -31,7 +37,7 @@ public class RegulatingControlMappingForTransformers {
 
     public void add(String transformerId, String rtcId, PropertyBag rtc, PropertyBag ptc) {
         if (t2xMapping.containsKey(transformerId)) {
-            throw new CgmesModelException("Transformer already added, Transformer id : " + transformerId);
+            throw new CgmesModelException("Transformer already added, Transformer id: " + transformerId);
         }
 
         CgmesRegulatingControlRatio rcRtc = null;
@@ -52,7 +58,7 @@ public class RegulatingControlMappingForTransformers {
 
     public void add(String transformerId, String rtcId2, PropertyBag rtc2, String rtcId3, PropertyBag rtc3) {
         if (t3xMapping.containsKey(transformerId)) {
-            throw new CgmesModelException("Transformer already added, Transformer id : " + transformerId);
+            throw new CgmesModelException("Transformer already added, Transformer id: " + transformerId);
         }
 
         CgmesRegulatingControlRatio rcRtc2 = null;
