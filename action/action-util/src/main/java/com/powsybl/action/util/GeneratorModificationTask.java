@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -14,6 +14,9 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
 
+/**
+ * @author Olivier Perrin <olivier.perrin at rte-france.com>
+ */
 public class GeneratorModificationTask implements ModificationTask {
 
     private final String generatorId;
@@ -37,6 +40,10 @@ public class GeneratorModificationTask implements ModificationTask {
             g.setMaxP(modifs.getMaxP());
         }
 
+        if (modifs.getVoltageRegulatorOn() != null) {
+            g.setVoltageRegulatorOn(modifs.getVoltageRegulatorOn());
+        }
+
         boolean skipOtherConnectionChange = false;
         if (modifs.getConnected() != null) {
             changeConnectionState(g, modifs.getConnected());
@@ -49,14 +56,13 @@ public class GeneratorModificationTask implements ModificationTask {
             setTargetpWithinBoundaries(g, g.getTargetP() + modifs.getpDelta(), skipOtherConnectionChange);
         }
 
-        if (modifs.getTargetV() != null) {
+        if ((modifs.getTargetV() != null) && (g.isVoltageRegulatorOn())) {
+            // The target voltage can be defined only when the generator is in voltage regulation mode.
             g.setTargetV(modifs.getTargetV());
         }
-        if (modifs.getTargetQ() != null) {
+        if ((modifs.getTargetQ() != null) && (!g.isVoltageRegulatorOn())) {
+            // The target reactive can be defined only when the generator is NOT in voltage regulation mode.
             g.setTargetQ(modifs.getTargetQ());
-        }
-        if (modifs.getVoltageRegulatorOn() != null) {
-            g.setVoltageRegulatorOn(modifs.getVoltageRegulatorOn());
         }
     }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -11,6 +11,9 @@ import com.powsybl.action.dsl.spi.DslTaskExtension
 import com.powsybl.commons.PowsyblException
 import com.powsybl.contingency.tasks.ModificationTask
 
+/**
+ * @author Olivier Perrin <olivier.perrin at rte-france.com>
+ */
 @AutoService(DslTaskExtension.class)
 class GeneratorModificationTaskExtension implements DslTaskExtension {
     @Override
@@ -27,6 +30,9 @@ class GeneratorModificationTaskExtension implements DslTaskExtension {
         }
     }
 
+    /**
+     * Describes the instructions usable in a "generatorModification" task
+     */
     static class GeneratorModificationSpec {
         private Double minP;
         private Double maxP;
@@ -56,28 +62,62 @@ class GeneratorModificationTaskExtension implements DslTaskExtension {
         void maxP(Double maxP) {
             this.maxP = maxP
         }
+        /**
+         * <p>Changes the target power.</p>
+         * <p>The resulting target power will respect the defined min and max powers, thus:
+         * <ul><li>if targetP &gt; maxP, the target power will be set to maxP;</li>
+         * <li>if targetP &lt; minP, the target power will be set to minP.</li></ul></p>
+         * <p>This method connects the generator if it is'nt already connected, unless the same "generatorModification"
+         * task contains a "connected false" instruction.</p>
+         * @param targetP the target power
+         */
         void targetP(Double targetP) {
             this.targetP = targetP;
         }
+        /**
+         * <p>Changes the target power by specifying a variation.</p>
+         * <p>The resulting target power will respect the defined min and max powers, thus:
+         * <ul><li>if (targetP + pDelta) &gt; maxP, the target power will be set to maxP;</li>
+         * <li>if (targetP + pDelta) &lt; minP, the target power will be set to minP.</li></ul></p>
+         * <p>This method connects the generator if it is'nt already connected, unless the same "generatorModification"
+         * task contains a "connected false" instruction.</p>
+         * @param pDelta a variation of the target power
+         */
         void pDelta(Double pDelta) {
             this.pDelta = pDelta;
         }
+        /**
+         * <p>Changes the target voltage.</p>
+         * <p>This instruction is ignored if the generator is NOT in voltage regulation mode.</p>
+         * @param targetV the target voltage
+         */
         void targetV(Double targetV) {
             this.targetV = targetV;
         }
+        /**
+         * <p>Changes the target reactive.</p>
+         * <p>This instruction is ignored if the generator is in voltage regulation mode.</p>
+         * @param targetQ the target reactive
+         */
         void targetQ(Double targetQ) {
             this.targetQ = targetQ;
         }
         void voltageRegulatorOn(Boolean voltageRegulatorOn) {
             this.voltageRegulatorOn = voltageRegulatorOn;
         }
+        /**
+         * <p>Changes the connection state of the generator if needed.</p>
+         * <p>If the generator is in voltage regulation mode, a "targetV" instruction is ignored
+         * and its voltage is set to the bus voltage.</p>
+         * @param connected the wanted connection state
+         */
         void connected(Boolean connected) {
             this.connected = connected;
         }
-        boolean hasTargetP() {
+        private boolean hasTargetP() {
             return targetP != null;
         }
-        boolean haspDelta() {
+        private boolean haspDelta() {
             return pDelta != null;
         }
     }

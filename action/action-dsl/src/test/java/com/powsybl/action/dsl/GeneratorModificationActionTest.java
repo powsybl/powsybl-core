@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -20,6 +20,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * @author Olivier Perrin <olivier.perrin at rte-france.com>
+ */
 public class GeneratorModificationActionTest {
 
     private Network network;
@@ -35,16 +38,26 @@ public class GeneratorModificationActionTest {
     }
 
     @Test
-    public void testFullModification() {
+    public void testTargetvAndqWithVoltageRegulatorOff() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
-        Action action = actionDb.getAction("full modification");
+        Action action = actionDb.getAction("targetV and targetQ with voltageRegulator OFF");
         action.run(network, null);
         assertEquals(20., g.getMinP(), 0.1);
         assertEquals(60., g.getMaxP(), 0.1);
         assertEquals(50., g.getTargetP(), 0.1);
-        assertEquals(10., g.getTargetV(), 0.1);
+        assertEquals(24.5, g.getTargetV(), 0.1);
         assertEquals(25., g.getTargetQ(), 0.1);
         assertFalse(g.isVoltageRegulatorOn());
+    }
+
+    @Test
+    public void testTargetvAndqWithVoltageRegulatorOn() {
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
+        Action action = actionDb.getAction("targetV and targetQ with voltageRegulator ON");
+        action.run(network, null);
+        assertEquals(10, g.getTargetV(), 0.1);
+        assertEquals(301., g.getTargetQ(), 0.1);
+        assertTrue(g.isVoltageRegulatorOn());
     }
 
     @Test
