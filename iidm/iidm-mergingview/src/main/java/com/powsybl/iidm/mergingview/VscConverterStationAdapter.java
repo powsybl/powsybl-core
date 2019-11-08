@@ -17,57 +17,61 @@ public class VscConverterStationAdapter extends AbstractHvdcConverterStationAdap
         super(delegate, index);
     }
 
+    @Override
+    public TerminalAdapter getTerminal() {
+        return getIndex().getTerminal(getDelegate().getTerminal());
+    }
+
+    @Override
+    public HvdcConverterStation setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
+        return getIndex().getHvdcConverterStation(getDelegate().setVoltageRegulatorOn(voltageRegulatorOn));
+    }
+
+    @Override
+    public HvdcConverterStation setVoltageSetpoint(final double voltageSetpoint) {
+        return getIndex().getHvdcConverterStation(getDelegate().setVoltageSetpoint(voltageSetpoint));
+    }
+
+    @Override
+    public HvdcConverterStation setReactivePowerSetpoint(final double reactivePowerSetpoint) {
+        return getIndex().getHvdcConverterStation(getDelegate().setReactivePowerSetpoint(reactivePowerSetpoint));
+    }
+
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public ReactiveLimits getReactiveLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getReactiveLimits();
     }
 
     @Override
     public <L extends ReactiveLimits> L getReactiveLimits(final Class<L> type) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getReactiveLimits(type);
     }
 
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().newReactiveCapabilityCurve();
     }
 
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().newMinMaxReactiveLimits();
     }
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public VscConverterStationAdapter setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().isVoltageRegulatorOn();
     }
 
     @Override
     public double getVoltageSetpoint() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public VscConverterStationAdapter setVoltageSetpoint(final double voltageSetpoint) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getVoltageSetpoint();
     }
 
     @Override
     public double getReactivePowerSetpoint() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getReactivePowerSetpoint();
     }
-
-    @Override
-    public VscConverterStationAdapter setReactivePowerSetpoint(final double reactivePowerSetpoint) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
 }

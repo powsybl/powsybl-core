@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import java.util.Collections;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.Bus;
@@ -20,27 +22,26 @@ public class ComponentAdapter extends AbstractAdapter<Component> implements Comp
         super(delegate, index);
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
-    @Override
-    public int getNum() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getSize() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
     @Override
     public Iterable<Bus> getBuses() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return Collections.unmodifiableSet(getBusStream().collect(Collectors.toSet()));
     }
 
     @Override
     public Stream<Bus> getBusStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getBusStream().map(getIndex()::getBus);
     }
 
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
+    @Override
+    public int getNum() {
+        return getDelegate().getNum();
+    }
+
+    @Override
+    public int getSize() {
+        return getDelegate().getSize();
+    }
 }

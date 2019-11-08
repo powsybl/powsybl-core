@@ -13,21 +13,22 @@ import com.powsybl.iidm.network.LccConverterStation;
  */
 public class LccConverterStationAdapter extends AbstractHvdcConverterStationAdapter<LccConverterStation> implements LccConverterStation {
 
-    protected LccConverterStationAdapter(final LccConverterStation delegate, final MergingViewIndex index) {
+    LccConverterStationAdapter(final LccConverterStation delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
+
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public float getPowerFactor() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getPowerFactor();
     }
 
     @Override
     public LccConverterStationAdapter setPowerFactor(final float powerFactor) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setPowerFactor(powerFactor);
+        return this;
     }
-
 }

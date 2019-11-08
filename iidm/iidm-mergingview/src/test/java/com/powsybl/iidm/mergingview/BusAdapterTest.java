@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -41,41 +43,31 @@ public class BusAdapterTest {
 
     @Test
     public void testSetterGetter() {
+        assertNotNull(bus.getVoltageLevel());
+        bus.setV(0.0d);
+        assertEquals(0.0d, bus.getV(), 0.0d);
+        bus.setAngle(0.0d);
+        assertEquals(0.0d, bus.getAngle(), 0.0d);
+        assertEquals(0.0d, bus.getP(), 0.0d);
+        assertEquals(0.0d, bus.getQ(), 0.0d);
+        assertTrue(bus.isInMainConnectedComponent());
+        assertTrue(bus.isInMainSynchronousComponent());
+        assertEquals(2, bus.getConnectedTerminalCount());
+        assertTrue(bus.getTwoWindingsTransformers().iterator().hasNext());
+        assertFalse(bus.getThreeWindingsTransformers().iterator().hasNext());
+        assertTrue(bus.getGenerators().iterator().hasNext());
+        assertFalse(bus.getBatteries().iterator().hasNext());
+        assertFalse(bus.getLoads().iterator().hasNext());
+        assertFalse(bus.getShuntCompensators().iterator().hasNext());
+        assertFalse(bus.getStaticVarCompensators().iterator().hasNext());
+        assertFalse(bus.getLccConverterStations().iterator().hasNext());
+        assertFalse(bus.getVscConverterStations().iterator().hasNext());
+
         // Not implemented yet !
-        TestUtil.notImplemented(bus::getVoltageLevel);
-        TestUtil.notImplemented(bus::getV);
-        TestUtil.notImplemented(() -> bus.setV(0.0d));
-        TestUtil.notImplemented(bus::getAngle);
-        TestUtil.notImplemented(() -> bus.setAngle(0.0d));
-        TestUtil.notImplemented(bus::getP);
-        TestUtil.notImplemented(bus::getQ);
-        TestUtil.notImplemented(bus::isInMainConnectedComponent);
-        TestUtil.notImplemented(bus::isInMainSynchronousComponent);
-        TestUtil.notImplemented(bus::getConnectedTerminalCount);
-        TestUtil.notImplemented(bus::getTwoWindingsTransformers);
-        TestUtil.notImplemented(bus::getTwoWindingsTransformerStream);
-        TestUtil.notImplemented(() -> bus.visitConnectedEquipments(null));
-        TestUtil.notImplemented(() -> bus.visitConnectedOrConnectableEquipments(null));
         TestUtil.notImplemented(bus::getLines);
         TestUtil.notImplemented(bus::getLineStream);
-        TestUtil.notImplemented(bus::getThreeWindingsTransformers);
-        TestUtil.notImplemented(bus::getThreeWindingsTransformerStream);
-        TestUtil.notImplemented(bus::getGenerators);
-        TestUtil.notImplemented(bus::getGeneratorStream);
-        TestUtil.notImplemented(bus::getBatteries);
-        TestUtil.notImplemented(bus::getBatteryStream);
-        TestUtil.notImplemented(bus::getLoads);
-        TestUtil.notImplemented(bus::getLoadStream);
-        TestUtil.notImplemented(bus::getShuntCompensators);
-        TestUtil.notImplemented(bus::getShuntCompensatorStream);
         TestUtil.notImplemented(bus::getDanglingLines);
         TestUtil.notImplemented(bus::getDanglingLineStream);
-        TestUtil.notImplemented(bus::getStaticVarCompensators);
-        TestUtil.notImplemented(bus::getStaticVarCompensatorStream);
-        TestUtil.notImplemented(bus::getLccConverterStations);
-        TestUtil.notImplemented(bus::getLccConverterStationStream);
-        TestUtil.notImplemented(bus::getVscConverterStations);
-        TestUtil.notImplemented(bus::getVscConverterStationStream);
     }
 
     @Test
@@ -84,11 +76,10 @@ public class BusAdapterTest {
         assertNotNull(syncComponent);
         assertTrue(syncComponent instanceof ComponentAdapter);
 
-        // Not implemented yet !
-        TestUtil.notImplemented(syncComponent::getNum);
-        TestUtil.notImplemented(syncComponent::getSize);
-        TestUtil.notImplemented(syncComponent::getBuses);
-        TestUtil.notImplemented(syncComponent::getBusStream);
+        assertEquals(0, syncComponent.getNum());
+        assertEquals(4, syncComponent.getSize());
+        assertFalse(syncComponent.getBuses().iterator().hasNext());
+        assertEquals(0, syncComponent.getBusStream().count());
 
         final Component connectedComponent = bus.getConnectedComponent();
         assertNotNull(connectedComponent);
@@ -99,25 +90,25 @@ public class BusAdapterTest {
     public void testBusViewSetterGetter() {
         final BusView busView = mergingView.getBusView();
         assertNotNull(busView);
-        assertTrue(busView instanceof BusViewAdapter);
+        assertTrue(busView instanceof NetworkBusViewAdapter);
 
-        // Not implemented yet !
-        TestUtil.notImplemented(busView::getBuses);
-        TestUtil.notImplemented(busView::getBusStream);
-        TestUtil.notImplemented(busView::getConnectedComponents);
+        assertTrue(busView.getBuses().iterator().hasNext());
+        busView.getBuses().forEach(b -> assertTrue(b instanceof AbstractAdapter<?>));
+        assertEquals(2, busView.getConnectedComponents().size());
+        busView.getConnectedComponents().forEach(b -> assertTrue(b instanceof AbstractAdapter<?>));
+        assertNotNull(busView.getBus("VLHV1_0"));
     }
 
     @Test
     public void testBusBreakerViewSetterGetter() {
         final BusBreakerView busBreakerView = mergingView.getBusBreakerView();
         assertNotNull(busBreakerView);
-        assertTrue(busBreakerView instanceof BusBreakerViewAdapter);
+        assertTrue(busBreakerView instanceof NetworkBusBreakerViewAdapter);
 
-        // Not implemented yet !
-        TestUtil.notImplemented(busBreakerView::getBuses);
-        TestUtil.notImplemented(busBreakerView::getBusStream);
-        TestUtil.notImplemented(busBreakerView::getSwitches);
-        TestUtil.notImplemented(busBreakerView::getSwitchStream);
-        TestUtil.notImplemented(busBreakerView::getSwitchCount);
+        assertTrue(busBreakerView.getBuses().iterator().hasNext());
+        busBreakerView.getBuses().forEach(b -> assertTrue(b instanceof AbstractAdapter<?>));
+        assertTrue(busBreakerView.getSwitches().iterator().hasNext());
+        busBreakerView.getSwitches().forEach(b -> assertTrue(b instanceof AbstractAdapter<?>));
+        assertEquals(1, busBreakerView.getSwitchCount());
     }
 }

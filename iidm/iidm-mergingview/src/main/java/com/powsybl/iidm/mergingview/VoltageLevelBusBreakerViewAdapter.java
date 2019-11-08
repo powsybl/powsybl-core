@@ -9,7 +9,6 @@ package com.powsybl.iidm.mergingview;
 import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.BusAdder;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevel.BusBreakerView;
@@ -21,6 +20,11 @@ public class VoltageLevelBusBreakerViewAdapter extends AbstractAdapter<VoltageLe
 
     protected VoltageLevelBusBreakerViewAdapter(final BusBreakerView delegate, final MergingViewIndex index) {
         super(delegate, index);
+    }
+
+    @Override
+    public BusAdderAdapter newBus() {
+        return new BusAdderAdapter(getDelegate().newBus(), getIndex());
     }
 
     // -------------------------------
@@ -38,11 +42,6 @@ public class VoltageLevelBusBreakerViewAdapter extends AbstractAdapter<VoltageLe
 
     @Override
     public BusAdapter getBus(final String id) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public BusAdder newBus() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
