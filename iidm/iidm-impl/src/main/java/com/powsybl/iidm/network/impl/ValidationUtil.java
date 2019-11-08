@@ -281,7 +281,6 @@ public final class ValidationUtil {
 
     static void checkRatioTapChangerRegulation(Validable validable, boolean loadTapChangingCapabilities, boolean regulating,
                                                Terminal regulationTerminal, double targetV, Network network) {
-        //if (loadTapChangingCapabilities && regulating) {
         if (regulating) {
             if (Double.isNaN(targetV)) {
                 throw new ValidationException(validable,

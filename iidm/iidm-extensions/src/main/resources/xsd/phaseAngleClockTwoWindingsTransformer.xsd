@@ -13,8 +13,7 @@
            elementFormDefault="qualified">
     <xs:element name="phaseAngleClockTwoWindingsTransformer">
         <xs:complexType>
-            <xs:attribute name="phaseAngleClock1" use="optional" type="xs:integer"/>
-            <xs:attribute name="phaseAngleClock2" use="optional" type="xs:integer"/>
+            <xs:attribute name="phaseAngleClock" use="optional" type="xs:integer"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

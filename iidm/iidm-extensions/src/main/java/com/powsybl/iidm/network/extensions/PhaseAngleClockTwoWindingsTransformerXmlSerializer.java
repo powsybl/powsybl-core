@@ -46,15 +46,13 @@ public class PhaseAngleClockTwoWindingsTransformerXmlSerializer
 
     @Override
     public void write(PhaseAngleClockTwoWindingsTransformer extension, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeOptionalInt("phaseAngleClock1", extension.getPhaseAngleClock1(), 0, context.getExtensionsWriter());
-        XmlUtil.writeOptionalInt("phaseAngleClock2", extension.getPhaseAngleClock2(), 0, context.getExtensionsWriter());
+        XmlUtil.writeOptionalInt("phaseAngleClock", extension.getPhaseAngleClock(), 0, context.getExtensionsWriter());
     }
 
     @Override
     public PhaseAngleClockTwoWindingsTransformer read(TwoWindingsTransformer extendable, XmlReaderContext context) throws XMLStreamException {
-        int phaseAngleClock1 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "phaseAngleClock1", 0);
-        int phaseAngleClock2 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "phaseAngleClock2", 0);
-        return new PhaseAngleClockTwoWindingsTransformer(extendable, phaseAngleClock1, phaseAngleClock2);
+        int phaseAngleClock = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "phaseAngleClock", 0);
+        return new PhaseAngleClockTwoWindingsTransformer(extendable, phaseAngleClock);
     }
 
     @Override

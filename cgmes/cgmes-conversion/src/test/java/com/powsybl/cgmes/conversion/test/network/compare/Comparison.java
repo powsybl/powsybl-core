@@ -435,8 +435,7 @@ public class Comparison {
             diff.unexpected("phaseAngleClock");
             return;
         }
-        diff.compare("phaseAngleClock1", expected.getPhaseAngleClock1(), actual.getPhaseAngleClock1());
-        diff.compare("phaseAngleClock2", expected.getPhaseAngleClock2(), actual.getPhaseAngleClock2());
+        diff.compare("phaseAngleClock", expected.getPhaseAngleClock(), actual.getPhaseAngleClock());
     }
 
     private void compareThreeWindingsTransformers(ThreeWindingsTransformer expected,
