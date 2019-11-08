@@ -42,7 +42,7 @@ public class RegulatingControlMappingForGenerators {
         double qPercent = sm.asDouble(QPERCENT);
 
         if (mapping.containsKey(generatorId)) {
-            throw new CgmesModelException("Generator already added, IIDM Generator Id : " + generatorId);
+            throw new CgmesModelException("Generator already added, IIDM Generator Id: " + generatorId);
         }
 
         CgmesRegulatingControlForGenerator rd = new CgmesRegulatingControlForGenerator();
@@ -77,21 +77,23 @@ public class RegulatingControlMappingForGenerators {
             return;
         }
 
+        boolean okSet = false;
         if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
-            setRegulatingControlVoltage(controlId, control, rc.qPercent, gen);
+            okSet = setRegulatingControlVoltage(controlId, control, rc.qPercent, gen);
         } else {
             context.ignored(control.mode, String.format("Unsupported regulation mode for generator %s", gen.getId()));
         }
+        control.setCorrectlySet(okSet);
     }
 
-    private void setRegulatingControlVoltage(String controlId,
+    private boolean setRegulatingControlVoltage(String controlId,
         RegulatingControl control, double qPercent, Generator gen) {
 
         // Take default terminal if it has not been defined
         Terminal terminal = getRegulatingTerminal(gen, control.cgmesTerminal, control.topologicalNode);
         if (terminal == null) {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.topologicalNode));
-            return;
+            return false;
         }
 
         double targetV;
@@ -117,7 +119,7 @@ public class RegulatingControlMappingForGenerators {
             gen.addExtension(CoordinatedReactiveControl.class, coordinatedReactiveControl);
         }
 
-        control.hasCorrectlySet();
+        return true;
     }
 
     private Terminal getRegulatingTerminal(Generator gen, String cgmesTerminal, String topologicalNode) {

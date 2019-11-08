@@ -58,7 +58,7 @@ public class RegulatingControlMapping {
         final boolean enabled;
         final double targetValue;
         final double targetDeadband;
-        private boolean correctlySet = false;
+        private Boolean correctlySet;
 
         RegulatingControl(PropertyBag p) {
             this.mode = p.get("mode").toLowerCase();
@@ -69,9 +69,17 @@ public class RegulatingControlMapping {
             this.targetDeadband = p.asDouble("targetDeadband", Double.NaN);
         }
 
-        void hasCorrectlySet() {
-            correctlySet = true;
+        void setCorrectlySet(boolean okSet) {
+            if (okSet) {
+                if (correctlySet != null && !correctlySet) {
+                    return;
+                }
+                correctlySet = true;
+            } else {
+                correctlySet = false;
+            }
         }
+
     }
 
     private Map<String, RegulatingControl> cachedRegulatingControls = new HashMap<>();
@@ -89,16 +97,13 @@ public class RegulatingControlMapping {
         regulatingControlMappingForTransformers.applyTapChangersRegulatingControl(network);
         regulatingControlMappingForStaticVarCompensators.applyRegulatingControls(network);
 
-        cachedRegulatingControls.entrySet().removeIf(entry -> {
-            if (entry.getValue().correctlySet) {
-                return true;
+        cachedRegulatingControls.entrySet().forEach(entry -> {
+            if (entry.getValue().correctlySet == null || !entry.getValue().correctlySet) {
+                context.pending("Regulating terminal",
+                    String.format("The setting of the regulating control %s is not entirely handled.", entry.getKey()));
             }
-            return false;
         });
 
-        cachedRegulatingControls.forEach((key, value) -> context.pending("Regulating terminal",
-            String.format(
-                "The setting of the regulating terminal of the regulating control %s is not entirely handled.", key)));
         cachedRegulatingControls.clear();
     }
 
