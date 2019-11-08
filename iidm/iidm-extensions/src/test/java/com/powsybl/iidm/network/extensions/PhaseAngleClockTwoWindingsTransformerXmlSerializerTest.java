@@ -30,7 +30,7 @@ public class PhaseAngleClockTwoWindingsTransformerXmlSerializerTest extends Abst
         network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("NHV2_NLOAD");
 
-        PhaseAngleClockTwoWindingsTransformer pac = new PhaseAngleClockTwoWindingsTransformer(transformer, 1, 11);
+        PhaseAngleClockTwoWindingsTransformer pac = new PhaseAngleClockTwoWindingsTransformer(transformer, 3);
         transformer.addExtension(PhaseAngleClockTwoWindingsTransformer.class, pac);
 
         Network network2 = roundTripXmlTest(network,
@@ -41,8 +41,7 @@ public class PhaseAngleClockTwoWindingsTransformerXmlSerializerTest extends Abst
         PhaseAngleClockTwoWindingsTransformer pacXml = network2.getTwoWindingsTransformer("NHV2_NLOAD")
             .getExtension(PhaseAngleClockTwoWindingsTransformer.class);
         assertNotNull(pacXml);
-        assertEquals(1, pacXml.getPhaseAngleClock1());
-        assertEquals(11, pacXml.getPhaseAngleClock2());
+        assertEquals(3, pacXml.getPhaseAngleClock());
     }
 
 }

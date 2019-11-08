@@ -89,8 +89,9 @@ public class RegulatingControlMappingForStaticVarCompensators {
             return;
         }
 
+        boolean okSet = false;
         if (context.terminalMapping().areAssociated(control.cgmesTerminal, control.topologicalNode)) {
-            setRegulatingControl(control, svc);
+            okSet = setRegulatingControl(control, svc);
         } else {
             context.pending(
                 String.format(
@@ -100,20 +101,24 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
             setDefaultRegulatingControl(rc, svc);
         }
+        control.setCorrectlySet(okSet);
     }
 
-    private void setRegulatingControl(RegulatingControl control, StaticVarCompensator svc) {
+    private boolean setRegulatingControl(RegulatingControl control, StaticVarCompensator svc) {
 
         double targetVoltage = Double.NaN;
         double targetReactivePower = Double.NaN;
         StaticVarCompensator.RegulationMode regulationMode;
 
+        boolean okSet = false;
         if (RegulatingControlMapping.isControlModeVoltage(control.mode.toLowerCase())) {
             regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
             targetVoltage = control.targetValue;
+            okSet = true;
         } else if (isControlModeReactivePower(control.mode.toLowerCase())) {
             regulationMode = StaticVarCompensator.RegulationMode.REACTIVE_POWER;
             targetReactivePower = control.targetValue;
+            okSet = true;
         } else {
             context.fixed("SVCControlMode", String.format("Invalid control mode for static var compensator %s. Regulating control is disabled", svc.getId()));
             regulationMode = StaticVarCompensator.RegulationMode.OFF;
@@ -123,7 +128,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         svc.setReactivePowerSetPoint(targetReactivePower);
         svc.setRegulationMode(regulationMode);
 
-        control.hasCorrectlySet();
+        return okSet;
     }
 
     private void setDefaultRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, StaticVarCompensator svc) {

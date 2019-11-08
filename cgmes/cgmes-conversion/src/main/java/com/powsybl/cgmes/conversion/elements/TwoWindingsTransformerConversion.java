@@ -84,10 +84,14 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
         int phaseAngleClock1 = end1.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
         int phaseAngleClock2 = end2.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
 
-        // add phaseAngleClock as an extension
-        if (phaseAngleClock1 != 0 || phaseAngleClock2 != 0) {
-            PhaseAngleClockTwoWindingsTransformer phaseAngleClock = new PhaseAngleClockTwoWindingsTransformer(tx,
-                phaseAngleClock1, phaseAngleClock2);
+        // add phaseAngleClock as an extension, cgmes does not allow pac at end1
+        if (phaseAngleClock1 != 0) {
+            String reason = "Unsupported modelling: two winding transformer with phase angle clock at end1";
+            invalid(reason);
+            throw new PowsyblException(String.format("TwoWindingTransformer %s %s", tx.getId(), reason));
+        }
+        if (phaseAngleClock2 != 0) {
+            PhaseAngleClockTwoWindingsTransformer phaseAngleClock = new PhaseAngleClockTwoWindingsTransformer(tx, phaseAngleClock2);
             tx.addExtension(PhaseAngleClockTwoWindingsTransformer.class, phaseAngleClock);
         }
     }

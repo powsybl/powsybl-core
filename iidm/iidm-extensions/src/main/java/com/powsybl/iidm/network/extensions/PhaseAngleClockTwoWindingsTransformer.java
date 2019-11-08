@@ -15,13 +15,11 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  */
 public class PhaseAngleClockTwoWindingsTransformer extends AbstractExtension<TwoWindingsTransformer> {
 
-    private int phaseAngleClock1;
-    private int phaseAngleClock2;
+    private int phaseAngleClock;
 
-    public PhaseAngleClockTwoWindingsTransformer(TwoWindingsTransformer twt, int phaseAngleClock1, int phaseAngleClock2) {
+    public PhaseAngleClockTwoWindingsTransformer(TwoWindingsTransformer twt, int phaseAngleClock) {
         super(twt);
-        this.phaseAngleClock1 = checkPhaseAngleClock(phaseAngleClock1);
-        this.phaseAngleClock2 = checkPhaseAngleClock(phaseAngleClock2);
+        this.phaseAngleClock = checkPhaseAngleClock(phaseAngleClock);
     }
 
     @Override
@@ -29,20 +27,12 @@ public class PhaseAngleClockTwoWindingsTransformer extends AbstractExtension<Two
         return "phaseAngleClockTwoWindingsTransformer";
     }
 
-    public int getPhaseAngleClock1() {
-        return phaseAngleClock1;
+    public int getPhaseAngleClock() {
+        return phaseAngleClock;
     }
 
-    public int getPhaseAngleClock2() {
-        return phaseAngleClock2;
-    }
-
-    public void setPhaseAngleClock1(int phaseAngleClock1) {
-        this.phaseAngleClock1 = checkPhaseAngleClock(phaseAngleClock1);
-    }
-
-    public void setPhaseAngleClock2(int phaseAngleClock2) {
-        this.phaseAngleClock2 = checkPhaseAngleClock(phaseAngleClock2);
+    public void setPhaseAngleClock(int phaseAngleClock) {
+        this.phaseAngleClock = checkPhaseAngleClock(phaseAngleClock);
     }
 
     private static int checkPhaseAngleClock(int phaseAngleClock) {
