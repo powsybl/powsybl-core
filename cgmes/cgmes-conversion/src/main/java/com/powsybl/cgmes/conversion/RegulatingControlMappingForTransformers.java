@@ -223,18 +223,16 @@ public class RegulatingControlMappingForTransformers {
     }
 
     private boolean setPtcRegulatingControlCurrentFlow(boolean tapChangerControlEnabled, boolean ltcFlag, RegulatingControl control, PhaseTapChanger ptc, Context context) {
-        boolean okSet = setPtcRegulatingControl(tapChangerControlEnabled, control, ptc, context);
-        setPtcRegulatingMode(ltcFlag, PhaseTapChanger.RegulationMode.CURRENT_LIMITER, ptc);
-        return okSet;
+        PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag, PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
+        return setPtcRegulatingControl(tapChangerControlEnabled, regulationMode, control, ptc, context);
     }
 
     private boolean setPtcRegulatingControlActivePower(boolean tapChangerControlEnabled, boolean ltcFlag, RegulatingControl control, PhaseTapChanger ptc, Context context) {
-        boolean okSet = setPtcRegulatingControl(tapChangerControlEnabled, control, ptc, context);
-        setPtcRegulatingMode(ltcFlag, PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, ptc);
-        return okSet;
+        PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag, PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
+        return setPtcRegulatingControl(tapChangerControlEnabled, regulationMode, control, ptc, context);
     }
 
-    private boolean setPtcRegulatingControl(boolean tapChangerControlEnabled, RegulatingControl control, PhaseTapChanger ptc, Context context) {
+    private boolean setPtcRegulatingControl(boolean tapChangerControlEnabled, PhaseTapChanger.RegulationMode regulationMode, RegulatingControl control, PhaseTapChanger ptc, Context context) {
         Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
         if (terminal == null) {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.topologicalNode));
@@ -245,12 +243,13 @@ public class RegulatingControlMappingForTransformers {
         ptc.setRegulationTerminal(terminal)
             .setRegulationValue(control.targetValue)
             .setTargetDeadband(control.targetDeadband)
+            .setRegulationMode(regulationMode)
             .setRegulating(tapChangerControlEnabled || control.enabled);
 
         return true;
     }
 
-    private void setPtcRegulatingMode(boolean ltcFlag, PhaseTapChanger.RegulationMode regulationMode, PhaseTapChanger ptc) {
+    private PhaseTapChanger.RegulationMode getPtcRegulatingMode(boolean ltcFlag, PhaseTapChanger.RegulationMode regulationMode) {
         // According to the following CGMES documentation:
         // IEC TS 61970-600-1, Edition 1.0, 2017-07.
         // "Energy management system application program interface (EMS-API)
@@ -278,9 +277,12 @@ public class RegulatingControlMappingForTransformers {
         // we avoid regulation by setting RegulationMode in IIDM to FIXED_TAP
 
         // rca.regulationMode has been initialized to FIXED_TAP
+
+        PhaseTapChanger.RegulationMode finalRegulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
         if (ltcFlag) {
-            ptc.setRegulationMode(regulationMode);
+            finalRegulationMode = regulationMode;
         }
+        return finalRegulationMode;
     }
 
     private RegulatingControl getTapChangerControl(CgmesRegulatingControl rc) {
