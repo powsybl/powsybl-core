@@ -401,8 +401,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             // if nothing found, just take the first bus
             if (connectableBus2[0] == null) {
                 Iterator<CalculatedBus> it = getBuses().iterator();
-                if (!it.hasNext()) {
-                    throw new AssertionError("Should not happen");
+                if (!it.hasNext()) { // if the whole voltage level is disconnected, return null
+                    return null;
                 }
                 return it.next();
             }
