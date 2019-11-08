@@ -1,22 +1,20 @@
 package com.powsybl.cgmes.conversion.update;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.cgmes.conversion.Profiling;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.triplestore.api.PropertyBags;
 
 public class CgmesUpdate {
 
     public CgmesUpdate(Network network) {
-        this.network = network;
         this.changes = new ArrayList<>();
         ChangesListener changeListener = new ChangesListener(changes);
         network.addListener(changeListener);
@@ -27,14 +25,32 @@ public class CgmesUpdate {
      *
      * @throws Exception the exception
      */
-    public void update(CgmesModel cgmes, String variantId) throws Exception {
+    public void update(CgmesModel cgmes, String variantId, Profiling profiling) throws Exception {
 
         String cimNamespace = cgmes.getCimNamespace();
         String cimVersion = cimNamespace.substring(cimNamespace.lastIndexOf("cim"));
+
+        // XXX LUMA refactor mapping between IIDM and CGMES:
+        // IidmToCgmes iidmToCgmes = new IidmToCgmes(cimVersion);
+
+        int changesSize = changes.size();
+        int changesCounter = 0;
+
+        // XXX LUMA dirty debug
+        System.err.println("numChanges " + changesSize);
+
         for (IidmChange change : changes) {
+            changesCounter++;
             if (change.getVariant() == null || change.getVariant().equals(variantId)) {
 
+                // XXX LUMA refactor mapping between IIDM and CGMES:
+                // allCgmesDetails = iidmToCgmes.convert(change, cgmes);
                 List<CgmesPredicateDetails> allCgmesDetails = iidmToCgmes(cimVersion, change, cgmes).convert();
+
+                // XXX LUMA dirty debug
+                if (changesCounter % (changesSize / 10) == 0) {
+                    System.err.printf("    %3d change %4d %1d%n", (100 * changesCounter) / changesSize, changesCounter, allCgmesDetails.size());
+                }
 
                 // we need to iterate over the above map, as for onCreate call there will be
                 // multiples attributes-values pairs.
@@ -43,15 +59,27 @@ public class CgmesUpdate {
                     CgmesPredicateDetails entry = (CgmesPredicateDetails) entries.next();
                     try {
                         for (String context : cgmes.tripleStore().contextNames()) {
+
                             // TODO elena : will need to add a logic to find the right context
+                            // XXX LUMA this map can be moved to the top
+                            // (only relates entry.getContext with current context in cgmes)
                             if (context.toUpperCase().contains(entry.getContext().toUpperCase())
                                 && !context.toUpperCase().contains("BD")
                                 && !context.toUpperCase().contains("BOUNDARY")) {
 
-                                PropertyBags result = cgmes.updateCgmes(queryName(change), context, cgmes.getBaseName(),
-                                    getCgmesChanges(entry, change));
-
-                                LOG.info(result.tabulate());
+                                profiling.startLoopIteration();
+                                String subject = (entry.getNewSubject() != null) ? entry.getNewSubject() : change.getIdentifiableId();
+                                String predicate = entry.getRdfPredicate();
+                                String newValue = entry.getValue();
+                                String valueIsNode = String.valueOf(entry.valueIsNode());
+                                cgmes.updateCgmes(
+                                    queryName(change),
+                                    context, cgmes.getBaseName(),
+                                    subject,
+                                    predicate,
+                                    newValue,
+                                    valueIsNode);
+                                profiling.endLoopIteration();
                             }
                         }
                     } catch (java.lang.NullPointerException e) {
@@ -86,22 +114,10 @@ public class CgmesUpdate {
         return iidmToCgmes;
     }
 
-    private Map<String, String> getCgmesChanges(CgmesPredicateDetails entry, IidmChange change) {
-        Map<String, String> cgmesChanges = new HashMap<>();
-        cgmesChanges.put("cgmesSubject",
-            (entry.getNewSubject() != null) ? entry.getNewSubject() : change.getIdentifiableId());
-        cgmesChanges.put("cgmesPredicate", entry.getRdfPredicate());
-        cgmesChanges.put("cgmesNewValue", entry.getValue());
-        cgmesChanges.put("valueIsNode", String.valueOf(entry.valueIsNode()));
-
-        return cgmesChanges;
+    public List<IidmChange> changes() {
+        return Collections.unmodifiableList(changes);
     }
 
-    public int getNumberOfChanges() {
-        return changes.size();
-    }
-
-    private Network network;
     private List<IidmChange> changes;
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesUpdate.class);

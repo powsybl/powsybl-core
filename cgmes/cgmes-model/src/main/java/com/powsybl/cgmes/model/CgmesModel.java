@@ -128,7 +128,14 @@ public interface CgmesModel {
 
     public void clone(CgmesModel cgmes);
 
-    PropertyBags updateCgmes(String queryName, String context, String baseName, Map<String, String> cgmesChanges);
+    public PropertyBags updateCgmes(
+        String queryName,
+        String context,
+        String baseName,
+        String subject,
+        String predicate,
+        String value,
+        String valueIsNode);
 
     String getCimNamespace();
 

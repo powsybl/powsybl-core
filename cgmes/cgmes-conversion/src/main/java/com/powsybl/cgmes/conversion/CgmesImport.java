@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
+import com.powsybl.cgmes.conversion.CgmesExport.Operations;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
@@ -49,15 +50,15 @@ public class CgmesImport implements Importer {
     public CgmesImport(PlatformConfig platformConfig, List<CgmesImportPostProcessor> postProcessors) {
         this.defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
         this.postProcessors = Objects.requireNonNull(postProcessors).stream()
-                .collect(Collectors.toMap(CgmesImportPostProcessor::getName, e -> e));
+            .collect(Collectors.toMap(CgmesImportPostProcessor::getName, e -> e));
         // Boundary location parameter can not be static
         // because we want its default value
         // to depend on the received platformConfig
         this.boundaryLocationParameter = new Parameter(
-                BOUNDARY_LOCATION,
-                ParameterType.STRING,
-                "The location of boundary files",
-                platformConfig.getConfigDir().resolve(FORMAT).resolve("boundary").toString());
+            BOUNDARY_LOCATION,
+            ParameterType.STRING,
+            "The location of boundary files",
+            platformConfig.getConfigDir().resolve(FORMAT).resolve("boundary").toString());
     }
 
     public CgmesImport(PlatformConfig platformConfig) {
@@ -66,6 +67,12 @@ public class CgmesImport implements Importer {
 
     public CgmesImport() {
         this(PlatformConfig.defaultConfig());
+    }
+
+    private Profiling profiling;
+
+    public void setProfiling(Profiling profiling) {
+        this.profiling = profiling;
     }
 
     @Override
@@ -98,8 +105,18 @@ public class CgmesImport implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p) {
+        if (profiling != null) {
+            profiling.start();
+        }
         CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p));
+        if (profiling != null) {
+            profiling.end(Operations.CGMES_READ.name());
+            profiling.start();
+        }
         Network network = new Conversion(cgmes, config(p), activatedPostProcessors(p), networkFactory).convert();
+        if (profiling != null) {
+            profiling.end(Operations.CGMES_CONVERSION.name());
+        }
         if (storeCgmesModelAsNetworkExtension(p)) {
             // Store a reference to the original CGMES model inside the IIDM network
             // We could also add listeners to be aware of changes in IIDM data
@@ -128,11 +145,11 @@ public class CgmesImport implements Importer {
 
     private ReadOnlyDataSource boundary(Properties p) {
         Path loc = Paths.get(
-                ConversionParameters.readStringParameter(
-                        getFormat(),
-                        p,
-                        boundaryLocationParameter,
-                        defaultValueConfig));
+            ConversionParameters.readStringParameter(
+                getFormat(),
+                p,
+                boundaryLocationParameter,
+                defaultValueConfig));
         // Check that the Data Source has valid CGMES names
         ReadOnlyDataSource ds = new GenericReadOnlyDataSource(loc, DataSourceUtil.getBaseName(loc));
         if ((new CgmesOnDataSource(ds)).names().isEmpty()) {
@@ -143,80 +160,79 @@ public class CgmesImport implements Importer {
 
     private String tripleStore(Properties p) {
         return ConversionParameters.readStringParameter(
-                getFormat(),
-                p,
-                POWSYBL_TRIPLESTORE_PARAMETER,
-                defaultValueConfig);
+            getFormat(),
+            p,
+            POWSYBL_TRIPLESTORE_PARAMETER,
+            defaultValueConfig);
     }
 
     private Conversion.Config config(Properties p) {
         return new Conversion.Config()
-                .setAllowUnsupportedTapChangers(
-                        ConversionParameters.readBooleanParameter(
-                                getFormat(),
-                                p,
-                                ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
-                                defaultValueConfig))
-                .setChangeSignForShuntReactivePowerFlowInitialState(
-                        ConversionParameters.readBooleanParameter(
-                                getFormat(),
-                                p,
-                                CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
-                                defaultValueConfig))
-                .setConvertBoundary(
-                        ConversionParameters.readBooleanParameter(
-                                getFormat(),
-                                p,
-                                CONVERT_BOUNDARY_PARAMETER,
-                                defaultValueConfig))
-                .setConvertSvInjections(
-                        ConversionParameters.readBooleanParameter(
-                                getFormat(),
-                                p,
-                                CONVERT_SV_INJECTIONS_PARAMETER,
-                                defaultValueConfig))
-                .setCreateBusbarSectionForEveryConnectivityNode(
-                        ConversionParameters.readBooleanParameter(
-                                getFormat(),
-                                p,
-                                CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
-                                defaultValueConfig))
-                .setProfileUsedForInitialStateValues(
-                        ConversionParameters.readStringParameter(
-                                getFormat(),
-                                p,
-                                PROFILE_USED_FOR_INITIAL_STATE_VALUES_PARAMETER,
-                                defaultValueConfig)
-                );
+            .setAllowUnsupportedTapChangers(
+                ConversionParameters.readBooleanParameter(
+                    getFormat(),
+                    p,
+                    ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
+                    defaultValueConfig))
+            .setChangeSignForShuntReactivePowerFlowInitialState(
+                ConversionParameters.readBooleanParameter(
+                    getFormat(),
+                    p,
+                    CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
+                    defaultValueConfig))
+            .setConvertBoundary(
+                ConversionParameters.readBooleanParameter(
+                    getFormat(),
+                    p,
+                    CONVERT_BOUNDARY_PARAMETER,
+                    defaultValueConfig))
+            .setConvertSvInjections(
+                ConversionParameters.readBooleanParameter(
+                    getFormat(),
+                    p,
+                    CONVERT_SV_INJECTIONS_PARAMETER,
+                    defaultValueConfig))
+            .setCreateBusbarSectionForEveryConnectivityNode(
+                ConversionParameters.readBooleanParameter(
+                    getFormat(),
+                    p,
+                    CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
+                    defaultValueConfig))
+            .setProfileUsedForInitialStateValues(
+                ConversionParameters.readStringParameter(
+                    getFormat(),
+                    p,
+                    PROFILE_USED_FOR_INITIAL_STATE_VALUES_PARAMETER,
+                    defaultValueConfig));
     }
 
     private List<CgmesImportPostProcessor> activatedPostProcessors(Properties p) {
         return ConversionParameters
-                .readStringListParameter(getFormat(), p, POST_PROCESSORS_PARAMETER, defaultValueConfig)
-                .stream()
-                .filter(name -> {
-                    boolean found = postProcessors.containsKey(name);
-                    if (!found) {
-                        LOGGER.warn("CGMES post processor {} not found", name);
-                    }
-                    return found;
-                })
-                .map(postProcessors::get)
-                .collect(Collectors.toList());
+            .readStringListParameter(getFormat(), p, POST_PROCESSORS_PARAMETER, defaultValueConfig)
+            .stream()
+            .filter(name -> {
+                boolean found = postProcessors.containsKey(name);
+                if (!found) {
+                    LOGGER.warn("CGMES post processor {} not found", name);
+                }
+                return found;
+            })
+            .map(postProcessors::get)
+            .collect(Collectors.toList());
     }
 
     private boolean storeCgmesModelAsNetworkExtension(Properties p) {
         return ConversionParameters.readBooleanParameter(
-                getFormat(),
-                p,
-                STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
-                defaultValueConfig);
+            getFormat(),
+            p,
+            STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
+            defaultValueConfig);
     }
 
     private void copyStream(ReadOnlyDataSource from, DataSource to, String fromName, String toName) throws IOException {
         if (from.exists(fromName)) {
             try (InputStream is = from.newInputStream(fromName);
-                 OutputStream os = to.newOutputStream(toName, false)) {
+                OutputStream os = to.newOutputStream(toName, false)) {
                 ByteStreams.copy(is, os);
             }
         }
@@ -236,65 +252,64 @@ public class CgmesImport implements Importer {
     public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
 
     private static final Parameter ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER = new Parameter(
-            ALLOW_UNSUPPORTED_TAP_CHANGERS,
-            ParameterType.BOOLEAN,
-            "Allow import of potentially unsupported tap changers",
-            Boolean.TRUE);
+        ALLOW_UNSUPPORTED_TAP_CHANGERS,
+        ParameterType.BOOLEAN,
+        "Allow import of potentially unsupported tap changers",
+        Boolean.TRUE);
     private static final Parameter CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER = new Parameter(
-            CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE,
-            ParameterType.BOOLEAN,
-            "Change the sign of the reactive power flow for shunt in initial state",
-            Boolean.FALSE)
+        CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE,
+        ParameterType.BOOLEAN,
+        "Change the sign of the reactive power flow for shunt in initial state",
+        Boolean.FALSE)
             .addAdditionalNames("changeSignForShuntReactivePowerFlowInitialState");
     private static final Parameter CONVERT_BOUNDARY_PARAMETER = new Parameter(
-            CONVERT_BOUNDARY,
-            ParameterType.BOOLEAN,
-            "Convert boundary during import",
-            Boolean.FALSE)
+        CONVERT_BOUNDARY,
+        ParameterType.BOOLEAN,
+        "Convert boundary during import",
+        Boolean.FALSE)
             .addAdditionalNames("convertBoundary");
     private static final Parameter CONVERT_SV_INJECTIONS_PARAMETER = new Parameter(
-            CONVERT_SV_INJECTIONS,
-            ParameterType.BOOLEAN,
-            "Convert SV injections during import",
-            Boolean.TRUE);
+        CONVERT_SV_INJECTIONS,
+        ParameterType.BOOLEAN,
+        "Convert SV injections during import",
+        Boolean.TRUE);
     private static final Parameter CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER = new Parameter(
-            CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE,
-            ParameterType.BOOLEAN,
-            "Create busbar section for every connectivity node",
-            Boolean.FALSE)
+        CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE,
+        ParameterType.BOOLEAN,
+        "Create busbar section for every connectivity node",
+        Boolean.FALSE)
             .addAdditionalNames("createBusbarSectionForEveryConnectivityNode");
     private static final Parameter POST_PROCESSORS_PARAMETER = new Parameter(
-            POST_PROCESSORS,
-            ParameterType.STRING_LIST,
-            "Post processors",
-            Collections.emptyList());
+        POST_PROCESSORS,
+        ParameterType.STRING_LIST,
+        "Post processors",
+        Collections.emptyList());
     private static final Parameter POWSYBL_TRIPLESTORE_PARAMETER = new Parameter(
-            POWSYBL_TRIPLESTORE,
-            ParameterType.STRING,
-            "The triplestore used during the import",
-            TripleStoreFactory.defaultImplementation())
+        POWSYBL_TRIPLESTORE,
+        ParameterType.STRING,
+        "The triplestore used during the import",
+        TripleStoreFactory.defaultImplementation())
             .addAdditionalNames("powsyblTripleStore");
     private static final Parameter PROFILE_USED_FOR_INITIAL_STATE_VALUES_PARAMETER = new Parameter(
-            PROFILE_USED_FOR_INITIAL_STATE_VALUES,
-            ParameterType.STRING,
-            "Profile used for initial state values",
-            "SSH"
-    );
+        PROFILE_USED_FOR_INITIAL_STATE_VALUES,
+        ParameterType.STRING,
+        "Profile used for initial state values",
+        "SSH");
     private static final Parameter STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
-            STORE_CGMES_MODEL_AS_NETWORK_EXTENSION,
-            ParameterType.BOOLEAN,
-            "Store the initial CGMES model as a network extension",
-            Boolean.TRUE)
+        STORE_CGMES_MODEL_AS_NETWORK_EXTENSION,
+        ParameterType.BOOLEAN,
+        "Store the initial CGMES model as a network extension",
+        Boolean.TRUE)
             .addAdditionalNames("storeCgmesModelAsNetworkExtension");
 
     private static final List<Parameter> STATIC_PARAMETERS = ImmutableList.of(
-            ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
-            CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
-            CONVERT_BOUNDARY_PARAMETER,
-            CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
-            POWSYBL_TRIPLESTORE_PARAMETER,
-            STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
-            POST_PROCESSORS_PARAMETER);
+        ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
+        CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
+        CONVERT_BOUNDARY_PARAMETER,
+        CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
+        POWSYBL_TRIPLESTORE_PARAMETER,
+        STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
+        POST_PROCESSORS_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Map<String, CgmesImportPostProcessor> postProcessors;

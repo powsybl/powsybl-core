@@ -63,11 +63,12 @@ public final class CgmesModelFactory {
     }
 
     private static void loadCaches(CgmesModel cgmes) {
+        boolean isNodeBreaker = cgmes.isNodeBreaker();
         for (PropertyBags tends : cgmes.groupedTransformerEnds().values()) {
             for (PropertyBag end : tends) {
                 CgmesTerminal t = cgmes.terminal(end.getId(CgmesNames.TERMINAL));
                 cgmes.substation(t);
-                if (cgmes.isNodeBreaker()) {
+                if (isNodeBreaker) {
                     t.connectivityNode();
                 } else {
                     t.topologicalNode();
