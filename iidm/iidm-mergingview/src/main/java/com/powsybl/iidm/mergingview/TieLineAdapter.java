@@ -6,11 +6,8 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.CurrentLimitsAdder;
@@ -21,20 +18,23 @@ import com.powsybl.iidm.network.TieLine;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class TieLineAdapter extends AbstractAdapter<Line> implements TieLine {
+public class TieLineAdapter extends AbstractIdentifiableAdapter<Line> implements TieLine {
 
     protected TieLineAdapter(final TieLine delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public boolean isTieLine() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().isTieLine();
     }
 
+    // -------------------------------
+    // Not implemented methods -------
+    // -------------------------------
     @Override
     public TerminalAdapter getTerminal1() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
@@ -176,31 +176,6 @@ public class TieLineAdapter extends AbstractAdapter<Line> implements TieLine {
     }
 
     @Override
-    public <E extends Extension<Line>> void addExtension(final Class<? super E> type, final E extension) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public <E extends Extension<Line>> E getExtension(final Class<? super E> type) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public <E extends Extension<Line>> E getExtensionByName(final String name) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public <E extends Extension<Line>> boolean removeExtension(final Class<E> type) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public <E extends Extension<Line>> Collection<E> getExtensions() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public double getR() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
@@ -272,51 +247,6 @@ public class TieLineAdapter extends AbstractAdapter<Line> implements TieLine {
 
     @Override
     public HalfLine getHalf2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public MergingView getNetwork() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public String getId() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public String getName() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean hasProperty() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean hasProperty(final String key) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public String getProperty(final String key) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public String getProperty(final String key, final String defaultValue) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public String setProperty(final String key, final String value) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Set<String> getPropertyNames() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 }

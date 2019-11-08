@@ -263,6 +263,30 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
+    public Collection<Line> getLines() {
+        // Search Line into merging & working networks
+        return getNetworkStream()
+                .flatMap(Network::getLineStream)
+                .map(this::getLine)
+                .collect(Collectors.toList());
+    }
+
+    public Collection<DanglingLine> getDanglingLines() {
+        // Search DanglingLine into merging & working networks
+        return getNetworkStream()
+                .flatMap(Network::getDanglingLineStream)
+                .map(this::getDanglingLine)
+                .collect(Collectors.toList());
+    }
+
+    public Collection<HvdcLine> getHvdcLines() {
+        // Search HvdcLine into merging & working networks
+        return getNetworkStream()
+                .flatMap(Network::getHvdcLineStream)
+                .map(this::getHvdcLine)
+                .collect(Collectors.toList());
+    }
+
     /** @return adapter according to given Substation */
     SubstationAdapter getSubstation(final Substation substation) {
         return substation == null ? null : (SubstationAdapter) identifiableAdaptersCached.computeIfAbsent(substation, key -> new SubstationAdapter(substation, this));

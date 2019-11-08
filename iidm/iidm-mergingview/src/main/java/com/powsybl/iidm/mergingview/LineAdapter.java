@@ -24,6 +24,14 @@ public class LineAdapter extends AbstractIdentifiableAdapter<Line> implements Li
     }
 
     // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
+    @Override
+    public boolean isTieLine() {
+        return getDelegate().isTieLine();
+    }
+
+    // -------------------------------
     // Not implemented methods -------
     // -------------------------------
     @Override
@@ -228,10 +236,4 @@ public class LineAdapter extends AbstractIdentifiableAdapter<Line> implements Li
     public LineAdapter setB2(final double b2) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
-
-    @Override
-    public boolean isTieLine() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
 }

@@ -585,6 +585,69 @@ public final class MergingView implements Network {
         return getThreeWindingsTransformerStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
     }
 
+    // Lines
+    @Override
+    public Iterable<Line> getLines() {
+        return Collections.unmodifiableCollection(index.getLines());
+    }
+
+    @Override
+    public Stream<Line> getLineStream() {
+        return index.getLines().stream();
+    }
+
+    @Override
+    public int getLineCount() {
+        return index.getLines().size();
+    }
+
+    @Override
+    public Line getLine(final String id) {
+        return getLineStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
+    // DanglingLines
+    @Override
+    public Iterable<DanglingLine> getDanglingLines() {
+        return Collections.unmodifiableCollection(index.getDanglingLines());
+    }
+
+    @Override
+    public Stream<DanglingLine> getDanglingLineStream() {
+        return index.getDanglingLines().stream();
+    }
+
+    @Override
+    public int getDanglingLineCount() {
+        return index.getDanglingLines().size();
+    }
+
+    @Override
+    public DanglingLine getDanglingLine(final String id) {
+        return getDanglingLineStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
+    // HvdcLines
+    @Override
+    public Iterable<HvdcLine> getHvdcLines() {
+        return Collections.unmodifiableCollection(index.getHvdcLines());
+    }
+
+    @Override
+    public Stream<HvdcLine> getHvdcLineStream() {
+        return index.getHvdcLines().stream();
+    }
+
+    @Override
+    public int getHvdcLineCount() {
+        return index.getHvdcLines().size();
+    }
+
+    @Override
+    public HvdcLine getHvdcLine(final String id) {
+        return getHvdcLineStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+    }
+
     @Override
     public BusBreakerViewAdapter getBusBreakerView() {
         return busBreakerView;
@@ -635,67 +698,7 @@ public final class MergingView implements Network {
     }
 
     @Override
-    public Iterable<Line> getLines() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Line> getLineStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getLineCount() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Line getLine(final String id) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public TieLineAdder newTieLine() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getDanglingLineCount() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public DanglingLine getDanglingLine(final String id) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<HvdcLine> getHvdcLines() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<HvdcLine> getHvdcLineStream() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getHvdcLineCount() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public HvdcLine getHvdcLine(final String id) {
         throw NOT_IMPLEMENTED_EXCEPTION;
     }
 

@@ -31,10 +31,10 @@ public class VoltageLevelTest {
     public void setUp() {
         mergingView = MergingView.create("VoltageLevelTest", "iidm");
         substation = mergingView.newSubstation()
-                .setCountry(Country.AF)
-                .setTso("tso")
-                .setName("sub")
-                .setId("subId")
+                    .setCountry(Country.AF)
+                    .setTso("tso")
+                    .setName("sub")
+                    .setId("subId")
                 .add();
     }
 
@@ -42,14 +42,14 @@ public class VoltageLevelTest {
     public void baseTests() {
         // adder
         final VoltageLevel voltageLevel = substation.newVoltageLevel()
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .setTopologyKind(TopologyKind.BUS_BREAKER.name())
-                .setId("bbVL")
-                .setName("bbVL_name")
-                .setNominalV(200.0)
-                .setLowVoltageLimit(100.0)
-                .setHighVoltageLimit(200.0)
-                .setEnsureIdUnicity(false)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER.name())
+                    .setId("bbVL")
+                    .setName("bbVL_name")
+                    .setNominalV(200.0)
+                    .setLowVoltageLimit(100.0)
+                    .setHighVoltageLimit(200.0)
+                    .setEnsureIdUnicity(false)
                 .add();
         assertTrue(voltageLevel instanceof VoltageLevelAdapter);
         assertSame(mergingView, voltageLevel.getNetwork());

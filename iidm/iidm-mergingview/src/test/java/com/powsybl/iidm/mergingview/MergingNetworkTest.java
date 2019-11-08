@@ -153,6 +153,18 @@ public class MergingNetworkTest {
         assertFalse(mergingView.getThreeWindingsTransformers().iterator().hasNext());
         assertEquals(0, mergingView.getThreeWindingsTransformerCount());
 
+        // Lines
+        assertFalse(mergingView.getLines().iterator().hasNext());
+        assertEquals(0, mergingView.getLineCount());
+
+        // DanglingLines
+        assertFalse(mergingView.getDanglingLines().iterator().hasNext());
+        assertEquals(0, mergingView.getDanglingLineCount());
+
+        // HvdcLines
+        assertFalse(mergingView.getHvdcLines().iterator().hasNext());
+        assertEquals(0, mergingView.getHvdcLineCount());
+
         // Others
         assertNotNull(mergingView.getBusBreakerView());
         assertNotNull(mergingView.getBusView());
@@ -168,21 +180,8 @@ public class MergingNetworkTest {
         TestUtil.notImplemented(mergingView::getVariantManager);
         // Lines
         TestUtil.notImplemented(mergingView::newLine);
-        TestUtil.notImplemented(mergingView::getLines);
-        TestUtil.notImplemented(mergingView::getLineStream);
-        TestUtil.notImplemented(mergingView::getLineCount);
-        TestUtil.notImplemented(() -> mergingView.getLine(""));
         TestUtil.notImplemented(mergingView::newTieLine);
-        // DanglingLines
-        TestUtil.notImplemented(mergingView::getDanglingLines);
-        TestUtil.notImplemented(mergingView::getDanglingLineStream);
-        TestUtil.notImplemented(mergingView::getDanglingLineCount);
-        TestUtil.notImplemented(() -> mergingView.getDanglingLine(""));
         // HvdcLines
-        TestUtil.notImplemented(mergingView::getHvdcLines);
-        TestUtil.notImplemented(mergingView::getHvdcLineStream);
-        TestUtil.notImplemented(mergingView::getHvdcLineCount);
-        TestUtil.notImplemented(() -> mergingView.getHvdcLine(""));
         TestUtil.notImplemented(mergingView::newHvdcLine);
         // Listeners
         TestUtil.notImplemented(() -> mergingView.addListener(null));

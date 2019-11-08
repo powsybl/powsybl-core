@@ -8,11 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import java.util.List;
 
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -177,12 +173,12 @@ public class TwoWindingsTransformerAdapter extends AbstractIdentifiableAdapter<T
     }
 
     @Override
-    public RatioTapChangerAdderAdapter newRatioTapChanger() {
+    public RatioTapChangerAdder newRatioTapChanger() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public PhaseTapChangerAdderAdapter newPhaseTapChanger() {
+    public PhaseTapChangerAdder newPhaseTapChanger() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 

@@ -13,20 +13,7 @@ import java.nio.file.Path;
 import java.util.Random;
 import java.util.stream.Stream;
 
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.ContainerType;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.TopologyVisitor;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 
 /**
@@ -82,7 +69,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public GeneratorAdderAdapter newGenerator() {
+    public GeneratorAdder newGenerator() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -97,7 +84,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public BatteryAdderAdapter newBattery() {
+    public BatteryAdder newBattery() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -112,7 +99,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public LoadAdderAdapter newLoad() {
+    public LoadAdder newLoad() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -132,7 +119,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public ShuntCompensatorAdderAdapter newShuntCompensator() {
+    public ShuntCompensatorAdder newShuntCompensator() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -147,7 +134,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public DanglingLineAdderAdapter newDanglingLine() {
+    public DanglingLineAdder newDanglingLine() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -167,7 +154,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public StaticVarCompensatorAdderAdapter newStaticVarCompensator() {
+    public StaticVarCompensatorAdder newStaticVarCompensator() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -182,7 +169,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public VscConverterStationAdderAdapter newVscConverterStation() {
+    public VscConverterStationAdder newVscConverterStation() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -197,7 +184,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public LccConverterStationAdderAdapter newLccConverterStation() {
+    public LccConverterStationAdder newLccConverterStation() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 

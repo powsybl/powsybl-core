@@ -9,6 +9,7 @@ package com.powsybl.iidm.mergingview;
 import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.BusbarSectionAdder;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
@@ -41,7 +42,7 @@ public class VoltageLevelNodeBreakerViewAdapter extends AbstractAdapter<VoltageL
     }
 
     @Override
-    public VoltageLevelNodeBreakerViewSwitchAdderAdapter newSwitch() {
+    public VoltageLevel.NodeBreakerView.SwitchAdder newSwitch() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -66,12 +67,12 @@ public class VoltageLevelNodeBreakerViewAdapter extends AbstractAdapter<VoltageL
     }
 
     @Override
-    public VoltageLevelNodeBreakerViewSwitchAdderAdapter newBreaker() {
+    public VoltageLevel.NodeBreakerView.SwitchAdder newBreaker() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public VoltageLevelNodeBreakerViewSwitchAdderAdapter newDisconnector() {
+    public VoltageLevel.NodeBreakerView.SwitchAdder newDisconnector() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -126,7 +127,7 @@ public class VoltageLevelNodeBreakerViewAdapter extends AbstractAdapter<VoltageL
     }
 
     @Override
-    public BusbarSectionAdderAdapter newBusbarSection() {
+    public BusbarSectionAdder newBusbarSection() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 

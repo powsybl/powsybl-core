@@ -8,6 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.CurrentLimitsAdder;
+import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
 /**
@@ -68,7 +69,7 @@ public class Leg2or3Adapter extends AbstractAdapter<ThreeWindingsTransformer.Leg
     }
 
     @Override
-    public RatioTapChangerAdderAdapter newRatioTapChanger() {
+    public RatioTapChangerAdder newRatioTapChanger() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
