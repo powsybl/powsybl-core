@@ -67,7 +67,8 @@ public abstract class AbstractToolTest {
     protected abstract Iterable<Tool> getTools();
 
     private void assertMatches(String expected, String actual) {
-        if (!actual.equals(expected) && !Pattern.compile(expected).matcher(actual).find()) {
+        //The empty string is matched exactly, other strings as regexs
+        if (!actual.equals(expected) && ("".equals(expected) || !Pattern.compile(expected).matcher(actual).find())) {
             throw new ComparisonFailure("", expected, actual);
         }
     }
@@ -111,12 +112,12 @@ public abstract class AbstractToolTest {
                 }
             });
         }
+        if (expectedErr != null) {
+            assertMatches(expectedErr, berr.toString(StandardCharsets.UTF_8.name()));
+        }
         assertEquals(expectedStatus, status);
         if (expectedOut != null) {
             assertMatches(expectedOut, bout.toString(StandardCharsets.UTF_8.name()));
-        }
-        if (expectedErr != null) {
-            assertMatches(expectedErr, berr.toString(StandardCharsets.UTF_8.name()));
         }
     }
 
