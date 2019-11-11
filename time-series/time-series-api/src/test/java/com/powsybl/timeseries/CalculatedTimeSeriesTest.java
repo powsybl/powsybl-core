@@ -41,7 +41,7 @@ public class CalculatedTimeSeriesTest {
         timeSeries = new CalculatedTimeSeries("ts1", new IntegerNodeCalc(1));
     }
 
-    private void evaluate(String expr, double expectedValue) {
+    private void evaluate1(String expr, double expectedValue) {
         // create time series space mock
         TimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-07-20T00:00:00Z"), Duration.ofDays(200));
 
@@ -94,6 +94,36 @@ public class CalculatedTimeSeriesTest {
             }
         });
         assertEquals(expectedValue, calculatedValue, 0d);
+    }
+
+    //We want to test the expression directly as standalone tree, and in addition we want to test
+    //this expression when evaluated as a child of a tree at depth around where
+    //the traversal switches from recursive to iterative, so we construct a
+    //dummy tree of (expr)+0+0...+0. Due to the way we parse things, this new
+    //expression is (somewhat counterintuitively) translated to a tree that is
+    //fully unbalanced on the left, with the left most element at the bottom
+    //and the right most element at the root, as shown in the following diagram:
+    //
+    //          +     <- root
+    //         + 0    <- right most element
+    //        + 0
+    //      ...
+    //      +
+    //  expr 0        <- left most elements
+    private void evaluate(String expr, double expectedValue) {
+        evaluate1(expr, expectedValue);
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
+        sb.append(expr);
+        sb.append(")");
+        int range = 2;
+        for (int i = 0; i < NodeCalcVisitors.RECURSION_THRESHOLD - range; i++) {
+            sb.append("+0");
+        }
+        for (int i = NodeCalcVisitors.RECURSION_THRESHOLD - range; i <= NodeCalcVisitors.RECURSION_THRESHOLD + range; i++) {
+            sb.append("+0");
+            evaluate1(sb.toString(), expectedValue);
+        }
     }
 
     @Test
