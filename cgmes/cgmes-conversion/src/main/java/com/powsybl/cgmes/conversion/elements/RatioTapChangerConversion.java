@@ -175,7 +175,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
 
     private void addStepsFromStepVoltageIncrement(RatioTapChangerAdder rtca) {
         boolean rtcAtSide1 = rtcAtSide1();
-        if (LOG.isDebugEnabled() && rtcAtSide1) {
+        if (LOG.isDebugEnabled() && rtcAtSide1 && tx2 != null) {
             LOG.debug(
                 "Transformer {} ratio tap changer moved from side 2 to side 1, impedance/admittance corrections",
                 tx2.getId());

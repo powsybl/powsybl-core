@@ -15,16 +15,12 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1NetworkCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -49,7 +45,6 @@ public class CgmesConformity1ConversionTest {
     @Before
     public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
-        platformConfig = new InMemoryPlatformConfig(fileSystem);
     }
 
     @After
@@ -221,7 +216,7 @@ public class CgmesConformity1ConversionTest {
     @Test
     public void smallNodeBreakerHvdc() {
         // Small Grid Node Breaker HVDC should be imported without errors
-        assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), null));
+        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), null));
 
     }
 
@@ -231,9 +226,7 @@ public class CgmesConformity1ConversionTest {
     // LoadFlow)
     // must produce identical identifiers for calculated buses
     public void smallNodeBreakerStableBusNaming() {
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-
-        Network network = new CgmesImport(platformConfig).importData(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), null);
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), null);
 
         // Initial bus identifiers
         List<String> initialBusIds = network.getBusView().getBusStream()
@@ -300,5 +293,4 @@ public class CgmesConformity1ConversionTest {
     private static ConversionTester tester;
 
     private FileSystem fileSystem;
-    private PlatformConfig platformConfig;
 }

@@ -9,11 +9,7 @@ package com.powsybl.security;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -21,13 +17,6 @@ import static org.junit.Assert.*;
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class SecurityAnalysisParametersTest {
-
-    protected PlatformConfig config;
-
-    @Before
-    public void setUp() {
-        config = Mockito.mock(PlatformConfig.class);
-    }
 
     @Test
     public void testExtensions() {
@@ -53,8 +42,7 @@ public class SecurityAnalysisParametersTest {
 
     @Test
     public void testExtensionFromConfig() {
-        Mockito.when(config.getOptionalModuleConfig("load-flow-default-parameters")).thenReturn(Optional.empty());
-        SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load(config);
+        SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load();
 
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
