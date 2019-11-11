@@ -90,7 +90,7 @@ public class AppFileSystemToolTest extends AbstractToolTest {
     public void testFixInconsistentNodes() throws IOException {
         assertCommand(new String[] {"afs", "--fix-inconsistent-nodes", "mem"}, 0, "mem:"
                 + System.lineSeparator() + "[a-z0-9-]+ fixed", "");
-        assertCommand(new String[] {"afs", "--fix-inconsistent-nodes"}, 3, "", "");
+        assertCommand(new String[] {"afs", "--fix-inconsistent-nodes"}, 3, "", "IllegalArgumentException");
         assertCommand(new String[] {"afs", "--ls-inconsistent-nodes", "mem", "nodeId"}, 0, "mem:"
                 + System.lineSeparator() + "[a-z0-9-]+" + System.lineSeparator(), "");
     }
@@ -99,7 +99,7 @@ public class AppFileSystemToolTest extends AbstractToolTest {
     public void testRemoveInconsistentNodes() throws IOException {
         assertCommand(new String[] {"afs", "--rm-inconsistent-nodes", "mem"}, 0, "mem:"
                 + System.lineSeparator() + "[a-z0-9-]+ cleaned", "");
-        assertCommand(new String[] {"afs", "--rm-inconsistent-nodes"}, 3, "", "");
+        assertCommand(new String[] {"afs", "--rm-inconsistent-nodes"}, 3, "", "IllegalArgumentException");
     }
 
 }
