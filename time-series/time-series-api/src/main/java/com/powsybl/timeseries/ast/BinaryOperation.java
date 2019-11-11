@@ -14,8 +14,7 @@ import com.powsybl.timeseries.TimeSeriesException;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Deque;
 import java.util.Objects;
 
 /**
@@ -122,14 +121,44 @@ public class BinaryOperation implements NodeCalc {
     }
 
     @Override
-    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, List<R> children) {
-        return visitor.visit(this, arg, children.get(0), children.get(1));
+    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
+        if (depth < NodeCalcVisitors.RECURSION_THRESHOLD) {
+            Pair<NodeCalc, NodeCalc> p = visitor.iterate(this, arg);
+            R leftValue = null;
+            NodeCalc leftNode = p.getLeft();
+            if (leftNode != null) {
+                leftValue = leftNode.accept(visitor, arg, depth + 1);
+            }
+            R rightValue = null;
+            NodeCalc rightNode = p.getRight();
+            if (rightNode != null) {
+                rightValue = rightNode.accept(visitor, arg, depth + 1);
+            }
+            return visitor.visit(this, arg, leftValue, rightValue);
+        } else {
+            return NodeCalcVisitors.visit(this, arg, visitor);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <R, A> R acceptHandle(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> resultsStack) {
+        Object rightResult = resultsStack.pop();
+        rightResult = rightResult == NodeCalcVisitors.NULL ? null : rightResult;
+        Object leftResult = resultsStack.pop();
+        leftResult = leftResult == NodeCalcVisitors.NULL ? null : leftResult;
+        return visitor.visit(this, arg, (R) leftResult, (R) rightResult);
     }
 
     @Override
-    public <R, A> List<NodeCalc> acceptIterate(NodeCalcVisitor<R, A> visitor, A arg) {
+    public <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> nodesStack) {
         Pair<NodeCalc, NodeCalc> p = visitor.iterate(this, arg);
-        return Arrays.asList(p.getLeft(), p.getRight());
+        Object leftNode = p.getLeft();
+        leftNode = leftNode == null ? NodeCalcVisitors.NULL : leftNode;
+        Object rightNode = p.getRight();
+        rightNode = rightNode == null ? NodeCalcVisitors.NULL : rightNode;
+        nodesStack.push(leftNode);
+        nodesStack.push(rightNode);
     }
 
     @Override

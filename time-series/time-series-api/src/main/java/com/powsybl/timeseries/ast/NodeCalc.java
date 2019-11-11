@@ -14,17 +14,47 @@ import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.List;
+import java.util.Deque;
 import java.util.Objects;
 
 /**
+ * A NodeCalc is an element of the timeseries computation tree. These
+ * computation trees are typically the results of running user scripts, for
+ * example written in groovy. They can be serialized to json or traversed by
+ * visitors. Traversing them with visitor allows to compute various results,
+ * such as evaluating the tree or find the names of the timeseries used in the
+ * tree.
+ *
+ * <p>The writeJson method is used to serialize the tree to json.
+ *
+ * <p>The accept, acceptIterate and acceptHandle methods together with the
+ * {@link NodeCalcVisitor} interface form the
+ * hybrid recursive/iterative visitor pattern. This visitor pattern
+ * uses recursion on the children up to a stack depth limit because
+ * performance is almost 5 times better when using recursion compared
+ * to the iterative algorithm using stacks, but excessive depths cause
+ * StackOverflowErrors.
+ *
+ * <p>The accept method are the main entrypoint of the hybrid visit and
+ * implements the recursive visit as well as performing the switch from
+ * the recursive to iterative behavior.
+ *
+ * <p>The acceptIterate and acceptHandle methods are used by {@link NodeCalcVisitors}
+ * during the iterative traversal of the tree. The
+ * acceptIterate method push children nodes the be traversed in the
+ * stack.  The acceptHandle method extract the already calculated
+ * children results from the stack and use them to compute and return
+ * the result for this node.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface NodeCalc {
 
-    <R, A> List<NodeCalc> acceptIterate(NodeCalcVisitor<R, A> visitor, A arg);
+    <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth);
 
-    <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, List<R> children);
+    <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> nodesStack);
+
+    <R, A> R acceptHandle(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> resultsStack);
 
     void writeJson(JsonGenerator generator) throws IOException;
 
