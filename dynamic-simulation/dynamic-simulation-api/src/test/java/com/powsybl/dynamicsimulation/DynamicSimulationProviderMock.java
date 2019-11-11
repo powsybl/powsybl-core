@@ -10,10 +10,6 @@ import java.util.concurrent.CompletableFuture;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
-import com.powsybl.dynamicsimulation.DynamicSimulationProvider;
-import com.powsybl.dynamicsimulation.DynamicSimulationResult;
-import com.powsybl.dynamicsimulation.DynamicSimulationResultImpl;
 import com.powsybl.iidm.network.Network;
 
 /**

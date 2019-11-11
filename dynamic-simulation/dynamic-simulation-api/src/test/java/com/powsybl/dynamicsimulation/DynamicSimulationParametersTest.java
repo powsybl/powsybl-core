@@ -27,7 +27,6 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>

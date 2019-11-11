@@ -6,21 +6,21 @@
  */
 package com.powsybl.dynamicsimulation.tools;
 
-import com.powsybl.dynamicsimulation.tools.DynamicSimulationTool;
-import com.powsybl.tools.AbstractToolTest;
-import com.powsybl.tools.Command;
-import com.powsybl.tools.Tool;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import com.powsybl.tools.AbstractToolTest;
+import com.powsybl.tools.Command;
+import com.powsybl.tools.Tool;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>

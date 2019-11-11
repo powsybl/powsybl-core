@@ -26,9 +26,6 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.dynamicsimulation.DynamicSimulation;
-import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
-import com.powsybl.dynamicsimulation.DynamicSimulationResult;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 

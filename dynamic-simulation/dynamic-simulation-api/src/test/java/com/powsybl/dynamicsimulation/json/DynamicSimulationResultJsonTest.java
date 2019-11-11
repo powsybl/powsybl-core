@@ -13,8 +13,6 @@ import org.junit.Test;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
-import com.powsybl.dynamicsimulation.json.DynamicSimulationResultDeserializer;
-import com.powsybl.dynamicsimulation.json.DynamicSimulationResultSerializer;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>

@@ -22,7 +22,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
-import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
