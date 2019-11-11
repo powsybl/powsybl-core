@@ -57,21 +57,24 @@ public class CgmesUpdate {
 //                List<CgmesPredicateDetails> allCgmesDetails = iidmToCgmes(cimVersion, change, cgmes).convert();
                 // XXX LUMA List<CgmesPredicateDetails> allCgmesDetails =
                 // iidmToCgmes.convert(change, cgmes);
-                CgmesPredicateDetails entry = iidmToCgmes.convert(change, cgmes);
-                try {
-                    PropertyBags result = cgmes.updateCgmes(queryName(change),
-                        contexts.get(entry.getContext()),
-                        cgmes.getBaseName(),
-                        getCgmesChanges(entry, change));
+                List<CgmesPredicateDetails> entries = iidmToCgmes.convert(change, cgmes);
+                for (CgmesPredicateDetails entry : entries) {
+                    try {
+                        PropertyBags result = cgmes.updateCgmes(queryName(change),
+                            contexts.get(entry.getContext()),
+                            cgmes.getBaseName(),
+                            getCgmesChanges(entry, change));
 
-                    LOG.info(result.tabulate());
+                        LOG.info(result.tabulate());
 
-                } catch (java.lang.NullPointerException e) {
-                    LOG.error("Requested attribute {} is not available for conversion\n{}", change.getAttribute(),
-                        e.getMessage());
+                    } catch (java.lang.NullPointerException e) {
+                        LOG.error("Requested attribute {} is not available for conversion\n{}", change.getAttribute(),
+                            e.getMessage());
+                    }
                 }
             }
         }
+
     }
 
     private Map<String, String> contexts(CgmesModel cgmes) {

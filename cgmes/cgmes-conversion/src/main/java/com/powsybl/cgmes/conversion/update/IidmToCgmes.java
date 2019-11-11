@@ -1,5 +1,7 @@
 package com.powsybl.cgmes.conversion.update;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import com.google.common.collect.ImmutableMap;
@@ -22,18 +24,20 @@ public class IidmToCgmes {
         }
     }
 
-    CgmesPredicateDetails convert(IidmChange change, CgmesModel cgmes) throws Exception {
+    List<CgmesPredicateDetails> convert(IidmChange change, CgmesModel cgmes) throws Exception {
         if (!(change instanceof IidmChangeOnUpdate)) {
             throw new ConversionException("Can't process requested modification");
         }
         // Getting IIDM - CGMES conversion map from converter:
+        List<CgmesPredicateDetails> list = new ArrayList<CgmesPredicateDetails>();
+
         CgmesPredicateDetails converted = iidmToCgmes.converter
             .get(getIidmInstanceName(change))
             .call()
             .get(change.getAttribute());
         converted.setValue(change.getNewValueString());
-
-        return converted;
+        list.add(converted);
+        return list;
     }
 
     private String getIidmInstanceName(IidmChange change) {
