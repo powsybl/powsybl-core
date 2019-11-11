@@ -9,18 +9,17 @@ import com.google.common.collect.ImmutableMap;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.conversion.update.AbstractIidmToCgmes;
 import com.powsybl.cgmes.conversion.update.CgmesPredicateDetails;
-import com.powsybl.cgmes.conversion.update.ConversionMapper;
 import com.powsybl.cgmes.conversion.update.IidmChange;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Substation;
 
-public class SubstationToSubstation extends AbstractIidmToCgmes implements ConversionMapper {
+public class SubstationToSubstation extends AbstractIidmToCgmes {
 
     private SubstationToSubstation() {
     }
 
-    public static Map<String, CgmesPredicateDetails> converter() {
+    public static Map<String, CgmesPredicateDetails> mapIidmAtrribute() {
         return  Collections.unmodifiableMap(Stream.of(
             entry("country", new CgmesPredicateDetails("cim:Substation.Region", "_EQ", true, value)),
             entry("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:Substation")))

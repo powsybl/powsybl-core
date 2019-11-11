@@ -53,7 +53,6 @@ public class CgmesUpdate {
         for (IidmChange change : changes) {
             changesCounter++;
             if (change.getVariant() == null || change.getVariant().equals(variantId)) {
-//                List<CgmesPredicateDetails> allCgmesDetails = iidmToCgmes(cimVersion, change, cgmes).convert();
                 // XXX LUMA List<CgmesPredicateDetails> allCgmesDetails =
                 // iidmToCgmes.convert(change, cgmes);
                 List<CgmesPredicateDetails> entries = iidmToCgmes.convert(change, cgmes);
@@ -81,6 +80,7 @@ public class CgmesUpdate {
                         profiling.endLoopIteration();
 
                         LOG.info(result.tabulate());
+
                     } catch (java.lang.NullPointerException e) {
                         LOG.error("Requested attribute {} is not available for conversion\n{}", change.getAttribute(),
                             e.getMessage());

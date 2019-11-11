@@ -1,91 +1,72 @@
-//package com.powsybl.cgmes.conversion.update.elements16;
-//
-//import java.util.Iterator;
-//import java.util.UUID;
-//
-//import com.google.common.collect.ArrayListMultimap;
-//import com.google.common.collect.Multimap;
-//import com.powsybl.cgmes.conversion.update.CgmesPredicateDetails;
-//import com.powsybl.cgmes.conversion.update.ConversionMapper;
-//import com.powsybl.cgmes.conversion.update.IidmChange;
-//import com.powsybl.cgmes.model.CgmesModel;
-//import com.powsybl.iidm.network.Branch;
-//import com.powsybl.iidm.network.Line;
-//import com.powsybl.triplestore.api.PropertyBag;
-//import com.powsybl.triplestore.api.PropertyBags;
-//
-//public class LineToACLineSegment implements ConversionMapper {
-//
-//    public LineToACLineSegment(IidmChange change, CgmesModel cgmes) {
-//        this.change = change;
-//        this.cgmes = cgmes;
-//    }
-//
-//    @Override
-//    public Multimap<String, CgmesPredicateDetails> converter() {
-//
-//        final Multimap<String, CgmesPredicateDetails> map = ArrayListMultimap.create();
-//        Line newLine = (Line) change.getIdentifiable();
-//
-//        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:ACLineSegment"));
-//
-//        String name = newLine.getName();
-//        if (name != null) {
-//            map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, name));
-//        }
-//
-//        double r = newLine.getR();
-//        if (!String.valueOf(r).equals("NaN")) {
-//            map.put("r", new CgmesPredicateDetails("cim:ACLineSegment.r", "_EQ", false, String.valueOf(r)));
-//        }
-//
-//        double x = newLine.getX();
-//        if (!String.valueOf(x).equals("NaN")) {
-//            map.put("x", new CgmesPredicateDetails("cim:ACLineSegment.x", "_EQ", false, String.valueOf(x)));
-//        }
-//
-//        double b1 = !String.valueOf(newLine.getB1()).equals("NaN") ? newLine.getB1() : 0.0;
-//        map.put("b1", new CgmesPredicateDetails(
-//            "cim:ACLineSegment.bch", "_EQ", false, String.valueOf(b1 * 2)));
-//
-//        double b2 = !String.valueOf(newLine.getB2()).equals("NaN") ? newLine.getB2() : 0.0;
-//        map.put("b2", new CgmesPredicateDetails(
-//            "cim:ACLineSegment.bch", "_EQ", false, String.valueOf(b2 * 2)));
-//
-//        double g1 = !String.valueOf(newLine.getG1()).equals("NaN") ? newLine.getG1() : 0.0;
-//
-//        map.put("g1", new CgmesPredicateDetails(
-//            "cim:ACLineSegment.gch", "_EQ", false, String.valueOf(g1 * 2)));
-//
-//        double g2 = !String.valueOf(newLine.getG2()).equals("NaN") ? newLine.getG2() : 0.0;
-//        map.put("g2", new CgmesPredicateDetails(
-//            "cim:ACLineSegment.gch", "_EQ", false, String.valueOf(g2 * 2)));
-//
-//        String baseVoltageId = getBaseVoltageId(newLine);
-//        map.put("BaseVoltage", new CgmesPredicateDetails(
-//            "cim:ConductingEquipment.BaseVoltage", "_EQ", true, baseVoltageId));
-//
-//        return map;
-//    }
-//
-//    /**
-//     * @return the base voltage id
-//     */
-//    private String getBaseVoltageId(Line newLine) {
-//        String voltageLevelId = newLine.getTerminal(Branch.Side.ONE).getVoltageLevel().getId();
-//        PropertyBags voltageLevels = cgmes.voltageLevels();
-//        Iterator i = voltageLevels.iterator();
-//        while (i.hasNext()) {
-//            PropertyBag pb = (PropertyBag) i.next();
-//            if (pb.getId("VoltageLevel").equals(voltageLevelId)) {
-//                return pb.getId("BaseVoltage");
-//            } else {
-//                continue;
-//            }
-//        }
-//        return UUID.randomUUID().toString();
-//    }
-//
-//    private IidmChange change;
-//    private CgmesModel cgmes;
-//}
+package com.powsybl.cgmes.conversion.update.elements16;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+import com.google.common.collect.ImmutableMap;
+import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.conversion.update.AbstractIidmToCgmes;
+import com.powsybl.cgmes.conversion.update.CgmesPredicateDetails;
+import com.powsybl.cgmes.conversion.update.IidmChange;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
+
+public class LineToACLineSegment extends AbstractIidmToCgmes {
+
+    private LineToACLineSegment() {
+    }
+
+    public static Map<String, CgmesPredicateDetails> mapIidmAtrribute() {
+        return Collections.unmodifiableMap(Stream.of(
+            entry("r", new CgmesPredicateDetails("cim:ACLineSegment.r", "_EQ", false, value)),
+            entry("x", new CgmesPredicateDetails("cim:ACLineSegment.x", "_EQ", false, value)),
+            entry("b1", new CgmesPredicateDetails("cim:ACLineSegment.bch", "_EQ", false, value)),
+            entry("b2", new CgmesPredicateDetails("cim:ACLineSegment.bch", "_EQ", false, value)),
+            entry("g1", new CgmesPredicateDetails("cim:ACLineSegment.gch", "_EQ", false, value)),
+            entry("g2", new CgmesPredicateDetails("cim:ACLineSegment.gch", "_EQ", false, value)),
+            entry("BaseVoltage", new CgmesPredicateDetails("cim:ConductingEquipment.BaseVoltage", "_EQ", true, value, newSubject)))
+            .collect(entriesToMap()));
+    }
+
+    static Map<String, String> getValues(IidmChange change, CgmesModel cgmes) {
+        if (!(change.getIdentifiable() instanceof Line)) {
+            throw new ConversionException("Cannot cast the identifiable into the element");
+        }
+        Line line = (Line) change.getIdentifiable();
+        String voltageLevelId = line.getTerminal(Branch.Side.ONE).getVoltageLevel().getId();
+        double b1 = !String.valueOf(line.getB1()).equals("NaN") ? line.getB1() : 0.0;
+        double b2 = !String.valueOf(line.getB2()).equals("NaN") ? line.getB2() : 0.0;
+        double g1 = !String.valueOf(line.getG1()).equals("NaN") ? line.getG1() : 0.0;
+        double g2 = !String.valueOf(line.getG2()).equals("NaN") ? line.getG2() : 0.0;
+        return ImmutableMap.<String, String>builder()
+            .put("rdfType", "cim:ACLineSegment")
+            .put("name", line.getName())
+            .put("r", String.valueOf(line.getR()))
+            .put("x", String.valueOf(line.getX()))
+            .put("b1", String.valueOf(b1 * 2))
+            .put("b2", String.valueOf(b2 * 2))
+            .put("g1", String.valueOf(g1 * 2))
+            .put("g2", String.valueOf(g2 * 2))
+            .put("baseVoltageId", getBaseVoltageId(voltageLevelId, cgmes.voltageLevels()))
+            .build();
+    }
+
+    /**
+     * @return the base voltage id
+     */
+    private static String getBaseVoltageId(String voltageLevelId, PropertyBags voltageLevels) {
+        for(PropertyBag pb : voltageLevels) {
+            if (pb.getId("VoltageLevel").equals(voltageLevelId)) {
+                return pb.getId("BaseVoltage");
+            } else {
+                continue;
+            }
+        }
+        return UUID.randomUUID().toString();
+    }
+}

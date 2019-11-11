@@ -68,7 +68,7 @@ public class CgmesUpdateTester {
         fileSystem.close();
     }
 
-    //@Test
+    @Test
     public void updateCgmes14Test() throws IOException {
 
         for (String impl : TripleStoreFactory.onlyDefaultImplementation()) {
@@ -96,7 +96,7 @@ public class CgmesUpdateTester {
         }
     }
 
-    //@Test
+    @Test
     public void updateCgmes16Test() throws IOException {
 
         for (String impl : TripleStoreFactory.onlyDefaultImplementation()) {
@@ -130,7 +130,7 @@ public class CgmesUpdateTester {
         testPerformance(testGridModel16.dataSource(), invalidateFlows);
     }
 
-    @Test
+   @Test
     public void testPerformanceCges() throws IOException {
         boolean invalidateFlows = false;
         testPerformance(new ResourceDataSource("CGES",
@@ -143,7 +143,7 @@ public class CgmesUpdateTester {
             invalidateFlows);
     }
 
-    @Test
+    //@Test
     public void testPerformanceRte() throws IOException {
         boolean invalidateFlows = false;
         testPerformance(new ResourceDataSource("RTE",
@@ -158,7 +158,7 @@ public class CgmesUpdateTester {
             invalidateFlows);
     }
 
-    @Test
+    //@Test
     public void testPerformanceRen() throws IOException {
         boolean invalidateFlows = false;
         testPerformance(new ResourceDataSource("REN",

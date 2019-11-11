@@ -33,7 +33,6 @@ public class IidmToCgmes {
 
         CgmesPredicateDetails converted = iidmToCgmes.converter
             .get(getIidmInstanceName(change))
-            .call()
             .get(change.getAttribute());
         converted.setValue(change.getNewValueString());
         list.add(converted);
@@ -46,14 +45,30 @@ public class IidmToCgmes {
 
     public static Map<String, CgmesPredicateDetails> genericConverter(String value) {
         final String RDF_TYPE = "rdf:type";
-        return ImmutableMap.of(
-            "rdfTypeSsh", new CgmesPredicateDetails(RDF_TYPE, "_SSH", false, value),
-            "rdfTypeEq", new CgmesPredicateDetails(RDF_TYPE, "_EQ", false, value),
-            "rdfTypeSv", new CgmesPredicateDetails(RDF_TYPE, "_SV", false, value),
-            "name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, value));
+        final String NAME = "cim:IdentifiedObject.name";
+        return ImmutableMap.<String, CgmesPredicateDetails>builder()
+            .put("rdfTypeSsh", new CgmesPredicateDetails(RDF_TYPE, "_SSH", false, value))
+            .put("rdfTypeEq", new CgmesPredicateDetails(RDF_TYPE, "_EQ", false, value))
+            .put("rdfTypeSv", new CgmesPredicateDetails(RDF_TYPE, "_SV", false, value))
+            .put("rdfTypeTp", new CgmesPredicateDetails(RDF_TYPE, "_TP", false, value))
+            .put("nameSsh", new CgmesPredicateDetails(NAME, "_SSH", false, value))
+            .put("nameEq", new CgmesPredicateDetails(NAME, "_EQ", false, value))
+            .put("nameSv", new CgmesPredicateDetails(NAME, "_SV", false, value))
+            .put("nameTp", new CgmesPredicateDetails(NAME, "_TP", false, value))
+            .build();
     }
+
+    public static final String SUBSTATION_IMPL = "SubstationImpl";
+    public static final String BUSBREAKER_VOLTAGELEVEL = "BusBreakerVoltageLevel";
+    public static final String TWOWINDINGS_TRANSFORMER_IMPL = "TwoWindingsTransformerImpl";
+    public static final String CONFIGUREDBUS_IMPL = "ConfiguredBusImpl";
+    public static final String GENERATOR_IMPL = "GeneratorImpl";
+    public static final String LOAD_IMPL = "LoadImpl";
+    public static final String LCCCONVERTER_STATION_IMPL = "LccConverterStationImpl";
+    public static final String LINE_IMPL = "LineImpl";
+    public static final String SHUNTCOMPENSATOR_IMPL = "ShuntCompensatorImpl";
 
     private String cimVersion;
     private IidmToCgmes iidmToCgmes;
-    public Map<String, Callable<Map<String, CgmesPredicateDetails>>> converter;
+    public Map<String, Map<String, CgmesPredicateDetails>> converter;
 }

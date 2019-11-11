@@ -9,20 +9,19 @@ import com.google.common.collect.ImmutableMap;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.conversion.update.AbstractIidmToCgmes;
 import com.powsybl.cgmes.conversion.update.CgmesPredicateDetails;
-import com.powsybl.cgmes.conversion.update.ConversionMapper;
 import com.powsybl.cgmes.conversion.update.IidmChange;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-public class LoadToEnergyConsumer extends AbstractIidmToCgmes implements ConversionMapper {
+public class LoadToEnergyConsumer extends AbstractIidmToCgmes {
 
     private LoadToEnergyConsumer() {
     }
 
-    public static Map<String, CgmesPredicateDetails> converter() {
-        return  Collections.unmodifiableMap(Stream.of(
+    public static Map<String, CgmesPredicateDetails> mapIidmAtrribute() {
+        return Collections.unmodifiableMap(Stream.of(
             entry("p0", new CgmesPredicateDetails("cim:LoadResponseCharacteristic.pConstantPower", "_EQ", false,
                 value, newSubject)),
             entry("q0", new CgmesPredicateDetails("cim:LoadResponseCharacteristic.qConstantPower", "_EQ", false,
@@ -30,9 +29,7 @@ public class LoadToEnergyConsumer extends AbstractIidmToCgmes implements Convers
             entry("exponentModelLRC", new CgmesPredicateDetails(
                 "cim:LoadResponseCharacteristic.exponentModel", "_EQ", false, "false", newSubject)),
             entry("energyConsumerLoadResponse", new CgmesPredicateDetails("cim:EnergyConsumer.LoadResponse",
-                "_EQ", true, value)),
-            entry("exponentModelLRC", new CgmesPredicateDetails(
-                "cim:LoadResponseCharacteristic.exponentModel", "_EQ", false, "false", newSubject)))
+                "_EQ", true, value)))
             .collect(entriesToMap()));
     }
 

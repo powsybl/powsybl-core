@@ -21,15 +21,17 @@ public abstract class AbstractIidmToCgmes {
         return Collectors.toMap(e -> e.getKey(), e -> e.getValue());
     }
 
-    public static final String SUBSTATION_IMPL = "SubstationImpl";
-    public static final String BUSBREAKER_VOLTAGELEVEL = "BusBreakerVoltageLevel";
-    public static final String TWOWINDINGS_TRANSFORMER_IMPL = "TwoWindingsTransformerImpl";
-    public static final String CONFIGUREDBUS_IMPL = "ConfiguredBusImpl";
-    public static final String GENERATOR_IMPL = "GeneratorImpl";
-    public static final String LOAD_IMPL = "LoadImpl";
-    public static final String LCCCONVERTER_STATION_IMPL = "LccConverterStationImpl";
-    public static final String LINE_IMPL = "LineImpl";
-    public static final String SHUNTCOMPENSATOR_IMPL = "ShuntCompensatorImpl";
+    protected static final String POWER_TRANSFORMER = "PowerTransformer";
+    protected static final String ID_END1 = "idEnd1";
+    protected static final String ID_END2 = "idEnd2";
+    protected static final String PHASE_TAP_CHANGER = "PhaseTapChanger";
+    protected static final String RATIO_TAP_CHANGER = "RatioTapChanger";
+    protected static final String TRANSFORMER_END = "TransformerEnd";
+    protected final String TRANSFORMER_WINDING = "TransformerWinding";
+    protected final String SUBREGION_ID = "subRegionId";
+    protected final String SUBREGION_NAME = "subRegionName";
+    protected final String REGION_NAME = "regionName";
+    protected final String REGION_ID = "regionId";
 
     protected static String value;
     protected static String newSubject;
