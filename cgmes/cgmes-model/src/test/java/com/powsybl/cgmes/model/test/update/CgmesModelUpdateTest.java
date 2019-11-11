@@ -12,10 +12,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -49,7 +47,11 @@ public class CgmesModelUpdateTest {
                     && !context.toUpperCase().contains("BD")
                     && !context.toUpperCase().contains("BOUNDARY")) {
 
-                    cgmes.updateCgmes("updateCgmes", context, cgmes.getBaseName(), change());
+                    String subject = "_SVPF_0";
+                    String predicate = "cim:SvPowerFlow.p";
+                    String newValue = "39";
+                    String valueIsNode = "false";
+                    cgmes.updateCgmes("updateCgmes", context, cgmes.getBaseName(), subject, predicate, newValue, valueIsNode);
 
                     PropertyBags actuals = cgmes.terminals();
                     PropertyBags expecteds = expected();
@@ -74,15 +76,6 @@ public class CgmesModelUpdateTest {
         CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
         cgmes.print(LOG::info);
         return cgmes;
-    }
-
-    private Map<String, String> change() {
-        Map<String, String> cgmesChanges = new HashMap<>();
-        cgmesChanges.put("cgmesSubject", "_SVPF_0");
-        cgmesChanges.put("cgmesPredicate", "cim:SvPowerFlow.p");
-        cgmesChanges.put("cgmesNewValue", "39");
-        cgmesChanges.put("valueIsNode", "false");
-        return cgmesChanges;
     }
 
     private PropertyBags expected() {

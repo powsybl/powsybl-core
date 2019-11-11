@@ -275,6 +275,16 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             Statement st;
             if (statement.isResource(name)) {
                 IRI object;
+                String uriref = statement.get(name);
+                if (uriref == null) {
+                    // XXX LUMA should not happen but ...
+                    String msg = String.format("Wrong statement (uriref for name = %s is null)", name);
+                    if (LOG.isErrorEnabled()) {
+                        LOG.error(msg);
+                        LOG.error(statement.tabulate());
+                    }
+                    throw new TripleStoreException(msg);
+                }
                 if (URIUtil.isValidURIReference(statement.get(name))) { // the value already contains the namespace
                     object = cnx.getValueFactory().createIRI(statement.get(name));
                 } else { // the value is an id, add the base namespace

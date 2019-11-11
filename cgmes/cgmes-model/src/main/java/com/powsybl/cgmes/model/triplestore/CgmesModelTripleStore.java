@@ -437,22 +437,25 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags updateCgmes(String queryName, String context, String baseName, Map<String, String> cgmesChanges) {
+    public PropertyBags updateCgmes(
+        String queryName,
+        String context,
+        String baseName,
+        String subject,
+        String predicate,
+        String value,
+        String valueIsNode) {
         Objects.requireNonNull(cimNamespace);
-        String subject = cgmesChanges.get("cgmesSubject");
-        String predicate = cgmesChanges.get("cgmesPredicate");
-        String value = cgmesChanges.get("cgmesNewValue");
-        String valueIsNode = cgmesChanges.get("valueIsNode");
+        String baseUri = getBaseUri(baseName);
+        LOG.debug("update {}, {}, {}, {}, {}", context, baseUri, subject, predicate, value);
+        namedQueryUpdate(queryName, context, subject, predicate, value, baseUri, cimNamespace, valueIsNode);
 
-        LOG.info("\n*****{},{}, {}, {}, {}******", context, setBaseUri(baseName), subject, predicate, value);
-
-        namedQueryUpdate(queryName, context, subject, predicate, value, setBaseUri(baseName),
-            cimNamespace, valueIsNode);
-
-        return namedQuery("checkCgmesUpdated", context, subject);
+        // XXX LUMA not required when doing performance evaluation
+        // return namedQuery("checkCgmesUpdated", context, subject);
+        return null;
     }
 
-    private String setBaseUri(String baseName) {
+    private String getBaseUri(String baseName) {
         if (tripleStore.getImplementationName().equals("rdf4j")) {
             return baseName + "/#";
         } else {
@@ -578,9 +581,15 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     private String injectParams(String queryText, String... params) {
         String injected = queryText;
-        for (int k = 0; k < params.length; k++) {
-            String pkref = "{" + k + "}";
-            injected = injected.replace(pkref, params[k]);
+        // XXX LUMA evaluating performance,
+        // do not compute the parameter reference for first parameters
+        int k = 0;
+        for (; k < PARAMETER_REFERENCE.length; k++) {
+            injected = injected.replace(PARAMETER_REFERENCE[k], params[k]);
+        }
+        for (; k < params.length; k++) {
+            String paramRef = "{" + k + "}";
+            injected = injected.replace(paramRef, params[k]);
         }
         return injected;
     }
@@ -592,4 +601,5 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private static final String MODEL_PROFILES = "modelProfiles";
     private static final String PROFILE = "profile";
     private static final Logger LOG = LoggerFactory.getLogger(CgmesModelTripleStore.class);
+    private static final String[] PARAMETER_REFERENCE = {"{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}", "{7}", "{8}", "{9}"};
 }

@@ -11,7 +11,9 @@ public final class UpdateLoadsGenerators {
     private UpdateLoadsGenerators() {
     }
 
-    public static void updateNetwork(Network network) {
+    public static void updateNetwork(Network network, int maxChanges) {
+        int count;
+        count = 0;
         for (Generator g : network.getGenerators()) {
             double newP = g.getTargetP() * 1.1;
             double newQ = g.getTargetQ() * 1.1;

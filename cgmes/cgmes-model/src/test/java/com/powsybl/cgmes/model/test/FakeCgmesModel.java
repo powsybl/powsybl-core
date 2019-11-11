@@ -546,7 +546,7 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags updateCgmes(String queryName, String context, String baseName, Map<String, String> cgmesChange) {
+    public PropertyBags updateCgmes(String queryName, String context, String baseName, String subject, String predicate, String value, String valueIsNode) {
         return null;
     }
 

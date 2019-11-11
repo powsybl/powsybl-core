@@ -64,36 +64,34 @@ public class CgmesExport implements Exporter {
         CgmesModel cgmesSource = ext.getCgmesModel();
         profiling.start();
         CgmesModel cgmes = CgmesModelFactory.cloneCgmes(cgmesSource);
-        profiling.end(String.valueOf(Operations.TRIPLESTORE_COPY));
+        profiling.end(Operations.TRIPLESTORE_COPY.name());
 
         String variantId = network.getVariantManager().getWorkingVariantId();
 
         CgmesUpdate cgmesUpdater = ext.getCgmesUpdate();
-        profiling.start();
+        profiling.startLoop();
         if (!cgmesUpdater.changes().isEmpty()) {
             try {
-                cgmesUpdater.update(cgmes, variantId);
+                cgmesUpdater.update(cgmes, variantId, profiling);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        profiling.end(String.valueOf(Operations.TRIPLESTORE_UPDATE));
-        // Clear the previous SV data
-        profiling.start();
-        cgmes.clear(CgmesSubset.STATE_VARIABLES);
 
+        profiling.endLoop(Operations.TRIPLESTORE_UPDATE.name());
+
+        profiling.start();
+        // Clear the previous SV data
+        cgmes.clear(CgmesSubset.STATE_VARIABLES);
         // Fill the SV data of the CgmesModel with the network current state
         addStateVariables(network, cgmes);
-        profiling.end(String.valueOf(Operations.ADD_STATE_VARIABLES));
+        profiling.end(Operations.ADD_STATE_VARIABLES.name());
+        profiling.report();
 
         profiling.start();
         cgmes.write(ds);
-        profiling.end(String.valueOf(Operations.WRITE_UPDATED_CGMES));
 
-    }
-
-    public void profilingReport() {
-        profiling.report();
+        profiling.end(Operations.WRITE_UPDATED_CGMES.name());
     }
 
     @Override
@@ -108,7 +106,7 @@ public class CgmesExport implements Exporter {
 
     public enum Operations {
         IMPORT_CGMES, SCALING, LOAD_FLOW, TRIPLESTORE_COPY, CLONE_VARIANT, TRIPLESTORE_UPDATE,
-        ADD_STATE_VARIABLES, WRITE_UPDATED_CGMES;
+        ADD_STATE_VARIABLES, WRITE_UPDATED_CGMES, CGMES_READ, CGMES_CONVERSION;
     }
 
     private void addStateVariables(Network n, CgmesModel cgmes) {
@@ -128,13 +126,24 @@ public class CgmesExport implements Exporter {
 
         PropertyBags powerFlows = new PropertyBags();
         for (Load l : n.getLoads()) {
-            powerFlows.add(createPowerFlowProperties(cgmes, l.getTerminal()));
+            PropertyBag p = createPowerFlowProperties(cgmes, l.getTerminal());
+            if (p != null) {
+                powerFlows.add(p);
+            } else {
+                System.err.println("No SvPowerFlow created for load " + l.getId());
+            }
         }
         for (Generator g : n.getGenerators()) {
-            powerFlows.add(createPowerFlowProperties(cgmes, g.getTerminal()));
+            PropertyBag p = createPowerFlowProperties(cgmes, g.getTerminal());
+            if (p != null) {
+                powerFlows.add(p);
+            }
         }
         for (ShuntCompensator s : n.getShuntCompensators()) {
-            powerFlows.add(createPowerFlowProperties(cgmes, s.getTerminal()));
+            PropertyBag p = createPowerFlowProperties(cgmes, s.getTerminal());
+            if (p != null) {
+                powerFlows.add(createPowerFlowProperties(cgmes, s.getTerminal()));
+            }
         }
         cgmes.add(CgmesSubset.STATE_VARIABLES, "SvPowerFlow", powerFlows);
 
@@ -174,12 +183,16 @@ public class CgmesExport implements Exporter {
     }
 
     private PropertyBag createPowerFlowProperties(CgmesModel cgmes, Terminal terminal) {
+        // TODO If we could store a terminal identifier in IIDM
+        // we would not need to obtain it querying CGMES for the related equipment
+        String cgmesTerminal = cgmes.terminalForEquipment(terminal.getConnectable().getId());
+        if (cgmesTerminal == null) {
+            return null;
+        }
         PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
         p.put("p", fs(terminal.getP()));
         p.put("q", fs(terminal.getQ()));
-        // TODO If we could store a terminal identifier in IIDM
-        // we would not need to obtain it querying CGMES for the related equipment
-        p.put(CgmesNames.TERMINAL, cgmes.terminalForEquipment(terminal.getConnectable().getId()));
+        p.put(CgmesNames.TERMINAL, cgmesTerminal);
         return p;
     }
 

@@ -29,6 +29,7 @@ import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Profiling;
 import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
+import com.powsybl.cgmes.conversion.update.IidmChange;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
@@ -40,6 +41,7 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -72,7 +74,7 @@ public class CgmesUpdateTester {
         for (String impl : TripleStoreFactory.onlyDefaultImplementation()) {
 
             ReadOnlyDataSource ds = testGridModel14.dataSource();
-            Network network0 = cgmesImport.importData(ds, importParameters(impl));
+            Network network0 = cgmesImport.importData(ds, NetworkFactory.findDefault(), importParameters(impl));
 
             if (!isEmpty(network0)) {
                 UpdateNetworkFromCatalog14.updateNetwork(network0);
@@ -84,7 +86,7 @@ public class CgmesUpdateTester {
                 e.export(network0, new Properties(), tmp);
 
                 // import new network to compare
-                Network network1 = cgmesImport.importData(tmp, importParameters(impl));
+                Network network1 = cgmesImport.importData(tmp, NetworkFactory.findDefault(), importParameters(impl));
                 runLoadFlowResultsCompletion(network1);
 
                 compare(network0, network1);
@@ -100,11 +102,10 @@ public class CgmesUpdateTester {
         for (String impl : TripleStoreFactory.onlyDefaultImplementation()) {
 
             ReadOnlyDataSource ds = testGridModel16.dataSource();
-            Network network0 = cgmesImport.importData(ds, importParameters(impl));
+            Network network0 = cgmesImport.importData(ds, NetworkFactory.findDefault(), importParameters(impl));
 
             if (!isEmpty(network0)) {
                 UpdateNetworkFromCatalog16.updateNetwork(network0);
-                int changesBeforeLoadFlow = UpdateNetworkFromCatalog16.changes.size();
 
                 runLoadFlowResultsCompletion(network0);
 
@@ -113,7 +114,7 @@ public class CgmesUpdateTester {
                 e.export(network0, new Properties(), tmp);
 
                 // import new network to compare
-                Network network1 = cgmesImport.importData(tmp, importParameters(impl));
+                Network network1 = cgmesImport.importData(tmp, NetworkFactory.findDefault(), importParameters(impl));
                 runLoadFlowResultsCompletion(network1);
 
                 compare(network0, network1);
@@ -129,10 +130,10 @@ public class CgmesUpdateTester {
         testPerformance(testGridModel16.dataSource(), invalidateFlows);
     }
 
-    //@Test
+    @Test
     public void testPerformanceCges() throws IOException {
         boolean invalidateFlows = false;
-        testPerformance(new ResourceDataSource("20190911_1130_fo3_me0",
+        testPerformance(new ResourceDataSource("CGES",
             new ResourceSet("/20190911_1130_fo3_me0/", "20190911T0930Z_1D_CGES_EQ_000.xml",
                 "20190911T0930Z_1D_CGES_SSH_000.xml",
                 "20190911T0930Z_1D_CGES_SV_000.xml",
@@ -142,25 +143,25 @@ public class CgmesUpdateTester {
             invalidateFlows);
     }
 
-    //@Test
+    @Test
     public void testPerformanceRte() throws IOException {
         boolean invalidateFlows = false;
-        testPerformance(new ResourceDataSource("20190911_1130_FO3_XX4",
-            new ResourceSet("/20190911_1130_FO3_XX4/",
-                "20190911T0930Z_1D_RTEFRANCE_EQ_004.xml",
-                "20190911T0930Z_1D_RTEFRANCE_SSH_004.xml",
-                "20190911T0930Z_1D_RTEFRANCE_SV_004.xml",
-                "20190911T0930Z_1D_RTEFRANCE_TP_004.xml"),
+        testPerformance(new ResourceDataSource("RTE",
+            new ResourceSet("/20191009_1130_FO3_XX0/",
+                "20191009T0930Z_1D_RTEFRANCE_EQ_000.xml",
+                "20191009T0930Z_1D_RTEFRANCE_SSH_000.xml",
+                "20191009T0930Z_1D_RTEFRANCE_TP_000.xml",
+                "20191009T0930Z_1D_RTEFRANCE_SV_000.xml"),
             new ResourceSet("/cgmes-boundaries/",
                 "20190812T0000Z__ENTSOE_EQBD_001.xml",
                 "20190812T0000Z__ENTSOE_TPBD_001.xml")),
             invalidateFlows);
     }
 
-    //@Test
+    @Test
     public void testPerformanceRen() throws IOException {
         boolean invalidateFlows = false;
-        testPerformance(new ResourceDataSource("20190821_1130_FO3_PT1",
+        testPerformance(new ResourceDataSource("REN",
             new ResourceSet("/20190821_1130_FO3_PT1/",
                 "20190821T0930Z_REN_EQ_001.xml",
                 "20190821T0930Z_1D_REN_TP_001.xml",
@@ -179,13 +180,15 @@ public class CgmesUpdateTester {
     private void testPerformance(ReadOnlyDataSource ds, String impl, boolean invalidateFlows) throws IOException {
         Profiling profiling = new Profiling();
 
-        profiling.start();
-        Network network0 = cgmesImport.importData(ds, importParameters(impl));
-        profiling.end(Operations.IMPORT_CGMES.name());
+        cgmesImport.setProfiling(profiling);
+        Network network0 = cgmesImport.importData(ds, NetworkFactory.findDefault(), importParameters(impl));
         if (isEmpty(network0)) {
             fail("Network is empty");
             return;
         }
+        // XXX LUMA for big networks we will try to limit the number of changes
+        // so the update does not run forever
+        boolean isBigNetwork = network0.getBusView().getBusStream().count() > 500;
 
         profiling.start();
         network0.getVariantManager().cloneVariant(network0.getVariantManager().getWorkingVariantId(), "1");
@@ -193,29 +196,46 @@ public class CgmesUpdateTester {
         profiling.end(Operations.CLONE_VARIANT.name());
 
         profiling.start();
-        UpdateLoadsGenerators.updateNetwork(network0);
+        int numChangesInLoadsAndGenerators = isBigNetwork ? 100 : Integer.MAX_VALUE;
+        UpdateLoadsGenerators.updateNetwork(network0, numChangesInLoadsAndGenerators);
         profiling.end(Operations.SCALING.name());
         int numChangesBeforeLoadFlow = network0.getExtension(CgmesModelExtension.class).getCgmesUpdate().changes().size();
 
         profiling.start();
-        runLoadFlowResultsCompletion(network0, invalidateFlows);
+        // XXX LUMA we compute all flows only for small networks
+        // as this will introduce a lot of changes
+        if (!isBigNetwork) {
+            runLoadFlowResultsCompletion(network0, invalidateFlows);
+        }
         profiling.end(Operations.LOAD_FLOW.name());
         int numChangesAfterLoadFlow = network0.getExtension(CgmesModelExtension.class).getCgmesUpdate().changes().size();
-//        System.err.println("changes");
-//        for (IidmChange c : network0.getExtension(CgmesModelExtension.class).getCgmesUpdater().changes()) {
-//            System.err.println("  " + c.getVariant() + " " + c.getAttribute() + " " + c.getIdentifiableName() + " " + c.getNewValue());
-//        }
+        if (DIRTY_DEBUG_CHANGES) {
+            System.err.println("changes");
+            for (IidmChange c : network0.getExtension(CgmesModelExtension.class).getCgmesUpdate().changes()) {
+                System.err.println("  " + c.getVariant() + " " + c.getAttribute() + " " + c.getIdentifiableName() + " " + c.getNewValue());
+            }
+        }
+        // XXX LUMA report profiling before export to have data even if the write fails
+        // (it fails if we allow all changes in RTE test case)
+        reportProfiling(ds, network0, impl, numChangesBeforeLoadFlow, numChangesAfterLoadFlow, invalidateFlows, profiling);
 
         DataSource tmp = tmpDataSource(impl);
         CgmesExport e = new CgmesExport(profiling);
         e.export(network0, new Properties(), tmp);
 
         // import new network to compare
-        Network network1 = cgmesImport.importData(tmp, importParameters(impl));
+        cgmesImport.setProfiling(null);
+        Network network1 = cgmesImport.importData(tmp, NetworkFactory.findDefault(), importParameters(impl));
         runLoadFlowResultsCompletion(network1, false);
 
-        compare(network0, network1);
+        // XXX LUMA report profiling before network compare to have results
+        // even if comparison fails
+        // (it fails if we have SvInjections,
+        // because new IIDM loads are created for them,
+        // and they do not exist in original network)
         reportProfiling(ds, network0, impl, numChangesBeforeLoadFlow, numChangesAfterLoadFlow, invalidateFlows, profiling);
+
+        compare(network0, network1);
     }
 
     private void compare(Network network0, Network network1) {
@@ -240,7 +260,7 @@ public class CgmesUpdateTester {
         LOG.info("    changes before LoadFlow run : " + numChangesBeforeLoadFlow);
         LOG.info("    invalidate flows before LF  : " + invalidateFlows);
         LOG.info("    changes after LoadFlow run  : " + numChangesAfterLoadFlow);
-        profiling.report();
+        profiling.report(true);
     }
 
     private void runLoadFlowResultsCompletion(Network network) {
@@ -302,7 +322,7 @@ public class CgmesUpdateTester {
 
     private DataSource tmpDataSource(String impl) throws IOException {
 //        Path exportFolder = fileSystem.getPath("impl-" + impl);
-        Path exportFolder = Paths.get(".\\tmp\\", impl);
+        Path exportFolder = Paths.get("./tmp/", impl);
         if (Files.exists(exportFolder)) {
             FileUtils.cleanDirectory(exportFolder.toFile());
         }
@@ -318,4 +338,6 @@ public class CgmesUpdateTester {
     private static CgmesImport cgmesImport;
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesUpdateTester.class);
+    private static final boolean DIRTY_DEBUG_CHANGES = false;
+
 }
