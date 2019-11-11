@@ -1,65 +1,24 @@
 package com.powsybl.cgmes.conversion.update;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
-import com.google.common.collect.Multimap;
 import com.powsybl.cgmes.conversion.update.elements14.*;
-import com.powsybl.cgmes.model.CgmesModel;
 
-public class IidmToCgmes14 extends AbstractIidmToCgmes {
+public class IidmToCgmes14 extends IidmToCgmes {
 
-    public IidmToCgmes14(IidmChange change, CgmesModel cgmes) {
-        super(change, cgmes);
+    public IidmToCgmes14() {
+        this.converter = converter();
     }
 
-    public IidmToCgmes14(IidmChange change) {
-        super(change);
+    public Map<String, Callable<Map<String, CgmesPredicateDetails>>> converter() {
+
+        final Map<String, Callable<Map<String, CgmesPredicateDetails>>> map = new HashMap<>();
+        map.put("GeneratorImpl", () -> GeneratorToSynchronousMachine.converter());
+        map.put("LoadImpl", () -> LoadToEnergyConsumer.converter());
+
+        return map;
     }
 
-    @Override
-    protected Multimap<String, CgmesPredicateDetails> switcher() {
-//        LOG.info("IIDM instance is: " + getIidmInstanceName());
-        switch (getIidmInstanceName()) {
-            case SUBSTATION_IMPL:
-                SubstationToSubstation sb = new SubstationToSubstation(change, cgmes);
-                mapIidmToCgmesPredicates = sb.mapIidmToCgmesPredicates();
-                break;
-            case BUSBREAKER_VOLTAGELEVEL:
-                VoltageLevelToVoltageLevel vl = new VoltageLevelToVoltageLevel(change, cgmes);
-                mapIidmToCgmesPredicates = vl.mapIidmToCgmesPredicates();
-                break;
-            case CONFIGUREDBUS_IMPL:
-                BusToTopologicalNode btn = new BusToTopologicalNode(change, cgmes);
-                mapIidmToCgmesPredicates = btn.mapIidmToCgmesPredicates();
-                break;
-            case TWOWINDINGS_TRANSFORMER_IMPL:
-                TwoWindingsTransformerToPowerTransformer twpt = new TwoWindingsTransformerToPowerTransformer(change,
-                    cgmes);
-                mapIidmToCgmesPredicates = twpt.mapIidmToCgmesPredicates();
-                break;
-            case GENERATOR_IMPL:
-                GeneratorToSynchronousMachine gsm = new GeneratorToSynchronousMachine(change, cgmes);
-                mapIidmToCgmesPredicates = gsm.mapIidmToCgmesPredicates();
-                break;
-            case LOAD_IMPL:
-                LoadToEnergyConsumer lec = new LoadToEnergyConsumer(change, cgmes);
-                mapIidmToCgmesPredicates = lec.mapIidmToCgmesPredicates();
-                break;
-            case LINE_IMPL:
-                LineToACLineSegment lac = new LineToACLineSegment(change, cgmes);
-                mapIidmToCgmesPredicates = lac.mapIidmToCgmesPredicates();
-                break;
-            case SHUNTCOMPENSATOR_IMPL:
-                ShuntCompensatorToShuntCompensator sc = new ShuntCompensatorToShuntCompensator(change);
-                mapIidmToCgmesPredicates = sc.mapIidmToCgmesPredicates();
-                break;
-            default:
-                LOG.info("This element is not convertable to CGMES");
-        }
-
-        return mapIidmToCgmesPredicates;
-    }
-
-    private static final Logger LOG = LoggerFactory.getLogger(IidmToCgmes14.class);
 }

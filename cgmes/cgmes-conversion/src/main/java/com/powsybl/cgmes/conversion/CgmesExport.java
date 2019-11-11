@@ -35,10 +35,18 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 @AutoService(Exporter.class)
 public class CgmesExport implements Exporter {
+
+    public CgmesExport() {
+        this.profiling = new Profiling();
+    }
+
+    public CgmesExport(Profiling profiling) {
+        this.profiling = profiling;
+    }
+
     @Override
     public void export(Network network, Properties params, DataSource ds) {
 
-        profiling = new Profiling();
         // Right now the network must contain the original CgmesModel
         // In the future it should be possible to export to CGMES
         // directly from an IIDM Network
@@ -56,20 +64,20 @@ public class CgmesExport implements Exporter {
         CgmesModel cgmesSource = ext.getCgmesModel();
         profiling.start();
         CgmesModel cgmes = CgmesModelFactory.cloneCgmes(cgmesSource);
-        profiling.end(String.valueOf(Operations.CLONE_CGMES_TRIPLESTORE));
+        profiling.end(String.valueOf(Operations.TRIPLESTORE_COPY));
 
         String variantId = network.getVariantManager().getWorkingVariantId();
 
-        CgmesUpdate cgmesUpdater = ext.getCgmesUpdater();
+        CgmesUpdate cgmesUpdater = ext.getCgmesUpdate();
         profiling.start();
-        if (cgmesUpdater.getNumberOfChanges() > 0) {
+        if (!cgmesUpdater.changes().isEmpty()) {
             try {
                 cgmesUpdater.update(cgmes, variantId);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        profiling.end(String.valueOf(Operations.UPDATE_CGMES_FROM_IIDM));
+        profiling.end(String.valueOf(Operations.TRIPLESTORE_UPDATE));
         // Clear the previous SV data
         profiling.start();
         cgmes.clear(CgmesSubset.STATE_VARIABLES);
@@ -80,7 +88,7 @@ public class CgmesExport implements Exporter {
 
         profiling.start();
         cgmes.write(ds);
-        profiling.end(String.valueOf(Operations.EXPORT_UPDATED_CGMES));
+        profiling.end(String.valueOf(Operations.WRITE_UPDATED_CGMES));
 
     }
 
@@ -99,8 +107,8 @@ public class CgmesExport implements Exporter {
     }
 
     public enum Operations {
-        LOAD_CGMES_TO_IIDM, RUN_LOAD_FLOW, CLONE_CGMES_TRIPLESTORE, CLONE_VARIANT, UPDATE_CGMES_FROM_IIDM,
-        ADD_STATE_VARIABLES, EXPORT_UPDATED_CGMES;
+        IMPORT_CGMES, SCALING, LOAD_FLOW, TRIPLESTORE_COPY, CLONE_VARIANT, TRIPLESTORE_UPDATE,
+        ADD_STATE_VARIABLES, WRITE_UPDATED_CGMES;
     }
 
     private void addStateVariables(Network n, CgmesModel cgmes) {

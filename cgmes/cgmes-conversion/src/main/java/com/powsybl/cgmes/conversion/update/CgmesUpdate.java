@@ -1,6 +1,13 @@
+/**
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.cgmes.conversion.update;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -9,10 +16,15 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Multimap;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBags;
 
+/**
+ * @author Elena Kaltakova <kaltakovae at aia.es>
+ *
+ */
 public class CgmesUpdate {
 
     public CgmesUpdate(Network network) {
@@ -23,7 +35,7 @@ public class CgmesUpdate {
     }
 
     /**
-     * Update. Prepare triple to pass to SPARQL statement.
+     * Update. Prepare triples for SPARQL Update statement.
      *
      * @throws Exception the exception
      */
@@ -31,36 +43,62 @@ public class CgmesUpdate {
 
         String cimNamespace = cgmes.getCimNamespace();
         String cimVersion = cimNamespace.substring(cimNamespace.lastIndexOf("cim"));
+        Map<String, String> contexts = contexts(cgmes);
+        // XXX LUMA IidmToCgmes iidmToCgmes = new IidmToCgmes(cimVersion);
+        IidmToCgmes iidmToCgmes = new IidmToCgmes(cimVersion);
+
+        int changesSize = changes.size();
+        int changesCounter = 0;
+        System.err.println("numChanges " + changesSize);
         for (IidmChange change : changes) {
+            changesCounter++;
             if (change.getVariant() == null || change.getVariant().equals(variantId)) {
 
-                List<CgmesPredicateDetails> allCgmesDetails = iidmToCgmes(cimVersion, change, cgmes).convert();
+//                List<CgmesPredicateDetails> allCgmesDetails = iidmToCgmes(cimVersion, change, cgmes).convert();
+                // XXX LUMA List<CgmesPredicateDetails> allCgmesDetails =
+                // iidmToCgmes.convert(change, cgmes);
+                CgmesPredicateDetails entry = iidmToCgmes.convert(change, cgmes);
+                try {
+                    PropertyBags result = cgmes.updateCgmes(queryName(change),
+                        contexts.get(entry.getContext()),
+                        cgmes.getBaseName(),
+                        getCgmesChanges(entry, change));
 
-                // we need to iterate over the above map, as for onCreate call there will be
-                // multiples attributes-values pairs.
-                Iterator entries = allCgmesDetails.iterator();
-                while (entries.hasNext()) {
-                    CgmesPredicateDetails entry = (CgmesPredicateDetails) entries.next();
-                    try {
-                        for (String context : cgmes.tripleStore().contextNames()) {
-                            // TODO elena : will need to add a logic to find the right context
-                            if (context.toUpperCase().contains(entry.getContext().toUpperCase())
-                                && !context.toUpperCase().contains("BD")
-                                && !context.toUpperCase().contains("BOUNDARY")) {
+                    LOG.info(result.tabulate());
 
-                                PropertyBags result = cgmes.updateCgmes(queryName(change), context, cgmes.getBaseName(),
-                                    getCgmesChanges(entry, change));
-
-                                LOG.info(result.tabulate());
-                            }
-                        }
-                    } catch (java.lang.NullPointerException e) {
-                        LOG.error("Requested attribute {} is not available for conversion\n{}", change.getAttribute(),
-                            e.getMessage());
-                    }
+                } catch (java.lang.NullPointerException e) {
+                    LOG.error("Requested attribute {} is not available for conversion\n{}", change.getAttribute(),
+                        e.getMessage());
                 }
             }
         }
+    }
+
+    private Map<String, String> contexts(CgmesModel cgmes) {
+        Map<String, String> cmap = new HashMap<>();
+        for (String context : cgmes.tripleStore().contextNames()) {
+            // TODO elena : will need to add a logic to find the right context
+            // XXX LUMA this map can be moved to the top (only relates entry.getContext with
+            // current context in cgmes)
+            if (context.toUpperCase().contains("BD")
+                || context.toUpperCase().contains("BOUNDARY")) {
+                continue;
+            }
+            if (context.toUpperCase().contains("_SSH")) {
+                cmap.put("_SSH", context);
+            }
+            if (context.toUpperCase().contains("_EQ")) {
+                cmap.put("_EQ", context);
+            }
+            if (context.toUpperCase().contains("_SV")) {
+                cmap.put("_SV", context);
+            }
+            if (context.toUpperCase().contains("_TP")) {
+                cmap.put("_TP", context);
+            }
+
+        }
+        return cmap;
     }
 
     private String queryName(IidmChange change) {
@@ -76,15 +114,15 @@ public class CgmesUpdate {
         return queryName;
     }
 
-    private AbstractIidmToCgmes iidmToCgmes(String cimVersion, IidmChange change, CgmesModel cgmes) {
-        AbstractIidmToCgmes iidmToCgmes = null;
-        if (cimVersion.equals("cim14#")) {
-            iidmToCgmes = new IidmToCgmes14(change, cgmes);
-        } else {
-            iidmToCgmes = new IidmToCgmes16(change, cgmes);
-        }
-        return iidmToCgmes;
-    }
+//    private AbstractIidmToCgmes iidmToCgmes(String cimVersion, IidmChange change, CgmesModel cgmes) {
+//        AbstractIidmToCgmes iidmToCgmes = null;
+//        if (cimVersion.equals("cim14#")) {
+//            iidmToCgmes = new IidmToCgmes14(change, cgmes);
+//        } else {
+//            iidmToCgmes = new IidmToCgmes16(change, cgmes);
+//        }
+//        return iidmToCgmes;
+//    }
 
     private Map<String, String> getCgmesChanges(CgmesPredicateDetails entry, IidmChange change) {
         Map<String, String> cgmesChanges = new HashMap<>();
@@ -97,8 +135,8 @@ public class CgmesUpdate {
         return cgmesChanges;
     }
 
-    public int getNumberOfChanges() {
-        return changes.size();
+    public List<IidmChange> changes() {
+        return Collections.unmodifiableList(changes);
     }
 
     private Network network;

@@ -1,10 +1,13 @@
 package com.powsybl.cgmes.conversion.update.elements14;
 
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.ImmutableMap;
+import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.conversion.update.AbstractIidmToCgmes;
 import com.powsybl.cgmes.conversion.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.conversion.update.ConversionMapper;
 import com.powsybl.cgmes.conversion.update.IidmChange;
@@ -13,65 +16,37 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-public class LoadToEnergyConsumer implements ConversionMapper {
+public class LoadToEnergyConsumer extends AbstractIidmToCgmes implements ConversionMapper {
 
-    public LoadToEnergyConsumer(IidmChange change, CgmesModel cgmes) {
-        this.change = change;
-        this.cgmes = cgmes;
-        this.loadResponseCharacteristicId = getLoadResponseCharacteristicId();
+    private LoadToEnergyConsumer() {
     }
 
-    @Override
-    public Multimap<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
+    public static Map<String, CgmesPredicateDetails> converter() {
+        return  Collections.unmodifiableMap(Stream.of(
+            entry("p0", new CgmesPredicateDetails("cim:LoadResponseCharacteristic.pConstantPower", "_EQ", false,
+                value, newSubject)),
+            entry("q0", new CgmesPredicateDetails("cim:LoadResponseCharacteristic.qConstantPower", "_EQ", false,
+                value, newSubject)),
+            entry("exponentModelLRC", new CgmesPredicateDetails(
+                "cim:LoadResponseCharacteristic.exponentModel", "_EQ", false, "false", newSubject)),
+            entry("energyConsumerLoadResponse", new CgmesPredicateDetails("cim:EnergyConsumer.LoadResponse",
+                "_EQ", true, value)),
+            entry("exponentModelLRC", new CgmesPredicateDetails(
+                "cim:LoadResponseCharacteristic.exponentModel", "_EQ", false, "false", newSubject)))
+            .collect(entriesToMap()));
+    }
 
-        final Multimap<String, CgmesPredicateDetails> map = ArrayListMultimap.create();
-        Load newLoad = (Load) change.getIdentifiable();
-
-        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:EnergyConsumer"));
-
-        String name = newLoad.getName();
-        if (name != null) {
-            map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, name));
+    static Map<String, String> getValues(IidmChange change, CgmesModel cgmes) {
+        if (!(change.getIdentifiable() instanceof Load)) {
+            throw new ConversionException("Cannot cast the identifiable into the element");
         }
-
-        String voltageLevelId = newLoad.getTerminal().getVoltageLevel().getId();
-        if (!voltageLevelId.equals("NaN")) {
-            map.put("equipmentContainer", new CgmesPredicateDetails(
-                "cim:Equipment.MemberOf_EquipmentContainer", "_EQ", true, voltageLevelId));
-        }
-
-        map.put("energyConsumerLoadResponse", new CgmesPredicateDetails("cim:EnergyConsumer.LoadResponse",
-            "_EQ", true, loadResponseCharacteristicId));
-
-        /**
-         * Create LoadResponseCharacteristic element
-         */
-        map.put("rdfTypeLRC", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:LoadResponseCharacteristic",
-            loadResponseCharacteristicId));
-
-        if (name != null) {
-            map.put("nameLRC", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, name.concat("_LRC"),
-                loadResponseCharacteristicId));
-        }
-
-        map.put("exponentModelLRC", new CgmesPredicateDetails(
-            "cim:LoadResponseCharacteristic.exponentModel", "_EQ", false, "false", loadResponseCharacteristicId));
-
-        double p0 = newLoad.getP0();
-        if (!String.valueOf(p0).equals("NaN")) {
-            map.put("p0",
-                new CgmesPredicateDetails("cim:LoadResponseCharacteristic.pConstantPower", "_EQ", false,
-                    String.valueOf(p0), loadResponseCharacteristicId));
-        }
-
-        double q0 = newLoad.getQ0();
-        if (!String.valueOf(q0).equals("NaN")) {
-            map.put("q0",
-                new CgmesPredicateDetails("cim:LoadResponseCharacteristic.qConstantPower", "_EQ", false,
-                    String.valueOf(q0), loadResponseCharacteristicId));
-        }
-
-        return map;
+        Load load = (Load) change.getIdentifiable();
+        return ImmutableMap.of(
+            "name", load.getName(),
+            "voltageLevelId", load.getTerminal().getVoltageLevel().getId(),
+            "p0", String.valueOf(load.getP0()),
+            "q0", String.valueOf(load.getQ0()),
+            "newSubject", getLoadResponseCharacteristicId(change.getIdentifiableId(), cgmes.energyConsumers()));
     }
 
     /**
@@ -79,12 +54,8 @@ public class LoadToEnergyConsumer implements ConversionMapper {
      * returns the id
      *
      */
-    private String getLoadResponseCharacteristicId() {
-        String currId = change.getIdentifiableId();
-        PropertyBags energyConsumers = cgmes.energyConsumers();
-        Iterator i = energyConsumers.iterator();
-        while (i.hasNext()) {
-            PropertyBag pb = (PropertyBag) i.next();
+    static String getLoadResponseCharacteristicId(String currId, PropertyBags energyConsumers) {
+        for (PropertyBag pb : energyConsumers) {
             if (pb.getId("EnergyConsumer").equals(currId)) {
                 return pb.getId("LoadResponse");
             } else {
@@ -93,9 +64,4 @@ public class LoadToEnergyConsumer implements ConversionMapper {
         }
         return UUID.randomUUID().toString();
     }
-
-    private IidmChange change;
-    private CgmesModel cgmes;
-    private String loadResponseCharacteristicId;
-
 }

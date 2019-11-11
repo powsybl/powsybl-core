@@ -21,16 +21,16 @@ public class CgmesModelExtension extends AbstractExtension<Network> {
     private final CgmesModel cgmes;
     private final CgmesUpdate cgmesUpdate;
 
-    public CgmesModelExtension(CgmesModel cgmes, CgmesUpdate cgmesUpdater) {
+    public CgmesModelExtension(CgmesModel cgmes, CgmesUpdate cgmesUpdate) {
         this.cgmes = Objects.requireNonNull(cgmes);
-        this.cgmesUpdate = Objects.requireNonNull(cgmesUpdater);
+        this.cgmesUpdate = Objects.requireNonNull(cgmesUpdate);
     }
 
     public CgmesModel getCgmesModel() {
         return cgmes;
     }
 
-    public CgmesUpdate getCgmesUpdater() {
+    public CgmesUpdate getCgmesUpdate() {
         return cgmesUpdate;
     }
 

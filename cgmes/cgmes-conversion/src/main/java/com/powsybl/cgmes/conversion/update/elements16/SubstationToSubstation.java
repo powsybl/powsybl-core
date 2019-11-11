@@ -1,47 +1,44 @@
 package com.powsybl.cgmes.conversion.update.elements16;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.ImmutableMap;
+import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.conversion.update.AbstractIidmToCgmes;
 import com.powsybl.cgmes.conversion.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.conversion.update.ConversionMapper;
 import com.powsybl.cgmes.conversion.update.IidmChange;
-import com.powsybl.cgmes.conversion.update.IidmToCgmes16;
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Substation;
 
-public class SubstationToSubstation extends IidmToCgmes16 implements ConversionMapper {
+public class SubstationToSubstation extends AbstractIidmToCgmes implements ConversionMapper {
 
-    public SubstationToSubstation(IidmChange change) {
-        super(change);
+    private SubstationToSubstation() {
     }
 
-    @Override
-    public Multimap<String, CgmesPredicateDetails> mapIidmToCgmesPredicates() {
+    public static Map<String, CgmesPredicateDetails> converter() {
+        return  Collections.unmodifiableMap(Stream.of(
+            entry("country", new CgmesPredicateDetails("cim:Substation.Region", "_EQ", true, value)),
+            entry("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:Substation")))
+            .collect(entriesToMap()));
+    }
 
-        final Multimap<String, CgmesPredicateDetails> map = ArrayListMultimap.create();
-        Substation newSubstation = (Substation) change.getIdentifiable();
-
-        map.put("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false, "cim:Substation"));
-
-        String name = newSubstation.getName();
-        if (name != null) {
-            map.put("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, name));
+    static Map<String, String> getValues(IidmChange change, CgmesModel cgmes) {
+        if (!(change.getIdentifiable() instanceof Substation)) {
+            throw new ConversionException("Cannot cast the identifiable into the element");
         }
-
-        Optional<Country> country = newSubstation.getCountry();
-        if (country.isPresent()) {
-            map.put("country",
-                new CgmesPredicateDetails("cim:Substation.Region", "_EQ", true, country.get().toString()));
+        Substation substation = (Substation) change.getIdentifiable();
+        Optional<Country> country = substation.getCountry();
+        if (! country.isPresent()) {
+            throw new ConversionException("Cannot cast the identifiable into the element");
         }
-//         TODO elena fix Region/SubRegion/Country
-//        if (country.isPresent()) {
-//            map.put("subRegionName",
-//                new CgmesPredicateDetails("cim:SubGeographicalRegion.Region", "_EQ", true, country.get().toString()));
-//        }
-
-        return map;
+        return ImmutableMap.of(
+            "name", substation.getName(),
+            "country", country.get().toString());
     }
 
 }
