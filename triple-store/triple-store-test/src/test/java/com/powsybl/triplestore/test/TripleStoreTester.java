@@ -92,7 +92,6 @@ public class TripleStoreTester {
             expected.keySet()
                 .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
         }
-
     }
 
     void testUpdate(String queryText) {

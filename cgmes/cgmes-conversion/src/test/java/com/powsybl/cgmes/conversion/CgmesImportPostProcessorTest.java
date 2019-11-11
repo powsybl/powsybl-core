@@ -10,7 +10,6 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.model.test.TestGridModelResources;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.triplestore.api.TripleStore;
@@ -54,15 +53,12 @@ public class CgmesImportPostProcessorTest {
 
     private TestGridModelResources modelResources;
 
-    private InMemoryPlatformConfig platformConfig;
-
     private final List<String> activatedPostProcessorNames = new ArrayList<>();
 
     @Before
     public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         modelResources = CgmesConformity1Catalog.microGridBaseCaseBE();
-        platformConfig = new InMemoryPlatformConfig(fileSystem);
     }
 
     @After
@@ -73,13 +69,13 @@ public class CgmesImportPostProcessorTest {
 
     @Test
     public void testParameters() {
-        CgmesImport cgmesImport = new CgmesImport(platformConfig, Collections.emptyList());
+        CgmesImport cgmesImport = new CgmesImport(Collections.emptyList());
         assertTrue(cgmesImport.getParameters().stream().map(Parameter::getName).collect(Collectors.toSet()).contains("iidm.import.cgmes.post-processors"));
     }
 
     @Test
     public void testEmpty() {
-        CgmesImport cgmesImport = new CgmesImport(platformConfig, Collections.singletonList(new FakeCgmesImportPostProcessor("foo")));
+        CgmesImport cgmesImport = new CgmesImport(Collections.singletonList(new FakeCgmesImportPostProcessor("foo")));
         Properties properties = new Properties();
         cgmesImport.importData(modelResources.dataSource(), properties);
         assertTrue(activatedPostProcessorNames.isEmpty());
@@ -87,7 +83,7 @@ public class CgmesImportPostProcessorTest {
 
     @Test
     public void testList() {
-        CgmesImport cgmesImport = new CgmesImport(platformConfig, Arrays.asList(new FakeCgmesImportPostProcessor("foo"),
+        CgmesImport cgmesImport = new CgmesImport(Arrays.asList(new FakeCgmesImportPostProcessor("foo"),
                                                                                 new FakeCgmesImportPostProcessor("bar"),
                                                                                 new FakeCgmesImportPostProcessor("baz")));
         Properties properties = new Properties();

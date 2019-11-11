@@ -59,6 +59,10 @@ public class CgmesImport implements Importer {
                 platformConfig.getConfigDir().resolve(FORMAT).resolve("boundary").toString());
     }
 
+    public CgmesImport(List<CgmesImportPostProcessor> postProcessors) {
+        this(PlatformConfig.defaultConfig(), postProcessors);
+    }
+
     public CgmesImport(PlatformConfig platformConfig) {
         this(platformConfig, new ServiceLoaderCache<>(CgmesImportPostProcessor.class).getServices());
     }
