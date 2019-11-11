@@ -22,7 +22,7 @@ public class NodeCalcResolver extends NodeCalcCloner<Void> {
 
     public static NodeCalc resolve(NodeCalc nodeCalc, Map<String, Integer> timeSeriesNums) {
         Objects.requireNonNull(nodeCalc);
-        return NodeCalcVisitors.visit(nodeCalc, null, new NodeCalcResolver(timeSeriesNums));
+        return nodeCalc.accept(new NodeCalcResolver(timeSeriesNums), null, 0);
     }
 
     @Override
