@@ -24,16 +24,11 @@ public class TripleStoreUpdateTest {
     @Before
     public void setUp() {
         queries = new QueryCatalog("foaf/foaf.sparql");
-        String base = "foo:foaf";
-        String[] inputs = {"foaf/abc-nicks.ttl", "foaf/abc-lastNames.ttl" };
-        tester = new TripleStoreTester(
-            TripleStoreFactory.allImplementations(), base, inputs);
-        tester.load();
-        tester.createCopies();
     }
 
     @Test
     public void testInsert() {
+        TripleStoreTester tester = createTester();
         Expected expectedContents = new Expected().expect("nick", "SweetCaroline", "Wonderland");
         tester.testQuery(queries.get("selectNickName"), expectedContents);
         tester.testUpdate(queries.get("insertNickName"));
@@ -43,6 +38,7 @@ public class TripleStoreUpdateTest {
 
     @Test
     public void testDelete() {
+        TripleStoreTester tester = createTester();
         Expected expectedContents = new Expected().expect("lastName", "Channing", "Liddell", "Marley");
         tester.testQuery(queries.get("selectLastName"), expectedContents);
         tester.testUpdate(queries.get("deleteLastName"));
@@ -52,6 +48,7 @@ public class TripleStoreUpdateTest {
 
     @Test
     public void testUpdate() {
+        TripleStoreTester tester = createTester();
         Expected expectedContents = new Expected()
             .expect("lastName", "Marley")
             .expect("person", "http://example/bob");
@@ -65,6 +62,7 @@ public class TripleStoreUpdateTest {
 
     @Test
     public void testUpdateTwoGraphs() {
+        TripleStoreTester tester = createTester();
         Expected expectedContents = new Expected()
             .expect("lastName", "Channing", "Liddell", "Marley")
             .expect("person",
@@ -90,7 +88,12 @@ public class TripleStoreUpdateTest {
     }
 
     @Test
-    public void testUpdateCopyNotOrigin() {
+    public void testUpdateOnlyModifiesCopiedTriplestore() {
+        TripleStoreTester tester = createTester();
+        tester.createCopies();
+        // Check that an update operation applied to a copied triplestore
+        // do not change the source triplestore, only the copy
+
         Expected expectedContents = new Expected().expect("nick", "SweetCaroline", "Wonderland");
         tester.testQuery(queries.get("selectNickName"), expectedContents);
         tester.testQueryOnCopies(queries.get("selectNickName"), expectedContents);
@@ -102,9 +105,20 @@ public class TripleStoreUpdateTest {
 
     @Test(expected = TripleStoreException.class)
     public void testMalformedQuery() {
-        tester.testUpdateOnCopies(queries.get("malformedQuery"));
+        TripleStoreTester tester = createTester();
+        tester.testUpdate(queries.get("malformedQuery"));
     }
 
-    private static TripleStoreTester tester;
+    private static TripleStoreTester createTester() {
+        // A new tester with "fresh" data is created for every test,
+        // so changes made to the triplestores in one test do no impact other tests
+        String base = "foo:foaf";
+        String[] inputs = {"foaf/abc-nicks.ttl", "foaf/abc-lastNames.ttl"};
+        TripleStoreTester tester = new TripleStoreTester(
+            TripleStoreFactory.allImplementations(), base, inputs);
+        tester.load();
+        return tester;
+    }
+
     private static QueryCatalog queries;
 }
