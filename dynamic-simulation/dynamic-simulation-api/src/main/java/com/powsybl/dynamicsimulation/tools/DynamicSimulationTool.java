@@ -147,8 +147,7 @@ public class DynamicSimulationTool implements Tool {
         try (TableFormatter formatter = formatterFactory.create(writer,
             "dynamic simulation results",
             formatterConfig,
-            new Column("Result"),
-            new Column("Metrics"))) {
+            new Column("Result"))) {
             formatter.writeCell(result.isOk());
         } catch (IOException e) {
             throw new UncheckedIOException(e);

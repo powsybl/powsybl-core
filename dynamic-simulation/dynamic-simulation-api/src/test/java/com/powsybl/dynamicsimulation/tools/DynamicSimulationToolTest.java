@@ -63,11 +63,11 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
         String expectedOut = String.join(System.lineSeparator(),
                 "Loading network '/network.xiidm'",
                 "dynamic simulation results:",
-                "+--------+---------+",
-                "| Result | Metrics |",
-                "+--------+---------+",
-                "| true   |         |",
-                "+--------+---------+");
+                "+--------+",
+                "| Result |",
+                "+--------+",
+                "| true   |",
+                "+--------+");
         assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm"}, 0, expectedOut, "");
     }
 }
