@@ -23,8 +23,15 @@ public class TripleStoreFactoryServiceRDF4J implements TripleStoreFactoryService
     }
 
     @Override
+    public TripleStore copy(TripleStore source) {
+        TripleStore ts = new TripleStoreRDF4J();
+        ts.add(source);
+        return ts;
+    }
+
+    @Override
     public String getImplementationName() {
-        return "rdf4j";
+        return TripleStoreRDF4J.NAME;
     }
 
     @Override
