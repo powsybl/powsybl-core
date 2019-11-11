@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.dynamic.simulation.json;
+package com.powsybl.dynamicsimulation.json;
 
 import java.io.IOException;
 
@@ -12,7 +12,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.dynamic.simulation.DynamicSimulationResult;
+import com.powsybl.dynamicsimulation.DynamicSimulationResult;
+import com.powsybl.dynamicsimulation.json.DynamicSimulationResultDeserializer;
+import com.powsybl.dynamicsimulation.json.DynamicSimulationResultSerializer;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>

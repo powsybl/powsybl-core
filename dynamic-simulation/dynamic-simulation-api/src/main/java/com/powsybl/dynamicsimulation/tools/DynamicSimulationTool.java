@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.dynamic.simulation.tools;
+package com.powsybl.dynamicsimulation.tools;
 
 import static com.powsybl.iidm.tools.ConversionToolUtils.createExportParameterOption;
 import static com.powsybl.iidm.tools.ConversionToolUtils.createExportParametersFileOption;
@@ -30,10 +30,10 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.dynamic.simulation.DynamicSimulation;
-import com.powsybl.dynamic.simulation.DynamicSimulationParameters;
-import com.powsybl.dynamic.simulation.DynamicSimulationResult;
-import com.powsybl.dynamic.simulation.json.DynamicSimulationResultSerializer;
+import com.powsybl.dynamicsimulation.DynamicSimulation;
+import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
+import com.powsybl.dynamicsimulation.DynamicSimulationResult;
+import com.powsybl.dynamicsimulation.json.DynamicSimulationResultSerializer;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;

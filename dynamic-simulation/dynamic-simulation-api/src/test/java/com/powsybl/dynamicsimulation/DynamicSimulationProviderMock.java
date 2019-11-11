@@ -4,21 +4,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.dynamic.simulation;
+package com.powsybl.dynamicsimulation;
 
 import java.util.concurrent.CompletableFuture;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
+import com.powsybl.dynamicsimulation.DynamicSimulationProvider;
+import com.powsybl.dynamicsimulation.DynamicSimulationResult;
+import com.powsybl.dynamicsimulation.DynamicSimulationResultImpl;
 import com.powsybl.iidm.network.Network;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public class AnotherDynamicSimulationProviderMock implements DynamicSimulationProvider {
+@AutoService(DynamicSimulationProvider.class)
+public class DynamicSimulationProviderMock implements DynamicSimulationProvider {
 
     @Override
     public String getName() {
-        return "AnotherDynamicSimulationMock";
+        return "DynamicSimulationMock";
     }
 
     @Override

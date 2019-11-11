@@ -4,8 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.dynamic.simulation.tools;
+package com.powsybl.dynamicsimulation.tools;
 
+import com.powsybl.dynamicsimulation.tools.DynamicSimulationTool;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
