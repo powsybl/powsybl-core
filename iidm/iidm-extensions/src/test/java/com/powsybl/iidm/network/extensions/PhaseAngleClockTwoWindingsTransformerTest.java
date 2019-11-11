@@ -36,22 +36,25 @@ public class PhaseAngleClockTwoWindingsTransformerTest {
     @Test
     public void testEnd() {
         PhaseAngleClockTwoWindingsTransformer pac = new PhaseAngleClockTwoWindingsTransformer(transformer, 11);
-        assertEquals(11, pac.getPhaseAngleClock());
-        assertEquals("NHV2_NLOAD", pac.getExtendable().getId());
+        transformer.addExtension(PhaseAngleClockTwoWindingsTransformer.class, pac);
+        PhaseAngleClockTwoWindingsTransformer pacOut = transformer.getExtension(PhaseAngleClockTwoWindingsTransformer.class);
+        assertEquals(11, pacOut.getPhaseAngleClock());
+        assertEquals("NHV2_NLOAD", pacOut.getExtendable().getId());
     }
 
     @Test
     public void testError1() {
         exception.expect(PowsyblException.class);
         exception.expectMessage("Unexpected value for phaseAngleClock: 25");
-        new PhaseAngleClockTwoWindingsTransformer(transformer, 25);
+        PhaseAngleClockTwoWindingsTransformer pac = new PhaseAngleClockTwoWindingsTransformer(transformer, 25);
+        transformer.addExtension(PhaseAngleClockTwoWindingsTransformer.class, pac);
     }
 
     @Test
     public void testError2() {
         exception.expect(PowsyblException.class);
         exception.expectMessage("Unexpected value for phaseAngleClock: -1");
-        new PhaseAngleClockTwoWindingsTransformer(transformer, -1);
+        PhaseAngleClockTwoWindingsTransformer pac = new PhaseAngleClockTwoWindingsTransformer(transformer, -1);
+        transformer.addExtension(PhaseAngleClockTwoWindingsTransformer.class, pac);
     }
-
 }
