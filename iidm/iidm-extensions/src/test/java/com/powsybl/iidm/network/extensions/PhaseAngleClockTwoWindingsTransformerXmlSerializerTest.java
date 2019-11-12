@@ -43,5 +43,4 @@ public class PhaseAngleClockTwoWindingsTransformerXmlSerializerTest extends Abst
         assertNotNull(pacXml);
         assertEquals(3, pacXml.getPhaseAngleClock());
     }
-
 }

@@ -45,8 +45,8 @@ public class PhaseAngleClockTwoWindingsTransformerTest {
     @Test
     public void testError1() {
         exception.expect(PowsyblException.class);
-        exception.expectMessage("Unexpected value for phaseAngleClock: 25");
-        PhaseAngleClockTwoWindingsTransformer pac = new PhaseAngleClockTwoWindingsTransformer(transformer, 25);
+        exception.expectMessage("Unexpected value for phaseAngleClock: 12");
+        PhaseAngleClockTwoWindingsTransformer pac = new PhaseAngleClockTwoWindingsTransformer(transformer, 12);
         transformer.addExtension(PhaseAngleClockTwoWindingsTransformer.class, pac);
     }
 
