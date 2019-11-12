@@ -179,6 +179,11 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
     }
 
     @Override
+    public Set<TapChanger> getAllTapChangersOnLeg() {
+        return getAllTapChangers();
+    }
+
+    @Override
     public NetworkImpl getNetwork() {
         return substation.getNetwork();
     }

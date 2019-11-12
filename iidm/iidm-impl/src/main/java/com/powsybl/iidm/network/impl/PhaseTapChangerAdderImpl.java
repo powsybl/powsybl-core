@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -197,6 +199,13 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         tapChangers.addAll(parent.getAllTapChangers());
         tapChangers.remove(parent.getPhaseTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
+
+        if (parent instanceof ThreeWindingsTransformer) {
+            Set<TapChanger> tapChangersOnLeg = new HashSet<TapChanger>();
+            tapChangersOnLeg.addAll(parent.getAllTapChangersOnLeg());
+            tapChangersOnLeg.remove(parent.getPhaseTapChanger());
+            ValidationUtil.checkOnlyOneTapChangerInThreeWindingsTranformer(parent, tapChangersOnLeg);
+        }
 
         parent.setPhaseTapChanger(tapChanger);
         return tapChanger;

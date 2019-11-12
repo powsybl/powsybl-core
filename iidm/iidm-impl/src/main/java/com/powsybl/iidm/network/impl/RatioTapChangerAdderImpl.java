@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -174,7 +176,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
-        ValidationUtil.checkRatioTapChangerRegulation(parent, loadTapChangingCapabilities, regulating, regulationTerminal, targetV, getNetwork());
+        ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, regulationTerminal, targetV, getNetwork());
         if (!Double.isNaN(targetDeadband) && targetDeadband < 0) {
             throw new ValidationException(parent, "Unexpected value for target deadband of ratio tap changer: " + targetDeadband);
         }
@@ -186,6 +188,13 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         tapChangers.addAll(parent.getAllTapChangers());
         tapChangers.remove(parent.getRatioTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
+
+        if (parent instanceof ThreeWindingsTransformer) {
+            Set<TapChanger> tapChangersOnLeg = new HashSet<TapChanger>();
+            tapChangersOnLeg.addAll(parent.getAllTapChangersOnLeg());
+            tapChangersOnLeg.remove(parent.getRatioTapChanger());
+            ValidationUtil.checkOnlyOneTapChangerInThreeWindingsTranformer(parent, tapChangersOnLeg);
+        }
 
         parent.setRatioTapChanger(tapChanger);
         return tapChanger;

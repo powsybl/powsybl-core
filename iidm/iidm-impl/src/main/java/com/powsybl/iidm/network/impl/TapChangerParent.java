@@ -21,4 +21,6 @@ interface TapChangerParent extends Validable {
     Identifiable getTransformer();
 
     Set<TapChanger> getAllTapChangers();
+
+    Set<TapChanger> getAllTapChangersOnLeg();
 }

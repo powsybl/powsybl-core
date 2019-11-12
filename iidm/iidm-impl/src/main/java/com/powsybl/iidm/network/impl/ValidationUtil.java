@@ -11,11 +11,15 @@ import com.powsybl.iidm.network.*;
 import java.util.Set;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class ValidationUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveCapabilityCurveAdderImpl.class);
 
     private ValidationUtil() {
     }
@@ -279,7 +283,7 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkRatioTapChangerRegulation(Validable validable, boolean loadTapChangingCapabilities, boolean regulating,
+    static void checkRatioTapChangerRegulation(Validable validable, boolean regulating,
                                                Terminal regulationTerminal, double targetV, Network network) {
         if (regulating) {
             if (Double.isNaN(targetV)) {
@@ -326,6 +330,14 @@ public final class ValidationUtil {
             if (enabled > 0) {
                 throw new ValidationException(validable, "Only one regulating control enabled is allowed");
             }
+        }
+    }
+
+    public static void checkOnlyOneTapChangerInThreeWindingsTranformer(Validable validable,
+        Set<TapChanger> tapChangersOnLegNotIncludingTheModified) {
+        long tapChangers = tapChangersOnLegNotIncludingTheModified.stream().count();
+        if (tapChangers > 0) {
+            LOGGER.warn("{}more than one tap changer on the leg", validable);
         }
     }
 

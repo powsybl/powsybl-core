@@ -423,20 +423,18 @@ public class Comparison {
         comparePhaseAngleClock(expected.getExtension(PhaseAngleClockTwoWindingsTransformer.class), actual.getExtension(PhaseAngleClockTwoWindingsTransformer.class));
     }
 
-    private void comparePhaseAngleClock(PhaseAngleClockTwoWindingsTransformer expected,
-        PhaseAngleClockTwoWindingsTransformer actual) {
-        if (expected == null) {
-            if (actual != null) {
-                diff.unexpected("phaseAngleClock2wt");
-                return;
-            }
+    private void comparePhaseAngleClock(PhaseAngleClockTwoWindingsTransformer expected, PhaseAngleClockTwoWindingsTransformer actual) {
+        if (expected == null && actual == null) {
             return;
-        }
-        if (actual == null) {
+        } else if (expected == null && actual != null) {
             diff.unexpected("phaseAngleClock2wt");
             return;
+        } else if (expected != null && actual == null) {
+            diff.unexpected("phaseAngleClock2wt");
+            return;
+        } else {
+            diff.compare("phaseAngleClock", expected.getPhaseAngleClock(), actual.getPhaseAngleClock());
         }
-        diff.compare("phaseAngleClock", expected.getPhaseAngleClock(), actual.getPhaseAngleClock());
     }
 
     private void compareThreeWindingsTransformers(ThreeWindingsTransformer expected,
@@ -447,21 +445,19 @@ public class Comparison {
         comparePhaseAngleClock(expected.getExtension(PhaseAngleClockThreeWindingsTransformer.class), actual.getExtension(PhaseAngleClockThreeWindingsTransformer.class));
     }
 
-    private void comparePhaseAngleClock(PhaseAngleClockThreeWindingsTransformer expected,
-        PhaseAngleClockThreeWindingsTransformer actual) {
-        if (expected == null) {
-            if (actual != null) {
-                diff.unexpected("phaseAngleClock3wt");
-                return;
-            }
+    private void comparePhaseAngleClock(PhaseAngleClockThreeWindingsTransformer expected, PhaseAngleClockThreeWindingsTransformer actual) {
+        if (expected == null && actual == null) {
             return;
-        }
-        if (actual == null) {
+        } else if (expected == null && actual != null) {
             diff.unexpected("phaseAngleClock3wt");
             return;
+        } else if (expected != null && actual == null) {
+            diff.unexpected("phaseAngleClock3wt");
+            return;
+        } else {
+            diff.compare("phaseAngleClockLeg2", expected.getPhaseAngleClockLeg2(), actual.getPhaseAngleClockLeg2());
+            diff.compare("phaseAngleClockLeg3", expected.getPhaseAngleClockLeg3(), actual.getPhaseAngleClockLeg3());
         }
-        diff.compare("phaseAngleClockLeg2", expected.getPhaseAngleClockLeg2(), actual.getPhaseAngleClockLeg2());
-        diff.compare("phaseAngleClockLeg3", expected.getPhaseAngleClockLeg3(), actual.getPhaseAngleClockLeg3());
     }
 
     private void compareLeg(ThreeWindingsTransformer.Leg expected, ThreeWindingsTransformer.Leg actual,
