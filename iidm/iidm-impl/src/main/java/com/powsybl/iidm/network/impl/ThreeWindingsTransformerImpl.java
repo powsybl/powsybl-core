@@ -230,6 +230,18 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             }
             return tapChangers;
         }
+
+        @Override
+        public Set<TapChanger> getAllTapChangersOnLeg() {
+            Set<TapChanger> tapChangers = new HashSet<TapChanger>();
+            if (ratioTapChanger != null) {
+                tapChangers.add(ratioTapChanger);
+            }
+            if (phaseTapChanger != null) {
+                tapChangers.add(phaseTapChanger);
+            }
+            return tapChangers;
+        }
     }
 
     private final LegImpl leg1;
