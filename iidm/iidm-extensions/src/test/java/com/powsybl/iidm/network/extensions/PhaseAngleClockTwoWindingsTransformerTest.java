@@ -40,6 +40,11 @@ public class PhaseAngleClockTwoWindingsTransformerTest {
         PhaseAngleClockTwoWindingsTransformer pacOut = transformer.getExtension(PhaseAngleClockTwoWindingsTransformer.class);
         assertEquals(11, pacOut.getPhaseAngleClock());
         assertEquals("NHV2_NLOAD", pacOut.getExtendable().getId());
+
+        PhaseAngleClockTwoWindingsTransformer pacIn = transformer.getExtension(PhaseAngleClockTwoWindingsTransformer.class);
+        pacIn.setPhaseAngleClock(6);
+        pacOut = transformer.getExtension(PhaseAngleClockTwoWindingsTransformer.class);
+        assertEquals(6, pacOut.getPhaseAngleClock());
     }
 
     @Test
