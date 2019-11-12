@@ -119,6 +119,13 @@ public interface TripleStore {
      */
     Set<String> contextNames();
 
+      /**
+     * Perform a SPARQL update on the Triplestore.
+     *
+     * @param query the text of the query, written in SPARQL Update language
+     */
+    void update(String queryText);
+
     /**
      * Add a namespace to the triple store
      *
