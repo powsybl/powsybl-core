@@ -45,7 +45,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
                 "StaticVarCompensator already added, IIDM StaticVarCompensator Id: " + iidmId);
         }
 
-        RegulatingControlForStaticVarCompensator rc = new RegulatingControlForStaticVarCompensator();
+        CgmesRegulatingControlForStaticVarCompensator rc = new CgmesRegulatingControlForStaticVarCompensator();
         rc.regulatingControlId = rcId;
         rc.controlEnabledProperty = controlEnabledProperty;
         rc.defaultTargetVoltage = defaultTargetVoltage;
@@ -60,11 +60,11 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     private void apply(StaticVarCompensator svc) {
-        RegulatingControlForStaticVarCompensator rd = mapping.get(svc.getId());
+        CgmesRegulatingControlForStaticVarCompensator rd = mapping.get(svc.getId());
         apply(svc, rd);
     }
 
-    private void apply(StaticVarCompensator svc, RegulatingControlForStaticVarCompensator rc) {
+    private void apply(StaticVarCompensator svc, CgmesRegulatingControlForStaticVarCompensator rc) {
         if (rc == null) {
             return;
         }
@@ -89,8 +89,9 @@ public class RegulatingControlMappingForStaticVarCompensators {
             return;
         }
 
+        boolean okSet = false;
         if (context.terminalMapping().areAssociated(control.cgmesTerminal, control.topologicalNode)) {
-            setRegulatingControl(control, svc);
+            okSet = setRegulatingControl(control, svc);
         } else {
             context.pending(
                 String.format(
@@ -100,20 +101,24 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
             setDefaultRegulatingControl(rc, svc);
         }
+        control.setCorrectlySet(okSet);
     }
 
-    private void setRegulatingControl(RegulatingControl control, StaticVarCompensator svc) {
+    private boolean setRegulatingControl(RegulatingControl control, StaticVarCompensator svc) {
 
         double targetVoltage = Double.NaN;
         double targetReactivePower = Double.NaN;
         StaticVarCompensator.RegulationMode regulationMode;
 
+        boolean okSet = false;
         if (RegulatingControlMapping.isControlModeVoltage(control.mode.toLowerCase())) {
             regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
             targetVoltage = control.targetValue;
+            okSet = true;
         } else if (isControlModeReactivePower(control.mode.toLowerCase())) {
             regulationMode = StaticVarCompensator.RegulationMode.REACTIVE_POWER;
             targetReactivePower = control.targetValue;
+            okSet = true;
         } else {
             context.fixed("SVCControlMode", String.format("Invalid control mode for static var compensator %s. Regulating control is disabled", svc.getId()));
             regulationMode = StaticVarCompensator.RegulationMode.OFF;
@@ -123,10 +128,10 @@ public class RegulatingControlMappingForStaticVarCompensators {
         svc.setReactivePowerSetPoint(targetReactivePower);
         svc.setRegulationMode(regulationMode);
 
-        control.hasCorrectlySetEq(svc.getId());
+        return okSet;
     }
 
-    private void setDefaultRegulatingControl(RegulatingControlForStaticVarCompensator rc, StaticVarCompensator svc) {
+    private void setDefaultRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, StaticVarCompensator svc) {
 
         double targetVoltage = Double.NaN;
         double targetReactivePower = Double.NaN;
@@ -152,7 +157,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         return controlMode != null && controlMode.endsWith("reactivepower");
     }
 
-    private static class RegulatingControlForStaticVarCompensator {
+    private static class CgmesRegulatingControlForStaticVarCompensator {
         String regulatingControlId;
         boolean controlEnabledProperty;
         double defaultTargetVoltage;
@@ -161,6 +166,6 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     private final RegulatingControlMapping parent;
-    private final Map<String, RegulatingControlForStaticVarCompensator> mapping;
+    private final Map<String, CgmesRegulatingControlForStaticVarCompensator> mapping;
     private final Context context;
 }
