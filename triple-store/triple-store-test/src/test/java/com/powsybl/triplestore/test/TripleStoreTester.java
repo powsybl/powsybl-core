@@ -39,6 +39,7 @@ public class TripleStoreTester {
         this.baseName = baseName;
         this.inputResourceNames = inputResourceNames;
         this.tripleStores = new HashMap<>(implementations.size());
+        this.tripleStoreCopies = new HashMap<>(implementations.size());
     }
 
     void load() {
@@ -58,19 +59,43 @@ public class TripleStoreTester {
         }
     }
 
+    void createCopies() {
+        for (String impl : implementations) {
+            TripleStore source = tripleStores.get(impl);
+            TripleStore target = TripleStoreFactory.copy(source);
+            tripleStoreCopies.put(impl, target);
+        }
+    }
+
     void testQuery(String queryText, Expected expected) {
         for (String impl : implementations) {
             PropertyBags results = tripleStores.get(impl).query(queryText);
-            logResults(impl, results, expected);
+            testQueryResults(impl, results, expected);
+        }
+    }
+
+    void testQueryOnCopies(String queryText, Expected expected) {
+        for (String impl : implementations) {
+            PropertyBags results = tripleStoreCopies.get(impl).query(queryText);
+            testQueryResults(impl, results, expected);
+        }
+    }
+
+    void testQueryResults(String impl, PropertyBags results, Expected expected) {
+        logResults(impl, results, expected);
+        if (expected.isEmpty()) {
+            assertTrue(results.isEmpty());
+        } else {
             assertTrue(!results.isEmpty());
             int size = expected.values().iterator().next().size();
             assertEquals(size, results.size());
             expected.keySet()
                 .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
         }
+
     }
 
-    public void testClear(String contextName, String namespace) {
+    public void clear(String contextName, String namespace) {
         for (String impl : implementations) {
             TripleStore ts = tripleStores.get(impl);
             Set<String> before = ts.contextNames();
@@ -122,10 +147,19 @@ public class TripleStoreTester {
         }
     }
 
+    TripleStore tripleStore(String impl) {
+        return tripleStores.get(impl);
+    }
+
+    TripleStore tripleStoreCopy(String impl) {
+        return tripleStoreCopies.get(impl);
+    }
+
     private final List<String> implementations;
     private final String baseName;
     private final String[] inputResourceNames;
     private final Map<String, TripleStore> tripleStores;
+    private final Map<String, TripleStore> tripleStoreCopies;
 
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreTester.class);
 }

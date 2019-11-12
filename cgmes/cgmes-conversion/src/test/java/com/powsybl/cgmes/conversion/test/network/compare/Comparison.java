@@ -422,20 +422,18 @@ public class Comparison {
         comparePhaseAngleClock(expected.getExtension(PhaseAngleClockTwoWindingsTransformer.class), actual.getExtension(PhaseAngleClockTwoWindingsTransformer.class));
     }
 
-    private void comparePhaseAngleClock(PhaseAngleClockTwoWindingsTransformer expected,
-        PhaseAngleClockTwoWindingsTransformer actual) {
-        if (expected == null) {
-            if (actual != null) {
-                diff.unexpected("phaseAngleClock");
-                return;
-            }
+    private void comparePhaseAngleClock(PhaseAngleClockTwoWindingsTransformer expected, PhaseAngleClockTwoWindingsTransformer actual) {
+        if (expected == null && actual == null) {
             return;
-        }
-        if (actual == null) {
+        } else if (expected == null && actual != null) {
             diff.unexpected("phaseAngleClock");
             return;
+        } else if (expected != null && actual == null) {
+            diff.unexpected("phaseAngleClock");
+            return;
+        } else {
+            diff.compare("phaseAngleClock", expected.getPhaseAngleClock(), actual.getPhaseAngleClock());
         }
-        diff.compare("phaseAngleClock", expected.getPhaseAngleClock(), actual.getPhaseAngleClock());
     }
 
     private void compareThreeWindingsTransformers(ThreeWindingsTransformer expected,
