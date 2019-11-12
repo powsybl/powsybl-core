@@ -42,7 +42,7 @@ public abstract class AbstractPowsyblTripleStore implements TripleStore {
     // fileFromContext and contextFromFile should be at this level ...
     // But some triple stores use named graphs and other use implementation specific
     // Resources
-    protected String namespaceForContexts() {
+    protected static String namespaceForContexts() {
         return NAMESPACE_FOR_CONTEXTS;
     }
 

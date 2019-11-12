@@ -174,7 +174,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
-        ValidationUtil.checkRatioTapChangerRegulation(parent, loadTapChangingCapabilities, regulating, regulationTerminal, targetV, getNetwork());
+        ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, regulationTerminal, targetV, getNetwork());
         if (!Double.isNaN(targetDeadband) && targetDeadband < 0) {
             throw new ValidationException(parent, "Unexpected value for target deadband of ratio tap changer: " + targetDeadband);
         }
