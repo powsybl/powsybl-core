@@ -33,7 +33,7 @@ public class XmlExporterBaseOneExtensionPerFileTest extends AbstractConverterTes
         properties.put(XMLExporter.EXTENSIONS_LIST, extensionsList);
 
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter(platformConfig).export(network, properties, dataSource);
+        new XMLExporter().export(network, properties, dataSource);
         return dataSource;
     }
 

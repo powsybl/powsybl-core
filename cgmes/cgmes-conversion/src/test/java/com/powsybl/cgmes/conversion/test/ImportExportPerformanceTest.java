@@ -15,7 +15,6 @@ import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -68,7 +67,7 @@ public class ImportExportPerformanceTest {
     }
 
     private void importExport(String ts, ReadOnlyDataSource ds, FileSystem fs) throws IOException {
-        CgmesImport i = new CgmesImport(new InMemoryPlatformConfig(fs));
+        CgmesImport i = new CgmesImport();
         Properties importParameters = new Properties();
         importParameters.put("powsyblTripleStore", ts);
         importParameters.put("storeCgmesModelAsNetworkExtension", "true");

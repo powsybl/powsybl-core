@@ -1,0 +1,2 @@
+timeseries:
+  recursion-threshold: 10

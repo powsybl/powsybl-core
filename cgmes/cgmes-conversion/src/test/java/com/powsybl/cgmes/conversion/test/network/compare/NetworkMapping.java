@@ -54,6 +54,9 @@ public class NetworkMapping {
     }
 
     public boolean equivalent(Identifiable expected, Identifiable actual) {
+        if (expected == null) {
+            return actual == null;
+        }
         Identifiable expected1 = findExpected(actual);
         if (expected1 == null) {
             return false;

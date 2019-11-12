@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
@@ -29,7 +28,7 @@ public class TerminalRefTest extends AbstractConverterTest {
     private final ComputationManager computationManager = Mockito.mock(ComputationManager.class);
     private final ImportConfig importConfig = Mockito.mock(ImportConfig.class);
 
-    private final ImportersLoader loader = new ImportersLoaderList(new XMLImporter(Mockito.mock(PlatformConfig.class)));
+    private final ImportersLoader loader = new ImportersLoaderList(new XMLImporter());
 
     @Test
     public void roundTripTest() throws IOException {

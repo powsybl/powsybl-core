@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -87,9 +86,6 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         }
 
         rtca.setLoadTapChangingCapabilities(ltcFlag);
-        if (tx3 != null) {
-            context.regulatingControlMapping().setRegulatingControl(p, terminal(), rtca);
-        }
         rtca.add();
     }
 
@@ -179,7 +175,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
 
     private void addStepsFromStepVoltageIncrement(RatioTapChangerAdder rtca) {
         boolean rtcAtSide1 = rtcAtSide1();
-        if (LOG.isDebugEnabled() && rtcAtSide1) {
+        if (LOG.isDebugEnabled() && rtcAtSide1 && tx2 != null) {
             LOG.debug(
                 "Transformer {} ratio tap changer moved from side 2 to side 1, impedance/admittance corrections",
                 tx2.getId());
@@ -224,26 +220,6 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
             return true;
         }
         return false;
-    }
-
-    private Terminal terminal() {
-        int side = context.tapChangerTransformers().whichSide(id);
-        if (tx2 != null) {
-            if (side == 1) {
-                return tx2.getTerminal1();
-            } else if (side == 2) {
-                return tx2.getTerminal2();
-            }
-        } else if (tx3 != null) {
-            if (side == 1) {
-                // invalid
-            } else if (side == 2) {
-                return tx3.getLeg2().getTerminal();
-            } else if (side == 3) {
-                return tx3.getLeg3().getTerminal();
-            }
-        }
-        return null;
     }
 
     private boolean tabular() {

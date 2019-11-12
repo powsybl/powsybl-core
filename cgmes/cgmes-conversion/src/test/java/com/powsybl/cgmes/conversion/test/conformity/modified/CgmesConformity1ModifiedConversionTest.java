@@ -32,7 +32,6 @@ public class CgmesConformity1ModifiedConversionTest {
     @Before
     public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
-        platformConfig = new InMemoryPlatformConfig(fileSystem);
     }
 
     @After
@@ -42,7 +41,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microBERatioPhaseTabularTest() {
-        Network network = new CgmesImport(platformConfig)
+        Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource(), null);
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543")
                 .getRatioTapChanger();
@@ -70,7 +69,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microBEPtcSide2() {
-        Network network = new CgmesImport(platformConfig)
+        Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEPtcSide2().dataSource(), null);
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
         PhaseTapChanger ptc = twt.getPhaseTapChanger();
@@ -80,7 +79,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microBEUsingSshForRtcPtcEnabled() {
-        Network network = new CgmesImport(platformConfig)
+        Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERtcPtcEnabledBySsh().dataSource(), null);
 
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
@@ -95,7 +94,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microBEReactiveCapabilityCurve() {
-        Network network = new CgmesImport(platformConfig)
+        Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEReactiveCapabilityCurve().dataSource(), null);
         ReactiveLimits rl = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0").getReactiveLimits();
         assertEquals(ReactiveLimitsKind.CURVE, rl.getKind());
@@ -108,7 +107,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microBEReactiveCapabilityCurveOnePoint() {
-        Network network = new CgmesImport(platformConfig)
+        Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEReactiveCapabilityCurveOnePoint().dataSource(), null);
         ReactiveLimits rl = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0").getReactiveLimits();
         assertEquals(ReactiveLimitsKind.MIN_MAX, rl.getKind());
@@ -119,7 +118,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microBEPtcCurrentLimiter() {
-        Network network = new CgmesImport(platformConfig)
+        Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEPtcCurrentLimiter().dataSource(), null);
 
         PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
@@ -129,7 +128,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microBEInvalidRegulatingControl() {
-        Network network = new CgmesImport(platformConfig)
+        Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEInvalidRegulatingControl().dataSource(), null);
 
         Generator generator1 = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
@@ -157,7 +156,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microBEMissingRegulatingControl() {
-        Network network = new CgmesImport(platformConfig)
+        Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEMissingRegulatingControl().dataSource(), null);
 
         Generator generator = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
@@ -181,7 +180,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microBESvInjection() {
-        Network network = new CgmesImport(platformConfig)
+        Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithSvInjection().dataSource(),
                         NetworkFactory.findDefault(), null);
 
@@ -203,7 +202,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microBEInvalidSvInjection() {
-        Network network = new CgmesImport(platformConfig)
+        Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEInvalidSvInjection().dataSource(),
                         NetworkFactory.findDefault(), null);
 
@@ -213,12 +212,12 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microT4InvalidSvcMode() {
-        Network network = new CgmesImport(platformConfig).importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator svc = network.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
         assertEquals(VOLTAGE, svc.getRegulationMode());
 
-        Network modified = new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.microT4BeBbInvalidSvcMode().dataSource(), NetworkFactory.findDefault(), null);
+        Network modified = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbInvalidSvcMode().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator offSvc = modified.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(offSvc);
         assertEquals(OFF, offSvc.getRegulationMode());
@@ -226,14 +225,14 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microT4ReactivePowerSvc() {
-        Network network = new CgmesImport(platformConfig).importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator svc = network.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
         assertEquals(VOLTAGE, svc.getRegulationMode());
         assertEquals(229.5, svc.getVoltageSetPoint(), 0.0);
         assertTrue(Double.isNaN(svc.getReactivePowerSetPoint()));
 
-        Network modified = new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.microT4BeBbReactivePowerSvc().dataSource(), NetworkFactory.findDefault(), null);
+        Network modified = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbReactivePowerSvc().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator reactivePowerSvc = modified.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(reactivePowerSvc);
         assertEquals(REACTIVE_POWER, reactivePowerSvc.getRegulationMode());
@@ -243,17 +242,17 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microT4OffSvc() {
-        Network network = new CgmesImport(platformConfig).importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator svc = network.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
         assertEquals(VOLTAGE, svc.getRegulationMode());
 
-        Network modified1 = new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvc().dataSource(), NetworkFactory.findDefault(), null);
+        Network modified1 = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvc().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator off1 = modified1.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(off1);
         assertEquals(OFF, off1.getRegulationMode());
 
-        Network modified2 = new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControl().dataSource(), NetworkFactory.findDefault(), null);
+        Network modified2 = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControl().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator off2 = modified2.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(off2);
         assertEquals(OFF, off2.getRegulationMode());
@@ -261,13 +260,13 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microT4SvcWithoutRegulatingControl() {
-        Network network = new CgmesImport(platformConfig).importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator svc = network.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
         assertEquals(VOLTAGE, svc.getRegulationMode());
         assertEquals(229.5, svc.getVoltageSetPoint(), 0.0);
 
-        Network modified = new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.microT4BeBbSvcNoRegulatingControl().dataSource(), NetworkFactory.findDefault(), null);
+        Network modified = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbSvcNoRegulatingControl().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator modifiedSvc = modified.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(modifiedSvc);
         assertEquals(VOLTAGE, modifiedSvc.getRegulationMode());
@@ -276,13 +275,13 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microT4ReactivePowerSvcWithMissingRegulatingControl() {
-        Network network = new CgmesImport(platformConfig).importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator svc = network.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
         assertEquals(VOLTAGE, svc.getRegulationMode());
         assertEquals(229.5, svc.getVoltageSetPoint(), 0.0);
 
-        Network modified = new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.microT4BeBbMissingRegControlReactivePowerSvc().dataSource(), NetworkFactory.findDefault(), null);
+        Network modified = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbMissingRegControlReactivePowerSvc().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator modifiedSvc = modified.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(modifiedSvc);
         assertEquals(REACTIVE_POWER, modifiedSvc.getRegulationMode());
@@ -291,7 +290,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void miniBusBranchRtcRemoteRegulation() {
-        Network network = new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.miniBusBranchRtcRemoteRegulation().dataSource(), null);
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.miniBusBranchRtcRemoteRegulation().dataSource(), null);
 
         TwoWindingsTransformer twt2 = network.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
         RatioTapChanger rtc = twt2.getRatioTapChanger();
@@ -310,12 +309,30 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void miniBusBranchT3xTwoRegulatingControlsEnabled() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.miniBusBranchT3xTwoRegulatingControlsEnabled().dataSource(), null);
+
+        ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer("_5d38b7ed-73fd-405a-9cdb-78425e003773");
+        RatioTapChanger rtc2 = twt3.getLeg2().getRatioTapChanger();
+        assertNotNull(rtc2);
+        Terminal regulatingTerminal2 = rtc2.getRegulationTerminal();
+        assertNotNull(regulatingTerminal2);
+        assertTrue(rtc2.isRegulating());
+
+        RatioTapChanger rtc3 = twt3.getLeg3().getRatioTapChanger();
+        assertNotNull(rtc3);
+        Terminal regulatingTerminal3 = rtc3.getRegulationTerminal();
+        assertNotNull(regulatingTerminal3);
+        assertFalse(rtc3.isRegulating());
+    }
+
+    @Test
     public void miniNodeBreakerTestLimits() {
         // Original test case
-        Network network0 = new CgmesImport(platformConfig).importData(CgmesConformity1Catalog.miniNodeBreaker().dataSource(), null);
+        Network network0 = new CgmesImport().importData(CgmesConformity1Catalog.miniNodeBreaker().dataSource(), null);
         // The case has been manually modified to have OperationalLimits
         // defined for Equipment
-        Network network1 = new CgmesImport(platformConfig)
+        Network network1 = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerLimitsforEquipment().dataSource(), null);
 
         double tol = 0;
@@ -357,6 +374,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void miniNodeBreakerInvalidT2w() {
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         platformConfig.createModuleConfig("import-export-parameters-default-value")
                 .setStringProperty("iidm.import.cgmes.convert-boundary", "true");
 
@@ -373,7 +391,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void miniNodeBreakerSvInjection() {
-        Network network = new CgmesImport(platformConfig)
+        Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerSvInjection().dataSource(),
                         NetworkFactory.findDefault(), null);
 
@@ -388,35 +406,34 @@ public class CgmesConformity1ModifiedConversionTest {
         // Small Grid Node Breaker HVDC modified so in the dcLine2
         // SVC1 (that is at side 2 of the DC line) is interpreted as a rectifier and
         // SVC2 (that is at side 1 of the line) is interpreted as an inverter
-        assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2Inverter1Rectifier2().dataSource(), null));
+        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2Inverter1Rectifier2().dataSource(), null));
     }
 
     @Test
     public void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier() {
         // Small Grid Node Breaker HVDC modified so in the dcLine
         // both converters have targetPpcc consistent with side 1 inverter side 2 rectifier
-        assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier().dataSource(), null));
+        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier().dataSource(), null));
     }
 
     @Test
     public void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter() {
         // Small Grid Node Breaker HVDC modified so in the dcLine
         // both converters have targetPpcc consistent with side 1 rectifier side 2 inverter
-        assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter().dataSource(), null));
+        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter().dataSource(), null));
     }
 
     @Test
     public void smallNodeBreakerHvdcVscReactiveQPcc() {
         // Small Grid Node Breaker HVDC modified so VSC converter are regulating in reactive power and not in voltage
-        assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcVscReactiveQPcc().dataSource(), null));
+        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcVscReactiveQPcc().dataSource(), null));
     }
 
     @Test
     public void smallNodeBrokerHvdcNanTargetPpcc() {
         // Small Grid Node Breaker HVDC modified so targetPpcc are NaN
-        assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcNanTargetPpcc().dataSource(), null));
+        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcNanTargetPpcc().dataSource(), null));
     }
 
     private FileSystem fileSystem;
-    private InMemoryPlatformConfig platformConfig;
 }

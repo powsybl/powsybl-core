@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -36,6 +37,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.impl.Util;
 import org.apache.jena.shared.PropertyNotFoundException;
+import org.apache.jena.util.IteratorCollection;
 import org.apache.jena.vocabulary.RDF;
 
 import com.powsybl.commons.datasource.DataSource;
@@ -43,12 +45,15 @@ import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
 import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreException;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class TripleStoreJena extends AbstractPowsyblTripleStore {
+
+    static final String NAME = "jena";
 
     public TripleStoreJena() {
         // creates an in-memory Jena model that is able to contain multiple graphs
@@ -65,6 +70,11 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         // graph
         // https://stackoverflow.com/questions/6981467/jena-arq-difference-between-model-graph-and-dataset
         union = ModelFactory.createDefaultModel();
+    }
+
+    @Override
+    public String getImplementationName() {
+        return NAME;
     }
 
     @Override
@@ -150,6 +160,36 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
             }
         }
         return results;
+    }
+
+    @Override
+    public void add(TripleStore source) {
+        Objects.requireNonNull(source);
+        Dataset sourceDataset;
+        if (source instanceof TripleStoreJena) {
+            sourceDataset = ((TripleStoreJena) source).dataset;
+            for (String name : IteratorCollection.iteratorToList(sourceDataset.listNames())) {
+                String context = namedModelFromName(name);
+                if (sourceDataset.containsNamedModel(context)) {
+                    Model targetModel = ModelFactory.createDefaultModel();
+                    Model sourceModel = sourceDataset.getNamedModel(context);
+                    copyNamespaces(sourceModel, targetModel);
+
+                    for (Statement st : IteratorCollection.iteratorToList(sourceModel.listStatements())) {
+                        targetModel.add(st);
+                    }
+                    dataset.addNamedModel(context, targetModel);
+                    union = union.union(targetModel);
+                }
+            }
+        } else {
+            throw new TripleStoreException(String.format("Add to %s from source %s is not supported",
+                getImplementationName(), source.getImplementationName()));
+        }
+    }
+
+    private void copyNamespaces(Model source, Model target) {
+        source.getNsPrefixMap().entrySet().forEach(e -> target.setNsPrefix(e.getKey(), e.getValue()));
     }
 
     @Override
@@ -302,5 +342,4 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     private final Dataset dataset;
     private Model union;
     private RDFWriter writer;
-
 }

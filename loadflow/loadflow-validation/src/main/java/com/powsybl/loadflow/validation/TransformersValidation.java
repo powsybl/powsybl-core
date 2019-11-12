@@ -13,7 +13,6 @@ import java.io.Writer;
 import java.util.Comparator;
 import java.util.Objects;
 
-import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,21 +58,16 @@ public final class TransformersValidation extends AbstractTransformersValidation
         return twt.getRatioTapChanger() != null && twt.getRatioTapChanger().isRegulating();
     }
 
-    public boolean checkTransformer(TwoWindingsTransformer twt, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
+    public boolean checkTransformer(TwoWindingsTransformer twt, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(twt);
-        Objects.requireNonNull(validationConfig);
-        Objects.requireNonNull(formatterConfig);
+        Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter twtsWriter = ValidationUtils.createValidationWriter(twt.getId(), validationConfig, formatterConfig, writer, ValidationType.TWTS)) {
-            return checkTransformer(twt, validationConfig, twtsWriter);
+        try (ValidationWriter twtsWriter = ValidationUtils.createValidationWriter(twt.getId(), config, writer, ValidationType.TWTS)) {
+            return checkTransformer(twt, config, twtsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    public boolean checkTransformer(TwoWindingsTransformer twt, ValidationConfig config, Writer writer) {
-        return checkTransformer(twt, config, TABLE_FORMATTER_CONFIG.get(), writer);
     }
 
     public boolean checkTransformer(TwoWindingsTransformer twt, ValidationConfig config, ValidationWriter twtsWriter) {
@@ -117,25 +111,17 @@ public final class TransformersValidation extends AbstractTransformersValidation
 
     public boolean checkTransformer(String id, double rho, double rhoPreviousStep, double rhoNextStep, int tapPosition,
                                            int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v,
-                                           boolean connected, boolean mainComponent, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
+                                           boolean connected, boolean mainComponent, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
-        Objects.requireNonNull(validationConfig);
-        Objects.requireNonNull(formatterConfig);
+        Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter twtsWriter = ValidationUtils.createValidationWriter(id, validationConfig, formatterConfig, writer, ValidationType.TWTS)) {
+        try (ValidationWriter twtsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.TWTS)) {
             return checkTransformer(id, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
-                    targetV, regulatedSide, v, connected, mainComponent, validationConfig, twtsWriter);
+                    targetV, regulatedSide, v, connected, mainComponent, config, twtsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    public boolean checkTransformer(String id, double rho, double rhoPreviousStep, double rhoNextStep, int tapPosition,
-                                           int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v,
-                                           boolean connected, boolean mainComponent, ValidationConfig config, Writer writer) {
-        return checkTransformer(id, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition, targetV, regulatedSide, v,
-                connected, mainComponent, config, TABLE_FORMATTER_CONFIG.get(), writer);
     }
 
     public boolean checkTransformer(String id, double rho, double rhoPreviousStep, double rhoNextStep, int tapPosition,
