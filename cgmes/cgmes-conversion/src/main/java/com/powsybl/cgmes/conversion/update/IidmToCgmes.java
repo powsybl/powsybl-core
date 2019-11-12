@@ -34,8 +34,10 @@ public class IidmToCgmes {
         CgmesPredicateDetails converted = iidmToCgmes.converter
             .get(getIidmInstanceName(change))
             .get(change.getAttribute());
-        converted.setValue(change.getNewValueString());
-        list.add(converted);
+        if (converted != null) {
+            converted.setValue(change.getNewValueString());
+            list.add(converted);
+        }
 
         return list;
     }

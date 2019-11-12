@@ -38,6 +38,7 @@ public class Profiling {
     public void startLoop() {
         loopCount = 0;
         loopTime = 0;
+        start();
     }
 
     public void startLoopIteration() {
