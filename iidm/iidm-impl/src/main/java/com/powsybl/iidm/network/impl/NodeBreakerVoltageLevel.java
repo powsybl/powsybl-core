@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -400,11 +399,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             });
             // if nothing found, just take the first bus
             if (connectableBus2[0] == null) {
-                Iterator<CalculatedBus> it = getBuses().iterator();
-                if (!it.hasNext()) { // if the whole voltage level is disconnected, return null
+                Collection<CalculatedBus> buses = getBuses();
+                if (buses.isEmpty()) { // if the whole voltage level is disconnected, return null
                     return null;
                 }
-                return it.next();
+                return buses.iterator().next();
             }
             return connectableBus2[0];
         }
