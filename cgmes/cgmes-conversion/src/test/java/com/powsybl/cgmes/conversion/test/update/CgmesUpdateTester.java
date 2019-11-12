@@ -143,7 +143,7 @@ public class CgmesUpdateTester {
             invalidateFlows);
     }
 
-    //@Test
+    @Test
     public void testPerformanceRte() throws IOException {
         boolean invalidateFlows = false;
         testPerformance(new ResourceDataSource("RTE",
@@ -158,7 +158,7 @@ public class CgmesUpdateTester {
             invalidateFlows);
     }
 
-    //@Test
+    @Test
     public void testPerformanceRen() throws IOException {
         boolean invalidateFlows = false;
         testPerformance(new ResourceDataSource("REN",

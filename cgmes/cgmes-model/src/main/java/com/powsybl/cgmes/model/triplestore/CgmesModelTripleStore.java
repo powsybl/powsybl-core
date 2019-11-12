@@ -447,11 +447,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         String valueIsNode) {
         Objects.requireNonNull(cimNamespace);
         String baseUri = getBaseUri(baseName);
-        LOG.debug("update {}, {}, {}, {}, {}", context, baseUri, subject, predicate, value);
+//        LOG.info("update {}, {}, {}, {}, {}", context, baseUri, subject, predicate, value);
         namedQueryUpdate(queryName, context, subject, predicate, value, baseUri, cimNamespace, valueIsNode);
 
         // XXX LUMA not required when doing performance evaluation
-        // return namedQuery("checkCgmesUpdated", context, subject);
+        //return namedQuery("checkCgmesUpdated", context, subject);
         return null;
     }
 
@@ -584,7 +584,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         // XXX LUMA evaluating performance,
         // do not compute the parameter reference for first parameters
         int k = 0;
-        for (; k < PARAMETER_REFERENCE.length; k++) {
+        for (; k < Math.min(PARAMETER_REFERENCE.length, params.length); k++) {
             injected = injected.replace(PARAMETER_REFERENCE[k], params[k]);
         }
         for (; k < params.length; k++) {
@@ -601,5 +601,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private static final String MODEL_PROFILES = "modelProfiles";
     private static final String PROFILE = "profile";
     private static final Logger LOG = LoggerFactory.getLogger(CgmesModelTripleStore.class);
-    private static final String[] PARAMETER_REFERENCE = {"{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}", "{7}", "{8}", "{9}"};
+    private static final String[] PARAMETER_REFERENCE = { "{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}", "{7}", "{8}",
+        "{9}" };
 }

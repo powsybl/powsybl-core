@@ -43,7 +43,7 @@ public class BusToTopologicalNode extends AbstractIidmToCgmes {
          */
     }
 
-    static Map<String, String> getValues(IidmChange change, CgmesModel cgmes) {
+    public Map<String, String> getValues(IidmChange change, CgmesModel cgmes) {
         if (!(change.getIdentifiable() instanceof Bus)) {
             throw new ConversionException("Cannot cast the identifiable into the element");
         }
@@ -58,11 +58,11 @@ public class BusToTopologicalNode extends AbstractIidmToCgmes {
             .put("angle", String.valueOf(bus.getAngle())).build();
     }
 
-    static String getVoltageId(Bus bus) {
+    public String getVoltageId(Bus bus) {
         return bus.getVoltageLevel().getId();
     }
 
-    static String getBaseVoltageId(Bus bus, PropertyBags voltageLevels) {
+    public String getBaseVoltageId(Bus bus, PropertyBags voltageLevels) {
         for (PropertyBag pb : voltageLevels) {
             if (pb.getId("VoltageLevel").equals(getVoltageId(bus))) {
                 return pb.getId("BaseVoltage");
@@ -73,7 +73,7 @@ public class BusToTopologicalNode extends AbstractIidmToCgmes {
         return "NaN";
     }
 
-    static String getSvVoltageId(String currId, PropertyBags topologicalNodes) {
+    public String getSvVoltageId(String currId, PropertyBags topologicalNodes) {
         for (PropertyBag pb : topologicalNodes) {
             if (pb.getId("TopologicalNode").equals(currId)) {
                 return (pb.getId("SvVoltageT") != null) ? pb.getId("SvVoltageT") : UUID.randomUUID().toString();

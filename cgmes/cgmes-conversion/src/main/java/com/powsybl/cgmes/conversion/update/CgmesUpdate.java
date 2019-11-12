@@ -55,7 +55,7 @@ public class CgmesUpdate {
             if (change.getVariant() == null || change.getVariant().equals(variantId)) {
                 // XXX LUMA List<CgmesPredicateDetails> allCgmesDetails =
                 // iidmToCgmes.convert(change, cgmes);
-                List<CgmesPredicateDetails> entries = iidmToCgmes.convert(change, cgmes);
+                List<CgmesPredicateDetails> entries = iidmToCgmes.convert(change);
                 // XXX LUMA dirty debug
                 if (changesCounter % (changesSize / 10) == 0) {
                     System.err.printf("    %3d change %4d %1d%n", (100 * changesCounter) / changesSize, changesCounter,
@@ -69,7 +69,7 @@ public class CgmesUpdate {
                         String predicate = entry.getRdfPredicate();
                         String newValue = entry.getValue();
                         String valueIsNode = String.valueOf(entry.valueIsNode());
-                        PropertyBags result = cgmes.updateCgmes(
+                        cgmes.updateCgmes(
                             queryName(change),
                             contexts.get(entry.getContext()),
                             cgmes.getBaseName(),
@@ -79,7 +79,7 @@ public class CgmesUpdate {
                             valueIsNode);
                         profiling.endLoopIteration();
 
-                        LOG.info(result.tabulate());
+//                        LOG.info(result.tabulate());
 
                     } catch (java.lang.NullPointerException e) {
                         LOG.error("Requested attribute {} is not available for conversion\n{}", change.getAttribute(),

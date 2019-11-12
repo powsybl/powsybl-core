@@ -27,7 +27,7 @@ public class ShuntCompensatorToShuntCompensator extends AbstractIidmToCgmes {
             .collect(entriesToMap()));
     }
 
-    static Map<String, String> getValues(IidmChange change, CgmesModel cgmes) {
+    public Map<String, String> getValues(IidmChange change, CgmesModel cgmes) {
         if (!(change.getIdentifiable() instanceof ShuntCompensator)) {
             throw new ConversionException("Cannot cast the identifiable into the element");
         }

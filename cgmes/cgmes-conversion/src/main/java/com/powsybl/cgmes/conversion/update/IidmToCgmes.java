@@ -24,7 +24,7 @@ public class IidmToCgmes {
         }
     }
 
-    List<CgmesPredicateDetails> convert(IidmChange change, CgmesModel cgmes) throws Exception {
+    List<CgmesPredicateDetails> convert(IidmChange change) throws Exception {
         if (!(change instanceof IidmChangeOnUpdate)) {
             throw new ConversionException("Can't process requested modification");
         }
@@ -36,6 +36,7 @@ public class IidmToCgmes {
             .get(change.getAttribute());
         converted.setValue(change.getNewValueString());
         list.add(converted);
+
         return list;
     }
 

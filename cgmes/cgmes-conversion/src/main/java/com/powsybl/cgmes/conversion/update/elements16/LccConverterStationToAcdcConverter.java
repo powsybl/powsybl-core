@@ -12,7 +12,6 @@ import com.powsybl.cgmes.conversion.update.IidmChange;
 import com.powsybl.iidm.network.LccConverterStation;
 
 public class LccConverterStationToAcdcConverter extends AbstractIidmToCgmes {
-
     private LccConverterStationToAcdcConverter() {
     }
 
@@ -24,7 +23,7 @@ public class LccConverterStationToAcdcConverter extends AbstractIidmToCgmes {
 
     }
 
-    static Map<String, String> getValues(IidmChange change) {
+    public Map<String, String> getValues(IidmChange change) {
         if (!(change.getIdentifiable() instanceof LccConverterStation)) {
             throw new ConversionException("Cannot cast the identifiable into the element");
         }

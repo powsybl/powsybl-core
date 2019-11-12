@@ -33,7 +33,7 @@ public class LineToACLineSegment extends AbstractIidmToCgmes {
             .collect(entriesToMap()));
     }
 
-    static Map<String, String> getValues(IidmChange change, CgmesModel cgmes) {
+    public Map<String, String> getValues(IidmChange change, CgmesModel cgmes) {
         if (!(change.getIdentifiable() instanceof Line)) {
             throw new ConversionException("Cannot cast the identifiable into the element");
         }
@@ -59,7 +59,7 @@ public class LineToACLineSegment extends AbstractIidmToCgmes {
     /**
      * @return the base voltage id
      */
-    private static String getBaseVoltageId(String voltageLevelId, PropertyBags voltageLevels) {
+    private String getBaseVoltageId(String voltageLevelId, PropertyBags voltageLevels) {
         for(PropertyBag pb : voltageLevels) {
             if (pb.getId("VoltageLevel").equals(voltageLevelId)) {
                 return pb.getId("BaseVoltage");

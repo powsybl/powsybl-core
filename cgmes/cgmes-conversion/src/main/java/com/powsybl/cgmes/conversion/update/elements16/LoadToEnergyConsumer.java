@@ -30,7 +30,7 @@ public class LoadToEnergyConsumer extends AbstractIidmToCgmes {
             .collect(entriesToMap()));
     }
 
-    static Map<String, String> getValues(IidmChange change, CgmesModel cgmes) {
+    public Map<String, String> getValues(IidmChange change, CgmesModel cgmes) {
         if (!(change.getIdentifiable() instanceof Load)) {
             throw new ConversionException("Cannot cast the identifiable into the element");
         }
@@ -45,7 +45,7 @@ public class LoadToEnergyConsumer extends AbstractIidmToCgmes {
     }
 
     // TODO elena, what is default EnergyConsumer type?
-    static String getRdfType(String currId, PropertyBags energyConsumers) {
+    public String getRdfType(String currId, PropertyBags energyConsumers) {
         for (PropertyBag pb : energyConsumers) {
             if (pb.getId("EnergyConsumer").equals(currId)) {
                 return pb.getLocal("type");

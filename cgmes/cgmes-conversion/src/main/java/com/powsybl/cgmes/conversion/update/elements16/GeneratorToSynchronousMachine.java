@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-public final class GeneratorToSynchronousMachine extends AbstractIidmToCgmes {
+public class GeneratorToSynchronousMachine extends AbstractIidmToCgmes {
     private GeneratorToSynchronousMachine() {
     }
 
@@ -37,7 +37,7 @@ public final class GeneratorToSynchronousMachine extends AbstractIidmToCgmes {
             .collect(entriesToMap()));
     }
 
-    static Map<String, String> getValues(IidmChange change, CgmesModel cgmes) {
+    public Map<String, String> getValues(IidmChange change, CgmesModel cgmes) {
         if (!(change.getIdentifiable() instanceof Generator)) {
             throw new ConversionException("Cannot cast the identifiable into the element");
         }
@@ -61,7 +61,7 @@ public final class GeneratorToSynchronousMachine extends AbstractIidmToCgmes {
      * id
      *
      */
-    static String getGeneratingUnitId(String currId, PropertyBags synchronousMachines) {
+    public String getGeneratingUnitId(String currId, PropertyBags synchronousMachines) {
         for (PropertyBag pb : synchronousMachines) {
             if (pb.getId("SynchronousMachine").equals(currId)) {
                 return pb.getId("GeneratingUnit");

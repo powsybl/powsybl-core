@@ -12,6 +12,7 @@ public class IidmToCgmes16 extends IidmToCgmes {
     }
 
     public Map<String, Map<String, CgmesPredicateDetails>> converter() {
+
         // map Identifiable Instance with its mapping method for IIDM - CGMES conversion
         return ImmutableMap.<String, Map<String, CgmesPredicateDetails>>builder()
             .put(GENERATOR_IMPL, GeneratorToSynchronousMachine.mapIidmAtrribute())
@@ -22,6 +23,7 @@ public class IidmToCgmes16 extends IidmToCgmes {
             .put(SUBSTATION_IMPL, SubstationToSubstation.mapIidmAtrribute())
             .put(TWOWINDINGS_TRANSFORMER_IMPL, TwoWindingsTransformerToPowerTransformer.mapIidmAtrribute())
             .put(SHUNTCOMPENSATOR_IMPL, ShuntCompensatorToShuntCompensator.mapIidmAtrribute())
+            .put(BUSBREAKER_VOLTAGELEVEL, VoltageLevelToVoltageLevel.mapIidmAtrribute())
             .build();
     }
 }

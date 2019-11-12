@@ -26,7 +26,7 @@ public class SubstationToSubstation extends AbstractIidmToCgmes {
             .collect(entriesToMap()));
     }
 
-    static Map<String, String> getValues(IidmChange change, CgmesModel cgmes) {
+    public Map<String, String> getValues(IidmChange change, CgmesModel cgmes) {
         if (!(change.getIdentifiable() instanceof Substation)) {
             throw new ConversionException("Cannot cast the identifiable into the element");
         }

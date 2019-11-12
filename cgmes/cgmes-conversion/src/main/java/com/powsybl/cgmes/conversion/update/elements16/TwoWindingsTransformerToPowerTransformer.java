@@ -61,21 +61,21 @@ public class TwoWindingsTransformerToPowerTransformer extends AbstractIidmToCgme
 //        }
     }
 
-    static Map<String, String> getValues(IidmChange change, CgmesModel cgmes) {
+    public Map<String, String> getValues(IidmChange change, CgmesModel cgmes) {
         if (!(change.getIdentifiable() instanceof TwoWindingsTransformer)) {
             throw new ConversionException("Cannot cast the identifiable into the element");
         }
-        TwoWindingsTransformer twt = (TwoWindingsTransformer) change.getIdentifiable();
-        String currId = change.getIdentifiableId();
+        twt = (TwoWindingsTransformer) change.getIdentifiable();
+        currId = change.getIdentifiableId();
         Map<String, String> ends = getEndsId(currId, cgmes.transformerEnds());
-        String idEnd1 = (ends.get(ID_END1) != null) ? ends.get(ID_END1) : currId.concat("_OR");
-        String idEnd2 = (ends.get(ID_END2) != null) ? ends.get(ID_END2) : currId.concat("_CL");
-        String idPTC = getTapChangerId(PHASE_TAP_CHANGER, cgmes);
-        String idRTC = getTapChangerId(RATIO_TAP_CHANGER, cgmes);
-        String idPTCTable = getTapChangerTableId(idPTC, PHASE_TAP_CHANGER, cgmes);
-        String idRTCTable = getTapChangerTableId(idRTC, RATIO_TAP_CHANGER, cgmes);
-        String idPTCTablePoint = getTapChangerTablePointId(PHASE_TAP_CHANGER, cgmes);
-        String idRTCTablePoint = getTapChangerTablePointId(RATIO_TAP_CHANGER, cgmes);
+        idEnd1 = (ends.get(ID_END1) != null) ? ends.get(ID_END1) : currId.concat("_OR");
+        idEnd2 = (ends.get(ID_END2) != null) ? ends.get(ID_END2) : currId.concat("_CL");
+        idPTC = getTapChangerId(PHASE_TAP_CHANGER, cgmes);
+        idRTC = getTapChangerId(RATIO_TAP_CHANGER, cgmes);
+        idPTCTable = getTapChangerTableId(idPTC, PHASE_TAP_CHANGER, cgmes);
+        idRTCTable = getTapChangerTableId(idRTC, RATIO_TAP_CHANGER, cgmes);
+        idPTCTablePoint = getTapChangerTablePointId(PHASE_TAP_CHANGER, cgmes);
+        idRTCTablePoint = getTapChangerTablePointId(RATIO_TAP_CHANGER, cgmes);
         double r0 = twt.getR();
         double x0 = twt.getX();
         double b0 = twt.getB();
@@ -114,7 +114,7 @@ public class TwoWindingsTransformerToPowerTransformer extends AbstractIidmToCgme
      * id.
      *
      */
-    private static Map<String, String> getEndsId(String currId, PropertyBags transformerEnds) {
+    private Map<String, String> getEndsId(String currId, PropertyBags transformerEnds) {
         Map<String, String> ids = new HashMap<>();
         for (PropertyBag pb : transformerEnds) {
             String windingType = pb.get("endNumber");
@@ -138,7 +138,7 @@ public class TwoWindingsTransformerToPowerTransformer extends AbstractIidmToCgme
      * Check if TapChanger elements already exist in grid, if yes - returns the id.
      * TapChanger is on End1;
      */
-    private static String getTapChangerId(String tapChangerType, CgmesModel cgmes) {
+    private String getTapChangerId(String tapChangerType, CgmesModel cgmes) {
         PropertyBags tapChangers = (tapChangerType.equals(RATIO_TAP_CHANGER)) ? cgmes.ratioTapChangers()
             : cgmes.phaseTapChangers();
         for (PropertyBag pb : tapChangers) {
@@ -155,7 +155,7 @@ public class TwoWindingsTransformerToPowerTransformer extends AbstractIidmToCgme
      * Check if TapChangerTable elements already exist in grid, if yes - returns the
      * id. Otherwise, return concatenated string.
      */
-    private static String getTapChangerTableId(String tapChangerId, String tapChangerType, CgmesModel cgmes) {
+    private String getTapChangerTableId(String tapChangerId, String tapChangerType, CgmesModel cgmes) {
         String propertyName = tapChangerType.concat("Table");
         PropertyBags tapChangers = (tapChangerType.equals(RATIO_TAP_CHANGER)) ? cgmes.ratioTapChangers()
             : cgmes.phaseTapChangers();
@@ -169,7 +169,7 @@ public class TwoWindingsTransformerToPowerTransformer extends AbstractIidmToCgme
         return UUID.randomUUID().toString();
     }
 
-    private static String getTapChangerTablePointId(String tapChangerType, CgmesModel cgmes) {
+    private String getTapChangerTablePointId(String tapChangerType, CgmesModel cgmes) {
         String propertyName = tapChangerType.concat("TablePoint");
         PropertyBags phaseTapChangerTable = (tapChangerType.equals(RATIO_TAP_CHANGER))
             ? cgmes.ratioTapChangerTable(idRTCTable)
@@ -189,12 +189,12 @@ public class TwoWindingsTransformerToPowerTransformer extends AbstractIidmToCgme
     TwoWindingsTransformer twt;
     String currId;
     String name;
-    static String idEnd1;
-    static String idEnd2;
+    String idEnd1;
+    String idEnd2;
     String idRTC;
     String idPTC;
-    static String idPTCTable;
-    static String idRTCTable;
+    String idPTCTable;
+    String idRTCTable;
     String idPTCTablePoint;
     String idRTCTablePoint;
 }
