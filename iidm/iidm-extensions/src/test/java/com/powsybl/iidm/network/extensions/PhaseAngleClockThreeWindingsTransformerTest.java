@@ -42,6 +42,13 @@ public class PhaseAngleClockThreeWindingsTransformerTest {
         assertEquals(6, pacOut.getPhaseAngleClockLeg2());
         assertEquals(1, pacOut.getPhaseAngleClockLeg3());
         assertEquals("3WT", pacOut.getExtendable().getId());
+
+        PhaseAngleClockThreeWindingsTransformer pacIn = transformer.getExtension(PhaseAngleClockThreeWindingsTransformer.class);
+        pacIn.setPhaseAngleClockLeg2(1);
+        pacIn.setPhaseAngleClockLeg3(6);
+        pacOut = transformer.getExtension(PhaseAngleClockThreeWindingsTransformer.class);
+        assertEquals(1, pacOut.getPhaseAngleClockLeg2());
+        assertEquals(6, pacOut.getPhaseAngleClockLeg3());
     }
 
     @Test
