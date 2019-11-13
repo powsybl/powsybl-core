@@ -110,11 +110,11 @@ public class Conversion {
         convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
 
         if (isOldCgmesConversion()) {
-            oldConvertTransformers(context);
+            convertTransformers(context);
             convert(cgmes.ratioTapChangers(), rtc -> new RatioTapChangerConversion(rtc, context));
             convert(cgmes.phaseTapChangers(), ptc -> new PhaseTapChangerConversion(ptc, context));
         } else {
-            convertTransformers(context);
+            newConvertTransformers(context);
         }
 
         // DC Converters must be converted first
@@ -259,7 +259,7 @@ public class Conversion {
         profiling.end("ACLineSegments");
     }
 
-    private void convertTransformers(Context context) {
+    private void newConvertTransformers(Context context) {
         profiling.start();
         Map<String, PropertyBag> powerTransformerRatioTapChanger = new HashMap<>();
         Map<String, PropertyBag> powerTransformerPhaseTapChanger = new HashMap<>();
@@ -281,9 +281,9 @@ public class Conversion {
                 }
                 AbstractConductingEquipmentConversion c = null;
                 if (ends.size() == 2) {
-                    c = new TwoWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
+                    c = new NewTwoWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
                 } else if (ends.size() == 3) {
-                    c = new ThreeWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
+                    c = new NewThreeWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
                 } else {
                     String what = String.format("PowerTransformer %s", t);
                     String reason = String.format("Has %d ends. Only 2 or 3 ends are supported", ends.size());
@@ -296,7 +296,7 @@ public class Conversion {
         profiling.end("Transfomers");
     }
 
-    private void oldConvertTransformers(Context context) {
+    private void convertTransformers(Context context) {
         profiling.start();
         Map<String, PropertyBag> powerTransformerRatioTapChanger = new HashMap<>();
         Map<String, PropertyBag> powerTransformerPhaseTapChanger = new HashMap<>();
@@ -319,9 +319,9 @@ public class Conversion {
                     }
                     AbstractConductingEquipmentConversion c = null;
                     if (ends.size() == 2) {
-                        c = new OldTwoWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
+                        c = new TwoWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
                     } else if (ends.size() == 3) {
-                        c = new OldThreeWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, context);
+                        c = new ThreeWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, context);
                     } else {
                         String what = String.format("PowerTransformer %s", t);
                         String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",
