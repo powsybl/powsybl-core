@@ -13,18 +13,18 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class PhaseAngleClockTwoWindingsTransformer extends AbstractExtension<TwoWindingsTransformer> {
+public class TwoWindingsTransformerPhaseAngleClock extends AbstractExtension<TwoWindingsTransformer> {
 
     private int phaseAngleClock;
 
-    public PhaseAngleClockTwoWindingsTransformer(TwoWindingsTransformer twt, int phaseAngleClock) {
+    public TwoWindingsTransformerPhaseAngleClock(TwoWindingsTransformer twt, int phaseAngleClock) {
         super(twt);
         this.phaseAngleClock = checkPhaseAngleClock(phaseAngleClock);
     }
 
     @Override
     public String getName() {
-        return "phaseAngleClockTwoWindingsTransformer";
+        return "twoWindingsTransformerPhaseAngleClock";
     }
 
     public int getPhaseAngleClock() {
