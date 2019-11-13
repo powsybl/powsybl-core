@@ -447,11 +447,12 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         String valueIsNode) {
         Objects.requireNonNull(cimNamespace);
         String baseUri = getBaseUri(baseName);
-//        LOG.info("update {}, {}, {}, {}, {}", context, baseUri, subject, predicate, value);
-        namedQueryUpdate(queryName, context, subject, predicate, value, baseUri, cimNamespace, valueIsNode);
+        LOG.info("update {}, {}, {}, {}, {}", context, baseUri, baseUri.concat(subject), predicate, value);
+        namedQueryUpdate(queryName, context, baseUri.concat(subject), predicate,
+            value, baseUri, cimNamespace, valueIsNode);
 
         // XXX LUMA not required when doing performance evaluation
-        //return namedQuery("checkCgmesUpdated", context, subject);
+        //return namedQuery("checkCgmesUpdated", context, baseUri.concat(subject), predicate);
         return null;
     }
 

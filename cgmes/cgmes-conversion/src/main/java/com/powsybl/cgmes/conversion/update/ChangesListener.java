@@ -1,12 +1,17 @@
 package com.powsybl.cgmes.conversion.update;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.NetworkListener;
 
@@ -20,6 +25,7 @@ public class ChangesListener implements NetworkListener {
 
     public ChangesListener(List<IidmChange> changeList) {
         this.changeList = changeList;
+        this.ignoreList = ignore;
     }
 
     @Override
@@ -41,11 +47,7 @@ public class ChangesListener implements NetworkListener {
     public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue,
         Object newValue) {
         IidmChangeOnUpdate change = new IidmChangeOnUpdate(identifiable, attribute, oldValue, newValue, variantId);
-        changeList.add(change);
-//        LOG.info("variant is " + change.getVariant()
-//            + "\nidentifiable " + identifiable.getClass().getSimpleName()
-//            + "\nidentifiableID " + identifiable.getId()
-//            + "\nattribute is " + change.getAttribute());
+        addToChangeLog(change);
     }
 
     @Override
@@ -57,12 +59,10 @@ public class ChangesListener implements NetworkListener {
 
     @Override
     public void onVariantCreated(String sourceVariantId, String targetVariantId) {
-        List<IidmChange> tmp = new ArrayList<IidmChange>();
-        tmp = changeList.stream()
+        List<IidmChange> tmp = changeList.stream()
             .filter(s -> {
-                boolean valid = s instanceof IidmChangeOnUpdate
-                    && s.getVariant() != null;
-                return valid;
+                return (s instanceof IidmChangeOnUpdate
+                    && s.getVariant() != null);
             })
             .map(s -> {
                 IidmChangeOnUpdate v = new IidmChangeOnUpdate(
@@ -74,7 +74,25 @@ public class ChangesListener implements NetworkListener {
         changeList.addAll(tmp);
     }
 
+    private void addToChangeLog(IidmChange change) {
+        if (!ignoreList.contains(change.getAttribute())) {
+            changeList.add(change);
+        }
+
+    }
+
+    public static final String CONNECTED_COMPONENT_NUMBER = "connectedComponentNumber";
+    public static final String CONSTANT_2 = "*value*";
+    public static final String CONSTANT_N = "*value*";
+
+    public static final Set<String> ignore = Collections.unmodifiableSet(
+        new HashSet<String>(Arrays.asList(
+            CONNECTED_COMPONENT_NUMBER,
+            CONSTANT_2,
+            CONSTANT_N)));
+
     private List<IidmChange> changeList;
+    private Set<String> ignoreList;
 
     private static final Logger LOG = LoggerFactory.getLogger(ChangesListener.class);
 }

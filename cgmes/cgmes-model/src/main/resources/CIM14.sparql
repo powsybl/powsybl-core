@@ -373,7 +373,7 @@ WHERE
 {     
     { GRAPH <{0}>
           { ?subject  ?predicate  ?value .
-            FILTER ( STRENDS(STR(?subject), "{1}") && STRENDS(STR(?predicate), STRAFTER( "{2}", "cim:")) )
+            FILTER ( (?subject = <{1}>) && (?predicate = IRI({2})) )
           }
       }
 	  UNION
@@ -383,7 +383,7 @@ WHERE
 	        BIND ( STRAFTER( STR("{3}"), "cim:") AS ?object_value)
 	        BIND ( IRI( CONCAT( "{5}", ?object_value ) ) AS ?object_iri)
 	        BIND ( IF( STRSTARTS(STR(?object), "cim:"),?object_iri , IF( "{6}"="true", IRI(CONCAT("{4}",?object)), ?object ) )  AS ?valueIn).
-            BIND(IF(BOUND(?subject),?subject,IRI(CONCAT("{4}","{1}"))) AS ?subjectIn)
+            BIND(IF(BOUND(?subject),?subject,IRI(<{1}>)) AS ?subjectIn)
           }
     }
 }
@@ -416,10 +416,10 @@ WHERE
 {     
     { GRAPH <{0}>
           { ?subject  ?predicate  ?value .
-            FILTER ( STRENDS(STR(?subject), "{1}") )
+            #FILTER (?subject = <{1}>)
+            FILTER ((?subject = <{1}>) && (?predicate = IRI({2})))
           }
       }
-    
     UNION
 	{ GRAPH ?graph
         { ?subject  ?predicate  ?value .
@@ -427,7 +427,7 @@ WHERE
             WHERE
               { { GRAPH <{0}>
                     { ?outsubject  ?outpredicate  ?subject
-                      FILTER STRENDS(STR(?outsubject), "{1}")
+                      FILTER ( ?outsubject = <{1}> )
                     }
                 }
               }
