@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author José Antonio Marqués <marquesja at aia.es
  */
-public class PhaseAngleClockTwoWindingsTransformerXmlSerializerTest extends AbstractConverterTest {
+public class TwoWindingsTransformerPhaseAngleClockXmlSerializerTest extends AbstractConverterTest {
 
     @Test
     public void test() throws IOException {
@@ -30,16 +30,16 @@ public class PhaseAngleClockTwoWindingsTransformerXmlSerializerTest extends Abst
         network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("NHV2_NLOAD");
 
-        PhaseAngleClockTwoWindingsTransformer pac = new PhaseAngleClockTwoWindingsTransformer(transformer, 3);
-        transformer.addExtension(PhaseAngleClockTwoWindingsTransformer.class, pac);
+        TwoWindingsTransformerPhaseAngleClock pac = new TwoWindingsTransformerPhaseAngleClock(transformer, 3);
+        transformer.addExtension(TwoWindingsTransformerPhaseAngleClock.class, pac);
 
         Network network2 = roundTripXmlTest(network,
             NetworkXml::writeAndValidate,
             NetworkXml::read,
-            "/phaseAngleClockTwoWindingsTransformer.xml");
+            "/twoWindingsTransformerPhaseAngleClock.xml");
 
-        PhaseAngleClockTwoWindingsTransformer pacXml = network2.getTwoWindingsTransformer("NHV2_NLOAD")
-            .getExtension(PhaseAngleClockTwoWindingsTransformer.class);
+        TwoWindingsTransformerPhaseAngleClock pacXml = network2.getTwoWindingsTransformer("NHV2_NLOAD")
+            .getExtension(TwoWindingsTransformerPhaseAngleClock.class);
         assertNotNull(pacXml);
         assertEquals(3, pacXml.getPhaseAngleClock());
     }
