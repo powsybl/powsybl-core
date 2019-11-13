@@ -9,12 +9,12 @@
 -->
 <xs:schema version="1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://www.powsybl.org/schema/iidm/ext/phase_angle_clock_three_windings_transformer/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/three_windings_transformer_phase_angle_clock/1_0"
            elementFormDefault="qualified">
-    <xs:element name="phaseAngleClockThreeWindingsTransformer">
+    <xs:element name="threeWindingsTransformerPhaseAngleClock">
         <xs:complexType>
-            <xs:attribute name="phaseAngleClockLeg2" use="optional" type="xs:integer"/>
-            <xs:attribute name="phaseAngleClockLeg3" use="optional" type="xs:integer"/>
+            <xs:attribute name="phaseAngleClockLeg2" use="required" type="xs:integer"/>
+            <xs:attribute name="phaseAngleClockLeg3" use="required" type="xs:integer"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

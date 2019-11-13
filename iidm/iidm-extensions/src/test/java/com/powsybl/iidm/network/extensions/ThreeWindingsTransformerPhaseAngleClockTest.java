@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class PhaseAngleClockThreeWindingsTransformerTest {
+public class ThreeWindingsTransformerPhaseAngleClockTest {
 
     private ThreeWindingsTransformer transformer;
 
@@ -36,17 +36,17 @@ public class PhaseAngleClockThreeWindingsTransformerTest {
 
     @Test
     public void testEnd() {
-        PhaseAngleClockThreeWindingsTransformer pac = new PhaseAngleClockThreeWindingsTransformer(transformer, 6, 1);
-        transformer.addExtension(PhaseAngleClockThreeWindingsTransformer.class, pac);
-        PhaseAngleClockThreeWindingsTransformer pacOut = transformer.getExtension(PhaseAngleClockThreeWindingsTransformer.class);
+        ThreeWindingsTransformerPhaseAngleClock pac = new ThreeWindingsTransformerPhaseAngleClock(transformer, 6, 1);
+        transformer.addExtension(ThreeWindingsTransformerPhaseAngleClock.class, pac);
+        ThreeWindingsTransformerPhaseAngleClock pacOut = transformer.getExtension(ThreeWindingsTransformerPhaseAngleClock.class);
         assertEquals(6, pacOut.getPhaseAngleClockLeg2());
         assertEquals(1, pacOut.getPhaseAngleClockLeg3());
         assertEquals("3WT", pacOut.getExtendable().getId());
 
-        PhaseAngleClockThreeWindingsTransformer pacIn = transformer.getExtension(PhaseAngleClockThreeWindingsTransformer.class);
+        ThreeWindingsTransformerPhaseAngleClock pacIn = transformer.getExtension(ThreeWindingsTransformerPhaseAngleClock.class);
         pacIn.setPhaseAngleClockLeg2(1);
         pacIn.setPhaseAngleClockLeg3(6);
-        pacOut = transformer.getExtension(PhaseAngleClockThreeWindingsTransformer.class);
+        pacOut = transformer.getExtension(ThreeWindingsTransformerPhaseAngleClock.class);
         assertEquals(1, pacOut.getPhaseAngleClockLeg2());
         assertEquals(6, pacOut.getPhaseAngleClockLeg3());
     }
@@ -55,31 +55,31 @@ public class PhaseAngleClockThreeWindingsTransformerTest {
     public void testError1Leg2() {
         exception.expect(PowsyblException.class);
         exception.expectMessage("Unexpected value for phaseAngleClock: 12");
-        PhaseAngleClockThreeWindingsTransformer pac = new PhaseAngleClockThreeWindingsTransformer(transformer, 12, 1);
-        transformer.addExtension(PhaseAngleClockThreeWindingsTransformer.class, pac);
+        ThreeWindingsTransformerPhaseAngleClock pac = new ThreeWindingsTransformerPhaseAngleClock(transformer, 12, 1);
+        transformer.addExtension(ThreeWindingsTransformerPhaseAngleClock.class, pac);
     }
 
     @Test
     public void testError1Leg3() {
         exception.expect(PowsyblException.class);
         exception.expectMessage("Unexpected value for phaseAngleClock: 12");
-        PhaseAngleClockThreeWindingsTransformer pac = new PhaseAngleClockThreeWindingsTransformer(transformer, 1, 12);
-        transformer.addExtension(PhaseAngleClockThreeWindingsTransformer.class, pac);
+        ThreeWindingsTransformerPhaseAngleClock pac = new ThreeWindingsTransformerPhaseAngleClock(transformer, 1, 12);
+        transformer.addExtension(ThreeWindingsTransformerPhaseAngleClock.class, pac);
     }
 
     @Test
     public void testError2Leg2() {
         exception.expect(PowsyblException.class);
         exception.expectMessage("Unexpected value for phaseAngleClock: -1");
-        PhaseAngleClockThreeWindingsTransformer pac = new PhaseAngleClockThreeWindingsTransformer(transformer, -1, 0);
-        transformer.addExtension(PhaseAngleClockThreeWindingsTransformer.class, pac);
+        ThreeWindingsTransformerPhaseAngleClock pac = new ThreeWindingsTransformerPhaseAngleClock(transformer, -1, 0);
+        transformer.addExtension(ThreeWindingsTransformerPhaseAngleClock.class, pac);
     }
 
     @Test
     public void testError2Leg3() {
         exception.expect(PowsyblException.class);
         exception.expectMessage("Unexpected value for phaseAngleClock: -1");
-        PhaseAngleClockThreeWindingsTransformer pac = new PhaseAngleClockThreeWindingsTransformer(transformer, 0, -1);
-        transformer.addExtension(PhaseAngleClockThreeWindingsTransformer.class, pac);
+        ThreeWindingsTransformerPhaseAngleClock pac = new ThreeWindingsTransformerPhaseAngleClock(transformer, 0, -1);
+        transformer.addExtension(ThreeWindingsTransformerPhaseAngleClock.class, pac);
     }
 }
