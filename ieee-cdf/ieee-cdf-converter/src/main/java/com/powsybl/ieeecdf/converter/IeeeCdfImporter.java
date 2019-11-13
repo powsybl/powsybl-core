@@ -17,6 +17,7 @@ import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.io.*;
 import java.time.ZoneOffset;
@@ -350,7 +351,7 @@ public class IeeeCdfImporter implements Importer {
             // set date and time
             IeeeCdfTitle ieeeCdfTitle = ieeeCdfModel.getTitle();
             ZonedDateTime caseDateTime = ieeeCdfTitle.getDate().atStartOfDay(ZoneOffset.UTC.normalized());
-            network.setCaseDate(new DateTime(caseDateTime.toInstant().toEpochMilli()));
+            network.setCaseDate(new DateTime(caseDateTime.toInstant().toEpochMilli(), DateTimeZone.UTC));
 
             // build container to fit IIDM requirements
             ContainersMapping containerMapping = findContainerMapping(ieeeCdfModel);
