@@ -10,24 +10,33 @@ import com.univocity.parsers.annotations.FixedWidth;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
+ * <p>
+ * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
+ * </p>
+ *
+ * <pre>
  * Columns  1- 3   Loss zone number  (I)
  * Columns  5-16   Loss zone name (A)
+ * </pre>
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class IeeeCdfLossZone {
 
+    /**
+     * Loss zone number
+     */
     @FixedWidth(from = 0, to = 3)
     @Parsed
     private int number;
 
+    /**
+     * Loss zone name
+     */
     @FixedWidth(from = 4, to = 16)
     @Parsed
     private String name;
 
-    /**
-     * Loss zone number  (I)
-     */
     public int getNumber() {
         return number;
     }
@@ -36,9 +45,6 @@ public class IeeeCdfLossZone {
         this.number = number;
     }
 
-    /**
-     * Loss zone name (A)
-     */
     public String getName() {
         return name;
     }

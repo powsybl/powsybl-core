@@ -10,6 +10,11 @@ import com.univocity.parsers.annotations.FixedWidth;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
+ * <p>
+ * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
+ * </p>
+ *
+ * <pre>
  * Columns  1- 2   Area number (I) no zeros! *
  * Columns  4- 7   Interchange slack bus number (I) *
  * Columns  9-20   Alternate swing bus name (A)
@@ -17,42 +22,61 @@ import com.univocity.parsers.annotations.Parsed;
  * Columns 30-35   Area interchange tolerance, MW (F) *
  * Columns 38-43   Area code (abbreviated name) (A) *
  * Columns 46-75   Area name (A)
+ * </pre>
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class IeeeCdfInterchangeData {
 
+    /**
+     * Area number
+     */
     @FixedWidth(from = 0, to = 2)
     @Parsed
     private int areaNumber;
 
+    /**
+     * Interchange slack bus number
+     */
     @FixedWidth(from = 3, to = 7)
     @Parsed
     private int interchangeSlackBusNumber;
 
+    /**
+     * Alternate swing bus name
+     */
     @FixedWidth(from = 8, to = 20)
     @Parsed
     private String alternateSwingBusName;
 
+    /**
+     * Area interchange export, MW
+     */
     @FixedWidth(from = 20, to = 28)
     @Parsed
     private float areaInterchangeExport;
 
+    /**
+     * Area interchange tolerance, MW
+     */
     @FixedWidth(from = 29, to = 35)
     @Parsed
     private float areaInterchangeTolerance;
 
+    /**
+     * Area code (abbreviated name)
+     */
     @FixedWidth(from = 37, to = 43)
     @Parsed
     private String areaCode;
 
+    /**
+     * Area name
+     */
     @FixedWidth(from = 45, to = 75)
     @Parsed
     private String areaName;
 
-    /**
-     * Area number (I) no zeros! *
-     */
     public int getAreaNumber() {
         return areaNumber;
     }

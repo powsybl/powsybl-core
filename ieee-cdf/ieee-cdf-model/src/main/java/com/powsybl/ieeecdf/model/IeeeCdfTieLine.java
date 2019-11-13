@@ -10,32 +10,53 @@ import com.univocity.parsers.annotations.FixedWidth;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
+ * <p>
+ * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
+ * </p>
+ *
+ * <pre>
  * Columns  1- 4   Metered bus number (I)
  * Columns  7-8    Metered area number (I)
  * Columns  11-14  Non-metered bus number (I)
  * Columns  17-18  Non-metered area number (I)
  * Column   21     Circuit number
+ * </pre>
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class IeeeCdfTieLine {
 
+    /**
+     * Metered bus number
+     */
     @FixedWidth(from = 0, to = 4)
     @Parsed
     private int meteredBusNumber;
 
+    /**
+     * Metered area number
+     */
     @FixedWidth(from = 6, to = 8)
     @Parsed
     private int meteredAreaNumber;
 
+    /**
+     * Non-metered bus number
+     */
     @FixedWidth(from = 10, to = 14)
     @Parsed
     private int nonMeteredBusNumber;
 
+    /**
+     * Non-metered area number
+     */
     @FixedWidth(from = 16, to = 18)
     @Parsed
     private int nonMeteredAreaNumber;
 
+    /**
+     * Circuit number
+     */
     @FixedWidth(from = 20, to = 21)
     @Parsed
     private int circuitNumber;

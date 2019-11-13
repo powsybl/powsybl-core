@@ -13,12 +13,18 @@ import com.univocity.parsers.annotations.Parsed;
 import java.time.LocalDate;
 
 /**
+ * <p>
+ * @see <a href="https://labs.ece.uw.edu/pstca/formats/cdf.txt">https://labs.ece.uw.edu/pstca/formats/cdf.txt</a>
+ * </p>
+ *
+ * <pre>
  * Columns  2- 9   Date, in format DD/MM/YY with leading zeros. If no date provided, use 0b/0b/0b where b is blank.
  * Columns 11-30   Originator's name (A)
  * Columns 32-37   MVA Base (F*)
  * Columns 39-42   Year (I)
  * Column  44      Season (S - Summer, W - Winter)
  * Column  46-73   Case identification (A)
+ * </pre>
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -29,35 +35,50 @@ public class IeeeCdfTitle {
         WINTER
     }
 
+    /**
+     * Date
+     */
     @FixedWidth(from = 1, to = 10)
     @Parsed
     @Convert(conversionClass = LocalDateConversion.class)
     private LocalDate date;
 
+    /**
+     * Originator's name
+     */
     @FixedWidth(from = 10, to = 30)
     @Parsed
     private String originatorName;
 
+    /**
+     * MVA Base
+     */
     @FixedWidth(from = 31, to = 37)
     @Parsed
     private float mvaBase;
 
+    /**
+     * Year
+     */
     @FixedWidth(from = 38, to = 42)
     @Parsed
     private int year;
 
+    /**
+     *  Season
+     */
     @FixedWidth(from = 43, to = 44)
     @Parsed
     @Convert(conversionClass = SeasonConversion.class)
     private Season season;
 
+    /**
+     * Case identification
+     */
     @FixedWidth(from = 45, to = 73)
     @Parsed
     private String caseIdentification;
 
-    /**
-     * Date
-     */
     public LocalDate getDate() {
         return date;
     }
@@ -66,9 +87,6 @@ public class IeeeCdfTitle {
         this.date = date;
     }
 
-    /**
-     * Originator's name
-     */
     public String getOriginatorName() {
         return originatorName;
     }
@@ -77,9 +95,6 @@ public class IeeeCdfTitle {
         this.originatorName = originatorName;
     }
 
-    /**
-     * MVA Base
-     */
     public float getMvaBase() {
         return mvaBase;
     }
@@ -88,9 +103,6 @@ public class IeeeCdfTitle {
         this.mvaBase = mvaBase;
     }
 
-    /**
-     * Year
-     */
     public int getYear() {
         return year;
     }
@@ -99,9 +111,6 @@ public class IeeeCdfTitle {
         this.year = year;
     }
 
-    /**
-     *  Season
-     */
     public Season getSeason() {
         return season;
     }
@@ -110,9 +119,6 @@ public class IeeeCdfTitle {
         this.season = season;
     }
 
-    /**
-     * Case identification
-     */
     public String getCaseIdentification() {
         return caseIdentification;
     }

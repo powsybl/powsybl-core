@@ -9,10 +9,7 @@ package com.powsybl.ieeecdf.converter;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.ieeecdf.model.IeeeCdfBranch;
-import com.powsybl.ieeecdf.model.IeeeCdfBus;
-import com.powsybl.ieeecdf.model.IeeeCdfModel;
-import com.powsybl.ieeecdf.model.IeeeCdfReader;
+import com.powsybl.ieeecdf.model.*;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.parameters.Parameter;
@@ -140,75 +137,139 @@ public class IeeeCdfImporter implements Importer {
         return "B" + busNum;
     }
 
-    private Map<Integer, IeeeCdfBus> createBuses(IeeeCdfModel ieeeCdfModel, ContainersMapping containerMapping,
-                                                 Network network) {
-        Map<Integer, IeeeCdfBus> ieeeCdfBusesByNum = new HashMap<>();
+    private void createBuses(IeeeCdfModel ieeeCdfModel, ContainersMapping containerMapping, double sb, Network network) {
         for (IeeeCdfBus ieeeCdfBus : ieeeCdfModel.getBuses()) {
-            ieeeCdfBusesByNum.put(ieeeCdfBus.getNumber(), ieeeCdfBus);
-
             String voltageLevelId = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBus.getNumber());
             String substationId = containerMapping.voltageLevelIdToSubstationId.get(voltageLevelId);
 
             // create substation
-            Substation substation = network.getSubstation(substationId);
-            if (substation == null) {
-                substation = network.newSubstation()
-                        .setId(substationId)
-                        .add();
-            }
+            Substation substation = createSubstation(network, substationId);
 
             // create voltage level
-            double nominalV = ieeeCdfBus.getBaseVoltage() == 0 ? 1 : ieeeCdfBus.getBaseVoltage();
-            VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
-            if (voltageLevel == null) {
-                voltageLevel = substation.newVoltageLevel()
-                        .setId(voltageLevelId)
-                        .setNominalV(nominalV)
-                        .setTopologyKind(TopologyKind.BUS_BREAKER)
-                        .add();
-            }
+            VoltageLevel voltageLevel = createVoltageLevel(ieeeCdfBus, voltageLevelId, substation, network);
 
             // create bus
-            Bus bus = voltageLevel.getBusBreakerView().newBus()
-                    .setId(getBusId(ieeeCdfBus.getNumber()))
-                    .setName(ieeeCdfBus.getName())
-                    .add();
-            bus.setV(ieeeCdfBus.getFinalVoltage())
-                    .setAngle(ieeeCdfBus.getFinalAngle());
+            createBus(ieeeCdfBus, voltageLevel);
 
-            // create injections
+            // create load
+            createLoad(ieeeCdfBus, voltageLevel);
+
+            // create shunt compensator
+            createShuntCompensator(ieeeCdfBus, sb, voltageLevel);
+
+            // create generator
             switch (ieeeCdfBus.getType()) {
                 case UNREGULATED:
                     // nothing to do
                     break;
+
                 case HOLD_MVAR_GENERATION_WITHIN_VOLTAGE_LIMITS:
-                    break;
-                case HOLD_VOLTAGE_WITHIN_VAR_LIMITS:
-                case HOLD_VOLTAGE_AND_ANGLE:
-                    voltageLevel.newGenerator()
-                            .setId(ieeeCdfBus.getName() + "G")
-                            .setConnectableBus(bus.getId())
-                            .setBus(bus.getId())
-                            .setTargetP(ieeeCdfBus.getActiveGeneration())
-                            .setTargetV(ieeeCdfBus.getDesiredVoltage() * nominalV)
-                            .setVoltageRegulatorOn(true)
-                            .setMaxP(Double.MAX_VALUE)
-                            .setMinP(-Double.MAX_VALUE)
+                    newGeneratorAdder(ieeeCdfBus, voltageLevel)
+                            .setVoltageRegulatorOn(false)
                             .add();
                     break;
+
+                case HOLD_VOLTAGE_WITHIN_VAR_LIMITS:
+                case HOLD_VOLTAGE_AND_ANGLE:
+                    Generator generator = newGeneratorAdder(ieeeCdfBus, voltageLevel)
+                            .setTargetV(ieeeCdfBus.getDesiredVoltage() * voltageLevel.getNominalV())
+                            .setVoltageRegulatorOn(true)
+                            .add();
+                    if (ieeeCdfBus.getMinReactivePowerOrVoltageLimit() != 0 || ieeeCdfBus.getMaxReactivePowerOrVoltageLimit() != 0) {
+                        generator.newMinMaxReactiveLimits()
+                                .setMinQ(ieeeCdfBus.getMinReactivePowerOrVoltageLimit())
+                                .setMaxQ(ieeeCdfBus.getMaxReactivePowerOrVoltageLimit())
+                                .add();
+                    }
+                    break;
+
                 default:
                     throw new IllegalStateException("Unexpected bus type: " + ieeeCdfBus.getType());
             }
         }
-        return ieeeCdfBusesByNum;
     }
 
-    private void createLine(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, Network network) {
+    private Bus createBus(IeeeCdfBus ieeeCdfBus, VoltageLevel voltageLevel) {
+        String busId = getBusId(ieeeCdfBus.getNumber());
+        Bus bus = voltageLevel.getBusBreakerView().newBus()
+                .setId(busId)
+                .setName(ieeeCdfBus.getName())
+                .add();
+        bus.setV(ieeeCdfBus.getFinalVoltage())
+                .setAngle(ieeeCdfBus.getFinalAngle());
+        return bus;
+    }
+
+    private Substation createSubstation(Network network, String substationId) {
+        Substation substation = network.getSubstation(substationId);
+        if (substation == null) {
+            substation = network.newSubstation()
+                    .setId(substationId)
+                    .add();
+        }
+        return substation;
+    }
+
+    private VoltageLevel createVoltageLevel(IeeeCdfBus ieeeCdfBus, String voltageLevelId, Substation substation, Network network) {
+        double nominalV = ieeeCdfBus.getBaseVoltage() == 0 ? 1 : ieeeCdfBus.getBaseVoltage();
+        VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+        if (voltageLevel == null) {
+            voltageLevel = substation.newVoltageLevel()
+                    .setId(voltageLevelId)
+                    .setNominalV(nominalV)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .add();
+        }
+        return voltageLevel;
+    }
+
+    private void createLoad(IeeeCdfBus ieeeCdfBus, VoltageLevel voltageLevel) {
+        if (ieeeCdfBus.getActiveLoad() != 0 || ieeeCdfBus.getReactiveLoad() != 0) {
+            String busId = getBusId(ieeeCdfBus.getNumber());
+            voltageLevel.newLoad()
+                    .setId(busId + "-L")
+                    .setConnectableBus(busId)
+                    .setBus(busId)
+                    .setP0(ieeeCdfBus.getActiveLoad())
+                    .setQ0(ieeeCdfBus.getReactiveLoad())
+                    .add();
+        }
+    }
+
+    private GeneratorAdder newGeneratorAdder(IeeeCdfBus ieeeCdfBus, VoltageLevel voltageLevel) {
+        String busId = getBusId(ieeeCdfBus.getNumber());
+        return voltageLevel.newGenerator()
+                .setId(busId + "-G")
+                .setConnectableBus(busId)
+                .setBus(busId)
+                .setTargetP(ieeeCdfBus.getActiveGeneration())
+                .setMaxP(Double.MAX_VALUE)
+                .setMinP(-Double.MAX_VALUE);
+    }
+
+    private void createShuntCompensator(IeeeCdfBus ieeeCdfBus, double sb, VoltageLevel voltageLevel) {
+        if (ieeeCdfBus.getShuntSusceptance() != 0) {
+            String busId = getBusId(ieeeCdfBus.getNumber());
+            double zb = sb / Math.pow(voltageLevel.getNominalV(), 2);
+            voltageLevel.newShuntCompensator()
+                    .setId(busId + "-SH")
+                    .setConnectableBus(busId)
+                    .setBus(busId)
+                    .setbPerSection(ieeeCdfBus.getShuntSusceptance() / zb)
+                    .setCurrentSectionCount(0)
+                    .setMaximumSectionCount(1)
+                    .add();
+        }
+    }
+
+    private void createLine(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, double sb, Network network) {
         String id = "L" + ieeeCdfBranch.getTapBusNumber() + "-" + ieeeCdfBranch.getzBusNumber();
         String bus1Id = getBusId(ieeeCdfBranch.getTapBusNumber());
         String bus2Id = getBusId(ieeeCdfBranch.getzBusNumber());
         String voltageLevelId1 = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getTapBusNumber());
         String voltageLevelId2 = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getzBusNumber());
+        VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevelId2);
+        double zb = sb / Math.pow(voltageLevel2.getNominalV(), 2);
         network.newLine()
                 .setId(id)
                 .setBus1(bus1Id)
@@ -217,30 +278,28 @@ public class IeeeCdfImporter implements Importer {
                 .setBus2(bus2Id)
                 .setConnectableBus2(bus2Id)
                 .setVoltageLevel2(voltageLevelId2)
-                .setR(ieeeCdfBranch.getResistance())
-                .setX(ieeeCdfBranch.getReactance())
+                .setR(ieeeCdfBranch.getResistance() * zb)
+                .setX(ieeeCdfBranch.getReactance() * zb)
                 .setG1(0)
-                .setB1(ieeeCdfBranch.getChargingSusceptance() / 2)
+                .setB1(ieeeCdfBranch.getChargingSusceptance() / zb / 2)
                 .setG2(0)
-                .setB2(ieeeCdfBranch.getChargingSusceptance() / 2)
+                .setB2(ieeeCdfBranch.getChargingSusceptance() / zb / 2)
                 .add();
     }
 
-    private void createBranches(IeeeCdfModel ieeeCdfModel, Map<Integer, IeeeCdfBus> ieeeCdfBusesByNum,
-                                ContainersMapping containerMapping, Network network) {
+    private void createBranches(IeeeCdfModel ieeeCdfModel, ContainersMapping containerMapping, double sb, Network network) {
         for (IeeeCdfBranch ieeeCdfBranch : ieeeCdfModel.getBranches()) {
             switch (ieeeCdfBranch.getType()) {
                 case TRANSMISSION_LINE:
-                    createLine(ieeeCdfBranch, containerMapping, network);
+                    createLine(ieeeCdfBranch, containerMapping, sb, network);
                     break;
+
                 case FIXED_TAP:
-                    break;
                 case VARIABLE_TAP_FOR_VOLTAVE_CONTROL:
-                    break;
                 case VARIABLE_TAP_FOR_REACTIVE_POWER_CONTROL:
-                    break;
                 case VARIABLE_PHASE_ANGLE_FOR_ACTIVE_POWER_CONTROL:
-                    break;
+                    throw new UnsupportedOperationException("Transformers not yet implemented");
+
                 default:
                     throw new IllegalStateException("Unexpected branch type: " + ieeeCdfBranch.getType());
             }
@@ -255,12 +314,20 @@ public class IeeeCdfImporter implements Importer {
         Network network = networkFactory.createNetwork(dataSource.getBaseName(), FORMAT);
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, EXT)))) {
+            // parse file
             IeeeCdfModel ieeeCdfModel = new IeeeCdfReader().read(reader);
-            ZonedDateTime caseDateTime = ieeeCdfModel.getTitle().getDate().atStartOfDay(ZoneOffset.UTC.normalized());
+
+            // set date and time
+            IeeeCdfTitle ieeeCdfTitle = ieeeCdfModel.getTitle();
+            ZonedDateTime caseDateTime = ieeeCdfTitle.getDate().atStartOfDay(ZoneOffset.UTC.normalized());
             network.setCaseDate(new DateTime(caseDateTime.toInstant().toEpochMilli()));
+
+            // build container to fit IIDM requirements
             ContainersMapping containerMapping = findContainerMapping(ieeeCdfModel);
-            Map<Integer, IeeeCdfBus> ieeeCdfBusesByNum = createBuses(ieeeCdfModel, containerMapping, network);
-            createBranches(ieeeCdfModel, ieeeCdfBusesByNum, containerMapping, network);
+
+            // create objects
+            createBuses(ieeeCdfModel, containerMapping, ieeeCdfTitle.getMvaBase(), network);
+            createBranches(ieeeCdfModel, containerMapping, ieeeCdfTitle.getMvaBase(), network);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
