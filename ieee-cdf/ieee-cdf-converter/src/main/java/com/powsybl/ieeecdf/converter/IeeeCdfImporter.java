@@ -89,7 +89,7 @@ public class IeeeCdfImporter implements Importer {
         private final Map<String, String> voltageLevelIdToSubstationId = new HashMap<>();
     }
 
-    private ContainersMapping findContainerMapping(IeeeCdfModel ieeeCdfModel) {
+    private static ContainersMapping findContainerMapping(IeeeCdfModel ieeeCdfModel) {
         ContainersMapping containersMapping = new ContainersMapping();
 
         // group buses connected to non impedant lines to voltage levels
@@ -137,7 +137,7 @@ public class IeeeCdfImporter implements Importer {
         return "B" + busNum;
     }
 
-    private void createBuses(IeeeCdfModel ieeeCdfModel, ContainersMapping containerMapping, double sb, Network network) {
+    private static void createBuses(IeeeCdfModel ieeeCdfModel, ContainersMapping containerMapping, double sb, Network network) {
         for (IeeeCdfBus ieeeCdfBus : ieeeCdfModel.getBuses()) {
             String voltageLevelId = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBus.getNumber());
             String substationId = containerMapping.voltageLevelIdToSubstationId.get(voltageLevelId);
@@ -189,18 +189,18 @@ public class IeeeCdfImporter implements Importer {
         }
     }
 
-    private Bus createBus(IeeeCdfBus ieeeCdfBus, VoltageLevel voltageLevel) {
+    private static Bus createBus(IeeeCdfBus ieeeCdfBus, VoltageLevel voltageLevel) {
         String busId = getBusId(ieeeCdfBus.getNumber());
         Bus bus = voltageLevel.getBusBreakerView().newBus()
                 .setId(busId)
                 .setName(ieeeCdfBus.getName())
                 .add();
-        bus.setV(ieeeCdfBus.getFinalVoltage())
+        bus.setV(ieeeCdfBus.getFinalVoltage() * voltageLevel.getNominalV())
                 .setAngle(ieeeCdfBus.getFinalAngle());
         return bus;
     }
 
-    private Substation createSubstation(Network network, String substationId) {
+    private static Substation createSubstation(Network network, String substationId) {
         Substation substation = network.getSubstation(substationId);
         if (substation == null) {
             substation = network.newSubstation()
@@ -210,7 +210,7 @@ public class IeeeCdfImporter implements Importer {
         return substation;
     }
 
-    private VoltageLevel createVoltageLevel(IeeeCdfBus ieeeCdfBus, String voltageLevelId, Substation substation, Network network) {
+    private static VoltageLevel createVoltageLevel(IeeeCdfBus ieeeCdfBus, String voltageLevelId, Substation substation, Network network) {
         double nominalV = ieeeCdfBus.getBaseVoltage() == 0 ? 1 : ieeeCdfBus.getBaseVoltage();
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
@@ -223,7 +223,7 @@ public class IeeeCdfImporter implements Importer {
         return voltageLevel;
     }
 
-    private void createLoad(IeeeCdfBus ieeeCdfBus, VoltageLevel voltageLevel) {
+    private static void createLoad(IeeeCdfBus ieeeCdfBus, VoltageLevel voltageLevel) {
         if (ieeeCdfBus.getActiveLoad() != 0 || ieeeCdfBus.getReactiveLoad() != 0) {
             String busId = getBusId(ieeeCdfBus.getNumber());
             voltageLevel.newLoad()
@@ -236,7 +236,7 @@ public class IeeeCdfImporter implements Importer {
         }
     }
 
-    private GeneratorAdder newGeneratorAdder(IeeeCdfBus ieeeCdfBus, VoltageLevel voltageLevel) {
+    private static GeneratorAdder newGeneratorAdder(IeeeCdfBus ieeeCdfBus, VoltageLevel voltageLevel) {
         String busId = getBusId(ieeeCdfBus.getNumber());
         return voltageLevel.newGenerator()
                 .setId(busId + "-G")
@@ -247,10 +247,10 @@ public class IeeeCdfImporter implements Importer {
                 .setMinP(-Double.MAX_VALUE);
     }
 
-    private void createShuntCompensator(IeeeCdfBus ieeeCdfBus, double sb, VoltageLevel voltageLevel) {
+    private static void createShuntCompensator(IeeeCdfBus ieeeCdfBus, double sb, VoltageLevel voltageLevel) {
         if (ieeeCdfBus.getShuntSusceptance() != 0) {
             String busId = getBusId(ieeeCdfBus.getNumber());
-            double zb = sb / Math.pow(voltageLevel.getNominalV(), 2);
+            double zb = Math.pow(voltageLevel.getNominalV(), 2) / sb;
             voltageLevel.newShuntCompensator()
                     .setId(busId + "-SH")
                     .setConnectableBus(busId)
@@ -262,14 +262,14 @@ public class IeeeCdfImporter implements Importer {
         }
     }
 
-    private void createLine(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, double sb, Network network) {
+    private static void createLine(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, double sb, Network network) {
         String id = "L" + ieeeCdfBranch.getTapBusNumber() + "-" + ieeeCdfBranch.getzBusNumber();
         String bus1Id = getBusId(ieeeCdfBranch.getTapBusNumber());
         String bus2Id = getBusId(ieeeCdfBranch.getzBusNumber());
         String voltageLevelId1 = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getTapBusNumber());
         String voltageLevelId2 = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getzBusNumber());
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevelId2);
-        double zb = sb / Math.pow(voltageLevel2.getNominalV(), 2);
+        double zb = Math.pow(voltageLevel2.getNominalV(), 2) / sb;
         network.newLine()
                 .setId(id)
                 .setBus1(bus1Id)
@@ -287,7 +287,7 @@ public class IeeeCdfImporter implements Importer {
                 .add();
     }
 
-    private void createBranches(IeeeCdfModel ieeeCdfModel, ContainersMapping containerMapping, double sb, Network network) {
+    private static void createBranches(IeeeCdfModel ieeeCdfModel, ContainersMapping containerMapping, double sb, Network network) {
         for (IeeeCdfBranch ieeeCdfBranch : ieeeCdfModel.getBranches()) {
             switch (ieeeCdfBranch.getType()) {
                 case TRANSMISSION_LINE:
