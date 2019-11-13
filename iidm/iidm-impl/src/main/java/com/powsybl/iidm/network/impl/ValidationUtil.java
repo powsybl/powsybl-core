@@ -326,7 +326,7 @@ public final class ValidationUtil {
     public static void checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
         Set<TapChanger> tapChangersNotIncludingTheModified, boolean regulating) {
         if (regulating) {
-            long enabled = tapChangersNotIncludingTheModified.stream().filter(o -> o.isRegulating()).count();
+            long enabled = tapChangersNotIncludingTheModified.stream().filter(TapChanger::isRegulating).count();
             if (enabled > 0) {
                 throw new ValidationException(validable, "Only one regulating control enabled is allowed");
             }

@@ -13,7 +13,7 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
-import com.powsybl.iidm.network.extensions.PhaseAngleClockTwoWindingsTransformer;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -86,13 +86,12 @@ public class OldTwoWindingsTransformerConversion extends AbstractConductingEquip
 
         // add phaseAngleClock as an extension, cgmes does not allow pac at end1
         if (phaseAngleClock1 != 0) {
-            String reason = "Unsupported modelling: two winding transformer with phase angle clock at end1";
-            invalid(reason);
-            throw new PowsyblException(String.format("TwoWindingTransformer %s %s", tx.getId(), reason));
+            String reason = "Unsupported modelling: twoWindingsTransformer with phaseAngleClock at end1";
+            ignored("phaseAngleClock end1", reason);
         }
         if (phaseAngleClock2 != 0) {
-            PhaseAngleClockTwoWindingsTransformer phaseAngleClock = new PhaseAngleClockTwoWindingsTransformer(tx, phaseAngleClock2);
-            tx.addExtension(PhaseAngleClockTwoWindingsTransformer.class, phaseAngleClock);
+            TwoWindingsTransformerPhaseAngleClock phaseAngleClock = new TwoWindingsTransformerPhaseAngleClock(tx, phaseAngleClock2);
+            tx.addExtension(TwoWindingsTransformerPhaseAngleClock.class, phaseAngleClock);
         }
     }
 

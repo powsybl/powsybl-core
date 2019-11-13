@@ -13,12 +13,12 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class PhaseAngleClockThreeWindingsTransformer extends AbstractExtension<ThreeWindingsTransformer> {
+public class ThreeWindingsTransformerPhaseAngleClock extends AbstractExtension<ThreeWindingsTransformer> {
 
     private int phaseAngleClockLeg2;
     private int phaseAngleClockLeg3;
 
-    public PhaseAngleClockThreeWindingsTransformer(ThreeWindingsTransformer twt, int phaseAngleClockLeg2, int phaseAngleClockLeg3) {
+    public ThreeWindingsTransformerPhaseAngleClock(ThreeWindingsTransformer twt, int phaseAngleClockLeg2, int phaseAngleClockLeg3) {
         super(twt);
         this.phaseAngleClockLeg2 = checkPhaseAngleClock(phaseAngleClockLeg2);
         this.phaseAngleClockLeg3 = checkPhaseAngleClock(phaseAngleClockLeg3);
@@ -26,7 +26,7 @@ public class PhaseAngleClockThreeWindingsTransformer extends AbstractExtension<T
 
     @Override
     public String getName() {
-        return "phaseAngleClockThreeWindingsTransformer";
+        return "threeWindingsTransformerPhaseAngleClock";
     }
 
     public int getPhaseAngleClockLeg2() {

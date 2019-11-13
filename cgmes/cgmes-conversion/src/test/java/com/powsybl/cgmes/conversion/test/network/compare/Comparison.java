@@ -39,8 +39,8 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
-import com.powsybl.iidm.network.extensions.PhaseAngleClockTwoWindingsTransformer;
-import com.powsybl.iidm.network.extensions.PhaseAngleClockThreeWindingsTransformer;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -420,10 +420,10 @@ public class Comparison {
 
         compareRatioTapChanger(expected.getRatioTapChanger(), actual.getRatioTapChanger());
         comparePhaseTapChanger(expected.getPhaseTapChanger(), actual.getPhaseTapChanger());
-        comparePhaseAngleClock(expected.getExtension(PhaseAngleClockTwoWindingsTransformer.class), actual.getExtension(PhaseAngleClockTwoWindingsTransformer.class));
+        comparePhaseAngleClock(expected.getExtension(TwoWindingsTransformerPhaseAngleClock.class), actual.getExtension(TwoWindingsTransformerPhaseAngleClock.class));
     }
 
-    private void comparePhaseAngleClock(PhaseAngleClockTwoWindingsTransformer expected, PhaseAngleClockTwoWindingsTransformer actual) {
+    private void comparePhaseAngleClock(TwoWindingsTransformerPhaseAngleClock expected, TwoWindingsTransformerPhaseAngleClock actual) {
         if (expected == null && actual == null) {
             return;
         } else if (expected == null && actual != null) {
@@ -442,10 +442,10 @@ public class Comparison {
         compareLeg(expected.getLeg1(), actual.getLeg1(), expected, actual);
         compareLeg(expected.getLeg2(), actual.getLeg2(), expected, actual);
         compareLeg(expected.getLeg3(), actual.getLeg3(), expected, actual);
-        comparePhaseAngleClock(expected.getExtension(PhaseAngleClockThreeWindingsTransformer.class), actual.getExtension(PhaseAngleClockThreeWindingsTransformer.class));
+        comparePhaseAngleClock(expected.getExtension(ThreeWindingsTransformerPhaseAngleClock.class), actual.getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
     }
 
-    private void comparePhaseAngleClock(PhaseAngleClockThreeWindingsTransformer expected, PhaseAngleClockThreeWindingsTransformer actual) {
+    private void comparePhaseAngleClock(ThreeWindingsTransformerPhaseAngleClock expected, ThreeWindingsTransformerPhaseAngleClock actual) {
         if (expected == null && actual == null) {
             return;
         } else if (expected == null && actual != null) {

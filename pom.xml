@@ -63,6 +63,7 @@
         <module>contingency</module>
         <module>distribution-core</module>
         <module>dsl</module>
+        <module>dynamic-simulation</module>
         <module>entsoe-util</module>
         <module>iidm</module>
         <module>itools-packager</module>

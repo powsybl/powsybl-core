@@ -9,12 +9,16 @@ target/
 install.cfg
 
 # Eclipse projects
+.apt_generated
+.apt_generated_tests
 .classpath
+.factorypath
 .project
 .factorypath
 org.eclipse.core.resources.prefs
 org.eclipse.jdt.core.prefs
 org.eclipse.m2e.core.prefs
+org.eclipse.jdt.apt.core.prefs
 org.eclipse.jdt.groovy.core.prefs
 org.eclipse.jdt.apt.core.prefs
 org.sonarlint.eclipse.core.prefs

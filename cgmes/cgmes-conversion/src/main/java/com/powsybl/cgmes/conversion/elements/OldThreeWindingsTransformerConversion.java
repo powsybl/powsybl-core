@@ -10,11 +10,10 @@ package com.powsybl.cgmes.conversion.elements;
 import java.util.Map;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
-import com.powsybl.iidm.network.extensions.PhaseAngleClockThreeWindingsTransformer;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -150,13 +149,12 @@ public class OldThreeWindingsTransformerConversion extends AbstractConductingEqu
 
         // add phaseAngleClock as an extension, cgmes does not allow pac at end1
         if (phaseAngleClock1 != 0) {
-            String reason = "Unsupported modelling: three winding transformer with phase angle clock at Leg1";
-            invalid(reason);
-            throw new PowsyblException(String.format("ThreeWindingTransformer %s %s", tx.getId(), reason));
+            String reason = "Unsupported modelling: threeWindingsTransformer with phaseAngleClock at end1";
+            ignored("phaseAngleClock end1", reason);
         }
         if (phaseAngleClock2 != 0 || phaseAngleClock3 != 0) {
-            PhaseAngleClockThreeWindingsTransformer phaseAngleClock = new PhaseAngleClockThreeWindingsTransformer(tx, phaseAngleClock2, phaseAngleClock3);
-            tx.addExtension(PhaseAngleClockThreeWindingsTransformer.class, phaseAngleClock);
+            ThreeWindingsTransformerPhaseAngleClock phaseAngleClock = new ThreeWindingsTransformerPhaseAngleClock(tx, phaseAngleClock2, phaseAngleClock3);
+            tx.addExtension(ThreeWindingsTransformerPhaseAngleClock.class, phaseAngleClock);
         }
 
         setRegulatingControlContext(tx, rtc2, rtc3);

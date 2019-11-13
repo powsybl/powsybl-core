@@ -21,8 +21,8 @@ import javax.xml.stream.XMLStreamException;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class PhaseAngleClockTwoWindingsTransformerXmlSerializer
-    implements ExtensionXmlSerializer<TwoWindingsTransformer, PhaseAngleClockTwoWindingsTransformer> {
+public class TwoWindingsTransformerPhaseAngleClockXmlSerializer
+    implements ExtensionXmlSerializer<TwoWindingsTransformer, TwoWindingsTransformerPhaseAngleClock> {
 
     @Override
     public boolean hasSubElements() {
@@ -31,33 +31,33 @@ public class PhaseAngleClockTwoWindingsTransformerXmlSerializer
 
     @Override
     public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/phaseAngleClockTwoWindingsTransformer.xsd");
+        return getClass().getResourceAsStream("/xsd/twoWindingsTransformerPhaseAngleClock.xsd");
     }
 
     @Override
     public String getNamespaceUri() {
-        return "http://www.powsybl.org/schema/iidm/ext/phase_angle_clock_two_windings_transformer/1_0";
+        return "http://www.powsybl.org/schema/iidm/ext/two_windings_transformer_phase_angle_clock/1_0";
     }
 
     @Override
     public String getNamespacePrefix() {
-        return "pac2wt";
+        return "twowtpac";
     }
 
     @Override
-    public void write(PhaseAngleClockTwoWindingsTransformer extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(TwoWindingsTransformerPhaseAngleClock extension, XmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeOptionalInt("phaseAngleClock", extension.getPhaseAngleClock(), 0, context.getExtensionsWriter());
     }
 
     @Override
-    public PhaseAngleClockTwoWindingsTransformer read(TwoWindingsTransformer extendable, XmlReaderContext context) throws XMLStreamException {
+    public TwoWindingsTransformerPhaseAngleClock read(TwoWindingsTransformer extendable, XmlReaderContext context) throws XMLStreamException {
         int phaseAngleClock = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "phaseAngleClock", 0);
-        return new PhaseAngleClockTwoWindingsTransformer(extendable, phaseAngleClock);
+        return new TwoWindingsTransformerPhaseAngleClock(extendable, phaseAngleClock);
     }
 
     @Override
     public String getExtensionName() {
-        return "phaseAngleClockTwoWindingsTransformer";
+        return "twoWindingsTransformerPhaseAngleClock";
     }
 
     @Override
@@ -66,7 +66,7 @@ public class PhaseAngleClockTwoWindingsTransformerXmlSerializer
     }
 
     @Override
-    public Class<? super PhaseAngleClockTwoWindingsTransformer> getExtensionClass() {
-        return PhaseAngleClockTwoWindingsTransformer.class;
+    public Class<? super TwoWindingsTransformerPhaseAngleClock> getExtensionClass() {
+        return TwoWindingsTransformerPhaseAngleClock.class;
     }
 }

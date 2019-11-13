@@ -41,4 +41,10 @@ public class ThreadLocalMultiVariantContext implements VariantContext {
             this.index.remove();
         }
     }
+
+    @Override
+    public boolean isIndexSet() {
+        return this.index.get() != null;
+    }
+
 }
