@@ -117,7 +117,7 @@ public class IeeeCdfImporter implements Importer {
             sGraph.addVertex(voltageLevelId);
         }
         for (IeeeCdfBranch ieeeCdfBranch : ieeeCdfModel.getBranches()) {
-            if (ieeeCdfBranch.getType() != IeeeCdfBranch.Type.TRANSMISSION_LINE) {
+            if (ieeeCdfBranch.getType() != IeeeCdfBranch.Type.TRANSMISSION_LINE || ieeeCdfBranch.getFinalTurnsRatio() != 0) {
                 sGraph.addEdge(containersMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getTapBusNumber()),
                         containersMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getzBusNumber()));
             }
@@ -165,6 +165,7 @@ public class IeeeCdfImporter implements Importer {
 
                 case HOLD_MVAR_GENERATION_WITHIN_VOLTAGE_LIMITS:
                     newGeneratorAdder(ieeeCdfBus, voltageLevel)
+                            .setTargetQ(ieeeCdfBus.getReactiveGeneration())
                             .setVoltageRegulatorOn(false)
                             .add();
                     break;
@@ -287,11 +288,40 @@ public class IeeeCdfImporter implements Importer {
                 .add();
     }
 
+    private static void createTransformer(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, double sb, Network network) {
+        String id = "T" + ieeeCdfBranch.getTapBusNumber() + "-" + ieeeCdfBranch.getzBusNumber();
+        String bus1Id = getBusId(ieeeCdfBranch.getTapBusNumber());
+        String bus2Id = getBusId(ieeeCdfBranch.getzBusNumber());
+        String voltageLevelId1 = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getTapBusNumber());
+        String voltageLevelId2 = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getzBusNumber());
+        VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevelId2);
+        double zb = Math.pow(voltageLevel2.getNominalV(), 2) / sb;
+        voltageLevel2.getSubstation().newTwoWindingsTransformer()
+                .setId(id)
+                .setBus1(bus1Id)
+                .setConnectableBus1(bus1Id)
+                .setVoltageLevel1(voltageLevelId1)
+                .setBus2(bus2Id)
+                .setConnectableBus2(bus2Id)
+                .setVoltageLevel2(voltageLevelId2)
+                .setRatedU1(voltageLevel2.getNominalV() * ieeeCdfBranch.getFinalTurnsRatio())
+                .setRatedU2(voltageLevel2.getNominalV())
+                .setR(ieeeCdfBranch.getResistance() * zb)
+                .setX(ieeeCdfBranch.getReactance() * zb)
+                .setG(0)
+                .setB(ieeeCdfBranch.getChargingSusceptance() / zb)
+            .add();
+    }
+
     private static void createBranches(IeeeCdfModel ieeeCdfModel, ContainersMapping containerMapping, double sb, Network network) {
         for (IeeeCdfBranch ieeeCdfBranch : ieeeCdfModel.getBranches()) {
             switch (ieeeCdfBranch.getType()) {
                 case TRANSMISSION_LINE:
-                    createLine(ieeeCdfBranch, containerMapping, sb, network);
+                    if (ieeeCdfBranch.getFinalTurnsRatio() == 0) {
+                        createLine(ieeeCdfBranch, containerMapping, sb, network);
+                    } else {
+                        createTransformer(ieeeCdfBranch, containerMapping, sb, network);
+                    }
                     break;
 
                 case FIXED_TAP:
