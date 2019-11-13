@@ -18,12 +18,21 @@ public final class UpdateLoadsGenerators {
             double newP = g.getTargetP() * 1.1;
             double newQ = g.getTargetQ() * 1.1;
             g.setTargetP(newP).setTargetQ(newQ).getTerminal().setP(-newP).setQ(-newQ);
+            count++;
+            if (count > maxChanges) {
+                break;
+            }
         }
 
+        count = 0;
         for (Load g : network.getLoads()) {
             double newP = g.getP0() * 1.1;
             double newQ = g.getQ0() * 1.1;
             g.setP0(newP).setQ0(newQ).getTerminal().setP(newP).setQ(newQ);
+            count++;
+            if (count  > maxChanges) {
+                break;
+            }
         }
     }
 
