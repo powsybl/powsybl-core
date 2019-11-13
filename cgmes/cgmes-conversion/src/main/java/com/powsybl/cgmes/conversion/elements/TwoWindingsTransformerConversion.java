@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import java.util.Map;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -42,11 +43,89 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
 
     @Override
     public void convert() {
-        // CgmesModel cgmesModel = load();
-        // InterpretedModel interpretedModel = interpret(cgmesModel, context.config());
-        // ConvertedModel convertedModel = convertToIidm(interpretedModel);
+        CgmesModel cgmesModel = load();
+    }
 
-        // setToIidm(convertedModel);
+    private CgmesModel load() {
+        // ends = ps
+        PropertyBag end1 = ps.get(0);
+        PropertyBag end2 = ps.get(1);
+
+        double x1 = end1.asDouble(STRING_X);
+        double x2 = end2.asDouble(STRING_X);
+        double r = end1.asDouble(STRING_R) + end2.asDouble(STRING_R);
+        double x = x1 + x2;
+
+        String terminal1 = end1.getId(CgmesNames.TERMINAL);
+        String terminal2 = end2.getId(CgmesNames.TERMINAL);
+
+        PropertyBag rtc1 = getTransformerTapChanger(end1, STRING_RATIO_TAP_CHANGER, powerTransformerRatioTapChanger);
+        PropertyBag ptc1 = getTransformerTapChanger(end1, STRING_PHASE_TAP_CHANGER, powerTransformerPhaseTapChanger);
+        PropertyBag rtc2 = getTransformerTapChanger(end2, STRING_RATIO_TAP_CHANGER, powerTransformerRatioTapChanger);
+        PropertyBag ptc2 = getTransformerTapChanger(end2, STRING_PHASE_TAP_CHANGER, powerTransformerPhaseTapChanger);
+
+        double ratedU1 = end1.asDouble(STRING_RATEDU);
+        double ratedU2 = end2.asDouble(STRING_RATEDU);
+
+        TapChangerConversion ratioTapChanger1 = getRatioTapChanger(rtc1);
+        TapChangerConversion ratioTapChanger2 = getRatioTapChanger(rtc2);
+        TapChangerConversion phaseTapChanger1 = getPhaseTapChanger(ptc1, x);
+        TapChangerConversion phaseTapChanger2 = getPhaseTapChanger(ptc2, x);
+
+        CgmesModel cgmesModel = new CgmesModel();
+        cgmesModel.end1.g = end1.asDouble(STRING_G, 0);
+        cgmesModel.end1.b = end1.asDouble(STRING_B);
+        cgmesModel.end1.ratioTapChanger = ratioTapChanger1;
+        cgmesModel.end1.phaseTapChanger = phaseTapChanger1;
+        cgmesModel.end1.ratedU = ratedU1;
+        cgmesModel.end1.phaseAngleClock = end1.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
+        cgmesModel.end1.terminal = terminal1;
+
+        if (x1 == 0.0) {
+            cgmesModel.end1.xIsZero = true;
+        } else {
+            cgmesModel.end1.xIsZero = false;
+        }
+        cgmesModel.end1.rtcDefined = rtc1 != null && rtc1.asDouble(STRING_STEP_VOLTAGE_INCREMENT) != 0.0;
+
+        cgmesModel.end2.g = end2.asDouble(STRING_G, 0);
+        cgmesModel.end2.b = end2.asDouble(STRING_B);
+        cgmesModel.end2.ratioTapChanger = ratioTapChanger2;
+        cgmesModel.end2.phaseTapChanger = phaseTapChanger2;
+        cgmesModel.end2.ratedU = ratedU2;
+        cgmesModel.end2.phaseAngleClock = end2.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
+        cgmesModel.end2.terminal = terminal2;
+
+        if (x2 == 0.0) {
+            cgmesModel.end2.xIsZero = true;
+        } else {
+            cgmesModel.end2.xIsZero = false;
+        }
+        cgmesModel.end2.rtcDefined = rtc2 != null && rtc2.asDouble(STRING_STEP_VOLTAGE_INCREMENT) != 0.0;
+
+        cgmesModel.r = r;
+        cgmesModel.x = x;
+
+        return cgmesModel;
+    }
+
+    static class CgmesModel {
+        double r;
+        double x;
+        CgmesEnd end1 = new CgmesEnd();
+        CgmesEnd end2 = new CgmesEnd();
+    }
+
+    static class CgmesEnd {
+        double g;
+        double b;
+        TapChangerConversion ratioTapChanger;
+        TapChangerConversion phaseTapChanger;
+        double ratedU;
+        int phaseAngleClock;
+        String terminal;
+        boolean xIsZero;
+        boolean rtcDefined;
     }
 
     private final Map<String, PropertyBag> powerTransformerRatioTapChanger;

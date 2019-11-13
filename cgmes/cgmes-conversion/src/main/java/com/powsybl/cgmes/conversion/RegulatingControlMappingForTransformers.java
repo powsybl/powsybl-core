@@ -47,7 +47,7 @@ public class RegulatingControlMappingForTransformers {
 
         CgmesRegulatingControlPhase rcPtc = null;
         if (ptc != null) {
-            rcPtc = context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(ptc);
+            rcPtc = buildRegulatingControlPhase(ptc);
         }
 
         CgmesRegulatingControlForTwoWindingsTransformer rc = new CgmesRegulatingControlForTwoWindingsTransformer();
@@ -305,7 +305,7 @@ public class RegulatingControlMappingForTransformers {
         return control;
     }
 
-    private String getRegulatingControlId(PropertyBag p) {
+    public String getRegulatingControlId(PropertyBag p) {
         String regulatingControlId = null;
 
         if (p.containsKey(RegulatingControlMapping.TAP_CHANGER_CONTROL)) {
