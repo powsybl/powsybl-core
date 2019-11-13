@@ -63,7 +63,7 @@ public class GeneratorModificationTask implements ModificationTask {
     private void changeConnectionState(Generator g, boolean connect) {
         if (connect) {
             if (!g.getTerminal().isConnected()) {
-                g.getTerminal().connect();
+                GeneratorUtil.connectGenerator(g);
             }
         } else {
             if (g.getTerminal().isConnected()) {
