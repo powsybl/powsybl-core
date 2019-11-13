@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion.elements;
 import java.util.Map;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
