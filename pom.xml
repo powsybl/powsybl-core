@@ -65,6 +65,7 @@
         <module>dsl</module>
         <module>dynamic-simulation</module>
         <module>entsoe-util</module>
+        <module>ieee-cdf</module>
         <module>iidm</module>
         <module>itools-packager</module>
         <module>loadflow</module>
