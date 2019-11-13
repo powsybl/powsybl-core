@@ -11,8 +11,7 @@ import com.univocity.parsers.conversions.ObjectConversion;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
-
-import static java.time.temporal.ChronoField.*;
+import java.time.temporal.ChronoField;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -20,25 +19,27 @@ import static java.time.temporal.ChronoField.*;
 public class LocalDateConversion extends ObjectConversion<LocalDate> {
 
     private static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder()
-            .appendValue(MONTH_OF_YEAR, 2)
-            .appendLiteral('/')
-            .appendValue(DAY_OF_MONTH, 2)
-            .appendLiteral('/')
-            .appendValue(YEAR, 2)
+            .appendPattern("M/d/")
+            .optionalStart()
+            .appendPattern("uuuu")
+            .optionalEnd()
+            .optionalStart()
+            .appendValueReduced(ChronoField.YEAR, 2, 2, 1970)
+            .optionalEnd()
             .toFormatter();
 
     private static final String INVALID_DATE = "0 /0 /0 ";
 
     @Override
-    protected LocalDate fromString(String input) {
-        if (!input.equals(INVALID_DATE)) {
-            return LocalDate.parse(input, FORMATTER);
+    protected LocalDate fromString(String str) {
+        if (!str.equals(INVALID_DATE)) {
+            return LocalDate.parse(str, FORMATTER);
         }
         return null;
     }
 
     @Override
-    public String revert(LocalDate input) {
-        return input != null ? FORMATTER.format(input) : INVALID_DATE;
+    public String revert(LocalDate date) {
+        return date != null ? FORMATTER.format(date) : INVALID_DATE;
     }
 }

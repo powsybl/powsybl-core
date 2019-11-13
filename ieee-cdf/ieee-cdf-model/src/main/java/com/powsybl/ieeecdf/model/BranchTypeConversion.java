@@ -14,12 +14,12 @@ import com.univocity.parsers.conversions.ObjectConversion;
 public class BranchTypeConversion extends ObjectConversion<IeeeCdfBranch.Type> {
 
     @Override
-    protected IeeeCdfBranch.Type fromString(String input) {
-        return IeeeCdfBranch.Type.values()[Integer.parseInt(input.trim())];
+    protected IeeeCdfBranch.Type fromString(String str) {
+        return IeeeCdfBranch.Type.values()[Integer.parseInt(str.trim())];
     }
 
     @Override
-    public String revert(IeeeCdfBranch.Type input) {
-        return Integer.toString(input.ordinal());
+    public String revert(IeeeCdfBranch.Type type) {
+        return Integer.toString(type.ordinal());
     }
 }

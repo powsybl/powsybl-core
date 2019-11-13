@@ -19,6 +19,7 @@
     <packaging>pom</packaging>
     <artifactId>powsybl-ieee-cdf</artifactId>
     <name>IEEE CDF</name>
+    <description>IEEE Common Data Format parent project</description>
 
     <modules>
         <module>ieee-cdf-model</module>

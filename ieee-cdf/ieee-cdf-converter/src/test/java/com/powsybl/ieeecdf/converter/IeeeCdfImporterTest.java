@@ -6,23 +6,40 @@
  */
 package com.powsybl.ieeecdf.converter;
 
+import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class IeeeCdfImporterTest {
+public class IeeeCdfImporterTest extends AbstractConverterTest {
 
     @Test
-    public void test14() {
+    public void existsTest() {
         assertTrue(new IeeeCdfImporter().exists(new ResourceDataSource("ieee14cdf", new ResourceSet("/", "ieee14cdf.txt"))));
-        Network network = IeeeCdfNetworkFactory.create14();
-        NetworkXml.write(network, System.out);
+    }
+
+    private void testNetwork(Network network) throws IOException {
+        Path file = fileSystem.getPath("/work/" + network.getId() + ".xiidm");
+        NetworkXml.write(network, file);
+        try (InputStream is = Files.newInputStream(file)) {
+            compareTxt(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
+        }
+    }
+
+    @Test
+    public void testIeee14() throws IOException {
+        testNetwork(IeeeCdfNetworkFactory.create14());
     }
 }

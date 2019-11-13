@@ -19,8 +19,11 @@ import com.powsybl.iidm.parameters.Parameter;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
+import org.joda.time.DateTime;
 
 import java.io.*;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
@@ -253,6 +256,8 @@ public class IeeeCdfImporter implements Importer {
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, EXT)))) {
             IeeeCdfModel ieeeCdfModel = new IeeeCdfReader().read(reader);
+            ZonedDateTime caseDateTime = ieeeCdfModel.getTitle().getDate().atStartOfDay(ZoneOffset.UTC.normalized());
+            network.setCaseDate(new DateTime(caseDateTime.toInstant().toEpochMilli()));
             ContainersMapping containerMapping = findContainerMapping(ieeeCdfModel);
             Map<Integer, IeeeCdfBus> ieeeCdfBusesByNum = createBuses(ieeeCdfModel, containerMapping, network);
             createBranches(ieeeCdfModel, ieeeCdfBusesByNum, containerMapping, network);

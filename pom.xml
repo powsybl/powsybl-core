@@ -169,6 +169,7 @@
         <trove4j.version>3.0.3</trove4j.version>
         <truevfs.version>0.12.0</truevfs.version>
         <tyrus.version>1.13.1</tyrus.version>
+        <univocity-parsers.version>2.8.3</univocity-parsers.version>
         <wildfly.dist.version>11.0.0.Final</wildfly.dist.version>
         <wildflyarquilliancontainerembedded.version>2.1.0.Final</wildflyarquilliancontainerembedded.version>
         <xmlunit.version>2.3.0</xmlunit.version>
@@ -598,6 +599,11 @@
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-math-native</artifactId>
                 <version>${powsyblmathnative.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.univocity</groupId>
+                <artifactId>univocity-parsers</artifactId>
+                <version>${univocity-parsers.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-cli</groupId>

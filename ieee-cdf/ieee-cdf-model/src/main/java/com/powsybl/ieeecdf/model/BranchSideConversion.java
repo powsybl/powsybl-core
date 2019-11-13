@@ -14,12 +14,12 @@ import com.univocity.parsers.conversions.ObjectConversion;
 public class BranchSideConversion extends ObjectConversion<IeeeCdfBranch.Side> {
 
     @Override
-    protected IeeeCdfBranch.Side fromString(String input) {
-        return IeeeCdfBranch.Side.values()[Integer.parseInt(input.trim())];
+    protected IeeeCdfBranch.Side fromString(String str) {
+        return IeeeCdfBranch.Side.values()[Integer.parseInt(str.trim())];
     }
 
     @Override
-    public String revert(IeeeCdfBranch.Side input) {
-        return input == null ? "" : Integer.toString(input.ordinal());
+    public String revert(IeeeCdfBranch.Side side) {
+        return side == null ? "" : Integer.toString(side.ordinal());
     }
 }

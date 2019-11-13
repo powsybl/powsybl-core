@@ -14,8 +14,8 @@ import com.univocity.parsers.conversions.ObjectConversion;
 public class SeasonConversion extends ObjectConversion<IeeeCdfTitle.Season> {
 
     @Override
-    protected IeeeCdfTitle.Season fromString(String input) {
-        switch (input.charAt(0)) {
+    protected IeeeCdfTitle.Season fromString(String str) {
+        switch (str.charAt(0)) {
             case 'S':
                 return IeeeCdfTitle.Season.SUMMER;
             case 'W':
@@ -26,8 +26,8 @@ public class SeasonConversion extends ObjectConversion<IeeeCdfTitle.Season> {
     }
 
     @Override
-    public String revert(IeeeCdfTitle.Season input) {
-        switch (input) {
+    public String revert(IeeeCdfTitle.Season season) {
+        switch (season) {
             case SUMMER:
                 return "S";
             case WINTER:

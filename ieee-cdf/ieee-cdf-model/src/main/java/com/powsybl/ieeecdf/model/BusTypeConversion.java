@@ -14,12 +14,12 @@ import com.univocity.parsers.conversions.ObjectConversion;
 public class BusTypeConversion extends ObjectConversion<IeeeCdfBus.Type> {
 
     @Override
-    protected IeeeCdfBus.Type fromString(String input) {
-        return IeeeCdfBus.Type.values()[Integer.parseInt(input.trim())];
+    protected IeeeCdfBus.Type fromString(String str) {
+        return IeeeCdfBus.Type.values()[Integer.parseInt(str.trim())];
     }
 
     @Override
-    public String revert(IeeeCdfBus.Type input) {
-        return Integer.toString(input.ordinal());
+    public String revert(IeeeCdfBus.Type type) {
+        return Integer.toString(type.ordinal());
     }
 }

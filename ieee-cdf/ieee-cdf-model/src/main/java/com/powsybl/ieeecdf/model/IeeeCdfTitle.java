@@ -29,7 +29,7 @@ public class IeeeCdfTitle {
         WINTER
     }
 
-    @FixedWidth(from = 1, to = 9)
+    @FixedWidth(from = 1, to = 10)
     @Parsed
     @Convert(conversionClass = LocalDateConversion.class)
     private LocalDate date;
