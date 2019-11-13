@@ -18,4 +18,6 @@ interface VariantContext {
 
     void resetIfVariantIndexIs(int index);
 
+    boolean isIndexSet();
+
 }

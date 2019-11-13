@@ -75,6 +75,9 @@ public class NodeBreakerTest {
         VoltageLevel vl1 = s1.newVoltageLevel().setId("VL").setNominalV(1f)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
+        VoltageLevel vl2 = s1.newVoltageLevel().setId("VL2").setNominalV(1f)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
 
         vl1.getNodeBreakerView()
                 .setNodeCount(11)
@@ -149,6 +152,15 @@ public class NodeBreakerTest {
                 .setNode1(10)
                 .setNode2(2)
                 .setRetained(true)
+                .add();
+
+        vl2.getNodeBreakerView()
+                .setNodeCount(1);
+        vl2.newLoad()
+                .setId("L4")
+                .setNode(0)
+                .setP0(0)
+                .setQ0(0)
                 .add();
         return network;
     }
@@ -283,5 +295,9 @@ public class NodeBreakerTest {
         // load "L3" is not connected and has no connectable bus (the first bus is taken as connectable bus in this case)
         assertNull(getBus(network.getLoad("L3")));
         assertEquals("VL_0", getConnectableBus(network.getLoad("L3")).getId());
+
+        // load "L4" is not connected, has no connectable bus and is in a disconnected voltage level
+        assertNull(getBus(network.getLoad("L4")));
+        assertNull(getConnectableBus(network.getLoad("L4")));
     }
 }
