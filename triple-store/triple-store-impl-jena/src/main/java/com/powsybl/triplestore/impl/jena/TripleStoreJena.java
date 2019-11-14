@@ -38,6 +38,8 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.impl.Util;
 import org.apache.jena.shared.PropertyNotFoundException;
 import org.apache.jena.util.IteratorCollection;
+import org.apache.jena.update.UpdateAction;
+import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.vocabulary.RDF;
 
 import com.powsybl.commons.datasource.DataSource;
@@ -190,6 +192,12 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
     private void copyNamespaces(Model source, Model target) {
         source.getNsPrefixMap().entrySet().forEach(e -> target.setNsPrefix(e.getKey(), e.getValue()));
+    }
+
+    @Override
+    public void update(String query) {
+        Objects.requireNonNull(dataset);
+        UpdateAction.execute(UpdateFactory.create(adjustedQuery(query)), dataset);
     }
 
     @Override

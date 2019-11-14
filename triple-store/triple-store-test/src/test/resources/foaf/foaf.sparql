@@ -7,8 +7,100 @@
 # query: selectNickName
 prefix foaf: <http://xmlns.com/foaf/0.1/>
 SELECT * {
-    GRAPH ?graphPersons
-                { ?x 
-                foaf:mailbox ?mbox ;
-                foaf:nick ?nick    }
+    GRAPH ?graphPersons {
+        ?person 
+        foaf:mailbox ?mbox ;
+        foaf:nick ?nick
     }
+}
+
+# query: insertNickName
+prefix : <http://example/>
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+INSERT {
+    GRAPH <contexts:foaf/abc-nicks.ttl> {
+        :bob foaf:nick "BG"
+    }
+}
+WHERE {}
+
+# query: selectLastName
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT * { 
+    GRAPH ?graph {
+        ?person
+        foaf:lastName ?lastName
+    }
+}
+
+# query: deleteLastName
+prefix : <http://example/>
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+WITH <contexts:foaf/abc-lastNames.ttl>
+DELETE { ?person foaf:lastName ?y }
+WHERE {
+     ?person foaf:lastName ?y .
+     FILTER (?y = "Channing")
+}
+
+# query: updateLastName
+# We need to specify the graph, otherwise insert will be done into default graph.
+prefix : <http://example/>
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+WITH <contexts:foaf/abc-lastNames.ttl> 
+DELETE { ?person foaf:lastName ?y }
+INSERT { ?person foaf:lastName "Grebenshchikov" }
+WHERE {
+    ?person foaf:lastName ?y .
+    FILTER (?person = :bob)
+}
+
+# query: selectLastNameForUpdate
+prefix : <http://example/>
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT * 
+WHERE {
+    GRAPH ?graph {
+        ?person foaf:lastName ?lastName .
+        FILTER (?person = :bob) .
+    }
+}
+
+# query: updatePersonTwoGraphs
+#https://www.w3.org/TR/sparql11-update/#insertData Example 12
+prefix : <http://example/>
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+DELETE {
+    GRAPH ?graphLastnames { ?person foaf:lastName ?y .}
+    GRAPH ?graphPersons { ?person foaf:mailbox ?z .}
+} 
+INSERT {
+    GRAPH ?graphLastnames { ?person foaf:lastName "Walker" .}
+    GRAPH ?graphPersons { ?person foaf:mailbox "mailto:aliceNowWalker@example" .}
+}
+WHERE {
+    GRAPH ?graphPersons {
+        ?person foaf:mailbox ?z .
+        FILTER (?z = <mailto:alice@example>)
+    }
+    GRAPH ?graphLastnames {
+        ?person foaf:lastName ?y .
+    }
+}
+
+# query: selectPersonTwoGraphs
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT * {
+    { GRAPH ?graphLastnames { ?person foaf:lastName ?lastName } }
+    { GRAPH ?graphPersons { ?person foaf:mailbox ?mbox } }
+}
+
+# query: malformedQuery
+prefix : <http://example/>
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+# DELETE clause is not properly closed, missing end "}"
+DELETE { ?x foaf:lastName ?y
+WHERE {
+    ?x foaf:lastName ?y .
+    FILTER (?y = "Channing")
+}
