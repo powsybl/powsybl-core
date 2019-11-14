@@ -319,6 +319,16 @@ public class RegulatingControlMappingForTransformers {
         return regulatingControlId;
     }
 
+    public boolean getRegulating(String controlId) {
+        if (controlId != null) {
+            RegulatingControl control = parent.cachedRegulatingControls().get(controlId);
+            if (control != null) {
+                return control.enabled;
+            }
+        }
+        return false;
+    }
+
     private static boolean isControlModeVoltage(String controlMode, String tculControlMode) {
         if (RegulatingControlMapping.isControlModeVoltage(controlMode)) {
             return true;

@@ -43,7 +43,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
 
     @Override
     public void convert() {
-        CgmesT2xModel cgmesModel = load();
+        CgmesT2xModel cgmesT2xModel = load();
     }
 
     private CgmesT2xModel load() {
@@ -72,41 +72,41 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         TapChangerConversion phaseTapChanger1 = getPhaseTapChanger(ptc1, x);
         TapChangerConversion phaseTapChanger2 = getPhaseTapChanger(ptc2, x);
 
-        CgmesT2xModel cgmesModel = new CgmesT2xModel();
-        cgmesModel.end1.g = end1.asDouble(STRING_G, 0);
-        cgmesModel.end1.b = end1.asDouble(STRING_B);
-        cgmesModel.end1.ratioTapChanger = ratioTapChanger1;
-        cgmesModel.end1.phaseTapChanger = phaseTapChanger1;
-        cgmesModel.end1.ratedU = ratedU1;
-        cgmesModel.end1.phaseAngleClock = end1.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
-        cgmesModel.end1.terminal = terminal1;
+        CgmesT2xModel cgmesT2xModel = new CgmesT2xModel();
+        cgmesT2xModel.end1.g = end1.asDouble(STRING_G, 0);
+        cgmesT2xModel.end1.b = end1.asDouble(STRING_B);
+        cgmesT2xModel.end1.ratioTapChanger = ratioTapChanger1;
+        cgmesT2xModel.end1.phaseTapChanger = phaseTapChanger1;
+        cgmesT2xModel.end1.ratedU = ratedU1;
+        cgmesT2xModel.end1.phaseAngleClock = end1.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
+        cgmesT2xModel.end1.terminal = terminal1;
 
         if (x1 == 0.0) {
-            cgmesModel.end1.xIsZero = true;
+            cgmesT2xModel.end1.xIsZero = true;
         } else {
-            cgmesModel.end1.xIsZero = false;
+            cgmesT2xModel.end1.xIsZero = false;
         }
-        cgmesModel.end1.rtcDefined = rtc1 != null && rtc1.asDouble(STRING_STEP_VOLTAGE_INCREMENT) != 0.0;
+        cgmesT2xModel.end1.rtcDefined = rtc1 != null && rtc1.asDouble(STRING_STEP_VOLTAGE_INCREMENT) != 0.0;
 
-        cgmesModel.end2.g = end2.asDouble(STRING_G, 0);
-        cgmesModel.end2.b = end2.asDouble(STRING_B);
-        cgmesModel.end2.ratioTapChanger = ratioTapChanger2;
-        cgmesModel.end2.phaseTapChanger = phaseTapChanger2;
-        cgmesModel.end2.ratedU = ratedU2;
-        cgmesModel.end2.phaseAngleClock = end2.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
-        cgmesModel.end2.terminal = terminal2;
+        cgmesT2xModel.end2.g = end2.asDouble(STRING_G, 0);
+        cgmesT2xModel.end2.b = end2.asDouble(STRING_B);
+        cgmesT2xModel.end2.ratioTapChanger = ratioTapChanger2;
+        cgmesT2xModel.end2.phaseTapChanger = phaseTapChanger2;
+        cgmesT2xModel.end2.ratedU = ratedU2;
+        cgmesT2xModel.end2.phaseAngleClock = end2.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
+        cgmesT2xModel.end2.terminal = terminal2;
 
         if (x2 == 0.0) {
-            cgmesModel.end2.xIsZero = true;
+            cgmesT2xModel.end2.xIsZero = true;
         } else {
-            cgmesModel.end2.xIsZero = false;
+            cgmesT2xModel.end2.xIsZero = false;
         }
-        cgmesModel.end2.rtcDefined = rtc2 != null && rtc2.asDouble(STRING_STEP_VOLTAGE_INCREMENT) != 0.0;
+        cgmesT2xModel.end2.rtcDefined = rtc2 != null && rtc2.asDouble(STRING_STEP_VOLTAGE_INCREMENT) != 0.0;
 
-        cgmesModel.r = r;
-        cgmesModel.x = x;
+        cgmesT2xModel.r = r;
+        cgmesT2xModel.x = x;
 
-        return cgmesModel;
+        return cgmesT2xModel;
     }
 
     static class CgmesT2xModel {
