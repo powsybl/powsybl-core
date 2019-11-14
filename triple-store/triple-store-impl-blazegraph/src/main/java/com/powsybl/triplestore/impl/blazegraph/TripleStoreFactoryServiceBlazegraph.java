@@ -23,13 +23,19 @@ public class TripleStoreFactoryServiceBlazegraph implements TripleStoreFactorySe
     }
 
     @Override
+    public TripleStore copy(TripleStore source) {
+        TripleStore ts = new TripleStoreBlazegraph();
+        ts.add(source);
+        return ts;
+    }
+
+    @Override
     public String getImplementationName() {
-        return "blazegraph";
+        return TripleStoreBlazegraph.NAME;
     }
 
     @Override
     public boolean isWorkingWithNestedGraphClauses() {
         return false;
     }
-
 }

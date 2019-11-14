@@ -9,8 +9,7 @@ package com.powsybl.timeseries.ast;
 import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Deque;
 import java.util.Objects;
 
 /**
@@ -29,13 +28,31 @@ public class MaxNodeCalc extends AbstractMinMaxNodeCalc {
     }
 
     @Override
-    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, List<R> children) {
-        return visitor.visit(this, arg, children.get(0));
+    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg, int depth) {
+        if (depth < NodeCalcVisitors.RECURSION_THRESHOLD) {
+            NodeCalc child = visitor.iterate(this, arg);
+            R childValue = null;
+            if (child != null) {
+                childValue = child.accept(visitor, arg, depth + 1);
+            }
+            return visitor.visit(this, arg, childValue);
+        } else {
+            return NodeCalcVisitors.visit(this, arg, visitor);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <R, A> R acceptHandle(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> resultsStack) {
+        Object childResult = resultsStack.pop();
+        childResult = childResult == NodeCalcVisitors.NULL ? null : childResult;
+        return visitor.visit(this, arg, (R) childResult);
     }
 
     @Override
-    public <R, A> List<NodeCalc> acceptIterate(NodeCalcVisitor<R, A> visitor, A arg) {
-        return Arrays.asList(visitor.iterate(this, arg));
+    public <R, A> void acceptIterate(NodeCalcVisitor<R, A> visitor, A arg, Deque<Object> nodesStack) {
+        NodeCalc childNode = visitor.iterate(this, arg);
+        nodesStack.push(childNode == null ? NodeCalcVisitors.NULL : childNode);
     }
 
     @Override
