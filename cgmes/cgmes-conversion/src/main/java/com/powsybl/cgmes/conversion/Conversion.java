@@ -469,6 +469,286 @@ public class Conversion {
             return this;
         }
 
+        public boolean isXfmr2RatioPhaseEnd1() {
+            return xfmr2RatioPhaseEnd1;
+        }
+
+        public void setXfmr2RatioPhaseEnd1(boolean xfmr2RatioPhaseEnd1) {
+            this.xfmr2RatioPhaseEnd1 = xfmr2RatioPhaseEnd1;
+        }
+
+        public boolean isXfmr2RatioPhaseEnd2() {
+            return xfmr2RatioPhaseEnd2;
+        }
+
+        public void setXfmr2RatioPhaseEnd2(boolean xfmr2RatioPhaseEnd2) {
+            this.xfmr2RatioPhaseEnd2 = xfmr2RatioPhaseEnd2;
+        }
+
+        public boolean isXfmr2RatioPhaseEnd1End2() {
+            return xfmr2RatioPhaseEnd1End2;
+        }
+
+        public void setXfmr2RatioPhaseEnd1End2(boolean xfmr2RatioPhaseEnd1End2) {
+            this.xfmr2RatioPhaseEnd1End2 = xfmr2RatioPhaseEnd1End2;
+        }
+
+        public boolean isXfmr2RatioPhaseRtc() {
+            return xfmr2RatioPhaseRtc;
+        }
+
+        public void setXfmr2RatioPhaseRtc(boolean xfmr2RatioPhaseRtc) {
+            this.xfmr2RatioPhaseRtc = xfmr2RatioPhaseRtc;
+        }
+
+        public boolean isXfmr2Phase1Negate() {
+            return xfmr2Phase1Negate;
+        }
+
+        public void setXfmr2Phase1Negate(boolean xfmr2Phase1Negate) {
+            this.xfmr2Phase1Negate = xfmr2Phase1Negate;
+        }
+
+        public boolean isXfmr2Phase2Negate() {
+            return xfmr2Phase2Negate;
+        }
+
+        public void setXfmr2Phase2Negate(boolean xfmr2Phase2Negate) {
+            this.xfmr2Phase2Negate = xfmr2Phase2Negate;
+        }
+
+        public boolean isXfmr2ShuntEnd1() {
+            return xfmr2ShuntEnd1;
+        }
+
+        public void setXfmr2ShuntEnd1(boolean xfmr2ShuntEnd1) {
+            this.xfmr2ShuntEnd1 = xfmr2ShuntEnd1;
+        }
+
+        public boolean isXfmr2ShuntEnd2() {
+            return xfmr2ShuntEnd2;
+        }
+
+        public void setXfmr2ShuntEnd2(boolean xfmr2ShuntEnd2) {
+            this.xfmr2ShuntEnd2 = xfmr2ShuntEnd2;
+        }
+
+        public boolean isXfmr2ShuntEnd1End2() {
+            return xfmr2ShuntEnd1End2;
+        }
+
+        public void setXfmr2ShuntEnd1End2(boolean xfmr2ShuntEnd1End2) {
+            this.xfmr2ShuntEnd1End2 = xfmr2ShuntEnd1End2;
+        }
+
+        public boolean isXfmr2ShuntSplit() {
+            return xfmr2ShuntSplit;
+        }
+
+        public void setXfmr2ShuntSplit(boolean xfmr2ShuntSplit) {
+            this.xfmr2ShuntSplit = xfmr2ShuntSplit;
+        }
+
+        public boolean isXfmr2PhaseAngleClockEnd1End2() {
+            return xfmr2PhaseAngleClockEnd1End2;
+        }
+
+        public void setXfmr2PhaseAngleClockEnd1End2(boolean xfmr2PhaseAngleClockEnd1End2) {
+            this.xfmr2PhaseAngleClockEnd1End2 = xfmr2PhaseAngleClockEnd1End2;
+        }
+
+        public boolean isXfmr2PhaseAngleClock1Negate() {
+            return xfmr2PhaseAngleClock1Negate;
+        }
+
+        public void setXfmr2PhaseAngleClock1Negate(boolean xfmr2PhaseAngleClock1Negate) {
+            this.xfmr2PhaseAngleClock1Negate = xfmr2PhaseAngleClock1Negate;
+        }
+
+        public boolean isXfmr2PhaseAngleClock2Negate() {
+            return xfmr2PhaseAngleClock2Negate;
+        }
+
+        public void setXfmr2PhaseAngleClock2Negate(boolean xfmr2PhaseAngleClock2Negate) {
+            this.xfmr2PhaseAngleClock2Negate = xfmr2PhaseAngleClock2Negate;
+        }
+
+        public Config setXfmr2StructuralRatio(String value) {
+            if (value.equals("end1")) {
+                setXfmr2Ratio0End1(true);
+                setXfmr2Ratio0End2(false);
+                setXfmr2Ratio0Rtc(false);
+                setXfmr2Ratio0X(false);
+            } else if (value.equals("end2")) {
+                setXfmr2Ratio0End1(false);
+                setXfmr2Ratio0End2(true);
+                setXfmr2Ratio0Rtc(false);
+                setXfmr2Ratio0X(false);
+            } else if (value.equals("rtc")) {
+                setXfmr2Ratio0End1(false);
+                setXfmr2Ratio0End2(false);
+                setXfmr2Ratio0Rtc(true);
+                setXfmr2Ratio0X(false);
+            } else if (value.equals("x")) {
+                setXfmr2Ratio0End1(false);
+                setXfmr2Ratio0End2(false);
+                setXfmr2Ratio0Rtc(false);
+                setXfmr2Ratio0X(true);
+            }
+            return this;
+        }
+
+        public boolean isXfmr2Ratio0End1() {
+            return xfmr2Ratio0End1;
+        }
+
+        public void setXfmr2Ratio0End1(boolean xfmr2Ratio0End1) {
+            this.xfmr2Ratio0End1 = xfmr2Ratio0End1;
+        }
+
+        public boolean isXfmr2Ratio0End2() {
+            return xfmr2Ratio0End2;
+        }
+
+        public void setXfmr2Ratio0End2(boolean xfmr2Ratio0End2) {
+            this.xfmr2Ratio0End2 = xfmr2Ratio0End2;
+        }
+
+        public boolean isXfmr2Ratio0Rtc() {
+            return xfmr2Ratio0Rtc;
+        }
+
+        public void setXfmr2Ratio0Rtc(boolean xfmr2Ratio0Rtc) {
+            this.xfmr2Ratio0Rtc = xfmr2Ratio0Rtc;
+        }
+
+        public boolean isXfmr2Ratio0X() {
+            return xfmr2Ratio0X;
+        }
+
+        public void setXfmr2Ratio0X(boolean xfmr2Ratio0X) {
+            this.xfmr2Ratio0X = xfmr2Ratio0X;
+        }
+
+        public boolean isXfmr3RatioPhaseNetworkSide() {
+            return xfmr3RatioPhaseNetworkSide;
+        }
+
+        public void setXfmr3RatioPhaseNetworkSide(boolean xfmr3RatioPhaseNetworkSide) {
+            this.xfmr3RatioPhaseNetworkSide = xfmr3RatioPhaseNetworkSide;
+        }
+
+        public boolean isXfmr3ShuntNetworkSide() {
+            return xfmr3ShuntNetworkSide;
+        }
+
+        public void setXfmr3ShuntNetworkSide(boolean xfmr3ShuntNetworkSide) {
+            this.xfmr3ShuntNetworkSide = xfmr3ShuntNetworkSide;
+        }
+
+        public boolean isXfmr3ShuntStarBusSide() {
+            return xfmr3ShuntStarBusSide;
+        }
+
+        public void setXfmr3ShuntStarBusSide(boolean xfmr3ShuntStarBusSide) {
+            this.xfmr3ShuntStarBusSide = xfmr3ShuntStarBusSide;
+        }
+
+        public boolean isXfmr3ShuntSplit() {
+            return xfmr3ShuntSplit;
+        }
+
+        public void setXfmr3ShuntSplit(boolean xfmr3ShuntSplit) {
+            this.xfmr3ShuntSplit = xfmr3ShuntSplit;
+        }
+
+        public boolean isXfmr3PhaseAngleClockNetworkSide() {
+            return xfmr3PhaseAngleClockNetworkSide;
+        }
+
+        public void setXfmr3PhaseAngleClockNetworkSide(boolean xfmr3PhaseAngleClockNetworkSide) {
+            this.xfmr3PhaseAngleClockNetworkSide = xfmr3PhaseAngleClockNetworkSide;
+        }
+
+        public boolean isXfmr3PhaseAngleClockStarBusSide() {
+            return xfmr3PhaseAngleClockStarBusSide;
+        }
+
+        public void setXfmr3PhaseAngleClockStarBusSide(boolean xfmr3PhaseAngleClockStarBusSide) {
+            this.xfmr3PhaseAngleClockStarBusSide = xfmr3PhaseAngleClockStarBusSide;
+        }
+
+        public boolean isXfmr3Ratio0StarBusSide() {
+            return xfmr3Ratio0StarBusSide;
+        }
+
+        public void setXfmr3Ratio0StarBusSide(boolean xfmr3Ratio0StarBusSide) {
+            this.xfmr3Ratio0StarBusSide = xfmr3Ratio0StarBusSide;
+        }
+
+        public boolean isXfmr3Ratio0NetworkSide() {
+            return xfmr3Ratio0NetworkSide;
+        }
+
+        public void setXfmr3Ratio0NetworkSide(boolean xfmr3Ratio0NetworkSide) {
+            this.xfmr3Ratio0NetworkSide = xfmr3Ratio0NetworkSide;
+        }
+
+        public boolean isXfmr3Ratio0End1() {
+            return xfmr3Ratio0End1;
+        }
+
+        public void setXfmr3Ratio0End1(boolean xfmr3Ratio0End1) {
+            this.xfmr3Ratio0End1 = xfmr3Ratio0End1;
+        }
+
+        public boolean isXfmr3Ratio0End2() {
+            return xfmr3Ratio0End2;
+        }
+
+        public void setXfmr3Ratio0End2(boolean xfmr3Ratio0End2) {
+            this.xfmr3Ratio0End2 = xfmr3Ratio0End2;
+        }
+
+        public boolean isXfmr3Ratio0End3() {
+            return xfmr3Ratio0End3;
+        }
+
+        public void setXfmr3Ratio0End3(boolean xfmr3Ratio0End3) {
+            this.xfmr3Ratio0End3 = xfmr3Ratio0End3;
+        }
+
+        public void reset() {
+            this.xfmr2RatioPhaseEnd1 = false;
+            this.xfmr2RatioPhaseEnd2 = false;
+            this.xfmr2RatioPhaseEnd1End2 = false;
+            this.xfmr2RatioPhaseRtc = false;
+            this.xfmr2Phase1Negate = false;
+            this.xfmr2Phase2Negate = false;
+            this.xfmr2ShuntEnd1 = false;
+            this.xfmr2ShuntEnd2 = false;
+            this.xfmr2ShuntEnd1End2 = false;
+            this.xfmr2ShuntSplit = false;
+            this.xfmr2PhaseAngleClockEnd1End2 = false;
+            this.xfmr2PhaseAngleClock1Negate = false;
+            this.xfmr2PhaseAngleClock2Negate = false;
+            this.xfmr2Ratio0End1 = false;
+            this.xfmr2Ratio0End2 = false;
+            this.xfmr2Ratio0Rtc = false;
+            this.xfmr2Ratio0X = false;
+            this.xfmr3RatioPhaseNetworkSide = false;
+            this.xfmr3ShuntNetworkSide = false;
+            this.xfmr3ShuntStarBusSide = false;
+            this.xfmr3ShuntSplit = false;
+            this.xfmr3PhaseAngleClockNetworkSide = false;
+            this.xfmr3PhaseAngleClockStarBusSide = false;
+            this.xfmr3Ratio0StarBusSide = false;
+            this.xfmr3Ratio0NetworkSide = false;
+            this.xfmr3Ratio0End1 = false;
+            this.xfmr3Ratio0End2 = false;
+            this.xfmr3Ratio0End3 = false;
+        }
+
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
@@ -479,6 +759,36 @@ public class Conversion {
         private boolean convertSvInjections = true;
         private StateProfile profileUsedForInitialStateValues = SSH;
 
+        // Default configuration. See CgmesImport.java config()
+        private boolean xfmr2RatioPhaseEnd1 = false;
+        private boolean xfmr2RatioPhaseEnd2 = false;
+        private boolean xfmr2RatioPhaseEnd1End2 = true;
+        private boolean xfmr2RatioPhaseRtc = false;
+        private boolean xfmr2Phase1Negate = false;
+        private boolean xfmr2Phase2Negate = false;
+        private boolean xfmr2ShuntEnd1 = true;
+        private boolean xfmr2ShuntEnd2 = false;
+        private boolean xfmr2ShuntEnd1End2 = false;
+        private boolean xfmr2ShuntSplit = false;
+        private boolean xfmr2PhaseAngleClockEnd1End2 = false;
+        private boolean xfmr2PhaseAngleClock1Negate = false;
+        private boolean xfmr2PhaseAngleClock2Negate = false;
+        private boolean xfmr2Ratio0End1 = false;
+        private boolean xfmr2Ratio0End2 = false;
+        private boolean xfmr2Ratio0Rtc = false;
+        private boolean xfmr2Ratio0X = true;
+
+        private boolean xfmr3RatioPhaseNetworkSide = true;
+        private boolean xfmr3ShuntNetworkSide = true;
+        private boolean xfmr3ShuntStarBusSide = false;
+        private boolean xfmr3ShuntSplit = false;
+        private boolean xfmr3PhaseAngleClockNetworkSide = false;
+        private boolean xfmr3PhaseAngleClockStarBusSide = false;
+        private boolean xfmr3Ratio0StarBusSide = true;
+        private boolean xfmr3Ratio0NetworkSide = false;
+        private boolean xfmr3Ratio0End1 = false;
+        private boolean xfmr3Ratio0End2 = false;
+        private boolean xfmr3Ratio0End3 = false;
     }
 
     private final CgmesModel cgmes;
