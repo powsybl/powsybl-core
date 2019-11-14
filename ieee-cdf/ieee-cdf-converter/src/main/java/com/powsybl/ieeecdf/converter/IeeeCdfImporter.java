@@ -90,29 +90,19 @@ public class IeeeCdfImporter implements Importer {
         private final Map<String, String> voltageLevelIdToSubstationId = new HashMap<>();
     }
 
-    private static ContainersMapping findContainerMapping(IeeeCdfModel ieeeCdfModel) {
+    private static ContainersMapping createContainerMapping(IeeeCdfModel ieeeCdfModel) {
         ContainersMapping containersMapping = new ContainersMapping();
 
         // group buses connected to non impedant lines to voltage levels
-        UndirectedGraph<Integer, Object> vlGraph = new Pseudograph<>(Object.class);
-        for (IeeeCdfBus ieeeCdfBus : ieeeCdfModel.getBuses()) {
-            vlGraph.addVertex(ieeeCdfBus.getNumber());
-        }
-        for (IeeeCdfBranch ieeeCdfBranch : ieeeCdfModel.getBranches()) {
-            if (ieeeCdfBranch.getResistance() == 0 && ieeeCdfBranch.getReactance() == 0) {
-                vlGraph.addEdge(ieeeCdfBranch.getTapBusNumber(), ieeeCdfBranch.getzBusNumber());
-            }
-        }
-        int voltageLevelNum = 1;
-        for (Set<Integer> busNums : new ConnectivityInspector<>(vlGraph).connectedSets()) {
-            String voltageLevelId = "VL" + voltageLevelNum++;
-            containersMapping.voltageLevelIdToBusNums.put(voltageLevelId, busNums);
-            for (int busNum : busNums) {
-                containersMapping.busNumToVoltageLevelId.put(busNum, voltageLevelId);
-            }
-        }
+        createVoltageLevelMapping(ieeeCdfModel, containersMapping);
 
         // group voltage levels connected by transformers to substations
+        createSubstationMapping(ieeeCdfModel, containersMapping);
+
+        return containersMapping;
+    }
+
+    private static void createSubstationMapping(IeeeCdfModel ieeeCdfModel, ContainersMapping containersMapping) {
         UndirectedGraph<String, Object> sGraph = new Pseudograph<>(Object.class);
         for (String voltageLevelId : containersMapping.voltageLevelIdToBusNums.keySet()) {
             sGraph.addVertex(voltageLevelId);
@@ -130,8 +120,26 @@ public class IeeeCdfImporter implements Importer {
                 containersMapping.voltageLevelIdToSubstationId.put(voltageLevelId, substationId);
             }
         }
+    }
 
-        return containersMapping;
+    private static void createVoltageLevelMapping(IeeeCdfModel ieeeCdfModel, ContainersMapping containersMapping) {
+        UndirectedGraph<Integer, Object> vlGraph = new Pseudograph<>(Object.class);
+        for (IeeeCdfBus ieeeCdfBus : ieeeCdfModel.getBuses()) {
+            vlGraph.addVertex(ieeeCdfBus.getNumber());
+        }
+        for (IeeeCdfBranch ieeeCdfBranch : ieeeCdfModel.getBranches()) {
+            if (ieeeCdfBranch.getResistance() == 0 && ieeeCdfBranch.getReactance() == 0) {
+                vlGraph.addEdge(ieeeCdfBranch.getTapBusNumber(), ieeeCdfBranch.getzBusNumber());
+            }
+        }
+        int voltageLevelNum = 1;
+        for (Set<Integer> busNums : new ConnectivityInspector<>(vlGraph).connectedSets()) {
+            String voltageLevelId = "VL" + voltageLevelNum++;
+            containersMapping.voltageLevelIdToBusNums.put(voltageLevelId, busNums);
+            for (int busNum : busNums) {
+                containersMapping.busNumToVoltageLevelId.put(busNum, voltageLevelId);
+            }
+        }
     }
 
     private static String getBusId(int busNum) {
@@ -356,7 +364,7 @@ public class IeeeCdfImporter implements Importer {
             }
 
             // build container to fit IIDM requirements
-            ContainersMapping containerMapping = findContainerMapping(ieeeCdfModel);
+            ContainersMapping containerMapping = createContainerMapping(ieeeCdfModel);
 
             // create objects
             createBuses(ieeeCdfModel, containerMapping, ieeeCdfTitle.getMvaBase(), network);
