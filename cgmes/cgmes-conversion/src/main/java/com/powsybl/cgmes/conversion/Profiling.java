@@ -24,10 +24,36 @@ public class Profiling {
 
     private final List<String> ops = new ArrayList<>(32);
     private final Map<String, Long> optime = new HashMap<>(32);
+    private final Map<String, Long> loopsCount = new HashMap<>(32);
+    private final Map<String, Long> loopsTime = new HashMap<>(32);
     private long t0;
+    private long loopCount;
+    private long loopTime;
+    private long loopT0;
 
     public void start() {
         t0 = System.currentTimeMillis();
+    }
+
+    public void startLoop() {
+        loopCount = 0;
+        loopTime = 0;
+        start();
+    }
+
+    public void startLoopIteration() {
+        loopT0 = System.currentTimeMillis();
+    }
+
+    public void endLoopIteration() {
+        loopCount++;
+        loopTime += System.currentTimeMillis() - loopT0;
+    }
+
+    public void endLoop(String op) {
+        end(op);
+        loopsTime.put(op, loopTime);
+        loopsCount.put(op, loopCount);
     }
 
     public void end(String op) {
@@ -39,8 +65,37 @@ public class Profiling {
     }
 
     public void report() {
+        report(true);
+    }
+
+    public void report(boolean loopDetails) {
         if (LOGGER.isInfoEnabled()) {
-            ops.forEach(op -> LOGGER.info(String.format("%-20s : %6d", op, optime.get(op))));
+            ops.forEach(op -> {
+                if (loopDetails) {
+                    reportLoopDetails(op);
+                } else {
+                    reportHideLoops(op);
+                }
+            });
+        }
+    }
+
+    private void reportLoopDetails(String op) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(String.format(
+                "%-20s %6d %s",
+                op,
+                optime.get(op),
+                loopsCount.containsKey(op) ? String.format("LOOP count %6d iteration_time %6d", loopsCount.get(op), loopsTime.get(op)) : ""));
+        }
+    }
+
+    private void reportHideLoops(String op) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(String.format(
+                "%-20s %6d",
+                op,
+                loopsCount.containsKey(op) ? loopsTime.get(op) : optime.get(op)));
         }
     }
 }

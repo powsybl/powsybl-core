@@ -10,6 +10,8 @@ package com.powsybl.cgmes.conversion;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
+import com.powsybl.cgmes.conversion.CgmesExport.Operations;
+import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
@@ -59,16 +61,22 @@ public class CgmesImport implements Importer {
                 platformConfig.getConfigDir().resolve(FORMAT).resolve("boundary").toString());
     }
 
-    public CgmesImport(List<CgmesImportPostProcessor> postProcessors) {
-        this(PlatformConfig.defaultConfig(), postProcessors);
-    }
-
     public CgmesImport(PlatformConfig platformConfig) {
         this(platformConfig, new ServiceLoaderCache<>(CgmesImportPostProcessor.class).getServices());
     }
 
+    public CgmesImport(List<CgmesImportPostProcessor> postProcessors) {
+        this(PlatformConfig.defaultConfig(), postProcessors);
+    }
+
     public CgmesImport() {
         this(PlatformConfig.defaultConfig());
+    }
+
+    private Profiling profiling;
+
+    public void setProfiling(Profiling profiling) {
+        this.profiling = profiling;
     }
 
     @Override
@@ -101,12 +109,23 @@ public class CgmesImport implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p) {
+        if (profiling != null) {
+            profiling.start();
+        }
         CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p));
+        if (profiling != null) {
+            profiling.end(Operations.CGMES_READ.name());
+            profiling.start();
+        }
         Network network = new Conversion(cgmes, config(p), activatedPostProcessors(p), networkFactory).convert();
+        if (profiling != null) {
+            profiling.end(Operations.CGMES_CONVERSION.name());
+        }
         if (storeCgmesModelAsNetworkExtension(p)) {
             // Store a reference to the original CGMES model inside the IIDM network
-            // We could also add listeners to be aware of changes in IIDM data
-            network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes));
+            // CgmesUpdate will add a listener to Network changes
+            CgmesUpdate cgmesUpdater = new CgmesUpdate(network);
+            network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes, cgmesUpdater));
         }
         return network;
     }
@@ -187,8 +206,7 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 PROFILE_USED_FOR_INITIAL_STATE_VALUES_PARAMETER,
-                                defaultValueConfig)
-                );
+                                defaultValueConfig));
     }
 
     private List<CgmesImportPostProcessor> activatedPostProcessors(Properties p) {
@@ -279,8 +297,7 @@ public class CgmesImport implements Importer {
             PROFILE_USED_FOR_INITIAL_STATE_VALUES,
             ParameterType.STRING,
             "Profile used for initial state values",
-            "SSH"
-    );
+            "SSH");
     private static final Parameter STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,

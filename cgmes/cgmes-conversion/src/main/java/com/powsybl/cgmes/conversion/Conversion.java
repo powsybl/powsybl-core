@@ -134,6 +134,7 @@ public class Conversion {
 
         // apply post-processors
         for (CgmesImportPostProcessor postProcessor : postProcessors) {
+            // FIXME generic cgmes models may not have an underlying triplestore
             postProcessor.process(network, cgmes.tripleStore(), profiling);
         }
 

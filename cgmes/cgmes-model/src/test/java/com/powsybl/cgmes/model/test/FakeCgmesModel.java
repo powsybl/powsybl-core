@@ -548,6 +548,12 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
+    public String getBasename() {
+        // TODO Review if required by current tests
+        return null;
+    }
+
+    @Override
     public void read(ReadOnlyDataSource ds) {
         // TODO Review if required by current tests
     }
