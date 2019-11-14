@@ -505,9 +505,8 @@ public abstract class AbstractTransformerConversion
         TapChangerConversion tapChanger = new TapChangerConversion();
         String id = rtc.getId();
         boolean isLtcFlag = rtc.isLtcFlag();
-        //boolean isRegulating = rtc.isRegulating();    // TODO
+        boolean isRegulating = rtc.isRegulating();
         String regulatingControlId = rtc.getRegulatingControlId();
-        //int side = rtc.getSide();
         String tculControlMode = rtc.getTculControlMode();
         boolean isTapChangerControlEnabled = rtc.isTapChangerControlEnabled();
         int lowStep = rtc.getLowTapPosition();
@@ -516,9 +515,8 @@ public abstract class AbstractTransformerConversion
             .setTapPosition(position)
             .setLtcFlag(isLtcFlag)
             .setId(id)
-            //.setRegulating(isRegulating)
+            .setRegulating(isRegulating)
             .setRegulatingControlId(regulatingControlId)
-            //.setSide(side)
             .setTculControlMode(tculControlMode)
             .setTapChangerControlEnabled(isTapChangerControlEnabled);
         return tapChanger;
@@ -566,8 +564,7 @@ public abstract class AbstractTransformerConversion
     }
 
     private boolean isTapChangerRegulating(TapChangerConversion tc) {
-        //return tc.isRegulating();
-        return false; // TODO
+        return tc.isRegulating();
     }
 
     static class TapChangerAll {
