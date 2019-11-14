@@ -447,12 +447,16 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         String valueIsNode) {
         Objects.requireNonNull(cimNamespace);
         String baseUri = getBaseUri(baseName);
-        LOG.info("update {}, {}, {}, {}, {}", context, baseUri, baseUri.concat(subject), predicate, value);
-        namedQueryUpdate(queryName, context, baseUri.concat(subject), predicate,
-            value, baseUri, cimNamespace, valueIsNode);
+        String valueIn = valueIsNode.equals("true") ? baseUri.concat(value) : value;
+        if (value.contains("cim:")) {
+            valueIn = cimNamespace.concat(value.substring(4));
+        }
+        LOG.info("update {}, {}, {}, {}", context, baseUri.concat(subject), predicate, valueIn);
+        namedQueryUpdate(queryName, context, baseUri.concat(subject), predicate, valueIn);
 
         // XXX LUMA not required when doing performance evaluation
-        //return namedQuery("checkCgmesUpdated", context, baseUri.concat(subject), predicate);
+        LOG.info(namedQuery("checkCgmesUpdated", context, baseUri.concat(subject), predicate, valueIn).tabulate());
+
         return null;
     }
 
@@ -602,6 +606,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private static final String MODEL_PROFILES = "modelProfiles";
     private static final String PROFILE = "profile";
     private static final Logger LOG = LoggerFactory.getLogger(CgmesModelTripleStore.class);
-    private static final String[] PARAMETER_REFERENCE = { "{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}", "{7}", "{8}",
+    private static final String[] PARAMETER_REFERENCE = {"{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}", "{7}", "{8}",
         "{9}" };
 }

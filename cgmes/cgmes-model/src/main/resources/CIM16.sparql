@@ -890,25 +890,20 @@ WHERE {
 
 # query: updateCgmes
 DELETE { GRAPH <{0}>
-	{ ?subject ?predicate ?value }
-	}
+    { ?subject ?predicate ?value }
+    }
 INSERT { GRAPH <{0}>
-	{?subjectIn {2} ?valueIn }
-	}
-WHERE
-{     
+    {?subjectIn {2} "{3}" }
+    }
+WHERE{     
     { GRAPH <{0}>
           { ?subject  ?predicate  ?value .
             FILTER ( (?subject = <{1}>) && (?predicate = IRI({2})) )
           }
-      }
-	  UNION
-	{ GRAPH <{0}>
+    }
+      UNION
+    { GRAPH <{0}>
           { 
-		    BIND ("{3}" AS ?object) 
-	        BIND ( STRAFTER( STR("{3}"), "cim:") AS ?object_value)
-	        BIND ( IRI( CONCAT( "{5}", ?object_value ) ) AS ?object_iri)
-	        BIND ( IF( STRSTARTS(STR(?object), "cim:"),?object_iri , IF( "{6}"="true", IRI(CONCAT("{4}",?object)), ?object ) )  AS ?valueIn).
             BIND(IF(BOUND(?subject),?subject,IRI(<{1}>)) AS ?subjectIn)
           }
     }
@@ -940,9 +935,10 @@ WHERE
 {     
     { GRAPH <{0}>
           { ?subject  ?predicate  ?value .
-            FILTER ( ?subject = <{1}> )
+            FILTER (?subject = <{1}>)
           }
       }
+    
     UNION
 	{ GRAPH ?graph
         { ?subject  ?predicate  ?value .
@@ -950,7 +946,7 @@ WHERE
             WHERE
               { { GRAPH <{0}>
                     { ?outsubject  ?outpredicate  ?subject
-                      FILTER ( ?outsubject = <{1}> )
+                      FILTER (?outsubject = <{1}>)
                     }
                 }
               }

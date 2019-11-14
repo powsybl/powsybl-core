@@ -408,26 +408,24 @@ WHERE {
     }}
 }
 
-# query: updateCgmesRemove
-
 # query: checkCgmesUpdated
 SELECT ?subject  ?predicate  ?value 
 WHERE
 {     
     { GRAPH <{0}>
           { ?subject  ?predicate  ?value .
-            #FILTER (?subject = <{1}>)
-            FILTER ((?subject = <{1}>) && (?predicate = IRI({2})))
+            FILTER (?subject = <{1}>)
           }
       }
+    
     UNION
-	{ GRAPH ?graph
+    { GRAPH ?graph
         { ?subject  ?predicate  ?value .
           { SELECT  ?subject
             WHERE
               { { GRAPH <{0}>
                     { ?outsubject  ?outpredicate  ?subject
-                      FILTER ( ?outsubject = <{1}> )
+                      FILTER (?outsubject = <{1}>)
                     }
                 }
               }
