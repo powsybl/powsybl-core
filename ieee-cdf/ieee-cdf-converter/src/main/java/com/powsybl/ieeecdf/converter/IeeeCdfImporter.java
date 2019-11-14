@@ -102,13 +102,17 @@ public class IeeeCdfImporter implements Importer {
         return containersMapping;
     }
 
+    private static boolean isTransformer(IeeeCdfBranch ieeeCdfBranch) {
+        return ieeeCdfBranch.getType() != IeeeCdfBranch.Type.TRANSMISSION_LINE || ieeeCdfBranch.getFinalTurnsRatio() != 0;
+    }
+
     private static void createSubstationMapping(IeeeCdfModel ieeeCdfModel, ContainersMapping containersMapping) {
         UndirectedGraph<String, Object> sGraph = new Pseudograph<>(Object.class);
         for (String voltageLevelId : containersMapping.voltageLevelIdToBusNums.keySet()) {
             sGraph.addVertex(voltageLevelId);
         }
         for (IeeeCdfBranch ieeeCdfBranch : ieeeCdfModel.getBranches()) {
-            if (ieeeCdfBranch.getType() != IeeeCdfBranch.Type.TRANSMISSION_LINE || ieeeCdfBranch.getFinalTurnsRatio() != 0) {
+            if (isTransformer(ieeeCdfBranch)) {
                 sGraph.addEdge(containersMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getTapBusNumber()),
                         containersMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getzBusNumber()));
             }
