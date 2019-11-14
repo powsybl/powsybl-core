@@ -30,11 +30,11 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
 
     @Override
     public void convert() {
-        CgmesModel cgmesModel = load();
+        CgmesT3xModel cgmesModel = load();
     }
 
-    private CgmesModel load() {
-        CgmesModel cgmesModel = new CgmesModel();
+    private CgmesT3xModel load() {
+        CgmesT3xModel cgmesModel = new CgmesT3xModel();
 
         // ends = ps
         loadWinding(ps.get(0), cgmesModel.winding1);
@@ -68,7 +68,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         cgmesModelWinding.terminal = terminal;
     }
 
-    static class CgmesModel {
+    static class CgmesT3xModel {
         CgmesWinding winding1 = new CgmesWinding();
         CgmesWinding winding2 = new CgmesWinding();
         CgmesWinding winding3 = new CgmesWinding();

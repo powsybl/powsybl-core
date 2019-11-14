@@ -43,10 +43,10 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
 
     @Override
     public void convert() {
-        CgmesModel cgmesModel = load();
+        CgmesT2xModel cgmesModel = load();
     }
 
-    private CgmesModel load() {
+    private CgmesT2xModel load() {
         // ends = ps
         PropertyBag end1 = ps.get(0);
         PropertyBag end2 = ps.get(1);
@@ -72,7 +72,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         TapChangerConversion phaseTapChanger1 = getPhaseTapChanger(ptc1, x);
         TapChangerConversion phaseTapChanger2 = getPhaseTapChanger(ptc2, x);
 
-        CgmesModel cgmesModel = new CgmesModel();
+        CgmesT2xModel cgmesModel = new CgmesT2xModel();
         cgmesModel.end1.g = end1.asDouble(STRING_G, 0);
         cgmesModel.end1.b = end1.asDouble(STRING_B);
         cgmesModel.end1.ratioTapChanger = ratioTapChanger1;
@@ -109,7 +109,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         return cgmesModel;
     }
 
-    static class CgmesModel {
+    static class CgmesT2xModel {
         double r;
         double x;
         CgmesEnd end1 = new CgmesEnd();
@@ -130,5 +130,4 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
 
     private final Map<String, PropertyBag> powerTransformerRatioTapChanger;
     private final Map<String, PropertyBag> powerTransformerPhaseTapChanger;
-
 }
