@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.powsybl.cgmes.model.CgmesSubset;
+
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -38,8 +40,12 @@ public class IidmToCgmes {
         }
     }
 
-    protected void addSimpleUpdate(String attribute, String predicate, String context, boolean valueIsNode) {
-        simpleUpdateReferences.put(attribute, new TripleStoreSimpleUpdateReference(predicate, context, valueIsNode));
+    protected void addSimpleUpdate(String attribute, String predicate, CgmesSubset subset, boolean valueIsNode) {
+        // The reference to the context in which the change must be applied
+        // is the identifier of the CGMES subset
+        // "EQ", "SSH", "SV", ...
+        simpleUpdateReferences.put(attribute,
+            new TripleStoreSimpleUpdateReference(predicate, subset.getIdentifier(), valueIsNode));
     }
 
     private TripleStoreSimpleUpdateReference simpleUpdateReference(IidmChangeUpdate change) {

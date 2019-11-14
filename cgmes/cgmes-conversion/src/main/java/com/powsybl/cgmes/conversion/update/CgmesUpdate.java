@@ -18,6 +18,7 @@ import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.conversion.Profiling;
 import com.powsybl.cgmes.conversion.update.elements16.IidmToCgmes16;
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStore;
@@ -40,7 +41,7 @@ public class CgmesUpdate {
      * Update the CGMES model given as a parameter. This update only supports CGMES
      * models implemented on a Triplestore.
      *
-     * @param cgmes CGMES model to be updated
+     * @param cgmes     CGMES model to be updated
      * @param variantId Update CGMES model with changes made in this variant
      */
     public void update(CgmesModel cgmes, String variantId, Profiling profiling) {
@@ -95,7 +96,7 @@ public class CgmesUpdate {
             String valueIsNode = String.valueOf(tsChange.params().valueIsNode());
             ts.update(
                 tsChange.queryName(),
-                context.context(tsChange.params().context()),
+                context.actualContext(tsChange.params().contextReference()),
                 context.basename,
                 tsChange.subject(),
                 predicate,
@@ -113,27 +114,16 @@ public class CgmesUpdate {
             this.cimVersion = cgmes.getCimVersion();
         }
 
-        String context(String context) {
+        String actualContext(String context) {
             return actualContexts.get(context);
         }
 
         private Map<String, String> computeActualContexts(TripleStore ts) {
             for (String context : ts.contextNames()) {
-                if (context.toUpperCase().contains("BD")
-                    || context.toUpperCase().contains("BOUNDARY")) {
-                    continue;
-                }
-                if (context.toUpperCase().contains("_SSH")) {
-                    actualContexts.put("_SSH", context);
-                }
-                if (context.toUpperCase().contains("_EQ")) {
-                    actualContexts.put("_EQ", context);
-                }
-                if (context.toUpperCase().contains("_SV")) {
-                    actualContexts.put("_SV", context);
-                }
-                if (context.toUpperCase().contains("_TP")) {
-                    actualContexts.put("_TP", context);
+                for (CgmesSubset subset : CgmesSubset.values()) {
+                    if (subset.isValidName(context)) {
+                        actualContexts.put(subset.getIdentifier(), context);
+                    }
                 }
             }
             return actualContexts;
