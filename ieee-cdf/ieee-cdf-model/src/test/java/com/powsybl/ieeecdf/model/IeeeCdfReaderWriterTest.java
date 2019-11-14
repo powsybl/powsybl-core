@@ -91,4 +91,18 @@ public class IeeeCdfReaderWriterTest {
     public void testIeee300() throws IOException {
         testIeeeFile("ieee300cdf.txt");
     }
+
+    @Test
+    public void testTieLine() throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/tieline.txt")))) {
+            IeeeCdfModel model = new IeeeCdfReader().read(reader);
+            assertEquals(1, model.getTieLines().size());
+            IeeeCdfTieLine tieLine = model.getTieLines().get(0);
+            assertEquals(1, tieLine.getMeteredBusNumber());
+            assertEquals(2, tieLine.getMeteredAreaNumber());
+            assertEquals(3, tieLine.getNonMeteredBusNumber());
+            assertEquals(4, tieLine.getNonMeteredAreaNumber());
+            assertEquals(5, tieLine.getCircuitNumber());
+        }
+    }
 }

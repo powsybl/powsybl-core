@@ -265,7 +265,7 @@ public class IeeeCdfImporter implements Importer {
     }
 
     private static void createLine(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, double sb, Network network) {
-        String id = "L" + ieeeCdfBranch.getTapBusNumber() + "-" + ieeeCdfBranch.getzBusNumber();
+        String id = "L" + ieeeCdfBranch.getTapBusNumber() + "-" + ieeeCdfBranch.getzBusNumber() + "-" + ieeeCdfBranch.getCircuit();
         String bus1Id = getBusId(ieeeCdfBranch.getTapBusNumber());
         String bus2Id = getBusId(ieeeCdfBranch.getzBusNumber());
         String voltageLevelId1 = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getTapBusNumber());
@@ -290,7 +290,7 @@ public class IeeeCdfImporter implements Importer {
     }
 
     private static void createTransformer(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, double sb, Network network) {
-        String id = "T" + ieeeCdfBranch.getTapBusNumber() + "-" + ieeeCdfBranch.getzBusNumber();
+        String id = "T" + ieeeCdfBranch.getTapBusNumber() + "-" + ieeeCdfBranch.getzBusNumber() + "-" + ieeeCdfBranch.getCircuit();
         String bus1Id = getBusId(ieeeCdfBranch.getTapBusNumber());
         String bus2Id = getBusId(ieeeCdfBranch.getzBusNumber());
         String voltageLevelId1 = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getTapBusNumber());
@@ -350,8 +350,10 @@ public class IeeeCdfImporter implements Importer {
 
             // set date and time
             IeeeCdfTitle ieeeCdfTitle = ieeeCdfModel.getTitle();
-            ZonedDateTime caseDateTime = ieeeCdfTitle.getDate().atStartOfDay(ZoneOffset.UTC.normalized());
-            network.setCaseDate(new DateTime(caseDateTime.toInstant().toEpochMilli(), DateTimeZone.UTC));
+            if (ieeeCdfTitle.getDate() != null) {
+                ZonedDateTime caseDateTime = ieeeCdfTitle.getDate().atStartOfDay(ZoneOffset.UTC.normalized());
+                network.setCaseDate(new DateTime(caseDateTime.toInstant().toEpochMilli(), DateTimeZone.UTC));
+            }
 
             // build container to fit IIDM requirements
             ContainersMapping containerMapping = findContainerMapping(ieeeCdfModel);
