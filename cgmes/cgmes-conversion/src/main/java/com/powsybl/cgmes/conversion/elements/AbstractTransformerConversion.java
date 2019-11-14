@@ -113,8 +113,10 @@ public abstract class AbstractTransformerConversion
     }
 
     private void addRatioRegulationData(PropertyBag ratioTapChanger, TapChangerConversion tapChanger) {
+        String regulatingControlId = context.regulatingControlMapping().forTransformers().getRegulatingControlId(ratioTapChanger);
         tapChanger.setId(ratioTapChanger.getId(STRING_RATIO_TAP_CHANGER))
-            .setRegulatingControlId(context.regulatingControlMapping().forTransformers().getRegulatingControlId(ratioTapChanger))
+            .setRegulating(context.regulatingControlMapping().forTransformers().getRegulating(regulatingControlId))
+            .setRegulatingControlId(regulatingControlId)
             .setTculControlMode(ratioTapChanger.get(STRING_TCUL_CONTROL_MODE))
             .setTapChangerControlEnabled(ratioTapChanger.asBoolean(STRING_TAP_CHANGER_CONTROL_ENABLED, false));
     }
@@ -201,8 +203,10 @@ public abstract class AbstractTransformerConversion
     }
 
     private void addPhaseRegulationData(PropertyBag phaseTapChanger, TapChangerConversion tapChanger) {
+        String regulatingControlId = context.regulatingControlMapping().forTransformers().getRegulatingControlId(phaseTapChanger);
         tapChanger.setId(phaseTapChanger.getId(STRING_PHASE_TAP_CHANGER))
-            .setRegulatingControlId(context.regulatingControlMapping().forTransformers().getRegulatingControlId(phaseTapChanger))
+            .setRegulating(context.regulatingControlMapping().forTransformers().getRegulating(regulatingControlId))
+            .setRegulatingControlId(regulatingControlId)
             .setTapChangerControlEnabled(phaseTapChanger.asBoolean(STRING_TAP_CHANGER_CONTROL_ENABLED, false));
     }
 

@@ -21,6 +21,7 @@ public class TapChangerConversion {
     private final List<StepAdder> steps = new ArrayList<>();
     private boolean ltcFlag = false;
     private String id = null;
+    private boolean regulating = false;
     private String regulatingControlId = null;
     private String tculControlMode = null;
     private boolean tapChangerControlEnabled = false;
@@ -133,6 +134,11 @@ public class TapChangerConversion {
         return this;
     }
 
+    public TapChangerConversion setRegulating(boolean regulating) {
+        this.regulating = regulating;
+        return this;
+    }
+
     public TapChangerConversion setRegulatingControlId(String regulatingControlId) {
         this.regulatingControlId = regulatingControlId;
         return this;
@@ -174,6 +180,10 @@ public class TapChangerConversion {
 
     public String getId() {
         return id;
+    }
+
+    public boolean isRegulating() {
+        return regulating;
     }
 
     public String getRegulatingControlId() {
