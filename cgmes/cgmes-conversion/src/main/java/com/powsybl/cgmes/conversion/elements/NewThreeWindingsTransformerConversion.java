@@ -47,7 +47,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return cgmesT3xModel;
     }
 
-    private void loadWinding(PropertyBag winding, CgmesWinding cgmesWindingModel) {
+    private void loadWinding(PropertyBag winding, CgmesWinding cgmesWinding) {
         PropertyBag rtc = getTransformerTapChanger(winding, STRING_RATIO_TAP_CHANGER,
             powerTransformerRatioTapChanger);
         PropertyBag ptc = getTransformerTapChanger(winding, STRING_PHASE_TAP_CHANGER,
@@ -60,15 +60,15 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         TapChangerConversion ratioTapChanger = getRatioTapChanger(rtc);
         TapChangerConversion phaseTapChanger = getPhaseTapChanger(ptc, x);
 
-        cgmesWindingModel.r = winding.asDouble(STRING_R);
-        cgmesWindingModel.x = x;
-        cgmesWindingModel.g = winding.asDouble(STRING_G, 0);
-        cgmesWindingModel.b = winding.asDouble(STRING_B);
-        cgmesWindingModel.ratioTapChanger = ratioTapChanger;
-        cgmesWindingModel.phaseTapChanger = phaseTapChanger;
-        cgmesWindingModel.ratedU = ratedU;
-        cgmesWindingModel.phaseAngleClock = winding.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
-        cgmesWindingModel.terminal = terminal;
+        cgmesWinding.r = winding.asDouble(STRING_R);
+        cgmesWinding.x = x;
+        cgmesWinding.g = winding.asDouble(STRING_G, 0);
+        cgmesWinding.b = winding.asDouble(STRING_B);
+        cgmesWinding.ratioTapChanger = ratioTapChanger;
+        cgmesWinding.phaseTapChanger = phaseTapChanger;
+        cgmesWinding.ratedU = ratedU;
+        cgmesWinding.phaseAngleClock = winding.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
+        cgmesWinding.terminal = terminal;
     }
 
     private InterpretedT3xModel interpret(CgmesT3xModel cgmesT3xModel, Conversion.Config alternative) {
@@ -84,22 +84,22 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return interpretedT3xModel;
     }
 
-    private void interpretWinding(CgmesWinding cgmesWindingModel, Conversion.Config alternative, InterpretedWinding interpretedWinding) {
+    private void interpretWinding(CgmesWinding cgmesWinding, Conversion.Config alternative, InterpretedWinding interpretedWinding) {
 
-        AllTapChanger windingInterpretedTapChanger = ratioPhaseAlternative(cgmesWindingModel, alternative);
-        AllShunt windingInterpretedShunt = shuntAlternative(cgmesWindingModel, alternative);
-        AllPhaseAngleClock windingInterpretedClock = phaseAngleClockAlternative(cgmesWindingModel, alternative);
-        boolean windingRatio0AtEnd2 = ratio0Alternative(cgmesWindingModel, alternative);
+        AllTapChanger windingInterpretedTapChanger = ratioPhaseAlternative(cgmesWinding, alternative);
+        AllShunt windingInterpretedShunt = shuntAlternative(cgmesWinding, alternative);
+        AllPhaseAngleClock windingInterpretedClock = phaseAngleClockAlternative(cgmesWinding, alternative);
+        boolean windingRatio0AtEnd2 = ratio0Alternative(cgmesWinding, alternative);
 
-        interpretedWinding.r = cgmesWindingModel.r;
-        interpretedWinding.x = cgmesWindingModel.x;
+        interpretedWinding.r = cgmesWinding.r;
+        interpretedWinding.x = cgmesWinding.x;
         interpretedWinding.end1.g = windingInterpretedShunt.g1;
         interpretedWinding.end1.b = windingInterpretedShunt.b1;
         interpretedWinding.end1.ratioTapChanger = windingInterpretedTapChanger.ratioTapChanger1;
         interpretedWinding.end1.phaseTapChanger = windingInterpretedTapChanger.phaseTapChanger1;
         interpretedWinding.end1.phaseAngleClock = windingInterpretedClock.phaseAngleClock1;
-        interpretedWinding.end1.ratedU = cgmesWindingModel.ratedU;
-        interpretedWinding.end1.terminal = cgmesWindingModel.terminal;
+        interpretedWinding.end1.ratedU = cgmesWinding.ratedU;
+        interpretedWinding.end1.terminal = cgmesWinding.terminal;
 
         interpretedWinding.end2.g = windingInterpretedShunt.g2;
         interpretedWinding.end2.b = windingInterpretedShunt.b2;
