@@ -1,4 +1,13 @@
+/**
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.cgmes.conversion.test.update;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.update.elements16.GeneratorToSynchronousMachine;
 import com.powsybl.cgmes.conversion.update.elements16.TwoWindingsTransformerToPowerTransformer;
@@ -13,8 +22,9 @@ import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
 
-import jline.internal.Log;
-
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ */
 public final class NetworkChanges {
     private NetworkChanges() {
     }
@@ -53,7 +63,7 @@ public final class NetworkChanges {
         // Some lines may correspond to CGMES switches
         // Do not make changes on low impedance lines
         if (line.getR() < 1e-3 && line.getX() < 1e-3) {
-            Log.warn("No changes are made in IIDM low impedance lines");
+            LOG.warn("No changes are made in IIDM low impedance lines");
         } else {
             line.setR(line.getR() + 0.8);
             line.setX(line.getX() + 0.8);
@@ -153,4 +163,6 @@ public final class NetworkChanges {
             }
         }
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(NetworkChanges.class);
 }

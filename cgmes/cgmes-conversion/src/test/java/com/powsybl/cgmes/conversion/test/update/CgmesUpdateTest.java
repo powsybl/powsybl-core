@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.cgmes.conversion.test.update;
 
 import static org.junit.Assert.fail;
@@ -6,7 +12,6 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 
@@ -43,6 +48,10 @@ import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
+/**
+ * @author Elena Kaltakova <kaltakovae at aia.es>
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ */
 public class CgmesUpdateTest {
 
     @Before
