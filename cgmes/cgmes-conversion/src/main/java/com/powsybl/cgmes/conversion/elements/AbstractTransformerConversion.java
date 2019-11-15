@@ -501,6 +501,117 @@ public abstract class AbstractTransformerConversion
         }
     }
 
+    // Move tapChanger
+    protected TapChangerConversion moveTapChangerFrom1To2(TapChangerConversion tc) {
+        switch (tapChangerType(tc)) {
+            case NULL:
+                return null;
+            case FIXED:
+            case NON_REGULATING:
+            case REGULATING:
+                return moveTapChanger(tc);
+        }
+        return null;
+    }
+
+    protected TapChangerConversion moveTapChangerFrom2To1(TapChangerConversion tc) {
+        return moveTapChangerFrom1To2(tc);
+    }
+
+    private TapChangerConversion moveTapChanger(TapChangerConversion tc) {
+        TapChangerConversion tapChanger = baseCloneTapChanger(tc);
+        moveTapChangerSteps(tapChanger, tc);
+        return tapChanger;
+    }
+
+    private void moveTapChangerSteps(TapChangerConversion tapChanger, TapChangerConversion tc) {
+        tc.getSteps().forEach(step -> {
+            double ratio = step.getRatio();
+            double angle = step.getAngle();
+            double r = step.getR();
+            double x = step.getX();
+            double g1 = step.getG1();
+            double b1 = step.getB1();
+            double g2 = step.getG2();
+            double b2 = step.getB2();
+            TapChangerStepConversion convertedStep = calculateConversionStep(ratio, angle, r, x, g1,
+                b1, g2, b2);
+            tapChanger.beginStep()
+                .setRatio(convertedStep.ratio)
+                .setAngle(convertedStep.angle)
+                .setR(convertedStep.r)
+                .setX(convertedStep.x)
+                .setG1(convertedStep.g1)
+                .setB1(convertedStep.b1)
+                .setG2(convertedStep.g2)
+                .setB2(convertedStep.b2)
+                .endStep();
+        });
+    }
+
+    private TapChangerStepConversion calculateConversionStep(double ratio, double angle, double r,
+        double x, double g1, double b1, double g2, double b2) {
+        TapChangerStepConversion step = new TapChangerStepConversion();
+        Complex a = new Complex(ratio * Math.cos(Math.toRadians(angle)),
+            ratio * Math.sin(Math.toRadians(angle)));
+        Complex na = a.reciprocal();
+        step.ratio = na.abs();
+        step.angle = Math.toDegrees(na.getArgument());
+        step.r = 100 * (impedanceConversion(1 + r / 100, a) - 1);
+        step.x = 100 * (impedanceConversion(1 + x / 100, a) - 1);
+        step.g1 = 100 * (admittanceConversion(1 + g1 / 100, a) - 1);
+        step.b1 = 100 * (admittanceConversion(1 + b1 / 100, a) - 1);
+        step.g2 = 100 * (admittanceConversion(1 + g2 / 100, a) - 1);
+        step.b2 = 100 * (admittanceConversion(1 + b2 / 100, a) - 1);
+        return step;
+    }
+
+    protected RatioConversion identityRatioConversion(double r, double x, double g1,
+        double b1, double g2, double b2) {
+        RatioConversion ratio = new RatioConversion();
+        ratio.r = r;
+        ratio.x = x;
+        ratio.g1 = g1;
+        ratio.b1 = b1;
+        ratio.g2 = g2;
+        ratio.b2 = b2;
+        return ratio;
+    }
+
+    protected RatioConversion moveRatioFrom2To1(double a0, double angle, double r, double x, double g1,
+        double b1, double g2, double b2) {
+        return moveRatio(a0, angle, r, x, g1, b1, g2, b2);
+    }
+
+    protected RatioConversion moveRatioFrom1To2(double a0, double angle, double r, double x, double g1,
+        double b1, double g2, double b2) {
+        return moveRatio(a0, angle, r, x, g1, b1, g2, b2);
+    }
+
+    private RatioConversion moveRatio(double a0, double angle, double r, double x, double g1,
+        double b1, double g2, double b2) {
+        RatioConversion ratio = new RatioConversion();
+        Complex a = new Complex(a0 * Math.cos(Math.toRadians(angle)),
+            a0 * Math.sin(Math.toRadians(angle)));
+        ratio.r = impedanceConversion(r, a);
+        ratio.x = impedanceConversion(x, a);
+        ratio.g1 = admittanceConversion(g1, a);
+        ratio.b1 = admittanceConversion(b1, a);
+        ratio.g2 = admittanceConversion(g2, a);
+        ratio.b2 = admittanceConversion(b2, a);
+        return ratio;
+    }
+
+    private double admittanceConversion(double correction, Complex a) {
+        double a2 = a.abs() * a.abs();
+        return correction / a2;
+    }
+
+    private double impedanceConversion(double correction, Complex a) {
+        double a2 = a.abs() * a.abs();
+        return correction * a2;
+    }
+
     private TapChangerConversion baseCloneTapChanger(TapChangerConversion rtc) {
         TapChangerConversion tapChanger = new TapChangerConversion();
         String id = rtc.getId();
@@ -567,6 +678,36 @@ public abstract class AbstractTransformerConversion
         return tc.isRegulating();
     }
 
+    static class TapChangerStepConversion {
+        double ratio;
+        double angle;
+        double r;
+        double x;
+        double g1;
+        double b1;
+        double g2;
+        double b2;
+    }
+
+    static class RatioConversion {
+        double r;
+        double x;
+        double g1;
+        double b1;
+        double g2;
+        double b2;
+    }
+
+    protected static class ConvertedEnd1 {
+        double g;
+        double b;
+        TapChangerConversion ratioTapChanger;
+        TapChangerConversion phaseTapChanger;
+        double ratedU;
+        String terminal;
+        int phaseAngleClock;
+    }
+
     static class AllTapChanger {
         TapChangerConversion ratioTapChanger1;
         TapChangerConversion phaseTapChanger1;
@@ -585,6 +726,5 @@ public abstract class AbstractTransformerConversion
         int phaseAngleClock1;
         int phaseAngleClock2;
     }
-
 }
 

@@ -33,6 +33,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     public void convert() {
         CgmesT3xModel cgmesT3xModel = load();
         InterpretedT3xModel interpretedT3xModel = interpret(cgmesT3xModel, context.config());
+        ConvertedModel convertedModel = convertToIidm(interpretedT3xModel);
     }
 
     private CgmesT3xModel load() {
@@ -210,6 +211,70 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return cgmesT3xModel.winding1.ratedU;
     }
 
+    private ConvertedModel convertToIidm(InterpretedT3xModel interpretedModel) {
+
+        double ratedUf = interpretedModel.ratedUf;
+        ConvertedModel convertedModel = new ConvertedModel();
+
+        convertToIidmWinding(interpretedModel.winding1, convertedModel.winding1, ratedUf);
+        convertToIidmWinding(interpretedModel.winding2, convertedModel.winding2, ratedUf);
+        convertToIidmWinding(interpretedModel.winding3, convertedModel.winding3, ratedUf);
+
+        convertedModel.ratedUf = ratedUf;
+
+        return convertedModel;
+    }
+
+    private void convertToIidmWinding(InterpretedWinding interpretedWinding, ConvertedWinding convertedWinding, double ratedUf) {
+        TapChangerWinding windingTapChanger = moveCombineTapChangerWinding(interpretedWinding);
+
+        RatioConversion windingRc0 = rc0Winding(interpretedWinding, ratedUf);
+
+        convertedWinding.r = windingRc0.r;
+        convertedWinding.x = windingRc0.x;
+        convertedWinding.end1.g = windingRc0.g1;
+        convertedWinding.end1.b = windingRc0.b1;
+        convertedWinding.end1.ratioTapChanger = windingTapChanger.ratioTapChanger;
+        convertedWinding.end1.phaseTapChanger = windingTapChanger.phaseTapChanger;
+        convertedWinding.end1.phaseAngleClock = interpretedWinding.end1.phaseAngleClock;
+        convertedWinding.end1.ratedU = interpretedWinding.end1.ratedU;
+        convertedWinding.end1.terminal = interpretedWinding.end1.terminal;
+        convertedWinding.end2.g = windingRc0.g2;
+        convertedWinding.end2.b = windingRc0.b2;
+        convertedWinding.end2.phaseAngleClock = interpretedWinding.end2.phaseAngleClock;
+    }
+
+    private RatioConversion rc0Winding(InterpretedWinding interpretedWinding, double ratedUf) {
+        RatioConversion rc0;
+        // IIDM: Structural ratio always at network side
+        if (interpretedWinding.ratio0AtEnd2) {
+            double a0 = ratedUf / interpretedWinding.end1.ratedU;
+            rc0 = moveRatioFrom2To1(a0, 0.0, interpretedWinding.r, interpretedWinding.x,
+                interpretedWinding.end1.g, interpretedWinding.end1.b,
+                interpretedWinding.end2.g, interpretedWinding.end2.b);
+        } else {
+            rc0 = identityRatioConversion(interpretedWinding.r, interpretedWinding.x,
+                interpretedWinding.end1.g, interpretedWinding.end1.b,
+                interpretedWinding.end2.g, interpretedWinding.end2.b);
+        }
+
+        return rc0;
+    }
+
+    private TapChangerWinding moveCombineTapChangerWinding(InterpretedWinding interpretedWinding) {
+
+        TapChangerConversion nRatioTapChanger = moveTapChangerFrom2To1(interpretedWinding.end2.ratioTapChanger);
+        TapChangerConversion nPhaseTapChanger = moveTapChangerFrom2To1(interpretedWinding.end2.phaseTapChanger);
+
+        TapChangerConversion cRatioTapChanger = combineTapChangers(interpretedWinding.end1.ratioTapChanger, nRatioTapChanger);
+        TapChangerConversion cPhaseTapChanger = combineTapChangers(interpretedWinding.end1.phaseTapChanger, nPhaseTapChanger);
+
+        TapChangerWinding tapChangerWinding = new TapChangerWinding();
+        tapChangerWinding.ratioTapChanger = cRatioTapChanger;
+        tapChangerWinding.phaseTapChanger = cPhaseTapChanger;
+        return tapChangerWinding;
+    }
+
     static class CgmesT3xModel {
         CgmesWinding winding1 = new CgmesWinding();
         CgmesWinding winding2 = new CgmesWinding();
@@ -260,6 +325,32 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         TapChangerConversion ratioTapChanger;
         TapChangerConversion phaseTapChanger;
         int phaseAngleClock;
+    }
+
+    static class ConvertedModel {
+        ConvertedWinding winding1 = new ConvertedWinding();
+        ConvertedWinding winding2 = new ConvertedWinding();
+        ConvertedWinding winding3 = new ConvertedWinding();
+        double ratedUf;
+    }
+
+    // 1 network side, 2 start bus side
+    static class ConvertedWinding {
+        double r;
+        double x;
+        ConvertedEnd1 end1 = new ConvertedEnd1();
+        ConvertedEnd2 end2 = new ConvertedEnd2();
+    }
+
+    static class ConvertedEnd2 {
+        double g;
+        double b;
+        int phaseAngleClock;
+    }
+
+    static class TapChangerWinding {
+        TapChangerConversion ratioTapChanger;
+        TapChangerConversion phaseTapChanger;
     }
 
     private final Map<String, PropertyBag> powerTransformerRatioTapChanger;
