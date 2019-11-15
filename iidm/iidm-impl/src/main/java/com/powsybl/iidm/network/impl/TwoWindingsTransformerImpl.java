@@ -6,8 +6,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
@@ -159,6 +163,18 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
     @Override
     public PhaseTapChangerImpl getPhaseTapChanger() {
         return phaseTapChanger;
+    }
+
+    @Override
+    public Set<TapChanger> getAllTapChangers() {
+        Set<TapChanger> tapChangers = new HashSet<TapChanger>();
+        if (ratioTapChanger != null) {
+            tapChangers.add(ratioTapChanger);
+        }
+        if (phaseTapChanger != null) {
+            tapChangers.add(phaseTapChanger);
+        }
+        return tapChangers;
     }
 
     @Override
