@@ -16,6 +16,8 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.TapChangerConversion.StepAdder;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.iidm.network.PhaseTapChangerAdder;
+import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -676,6 +678,60 @@ public abstract class AbstractTransformerConversion
 
     private boolean isTapChangerRegulating(TapChangerConversion tc) {
         return tc.isRegulating();
+    }
+
+    protected void setToIidmRatioTapChanger(TapChangerConversion rtc, RatioTapChangerAdder rtca) {
+        boolean isLtcFlag = rtc.isLtcFlag();
+        int lowStep = rtc.getLowTapPosition();
+        int position = rtc.getTapPosition();
+        rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position);
+
+        rtc.getSteps().forEach(step -> {
+            double ratio0 = step.getRatio();
+            double r0 = step.getR();
+            double x0 = step.getX();
+            double b01 = step.getB1();
+            double g01 = step.getG1();
+            // double b02 = step.getB2();
+            // double g02 = step.getG2();
+            // Only b01 and g01 instead of b01 + b02 and g01 + g02
+            rtca.beginStep()
+                .setRho(1 / ratio0)
+                .setR(r0)
+                .setX(x0)
+                .setB(b01)
+                .setG(g01)
+                .endStep();
+        });
+        rtca.add();
+    }
+
+    protected void setToIidmPhaseTapChanger(TapChangerConversion ptc, PhaseTapChangerAdder ptca) {
+        // TODO record LtcFlag
+        int lowStep = ptc.getLowTapPosition();
+        int position = ptc.getTapPosition();
+        ptca.setLowTapPosition(lowStep).setTapPosition(position);
+
+        ptc.getSteps().forEach(step -> {
+            double ratio0 = step.getRatio();
+            double angle0 = step.getAngle();
+            double r0 = step.getR();
+            double x0 = step.getX();
+            double b01 = step.getB1();
+            double g01 = step.getG1();
+            // double b02 = step.getB2();
+            // double g02 = step.getG2();
+            // Only b01 and g01 instead of b01 + b02 and g01 + g02
+            ptca.beginStep()
+                .setRho(1 / ratio0)
+                .setAlpha(-angle0)
+                .setR(r0)
+                .setX(x0)
+                .setB(b01)
+                .setG(g01)
+                .endStep();
+        });
+        ptca.add();
     }
 
     static class TapChangerStepConversion {

@@ -12,6 +12,11 @@ import java.util.Map;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.PhaseTapChangerAdder;
+import com.powsybl.iidm.network.RatioTapChangerAdder;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -47,6 +52,8 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         CgmesT2xModel cgmesT2xModel = load();
         InterpretedT2xModel interpretedT2xModel = interpret(cgmesT2xModel, context.config());
         ConvertedT2xModel convertedT2xModel = convertToIidm(interpretedT2xModel);
+
+        setToIidm(convertedT2xModel);
     }
 
     private CgmesT2xModel load() {
@@ -313,6 +320,63 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         convertedModel.end2.phaseAngleClock = interpretedT2xModel.end2.phaseAngleClock;
 
         return convertedModel;
+    }
+
+    private void setToIidm(ConvertedT2xModel convertedT2xModel) {
+        TwoWindingsTransformerAdder adder = substation().newTwoWindingsTransformer()
+            .setR(convertedT2xModel.r)
+            .setX(convertedT2xModel.x)
+            .setG(convertedT2xModel.end1.g + convertedT2xModel.end2.g)
+            .setB(convertedT2xModel.end1.b + convertedT2xModel.end2.b)
+            .setRatedU1(convertedT2xModel.end1.ratedU)
+            .setRatedU2(convertedT2xModel.end2.ratedU);
+        identify(adder);
+        connect(adder);
+        TwoWindingsTransformer tx = adder.add();
+        convertedTerminals(tx.getTerminal1(), tx.getTerminal2());
+
+        setToIidmRatioTapChanger(convertedT2xModel, tx);
+        setToIidmPhaseTapChanger(convertedT2xModel, tx);
+
+        // setRegulatingControlContext(tx, convertedT2xModel); TODO
+        // .setPhaseAngleClock1(convertedT2xModel.end1.phaseAngleClock)
+        // .setPhaseAngleClock2(convertedT2xModel.end2.phaseAngleClock); TODO
+    }
+
+    private void setToIidmRatioTapChanger(ConvertedT2xModel convertedT2xModel, Connectable<?> tx) {
+        TapChangerConversion rtc = convertedT2xModel.end1.ratioTapChanger;
+        if (rtc == null) {
+            return;
+        }
+
+        if (rtc.getTapPosition() < rtc.getLowTapPosition() || rtc.getTapPosition() > rtc.getHighTapPosition()) {
+            return;
+        }
+
+        RatioTapChangerAdder rtca = newRatioTapChanger(tx);
+        setToIidmRatioTapChanger(rtc, rtca);
+    }
+
+    private void setToIidmPhaseTapChanger(ConvertedT2xModel convertedT2xModel, Connectable<?> tx) {
+        TapChangerConversion ptc = convertedT2xModel.end1.phaseTapChanger;
+        if (ptc == null) {
+            return;
+        }
+
+        if (ptc.getTapPosition() < ptc.getLowTapPosition() || ptc.getTapPosition() > ptc.getHighTapPosition()) {
+            return;
+        }
+
+        PhaseTapChangerAdder ptca = newPhaseTapChanger(tx);
+        setToIidmPhaseTapChanger(ptc, ptca);
+    }
+
+    protected RatioTapChangerAdder newRatioTapChanger(Connectable<?> tx) {
+        return ((TwoWindingsTransformer) tx).newRatioTapChanger();
+    }
+
+    protected PhaseTapChangerAdder newPhaseTapChanger(Connectable<?> tx) {
+        return ((TwoWindingsTransformer) tx).newPhaseTapChanger();
     }
 
     static class CgmesT2xModel {
