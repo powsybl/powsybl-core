@@ -567,21 +567,21 @@ public abstract class AbstractTransformerConversion
         return tc.isRegulating();
     }
 
-    static class TapChangerAll {
+    static class AllTapChanger {
         TapChangerConversion ratioTapChanger1;
         TapChangerConversion phaseTapChanger1;
         TapChangerConversion ratioTapChanger2;
         TapChangerConversion phaseTapChanger2;
     }
 
-    static class ShuntAll {
+    static class AllShunt {
         double g1;
         double b1;
         double g2;
         double b2;
     }
 
-    static class PhaseAngleClockAll {
+    static class AllPhaseAngleClock {
         int phaseAngleClock1;
         int phaseAngleClock2;
     }

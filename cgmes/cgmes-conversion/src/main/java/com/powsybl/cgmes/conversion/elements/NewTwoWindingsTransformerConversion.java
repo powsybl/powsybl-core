@@ -45,7 +45,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
     @Override
     public void convert() {
         CgmesT2xModel cgmesT2xModel = load();
-        InterpretedModel interpretedModel = interpret(cgmesT2xModel, context.config());
+        InterpretedT2xModel interpretedT2xModel = interpret(cgmesT2xModel, context.config());
     }
 
     private CgmesT2xModel load() {
@@ -111,63 +111,63 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         return cgmesT2xModel;
     }
 
-    private InterpretedModel interpret(CgmesT2xModel cgmesModel, Conversion.Config alternative) {
+    private InterpretedT2xModel interpret(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
 
-        TapChangerAll interpretedTapChanger = ratioPhaseAlternative(cgmesModel, alternative);
-        ShuntAll interpretedShunt = shuntAlternative(cgmesModel, alternative);
+        AllTapChanger interpretedTapChanger = ratioPhaseAlternative(cgmesT2xModel, alternative);
+        AllShunt interpretedShunt = shuntAlternative(cgmesT2xModel, alternative);
 
-        PhaseAngleClockAll interpretedClock = phaseAngleClockAlternative(cgmesModel, alternative);
-        boolean ratio0AtEnd2 = ratio0Alternative(cgmesModel, alternative);
+        AllPhaseAngleClock interpretedClock = phaseAngleClockAlternative(cgmesT2xModel, alternative);
+        boolean ratio0AtEnd2 = ratio0Alternative(cgmesT2xModel, alternative);
 
-        InterpretedModel interpretedModel = new InterpretedModel();
-        interpretedModel.r = cgmesModel.r;
-        interpretedModel.x = cgmesModel.x;
+        InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel();
+        interpretedT2xModel.r = cgmesT2xModel.r;
+        interpretedT2xModel.x = cgmesT2xModel.x;
 
-        interpretedModel.end1.g = interpretedShunt.g1;
-        interpretedModel.end1.b = interpretedShunt.b1;
-        interpretedModel.end1.ratioTapChanger = interpretedTapChanger.ratioTapChanger1;
-        interpretedModel.end1.phaseTapChanger = interpretedTapChanger.phaseTapChanger1;
-        interpretedModel.end1.ratedU = cgmesModel.end1.ratedU;
-        interpretedModel.end1.terminal = cgmesModel.end1.terminal;
-        interpretedModel.end1.phaseAngleClock = interpretedClock.phaseAngleClock1;
+        interpretedT2xModel.end1.g = interpretedShunt.g1;
+        interpretedT2xModel.end1.b = interpretedShunt.b1;
+        interpretedT2xModel.end1.ratioTapChanger = interpretedTapChanger.ratioTapChanger1;
+        interpretedT2xModel.end1.phaseTapChanger = interpretedTapChanger.phaseTapChanger1;
+        interpretedT2xModel.end1.ratedU = cgmesT2xModel.end1.ratedU;
+        interpretedT2xModel.end1.terminal = cgmesT2xModel.end1.terminal;
+        interpretedT2xModel.end1.phaseAngleClock = interpretedClock.phaseAngleClock1;
 
-        interpretedModel.end2.g = interpretedShunt.g2;
-        interpretedModel.end2.b = interpretedShunt.b2;
-        interpretedModel.end2.ratioTapChanger = interpretedTapChanger.ratioTapChanger2;
-        interpretedModel.end2.phaseTapChanger = interpretedTapChanger.phaseTapChanger2;
-        interpretedModel.end2.ratedU = cgmesModel.end2.ratedU;
-        interpretedModel.end2.terminal = cgmesModel.end2.terminal;
-        interpretedModel.end2.phaseAngleClock = interpretedClock.phaseAngleClock2;
+        interpretedT2xModel.end2.g = interpretedShunt.g2;
+        interpretedT2xModel.end2.b = interpretedShunt.b2;
+        interpretedT2xModel.end2.ratioTapChanger = interpretedTapChanger.ratioTapChanger2;
+        interpretedT2xModel.end2.phaseTapChanger = interpretedTapChanger.phaseTapChanger2;
+        interpretedT2xModel.end2.ratedU = cgmesT2xModel.end2.ratedU;
+        interpretedT2xModel.end2.terminal = cgmesT2xModel.end2.terminal;
+        interpretedT2xModel.end2.phaseAngleClock = interpretedClock.phaseAngleClock2;
 
-        interpretedModel.ratio0AtEnd2 = ratio0AtEnd2;
+        interpretedT2xModel.ratio0AtEnd2 = ratio0AtEnd2;
 
-        return interpretedModel;
+        return interpretedT2xModel;
     }
 
-    private TapChangerAll ratioPhaseAlternative(CgmesT2xModel cgmesModel, Conversion.Config alternative) {
+    private AllTapChanger ratioPhaseAlternative(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
         TapChangerConversion ratioTapChanger1 = null;
         TapChangerConversion phaseTapChanger1 = null;
         TapChangerConversion ratioTapChanger2 = null;
         TapChangerConversion phaseTapChanger2 = null;
 
         if (alternative.isXfmr2RatioPhaseEnd1()) {
-            ratioTapChanger1 = combineTapChangers(cgmesModel.end1.ratioTapChanger, cgmesModel.end2.ratioTapChanger);
-            phaseTapChanger1 = combineTapChangers(cgmesModel.end1.phaseTapChanger, cgmesModel.end2.phaseTapChanger);
+            ratioTapChanger1 = combineTapChangers(cgmesT2xModel.end1.ratioTapChanger, cgmesT2xModel.end2.ratioTapChanger);
+            phaseTapChanger1 = combineTapChangers(cgmesT2xModel.end1.phaseTapChanger, cgmesT2xModel.end2.phaseTapChanger);
         } else if (alternative.isXfmr2RatioPhaseEnd2()) {
-            ratioTapChanger2 = combineTapChangers(cgmesModel.end2.ratioTapChanger, cgmesModel.end1.ratioTapChanger);
-            phaseTapChanger2 = combineTapChangers(cgmesModel.end2.phaseTapChanger, cgmesModel.end1.phaseTapChanger);
+            ratioTapChanger2 = combineTapChangers(cgmesT2xModel.end2.ratioTapChanger, cgmesT2xModel.end1.ratioTapChanger);
+            phaseTapChanger2 = combineTapChangers(cgmesT2xModel.end2.phaseTapChanger, cgmesT2xModel.end1.phaseTapChanger);
         } else if (alternative.isXfmr2RatioPhaseEnd1End2()) {
-            ratioTapChanger1 = cgmesModel.end1.ratioTapChanger;
-            phaseTapChanger1 = cgmesModel.end1.phaseTapChanger;
-            ratioTapChanger2 = cgmesModel.end2.ratioTapChanger;
-            phaseTapChanger2 = cgmesModel.end2.phaseTapChanger;
+            ratioTapChanger1 = cgmesT2xModel.end1.ratioTapChanger;
+            phaseTapChanger1 = cgmesT2xModel.end1.phaseTapChanger;
+            ratioTapChanger2 = cgmesT2xModel.end2.ratioTapChanger;
+            phaseTapChanger2 = cgmesT2xModel.end2.phaseTapChanger;
         } else {
-            if (cgmesModel.end1.xIsZero) {
-                ratioTapChanger1 = combineTapChangers(cgmesModel.end1.ratioTapChanger, cgmesModel.end2.ratioTapChanger);
-                phaseTapChanger1 = combineTapChangers(cgmesModel.end1.phaseTapChanger, cgmesModel.end2.phaseTapChanger);
+            if (cgmesT2xModel.end1.xIsZero) {
+                ratioTapChanger1 = combineTapChangers(cgmesT2xModel.end1.ratioTapChanger, cgmesT2xModel.end2.ratioTapChanger);
+                phaseTapChanger1 = combineTapChangers(cgmesT2xModel.end1.phaseTapChanger, cgmesT2xModel.end2.phaseTapChanger);
             } else {
-                ratioTapChanger2 = combineTapChangers(cgmesModel.end2.ratioTapChanger, cgmesModel.end1.ratioTapChanger);
-                phaseTapChanger2 = combineTapChangers(cgmesModel.end2.phaseTapChanger, cgmesModel.end1.phaseTapChanger);
+                ratioTapChanger2 = combineTapChangers(cgmesT2xModel.end2.ratioTapChanger, cgmesT2xModel.end1.ratioTapChanger);
+                phaseTapChanger2 = combineTapChangers(cgmesT2xModel.end2.phaseTapChanger, cgmesT2xModel.end1.phaseTapChanger);
             }
         }
 
@@ -178,77 +178,77 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
             negatePhaseTapChanger(phaseTapChanger2);
         }
 
-        TapChangerAll tapChanger22 = new TapChangerAll();
-        tapChanger22.ratioTapChanger1 = ratioTapChanger1;
-        tapChanger22.phaseTapChanger1 = phaseTapChanger1;
-        tapChanger22.ratioTapChanger2 = ratioTapChanger2;
-        tapChanger22.phaseTapChanger2 = phaseTapChanger2;
+        AllTapChanger allTapChanger = new AllTapChanger();
+        allTapChanger.ratioTapChanger1 = ratioTapChanger1;
+        allTapChanger.phaseTapChanger1 = phaseTapChanger1;
+        allTapChanger.ratioTapChanger2 = ratioTapChanger2;
+        allTapChanger.phaseTapChanger2 = phaseTapChanger2;
 
-        return tapChanger22;
+        return allTapChanger;
     }
 
-    private ShuntAll shuntAlternative(CgmesT2xModel cgmesModel, Conversion.Config alternative) {
+    private AllShunt shuntAlternative(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
         double g1 = 0.0;
         double b1 = 0.0;
         double g2 = 0.0;
         double b2 = 0.0;
         if (alternative.isXfmr2ShuntEnd1()) {
-            g1 = cgmesModel.end1.g + cgmesModel.end2.g;
-            b1 = cgmesModel.end1.b + cgmesModel.end2.b;
+            g1 = cgmesT2xModel.end1.g + cgmesT2xModel.end2.g;
+            b1 = cgmesT2xModel.end1.b + cgmesT2xModel.end2.b;
         } else if (alternative.isXfmr2ShuntEnd2()) {
-            g2 = cgmesModel.end1.g + cgmesModel.end2.g;
-            b2 = cgmesModel.end1.b + cgmesModel.end2.b;
+            g2 = cgmesT2xModel.end1.g + cgmesT2xModel.end2.g;
+            b2 = cgmesT2xModel.end1.b + cgmesT2xModel.end2.b;
         } else if (alternative.isXfmr2ShuntEnd1End2()) {
-            g1 = cgmesModel.end1.g;
-            b1 = cgmesModel.end1.b;
-            g2 = cgmesModel.end2.g;
-            b2 = cgmesModel.end2.b;
+            g1 = cgmesT2xModel.end1.g;
+            b1 = cgmesT2xModel.end1.b;
+            g2 = cgmesT2xModel.end2.g;
+            b2 = cgmesT2xModel.end2.b;
         } else {
-            g1 = (cgmesModel.end1.g + cgmesModel.end2.g) * 0.5;
-            b1 = (cgmesModel.end1.b + cgmesModel.end2.b) * 0.5;
-            g2 = (cgmesModel.end1.g + cgmesModel.end2.g) * 0.5;
-            b2 = (cgmesModel.end1.b + cgmesModel.end2.b) * 0.5;
+            g1 = (cgmesT2xModel.end1.g + cgmesT2xModel.end2.g) * 0.5;
+            b1 = (cgmesT2xModel.end1.b + cgmesT2xModel.end2.b) * 0.5;
+            g2 = (cgmesT2xModel.end1.g + cgmesT2xModel.end2.g) * 0.5;
+            b2 = (cgmesT2xModel.end1.b + cgmesT2xModel.end2.b) * 0.5;
         }
 
-        ShuntAll shunt22 = new ShuntAll();
-        shunt22.g1 = g1;
-        shunt22.b1 = b1;
-        shunt22.g2 = g2;
-        shunt22.b2 = b2;
+        AllShunt allShunt = new AllShunt();
+        allShunt.g1 = g1;
+        allShunt.b1 = b1;
+        allShunt.g2 = g2;
+        allShunt.b2 = b2;
 
-        return shunt22;
+        return allShunt;
     }
 
-    private PhaseAngleClockAll phaseAngleClockAlternative(CgmesT2xModel cgmesModel, Conversion.Config alternative) {
+    private AllPhaseAngleClock phaseAngleClockAlternative(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
         int phaseAngleClock1 = 0;
         int phaseAngleClock2 = 0;
 
         if (alternative.isXfmr2PhaseAngleClockEnd1End2()) {
-            if (cgmesModel.end1.phaseAngleClock != 0) {
+            if (cgmesT2xModel.end1.phaseAngleClock != 0) {
                 if (alternative.isXfmr2PhaseAngleClock1Negate()) {
-                    phaseAngleClock2 = cgmesModel.end1.phaseAngleClock;
+                    phaseAngleClock2 = cgmesT2xModel.end1.phaseAngleClock;
                 } else {
-                    phaseAngleClock1 = cgmesModel.end1.phaseAngleClock;
+                    phaseAngleClock1 = cgmesT2xModel.end1.phaseAngleClock;
                 }
             }
-            if (cgmesModel.end2.phaseAngleClock != 0) {
+            if (cgmesT2xModel.end2.phaseAngleClock != 0) {
                 if (alternative.isXfmr2PhaseAngleClock2Negate()) {
-                    phaseAngleClock1 = cgmesModel.end2.phaseAngleClock;
+                    phaseAngleClock1 = cgmesT2xModel.end2.phaseAngleClock;
                 } else {
-                    phaseAngleClock2 = cgmesModel.end2.phaseAngleClock;
+                    phaseAngleClock2 = cgmesT2xModel.end2.phaseAngleClock;
                 }
             }
         }
 
-        PhaseAngleClockAll phaseAngleClock02 = new PhaseAngleClockAll();
-        phaseAngleClock02.phaseAngleClock1 = phaseAngleClock1;
-        phaseAngleClock02.phaseAngleClock2 = phaseAngleClock2;
+        AllPhaseAngleClock allPhaseAngleClock = new AllPhaseAngleClock();
+        allPhaseAngleClock.phaseAngleClock1 = phaseAngleClock1;
+        allPhaseAngleClock.phaseAngleClock2 = phaseAngleClock2;
 
-        return phaseAngleClock02;
+        return allPhaseAngleClock;
     }
 
-    private boolean ratio0Alternative(CgmesT2xModel cgmesModel, Conversion.Config alternative) {
-        if (cgmesModel.end1.ratedU == cgmesModel.end2.ratedU) {
+    private boolean ratio0Alternative(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
+        if (cgmesT2xModel.end1.ratedU == cgmesT2xModel.end2.ratedU) {
             return false;
         }
 
@@ -258,13 +258,13 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         } else if (alternative.isXfmr2Ratio0End2()) {
             ratio0AtEnd2 = true;
         } else if (alternative.isXfmr2Ratio0Rtc()) {
-            if (cgmesModel.end1.rtcDefined) {
+            if (cgmesT2xModel.end1.rtcDefined) {
                 ratio0AtEnd2 = false;
             } else {
                 ratio0AtEnd2 = true;
             }
         } else {
-            if (cgmesModel.end1.xIsZero) {
+            if (cgmesT2xModel.end1.xIsZero) {
                 ratio0AtEnd2 = false;
             } else {
                 ratio0AtEnd2 = true;
@@ -292,7 +292,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         boolean rtcDefined;
     }
 
-    static class InterpretedModel {
+    static class InterpretedT2xModel {
         double r;
         double x;
         InterpretedEnd end1 = new InterpretedEnd();
