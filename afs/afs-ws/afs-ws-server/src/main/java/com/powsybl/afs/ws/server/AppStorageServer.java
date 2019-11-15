@@ -7,10 +7,7 @@
 package com.powsybl.afs.ws.server;
 
 import com.google.common.io.ByteStreams;
-import com.powsybl.afs.AfsException;
-import com.powsybl.afs.AppFileSystem;
-import com.powsybl.afs.ProjectFile;
-import com.powsybl.afs.TaskMonitor;
+import com.powsybl.afs.*;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeDependency;
 import com.powsybl.afs.storage.NodeGenericMetadata;
@@ -595,13 +592,25 @@ public class AppStorageServer {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("fileSystems/{fileSystemName}/tasks")
     public Response startTask(@PathParam("fileSystemName") String fileSystemName,
-                              @QueryParam("projectFileId") String projectFileId) {
+                              @QueryParam("projectFileId") String projectFileId,
+                              @QueryParam("projectId") String projectId,
+                              @QueryParam("name") String name) {
         AppFileSystem fileSystem = appDataBean.getFileSystem(fileSystemName);
-        ProjectFile projectFile = fileSystem.findProjectFile(projectFileId, ProjectFile.class);
-        if (projectFile == null) {
-            throw new AfsException("Project file '" + projectFileId + "' not found in file system '" + fileSystemName + "'");
+        TaskMonitor.Task task;
+        if (projectFileId != null) {
+            ProjectFile projectFile = fileSystem.findProjectFile(projectFileId, ProjectFile.class);
+            if (projectFile == null) {
+                throw new AfsException("Project file '" + projectFileId + "' not found in file system '" + fileSystemName + "'");
+            }
+            task = fileSystem.getTaskMonitor().startTask(projectFile);
+        } else if (projectId != null && name != null) {
+            Project project = fileSystem
+                    .findProject(projectId)
+                    .orElseThrow(() -> new AfsException("Project '" + projectId + "' not found in file system '" + fileSystemName + "'"));
+            task = fileSystem.getTaskMonitor().startTask(name, project);
+        } else {
+            throw new AfsException("Missing arguments");
         }
-        TaskMonitor.Task task = fileSystem.getTaskMonitor().startTask(projectFile);
         return Response.ok().entity(task).build();
     }
 
