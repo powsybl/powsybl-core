@@ -93,7 +93,7 @@ public class CgmesUpdate {
             context.profiling.startLoopIteration();
             String predicate = tsChange.params().predicate();
             String newValue = tsChange.params().value();
-            String valueIsNode = String.valueOf(tsChange.params().valueIsNode());
+            boolean valueIsNode = tsChange.params().valueIsNode();
             ts.update(
                 tsChange.queryName(),
                 context.actualContext(tsChange.params().contextReference()),
