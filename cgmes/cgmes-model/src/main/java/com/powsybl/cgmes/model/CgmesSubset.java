@@ -35,9 +35,13 @@ public enum CgmesSubset {
     TOPOLOGY_BOUNDARY("TP_BD");
 
     private final String identifier;
+    private final String validName0;
+    private final String validName1;
 
     CgmesSubset(String identifier) {
         this.identifier = identifier;
+        this.validName0 = "_" + identifier + "_";
+        this.validName1 = "_" + identifier + ".";
     }
 
     /**
@@ -48,6 +52,6 @@ public enum CgmesSubset {
     }
 
     public boolean isValidName(String contextName) {
-        return contextName.contains("_" + identifier);
+        return contextName.contains(validName0) || contextName.contains(validName1);
     }
 }
