@@ -24,15 +24,35 @@ public enum CgmesSubset {
     // SSH http://entsoe.eu/CIM/SteadyStateHypothesis/1/1
     // TP http://entsoe.eu/CIM/Topology/4/1
     // TP_BD http://entsoe.eu/CIM/TopologyBoundary/3/1
-    EQUIPMENT("EQ"),
-    TOPOLOGY("TP"),
+    EQUIPMENT("EQ") {
+        @Override
+        public boolean isValidName(String contextName) {
+            return super.isValidName(contextName) && !isBoundary(contextName);
+        }
+    },
+    TOPOLOGY("TP") {
+        @Override
+        public boolean isValidName(String contextName) {
+            return super.isValidName(contextName) && !isBoundary(contextName);
+        }
+    },
     STATE_VARIABLES("SV"),
     STEADY_STATE_HYPOTHESIS("SSH"),
     DYNAMIC("DY"),
     DIAGRAM_LAYOUT("DL"),
     GEOGRAPHICAL_LOCATION("GL"),
-    EQUIPMENT_BOUNDARY("EQ_BD"),
-    TOPOLOGY_BOUNDARY("TP_BD");
+    EQUIPMENT_BOUNDARY("EQ_BD") {
+        @Override
+        public boolean isValidName(String contextName) {
+            return super.isValidName(contextName) || (EQUIPMENT.isValidName(contextName) && isBoundary(contextName));
+        }
+    },
+    TOPOLOGY_BOUNDARY("TP_BD") {
+        @Override
+        public boolean isValidName(String contextName) {
+            return super.isValidName(contextName) || (TOPOLOGY.isValidName(contextName) && isBoundary(contextName));
+        }
+    };
 
     private final String identifier;
     private final String validName0;
@@ -53,5 +73,9 @@ public enum CgmesSubset {
 
     public boolean isValidName(String contextName) {
         return contextName.contains(validName0) || contextName.contains(validName1);
+    }
+
+    private static boolean isBoundary(String contextName) {
+        return contextName.contains("_BD") || contextName.contains("BOUNDARY");
     }
 }

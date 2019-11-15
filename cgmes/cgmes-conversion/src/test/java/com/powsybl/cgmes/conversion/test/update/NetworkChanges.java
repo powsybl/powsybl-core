@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.update.elements16.GeneratorToSynchronousMachine;
 import com.powsybl.cgmes.conversion.update.elements16.TwoWindingsTransformerToPowerTransformer;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Load;
@@ -91,9 +90,11 @@ public final class NetworkChanges {
             modifyGeneratorReactiveLimits(network);
         }
 
-        ShuntCompensator sh = network.getShuntCompensators().iterator().next();
-        sh.setbPerSection(sh.getbPerSection() + 0.2);
-        sh.setMaximumSectionCount(sh.getMaximumSectionCount() + 5);
+        if (network.getShuntCompensatorCount() > 0) {
+            ShuntCompensator sh = network.getShuntCompensators().iterator().next();
+            sh.setbPerSection(sh.getbPerSection() + 0.2);
+            sh.setMaximumSectionCount(sh.getMaximumSectionCount() + 5);
+        }
     }
 
     public static void modifySteadyStateHypothesis(Network network) {
@@ -114,7 +115,7 @@ public final class NetworkChanges {
             }
         }
         if (!found) {
-            throw new PowsyblException("Did not find a ShuntCompensator to test");
+            LOG.error("Did not find a ShuntCompensator to test");
         }
     }
 

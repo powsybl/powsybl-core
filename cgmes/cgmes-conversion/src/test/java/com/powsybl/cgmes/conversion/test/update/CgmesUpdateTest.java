@@ -18,6 +18,7 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -67,8 +68,24 @@ public class CgmesUpdateTest {
 
     @Test
     public void testSimpleUpdateSmallGrid() throws IOException {
+        testSimpleUpdate(CgmesConformity1Catalog.smallBusBranch().dataSource());
+    }
+
+    @Ignore("Contains an AsynchronousMachine that is mapped to an IIDM load")
+    @Test
+    public void testSimpleUpdateMiniBusBranch() throws IOException {
+        testSimpleUpdate(CgmesConformity1Catalog.miniBusBranch().dataSource());
+    }
+
+    @Ignore("Calculated bus lists can not be compared with current implementation (lists not searchable by calculated bus id)")
+    @Test
+    public void testSimpleUpdateMiniNodeBreaker() throws IOException {
+        testSimpleUpdate(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
+    }
+
+    void testSimpleUpdate(ReadOnlyDataSource ds) throws IOException {
         boolean invalidateFlows = true;
-        testSimpleUpdate(CgmesConformity1Catalog.smallBusBranch().dataSource(), invalidateFlows);
+        testSimpleUpdate(ds, invalidateFlows);
     }
 
     void testSimpleUpdate(ReadOnlyDataSource ds, boolean invalidateFlows) throws IOException {
