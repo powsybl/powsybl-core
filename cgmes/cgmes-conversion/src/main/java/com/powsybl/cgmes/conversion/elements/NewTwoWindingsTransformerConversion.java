@@ -11,6 +11,8 @@ import java.util.Map;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
@@ -340,8 +342,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         setToIidmPhaseTapChanger(convertedT2xModel, tx);
 
         setToIidmPhaseAngleClock(convertedT2xModel, tx);
-
-        // setRegulatingControlContext(tx, convertedT2xModel); TODO
+        setRegulatingControlContext(convertedT2xModel, tx);
     }
 
     private void setToIidmRatioTapChanger(ConvertedT2xModel convertedT2xModel, Connectable<?> tx) {
@@ -391,6 +392,13 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
                 convertedT2xModel.end2.phaseAngleClock);
             tx.addExtension(TwoWindingsTransformerPhaseAngleClock.class, phaseAngleClock);
         }
+    }
+
+    private void setRegulatingControlContext(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx) {
+        CgmesRegulatingControlRatio rcRtc = setContextRegulatingDataRatio(convertedT2xModel.end1.ratioTapChanger);
+        CgmesRegulatingControlPhase rcPtc = setContextRegulatingDataPhase(convertedT2xModel.end1.phaseTapChanger);
+
+        context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc, rcPtc);
     }
 
     static class CgmesT2xModel {

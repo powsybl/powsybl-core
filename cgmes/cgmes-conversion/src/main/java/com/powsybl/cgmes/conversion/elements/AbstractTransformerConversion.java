@@ -13,6 +13,8 @@ import java.util.Map;
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
 import com.powsybl.cgmes.conversion.elements.TapChangerConversion.StepAdder;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -732,6 +734,24 @@ public abstract class AbstractTransformerConversion
                 .endStep();
         });
         ptca.add();
+    }
+
+    protected CgmesRegulatingControlRatio setContextRegulatingDataRatio(TapChangerConversion tc) {
+        CgmesRegulatingControlRatio rcRtc = null;
+        if (tc != null) {
+            rcRtc = context.regulatingControlMapping().forTransformers().buildRegulatingControlRatio(tc.getId(),
+                tc.getRegulatingControlId(), tc.getTculControlMode(), tc.isTapChangerControlEnabled());
+        }
+        return rcRtc;
+    }
+
+    protected CgmesRegulatingControlPhase setContextRegulatingDataPhase(TapChangerConversion tc) {
+        CgmesRegulatingControlPhase rcPtc = null;
+        if (tc != null) {
+            return context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(
+                tc.getRegulatingControlId(), tc.isTapChangerControlEnabled(), tc.isLtcFlag());
+        }
+        return rcPtc;
     }
 
     static class TapChangerStepConversion {
