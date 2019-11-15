@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -338,9 +339,9 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         setToIidmRatioTapChanger(convertedT2xModel, tx);
         setToIidmPhaseTapChanger(convertedT2xModel, tx);
 
+        setToIidmPhaseAngleClock(convertedT2xModel, tx);
+
         // setRegulatingControlContext(tx, convertedT2xModel); TODO
-        // .setPhaseAngleClock1(convertedT2xModel.end1.phaseAngleClock)
-        // .setPhaseAngleClock2(convertedT2xModel.end2.phaseAngleClock); TODO
     }
 
     private void setToIidmRatioTapChanger(ConvertedT2xModel convertedT2xModel, Connectable<?> tx) {
@@ -377,6 +378,19 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
 
     protected PhaseTapChangerAdder newPhaseTapChanger(Connectable<?> tx) {
         return ((TwoWindingsTransformer) tx).newPhaseTapChanger();
+    }
+
+    private void setToIidmPhaseAngleClock(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx) {
+        // add phaseAngleClock as an extension, cgmes does not allow pac at end1
+        if (convertedT2xModel.end1.phaseAngleClock != 0) {
+            String reason = "Unsupported modelling: twoWindingsTransformer with phaseAngleClock at end1";
+            ignored("phaseAngleClock end1", reason);
+        }
+        if (convertedT2xModel.end2.phaseAngleClock != 0) {
+            TwoWindingsTransformerPhaseAngleClock phaseAngleClock = new TwoWindingsTransformerPhaseAngleClock(tx,
+                convertedT2xModel.end2.phaseAngleClock);
+            tx.addExtension(TwoWindingsTransformerPhaseAngleClock.class, phaseAngleClock);
+        }
     }
 
     static class CgmesT2xModel {
