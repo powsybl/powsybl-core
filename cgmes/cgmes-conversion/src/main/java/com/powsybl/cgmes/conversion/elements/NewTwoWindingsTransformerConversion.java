@@ -46,7 +46,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
     public void convert() {
         CgmesT2xModel cgmesT2xModel = load();
         InterpretedT2xModel interpretedT2xModel = interpret(cgmesT2xModel, context.config());
-        ConvertedModel convertedModel = convertToIidm(interpretedT2xModel);
+        ConvertedT2xModel convertedT2xModel = convertToIidm(interpretedT2xModel);
     }
 
     private CgmesT2xModel load() {
@@ -274,26 +274,26 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         return ratio0AtEnd2;
     }
 
-    private ConvertedModel convertToIidm(InterpretedT2xModel interpretedModel) {
+    private ConvertedT2xModel convertToIidm(InterpretedT2xModel interpretedT2xModel) {
 
-        TapChangerConversion nRatioTapChanger2 = moveTapChangerFrom2To1(interpretedModel.end2.ratioTapChanger);
-        TapChangerConversion nPhaseTapChanger2 = moveTapChangerFrom2To1(interpretedModel.end2.phaseTapChanger);
+        TapChangerConversion nRatioTapChanger2 = moveTapChangerFrom2To1(interpretedT2xModel.end2.ratioTapChanger);
+        TapChangerConversion nPhaseTapChanger2 = moveTapChangerFrom2To1(interpretedT2xModel.end2.phaseTapChanger);
 
-        TapChangerConversion ratioTapChanger = combineTapChangers(interpretedModel.end1.ratioTapChanger, nRatioTapChanger2);
-        TapChangerConversion phaseTapChanger = combineTapChangers(interpretedModel.end1.phaseTapChanger, nPhaseTapChanger2);
+        TapChangerConversion ratioTapChanger = combineTapChangers(interpretedT2xModel.end1.ratioTapChanger, nRatioTapChanger2);
+        TapChangerConversion phaseTapChanger = combineTapChangers(interpretedT2xModel.end1.phaseTapChanger, nPhaseTapChanger2);
 
         RatioConversion rc0;
-        if (interpretedModel.ratio0AtEnd2) {
-            double a0 = interpretedModel.end2.ratedU / interpretedModel.end1.ratedU;
-            rc0 = moveRatioFrom2To1(a0, 0.0, interpretedModel.r, interpretedModel.x,
-                interpretedModel.end1.g, interpretedModel.end1.b,
-                interpretedModel.end2.g, interpretedModel.end2.b);
+        if (interpretedT2xModel.ratio0AtEnd2) {
+            double a0 = interpretedT2xModel.end2.ratedU / interpretedT2xModel.end1.ratedU;
+            rc0 = moveRatioFrom2To1(a0, 0.0, interpretedT2xModel.r, interpretedT2xModel.x,
+                interpretedT2xModel.end1.g, interpretedT2xModel.end1.b,
+                interpretedT2xModel.end2.g, interpretedT2xModel.end2.b);
         } else {
-            rc0 = identityRatioConversion(interpretedModel.r, interpretedModel.x,
-                interpretedModel.end1.g, interpretedModel.end1.b,
-                interpretedModel.end2.g, interpretedModel.end2.b);
+            rc0 = identityRatioConversion(interpretedT2xModel.r, interpretedT2xModel.x,
+                interpretedT2xModel.end1.g, interpretedT2xModel.end1.b,
+                interpretedT2xModel.end2.g, interpretedT2xModel.end2.b);
         }
-        ConvertedModel convertedModel = new ConvertedModel();
+        ConvertedT2xModel convertedModel = new ConvertedT2xModel();
 
         convertedModel.r = rc0.r;
         convertedModel.x = rc0.x;
@@ -302,15 +302,15 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         convertedModel.end1.b = rc0.b1;
         convertedModel.end1.ratioTapChanger = ratioTapChanger;
         convertedModel.end1.phaseTapChanger = phaseTapChanger;
-        convertedModel.end1.ratedU = interpretedModel.end1.ratedU;
-        convertedModel.end1.terminal = interpretedModel.end1.terminal;
-        convertedModel.end1.phaseAngleClock = interpretedModel.end1.phaseAngleClock;
+        convertedModel.end1.ratedU = interpretedT2xModel.end1.ratedU;
+        convertedModel.end1.terminal = interpretedT2xModel.end1.terminal;
+        convertedModel.end1.phaseAngleClock = interpretedT2xModel.end1.phaseAngleClock;
 
         convertedModel.end2.g = rc0.g2;
         convertedModel.end2.b = rc0.b2;
-        convertedModel.end2.ratedU = interpretedModel.end2.ratedU;
-        convertedModel.end2.terminal = interpretedModel.end2.terminal;
-        convertedModel.end2.phaseAngleClock = interpretedModel.end2.phaseAngleClock;
+        convertedModel.end2.ratedU = interpretedT2xModel.end2.ratedU;
+        convertedModel.end2.terminal = interpretedT2xModel.end2.terminal;
+        convertedModel.end2.phaseAngleClock = interpretedT2xModel.end2.phaseAngleClock;
 
         return convertedModel;
     }
@@ -352,7 +352,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         int phaseAngleClock;
     }
 
-    static class ConvertedModel {
+    static class ConvertedT2xModel {
         double r;
         double x;
         ConvertedEnd1 end1 = new ConvertedEnd1();

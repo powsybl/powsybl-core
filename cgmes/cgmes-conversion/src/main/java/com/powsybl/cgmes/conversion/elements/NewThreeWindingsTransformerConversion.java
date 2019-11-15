@@ -33,7 +33,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     public void convert() {
         CgmesT3xModel cgmesT3xModel = load();
         InterpretedT3xModel interpretedT3xModel = interpret(cgmesT3xModel, context.config());
-        ConvertedModel convertedModel = convertToIidm(interpretedT3xModel);
+        ConvertedT3xModel convertedT3xModel = convertToIidm(interpretedT3xModel);
     }
 
     private CgmesT3xModel load() {
@@ -84,30 +84,30 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return interpretedT3xModel;
     }
 
-    private void interpretWinding(CgmesWinding cgmesWindingModel, Conversion.Config alternative, InterpretedWinding interpretedWindingModel) {
+    private void interpretWinding(CgmesWinding cgmesWindingModel, Conversion.Config alternative, InterpretedWinding interpretedWinding) {
 
         AllTapChanger windingInterpretedTapChanger = ratioPhaseAlternative(cgmesWindingModel, alternative);
         AllShunt windingInterpretedShunt = shuntAlternative(cgmesWindingModel, alternative);
         AllPhaseAngleClock windingInterpretedClock = phaseAngleClockAlternative(cgmesWindingModel, alternative);
         boolean windingRatio0AtEnd2 = ratio0Alternative(cgmesWindingModel, alternative);
 
-        interpretedWindingModel.r = cgmesWindingModel.r;
-        interpretedWindingModel.x = cgmesWindingModel.x;
-        interpretedWindingModel.end1.g = windingInterpretedShunt.g1;
-        interpretedWindingModel.end1.b = windingInterpretedShunt.b1;
-        interpretedWindingModel.end1.ratioTapChanger = windingInterpretedTapChanger.ratioTapChanger1;
-        interpretedWindingModel.end1.phaseTapChanger = windingInterpretedTapChanger.phaseTapChanger1;
-        interpretedWindingModel.end1.phaseAngleClock = windingInterpretedClock.phaseAngleClock1;
-        interpretedWindingModel.end1.ratedU = cgmesWindingModel.ratedU;
-        interpretedWindingModel.end1.terminal = cgmesWindingModel.terminal;
+        interpretedWinding.r = cgmesWindingModel.r;
+        interpretedWinding.x = cgmesWindingModel.x;
+        interpretedWinding.end1.g = windingInterpretedShunt.g1;
+        interpretedWinding.end1.b = windingInterpretedShunt.b1;
+        interpretedWinding.end1.ratioTapChanger = windingInterpretedTapChanger.ratioTapChanger1;
+        interpretedWinding.end1.phaseTapChanger = windingInterpretedTapChanger.phaseTapChanger1;
+        interpretedWinding.end1.phaseAngleClock = windingInterpretedClock.phaseAngleClock1;
+        interpretedWinding.end1.ratedU = cgmesWindingModel.ratedU;
+        interpretedWinding.end1.terminal = cgmesWindingModel.terminal;
 
-        interpretedWindingModel.end2.g = windingInterpretedShunt.g2;
-        interpretedWindingModel.end2.b = windingInterpretedShunt.b2;
-        interpretedWindingModel.end2.ratioTapChanger = windingInterpretedTapChanger.ratioTapChanger2;
-        interpretedWindingModel.end2.phaseTapChanger = windingInterpretedTapChanger.phaseTapChanger2;
-        interpretedWindingModel.end2.phaseAngleClock = windingInterpretedClock.phaseAngleClock2;
+        interpretedWinding.end2.g = windingInterpretedShunt.g2;
+        interpretedWinding.end2.b = windingInterpretedShunt.b2;
+        interpretedWinding.end2.ratioTapChanger = windingInterpretedTapChanger.ratioTapChanger2;
+        interpretedWinding.end2.phaseTapChanger = windingInterpretedTapChanger.phaseTapChanger2;
+        interpretedWinding.end2.phaseAngleClock = windingInterpretedClock.phaseAngleClock2;
 
-        interpretedWindingModel.ratio0AtEnd2 = windingRatio0AtEnd2;
+        interpretedWinding.ratio0AtEnd2 = windingRatio0AtEnd2;
     }
 
     private AllTapChanger ratioPhaseAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
@@ -211,14 +211,14 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return cgmesT3xModel.winding1.ratedU;
     }
 
-    private ConvertedModel convertToIidm(InterpretedT3xModel interpretedModel) {
+    private ConvertedT3xModel convertToIidm(InterpretedT3xModel interpretedT3xModel) {
 
-        double ratedUf = interpretedModel.ratedUf;
-        ConvertedModel convertedModel = new ConvertedModel();
+        double ratedUf = interpretedT3xModel.ratedUf;
+        ConvertedT3xModel convertedModel = new ConvertedT3xModel();
 
-        convertToIidmWinding(interpretedModel.winding1, convertedModel.winding1, ratedUf);
-        convertToIidmWinding(interpretedModel.winding2, convertedModel.winding2, ratedUf);
-        convertToIidmWinding(interpretedModel.winding3, convertedModel.winding3, ratedUf);
+        convertToIidmWinding(interpretedT3xModel.winding1, convertedModel.winding1, ratedUf);
+        convertToIidmWinding(interpretedT3xModel.winding2, convertedModel.winding2, ratedUf);
+        convertToIidmWinding(interpretedT3xModel.winding3, convertedModel.winding3, ratedUf);
 
         convertedModel.ratedUf = ratedUf;
 
@@ -327,7 +327,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         int phaseAngleClock;
     }
 
-    static class ConvertedModel {
+    static class ConvertedT3xModel {
         ConvertedWinding winding1 = new ConvertedWinding();
         ConvertedWinding winding2 = new ConvertedWinding();
         ConvertedWinding winding3 = new ConvertedWinding();
