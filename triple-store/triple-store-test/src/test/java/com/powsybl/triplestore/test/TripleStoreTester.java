@@ -92,7 +92,18 @@ public class TripleStoreTester {
             expected.keySet()
                 .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
         }
+    }
 
+    void testUpdate(String queryText) {
+        for (String impl : implementations) {
+            tripleStores.get(impl).update(queryText);
+        }
+    }
+
+    void testUpdateOnCopies(String queryText) {
+        for (String impl : implementations) {
+            tripleStoreCopies.get(impl).update(queryText);
+        }
     }
 
     public void clear(String contextName, String namespace) {

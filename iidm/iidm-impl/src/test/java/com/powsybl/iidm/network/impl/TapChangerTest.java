@@ -203,7 +203,7 @@ public class TapChangerTest {
     @Test
     public void testTapChangerSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
-        createPhaseTapChangerWith2Steps(1, 0, true,
+        createPhaseTapChangerWith2Steps(1, 0, false,
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, 1.0, terminal);
         createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, terminal);
         createThreeWindingTransformer();
@@ -221,7 +221,7 @@ public class TapChangerTest {
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
         assertEquals(1, phaseTapChanger.getTapPosition());
-        assertTrue(phaseTapChanger.isRegulating());
+        assertFalse(phaseTapChanger.isRegulating());
         assertEquals(1.0, phaseTapChanger.getRegulationValue(), 0.0);
         assertEquals(1, ratioTapChanger.getTapPosition());
         assertTrue(ratioTapChanger.isRegulating());
@@ -230,7 +230,7 @@ public class TapChangerTest {
         assertTrue(ratioTapChangerInLeg2.isRegulating());
         assertEquals(10.0, ratioTapChangerInLeg2.getTargetV(), 0.0);
         assertEquals(3, ratioTapChangerInLeg3.getTapPosition());
-        assertTrue(ratioTapChangerInLeg3.isRegulating());
+        assertFalse(ratioTapChangerInLeg3.isRegulating());
         assertEquals(11.0, ratioTapChangerInLeg3.getTargetV(), 0.0);
 
         // change values in s4
@@ -269,7 +269,7 @@ public class TapChangerTest {
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(1, phaseTapChanger.getTapPosition());
-        assertTrue(phaseTapChanger.isRegulating());
+        assertFalse(phaseTapChanger.isRegulating());
         assertEquals(1.0, phaseTapChanger.getRegulationValue(), 0.0);
         assertEquals(1, ratioTapChanger.getTapPosition());
         assertTrue(ratioTapChanger.isRegulating());
@@ -278,7 +278,7 @@ public class TapChangerTest {
         assertTrue(ratioTapChangerInLeg2.isRegulating());
         assertEquals(10.0, ratioTapChangerInLeg2.getTargetV(), 0.0);
         assertEquals(3, ratioTapChangerInLeg3.getTapPosition());
-        assertTrue(ratioTapChangerInLeg3.isRegulating());
+        assertFalse(ratioTapChangerInLeg3.isRegulating());
         assertEquals(11.0, ratioTapChangerInLeg3.getTargetV(), 0.0);
 
         // remove working variant s4
@@ -576,7 +576,7 @@ public class TapChangerTest {
                 .setLoadTapChangingCapabilities(false)
                 .setLowTapPosition(2)
                 .setTapPosition(3)
-                .setRegulating(true)
+                .setRegulating(false)
                 .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO))
                 .beginStep()
                     .setR(39.78473)

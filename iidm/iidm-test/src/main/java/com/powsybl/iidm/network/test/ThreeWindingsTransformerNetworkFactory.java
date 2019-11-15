@@ -169,7 +169,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
             .endStep()
             .setTapPosition(0)
             .setLoadTapChangingCapabilities(true)
-            .setRegulating(true)
+            .setRegulating(false)
             .setTargetV(11.0)
             .setRegulationTerminal(load11.getTerminal())
             .add();
