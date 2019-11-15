@@ -77,7 +77,7 @@ public class TieLineAdapterTest {
         TestUtil.notImplemented(tieLine::getHalf2);
     }
 
-    private Network createNetwork() {
+    private static Network createNetwork() {
         Network n = Network.create("n", "test");
         Substation s1 = n.newSubstation()
                 .setId("s1")

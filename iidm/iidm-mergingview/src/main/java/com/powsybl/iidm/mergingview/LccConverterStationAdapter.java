@@ -6,15 +6,12 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.List;
-
-import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.LccConverterStation;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class LccConverterStationAdapter extends AbstractIdentifiableAdapter<LccConverterStation> implements LccConverterStation {
+public class LccConverterStationAdapter extends AbstractHvdcConverterStationAdapter<LccConverterStation> implements LccConverterStation {
 
     protected LccConverterStationAdapter(final LccConverterStation delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -23,41 +20,6 @@ public class LccConverterStationAdapter extends AbstractIdentifiableAdapter<LccC
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
-    @Override
-    public HvdcType getHvdcType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public float getLossFactor() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public LccConverterStation setLossFactor(final float lossFactor) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public TerminalAdapter getTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ConnectableType getType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public List<? extends TerminalAdapter> getTerminals() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
     @Override
     public float getPowerFactor() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;

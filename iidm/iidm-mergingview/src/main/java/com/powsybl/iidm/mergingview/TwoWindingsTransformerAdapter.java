@@ -6,14 +6,14 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.List;
-
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.PhaseTapChangerAdder;
+import com.powsybl.iidm.network.RatioTapChangerAdder;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class TwoWindingsTransformerAdapter extends AbstractIdentifiableAdapter<TwoWindingsTransformer> implements TwoWindingsTransformer {
+public class TwoWindingsTransformerAdapter extends AbstractBranchAdapter<TwoWindingsTransformer> implements TwoWindingsTransformer {
 
     protected TwoWindingsTransformerAdapter(final TwoWindingsTransformer delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -32,146 +32,6 @@ public class TwoWindingsTransformerAdapter extends AbstractIdentifiableAdapter<T
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
-    @Override
-    public TerminalAdapter getTerminal1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public TerminalAdapter getTerminal2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public TerminalAdapter getTerminal(final Side side) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public TerminalAdapter getTerminal(final String voltageLevelId) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Side getSide(final Terminal terminal) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public CurrentLimits getCurrentLimits(final Side side) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public CurrentLimits getCurrentLimits1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public CurrentLimitsAdder newCurrentLimits1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public CurrentLimits getCurrentLimits2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public CurrentLimitsAdder newCurrentLimits2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean isOverloaded() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean isOverloaded(final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getOverloadDuration() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean checkPermanentLimit(final Side side, final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean checkPermanentLimit(final Side side) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean checkPermanentLimit1(final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean checkPermanentLimit1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean checkPermanentLimit2(final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean checkPermanentLimit2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Overload checkTemporaryLimits(final Side side, final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Overload checkTemporaryLimits(final Side side) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Overload checkTemporaryLimits1(final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Overload checkTemporaryLimits1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Overload checkTemporaryLimits2(final float limitReduction) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Overload checkTemporaryLimits2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ConnectableType getType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public List<? extends TerminalAdapter> getTerminals() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
     @Override
     public RatioTapChangerAdder newRatioTapChanger() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
@@ -246,5 +106,4 @@ public class TwoWindingsTransformerAdapter extends AbstractIdentifiableAdapter<T
     public TwoWindingsTransformerAdapter setRatedU2(final double ratedU2) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
-
 }

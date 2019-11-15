@@ -6,15 +6,18 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.Terminal;
+
+import java.util.List;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class LoadAdapter extends AbstractInjectionAdapter<Load> implements Load {
+abstract class AbstractHvdcConverterStationAdapter<I extends HvdcConverterStation<I>> extends AbstractIdentifiableAdapter<I> implements HvdcConverterStation<I> {
 
-    protected LoadAdapter(final Load delegate, final MergingViewIndex index) {
+    AbstractHvdcConverterStationAdapter(I delegate, MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -22,33 +25,42 @@ public class LoadAdapter extends AbstractInjectionAdapter<Load> implements Load 
     // Not implemented methods -------
     // -------------------------------
     @Override
-    public LoadType getLoadType() {
+    public TerminalAdapter getTerminal() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public LoadAdapter setLoadType(final LoadType loadType) {
+    public ConnectableType getType() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public double getP0() {
+    public List<? extends Terminal> getTerminals() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public LoadAdapter setP0(final double p0) {
+    public void remove() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public double getQ0() {
+    public HvdcLineAdapter getHvdcLine() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public LoadAdapter setQ0(final double q0) {
+    public HvdcType getHvdcType() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
+    @Override
+    public float getLossFactor() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
+
+    @Override
+    public I setLossFactor(float lossFactor) {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
 }

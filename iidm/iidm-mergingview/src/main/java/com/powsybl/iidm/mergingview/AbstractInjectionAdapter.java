@@ -6,15 +6,18 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Terminal;
+
+import java.util.List;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class LoadAdapter extends AbstractInjectionAdapter<Load> implements Load {
+abstract class AbstractInjectionAdapter<I extends Injection<I>> extends AbstractIdentifiableAdapter<I> implements Injection<I> {
 
-    protected LoadAdapter(final Load delegate, final MergingViewIndex index) {
+    AbstractInjectionAdapter(I delegate, MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -22,33 +25,22 @@ public class LoadAdapter extends AbstractInjectionAdapter<Load> implements Load 
     // Not implemented methods -------
     // -------------------------------
     @Override
-    public LoadType getLoadType() {
+    public Terminal getTerminal() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public LoadAdapter setLoadType(final LoadType loadType) {
+    public ConnectableType getType() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public double getP0() {
+    public List<? extends Terminal> getTerminals() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public LoadAdapter setP0(final double p0) {
+    public void remove() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
-
-    @Override
-    public double getQ0() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public LoadAdapter setQ0(final double q0) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
 }

@@ -6,25 +6,17 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.ContainerType;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.VariantManagerConstants;
-
+import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -170,10 +162,13 @@ public class MergingNetworkTest {
         assertNotNull(mergingView.getBusView());
 
         // Extensions
-        mergingView.addExtension(NetworkExtensionTest.class, new NetworkExtensionTest(null));
-        assertNotNull(mergingView.getExtension(NetworkExtensionTest.class));
-        assertNotNull(mergingView.getExtensionByName("NetworkExtensionTest"));
-        mergingView.removeExtension(NetworkExtensionTest.class);
+        AbstractExtension extension = Mockito.mock(AbstractExtension.class);
+        Mockito.when(extension.getName()).thenReturn("NetworkExtension");
+
+        mergingView.addExtension(AbstractExtension.class, extension);
+        assertNotNull(mergingView.getExtension(AbstractExtension.class));
+        assertNotNull(mergingView.getExtensionByName("NetworkExtension"));
+        mergingView.removeExtension(AbstractExtension.class);
         assertTrue(mergingView.getExtensions().isEmpty());
 
         // Not implemented yet !
@@ -213,7 +208,7 @@ public class MergingNetworkTest {
         addSubstation(mergingView, "P1", Country.FR);
     }
 
-    private Substation addSubstation(final Network network, final String substationId, final Country country) {
+    private static Substation addSubstation(final Network network, final String substationId, final Country country) {
         return network.newSubstation()
                 .setId(substationId)
                 .setName(substationId)

@@ -6,16 +6,16 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.TapChanger;
+import com.powsybl.iidm.network.TapChangerStep;
+import com.powsybl.iidm.network.Terminal;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> implements DanglingLine {
+abstract class AbstractTapChangerAdapter<P extends TapChanger<P, S>, S extends TapChangerStep<S>> extends AbstractAdapter<P> implements TapChanger<P, S> {
 
-    protected DanglingLineAdapter(final DanglingLine delegate, final MergingViewIndex index) {
+    AbstractTapChangerAdapter(P delegate, MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -23,78 +23,77 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     // Not implemented methods -------
     // -------------------------------
     @Override
-    public double getP0() {
+    public int getLowTapPosition() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public DanglingLineAdapter setP0(final double p0) {
+    public P setLowTapPosition(int lowTapPosition) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public double getQ0() {
+    public int getHighTapPosition() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public DanglingLineAdapter setQ0(final double q0) {
+    public int getTapPosition() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public double getR() {
+    public P setTapPosition(int tapPosition) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public DanglingLineAdapter setR(final double r) {
+    public int getStepCount() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public double getX() {
+    public S getStep(int tapPosition) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public DanglingLineAdapter setX(final double x) {
+    public S getCurrentStep() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public double getG() {
+    public boolean isRegulating() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public DanglingLineAdapter setG(final double g) {
+    public P setRegulating(boolean regulating) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public double getB() {
+    public TerminalAdapter getRegulationTerminal() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public DanglingLineAdapter setB(final double b) {
+    public P setRegulationTerminal(Terminal regulationTerminal) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public String getUcteXnodeCode() {
+    public double getTargetDeadband() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public CurrentLimits getCurrentLimits() {
+    public P setTargetDeadband(double targetDeadband) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public CurrentLimitsAdder newCurrentLimits() {
+    public void remove() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
-
 }

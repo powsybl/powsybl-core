@@ -8,12 +8,14 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.List;
+
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class GeneratorAdapter extends AbstractInjectionAdapter<Generator> implements Generator {
+abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractIdentifiableAdapter<I> implements Branch<I> {
 
-    protected GeneratorAdapter(final Generator delegate, final MergingViewIndex index) {
+    AbstractBranchAdapter(I delegate, MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -21,113 +23,142 @@ public class GeneratorAdapter extends AbstractInjectionAdapter<Generator> implem
     // Not implemented methods -------
     // -------------------------------
     @Override
-    public ReactiveLimits getReactiveLimits() {
+    public Terminal getTerminal1() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public <L extends ReactiveLimits> L getReactiveLimits(final Class<L> type) {
+    public Terminal getTerminal2() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
+    public Terminal getTerminal(Side side) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
+    public Terminal getTerminal(String voltageLevelId) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public EnergySource getEnergySource() {
+    public Side getSide(Terminal terminal) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public GeneratorAdapter setEnergySource(final EnergySource energySource) {
+    public CurrentLimits getCurrentLimits(Side side) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public double getMaxP() {
+    public CurrentLimits getCurrentLimits1() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public GeneratorAdapter setMaxP(final double maxP) {
+    public CurrentLimitsAdder newCurrentLimits1() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public double getMinP() {
+    public CurrentLimits getCurrentLimits2() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public GeneratorAdapter setMinP(final double minP) {
+    public CurrentLimitsAdder newCurrentLimits2() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public boolean isVoltageRegulatorOn() {
+    public boolean isOverloaded() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public GeneratorAdapter setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
+    public boolean isOverloaded(float limitReduction) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public TerminalAdapter getRegulatingTerminal() {
+    public int getOverloadDuration() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public GeneratorAdapter setRegulatingTerminal(final Terminal regulatingTerminal) {
+    public boolean checkPermanentLimit(Side side, float limitReduction) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public double getTargetV() {
+    public boolean checkPermanentLimit(Side side) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public GeneratorAdapter setTargetV(final double targetV) {
+    public boolean checkPermanentLimit1(float limitReduction) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public double getTargetP() {
+    public boolean checkPermanentLimit1() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public GeneratorAdapter setTargetP(final double targetP) {
+    public boolean checkPermanentLimit2(float limitReduction) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public double getTargetQ() {
+    public boolean checkPermanentLimit2() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public GeneratorAdapter setTargetQ(final double targetQ) {
+    public Overload checkTemporaryLimits(Side side, float limitReduction) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public double getRatedS() {
+    public Overload checkTemporaryLimits(Side side) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public GeneratorAdapter setRatedS(final double ratedS) {
+    public Overload checkTemporaryLimits1(float limitReduction) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
+    @Override
+    public Overload checkTemporaryLimits1() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
+
+    @Override
+    public Overload checkTemporaryLimits2(float limitReduction) {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
+
+    @Override
+    public Overload checkTemporaryLimits2() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
+
+    @Override
+    public ConnectableType getType() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
+
+    @Override
+    public List<? extends Terminal> getTerminals() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
+
+    @Override
+    public void remove() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
 }

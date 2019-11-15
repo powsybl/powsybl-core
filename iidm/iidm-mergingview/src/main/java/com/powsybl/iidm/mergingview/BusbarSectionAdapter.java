@@ -6,43 +6,20 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.List;
-
 import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.ConnectableType;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class BusbarSectionAdapter extends AbstractIdentifiableAdapter<BusbarSection> implements BusbarSection {
+public class BusbarSectionAdapter extends AbstractInjectionAdapter<BusbarSection> implements BusbarSection {
 
-    protected BusbarSectionAdapter(final BusbarSection delegate, final MergingViewIndex index) {
+    BusbarSectionAdapter(final BusbarSection delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
-    @Override
-    public TerminalAdapter getTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ConnectableType getType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public List<? extends TerminalAdapter> getTerminals() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
     @Override
     public double getV() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;

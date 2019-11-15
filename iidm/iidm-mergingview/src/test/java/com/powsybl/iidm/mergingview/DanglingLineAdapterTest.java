@@ -23,7 +23,7 @@ public class DanglingLineAdapterTest {
         network.merge(createNetwork());
     }
 
-    private Network createNetwork() {
+    private static Network createNetwork() {
         final Network n1 = Network.create("n1", "test");
         final Substation s1 = n1.newSubstation()
                 .setId("s1")

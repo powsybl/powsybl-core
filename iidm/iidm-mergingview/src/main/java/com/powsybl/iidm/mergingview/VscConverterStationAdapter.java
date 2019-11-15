@@ -6,19 +6,12 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.List;
-
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.HvdcConverterStation;
-import com.powsybl.iidm.network.MinMaxReactiveLimitsAdder;
-import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
-import com.powsybl.iidm.network.ReactiveLimits;
-import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class VscConverterStationAdapter extends AbstractIdentifiableAdapter<VscConverterStation> implements VscConverterStation {
+public class VscConverterStationAdapter extends AbstractHvdcConverterStationAdapter<VscConverterStation> implements VscConverterStation {
 
     protected VscConverterStationAdapter(final VscConverterStation delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -27,41 +20,6 @@ public class VscConverterStationAdapter extends AbstractIdentifiableAdapter<VscC
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
-    @Override
-    public HvdcType getHvdcType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public float getLossFactor() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public VscConverterStationAdapter setLossFactor(final float lossFactor) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public TerminalAdapter getTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ConnectableType getType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public List<? extends TerminalAdapter> getTerminals() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
     @Override
     public ReactiveLimits getReactiveLimits() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
@@ -88,7 +46,7 @@ public class VscConverterStationAdapter extends AbstractIdentifiableAdapter<VscC
     }
 
     @Override
-    public HvdcConverterStation setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
+    public VscConverterStationAdapter setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -98,7 +56,7 @@ public class VscConverterStationAdapter extends AbstractIdentifiableAdapter<VscC
     }
 
     @Override
-    public HvdcConverterStation setVoltageSetpoint(final double voltageSetpoint) {
+    public VscConverterStationAdapter setVoltageSetpoint(final double voltageSetpoint) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -108,7 +66,7 @@ public class VscConverterStationAdapter extends AbstractIdentifiableAdapter<VscC
     }
 
     @Override
-    public HvdcConverterStation setReactivePowerSetpoint(final double reactivePowerSetpoint) {
+    public VscConverterStationAdapter setReactivePowerSetpoint(final double reactivePowerSetpoint) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 

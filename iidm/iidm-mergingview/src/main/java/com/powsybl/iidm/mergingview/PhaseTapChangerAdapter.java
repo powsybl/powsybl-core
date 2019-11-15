@@ -8,12 +8,11 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerStep;
-import com.powsybl.iidm.network.Terminal;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class PhaseTapChangerAdapter extends AbstractAdapter<PhaseTapChanger> implements PhaseTapChanger {
+public class PhaseTapChangerAdapter extends AbstractTapChangerAdapter<PhaseTapChanger, PhaseTapChangerStep> implements PhaseTapChanger {
 
     protected PhaseTapChangerAdapter(final PhaseTapChanger delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -22,71 +21,6 @@ public class PhaseTapChangerAdapter extends AbstractAdapter<PhaseTapChanger> imp
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
-    @Override
-    public int getLowTapPosition() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public PhaseTapChangerAdapter setLowTapPosition(final int lowTapPosition) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getHighTapPosition() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getTapPosition() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public PhaseTapChangerAdapter setTapPosition(final int tapPosition) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getStepCount() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public PhaseTapChangerStep getStep(final int tapPosition) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public PhaseTapChangerStep getCurrentStep() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean isRegulating() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public PhaseTapChangerAdapter setRegulating(final boolean regulating) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public TerminalAdapter getRegulationTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public PhaseTapChangerAdapter setRegulationTerminal(final Terminal regulationTerminal) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
     @Override
     public RegulationMode getRegulationMode() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;

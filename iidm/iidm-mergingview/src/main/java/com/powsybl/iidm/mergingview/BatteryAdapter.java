@@ -6,10 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.List;
-
 import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.MinMaxReactiveLimitsAdder;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.ReactiveLimits;
@@ -17,7 +14,7 @@ import com.powsybl.iidm.network.ReactiveLimits;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class BatteryAdapter extends AbstractIdentifiableAdapter<Battery> implements Battery {
+public class BatteryAdapter extends AbstractInjectionAdapter<Battery> implements Battery {
 
     protected BatteryAdapter(final Battery delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -26,26 +23,6 @@ public class BatteryAdapter extends AbstractIdentifiableAdapter<Battery> impleme
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
-    @Override
-    public TerminalAdapter getTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ConnectableType getType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public List<? extends TerminalAdapter> getTerminals() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
     @Override
     public ReactiveLimits getReactiveLimits() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;

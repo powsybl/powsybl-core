@@ -6,42 +6,12 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.WeakHashMap;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.Component;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.HvdcConverterStation;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TieLine;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VscConverterStation;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -49,15 +19,15 @@ import com.powsybl.iidm.network.VscConverterStation;
 class MergingViewIndex {
 
     /** Local storage for adapters created */
-    private final Map<Identifiable<?>, AbstractAdapter<?>> identifiableAdaptersCached = new WeakHashMap<>();
+    private final Map<Identifiable<?>, AbstractAdapter<?>> identifiableCached = new WeakHashMap<>();
 
-    private final Map<Component, AbstractAdapter<?>> componentAdaptersCached = new WeakHashMap<>();
+    private final Map<Component, AbstractAdapter<?>> componentCached = new WeakHashMap<>();
 
-    private final Map<Terminal, AbstractAdapter<?>> terminalAdaptersCached = new WeakHashMap<>();
+    private final Map<Terminal, AbstractAdapter<?>> terminalCached = new WeakHashMap<>();
 
-    private final Map<PhaseTapChanger, AbstractAdapter<?>> ptcAdaptersCached = new WeakHashMap<>();
+    private final Map<PhaseTapChanger, AbstractAdapter<?>> ptcCached = new WeakHashMap<>();
 
-    private final Map<RatioTapChanger, AbstractAdapter<?>> rtcAdaptersCached = new WeakHashMap<>();
+    private final Map<RatioTapChanger, AbstractAdapter<?>> rtcCached = new WeakHashMap<>();
 
     /** Network asked to be merged */
     private final Collection<Network> networks = new ArrayList<>();
@@ -92,7 +62,7 @@ class MergingViewIndex {
     }
 
     /** @return adapter according to given parameter */
-    Identifiable<?> getIdentifiable(final Identifiable<?> identifiable) {
+    Identifiable getIdentifiable(final Identifiable identifiable) {
         if (identifiable instanceof Substation) {
             return getSubstation((Substation) identifiable); // container
         } else if (identifiable instanceof Bus) {
@@ -125,7 +95,7 @@ class MergingViewIndex {
     /** @return all adapters according to all Identifiables */
     Collection<Identifiable<?>> getIdentifiables() {
         // Search Identifiables into merging & working networks
-        return getIdentifiableStream().collect(Collectors.toList());
+        return getIdentifiableStream().collect(Collectors.toSet());
     }
 
     /** @return all Adapters according to all Substations into merging view */
@@ -147,7 +117,7 @@ class MergingViewIndex {
     }
 
     /** @return all Adapters according to all VscConverterStations into merging view */
-    public Collection<VscConverterStation> getVscConverterStations() {
+    Collection<VscConverterStation> getVscConverterStations() {
         // Search VscConverterStation into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getVscConverterStationStream)
@@ -156,7 +126,7 @@ class MergingViewIndex {
     }
 
     /** @return all Adapters according to all TwoWindingsTransformers into merging view */
-    public Collection<TwoWindingsTransformer> getTwoWindingsTransformers() {
+    Collection<TwoWindingsTransformer> getTwoWindingsTransformers() {
         // Search TwoWindingsTransformer into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getTwoWindingsTransformerStream)
@@ -165,7 +135,7 @@ class MergingViewIndex {
     }
 
     /** @return all Adapters according to all Switches into merging view */
-    public Collection<Switch> getSwitches() {
+    Collection<Switch> getSwitches() {
         // Search TwoWindingsTransformer into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getSwitchStream)
@@ -174,7 +144,7 @@ class MergingViewIndex {
     }
 
     /** @return all Adapters according to all StaticVarCompensators into merging view */
-    public Collection<StaticVarCompensator> getStaticVarCompensators() {
+    Collection<StaticVarCompensator> getStaticVarCompensators() {
         // Search StaticVarCompensator into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getStaticVarCompensatorStream)
@@ -182,7 +152,7 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
-    public Collection<ShuntCompensator> getShuntCompensators() {
+    Collection<ShuntCompensator> getShuntCompensators() {
         // Search ShuntCompensator into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getShuntCompensatorStream)
@@ -190,7 +160,7 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
-    public Collection<VoltageLevel> getVoltageLevels() {
+    Collection<VoltageLevel> getVoltageLevels() {
         // Search VoltageLevel into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getVoltageLevelStream)
@@ -198,7 +168,7 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
-    public Collection<Load> getLoads() {
+    Collection<Load> getLoads() {
         // Search Load into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getLoadStream)
@@ -206,7 +176,7 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
-    public Collection<Generator> getGenerators() {
+    Collection<Generator> getGenerators() {
         // Search Generator into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getGeneratorStream)
@@ -214,7 +184,7 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
-    public Collection<BusbarSection> getBusbarSections() {
+    Collection<BusbarSection> getBusbarSections() {
         // Search BusbarSection into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getBusbarSectionStream)
@@ -222,7 +192,7 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
-    public Collection<LccConverterStation> getLccConverterStations() {
+    Collection<LccConverterStation> getLccConverterStations() {
         // Search LccConverterStation into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getLccConverterStationStream)
@@ -230,7 +200,7 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
-    public Collection<HvdcConverterStation<?>> getHvdcConverterStations() {
+    Collection<HvdcConverterStation<?>> getHvdcConverterStations() {
         // Search HvdcConverterStation into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getHvdcConverterStationStream)
@@ -238,7 +208,7 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
-    public Collection<Branch> getBranches() {
+    Collection<Branch> getBranches() {
         // Search Branch into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getBranchStream)
@@ -246,7 +216,7 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
-    public Collection<ThreeWindingsTransformer> getThreeWindingsTransformers() {
+    Collection<ThreeWindingsTransformer> getThreeWindingsTransformers() {
         // Search ThreeWindingsTransformer into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getThreeWindingsTransformerStream)
@@ -254,7 +224,7 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
-    public Collection<Bus> getBuses() {
+    Collection<Bus> getBuses() {
         // Search ThreeWindingsTransformer into merging & working networks
         return getNetworkStream()
                 .map(Network::getBusBreakerView)
@@ -263,7 +233,7 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
-    public Collection<Line> getLines() {
+    Collection<Line> getLines() {
         // Search Line into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getLineStream)
@@ -271,7 +241,7 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
-    public Collection<DanglingLine> getDanglingLines() {
+    Collection<DanglingLine> getDanglingLines() {
         // Search DanglingLine into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getDanglingLineStream)
@@ -279,7 +249,7 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
-    public Collection<HvdcLine> getHvdcLines() {
+    Collection<HvdcLine> getHvdcLines() {
         // Search HvdcLine into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getHvdcLineStream)
@@ -289,72 +259,72 @@ class MergingViewIndex {
 
     /** @return adapter according to given Substation */
     SubstationAdapter getSubstation(final Substation substation) {
-        return substation == null ? null : (SubstationAdapter) identifiableAdaptersCached.computeIfAbsent(substation, key -> new SubstationAdapter(substation, this));
+        return substation == null ? null : (SubstationAdapter) identifiableCached.computeIfAbsent(substation, key -> new SubstationAdapter(substation, this));
     }
 
     /** @return adapter according to given VoltageLevel */
     VoltageLevelAdapter getVoltageLevel(final VoltageLevel vl) {
-        return vl == null ? null : (VoltageLevelAdapter) identifiableAdaptersCached.computeIfAbsent(vl, key -> new VoltageLevelAdapter(vl, this));
+        return vl == null ? null : (VoltageLevelAdapter) identifiableCached.computeIfAbsent(vl, key -> new VoltageLevelAdapter(vl, this));
     }
 
     /** @return adapter according to given Switch */
     SwitchAdapter getSwitch(final Switch sw) {
-        return sw == null ? null : (SwitchAdapter) identifiableAdaptersCached.computeIfAbsent(sw, key -> new SwitchAdapter(sw, this));
+        return sw == null ? null : (SwitchAdapter) identifiableCached.computeIfAbsent(sw, key -> new SwitchAdapter(sw, this));
     }
 
     /** @return adapter according to given HvdcLine */
     HvdcLineAdapter getHvdcLine(final HvdcLine hvdcLine) {
-        return hvdcLine == null ? null : (HvdcLineAdapter) identifiableAdaptersCached.computeIfAbsent(hvdcLine, key -> new HvdcLineAdapter(hvdcLine, this));
+        return hvdcLine == null ? null : (HvdcLineAdapter) identifiableCached.computeIfAbsent(hvdcLine, key -> new HvdcLineAdapter(hvdcLine, this));
     }
 
     /** @return adapter according to given Bus */
     BusAdapter getBus(final Bus bus) {
-        return bus == null ? null : (BusAdapter) identifiableAdaptersCached.computeIfAbsent(bus, key -> new BusAdapter(bus, this));
+        return bus == null ? null : (BusAdapter) identifiableCached.computeIfAbsent(bus, key -> new BusAdapter(bus, this));
     }
 
     /** @return adapter according to given TwoWindingsTransformer */
     TwoWindingsTransformerAdapter getTwoWindingsTransformer(final TwoWindingsTransformer twt) {
-        return twt == null ? null : (TwoWindingsTransformerAdapter) identifiableAdaptersCached.computeIfAbsent(twt, key -> new TwoWindingsTransformerAdapter(twt, this));
+        return twt == null ? null : (TwoWindingsTransformerAdapter) identifiableCached.computeIfAbsent(twt, key -> new TwoWindingsTransformerAdapter(twt, this));
     }
 
     ThreeWindingsTransformerAdapter getThreeWindingsTransformer(final ThreeWindingsTransformer twt) {
-        return twt == null ? null : (ThreeWindingsTransformerAdapter) identifiableAdaptersCached.computeIfAbsent(twt, key -> new ThreeWindingsTransformerAdapter(twt, this));
+        return twt == null ? null : (ThreeWindingsTransformerAdapter) identifiableCached.computeIfAbsent(twt, key -> new ThreeWindingsTransformerAdapter(twt, this));
     }
 
     BusbarSectionAdapter getBusbarSection(final BusbarSection bs) {
-        return bs == null ? null : (BusbarSectionAdapter) identifiableAdaptersCached.computeIfAbsent(bs, key -> new BusbarSectionAdapter(bs, this));
+        return bs == null ? null : (BusbarSectionAdapter) identifiableCached.computeIfAbsent(bs, key -> new BusbarSectionAdapter(bs, this));
     }
 
     GeneratorAdapter getGenerator(final Generator generator) {
-        return generator == null ? null : (GeneratorAdapter) identifiableAdaptersCached.computeIfAbsent(generator, key -> new GeneratorAdapter(generator, this));
+        return generator == null ? null : (GeneratorAdapter) identifiableCached.computeIfAbsent(generator, key -> new GeneratorAdapter(generator, this));
     }
 
     LoadAdapter getLoad(final Load load) {
-        return load == null ? null : (LoadAdapter) identifiableAdaptersCached.computeIfAbsent(load, key -> new LoadAdapter(load, this));
+        return load == null ? null : (LoadAdapter) identifiableCached.computeIfAbsent(load, key -> new LoadAdapter(load, this));
     }
 
     BatteryAdapter getBattery(final Battery battery) {
-        return battery == null ? null : (BatteryAdapter) identifiableAdaptersCached.computeIfAbsent(battery, key -> new BatteryAdapter(battery, this));
+        return battery == null ? null : (BatteryAdapter) identifiableCached.computeIfAbsent(battery, key -> new BatteryAdapter(battery, this));
     }
 
     ComponentAdapter getComponent(final Component component) {
-        return component == null ? null : (ComponentAdapter) componentAdaptersCached.computeIfAbsent(component, key -> new ComponentAdapter(component, this));
+        return component == null ? null : (ComponentAdapter) componentCached.computeIfAbsent(component, key -> new ComponentAdapter(component, this));
     }
 
     TerminalAdapter getTerminal(final Terminal terminal) {
-        return terminal == null ? null : (TerminalAdapter) terminalAdaptersCached.computeIfAbsent(terminal, key -> new TerminalAdapter(terminal, this));
+        return terminal == null ? null : (TerminalAdapter) terminalCached.computeIfAbsent(terminal, key -> new TerminalAdapter(terminal, this));
     }
 
     PhaseTapChangerAdapter getPhaseTapChanger(final PhaseTapChanger ptc) {
-        return ptc == null ? null : (PhaseTapChangerAdapter) ptcAdaptersCached.computeIfAbsent(ptc, key -> new PhaseTapChangerAdapter(ptc, this));
+        return ptc == null ? null : (PhaseTapChangerAdapter) ptcCached.computeIfAbsent(ptc, key -> new PhaseTapChangerAdapter(ptc, this));
     }
 
     RatioTapChangerAdapter getRatioTapChanger(final RatioTapChanger rtc) {
-        return rtc == null ? null : (RatioTapChangerAdapter) rtcAdaptersCached.computeIfAbsent(rtc, key -> new RatioTapChangerAdapter(rtc, this));
+        return rtc == null ? null : (RatioTapChangerAdapter) rtcCached.computeIfAbsent(rtc, key -> new RatioTapChangerAdapter(rtc, this));
     }
 
     Line getLine(final Line line) {
-        return line == null ? null : (Line) identifiableAdaptersCached.computeIfAbsent(line, k -> {
+        return line == null ? null : (Line) identifiableCached.computeIfAbsent(line, k -> {
             if (line.isTieLine()) {
                 return new TieLineAdapter((TieLine) line, this);
             } else {
@@ -377,24 +347,24 @@ class MergingViewIndex {
     }
 
     VscConverterStationAdapter getVscConverterStation(final VscConverterStation vsc) {
-        return vsc == null ? null : (VscConverterStationAdapter) identifiableAdaptersCached.computeIfAbsent(vsc, key -> new VscConverterStationAdapter((VscConverterStation) key, this));
+        return vsc == null ? null : (VscConverterStationAdapter) identifiableCached.computeIfAbsent(vsc, key -> new VscConverterStationAdapter((VscConverterStation) key, this));
     }
 
     LccConverterStationAdapter getLccConverterStation(final LccConverterStation lcc) {
-        return lcc == null ? null : (LccConverterStationAdapter) identifiableAdaptersCached.computeIfAbsent(lcc, key -> new LccConverterStationAdapter((LccConverterStation) key, this));
+        return lcc == null ? null : (LccConverterStationAdapter) identifiableCached.computeIfAbsent(lcc, key -> new LccConverterStationAdapter((LccConverterStation) key, this));
     }
 
     ShuntCompensatorAdapter getShuntCompensator(final ShuntCompensator shuntCompensator) {
         return shuntCompensator == null ? null
-                : (ShuntCompensatorAdapter) identifiableAdaptersCached.computeIfAbsent(shuntCompensator, key -> new ShuntCompensatorAdapter((ShuntCompensator) key, this));
+                : (ShuntCompensatorAdapter) identifiableCached.computeIfAbsent(shuntCompensator, key -> new ShuntCompensatorAdapter((ShuntCompensator) key, this));
     }
 
     StaticVarCompensatorAdapter getStaticVarCompensator(final StaticVarCompensator svc) {
-        return svc == null ? null : (StaticVarCompensatorAdapter) identifiableAdaptersCached.computeIfAbsent(svc, key -> new StaticVarCompensatorAdapter((StaticVarCompensator) key, this));
+        return svc == null ? null : (StaticVarCompensatorAdapter) identifiableCached.computeIfAbsent(svc, key -> new StaticVarCompensatorAdapter((StaticVarCompensator) key, this));
     }
 
     DanglingLineAdapter getDanglingLine(final DanglingLine dll) {
-        return dll == null ? null : (DanglingLineAdapter) identifiableAdaptersCached.computeIfAbsent(dll, key -> new DanglingLineAdapter((DanglingLine) key, this));
+        return dll == null ? null : (DanglingLineAdapter) identifiableCached.computeIfAbsent(dll, key -> new DanglingLineAdapter((DanglingLine) key, this));
     }
 
     Connectable getConnectable(final Connectable connectable) {
@@ -424,7 +394,7 @@ class MergingViewIndex {
             case HVDC_CONVERTER_STATION:
                 return getHvdcConverterStation((HvdcConverterStation) connectable);
             default:
-                throw new AssertionError(connectable.getType().name() + " is not valid to be immutablized to connectable");
+                throw new AssertionError(connectable.getType().name() + " is not valid to be adapted to connectable");
         }
     }
 
@@ -438,7 +408,7 @@ class MergingViewIndex {
             case TWO_WINDINGS_TRANSFORMER:
                 return getTwoWindingsTransformer((TwoWindingsTransformer) b);
             default:
-                throw new AssertionError(b.getType().name() + " is not valid to be immutablized to branch");
+                throw new AssertionError(b.getType().name() + " is not valid to be adapted to branch");
         }
     }
 }

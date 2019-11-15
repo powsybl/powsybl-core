@@ -6,50 +6,17 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.ContainerType;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.HvdcConverterStation;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.HvdcLineAdder;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.NetworkListener;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TieLineAdder;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VariantManager;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VscConverterStation;
-
+import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Not destructive network merge.
@@ -257,31 +224,26 @@ public final class MergingView implements Network {
 
     @Override
     public Iterable<Substation> getSubstations(final Country country, final String tsoId, final String... geographicalTags) {
-        return getSubstations(Optional.ofNullable(country).map(Country::getName).orElse(null), tsoId, geographicalTags);
+        return getSubstations(Optional.ofNullable(country).map(Country::getName)
+                .orElse(null), tsoId, geographicalTags);
     }
 
     @Override
     public Iterable<Substation> getSubstations(final String country, final String tsoId, final String... geographicalTags) {
-        return StreamSupport.stream(getSubstations().spliterator(), false).filter(substation -> {
-            if (country != null && !country.equals(substation.getCountry().map(Country::getName).orElse(""))) {
-                return false;
-            }
-            if (tsoId != null && !tsoId.equals(substation.getTso())) {
-                return false;
-            }
-            for (final String tag : geographicalTags) {
-                if (!substation.getGeographicalTags().contains(tag)) {
-                    return false;
-                }
-            }
-            return true;
-        }).collect(Collectors.toList());
+        return index.getNetworkStream()
+                .map(n -> n.getSubstations(country, tsoId, geographicalTags))
+                .flatMap(x -> StreamSupport.stream(x.spliterator(), false))
+                .filter(Objects::nonNull)
+                .map(index::getSubstation)
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Substation getSubstation(final String id) {
-        return getSubstationStream()
-                .filter(s -> id.equals(s.getId()))
+        return index.getNetworkStream()
+                .map(n -> n.getSubstation(id))
+                .filter(Objects::nonNull)
+                .map(index::getSubstation)
                 .findFirst()
                 .orElse(null);
     }
@@ -309,7 +271,12 @@ public final class MergingView implements Network {
 
     @Override
     public VoltageLevel getVoltageLevel(final String id) {
-        return getVoltageLevelStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                .map(n -> n.getVoltageLevel(id))
+                .filter(Objects::nonNull)
+                .map(index::getVoltageLevel)
+                .findFirst()
+                .orElse(null);
     }
 
     // Battery
@@ -330,7 +297,12 @@ public final class MergingView implements Network {
 
     @Override
     public Battery getBattery(final String id) {
-        return getBatteryStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                .map(n -> n.getBattery(id))
+                .filter(Objects::nonNull)
+                .map(index::getBattery)
+                .findFirst()
+                .orElse(null);
     }
 
     // VscConverterStation
@@ -351,7 +323,12 @@ public final class MergingView implements Network {
 
     @Override
     public VscConverterStation getVscConverterStation(final String id) {
-        return getVscConverterStationStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                .map(n -> n.getVscConverterStation(id))
+                .filter(Objects::nonNull)
+                .map(index::getVscConverterStation)
+                .findFirst()
+                .orElse(null);
     }
 
     // TwoWindingsTransformer
@@ -372,13 +349,23 @@ public final class MergingView implements Network {
 
     @Override
     public TwoWindingsTransformer getTwoWindingsTransformer(final String id) {
-        return getTwoWindingsTransformerStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                .map(n -> n.getTwoWindingsTransformer(id))
+                .filter(Objects::nonNull)
+                .map(index::getTwoWindingsTransformer)
+                .findFirst()
+                .orElse(null);
     }
 
     // Switches
     @Override
     public Switch getSwitch(final String id) {
-        return getSwitchStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                .map(n -> n.getSwitch(id))
+                .filter(Objects::nonNull)
+                .map(index::getSwitch)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -414,7 +401,12 @@ public final class MergingView implements Network {
 
     @Override
     public StaticVarCompensator getStaticVarCompensator(final String id) {
-        return getStaticVarCompensatorStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                .map(n -> n.getStaticVarCompensator(id))
+                .filter(Objects::nonNull)
+                .map(index::getStaticVarCompensator)
+                .findFirst()
+                .orElse(null);
     }
 
     // ShuntCompensators
@@ -435,7 +427,12 @@ public final class MergingView implements Network {
 
     @Override
     public ShuntCompensator getShuntCompensator(final String id) {
-        return getShuntCompensatorStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                .map(n -> n.getShuntCompensator(id))
+                .filter(Objects::nonNull)
+                .map(index::getShuntCompensator)
+                .findFirst()
+                .orElse(null);
     }
 
     // Loads
@@ -456,7 +453,12 @@ public final class MergingView implements Network {
 
     @Override
     public Load getLoad(final String id) {
-        return getLoadStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                .map(n -> n.getLoad(id))
+                .filter(Objects::nonNull)
+                .map(index::getLoad)
+                .findFirst()
+                .orElse(null);
     }
 
     // Generators
@@ -477,13 +479,23 @@ public final class MergingView implements Network {
 
     @Override
     public Generator getGenerator(final String id) {
-        return getGeneratorStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                .map(n -> n.getGenerator(id))
+                .filter(Objects::nonNull)
+                .map(index::getGenerator)
+                .findFirst()
+                .orElse(null);
     }
 
     // BusbarSections
     @Override
     public BusbarSection getBusbarSection(final String id) {
-        return getBusbarSectionStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                .map(n -> n.getBusbarSection(id))
+                .filter(Objects::nonNull)
+                .map(index::getBusbarSection)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -519,7 +531,12 @@ public final class MergingView implements Network {
 
     @Override
     public LccConverterStation getLccConverterStation(final String id) {
-        return getLccConverterStationStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                .map(n -> n.getLccConverterStation(id))
+                .filter(Objects::nonNull)
+                .map(index::getLccConverterStation)
+                .findFirst()
+                .orElse(null);
     }
 
     // HvdcConverterStations
@@ -540,13 +557,23 @@ public final class MergingView implements Network {
 
     @Override
     public HvdcConverterStation<?> getHvdcConverterStation(final String id) {
-        return getHvdcConverterStationStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                .map(n -> n.getHvdcConverterStation(id))
+                .filter(Objects::nonNull)
+                .map(index::getHvdcConverterStation)
+                .findFirst()
+                .orElse(null);
     }
 
     // Branches
     @Override
     public Branch getBranch(final String id) {
-        return getBranchStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                .map(n -> n.getBranch(id))
+                .filter(Objects::nonNull)
+                .map(index::getBranch)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -582,7 +609,12 @@ public final class MergingView implements Network {
 
     @Override
     public ThreeWindingsTransformer getThreeWindingsTransformer(final String id) {
-        return getThreeWindingsTransformerStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                .map(n -> n.getThreeWindingsTransformer(id))
+                .filter(Objects::nonNull)
+                .map(index::getThreeWindingsTransformer)
+                .findFirst()
+                .orElse(null);
     }
 
     // Lines
@@ -603,7 +635,12 @@ public final class MergingView implements Network {
 
     @Override
     public Line getLine(final String id) {
-        return getLineStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                .map(n -> n.getLine(id))
+                .filter(Objects::nonNull)
+                .map(index::getLine)
+                .findFirst()
+                .orElse(null);
     }
 
     // DanglingLines
@@ -624,7 +661,12 @@ public final class MergingView implements Network {
 
     @Override
     public DanglingLine getDanglingLine(final String id) {
-        return getDanglingLineStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                .map(n -> n.getDanglingLine(id))
+                .filter(Objects::nonNull)
+                .map(index::getDanglingLine)
+                .findFirst()
+                .orElse(null);
     }
 
     // HvdcLines
@@ -645,7 +687,12 @@ public final class MergingView implements Network {
 
     @Override
     public HvdcLine getHvdcLine(final String id) {
-        return getHvdcLineStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                .map(n -> n.getHvdcLine(id))
+                .filter(Objects::nonNull)
+                .map(index::getHvdcLine)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override

@@ -6,15 +6,12 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.List;
-
-import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.StaticVarCompensator;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class StaticVarCompensatorAdapter extends AbstractIdentifiableAdapter<StaticVarCompensator> implements StaticVarCompensator {
+public class StaticVarCompensatorAdapter extends AbstractInjectionAdapter<StaticVarCompensator> implements StaticVarCompensator {
 
     protected StaticVarCompensatorAdapter(final StaticVarCompensator delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -23,26 +20,6 @@ public class StaticVarCompensatorAdapter extends AbstractIdentifiableAdapter<Sta
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
-    @Override
-    public TerminalAdapter getTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ConnectableType getType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public List<? extends TerminalAdapter> getTerminals() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
     @Override
     public double getBmin() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;

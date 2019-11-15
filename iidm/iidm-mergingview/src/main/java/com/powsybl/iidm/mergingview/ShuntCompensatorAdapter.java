@@ -6,15 +6,12 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.List;
-
-import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.ShuntCompensator;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class ShuntCompensatorAdapter extends AbstractIdentifiableAdapter<ShuntCompensator> implements ShuntCompensator {
+public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompensator> implements ShuntCompensator {
 
     protected ShuntCompensatorAdapter(final ShuntCompensator delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -23,26 +20,6 @@ public class ShuntCompensatorAdapter extends AbstractIdentifiableAdapter<ShuntCo
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
-    @Override
-    public TerminalAdapter getTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ConnectableType getType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public List<? extends TerminalAdapter> getTerminals() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
     @Override
     public int getMaximumSectionCount() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
@@ -74,13 +51,7 @@ public class ShuntCompensatorAdapter extends AbstractIdentifiableAdapter<ShuntCo
     }
 
     @Override
-    public double getMaximumB() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public double getCurrentB() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
-
 }
