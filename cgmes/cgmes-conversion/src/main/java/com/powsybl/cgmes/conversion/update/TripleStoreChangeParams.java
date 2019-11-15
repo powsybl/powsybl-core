@@ -19,7 +19,7 @@ public class TripleStoreChangeParams {
     public TripleStoreChangeParams(TripleStoreSimpleUpdateReference ref, String value) {
         this.predicate = ref.predicate();
         this.contextReference = ref.contextReference();
-        this.valueIsNode = ref.valueIsNode();
+        this.valueIsUri = ref.valueIsUri();
         this.value = value;
     }
 
@@ -31,8 +31,8 @@ public class TripleStoreChangeParams {
         return contextReference;
     }
 
-    public boolean valueIsNode() {
-        return valueIsNode;
+    public boolean valueIsUri() {
+        return valueIsUri;
     }
 
     public String value() {
@@ -41,6 +41,6 @@ public class TripleStoreChangeParams {
 
     private final String predicate;
     private final String contextReference;
-    private final boolean valueIsNode;
+    private final boolean valueIsUri;
     private final String value;
 }

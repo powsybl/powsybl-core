@@ -489,18 +489,18 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     // Updates
 
-    public PropertyBags update(
+    public void update(
         String queryName,
         String context,
         String baseName,
         String subject,
         String predicate,
         String value,
-        boolean valueIsNode) {
+        boolean valueIsUri) {
         Objects.requireNonNull(cimNamespace);
         String baseUri = getBaseUri(baseName);
 //        LOG.info("update {}, {}, {}, {}, {}", context, baseUri, subject, predicate, value);
-        String value1 = valueIsNode ? baseUri.concat(value) : value;
+        String value1 = valueIsUri ? baseUri.concat(value) : value;
         // XXX Luma prefix cim should already be in place ?
         if (value.contains("cim:")) {
             value1 = cimNamespace.concat(value.substring(4));
@@ -510,10 +510,10 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             context,
             baseUri.concat(subject),
             predicate,
-            value1);
+            value1,
+            String.valueOf(valueIsUri));
         // XXX LUMA not required when doing performance evaluation
-        // return namedQuery("checkCgmesUpdated", context, subject);
-        return null;
+//        LOG.info(namedQuery("checkUpdated", context, baseUri.concat(subject)).tabulate());
     }
 
     private String getBaseUri(String baseName) {

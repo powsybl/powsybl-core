@@ -40,12 +40,12 @@ public class IidmToCgmes {
         }
     }
 
-    protected void addSimpleUpdate(String attribute, String predicate, CgmesSubset subset, boolean valueIsNode) {
+    protected void addSimpleUpdate(String attribute, String predicate, CgmesSubset subset, boolean valueIsUri) {
         // The reference to the context in which the change must be applied
         // is the identifier of the CGMES subset
         // "EQ", "SSH", "SV", ...
         simpleUpdateReferences.put(attribute,
-            new TripleStoreSimpleUpdateReference(predicate, subset.getIdentifier(), valueIsNode));
+            new TripleStoreSimpleUpdateReference(predicate, subset.getIdentifier(), valueIsUri));
     }
 
     private TripleStoreSimpleUpdateReference simpleUpdateReference(IidmChangeUpdate change) {

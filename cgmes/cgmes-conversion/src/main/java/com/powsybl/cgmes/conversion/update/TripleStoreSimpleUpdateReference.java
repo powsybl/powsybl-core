@@ -1,10 +1,10 @@
 package com.powsybl.cgmes.conversion.update;
 
 public class TripleStoreSimpleUpdateReference {
-    public TripleStoreSimpleUpdateReference(String predicate, String contextReference, boolean valueIsNode) {
+    public TripleStoreSimpleUpdateReference(String predicate, String contextReference, boolean valueIsUri) {
         this.predicate = predicate;
         this.contextReference = contextReference;
-        this.valueIsNode = valueIsNode;
+        this.valueIsUri = valueIsUri;
     }
 
     public String predicate() {
@@ -15,11 +15,11 @@ public class TripleStoreSimpleUpdateReference {
         return contextReference;
     }
 
-    public boolean valueIsNode() {
-        return valueIsNode;
+    public boolean valueIsUri() {
+        return valueIsUri;
     }
 
     private final String predicate;
     private final String contextReference;
-    private final boolean valueIsNode;
+    private final boolean valueIsUri;
 }
