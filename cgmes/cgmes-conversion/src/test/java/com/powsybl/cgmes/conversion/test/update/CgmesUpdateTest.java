@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 
@@ -56,16 +57,16 @@ public class CgmesUpdateTest {
     }
 
     @Test
-    public void testPerformanceSmallGrid() throws IOException {
+    public void testSimpleUpdateSmallGrid() throws IOException {
         boolean invalidateFlows = true;
-        testPerformance(CgmesConformity1Catalog.smallBusBranch().dataSource(), invalidateFlows);
+        testSimpleUpdate(CgmesConformity1Catalog.smallBusBranch().dataSource(), invalidateFlows);
     }
 
-    void testPerformance(ReadOnlyDataSource ds, boolean invalidateFlows) throws IOException {
-        testPerformance(ds, TripleStoreFactory.defaultImplementation(), invalidateFlows);
+    void testSimpleUpdate(ReadOnlyDataSource ds, boolean invalidateFlows) throws IOException {
+        testSimpleUpdate(ds, TripleStoreFactory.defaultImplementation(), invalidateFlows);
     }
 
-    private void testPerformance(ReadOnlyDataSource ds, String impl, boolean invalidateFlows) throws IOException {
+    private void testSimpleUpdate(ReadOnlyDataSource ds, String impl, boolean invalidateFlows) throws IOException {
         Profiling profiling = new Profiling();
 
         cgmesImport.setProfiling(profiling);
@@ -82,11 +83,13 @@ public class CgmesUpdateTest {
         network0.getVariantManager().setWorkingVariant("1");
         profiling.end(Operations.CLONE_VARIANT.name());
 
+        NetworkChanges.modifyEquipmentCharacteristics(network0);
         profiling.start();
         int numChangesInLoadsAndGenerators = isBigNetwork ? 1000 : Integer.MAX_VALUE;
         NetworkChanges.scaleLoadGeneration(network0, numChangesInLoadsAndGenerators);
         profiling.end(Operations.SCALING.name());
         int numChangesBeforeLoadFlow = network0.getExtension(CgmesModelExtension.class).getCgmesUpdate().changelog().getChangesForVariant(network0.getVariantManager().getWorkingVariantId()).size();
+        NetworkChanges.modifySteadyStateHypothesis(network0);
 
         profiling.start();
         if (!isBigNetwork) {

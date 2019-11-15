@@ -6,10 +6,13 @@ import com.powsybl.cgmes.model.CgmesSubset;
 public class LoadToEnergyConsumer extends IidmToCgmes {
 
     LoadToEnergyConsumer() {
-        addSimpleUpdate("p0", "cim:EnergyConsumer.p", CgmesSubset.STEADY_STATE_HYPOTHESIS, false);
-        addSimpleUpdate("p", "cim:EnergyConsumer.p", CgmesSubset.STEADY_STATE_HYPOTHESIS, false);
-        addSimpleUpdate("q0", "cim:EnergyConsumer.q", CgmesSubset.STEADY_STATE_HYPOTHESIS, false);
-        addSimpleUpdate("q", "cim:EnergyConsumer.q", CgmesSubset.STEADY_STATE_HYPOTHESIS, false);
+        // Ignore changes on (p, q) from Load Terminal
+        // They will be added directly as new objects in SV subset
+        ignore("p");
+        ignore("q");
+
+        simpleUpdate("p0", "cim:EnergyConsumer.p", CgmesSubset.STEADY_STATE_HYPOTHESIS);
+        simpleUpdate("q0", "cim:EnergyConsumer.q", CgmesSubset.STEADY_STATE_HYPOTHESIS);
     }
 
 }

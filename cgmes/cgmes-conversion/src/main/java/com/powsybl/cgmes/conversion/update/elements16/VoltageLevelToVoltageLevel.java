@@ -6,8 +6,8 @@ import com.powsybl.cgmes.model.CgmesSubset;
 public class VoltageLevelToVoltageLevel extends IidmToCgmes {
 
     VoltageLevelToVoltageLevel() {
-        addSimpleUpdate("highVoltageLimit", "cim:VoltageLevel.highVoltageLimit", CgmesSubset.EQUIPMENT, false);
-        addSimpleUpdate("lowVoltageLimit", "cim:VoltageLevel.lowVoltageLimit", CgmesSubset.EQUIPMENT, false);
+        simpleUpdate("highVoltageLimit", "cim:VoltageLevel.highVoltageLimit", CgmesSubset.EQUIPMENT);
+        simpleUpdate("lowVoltageLimit", "cim:VoltageLevel.lowVoltageLimit", CgmesSubset.EQUIPMENT);
     }
 
 }

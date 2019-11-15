@@ -1,8 +1,19 @@
 package com.powsybl.cgmes.conversion.test.update;
 
+import com.powsybl.cgmes.conversion.update.elements16.GeneratorToSynchronousMachine;
+import com.powsybl.cgmes.conversion.update.elements16.TwoWindingsTransformerToPowerTransformer;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.MinMaxReactiveLimits;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ReactiveLimitsKind;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.VoltageLevel;
+
+import jline.internal.Log;
 
 public final class NetworkChanges {
     private NetworkChanges() {
@@ -29,6 +40,116 @@ public final class NetworkChanges {
             count++;
             if (count > maxChanges) {
                 break;
+            }
+        }
+    }
+
+    public static void modifyEquipmentCharacteristics(Network network) {
+        VoltageLevel vl = network.getVoltageLevels().iterator().next();
+        vl.setLowVoltageLimit(vl.getNominalV() - 3.1415);
+        vl.setHighVoltageLimit(vl.getNominalV() + 3.1415);
+
+        Line line = network.getLines().iterator().next();
+        // Some lines may correspond to CGMES switches
+        // Do not make changes on low impedance lines
+        if (line.getR() < 1e-3 && line.getX() < 1e-3) {
+            Log.warn("No changes are made in IIDM low impedance lines");
+        } else {
+            line.setR(line.getR() + 0.8);
+            line.setX(line.getX() + 0.8);
+            // To be recovered in IIDM after updated CGMES we have to keep G1==G2 and B1==B2
+            // as CGMES only has global gch, bch values for the line, not split between ends
+            line.setG1(line.getG1() + 0.4);
+            line.setG2(line.getG2() + 0.4);
+            line.setB1(line.getB1() + 0.2);
+            line.setB2(line.getB2() + 0.2);
+        }
+
+        TwoWindingsTransformerToPowerTransformer ct2 = new TwoWindingsTransformerToPowerTransformer();
+        if (ct2.isSupported("ratedU1") && ct2.isSupported("ratedU22")) {
+            modifyTwoWindingsTransformerRatedU(network);
+        }
+        if (ct2.isSupported("r") && ct2.isSupported("x")) {
+            modifyTwoWindingsTransformerRX(network);
+        }
+        if (ct2.isSupported("g") && ct2.isSupported("b")) {
+            modifyTwoWindingsTransformerGB(network);
+        }
+
+        GeneratorToSynchronousMachine cg = new GeneratorToSynchronousMachine();
+        if (cg.isSupported("reactiveLimits")) {
+            modifyGeneratorReactiveLimits(network);
+        }
+
+        ShuntCompensator sh = network.getShuntCompensators().iterator().next();
+        sh.setbPerSection(sh.getbPerSection() + 0.2);
+        sh.setMaximumSectionCount(sh.getMaximumSectionCount() + 5);
+    }
+
+    public static void modifySteadyStateHypothesis(Network network) {
+        GeneratorToSynchronousMachine cg = new GeneratorToSynchronousMachine();
+        if (cg.isSupported("targetV") && cg.isSupported("voltageRegulatorOn")) {
+            modifyGeneratorVoltageRegulation(network);
+        }
+        modifyShuntCompensatorSections(network);
+    }
+
+    public static void modifyShuntCompensatorSections(Network network) {
+        boolean found = false;
+        for (ShuntCompensator sh : network.getShuntCompensators()) {
+            int newSections = sh.getCurrentSectionCount() == 0 ? sh.getMaximumSectionCount() : 0;
+            if (newSections != sh.getCurrentSectionCount()) {
+                sh.setCurrentSectionCount(newSections);
+                found = true;
+            }
+        }
+        if (!found) {
+            throw new PowsyblException("Did not find a ShuntCompensator to test");
+        }
+    }
+
+    public static void modifyTwoWindingsTransformerRatedU(Network network) {
+        TwoWindingsTransformer t2 = network.getTwoWindingsTransformers().iterator().next();
+        t2.setRatedU1(t2.getRatedU1() + 10);
+        t2.setRatedU2(t2.getRatedU2() - 10);
+    }
+
+    public static void modifyTwoWindingsTransformerRX(Network network) {
+        TwoWindingsTransformer t2 = network.getTwoWindingsTransformers().iterator().next();
+        t2.setR(t2.getR() + 0.8);
+        t2.setX(t2.getX() + 0.8);
+    }
+
+    public static void modifyTwoWindingsTransformerGB(Network network) {
+        TwoWindingsTransformer t2 = network.getTwoWindingsTransformers().iterator().next();
+        t2.setG(t2.getG() + 0.1);
+        t2.setB(t2.getB() + 0.1);
+    }
+
+    public static void modifyGeneratorReactiveLimits(Network network) {
+        // Apply changes to first generator that has min/max limits for Q
+        for (Generator g : network.getGenerators()) {
+            if (g.getReactiveLimits().getKind() == ReactiveLimitsKind.MIN_MAX) {
+                g.setRatedS(g.getRatedS() * 1.2);
+                g.setMinP(g.getMinP() - 10);
+                g.setMaxP(g.getMaxP() + 10);
+
+                MinMaxReactiveLimits l = (MinMaxReactiveLimits) g.getReactiveLimits();
+                g.newMinMaxReactiveLimits()
+                    .setMinQ(l.getMinQ() - 10)
+                    .setMaxQ(l.getMinQ() + 10)
+                    .add();
+                break;
+            }
+        }
+    }
+
+    public static void modifyGeneratorVoltageRegulation(Network network) {
+        // Apply changes to first generator with voltage regulation active
+        for (Generator g : network.getGenerators()) {
+            if (g.isVoltageRegulatorOn()) {
+                g.setTargetV(g.getTargetV() + 0.1);
+                g.setVoltageRegulatorOn(false);
             }
         }
     }
