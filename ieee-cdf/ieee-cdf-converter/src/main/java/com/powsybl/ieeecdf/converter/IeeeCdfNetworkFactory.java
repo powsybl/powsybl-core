@@ -23,6 +23,14 @@ public final class IeeeCdfNetworkFactory {
         return new IeeeCdfImporter().importData(new ResourceDataSource(baseName, new ResourceSet("/", baseName + ".txt")), networkFactory, null);
     }
 
+    public static Network create9(NetworkFactory networkFactory) {
+        return create("ieee9cdf", networkFactory);
+    }
+
+    public static Network create9() {
+        return create9(NetworkFactory.findDefault());
+    }
+
     public static Network create14(NetworkFactory networkFactory) {
         return create("ieee14cdf", networkFactory);
     }

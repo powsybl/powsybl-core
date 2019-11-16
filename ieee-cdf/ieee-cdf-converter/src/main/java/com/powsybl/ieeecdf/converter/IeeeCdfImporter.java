@@ -136,9 +136,8 @@ public class IeeeCdfImporter implements Importer {
                 vlGraph.addEdge(ieeeCdfBranch.getTapBusNumber(), ieeeCdfBranch.getzBusNumber());
             }
         }
-        int voltageLevelNum = 1;
         for (Set<Integer> busNums : new ConnectivityInspector<>(vlGraph).connectedSets()) {
-            String voltageLevelId = "VL" + voltageLevelNum++;
+            String voltageLevelId = "VL" + busNums.iterator().next();
             containersMapping.voltageLevelIdToBusNums.put(voltageLevelId, busNums);
             for (int busNum : busNums) {
                 containersMapping.busNumToVoltageLevelId.put(busNum, voltageLevelId);
@@ -280,18 +279,18 @@ public class IeeeCdfImporter implements Importer {
         String id = "L" + ieeeCdfBranch.getTapBusNumber() + "-" + ieeeCdfBranch.getzBusNumber() + "-" + ieeeCdfBranch.getCircuit();
         String bus1Id = getBusId(ieeeCdfBranch.getTapBusNumber());
         String bus2Id = getBusId(ieeeCdfBranch.getzBusNumber());
-        String voltageLevelId1 = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getTapBusNumber());
-        String voltageLevelId2 = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getzBusNumber());
-        VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevelId2);
+        String voltageLevel1Id = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getTapBusNumber());
+        String voltageLevel2Id = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getzBusNumber());
+        VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / sb;
         network.newLine()
                 .setId(id)
                 .setBus1(bus1Id)
                 .setConnectableBus1(bus1Id)
-                .setVoltageLevel1(voltageLevelId1)
+                .setVoltageLevel1(voltageLevel1Id)
                 .setBus2(bus2Id)
                 .setConnectableBus2(bus2Id)
-                .setVoltageLevel2(voltageLevelId2)
+                .setVoltageLevel2(voltageLevel2Id)
                 .setR(ieeeCdfBranch.getResistance() * zb)
                 .setX(ieeeCdfBranch.getReactance() * zb)
                 .setG1(0)
@@ -305,18 +304,18 @@ public class IeeeCdfImporter implements Importer {
         String id = "T" + ieeeCdfBranch.getTapBusNumber() + "-" + ieeeCdfBranch.getzBusNumber() + "-" + ieeeCdfBranch.getCircuit();
         String bus1Id = getBusId(ieeeCdfBranch.getTapBusNumber());
         String bus2Id = getBusId(ieeeCdfBranch.getzBusNumber());
-        String voltageLevelId1 = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getTapBusNumber());
-        String voltageLevelId2 = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getzBusNumber());
-        VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevelId2);
+        String voltageLevel1Id = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getTapBusNumber());
+        String voltageLevel2Id = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getzBusNumber());
+        VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / sb;
         voltageLevel2.getSubstation().newTwoWindingsTransformer()
                 .setId(id)
                 .setBus1(bus1Id)
                 .setConnectableBus1(bus1Id)
-                .setVoltageLevel1(voltageLevelId1)
+                .setVoltageLevel1(voltageLevel1Id)
                 .setBus2(bus2Id)
                 .setConnectableBus2(bus2Id)
-                .setVoltageLevel2(voltageLevelId2)
+                .setVoltageLevel2(voltageLevel2Id)
                 .setRatedU1(voltageLevel2.getNominalV() * ieeeCdfBranch.getFinalTurnsRatio())
                 .setRatedU2(voltageLevel2.getNominalV())
                 .setR(ieeeCdfBranch.getResistance() * zb)
@@ -328,23 +327,30 @@ public class IeeeCdfImporter implements Importer {
 
     private static void createBranches(IeeeCdfModel ieeeCdfModel, ContainersMapping containerMapping, double sb, Network network) {
         for (IeeeCdfBranch ieeeCdfBranch : ieeeCdfModel.getBranches()) {
-            switch (ieeeCdfBranch.getType()) {
-                case TRANSMISSION_LINE:
-                    if (ieeeCdfBranch.getFinalTurnsRatio() == 0) {
-                        createLine(ieeeCdfBranch, containerMapping, sb, network);
-                    } else {
+            if (ieeeCdfBranch.getType() == null) {
+                createLine(ieeeCdfBranch, containerMapping, sb, network);
+            } else {
+                switch (ieeeCdfBranch.getType()) {
+                    case TRANSMISSION_LINE:
+                        if (ieeeCdfBranch.getFinalTurnsRatio() == 0) {
+                            createLine(ieeeCdfBranch, containerMapping, sb, network);
+                        } else {
+                            createTransformer(ieeeCdfBranch, containerMapping, sb, network);
+                        }
+                        break;
+
+                    case FIXED_TAP:
+                    case VARIABLE_TAP_FOR_VOLTAVE_CONTROL:
                         createTransformer(ieeeCdfBranch, containerMapping, sb, network);
-                    }
-                    break;
+                        break;
 
-                case FIXED_TAP:
-                case VARIABLE_TAP_FOR_VOLTAVE_CONTROL:
-                case VARIABLE_TAP_FOR_REACTIVE_POWER_CONTROL:
-                case VARIABLE_PHASE_ANGLE_FOR_ACTIVE_POWER_CONTROL:
-                    throw new UnsupportedOperationException("Transformers not yet implemented");
+                    case VARIABLE_TAP_FOR_REACTIVE_POWER_CONTROL:
+                    case VARIABLE_PHASE_ANGLE_FOR_ACTIVE_POWER_CONTROL:
+                        throw new UnsupportedOperationException("Transformers not yet implemented");
 
-                default:
-                    throw new IllegalStateException("Unexpected branch type: " + ieeeCdfBranch.getType());
+                    default:
+                        throw new IllegalStateException("Unexpected branch type: " + ieeeCdfBranch.getType());
+                }
             }
         }
     }
