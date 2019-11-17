@@ -275,8 +275,17 @@ public class IeeeCdfImporter implements Importer {
         }
     }
 
+    private static String getBranchId(char type, int tapBusNumber, int zBusNumber, int circuit, Network network) {
+        int uniqueCircuit = circuit;
+        String id;
+        do {
+            id = "" + type + tapBusNumber + "-" + zBusNumber + "-" + uniqueCircuit++;
+        } while (network.getIdentifiable(id) != null);
+        return id;
+    }
+
     private static void createLine(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, double sb, Network network) {
-        String id = "L" + ieeeCdfBranch.getTapBusNumber() + "-" + ieeeCdfBranch.getzBusNumber() + "-" + ieeeCdfBranch.getCircuit();
+        String id = getBranchId('L', ieeeCdfBranch.getTapBusNumber(), ieeeCdfBranch.getzBusNumber(), ieeeCdfBranch.getCircuit(), network);
         String bus1Id = getBusId(ieeeCdfBranch.getTapBusNumber());
         String bus2Id = getBusId(ieeeCdfBranch.getzBusNumber());
         String voltageLevel1Id = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getTapBusNumber());
@@ -300,15 +309,16 @@ public class IeeeCdfImporter implements Importer {
                 .add();
     }
 
-    private static void createTransformer(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, double sb, Network network) {
-        String id = "T" + ieeeCdfBranch.getTapBusNumber() + "-" + ieeeCdfBranch.getzBusNumber() + "-" + ieeeCdfBranch.getCircuit();
+    private static TwoWindingsTransformer createTransformer(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, double sb, Network network) {
+        String id = getBranchId('T', ieeeCdfBranch.getTapBusNumber(), ieeeCdfBranch.getzBusNumber(), ieeeCdfBranch.getCircuit(), network);
         String bus1Id = getBusId(ieeeCdfBranch.getTapBusNumber());
         String bus2Id = getBusId(ieeeCdfBranch.getzBusNumber());
         String voltageLevel1Id = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getTapBusNumber());
         String voltageLevel2Id = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getzBusNumber());
+        VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / sb;
-        voltageLevel2.getSubstation().newTwoWindingsTransformer()
+        return voltageLevel2.getSubstation().newTwoWindingsTransformer()
                 .setId(id)
                 .setBus1(bus1Id)
                 .setConnectableBus1(bus1Id)
@@ -316,13 +326,46 @@ public class IeeeCdfImporter implements Importer {
                 .setBus2(bus2Id)
                 .setConnectableBus2(bus2Id)
                 .setVoltageLevel2(voltageLevel2Id)
-                .setRatedU1(voltageLevel2.getNominalV() * ieeeCdfBranch.getFinalTurnsRatio())
+                .setRatedU1(voltageLevel1.getNominalV() * ieeeCdfBranch.getFinalTurnsRatio())
                 .setRatedU2(voltageLevel2.getNominalV())
                 .setR(ieeeCdfBranch.getResistance() * zb)
                 .setX(ieeeCdfBranch.getReactance() * zb)
                 .setG(0)
                 .setB(ieeeCdfBranch.getChargingSusceptance() / zb)
             .add();
+    }
+
+    private static void createTransformerWithVoltageControl(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, double sb, Network network) {
+        TwoWindingsTransformer transformer = createTransformer(ieeeCdfBranch, containerMapping, sb, network);
+        transformer.newRatioTapChanger()
+                .setLoadTapChangingCapabilities(true)
+                .setRegulating(true)
+                .setTapPosition(0)
+                .setTargetV(0)// TODO
+                .beginStep()
+                    .setRho(1)
+                    .setR(0)
+                    .setX(0)
+                    .setG(0)
+                    .setB(0)
+                .endStep();
+    }
+
+    private static void createTransformerWithActivePowerControl(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, double sb, Network network) {
+        TwoWindingsTransformer transformer = createTransformer(ieeeCdfBranch, containerMapping, sb, network);
+        transformer.newPhaseTapChanger()
+                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulating(false)
+                .setTapPosition(0)
+                .beginStep()
+                    .setAlpha(-ieeeCdfBranch.getFinalAngle())
+                    .setRho(1)
+                    .setR(0)
+                    .setX(0)
+                    .setG(0)
+                    .setB(0)
+                .endStep()
+                .add();
     }
 
     private static void createBranches(IeeeCdfModel ieeeCdfModel, ContainersMapping containerMapping, double sb, Network network) {
@@ -340,13 +383,19 @@ public class IeeeCdfImporter implements Importer {
                         break;
 
                     case FIXED_TAP:
-                    case VARIABLE_TAP_FOR_VOLTAVE_CONTROL:
                         createTransformer(ieeeCdfBranch, containerMapping, sb, network);
                         break;
 
+                    case VARIABLE_TAP_FOR_VOLTAVE_CONTROL:
+                        createTransformerWithVoltageControl(ieeeCdfBranch, containerMapping, sb, network);
+                        break;
+
                     case VARIABLE_TAP_FOR_REACTIVE_POWER_CONTROL:
+                        throw new UnsupportedOperationException("Transformers not yet implemented: " + ieeeCdfBranch.getType());
+
                     case VARIABLE_PHASE_ANGLE_FOR_ACTIVE_POWER_CONTROL:
-                        throw new UnsupportedOperationException("Transformers not yet implemented");
+                        createTransformerWithActivePowerControl(ieeeCdfBranch, containerMapping, sb, network);
+                        break;
 
                     default:
                         throw new IllegalStateException("Unexpected branch type: " + ieeeCdfBranch.getType());
