@@ -55,18 +55,27 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
     }
 
     @Override
-    public Leg1Adapter getLeg1() {
+    public ThreeWindingsTransformerAdapter setRatedU0(final double x) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public Leg2or3Adapter getLeg2() {
+    public double getRatedU0() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public Leg2or3Adapter getLeg3() {
+    public LegAdapter getLeg1() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
+    @Override
+    public LegAdapter getLeg2() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
+
+    @Override
+    public LegAdapter getLeg3() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
 }

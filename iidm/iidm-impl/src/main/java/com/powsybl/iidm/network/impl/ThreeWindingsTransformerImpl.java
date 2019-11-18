@@ -151,18 +151,6 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public Set<TapChanger> getAllTapChangers() {
-            Set<TapChanger> tapChangers = new HashSet<TapChanger>();
-            if (transformer.getLeg2().getRatioTapChanger() != null) {
-                tapChangers.add(transformer.getLeg2().getRatioTapChanger());
-            }
-            if (transformer.getLeg3().getRatioTapChanger() != null) {
-                tapChangers.add(transformer.getLeg3().getRatioTapChanger());
-            }
-            return tapChangers;
-        }
-
-        @Override
         public void setRatioTapChanger(RatioTapChangerImpl ratioTapChanger) {
             RatioTapChangerImpl oldValue = this.ratioTapChanger;
             this.ratioTapChanger = ratioTapChanger;
