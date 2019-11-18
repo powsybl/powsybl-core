@@ -349,7 +349,7 @@ public abstract class AbstractTransformerConversion
     }
 
     private boolean isSymmetrical(String tapChangerType) {
-        return tapChangerType != null && tapChangerType.endsWith(STRING_SYMMETRICAL);
+        return tapChangerType != null && !tapChangerType.endsWith(STRING_ASYMMETRICAL) && tapChangerType.endsWith(STRING_SYMMETRICAL);
     }
 
     private boolean isAsymmetrical(String tapChangerType) {
@@ -538,8 +538,7 @@ public abstract class AbstractTransformerConversion
             double b1 = step.getB1();
             double g2 = step.getG2();
             double b2 = step.getB2();
-            TapChangerStepConversion convertedStep = calculateConversionStep(ratio, angle, r, x, g1,
-                b1, g2, b2);
+            TapChangerStepConversion convertedStep = calculateConversionStep(ratio, angle, r, x, g1, b1, g2, b2);
             tapChanger.beginStep()
                 .setRatio(convertedStep.ratio)
                 .setAngle(convertedStep.angle)
