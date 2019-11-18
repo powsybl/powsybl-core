@@ -142,6 +142,8 @@ public interface TaskMonitor extends AutoCloseable {
 
     Task startTask(ProjectFile projectFile);
 
+    Task startTask(String name, Project project);
+
     void stopTask(UUID id);
 
     void updateTaskMessage(UUID id, String message);
