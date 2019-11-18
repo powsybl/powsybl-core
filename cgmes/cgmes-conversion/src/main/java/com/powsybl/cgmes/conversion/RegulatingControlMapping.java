@@ -107,9 +107,14 @@ public class RegulatingControlMapping {
         cachedRegulatingControls.clear();
     }
 
-    public Terminal findRegulatingTerminal(String cgmesTerminal, String topologicalNode) {
-        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminal))
-            .orElseGet(() -> context.terminalMapping().findFromTopologicalNode(topologicalNode));
+    Terminal findRegulatingTerminal(String cgmesTerminal, String topologicalNode) {
+        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminal)).filter(Terminal::isConnected)
+                .orElseGet(() -> {
+                    context.invalid("Regulating terminal", String.format("No connected IIDM terminal has been found for CGMES terminal %s. " +
+                                    "A connected terminal linked to the topological node %s is searched.",
+                            cgmesTerminal, topologicalNode));
+                    return context.terminalMapping().findFromTopologicalNode(topologicalNode);
+                });
     }
 
     static boolean isControlModeVoltage(String controlMode) {

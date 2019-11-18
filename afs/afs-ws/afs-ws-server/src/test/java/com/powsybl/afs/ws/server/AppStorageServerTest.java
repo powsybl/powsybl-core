@@ -6,12 +6,19 @@
  */
 package com.powsybl.afs.ws.server;
 
+import com.powsybl.afs.Folder;
+import com.powsybl.afs.Project;
+import com.powsybl.afs.TaskMonitor;
 import com.powsybl.afs.storage.AbstractAppStorageTest;
 import com.powsybl.afs.storage.ListenableAppStorage;
+import com.powsybl.afs.storage.NodeGenericMetadata;
+import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.ws.client.utils.ClientUtils;
 import com.powsybl.afs.ws.client.utils.UserSession;
+import com.powsybl.afs.ws.server.utils.AppDataBean;
 import com.powsybl.afs.ws.storage.RemoteAppStorage;
 import com.powsybl.afs.ws.storage.RemoteListenableAppStorage;
+import com.powsybl.afs.ws.storage.RemoteTaskMonitor;
 import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
@@ -23,7 +30,9 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,7 +40,8 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Ali Tahanout <ali.tahanout at rte-france.com>
@@ -46,19 +56,22 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
 
     private UserSession userSession;
 
+    @Inject
+    private AppDataBean appDataBean;
+
     @Deployment
     public static WebArchive createTestArchive() {
         File[] filesLib = Maven.configureResolver()
-                               .useLegacyLocalRepo(true)
-                               .withMavenCentralRepo(false)
-                               .withClassPathResolution(true)
-                               .loadPomFromFile("pom.xml")
-                               .importRuntimeDependencies()
-                               .resolve("org.mockito:mockito-all",
-                                        "com.powsybl:powsybl-config-test",
-                                        "com.powsybl:powsybl-afs-mapdb")
-                               .withTransitivity()
-                               .asFile();
+                .useLegacyLocalRepo(true)
+                .withMavenCentralRepo(false)
+                .withClassPathResolution(true)
+                .loadPomFromFile("pom.xml")
+                .importRuntimeDependencies()
+                .resolve("org.mockito:mockito-all",
+                        "com.powsybl:powsybl-config-test",
+                        "com.powsybl:powsybl-afs-mapdb")
+                .withTransitivity()
+                .asFile();
 
         return ShrinkWrap.create(WebArchive.class, "afs-ws-server-test.war")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
@@ -92,4 +105,22 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
         List<String> fileSystemNames = RemoteAppStorage.getFileSystemNames(getRestUri(), userSession.getToken());
         assertEquals(Collections.singletonList(AppDataBeanMock.TEST_FS_NAME), fileSystemNames);
     }
+
+    @Test
+    public void createTaskRemoteTest() {
+        RemoteTaskMonitor taskMonitor = new RemoteTaskMonitor(AppDataBeanMock.TEST_FS_NAME, getRestUri(), userSession.getToken());
+        NodeInfo root = storage.createRootNodeIfNotExists(storage.getFileSystemName(), Folder.PSEUDO_CLASS);
+        NodeInfo projectNode = storage.createNode(root.getId(), "project", Project.PSEUDO_CLASS, "test project", 0, new NodeGenericMetadata());
+
+        Project project = Mockito.mock(Project.class);
+        when(project.getId()).thenReturn(projectNode.getId());
+        TaskMonitor.Task task = taskMonitor.startTask("task_test", project);
+        assertNotNull(task);
+        TaskMonitor.Snapshot snapshot = taskMonitor.takeSnapshot(project.getId());
+        assertTrue(snapshot.getTasks().stream().anyMatch(t -> t.getId().equals(task.getId())));
+
+        // cleanup
+        storage.deleteNode(projectNode.getId());
+    }
+
 }

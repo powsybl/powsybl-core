@@ -12,19 +12,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.powsybl.iidm.network.ContainerType;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-class SubstationAdapter extends AbstractAdapter<Substation> implements Substation {
+class SubstationAdapter extends AbstractIdentifiableAdapter<Substation> implements Substation {
 
     SubstationAdapter(final Substation delegate, final MergingViewIndex index) {
         super(delegate, index);
