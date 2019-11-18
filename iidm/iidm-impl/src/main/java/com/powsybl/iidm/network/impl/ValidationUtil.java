@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class ValidationUtil {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveCapabilityCurveAdderImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ValidationUtil.class);
 
     private ValidationUtil() {
     }

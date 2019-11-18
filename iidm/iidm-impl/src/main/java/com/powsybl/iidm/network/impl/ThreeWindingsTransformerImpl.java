@@ -209,7 +209,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         @Override
         public Set<TapChanger> getAllTapChangers() {
-            Set<TapChanger> tapChangers = new HashSet<TapChanger>();
+            Set<TapChanger> tapChangers = new HashSet<>();
             if (transformer.leg1.getRatioTapChanger() != null) {
                 tapChangers.add(transformer.leg1.getRatioTapChanger());
             }
@@ -233,7 +233,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         @Override
         public Set<TapChanger> getAllTapChangersOnLeg() {
-            Set<TapChanger> tapChangers = new HashSet<TapChanger>();
+            Set<TapChanger> tapChangers = new HashSet<>();
             if (ratioTapChanger != null) {
                 tapChangers.add(ratioTapChanger);
             }

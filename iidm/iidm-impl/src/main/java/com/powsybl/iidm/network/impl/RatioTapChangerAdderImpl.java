@@ -184,13 +184,13 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                 = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
                                           tapPosition, regulating, targetV, targetDeadband);
 
-        Set<TapChanger> tapChangers = new HashSet<TapChanger>();
+        Set<TapChanger> tapChangers = new HashSet<>();
         tapChangers.addAll(parent.getAllTapChangers());
         tapChangers.remove(parent.getRatioTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
 
         if (parent instanceof ThreeWindingsTransformer) {
-            Set<TapChanger> tapChangersOnLeg = new HashSet<TapChanger>();
+            Set<TapChanger> tapChangersOnLeg = new HashSet<>();
             tapChangersOnLeg.addAll(parent.getAllTapChangersOnLeg());
             tapChangersOnLeg.remove(parent.getRatioTapChanger());
             ValidationUtil.checkOnlyOneTapChangerInThreeWindingsTranformer(parent, tapChangersOnLeg);

@@ -194,13 +194,13 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         PhaseTapChangerImpl tapChanger
                 = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
 
-        Set<TapChanger> tapChangers = new HashSet<TapChanger>();
+        Set<TapChanger> tapChangers = new HashSet<>();
         tapChangers.addAll(parent.getAllTapChangers());
         tapChangers.remove(parent.getPhaseTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
 
         if (parent instanceof ThreeWindingsTransformer) {
-            Set<TapChanger> tapChangersOnLeg = new HashSet<TapChanger>();
+            Set<TapChanger> tapChangersOnLeg = new HashSet<>();
             tapChangersOnLeg.addAll(parent.getAllTapChangersOnLeg());
             tapChangersOnLeg.remove(parent.getPhaseTapChanger());
             ValidationUtil.checkOnlyOneTapChangerInThreeWindingsTranformer(parent, tapChangersOnLeg);
