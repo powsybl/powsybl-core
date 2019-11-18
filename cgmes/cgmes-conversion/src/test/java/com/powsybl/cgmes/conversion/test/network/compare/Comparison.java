@@ -475,6 +475,7 @@ public class Comparison {
             expected.getCurrentLimits(),
             actual.getCurrentLimits());
         compareRatioTapChanger(expected.getRatioTapChanger(), actual.getRatioTapChanger());
+        comparePhaseTapChanger(expected.getPhaseTapChanger(), actual.getPhaseTapChanger());
     }
 
     private void compareRatioTapChanger(
