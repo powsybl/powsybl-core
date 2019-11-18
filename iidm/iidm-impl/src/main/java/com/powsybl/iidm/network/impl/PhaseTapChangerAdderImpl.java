@@ -193,7 +193,6 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         }
         PhaseTapChangerImpl tapChanger
                 = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
-        parent.setPhaseTapChanger(tapChanger);
 
         Set<TapChanger> tapChangers = new HashSet<TapChanger>();
         tapChangers.addAll(parent.getAllTapChangers());
