@@ -335,8 +335,9 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         double xStepMin = xs[0];
         double xStepMax = xs[1];
 
+        // Use ratio not rho to calculate step x
         double alphaMax = alphas.stream()
-                .mapToDouble(Double::doubleValue)
+                .mapToDouble(alpha -> -alpha)
                 .max()
                 .orElse(Double.NaN);
         LOG.debug("ACTUAL    alphaMax {}", alphaMax);
@@ -356,9 +357,9 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 x = tx.getX();
             } else {
                 if (asymmetrical()) {
-                    x = getStepXforAsymmetrical(xStepMin, xStepMax, alpha, alphaMax, theta);
+                    x = getStepXforAsymmetrical(xStepMin, xStepMax, -alpha, alphaMax, theta);
                 } else if (symmetrical()) {
-                    x = getStepXforSymmetrical(xStepMin, xStepMax, alpha, alphaMax);
+                    x = getStepXforSymmetrical(xStepMin, xStepMax, -alpha, alphaMax);
                 }
                 x = adjustx(x, rho0square);
             }
