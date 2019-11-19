@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.cgmes.conversion.test.update;
 
 import static org.junit.Assert.fail;
@@ -12,6 +18,7 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -42,6 +49,10 @@ import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
+/**
+ * @author Elena Kaltakova <kaltakovae at aia.es>
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ */
 public class CgmesUpdateTest {
 
     @Before
@@ -56,16 +67,32 @@ public class CgmesUpdateTest {
     }
 
     @Test
-    public void testPerformanceSmallGrid() throws IOException {
+    public void testSimpleUpdateSmallGrid() throws IOException {
+        testSimpleUpdate(CgmesConformity1Catalog.smallBusBranch().dataSource());
+    }
+
+    @Ignore("Contains an AsynchronousMachine that is mapped to an IIDM load")
+    @Test
+    public void testSimpleUpdateMiniBusBranch() throws IOException {
+        testSimpleUpdate(CgmesConformity1Catalog.miniBusBranch().dataSource());
+    }
+
+    @Ignore("Calculated bus lists can not be compared with current implementation (lists not searchable by calculated bus id)")
+    @Test
+    public void testSimpleUpdateMiniNodeBreaker() throws IOException {
+        testSimpleUpdate(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
+    }
+
+    void testSimpleUpdate(ReadOnlyDataSource ds) throws IOException {
         boolean invalidateFlows = true;
-        testPerformance(CgmesConformity1Catalog.smallBusBranch().dataSource(), invalidateFlows);
+        testSimpleUpdate(ds, invalidateFlows);
     }
 
-    void testPerformance(ReadOnlyDataSource ds, boolean invalidateFlows) throws IOException {
-        testPerformance(ds, TripleStoreFactory.defaultImplementation(), invalidateFlows);
+    void testSimpleUpdate(ReadOnlyDataSource ds, boolean invalidateFlows) throws IOException {
+        testSimpleUpdate(ds, TripleStoreFactory.defaultImplementation(), invalidateFlows);
     }
 
-    private void testPerformance(ReadOnlyDataSource ds, String impl, boolean invalidateFlows) throws IOException {
+    private void testSimpleUpdate(ReadOnlyDataSource ds, String impl, boolean invalidateFlows) throws IOException {
         Profiling profiling = new Profiling();
 
         cgmesImport.setProfiling(profiling);
@@ -82,11 +109,13 @@ public class CgmesUpdateTest {
         network0.getVariantManager().setWorkingVariant("1");
         profiling.end(Operations.CLONE_VARIANT.name());
 
+        NetworkChanges.modifyEquipmentCharacteristics(network0);
         profiling.start();
         int numChangesInLoadsAndGenerators = isBigNetwork ? 1000 : Integer.MAX_VALUE;
         NetworkChanges.scaleLoadGenerator(network0, numChangesInLoadsAndGenerators);
         profiling.end(Operations.SCALING.name());
         int numChangesBeforeLoadFlow = network0.getExtension(CgmesModelExtension.class).getCgmesUpdate().changelog().getChangesForVariant(network0.getVariantManager().getWorkingVariantId()).size();
+        NetworkChanges.modifySteadyStateHypothesis(network0);
 
         profiling.start();
         if (!isBigNetwork) {

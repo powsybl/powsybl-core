@@ -35,7 +35,7 @@ public final class ChangelogTest {
         // apply variant specific and generic changes
         String variantInitialState = network.getVariantManager().getWorkingVariantId();
         NetworkChanges.scaleLoadGenerator(network, 1000);
-        NetworkChanges.scaleLine(network, 1000);
+        scaleLine(network, 1000);
 
         List<IidmChange> changesInitialVariant = changelog.getChangesForVariant(variantInitialState);
 
@@ -44,7 +44,7 @@ public final class ChangelogTest {
 
         String clonedVariant = network.getVariantManager().getWorkingVariantId();
         NetworkChanges.scaleLoadGenerator(network, 1000);
-        NetworkChanges.scaleLine(network, 1000);
+        scaleLine(network, 1000);
 
         List<IidmChange> changesClonedVariant = changelog.getChangesForVariant(clonedVariant);
 
@@ -63,6 +63,20 @@ public final class ChangelogTest {
             }
         }
         return true;
+    }
+
+    private void scaleLine(Network network, int maxChanges) {
+        int count;
+        count = 0;
+        for (Line l : network.getLines()) {
+            double newR = l.getR() * 1.1;
+            double newX = l.getX() * 1.1;
+            l.setR(newR).setX(newX);
+            count++;
+            if (count > maxChanges) {
+                break;
+            }
+        }
     }
 
     private boolean clonedNotVisibleInInitial(List<IidmChange> variant1, List<IidmChange> valriant2, int num) {
