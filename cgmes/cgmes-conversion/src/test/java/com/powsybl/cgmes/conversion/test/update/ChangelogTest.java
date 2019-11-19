@@ -6,17 +6,33 @@
  */
 package com.powsybl.cgmes.conversion.test.update;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.powsybl.cgmes.conversion.update.Changelog;
 import com.powsybl.cgmes.conversion.update.IidmChange;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VoltageLevel;
 
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>
@@ -30,31 +46,50 @@ public final class ChangelogTest {
         changelog = new Changelog(network);
     }
 
+    @Ignore("Split in two methods")
     @Test
     public void testCloneVariant() {
 
+        // Make changes in initial variant
         String variant1 = network.getVariantManager().getWorkingVariantId();
-        addNetworkChanges(network);
+        makeNetworkChangesOnBase(network);
+        makeNetworkChangesOnBase(network);
         List<IidmChange> changesVariant1 = changelog.getChangesForVariant(variant1);
 
-        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "1");
-        network.getVariantManager().setWorkingVariant("1");
-
+        // Clone initial variant and check changelog of cloned variant
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "2");
+        network.getVariantManager().setWorkingVariant("2");
         String variant2 = network.getVariantManager().getWorkingVariantId();
         List<IidmChange> changesVariant2 = changelog.getChangesForVariant(variant2);
-        assertTrue(changesVariant2.equals(changesVariant1));
+        assertEquals(changesVariant1, changesVariant2);
 
-        addNetworkChanges(network);
-
-        changesVariant1 = changelog.getChangesForVariant(variant1);
+        // Perform changes on new variant
+        makeNetworkChangesOnBase(network);
+        List<IidmChange> changesVariant1b = changelog.getChangesForVariant(variant1);
+        List<IidmChange> changesVariant2b = changelog.getChangesForVariant(variant2);
         changesVariant2 = changelog.getChangesForVariant(variant2);
+        // We have made changes on data that is not variant-dependent
+        // So changes in variant1 have also increased after second call to network changes 
+        assertNotEquals(changesVariant1, changesVariant1b);
 
-        assertTrue(changesVariant2.subList(0, changesVariant1.size()).equals(changesVariant1));
-        assertTrue(clonedNotVisibleInInitial(changesVariant1, changesVariant2));
+        makeNetworkChangesVariantSpecific(network);
+        // Check changes made in initial variant are still present
+        assertEquals(changesVariant1, changesVariant2.subList(0, changesVariant1.size()));
+        // Additional changes have been recorded in new variant
+        assertTrue(changesVariant2.size() > changesVariant1.size());
+        // And new changes are only visible in new variant
+        List<IidmChange> changesOnlyOnVariant2 = changesVariant2.subList(changesVariant1.size(), changesVariant2.size());
+        assertFalse(containsAny(changesVariant1, changesOnlyOnVariant2));
     }
 
-    private void addNetworkChanges(Network network) {
+    private void makeNetworkChangesOnBase(Network network) {
+        Line line = network.getLine("line");
+        double newR = line.getR() * 1.1;
+        double newX = line.getX() * 1.1;
+        line.setR(newR).setX(newX);
+    }
 
+    private void makeNetworkChangesVariantSpecific(Network network) {
         Generator g = network.getGenerator("generator");
         double newP = g.getTargetP() * 1.1;
         double newQ = g.getTargetQ() * 1.1;
@@ -64,22 +99,15 @@ public final class ChangelogTest {
         newP = load.getP0() * 1.1;
         newQ = load.getQ0() * 1.1;
         load.setP0(newP).setQ0(newQ).getTerminal().setP(newP).setQ(newQ);
-
-        Line line = network.getLine("line");
-        double newR = line.getR() * 1.1;
-        double newX = line.getX() * 1.1;
-        line.setR(newR).setX(newX);
     }
 
-    private boolean clonedNotVisibleInInitial(List<IidmChange> changesVariant1, List<IidmChange> changesVariant2) {
-        for (IidmChange i : changesVariant2.subList(changesVariant1.size(), changesVariant2.size())) {
-            if (changesVariant1.contains(i)) {
-                return false;
-            } else {
-                continue;
+    private boolean containsAny(List<IidmChange> changes, List<IidmChange> other) {
+        for (IidmChange c : other) {
+            if (changes.contains(c)) {
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     public static Network create() {
