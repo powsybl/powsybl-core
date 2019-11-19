@@ -593,8 +593,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     private String injectParams(String queryText, String... params) {
         String injected = queryText;
-        // XXX LUMA evaluating performance,
-        // do not compute the parameter reference for first parameters
+        // Avoid computing parameter reference for first parameters
         int k = 0;
         for (; k < Math.min(PARAMETER_REFERENCE.length, params.length); k++) {
             injected = injected.replace(PARAMETER_REFERENCE[k], params[k]);
