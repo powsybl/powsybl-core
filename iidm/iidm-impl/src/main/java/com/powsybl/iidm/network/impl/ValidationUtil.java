@@ -7,6 +7,9 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+
+import java.util.Set;
+
 import org.joda.time.DateTime;
 
 /**
@@ -313,6 +316,16 @@ public final class ValidationUtil {
         }
         if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP && regulating) {
             throw new ValidationException(validable, "phase regulation cannot be on if mode is FIXED");
+        }
+    }
+
+    public static void checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
+        Set<TapChanger> tapChangersNotIncludingTheModified, boolean regulating) {
+        if (regulating) {
+            long enabled = tapChangersNotIncludingTheModified.stream().filter(TapChanger::isRegulating).count();
+            if (enabled > 0) {
+                throw new ValidationException(validable, "Only one regulating control enabled is allowed");
+            }
         }
     }
 
