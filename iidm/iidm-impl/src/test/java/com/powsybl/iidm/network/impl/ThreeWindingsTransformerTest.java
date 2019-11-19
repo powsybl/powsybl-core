@@ -176,8 +176,9 @@ public class ThreeWindingsTransformerTest {
     public void leg3SetTwoRegulatingControlsEnabled() {
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
-        createRatioTapChanger(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
+        // First create phase
         createPhaseTapChanger(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
+        createRatioTapChanger(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
 
         thrown.expect(ValidationException.class);
         thrown.expectMessage("3 windings transformer leg3 'twt': Only one regulating control enabled is allowed");
@@ -249,6 +250,141 @@ public class ThreeWindingsTransformerTest {
         thrown.expectMessage("3 windings transformer leg1 'twt': Only one regulating control enabled is allowed");
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
         createRatioTapChanger(leg1, transformer.getTerminal(ThreeWindingsTransformer.Side.ONE), true);
+    }
+
+    @Test
+    public void ratioIncorrectTapPosition() {
+        ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+        ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
+        RatioTapChanger rtc = createRatioTapChanger(leg1, transformer.getTerminal(ThreeWindingsTransformer.Side.ONE));
+
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("3 windings transformer leg1 'twt': incorrect tap position 1000 [0, 2]");
+        rtc.setTapPosition(1000);
+    }
+
+    @Test
+    public void phaseIncorrectTapPosition() {
+        ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+        ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
+        PhaseTapChanger ptc = createPhaseTapChanger(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO));
+
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("3 windings transformer leg2 'twt': incorrect tap position 100 [0, 2]");
+        ptc.setTapPosition(100);
+    }
+
+    @Test
+    public void invalidRatioStepArgumentRho() {
+        ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+        ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
+
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("rho is not set");
+        createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), Double.NaN, 0.0, 0.0, 0.0, 0.0);
+    }
+
+    @Test
+    public void invalidRatioStepArgumentR() {
+        ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+        ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
+
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("r is not set");
+        createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), 0.0, Double.NaN, 0.0, 0.0, 0.0);
+    }
+
+    @Test
+    public void invalidRatioStepArgumentX() {
+        ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+        ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
+
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("x is not set");
+        createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), 0.0, 0.0, Double.NaN, 0.0, 0.0);
+    }
+
+    @Test
+    public void invalidRatioStepArgumentG() {
+        ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+        ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
+
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("g is not set");
+        createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), 0.0, 0.0, 0.0, Double.NaN, 0.0);
+    }
+
+    @Test
+    public void invalidRatioStepArgumentB() {
+        ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+        ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
+
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("b is not set");
+        createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), 0.0, 0.0, 0.0, 0.0, Double.NaN);
+    }
+
+    @Test
+    public void invalidPhaseStepArgumentRho() {
+        ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+        ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
+
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("rho is not set");
+        createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), Double.NaN, 0.0, 0.0, 0.0, 0.0, 0.0);
+    }
+
+    @Test
+    public void invalidPhaseStepArgumentAlpha() {
+        ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+        ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
+
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("alpha is not set");
+        createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), 0.0, Double.NaN, 0.0, 0.0, 0.0, 0.0);
+    }
+
+    @Test
+    public void invalidPhaseStepArgumentR() {
+        ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+        ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
+
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("r is not set");
+        createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), 0.0, 0.0, Double.NaN, 0.0, 0.0, 0.0);
+    }
+
+    @Test
+    public void invalidPhaseStepArgumentX() {
+        ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+        ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
+
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("x is not set");
+        createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), 0.0, 0.0, 0.0,
+            Double.NaN, 0.0, 0.0);
+    }
+
+    @Test
+    public void invalidPhaseStepArgumentG() {
+        ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+        ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
+
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("g is not set");
+        createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), 0.0, 0.0, 0.0,
+            0.0, Double.NaN, 0.0);
+    }
+
+    @Test
+    public void invalidPhaseStepArgumentB() {
+        ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+        ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
+
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("b is not set");
+        createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), 0.0, 0.0, 0.0,
+            0.0, 0.0, Double.NaN);
     }
 
     private ThreeWindingsTransformer createThreeWindingsTransformer() {
@@ -327,6 +463,27 @@ public class ThreeWindingsTransformerTest {
         return ratioTapChangerInLeg;
     }
 
+    private RatioTapChanger createRatioTapChangerOneStep(Leg leg, Terminal terminal, double rho, double r, double x, double g, double b) {
+        RatioTapChanger ratioTapChangerInLeg = leg.newRatioTapChanger()
+            .setTargetV(200.0)
+            .setLoadTapChangingCapabilities(false)
+            .setLowTapPosition(0)
+            .setTapPosition(0)
+            .setRegulating(false)
+            .setRegulationTerminal(terminal)
+            .setTargetDeadband(0.5)
+            .beginStep()
+                .setR(r)
+                .setX(x)
+                .setG(g)
+                .setB(b)
+                .setRho(rho)
+            .endStep()
+            .add();
+
+        return ratioTapChangerInLeg;
+    }
+
     private PhaseTapChanger createPhaseTapChanger(Leg leg, Terminal terminal) {
         return createPhaseTapChanger(leg, terminal, false);
     }
@@ -364,6 +521,28 @@ public class ThreeWindingsTransformerTest {
                 .setRho(1.0)
                 .setAlpha(10.0)
                 .endStep()
+            .add();
+
+        return phaseTapChangerInLeg;
+    }
+
+    private PhaseTapChanger createPhaseTapChangerOneStep(Leg leg, Terminal terminal, double rho, double alpha, double r, double x, double g, double b) {
+        PhaseTapChanger phaseTapChangerInLeg = leg.newPhaseTapChanger()
+            .setRegulationValue(200.0)
+            .setLowTapPosition(0)
+            .setTapPosition(0)
+            .setRegulating(false)
+            .setRegulationTerminal(terminal)
+            .setRegulationMode(RegulationMode.ACTIVE_POWER_CONTROL)
+            .setTargetDeadband(0.5)
+            .beginStep()
+                .setR(r)
+                .setX(x)
+                .setG(g)
+                .setB(b)
+                .setRho(rho)
+                .setAlpha(alpha)
+            .endStep()
             .add();
 
         return phaseTapChangerInLeg;
