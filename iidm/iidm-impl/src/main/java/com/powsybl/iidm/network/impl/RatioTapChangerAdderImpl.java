@@ -189,7 +189,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         tapChangers.remove(parent.getRatioTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
 
-        if (parent instanceof ThreeWindingsTransformer) {
+        if (parent.getTransformer() instanceof ThreeWindingsTransformer) {
             Set<TapChanger> tapChangersOnLeg = new HashSet<>();
             tapChangersOnLeg.addAll(parent.getAllTapChangersOnLeg());
             tapChangersOnLeg.remove(parent.getRatioTapChanger());
