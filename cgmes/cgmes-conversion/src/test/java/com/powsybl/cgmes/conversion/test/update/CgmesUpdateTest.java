@@ -84,7 +84,7 @@ public class CgmesUpdateTest {
 
         profiling.start();
         int numChangesInLoadsAndGenerators = isBigNetwork ? 1000 : Integer.MAX_VALUE;
-        NetworkChanges.scaleLoadGeneration(network0, numChangesInLoadsAndGenerators);
+        NetworkChanges.scaleLoadGenerator(network0, numChangesInLoadsAndGenerators);
         profiling.end(Operations.SCALING.name());
         int numChangesBeforeLoadFlow = network0.getExtension(CgmesModelExtension.class).getCgmesUpdate().changelog().getChangesForVariant(network0.getVariantManager().getWorkingVariantId()).size();
 
