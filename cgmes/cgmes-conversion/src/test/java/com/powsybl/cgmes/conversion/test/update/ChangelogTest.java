@@ -32,64 +32,54 @@ public final class ChangelogTest {
 
     @Test
     public void testCloneVariant() {
-        // apply variant specific and generic changes
-        String variantInitialState = network.getVariantManager().getWorkingVariantId();
-        NetworkChanges.scaleLoadGenerator(network, 1000);
-        scaleLine(network, 1000);
 
-        List<IidmChange> changesInitialVariant = changelog.getChangesForVariant(variantInitialState);
+        String variant1 = network.getVariantManager().getWorkingVariantId();
+        addNetworkChanges(network);
+        List<IidmChange> changesVariant1 = changelog.getChangesForVariant(variant1);
 
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "1");
         network.getVariantManager().setWorkingVariant("1");
 
-        String clonedVariant = network.getVariantManager().getWorkingVariantId();
-        NetworkChanges.scaleLoadGenerator(network, 1000);
-        scaleLine(network, 1000);
+        String variant2 = network.getVariantManager().getWorkingVariantId();
+        List<IidmChange> changesVariant2 = changelog.getChangesForVariant(variant2);
+        assertTrue(changesVariant2.equals(changesVariant1));
 
-        List<IidmChange> changesClonedVariant = changelog.getChangesForVariant(clonedVariant);
+        addNetworkChanges(network);
 
-        assertTrue(changesClonedVariant.size() > changesInitialVariant.size());
-        assertTrue(initialChangesVisibleInClonedVariant(changesInitialVariant, changesClonedVariant));
+        changesVariant1 = changelog.getChangesForVariant(variant1);
+        changesVariant2 = changelog.getChangesForVariant(variant2);
 
-        int numNewChanges = changesClonedVariant.size() - changesInitialVariant.size();
-        assertTrue(clonedNotVisibleInInitial(changesInitialVariant, changesClonedVariant, numNewChanges));
+        assertTrue(changesVariant2.subList(0, changesVariant1.size()).equals(changesVariant1));
+        assertTrue(clonedNotVisibleInInitial(changesVariant1, changesVariant2));
     }
 
-    private boolean initialChangesVisibleInClonedVariant(List<IidmChange> variant1,
-        List<IidmChange> valriant2) {
-        for (IidmChange i : variant1) {
-            if (!valriant2.contains(i)) {
+    private void addNetworkChanges(Network network) {
+
+        Generator g = network.getGenerator("generator");
+        double newP = g.getTargetP() * 1.1;
+        double newQ = g.getTargetQ() * 1.1;
+        g.setTargetP(newP).setTargetQ(newQ).getTerminal().setP(-newP).setQ(-newQ);
+
+        Load load = network.getLoad("load");
+        newP = load.getP0() * 1.1;
+        newQ = load.getQ0() * 1.1;
+        load.setP0(newP).setQ0(newQ).getTerminal().setP(newP).setQ(newQ);
+
+        Line line = network.getLine("line");
+        double newR = line.getR() * 1.1;
+        double newX = line.getX() * 1.1;
+        line.setR(newR).setX(newX);
+    }
+
+    private boolean clonedNotVisibleInInitial(List<IidmChange> changesVariant1, List<IidmChange> changesVariant2) {
+        for (IidmChange i : changesVariant2.subList(changesVariant1.size(), changesVariant2.size())) {
+            if (changesVariant1.contains(i)) {
                 return false;
-            }
-        }
-        return true;
-    }
-
-    private void scaleLine(Network network, int maxChanges) {
-        int count;
-        count = 0;
-        for (Line l : network.getLines()) {
-            double newR = l.getR() * 1.1;
-            double newX = l.getX() * 1.1;
-            l.setR(newR).setX(newX);
-            count++;
-            if (count > maxChanges) {
-                break;
-            }
-        }
-    }
-
-    private boolean clonedNotVisibleInInitial(List<IidmChange> variant1, List<IidmChange> valriant2, int num) {
-        int count = 0;
-        for (IidmChange i : valriant2) {
-            if (!variant1.contains(i)) {
-                count++;
             } else {
                 continue;
             }
         }
-        boolean diff = count == num ? true : false;
-        return diff;
+        return true;
     }
 
     public static Network create() {

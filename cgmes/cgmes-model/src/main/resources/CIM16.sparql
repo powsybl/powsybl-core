@@ -890,94 +890,39 @@ WHERE {
 
 # query: update
 DELETE { GRAPH <{0}>
-	{ ?subject ?predicate ?value }
-	}
-INSERT { GRAPH <{0}>
-    {?subjectIn {2} ?valueIn }
-	}
-WHERE {     
-    { GRAPH <{0}>
-        { ?subject  ?predicate  ?value .
-            FILTER ( (?subject = <{1}>) && (?predicate = IRI({2})) )
-        }
+    { ?subject ?predicate ?value }
     }
-    UNION
-    { GRAPH <{0}>
-        { 	
-            BIND ("{3}" AS ?object) 
-			BIND ( IF("{4}"="true", IRI(?object), ?object) AS ?valueIn) .
-            BIND(IF(BOUND(?subject),?subject,IRI(<{1}>)) AS ?subjectIn) .
-        }
+INSERT { GRAPH <{0}>
+    { ?subjectIn {2} ?valueIn }
+    }
+WHERE {     
+{ GRAPH <{0}>
+    { ?subject  ?predicate  ?value .
+      FILTER ( (?subject = <{1}>) && (?predicate = IRI({2})) )
     }
 }
-
-# query: checkCgmesUpdated
-SELECT ?subject  ?predicate  ?value 
-WHERE
-{     
-    { GRAPH <{0}>
-          { ?subject  ?predicate  ?value .
-            FILTER (?subject = <{1}>)
-          }
-      }
-    
-    UNION
-	{ GRAPH ?graph
-        { ?subject  ?predicate  ?value .
-          { SELECT  ?subject
-            WHERE
-              { { GRAPH <{0}>
-                    { ?outsubject  ?outpredicate  ?subject
-                      FILTER (?outsubject = <{1}>)
-                    }
-                }
-              }
-          }
-        }
+UNION
+{ GRAPH <{0}>
+    {     
+      BIND ( "{3}" AS ?object ) 
+      BIND ( IF ( "{4}"="true", IRI(?object), ?object) AS ?valueIn ) .
+      BIND ( IF ( BOUND (?subject), ?subject, IRI(<{1}>)) AS ?subjectIn ) .
     }
+}
 }
 
 # query: create
-# this will construct resource iri for subject ID;
-# it will add cim prefix if required, and 
-# create value as object or literal, depending on the "valueIsNode".
-INSERT { GRAPH <{0}> {
-	?subject  {2} ?value .
-}}
+INSERT { GRAPH <{0}> 
+    { ?subject  {2} ?value .}
+    }
 WHERE {
     SELECT ?subject ?value
     WHERE { GRAPH <{0}> {
-	{
-	BIND ("{3}" AS ?object) 
-	BIND ( IF("{4}"="true", IRI(?object), ?object) AS ?value) .
-	}
-    BIND ( IRI(<{1}>) AS ?subject ).
-    }}
+      BIND ( "{3}" AS ?object) 
+      BIND ( IF ("{4}"="true", IRI(?object), ?object) AS ?value) .
+      BIND ( IRI(<{1}>) AS ?subject ).
+    }
+}
 }
 
 # query: remove
-
-# query: checkUpdated
-SELECT ?subject  ?predicate  ?value 
-WHERE
-{
-    { GRAPH <{0}>
-        { ?subject ?predicate ?value .
-            FILTER (?subject = <{1}>)
-        }
-    }
-    UNION
-    { GRAPH ?graph
-        { ?subject  ?predicate  ?value .
-            {
-                SELECT  ?subject
-                WHERE
-                { { GRAPH <{0}>
-                    { ?outsubject  ?outpredicate  ?subject
-                        FILTER (?outsubject = <{1}>)
-                    }
-                }}
-            }
-        }
-    }
-}
