@@ -17,11 +17,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PhaseTapChangerAdderImpl.class);
 
     private final PhaseTapChangerParent parent;
 
@@ -199,11 +204,8 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         tapChangers.remove(parent.getPhaseTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
 
-        if (parent.getTransformer() instanceof ThreeWindingsTransformer) {
-            Set<TapChanger> tapChangersOnLeg = new HashSet<>();
-            tapChangersOnLeg.addAll(parent.getAllTapChangersOnLeg());
-            tapChangersOnLeg.remove(parent.getPhaseTapChanger());
-            ValidationUtil.checkOnlyOneTapChangerOnLegInThreeWindingsTranformer(parent, tapChangersOnLeg);
+        if (parent.getTransformer() instanceof ThreeWindingsTransformer && parent.hasRatioTapChanger()) {
+            LOGGER.warn("{} more than one tap changer on the leg", parent);
         }
 
         parent.setPhaseTapChanger(tapChanger);

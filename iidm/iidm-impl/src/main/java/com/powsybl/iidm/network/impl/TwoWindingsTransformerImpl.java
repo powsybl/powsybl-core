@@ -179,8 +179,13 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
     }
 
     @Override
-    public Set<TapChanger> getAllTapChangersOnLeg() {
-        return getAllTapChangers();
+    public boolean hasRatioTapChanger() {
+        return ratioTapChanger != null;
+    }
+
+    @Override
+    public boolean hasPhaseTapChanger() {
+        return phaseTapChanger != null;
     }
 
     @Override

@@ -141,8 +141,9 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         legAdder1.add();
         legAdder2.add();
         legAdder3.add();
+        adder.setRatedU0(ratedU0);
         ThreeWindingsTransformer twt = adder.add();
-        twt.setRatedU0(ratedU0);
+
         readPQ(1, twt.getLeg1().getTerminal(), context.getReader());
         readPQ(2, twt.getLeg2().getTerminal(), context.getReader());
         readPQ(3, twt.getLeg3().getTerminal(), context.getReader());
