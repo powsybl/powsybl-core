@@ -24,7 +24,7 @@ public final class IidmXmlConstants {
     public static final String IIDM_PREFIX = "iidm";
 
     public static final String IIDM_URI = IIDM_BASE_URI + VERSION_ARRAY.stream().map(Object::toString).collect(Collectors.joining("_"));
-    
+
     public static final String LATEST_XIIDM_VERSION = "1.1";
 
     private IidmXmlConstants() {
