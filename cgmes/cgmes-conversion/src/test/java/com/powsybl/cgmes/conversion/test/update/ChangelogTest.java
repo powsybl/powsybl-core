@@ -8,31 +8,18 @@ package com.powsybl.cgmes.conversion.test.update;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.powsybl.cgmes.conversion.update.Changelog;
 import com.powsybl.cgmes.conversion.update.IidmChange;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>
@@ -46,40 +33,66 @@ public final class ChangelogTest {
         changelog = new Changelog(network);
     }
 
-    @Ignore("Split in two methods")
     @Test
-    public void testCloneVariant() {
-
+    public void testCloneVariantBaseChanges() {
         // Make changes in initial variant
         String variant1 = network.getVariantManager().getWorkingVariantId();
         makeNetworkChangesOnBase(network);
-        makeNetworkChangesOnBase(network);
-        List<IidmChange> changesVariant1 = changelog.getChangesForVariant(variant1);
+        // Keep a copy of the changes for this variant in changelog
+        List<IidmChange> changesVariant1 = new ArrayList<>(changelog.getChangesForVariant(variant1));
 
         // Clone initial variant and check changelog of cloned variant
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "2");
         network.getVariantManager().setWorkingVariant("2");
         String variant2 = network.getVariantManager().getWorkingVariantId();
-        List<IidmChange> changesVariant2 = changelog.getChangesForVariant(variant2);
+        List<IidmChange> changesVariant2 = new ArrayList<>(changelog.getChangesForVariant(variant2));
         assertEquals(changesVariant1, changesVariant2);
 
         // Perform changes on new variant
         makeNetworkChangesOnBase(network);
         List<IidmChange> changesVariant1b = changelog.getChangesForVariant(variant1);
         List<IidmChange> changesVariant2b = changelog.getChangesForVariant(variant2);
-        changesVariant2 = changelog.getChangesForVariant(variant2);
-        // We have made changes on data that is not variant-dependent
-        // So changes in variant1 have also increased after second call to network changes 
-        assertNotEquals(changesVariant1, changesVariant1b);
 
+        // We have made changes on data that is not variant-dependent
+        // So changes in variant1 have also increased after second call to network changes
+        assertTrue(changesVariant1b.size() > changesVariant1.size());
+        assertTrue(changesVariant2b.size() > changesVariant2.size());
+
+        // As changes are not variant-dependent, both variant1 and varian2 are still equal
+        assertEquals(changesVariant1b, changesVariant2b);
+    }
+
+    @Test
+    public void testCloneVariantVariantSpecificChanges() {
+        // Make changes in initial variant
+        String variant1 = network.getVariantManager().getWorkingVariantId();
         makeNetworkChangesVariantSpecific(network);
-        // Check changes made in initial variant are still present
-        assertEquals(changesVariant1, changesVariant2.subList(0, changesVariant1.size()));
-        // Additional changes have been recorded in new variant
-        assertTrue(changesVariant2.size() > changesVariant1.size());
-        // And new changes are only visible in new variant
-        List<IidmChange> changesOnlyOnVariant2 = changesVariant2.subList(changesVariant1.size(), changesVariant2.size());
-        assertFalse(containsAny(changesVariant1, changesOnlyOnVariant2));
+        // Keep a copy of the changes for this variant in changelog
+        List<IidmChange> changesVariant1 =  new ArrayList<>(changelog.getChangesForVariant(variant1));
+
+        // Clone initial variant and check changelog of cloned variant
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "2");
+        network.getVariantManager().setWorkingVariant("2");
+        String variant2 = network.getVariantManager().getWorkingVariantId();
+        List<IidmChange> changesVariant2 = new ArrayList<>(changelog.getChangesForVariant(variant2));
+        assertEquals(changesVariant1, changesVariant2);
+
+        // Perform changes on new variant
+        makeNetworkChangesVariantSpecific(network);
+        // Get changes objects again, after update
+        List<IidmChange> changesVariant1b = changelog.getChangesForVariant(variant1);
+        List<IidmChange> changesVariant2b = changelog.getChangesForVariant(variant2);
+        // We have made changes on data that is variant-dependent
+        // So, new changes are only visible in the new variant
+        List<IidmChange> changesOnlyOnVariant2 = changesVariant2b.subList(changesVariant1b.size(), changesVariant2b.size());
+        assertFalse(containsAny(changesVariant1b, changesOnlyOnVariant2));
+        // Check variant1 is not affected by changes
+        assertEquals(changesVariant1, changesVariant1b);
+        // Check changes made in initial variant are still present in the new variant
+        assertEquals(changesVariant1, changesVariant2b.subList(0, changesVariant1.size()));
+        // Additional changes have been recorded in the new variant
+        assertTrue(changesVariant2b.size() > changesVariant2.size());
+        assertTrue(changesVariant1b.size() == changesVariant1.size());
     }
 
     private void makeNetworkChangesOnBase(Network network) {
