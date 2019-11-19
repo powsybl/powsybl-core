@@ -19,7 +19,16 @@ import org.junit.Test;
 
 import com.powsybl.cgmes.conversion.update.Changelog;
 import com.powsybl.cgmes.conversion.update.IidmChange;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VoltageLevel;
 
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>
@@ -48,7 +57,7 @@ public final class ChangelogTest {
         List<IidmChange> changesVariant2 = new ArrayList<>(changelog.getChangesForVariant(variant2));
         assertEquals(changesVariant1, changesVariant2);
 
-        // Perform changes on new variant
+        // Perform changes on base when new variant is current
         makeNetworkChangesOnBase(network);
         List<IidmChange> changesVariant1b = changelog.getChangesForVariant(variant1);
         List<IidmChange> changesVariant2b = changelog.getChangesForVariant(variant2);
@@ -58,7 +67,7 @@ public final class ChangelogTest {
         assertTrue(changesVariant1b.size() > changesVariant1.size());
         assertTrue(changesVariant2b.size() > changesVariant2.size());
 
-        // As changes are not variant-dependent, both variant1 and varian2 are still equal
+        // As changes are not variant-dependent, both variant1 and variant2 changes are still equal
         assertEquals(changesVariant1b, changesVariant2b);
     }
 
@@ -147,17 +156,17 @@ public final class ChangelogTest {
             .setNominalV(230)
             .setTopologyKind(TopologyKind.BUS_BREAKER)
             .add();
-        Bus bus = voltageLevel1.getBusBreakerView()
+        voltageLevel1.getBusBreakerView()
             .newBus()
             .setName("bus1Name")
             .setId("bus1")
             .add();
-        Bus bus2 = voltageLevel2.getBusBreakerView()
+        voltageLevel2.getBusBreakerView()
             .newBus()
             .setName("bus2Name")
             .setId("bus2")
             .add();
-        Load load = voltageLevel1.newLoad()
+        voltageLevel1.newLoad()
             .setId("load")
             .setBus("bus1")
             .setP0(10)
@@ -178,7 +187,7 @@ public final class ChangelogTest {
             .beginPoint().setP(200.0).setMinQ(300.0).setMaxQ(500.0).endPoint()
             .beginPoint().setP(900.0).setMinQ(300.0).setMaxQ(500.0).endPoint()
             .add();
-        Line line = network.newLine()
+        network.newLine()
             .setId("line")
             .setVoltageLevel1("voltageLevel1")
             .setVoltageLevel2("voltageLevel2")
