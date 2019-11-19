@@ -203,7 +203,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
             Set<TapChanger> tapChangersOnLeg = new HashSet<>();
             tapChangersOnLeg.addAll(parent.getAllTapChangersOnLeg());
             tapChangersOnLeg.remove(parent.getPhaseTapChanger());
-            ValidationUtil.checkOnlyOneTapChangerInThreeWindingsTranformer(parent, tapChangersOnLeg);
+            ValidationUtil.checkOnlyOneTapChangerOnLegInThreeWindingsTranformer(parent, tapChangersOnLeg);
         }
 
         parent.setPhaseTapChanger(tapChanger);

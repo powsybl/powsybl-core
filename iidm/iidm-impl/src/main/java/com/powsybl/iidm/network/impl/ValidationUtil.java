@@ -333,7 +333,7 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkOnlyOneTapChangerInThreeWindingsTranformer(Validable validable,
+    public static void checkOnlyOneTapChangerOnLegInThreeWindingsTranformer(Validable validable,
         Set<TapChanger> tapChangersOnLegNotIncludingTheModified) {
         long tapChangers = tapChangersOnLegNotIncludingTheModified.stream().count();
         if (tapChangers > 0) {
