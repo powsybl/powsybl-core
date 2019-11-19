@@ -7,6 +7,8 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
+
 import org.joda.time.DateTime;
 
 import java.util.Objects;
@@ -225,6 +227,143 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .setAcceptableDuration(10 * 60)
             .endTemporaryLimit()
             .add();
+
+        return network;
+    }
+
+    public static Network createWithTapChangers() {
+        Network network = create();
+
+        ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
+
+        twt.getLeg1().newRatioTapChanger()
+        .beginStep()
+            .setRho(1.0043151895694895)
+            .setR(0.8649000000000129)
+            .setX(0.8649000000000129)
+            .setG(-0.8574836241348693)
+            .setB(-0.8574836241348693)
+        .endStep()
+        .beginStep()
+            .setRho(1.002998629111725)
+            .setR(0.6006250000000213)
+            .setX(0.6006250000000213)
+            .setG(-0.5970390343002507)
+            .setB(-0.5970390343002507)
+        .endStep()
+        .beginStep()
+            .setRho(1.0019201564995088)
+            .setR(0.38439999999992924)
+            .setX(0.38439999999992924)
+            .setG(-0.3829280246730904)
+            .setB(-0.3829280246730904)
+        .endStep()
+        .setTapPosition(2)
+        .setLoadTapChangingCapabilities(true)
+        .setRegulating(false)
+        .setTargetV(132.0)
+        .setRegulationTerminal(null)
+        .setTargetDeadband(0.0)
+        .add();
+
+        twt.getLeg1().newPhaseTapChanger()
+        .beginStep()
+            .setRho(1.0043151895694895)
+            .setAlpha(5.313224638415126)
+            .setR(0.8649000000000129)
+            .setX(0.8649000000000129)
+            .setG(-0.8574836241348693)
+            .setB(-0.8574836241348693)
+        .endStep()
+        .beginStep()
+            .setRho(1.002998629111725)
+            .setAlpha(4.431564716435844)
+            .setR(0.6006250000000213)
+            .setX(0.6006250000000213)
+            .setG(-0.5970390343002507)
+            .setB(-0.5970390343002507)
+        .endStep()
+        .beginStep()
+            .setRho(1.0019201564995088)
+            .setAlpha(3.547797069667891)
+            .setR(0.38439999999992924)
+            .setX(0.38439999999992924)
+            .setG(-0.3829280246730904)
+            .setB(-0.3829280246730904)
+        .endStep()
+        .setTapPosition(1)
+        .setRegulating(false)
+        .setRegulationValue(0.0)
+        .setRegulationMode(RegulationMode.FIXED_TAP)
+        .setRegulationTerminal(null)
+        .setTargetDeadband(0.0)
+        .add();
+
+        twt.getLeg2().newPhaseTapChanger()
+        .beginStep()
+            .setRho(0.9931474324087035)
+            .setAlpha(0.6919900845542891)
+            .setR(-1.365817750000009)
+            .setX(-1.365817750000009)
+            .setG(1.3847306469659593)
+            .setB(-0.8574836241348693)
+        .endStep()
+        .beginStep()
+            .setRho(1.0)
+            .setAlpha(0.0)
+            .setR(0.0)
+            .setX(0.0)
+            .setG(0.0)
+            .setB(0.0)
+        .endStep()
+        .beginStep()
+            .setRho(1.0069964361903174)
+            .setAlpha(-0.6824728416187119)
+            .setR(1.4041822500000078)
+            .setX(1.4041822500000078)
+            .setG(-1.3847380047286029)
+            .setB(-1.3847380047286029)
+        .endStep()
+        .setTapPosition(2)
+        .setRegulating(false)
+        .setRegulationValue(0.0)
+        .setRegulationMode(RegulationMode.FIXED_TAP)
+        .setRegulationTerminal(null)
+        .setTargetDeadband(0.0)
+        .add();
+
+        twt.getLeg3().newPhaseTapChanger()
+        .beginStep()
+            .setRho(1.0001201177858587)
+            .setAlpha(-0.8880134719294318)
+            .setR(0.024025000000005292)
+            .setX(0.024025000000005292)
+            .setG(-0.024019229380145557)
+            .setB(-0.024019229380145557)
+        .endStep()
+        .beginStep()
+            .setRho(1.0004803846153107)
+            .setAlpha(-1.7756005265572734)
+            .setR(0.09610000000002117)
+            .setX(0.09610000000002117)
+            .setG(-0.09600773656518458)
+            .setB(-0.09600773656518458)
+        .endStep()
+        .beginStep()
+            .setRho(1.001080541215341)
+            .setAlpha(-2.662335973879195)
+            .setR(0.21622500000000322)
+            .setX(0.21622500000000322)
+            .setG(-0.21575847623476196)
+            .setB(-0.21575847623476196)
+        .endStep()
+        .setTapPosition(2)
+        .setRegulating(false)
+        .setRegulationValue(0.0)
+        .setRegulationMode(RegulationMode.FIXED_TAP)
+        .setRegulationTerminal(null)
+        .setTargetDeadband(0.0)
+        .add();
 
         return network;
     }
