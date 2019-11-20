@@ -37,7 +37,7 @@ public class XMLImporterTest extends AbstractConverterTest {
     private void writeNetwork(String fileName, boolean writeExt) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath(fileName), StandardCharsets.UTF_8)) {
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-            writer.write("<iidm:network xmlns:iidm=\"http://www.itesla_project.eu/schema/iidm/" + IIDM_VERSION_UNDERSCORE + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\">");
+            writer.write("<iidm:network xmlns:iidm=\"http://www.powsybl.org/schema/iidm/" + IIDM_VERSION_UNDERSCORE + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\">");
             writer.newLine();
             writer.write("    <iidm:substation id=\"P1\" country=\"FR\"/>");
             writer.newLine();
@@ -56,7 +56,7 @@ public class XMLImporterTest extends AbstractConverterTest {
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
             writer.newLine();
             writer.write("<!--sfsfs-->");
-            writer.write("<iidm:network xmlns:iidm=\"http://www.itesla_project.eu/schema/iidm/" + IIDM_VERSION_UNDERSCORE + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\">");
+            writer.write("<iidm:network xmlns:iidm=\"http://www.powsybl.org/schema/iidm/" + IIDM_VERSION_UNDERSCORE + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\">");
             writer.newLine();
             writer.write("    <iidm:substation id=\"P1\" country=\"FR\"/>");
             writer.newLine();

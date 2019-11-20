@@ -19,7 +19,7 @@ public final class IidmXmlConstants {
 
     public static final String VERSION = VERSION_ARRAY.stream().map(Object::toString).collect(Collectors.joining("."));
 
-    public static final String IIDM_BASE_URI = "http://www.itesla_project.eu/schema/iidm/";
+    public static final String IIDM_BASE_URI = "http://www.powsybl.org/schema/iidm/";
 
     public static final String IIDM_PREFIX = "iidm";
 
