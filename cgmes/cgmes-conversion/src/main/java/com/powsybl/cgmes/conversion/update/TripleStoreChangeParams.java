@@ -19,6 +19,7 @@ import java.util.Objects;
 public class TripleStoreChangeParams {
 
     public TripleStoreChangeParams(TripleStoreSimpleUpdateReference ref, String value) {
+        Objects.requireNonNull(ref);
         this.predicate = ref.predicate();
         this.contextReference = ref.contextReference();
         this.valueIsUri = ref.valueIsUri();
