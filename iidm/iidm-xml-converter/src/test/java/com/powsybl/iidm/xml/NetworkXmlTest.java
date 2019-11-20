@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
@@ -32,7 +31,7 @@ import java.nio.file.Path;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkXmlTest extends AbstractConverterTest {
+public class NetworkXmlTest extends AbstractXmlConverterTest {
 
     static Network createEurostagTutorialExample1() {
         Network network = EurostagTutorialExample1Factory.create();
@@ -42,14 +41,16 @@ public class NetworkXmlTest extends AbstractConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
+        roundTripVersionnedXmlTest("eurostag-tutorial-example1.xml", "V1_0");
+
         roundTripXmlTest(createEurostagTutorialExample1(),
                          NetworkXml::writeAndValidate,
                          NetworkXml::read,
-                         "/eurostag-tutorial-example1.xml");
+                "/V1_1/eurostag-tutorial-example1.xml");
     }
 
     @Test
-    public void testValidationIssueWithProperties() throws Exception {
+    public void testValidationIssueWithProperties() {
         Network network = createEurostagTutorialExample1();
         network.getGenerator("GEN").setProperty("test", "foo");
         Path xmlFile = tmpDir.resolve("n.xml");

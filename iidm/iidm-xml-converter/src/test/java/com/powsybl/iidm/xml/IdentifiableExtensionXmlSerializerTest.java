@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
@@ -30,7 +29,7 @@ import static org.junit.Assert.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class IdentifiableExtensionXmlSerializerTest extends AbstractConverterTest {
+public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverterTest {
 
     @Test
     public void test() throws IOException {
@@ -64,10 +63,12 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractConverterTes
 
     @Test
     public void testMultipleExtensions() throws IOException {
+        roundTripVersionnedXmlTest("multiple-extensions.xml", "V1_0");
+
         roundTripXmlTest(MultipleExtensionsTestNetworkFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/multiple-extensions.xml");
+                "/V1_1/multiple-extensions.xml");
     }
 
     // Define a network extension without XML serializer
@@ -200,10 +201,12 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractConverterTes
 
     @Test
     public void testTerminalExtension() throws IOException {
+        roundTripVersionnedXmlTest("eurostag-tutorial-example1-with-terminalMock-ext.xml", "V1_0");
+
         Network network2 = roundTripXmlTest(EurostagTutorialExample1Factory.createWithTerminalMockExt(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/eurostag-tutorial-example1-with-terminalMock-ext.xml");
+                "/V1_1/eurostag-tutorial-example1-with-terminalMock-ext.xml");
         Load loadXml = network2.getLoad("LOAD");
         TerminalMockExt terminalMockExtXml = loadXml.getExtension(TerminalMockExt.class);
         assertNotNull(terminalMockExtXml);

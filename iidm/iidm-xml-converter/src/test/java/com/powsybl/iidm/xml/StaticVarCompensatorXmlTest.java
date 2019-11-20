@@ -15,13 +15,15 @@ import java.io.IOException;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StaticVarCompensatorXmlTest extends AbstractConverterTest {
+public class StaticVarCompensatorXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
+        roundTripVersionnedXmlTest("staticVarCompensatorRoundTripRef.xml", "V1_0");
+
         roundTripXmlTest(SvcTestCaseFactory.create(),
                          NetworkXml::writeAndValidate,
                          NetworkXml::read,
-                         "/staticVarCompensatorRoundTripRef.xml");
+                "/V1_1/staticVarCompensatorRoundTripRef.xml");
     }
 }

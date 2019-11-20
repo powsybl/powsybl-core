@@ -13,6 +13,10 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="VL61" v="237.973694" angle="-9.06182098"/>
             </iidm:busBreakerTopology>
+            <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="100.0" targetV="225.0" targetQ="0.0" bus="VL61" connectableBus="VL61">
+                <iidm:regulatingTerminal id="SHUNT_VL4.31"/>
+                <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
+            </iidm:generator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="VLY641" r="1.549974799156189" x="58.800025939941406" g="0.0" b="0.0" ratedU1="90.0" ratedU2="225.0" bus1="VL41" connectableBus1="VL41" voltageLevelId1="VL4" bus2="VL61" connectableBus2="VL61" voltageLevelId2="VL6" p1="-35.5088005065918" q1="-0.7908143401145935" p2="35.54349899291992" q2="2.1071410179138184">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" loadTapChangingCapabilities="true" regulating="false" targetV="91.1280288696289">

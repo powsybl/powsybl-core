@@ -25,15 +25,6 @@ import static org.junit.Assert.*;
  */
 public class TopologyLevelTest extends AbstractConverterTest {
 
-    private PlatformConfig platformConfig;
-
-    @Before
-    public void setUp() throws IOException {
-        super.setUp();
-
-        platformConfig = new InMemoryPlatformConfig(fileSystem);
-    }
-
     @Test
     public void testComparison() {
         assertEquals(TopologyLevel.NODE_BREAKER, TopologyLevel.min(TopologyKind.NODE_BREAKER, TopologyLevel.NODE_BREAKER));
@@ -47,16 +38,21 @@ public class TopologyLevelTest extends AbstractConverterTest {
 
     @Test
     public void testConversion() throws IOException {
-        Network network = FictitiousSwitchFactory.create();
-        writeTest(network, TopologyLevelTest::writeNodeBreaker, TopologyLevelTest::compareXml, "/fictitiousSwitchRef.xml");
+        testConversion(NetworkXml.read(getClass().getResourceAsStream("/V1_0/fictitiousSwitchRef.xml")));
+
+        testConversion(FictitiousSwitchFactory.create());
+    }
+
+    private void testConversion(Network network) throws IOException {
+        writeXmlTest(network, TopologyLevelTest::writeNodeBreaker, "/V1_1/fictitiousSwitchRef.xml");
 
         network.getSwitchStream().forEach(sw -> sw.setRetained(false));
         network.getSwitch("BJ").setRetained(true);
 
-        writeTest(network, TopologyLevelTest::writeBusBreaker, TopologyLevelTest::compareXml, "/fictitiousSwitchRef-bbk.xml");
-        writeTest(network, TopologyLevelTest::writeBusBranch, TopologyLevelTest::compareXml, "/fictitiousSwitchRef-bbr.xml");
+        writeXmlTest(network, TopologyLevelTest::writeBusBreaker, "/V1_1/fictitiousSwitchRef-bbk.xml");
+        writeXmlTest(network, TopologyLevelTest::writeBusBranch, "/V1_1/fictitiousSwitchRef-bbr.xml");
     }
-
+    
     private static void writeNodeBreaker(Network network, Path path) {
         ExportOptions options = new ExportOptions()
             .setTopologyLevel(TopologyLevel.NODE_BREAKER);

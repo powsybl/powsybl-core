@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_VERSION_POINT;
 import static org.junit.Assert.*;
 
 /**
@@ -101,8 +102,8 @@ public class XMLImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void getComment() throws Exception {
-        assertEquals("IIDM XML v 1.1 importer", importer.getComment());
+    public void getComment() {
+        assertEquals("IIDM XML v " + IIDM_VERSION_POINT + " importer", importer.getComment());
     }
 
     @Test
@@ -179,7 +180,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         Properties parameters = new Properties();
         parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));
 
-        ReadOnlyDataSource dataSource = new ResourceDataSource("multiple-extensions", new ResourceSet("/", "multiple-extensions.xiidm", "multiple-extensions-ext.xiidm"));
+        ReadOnlyDataSource dataSource = new ResourceDataSource("multiple-extensions", new ResourceSet("/V1_1/", "multiple-extensions.xiidm", "multiple-extensions-ext.xiidm"));
         Network network = importer.importData(dataSource, parameters);
         assertNotNull(network);
         assertEquals(2, network.getLoad("LOAD").getExtensions().size());
@@ -195,7 +196,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
         parameters.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
 
-        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/", "multiple-extensions.xiidm", "multiple-extensions-loadFoo.xiidm", "multiple-extensions-loadBar.xiidm"));
+        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/V1_1/", "multiple-extensions.xiidm", "multiple-extensions-loadFoo.xiidm", "multiple-extensions-loadBar.xiidm"));
         Network network = importer.importData(dataSourceBase, parameters);
         assertNotNull(network);
         assertEquals(2, network.getLoad("LOAD").getExtensions().size());
@@ -210,7 +211,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
         parameters.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
 
-        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/", "multiple-extensions.xiidm", "multiple-extensions-loadFoo.xiidm"));
+        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/V1_1/", "multiple-extensions.xiidm", "multiple-extensions-loadFoo.xiidm"));
         Network network = importer.importData(dataSourceBase, parameters);
         assertNotNull(network);
         assertEquals(1, network.getLoad("LOAD").getExtensions().size());
@@ -222,7 +223,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         Properties parameters = new Properties();
         parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
 
-        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/", "multiple-extensions.xiidm", "multiple-extensions-loadFoo.xiidm"));
+        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/V1_1/", "multiple-extensions.xiidm", "multiple-extensions-loadFoo.xiidm"));
         Network network = importer.importData(dataSourceBase, parameters);
         assertNotNull(network);
         assertEquals(1, network.getLoad("LOAD").getExtensions().size());
@@ -233,7 +234,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         Properties parameters = new Properties();
         parameters.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
 
-        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/", "multiple-extensions.xml"));
+        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/V1_1/", "multiple-extensions.xml"));
         Network network = importer.importData(dataSourceBase, parameters);
         assertNotNull(network);
         return network;

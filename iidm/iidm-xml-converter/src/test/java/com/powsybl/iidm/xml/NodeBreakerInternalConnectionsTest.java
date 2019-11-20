@@ -17,15 +17,17 @@ import java.io.IOException;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class NodeBreakerInternalConnectionsTest extends AbstractConverterTest {
+public class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
+        roundTripVersionnedXmlTest("internalConnections.xiidm", "V1_0");
+
         roundTripXmlTest(
                 networkWithInternalConnections(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/internalConnections.xiidm");
+                "/V1_1/internalConnections.xiidm");
     }
 
     private Network networkWithInternalConnections() {

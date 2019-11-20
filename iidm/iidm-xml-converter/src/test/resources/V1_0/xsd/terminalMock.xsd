@@ -4,7 +4,7 @@
            xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0"
            targetNamespace="http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_0"
            elementFormDefault="qualified">
-    <xs:import namespace="http://www.itesla_project.eu/schema/iidm/1_0" schemaLocation="iidm.xsd"/>
+    <xs:import namespace="http://www.itesla_project.eu/schema/iidm/1_0" schemaLocation="iidm_V1_0.xsd"/>
     <xs:element name="terminalMock">
         <xs:complexType>
             <xs:sequence>

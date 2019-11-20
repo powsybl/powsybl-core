@@ -31,12 +31,12 @@ public class TerminalMockXmlSerializer implements ExtensionXmlSerializer<Load, T
 
     @Override
     public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/terminalMock.xsd");
+        return getClass().getResourceAsStream("/V1_1/xsd/terminalMock.xsd");
     }
 
     @Override
     public String getNamespaceUri() {
-        return "http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_0";
+        return "http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_1";
     }
 
     @Override

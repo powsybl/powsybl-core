@@ -10,19 +10,20 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 
 /**
  * @author Luma Zamarreno <zamarrenolm at aia.es>
  */
-public class ThreeWindingsTransformerXmlTest extends AbstractConverterTest {
+public class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
+        roundTripVersionnedXmlTest("threeWindingsTransformerRoundTripRef.xml", "V1_0");
+
         roundTripXmlTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(),
                          NetworkXml::writeAndValidate,
                          NetworkXml::read,
-                         "/threeWindingsTransformerRoundTripRef.xml");
+                "/V1_1/threeWindingsTransformerRoundTripRef.xml");
     }
 }

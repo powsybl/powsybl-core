@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.Test;
 
@@ -15,13 +14,15 @@ import java.io.IOException;
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
-public class BatteryXmlTest extends AbstractConverterTest {
+public class BatteryXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void batteryRoundTripTest() throws IOException {
+        roundTripVersionnedXmlTest("batteryRoundTripRef.xml", "V1_0");
+
         roundTripXmlTest(BatteryNetworkFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/batteryRoundTripRef.xml");
+                "/V1_1/batteryRoundTripRef.xml");
     }
 }

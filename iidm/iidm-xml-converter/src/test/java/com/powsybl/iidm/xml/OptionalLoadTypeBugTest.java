@@ -8,6 +8,8 @@ package com.powsybl.iidm.xml;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertNotNull;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -15,6 +17,7 @@ public class OptionalLoadTypeBugTest {
 
     @Test
     public void shouldNotThrowNullPointerExceptionTest() {
-        NetworkXml.read(getClass().getResourceAsStream("/optionalLoadTypeBug.xml"));
+        assertNotNull(NetworkXml.read(getClass().getResourceAsStream("/V1_0/optionalLoadTypeBug.xml")));
+        assertNotNull(NetworkXml.read(getClass().getResourceAsStream("/V1_1/optionalLoadTypeBug.xml")));
     }
 }

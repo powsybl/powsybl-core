@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
 import org.junit.Test;
 
@@ -15,13 +14,14 @@ import java.io.IOException;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PhaseShifterXmlTest extends AbstractConverterTest {
-
+public class PhaseShifterXmlTest extends AbstractXmlConverterTest {
     @Test
     public void roundTripTest() throws IOException {
+        roundTripVersionnedXmlTest("phaseShifterRoundTripRef.xml", "V1_0");
+
         roundTripXmlTest(PhaseShifterTestCaseFactory.createWithTargetDeadband(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/phaseShifterRoundTripRef.xml");
+                "/V1_1/phaseShifterRoundTripRef.xml");
     }
 }

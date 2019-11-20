@@ -7,7 +7,6 @@
 
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
@@ -16,13 +15,15 @@ import java.io.IOException;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class EurostagXmlTest extends AbstractConverterTest {
+public class EurostagXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void loadFlowResultsTest() throws IOException {
+        roundTripVersionnedXmlTest("eurostag-tutorial1-lf.xml", "V1_0");
+        
         roundTripXmlTest(EurostagTutorialExample1Factory.createWithLFResults(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/eurostag-tutorial1-lf.xml");
+                "/V1_1/eurostag-tutorial1-lf.xml");
     }
 }

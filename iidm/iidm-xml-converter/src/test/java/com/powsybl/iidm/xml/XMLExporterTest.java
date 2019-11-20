@@ -38,6 +38,6 @@ public class XMLExporterTest extends AbstractConverterTest {
     @Test
     public void exportTest() throws IOException {
         exporterTest(MultipleExtensionsTestNetworkFactory.create(),
-                "/multiple-extensions.xml");
+                "/V1_1/multiple-extensions.xml");
     }
 }
