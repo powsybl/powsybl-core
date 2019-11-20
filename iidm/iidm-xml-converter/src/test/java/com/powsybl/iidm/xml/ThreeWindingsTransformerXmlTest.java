@@ -25,13 +25,4 @@ public class ThreeWindingsTransformerXmlTest extends AbstractConverterTest {
                          NetworkXml::read,
                          "/threeWindingsTransformerRoundTripRef.xml");
     }
-
-    @Test
-    public void tapChangers() throws IOException {
-        roundTripXmlTest(ThreeWindingsTransformerNetworkFactory.createWithTapChangers(),
-                         NetworkXml::writeAndValidate,
-                         NetworkXml::read,
-                         "/threeWindingsTransformerTapChangers.xml");
-    }
-
 }
