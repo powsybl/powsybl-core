@@ -70,7 +70,7 @@ public final class NetworkXml {
     private static final String SOURCE_FORMAT = "sourceFormat";
     private static final String ID = "id";
 
-    private static final String LATEST_IIDM_XSD = "iidm.xsd";
+    private static final String LATEST_IIDM_XSD = "iidm_V1_1.xsd";
 
     // cache XMLOutputFactory to improve performance
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
@@ -104,10 +104,11 @@ public final class NetworkXml {
 
     private static void validate(Source xml, List<Source> additionalSchemas) {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Source[] sources = new Source[additionalSchemas.size() + 1];
+        Source[] sources = new Source[additionalSchemas.size() + 2];
         sources[0] = new StreamSource(NetworkXml.class.getResourceAsStream("/xsd/" + LATEST_IIDM_XSD));
+        sources[1] = new StreamSource(NetworkXml.class.getResourceAsStream("/xsd/iidm_V1_0.xsd"));
         for (int i = 0; i < additionalSchemas.size(); i++) {
-            sources[i + 1] = additionalSchemas.get(i);
+            sources[i + 2] = additionalSchemas.get(i);
         }
         try {
             Schema schema = factory.newSchema(sources);
@@ -684,7 +685,7 @@ public final class NetworkXml {
                 throw new PowsyblException("Extension file do not match with the base file !");
             }
 
-            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, options, LATEST_XIIDM_VERSION);
+            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, options, IIDM_VERSION_POINT);
             Set<String> extensionNamesNotFound = new TreeSet<>();
 
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
