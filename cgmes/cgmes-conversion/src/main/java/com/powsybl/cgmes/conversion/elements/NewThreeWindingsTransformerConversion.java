@@ -14,7 +14,6 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
@@ -335,7 +334,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         setToIidmPhaseTapChanger(convertedT3xModel, convertedModelWinding, tx);
     }
 
-    private void setToIidmRatioTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedWinding convertedWinding, Connectable<?> tx) {
+    private void setToIidmRatioTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedWinding convertedWinding, ThreeWindingsTransformer tx) {
         TapChangerConversion rtc = convertedWinding.end1.ratioTapChanger;
         if (rtc == null) {
             return;
@@ -349,7 +348,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         setToIidmRatioTapChanger(rtc, rtca);
     }
 
-    private void setToIidmPhaseTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedWinding convertedWinding, Connectable<?> tx) {
+    private void setToIidmPhaseTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedWinding convertedWinding, ThreeWindingsTransformer tx) {
         TapChangerConversion ptc = convertedWinding.end1.phaseTapChanger;
         if (ptc == null) {
             return;
@@ -363,7 +362,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         setToIidmPhaseTapChanger(ptc, ptca);
     }
 
-    protected RatioTapChangerAdder newRatioTapChanger(ConvertedT3xModel convertedT3xModel, Connectable<?> tx,
+    protected RatioTapChangerAdder newRatioTapChanger(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx,
         String terminal) {
         if (convertedT3xModel.winding1.end1.terminal.equals(terminal)) {
             return ((ThreeWindingsTransformer) tx).getLeg1().newRatioTapChanger();
@@ -375,7 +374,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return null;
     }
 
-    protected PhaseTapChangerAdder newPhaseTapChanger(ConvertedT3xModel convertedT3xModel, Connectable<?> tx,
+    protected PhaseTapChangerAdder newPhaseTapChanger(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx,
         String terminal) {
         if (convertedT3xModel.winding1.end1.terminal.equals(terminal)) {
             return ((ThreeWindingsTransformer) tx).getLeg1().newPhaseTapChanger();

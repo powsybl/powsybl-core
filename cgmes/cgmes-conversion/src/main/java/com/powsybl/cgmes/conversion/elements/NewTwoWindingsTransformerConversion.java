@@ -14,7 +14,6 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -345,7 +344,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         setRegulatingControlContext(convertedT2xModel, tx);
     }
 
-    private void setToIidmRatioTapChanger(ConvertedT2xModel convertedT2xModel, Connectable<?> tx) {
+    private void setToIidmRatioTapChanger(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx) {
         TapChangerConversion rtc = convertedT2xModel.end1.ratioTapChanger;
         if (rtc == null) {
             return;
@@ -359,7 +358,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         setToIidmRatioTapChanger(rtc, rtca);
     }
 
-    private void setToIidmPhaseTapChanger(ConvertedT2xModel convertedT2xModel, Connectable<?> tx) {
+    private void setToIidmPhaseTapChanger(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx) {
         TapChangerConversion ptc = convertedT2xModel.end1.phaseTapChanger;
         if (ptc == null) {
             return;
@@ -373,11 +372,11 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         setToIidmPhaseTapChanger(ptc, ptca);
     }
 
-    protected RatioTapChangerAdder newRatioTapChanger(Connectable<?> tx) {
+    protected RatioTapChangerAdder newRatioTapChanger(TwoWindingsTransformer tx) {
         return ((TwoWindingsTransformer) tx).newRatioTapChanger();
     }
 
-    protected PhaseTapChangerAdder newPhaseTapChanger(Connectable<?> tx) {
+    protected PhaseTapChangerAdder newPhaseTapChanger(TwoWindingsTransformer tx) {
         return ((TwoWindingsTransformer) tx).newPhaseTapChanger();
     }
 
