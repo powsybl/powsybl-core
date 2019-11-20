@@ -10,17 +10,12 @@ import com.powsybl.commons.AbstractConverterTest;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_VERSION_UNDERSCORE;
+import static com.powsybl.iidm.xml.IidmXmlTestConstants.IIDM_CURRENT_VERSION_DIR_NAME;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 abstract class AbstractXmlConverterTest extends AbstractConverterTest {
-
-    static final String IIDM_CURRENT_VERSION_DIR_NAME = "/V" + IIDM_VERSION_UNDERSCORE + "/";
-
-    // directory names of previous IIDM versions
-    static final String IIDM_VERSION_1_0_DIR_NAME = "/V1_0/";
 
     protected void roundTripVersionnedXmlTest(String file, String... versionDirs) throws IOException {
         for (String versionDir : versionDirs) {

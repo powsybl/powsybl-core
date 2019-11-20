@@ -26,6 +26,8 @@ import javax.xml.stream.XMLStreamException;
 
 import static org.junit.Assert.*;
 
+import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */

@@ -13,6 +13,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */

@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
+
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */

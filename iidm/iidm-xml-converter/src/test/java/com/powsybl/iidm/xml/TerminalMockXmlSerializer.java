@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.test.TerminalMockExt;
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 
-import static com.powsybl.iidm.xml.AbstractXmlConverterTest.IIDM_CURRENT_VERSION_DIR_NAME;
+import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>

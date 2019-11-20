@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
+
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */

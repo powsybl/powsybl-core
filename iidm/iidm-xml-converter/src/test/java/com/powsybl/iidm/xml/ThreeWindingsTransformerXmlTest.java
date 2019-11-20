@@ -12,6 +12,8 @@ import org.junit.Test;
 
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 
+import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
+
 /**
  * @author Luma Zamarreno <zamarrenolm at aia.es>
  */

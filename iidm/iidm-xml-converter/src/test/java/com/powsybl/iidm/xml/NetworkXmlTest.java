@@ -28,6 +28,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
