@@ -21,8 +21,13 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -274,5 +279,19 @@ public class AfsBaseTest {
         assertEquals(createdFile.getFileSystem(), foundFile.getFileSystem());
         assertEquals(createdFile.getDependencies(), foundFile.getDependencies());
         assertEquals(createdFile.getCodeVersion(), foundFile.getCodeVersion());
+    }
+
+    @Test
+    public void findProjectTest() {
+        Project project = afs.getRootFolder().createProject("test");
+        Project foundProject = afs.findProject(project.getId()).orElse(null);
+        assertNotNull(foundProject);
+        assertEquals(project.getId(), foundProject.getId());
+        assertEquals(project.getName(), foundProject.getName());
+        assertEquals(project.getDescription(), foundProject.getDescription());
+        assertEquals(project.getCreationDate(), foundProject.getCreationDate());
+        assertEquals(project.getModificationDate(), foundProject.getModificationDate());
+        assertEquals(project.getFileSystem(), foundProject.getFileSystem());
+        assertEquals(project.getCodeVersion(), foundProject.getCodeVersion());
     }
 }

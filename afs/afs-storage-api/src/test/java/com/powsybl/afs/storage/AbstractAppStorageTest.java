@@ -40,7 +40,7 @@ public abstract class AbstractAppStorageTest {
     static final String FOLDER_PSEUDO_CLASS = "folder";
     static final String DATA_FILE_CLASS = "data";
 
-    private ListenableAppStorage storage;
+    protected ListenableAppStorage storage;
 
     private BlockingQueue<NodeEvent> eventStack;
 
