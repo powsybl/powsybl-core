@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
-import com.powsybl.cgmes.conversion.CgmesExport.Operations;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
@@ -73,12 +72,6 @@ public class CgmesImport implements Importer {
         this(PlatformConfig.defaultConfig());
     }
 
-    private Profiling profiling;
-
-    public void setProfiling(Profiling profiling) {
-        this.profiling = profiling;
-    }
-
     @Override
     public List<Parameter> getParameters() {
         List<Parameter> allParams = new ArrayList<>(STATIC_PARAMETERS);
@@ -109,18 +102,9 @@ public class CgmesImport implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p) {
-        if (profiling != null) {
-            profiling.start();
-        }
         CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p));
-        if (profiling != null) {
-            profiling.end(Operations.CGMES_READ.name());
-            profiling.start();
-        }
         Network network = new Conversion(cgmes, config(p), activatedPostProcessors(p), networkFactory).convert();
-        if (profiling != null) {
-            profiling.end(Operations.CGMES_CONVERSION.name());
-        }
+
         if (storeCgmesModelAsNetworkExtension(p)) {
             // Store a reference to the original CGMES model inside the IIDM network
             // CgmesUpdate will add a listener to Network changes

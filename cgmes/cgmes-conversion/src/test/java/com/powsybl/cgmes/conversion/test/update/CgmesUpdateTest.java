@@ -28,10 +28,8 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.CgmesExport.Operations;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
-import com.powsybl.cgmes.conversion.Profiling;
 import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.conversion.update.IidmChange;
@@ -93,9 +91,6 @@ public class CgmesUpdateTest {
     }
 
     private void testSimpleUpdate(ReadOnlyDataSource ds, String impl, boolean invalidateFlows) throws IOException {
-        Profiling profiling = new Profiling();
-
-        cgmesImport.setProfiling(profiling);
         Network network0 = cgmesImport.importData(ds, NetworkFactory.findDefault(), importParameters(impl));
         if (isEmpty(network0)) {
             fail("Network is empty");
@@ -104,65 +99,37 @@ public class CgmesUpdateTest {
         // For very big networks we will limit the number of changes made in the test
         boolean isBigNetwork = network0.getBusView().getBusStream().count() > 5000;
 
-        profiling.start();
         network0.getVariantManager().cloneVariant(network0.getVariantManager().getWorkingVariantId(), "1");
         network0.getVariantManager().setWorkingVariant("1");
-        profiling.end(Operations.CLONE_VARIANT.name());
 
         NetworkChanges.modifyEquipmentCharacteristics(network0);
-        profiling.start();
         int numChangesInLoadsAndGenerators = isBigNetwork ? 1000 : Integer.MAX_VALUE;
         NetworkChanges.scaleLoadGenerator(network0, numChangesInLoadsAndGenerators);
-        profiling.end(Operations.SCALING.name());
         int numChangesBeforeLoadFlow = network0.getExtension(CgmesModelExtension.class).getCgmesUpdate().changelog().getChangesForVariant(network0.getVariantManager().getWorkingVariantId()).size();
         NetworkChanges.modifySteadyStateHypothesis(network0);
 
-        profiling.start();
         if (!isBigNetwork) {
             // Compute all flows only for small networks
             // as this will introduce a lot of changes
             runLoadFlowResultsCompletion(network0, invalidateFlows);
         }
-        profiling.end(Operations.LOAD_FLOW.name());
         List<IidmChange> changes = network0.getExtension(CgmesModelExtension.class).getCgmesUpdate().changelog().getChangesForVariant(network0.getVariantManager().getWorkingVariantId());
         int numChangesAfterLoadFlow = changes.size();
 
         DataSource tmp = tmpDataSource(impl);
-        CgmesExport e = new CgmesExport(profiling);
+        CgmesExport e = new CgmesExport();
         e.export(network0, new Properties(), tmp);
 
         // import saved data and compare with original Network
-        cgmesImport.setProfiling(null);
         Network network1 = cgmesImport.importData(tmp, NetworkFactory.findDefault(), importParameters(impl));
         runLoadFlowResultsCompletion(network1, false);
         compare(network0, network1);
-
-        reportProfiling(ds, network0, impl, numChangesBeforeLoadFlow, numChangesAfterLoadFlow, invalidateFlows, profiling);
     }
 
     private void compare(Network network0, Network network1) {
         ComparisonConfig config = new ComparisonConfig().checkNetworkId(false).tolerance(2.4e-4);
         Comparison comparison = new Comparison(network0, network1, config);
         comparison.compare();
-    }
-
-    private void reportProfiling(
-        ReadOnlyDataSource ds,
-        Network network,
-        String impl,
-        int numChangesBeforeLoadFlow,
-        int numChangesAfterLoadFlow,
-        boolean invalidateFlows,
-        Profiling profiling) {
-        LOG.info("Profiling summary");
-        LOG.info("    test case                   : " + ds.getBaseName());
-        LOG.info("    triplestore impl            : " + impl);
-        LOG.info("    generators                  : " + network.getGeneratorCount());
-        LOG.info("    loads                       : " + network.getLoadCount());
-        LOG.info("    changes before LoadFlow run : " + numChangesBeforeLoadFlow);
-        LOG.info("    invalidate flows before LF  : " + invalidateFlows);
-        LOG.info("    changes after LoadFlow run  : " + numChangesAfterLoadFlow);
-        profiling.report(true);
     }
 
     private void runLoadFlowResultsCompletion(Network network, boolean invalidateFlows) {

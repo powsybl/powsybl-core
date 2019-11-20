@@ -7,7 +7,6 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.Objects;
 import java.util.Properties;
 
 import com.google.auto.service.AutoService;
@@ -27,15 +26,6 @@ import com.powsybl.iidm.network.Network;
 @AutoService(Exporter.class)
 public class CgmesExport implements Exporter {
 
-    public CgmesExport() {
-        this.profiling = new Profiling();
-    }
-
-    public CgmesExport(Profiling profiling) {
-        Objects.requireNonNull(profiling);
-        this.profiling = profiling;
-    }
-
     @Override
     public void export(Network network, Properties params, DataSource ds) {
 
@@ -50,27 +40,16 @@ public class CgmesExport implements Exporter {
         CgmesUpdate cgmesUpdate = ext.getCgmesUpdate();
 
         CgmesModel cgmesSource = ext.getCgmesModel();
-        profiling.start();
         CgmesModel cgmes = CgmesModelFactory.copy(cgmesSource);
-        profiling.end(Operations.TRIPLESTORE_COPY.name());
 
         String variantId = network.getVariantManager().getWorkingVariantId();
 
-        profiling.startLoop();
-        cgmesUpdate.update(cgmes, variantId, profiling);
-        profiling.endLoop(Operations.TRIPLESTORE_UPDATE.name());
-
-        profiling.start();
+        cgmesUpdate.update(cgmes, variantId);
         // Clear the previous SV data in CGMES model
         // and fill it with the Network current state values
         cgmes.clear(CgmesSubset.STATE_VARIABLES);
         StateVariablesAdder.add(network, cgmes);
-        profiling.end(Operations.ADD_STATE_VARIABLES.name());
-        profiling.report();
-
-        profiling.start();
         cgmes.write(ds);
-        profiling.end(Operations.WRITE_UPDATED_CGMES.name());
     }
 
     @Override
@@ -87,6 +66,4 @@ public class CgmesExport implements Exporter {
         IMPORT_CGMES, SCALING, LOAD_FLOW, TRIPLESTORE_COPY, CLONE_VARIANT, TRIPLESTORE_UPDATE,
         ADD_STATE_VARIABLES, WRITE_UPDATED_CGMES, CGMES_READ, CGMES_CONVERSION;
     }
-
-    private final Profiling profiling;
 }

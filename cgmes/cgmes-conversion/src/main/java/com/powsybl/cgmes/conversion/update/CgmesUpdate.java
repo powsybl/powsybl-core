@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.ConversionException;
-import com.powsybl.cgmes.conversion.Profiling;
 import com.powsybl.cgmes.conversion.update.elements16.IidmToCgmes16;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesSubset;
@@ -44,14 +43,14 @@ public class CgmesUpdate {
      * @param cgmes     CGMES model to be updated
      * @param variantId Update CGMES model with changes made in this variant
      */
-    public void update(CgmesModel cgmes, String variantId, Profiling profiling) {
+    public void update(CgmesModel cgmes, String variantId) {
         requireCgmesModelTripleStore(cgmes);
         CgmesModelTripleStore cgmests = (CgmesModelTripleStore) cgmes;
         List<IidmChange> changes = changelog.getChangesForVariant(variantId);
         if (changes.isEmpty()) {
             return;
         }
-        UpdateContext context = new UpdateContext(cgmests, profiling);
+        UpdateContext context = new UpdateContext(cgmests);
         for (IidmChange change : changes) {
             List<TripleStoreChange> tsChanges = convert(change, context);
             update(cgmests, tsChanges, context);
@@ -90,7 +89,6 @@ public class CgmesUpdate {
 
     private void update(CgmesModelTripleStore ts, List<TripleStoreChange> tsChanges, UpdateContext context) {
         for (TripleStoreChange tsChange : tsChanges) {
-            context.profiling.startLoopIteration();
             String predicate = tsChange.params().predicate();
             String newValue = tsChange.params().value();
             boolean valueIsUri = tsChange.params().valueIsUri();
@@ -102,15 +100,13 @@ public class CgmesUpdate {
                 predicate,
                 newValue,
                 valueIsUri);
-            context.profiling.endLoopIteration();
         }
     }
 
     private static class UpdateContext {
-        UpdateContext(CgmesModelTripleStore cgmes, Profiling profiling) {
+        UpdateContext(CgmesModelTripleStore cgmes) {
             this.basename = cgmes.getBasename();
             computeActualContexts(cgmes.tripleStore());
-            this.profiling = profiling;
             this.cimVersion = cgmes.getCimVersion();
         }
 
@@ -131,7 +127,6 @@ public class CgmesUpdate {
 
         private final String basename;
         private final Map<String, String> actualContexts = new HashMap<>();
-        private final Profiling profiling;
         private final int cimVersion;
     }
 
