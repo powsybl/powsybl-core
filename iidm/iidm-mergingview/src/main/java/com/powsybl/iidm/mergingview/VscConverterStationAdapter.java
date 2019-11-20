@@ -13,12 +13,12 @@ import com.powsybl.iidm.network.*;
  */
 public class VscConverterStationAdapter extends AbstractHvdcConverterStationAdapter<VscConverterStation> implements VscConverterStation {
 
-    protected VscConverterStationAdapter(final VscConverterStation delegate, final MergingViewIndex index) {
+    VscConverterStationAdapter(final VscConverterStation delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
     @Override
-    public TerminalAdapter getTerminal() {
+    public Terminal getTerminal() {
         return getIndex().getTerminal(getDelegate().getTerminal());
     }
 

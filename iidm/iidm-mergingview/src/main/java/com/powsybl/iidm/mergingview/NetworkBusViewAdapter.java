@@ -6,15 +6,15 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Component;
+import com.powsybl.iidm.network.Network;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Component;
-import com.powsybl.iidm.network.Network;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -23,13 +23,13 @@ public class NetworkBusViewAdapter implements Network.BusView {
 
     private final MergingViewIndex index;
 
-    public NetworkBusViewAdapter(final MergingViewIndex index) {
+    NetworkBusViewAdapter(final MergingViewIndex index) {
         this.index = index;
     }
 
     @Override
     public Iterable<Bus> getBuses() {
-        return Collections.unmodifiableSet(getBusStream().collect(Collectors.toSet()));
+        return Collections.unmodifiableList(getBusStream().collect(Collectors.toList()));
     }
 
     @Override
@@ -48,7 +48,7 @@ public class NetworkBusViewAdapter implements Network.BusView {
                 .map(Network.BusView::getConnectedComponents)
                 .flatMap(Collection::stream)
                 .map(index::getComponent)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     @Override

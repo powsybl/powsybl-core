@@ -6,13 +6,14 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.Collections;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
+
+import java.util.Collections;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -21,18 +22,24 @@ public class NetworkBusBreakerViewAdapter implements Network.BusBreakerView {
 
     private final MergingViewIndex index;
 
-    public NetworkBusBreakerViewAdapter(final MergingViewIndex index) {
+    NetworkBusBreakerViewAdapter(final MergingViewIndex index) {
         this.index = index;
     }
 
     @Override
     public Bus getBus(final String id) {
-        return getBusStream().filter(s -> id.equals(s.getId())).findFirst().orElse(null);
+        return index.getNetworkStream()
+                    .map(Network::getBusBreakerView)
+                    .map(bb -> bb.getBus(id))
+                    .filter(Objects::nonNull)
+                    .map(index::getBus)
+                    .findFirst()
+                    .orElse(null);
     }
 
     @Override
     public Iterable<Bus> getBuses() {
-        return Collections.unmodifiableSet(getBusStream().collect(Collectors.toSet()));
+        return Collections.unmodifiableList(getBusStream().collect(Collectors.toList()));
     }
 
     @Override
@@ -46,7 +53,7 @@ public class NetworkBusBreakerViewAdapter implements Network.BusBreakerView {
 
     @Override
     public Iterable<Switch> getSwitches() {
-        return Collections.unmodifiableSet(getSwitchStream().collect(Collectors.toSet()));
+        return Collections.unmodifiableList(getSwitchStream().collect(Collectors.toList()));
     }
 
     @Override

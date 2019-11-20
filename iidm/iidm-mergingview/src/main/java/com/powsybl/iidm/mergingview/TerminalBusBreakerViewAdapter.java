@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusBreakerView;
 
@@ -14,7 +15,7 @@ import com.powsybl.iidm.network.Terminal.BusBreakerView;
  */
 public class TerminalBusBreakerViewAdapter extends AbstractAdapter<Terminal.BusBreakerView> implements Terminal.BusBreakerView {
 
-    protected TerminalBusBreakerViewAdapter(final BusBreakerView delegate, final MergingViewIndex index) {
+    TerminalBusBreakerViewAdapter(final BusBreakerView delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -22,12 +23,12 @@ public class TerminalBusBreakerViewAdapter extends AbstractAdapter<Terminal.BusB
     // Not implemented methods -------
     // -------------------------------
     @Override
-    public BusAdapter getBus() {
+    public Bus getBus() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public BusAdapter getConnectableBus() {
+    public Bus getConnectableBus() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 

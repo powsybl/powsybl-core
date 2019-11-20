@@ -17,7 +17,6 @@ public class LccConverterStationAdapter extends AbstractHvdcConverterStationAdap
         super(delegate, index);
     }
 
-
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------
@@ -27,7 +26,7 @@ public class LccConverterStationAdapter extends AbstractHvdcConverterStationAdap
     }
 
     @Override
-    public LccConverterStationAdapter setPowerFactor(final float powerFactor) {
+    public LccConverterStation setPowerFactor(final float powerFactor) {
         getDelegate().setPowerFactor(powerFactor);
         return this;
     }

@@ -11,14 +11,15 @@ import com.powsybl.iidm.network.VscConverterStationAdder;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class VscConverterStationAdderAdapter extends AbstractAdapter<VscConverterStationAdder> implements VscConverterStationAdder {
+public class VscConverterStationAdderAdapter extends AbstractIdentifiableAdderAdapter<VscConverterStationAdder> implements VscConverterStationAdder {
 
-    protected VscConverterStationAdderAdapter(final VscConverterStationAdder delegate, final MergingViewIndex index) {
+    VscConverterStationAdderAdapter(final VscConverterStationAdder delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
     @Override
     public VscConverterStationAdapter add() {
+        checkAndSetUniqueId();
         return getIndex().getVscConverterStation(getDelegate().add());
     }
 
@@ -46,24 +47,6 @@ public class VscConverterStationAdderAdapter extends AbstractAdapter<VscConverte
     @Override
     public VscConverterStationAdderAdapter setConnectableBus(final String connectableBus) {
         getDelegate().setConnectableBus(connectableBus);
-        return this;
-    }
-
-    @Override
-    public VscConverterStationAdderAdapter setId(final String id) {
-        getDelegate().setId(id);
-        return this;
-    }
-
-    @Override
-    public VscConverterStationAdderAdapter setEnsureIdUnicity(final boolean ensureIdUnicity) {
-        getDelegate().setEnsureIdUnicity(ensureIdUnicity);
-        return this;
-    }
-
-    @Override
-    public VscConverterStationAdderAdapter setName(final String name) {
-        getDelegate().setName(name);
         return this;
     }
 

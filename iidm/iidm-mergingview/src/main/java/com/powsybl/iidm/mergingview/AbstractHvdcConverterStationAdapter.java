@@ -8,6 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.List;
@@ -18,17 +19,17 @@ import java.util.stream.Collectors;
  */
 abstract class AbstractHvdcConverterStationAdapter<I extends HvdcConverterStation<I>> extends AbstractIdentifiableAdapter<I> implements HvdcConverterStation<I> {
 
-    AbstractHvdcConverterStationAdapter(I delegate, MergingViewIndex index) {
+    protected AbstractHvdcConverterStationAdapter(I delegate, MergingViewIndex index) {
         super(delegate, index);
     }
 
     @Override
-    public TerminalAdapter getTerminal() {
+    public Terminal getTerminal() {
         return getIndex().getTerminal(getDelegate().getTerminal());
     }
 
     @Override
-    public HvdcLineAdapter getHvdcLine() {
+    public HvdcLine getHvdcLine() {
         return getIndex().getHvdcLine(getDelegate().getHvdcLine());
     }
 

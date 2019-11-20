@@ -22,28 +22,28 @@ import java.util.stream.Stream;
  */
 class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> implements VoltageLevel {
 
-    private VoltageLevelBusBreakerViewAdapter busBreakerViewAdapter;
+    private VoltageLevelBusBreakerViewAdapter busBreakerView;
 
-    public VoltageLevelAdapter(final VoltageLevel delegate, final MergingViewIndex index) {
+    VoltageLevelAdapter(final VoltageLevel delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
     @Override
-    public SubstationAdapter getSubstation() {
+    public Substation getSubstation() {
         return getIndex().getSubstation(getDelegate().getSubstation());
     }
 
     @Override
-    public VscConverterStationAdderAdapter newVscConverterStation() {
+    public VscConverterStationAdder newVscConverterStation() {
         return new VscConverterStationAdderAdapter(getDelegate().newVscConverterStation(), getIndex());
     }
 
     @Override
-    public VoltageLevelBusBreakerViewAdapter getBusBreakerView() {
-        if (busBreakerViewAdapter == null) {
-            busBreakerViewAdapter = new VoltageLevelBusBreakerViewAdapter(getDelegate().getBusBreakerView(), getIndex());
+    public VoltageLevel.BusBreakerView getBusBreakerView() {
+        if (busBreakerView == null) {
+            busBreakerView = new VoltageLevelBusBreakerViewAdapter(getDelegate().getBusBreakerView(), getIndex());
         }
-        return busBreakerViewAdapter;
+        return busBreakerView;
     }
 
     @Override
@@ -210,12 +210,12 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public VoltageLevelNodeBreakerViewAdapter getNodeBreakerView() {
+    public VoltageLevel.NodeBreakerView getNodeBreakerView() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public VoltageLevelBusViewAdapter getBusView() {
+    public VoltageLevel.BusView getBusView() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -263,7 +263,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public VoltageLevelAdapter setNominalV(final double nominalV) {
+    public VoltageLevel setNominalV(final double nominalV) {
         getDelegate().setNominalV(nominalV);
         return this;
     }
@@ -274,7 +274,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public VoltageLevelAdapter setLowVoltageLimit(final double lowVoltageLimit) {
+    public VoltageLevel setLowVoltageLimit(final double lowVoltageLimit) {
         getDelegate().setLowVoltageLimit(lowVoltageLimit);
         return this;
     }
@@ -285,7 +285,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public VoltageLevelAdapter setHighVoltageLimit(final double highVoltageLimit) {
+    public VoltageLevel setHighVoltageLimit(final double highVoltageLimit) {
         getDelegate().setHighVoltageLimit(highVoltageLimit);
         return this;
     }

@@ -6,21 +6,15 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
 import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Component;
 import com.powsybl.iidm.network.Network.BusBreakerView;
 import com.powsybl.iidm.network.Network.BusView;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -50,9 +44,6 @@ public class BusAdapterTest {
         assertEquals(0.0d, bus.getAngle(), 0.0d);
         assertEquals(0.0d, bus.getP(), 0.0d);
         assertEquals(0.0d, bus.getQ(), 0.0d);
-        assertTrue(bus.isInMainConnectedComponent());
-        assertTrue(bus.isInMainSynchronousComponent());
-        assertEquals(2, bus.getConnectedTerminalCount());
         assertTrue(bus.getTwoWindingsTransformers().iterator().hasNext());
         assertFalse(bus.getThreeWindingsTransformers().iterator().hasNext());
         assertTrue(bus.getGenerators().iterator().hasNext());
@@ -64,6 +55,7 @@ public class BusAdapterTest {
         assertFalse(bus.getVscConverterStations().iterator().hasNext());
 
         // Not implemented yet !
+        TestUtil.notImplemented(bus::getConnectedTerminalCount);
         TestUtil.notImplemented(bus::getLines);
         TestUtil.notImplemented(bus::getLineStream);
         TestUtil.notImplemented(bus::getDanglingLines);
@@ -72,18 +64,11 @@ public class BusAdapterTest {
 
     @Test
     public void testComponentSetterGetter() {
-        final Component syncComponent = bus.getSynchronousComponent();
-        assertNotNull(syncComponent);
-        assertTrue(syncComponent instanceof ComponentAdapter);
-
-        assertEquals(0, syncComponent.getNum());
-        assertEquals(4, syncComponent.getSize());
-        assertFalse(syncComponent.getBuses().iterator().hasNext());
-        assertEquals(0, syncComponent.getBusStream().count());
-
-        final Component connectedComponent = bus.getConnectedComponent();
-        assertNotNull(connectedComponent);
-        assertTrue(connectedComponent instanceof ComponentAdapter);
+        // Not implemented yet !
+        TestUtil.notImplemented(bus::getSynchronousComponent);
+        TestUtil.notImplemented(bus::getConnectedComponent);
+        TestUtil.notImplemented(bus::isInMainConnectedComponent);
+        TestUtil.notImplemented(bus::isInMainSynchronousComponent);
     }
 
     @Test

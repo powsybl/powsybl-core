@@ -231,11 +231,11 @@ public final class MergingView implements Network {
     @Override
     public Iterable<Substation> getSubstations(final String country, final String tsoId, final String... geographicalTags) {
         return index.getNetworkStream()
-                .map(n -> n.getSubstations(country, tsoId, geographicalTags))
-                .flatMap(x -> StreamSupport.stream(x.spliterator(), false))
-                .filter(Objects::nonNull)
-                .map(index::getSubstation)
-                .collect(Collectors.toSet());
+                    .map(n -> n.getSubstations(country, tsoId, geographicalTags))
+                    .flatMap(x -> StreamSupport.stream(x.spliterator(), false))
+                    .filter(Objects::nonNull)
+                    .map(index::getSubstation)
+                    .collect(Collectors.toList());
     }
 
     @Override

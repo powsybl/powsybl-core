@@ -6,24 +6,22 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.stream.Stream;
-
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.BusBreakerView;
+
+import java.util.stream.Stream;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class VoltageLevelBusBreakerViewAdapter extends AbstractAdapter<VoltageLevel.BusBreakerView> implements VoltageLevel.BusBreakerView {
 
-    protected VoltageLevelBusBreakerViewAdapter(final BusBreakerView delegate, final MergingViewIndex index) {
+    VoltageLevelBusBreakerViewAdapter(final BusBreakerView delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
     @Override
-    public BusAdderAdapter newBus() {
+    public BusAdder newBus() {
         return new BusAdderAdapter(getDelegate().newBus(), getIndex());
     }
 
@@ -41,7 +39,7 @@ public class VoltageLevelBusBreakerViewAdapter extends AbstractAdapter<VoltageLe
     }
 
     @Override
-    public BusAdapter getBus(final String id) {
+    public Bus getBus(final String id) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -81,17 +79,17 @@ public class VoltageLevelBusBreakerViewAdapter extends AbstractAdapter<VoltageLe
     }
 
     @Override
-    public BusAdapter getBus1(final String switchId) {
+    public Bus getBus1(final String switchId) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public BusAdapter getBus2(final String switchId) {
+    public Bus getBus2(final String switchId) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public SwitchAdapter getSwitch(final String switchId) {
+    public Switch getSwitch(final String switchId) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
