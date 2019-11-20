@@ -6,24 +6,17 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.ContainerType;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.VariantManagerConstants;
-
+import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -96,88 +89,98 @@ public class MergingNetworkTest {
         assertTrue(mergingView.getSubstations(Country.ES, null).iterator().hasNext());
         assertFalse(mergingView.getSubstations(Country.FR, "RTE", "B").iterator().hasNext());
 
+        // VoltageLevel
+        assertFalse(mergingView.getVoltageLevels().iterator().hasNext());
+        assertEquals(0, mergingView.getVoltageLevelCount());
+
+        // Batteries
+        assertFalse(mergingView.getBatteries().iterator().hasNext());
+        assertEquals(0, mergingView.getBatteryCount());
+
+        // VscConverterStations
+        assertFalse(mergingView.getVscConverterStations().iterator().hasNext());
+        assertEquals(0, mergingView.getVscConverterStationCount());
+
+        // TwoWindingsTransformers
+        assertFalse(mergingView.getTwoWindingsTransformers().iterator().hasNext());
+        assertEquals(0, mergingView.getTwoWindingsTransformerCount());
+
+        // Switch
+        assertFalse(mergingView.getSwitches().iterator().hasNext());
+        assertEquals(0, mergingView.getSwitchCount());
+
+        // StaticVarCompensators
+        assertFalse(mergingView.getStaticVarCompensators().iterator().hasNext());
+        assertEquals(0, mergingView.getStaticVarCompensatorCount());
+
+        // ShuntCompensators
+        assertFalse(mergingView.getShuntCompensators().iterator().hasNext());
+        assertEquals(0, mergingView.getShuntCompensatorCount());
+
+        // Loads
+        assertFalse(mergingView.getLoads().iterator().hasNext());
+        assertEquals(0, mergingView.getLoadCount());
+
+        // Generator
+        assertFalse(mergingView.getGenerators().iterator().hasNext());
+        assertEquals(0, mergingView.getGeneratorCount());
+
+        // BusbarSection
+        assertFalse(mergingView.getBusbarSections().iterator().hasNext());
+        assertEquals(0, mergingView.getBusbarSectionCount());
+
+        // LccConverterStations
+        assertFalse(mergingView.getLccConverterStations().iterator().hasNext());
+        assertEquals(0, mergingView.getLccConverterStationCount());
+
+        // HvdcConverterStations
+        assertFalse(mergingView.getHvdcConverterStations().iterator().hasNext());
+        assertEquals(0, mergingView.getHvdcConverterStationCount());
+
+        // Branches
+        assertFalse(mergingView.getBranches().iterator().hasNext());
+        assertEquals(0, mergingView.getBranchCount());
+
+        // ThreeWindingsTransformers
+        assertFalse(mergingView.getThreeWindingsTransformers().iterator().hasNext());
+        assertEquals(0, mergingView.getThreeWindingsTransformerCount());
+
+        // Lines
+        assertFalse(mergingView.getLines().iterator().hasNext());
+        assertEquals(0, mergingView.getLineCount());
+
+        // DanglingLines
+        assertFalse(mergingView.getDanglingLines().iterator().hasNext());
+        assertEquals(0, mergingView.getDanglingLineCount());
+
+        // HvdcLines
+        assertFalse(mergingView.getHvdcLines().iterator().hasNext());
+        assertEquals(0, mergingView.getHvdcLineCount());
+
+        // Others
+        assertNotNull(mergingView.getBusBreakerView());
+        assertNotNull(mergingView.getBusView());
+
+        // Extensions
+        AbstractExtension extension = Mockito.mock(AbstractExtension.class);
+        Mockito.when(extension.getName()).thenReturn("NetworkExtension");
+
+        mergingView.addExtension(AbstractExtension.class, extension);
+        assertNotNull(mergingView.getExtension(AbstractExtension.class));
+        assertNotNull(mergingView.getExtensionByName("NetworkExtension"));
+        mergingView.removeExtension(AbstractExtension.class);
+        assertTrue(mergingView.getExtensions().isEmpty());
+
         // Not implemented yet !
         TestUtil.notImplemented(mergingView::getVariantManager);
-        TestUtil.notImplemented(mergingView::getVoltageLevels);
-        TestUtil.notImplemented(mergingView::getVoltageLevelStream);
-        TestUtil.notImplemented(mergingView::getVoltageLevelCount);
-        TestUtil.notImplemented(() -> mergingView.getVoltageLevel(""));
+        // Lines
         TestUtil.notImplemented(mergingView::newLine);
-        TestUtil.notImplemented(mergingView::getLines);
-        TestUtil.notImplemented(() -> mergingView.getBranch(""));
-        TestUtil.notImplemented(mergingView::getBranches);
-        TestUtil.notImplemented(mergingView::getBranchStream);
-        TestUtil.notImplemented(mergingView::getBranchCount);
-        TestUtil.notImplemented(mergingView::getLineStream);
-        TestUtil.notImplemented(mergingView::getLineCount);
-        TestUtil.notImplemented(() -> mergingView.getLine(""));
         TestUtil.notImplemented(mergingView::newTieLine);
-        TestUtil.notImplemented(mergingView::getTwoWindingsTransformers);
-        TestUtil.notImplemented(mergingView::getTwoWindingsTransformerStream);
-        TestUtil.notImplemented(mergingView::getTwoWindingsTransformerCount);
-        TestUtil.notImplemented(() -> mergingView.getTwoWindingsTransformer(""));
-        TestUtil.notImplemented(mergingView::getThreeWindingsTransformers);
-        TestUtil.notImplemented(mergingView::getThreeWindingsTransformerStream);
-        TestUtil.notImplemented(mergingView::getThreeWindingsTransformerCount);
-        TestUtil.notImplemented(() -> mergingView.getThreeWindingsTransformer(""));
-        TestUtil.notImplemented(mergingView::getGenerators);
-        TestUtil.notImplemented(mergingView::getGeneratorStream);
-        TestUtil.notImplemented(mergingView::getGeneratorCount);
-        TestUtil.notImplemented(() -> mergingView.getGenerator(""));
-        TestUtil.notImplemented(mergingView::getBatteries);
-        TestUtil.notImplemented(mergingView::getBatteryStream);
-        TestUtil.notImplemented(mergingView::getBatteryCount);
-        TestUtil.notImplemented(() -> mergingView.getBattery(""));
-        TestUtil.notImplemented(mergingView::getLoads);
-        TestUtil.notImplemented(mergingView::getLoadStream);
-        TestUtil.notImplemented(mergingView::getLoadCount);
-        TestUtil.notImplemented(() -> mergingView.getLoad(""));
-        TestUtil.notImplemented(mergingView::getShuntCompensators);
-        TestUtil.notImplemented(mergingView::getShuntCompensatorStream);
-        TestUtil.notImplemented(mergingView::getShuntCompensatorCount);
-        TestUtil.notImplemented(() -> mergingView.getShuntCompensator(""));
-        TestUtil.notImplemented(mergingView::getDanglingLines);
-        TestUtil.notImplemented(mergingView::getDanglingLineStream);
-        TestUtil.notImplemented(mergingView::getDanglingLineCount);
-        TestUtil.notImplemented(() -> mergingView.getDanglingLine(""));
-        TestUtil.notImplemented(mergingView::getStaticVarCompensators);
-        TestUtil.notImplemented(mergingView::getStaticVarCompensatorStream);
-        TestUtil.notImplemented(mergingView::getStaticVarCompensatorCount);
-        TestUtil.notImplemented(() -> mergingView.getStaticVarCompensator(""));
-        TestUtil.notImplemented(() -> mergingView.getSwitch(""));
-        TestUtil.notImplemented(mergingView::getSwitches);
-        TestUtil.notImplemented(mergingView::getSwitchStream);
-        TestUtil.notImplemented(mergingView::getSwitchCount);
-        TestUtil.notImplemented(() -> mergingView.getBusbarSection(""));
-        TestUtil.notImplemented(mergingView::getBusbarSections);
-        TestUtil.notImplemented(mergingView::getBusbarSectionStream);
-        TestUtil.notImplemented(mergingView::getBusbarSectionCount);
-        TestUtil.notImplemented(mergingView::getHvdcConverterStations);
-        TestUtil.notImplemented(mergingView::getHvdcConverterStationStream);
-        TestUtil.notImplemented(mergingView::getHvdcConverterStationCount);
-        TestUtil.notImplemented(() -> mergingView.getHvdcConverterStation(""));
-        TestUtil.notImplemented(mergingView::getLccConverterStations);
-        TestUtil.notImplemented(mergingView::getLccConverterStationStream);
-        TestUtil.notImplemented(mergingView::getLccConverterStationCount);
-        TestUtil.notImplemented(() -> mergingView.getLccConverterStation(""));
-        TestUtil.notImplemented(mergingView::getVscConverterStations);
-        TestUtil.notImplemented(mergingView::getVscConverterStationStream);
-        TestUtil.notImplemented(mergingView::getVscConverterStationCount);
-        TestUtil.notImplemented(() -> mergingView.getVscConverterStation(""));
-        TestUtil.notImplemented(mergingView::getHvdcLines);
-        TestUtil.notImplemented(mergingView::getHvdcLineStream);
-        TestUtil.notImplemented(mergingView::getHvdcLineCount);
-        TestUtil.notImplemented(() -> mergingView.getHvdcLine(""));
+        // HvdcLines
         TestUtil.notImplemented(mergingView::newHvdcLine);
-        TestUtil.notImplemented(mergingView::getBusBreakerView);
-        TestUtil.notImplemented(mergingView::getBusView);
+        // Listeners
         TestUtil.notImplemented(() -> mergingView.addListener(null));
         TestUtil.notImplemented(() -> mergingView.removeListener(null));
-        TestUtil.notImplemented(() -> mergingView.addExtension(null, null));
-        TestUtil.notImplemented(() -> mergingView.getExtension(null));
-        TestUtil.notImplemented(() -> mergingView.getExtensionByName(null));
-        TestUtil.notImplemented(() -> mergingView.removeExtension(null));
-        TestUtil.notImplemented(mergingView::getExtensions);
     }
 
     @Test
@@ -205,7 +208,7 @@ public class MergingNetworkTest {
         addSubstation(mergingView, "P1", Country.FR);
     }
 
-    private Substation addSubstation(final Network network, final String substationId, final Country country) {
+    private static Substation addSubstation(final Network network, final String substationId, final Country country) {
         return network.newSubstation()
                 .setId(substationId)
                 .setName(substationId)
