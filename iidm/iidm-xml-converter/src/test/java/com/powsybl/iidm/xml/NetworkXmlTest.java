@@ -42,10 +42,10 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
     @Test
     public void roundTripTest() throws IOException {
         roundTripXmlTest(createEurostagTutorialExample1(),
-                         NetworkXml::writeAndValidate,
-                         NetworkXml::read,
+                NetworkXml::writeAndValidate,
+                NetworkXml::read,
                 IIDM_CURRENT_VERSION_DIR_NAME + "eurostag-tutorial-example1.xml");
-        
+
         // backward compatibility 1.0
         roundTripVersionnedXmlTest("eurostag-tutorial-example1.xml", IIDM_VERSION_1_0_DIR_NAME);
     }

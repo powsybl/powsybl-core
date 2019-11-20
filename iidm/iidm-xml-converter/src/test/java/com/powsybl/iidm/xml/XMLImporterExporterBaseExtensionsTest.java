@@ -51,7 +51,7 @@ public class XMLImporterExporterBaseExtensionsTest extends AbstractConverterTest
         }
         // check the exported extensions file and compare it to "multiple-extensions-ext.xiidm" reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("-ext", "xiidm"))) {
-            compareXml(getClass().getResourceAsStream( IIDM_CURRENT_VERSION_DIR_NAME + "multiple-extensions-ext.xiidm"), is);
+            compareXml(getClass().getResourceAsStream(IIDM_CURRENT_VERSION_DIR_NAME + "multiple-extensions-ext.xiidm"), is);
         }
     }
 

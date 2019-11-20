@@ -22,7 +22,7 @@ public class BatteryXmlTest extends AbstractXmlConverterTest {
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 IIDM_CURRENT_VERSION_DIR_NAME + "batteryRoundTripRef.xml");
-        
+
         //backward compatibility 1.0
         roundTripVersionnedXmlTest("batteryRoundTripRef.xml", IIDM_VERSION_1_0_DIR_NAME);
     }

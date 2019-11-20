@@ -22,7 +22,7 @@ abstract class AbstractXmlConverterTest extends AbstractConverterTest {
     // directory names of previous IIDM versions
     static final String IIDM_VERSION_1_0_DIR_NAME = "/V1_0/";
 
-    void roundTripVersionnedXmlTest(String file, String... versionDirs) throws IOException {
+    protected void roundTripVersionnedXmlTest(String file, String... versionDirs) throws IOException {
         for (String versionDir : versionDirs) {
             roundTripXmlTest(NetworkXml.read(getClass().getResourceAsStream(versionDir + file)),
                     NetworkXml::writeAndValidate,

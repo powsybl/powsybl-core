@@ -25,14 +25,14 @@ public class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 IIDM_CURRENT_VERSION_DIR_NAME + "internalConnections.xiidm");
-        
+
         // backward compatibility 1.0
         roundTripVersionnedXmlTest("internalConnections.xiidm", IIDM_VERSION_1_0_DIR_NAME);
     }
 
     private Network networkWithInternalConnections() {
         Network network = Network.create("internal-connections", "test")
-                                 .setCaseDate(DateTime.parse("2018-11-08T12:33:26.208+01:00"));
+                .setCaseDate(DateTime.parse("2018-11-08T12:33:26.208+01:00"));
 
         Substation s1 = network.newSubstation()
                 .setId("s1")

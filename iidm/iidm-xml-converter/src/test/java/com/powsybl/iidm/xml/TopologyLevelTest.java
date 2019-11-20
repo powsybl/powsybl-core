@@ -7,12 +7,9 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -54,24 +51,24 @@ public class TopologyLevelTest extends AbstractConverterTest {
         writeXmlTest(network, TopologyLevelTest::writeBusBreaker, IIDM_CURRENT_VERSION_DIR_NAME + "fictitiousSwitchRef-bbk.xml");
         writeXmlTest(network, TopologyLevelTest::writeBusBranch, IIDM_CURRENT_VERSION_DIR_NAME + "fictitiousSwitchRef-bbr.xml");
     }
-    
+
     private static void writeNodeBreaker(Network network, Path path) {
         ExportOptions options = new ExportOptions()
-            .setTopologyLevel(TopologyLevel.NODE_BREAKER);
+                .setTopologyLevel(TopologyLevel.NODE_BREAKER);
 
         NetworkXml.write(network, options, path);
     }
 
     private static void writeBusBreaker(Network network, Path path) {
         ExportOptions options = new ExportOptions()
-            .setTopologyLevel(TopologyLevel.BUS_BREAKER);
+                .setTopologyLevel(TopologyLevel.BUS_BREAKER);
 
         NetworkXml.write(network, options, path);
     }
 
     private static void writeBusBranch(Network network, Path path) {
         ExportOptions options = new ExportOptions()
-            .setTopologyLevel(TopologyLevel.BUS_BRANCH);
+                .setTopologyLevel(TopologyLevel.BUS_BRANCH);
 
         NetworkXml.write(network, options, path);
     }

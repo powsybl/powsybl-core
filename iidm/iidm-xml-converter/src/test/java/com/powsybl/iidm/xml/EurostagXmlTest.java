@@ -22,7 +22,7 @@ public class EurostagXmlTest extends AbstractXmlConverterTest {
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 IIDM_CURRENT_VERSION_DIR_NAME + "eurostag-tutorial1-lf.xml");
-        
+
         //backward compatibility 1.0
         roundTripVersionnedXmlTest("eurostag-tutorial1-lf.xml", IIDM_VERSION_1_0_DIR_NAME);
     }

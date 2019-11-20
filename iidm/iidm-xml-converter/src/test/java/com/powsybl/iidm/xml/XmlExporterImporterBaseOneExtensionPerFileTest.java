@@ -86,10 +86,10 @@ public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractConv
         testImportMultipleExtensions(network, dataSource, extensions);
 
         //backward compatibility 1.0
-        ResourceDataSource dataSourceV1_0 = new ResourceDataSource("multiple-extensions",
+        ResourceDataSource dataSource2 = new ResourceDataSource("multiple-extensions",
                 new ResourceSet(IIDM_VERSION_1_0_DIR_NAME,
                         "multiple-extensions.xiidm", "multiple-extensions-loadBar.xiidm", "multiple-extensions-loadFoo.xiidm"));
-        testImportMultipleExtensions(network, dataSourceV1_0, extensions);
+        testImportMultipleExtensions(network, dataSource2, extensions);
     }
 
     @Test
