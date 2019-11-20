@@ -30,7 +30,7 @@ public class IidmToCgmes {
         if (change instanceof IidmChangeUpdate) {
             return convertUpdate((IidmChangeUpdate) change);
         } else {
-            return Collections.emptyList();
+            throw new UnsupportedOperationException(String.format("Changes are not supported yet %s", change.getClass().getSimpleName()));
         }
     }
 

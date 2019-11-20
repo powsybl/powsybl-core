@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import com.powsybl.iidm.network.Identifiable;
@@ -31,6 +32,7 @@ public class Changelog implements NetworkListener {
      * @param network the IIDM Network
      */
     public Changelog(Network network) {
+        Objects.requireNonNull(network);
         network.addListener(this);
         this.baseChanges = new ArrayList<>();
         this.changesByVariant = new HashMap<>();
@@ -87,8 +89,8 @@ public class Changelog implements NetworkListener {
         }
     }
 
-    private List<IidmChange> baseChanges;
-    private Map<String, List<IidmChange>> changesByVariant;
+    private final List<IidmChange> baseChanges;
+    private final Map<String, List<IidmChange>> changesByVariant;
 
     private static final String CONNECTED_COMPONENT_NUMBER = "connectedComponentNumber";
     private static final Set<String> IGNORED_ATTRIBUTES = new HashSet<>(Arrays.asList(

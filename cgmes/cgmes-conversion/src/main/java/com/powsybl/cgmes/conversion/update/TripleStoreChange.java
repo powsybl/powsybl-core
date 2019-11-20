@@ -6,6 +6,8 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
+import java.util.Objects;
+
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -13,9 +15,9 @@ package com.powsybl.cgmes.conversion.update;
 public class TripleStoreChange {
 
     public TripleStoreChange(String queryName, String subject, TripleStoreChangeParams params) {
-        this.queryName = queryName;
-        this.subject = subject;
-        this.params = params;
+        this.queryName = Objects.requireNonNull(queryName);
+        this.subject = Objects.requireNonNull(subject);
+        this.params = Objects.requireNonNull(params);
     }
 
     public String queryName() {

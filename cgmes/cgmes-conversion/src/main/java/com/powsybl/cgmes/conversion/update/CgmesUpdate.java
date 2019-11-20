@@ -85,7 +85,7 @@ public class CgmesUpdate {
         if (context.cimVersion == 16) {
             return IIDM_TO_CGMES16.findConversion(change);
         }
-        return null;
+        throw new ConversionException("Unsupported format for conversion to CGMES model " + context.cimVersion);
     }
 
     private void update(CgmesModelTripleStore ts, List<TripleStoreChange> tsChanges, UpdateContext context) {
@@ -135,7 +135,7 @@ public class CgmesUpdate {
         private final int cimVersion;
     }
 
-    private Changelog changelog;
+    private final Changelog changelog;
 
     private static final IidmToCgmes16 IIDM_TO_CGMES16 = new IidmToCgmes16();
 

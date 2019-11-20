@@ -6,6 +6,9 @@
  */
 package com.powsybl.cgmes.conversion.update.elements16;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.powsybl.cgmes.conversion.update.IidmChange;
 import com.powsybl.cgmes.conversion.update.IidmToCgmes;
 import com.powsybl.iidm.network.Generator;
@@ -36,6 +39,7 @@ public class IidmToCgmes16 {
         } else if (o instanceof VoltageLevel) {
             return vl;
         } else {
+            LOG.debug("Currently not supported conversion for {}", o.getClass().getSimpleName());
             return null;
         }
     }
@@ -46,4 +50,6 @@ public class IidmToCgmes16 {
     private final IidmToCgmes t2 = new TwoWindingsTransformerToPowerTransformer();
     private final IidmToCgmes shunt = new ShuntCompensatorToShuntCompensator();
     private final IidmToCgmes vl = new VoltageLevelToVoltageLevel();
+
+    private static final Logger LOG = LoggerFactory.getLogger(IidmToCgmes16.class);
 }

@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conversion;
 
+import java.util.Objects;
 import java.util.Properties;
 
 import com.google.auto.service.AutoService;
@@ -31,6 +32,7 @@ public class CgmesExport implements Exporter {
     }
 
     public CgmesExport(Profiling profiling) {
+        Objects.requireNonNull(profiling);
         this.profiling = profiling;
     }
 
@@ -46,9 +48,6 @@ public class CgmesExport implements Exporter {
             throw new CgmesModelException("No extension for CGMES model found in Network");
         }
         CgmesUpdate cgmesUpdate = ext.getCgmesUpdate();
-        if (cgmesUpdate == null) {
-            throw new CgmesModelException("No update information for CGMES model");
-        }
 
         CgmesModel cgmesSource = ext.getCgmesModel();
         profiling.start();
@@ -89,5 +88,5 @@ public class CgmesExport implements Exporter {
         ADD_STATE_VARIABLES, WRITE_UPDATED_CGMES, CGMES_READ, CGMES_CONVERSION;
     }
 
-    private Profiling profiling;
+    private final Profiling profiling;
 }

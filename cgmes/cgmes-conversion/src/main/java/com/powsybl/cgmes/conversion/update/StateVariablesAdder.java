@@ -9,6 +9,9 @@ package com.powsybl.cgmes.conversion.update;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
@@ -54,7 +57,7 @@ public final class StateVariablesAdder {
                 powerFlows.add(p);
             } else {
                 // FIXME CGMES SvInjection objects created as loads
-                System.err.println("No SvPowerFlow created for load " + l.getId());
+                LOG.error("No SvPowerFlow created for load {}", l.getId());
             }
         }
         for (Generator g : n.getGenerators()) {
@@ -125,11 +128,11 @@ public final class StateVariablesAdder {
     }
 
     private static String fs(double value) {
-        return "" + value;
+        return String.valueOf(value);
     }
 
     private static String is(int value) {
-        return "" + value;
+        return String.valueOf(value);
     }
 
     private static String topologicalNodeFromBusId(String iidmBusId) {
@@ -140,4 +143,6 @@ public final class StateVariablesAdder {
     private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList(CgmesNames.ANGLE, CgmesNames.VOLTAGE, "TopologicalNode");
     private static final List<String> SV_POWERFLOW_PROPERTIES = Arrays.asList("p", "q", CgmesNames.TERMINAL);
     private static final List<String> SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES = Arrays.asList("ShuntCompensator", "continuousSections");
+
+    private static final Logger LOG = LoggerFactory.getLogger(StateVariablesAdder.class);
 }

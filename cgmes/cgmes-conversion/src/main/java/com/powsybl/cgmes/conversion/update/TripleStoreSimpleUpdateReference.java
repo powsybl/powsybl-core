@@ -6,6 +6,8 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
+import java.util.Objects;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -16,9 +18,9 @@ public class TripleStoreSimpleUpdateReference {
     }
 
     public TripleStoreSimpleUpdateReference(String predicate, String contextReference, boolean valueIsUri) {
-        this.predicate = predicate;
-        this.contextReference = contextReference;
-        this.valueIsUri = valueIsUri;
+        this.predicate = Objects.requireNonNull(predicate);
+        this.contextReference = Objects.requireNonNull(contextReference);
+        this.valueIsUri = Objects.requireNonNull(valueIsUri);
     }
 
     public String predicate() {

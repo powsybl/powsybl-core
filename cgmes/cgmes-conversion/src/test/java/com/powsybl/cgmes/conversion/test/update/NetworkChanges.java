@@ -29,8 +29,7 @@ public final class NetworkChanges {
     }
 
     public static void scaleLoadGenerator(Network network, int maxChanges) {
-        int count;
-        count = 0;
+        int count = 0;
         for (Generator g : network.getGenerators()) {
             double newP = g.getTargetP() * 1.1;
             double newQ = g.getTargetQ() * 1.1;

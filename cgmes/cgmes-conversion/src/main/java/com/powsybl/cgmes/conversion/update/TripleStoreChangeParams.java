@@ -6,6 +6,8 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
+import java.util.Objects;
+
 /**
  * This class contains details we need to know to construct a triple for a given
  * subject: the predicate name, the triplestore context, if the value is node or
@@ -20,7 +22,7 @@ public class TripleStoreChangeParams {
         this.predicate = ref.predicate();
         this.contextReference = ref.contextReference();
         this.valueIsUri = ref.valueIsUri();
-        this.value = value;
+        this.value = Objects.requireNonNull(value);
     }
 
     public String predicate() {
