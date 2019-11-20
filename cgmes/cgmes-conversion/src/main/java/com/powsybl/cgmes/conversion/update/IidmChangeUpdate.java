@@ -20,7 +20,7 @@ public class IidmChangeUpdate extends IidmChange {
         super(identifiable);
         this.attribute = Objects.requireNonNull(attribute);
         this.oldValue = oldValue;
-        this.newValue = Objects.requireNonNull(newValue);
+        this.newValue = newValue;
     }
 
     public String getAttribute() {

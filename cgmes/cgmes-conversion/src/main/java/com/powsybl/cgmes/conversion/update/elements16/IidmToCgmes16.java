@@ -39,7 +39,7 @@ public class IidmToCgmes16 {
         } else if (o instanceof VoltageLevel) {
             return vl;
         } else {
-            LOG.debug("Currently not supported conversion for {}", o.getClass().getSimpleName());
+            LOG.warn("Currently not supported conversion for {}", o.getClass().getSimpleName());
             return null;
         }
     }
