@@ -18,11 +18,12 @@ public class BatteryXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void batteryRoundTripTest() throws IOException {
-        roundTripVersionnedXmlTest("batteryRoundTripRef.xml", "V1_0");
-
         roundTripXmlTest(BatteryNetworkFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/V1_1/batteryRoundTripRef.xml");
+                IIDM_CURRENT_VERSION_DIR_NAME + "batteryRoundTripRef.xml");
+        
+        //backward compatibility 1.0
+        roundTripVersionnedXmlTest("batteryRoundTripRef.xml", IIDM_VERSION_1_0_DIR_NAME);
     }
 }

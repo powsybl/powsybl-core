@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.IIDM_CURRENT_VERSION_DIR_NAME;
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.IIDM_VERSION_1_0_DIR_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
@@ -70,22 +72,22 @@ public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractConv
 
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
-            compareXml(getClass().getResourceAsStream("/V1_1/multiple-extensions.xiidm"), is);
+            compareXml(getClass().getResourceAsStream(IIDM_CURRENT_VERSION_DIR_NAME + "multiple-extensions.xiidm"), is);
         }
 
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("-loadBar.xiidm"))) {
-            compareXml(getClass().getResourceAsStream("/V1_1/multiple-extensions-loadBar.xiidm"), is);
+            compareXml(getClass().getResourceAsStream(IIDM_CURRENT_VERSION_DIR_NAME + "multiple-extensions-loadBar.xiidm"), is);
         }
 
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("-loadFoo.xiidm"))) {
-            compareXml(getClass().getResourceAsStream("/V1_1/multiple-extensions-loadFoo.xiidm"), is);
+            compareXml(getClass().getResourceAsStream(IIDM_CURRENT_VERSION_DIR_NAME + "multiple-extensions-loadFoo.xiidm"), is);
         }
 
         testImportMultipleExtensions(network, dataSource, extensions);
 
         //backward compatibility 1.0
         ResourceDataSource dataSourceV1_0 = new ResourceDataSource("multiple-extensions",
-                new ResourceSet("/V1_0/",
+                new ResourceSet(IIDM_VERSION_1_0_DIR_NAME,
                         "multiple-extensions.xiidm", "multiple-extensions-loadBar.xiidm", "multiple-extensions-loadFoo.xiidm"));
         testImportMultipleExtensions(network, dataSourceV1_0, extensions);
     }

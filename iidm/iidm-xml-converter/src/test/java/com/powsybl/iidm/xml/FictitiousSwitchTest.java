@@ -18,12 +18,13 @@ public class FictitiousSwitchTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripVersionnedXmlTest("fictitiousSwitchRef.xml", "V1_0");
-
         roundTripXmlTest(FictitiousSwitchFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/V1_1/fictitiousSwitchRef.xml");
+                IIDM_CURRENT_VERSION_DIR_NAME + "fictitiousSwitchRef.xml");
+
+        //backward compatibility 1.0
+        roundTripVersionnedXmlTest("fictitiousSwitchRef.xml", IIDM_VERSION_1_0_DIR_NAME);
     }
 
 }

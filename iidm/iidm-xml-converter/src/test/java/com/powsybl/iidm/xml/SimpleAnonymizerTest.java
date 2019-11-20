@@ -18,6 +18,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.IIDM_CURRENT_VERSION_DIR_NAME;
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.IIDM_VERSION_1_0_DIR_NAME;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -34,7 +37,7 @@ public class SimpleAnonymizerTest extends AbstractConverterTest {
 
         // check we have 2 files, the anonymized IIDM XML and a CSV mapping file and compare to anonymized reference files
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
-            compareXml(getClass().getResourceAsStream("/V1_1/eurostag-tutorial-example1-anonymized.xml"), is);
+            compareXml(getClass().getResourceAsStream(IIDM_CURRENT_VERSION_DIR_NAME + "eurostag-tutorial-example1-anonymized.xml"), is);
         }
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("_mapping", "csv"))) {
             compareTxt(getClass().getResourceAsStream("/eurostag-tutorial-example1-mapping.csv"), is);
@@ -49,12 +52,12 @@ public class SimpleAnonymizerTest extends AbstractConverterTest {
         roundTripXmlTest(network2,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/V1_1/eurostag-tutorial-example1.xml");
+                IIDM_CURRENT_VERSION_DIR_NAME + "eurostag-tutorial-example1.xml");
     }
 
     @Test
     public void test() throws IOException {
-        anonymisationTest(NetworkXml.read(getClass().getResourceAsStream("/V1_0/eurostag-tutorial-example1.xml")));
+        anonymisationTest(NetworkXml.read(getClass().getResourceAsStream(IIDM_VERSION_1_0_DIR_NAME + "eurostag-tutorial-example1.xml")));
 
         anonymisationTest(NetworkXmlTest.createEurostagTutorialExample1());
     }

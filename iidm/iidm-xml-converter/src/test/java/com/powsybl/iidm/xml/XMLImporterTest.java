@@ -22,7 +22,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.IIDM_CURRENT_VERSION_DIR_NAME;
 import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_VERSION_POINT;
+import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_VERSION_UNDERSCORE;
 import static org.junit.Assert.*;
 
 /**
@@ -35,7 +37,7 @@ public class XMLImporterTest extends AbstractConverterTest {
     private void writeNetwork(String fileName, boolean writeExt) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath(fileName), StandardCharsets.UTF_8)) {
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-            writer.write("<iidm:network xmlns:iidm=\"http://www.itesla_project.eu/schema/iidm/1_1\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\">");
+            writer.write("<iidm:network xmlns:iidm=\"http://www.itesla_project.eu/schema/iidm/" + IIDM_VERSION_UNDERSCORE + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\">");
             writer.newLine();
             writer.write("    <iidm:substation id=\"P1\" country=\"FR\"/>");
             writer.newLine();
@@ -54,7 +56,7 @@ public class XMLImporterTest extends AbstractConverterTest {
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
             writer.newLine();
             writer.write("<!--sfsfs-->");
-            writer.write("<iidm:network xmlns:iidm=\"http://www.itesla_project.eu/schema/iidm/1_1\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\">");
+            writer.write("<iidm:network xmlns:iidm=\"http://www.itesla_project.eu/schema/iidm/" + IIDM_VERSION_UNDERSCORE + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\">");
             writer.newLine();
             writer.write("    <iidm:substation id=\"P1\" country=\"FR\"/>");
             writer.newLine();
@@ -180,7 +182,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         Properties parameters = new Properties();
         parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));
 
-        ReadOnlyDataSource dataSource = new ResourceDataSource("multiple-extensions", new ResourceSet("/V1_1/", "multiple-extensions.xiidm", "multiple-extensions-ext.xiidm"));
+        ReadOnlyDataSource dataSource = new ResourceDataSource("multiple-extensions", new ResourceSet(IIDM_CURRENT_VERSION_DIR_NAME, "multiple-extensions.xiidm", "multiple-extensions-ext.xiidm"));
         Network network = importer.importData(dataSource, parameters);
         assertNotNull(network);
         assertEquals(2, network.getLoad("LOAD").getExtensions().size());
@@ -196,7 +198,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
         parameters.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
 
-        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/V1_1/", "multiple-extensions.xiidm", "multiple-extensions-loadFoo.xiidm", "multiple-extensions-loadBar.xiidm"));
+        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet(IIDM_CURRENT_VERSION_DIR_NAME, "multiple-extensions.xiidm", "multiple-extensions-loadFoo.xiidm", "multiple-extensions-loadBar.xiidm"));
         Network network = importer.importData(dataSourceBase, parameters);
         assertNotNull(network);
         assertEquals(2, network.getLoad("LOAD").getExtensions().size());
@@ -211,7 +213,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
         parameters.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
 
-        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/V1_1/", "multiple-extensions.xiidm", "multiple-extensions-loadFoo.xiidm"));
+        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet(IIDM_CURRENT_VERSION_DIR_NAME, "multiple-extensions.xiidm", "multiple-extensions-loadFoo.xiidm"));
         Network network = importer.importData(dataSourceBase, parameters);
         assertNotNull(network);
         assertEquals(1, network.getLoad("LOAD").getExtensions().size());
@@ -223,7 +225,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         Properties parameters = new Properties();
         parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
 
-        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/V1_1/", "multiple-extensions.xiidm", "multiple-extensions-loadFoo.xiidm"));
+        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet(IIDM_CURRENT_VERSION_DIR_NAME, "multiple-extensions.xiidm", "multiple-extensions-loadFoo.xiidm"));
         Network network = importer.importData(dataSourceBase, parameters);
         assertNotNull(network);
         assertEquals(1, network.getLoad("LOAD").getExtensions().size());
@@ -234,7 +236,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         Properties parameters = new Properties();
         parameters.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
 
-        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/V1_1/", "multiple-extensions.xml"));
+        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet(IIDM_CURRENT_VERSION_DIR_NAME, "multiple-extensions.xml"));
         Network network = importer.importData(dataSourceBase, parameters);
         assertNotNull(network);
         return network;

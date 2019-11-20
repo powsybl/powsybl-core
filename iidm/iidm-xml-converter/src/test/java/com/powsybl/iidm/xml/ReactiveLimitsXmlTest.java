@@ -18,11 +18,11 @@ public class ReactiveLimitsXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripVersionnedXmlTest("reactiveLimitsRoundTripRef.xml", "V1_0");
+        roundTripVersionnedXmlTest("reactiveLimitsRoundTripRef.xml", IIDM_VERSION_1_0_DIR_NAME);
 
         roundTripXmlTest(ReactiveLimitsTestNetworkFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/V1_1/reactiveLimitsRoundTripRef.xml");
+                IIDM_CURRENT_VERSION_DIR_NAME + "reactiveLimitsRoundTripRef.xml");
     }
 }

@@ -19,6 +19,8 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.Properties;
 
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.IIDM_CURRENT_VERSION_DIR_NAME;
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.IIDM_VERSION_1_0_DIR_NAME;
 import static org.junit.Assert.assertEquals;
 
 
@@ -42,7 +44,7 @@ public class XMLImporterLimitsTest extends AbstractConverterTest {
         new XMLExporter().export(network, exportProperties, dataSource);
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
-            compareXml(getClass().getResourceAsStream("/V1_1/multiple-extensions.xiidm"), is);
+            compareXml(getClass().getResourceAsStream(IIDM_CURRENT_VERSION_DIR_NAME + "multiple-extensions.xiidm"), is);
         }
 
         XMLImporter importer;
@@ -61,6 +63,6 @@ public class XMLImporterLimitsTest extends AbstractConverterTest {
         importExport(MultipleExtensionsTestNetworkFactory.create());
 
         //backward compatibility 1.0
-        importExport(NetworkXml.read(getClass().getResourceAsStream("/V1_0/multiple-extensions.xml")));
+        importExport(NetworkXml.read(getClass().getResourceAsStream(IIDM_VERSION_1_0_DIR_NAME + "multiple-extensions.xml")));
     }
 }

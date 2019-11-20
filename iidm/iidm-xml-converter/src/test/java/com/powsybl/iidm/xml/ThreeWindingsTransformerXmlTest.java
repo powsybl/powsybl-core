@@ -19,11 +19,11 @@ public class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripVersionnedXmlTest("threeWindingsTransformerRoundTripRef.xml", "V1_0");
+        roundTripVersionnedXmlTest("threeWindingsTransformerRoundTripRef.xml", IIDM_VERSION_1_0_DIR_NAME);
 
         roundTripXmlTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(),
                          NetworkXml::writeAndValidate,
                          NetworkXml::read,
-                "/V1_1/threeWindingsTransformerRoundTripRef.xml");
+                IIDM_CURRENT_VERSION_DIR_NAME + "threeWindingsTransformerRoundTripRef.xml");
     }
 }

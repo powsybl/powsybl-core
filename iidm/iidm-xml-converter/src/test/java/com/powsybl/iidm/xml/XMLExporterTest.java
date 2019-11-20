@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.IIDM_CURRENT_VERSION_DIR_NAME;
+
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
@@ -38,6 +40,6 @@ public class XMLExporterTest extends AbstractConverterTest {
     @Test
     public void exportTest() throws IOException {
         exporterTest(MultipleExtensionsTestNetworkFactory.create(),
-                "/V1_1/multiple-extensions.xml");
+                IIDM_CURRENT_VERSION_DIR_NAME + "multiple-extensions.xml");
     }
 }

@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.Test;
 
@@ -19,11 +18,11 @@ public class StaticVarCompensatorXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripVersionnedXmlTest("staticVarCompensatorRoundTripRef.xml", "V1_0");
+        roundTripVersionnedXmlTest("staticVarCompensatorRoundTripRef.xml", IIDM_VERSION_1_0_DIR_NAME);
 
         roundTripXmlTest(SvcTestCaseFactory.create(),
                          NetworkXml::writeAndValidate,
                          NetworkXml::read,
-                "/V1_1/staticVarCompensatorRoundTripRef.xml");
+                IIDM_CURRENT_VERSION_DIR_NAME + "staticVarCompensatorRoundTripRef.xml");
     }
 }

@@ -17,11 +17,11 @@ import java.io.IOException;
 public class PhaseShifterXmlTest extends AbstractXmlConverterTest {
     @Test
     public void roundTripTest() throws IOException {
-        roundTripVersionnedXmlTest("phaseShifterRoundTripRef.xml", "V1_0");
+        roundTripVersionnedXmlTest("phaseShifterRoundTripRef.xml", IIDM_VERSION_1_0_DIR_NAME);
 
         roundTripXmlTest(PhaseShifterTestCaseFactory.createWithTargetDeadband(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/V1_1/phaseShifterRoundTripRef.xml");
+                IIDM_CURRENT_VERSION_DIR_NAME + "phaseShifterRoundTripRef.xml");
     }
 }

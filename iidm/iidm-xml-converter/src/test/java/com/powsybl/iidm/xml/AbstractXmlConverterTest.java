@@ -17,14 +17,17 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_VERSION_UNDERSCORE;
  */
 abstract class AbstractXmlConverterTest extends AbstractConverterTest {
 
-    static final String IIDM_VERSION_DIR_NAME = "V" + IIDM_VERSION_UNDERSCORE;
-    
-    void roundTripVersionnedXmlTest(String file, String... versions) throws IOException {
-        for (String version : versions) {
-            roundTripXmlTest(NetworkXml.read(getClass().getResourceAsStream("/" + version + "/" + file)),
+    static final String IIDM_CURRENT_VERSION_DIR_NAME = "/V" + IIDM_VERSION_UNDERSCORE + "/";
+
+    // directory names of previous IIDM versions
+    static final String IIDM_VERSION_1_0_DIR_NAME = "/V1_0/";
+
+    void roundTripVersionnedXmlTest(String file, String... versionDirs) throws IOException {
+        for (String versionDir : versionDirs) {
+            roundTripXmlTest(NetworkXml.read(getClass().getResourceAsStream(versionDir + file)),
                     NetworkXml::writeAndValidate,
                     NetworkXml::read,
-                    "/" + IIDM_VERSION_DIR_NAME + "/" + file);
+                    IIDM_CURRENT_VERSION_DIR_NAME + file);
         }
     }
 }

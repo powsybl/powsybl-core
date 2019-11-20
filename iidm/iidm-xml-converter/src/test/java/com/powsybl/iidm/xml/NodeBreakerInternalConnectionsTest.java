@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import org.joda.time.DateTime;
@@ -21,13 +20,14 @@ public class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripVersionnedXmlTest("internalConnections.xiidm", "V1_0");
-
         roundTripXmlTest(
                 networkWithInternalConnections(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/V1_1/internalConnections.xiidm");
+                IIDM_CURRENT_VERSION_DIR_NAME + "internalConnections.xiidm");
+        
+        // backward compatibility 1.0
+        roundTripVersionnedXmlTest("internalConnections.xiidm", IIDM_VERSION_1_0_DIR_NAME);
     }
 
     private Network networkWithInternalConnections() {

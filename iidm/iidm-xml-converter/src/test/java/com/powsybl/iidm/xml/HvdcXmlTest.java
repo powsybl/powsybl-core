@@ -18,21 +18,23 @@ public class HvdcXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripLccTest() throws IOException {
-        roundTripVersionnedXmlTest("LccRoundTripRef.xml", "V1_0");
-
         roundTripXmlTest(HvdcTestNetwork.createLcc(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/V1_1/LccRoundTripRef.xml");
+                IIDM_CURRENT_VERSION_DIR_NAME + "LccRoundTripRef.xml");
+
+        // backward compatibility 1.0
+        roundTripVersionnedXmlTest("LccRoundTripRef.xml", IIDM_VERSION_1_0_DIR_NAME);
     }
 
     @Test
     public void roundTripVscTest() throws IOException {
-        roundTripVersionnedXmlTest("VscRoundTripRef.xml", "V1_0");
-
         roundTripXmlTest(HvdcTestNetwork.createVsc(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/V1_1/VscRoundTripRef.xml");
+                IIDM_CURRENT_VERSION_DIR_NAME + "VscRoundTripRef.xml");
+
+        // backward compatibility 1.0
+        roundTripVersionnedXmlTest("VscRoundTripRef.xml", IIDM_VERSION_1_0_DIR_NAME);
     }
 }
