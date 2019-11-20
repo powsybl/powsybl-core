@@ -17,11 +17,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PhaseTapChangerAdderImpl.class);
 
     private final PhaseTapChangerParent parent;
 
@@ -194,16 +199,13 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         PhaseTapChangerImpl tapChanger
                 = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
 
-        Set<TapChanger> tapChangers = new HashSet<TapChanger>();
+        Set<TapChanger> tapChangers = new HashSet<>();
         tapChangers.addAll(parent.getAllTapChangers());
         tapChangers.remove(parent.getPhaseTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
 
-        if (parent instanceof ThreeWindingsTransformer) {
-            Set<TapChanger> tapChangersOnLeg = new HashSet<TapChanger>();
-            tapChangersOnLeg.addAll(parent.getAllTapChangersOnLeg());
-            tapChangersOnLeg.remove(parent.getPhaseTapChanger());
-            ValidationUtil.checkOnlyOneTapChangerInThreeWindingsTranformer(parent, tapChangersOnLeg);
+        if (parent.getTransformer() instanceof ThreeWindingsTransformer && parent.hasRatioTapChanger()) {
+            LOGGER.warn("{} more than one tap changer on the leg", parent);
         }
 
         parent.setPhaseTapChanger(tapChanger);

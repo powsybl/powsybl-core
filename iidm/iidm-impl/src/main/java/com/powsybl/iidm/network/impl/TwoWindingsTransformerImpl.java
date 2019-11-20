@@ -168,7 +168,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
 
     @Override
     public Set<TapChanger> getAllTapChangers() {
-        Set<TapChanger> tapChangers = new HashSet<TapChanger>();
+        Set<TapChanger> tapChangers = new HashSet<>();
         if (ratioTapChanger != null) {
             tapChangers.add(ratioTapChanger);
         }
@@ -179,8 +179,13 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
     }
 
     @Override
-    public Set<TapChanger> getAllTapChangersOnLeg() {
-        return getAllTapChangers();
+    public boolean hasRatioTapChanger() {
+        return ratioTapChanger != null;
+    }
+
+    @Override
+    public boolean hasPhaseTapChanger() {
+        return phaseTapChanger != null;
     }
 
     @Override
