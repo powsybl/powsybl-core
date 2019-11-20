@@ -30,11 +30,15 @@ import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.util.URIUtil;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.query.UpdateExecutionException;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
@@ -225,6 +229,15 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         RepositoryResult<Namespace> ns = sourceConn.getNamespaces();
         for (Namespace namespace : Iterations.asList(ns)) {
             targetConn.setNamespace(namespace.getPrefix(), namespace.getName());
+        }
+    }
+
+    @Override
+    public void update(String query) {
+        try (RepositoryConnection conn = repo.getConnection()) {
+            conn.prepareUpdate(QueryLanguage.SPARQL, adjustedQuery(query)).execute();
+        } catch (MalformedQueryException | UpdateExecutionException | RepositoryException e) {
+            throw new TripleStoreException(String.format("Query [%s]", query), e);
         }
     }
 
