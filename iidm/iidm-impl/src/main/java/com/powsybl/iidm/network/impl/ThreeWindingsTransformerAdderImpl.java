@@ -196,6 +196,8 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     @Override
     public LegAdder newLeg2() {
         LegAdderImpl legAdderImp = new LegAdderImpl();
+        legAdderImp.g = 0.0;
+        legAdderImp.b = 0.0;
         legAdderImp.legNumber = 2;
         return legAdderImp;
     }
@@ -203,6 +205,8 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     @Override
     public LegAdder newLeg3() {
         LegAdderImpl legAdderImp = new LegAdderImpl();
+        legAdderImp.g = 0.0;
+        legAdderImp.b = 0.0;
         legAdderImp.legNumber = 3;
         return legAdderImp;
     }

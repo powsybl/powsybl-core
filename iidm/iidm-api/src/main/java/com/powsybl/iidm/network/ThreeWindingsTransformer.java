@@ -133,9 +133,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     Leg getLeg3();
 
     /**
-     * Get the ratedU at the fictitious  bus (also used as nominal voltage)
+     * Get the ratedU at the fictitious bus in kV (also used as nominal voltage)
      */
     double getRatedU0();
-
-    ThreeWindingsTransformer setRatedU0(double ratedU0);
 }

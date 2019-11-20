@@ -55,11 +55,6 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
     }
 
     @Override
-    public ThreeWindingsTransformerAdapter setRatedU0(final double x) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public double getRatedU0() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
