@@ -6,13 +6,14 @@
  */
 package com.powsybl.ucte.converter;
 
+import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.*;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Test;
 
@@ -20,8 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -88,5 +89,37 @@ public class UcteExporterTest extends AbstractConverterTest {
     public void testCouplerToXnodeImport() throws IOException {
         Network network = loadNetworkFromResourceFile("/couplerToXnodeExample.uct");
         testExporter(network, "/couplerToXnodeExample.uct");
+    }
+
+    @Test
+    public void testDefaultOneNamingStrategy() {
+        NamingStrategy defaultNamingStrategy = UcteExporter.findNamingStrategy(null, ImmutableList.of(new DefaultNamingStrategy()));
+        assertEquals("DefaultNamingStrategy", defaultNamingStrategy.getName());
+    }
+
+    @Test
+    public void testDefaultTwoNamingStrategies() {
+        try {
+            UcteExporter.findNamingStrategy(null, ImmutableList.of(new DefaultNamingStrategy(), new OtherNamingStrategy()));
+            fail();
+        } catch (PowsyblException ignored) {
+        }
+    }
+
+    @Test
+    public void testDefaultNoNamingStrategy() {
+        try {
+            UcteExporter.findNamingStrategy(null, ImmutableList.of());
+            fail();
+        } catch (PowsyblException ignored) {
+        }
+    }
+
+    @Test
+    public void testChosenTwoNamingStrategies() {
+        NamingStrategy namingStrategy = UcteExporter.findNamingStrategy("DefaultNamingStrategy", ImmutableList.of(new DefaultNamingStrategy(), new OtherNamingStrategy()));
+        assertEquals("DefaultNamingStrategy", namingStrategy.getName());
+        namingStrategy = UcteExporter.findNamingStrategy("OtherNamingStrategy", ImmutableList.of(new DefaultNamingStrategy(), new OtherNamingStrategy()));
+        assertEquals("OtherNamingStrategy", namingStrategy.getName());
     }
 }
