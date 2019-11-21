@@ -34,7 +34,7 @@ import com.powsybl.iidm.network.VoltageLevel;
  * @author Elena Kaltakova <kaltakovae at aia.es>
  *
  */
-public final class ChangelogTest {
+public final class ChangelogUpdateTest {
 
     @Before
     public void setUp() {
@@ -189,6 +189,7 @@ public final class ChangelogTest {
             .add();
         network.newLine()
             .setId("line")
+            .setName("line")
             .setVoltageLevel1("voltageLevel1")
             .setVoltageLevel2("voltageLevel2")
             .setBus1("bus1")
