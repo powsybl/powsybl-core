@@ -105,7 +105,6 @@ public class CgmesUpdateTest {
         NetworkChanges.modifyEquipmentCharacteristics(network0);
         int numChangesInLoadsAndGenerators = isBigNetwork ? 1000 : Integer.MAX_VALUE;
         NetworkChanges.scaleLoadGenerator(network0, numChangesInLoadsAndGenerators);
-        int numChangesBeforeLoadFlow = network0.getExtension(CgmesModelExtension.class).getCgmesUpdate().changelog().getChangesForVariant(network0.getVariantManager().getWorkingVariantId()).size();
         NetworkChanges.modifySteadyStateHypothesis(network0);
 
         if (!isBigNetwork) {
@@ -114,7 +113,6 @@ public class CgmesUpdateTest {
             runLoadFlowResultsCompletion(network0, invalidateFlows);
         }
         List<IidmChange> changes = network0.getExtension(CgmesModelExtension.class).getCgmesUpdate().changelog().getChangesForVariant(network0.getVariantManager().getWorkingVariantId());
-        int numChangesAfterLoadFlow = changes.size();
 
         DataSource tmp = tmpDataSource(impl);
         CgmesExport e = new CgmesExport();
