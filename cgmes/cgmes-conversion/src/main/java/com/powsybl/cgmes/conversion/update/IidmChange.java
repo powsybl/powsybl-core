@@ -24,10 +24,5 @@ public class IidmChange {
         return identifiable;
     }
 
-    // Should this change be explicitly copied to change log of target variant?
-    public boolean shouldBeCopiedToTargetVariant() {
-        return false;
-    }
-
     private final Identifiable identifiable;
 }

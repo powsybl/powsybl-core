@@ -61,9 +61,4 @@ public class CgmesExport implements Exporter {
     public String getFormat() {
         return "CGMES";
     }
-
-    public enum Operations {
-        IMPORT_CGMES, SCALING, LOAD_FLOW, TRIPLESTORE_COPY, CLONE_VARIANT, TRIPLESTORE_UPDATE,
-        ADD_STATE_VARIABLES, WRITE_UPDATED_CGMES, CGMES_READ, CGMES_CONVERSION;
-    }
 }
