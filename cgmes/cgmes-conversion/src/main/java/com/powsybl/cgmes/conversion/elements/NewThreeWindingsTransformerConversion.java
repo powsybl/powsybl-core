@@ -365,11 +365,11 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     protected RatioTapChangerAdder newRatioTapChanger(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx,
         String terminal) {
         if (convertedT3xModel.winding1.end1.terminal.equals(terminal)) {
-            return ((ThreeWindingsTransformer) tx).getLeg1().newRatioTapChanger();
+            return tx.getLeg1().newRatioTapChanger();
         } else if (convertedT3xModel.winding2.end1.terminal.equals(terminal)) {
-            return ((ThreeWindingsTransformer) tx).getLeg2().newRatioTapChanger();
+            return tx.getLeg2().newRatioTapChanger();
         } else if (convertedT3xModel.winding3.end1.terminal.equals(terminal)) {
-            return ((ThreeWindingsTransformer) tx).getLeg3().newRatioTapChanger();
+            return tx.getLeg3().newRatioTapChanger();
         }
         return null;
     }
@@ -377,11 +377,11 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     protected PhaseTapChangerAdder newPhaseTapChanger(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx,
         String terminal) {
         if (convertedT3xModel.winding1.end1.terminal.equals(terminal)) {
-            return ((ThreeWindingsTransformer) tx).getLeg1().newPhaseTapChanger();
+            return tx.getLeg1().newPhaseTapChanger();
         } else if (convertedT3xModel.winding2.end1.terminal.equals(terminal)) {
-            return ((ThreeWindingsTransformer) tx).getLeg2().newPhaseTapChanger();
+            return tx.getLeg2().newPhaseTapChanger();
         } else if (convertedT3xModel.winding3.end1.terminal.equals(terminal)) {
-            return ((ThreeWindingsTransformer) tx).getLeg3().newPhaseTapChanger();
+            return tx.getLeg3().newPhaseTapChanger();
         }
         return null;
     }

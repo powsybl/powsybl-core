@@ -373,11 +373,11 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
     }
 
     protected RatioTapChangerAdder newRatioTapChanger(TwoWindingsTransformer tx) {
-        return ((TwoWindingsTransformer) tx).newRatioTapChanger();
+        return tx.newRatioTapChanger();
     }
 
     protected PhaseTapChangerAdder newPhaseTapChanger(TwoWindingsTransformer tx) {
-        return ((TwoWindingsTransformer) tx).newPhaseTapChanger();
+        return tx.newPhaseTapChanger();
     }
 
     private void setToIidmPhaseAngleClock(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx) {
