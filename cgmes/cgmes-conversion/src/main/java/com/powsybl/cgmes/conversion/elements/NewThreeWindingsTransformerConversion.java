@@ -340,10 +340,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
             return;
         }
 
-        if (rtc.getTapPosition() < rtc.getLowTapPosition() || rtc.getTapPosition() > rtc.getHighTapPosition()) {
-            return;
-        }
-
         RatioTapChangerAdder rtca = newRatioTapChanger(convertedT3xModel, tx, convertedWinding.end1.terminal);
         setToIidmRatioTapChanger(rtc, rtca);
     }
@@ -351,10 +347,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     private void setToIidmPhaseTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedWinding convertedWinding, ThreeWindingsTransformer tx) {
         TapChangerConversion ptc = convertedWinding.end1.phaseTapChanger;
         if (ptc == null) {
-            return;
-        }
-
-        if (ptc.getTapPosition() < ptc.getLowTapPosition() || ptc.getTapPosition() > ptc.getHighTapPosition()) {
             return;
         }
 

@@ -350,10 +350,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
             return;
         }
 
-        if (rtc.getTapPosition() < rtc.getLowTapPosition() || rtc.getTapPosition() > rtc.getHighTapPosition()) {
-            return;
-        }
-
         RatioTapChangerAdder rtca = newRatioTapChanger(tx);
         setToIidmRatioTapChanger(rtc, rtca);
     }
@@ -361,10 +357,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
     private void setToIidmPhaseTapChanger(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx) {
         TapChangerConversion ptc = convertedT2xModel.end1.phaseTapChanger;
         if (ptc == null) {
-            return;
-        }
-
-        if (ptc.getTapPosition() < ptc.getLowTapPosition() || ptc.getTapPosition() > ptc.getHighTapPosition()) {
             return;
         }
 
