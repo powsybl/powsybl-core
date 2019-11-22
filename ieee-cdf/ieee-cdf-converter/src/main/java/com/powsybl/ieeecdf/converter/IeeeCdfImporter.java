@@ -335,37 +335,89 @@ public class IeeeCdfImporter implements Importer {
             .add();
     }
 
+    private static Terminal getRegulatingTerminal(IeeeCdfBranch ieeeCdfBranch, TwoWindingsTransformer transformer) {
+        Terminal regulatingTerminal = null;
+        if (ieeeCdfBranch.getSide() != null) {
+            switch (ieeeCdfBranch.getSide()) {
+                case CONTROLLED_BUS_IS_ONE_OF_THE_TERMINALS:
+                    int controlBusNum = ieeeCdfBranch.getControlBusNumber();
+                    if (controlBusNum != 0) {
+                        String controlBusId = getBusId(controlBusNum);
+                        if (controlBusId.equals(transformer.getTerminal1().getBusBreakerView().getBus().getId())) {
+                            regulatingTerminal = transformer.getTerminal1();
+                        } else if (controlBusId.equals(transformer.getTerminal2().getBusBreakerView().getBus().getId())) {
+                            regulatingTerminal = transformer.getTerminal2();
+                        } else {
+                            throw new UnsupportedOperationException("Remote control bus not yet supported: " + transformer.getId());
+                        }
+                    }
+                    break;
+                case CONTROLLED_BUS_IS_NEAR_THE_TAP_SIDE:
+                    regulatingTerminal = transformer.getTerminal1();
+                    break;
+                case CONTROLLED_BUS_IS_NEAR_THE_IMPEDANCE_SIDE:
+                    regulatingTerminal = transformer.getTerminal2();
+                    break;
+                default:
+                    throw new IllegalStateException("Unknown branch side: " + ieeeCdfBranch.getSide());
+            }
+        }
+        return regulatingTerminal;
+    }
+
     private static void createTransformerWithVoltageControl(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, double sb, Network network) {
         TwoWindingsTransformer transformer = createTransformer(ieeeCdfBranch, containerMapping, sb, network);
-        transformer.newRatioTapChanger()
+        boolean regulating = false;
+        double targetV = Double.NaN;
+        Terminal regulatingTerminal = getRegulatingTerminal(ieeeCdfBranch, transformer);
+        if (regulatingTerminal != null) {
+            Bus regulatingBus = regulatingTerminal.getBusView().getBus();
+            if (regulatingBus != null) {
+                regulating = true;
+                targetV = regulatingBus.getV();
+            }
+        }
+        List<Float> rhos = new ArrayList<>();
+        rhos.add(1f); // TODO create full table
+        RatioTapChangerAdder ratioTapChangerAdder = transformer.newRatioTapChanger()
                 .setLoadTapChangingCapabilities(true)
-                .setRegulating(true)
-                .setTapPosition(0)
-                .setTargetV(0)// TODO
-                .beginStep()
-                    .setRho(1)
+                .setRegulating(regulating)
+                .setRegulationTerminal(regulatingTerminal)
+                .setTargetV(targetV)
+                .setTapPosition(0);
+        for (float rho : rhos) {
+            ratioTapChangerAdder.beginStep()
+                    .setRho(rho)
                     .setR(0)
                     .setX(0)
                     .setG(0)
                     .setB(0)
-                .endStep();
+                    .endStep();
+        }
+        ratioTapChangerAdder.add();
     }
 
     private static void createTransformerWithActivePowerControl(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, double sb, Network network) {
         TwoWindingsTransformer transformer = createTransformer(ieeeCdfBranch, containerMapping, sb, network);
-        transformer.newPhaseTapChanger()
+        // As there is no active power or current setpoint in IEEE data model there is no way to have regulating phase
+        // shifter and so on we always set it to fixed tap.
+        PhaseTapChangerAdder phaseTapChangerAdder = transformer.newPhaseTapChanger()
                 .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
                 .setRegulating(false)
-                .setTapPosition(0)
-                .beginStep()
-                    .setAlpha(-ieeeCdfBranch.getFinalAngle())
+                .setTapPosition(0);
+        List<Float> alphas = new ArrayList<>();
+        alphas.add(-ieeeCdfBranch.getFinalAngle());  // TODO create full table
+        for (float alpha : alphas) {
+            phaseTapChangerAdder.beginStep()
+                    .setAlpha(alpha)
                     .setRho(1)
                     .setR(0)
                     .setX(0)
                     .setG(0)
                     .setB(0)
-                .endStep()
-                .add();
+                    .endStep();
+        }
+        phaseTapChangerAdder.add();
     }
 
     private static void createBranches(IeeeCdfModel ieeeCdfModel, ContainersMapping containerMapping, double sb, Network network) {
@@ -401,6 +453,8 @@ public class IeeeCdfImporter implements Importer {
                         throw new IllegalStateException("Unexpected branch type: " + ieeeCdfBranch.getType());
                 }
             }
+
+            // TODO create current limits
         }
     }
 

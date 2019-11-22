@@ -48,11 +48,26 @@
                 <iidm:minMaxReactiveLimits minQ="-420.0" maxQ="420.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T3-1-1" r="0.0" x="6.877000141888857" g="0.0" b="0.0" ratedU1="217.8100061416626" ratedU2="115.0" bus1="B3" connectableBus1="B3" voltageLevelId1="VL3" bus2="B1" connectableBus2="B1" voltageLevelId2="VL1"/>
+        <iidm:twoWindingsTransformer id="T3-1-1" r="0.0" x="6.877000141888857" g="0.0" b="0.0" ratedU1="217.8100061416626" ratedU2="115.0" bus1="B3" connectableBus1="B3" voltageLevelId1="VL3" bus2="B1" connectableBus2="B1" voltageLevelId2="VL1">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="118.26599359512329">
+                <iidm:terminalRef id="T3-1-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="T7001-1-1" r="0.0" x="2.5828425218351185" g="0.0" b="0.0" ratedU1="13.800000190734863" ratedU2="115.0" bus1="B7001" connectableBus1="B7001" voltageLevelId1="VL7001" bus2="B1" connectableBus2="B1" voltageLevelId2="VL1"/>
-        <iidm:twoWindingsTransformer id="T3-2-1" r="0.0" x="6.877000141888857" g="0.0" b="0.0" ratedU1="219.87999320030212" ratedU2="115.0" bus1="B3" connectableBus1="B3" voltageLevelId1="VL3" bus2="B2" connectableBus2="B2" voltageLevelId2="VL2"/>
+        <iidm:twoWindingsTransformer id="T3-2-1" r="0.0" x="6.877000141888857" g="0.0" b="0.0" ratedU1="219.87999320030212" ratedU2="115.0" bus1="B3" connectableBus1="B3" voltageLevelId1="VL3" bus2="B2" connectableBus2="B2" voltageLevelId2="VL2">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="119.0710037946701">
+                <iidm:terminalRef id="T3-2-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="T7002-2-1" r="0.13225000628153794" x="1.930850045522675" g="0.0" b="0.0" ratedU1="13.800000190734863" ratedU2="115.0" bus1="B7002" connectableBus1="B7002" voltageLevelId1="VL7002" bus2="B2" connectableBus2="B2" voltageLevelId2="VL2"/>
-        <iidm:twoWindingsTransformer id="T3-4-1" r="0.0" x="5.951249866979197" g="0.0" b="0.0" ratedU1="223.33000361919403" ratedU2="345.0" bus1="B3" connectableBus1="B3" voltageLevelId1="VL3" bus2="B4" connectableBus2="B4" voltageLevelId2="VL4"/>
+        <iidm:twoWindingsTransformer id="T3-4-1" r="0.0" x="5.951249866979197" g="0.0" b="0.0" ratedU1="223.33000361919403" ratedU2="345.0" bus1="B3" connectableBus1="B3" voltageLevelId1="VL3" bus2="B4" connectableBus2="B4" voltageLevelId2="VL4">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="355.6259948015213">
+                <iidm:terminalRef id="T3-4-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="T7003-3-1" r="0.0" x="5.575660086236894" g="0.0" b="0.0" ratedU1="13.800000190734863" ratedU2="230.0" bus1="B7003" connectableBus1="B7003" voltageLevelId1="VL7003" bus2="B3" connectableBus2="B3" voltageLevelId2="VL3"/>
     </iidm:substation>
     <iidm:substation id="S27">
@@ -73,8 +88,18 @@
                 <iidm:bus id="B7" name="1" v="228.48199486732483" angle="6.190000057220459"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T7-5-1" r="0.0" x="5.157750106416643" g="0.0" b="0.0" ratedU1="218.04000318050385" ratedU2="115.0" bus1="B7" connectableBus1="B7" voltageLevelId1="VL7" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5"/>
-        <iidm:twoWindingsTransformer id="T7-6-1" r="0.0" x="5.157750106416643" g="0.0" b="0.0" ratedU1="220.56999802589417" ratedU2="115.0" bus1="B7" connectableBus1="B7" voltageLevelId1="VL7" bus2="B6" connectableBus2="B6" voltageLevelId2="VL6"/>
+        <iidm:twoWindingsTransformer id="T7-5-1" r="0.0" x="5.157750106416643" g="0.0" b="0.0" ratedU1="218.04000318050385" ratedU2="115.0" bus1="B7" connectableBus1="B7" voltageLevelId1="VL7" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="117.1964943408966">
+                <iidm:terminalRef id="T7-5-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="T7-6-1" r="0.0" x="5.157750106416643" g="0.0" b="0.0" ratedU1="220.56999802589417" ratedU2="115.0" bus1="B7" connectableBus1="B7" voltageLevelId1="VL7" bus2="B6" connectableBus2="B6" voltageLevelId2="VL6">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="118.588005900383">
+                <iidm:terminalRef id="T7-6-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S31">
         <iidm:voltageLevel id="VL8" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -132,7 +157,12 @@
                 <iidm:minMaxReactiveLimits minQ="-224.0" maxQ="224.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T10-11-1" r="0.0" x="11.770250204950571" g="0.0" b="0.0" ratedU1="240.58000087738037" ratedU2="115.0" bus1="B10" connectableBus1="B10" voltageLevelId1="VL10" bus2="B11" connectableBus2="B11" voltageLevelId2="VL11"/>
+        <iidm:twoWindingsTransformer id="T10-11-1" r="0.0" x="11.770250204950571" g="0.0" b="0.0" ratedU1="240.58000087738037" ratedU2="115.0" bus1="B10" connectableBus1="B10" voltageLevelId1="VL10" bus2="B11" connectableBus2="B11" voltageLevelId2="VL11">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="115.65549910068512">
+                <iidm:terminalRef id="T10-11-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="T12-10-1" r="0.0" x="28.036999668926" g="0.0" b="0.0" ratedU1="226.5500032901764" ratedU2="230.0" bus1="B12" connectableBus1="B12" voltageLevelId1="VL12" bus2="B10" connectableBus2="B10" voltageLevelId2="VL10"/>
         <iidm:twoWindingsTransformer id="T7011-11-1" r="0.0" x="2.5431675892323256" g="0.0" b="0.0" ratedU1="13.800000190734863" ratedU2="115.0" bus1="B7011" connectableBus1="B7011" voltageLevelId1="VL7011" bus2="B11" connectableBus2="B11" voltageLevelId2="VL11"/>
         <iidm:twoWindingsTransformer id="T7012-12-1" r="0.0" x="16.50479955226183" g="0.0" b="0.0" ratedU1="13.800000190734863" ratedU2="230.0" bus1="B7012" connectableBus1="B7012" voltageLevelId1="VL7012" bus2="B12" connectableBus2="B12" voltageLevelId2="VL12"/>
@@ -179,8 +209,18 @@
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="350.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T15-17-1" r="2.565650075674057" x="4.112974910531193" g="0.0" b="0.0" ratedU1="109.95149850845337" ratedU2="115.0" bus1="B15" connectableBus1="B15" voltageLevelId1="VL15" bus2="B17" connectableBus2="B17" voltageLevelId2="VL17"/>
-        <iidm:twoWindingsTransformer id="T16-15-1" r="0.13225000628153794" x="5.025499838404357" g="0.0" b="0.0" ratedU1="334.99500542879105" ratedU2="115.0" bus1="B16" connectableBus1="B16" voltageLevelId1="VL16" bus2="B15" connectableBus2="B15" voltageLevelId2="VL15"/>
+        <iidm:twoWindingsTransformer id="T15-17-1" r="2.565650075674057" x="4.112974910531193" g="0.0" b="0.0" ratedU1="109.95149850845337" ratedU2="115.0" bus1="B15" connectableBus1="B15" voltageLevelId1="VL15" bus2="B17" connectableBus2="B17" voltageLevelId2="VL17">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="122.46350467205048">
+                <iidm:terminalRef id="T15-17-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="T16-15-1" r="0.13225000628153794" x="5.025499838404357" g="0.0" b="0.0" ratedU1="334.99500542879105" ratedU2="115.0" bus1="B16" connectableBus1="B16" voltageLevelId1="VL16" bus2="B15" connectableBus2="B15" voltageLevelId2="VL15">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="118.94449651241302">
+                <iidm:terminalRef id="T16-15-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="T7017-17-1" r="0.0" x="2.1874150284565985" g="0.0" b="0.0" ratedU1="12.999599791431422" ratedU2="115.0" bus1="B7017" connectableBus1="B7017" voltageLevelId1="VL7017" bus2="B17" connectableBus2="B17" voltageLevelId2="VL17"/>
     </iidm:substation>
     <iidm:substation id="S143">
@@ -244,7 +284,12 @@
                 <iidm:minMaxReactiveLimits minQ="-224.0" maxQ="224.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T24-23-1" r="0.0" x="8.464000402018428" g="0.0" b="0.0" ratedU1="216.8900042772293" ratedU2="115.0" bus1="B24" connectableBus1="B24" voltageLevelId1="VL24" bus2="B23" connectableBus2="B23" voltageLevelId2="VL23"/>
+        <iidm:twoWindingsTransformer id="T24-23-1" r="0.0" x="8.464000402018428" g="0.0" b="0.0" ratedU1="216.8900042772293" ratedU2="115.0" bus1="B24" connectableBus1="B24" voltageLevelId1="VL24" bus2="B23" connectableBus2="B23" voltageLevelId2="VL23">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="120.76149642467499">
+                <iidm:terminalRef id="T24-23-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="T7023-23-1" r="0.0" x="3.0417500059120357" g="0.0" b="0.0" ratedU1="13.800000190734863" ratedU2="115.0" bus1="B7023" connectableBus1="B7023" voltageLevelId1="VL7023" bus2="B23" connectableBus2="B23" voltageLevelId2="VL23"/>
         <iidm:twoWindingsTransformer id="T7024-24-1" r="0.0" x="15.288099648430943" g="0.0" b="0.0" ratedU1="13.800000190734863" ratedU2="230.0" bus1="B7024" connectableBus1="B7024" voltageLevelId1="VL7024" bus2="B24" connectableBus2="B24" voltageLevelId2="VL24"/>
     </iidm:substation>
@@ -298,7 +343,12 @@
                 <iidm:bus id="B36" name="1" v="230.25298714637756" angle="-22.59000015258789"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T36-35-1" r="0.0" x="6.215749787166715" g="0.0" b="0.0" ratedU1="232.29999780654907" ratedU2="115.0" bus1="B36" connectableBus1="B36" voltageLevelId1="VL36" bus2="B35" connectableBus2="B35" voltageLevelId2="VL35"/>
+        <iidm:twoWindingsTransformer id="T36-35-1" r="0.0" x="6.215749787166715" g="0.0" b="0.0" ratedU1="232.29999780654907" ratedU2="115.0" bus1="B36" connectableBus1="B36" voltageLevelId1="VL36" bus2="B35" connectableBus2="B35" voltageLevelId2="VL35">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="112.20550239086151">
+                <iidm:terminalRef id="T36-35-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S3">
         <iidm:voltageLevel id="VL37" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -322,9 +372,23 @@
                 <iidm:bus id="B9012" name="1" v="6.615180063028333" angle="-17.270000457763672"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T37-9001-1" r="0.00793499979954504" x="0.06083500134991482" g="0.0" b="0.0" ratedU1="115.9430056810379" ratedU2="115.0" bus1="B37" connectableBus1="B37" voltageLevelId1="VL37" bus2="B9001" connectableBus2="B9001" voltageLevelId2="VL9001"/>
-        <iidm:twoWindingsTransformer id="T9001-9006-1" r="0.010624284063210003" x="0.19027878667972187" g="0.0" b="0.0" ratedU1="111.18199706077576" ratedU2="6.599999904632568" bus1="B9001" connectableBus1="B9001" voltageLevelId1="VL9001" bus2="B9006" connectableBus2="B9006" voltageLevelId2="VL9006"/>
-        <iidm:twoWindingsTransformer id="T9001-9012-1" r="0.015786143664783956" x="0.2826956891855848" g="0.0" b="0.0" ratedU1="112.65400141477585" ratedU2="6.599999904632568" bus1="B9001" connectableBus1="B9001" voltageLevelId1="VL9001" bus2="B9012" connectableBus2="B9012" voltageLevelId2="VL9012"/>
+        <iidm:twoWindingsTransformer id="T37-9001-1" r="0.00793499979954504" x="0.06083500134991482" g="0.0" b="0.0" ratedU1="115.9430056810379" ratedU2="115.0" bus1="B37" connectableBus1="B37" voltageLevelId1="VL37" bus2="B9001" connectableBus2="B9001" voltageLevelId2="VL9001">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="false">
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="T9001-9006-1" r="0.010624284063210003" x="0.19027878667972187" g="0.0" b="0.0" ratedU1="111.18199706077576" ratedU2="6.599999904632568" bus1="B9001" connectableBus1="B9001" voltageLevelId1="VL9001" bus2="B9006" connectableBus2="B9006" voltageLevelId2="VL9006">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="6.619139933309555">
+                <iidm:terminalRef id="T9001-9006-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="T9001-9012-1" r="0.015786143664783956" x="0.2826956891855848" g="0.0" b="0.0" ratedU1="112.65400141477585" ratedU2="6.599999904632568" bus1="B9001" connectableBus1="B9001" voltageLevelId1="VL9001" bus2="B9012" connectableBus2="B9012" voltageLevelId2="VL9012">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="6.615180063028333">
+                <iidm:terminalRef id="T9001-9012-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S167">
         <iidm:voltageLevel id="VL38" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -406,9 +470,19 @@
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="42.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T45-44-1" r="0.0" x="2.644999940879643" g="0.0" b="0.0" ratedU1="231.84000372886658" ratedU2="115.0" bus1="B45" connectableBus1="B45" voltageLevelId1="VL45" bus2="B44" connectableBus2="B44" voltageLevelId2="VL44"/>
+        <iidm:twoWindingsTransformer id="T45-44-1" r="0.0" x="2.644999940879643" g="0.0" b="0.0" ratedU1="231.84000372886658" ratedU2="115.0" bus1="B45" connectableBus1="B45" voltageLevelId1="VL45" bus2="B44" connectableBus2="B44" voltageLevelId2="VL44">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="115.98899960517883">
+                <iidm:terminalRef id="T45-44-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="T7044-44-1" r="0.0" x="24.044373359531164" g="0.0" b="0.0" ratedU1="12.999599791431422" ratedU2="115.0" bus1="B7044" connectableBus1="B7044" voltageLevelId1="VL7044" bus2="B44" connectableBus2="B44" voltageLevelId2="VL44"/>
-        <iidm:twoWindingsTransformer id="T45-46-1" r="0.0" x="24.995249663013965" g="0.0" b="0.0" ratedU1="230.0" ratedU2="345.0" bus1="B45" connectableBus1="B45" voltageLevelId1="VL45" bus2="B46" connectableBus2="B46" voltageLevelId2="VL46"/>
+        <iidm:twoWindingsTransformer id="T45-46-1" r="0.0" x="24.995249663013965" g="0.0" b="0.0" ratedU1="230.0" ratedU2="345.0" bus1="B45" connectableBus1="B45" voltageLevelId1="VL45" bus2="B46" connectableBus2="B46" voltageLevelId2="VL46">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="356.867995262146">
+                <iidm:terminalRef id="T45-46-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S149">
         <iidm:voltageLevel id="VL47" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -560,7 +634,12 @@
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="150.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T62-61-1" r="0.0" x="7.802750047296286" g="0.0" b="0.0" ratedU1="224.25000548362732" ratedU2="115.0" bus1="B62" connectableBus1="B62" voltageLevelId1="VL62" bus2="B61" connectableBus2="B61" voltageLevelId2="VL61"/>
+        <iidm:twoWindingsTransformer id="T62-61-1" r="0.0" x="7.802750047296286" g="0.0" b="0.0" ratedU1="224.25000548362732" ratedU2="115.0" bus1="B62" connectableBus1="B62" voltageLevelId1="VL62" bus2="B61" connectableBus2="B61" voltageLevelId2="VL61">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="113.91899883747101">
+                <iidm:terminalRef id="T62-61-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="T7061-61-1" r="0.0" x="3.1475500725209713" g="0.0" b="0.0" ratedU1="13.800000190734863" ratedU2="115.0" bus1="B7061" connectableBus1="B7061" voltageLevelId1="VL7061" bus2="B61" connectableBus2="B61" voltageLevelId2="VL61"/>
         <iidm:twoWindingsTransformer id="T7062-62-1" r="0.0" x="17.002060875296593" g="0.0" b="0.0" ratedU1="13.110000016689298" ratedU2="230.0" bus1="B7062" connectableBus1="B7062" voltageLevelId1="VL7062" bus2="B62" connectableBus2="B62" voltageLevelId2="VL62"/>
     </iidm:substation>
@@ -579,7 +658,12 @@
                 <iidm:bus id="B64" name="1" v="218.04000318050385" angle="-12.970000267028809"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T63-64-1" r="0.0" x="20.10199935361743" g="0.0" b="0.0" ratedU1="116.95499539375305" ratedU2="230.0" bus1="B63" connectableBus1="B63" voltageLevelId1="VL63" bus2="B64" connectableBus2="B64" voltageLevelId2="VL64"/>
+        <iidm:twoWindingsTransformer id="T63-64-1" r="0.0" x="20.10199935361743" g="0.0" b="0.0" ratedU1="116.95499539375305" ratedU2="230.0" bus1="B63" connectableBus1="B63" voltageLevelId1="VL63" bus2="B64" connectableBus2="B64" voltageLevelId2="VL64">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="218.04000318050385">
+                <iidm:terminalRef id="T63-64-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S176">
         <iidm:voltageLevel id="VL69" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -593,7 +677,12 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B201-L" loadType="UNDEFINED" p0="41.0" q0="14.0" bus="B201" connectableBus="B201"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T201-69-2" r="0.0" x="12.960499661043286" g="0.0" b="0.0" ratedU1="67.97999811172485" ratedU2="115.0" bus1="B201" connectableBus1="B201" voltageLevelId1="VL201" bus2="B69" connectableBus2="B69" voltageLevelId2="VL69"/>
+        <iidm:twoWindingsTransformer id="T201-69-2" r="0.0" x="12.960499661043286" g="0.0" b="0.0" ratedU1="67.97999811172485" ratedU2="115.0" bus1="B201" connectableBus1="B201" voltageLevelId1="VL201" bus2="B69" connectableBus2="B69" voltageLevelId2="VL69">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="110.74499994516373">
+                <iidm:terminalRef id="T201-69-2" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S21">
         <iidm:voltageLevel id="VL70" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -640,7 +729,12 @@
                 <iidm:bus id="B74" name="1" v="229.17199969291687" angle="-22.0"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T73-74-1" r="0.0" x="12.907599750906229" g="0.0" b="0.0" ratedU1="115.0" ratedU2="230.0" bus1="B73" connectableBus1="B73" voltageLevelId1="VL73" bus2="B74" connectableBus2="B74" voltageLevelId2="VL74"/>
+        <iidm:twoWindingsTransformer id="T73-74-1" r="0.0" x="12.907599750906229" g="0.0" b="0.0" ratedU1="115.0" ratedU2="230.0" bus1="B73" connectableBus1="B73" voltageLevelId1="VL73" bus2="B74" connectableBus2="B74" voltageLevelId2="VL74">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="229.17199969291687">
+                <iidm:terminalRef id="T73-74-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S26">
         <iidm:voltageLevel id="VL76" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -695,7 +789,12 @@
                 <iidm:bus id="B88" name="1" v="233.47300052642822" angle="-20.959999084472656"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T81-88-1" r="0.0" x="10.579999763518572" g="0.0" b="0.0" ratedU1="345.0" ratedU2="230.0" bus1="B81" connectableBus1="B81" voltageLevelId1="VL81" bus2="B88" connectableBus2="B88" voltageLevelId2="VL88"/>
+        <iidm:twoWindingsTransformer id="T81-88-1" r="0.0" x="10.579999763518572" g="0.0" b="0.0" ratedU1="345.0" ratedU2="230.0" bus1="B81" connectableBus1="B81" voltageLevelId1="VL81" bus2="B88" connectableBus2="B88" voltageLevelId2="VL88">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="233.47300052642822">
+                <iidm:terminalRef id="T81-88-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S9">
         <iidm:voltageLevel id="VL84" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -720,7 +819,12 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B99-L" loadType="UNDEFINED" p0="83.5" q0="0.0" bus="B99" connectableBus="B99"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T85-99-1" r="0.0" x="6.348000055179" g="0.0" b="0.0" ratedU1="230.0" ratedU2="115.0" bus1="B85" connectableBus1="B85" voltageLevelId1="VL85" bus2="B99" connectableBus2="B99" voltageLevelId2="VL99"/>
+        <iidm:twoWindingsTransformer id="T85-99-1" r="0.0" x="6.348000055179" g="0.0" b="0.0" ratedU1="230.0" ratedU2="115.0" bus1="B85" connectableBus1="B85" voltageLevelId1="VL85" bus2="B99" connectableBus2="B99" voltageLevelId2="VL99">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="113.78100335597992">
+                <iidm:terminalRef id="T85-99-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S14">
         <iidm:voltageLevel id="VL86" nominalV="230.0" topologyKind="BUS_BREAKER">
@@ -734,7 +838,12 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B102-L" loadType="UNDEFINED" p0="77.80000305175781" q0="0.0" bus="B102" connectableBus="B102"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T86-102-1" r="0.0" x="6.348000055179" g="0.0" b="0.0" ratedU1="230.0" ratedU2="115.0" bus1="B86" connectableBus1="B86" voltageLevelId1="VL86" bus2="B102" connectableBus2="B102" voltageLevelId2="VL102"/>
+        <iidm:twoWindingsTransformer id="T86-102-1" r="0.0" x="6.348000055179" g="0.0" b="0.0" ratedU1="230.0" ratedU2="115.0" bus1="B86" connectableBus1="B86" voltageLevelId1="VL86" bus2="B102" connectableBus2="B102" voltageLevelId2="VL102">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="115.09200155735016">
+                <iidm:terminalRef id="T86-102-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S16">
         <iidm:voltageLevel id="VL87" nominalV="230.0" topologyKind="BUS_BREAKER">
@@ -748,7 +857,12 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B94-L" loadType="UNDEFINED" p0="60.29999923706055" q0="0.0" bus="B94" connectableBus="B94"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T87-94-1" r="0.0" x="6.083500011824071" g="0.0" b="0.0" ratedU1="233.4499967098236" ratedU2="115.0" bus1="B87" connectableBus1="B87" voltageLevelId1="VL87" bus2="B94" connectableBus2="B94" voltageLevelId2="VL94"/>
+        <iidm:twoWindingsTransformer id="T87-94-1" r="0.0" x="6.083500011824071" g="0.0" b="0.0" ratedU1="233.4499967098236" ratedU2="115.0" bus1="B87" connectableBus1="B87" voltageLevelId1="VL87" bus2="B94" connectableBus2="B94" voltageLevelId2="VL94">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="114.19499665498734">
+                <iidm:terminalRef id="T87-94-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S18">
         <iidm:voltageLevel id="VL89" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -902,7 +1016,12 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B207-L" loadType="UNDEFINED" p0="-21.0" q0="-14.199999809265137" bus="B207" connectableBus="B207"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T114-207-1" r="0.0" x="6.49044017136097" g="0.0" b="0.0" ratedU1="111.20500087738037" ratedU2="66.0" bus1="B114" connectableBus1="B114" voltageLevelId1="VL114" bus2="B207" connectableBus2="B207" voltageLevelId2="VL207"/>
+        <iidm:twoWindingsTransformer id="T114-207-1" r="0.0" x="6.49044017136097" g="0.0" b="0.0" ratedU1="111.20500087738037" ratedU2="66.0" bus1="B114" connectableBus1="B114" voltageLevelId1="VL114" bus2="B207" connectableBus2="B207" voltageLevelId2="VL207">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="66.90420055389404">
+                <iidm:terminalRef id="T114-207-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S105">
         <iidm:voltageLevel id="VL115" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -916,7 +1035,12 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B121-L" loadType="UNDEFINED" p0="535.0" q0="55.0" bus="B121" connectableBus="B121"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T121-115-1" r="0.0" x="3.703000114299357" g="0.0" b="0.0" ratedU1="120.74999451637268" ratedU2="115.0" bus1="B121" connectableBus1="B121" voltageLevelId1="VL121" bus2="B115" connectableBus2="B115" voltageLevelId2="VL115"/>
+        <iidm:twoWindingsTransformer id="T121-115-1" r="0.0" x="3.703000114299357" g="0.0" b="0.0" ratedU1="120.74999451637268" ratedU2="115.0" bus1="B121" connectableBus1="B121" voltageLevelId1="VL121" bus2="B115" connectableBus2="B115" voltageLevelId2="VL115">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="110.43450325727463">
+                <iidm:terminalRef id="T121-115-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S88">
         <iidm:voltageLevel id="VL116" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -954,7 +1078,12 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B159-L" loadType="UNDEFINED" p0="33.0" q0="16.5" bus="B159" connectableBus="B159"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T159-117-1" r="0.0" x="2.116000100504607" g="0.0" b="0.0" ratedU1="241.63801193237305" ratedU2="115.0" bus1="B159" connectableBus1="B159" voltageLevelId1="VL159" bus2="B117" connectableBus2="B117" voltageLevelId2="VL117"/>
+        <iidm:twoWindingsTransformer id="T159-117-1" r="0.0" x="2.116000100504607" g="0.0" b="0.0" ratedU1="241.63801193237305" ratedU2="115.0" bus1="B159" connectableBus1="B159" voltageLevelId1="VL159" bus2="B117" connectableBus2="B117" voltageLevelId2="VL117">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="107.5020033121109">
+                <iidm:terminalRef id="T159-117-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S145">
         <iidm:voltageLevel id="VL118" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -979,7 +1108,12 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B1190-L" loadType="UNDEFINED" p0="100.30999755859375" q0="29.170000076293945" bus="B1190" connectableBus="B1190"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T119-1190-1" r="0.07396000351291149" x="1.7010800033062694" g="0.0" b="0.0" ratedU1="117.56450057029724" ratedU2="86.0" bus1="B119" connectableBus1="B119" voltageLevelId1="VL119" bus2="B1190" connectableBus2="B1190" voltageLevelId2="VL1190"/>
+        <iidm:twoWindingsTransformer id="T119-1190-1" r="0.07396000351291149" x="1.7010800033062694" g="0.0" b="0.0" ratedU1="117.56450057029724" ratedU2="86.0" bus1="B119" connectableBus1="B119" voltageLevelId1="VL119" bus2="B1190" connectableBus2="B1190" voltageLevelId2="VL1190">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="87.1007981300354">
+                <iidm:terminalRef id="T119-1190-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S59">
         <iidm:voltageLevel id="VL120" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -995,7 +1129,12 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B1200-L" loadType="UNDEFINED" p0="-100.0" q0="34.16999816894531" bus="B1200" connectableBus="B1200"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T120-1200-1" r="0.0" x="1.7010800033062694" g="0.0" b="0.0" ratedU1="106.76599770784378" ratedU2="86.0" bus1="B120" connectableBus1="B120" voltageLevelId1="VL120" bus2="B1200" connectableBus2="B1200" voltageLevelId2="VL1200"/>
+        <iidm:twoWindingsTransformer id="T120-1200-1" r="0.0" x="1.7010800033062694" g="0.0" b="0.0" ratedU1="106.76599770784378" ratedU2="86.0" bus1="B120" connectableBus1="B120" voltageLevelId1="VL120" bus2="B1200" connectableBus2="B1200" voltageLevelId2="VL1200">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="88.09839963912964">
+                <iidm:terminalRef id="T120-1200-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S74">
         <iidm:voltageLevel id="VL122" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -1010,7 +1149,12 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B157-L" loadType="UNDEFINED" p0="123.5" q0="-24.299999237060547" bus="B157" connectableBus="B157"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T122-157-1" r="0.26450001256307587" x="10.315500212833285" g="0.0" b="0.0" ratedU1="115.0" ratedU2="230.0" bus1="B122" connectableBus1="B122" voltageLevelId1="VL122" bus2="B157" connectableBus2="B157" voltageLevelId2="VL157"/>
+        <iidm:twoWindingsTransformer id="T122-157-1" r="0.26450001256307587" x="10.315500212833285" g="0.0" b="0.0" ratedU1="115.0" ratedU2="230.0" bus1="B122" connectableBus1="B122" voltageLevelId1="VL122" bus2="B157" connectableBus2="B157" voltageLevelId2="VL157">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="226.43499791622162">
+                <iidm:terminalRef id="T122-157-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S133">
         <iidm:voltageLevel id="VL123" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -1085,8 +1229,18 @@
                 <iidm:minMaxReactiveLimits minQ="-100.0" maxQ="600.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T130-131-1" r="0.0" x="9.521999590098858" g="0.0" b="0.0" ratedU1="242.00599074363708" ratedU2="230.0" bus1="B130" connectableBus1="B130" voltageLevelId1="VL130" bus2="B131" connectableBus2="B131" voltageLevelId2="VL131"/>
-        <iidm:twoWindingsTransformer id="T130-150-1" r="0.0" x="7.406000228598714" g="0.0" b="0.0" ratedU1="242.00599074363708" ratedU2="230.0" bus1="B130" connectableBus1="B130" voltageLevelId1="VL130" bus2="B150" connectableBus2="B150" voltageLevelId2="VL150"/>
+        <iidm:twoWindingsTransformer id="T130-131-1" r="0.0" x="9.521999590098858" g="0.0" b="0.0" ratedU1="242.00599074363708" ratedU2="230.0" bus1="B130" connectableBus1="B130" voltageLevelId1="VL130" bus2="B131" connectableBus2="B131" voltageLevelId2="VL131">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="226.80300414562225">
+                <iidm:terminalRef id="T130-131-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="T130-150-1" r="0.0" x="7.406000228598714" g="0.0" b="0.0" ratedU1="242.00599074363708" ratedU2="230.0" bus1="B130" connectableBus1="B130" voltageLevelId1="VL130" bus2="B150" connectableBus2="B150" voltageLevelId2="VL150">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="226.98699355125427">
+                <iidm:terminalRef id="T130-150-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="T7130-130-1" r="0.0" x="10.20970039255917" g="0.0" b="0.0" ratedU1="13.800000190734863" ratedU2="230.0" bus1="B7130" connectableBus1="B7130" voltageLevelId1="VL7130" bus2="B130" connectableBus2="B130" voltageLevelId2="VL130"/>
     </iidm:substation>
     <iidm:substation id="S58">
@@ -1155,7 +1309,12 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B163-L" loadType="UNDEFINED" p0="0.0" q0="0.4000000059604645" bus="B163" connectableBus="B163"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T163-137-1" r="0.6877000018721446" x="20.313600964844227" g="0.0" b="-1.0775047264612915E-4" ratedU1="225.40000438690186" ratedU2="230.0" bus1="B163" connectableBus1="B163" voltageLevelId1="VL163" bus2="B137" connectableBus2="B137" voltageLevelId2="VL137"/>
+        <iidm:twoWindingsTransformer id="T163-137-1" r="0.6877000018721446" x="20.313600964844227" g="0.0" b="-1.0775047264612915E-4" ratedU1="225.40000438690186" ratedU2="230.0" bus1="B163" connectableBus1="B163" voltageLevelId1="VL163" bus2="B137" connectableBus2="B137" voltageLevelId2="VL137">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="240.83298802375793">
+                <iidm:terminalRef id="T163-137-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S104">
         <iidm:voltageLevel id="VL138" nominalV="230.0" topologyKind="BUS_BREAKER">
@@ -1189,7 +1348,12 @@
                 <iidm:minMaxReactiveLimits minQ="-125.0" maxQ="325.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T182-139-1" r="0.03967500188446138" x="1.7324750130064785" g="0.0" b="0.0" ratedU1="241.49998903274536" ratedU2="115.0" bus1="B182" connectableBus1="B182" voltageLevelId1="VL182" bus2="B139" connectableBus2="B139" voltageLevelId2="VL139"/>
+        <iidm:twoWindingsTransformer id="T182-139-1" r="0.03967500188446138" x="1.7324750130064785" g="0.0" b="0.0" ratedU1="241.49998903274536" ratedU2="115.0" bus1="B182" connectableBus1="B182" voltageLevelId1="VL182" bus2="B139" connectableBus2="B139" voltageLevelId2="VL139">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="116.34550392627716">
+                <iidm:terminalRef id="T182-139-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="T7139-139-1" r="0.0" x="2.2085749432444572" g="0.0" b="0.0" ratedU1="13.800000190734863" ratedU2="115.0" bus1="B7139" connectableBus1="B7139" voltageLevelId1="VL7139" bus2="B139" connectableBus2="B139" voltageLevelId2="VL139"/>
     </iidm:substation>
     <iidm:substation id="S103">
@@ -1215,7 +1379,12 @@
                 <iidm:bus id="B174" name="2" v="122.15299427509308" angle="-2.690000057220459"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T141-174-1" r="0.31740001507569104" x="7.974675001576543" g="0.0" b="0.0" ratedU1="224.25000548362732" ratedU2="115.0" bus1="B141" connectableBus1="B141" voltageLevelId1="VL141" bus2="B174" connectableBus2="B174" voltageLevelId2="VL174"/>
+        <iidm:twoWindingsTransformer id="T141-174-1" r="0.31740001507569104" x="7.974675001576543" g="0.0" b="0.0" ratedU1="224.25000548362732" ratedU2="115.0" bus1="B141" connectableBus1="B141" voltageLevelId1="VL141" bus2="B174" connectableBus2="B174" voltageLevelId2="VL174">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="122.15299427509308">
+                <iidm:terminalRef id="T141-174-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S52">
         <iidm:voltageLevel id="VL142" nominalV="230.0" topologyKind="BUS_BREAKER">
@@ -1230,7 +1399,12 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B175-L" loadType="UNDEFINED" p0="176.0" q0="83.0" bus="B175" connectableBus="B175"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T142-175-1" r="0.31740001507569104" x="6.5860501434654" g="0.0" b="-6.578449716189408E-4" ratedU1="230.0" ratedU2="115.0" bus1="B142" connectableBus1="B142" voltageLevelId1="VL142" bus2="B175" connectableBus2="B175" voltageLevelId2="VL175"/>
+        <iidm:twoWindingsTransformer id="T142-175-1" r="0.31740001507569104" x="6.5860501434654" g="0.0" b="-6.578449716189408E-4" ratedU1="230.0" ratedU2="115.0" bus1="B142" connectableBus1="B142" voltageLevelId1="VL142" bus2="B175" connectableBus2="B175" voltageLevelId2="VL175">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="111.89499884843826">
+                <iidm:terminalRef id="T142-175-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S100">
         <iidm:voltageLevel id="VL143" nominalV="230.0" topologyKind="BUS_BREAKER">
@@ -1253,8 +1427,18 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B148-L" loadType="UNDEFINED" p0="63.0" q0="25.0" bus="B148" connectableBus="B148"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T143-144-1" r="0.0" x="44.0657010152936" g="0.0" b="0.0" ratedU1="238.04999232292175" ratedU2="230.0" bus1="B143" connectableBus1="B143" voltageLevelId1="VL143" bus2="B144" connectableBus2="B144" voltageLevelId2="VL144"/>
-        <iidm:twoWindingsTransformer id="T143-148-1" r="0.6877000018721446" x="19.62589917704463" g="0.0" b="0.0" ratedU1="219.9949985742569" ratedU2="230.0" bus1="B143" connectableBus1="B143" voltageLevelId1="VL143" bus2="B148" connectableBus2="B148" voltageLevelId2="VL148"/>
+        <iidm:twoWindingsTransformer id="T143-144-1" r="0.0" x="44.0657010152936" g="0.0" b="0.0" ratedU1="238.04999232292175" ratedU2="230.0" bus1="B143" connectableBus1="B143" voltageLevelId1="VL143" bus2="B144" connectableBus2="B144" voltageLevelId2="VL144">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="233.68000745773315">
+                <iidm:terminalRef id="T143-144-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="T143-148-1" r="0.6877000018721446" x="19.62589917704463" g="0.0" b="0.0" ratedU1="219.9949985742569" ratedU2="230.0" bus1="B143" connectableBus1="B143" voltageLevelId1="VL143" bus2="B148" connectableBus2="B148" voltageLevelId2="VL148">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="243.2710087299347">
+                <iidm:terminalRef id="T143-148-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S71">
         <iidm:voltageLevel id="VL145" nominalV="230.0" topologyKind="BUS_BREAKER">
@@ -1269,7 +1453,12 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B180-L" loadType="UNDEFINED" p0="69.5" q0="49.29999923706055" bus="B180" connectableBus="B180"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T145-180-1" r="0.06612500314076897" x="2.406950098928064" g="0.0" b="0.0" ratedU1="230.0" ratedU2="115.0" bus1="B145" connectableBus1="B145" voltageLevelId1="VL145" bus2="B180" connectableBus2="B180" voltageLevelId2="VL180"/>
+        <iidm:twoWindingsTransformer id="T145-180-1" r="0.06612500314076897" x="2.406950098928064" g="0.0" b="0.0" ratedU1="230.0" ratedU2="115.0" bus1="B145" connectableBus1="B145" voltageLevelId1="VL145" bus2="B180" connectableBus2="B180" voltageLevelId2="VL180">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="112.61950254440308">
+                <iidm:terminalRef id="T145-180-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S102">
         <iidm:voltageLevel id="VL146" nominalV="230.0" topologyKind="BUS_BREAKER">
@@ -1327,7 +1516,12 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B183-L" loadType="UNDEFINED" p0="40.0" q0="4.0" bus="B183" connectableBus="B183"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T153-183-1" r="0.35707500926218927" x="8.450775178149343" g="0.0" b="0.0" ratedU1="246.78998947143555" ratedU2="115.0" bus1="B153" connectableBus1="B153" voltageLevelId1="VL153" bus2="B183" connectableBus2="B183" voltageLevelId2="VL183"/>
+        <iidm:twoWindingsTransformer id="T153-183-1" r="0.35707500926218927" x="8.450775178149343" g="0.0" b="0.0" ratedU1="246.78998947143555" ratedU2="115.0" bus1="B153" connectableBus1="B153" voltageLevelId1="VL153" bus2="B183" connectableBus2="B183" voltageLevelId2="VL183">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="111.74550145864487">
+                <iidm:terminalRef id="T153-183-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S76">
         <iidm:voltageLevel id="VL154" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -1361,7 +1555,12 @@
             <iidm:shunt id="B164-SH" bPerSection="-0.004007561220338529" maximumSectionCount="1" currentSectionCount="0" bus="B164" connectableBus="B164"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T155-156-1" r="0.10579999732726719" x="3.38559991447255" g="0.0" b="0.0" ratedU1="241.49998903274536" ratedU2="115.0" bus1="B155" connectableBus1="B155" voltageLevelId1="VL155" bus2="B156" connectableBus2="B156" voltageLevelId2="VL156"/>
-        <iidm:twoWindingsTransformer id="T164-155-1" r="0.47609999182168394" x="12.2198999337852" g="0.0" b="-6.238185221396232E-5" ratedU1="219.87999320030212" ratedU2="230.0" bus1="B164" connectableBus1="B164" voltageLevelId1="VL164" bus2="B155" connectableBus2="B155" voltageLevelId2="VL155"/>
+        <iidm:twoWindingsTransformer id="T164-155-1" r="0.47609999182168394" x="12.2198999337852" g="0.0" b="-6.238185221396232E-5" ratedU1="219.87999320030212" ratedU2="230.0" bus1="B164" connectableBus1="B164" voltageLevelId1="VL164" bus2="B155" connectableBus2="B155" voltageLevelId2="VL155">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="234.0709900856018">
+                <iidm:terminalRef id="T164-155-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S73">
         <iidm:voltageLevel id="VL158" nominalV="230.0" topologyKind="BUS_BREAKER">
@@ -1567,7 +1766,12 @@
                 <iidm:bus id="B210" name="3" v="112.56199985742569" angle="-24.219999313354492"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T189-210-1" r="0.0" x="33.32700053602457" g="0.0" b="0.0" ratedU1="67.97999811172485" ratedU2="115.0" bus1="B189" connectableBus1="B189" voltageLevelId1="VL189" bus2="B210" connectableBus2="B210" voltageLevelId2="VL210"/>
+        <iidm:twoWindingsTransformer id="T189-210-1" r="0.0" x="33.32700053602457" g="0.0" b="0.0" ratedU1="67.97999811172485" ratedU2="115.0" bus1="B189" connectableBus1="B189" voltageLevelId1="VL189" bus2="B210" connectableBus2="B210" voltageLevelId2="VL210">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="112.56199985742569">
+                <iidm:terminalRef id="T189-210-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S42">
         <iidm:voltageLevel id="VL190" nominalV="345.0" topologyKind="BUS_BREAKER">
@@ -1622,13 +1826,22 @@
                 <iidm:bus id="B2040" name="3" v="111.0095027089119" angle="-14.9399995803833"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T193-196-1" r="0.0" x="31.343250457197428" g="0.0" b="0.0" ratedU1="67.97999811172485" ratedU2="115.0" bus1="B193" connectableBus1="B193" voltageLevelId1="VL193" bus2="B196" connectableBus2="B196" voltageLevelId2="VL196"/>
+        <iidm:twoWindingsTransformer id="T193-196-1" r="0.0" x="31.343250457197428" g="0.0" b="0.0" ratedU1="67.97999811172485" ratedU2="115.0" bus1="B193" connectableBus1="B193" voltageLevelId1="VL193" bus2="B196" connectableBus2="B196" voltageLevelId2="VL196">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="111.492500603199">
+                <iidm:terminalRef id="T193-196-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="T196-2040-1" r="0.013224999665908399" x="2.644999940879643" g="0.0" b="0.0" ratedU1="115.0" ratedU2="115.0" bus1="B196" connectableBus1="B196" voltageLevelId1="VL196" bus2="B2040" connectableBus2="B2040" voltageLevelId2="VL2040">
             <iidm:phaseTapChanger lowTapPosition="0" tapPosition="0" regulationMode="FIXED_TAP">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="11.399999618530273"/>
             </iidm:phaseTapChanger>
         </iidm:twoWindingsTransformer>
-        <iidm:twoWindingsTransformer id="T204-2040-1" r="2.644999940879643" x="26.978999495506287" g="0.0" b="-9.073724086433367E-5" ratedU1="69.29999685287476" ratedU2="115.0" bus1="B204" connectableBus1="B204" voltageLevelId1="VL204" bus2="B2040" connectableBus2="B2040" voltageLevelId2="VL2040"/>
+        <iidm:twoWindingsTransformer id="T204-2040-1" r="2.644999940879643" x="26.978999495506287" g="0.0" b="-9.073724086433367E-5" ratedU1="69.29999685287476" ratedU2="115.0" bus1="B204" connectableBus1="B204" voltageLevelId1="VL204" bus2="B2040" connectableBus2="B2040" voltageLevelId2="VL2040">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="false">
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S39">
         <iidm:voltageLevel id="VL194" nominalV="345.0" topologyKind="BUS_BREAKER">
@@ -1660,9 +1873,24 @@
                 <iidm:bus id="B212" name="3" v="139.8216061592102" angle="-22.510000228881836"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T195-212-1" r="0.15235199615126477" x="6.970104220211506" g="0.0" b="0.0" ratedU1="339.8250049352646" ratedU2="138.0" bus1="B195" connectableBus1="B195" voltageLevelId1="VL195" bus2="B212" connectableBus2="B212" voltageLevelId2="VL212"/>
-        <iidm:twoWindingsTransformer id="T202-211-1" r="0.0" x="16.928000804036856" g="0.0" b="0.0" ratedU1="66.65999937057495" ratedU2="115.0" bus1="B202" connectableBus1="B202" voltageLevelId1="VL202" bus2="B211" connectableBus2="B211" voltageLevelId2="VL211"/>
-        <iidm:twoWindingsTransformer id="T211-212-1" r="0.57132000496611" x="2.3233679551631212" g="0.0" b="0.0" ratedU1="115.0" ratedU2="138.0" bus1="B211" connectableBus1="B211" voltageLevelId1="VL211" bus2="B212" connectableBus2="B212" voltageLevelId2="VL212"/>
+        <iidm:twoWindingsTransformer id="T195-212-1" r="0.15235199615126477" x="6.970104220211506" g="0.0" b="0.0" ratedU1="339.8250049352646" ratedU2="138.0" bus1="B195" connectableBus1="B195" voltageLevelId1="VL195" bus2="B212" connectableBus2="B212" voltageLevelId2="VL212">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="139.8216061592102">
+                <iidm:terminalRef id="T195-212-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="T202-211-1" r="0.0" x="16.928000804036856" g="0.0" b="0.0" ratedU1="66.65999937057495" ratedU2="115.0" bus1="B202" connectableBus1="B202" voltageLevelId1="VL202" bus2="B211" connectableBus2="B211" voltageLevelId2="VL211">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="115.19550502300262">
+                <iidm:terminalRef id="T202-211-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="T211-212-1" r="0.57132000496611" x="2.3233679551631212" g="0.0" b="0.0" ratedU1="115.0" ratedU2="138.0" bus1="B211" connectableBus1="B211" voltageLevelId1="VL211" bus2="B212" connectableBus2="B212" voltageLevelId2="VL212">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="139.8216061592102">
+                <iidm:terminalRef id="T211-212-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S35">
         <iidm:voltageLevel id="VL197" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -1712,7 +1940,12 @@
             <iidm:load id="B248-L" loadType="UNDEFINED" p0="29.0" q0="14.0" bus="B248" connectableBus="B248"/>
             <iidm:shunt id="B248-SH" bPerSection="0.010468319564701987" maximumSectionCount="1" currentSectionCount="0" bus="B248" connectableBus="B248"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T200-248-1" r="0.0" x="9.583199948072433" g="0.0" b="0.0" ratedU1="115.0" ratedU2="66.0" bus1="B200" connectableBus1="B200" voltageLevelId1="VL200" bus2="B248" connectableBus2="B248" voltageLevelId2="VL248"/>
+        <iidm:twoWindingsTransformer id="T200-248-1" r="0.0" x="9.583199948072433" g="0.0" b="0.0" ratedU1="115.0" ratedU2="66.0" bus1="B200" connectableBus1="B200" voltageLevelId1="VL200" bus2="B248" connectableBus2="B248" voltageLevelId2="VL248">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="64.4160007238388">
+                <iidm:terminalRef id="T200-248-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S179">
         <iidm:voltageLevel id="VL203" nominalV="115.0" topologyKind="BUS_BREAKER">
@@ -1799,7 +2032,12 @@
                 <iidm:bus id="B219" name="3" v="364.11300480365753" angle="-21.149999618530273"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T218-219-1" r="1.1902500565338414" x="42.13484936859459" g="0.0" b="-8.401596115507315E-6" ratedU1="133.86000394821167" ratedU2="345.0" bus1="B218" connectableBus1="B218" voltageLevelId1="VL218" bus2="B219" connectableBus2="B219" voltageLevelId2="VL219"/>
+        <iidm:twoWindingsTransformer id="T218-219-1" r="1.1902500565338414" x="42.13484936859459" g="0.0" b="-8.401596115507315E-6" ratedU1="133.86000394821167" ratedU2="345.0" bus1="B218" connectableBus1="B218" voltageLevelId1="VL218" bus2="B219" connectableBus2="B219" voltageLevelId2="VL219">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="364.11300480365753">
+                <iidm:terminalRef id="T218-219-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S165">
         <iidm:voltageLevel id="VL220" nominalV="138.0" topologyKind="BUS_BREAKER">
@@ -1862,7 +2100,12 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B224-L" loadType="UNDEFINED" p0="173.0" q0="99.0" bus="B224" connectableBus="B224"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T223-224-1" r="0.6348000301513821" x="10.315500212833285" g="0.0" b="-6.880907232684765E-4" ratedU1="138.0" ratedU2="230.0" bus1="B223" connectableBus1="B223" voltageLevelId1="VL223" bus2="B224" connectableBus2="B224" voltageLevelId2="VL224"/>
+        <iidm:twoWindingsTransformer id="T223-224-1" r="0.6348000301513821" x="10.315500212833285" g="0.0" b="-6.880907232684765E-4" ratedU1="138.0" ratedU2="230.0" bus1="B223" connectableBus1="B223" voltageLevelId1="VL223" bus2="B224" connectableBus2="B224" voltageLevelId2="VL224">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="230.04600763320923">
+                <iidm:terminalRef id="T223-224-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S160">
         <iidm:voltageLevel id="VL225" nominalV="230.0" topologyKind="BUS_BREAKER">
@@ -2338,7 +2581,12 @@
             <iidm:load id="B9533-L" loadType="UNDEFINED" p0="1.190000057220459" q0="0.4099999964237213" bus="B9533" connectableBus="B9533"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T9005-9051-1" r="0.030051432861351736" x="0.7138833821938243" g="0.0" b="0.0" ratedU1="120.0024938583374" ratedU2="13.800000190734863" bus1="B9005" connectableBus1="B9005" voltageLevelId1="VL9005" bus2="B9051" connectableBus2="B9051" voltageLevelId2="VL9051"/>
-        <iidm:twoWindingsTransformer id="T9005-9052-1" r="0.030051432861351736" x="0.7138833821938243" g="0.0" b="0.0" ratedU1="107.99650311470032" ratedU2="13.800000190734863" bus1="B9005" connectableBus1="B9005" voltageLevelId1="VL9005" bus2="B9052" connectableBus2="B9052" voltageLevelId2="VL9052"/>
+        <iidm:twoWindingsTransformer id="T9005-9052-1" r="0.030051432861351736" x="0.7138833821938243" g="0.0" b="0.0" ratedU1="107.99650311470032" ratedU2="13.800000190734863" bus1="B9005" connectableBus1="B9005" voltageLevelId1="VL9005" bus2="B9052" connectableBus2="B9052" voltageLevelId2="VL9052">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="true" regulating="true" targetV="13.504680534095769">
+                <iidm:terminalRef id="T9005-9052-1" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="T9005-9053-1" r="0.03050848880701447" x="0.7245480327500265" g="0.0" b="0.0" ratedU1="120.0024938583374" ratedU2="13.800000190734863" bus1="B9005" connectableBus1="B9005" voltageLevelId1="VL9005" bus2="B9053" connectableBus2="B9053" voltageLevelId2="VL9053"/>
         <iidm:twoWindingsTransformer id="T9005-9054-1" r="0.0" x="0.28946879869379977" g="0.0" b="0.0" ratedU1="120.0024938583374" ratedU2="13.800000190734863" bus1="B9005" connectableBus1="B9005" voltageLevelId1="VL9005" bus2="B9054" connectableBus2="B9054" voltageLevelId2="VL9054"/>
         <iidm:twoWindingsTransformer id="T9005-9055-1" r="0.0" x="1.523520064816476" g="0.0" b="0.0" ratedU1="120.0024938583374" ratedU2="13.800000190734863" bus1="B9005" connectableBus1="B9005" voltageLevelId1="VL9005" bus2="B9055" connectableBus2="B9055" voltageLevelId2="VL9055"/>

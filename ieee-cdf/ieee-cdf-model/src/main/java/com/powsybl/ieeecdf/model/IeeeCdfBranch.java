@@ -71,7 +71,7 @@ public class IeeeCdfBranch {
         VARIABLE_PHASE_ANGLE_FOR_ACTIVE_POWER_CONTROL,
     }
 
-    enum Side {
+    public enum Side {
         CONTROLLED_BUS_IS_ONE_OF_THE_TERMINALS,
         CONTROLLED_BUS_IS_NEAR_THE_TAP_SIDE,
         CONTROLLED_BUS_IS_NEAR_THE_IMPEDANCE_SIDE

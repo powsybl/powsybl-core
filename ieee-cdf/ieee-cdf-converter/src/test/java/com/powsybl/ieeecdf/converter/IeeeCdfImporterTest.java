@@ -57,6 +57,11 @@ public class IeeeCdfImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void testIeee9() throws IOException {
+        testNetwork(IeeeCdfNetworkFactory.create9());
+    }
+
+    @Test
     public void testIeee14() throws IOException {
         testNetwork(IeeeCdfNetworkFactory.create14());
     }
@@ -64,6 +69,16 @@ public class IeeeCdfImporterTest extends AbstractConverterTest {
     @Test
     public void testIeee30() throws IOException {
         testNetwork(IeeeCdfNetworkFactory.create30());
+    }
+
+    @Test
+    public void testIeee57() throws IOException {
+        testNetwork(IeeeCdfNetworkFactory.create57());
+    }
+
+    @Test
+    public void testIeee118() throws IOException {
+        testNetwork(IeeeCdfNetworkFactory.create118());
     }
 
     @Test
