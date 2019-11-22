@@ -120,9 +120,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public Leg setRatedU(double ratedU) {
-            if (Double.isNaN(ratedU)) {
-                throw new ValidationException(this, "rated U is invalid");
-            }
+            ValidationUtil.checkRatedU(this, ratedU, "");
             double oldValue = this.ratedU;
             this.ratedU = ratedU;
             transformer.notifyUpdate(() -> getLegAttribute() + ".ratedU", oldValue, x);
