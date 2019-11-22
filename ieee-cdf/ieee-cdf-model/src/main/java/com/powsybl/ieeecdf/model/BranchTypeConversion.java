@@ -15,11 +15,12 @@ public class BranchTypeConversion extends ObjectConversion<IeeeCdfBranch.Type> {
 
     @Override
     protected IeeeCdfBranch.Type fromString(String str) {
-        return IeeeCdfBranch.Type.values()[Integer.parseInt(str.trim())];
+        String trimmedStr = str.trim();
+        return trimmedStr.isEmpty() ? null : IeeeCdfBranch.Type.values()[Integer.parseInt(trimmedStr)];
     }
 
     @Override
     public String revert(IeeeCdfBranch.Type type) {
-        return Integer.toString(type.ordinal());
+        return type == null ? "" : Integer.toString(type.ordinal());
     }
 }

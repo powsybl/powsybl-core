@@ -68,6 +68,11 @@ public class IeeeCdfReaderWriterTest {
     }
 
     @Test
+    public void testIeee9() throws IOException {
+        testIeeeFile("ieee9cdf.txt");
+    }
+
+    @Test
     public void testIeee14() throws IOException {
         testIeeeFile("ieee14cdf.txt");
     }
