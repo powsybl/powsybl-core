@@ -33,7 +33,8 @@ public class AstUtilTest {
         public void visit(ASTNode[] astNodes, SourceUnit sourceUnit) {
             ModuleNode ast = sourceUnit.getAST();
             BlockStatement blockStatement = ast.getStatementBlock();
-            assertEquals("this.print('hello')" + System.lineSeparator(), AstUtil.toString(blockStatement));
+            String ref = "this.print('hello')\n"; // AstNodeToScriptVisitor has hardcoded \n
+            assertEquals(ref, AstUtil.toString(blockStatement));
         }
     }
 
