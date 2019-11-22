@@ -94,7 +94,7 @@ public class UcteExporterTest extends AbstractConverterTest {
     @Test
     public void testDefaultOneNamingStrategy() {
         NamingStrategy defaultNamingStrategy = UcteExporter.findNamingStrategy(null, ImmutableList.of(new DefaultNamingStrategy()));
-        assertEquals("DefaultNamingStrategy", defaultNamingStrategy.getName());
+        assertEquals("Default", defaultNamingStrategy.getName());
     }
 
     @Test
@@ -117,8 +117,8 @@ public class UcteExporterTest extends AbstractConverterTest {
 
     @Test
     public void testChosenTwoNamingStrategies() {
-        NamingStrategy namingStrategy = UcteExporter.findNamingStrategy("DefaultNamingStrategy", ImmutableList.of(new DefaultNamingStrategy(), new OtherNamingStrategy()));
-        assertEquals("DefaultNamingStrategy", namingStrategy.getName());
+        NamingStrategy namingStrategy = UcteExporter.findNamingStrategy("Default", ImmutableList.of(new DefaultNamingStrategy(), new OtherNamingStrategy()));
+        assertEquals("Default", namingStrategy.getName());
         namingStrategy = UcteExporter.findNamingStrategy("OtherNamingStrategy", ImmutableList.of(new DefaultNamingStrategy(), new OtherNamingStrategy()));
         assertEquals("OtherNamingStrategy", namingStrategy.getName());
     }

@@ -29,7 +29,7 @@ public class DefaultNamingStrategy implements NamingStrategy {
 
     @Override
     public String getName() {
-        return "DefaultNamingStrategy";
+        return "Default";
     }
 
     @Override
