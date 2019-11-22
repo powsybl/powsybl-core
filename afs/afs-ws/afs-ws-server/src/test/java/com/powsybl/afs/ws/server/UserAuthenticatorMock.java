@@ -9,9 +9,12 @@ package com.powsybl.afs.ws.server;
 import com.powsybl.afs.ws.server.utils.UserAuthenticator;
 import com.powsybl.commons.net.UserProfile;
 
+import javax.inject.Named;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@Named
 public class UserAuthenticatorMock implements UserAuthenticator {
 
     @Override

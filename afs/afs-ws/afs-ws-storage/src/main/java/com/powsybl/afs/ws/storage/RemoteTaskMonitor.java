@@ -6,6 +6,7 @@
  */
 package com.powsybl.afs.ws.storage;
 
+import com.powsybl.afs.Project;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.TaskListener;
 import com.powsybl.afs.TaskMonitor;
@@ -79,6 +80,27 @@ public class RemoteTaskMonitor implements TaskMonitor {
         Response response = webTarget.path("fileSystems/{fileSystemName}/tasks")
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .queryParam("projectFileId", projectFile.getId())
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .put(Entity.text(""));
+        try {
+            return readEntityIfOk(response, TaskMonitor.Task.class);
+        } finally {
+            response.close();
+        }
+    }
+
+    @Override
+    public Task startTask(String name, Project project) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(project);
+
+        LOGGER.debug("startTask(fileSystemName={}, name={}, project={})", fileSystemName, name, project.getId());
+
+        Response response = webTarget.path("fileSystems/{fileSystemName}/tasks")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .queryParam("name", name)
+                .queryParam("projectId", project.getId())
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .put(Entity.text(""));
