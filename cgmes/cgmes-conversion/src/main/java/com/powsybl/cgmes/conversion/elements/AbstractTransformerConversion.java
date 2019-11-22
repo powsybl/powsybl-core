@@ -432,6 +432,9 @@ public abstract class AbstractTransformerConversion
     }
 
     private TapChangerConversion tapChangerFixPosition(TapChangerConversion tc) {
+        if (tc.getLowTapPosition() != tc.getHighTapPosition()) {
+            fixed(String.format("TapChanger Id %s fixed tap at position %d ", tc.getId(), tc.getTapPosition()), "");
+        }
         TapChangerConversion tapChanger = baseCloneTapChanger(tc);
         tapChanger.setLowTapPosition(tapChanger.getTapPosition());
         StepAdder step = getFixStepTapChanger(tc);
@@ -708,7 +711,6 @@ public abstract class AbstractTransformerConversion
     }
 
     protected void setToIidmPhaseTapChanger(TapChangerConversion ptc, PhaseTapChangerAdder ptca) {
-        // TODO record LtcFlag
         int lowStep = ptc.getLowTapPosition();
         int position = ptc.getTapPosition();
         ptca.setLowTapPosition(lowStep).setTapPosition(position);
