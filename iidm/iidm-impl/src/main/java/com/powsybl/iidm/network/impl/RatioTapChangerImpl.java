@@ -7,9 +7,13 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
 import gnu.trove.list.array.TDoubleArrayList;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -52,6 +56,12 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public RatioTapChangerImpl setRegulating(boolean regulating) {
         ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, regulationTerminal, getTargetV(), getNetwork());
+
+        Set<TapChanger> tapChangers = new HashSet<TapChanger>();
+        tapChangers.addAll(parent.getAllTapChangers());
+        tapChangers.remove(parent.getRatioTapChanger());
+        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
+
         return super.setRegulating(regulating);
     }
 
