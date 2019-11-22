@@ -6,7 +6,6 @@
  */
 package com.powsybl.dsl;
 
-import groovy.inspect.swingui.AstNodeToScriptVisitor;
 import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.ClassCodeExpressionTransformer;
 import org.codehaus.groovy.ast.MethodNode;
@@ -19,9 +18,6 @@ import org.codehaus.groovy.transform.GroovyASTTransformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.UncheckedIOException;
 import java.util.List;
 
 /**
@@ -34,25 +30,15 @@ public class PowsyblDslAstTransformation implements ASTTransformation {
 
     private static final boolean DEBUG = false;
 
-    private static void printAST(BlockStatement blockStatement) {
-        try (StringWriter writer = new StringWriter()) {
-            blockStatement.visit(new AstNodeToScriptVisitor(writer));
-            writer.flush();
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(writer.toString());
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    protected void visit(SourceUnit sourceUnit, ClassCodeExpressionTransformer transformer, boolean debug) {
+    protected void visit(SourceUnit sourceUnit, ClassCodeExpressionTransformer transformer) {
         LOGGER.trace("Apply AST transformation");
         ModuleNode ast = sourceUnit.getAST();
         BlockStatement blockStatement = ast.getStatementBlock();
 
-        if (debug) {
-            printAST(blockStatement);
+        if (DEBUG) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(AstUtil.toString(blockStatement));
+            }
         }
 
         List<MethodNode> methods = ast.getMethods();
@@ -62,16 +48,18 @@ public class PowsyblDslAstTransformation implements ASTTransformation {
 
         blockStatement.visit(transformer);
 
-        if (debug) {
-            printAST(blockStatement);
+        if (DEBUG) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(AstUtil.toString(blockStatement));
+            }
         }
     }
 
     public void visit(ASTNode[] nodes, SourceUnit sourceUnit) {
-        visit(sourceUnit, new CustomClassCodeExpressionTransformer(sourceUnit), DEBUG);
+        visit(sourceUnit, new CustomClassCodeExpressionTransformer(sourceUnit));
     }
 
-    class CustomClassCodeExpressionTransformer extends ClassCodeExpressionTransformer {
+    static class CustomClassCodeExpressionTransformer extends ClassCodeExpressionTransformer {
         SourceUnit sourceUnit;
 
         CustomClassCodeExpressionTransformer(SourceUnit sourceUnit) {
