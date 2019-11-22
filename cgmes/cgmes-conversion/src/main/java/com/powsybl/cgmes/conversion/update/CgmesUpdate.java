@@ -52,7 +52,7 @@ public class CgmesUpdate {
         }
         UpdateContext context = new UpdateContext(cgmests);
         for (IidmChange change : changes) {
-            List<TripleStoreChange> tsChanges = convert(change, context);
+            List<TripleStoreChange> tsChanges = convert(change, context, cgmests);
             update(cgmests, tsChanges, context);
         }
     }
@@ -63,7 +63,7 @@ public class CgmesUpdate {
         }
     }
 
-    private List<TripleStoreChange> convert(IidmChange change, UpdateContext context) {
+    private List<TripleStoreChange> convert(IidmChange change, UpdateContext context, CgmesModelTripleStore cgmests) {
         // Right now we only know how to deal with update changes
         requireChangeIsUpdate(change);
         IidmToCgmes c = findConversion(change, context);
@@ -71,7 +71,7 @@ public class CgmesUpdate {
             LOG.error("Unsupported conversion for IIDM change {}", change);
             return Collections.emptyList();
         }
-        return c.convert(change);
+        return c.convert(change,cgmests);
     }
 
     private void requireChangeIsUpdate(IidmChange change) {

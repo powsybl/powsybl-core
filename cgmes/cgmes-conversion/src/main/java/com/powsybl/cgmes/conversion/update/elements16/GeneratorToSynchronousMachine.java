@@ -8,8 +8,11 @@ package com.powsybl.cgmes.conversion.update.elements16;
 
 import com.powsybl.cgmes.conversion.update.IidmToCgmes;
 import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -33,6 +36,9 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes {
         computedValueUpdate("targetP", "cim:RotatingMachine.p", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::pFromTargetP);
         computedValueUpdate("targetQ", "cim:RotatingMachine.q", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::qFromTargetQ);
 
+        computedSubjectUpdate("targetV", "cim:RegulatingControl.targetValue", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::regulatingControlId);
+        computedSubjectUpdate("voltageRegulatorOn", "cim:RegulatingControl.enabled", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::regulatingControlId);
+
         // The change of the sub-object reactiveLimits will be a not-so-simple change
         // If the reactiveLimits kind is MIN_MAX,
         // values could be written directly as attributes of the SynchronousMachine:
@@ -40,8 +46,8 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes {
         // cim:SynchronousMachine.maxQ in CgmesSubset.EQUIPMENT
         unsupported("reactiveLimits");
         // Changes related to sub-object in CGMES (RegulatingControl)
-        unsupported("targetV");
-        unsupported("voltageRegulatorOn");
+//        unsupported("targetV");
+//        unsupported("voltageRegulatorOn");
     }
 
     private String pFromTargetP(Identifiable id) {
@@ -54,6 +60,19 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes {
         requireGenerator(id);
         Generator g = (Generator) id;
         return Double.toString(-g.getTargetQ());
+    }
+
+    // FIXME elena: current implementation is inefficient, need to be amended
+    private String regulatingControlId(Identifiable id, CgmesModelTripleStore cgmes) {
+        PropertyBags synchronousMachines = cgmes.synchronousMachines();
+        for (PropertyBag pb : synchronousMachines) {
+            if (pb.getId("SynchronousMachine").equals(id.getId())) {
+                return pb.getId("RegulatingControl");
+            } else {
+                continue;
+            }
+        }
+        return null;
     }
 
     private void requireGenerator(Identifiable id) {

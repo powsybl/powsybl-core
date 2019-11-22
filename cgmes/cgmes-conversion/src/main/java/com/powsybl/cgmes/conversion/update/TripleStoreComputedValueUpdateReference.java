@@ -7,8 +7,10 @@
 package com.powsybl.cgmes.conversion.update;
 
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Identifiable;
 
 /**
@@ -19,6 +21,14 @@ public class TripleStoreComputedValueUpdateReference extends TripleStoreSimpleUp
     public TripleStoreComputedValueUpdateReference(String predicate, String contextReference, Function<Identifiable, String> valueComputation) {
         super(predicate, contextReference);
         this.valueComputation = Objects.requireNonNull(valueComputation);
+        this.subjectComputation = null;
+    }
+
+    public TripleStoreComputedValueUpdateReference(String predicate, String contextReference, Function<Identifiable, String> valueComputation,
+        BiFunction<Identifiable, CgmesModelTripleStore, String> subjectComputation) {
+        super(predicate, contextReference);
+        this.valueComputation = Objects.requireNonNull(valueComputation);
+        this.subjectComputation = subjectComputation;
     }
 
     @Override
@@ -27,4 +37,5 @@ public class TripleStoreComputedValueUpdateReference extends TripleStoreSimpleUp
     }
 
     private final Function<Identifiable, String> valueComputation;
+    private final BiFunction<Identifiable, CgmesModelTripleStore, String> subjectComputation;
 }

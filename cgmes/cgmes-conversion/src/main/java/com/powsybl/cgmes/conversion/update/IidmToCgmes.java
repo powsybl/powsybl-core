@@ -12,12 +12,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Identifiable;
 
 /**
@@ -26,18 +28,19 @@ import com.powsybl.iidm.network.Identifiable;
  */
 public class IidmToCgmes {
 
-    public List<TripleStoreChange> convert(IidmChange change) {
+    public List<TripleStoreChange> convert(IidmChange change, CgmesModelTripleStore cgmests) {
         if (change instanceof IidmChangeUpdate) {
-            return convertUpdate((IidmChangeUpdate) change);
+            return convertUpdate((IidmChangeUpdate) change, cgmests);
         } else {
-            throw new UnsupportedOperationException(String.format("Changes of type %s are not yet supported", change.getClass().getSimpleName()));
+            throw new UnsupportedOperationException(
+                String.format("Changes of type %s are not yet supported", change.getClass().getSimpleName()));
         }
     }
 
-    public List<TripleStoreChange> convertUpdate(IidmChangeUpdate change) {
+    public List<TripleStoreChange> convertUpdate(IidmChangeUpdate change, CgmesModelTripleStore cgmests) {
         TripleStoreSimpleUpdateReference simpleUpdateReference = simpleUpdateReference(change);
         if (simpleUpdateReference != null) {
-            String subject = change.getIdentifiable().getId();
+            String subject = simpleUpdateReference.subject(change,cgmests);
             String value = simpleUpdateReference.value(change);
             TripleStoreChangeParams updateParams = new TripleStoreChangeParams(simpleUpdateReference, value);
             TripleStoreChange tschange = new TripleStoreChange("update", subject, updateParams);
@@ -45,7 +48,8 @@ public class IidmToCgmes {
         } else if (ignoredAttributes.contains(change.getAttribute())) {
             return Collections.emptyList();
         } else {
-            throw new UnsupportedOperationException("Convert to CGMES a change on IIDM " + change.getIdentifiable().getClass().getSimpleName() + "." + change.getAttribute());
+            throw new UnsupportedOperationException("Convert to CGMES a change on IIDM "
+                + change.getIdentifiable().getClass().getSimpleName() + "." + change.getAttribute());
         }
     }
 
@@ -62,9 +66,25 @@ public class IidmToCgmes {
             new TripleStoreSimpleUpdateReference(predicate, subset.getIdentifier()));
     }
 
-    protected void computedValueUpdate(String attribute, String predicate, CgmesSubset subset, Function<Identifiable, String> valueComputation) {
+    protected void computedValueUpdate(String attribute, String predicate, CgmesSubset subset,
+        Function<Identifiable, String> valueComputation) {
         simpleUpdateReferences.put(attribute,
             new TripleStoreComputedValueUpdateReference(predicate, subset.getIdentifier(), valueComputation));
+    }
+
+    protected void computedSubjectUpdate(String attribute, String predicate, CgmesSubset subset,
+        BiFunction<Identifiable, CgmesModelTripleStore, String> subjectComputation) {
+        simpleUpdateReferences.put(attribute,
+            new TripleStoreSimpleUpdateReference(predicate, subset.getIdentifier(),
+                subjectComputation));
+    }
+
+    protected void computedSubjectUpdate(String attribute, String predicate, CgmesSubset subset,
+        Function<Identifiable, String> valueComputation,
+        BiFunction<Identifiable, CgmesModelTripleStore, String> subjectComputation) {
+        simpleUpdateReferences.put(attribute,
+            new TripleStoreComputedValueUpdateReference(predicate, subset.getIdentifier(), valueComputation,
+                subjectComputation));
     }
 
     protected void ignore(String attribute) {
