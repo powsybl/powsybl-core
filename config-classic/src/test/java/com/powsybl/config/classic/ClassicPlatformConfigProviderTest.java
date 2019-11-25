@@ -43,7 +43,7 @@ public class ClassicPlatformConfigProviderTest {
     }
 
     private List<String> getAbsolutePaths(String configDirs) {
-        Path[] paths = ClassicPlatformConfigProvider.getDefaultConfigDirs(fileSystem, configDirs, "/");
+        Path[] paths = ClassicPlatformConfigProvider.getDefaultConfigDirs(fileSystem, configDirs, "/", ":");
         return Arrays.stream(paths).map(Path::toAbsolutePath).map(Path::normalize).map(Path::toString)
                 .collect(Collectors.toList());
     }

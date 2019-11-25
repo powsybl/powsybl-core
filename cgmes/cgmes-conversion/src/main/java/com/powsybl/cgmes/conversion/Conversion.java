@@ -119,13 +119,14 @@ public class Conversion {
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.currentLimitsMapping().addAll();
 
-        // set all remote regulating terminals
-        context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
+        // set all regulating controls
+        context.regulatingControlMapping().setAllRegulatingControls(network);
 
         if (config.convertSvInjections()) {
             convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
         }
 
+        clearUnattachedHvdcConverterStations(network, context); // in case of faulty CGMES files, remove HVDC Converter Stations without HVDC lines
         voltageAngles(nodes, context);
         if (context.config().debugTopology()) {
             debugTopology(context);
@@ -250,6 +251,17 @@ public class Conversion {
 
     private void convertTransformers(Context context) {
         profiling.start();
+        Map<String, PropertyBag> powerTransformerRatioTapChanger = new HashMap<>();
+        Map<String, PropertyBag> powerTransformerPhaseTapChanger = new HashMap<>();
+        cgmes.ratioTapChangers().forEach(ratio -> {
+            String id = ratio.getId("RatioTapChanger");
+            powerTransformerRatioTapChanger.put(id, ratio);
+        });
+        cgmes.phaseTapChangers().forEach(phase -> {
+            String id = phase.getId("PhaseTapChanger");
+            powerTransformerPhaseTapChanger.put(id, phase);
+        });
+
         cgmes.groupedTransformerEnds().entrySet()
                 .forEach(tends -> {
                     String t = tends.getKey();
@@ -260,9 +272,9 @@ public class Conversion {
                     }
                     AbstractConductingEquipmentConversion c = null;
                     if (ends.size() == 2) {
-                        c = new TwoWindingsTransformerConversion(ends, context);
+                        c = new TwoWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
                     } else if (ends.size() == 3) {
-                        c = new ThreeWindingsTransformerConversion(ends, context);
+                        c = new ThreeWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, context);
                     } else {
                         String what = String.format("PowerTransformer %s", t);
                         String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",
@@ -290,6 +302,13 @@ public class Conversion {
             }
         }
         profiling.end("voltageAngles");
+    }
+
+    private void clearUnattachedHvdcConverterStations(Network network, Context context) {
+        network.getHvdcConverterStationStream().filter(converter -> converter.getHvdcLine() == null).forEach(converter -> {
+            context.ignored(String.format("HVDC Converter Station %s", converter.getId()), "No correct linked HVDC line found.");
+            converter.remove();
+        });
     }
 
     private void debugTopology(Context context) {
@@ -406,8 +425,8 @@ public class Conversion {
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
-        private double lowImpedanceLineR = 0.05;
-        private double lowImpedanceLineX = 0.05;
+        private double lowImpedanceLineR = 7.0E-5;
+        private double lowImpedanceLineX = 7.0E-5;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;

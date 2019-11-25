@@ -17,9 +17,12 @@ import java.util.List;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class CgmesConformity1NetworkCatalog {
+public final class CgmesConformity1NetworkCatalog {
 
-    public Network microBE(String modelId) {
+    private CgmesConformity1NetworkCatalog() {
+    }
+
+    private static Network microBE(String modelId) {
         Network network = Network.create(modelId, "no-format");
 
         Substation sBrussels = network.newSubstation()
@@ -685,7 +688,7 @@ public class CgmesConformity1NetworkCatalog {
         return network;
     }
 
-    public Network microBaseCaseBE() {
+    public static Network microBaseCaseBE() {
         String modelId = "urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73";
         Network network = microBE(modelId);
         DanglingLine be1 = network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da");
@@ -740,7 +743,7 @@ public class CgmesConformity1NetworkCatalog {
         return network;
     }
 
-    public Network microType4BE() {
+    public static Network microType4BE() {
         String modelId = "urn:uuid:96adadbe-902b-4cd6-9fc8-01a56ecbee79";
         Network network = microBE(modelId);
         // Add voltage level in Anvers
@@ -949,7 +952,7 @@ public class CgmesConformity1NetworkCatalog {
         ASYMMETRICAL, SYMMETRICAL
     };
 
-    private void addPhaseTapChanger(
+    private static void addPhaseTapChanger(
             TwoWindingsTransformer tx,
             PhaseTapChangerType type,
             int low, int high, int neutral, int position,

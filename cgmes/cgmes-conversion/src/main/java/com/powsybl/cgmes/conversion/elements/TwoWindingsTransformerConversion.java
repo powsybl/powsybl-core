@@ -7,10 +7,13 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import java.util.Map;
+
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -19,10 +22,15 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class TwoWindingsTransformerConversion extends AbstractConductingEquipmentConversion {
 
-    public TwoWindingsTransformerConversion(PropertyBags ends, Context context) {
+    protected static final String STRING_PHASE_ANGLE_CLOCK = "phaseAngleClock";
+
+    public TwoWindingsTransformerConversion(PropertyBags ends, Map<String, PropertyBag> powerTransformerRatioTapChanger,
+        Map<String, PropertyBag> powerTransformerPhaseTapChanger, Context context) {
         super("PowerTransformer", ends, context);
         end1 = ends.get(0);
         end2 = ends.get(1);
+        this.powerTransformerRatioTapChanger = powerTransformerRatioTapChanger;
+        this.powerTransformerPhaseTapChanger = powerTransformerPhaseTapChanger;
     }
 
     @Override
@@ -72,6 +80,19 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
         convertedTerminals(tx.getTerminal1(), tx.getTerminal2());
 
         addTapChangers(tx);
+
+        int phaseAngleClock1 = end1.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
+        int phaseAngleClock2 = end2.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
+
+        // add phaseAngleClock as an extension, cgmes does not allow pac at end1
+        if (phaseAngleClock1 != 0) {
+            String reason = "Unsupported modelling: twoWindingsTransformer with phaseAngleClock at end1";
+            ignored("phaseAngleClock end1", reason);
+        }
+        if (phaseAngleClock2 != 0) {
+            TwoWindingsTransformerPhaseAngleClock phaseAngleClock = new TwoWindingsTransformerPhaseAngleClock(tx, phaseAngleClock2);
+            tx.addExtension(TwoWindingsTransformerPhaseAngleClock.class, phaseAngleClock);
+        }
     }
 
     private void addTapChangers(TwoWindingsTransformer tx) {
@@ -82,11 +103,33 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
         String ptc1 = end1.getId(ptcPropertyName);
         String ptc2 = end2.getId(ptcPropertyName);
 
+        // used only for debugging in the current conversion, it will not be needed in the full conversion
         if (context.config().allowUnsupportedTapChangers()) {
             context.tapChangerTransformers().add(rtc1, tx, "rtc", 1);
             context.tapChangerTransformers().add(rtc2, tx, "rtc", 2);
             context.tapChangerTransformers().add(ptc1, tx, "ptc", 1);
             context.tapChangerTransformers().add(ptc2, tx, "ptc", 2);
+
+            boolean supported = true;
+            String rtc = null;
+            String ptc = null;
+            if (rtc1 != null && rtc2 != null) {
+                supported = false;
+            } else if (rtc1 != null) {
+                rtc = rtc1;
+            } else if (rtc2 != null) {
+                rtc = rtc2;
+            }
+            if (ptc1 != null && ptc2 != null) {
+                supported = false;
+            } else if (ptc1 != null) {
+                ptc = ptc1;
+            } else if (ptc2 != null) {
+                ptc = ptc2;
+            }
+            if (supported) {
+                setRegulatingControlContext(tx, rtc, ptc);
+            }
             return;
         }
 
@@ -134,8 +177,27 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
                     ptc);
             invalid(reason);
         }
+
+        setRegulatingControlContext(tx, rtc, ptc);
+    }
+
+    private void setRegulatingControlContext(TwoWindingsTransformer tx, String rtcId, String ptcId) {
+        PropertyBag rtc = null;
+        if (rtcId != null) {
+            rtc = powerTransformerRatioTapChanger.get(rtcId);
+        }
+
+        PropertyBag ptc = null;
+        if (ptcId != null) {
+            ptc = powerTransformerPhaseTapChanger.get(ptcId);
+        }
+        context.regulatingControlMapping().forTransformers().add(tx.getId(), rtcId, rtc, ptc);
     }
 
     private final PropertyBag end1;
     private final PropertyBag end2;
+    private final Map<String, PropertyBag> powerTransformerRatioTapChanger;
+    private final Map<String, PropertyBag> powerTransformerPhaseTapChanger;
 }
+
+

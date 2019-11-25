@@ -12,9 +12,9 @@ import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
- *
  * An AppFileSystem instance is a tree of {@link Node} objects, starting with its root folder.
  * <p>
  * {@link Node} objects may be {@link Folder}s or {@link File}, or any new file type added
@@ -119,6 +119,23 @@ public class AppFileSystem implements AutoCloseable {
         }
 
         return (T) projectFile;
+    }
+
+    /**
+     * Get a project by its ID
+     *
+     * @param projectId projectID
+     * @return the optionally found project
+     */
+    public Optional<Project> findProject(String projectId) {
+        Objects.requireNonNull(projectId);
+
+        NodeInfo projectInfo = storage.getNodeInfo(projectId);
+        if (projectInfo != null && Project.PSEUDO_CLASS.equals(projectInfo.getPseudoClass())) {
+            return Optional.of(new Project(new FileCreationContext(projectInfo, storage, this)));
+        }
+
+        return Optional.empty();
     }
 
     /**

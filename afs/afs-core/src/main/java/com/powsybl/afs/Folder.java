@@ -113,17 +113,13 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
         return new Project(new FileCreationContext(projectInfo, storage, fileSystem));
     }
 
-    public void archive(Path dir) {
+    public void archiveChildren(Path dir) {
         Objects.requireNonNull(dir);
         try {
             new AppStorageArchive(storage).archiveChildren(info, dir);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    public void unarchive(Path dir) {
-        new AppStorageArchive(storage).unarchiveChildren(info, dir);
     }
 
     @Override

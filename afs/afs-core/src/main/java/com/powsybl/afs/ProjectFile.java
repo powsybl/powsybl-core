@@ -97,6 +97,10 @@ public class ProjectFile extends ProjectNode {
         storage.flush();
     }
 
+    public boolean mandatoryDependenciesAreMissing() {
+        return false;
+    }
+
     public void addListener(ProjectFileListener listener) {
         listeners.add(listener);
     }
@@ -117,7 +121,4 @@ public class ProjectFile extends ProjectNode {
         project.getFileSystem().getTaskMonitor().stopTask(id);
     }
 
-    public <U> U findService(Class<U> serviceClass) {
-        return project.getFileSystem().getData().findService(serviceClass, storage.isRemote());
-    }
 }

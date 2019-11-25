@@ -16,7 +16,7 @@ import org.apache.commons.lang3.tuple.Pair;
 public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoint> {
 
     public static double eval(NodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
-        return NodeCalcVisitors.visit(nodeCalc, multiPoint, new NodeCalcEvaluator());
+        return nodeCalc.accept(new NodeCalcEvaluator(), multiPoint, 0);
     }
 
     @Override

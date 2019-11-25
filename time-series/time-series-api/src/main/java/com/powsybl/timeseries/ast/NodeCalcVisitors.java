@@ -6,21 +6,33 @@
  */
 package com.powsybl.timeseries.ast;
 
+import com.powsybl.commons.config.PlatformConfig;
+
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Deque;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
+ * This utility class implements the core iterative algorithm to perform
+ * a post-order {@link NodeCalc} tree traversal using a
+ * {@link NodeCalcVisitor}.
+ *
  * @author Jon Harper <jon.harper at rte-france.com>
  *
- *         This utility class implements the core iterative algorithm to perform
- *         a post-order {@link NodeCalc} tree traversal using a
- *         {@link NodeCalcVisitor}.
  */
 public final class NodeCalcVisitors {
+
+    // The max number of recursive calls. On normal computers using the defaults, a
+    // threshold of more than a few thousands may throw StackOverflowException.
+    // A recursive traversal is used below the threshold instead of an iterative
+    // traversal and is up to 5x faster.
+    private static final int DEFAULT_RECURSION_THRESHOLD = 1000;
+    public static final int RECURSION_THRESHOLD = PlatformConfig.defaultConfig()
+            .getOptionalModuleConfig("timeseries")
+            .map(moduleConfig -> moduleConfig.getIntProperty("recursion-threshold", DEFAULT_RECURSION_THRESHOLD))
+            .orElse(DEFAULT_RECURSION_THRESHOLD);
+
+    public static final Object NULL = new Object();
 
     private NodeCalcVisitors() {
     }
@@ -38,71 +50,40 @@ public final class NodeCalcVisitors {
      * @param visitor The NodeCalcVisitor
      * @return network factory with the given name
      */
+    @SuppressWarnings("unchecked")
     public static <R, A> R visit(NodeCalc root, A arg, NodeCalcVisitor<R, A> visitor) {
         Objects.requireNonNull(root);
         Objects.requireNonNull(visitor);
-        // We will traverse the tree and put the nodes in the visitQueue stack. We will
-        // compute results for the nodes and put them in the childrenQueue stack.
-        // The first time that we handle a node in the stack, we don't pop it and we
-        // only push its children to the visitQueue stack.
-        // The second time that we handle a node in the visitQueue stack, we pop it,
-        // we pop the results of the children from the childrenQueue stack, we compute
-        // the result and push it to the childrenQueue stack.
-        ArrayDeque<NodeWrapper> visitQueue = new ArrayDeque<>();
-        ArrayDeque<Optional<R>> childrenQueue = new ArrayDeque<>();
-        visitQueue.push(new NodeWrapper(root, true));
-        while (!visitQueue.isEmpty()) {
-            NodeWrapper nodeWrapper = visitQueue.peek();
-            if (nodeWrapper.beforechildren) {
-                nodeWrapper.beforechildren = false;
-                iterate(arg, visitor, visitQueue, nodeWrapper);
-            } else {
-                visitQueue.pop();
-                visit(arg, visitor, childrenQueue, nodeWrapper);
+
+        // First traverse the nodes in right-left pre-order using the preOrderStack
+        // stack and push nodes as we go to the postOrderStack stack. Later, popping
+        // from the postOrderStack stack will give a left-right post-order traversal of
+        // the tree, like the "normal" recursive traversal.
+        // The stacks have a generic type of <Object> to allow to insert a null Object
+        // because ArrayDeque doesn't allow nulls.
+        Deque<Object> preOrderStack = new ArrayDeque<>();
+        Deque<Object> postOrderStack = new ArrayDeque<>();
+        preOrderStack.push(root);
+        while (!preOrderStack.isEmpty()) {
+            Object node = preOrderStack.pop();
+            postOrderStack.push(node);
+            if (node != NULL) {
+                ((NodeCalc) node).acceptIterate(visitor, arg, preOrderStack);
             }
         }
-        return childrenQueue.pop().orElse(null);
-    }
-
-    private static <A, R> void iterate(A arg, NodeCalcVisitor<R, A> visitor, ArrayDeque<NodeWrapper> visitQueue,
-            NodeWrapper nodeWrapper) {
-        if (nodeWrapper.node != null) {
-            List<NodeCalc> children = nodeWrapper.node.acceptIterate(visitor, arg);
-            Collections.reverse(children);
-            for (NodeCalc child : children) {
-                visitQueue.push(new NodeWrapper(child, true));
-            }
-            nodeWrapper.childcount = children.size();
-        } else {
-            nodeWrapper.childcount = 0;
+        // Now do the left-right post-order traversal.
+        // reuse prepareQueue for performance, it's empty but has the correct capacity
+        // already allocated.
+        // The stack have a generic type of <Object> to allow to insert a null Object
+        // because ArrayDeque doesn't allow nulls.
+        Deque<Object> resultsStack = preOrderStack;
+        while (!postOrderStack.isEmpty()) {
+            Object nodeWrapper = postOrderStack.pop();
+            R result = nodeWrapper != NULL ? ((NodeCalc) nodeWrapper).acceptHandle(visitor, arg, resultsStack) : null;
+            resultsStack.push(result == null ? NULL : result);
         }
+        Object result = resultsStack.pop();
+        return result == NULL ? null : (R) result;
     }
 
-    private static <R, A> void visit(A arg, NodeCalcVisitor<R, A> visitor, ArrayDeque<Optional<R>> childrenQueue,
-            NodeWrapper nodeWrapper) {
-        List<R> results;
-        if (nodeWrapper.childcount > 0) {
-            results = new ArrayList<>();
-            for (int i = 0; i < nodeWrapper.childcount; i++) {
-                results.add(childrenQueue.pop().orElse(null));
-            }
-            Collections.reverse(results);
-        } else {
-            results = Collections.emptyList();
-        }
-        R result = nodeWrapper.node != null ? nodeWrapper.node.acceptVisit(visitor, arg, results) : null;
-        childrenQueue.push(Optional.ofNullable(result));
-    }
-
-    private static class NodeWrapper {
-
-        private NodeCalc node;
-        private boolean beforechildren;
-        private int childcount = -1;
-
-        public NodeWrapper(NodeCalc node, boolean beforechildren) {
-            this.node = node;
-            this.beforechildren = beforechildren;
-        }
-    }
 }

@@ -39,4 +39,9 @@ class MultiVariantContext implements VariantContext {
             this.index = -1;
         }
     }
+
+    @Override
+    public boolean isIndexSet() {
+        return this.index != -1;
+    }
 }

@@ -62,4 +62,8 @@ public class Node extends AbstractNodeBase<Folder> {
     public AppFileSystem getFileSystem() {
         return fileSystem;
     }
+
+    public <U> U findService(Class<U> serviceClass) {
+        return fileSystem.getData().findService(serviceClass, storage.isRemote());
+    }
 }

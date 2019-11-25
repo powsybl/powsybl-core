@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -29,11 +30,15 @@ import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.util.URIUtil;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.query.UpdateExecutionException;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
@@ -51,6 +56,7 @@ import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
 import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreException;
 
 /**
@@ -58,9 +64,16 @@ import com.powsybl.triplestore.api.TripleStoreException;
  */
 public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
+    static final String NAME = "rdf4j";
+
     public TripleStoreRDF4J() {
         repo = new SailRepository(new MemoryStore());
         repo.initialize();
+    }
+
+    @Override
+    public String getImplementationName() {
+        return NAME;
     }
 
     public Repository getRepository() {
@@ -81,6 +94,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             // This is the default behavior for other triple store engines (Jena)
             conn.getParserConfig().addNonFatalError(XMLParserSettings.FAIL_ON_INVALID_NCNAME);
             conn.getParserConfig().addNonFatalError(BasicParserSettings.VERIFY_URI_SYNTAX);
+            conn.getParserConfig().addNonFatalError(XMLParserSettings.FAIL_ON_DUPLICATE_RDF_ID);
 
             Resource context = context(conn, contextName);
             // We add data with a context (graph) to keep the source of information
@@ -180,6 +194,51 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             }
         }
         return results;
+    }
+
+    @Override
+    public void add(TripleStore source) {
+        Objects.requireNonNull(source);
+        Repository sourceRepo;
+        if (source instanceof TripleStoreRDF4J) {
+            sourceRepo = ((TripleStoreRDF4J) source).repo;
+            try (RepositoryConnection sourceConn = sourceRepo.getConnection()) {
+                try (RepositoryConnection targetConn = repo.getConnection()) {
+                    copyNamespacesToRepository(sourceConn, targetConn);
+                    // copy statements
+                    RepositoryResult<Resource> contexts = sourceConn.getContextIDs();
+                    for (Resource sourceContext : Iterations.asList(contexts)) {
+                        Resource targetContext = context(targetConn, sourceContext.stringValue());
+
+                        RepositoryResult<Statement> statements;
+                        statements = sourceConn.getStatements(null, null, null, sourceContext);
+                        // add statements to the new repository
+                        for (Statement statement : Iterations.asList(statements)) {
+                            targetConn.add(statement, targetContext);
+                        }
+                    }
+                }
+            }
+        } else {
+            throw new TripleStoreException(String.format("Add to %s from source %s is not supported",
+                getImplementationName(), source.getImplementationName()));
+        }
+    }
+
+    private static void copyNamespacesToRepository(RepositoryConnection sourceConn, RepositoryConnection targetConn) {
+        RepositoryResult<Namespace> ns = sourceConn.getNamespaces();
+        for (Namespace namespace : Iterations.asList(ns)) {
+            targetConn.setNamespace(namespace.getPrefix(), namespace.getName());
+        }
+    }
+
+    @Override
+    public void update(String query) {
+        try (RepositoryConnection conn = repo.getConnection()) {
+            conn.prepareUpdate(QueryLanguage.SPARQL, adjustedQuery(query)).execute();
+        } catch (MalformedQueryException | UpdateExecutionException | RepositoryException e) {
+            throw new TripleStoreException(String.format("Query [%s]", query), e);
+        }
     }
 
     @Override
@@ -287,7 +346,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         cnx.setNamespace("data", base + "/#");
     }
 
-    private Resource context(RepositoryConnection conn, String contextName) {
+    private static Resource context(RepositoryConnection conn, String contextName) {
         // Remove the namespaceForContexts from contextName if it already starts with it
         String name1 = contextName.replace(namespaceForContexts(), "");
         return conn.getValueFactory().createIRI(namespaceForContexts(), name1);
@@ -317,5 +376,4 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     private boolean writeBySubject = true;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TripleStoreRDF4J.class);
-
 }

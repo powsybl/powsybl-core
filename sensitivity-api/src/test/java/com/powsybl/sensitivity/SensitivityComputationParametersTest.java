@@ -9,11 +9,7 @@ package com.powsybl.sensitivity;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -22,13 +18,6 @@ import static org.junit.Assert.*;
  */
 public class SensitivityComputationParametersTest {
     private static final String DUMMY_EXTENSION_NAME = "dummyExtension";
-
-    private PlatformConfig config;
-
-    @Before
-    public void setUp() {
-        config = Mockito.mock(PlatformConfig.class);
-    }
 
     @Test
     public void testExtensions() {
@@ -54,8 +43,7 @@ public class SensitivityComputationParametersTest {
 
     @Test
     public void testExtensionFromConfig() {
-        Mockito.when(config.getOptionalModuleConfig("load-flow-default-parameters")).thenReturn(Optional.empty());
-        SensitivityComputationParameters parameters = SensitivityComputationParameters.load(config);
+        SensitivityComputationParameters parameters = SensitivityComputationParameters.load();
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensionByName(DUMMY_EXTENSION_NAME) instanceof DummyExtension);
         assertNotNull(parameters.getExtension(DummyExtension.class));

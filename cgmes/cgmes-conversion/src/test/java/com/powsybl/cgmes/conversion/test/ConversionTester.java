@@ -17,11 +17,8 @@ import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.TestGridModel;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.xml.XMLExporter;
@@ -31,7 +28,6 @@ import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameter
 import com.powsybl.loadflow.validation.ValidationConfig;
 import com.powsybl.loadflow.validation.ValidationType;
 import com.powsybl.triplestore.api.TripleStoreFactory;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +48,7 @@ import static org.junit.Assert.fail;
 public class ConversionTester {
 
     public ConversionTester(Properties importParams, List<String> tripleStoreImplementations,
-            ComparisonConfig networkComparison) {
+                            ComparisonConfig networkComparison) {
         this.importParams = importParams;
         this.tripleStoreImplementations = tripleStoreImplementations;
         this.networkComparison = networkComparison;
@@ -131,8 +127,7 @@ public class ConversionTester {
         // by powsybl against the topology present in the CGMES model
         iparams.put("createBusbarSectionForEveryConnectivityNode", "true");
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
-            PlatformConfig platformConfig = new InMemoryPlatformConfig(fs);
-            CgmesImport i = new CgmesImport(platformConfig);
+            CgmesImport i = new CgmesImport();
             ReadOnlyDataSource ds = gm.dataSource();
             Network network = i.importData(ds, new NetworkFactoryImpl(), iparams);
             if (network.getSubstationCount() == 0) {
@@ -161,27 +156,23 @@ public class ConversionTester {
         }
     }
 
-    private void testConversionOnlyReport(TestGridModel gm) throws IOException {
+    private void testConversionOnlyReport(TestGridModel gm) {
         String impl = TripleStoreFactory.defaultImplementation();
-        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
-            PlatformConfig platformConfig = new InMemoryPlatformConfig(fs);
-            CgmesImport i = new CgmesImport(platformConfig);
-            Properties params = new Properties();
-            params.put("storeCgmesModelAsNetworkExtension", "true");
-            params.put("powsyblTripleStore", impl);
-            ReadOnlyDataSource ds = gm.dataSource();
-            LOG.info("Importer.exists() == {}", i.exists(ds));
-            Network n = i.importData(ds, new NetworkFactoryImpl(), params);
-            CgmesModel m = n.getExtension(CgmesModelExtension.class).getCgmesModel();
-            new Conversion(m).report(reportConsumer);
-        }
+        CgmesImport i = new CgmesImport();
+        Properties params = new Properties();
+        params.put("storeCgmesModelAsNetworkExtension", "true");
+        params.put("powsyblTripleStore", impl);
+        ReadOnlyDataSource ds = gm.dataSource();
+        LOG.info("Importer.exists() == {}", i.exists(ds));
+        Network n = i.importData(ds, new NetworkFactoryImpl(), params);
+        CgmesModel m = n.getExtension(CgmesModelExtension.class).getCgmesModel();
+        new Conversion(m).report(reportConsumer);
     }
 
     private void exportXiidm(String name, String impl, Network expected, Network actual) throws IOException {
         String name1 = name.replace('/', '-');
         Path path = Files.createTempDirectory("temp-conversion-" + name1 + "-" + impl + "-");
-
-        XMLExporter xmlExporter = new XMLExporter(Mockito.mock(PlatformConfig.class));
+        XMLExporter xmlExporter = new XMLExporter();
         // Last component of the path is the name for the exported XML
         if (expected != null) {
             xmlExporter.export(expected, null, new FileDataSource(path, "expected"));
@@ -198,7 +189,7 @@ public class ConversionTester {
     }
 
     private void testExportImportCgmes(Network network, FileSystem fs, CgmesImport i, Properties iparams,
-            ComparisonConfig config) throws IOException {
+                                       ComparisonConfig config) throws IOException {
 
         Path path = fs.getPath("temp-export-cgmes");
         Files.createDirectories(path);
@@ -214,18 +205,16 @@ public class ConversionTester {
         // Precision required on bus balances (MVA)
         double threshold = 0.01;
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
-            ValidationConfig validationConfig = loadFlowValidationConfig(fs, threshold);
-            TableFormatterConfig formatterConfig = new TableFormatterConfig();
+            ValidationConfig config = loadFlowValidationConfig(threshold);
             Path working = Files.createDirectories(fs.getPath("lf-validation"));
 
-            computeMissingFlows(network, validationConfig.getLoadFlowParameters());
-            assertTrue(ValidationType.BUSES.check(network, validationConfig, formatterConfig, working));
+            computeMissingFlows(network, config.getLoadFlowParameters());
+            assertTrue(ValidationType.BUSES.check(network, config, working));
         }
     }
 
-    private static ValidationConfig loadFlowValidationConfig(FileSystem fs, double threshold) {
-        InMemoryPlatformConfig pconfig = new InMemoryPlatformConfig(fs);
-        ValidationConfig config = ValidationConfig.load(pconfig);
+    private static ValidationConfig loadFlowValidationConfig(double threshold) {
+        ValidationConfig config = ValidationConfig.load();
         config.setVerbose(true);
         config.setThreshold(threshold);
         config.setOkMissingValues(false);

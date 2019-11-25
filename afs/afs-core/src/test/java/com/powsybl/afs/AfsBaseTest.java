@@ -7,16 +7,27 @@
 package com.powsybl.afs;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.InMemoryEventsBus;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.NetworkFactoryService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -24,6 +35,8 @@ import static org.junit.Assert.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class AfsBaseTest {
+
+    private FileSystem fileSystem;
 
     private AppStorage storage;
 
@@ -33,6 +46,7 @@ public class AfsBaseTest {
 
     @Before
     public void setup() {
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         ad = new AppData(computationManager, computationManager, Collections.emptyList(),
                 Collections.emptyList(), Collections.singletonList(new FooFileExtension()), Collections.emptyList());
@@ -45,8 +59,9 @@ public class AfsBaseTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         storage.close();
+        fileSystem.close();
     }
 
     @Test
@@ -189,6 +204,35 @@ public class AfsBaseTest {
         ProjectFolder dir7 = rootFolder.createFolder("dir7");
         dir7.rename("dir77");
         assertEquals("dir77", dir7.getName());
+
+        Path rootDir = fileSystem.getPath("/root");
+        try {
+            Files.createDirectories(rootDir);
+        } catch (IOException ignored) {
+        }
+
+        dir7.archive(rootDir);
+        Path child = rootDir.resolve(dir7.getId());
+        assertTrue(Files.exists(child));
+
+        ProjectFolder dir8 = rootFolder.createFolder("dir8");
+        assertEquals(0, dir8.getChildren().size());
+        dir8.unarchive(child);
+        assertEquals(1, dir8.getChildren().size());
+        assertEquals("dir77", dir8.getChildren().get(0).getName());
+
+        Path testDirNotExists = rootDir.resolve("testDirNotExists");
+        try {
+            dir7.archive(testDirNotExists);
+            fail();
+        } catch (UncheckedIOException ignored) {
+        }
+
+        try {
+            dir8.findService(NetworkFactoryService.class);
+            fail();
+        } catch (AfsException ignored) {
+        }
     }
 
     @Test
@@ -238,5 +282,19 @@ public class AfsBaseTest {
         assertEquals(createdFile.getFileSystem(), foundFile.getFileSystem());
         assertEquals(createdFile.getDependencies(), foundFile.getDependencies());
         assertEquals(createdFile.getCodeVersion(), foundFile.getCodeVersion());
+    }
+
+    @Test
+    public void findProjectTest() {
+        Project project = afs.getRootFolder().createProject("test");
+        Project foundProject = afs.findProject(project.getId()).orElse(null);
+        assertNotNull(foundProject);
+        assertEquals(project.getId(), foundProject.getId());
+        assertEquals(project.getName(), foundProject.getName());
+        assertEquals(project.getDescription(), foundProject.getDescription());
+        assertEquals(project.getCreationDate(), foundProject.getCreationDate());
+        assertEquals(project.getModificationDate(), foundProject.getModificationDate());
+        assertEquals(project.getFileSystem(), foundProject.getFileSystem());
+        assertEquals(project.getCodeVersion(), foundProject.getCodeVersion());
     }
 }

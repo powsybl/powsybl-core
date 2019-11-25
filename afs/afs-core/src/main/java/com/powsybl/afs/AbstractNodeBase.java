@@ -7,8 +7,12 @@
 package com.powsybl.afs;
 
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.AppStorageArchive;
 import com.powsybl.afs.storage.NodeInfo;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -169,5 +173,18 @@ public abstract class AbstractNodeBase<F> {
             childNodes = storage.getChildNodes(parentNode.get().getId());
         }
         return childNodes.stream().filter(nodeInfo -> !nodeInfo.getId().equals(getId())).anyMatch(nodeInfo -> nodeInfo.getName().equals(name));
+    }
+
+    public void archive(Path dir) {
+        Objects.requireNonNull(dir);
+        try {
+            new AppStorageArchive(storage).archive(info, dir);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void unarchive(Path dir) {
+        new AppStorageArchive(storage).unarchive(info, dir);
     }
 }

@@ -12,7 +12,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collections;
 
-import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.Test;
 
@@ -29,7 +28,7 @@ public class LimitViolationsResultEquivalenceTest {
 
     @Test
     public void equivalent() {
-        LimitViolationsResultEquivalence resultEquivalence = new LimitViolationsResultEquivalence(0.1, NullWriter.NULL_WRITER, new TableFormatterConfig());
+        LimitViolationsResultEquivalence resultEquivalence = new LimitViolationsResultEquivalence(0.1, NullWriter.NULL_WRITER);
 
         LimitViolation line1Violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE);
         LimitViolation sameLine1Violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE);
