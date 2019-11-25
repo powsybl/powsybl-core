@@ -7,6 +7,7 @@
 package com.powsybl.action.dsl;
 
 import com.powsybl.action.util.PhaseShifterDeltaTapTask;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.iidm.network.Network;
@@ -125,6 +126,34 @@ public class ActionDslLoaderTest {
     }
 
     @Test
+    public void testInvalidTransformerId() {
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
+        Action deltaTapAction = actionDb.getAction("InvalidTransformerId");
+        assertNotNull(deltaTapAction);
+        assertEquals(-10, ((PhaseShifterDeltaTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
+        try {
+            deltaTapAction.run(network, null);
+        } catch (PowsyblException ex) {
+            assertNotNull(ex);
+            assertEquals(ex.getMessage(), "Transformer 'NHV1_NHV2_1' not found");
+        }
+    }
+
+    @Test
+    public void testTransformerWithoutPhaseShifter() {
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
+        Action deltaTapAction = actionDb.getAction("TransformerWithoutPhaseShifter");
+        assertNotNull(deltaTapAction);
+        assertEquals(-10, ((PhaseShifterDeltaTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
+        try {
+            deltaTapAction.run(network, null);
+        } catch (PowsyblException ex) {
+            assertNotNull(ex);
+            assertEquals(ex.getMessage(), "Transformer 'NGEN_NHV1' is not a phase shifter");
+        }
+    }
+
+    @Test
     public void testUnvalidate() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
         Action someAction = actionDb.getAction("someAction");
@@ -207,10 +236,10 @@ public class ActionDslLoaderTest {
 
     private static final class DeltaTapData {
 
-        private int iniTapPosition;
-        private int expectedTapPosition;
-        private int deltaTap;
-        private String testName;
+        private final int iniTapPosition;
+        private final int expectedTapPosition;
+        private final int deltaTap;
+        private final String testName;
 
         private DeltaTapData(int iniTapPosition, int expectedTapPosition, int deltaTap, String testName) {
             this.iniTapPosition = iniTapPosition;
@@ -233,22 +262,6 @@ public class ActionDslLoaderTest {
 
         private String getTestName() {
             return testName;
-        }
-
-        private void setIniTapPosition(int iniTapPosition) {
-            this.iniTapPosition = iniTapPosition;
-        }
-
-        public void setExpectedTapPosition(int expectedTapPosition) {
-            this.expectedTapPosition = expectedTapPosition;
-        }
-
-        public void setDeltaTap(int deltaTap) {
-            this.deltaTap = deltaTap;
-        }
-
-        public void setTestName(String testName) {
-            this.testName = testName;
         }
     }
 

@@ -88,3 +88,15 @@ action ('deltaTapMinus10') {
         phaseShifterDeltaTap('NGEN_NHV1', -10)
     }
 }
+
+action ('InvalidTransformerId') {
+    tasks {
+        phaseShifterDeltaTap('NHV1_NHV2_1', -10)
+    }
+}
+
+action ('TransformerWithoutPhaseShifter') {
+    tasks {
+        phaseShifterDeltaTap('NGEN_NHV1', -10)
+    }
+}
