@@ -33,9 +33,11 @@ public class InMemoryEventsBus implements EventsBus {
 
     @Override
     public void pushEvent(NodeEvent event, String topic) {
+        lock.lock();
         eventList.addEvent(event);
         topics.computeIfAbsent(topic, k -> new ArrayList<>());
         topics.get(topic).add(event);
+        lock.unlock();
     }
 
     Map<String, List<NodeEvent>> getTopics() {
