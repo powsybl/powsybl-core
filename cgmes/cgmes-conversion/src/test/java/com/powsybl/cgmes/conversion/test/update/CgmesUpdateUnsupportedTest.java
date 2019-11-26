@@ -68,12 +68,6 @@ public class CgmesUpdateUnsupportedTest {
         tryExport();
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testUnsupportedGeneratorRegulatingControl() {
-        NetworkChanges.modifyGeneratorVoltageRegulation(network);
-        tryExport();
-    }
-
     private void tryExport() {
         DataSource tmpDataSource = new FileDataSource(fileSystem.getPath("/"), "");
         new CgmesExport().export(network, new Properties(), tmpDataSource);

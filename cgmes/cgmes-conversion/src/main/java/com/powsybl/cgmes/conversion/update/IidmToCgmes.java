@@ -40,7 +40,7 @@ public class IidmToCgmes {
     public List<TripleStoreChange> convertUpdate(IidmChangeUpdate change, CgmesModelTripleStore cgmests) {
         TripleStoreSimpleUpdateReference simpleUpdateReference = simpleUpdateReference(change);
         if (simpleUpdateReference != null) {
-            String subject = simpleUpdateReference.subject(change,cgmests);
+            String subject = simpleUpdateReference.subject(change, cgmests);
             String value = simpleUpdateReference.value(change);
             TripleStoreChangeParams updateParams = new TripleStoreChangeParams(simpleUpdateReference, value);
             TripleStoreChange tschange = new TripleStoreChange("update", subject, updateParams);

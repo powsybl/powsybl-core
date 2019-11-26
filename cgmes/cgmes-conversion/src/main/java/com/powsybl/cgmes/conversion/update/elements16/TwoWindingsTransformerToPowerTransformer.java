@@ -15,7 +15,6 @@ import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -54,10 +53,12 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
 
     private String ratioTapChangerId(Identifiable id, CgmesModelTripleStore cgmes) {
         requireTwoWindingsTransformer(id);
-        idEnd1 = getEndsId(id, cgmes).get(ID_END1);
-        PropertyBags tapChangers = cgmes.ratioTapChangers();
-        for (PropertyBag pb : tapChangers) {
-            if (pb.getId("TransformerEnd").equals(idEnd1)) {
+        String end;
+        idEnd1 = transformerEndId(id, cgmes).get(ID_END1);
+        idEnd2 = transformerEndId(id, cgmes).get(ID_END2);
+        for (PropertyBag pb : cgmes.ratioTapChangers()) {
+            end = pb.getId(TRANSFORMER_END);
+            if (end.equals(idEnd1) || end.equals(idEnd2)) {
                 return pb.getId("RatioTapChanger");
             } else {
                 continue;
@@ -66,22 +67,19 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
         return null;
     }
 
-    /**
-     * Check if TransformerEnd elements already exist in grid, if yes - returns the
-     * ids.
-     */
-    private Map<String, String> getEndsId(Identifiable id, CgmesModelTripleStore cgmes) {
-        String currId = id.getId();
+    private Map<String, String> transformerEndId(Identifiable id, CgmesModelTripleStore cgmes) {
+        String twt;
+        String windingType;
+        String identifiableId = id.getId();
         Map<String, String> ids = new HashMap<>();
         for (PropertyBag pb : cgmes.transformerEnds()) {
-            String windingType = pb.get("endNumber");
-            if (pb.getId(POWER_TRANSFORMER).equals(currId)
-                && windingType.equals("1")) {
+            twt = pb.getId(POWER_TRANSFORMER);
+            windingType = pb.get("endNumber");
+            if (twt.equals(identifiableId) && windingType.equals("1")) {
                 idEnd1 = pb.getId(TRANSFORMER_END);
                 ids.put(ID_END1, idEnd1);
 
-            } else if (pb.getId(POWER_TRANSFORMER).equals(currId)
-                && windingType.equals("2")) {
+            } else if (twt.equals(identifiableId) && windingType.equals("2")) {
                 idEnd2 = pb.getId(TRANSFORMER_END);
                 ids.put(ID_END2, idEnd2);
             } else {
@@ -99,8 +97,8 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
 
     String idEnd1;
     String idEnd2;
-    private final String POWER_TRANSFORMER = "PowerTransformer";
-    private final String TRANSFORMER_END = "TransformerEnd";
-    private final String ID_END1 = "idEnd1";
-    private final String ID_END2 = "idEnd2";
+    private static final String POWER_TRANSFORMER = "PowerTransformer";
+    private static final String TRANSFORMER_END = "TransformerEnd";
+    private static final String ID_END1 = "idEnd1";
+    private static final String ID_END2 = "idEnd2";
 }

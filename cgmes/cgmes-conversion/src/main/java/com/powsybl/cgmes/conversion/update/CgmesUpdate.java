@@ -71,7 +71,7 @@ public class CgmesUpdate {
             LOG.error("Unsupported conversion for IIDM change {}", change);
             return Collections.emptyList();
         }
-        return c.convert(change,cgmests);
+        return c.convert(change, cgmests);
     }
 
     private void requireChangeIsUpdate(IidmChange change) {
