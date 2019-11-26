@@ -10,6 +10,11 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static org.junit.Assert.*;
 
 /**
@@ -299,5 +304,20 @@ public class NodeBreakerTest {
         // load "L4" is not connected, has no connectable bus and is in a disconnected voltage level
         assertNull(getBus(network.getLoad("L4")));
         assertNull(getConnectableBus(network.getLoad("L4")));
+    }
+
+    @Test
+    public void testConnectedTerminal() {
+        Network network = createNetwork();
+        Generator g = network.getGenerator("G");
+        Bus bus = getBus(g);
+        List<Integer> collect = bus.getConnectedTerminalStream()
+                .map(terminal -> terminal.getNodeBreakerView().getNode())
+                .collect(Collectors.toList());
+        assertEquals(Arrays.asList(0, 3), collect);
+        Iterator<Terminal> it = bus.getConnectedTerminals().iterator();
+        assertEquals(0, it.next().getNodeBreakerView().getNode());
+        assertEquals(3, it.next().getNodeBreakerView().getNode());
+        assertFalse(it.hasNext());
     }
 }
