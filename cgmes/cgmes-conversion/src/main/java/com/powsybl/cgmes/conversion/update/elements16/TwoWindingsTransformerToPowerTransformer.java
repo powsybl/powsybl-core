@@ -76,12 +76,10 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
             twt = pb.getId(POWER_TRANSFORMER);
             windingType = pb.get("endNumber");
             if (twt.equals(identifiableId) && windingType.equals("1")) {
-                idEnd1 = pb.getId(TRANSFORMER_END);
-                ids.put(ID_END1, idEnd1);
+                ids.put(ID_END1, pb.getId(TRANSFORMER_END));
 
             } else if (twt.equals(identifiableId) && windingType.equals("2")) {
-                idEnd2 = pb.getId(TRANSFORMER_END);
-                ids.put(ID_END2, idEnd2);
+                ids.put(ID_END2, pb.getId(TRANSFORMER_END));
             } else {
                 continue;
             }
