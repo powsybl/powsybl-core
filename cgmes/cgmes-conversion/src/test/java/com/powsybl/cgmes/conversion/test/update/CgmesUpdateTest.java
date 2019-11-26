@@ -70,7 +70,6 @@ public class CgmesUpdateTest {
         testSimpleUpdate(CgmesConformity1Catalog.smallBusBranch().dataSource());
     }
 
-//    @Ignore("Contains an AsynchronousMachine that is mapped to an IIDM load")
     @Test
     public void testSimpleUpdateMiniBusBranch() throws IOException {
         testSimpleUpdate(CgmesConformity1Catalog.miniBusBranch().dataSource());

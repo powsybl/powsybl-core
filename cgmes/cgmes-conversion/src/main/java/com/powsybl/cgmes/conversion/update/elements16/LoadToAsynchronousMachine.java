@@ -10,17 +10,18 @@ import com.powsybl.cgmes.conversion.update.IidmToCgmes;
 import com.powsybl.cgmes.model.CgmesSubset;
 
 /**
- * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Elena Kaltakova <kaltakovae at aia.es>
+ *
  */
-public class LoadToEnergyConsumer extends IidmToCgmes {
+public class LoadToAsynchronousMachine extends IidmToCgmes {
 
-    LoadToEnergyConsumer() {
+    LoadToAsynchronousMachine() {
         // Ignore changes on (p, q) from Load Terminal
         // They will be added directly as new objects in SV subset
         ignore("p");
         ignore("q");
 
-        simpleUpdate("p0", "cim:EnergyConsumer.p", CgmesSubset.STEADY_STATE_HYPOTHESIS);
-        simpleUpdate("q0", "cim:EnergyConsumer.q", CgmesSubset.STEADY_STATE_HYPOTHESIS);
+        simpleUpdate("p0", "cim:RotatingMachine.p", CgmesSubset.STEADY_STATE_HYPOTHESIS);
+        simpleUpdate("q0", "cim:RotatingMachine.q", CgmesSubset.STEADY_STATE_HYPOTHESIS);
     }
 }

@@ -66,6 +66,14 @@ SELECT *
      ?attribute ?value .
 }}
 
+# query: typeForSubject
+SELECT ?type
+WHERE
+{ GRAPH ?graph {
+   { ?subject rdf:type ?type }
+   FILTER (?subject = <{0}>)
+}}
+
 # query: boundaryNodes
 # All topological nodes belonging to a graph that has a modelProfile that contains the string "TopologyBoundary"
 # Union all connectivity nodes belonging to a graph that has profile EquipmentBoundaryOperation

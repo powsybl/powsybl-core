@@ -66,7 +66,7 @@ public class CgmesUpdate {
     private List<TripleStoreChange> convert(IidmChange change, UpdateContext context, CgmesModelTripleStore cgmests) {
         // Right now we only know how to deal with update changes
         requireChangeIsUpdate(change);
-        IidmToCgmes c = findConversion(change, context);
+        IidmToCgmes c = findConversion(change, context, cgmests);
         if (c == null) {
             LOG.error("Unsupported conversion for IIDM change {}", change);
             return Collections.emptyList();
@@ -80,9 +80,9 @@ public class CgmesUpdate {
         }
     }
 
-    private IidmToCgmes findConversion(IidmChange change, UpdateContext context) {
+    private IidmToCgmes findConversion(IidmChange change, UpdateContext context, CgmesModelTripleStore cgmests) {
         if (context.cimVersion == 16) {
-            return IIDM_TO_CGMES16.findConversion(change);
+            return IIDM_TO_CGMES16.findConversion(change, cgmests);
         }
         throw new ConversionException("Unsupported format for conversion to CGMES model " + context.cimVersion);
     }

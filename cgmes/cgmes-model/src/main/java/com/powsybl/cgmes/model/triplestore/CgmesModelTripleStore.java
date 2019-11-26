@@ -250,6 +250,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         return namedQuery("allObjectsOfType", type);
     }
 
+    public PropertyBag typeForSubject(String fullSubject) {
+        Objects.requireNonNull(fullSubject);
+        return namedQuery("typeForSubject", fullSubject).get(0);
+    }
+
     @Override
     public PropertyBags boundaryNodes() {
         return namedQuery("boundaryNodes");
@@ -512,7 +517,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             String.valueOf(valueIsUri));
     }
 
-    private String getBaseUri(String baseName) {
+    public String getBaseUri(String baseName) {
         if (tripleStore.getImplementationName().equals("rdf4j")) {
             return baseName.concat("/#");
         } else {
