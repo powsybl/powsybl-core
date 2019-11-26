@@ -75,10 +75,10 @@ public class MergingNetworkTest {
 
         // Substations
         assertTrue(mergingView.getCountries().isEmpty());
-        final Substation s1 = addSubstation(mergingView, "S1", Country.FR);
+        final Substation s1 = addSubstation(mergingView, "S1", Country.FR, false);
         assertSame(mergingView, s1.getNetwork());
         assertEquals(1, mergingView.getCountryCount());
-        addSubstation(n2, "S2", Country.ES);
+        addSubstation(n2, "S2", Country.ES, false);
         assertEquals(2, mergingView.getCountryCount());
         assertNull(mergingView.getSubstation("S0"));
         assertSame(s1, mergingView.getSubstation("S1"));
@@ -193,8 +193,8 @@ public class MergingNetworkTest {
 
     @Test
     public void failMergeWithSameObj() {
-        addSubstation(n1, "P1", Country.FR);
-        addSubstation(n2, "P1", Country.FR);
+        addSubstation(n1, "P1", Country.FR, false);
+        addSubstation(n2, "P1", Country.FR, false);
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("The object 'P1' already exists into merging view");
         mergingView.merge(n1, n2);
@@ -202,17 +202,19 @@ public class MergingNetworkTest {
 
     @Test
     public void failAddSameObj() {
-        addSubstation(mergingView, "P1", Country.FR);
+        addSubstation(mergingView, "P1", Country.FR, false);
+        Substation autoIdSub = addSubstation(mergingView, "P1", Country.FR, true);
+        assertSame(autoIdSub, mergingView.getSubstation("P1#0"));
         thrown.expect(PowsyblException.class);
-        thrown.expectMessage("The network MergingNetworkTest already contains an object 'SubstationImpl' with the id 'P1'");
-        addSubstation(mergingView, "P1", Country.FR);
+        thrown.expectMessage("The network already contains an object 'SubstationAdderImpl' with the id 'P1'");
+        addSubstation(mergingView, "P1", Country.FR, false);
     }
 
-    private static Substation addSubstation(final Network network, final String substationId, final Country country) {
+    private static Substation addSubstation(final Network network, final String substationId, final Country country, boolean ensureIdUnicity) {
         return network.newSubstation()
                 .setId(substationId)
                 .setName(substationId)
-                .setEnsureIdUnicity(false)
+                .setEnsureIdUnicity(ensureIdUnicity)
                 .setCountry(country)
                 .setTso("RTE")
                 .setGeographicalTags("A")
