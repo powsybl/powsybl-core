@@ -7,18 +7,32 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Bus;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.stream.Stream;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 interface BusExt extends Bus {
 
+    /**
+     * Get terminals connected to this bus.
+     */
     Iterable<TerminalExt> getConnectedTerminals();
 
+    /**
+     * Get terminals connected to this bus.
+     */
     Stream<TerminalExt> getConnectedTerminalStream();
+
+    /**
+     * Get nodes in this bus.
+     * @return Returns the nodes in array.
+     */
+    default int[] getNodes() {
+        throw new NotImplementedException("Not implemented yet");
+    }
 
     void setConnectedComponentNumber(int connectedComponentNumber);
 

@@ -607,6 +607,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public int[] getNodes(String busId) {
+            return getCalculatedBusTopology().getBus(busId, true).getNodes();
+        }
+
+        @Override
         public NodeBreakerView setNodeCount(int count) {
             int oldCount = graph.getVertexCount();
             if (count > oldCount) {

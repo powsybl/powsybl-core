@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.iidm.network.util.ShortIdDictionary;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -366,6 +367,13 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get the list of nodes.
          */
         int[] getNodes();
+
+        /**
+         * Get the list of nodes in bus.
+         */
+        default int[] getNodes(String busId) {
+            throw new NotImplementedException("Not implemented yet");
+        }
 
         /**
          * Set the number of node.
