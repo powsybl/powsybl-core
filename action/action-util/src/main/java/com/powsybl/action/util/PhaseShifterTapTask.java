@@ -18,12 +18,12 @@ import java.util.Objects;
 /**
  * @author Hamou AMROUN <hamou.amroun at rte-france.com>
  */
-public class PhaseShifterDeltaTapTask implements ModificationTask {
+public class PhaseShifterTapTask implements ModificationTask {
 
     private final String phaseShifterId;
     private final int tapDelta;
 
-    public PhaseShifterDeltaTapTask(String phaseShifterId, int tapDelta) {
+    public PhaseShifterTapTask(String phaseShifterId, int tapDelta) {
         this.phaseShifterId = Objects.requireNonNull(phaseShifterId);
         this.tapDelta = tapDelta;
     }

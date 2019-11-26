@@ -14,12 +14,12 @@ import com.powsybl.contingency.tasks.ModificationTask
  * @author Hamou AMROUN <hamou.amroun at rte-france.com>
  */
 @AutoService(DslTaskExtension.class)
-class PhaseShifterDeltaTapTaskExtension implements DslTaskExtension {
+class PhaseShifterTapTaskExtension implements DslTaskExtension {
 
     @Override
     void addToSpec(MetaClass tasksSpecMetaClass, List<ModificationTask> tasks, Binding binding) {
-        tasksSpecMetaClass.phaseShifterDeltaTap = { String id, int delta ->
-            tasks.add(new PhaseShifterDeltaTapTask(id, delta))
+        tasksSpecMetaClass.phaseShifterTap = { String id, int delta ->
+            tasks.add(new PhaseShifterTapTask(id, delta))
         }
     }
 }

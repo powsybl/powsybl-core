@@ -6,7 +6,7 @@
  */
 package com.powsybl.action.dsl;
 
-import com.powsybl.action.util.PhaseShifterDeltaTapTask;
+import com.powsybl.action.util.PhaseShifterTapTask;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
@@ -112,8 +112,8 @@ public class ActionDslLoaderTest {
             ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
             Action deltaTapAction = actionDb.getAction(data.getTestName());
             assertNotNull(deltaTapAction);
-            assertEquals(data.getDeltaTap(), ((PhaseShifterDeltaTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
-            addPhaseShifter(data.getIniTapPosition());
+            assertEquals(data.getDeltaTap(), ((PhaseShifterTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
+            addPhaseShifter(data.getInitTapPosition());
             PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("NGEN_NHV1").getPhaseTapChanger();
             assertEquals(1, phaseTapChanger.getTapPosition());
             assertTrue(phaseTapChanger.isRegulating());
@@ -130,13 +130,10 @@ public class ActionDslLoaderTest {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
         Action deltaTapAction = actionDb.getAction("InvalidTransformerId");
         assertNotNull(deltaTapAction);
-        assertEquals(-10, ((PhaseShifterDeltaTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
-        try {
-            deltaTapAction.run(network, null);
-        } catch (PowsyblException ex) {
-            assertNotNull(ex);
-            assertEquals(ex.getMessage(), "Transformer 'NHV1_NHV2_1' not found");
-        }
+        assertEquals(-10, ((PhaseShifterTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("Transformer 'NHV1_NHV2_1' not found");
+        deltaTapAction.run(network, null);
     }
 
     @Test
@@ -144,13 +141,10 @@ public class ActionDslLoaderTest {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
         Action deltaTapAction = actionDb.getAction("TransformerWithoutPhaseShifter");
         assertNotNull(deltaTapAction);
-        assertEquals(-10, ((PhaseShifterDeltaTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
-        try {
-            deltaTapAction.run(network, null);
-        } catch (PowsyblException ex) {
-            assertNotNull(ex);
-            assertEquals(ex.getMessage(), "Transformer 'NGEN_NHV1' is not a phase shifter");
-        }
+        assertEquals(-10, ((PhaseShifterTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("Transformer 'NGEN_NHV1' is not a phase shifter");
+        deltaTapAction.run(network, null);
     }
 
     @Test
@@ -248,7 +242,7 @@ public class ActionDslLoaderTest {
             this.testName = testName;
         }
 
-        private int getIniTapPosition() {
+        private int getInitTapPosition() {
             return iniTapPosition;
         }
 
