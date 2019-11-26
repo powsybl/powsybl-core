@@ -136,6 +136,16 @@ public final class NetworkChanges {
         t2.setB(t2.getB() + 0.1);
     }
 
+    public static void modifyTwoWindingsTransformerTapPosition(Network network) {
+//        for (TwoWindingsTransformer t2 : network.getTwoWindingsTransformers()) {
+//            if (t2.getRatioTapChanger() != null) {
+//                t2.getRatioTapChanger().setTapPosition(2);
+//            }
+//        }
+        TwoWindingsTransformer t2 = network.getTwoWindingsTransformer("_045c1248-c766-11e1-8775-005056c00008");
+        t2.getRatioTapChanger().setTapPosition(2);
+    }
+
     public static void modifyGeneratorReactiveLimits(Network network) {
         // Apply changes to first generator that has min/max limits for Q
         for (Generator g : network.getGenerators()) {

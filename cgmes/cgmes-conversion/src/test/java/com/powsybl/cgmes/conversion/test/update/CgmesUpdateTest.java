@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 
@@ -107,6 +108,7 @@ public class CgmesUpdateTest {
         NetworkChanges.scaleLoadGenerator(network0, numChangesInLoadsAndGenerators);
 
         NetworkChanges.modifySteadyStateHypothesis(network0);
+        NetworkChanges.modifyTwoWindingsTransformerTapPosition(network0);
 
         if (!isBigNetwork) {
             // Compute all flows only for small networks
@@ -184,7 +186,8 @@ public class CgmesUpdateTest {
     }
 
     private DataSource tmpDataSource(String impl) throws IOException {
-        Path exportFolder = fileSystem.getPath("impl-" + impl);
+//        Path exportFolder = fileSystem.getPath("impl-" + impl);
+        Path exportFolder = Paths.get(".\\tmp\\", impl);
         if (Files.exists(exportFolder)) {
             FileUtils.cleanDirectory(exportFolder.toFile());
         }

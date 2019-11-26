@@ -64,6 +64,7 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes {
 
     // FIXME elena: current implementation is inefficient, need to be amended
     private String regulatingControlId(Identifiable id, CgmesModelTripleStore cgmes) {
+        requireGenerator(id);
         PropertyBags synchronousMachines = cgmes.synchronousMachines();
         for (PropertyBag pb : synchronousMachines) {
             if (pb.getId("SynchronousMachine").equals(id.getId())) {

@@ -37,5 +37,4 @@ public class TripleStoreComputedValueUpdateReference extends TripleStoreSimpleUp
     }
 
     private final Function<Identifiable, String> valueComputation;
-    private final BiFunction<Identifiable, CgmesModelTripleStore, String> subjectComputation;
 }

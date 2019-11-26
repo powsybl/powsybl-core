@@ -37,7 +37,6 @@ public class TripleStoreSimpleUpdateReference {
         this.subjectComputation = null;
     }
 
-
     public TripleStoreSimpleUpdateReference(String predicate, String contextReference,
         boolean valueIsUri,
         BiFunction<Identifiable, CgmesModelTripleStore, String> subjectComputation) {
@@ -63,7 +62,7 @@ public class TripleStoreSimpleUpdateReference {
         return valueIsUri;
     }
 
-    public String subject(IidmChangeUpdate change,CgmesModelTripleStore cgmes) {
+    public String subject(IidmChangeUpdate change, CgmesModelTripleStore cgmes) {
         return subjectComputation == null ? change.getIdentifiable().getId()
             : subjectComputation.apply(change.getIdentifiable(), cgmes);
     }
