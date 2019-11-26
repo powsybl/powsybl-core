@@ -6,17 +6,17 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.stream.Stream;
-
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Component;
+
+import java.util.stream.Stream;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class ComponentAdapter extends AbstractAdapter<Component> implements Component {
 
-    protected ComponentAdapter(final Component delegate, final MergingViewIndex index) {
+    ComponentAdapter(final Component delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 

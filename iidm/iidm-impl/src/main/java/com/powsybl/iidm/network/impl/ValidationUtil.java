@@ -321,13 +321,10 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
-        Set<TapChanger> tapChangersNotIncludingTheModified, boolean regulating) {
-        if (regulating) {
-            long enabled = tapChangersNotIncludingTheModified.stream().filter(TapChanger::isRegulating).count();
-            if (enabled > 0) {
-                throw new ValidationException(validable, "Only one regulating control enabled is allowed");
-            }
+    static void checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
+                                                        Set<TapChanger> tapChangersNotIncludingTheModified, boolean regulating) {
+        if (regulating && tapChangersNotIncludingTheModified.stream().anyMatch(TapChanger::isRegulating)) {
+            throw new ValidationException(validable, "Only one regulating control enabled is allowed");
         }
     }
 

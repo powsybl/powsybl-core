@@ -7,10 +7,19 @@
 package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.entsoe.util.MergedXnode;
+import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
+import com.powsybl.iidm.parameters.ParameterType;
+import com.powsybl.ucte.converter.util.UcteConverterHelper;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.io.UcteWriter;
 import org.slf4j.Logger;
@@ -18,7 +27,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.powsybl.ucte.converter.util.UcteConstants.*;
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
@@ -32,6 +46,23 @@ import static com.powsybl.ucte.network.UcteElementStatus.*;
 public class UcteExporter implements Exporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteExporter.class);
+
+    public static final String NAMING_STRATEGY = "ucte.export.naming-strategy";
+
+    private static final Parameter NAMING_STRATEGY_PARAMETER = new Parameter(NAMING_STRATEGY, ParameterType.STRING, "Default naming strategy for UCTE codes conversion", "Default");
+
+    private static final Supplier<List<NamingStrategy>> NAMING_STRATEGY_SUPPLIERS
+            = Suppliers.memoize(() -> new ServiceLoaderCache<>(NamingStrategy.class).getServices())::get;
+
+    private final ParameterDefaultValueConfig defaultValueConfig;
+
+    public UcteExporter() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    public UcteExporter(PlatformConfig platformConfig) {
+        defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
+    }
 
     @Override
     public String getFormat() {
@@ -49,7 +80,10 @@ public class UcteExporter implements Exporter {
             throw new IllegalArgumentException("network is null");
         }
 
-        UcteNetwork ucteNetwork = createUcteNetwork(network);
+        String namingStrategyName = ConversionParameters.readStringParameter(getFormat(), parameters, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
+        NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, NAMING_STRATEGY_SUPPLIERS.get());
+
+        UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy);
 
         try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
@@ -63,9 +97,10 @@ public class UcteExporter implements Exporter {
      * Convert an IIDM network to an UCTE network
      *
      * @param network the IIDM network to convert
+     * @param namingStrategy the naming strategy to generate UCTE nodes name and elements name
      * @return the UcteNetwork corresponding to the IIDM network
      */
-    private static UcteNetwork createUcteNetwork(Network network) {
+    private static UcteNetwork createUcteNetwork(Network network, NamingStrategy namingStrategy) {
         if (network.getShuntCompensatorCount() > 0 ||
             network.getStaticVarCompensatorCount() > 0 ||
             network.getBatteryCount() > 0 ||
@@ -77,7 +112,7 @@ public class UcteExporter implements Exporter {
             throw new UcteException("This network contains unsupported equipments");
         }
 
-        UcteExporterContext context = new UcteExporterContext(new DefaultNamingStrategy());
+        UcteExporterContext context = new UcteExporterContext(namingStrategy);
 
         UcteNetwork ucteNetwork = new UcteNetworkImpl();
         ucteNetwork.setVersion(UcteFormatVersion.SECOND);
@@ -573,7 +608,7 @@ public class UcteExporter implements Exporter {
      *
      * @param twoWindingsTransformer The TwoWindingsTransformers containing the RatioTapChanger we want to convert
      * @return the UctePhaseRegulation needed to create a {@link UcteRegulation}
-     * @see com.powsybl.ucte.converter.util.UcteConverterHelper#calculatePhaseDu(TwoWindingsTransformer)
+     * @see UcteConverterHelper#calculatePhaseDu(TwoWindingsTransformer)
      */
     private static UctePhaseRegulation convertRatioTapChanger(TwoWindingsTransformer twoWindingsTransformer) {
         LOGGER.trace("Converting iidm ratio tap changer of transformer {}", twoWindingsTransformer.getId());
@@ -685,4 +720,27 @@ public class UcteExporter implements Exporter {
 
         return Double.min(permanentLimit1, permanentLimit2);
     }
+
+    static NamingStrategy findNamingStrategy(String name, List<NamingStrategy> namingStrategies) {
+        Objects.requireNonNull(namingStrategies);
+
+        if (namingStrategies.size() == 1 && name == null) {
+            // no information to select the implementation but only one naming strategy, so we can use it by default
+            // (that is be the most common use case)
+            return namingStrategies.get(0);
+        } else {
+            if (namingStrategies.size() > 1 && name == null) {
+                // several naming strategies and no information to select which one to choose, we can only throw
+                // an exception
+                List<String> namingStrategyNames = namingStrategies.stream().map(NamingStrategy::getName).collect(Collectors.toList());
+                throw new PowsyblException("Several naming strategy implementations found (" + namingStrategyNames
+                        + "), you must add properties to select the implementation");
+            }
+            return namingStrategies.stream()
+                    .filter(ns -> ns.getName().equals(name))
+                    .findFirst()
+                    .orElseThrow(() -> new PowsyblException("NamingStrategy '" + name + "' not found"));
+        }
+    }
+
 }

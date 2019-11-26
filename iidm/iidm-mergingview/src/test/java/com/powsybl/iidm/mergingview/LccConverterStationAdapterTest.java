@@ -6,15 +6,12 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
-import com.powsybl.iidm.network.LccConverterStation;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -36,15 +33,17 @@ public class LccConverterStationAdapterTest {
         assertTrue(lcc instanceof LccConverterStationAdapter);
         assertSame(mergingView, lcc.getNetwork());
 
+        assertEquals(HvdcConverterStation.HvdcType.LCC, lcc.getHvdcType());
+        lcc.setLossFactor(0.022f);
+        assertEquals(0.022f, lcc.getLossFactor(), 0.0f);
+        assertNotNull(lcc.getTerminal());
+        assertEquals(ConnectableType.HVDC_CONVERTER_STATION, lcc.getType());
+        assertEquals(1, lcc.getTerminals().size());
+
+        lcc.setPowerFactor(1.0f);
+        assertEquals(1.0f, lcc.getPowerFactor(), 0.0f);
+
         // Not implemented yet !
-        TestUtil.notImplemented(lcc::getHvdcType);
-        TestUtil.notImplemented(lcc::getLossFactor);
-        TestUtil.notImplemented(() -> lcc.setLossFactor(0.0f));
-        TestUtil.notImplemented(lcc::getTerminal);
-        TestUtil.notImplemented(lcc::getType);
-        TestUtil.notImplemented(lcc::getTerminals);
         TestUtil.notImplemented(lcc::remove);
-        TestUtil.notImplemented(lcc::getPowerFactor);
-        TestUtil.notImplemented(() -> lcc.setPowerFactor(0.0f));
     }
 }
