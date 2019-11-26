@@ -51,17 +51,15 @@ public class GeneratorModificationTask implements ModificationTask {
         }
 
         if (modifs.getTargetP() != null) {
-            setTargetpWithinBoundaries(g, modifs.getTargetP(), skipOtherConnectionChange);
-        } else if (modifs.getpDelta() != null) {
-            setTargetpWithinBoundaries(g, g.getTargetP() + modifs.getpDelta(), skipOtherConnectionChange);
+            setTargetPWithinBoundaries(g, modifs.getTargetP(), skipOtherConnectionChange);
+        } else if (modifs.getDeltaTargetP() != null) {
+            setTargetPWithinBoundaries(g, g.getTargetP() + modifs.getDeltaTargetP(), skipOtherConnectionChange);
         }
 
-        if ((modifs.getTargetV() != null) && (g.isVoltageRegulatorOn())) {
-            // The target voltage can be defined only when the generator is in voltage regulation mode.
+        if (modifs.getTargetV() != null) {
             g.setTargetV(modifs.getTargetV());
         }
-        if ((modifs.getTargetQ() != null) && (!g.isVoltageRegulatorOn())) {
-            // The target reactive can be defined only when the generator is NOT in voltage regulation mode.
+        if (modifs.getTargetQ() != null) {
             g.setTargetQ(modifs.getTargetQ());
         }
     }
@@ -78,7 +76,7 @@ public class GeneratorModificationTask implements ModificationTask {
         }
     }
 
-    private void setTargetpWithinBoundaries(Generator g, double targetP, boolean skipConnect) {
+    private void setTargetPWithinBoundaries(Generator g, double targetP, boolean skipConnect) {
         if (!skipConnect) {
             changeConnectionState(g, true);
         }
@@ -89,7 +87,7 @@ public class GeneratorModificationTask implements ModificationTask {
         private Double minP;
         private Double maxP;
         private Double targetP;
-        private Double pDelta;
+        private Double deltaTargetP;
         private Double targetV;
         private Double targetQ;
         private Boolean voltageRegulatorOn;
@@ -119,12 +117,12 @@ public class GeneratorModificationTask implements ModificationTask {
             this.targetP = targetP;
         }
 
-        Double getpDelta() {
-            return pDelta;
+        Double getDeltaTargetP() {
+            return deltaTargetP;
         }
 
-        public void setpDelta(Double pDelta) {
-            this.pDelta = pDelta;
+        public void setDeltaTargetP(Double deltaTargetP) {
+            this.deltaTargetP = deltaTargetP;
         }
 
         Double getTargetV() {

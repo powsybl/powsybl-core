@@ -5,6 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+action('unknown generator') {
+    tasks {
+        generatorModification('UNKNOWN') {
+            targetP 50.0
+        }
+    }
+}
+
 action('targetV and targetQ with voltageRegulator OFF') {
     tasks {
         generatorModification('GEN') {
@@ -28,26 +36,26 @@ action('targetV and targetQ with voltageRegulator ON') {
     }
 }
 
-action('pDelta within boundaries') {
+action('deltaTargetP within boundaries') {
     tasks {
         generatorModification('GEN') {
-            pDelta(-1.0)
+            deltaTargetP(-1.0)
         }
     }
 }
 
-action('pDelta lower boundary overflow') {
+action('deltaTargetP lower boundary overflow') {
     tasks {
         generatorModification('GEN') {
-            pDelta(-30000.0)
+            deltaTargetP(-30000.0)
         }
     }
 }
 
-action('pDelta upper boundary overflow') {
+action('deltaTargetP upper boundary overflow') {
     tasks {
         generatorModification('GEN') {
-            pDelta 30000.0
+            deltaTargetP 30000.0
         }
     }
 }
@@ -98,6 +106,15 @@ action('disconnect with targetP change') {
         generatorModification('GEN') {
             connected false
             targetP 50.0
+        }
+    }
+}
+
+action('connect with targetV change') {
+    tasks {
+        generatorModification('GEN') {
+            connected true
+            targetV 1234.56
         }
     }
 }

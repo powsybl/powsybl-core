@@ -23,10 +23,10 @@ class GeneratorModificationTaskExtension implements DslTaskExtension {
             GeneratorModificationSpec spec = new GeneratorModificationSpec()
             cloned.delegate = spec
             cloned()
-            if (spec.hasTargetP() && spec.haspDelta()) {
-                throw new PowsyblException("targetP/pDelta actions are both found in generatorModification on '" + id + "'");
+            if (spec.hasTargetP() && spec.hasDeltaTargetP()) {
+                throw new PowsyblException("targetP/deltaTargetP actions are both found in generatorModification on '" + id + "'")
             }
-            tasks.add(new GeneratorModificationTask(id, spec.computeModifs()));
+            tasks.add(new GeneratorModificationTask(id, spec.computeModifs()))
         }
     }
 
@@ -34,34 +34,36 @@ class GeneratorModificationTaskExtension implements DslTaskExtension {
      * Describes the instructions usable in a "generatorModification" task
      */
     static class GeneratorModificationSpec {
-        private Double minP;
-        private Double maxP;
-        private Double targetP;
-        private Double pDelta;
-        private Double targetV;
-        private Double targetQ;
-        private Boolean voltageRegulatorOn;
-        private Boolean connected;
+        Double minP
+        Double maxP
+        Double targetP
+        Double deltaTargetP
+        Double targetV
+        Double targetQ
+        Boolean voltageRegulatorOn
+        Boolean connected
 
         GeneratorModificationTask.Modifs computeModifs() {
-            GeneratorModificationTask.Modifs modifs = new GeneratorModificationTask.Modifs();
-            modifs.setMinP(minP);
-            modifs.setMaxP(maxP);
-            modifs.setTargetP(targetP);
-            modifs.setpDelta(pDelta);
-            modifs.setTargetV(targetV);
-            modifs.setTargetQ(targetQ);
-            modifs.setVoltageRegulatorOn(voltageRegulatorOn);
-            modifs.setConnected(connected);
-            return modifs;
+            GeneratorModificationTask.Modifs modifs = new GeneratorModificationTask.Modifs()
+            modifs.setMinP(minP)
+            modifs.setMaxP(maxP)
+            modifs.setTargetP(targetP)
+            modifs.setDeltaTargetP(deltaTargetP)
+            modifs.setTargetV(targetV)
+            modifs.setTargetQ(targetQ)
+            modifs.setVoltageRegulatorOn(voltageRegulatorOn)
+            modifs.setConnected(connected)
+            return modifs
         }
 
         void minP(Double minP) {
             this.minP = minP
         }
+
         void maxP(Double maxP) {
             this.maxP = maxP
         }
+
         /**
          * <p>Changes the target power.</p>
          * <p>The resulting target power will respect the defined min and max powers, thus:
@@ -72,39 +74,34 @@ class GeneratorModificationTaskExtension implements DslTaskExtension {
          * @param targetP the target power
          */
         void targetP(Double targetP) {
-            this.targetP = targetP;
+            this.targetP = targetP
         }
+
         /**
          * <p>Changes the target power by specifying a variation.</p>
          * <p>The resulting target power will respect the defined min and max powers, thus:
-         * <ul><li>if (targetP + pDelta) &gt; maxP, the target power will be set to maxP;</li>
-         * <li>if (targetP + pDelta) &lt; minP, the target power will be set to minP.</li></ul></p>
+         * <ul><li>if (targetP + deltaTargetP) &gt; maxP, the target power will be set to maxP;</li>
+         * <li>if (targetP + deltaTargetP) &lt; minP, the target power will be set to minP.</li></ul></p>
          * <p>This method connects the generator if it is'nt already connected, unless the same "generatorModification"
          * task contains a "connected false" instruction.</p>
-         * @param pDelta a variation of the target power
+         * @param deltaTargetP a variation of the target power
          */
-        void pDelta(Double pDelta) {
-            this.pDelta = pDelta;
+        void deltaTargetP(Double deltaTargetP) {
+            this.deltaTargetP = deltaTargetP
         }
-        /**
-         * <p>Changes the target voltage.</p>
-         * <p>This instruction is ignored if the generator is NOT in voltage regulation mode.</p>
-         * @param targetV the target voltage
-         */
+
         void targetV(Double targetV) {
-            this.targetV = targetV;
+            this.targetV = targetV
         }
-        /**
-         * <p>Changes the target reactive.</p>
-         * <p>This instruction is ignored if the generator is in voltage regulation mode.</p>
-         * @param targetQ the target reactive
-         */
+
         void targetQ(Double targetQ) {
-            this.targetQ = targetQ;
+            this.targetQ = targetQ
         }
+
         void voltageRegulatorOn(Boolean voltageRegulatorOn) {
-            this.voltageRegulatorOn = voltageRegulatorOn;
+            this.voltageRegulatorOn = voltageRegulatorOn
         }
+
         /**
          * <p>Changes the connection state of the generator if needed.</p>
          * <p>If the generator is in voltage regulation mode, a "targetV" instruction is ignored
@@ -112,13 +109,15 @@ class GeneratorModificationTaskExtension implements DslTaskExtension {
          * @param connected the wanted connection state
          */
         void connected(Boolean connected) {
-            this.connected = connected;
+            this.connected = connected
         }
+
         private boolean hasTargetP() {
-            return targetP != null;
+            return targetP != null
         }
-        private boolean haspDelta() {
-            return pDelta != null;
+
+        private boolean hasDeltaTargetP() {
+            return deltaTargetP != null
         }
     }
 }

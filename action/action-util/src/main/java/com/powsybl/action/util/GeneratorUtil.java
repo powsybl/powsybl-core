@@ -13,12 +13,12 @@ import com.powsybl.iidm.network.Terminal;
 /**
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
-final class GeneratorUtil {
+public final class GeneratorUtil {
 
     private GeneratorUtil() {
     }
 
-    static void connectGenerator(Generator g) {
+    public static void connectGenerator(Generator g) {
         Terminal t = g.getTerminal();
         t.connect();
         if (g.isVoltageRegulatorOn()) {

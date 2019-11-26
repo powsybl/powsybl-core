@@ -5,11 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-action('both targetP and pDelta') {
+action('both targetP and deltaTargetP') {
     tasks {
         generatorModification('GEN') {
             targetP 50.0
-            pDelta 1.0
+            deltaTargetP 1.0
         }
     }
 }

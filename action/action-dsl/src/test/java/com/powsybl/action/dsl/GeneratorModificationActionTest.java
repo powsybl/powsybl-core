@@ -38,54 +38,63 @@ public class GeneratorModificationActionTest {
     }
 
     @Test
-    public void testTargetvAndqWithVoltageRegulatorOff() {
+    public void testExceptionOnWrongGeneratorId() {
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
+        Action action = actionDb.getAction("unknown generator");
+        thrown.expect(PowsyblException.class);
+        thrown.expectMessage("Generator 'UNKNOWN' not found");
+        action.run(network, null);
+    }
+
+    @Test
+    public void testTargetVAndQWithVoltageRegulatorOff() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("targetV and targetQ with voltageRegulator OFF");
         action.run(network, null);
         assertEquals(20., g.getMinP(), 0.1);
         assertEquals(60., g.getMaxP(), 0.1);
         assertEquals(50., g.getTargetP(), 0.1);
-        assertEquals(24.5, g.getTargetV(), 0.1);
+        assertEquals(10, g.getTargetV(), 0.1);
         assertEquals(25., g.getTargetQ(), 0.1);
         assertFalse(g.isVoltageRegulatorOn());
     }
 
     @Test
-    public void testTargetvAndqWithVoltageRegulatorOn() {
+    public void testTargetVAndQWithVoltageRegulatorOn() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("targetV and targetQ with voltageRegulator ON");
         action.run(network, null);
         assertEquals(10, g.getTargetV(), 0.1);
-        assertEquals(301., g.getTargetQ(), 0.1);
+        assertEquals(25., g.getTargetQ(), 0.1);
         assertTrue(g.isVoltageRegulatorOn());
     }
 
     @Test
-    public void testpDeltaInBoundaries() {
+    public void testDeltaTargetPInBoundaries() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
-        Action action = actionDb.getAction("pDelta within boundaries");
+        Action action = actionDb.getAction("deltaTargetP within boundaries");
         action.run(network, null);
         assertEquals(606., g.getTargetP(), 0.1);
     }
 
     @Test
-    public void testpDeltaLowerBoundaryOverflow() {
+    public void testDeltaTargetPLowerBoundaryOverflow() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
-        Action action = actionDb.getAction("pDelta lower boundary overflow");
+        Action action = actionDb.getAction("deltaTargetP lower boundary overflow");
         action.run(network, null);
         assertEquals(-9999.99, g.getTargetP(), 0.1);
     }
 
     @Test
-    public void testpDeltaUpperBoundaryOverflow() {
+    public void testDeltaTargetPUpperBoundaryOverflow() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
-        Action action = actionDb.getAction("pDelta upper boundary overflow");
+        Action action = actionDb.getAction("deltaTargetP upper boundary overflow");
         action.run(network, null);
         assertEquals(9999.99, g.getTargetP(), 0.1);
     }
 
     @Test
-    public void testTargetpLowerBoundaryOverflow() {
+    public void testTargetPLowerBoundaryOverflow() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("targetP lower boundary overflow");
         action.run(network, null);
@@ -93,7 +102,7 @@ public class GeneratorModificationActionTest {
     }
 
     @Test
-    public void testTargetpUpperBoundaryOverflow() {
+    public void testTargetPUpperBoundaryOverflow() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("targetP upper boundary overflow");
         action.run(network, null);
@@ -101,9 +110,9 @@ public class GeneratorModificationActionTest {
     }
 
     @Test
-    public void testBothTargetpAndpDelta() {
+    public void testBothTargetpAndDeltaTargetP() {
         thrown.expect(PowsyblException.class);
-        thrown.expectMessage("targetP/pDelta actions are both found in generatorModification on 'GEN'");
+        thrown.expectMessage("targetP/deltaTargetP actions are both found in generatorModification on 'GEN'");
         new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/exception-generator-modification-action.groovy"))).load(network);
     }
 
@@ -119,7 +128,7 @@ public class GeneratorModificationActionTest {
     }
 
     @Test
-    public void testConnectionOnOffWithTargetpChange() {
+    public void testConnectionOnOffWithTargetPChange() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("disconnect with targetP change");
         action.run(network, null);
@@ -144,4 +153,16 @@ public class GeneratorModificationActionTest {
         assertFalse(g.getTerminal().isConnected());
     }
 
+    @Test
+    public void testConnectionOnOffWithTargetVChange() {
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
+        Action action = actionDb.getAction("disconnect");
+        action.run(network, null);
+        assertFalse(g.getTerminal().isConnected());
+        assertEquals(24.5, g.getTargetV(), 0.01);
+        action = actionDb.getAction("connect with targetV change");
+        action.run(network, null);
+        assertTrue(g.getTerminal().isConnected());
+        assertEquals(1234.56, g.getTargetV(), 0.01);
+    }
 }
