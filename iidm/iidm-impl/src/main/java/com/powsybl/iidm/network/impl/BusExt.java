@@ -8,17 +8,10 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Bus;
 
-import java.util.stream.Stream;
-
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 interface BusExt extends Bus {
-
-    Iterable<TerminalExt> getConnectedTerminals();
-
-    Stream<TerminalExt> getConnectedTerminalStream();
 
     void setConnectedComponentNumber(int connectedComponentNumber);
 

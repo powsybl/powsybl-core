@@ -52,11 +52,11 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
         return voltageLevel;
     }
 
-    public abstract Iterable<TerminalExt> getConnectedTerminals();
+    public abstract Iterable<Terminal> getConnectedTerminals();
 
-    public abstract Stream<TerminalExt> getConnectedTerminalStream();
+    public abstract Stream<Terminal> getConnectedTerminalStream();
 
-    public abstract Collection<? extends TerminalExt> getTerminals();
+    public abstract Collection<? extends Terminal> getTerminals();
 
     @Override
     public double getP() {
@@ -64,8 +64,8 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
             return Double.NaN;
         }
         double p = 0;
-        for (TerminalExt terminal : getConnectedTerminals()) {
-            AbstractConnectable connectable = terminal.getConnectable();
+        for (Terminal terminal : getConnectedTerminals()) {
+            AbstractConnectable connectable = ((TerminalExt) terminal).getConnectable();
             switch (connectable.getType()) {
                 case BUSBAR_SECTION:
                 case SHUNT_COMPENSATOR:
@@ -97,8 +97,8 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
             return Double.NaN;
         }
         double q = 0;
-        for (TerminalExt terminal : getConnectedTerminals()) {
-            AbstractConnectable connectable = terminal.getConnectable();
+        for (Terminal terminal : getConnectedTerminals()) {
+            AbstractConnectable connectable = ((TerminalExt) terminal).getConnectable();
             switch (connectable.getType()) {
                 case BUSBAR_SECTION:
                 case LINE:
@@ -139,7 +139,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
         }
 
         return getConnectedTerminalStream()
-                .map(TerminalExt::getConnectable)
+                .map(Terminal::getConnectable)
                 .filter(clazz::isInstance)
                 .map(clazz::cast);
     }

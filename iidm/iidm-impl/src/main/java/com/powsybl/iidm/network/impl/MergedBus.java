@@ -66,9 +66,9 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Iterable<TerminalExt> getConnectedTerminals() {
+    public Iterable<Terminal> getConnectedTerminals() {
         checkValidity();
-        List<Iterable<TerminalExt>> iterables = new ArrayList<>(buses.size());
+        List<Iterable<Terminal>> iterables = new ArrayList<>(buses.size());
         for (ConfiguredBus bus : buses) {
             iterables.add(bus.getConnectedTerminals());
         }
@@ -76,7 +76,7 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Stream<TerminalExt> getConnectedTerminalStream() {
+    public Stream<Terminal> getConnectedTerminalStream() {
         checkValidity();
         return buses.stream().flatMap(ConfiguredBus::getConnectedTerminalStream);
     }

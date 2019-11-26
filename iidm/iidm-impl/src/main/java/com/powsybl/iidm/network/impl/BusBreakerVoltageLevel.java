@@ -204,8 +204,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         protected boolean isBusValid(Set<ConfiguredBus> busSet) {
             int feederCount = 0;
             int branchCount = 0;
-            for (TerminalExt terminal : FluentIterable.from(busSet).transformAndConcat(ConfiguredBus::getConnectedTerminals)) {
-                AbstractConnectable connectable = terminal.getConnectable();
+            for (Terminal terminal : FluentIterable.from(busSet).transformAndConcat(ConfiguredBus::getConnectedTerminals)) {
+                AbstractConnectable connectable = ((TerminalExt) terminal).getConnectable();
                 switch (connectable.getType()) {
                     case LINE:
                     case TWO_WINDINGS_TRANSFORMER:
@@ -888,8 +888,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             StringBuilder builder = new StringBuilder();
             builder.append(bus.getId())
                     .append(" [");
-            for (Iterator<TerminalExt> it = bus.getConnectedTerminals().iterator(); it.hasNext(); ) {
-                TerminalExt terminal = it.next();
+            for (Iterator<Terminal> it = bus.getConnectedTerminals().iterator(); it.hasNext(); ) {
+                TerminalExt terminal = (TerminalExt) it.next();
                 builder.append(dict != null ? dict.getShortId(terminal.getConnectable().getId()) : terminal.getConnectable().getId());
                 if (it.hasNext()) {
                     builder.append(", ");

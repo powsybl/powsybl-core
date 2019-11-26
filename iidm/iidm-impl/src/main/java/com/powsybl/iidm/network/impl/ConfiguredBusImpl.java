@@ -59,12 +59,12 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
     }
 
     @Override
-    public List<TerminalExt> getConnectedTerminals() {
+    public List<Terminal> getConnectedTerminals() {
         return getConnectedTerminalStream().collect(Collectors.toList());
     }
 
     @Override
-    public Stream<TerminalExt> getConnectedTerminalStream() {
+    public Stream<Terminal> getConnectedTerminalStream() {
         return getTerminals().stream().filter(Terminal::isConnected).map(Function.identity());
     }
 
