@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.ReactiveLimits;
  */
 public class BatteryAdapter extends AbstractInjectionAdapter<Battery> implements Battery {
 
-    protected BatteryAdapter(final Battery delegate, final MergingViewIndex index) {
+    BatteryAdapter(final Battery delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 

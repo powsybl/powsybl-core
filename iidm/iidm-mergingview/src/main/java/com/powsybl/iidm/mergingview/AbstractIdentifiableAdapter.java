@@ -6,11 +6,11 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.Collection;
-import java.util.Set;
-
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Identifiable;
+
+import java.util.Collection;
+import java.util.Set;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
