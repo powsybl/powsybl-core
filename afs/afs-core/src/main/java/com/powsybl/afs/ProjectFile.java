@@ -12,9 +12,7 @@ import com.powsybl.afs.storage.events.DependencyEvent;
 import com.powsybl.afs.storage.events.NodeEvent;
 import com.powsybl.commons.util.WeakListenerList;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -72,6 +70,14 @@ public class ProjectFile extends ProjectNode {
             storage.addDependency(info.getId(), name, projectNode.getId());
         }
         storage.flush();
+    }
+
+    public void replaceDependencies(String oldDependencyId, List<ProjectNode> projectNodes) {
+        Objects.requireNonNull(oldDependencyId);
+        Objects.requireNonNull(projectNodes);
+        getDependencies().stream()
+                .filter(dependency -> dependency.getProjectNode().getId().equals(oldDependencyId))
+                .forEach(dep -> setDependencies(dep.getName(), projectNodes));
     }
 
     public <T> List<T> getDependencies(String name, Class<T> nodeClass) {
