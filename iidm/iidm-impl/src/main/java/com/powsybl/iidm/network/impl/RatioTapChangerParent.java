@@ -5,6 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.iidm.network.impl;
+import com.powsybl.iidm.network.RatioTapChanger;
 
 /**
  *
@@ -16,4 +17,5 @@ interface RatioTapChangerParent extends TapChangerParent {
 
     void setRatioTapChanger(RatioTapChangerImpl ratioTapChanger);
 
+    RatioTapChanger getRatioTapChanger();
 }

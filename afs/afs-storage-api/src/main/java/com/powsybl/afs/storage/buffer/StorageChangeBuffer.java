@@ -92,9 +92,8 @@ public class StorageChangeBuffer {
         lock.lock();
         try {
             flusher.flush(changeSet);
-
-            changeSet.getChanges().clear();
         } finally {
+            changeSet.getChanges().clear();
             lock.unlock();
         }
     }

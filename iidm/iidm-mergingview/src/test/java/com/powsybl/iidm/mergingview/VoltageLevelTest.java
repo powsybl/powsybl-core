@@ -6,18 +6,11 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
-import com.powsybl.iidm.network.ContainerType;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
-
+import com.powsybl.iidm.network.*;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -31,10 +24,10 @@ public class VoltageLevelTest {
     public void setUp() {
         mergingView = MergingView.create("VoltageLevelTest", "iidm");
         substation = mergingView.newSubstation()
-                .setCountry(Country.AF)
-                .setTso("tso")
-                .setName("sub")
-                .setId("subId")
+                    .setCountry(Country.AF)
+                    .setTso("tso")
+                    .setName("sub")
+                    .setId("subId")
                 .add();
     }
 
@@ -42,14 +35,14 @@ public class VoltageLevelTest {
     public void baseTests() {
         // adder
         final VoltageLevel voltageLevel = substation.newVoltageLevel()
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .setTopologyKind(TopologyKind.BUS_BREAKER.name())
-                .setId("bbVL")
-                .setName("bbVL_name")
-                .setNominalV(200.0)
-                .setLowVoltageLimit(100.0)
-                .setHighVoltageLimit(200.0)
-                .setEnsureIdUnicity(false)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER.name())
+                    .setId("bbVL")
+                    .setName("bbVL_name")
+                    .setNominalV(200.0)
+                    .setLowVoltageLimit(100.0)
+                    .setHighVoltageLimit(200.0)
+                    .setEnsureIdUnicity(false)
                 .add();
         assertTrue(voltageLevel instanceof VoltageLevelAdapter);
         assertSame(mergingView, voltageLevel.getNetwork());
@@ -69,8 +62,30 @@ public class VoltageLevelTest {
         assertEquals(0, voltageLevel.getLccConverterStationCount());
         assertEquals(TopologyKind.BUS_BREAKER, voltageLevel.getTopologyKind());
 
-        // Not implemented yet !
+        // Bus
+        voltageLevel.getBusBreakerView().newBus()
+                .setId("B1")
+                .setName("B1")
+                .setEnsureIdUnicity(false)
+                .add();
 
+        // VscConverterStation
+        final VscConverterStation cs1 = voltageLevel.newVscConverterStation()
+                .setId("C1")
+                .setName("Converter1")
+                .setConnectableBus("B1")
+                .setBus("B1")
+                .setLossFactor(0.011f)
+                .setVoltageSetpoint(405.0)
+                .setVoltageRegulatorOn(true)
+                .setReactivePowerSetpoint(123)
+                .setEnsureIdUnicity(false)
+                .add();
+        assertTrue(cs1 instanceof VscConverterStationAdapter);
+        assertTrue(voltageLevel.getVscConverterStations().iterator().hasNext());
+        assertEquals(1, voltageLevel.getVscConverterStationCount());
+
+        // Not implemented yet !
         // Generator
         TestUtil.notImplemented(voltageLevel::newGenerator);
         TestUtil.notImplemented(voltageLevel::getGenerators);
@@ -103,18 +118,12 @@ public class VoltageLevelTest {
         TestUtil.notImplemented(voltageLevel::getStaticVarCompensators);
         TestUtil.notImplemented(voltageLevel::getStaticVarCompensatorStream);
         assertEquals(0, voltageLevel.getStaticVarCompensatorCount());
-        // VscConverterStation
-        TestUtil.notImplemented(voltageLevel::newVscConverterStation);
-        TestUtil.notImplemented(voltageLevel::getVscConverterStations);
-        TestUtil.notImplemented(voltageLevel::getVscConverterStationStream);
-        assertEquals(0, voltageLevel.getVscConverterStationCount());
         // LccConverterStation
         TestUtil.notImplemented(voltageLevel::newLccConverterStation);
         TestUtil.notImplemented(voltageLevel::getLccConverterStations);
         TestUtil.notImplemented(voltageLevel::getLccConverterStationStream);
         // Bus
         TestUtil.notImplemented(voltageLevel::getNodeBreakerView);
-        TestUtil.notImplemented(voltageLevel::getBusBreakerView);
         TestUtil.notImplemented(voltageLevel::getBusView);
         // Connectables
         TestUtil.notImplemented(() -> voltageLevel.getConnectable("", null));
