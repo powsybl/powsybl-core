@@ -7,10 +7,13 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
 import gnu.trove.list.array.TDoubleArrayList;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -49,6 +52,18 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
     @Override
     protected NetworkImpl getNetwork() {
         return parent.getNetwork();
+    }
+
+    @Override
+    public PhaseTapChangerImpl setRegulating(boolean regulating) {
+        ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), regulating, getRegulationTerminal(), getNetwork());
+
+        Set<TapChanger> tapChangers = new HashSet<TapChanger>();
+        tapChangers.addAll(parent.getAllTapChangers());
+        tapChangers.remove(parent.getPhaseTapChanger());
+        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
+
+        return super.setRegulating(regulating);
     }
 
     @Override

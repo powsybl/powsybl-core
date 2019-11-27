@@ -8,7 +8,9 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  *
@@ -189,6 +191,18 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         @Override
         public NetworkImpl getNetwork() {
             return transformer.getSubstation().getNetwork();
+        }
+
+        @Override
+        public Set<TapChanger> getAllTapChangers() {
+            Set<TapChanger> tapChangers = new HashSet<TapChanger>();
+            if (transformer.getLeg2().getRatioTapChanger() != null) {
+                tapChangers.add(transformer.getLeg2().getRatioTapChanger());
+            }
+            if (transformer.getLeg3().getRatioTapChanger() != null) {
+                tapChangers.add(transformer.getLeg3().getRatioTapChanger());
+            }
+            return tapChangers;
         }
 
         @Override
