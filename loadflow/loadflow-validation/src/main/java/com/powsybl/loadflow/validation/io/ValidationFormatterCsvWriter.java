@@ -403,8 +403,18 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                             new Column(THETA2),
                                             new Column(THETA3),
                                             new Column("starTheta"),
-                                            new Column("g"),
-                                            new Column("b"),
+                                            new Column("g11"),
+                                            new Column("b11"),
+                                            new Column("g12"),
+                                            new Column("b12"),
+                                            new Column("g21"),
+                                            new Column("b21"),
+                                            new Column("g22"),
+                                            new Column("b22"),
+                                            new Column("g31"),
+                                            new Column("b31"),
+                                            new Column("g32"),
+                                            new Column("b32"),
                                             new Column("r1"),
                                             new Column("r2"),
                                             new Column("r3"),
@@ -446,8 +456,18 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                 new Column(THETA2 + POST_COMPUTATION_SUFFIX),
                                                 new Column(THETA3 + POST_COMPUTATION_SUFFIX),
                                                 new Column("starTheta" + POST_COMPUTATION_SUFFIX),
-                                                new Column("g" + POST_COMPUTATION_SUFFIX),
-                                                new Column("b" + POST_COMPUTATION_SUFFIX),
+                                                new Column("g11" + POST_COMPUTATION_SUFFIX),
+                                                new Column("b11" + POST_COMPUTATION_SUFFIX),
+                                                new Column("g12" + POST_COMPUTATION_SUFFIX),
+                                                new Column("b12" + POST_COMPUTATION_SUFFIX),
+                                                new Column("g21" + POST_COMPUTATION_SUFFIX),
+                                                new Column("b21" + POST_COMPUTATION_SUFFIX),
+                                                new Column("g22" + POST_COMPUTATION_SUFFIX),
+                                                new Column("b22" + POST_COMPUTATION_SUFFIX),
+                                                new Column("g31" + POST_COMPUTATION_SUFFIX),
+                                                new Column("b31" + POST_COMPUTATION_SUFFIX),
+                                                new Column("g32" + POST_COMPUTATION_SUFFIX),
+                                                new Column("b32" + POST_COMPUTATION_SUFFIX),
                                                 new Column("r1" + POST_COMPUTATION_SUFFIX),
                                                 new Column("r2" + POST_COMPUTATION_SUFFIX),
                                                 new Column("r3" + POST_COMPUTATION_SUFFIX),
@@ -778,8 +798,18 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(twtData.getTheta(ThreeWindingsTransformer.Side.TWO))
                                  .writeCell(twtData.getTheta(ThreeWindingsTransformer.Side.THREE))
                                  .writeCell(twtData.getStarTheta())
-                                 .writeCell(twtData.getG())
-                                 .writeCell(twtData.getB())
+                                 .writeCell(twtData.getG1(ThreeWindingsTransformer.Side.ONE))
+                                 .writeCell(twtData.getB1(ThreeWindingsTransformer.Side.ONE))
+                                 .writeCell(twtData.getG2(ThreeWindingsTransformer.Side.ONE))
+                                 .writeCell(twtData.getB2(ThreeWindingsTransformer.Side.ONE))
+                                 .writeCell(twtData.getG1(ThreeWindingsTransformer.Side.TWO))
+                                 .writeCell(twtData.getB1(ThreeWindingsTransformer.Side.TWO))
+                                 .writeCell(twtData.getG2(ThreeWindingsTransformer.Side.TWO))
+                                 .writeCell(twtData.getB2(ThreeWindingsTransformer.Side.TWO))
+                                 .writeCell(twtData.getG1(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(twtData.getB1(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(twtData.getG2(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(twtData.getB2(ThreeWindingsTransformer.Side.THREE))
                                  .writeCell(twtData.getR(ThreeWindingsTransformer.Side.ONE))
                                  .writeCell(twtData.getR(ThreeWindingsTransformer.Side.TWO))
                                  .writeCell(twtData.getR(ThreeWindingsTransformer.Side.THREE))
@@ -796,7 +826,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(twtData.isMainComponent(ThreeWindingsTransformer.Side.TWO))
                                  .writeCell(twtData.isMainComponent(ThreeWindingsTransformer.Side.THREE))
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCells(26);
+                        formatter.writeEmptyCells(36);
         }
         return formatter;
     }

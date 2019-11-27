@@ -67,7 +67,7 @@ public final class Transformers3WValidation extends AbstractTransformersValidati
         Objects.requireNonNull(twtsWriter);
 
         boolean validated = true;
-        TwtData twtData = new TwtData(twt, config.getEpsilonX(), config.applyReactanceCorrection());
+        TwtData twtData = new TwtData(twt, config.getEpsilonX(), config.applyReactanceCorrection(), false);
         validated &= checkLeg(twtData, Side.ONE, config);
         validated &= checkLeg(twtData, Side.TWO, config);
         validated &= checkLeg(twtData, Side.THREE, config);

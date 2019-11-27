@@ -96,7 +96,8 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
         network.getThreeWindingsTransformerStream().forEach(twt -> {
             TwtData twtData = new TwtData(twt,
                                           parameters.getEpsilonX(),
-                                          parameters.isApplyReactanceCorrection());
+                                          parameters.isApplyReactanceCorrection(),
+                                          lfParameters.isSplitShuntAdmittanceXfmr3());
             completeTerminalData(twt.getLeg1().getTerminal(), ThreeWindingsTransformer.Side.ONE, twtData);
             completeTerminalData(twt.getLeg2().getTerminal(), ThreeWindingsTransformer.Side.TWO, twtData);
             completeTerminalData(twt.getLeg3().getTerminal(), ThreeWindingsTransformer.Side.THREE, twtData);
