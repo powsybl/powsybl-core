@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.util.Identifiables;
 
 /**
  *
@@ -49,7 +50,7 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
         }
         String uniqueId;
         if (ensureIdUnicity) {
-            uniqueId = getNetwork().getIndex().getUniqueId(id);
+            uniqueId = Identifiables.getUniqueId(id, getNetwork().getIndex()::contains);
         } else {
             if (getNetwork().getIndex().contains(id)) {
                 Identifiable obj = getNetwork().getIndex().get(id);

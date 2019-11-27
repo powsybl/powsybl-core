@@ -7,15 +7,21 @@
 package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.Identifiable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class Identifiables {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Identifiables.class);
 
     private Identifiables() {
     }
@@ -30,5 +36,26 @@ public final class Identifiables {
 
     public static String getNullableId(Identifiable identifiable) {
         return identifiable == null ? null : identifiable.getId();
+    }
+
+    public static String getUniqueId(String baseId, Predicate<String> containsId) {
+        String checkedBaseId;
+        if (baseId != null && baseId.length() > 0) {
+            if (!containsId.test(baseId)) {
+                return baseId;
+            }
+            checkedBaseId = baseId;
+        } else {
+            checkedBaseId = "autoid";
+        }
+        String uniqueId;
+        int i = 0;
+        do {
+            uniqueId = checkedBaseId + '#' + i++;
+        } while (i < Integer.MAX_VALUE && containsId.test(uniqueId));
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Object '{}' is not unique, rename to '{}'", baseId, uniqueId);
+        }
+        return uniqueId;
     }
 }
