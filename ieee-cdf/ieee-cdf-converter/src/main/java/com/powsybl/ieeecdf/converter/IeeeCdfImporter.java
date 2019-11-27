@@ -7,6 +7,7 @@
 package com.powsybl.ieeecdf.converter;
 
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.ieeecdf.model.*;
@@ -223,8 +224,38 @@ public class IeeeCdfImporter implements Importer {
         return substation;
     }
 
+    private static double parseNominalVoltageInBusName(IeeeCdfBus ieeeCdfBus) {
+        if (ieeeCdfBus.getName().length() < 9) {
+            throw new PowsyblException("Bus name is too short for parsing nominal voltage");
+        }
+        String nominalVoltageStr = ieeeCdfBus.getName().substring(9, 12).trim();
+        switch (nominalVoltageStr) {
+            case "V1":
+            case "HV":
+                return 345;
+            case "V2":
+            case "LV":
+                return 138;
+            case "V3":
+                return 161;
+            case "V4":
+            case "TV":
+                return 33;
+            case "V5":
+                return 14;
+            case "V6":
+                return 11;
+            case "V7":
+            case "ZV":
+                return 1;
+            default:
+                throw new IllegalStateException("Unknown nominal voltage: '" + nominalVoltageStr + "'");
+        }
+    }
+
     private static VoltageLevel createVoltageLevel(IeeeCdfBus ieeeCdfBus, String voltageLevelId, Substation substation, Network network) {
-        double nominalV = ieeeCdfBus.getBaseVoltage() == 0 ? 1 : ieeeCdfBus.getBaseVoltage();
+        double nominalV = ieeeCdfBus.getBaseVoltage() == 0 ? parseNominalVoltageInBusName(ieeeCdfBus)
+                                                           : ieeeCdfBus.getBaseVoltage();
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             voltageLevel = substation.newVoltageLevel()
