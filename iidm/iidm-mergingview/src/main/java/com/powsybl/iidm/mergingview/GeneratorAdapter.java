@@ -17,116 +17,129 @@ public class GeneratorAdapter extends AbstractInjectionAdapter<Generator> implem
         super(delegate, index);
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
-    public ReactiveLimits getReactiveLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public <L extends ReactiveLimits> L getReactiveLimits(final Class<L> type) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public EnergySource getEnergySource() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Generator setEnergySource(final EnergySource energySource) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getMaxP() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Generator setMaxP(final double maxP) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getMinP() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Generator setMinP(final double minP) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean isVoltageRegulatorOn() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Generator setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public GeneratorAdapter setRegulatingTerminal(final Terminal regulatingTerminal) {
+        Terminal param = regulatingTerminal;
+        if (param instanceof TerminalAdapter) {
+            param = ((TerminalAdapter) param).getDelegate();
+        }
+        getDelegate().setRegulatingTerminal(param);
+        return this;
     }
 
     @Override
     public Terminal getRegulatingTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getTerminal(getDelegate().getRegulatingTerminal());
+    }
+
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
+    @Override
+    public ReactiveLimits getReactiveLimits() {
+        return getDelegate().getReactiveLimits();
     }
 
     @Override
-    public Generator setRegulatingTerminal(final Terminal regulatingTerminal) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public <L extends ReactiveLimits> L getReactiveLimits(final Class<L> type) {
+        return getDelegate().getReactiveLimits(type);
+    }
+
+    @Override
+    public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
+        return getDelegate().newReactiveCapabilityCurve();
+    }
+
+    @Override
+    public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
+        return getDelegate().newMinMaxReactiveLimits();
+    }
+
+    @Override
+    public EnergySource getEnergySource() {
+        return getDelegate().getEnergySource();
+    }
+
+    @Override
+    public Generator setEnergySource(final EnergySource energySource) {
+        getDelegate().setEnergySource(energySource);
+        return this;
+    }
+
+    @Override
+    public double getMaxP() {
+        return getDelegate().getMaxP();
+    }
+
+    @Override
+    public Generator setMaxP(final double maxP) {
+        getDelegate().setMaxP(maxP);
+        return this;
+    }
+
+    @Override
+    public double getMinP() {
+        return getDelegate().getMinP();
+    }
+
+    @Override
+    public Generator setMinP(final double minP) {
+        getDelegate().setMinP(minP);
+        return this;
+    }
+
+    @Override
+    public boolean isVoltageRegulatorOn() {
+        return getDelegate().isVoltageRegulatorOn();
+    }
+
+    @Override
+    public Generator setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
+        getDelegate().setVoltageRegulatorOn(voltageRegulatorOn);
+        return this;
     }
 
     @Override
     public double getTargetV() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getTargetV();
     }
 
     @Override
     public Generator setTargetV(final double targetV) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setTargetV(targetV);
+        return this;
     }
 
     @Override
     public double getTargetP() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getTargetP();
     }
 
     @Override
     public Generator setTargetP(final double targetP) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setTargetP(targetP);
+        return this;
     }
 
     @Override
     public double getTargetQ() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getTargetQ();
     }
 
     @Override
     public Generator setTargetQ(final double targetQ) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setTargetQ(targetQ);
+        return this;
     }
 
     @Override
     public double getRatedS() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getRatedS();
     }
 
     @Override
     public Generator setRatedS(final double ratedS) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRatedS(ratedS);
+        return this;
     }
 }

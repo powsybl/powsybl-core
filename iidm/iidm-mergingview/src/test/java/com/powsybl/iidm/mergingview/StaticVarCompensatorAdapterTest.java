@@ -6,15 +6,13 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -25,30 +23,53 @@ public class StaticVarCompensatorAdapterTest {
     @Before
     public void setup() {
         mergingView = MergingView.create("StaticVarCompensatorAdapterTest", "iidm");
-        mergingView.merge(SvcTestCaseFactory.create());
     }
 
     @Test
     public void testSetterGetter() {
-        final StaticVarCompensator svc = mergingView.getStaticVarCompensator("SVC2");
-        assertNotNull(svc);
-        assertTrue(svc instanceof StaticVarCompensatorAdapter);
-        assertSame(mergingView, svc.getNetwork());
+        Network networkRef = SvcTestCaseFactory.create();
+        mergingView.merge(networkRef);
+
+        final StaticVarCompensator svcExpected = networkRef.getStaticVarCompensator("SVC2");
+        final StaticVarCompensator svcActual = mergingView.getStaticVarCompensator("SVC2");
+        assertNotNull(svcActual);
+        assertTrue(svcActual instanceof StaticVarCompensatorAdapter);
+        assertSame(mergingView, svcActual.getNetwork());
+
+        assertEquals(svcExpected.getType(), svcActual.getType());
+        assertTrue(svcActual.getTerminal() instanceof TerminalAdapter);
+        svcActual.getTerminals().forEach(t -> {
+            assertTrue(t instanceof TerminalAdapter);
+            assertNotNull(t);
+        });
+
+        double bMin = svcExpected.getBmin();
+        assertEquals(bMin, svcActual.getBmin(), 0.0d);
+        assertTrue(svcActual.setBmin(++bMin) instanceof StaticVarCompensatorAdapter);
+        assertEquals(bMin, svcActual.getBmin(), 0.0d);
+
+        double bMax = svcExpected.getBmax();
+        assertEquals(bMax, svcActual.getBmax(), 0.0d);
+        assertTrue(svcActual.setBmax(++bMax) instanceof StaticVarCompensatorAdapter);
+        assertEquals(bMax, svcActual.getBmax(), 0.0d);
+
+        double voltageSetPoint = svcExpected.getVoltageSetPoint();
+        assertEquals(voltageSetPoint, svcActual.getVoltageSetPoint(), 0.0d);
+        assertTrue(svcActual.setVoltageSetPoint(++voltageSetPoint) instanceof StaticVarCompensatorAdapter);
+        assertEquals(voltageSetPoint, svcActual.getVoltageSetPoint(), 0.0d);
+
+        double reactivePowerSetPoint = svcExpected.getReactivePowerSetPoint();
+        assertEquals(reactivePowerSetPoint, svcActual.getReactivePowerSetPoint(), 0.0d);
+        assertTrue(svcActual.setReactivePowerSetPoint(++reactivePowerSetPoint) instanceof StaticVarCompensatorAdapter);
+        assertEquals(reactivePowerSetPoint, svcActual.getReactivePowerSetPoint(), 0.0d);
+
+        StaticVarCompensator.RegulationMode regulationMode = svcExpected.getRegulationMode();
+        assertEquals(regulationMode, svcActual.getRegulationMode());
+        regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
+        assertTrue(svcActual.setRegulationMode(regulationMode) instanceof StaticVarCompensatorAdapter);
+        assertEquals(regulationMode, svcActual.getRegulationMode());
 
         // Not implemented yet !
-        TestUtil.notImplemented(svc::getTerminal);
-        TestUtil.notImplemented(svc::getType);
-        TestUtil.notImplemented(svc::getTerminals);
-        TestUtil.notImplemented(svc::remove);
-        TestUtil.notImplemented(svc::getBmin);
-        TestUtil.notImplemented(() -> svc.setBmin(0.0d));
-        TestUtil.notImplemented(svc::getBmax);
-        TestUtil.notImplemented(() -> svc.setBmax(0.0d));
-        TestUtil.notImplemented(svc::getVoltageSetPoint);
-        TestUtil.notImplemented(() -> svc.setVoltageSetPoint(0.0d));
-        TestUtil.notImplemented(svc::getReactivePowerSetPoint);
-        TestUtil.notImplemented(() -> svc.setReactivePowerSetPoint(0.0d));
-        TestUtil.notImplemented(svc::getRegulationMode);
-        TestUtil.notImplemented(() -> svc.setRegulationMode(null));
+        TestUtil.notImplemented(svcActual::remove);
     }
 }
