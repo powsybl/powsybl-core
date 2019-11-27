@@ -123,7 +123,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             ValidationUtil.checkRatedU(this, ratedU, "");
             double oldValue = this.ratedU;
             this.ratedU = ratedU;
-            transformer.notifyUpdate(() -> getLegAttribute() + ".ratedU", oldValue, x);
+            transformer.notifyUpdate(() -> getLegAttribute() + ".ratedU", oldValue, ratedU);
             return this;
         }
 

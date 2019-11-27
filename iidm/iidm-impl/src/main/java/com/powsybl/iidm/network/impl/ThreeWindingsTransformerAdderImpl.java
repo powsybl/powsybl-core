@@ -101,9 +101,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             if (Double.isNaN(b)) {
                 throw new ValidationException(this, "b is not set");
             }
-            if (Double.isNaN(ratedU)) {
-                ValidationUtil.checkRatedU(this, ratedU, "");
-            }
+            ValidationUtil.checkRatedU(this, ratedU, "");
         }
 
         protected TerminalExt checkAndGetTerminal() {
