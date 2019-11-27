@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.RatioTapChangerStep;
  */
 public class RatioTapChangerAdapter extends AbstractTapChangerAdapter<RatioTapChanger, RatioTapChangerStep> implements RatioTapChanger {
 
-    protected RatioTapChangerAdapter(final RatioTapChanger delegate, final MergingViewIndex index) {
+    RatioTapChangerAdapter(final RatioTapChanger delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -27,7 +27,7 @@ public class RatioTapChangerAdapter extends AbstractTapChangerAdapter<RatioTapCh
     }
 
     @Override
-    public RatioTapChangerAdapter setTargetV(final double targetV) {
+    public RatioTapChanger setTargetV(final double targetV) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -37,7 +37,7 @@ public class RatioTapChangerAdapter extends AbstractTapChangerAdapter<RatioTapCh
     }
 
     @Override
-    public RatioTapChangerAdapter setLoadTapChangingCapabilities(final boolean status) {
+    public RatioTapChanger setLoadTapChangingCapabilities(final boolean status) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 }

@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.Terminal;
  */
 abstract class AbstractTapChangerAdapter<P extends TapChanger<P, S>, S extends TapChangerStep<S>> extends AbstractAdapter<P> implements TapChanger<P, S> {
 
-    AbstractTapChangerAdapter(P delegate, MergingViewIndex index) {
+    protected AbstractTapChangerAdapter(P delegate, MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -73,7 +73,7 @@ abstract class AbstractTapChangerAdapter<P extends TapChanger<P, S>, S extends T
     }
 
     @Override
-    public TerminalAdapter getRegulationTerminal() {
+    public Terminal getRegulationTerminal() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 

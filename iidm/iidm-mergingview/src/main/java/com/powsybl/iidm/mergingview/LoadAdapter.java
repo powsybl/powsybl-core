@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.LoadType;
  */
 public class LoadAdapter extends AbstractInjectionAdapter<Load> implements Load {
 
-    protected LoadAdapter(final Load delegate, final MergingViewIndex index) {
+    LoadAdapter(final Load delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -27,7 +27,7 @@ public class LoadAdapter extends AbstractInjectionAdapter<Load> implements Load 
     }
 
     @Override
-    public LoadAdapter setLoadType(final LoadType loadType) {
+    public Load setLoadType(final LoadType loadType) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -37,7 +37,7 @@ public class LoadAdapter extends AbstractInjectionAdapter<Load> implements Load 
     }
 
     @Override
-    public LoadAdapter setP0(final double p0) {
+    public Load setP0(final double p0) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -47,8 +47,7 @@ public class LoadAdapter extends AbstractInjectionAdapter<Load> implements Load 
     }
 
     @Override
-    public LoadAdapter setQ0(final double q0) {
+    public Load setQ0(final double q0) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
-
 }

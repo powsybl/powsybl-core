@@ -8,13 +8,14 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.VoltageLevel;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class SwitchAdapter extends AbstractIdentifiableAdapter<Switch> implements Switch {
 
-    protected SwitchAdapter(final Switch delegate, final MergingViewIndex index) {
+    SwitchAdapter(final Switch delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -22,7 +23,7 @@ public class SwitchAdapter extends AbstractIdentifiableAdapter<Switch> implement
     // Not implemented methods -------
     // -------------------------------
     @Override
-    public VoltageLevelAdapter getVoltageLevel() {
+    public VoltageLevel getVoltageLevel() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
