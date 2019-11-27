@@ -62,11 +62,11 @@ public class CgmesUpdateUnsupportedTest {
         tryExport();
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testUnsupportedGeneratorReactiveLimits() {
-        NetworkChanges.modifyGeneratorReactiveLimits(network);
-        tryExport();
-    }
+//    @Test(expected = UnsupportedOperationException.class)
+//    public void testUnsupportedGeneratorReactiveLimits() {
+//        NetworkChanges.modifyGeneratorReactiveLimits(network);
+//        tryExport();
+//    }
 
     private void tryExport() {
         DataSource tmpDataSource = new FileDataSource(fileSystem.getPath("/"), "");

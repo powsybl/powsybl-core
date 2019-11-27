@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.test.update;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.cgmes.conversion.update.elements16.GeneratorToExternalNetworkInjection;
 import com.powsybl.cgmes.conversion.update.elements16.GeneratorToSynchronousMachine;
 import com.powsybl.cgmes.conversion.update.elements16.TwoWindingsTransformerToPowerTransformer;
 import com.powsybl.iidm.network.Generator;
@@ -89,6 +90,11 @@ public final class NetworkChanges {
             modifyGeneratorReactiveLimits(network);
         }
 
+//        GeneratorToExternalNetworkInjection gen = new GeneratorToExternalNetworkInjection();
+//        if (gen.isSupported("reactiveLimits")) {
+//            modifyGeneratorReactiveLimits(network);
+//        }
+
         if (network.getShuntCompensatorCount() > 0) {
             ShuntCompensator sh = network.getShuntCompensators().iterator().next();
             sh.setbPerSection(sh.getbPerSection() + 0.2);
@@ -155,7 +161,7 @@ public final class NetworkChanges {
                 MinMaxReactiveLimits l = (MinMaxReactiveLimits) g.getReactiveLimits();
                 g.newMinMaxReactiveLimits()
                     .setMinQ(l.getMinQ() - 10)
-                    .setMaxQ(l.getMinQ() + 10)
+                    .setMaxQ(l.getMaxQ() + 10)
                     .add();
                 break;
             }

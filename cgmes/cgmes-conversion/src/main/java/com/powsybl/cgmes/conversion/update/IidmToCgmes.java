@@ -6,11 +6,9 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -18,6 +16,8 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Identifiable;
@@ -38,19 +38,23 @@ public class IidmToCgmes {
     }
 
     public List<TripleStoreChange> convertUpdate(IidmChangeUpdate change, CgmesModelTripleStore cgmests) {
-        TripleStoreSimpleUpdateReference simpleUpdateReference = simpleUpdateReference(change);
-        if (simpleUpdateReference != null) {
-            String subject = simpleUpdateReference.subject(change, cgmests);
-            String value = simpleUpdateReference.value(change);
-            TripleStoreChangeParams updateParams = new TripleStoreChangeParams(simpleUpdateReference, value);
-            TripleStoreChange tschange = new TripleStoreChange("update", subject, updateParams);
-            return Collections.singletonList(tschange);
-        } else if (ignoredAttributes.contains(change.getAttribute())) {
-            return Collections.emptyList();
-        } else {
-            throw new UnsupportedOperationException("Convert to CGMES a change on IIDM "
-                + change.getIdentifiable().getClass().getSimpleName() + "." + change.getAttribute());
+        List<TripleStoreChange> tschanges = new ArrayList<TripleStoreChange>();
+        for (TripleStoreSimpleUpdateReference simpleUpdateReference: simpleUpdateReferences(change)) {
+            if (simpleUpdateReference != null) {
+                String subject = simpleUpdateReference.subject(change, cgmests);
+                String value = simpleUpdateReference.value(change);
+                TripleStoreChangeParams updateParams = new TripleStoreChangeParams(simpleUpdateReference, value);
+                TripleStoreChange tschange = new TripleStoreChange("update", subject, updateParams);
+                tschanges.add(tschange);
+            } else if (ignoredAttributes.contains(change.getAttribute())) {
+                LOG.info(String.format("Changes of type %s are not yet supported", change.getAttribute()));
+                continue;
+            } else {
+                throw new UnsupportedOperationException("Convert to CGMES a change on IIDM "
+                    + change.getIdentifiable().getClass().getSimpleName() + "." + change.getAttribute());
+            }
         }
+        return tschanges;
     }
 
     public boolean isSupported(String attribute) {
@@ -100,11 +104,13 @@ public class IidmToCgmes {
         unsupportedAttributes.add(attribute);
     }
 
-    private TripleStoreSimpleUpdateReference simpleUpdateReference(IidmChangeUpdate change) {
-        return simpleUpdateReferences.get(change.getAttribute());
+    private List<TripleStoreSimpleUpdateReference> simpleUpdateReferences(IidmChangeUpdate change) {
+        List<TripleStoreSimpleUpdateReference> list = new ArrayList<>();
+        list.addAll(simpleUpdateReferences.get(change.getAttribute()));
+        return list;
     }
 
-    private final Map<String, TripleStoreSimpleUpdateReference> simpleUpdateReferences = new HashMap<>();
+    private final Multimap<String, TripleStoreSimpleUpdateReference> simpleUpdateReferences = ArrayListMultimap.create();
     private final Set<String> ignoredAttributes = new HashSet<>();
     private final Set<String> unsupportedAttributes = new HashSet<>();
 
