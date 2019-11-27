@@ -25,9 +25,13 @@ public final class GeneratorUtil {
             Bus bus = t.getBusView().getBus();
             if (bus != null) {
                 // set voltage setpoint to the same as other generators connected to the bus
-                double targetV = bus.getGeneratorStream().findFirst().map(Generator::getTargetV).orElse(Double.NaN);
-                // if no other generator connected to the bus, set voltage setpoint to network voltage
-                if (Double.isNaN(targetV) && !Double.isNaN(bus.getV())) {
+                double targetV = bus.getGeneratorStream()
+                        .filter(g2 -> !g2.getId().equals(g.getId()))
+                        .findFirst().map(Generator::getTargetV).orElse(Double.NaN);
+                if (!Double.isNaN(targetV)) {
+                    g.setTargetV(targetV);
+                } else if (!Double.isNaN(bus.getV())) {
+                    // if no other generator connected to the bus, set voltage setpoint to network voltage
                     g.setTargetV(bus.getV());
                 }
             }
