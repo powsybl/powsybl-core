@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.StaticVarCompensator;
  */
 public class StaticVarCompensatorAdapter extends AbstractInjectionAdapter<StaticVarCompensator> implements StaticVarCompensator {
 
-    protected StaticVarCompensatorAdapter(final StaticVarCompensator delegate, final MergingViewIndex index) {
+    StaticVarCompensatorAdapter(final StaticVarCompensator delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -26,7 +26,7 @@ public class StaticVarCompensatorAdapter extends AbstractInjectionAdapter<Static
     }
 
     @Override
-    public StaticVarCompensatorAdapter setBmin(final double bMin) {
+    public StaticVarCompensator setBmin(final double bMin) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -36,7 +36,7 @@ public class StaticVarCompensatorAdapter extends AbstractInjectionAdapter<Static
     }
 
     @Override
-    public StaticVarCompensatorAdapter setBmax(final double bMax) {
+    public StaticVarCompensator setBmax(final double bMax) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -46,7 +46,7 @@ public class StaticVarCompensatorAdapter extends AbstractInjectionAdapter<Static
     }
 
     @Override
-    public StaticVarCompensatorAdapter setVoltageSetPoint(final double voltageSetPoint) {
+    public StaticVarCompensator setVoltageSetPoint(final double voltageSetPoint) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -56,7 +56,7 @@ public class StaticVarCompensatorAdapter extends AbstractInjectionAdapter<Static
     }
 
     @Override
-    public StaticVarCompensatorAdapter setReactivePowerSetPoint(final double reactivePowerSetPoint) {
+    public StaticVarCompensator setReactivePowerSetPoint(final double reactivePowerSetPoint) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -66,8 +66,7 @@ public class StaticVarCompensatorAdapter extends AbstractInjectionAdapter<Static
     }
 
     @Override
-    public StaticVarCompensatorAdapter setRegulationMode(final RegulationMode regulationMode) {
+    public StaticVarCompensator setRegulationMode(final RegulationMode regulationMode) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
-
 }
