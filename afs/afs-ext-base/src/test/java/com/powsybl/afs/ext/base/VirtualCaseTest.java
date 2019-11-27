@@ -19,7 +19,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -186,7 +185,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
                 .withName("importedCase3")
                 .build();
 
-        virtualCase3.replaceDependencies(importedCase2.getId(), Collections.singletonList(importedCase3));
+        virtualCase3.replaceDependencies(importedCase2.getId(), importedCase3);
 
         assertNotEquals(importedCase2.getName(), virtualCase3.getCase().map(ProjectFile::getName).orElse(null));
         assertEquals(importedCase3.getName(), virtualCase3.getCase().map(ProjectFile::getName).orElse(null));

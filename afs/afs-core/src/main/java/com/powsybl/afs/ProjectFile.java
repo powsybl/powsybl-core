@@ -12,7 +12,10 @@ import com.powsybl.afs.storage.events.DependencyEvent;
 import com.powsybl.afs.storage.events.NodeEvent;
 import com.powsybl.commons.util.WeakListenerList;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -72,12 +75,17 @@ public class ProjectFile extends ProjectNode {
         storage.flush();
     }
 
-    public void replaceDependencies(String oldDependencyId, List<ProjectNode> projectNodes) {
+    public void replaceDependencies(String oldDependencyId, ProjectNode replacementNode) {
         Objects.requireNonNull(oldDependencyId);
-        Objects.requireNonNull(projectNodes);
-        getDependencies().stream()
-                .filter(dependency -> dependency.getProjectNode().getId().equals(oldDependencyId))
-                .forEach(dep -> setDependencies(dep.getName(), projectNodes));
+        Objects.requireNonNull(replacementNode);
+        Map<String, List<ProjectDependency<ProjectNode>>> dependencies = getDependencies().stream().collect(Collectors.groupingBy(ProjectDependency::getName));
+        dependencies.forEach((depKey, depValue) -> setDependencies(depKey, depValue.stream().map(projectNodeProjectDependency -> {
+            if (projectNodeProjectDependency.getProjectNode().getId().equals(oldDependencyId)) {
+                return replacementNode;
+            } else {
+                return projectNodeProjectDependency.getProjectNode();
+            }
+        }).collect(Collectors.toList())));
     }
 
     public <T> List<T> getDependencies(String name, Class<T> nodeClass) {
