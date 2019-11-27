@@ -18,6 +18,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class TwtData {
 
