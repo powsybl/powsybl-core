@@ -114,8 +114,6 @@ public class CgmesUpdateTest {
             // as this will introduce a lot of changes
             runLoadFlowResultsCompletion(network0, invalidateFlows);
         }
-        List<IidmChange> changes = network0.getExtension(CgmesModelExtension.class).getCgmesUpdate().changelog().getChangesForVariant(network0.getVariantManager().getWorkingVariantId());
-        int numChangesAfterLoadFlow = changes.size();
 
         DataSource tmp = tmpDataSource(impl);
         CgmesExport e = new CgmesExport();
