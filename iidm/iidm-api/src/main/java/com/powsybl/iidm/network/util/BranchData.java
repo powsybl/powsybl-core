@@ -102,7 +102,7 @@ public class BranchData {
         computeValues();
     }
 
-    public BranchData(Line line, double epsilonX, boolean applyReactanceCorrection) {
+    public BranchData(Line line, double epsilonX, boolean applyReactanceCorrection, boolean structuralRatioLineOn) {
         Objects.requireNonNull(line);
 
         id = line.getId();
@@ -118,14 +118,10 @@ public class BranchData {
         z = Math.hypot(r, fixedX);
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);
-        rho1 = 1f;
-        rho2 = 1f;
         u1 = bus1 != null ? bus1.getV() : Double.NaN;
         u2 = bus2 != null ? bus2.getV() : Double.NaN;
         theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
         theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
-        alpha1 = 0f;
-        alpha2 = 0f;
         g1 = line.getG1();
         g2 = line.getG2();
         b1 = line.getB1();
@@ -143,6 +139,18 @@ public class BranchData {
         boolean connectableMainComponent2 = connectableBus2 != null && connectableBus2.isInMainConnectedComponent();
         mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
         mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
+
+        if (structuralRatioLineOn) {
+            rho1 = 1.0 / structuralRatioEnd1(line);
+            rho2 = 1f;
+            alpha1 = 0f;
+            alpha2 = 0f;
+        } else {
+            rho1 = 1f;
+            rho2 = 1f;
+            alpha1 = 0f;
+            alpha2 = 0f;
+        }
 
         computeValues();
     }
@@ -190,6 +198,22 @@ public class BranchData {
         mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
 
         computeValues();
+    }
+
+    private double structuralRatioEnd1(Line line) {
+        double a0 = 1.0;
+        double nominalV1 = line.getTerminal1().getVoltageLevel().getNominalV();
+        double nominalV2 = line.getTerminal2().getVoltageLevel().getNominalV();
+        if (nominalV1 == 0.0 || Double.isNaN(nominalV1)) {
+            return a0;
+        }
+        if (nominalV2 == 0.0 || Double.isNaN(nominalV2)) {
+            return a0;
+        }
+        if (nominalV1 == nominalV2) {
+            return a0;
+        }
+        return nominalV1 / nominalV2;
     }
 
     private double getFixedX(double x, double epsilonX, boolean applyReactanceCorrection) {

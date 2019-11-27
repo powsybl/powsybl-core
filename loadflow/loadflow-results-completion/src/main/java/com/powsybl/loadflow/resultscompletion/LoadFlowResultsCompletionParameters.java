@@ -21,10 +21,12 @@ public class LoadFlowResultsCompletionParameters {
     public static final float EPSILON_X_DEFAULT = 0.1f;
     public static final boolean APPLY_REACTANCE_CORRECTION_DEFAULT = false;
     public static final double Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE = 1e-6;
+    public static final boolean STRUCTURAL_RATIO_LINE_ON = false;
 
     private final float epsilonX;
     private final boolean applyReactanceCorrection;
     private final double z0ThresholdDiffVoltageAngle;
+    private final boolean structuralRatioLineOn;
 
     public static LoadFlowResultsCompletionParameters load() {
         return load(PlatformConfig.defaultConfig());
@@ -37,19 +39,21 @@ public class LoadFlowResultsCompletionParameters {
                     float epsilonX = config.getFloatProperty("epsilon-x", LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT);
                     boolean applyReactanceCorrection = config.getBooleanProperty("apply-reactance-correction", LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT);
                     double z0ThresholdDiffVoltageAngle = config.getDoubleProperty("z0-threshold-diff-voltage-angle", LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE);
-                    return new LoadFlowResultsCompletionParameters(epsilonX, applyReactanceCorrection, z0ThresholdDiffVoltageAngle);
+                    boolean structuralRatioLineOn = config.getBooleanProperty("structural_ratio_line_on", LoadFlowResultsCompletionParameters.STRUCTURAL_RATIO_LINE_ON);
+                    return new LoadFlowResultsCompletionParameters(epsilonX, applyReactanceCorrection, z0ThresholdDiffVoltageAngle, structuralRatioLineOn);
                 })
-                .orElseGet(() -> new LoadFlowResultsCompletionParameters(LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT, LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT, LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE));
+                .orElseGet(() -> new LoadFlowResultsCompletionParameters(LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT, LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT, LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE, LoadFlowResultsCompletionParameters.STRUCTURAL_RATIO_LINE_ON));
     }
 
-    public LoadFlowResultsCompletionParameters(float epsilonX, boolean applyReactanceCorrection, double z0ThresholdDiffVoltageAngle) {
+    public LoadFlowResultsCompletionParameters(float epsilonX, boolean applyReactanceCorrection, double z0ThresholdDiffVoltageAngle, boolean structuralRatioLineOn) {
         this.epsilonX = epsilonX;
         this.applyReactanceCorrection = applyReactanceCorrection;
         this.z0ThresholdDiffVoltageAngle = z0ThresholdDiffVoltageAngle;
+        this.structuralRatioLineOn = structuralRatioLineOn;
     }
 
     public LoadFlowResultsCompletionParameters() {
-        this(EPSILON_X_DEFAULT, APPLY_REACTANCE_CORRECTION_DEFAULT, Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE);
+        this(EPSILON_X_DEFAULT, APPLY_REACTANCE_CORRECTION_DEFAULT, Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE, STRUCTURAL_RATIO_LINE_ON);
     }
 
     public float getEpsilonX() {
@@ -62,6 +66,10 @@ public class LoadFlowResultsCompletionParameters {
 
     public double getZ0ThresholdDiffVoltageAngle() {
         return z0ThresholdDiffVoltageAngle;
+    }
+
+    public boolean isStructuralRatioLineOn() {
+        return structuralRatioLineOn;
     }
 
     protected Map<String, Object> toMap() {

@@ -66,7 +66,8 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             .forEach(line -> {
                 BranchData lineData = new BranchData(line,
                                                      parameters.getEpsilonX(),
-                                                     parameters.isApplyReactanceCorrection());
+                                                     parameters.isApplyReactanceCorrection(),
+                                                     parameters.isStructuralRatioLineOn());
                 completeTerminalData(line.getTerminal(Side.ONE), Side.ONE, lineData);
                 completeTerminalData(line.getTerminal(Side.TWO), Side.TWO, lineData);
             });
