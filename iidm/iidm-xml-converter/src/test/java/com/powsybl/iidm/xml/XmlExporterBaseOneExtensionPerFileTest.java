@@ -19,8 +19,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
-import static org.junit.Assert.*;
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
@@ -44,17 +46,17 @@ public class XmlExporterBaseOneExtensionPerFileTest extends AbstractConverterTes
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
             assertNotNull(is);
-            compareXml(getClass().getResourceAsStream(IIDM_CURRENT_VERSION_DIR_NAME + "multiple-extensions.xiidm"), is);
+            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions.xiidm"), is);
         }
 
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("-loadBar.xiidm"))) {
             assertNotNull(is);
-            compareXml(getClass().getResourceAsStream(IIDM_CURRENT_VERSION_DIR_NAME + "multiple-extensions-loadBar.xiidm"), is);
+            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions-loadBar.xiidm"), is);
         }
 
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("-loadFoo.xiidm"))) {
             assertNotNull(is);
-            compareXml(getClass().getResourceAsStream(IIDM_CURRENT_VERSION_DIR_NAME + "multiple-extensions-loadFoo.xiidm"), is);
+            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions-loadFoo.xiidm"), is);
         }
     }
 
@@ -75,7 +77,7 @@ public class XmlExporterBaseOneExtensionPerFileTest extends AbstractConverterTes
     @Test
     public void exportAllExtensionsTest() throws IOException {
         List<String> extensionsList = Arrays.asList("loadFoo", "loadBar");
-        exporterOneFilePerExtensionType(NetworkXml.read(getClass().getResourceAsStream(IIDM_VERSION_1_0_DIR_NAME + "multiple-extensions.xml")), extensionsList);
+        exporterOneFilePerExtensionType(NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_0) + "multiple-extensions.xml")), extensionsList);
         exporterOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(), extensionsList);
     }
 
@@ -84,18 +86,18 @@ public class XmlExporterBaseOneExtensionPerFileTest extends AbstractConverterTes
 
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
             assertNotNull(is);
-            compareXml(getClass().getResourceAsStream(IIDM_CURRENT_VERSION_DIR_NAME + "eurostag-tutorial-example1.xml"), is);
+            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial-example1.xml"), is);
         }
 
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("-terminalMock.xiidm"))) {
             assertNotNull(is);
-            compareXml(getClass().getResourceAsStream(IIDM_CURRENT_VERSION_DIR_NAME + "eurostag-tutorial-example1-terminalMock.xml"), is);
+            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial-example1-terminalMock.xml"), is);
         }
     }
 
     @Test
     public void exportTerminalExtTest() throws IOException {
-        exportTerminalExtTest(NetworkXml.read(getClass().getResourceAsStream(IIDM_VERSION_1_0_DIR_NAME + "eurostag-tutorial-example1-with-terminalMock-ext.xml")));
+        exportTerminalExtTest(NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_0) + "eurostag-tutorial-example1-with-terminalMock-ext.xml")));
         exportTerminalExtTest(EurostagTutorialExample1Factory.createWithTerminalMockExt());
     }
 }

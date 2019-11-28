@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -23,10 +23,10 @@ public class HvdcXmlTest extends AbstractXmlConverterTest {
         roundTripXmlTest(HvdcTestNetwork.createLcc(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                IIDM_CURRENT_VERSION_DIR_NAME + "LccRoundTripRef.xml");
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "LccRoundTripRef.xml");
 
         // backward compatibility 1.0
-        roundTripVersionnedXmlTest("LccRoundTripRef.xml", IIDM_VERSION_1_0_DIR_NAME);
+        roundTripVersionnedXmlTest("LccRoundTripRef.xml", IidmXmlVersion.V_1_0);
     }
 
     @Test
@@ -34,9 +34,9 @@ public class HvdcXmlTest extends AbstractXmlConverterTest {
         roundTripXmlTest(HvdcTestNetwork.createVsc(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                IIDM_CURRENT_VERSION_DIR_NAME + "VscRoundTripRef.xml");
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "VscRoundTripRef.xml");
 
         // backward compatibility 1.0
-        roundTripVersionnedXmlTest("VscRoundTripRef.xml", IIDM_VERSION_1_0_DIR_NAME);
+        roundTripVersionnedXmlTest("VscRoundTripRef.xml", IidmXmlVersion.V_1_0);
     }
 }

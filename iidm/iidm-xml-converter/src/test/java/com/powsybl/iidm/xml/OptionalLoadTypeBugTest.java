@@ -8,7 +8,8 @@ package com.powsybl.iidm.xml;
 
 import org.junit.Test;
 
-import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -18,7 +19,7 @@ public class OptionalLoadTypeBugTest {
 
     @Test
     public void shouldNotThrowNullPointerExceptionTest() {
-        assertNotNull(NetworkXml.read(getClass().getResourceAsStream(IIDM_VERSION_1_0_DIR_NAME + "optionalLoadTypeBug.xml")));
-        assertNotNull(NetworkXml.read(getClass().getResourceAsStream(IIDM_CURRENT_VERSION_DIR_NAME + "optionalLoadTypeBug.xml")));
+        assertNotNull(NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_0) + "optionalLoadTypeBug.xml")));
+        assertNotNull(NetworkXml.read(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "optionalLoadTypeBug.xml")));
     }
 }

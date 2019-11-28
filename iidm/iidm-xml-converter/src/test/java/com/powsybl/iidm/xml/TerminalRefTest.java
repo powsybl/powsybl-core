@@ -10,8 +10,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
-
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
@@ -19,7 +17,7 @@ public class TerminalRefTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripVersionnedXmlTest("terminalRef.xiidm", IIDM_VERSION_1_0_DIR_NAME, IIDM_CURRENT_VERSION_DIR_NAME);
-        roundTripVersionnedXmlTest("regulatingTerminal.xml", IIDM_VERSION_1_0_DIR_NAME, IIDM_CURRENT_VERSION_DIR_NAME);
+        roundTripAllVersionnedXmlTest("terminalRef.xiidm");
+        roundTripAllVersionnedXmlTest("regulatingTerminal.xml");
     }
 }

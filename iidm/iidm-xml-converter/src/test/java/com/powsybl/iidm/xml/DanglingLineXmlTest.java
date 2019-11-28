@@ -11,8 +11,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
-
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
@@ -20,6 +18,6 @@ public class DanglingLineXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void test() throws IOException {
-        roundTripVersionnedXmlTest("danglingLine.xml", IIDM_VERSION_1_0_DIR_NAME, IIDM_CURRENT_VERSION_DIR_NAME);
+        roundTripAllVersionnedXmlTest("danglingLine.xml");
     }
 }

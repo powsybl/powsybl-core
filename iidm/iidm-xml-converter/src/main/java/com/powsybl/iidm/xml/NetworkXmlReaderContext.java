@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_VERSION_POINT;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -28,13 +28,13 @@ public class NetworkXmlReaderContext extends AbstractConverterContext<ImportOpti
     private final List<Runnable> endTasks = new ArrayList<>();
     private final ImportOptions options;
 
-    private final String version;
+    private final IidmXmlVersion version;
 
     public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader) {
-        this(anonymizer, reader, new ImportOptions(), IIDM_VERSION_POINT);
+        this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_XML_VERSION);
     }
 
-    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader, ImportOptions options, String version) {
+    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader, ImportOptions options, IidmXmlVersion version) {
         super(anonymizer);
         this.reader = Objects.requireNonNull(reader);
         this.options = Objects.requireNonNull(options);
@@ -55,7 +55,7 @@ public class NetworkXmlReaderContext extends AbstractConverterContext<ImportOpti
         return options;
     }
 
-    public String getVersion() {
+    public IidmXmlVersion getVersion() {
         return version;
     }
 }

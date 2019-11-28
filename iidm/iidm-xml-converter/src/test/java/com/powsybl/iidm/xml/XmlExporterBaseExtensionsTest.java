@@ -21,8 +21,10 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
-import static org.junit.Assert.*;
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
@@ -40,18 +42,18 @@ public class XmlExporterBaseExtensionsTest extends AbstractConverterTest {
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
             assertNotNull(is);
-            compareXml(getClass().getResourceAsStream(IIDM_CURRENT_VERSION_DIR_NAME + "multiple-extensions.xiidm"), is);
+            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions.xiidm"), is);
         }
         // check the exported extensions file and compare it to xiidmExtRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("-ext", "xiidm"))) {
             assertNotNull(is);
-            compareXml(getClass().getResourceAsStream(IIDM_CURRENT_VERSION_DIR_NAME + "multiple-extensions-ext.xiidm"), is);
+            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions-ext.xiidm"), is);
         }
     }
 
     @Test
     public void exportBaseExtensions() throws IOException {
-        exporterTestBaseExtensions(NetworkXml.read(getClass().getResourceAsStream(IIDM_VERSION_1_0_DIR_NAME + "multiple-extensions.xml")));
+        exporterTestBaseExtensions(NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_0) + "multiple-extensions.xml")));
         exporterTestBaseExtensions(MultipleExtensionsTestNetworkFactory.create());
     }
 

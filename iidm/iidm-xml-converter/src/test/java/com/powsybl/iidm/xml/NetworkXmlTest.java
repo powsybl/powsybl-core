@@ -22,13 +22,12 @@ import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.*;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -46,10 +45,10 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
         roundTripXmlTest(createEurostagTutorialExample1(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                IIDM_CURRENT_VERSION_DIR_NAME + "eurostag-tutorial-example1.xml");
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial-example1.xml");
 
         // backward compatibility 1.0
-        roundTripVersionnedXmlTest("eurostag-tutorial-example1.xml", IIDM_VERSION_1_0_DIR_NAME);
+        roundTripVersionnedXmlTest("eurostag-tutorial-example1.xml", IidmXmlVersion.V_1_0);
     }
 
     @Test

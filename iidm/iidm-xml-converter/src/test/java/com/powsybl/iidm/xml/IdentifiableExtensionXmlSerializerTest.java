@@ -24,9 +24,8 @@ import java.io.InputStream;
 
 import javax.xml.stream.XMLStreamException;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.*;
-
-import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -68,10 +67,10 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         roundTripXmlTest(MultipleExtensionsTestNetworkFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                IIDM_CURRENT_VERSION_DIR_NAME + "multiple-extensions.xml");
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions.xml");
 
         // backward compatibility 1.0
-        roundTripVersionnedXmlTest("multiple-extensions.xml", IIDM_VERSION_1_0_DIR_NAME);
+        roundTripVersionnedXmlTest("multiple-extensions.xml", IidmXmlVersion.V_1_0);
     }
 
     // Define a network extension without XML serializer
@@ -207,13 +206,13 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         Network network2 = roundTripXmlTest(EurostagTutorialExample1Factory.createWithTerminalMockExt(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                IIDM_CURRENT_VERSION_DIR_NAME + "eurostag-tutorial-example1-with-terminalMock-ext.xml");
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial-example1-with-terminalMock-ext.xml");
         Load loadXml = network2.getLoad("LOAD");
         TerminalMockExt terminalMockExtXml = loadXml.getExtension(TerminalMockExt.class);
         assertNotNull(terminalMockExtXml);
         assertSame(loadXml.getTerminal(), terminalMockExtXml.getTerminal());
 
         // backward compatibility 1.0
-        roundTripVersionnedXmlTest("eurostag-tutorial-example1-with-terminalMock-ext.xml", IIDM_VERSION_1_0_DIR_NAME);
+        roundTripVersionnedXmlTest("eurostag-tutorial-example1-with-terminalMock-ext.xml", IidmXmlVersion.V_1_0);
     }
 }

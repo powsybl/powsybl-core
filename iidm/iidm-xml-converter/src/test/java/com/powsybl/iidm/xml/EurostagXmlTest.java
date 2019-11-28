@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -23,9 +23,9 @@ public class EurostagXmlTest extends AbstractXmlConverterTest {
         roundTripXmlTest(EurostagTutorialExample1Factory.createWithLFResults(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                IIDM_CURRENT_VERSION_DIR_NAME + "eurostag-tutorial1-lf.xml");
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial1-lf.xml");
 
         //backward compatibility 1.0
-        roundTripVersionnedXmlTest("eurostag-tutorial1-lf.xml", IIDM_VERSION_1_0_DIR_NAME);
+        roundTripVersionnedXmlTest("eurostag-tutorial1-lf.xml", IidmXmlVersion.V_1_0);
     }
 }

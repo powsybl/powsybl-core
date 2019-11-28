@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -20,11 +20,11 @@ public class StaticVarCompensatorXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripVersionnedXmlTest("staticVarCompensatorRoundTripRef.xml", IIDM_VERSION_1_0_DIR_NAME);
+        roundTripVersionnedXmlTest("staticVarCompensatorRoundTripRef.xml", IidmXmlVersion.V_1_0);
 
         roundTripXmlTest(SvcTestCaseFactory.create(),
-                         NetworkXml::writeAndValidate,
-                         NetworkXml::read,
-                IIDM_CURRENT_VERSION_DIR_NAME + "staticVarCompensatorRoundTripRef.xml");
+                NetworkXml::writeAndValidate,
+                NetworkXml::read,
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "staticVarCompensatorRoundTripRef.xml");
     }
 }

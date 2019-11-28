@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -26,10 +26,10 @@ public class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest
                 networkWithInternalConnections(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                IIDM_CURRENT_VERSION_DIR_NAME + "internalConnections.xiidm");
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "internalConnections.xiidm");
 
         // backward compatibility 1.0
-        roundTripVersionnedXmlTest("internalConnections.xiidm", IIDM_VERSION_1_0_DIR_NAME);
+        roundTripVersionnedXmlTest("internalConnections.xiidm", IidmXmlVersion.V_1_0);
     }
 
     private Network networkWithInternalConnections() {

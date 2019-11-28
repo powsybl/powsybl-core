@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -19,11 +19,11 @@ import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
 public class PhaseShifterXmlTest extends AbstractXmlConverterTest {
     @Test
     public void roundTripTest() throws IOException {
-        roundTripVersionnedXmlTest("phaseShifterRoundTripRef.xml", IIDM_VERSION_1_0_DIR_NAME);
+        roundTripVersionnedXmlTest("phaseShifterRoundTripRef.xml", IidmXmlVersion.V_1_0);
 
         roundTripXmlTest(PhaseShifterTestCaseFactory.createWithTargetDeadband(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                IIDM_CURRENT_VERSION_DIR_NAME + "phaseShifterRoundTripRef.xml");
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "phaseShifterRoundTripRef.xml");
     }
 }

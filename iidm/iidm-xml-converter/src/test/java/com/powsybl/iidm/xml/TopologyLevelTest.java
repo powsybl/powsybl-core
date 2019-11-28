@@ -8,15 +8,18 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.export.ExportOptions;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.TopologyLevel;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
-import static org.junit.Assert.*;
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Teofil Calin Banc<teofil-calin.banc at rte-france.com>
@@ -36,19 +39,19 @@ public class TopologyLevelTest extends AbstractConverterTest {
 
     @Test
     public void testConversion() throws IOException {
-        testConversion(NetworkXml.read(getClass().getResourceAsStream(IIDM_VERSION_1_0_DIR_NAME + "fictitiousSwitchRef.xml")));
+        testConversion(NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_0) + "fictitiousSwitchRef.xml")));
 
         testConversion(FictitiousSwitchFactory.create());
     }
 
     private void testConversion(Network network) throws IOException {
-        writeXmlTest(network, TopologyLevelTest::writeNodeBreaker, IIDM_CURRENT_VERSION_DIR_NAME + "fictitiousSwitchRef.xml");
+        writeXmlTest(network, TopologyLevelTest::writeNodeBreaker, getVersionDir(CURRENT_IIDM_XML_VERSION) + "fictitiousSwitchRef.xml");
 
         network.getSwitchStream().forEach(sw -> sw.setRetained(false));
         network.getSwitch("BJ").setRetained(true);
 
-        writeXmlTest(network, TopologyLevelTest::writeBusBreaker, IIDM_CURRENT_VERSION_DIR_NAME + "fictitiousSwitchRef-bbk.xml");
-        writeXmlTest(network, TopologyLevelTest::writeBusBranch, IIDM_CURRENT_VERSION_DIR_NAME + "fictitiousSwitchRef-bbr.xml");
+        writeXmlTest(network, TopologyLevelTest::writeBusBreaker, getVersionDir(CURRENT_IIDM_XML_VERSION) + "fictitiousSwitchRef-bbk.xml");
+        writeXmlTest(network, TopologyLevelTest::writeBusBranch, getVersionDir(CURRENT_IIDM_XML_VERSION) + "fictitiousSwitchRef-bbr.xml");
     }
 
     private static void writeNodeBreaker(Network network, Path path) {

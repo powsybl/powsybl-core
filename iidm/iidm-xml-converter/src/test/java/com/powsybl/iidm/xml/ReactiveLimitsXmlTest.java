@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -20,11 +20,11 @@ public class ReactiveLimitsXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripVersionnedXmlTest("reactiveLimitsRoundTripRef.xml", IIDM_VERSION_1_0_DIR_NAME);
+        roundTripVersionnedXmlTest("reactiveLimitsRoundTripRef.xml", IidmXmlVersion.V_1_0);
 
         roundTripXmlTest(ReactiveLimitsTestNetworkFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                IIDM_CURRENT_VERSION_DIR_NAME + "reactiveLimitsRoundTripRef.xml");
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "reactiveLimitsRoundTripRef.xml");
     }
 }

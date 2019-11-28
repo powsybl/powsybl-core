@@ -10,19 +10,27 @@ import com.powsybl.commons.AbstractConverterTest;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.xml.IidmXmlTestConstants.IIDM_CURRENT_VERSION_DIR_NAME;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 abstract class AbstractXmlConverterTest extends AbstractConverterTest {
 
-    protected void roundTripVersionnedXmlTest(String file, String... versionDirs) throws IOException {
-        for (String versionDir : versionDirs) {
-            roundTripXmlTest(NetworkXml.read(getClass().getResourceAsStream(versionDir + file)),
+    static String getVersionDir(IidmXmlVersion version) {
+        return "/V" + version.toString("_") + "/";
+    }
+
+    protected void roundTripVersionnedXmlTest(String file, IidmXmlVersion... versions) throws IOException {
+        for (IidmXmlVersion version : versions) {
+            roundTripXmlTest(NetworkXml.read(getClass().getResourceAsStream(getVersionDir(version) + file)),
                     NetworkXml::writeAndValidate,
                     NetworkXml::read,
-                    IIDM_CURRENT_VERSION_DIR_NAME + file);
+                    getVersionDir(CURRENT_IIDM_XML_VERSION) + file);
         }
+    }
+
+    protected void roundTripAllVersionnedXmlTest(String file) throws IOException {
+        roundTripVersionnedXmlTest(file, IidmXmlVersion.values());
     }
 }

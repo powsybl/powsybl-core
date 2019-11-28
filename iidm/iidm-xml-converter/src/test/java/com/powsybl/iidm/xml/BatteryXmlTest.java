@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.xml.IidmXmlTestConstants.*;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
@@ -23,9 +23,9 @@ public class BatteryXmlTest extends AbstractXmlConverterTest {
         roundTripXmlTest(BatteryNetworkFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                IIDM_CURRENT_VERSION_DIR_NAME + "batteryRoundTripRef.xml");
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "batteryRoundTripRef.xml");
 
         //backward compatibility 1.0
-        roundTripVersionnedXmlTest("batteryRoundTripRef.xml", IIDM_VERSION_1_0_DIR_NAME);
+        roundTripVersionnedXmlTest("batteryRoundTripRef.xml", IidmXmlVersion.V_1_0);
     }
 }
