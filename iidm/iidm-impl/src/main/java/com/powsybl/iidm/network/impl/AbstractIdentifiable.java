@@ -10,6 +10,7 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -21,7 +22,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     protected String name;
 
-    protected final Map<String, String> properties = new HashMap<>();
+    protected final Properties properties = new Properties();
 
     AbstractIdentifiable(String id, String name) {
         this.id = id;
@@ -48,6 +49,10 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         return getTypeDescription() + " '" + id + "': ";
     }
 
+    public Properties getProperties(){
+        return properties;
+    }
+
     @Override
     public boolean hasProperty() {
         return !properties.isEmpty();
@@ -60,17 +65,17 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public String getProperty(String key) {
-        return properties.get(key);
+        return properties.getProperty(key);
     }
 
     @Override
     public String getProperty(String key, String defaultValue) {
-        return properties.getOrDefault(key, defaultValue);
+        return properties.getOrDefault(key, defaultValue).toString();
     }
 
     @Override
     public String setProperty(String key, String value) {
-        String oldValue = properties.put(key, value);
+        String oldValue = (String) properties.put(key, value);
         if (Objects.isNull(oldValue)) {
             getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", value);
         } else {
@@ -81,7 +86,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public Set<String> getPropertyNames() {
-        return properties.keySet();
+        return properties.keySet().stream().map(Object::toString).collect(Collectors.toSet());
     }
 
     @Override
