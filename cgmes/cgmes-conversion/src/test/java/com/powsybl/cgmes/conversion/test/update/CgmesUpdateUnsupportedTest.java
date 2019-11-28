@@ -44,23 +44,23 @@ public class CgmesUpdateUnsupportedTest {
         fileSystem.close();
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testTwoWindingsTransformerRatedU() {
         NetworkChanges.modifyTwoWindingsTransformerRatedU(network);
         tryExport();
     }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testTwoWindingsTransformerRX() {
-        NetworkChanges.modifyTwoWindingsTransformerRX(network);
-        tryExport();
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testTwoWindingsTransformerGB() {
-        NetworkChanges.modifyTwoWindingsTransformerGB(network);
-        tryExport();
-    }
+//
+//    @Test(expected = UnsupportedOperationException.class)
+//    public void testTwoWindingsTransformerRX() {
+//        NetworkChanges.modifyTwoWindingsTransformerRX(network);
+//        tryExport();
+//    }
+//
+//    @Test(expected = UnsupportedOperationException.class)
+//    public void testTwoWindingsTransformerGB() {
+//        NetworkChanges.modifyTwoWindingsTransformerGB(network);
+//        tryExport();
+//    }
 
 //    @Test(expected = UnsupportedOperationException.class)
 //    public void testUnsupportedGeneratorReactiveLimits() {

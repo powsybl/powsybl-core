@@ -21,6 +21,7 @@ public class TripleStoreComputedValueUpdateReference extends TripleStoreSimpleUp
     public TripleStoreComputedValueUpdateReference(String predicate, String contextReference, Function<Identifiable, String> valueComputation) {
         super(predicate, contextReference);
         this.valueComputation = Objects.requireNonNull(valueComputation);
+        this.complexValueComputation = null;
         this.subjectComputation = null;
     }
 
@@ -28,13 +29,23 @@ public class TripleStoreComputedValueUpdateReference extends TripleStoreSimpleUp
         BiFunction<Identifiable, CgmesModelTripleStore, String> subjectComputation) {
         super(predicate, contextReference);
         this.valueComputation = Objects.requireNonNull(valueComputation);
+        this.complexValueComputation = null;
+        this.subjectComputation = subjectComputation;
+    }
+
+    public TripleStoreComputedValueUpdateReference(String predicate, String contextReference, BiFunction<Identifiable, CgmesModelTripleStore, String> complexValueComputation,
+        BiFunction<Identifiable, CgmesModelTripleStore, String> subjectComputation) {
+        super(predicate, contextReference);
+        this.valueComputation = null;
+        this.complexValueComputation = Objects.requireNonNull(complexValueComputation);
         this.subjectComputation = subjectComputation;
     }
 
     @Override
-    public String value(IidmChangeUpdate change) {
-        return valueComputation.apply(change.getIdentifiable());
+    public String value(IidmChangeUpdate change, CgmesModelTripleStore cgmes) {
+        return valueComputation != null ? valueComputation.apply(change.getIdentifiable()) : complexValueComputation.apply(change.getIdentifiable(), cgmes);
     }
 
     private final Function<Identifiable, String> valueComputation;
+    private final BiFunction<Identifiable, CgmesModelTripleStore, String> complexValueComputation;
 }

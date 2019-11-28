@@ -54,7 +54,7 @@ public class TripleStoreSimpleUpdateReference {
         return contextReference;
     }
 
-    public String value(IidmChangeUpdate change) {
+    public String value(IidmChangeUpdate change, CgmesModelTripleStore cgmes) {
         return change.getNewValue().toString();
     }
 

@@ -11,6 +11,7 @@ import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.MinMaxReactiveLimits;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -30,15 +31,15 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes {
         ignore("energySource");
 
         simpleUpdate("ratedS", "cim:RotatingMachine.ratedS", CgmesSubset.EQUIPMENT);
-        simpleUpdate("minQ", "cim:SynchronousMachine.minQ", CgmesSubset.EQUIPMENT);
-        simpleUpdate("maxQ", "cim:SynchronousMachine.maxQ", CgmesSubset.EQUIPMENT);
+        computedValueUpdate("reactiveLimits", "cim:SynchronousMachine.minQ", CgmesSubset.EQUIPMENT, this::minQFromReactiveLimits);
+        computedValueUpdate("reactiveLimits", "cim:SynchronousMachine.maxQ", CgmesSubset.EQUIPMENT, this::maxQFromReactiveLimits);
         computedSubjectUpdate("minP", "cim:GeneratingUnit.minOperatingP", CgmesSubset.EQUIPMENT, this::getGeneratingUnitId);
         computedSubjectUpdate("maxP", "cim:GeneratingUnit.maxOperatingP", CgmesSubset.EQUIPMENT, this::getGeneratingUnitId);
 
         computedValueUpdate("targetP", "cim:RotatingMachine.p", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::pFromTargetP);
         computedValueUpdate("targetQ", "cim:RotatingMachine.q", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::qFromTargetQ);
 
-        // This computes RegulatingControl subject, which is ID different from  Identifiable
+        // This computes RegulatingControl id
         computedSubjectUpdate("targetV", "cim:RegulatingControl.targetValue", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::regulatingControlId);
         computedSubjectUpdate("voltageRegulatorOn", "cim:RegulatingControl.enabled", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::regulatingControlId);
 
@@ -86,6 +87,26 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes {
             } else {
                 continue;
             }
+        }
+        return null;
+    }
+
+    private String maxQFromReactiveLimits(Identifiable id) {
+        requireGenerator(id);
+        Generator g = (Generator) id;
+        if (g.getReactiveLimits() instanceof MinMaxReactiveLimits) {
+            MinMaxReactiveLimits l = (MinMaxReactiveLimits) g.getReactiveLimits();
+            return Double.toString(l.getMaxQ());
+        }
+        return null;
+    }
+
+    private String minQFromReactiveLimits(Identifiable id) {
+        requireGenerator(id);
+        Generator g = (Generator) id;
+        if (g.getReactiveLimits() instanceof MinMaxReactiveLimits) {
+            MinMaxReactiveLimits l = (MinMaxReactiveLimits) g.getReactiveLimits();
+            return Double.toString(l.getMinQ());
         }
         return null;
     }

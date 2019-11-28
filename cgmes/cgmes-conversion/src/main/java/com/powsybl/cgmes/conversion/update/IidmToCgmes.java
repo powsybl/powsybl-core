@@ -39,10 +39,10 @@ public class IidmToCgmes {
 
     public List<TripleStoreChange> convertUpdate(IidmChangeUpdate change, CgmesModelTripleStore cgmests) {
         List<TripleStoreChange> tschanges = new ArrayList<TripleStoreChange>();
-        for (TripleStoreSimpleUpdateReference simpleUpdateReference: simpleUpdateReferences(change)) {
+        for (TripleStoreSimpleUpdateReference simpleUpdateReference : simpleUpdateReferences(change)) {
             if (simpleUpdateReference != null) {
                 String subject = simpleUpdateReference.subject(change, cgmests);
-                String value = simpleUpdateReference.value(change);
+                String value = simpleUpdateReference.value(change, cgmests);
                 TripleStoreChangeParams updateParams = new TripleStoreChangeParams(simpleUpdateReference, value);
                 TripleStoreChange tschange = new TripleStoreChange("update", subject, updateParams);
                 tschanges.add(tschange);
@@ -83,11 +83,19 @@ public class IidmToCgmes {
                 subjectComputation));
     }
 
-    protected void computedSubjectUpdate(String attribute, String predicate, CgmesSubset subset,
+    protected void computedValueAndSubjectUpdate(String attribute, String predicate, CgmesSubset subset,
         Function<Identifiable, String> valueComputation,
         BiFunction<Identifiable, CgmesModelTripleStore, String> subjectComputation) {
         simpleUpdateReferences.put(attribute,
             new TripleStoreComputedValueUpdateReference(predicate, subset.getIdentifier(), valueComputation,
+                subjectComputation));
+    }
+
+    protected void computedValueAndSubjectUpdate(String attribute, String predicate, CgmesSubset subset,
+        BiFunction<Identifiable, CgmesModelTripleStore, String> complexValueComputation,
+        BiFunction<Identifiable, CgmesModelTripleStore, String> subjectComputation) {
+        simpleUpdateReferences.put(attribute,
+            new TripleStoreComputedValueUpdateReference(predicate, subset.getIdentifier(), complexValueComputation,
                 subjectComputation));
     }
 

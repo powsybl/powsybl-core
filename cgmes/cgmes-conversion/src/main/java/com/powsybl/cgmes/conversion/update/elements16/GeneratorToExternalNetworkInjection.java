@@ -8,13 +8,9 @@ package com.powsybl.cgmes.conversion.update.elements16;
 
 import com.powsybl.cgmes.conversion.update.IidmToCgmes;
 import com.powsybl.cgmes.model.CgmesSubset;
-import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.MinMaxReactiveLimits;
-import com.powsybl.iidm.network.ReactiveLimits;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>
@@ -31,16 +27,14 @@ public class GeneratorToExternalNetworkInjection extends IidmToCgmes {
         // synchronous machine related to this IIDM generator
         ignore("energySource");
 
-
         simpleUpdate("minP", "cim:ExternalNetworkInjection.minP", CgmesSubset.EQUIPMENT);
         simpleUpdate("maxP", "cim:ExternalNetworkInjection.maxP", CgmesSubset.EQUIPMENT);
+        simpleUpdate("voltageRegulatorOn", "cim:RegulatingCondEq.controlEnabled", CgmesSubset.STEADY_STATE_HYPOTHESIS);
 
         computedValueUpdate("targetP", "cim:ExternalNetworkInjection.p", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::pFromTargetP);
         computedValueUpdate("targetQ", "cim:ExternalNetworkInjection.q", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::qFromTargetQ);
         computedValueUpdate("reactiveLimits", "cim:ExternalNetworkInjection.minQ", CgmesSubset.EQUIPMENT, this::minQFromReactiveLimits);
         computedValueUpdate("reactiveLimits", "cim:ExternalNetworkInjection.maxQ", CgmesSubset.EQUIPMENT, this::maxQFromReactiveLimits);
-
-        simpleUpdate("voltageRegulatorOn", "cim:RegulatingCondEq.controlEnabled", CgmesSubset.STEADY_STATE_HYPOTHESIS);
 
         // The change of the sub-object reactiveLimits will be a not-so-simple change
         // If the reactiveLimits kind is MIN_MAX,
@@ -68,7 +62,6 @@ public class GeneratorToExternalNetworkInjection extends IidmToCgmes {
     private String maxQFromReactiveLimits(Identifiable id) {
         requireGenerator(id);
         Generator g = (Generator) id;
-        ReactiveLimits r = g.getReactiveLimits();
         if (g.getReactiveLimits() instanceof MinMaxReactiveLimits) {
             MinMaxReactiveLimits l = (MinMaxReactiveLimits) g.getReactiveLimits();
             return Double.toString(l.getMaxQ());

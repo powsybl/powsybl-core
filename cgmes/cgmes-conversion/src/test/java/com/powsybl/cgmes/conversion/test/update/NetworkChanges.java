@@ -9,9 +9,7 @@ package com.powsybl.cgmes.conversion.test.update;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.conversion.update.elements16.GeneratorToExternalNetworkInjection;
-import com.powsybl.cgmes.conversion.update.elements16.GeneratorToSynchronousMachine;
-import com.powsybl.cgmes.conversion.update.elements16.TwoWindingsTransformerToPowerTransformer;
+import com.powsybl.cgmes.conversion.update.elements16.*;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Load;
@@ -75,7 +73,7 @@ public final class NetworkChanges {
         }
 
         TwoWindingsTransformerToPowerTransformer ct2 = new TwoWindingsTransformerToPowerTransformer();
-        if (ct2.isSupported("ratedU1") && ct2.isSupported("ratedU22")) {
+        if (ct2.isSupported("ratedU1") && ct2.isSupported("ratedU2")) {
             modifyTwoWindingsTransformerRatedU(network);
         }
         if (ct2.isSupported("r") && ct2.isSupported("x")) {
@@ -89,11 +87,6 @@ public final class NetworkChanges {
         if (cg.isSupported("reactiveLimits")) {
             modifyGeneratorReactiveLimits(network);
         }
-
-//        GeneratorToExternalNetworkInjection gen = new GeneratorToExternalNetworkInjection();
-//        if (gen.isSupported("reactiveLimits")) {
-//            modifyGeneratorReactiveLimits(network);
-//        }
 
         if (network.getShuntCompensatorCount() > 0) {
             ShuntCompensator sh = network.getShuntCompensators().iterator().next();

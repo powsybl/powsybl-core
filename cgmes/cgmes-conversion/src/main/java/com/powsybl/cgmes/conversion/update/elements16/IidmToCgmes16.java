@@ -29,7 +29,12 @@ public class IidmToCgmes16 {
     public IidmToCgmes findConversion(IidmChange change, CgmesModelTripleStore cgmests) {
         Identifiable o = change.getIdentifiable();
         if (o instanceof Generator) {
-            return cgmesType(o, cgmests).equals("SynchronousMachine") ? generatorSm : generatorEni;
+            if (cgmesType(o, cgmests).equals("SynchronousMachine")) {
+                return generatorSm;
+            } else if (cgmesType(o, cgmests).equals("ExternalNetworkInjection")) {
+                return generatorEni;
+            }
+            return generatorSm;
         } else if (o instanceof Load) {
             return cgmesType(o, cgmests).equals("EnergyConsumer") ? loadEc : loadAm;
         } else if (o instanceof Line) {
