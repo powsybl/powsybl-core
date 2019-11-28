@@ -39,7 +39,6 @@ public class IeeeCdfWriter {
     public void write(BufferedWriter writer) throws IOException {
 
         writeRecords(writer, Collections.singletonList(model.getTitle()), IeeeCdfTitle.class);
-        writer.newLine();
 
         writer.write(String.format("BUS DATA FOLLOWS                            %d ITEMS", model.getBuses().size()));
         writer.newLine();
