@@ -402,6 +402,17 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void miniNodeBreakerLoadBreakSwitch() {
+        Network network = new CgmesImport()
+                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerLoadBreakSwitch().dataSource(),
+                        NetworkFactory.findDefault(), null);
+
+        Switch sw = network.getSwitch("_fbdcf00d-8a07-4c62-9e39-86f459bea2be");
+        assertNotNull(sw);
+        assertEquals(SwitchKind.LOAD_BREAK_SWITCH, sw.getKind());
+    }
+
+    @Test
     public void smallNodeBreakerHvdcDcLine2Inverter1Rectifier2() {
         // Small Grid Node Breaker HVDC modified so in the dcLine2
         // SVC1 (that is at side 2 of the DC line) is interpreted as a rectifier and
