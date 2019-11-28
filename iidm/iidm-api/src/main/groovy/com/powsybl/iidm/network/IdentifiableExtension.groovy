@@ -21,7 +21,11 @@ class IdentifiableExtension {
     }
 
     static void propertyMissing(Identifiable self, String name, Object value) {
-        self.properties[name] = value;
+        if (value == null) {
+            self.properties.remove(name)
+        } else {
+            self.properties[name] = value;
+        }
     }
 
     /**

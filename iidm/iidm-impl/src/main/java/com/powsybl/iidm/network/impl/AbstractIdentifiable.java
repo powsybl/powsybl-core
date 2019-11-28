@@ -64,12 +64,14 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public String getProperty(String key) {
-        return properties.getProperty(key);
+        Object val = properties.get(key);
+        return val != null ? val.toString() : null;
     }
 
     @Override
     public String getProperty(String key, String defaultValue) {
-        return properties.getOrDefault(key, defaultValue).toString();
+        Object val = properties.getOrDefault(key, defaultValue);
+        return val != null ? val.toString() : null;
     }
 
     @Override
