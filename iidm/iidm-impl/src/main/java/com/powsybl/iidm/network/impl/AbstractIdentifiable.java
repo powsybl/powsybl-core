@@ -13,7 +13,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractExtendable<I> implements Identifiable<I>, Validable, MultiVariantObject {
@@ -49,7 +48,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         return getTypeDescription() + " '" + id + "': ";
     }
 
-    public Properties getProperties(){
+    public Properties getProperties() {
         return properties;
     }
 
