@@ -8,6 +8,7 @@ package com.powsybl.iidm.network;
 
 import org.apache.commons.lang3.NotImplementedException;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -93,6 +94,14 @@ public interface Bus extends Identifiable<Bus> {
      * Get terminals connected to this bus.
      */
     default Stream<Terminal> getConnectedTerminalStream() {
+        throw new NotImplementedException("Not implemented yet");
+    }
+
+    /**
+     * Get nodes belongs to this bus.
+     * @return List node belongs to this bus.
+     */
+    default List<Integer> getNodes() {
         throw new NotImplementedException("Not implemented yet");
     }
 

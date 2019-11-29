@@ -320,4 +320,21 @@ public class NodeBreakerTest {
         assertEquals(3, it.next().getNodeBreakerView().getNode());
         assertFalse(it.hasNext());
     }
+
+    @Test
+    public void testGetNodes() {
+        Network network = NetworkTest1Factory.create();
+        VoltageLevel vl = network.getVoltageLevel("voltageLevel1");
+        assertEquals(1, vl.getBusView().getBusStream().count());
+        Bus bus = vl.getBusView().getBus("voltageLevel1_0");
+        assertEquals(Arrays.asList(0, 1, 6, 5, 3, 2), bus.getNodes());
+
+        // disconnect breaker
+        network.getSwitch("voltageLevel1Breaker1").setOpen(true);
+        assertEquals(2, vl.getBusView().getBusStream().count());
+        Bus loadBus = vl.getBusView().getBus("voltageLevel1_0");
+        assertEquals(Arrays.asList(0, 3, 2), loadBus.getNodes());
+        Bus genBus = vl.getBusView().getBus("voltageLevel1_1");
+        assertEquals(Arrays.asList(1, 6, 5), genBus.getNodes());
+    }
 }

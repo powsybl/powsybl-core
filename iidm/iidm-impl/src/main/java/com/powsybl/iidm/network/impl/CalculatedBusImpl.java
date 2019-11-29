@@ -12,6 +12,7 @@ import gnu.trove.list.array.TIntArrayList;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -24,11 +25,14 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     private final List<NodeTerminal> terminals;
 
+    private final List<Integer> nodes;
+
     private NodeTerminal terminalRef;
 
     CalculatedBusImpl(String id, NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
         super(id, voltageLevel);
         this.terminals = Objects.requireNonNull(terminals);
+        this.nodes = Arrays.stream(nodes.toArray()).boxed().collect(Collectors.toList());
         this.terminalRef = findTerminal(voltageLevel, nodes, terminals);
     }
 
@@ -79,6 +83,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         valid = false;
         voltageLevel = null;
         terminals.clear();
+        nodes.clear();
         terminalRef = null;
     }
 
@@ -103,6 +108,12 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     public Stream<Terminal> getConnectedTerminalStream() {
         checkValidity();
         return terminals.stream().map(Function.identity());
+    }
+
+    @Override
+    public List<Integer> getNodes() {
+        checkValidity();
+        return Collections.unmodifiableList(nodes);
     }
 
     @Override
