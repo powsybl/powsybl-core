@@ -17,7 +17,7 @@ import java.util.List;
  */
 abstract class AbstractInjectionAdapter<I extends Injection<I>> extends AbstractIdentifiableAdapter<I> implements Injection<I> {
 
-    AbstractInjectionAdapter(I delegate, MergingViewIndex index) {
+    protected AbstractInjectionAdapter(I delegate, MergingViewIndex index) {
         super(delegate, index);
     }
 

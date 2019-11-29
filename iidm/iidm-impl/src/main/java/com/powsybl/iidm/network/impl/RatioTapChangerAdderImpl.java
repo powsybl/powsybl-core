@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -194,8 +193,8 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         tapChangers.remove(parent.getRatioTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
 
-        if (parent.getTransformer() instanceof ThreeWindingsTransformer && parent.hasPhaseTapChanger()) {
-            LOGGER.warn("{} more than one tap changer on the leg", parent);
+        if (parent.hasPhaseTapChanger()) {
+            LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);
         }
 
         parent.setRatioTapChanger(tapChanger);

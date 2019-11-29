@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.*;
  */
 public class GeneratorAdapter extends AbstractInjectionAdapter<Generator> implements Generator {
 
-    protected GeneratorAdapter(final Generator delegate, final MergingViewIndex index) {
+    GeneratorAdapter(final Generator delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -46,7 +46,7 @@ public class GeneratorAdapter extends AbstractInjectionAdapter<Generator> implem
     }
 
     @Override
-    public GeneratorAdapter setEnergySource(final EnergySource energySource) {
+    public Generator setEnergySource(final EnergySource energySource) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -56,7 +56,7 @@ public class GeneratorAdapter extends AbstractInjectionAdapter<Generator> implem
     }
 
     @Override
-    public GeneratorAdapter setMaxP(final double maxP) {
+    public Generator setMaxP(final double maxP) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -66,7 +66,7 @@ public class GeneratorAdapter extends AbstractInjectionAdapter<Generator> implem
     }
 
     @Override
-    public GeneratorAdapter setMinP(final double minP) {
+    public Generator setMinP(final double minP) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -76,17 +76,17 @@ public class GeneratorAdapter extends AbstractInjectionAdapter<Generator> implem
     }
 
     @Override
-    public GeneratorAdapter setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
+    public Generator setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public TerminalAdapter getRegulatingTerminal() {
+    public Terminal getRegulatingTerminal() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public GeneratorAdapter setRegulatingTerminal(final Terminal regulatingTerminal) {
+    public Generator setRegulatingTerminal(final Terminal regulatingTerminal) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -96,7 +96,7 @@ public class GeneratorAdapter extends AbstractInjectionAdapter<Generator> implem
     }
 
     @Override
-    public GeneratorAdapter setTargetV(final double targetV) {
+    public Generator setTargetV(final double targetV) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -106,7 +106,7 @@ public class GeneratorAdapter extends AbstractInjectionAdapter<Generator> implem
     }
 
     @Override
-    public GeneratorAdapter setTargetP(final double targetP) {
+    public Generator setTargetP(final double targetP) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -116,7 +116,7 @@ public class GeneratorAdapter extends AbstractInjectionAdapter<Generator> implem
     }
 
     @Override
-    public GeneratorAdapter setTargetQ(final double targetQ) {
+    public Generator setTargetQ(final double targetQ) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -126,8 +126,7 @@ public class GeneratorAdapter extends AbstractInjectionAdapter<Generator> implem
     }
 
     @Override
-    public GeneratorAdapter setRatedS(final double ratedS) {
+    public Generator setRatedS(final double ratedS) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
-
 }

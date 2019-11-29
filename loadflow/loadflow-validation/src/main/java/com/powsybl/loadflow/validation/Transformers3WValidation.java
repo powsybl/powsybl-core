@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
@@ -66,8 +67,16 @@ public final class Transformers3WValidation extends AbstractTransformersValidati
         Objects.requireNonNull(config);
         Objects.requireNonNull(twtsWriter);
 
+        int phaseAngleClock2 = 0;
+        int phaseAngleClock3 = 0;
+        ThreeWindingsTransformerPhaseAngleClock phaseAngleClockExtension = twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class);
+        if (phaseAngleClockExtension != null) {
+            phaseAngleClock2 = phaseAngleClockExtension.getPhaseAngleClockLeg2();
+            phaseAngleClock3 = phaseAngleClockExtension.getPhaseAngleClockLeg3();
+        }
+
         boolean validated = true;
-        TwtData twtData = new TwtData(twt, config.getEpsilonX(), config.applyReactanceCorrection(), false);
+        TwtData twtData = new TwtData(twt, phaseAngleClock2, phaseAngleClock3, config.getEpsilonX(), config.applyReactanceCorrection(), false);
         validated &= checkLeg(twtData, Side.ONE, config);
         validated &= checkLeg(twtData, Side.TWO, config);
         validated &= checkLeg(twtData, Side.THREE, config);

@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -98,7 +100,14 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             });
 
         network.getTwoWindingsTransformerStream().forEach(twt -> {
+            int phaseAngleClock = 0;
+            TwoWindingsTransformerPhaseAngleClock phaseAngleClockExtension = twt.getExtension(TwoWindingsTransformerPhaseAngleClock.class);
+            if (phaseAngleClockExtension != null) {
+                phaseAngleClock = phaseAngleClockExtension.getPhaseAngleClock();
+            }
+
             BranchData twtData = new BranchData(twt,
+                                                phaseAngleClock,
                                                 parameters.getEpsilonX(),
                                                 parameters.isApplyReactanceCorrection(),
                                                 lfParameters.isSpecificCompatibility());
@@ -120,7 +129,17 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
         });
 
         network.getThreeWindingsTransformerStream().forEach(twt -> {
+            int phaseAngleClock2 = 0;
+            int phaseAngleClock3 = 0;
+            ThreeWindingsTransformerPhaseAngleClock phaseAngleClockExtension = twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class);
+            if (phaseAngleClockExtension != null) {
+                phaseAngleClock2 = phaseAngleClockExtension.getPhaseAngleClockLeg2();
+                phaseAngleClock3 = phaseAngleClockExtension.getPhaseAngleClockLeg3();
+            }
+
             TwtData twtData = new TwtData(twt,
+                                          phaseAngleClock2,
+                                          phaseAngleClock3,
                                           parameters.getEpsilonX(),
                                           parameters.isApplyReactanceCorrection(),
                                           lfParameters.isSplitShuntAdmittanceXfmr3());

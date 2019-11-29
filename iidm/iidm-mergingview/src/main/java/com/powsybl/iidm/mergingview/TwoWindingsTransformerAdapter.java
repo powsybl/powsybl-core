@@ -6,26 +6,24 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.PhaseTapChangerAdder;
-import com.powsybl.iidm.network.RatioTapChangerAdder;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class TwoWindingsTransformerAdapter extends AbstractBranchAdapter<TwoWindingsTransformer> implements TwoWindingsTransformer {
 
-    protected TwoWindingsTransformerAdapter(final TwoWindingsTransformer delegate, final MergingViewIndex index) {
+    TwoWindingsTransformerAdapter(final TwoWindingsTransformer delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
     @Override
-    public PhaseTapChangerAdapter getPhaseTapChanger() {
+    public PhaseTapChanger getPhaseTapChanger() {
         return getIndex().getPhaseTapChanger(getDelegate().getPhaseTapChanger());
     }
 
     @Override
-    public RatioTapChangerAdapter getRatioTapChanger() {
+    public RatioTapChanger getRatioTapChanger() {
         return getIndex().getRatioTapChanger(getDelegate().getRatioTapChanger());
     }
 
@@ -43,7 +41,7 @@ public class TwoWindingsTransformerAdapter extends AbstractBranchAdapter<TwoWind
     }
 
     @Override
-    public SubstationAdapter getSubstation() {
+    public Substation getSubstation() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -53,7 +51,7 @@ public class TwoWindingsTransformerAdapter extends AbstractBranchAdapter<TwoWind
     }
 
     @Override
-    public TwoWindingsTransformerAdapter setR(final double r) {
+    public TwoWindingsTransformer setR(final double r) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -63,7 +61,7 @@ public class TwoWindingsTransformerAdapter extends AbstractBranchAdapter<TwoWind
     }
 
     @Override
-    public TwoWindingsTransformerAdapter setX(final double x) {
+    public TwoWindingsTransformer setX(final double x) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -73,7 +71,7 @@ public class TwoWindingsTransformerAdapter extends AbstractBranchAdapter<TwoWind
     }
 
     @Override
-    public TwoWindingsTransformerAdapter setG(final double g) {
+    public TwoWindingsTransformer setG(final double g) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -83,7 +81,7 @@ public class TwoWindingsTransformerAdapter extends AbstractBranchAdapter<TwoWind
     }
 
     @Override
-    public TwoWindingsTransformerAdapter setB(final double b) {
+    public TwoWindingsTransformer setB(final double b) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -93,7 +91,7 @@ public class TwoWindingsTransformerAdapter extends AbstractBranchAdapter<TwoWind
     }
 
     @Override
-    public TwoWindingsTransformerAdapter setRatedU1(final double ratedU1) {
+    public TwoWindingsTransformer setRatedU1(final double ratedU1) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -103,7 +101,7 @@ public class TwoWindingsTransformerAdapter extends AbstractBranchAdapter<TwoWind
     }
 
     @Override
-    public TwoWindingsTransformerAdapter setRatedU2(final double ratedU2) {
+    public TwoWindingsTransformer setRatedU2(final double ratedU2) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 }

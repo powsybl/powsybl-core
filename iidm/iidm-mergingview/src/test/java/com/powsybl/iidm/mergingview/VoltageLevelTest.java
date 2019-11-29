@@ -6,18 +6,11 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
-import com.powsybl.iidm.network.ContainerType;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
-
+import com.powsybl.iidm.network.*;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -69,6 +62,29 @@ public class VoltageLevelTest {
         assertEquals(0, voltageLevel.getLccConverterStationCount());
         assertEquals(TopologyKind.BUS_BREAKER, voltageLevel.getTopologyKind());
 
+        // Bus
+        voltageLevel.getBusBreakerView().newBus()
+                .setId("B1")
+                .setName("B1")
+                .setEnsureIdUnicity(false)
+                .add();
+
+        // VscConverterStation
+        final VscConverterStation cs1 = voltageLevel.newVscConverterStation()
+                .setId("C1")
+                .setName("Converter1")
+                .setConnectableBus("B1")
+                .setBus("B1")
+                .setLossFactor(0.011f)
+                .setVoltageSetpoint(405.0)
+                .setVoltageRegulatorOn(true)
+                .setReactivePowerSetpoint(123)
+                .setEnsureIdUnicity(false)
+                .add();
+        assertTrue(cs1 instanceof VscConverterStationAdapter);
+        assertTrue(voltageLevel.getVscConverterStations().iterator().hasNext());
+        assertEquals(1, voltageLevel.getVscConverterStationCount());
+
         // Not implemented yet !
         // Generator
         TestUtil.notImplemented(voltageLevel::newGenerator);
@@ -102,18 +118,12 @@ public class VoltageLevelTest {
         TestUtil.notImplemented(voltageLevel::getStaticVarCompensators);
         TestUtil.notImplemented(voltageLevel::getStaticVarCompensatorStream);
         assertEquals(0, voltageLevel.getStaticVarCompensatorCount());
-        // VscConverterStation
-        TestUtil.notImplemented(voltageLevel::newVscConverterStation);
-        TestUtil.notImplemented(voltageLevel::getVscConverterStations);
-        TestUtil.notImplemented(voltageLevel::getVscConverterStationStream);
-        assertEquals(0, voltageLevel.getVscConverterStationCount());
         // LccConverterStation
         TestUtil.notImplemented(voltageLevel::newLccConverterStation);
         TestUtil.notImplemented(voltageLevel::getLccConverterStations);
         TestUtil.notImplemented(voltageLevel::getLccConverterStationStream);
         // Bus
         TestUtil.notImplemented(voltageLevel::getNodeBreakerView);
-        TestUtil.notImplemented(voltageLevel::getBusBreakerView);
         TestUtil.notImplemented(voltageLevel::getBusView);
         // Connectables
         TestUtil.notImplemented(() -> voltageLevel.getConnectable("", null));
