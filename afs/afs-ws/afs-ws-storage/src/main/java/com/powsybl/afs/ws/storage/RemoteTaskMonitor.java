@@ -99,7 +99,7 @@ public class RemoteTaskMonitor implements TaskMonitor {
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/tasks")
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
-                .queryParam("name", project.getId())
+                .queryParam("name", name)
                 .queryParam("projectId", project.getId())
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, token)

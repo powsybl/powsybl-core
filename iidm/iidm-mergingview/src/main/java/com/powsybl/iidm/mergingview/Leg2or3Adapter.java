@@ -6,17 +6,14 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.RatioTapChangerAdder;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class Leg2or3Adapter extends AbstractAdapter<ThreeWindingsTransformer.Leg2or3> implements ThreeWindingsTransformer.Leg2or3 {
 
-    protected Leg2or3Adapter(final ThreeWindingsTransformer.Leg2or3 delegate, final MergingViewIndex index) {
+    Leg2or3Adapter(final ThreeWindingsTransformer.Leg2or3 delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -24,7 +21,7 @@ public class Leg2or3Adapter extends AbstractAdapter<ThreeWindingsTransformer.Leg
     // Not implemented methods -------
     // -------------------------------
     @Override
-    public TerminalAdapter getTerminal() {
+    public Terminal getTerminal() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -34,7 +31,7 @@ public class Leg2or3Adapter extends AbstractAdapter<ThreeWindingsTransformer.Leg
     }
 
     @Override
-    public Leg2or3Adapter setR(final double r) {
+    public ThreeWindingsTransformer.Leg2or3 setR(final double r) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -44,7 +41,7 @@ public class Leg2or3Adapter extends AbstractAdapter<ThreeWindingsTransformer.Leg
     }
 
     @Override
-    public Leg2or3Adapter setX(final double x) {
+    public ThreeWindingsTransformer.Leg2or3 setX(final double x) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -54,7 +51,7 @@ public class Leg2or3Adapter extends AbstractAdapter<ThreeWindingsTransformer.Leg
     }
 
     @Override
-    public Leg2or3Adapter setRatedU(final double ratedU) {
+    public ThreeWindingsTransformer.Leg2or3 setRatedU(final double ratedU) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -74,7 +71,7 @@ public class Leg2or3Adapter extends AbstractAdapter<ThreeWindingsTransformer.Leg
     }
 
     @Override
-    public RatioTapChangerAdapter getRatioTapChanger() {
+    public RatioTapChanger getRatioTapChanger() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 }

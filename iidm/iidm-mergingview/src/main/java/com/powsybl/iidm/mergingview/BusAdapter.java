@@ -6,115 +6,173 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.stream.Stream;
+import com.google.common.collect.Iterables;
+import com.powsybl.iidm.network.*;
 
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TopologyVisitor;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VscConverterStation;
+import java.util.stream.Stream;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
-    protected BusAdapter(final Bus delegate, final MergingViewIndex index) {
+    BusAdapter(final Bus delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
     @Override
-    public ComponentAdapter getSynchronousComponent() {
-        return getIndex().getComponent(getDelegate().getSynchronousComponent());
+    public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
+        return Iterables.transform(getDelegate().getTwoWindingsTransformers(),
+                                   getIndex()::getTwoWindingsTransformer);
     }
 
     @Override
-    public ComponentAdapter getConnectedComponent() {
-        return getIndex().getComponent(getDelegate().getConnectedComponent());
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
+        return getDelegate().getTwoWindingsTransformerStream()
+                            .map(getIndex()::getTwoWindingsTransformer);
+    }
+
+    @Override
+    public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
+        return Iterables.transform(getDelegate().getThreeWindingsTransformers(),
+                getIndex()::getThreeWindingsTransformer);
+    }
+
+    @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
+        return getDelegate().getThreeWindingsTransformerStream()
+                            .map(getIndex()::getThreeWindingsTransformer);
+    }
+
+    @Override
+    public Iterable<Generator> getGenerators() {
+        return Iterables.transform(getDelegate().getGenerators(),
+                                   getIndex()::getGenerator);
+    }
+
+    @Override
+    public Stream<Generator> getGeneratorStream() {
+        return getDelegate().getGeneratorStream()
+                            .map(getIndex()::getGenerator);
+    }
+
+    @Override
+    public Iterable<Battery> getBatteries() {
+        return Iterables.transform(getDelegate().getBatteries(),
+                                   getIndex()::getBattery);
+    }
+
+    @Override
+    public Stream<Battery> getBatteryStream() {
+        return getDelegate().getBatteryStream()
+                            .map(getIndex()::getBattery);
+    }
+
+    @Override
+    public Iterable<Load> getLoads() {
+        return Iterables.transform(getDelegate().getLoads(),
+                                   getIndex()::getLoad);
+    }
+
+    @Override
+    public Stream<Load> getLoadStream() {
+        return getDelegate().getLoadStream()
+                            .map(getIndex()::getLoad);
+    }
+
+    @Override
+    public Iterable<ShuntCompensator> getShuntCompensators() {
+        return Iterables.transform(getDelegate().getShuntCompensators(),
+                                   getIndex()::getShuntCompensator);
+    }
+
+    @Override
+    public Stream<ShuntCompensator> getShuntCompensatorStream() {
+        return getDelegate().getShuntCompensatorStream()
+                            .map(getIndex()::getShuntCompensator);
+    }
+
+    @Override
+    public Iterable<StaticVarCompensator> getStaticVarCompensators() {
+        return Iterables.transform(getDelegate().getStaticVarCompensators(),
+                                   getIndex()::getStaticVarCompensator);
+    }
+
+    @Override
+    public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
+        return getDelegate().getStaticVarCompensatorStream()
+                            .map(getIndex()::getStaticVarCompensator);
+    }
+
+    @Override
+    public Iterable<LccConverterStation> getLccConverterStations() {
+        return Iterables.transform(getDelegate().getLccConverterStations(),
+                                   getIndex()::getLccConverterStation);
+    }
+
+    @Override
+    public Stream<LccConverterStation> getLccConverterStationStream() {
+        return getDelegate().getLccConverterStationStream()
+                            .map(getIndex()::getLccConverterStation);
+    }
+
+    @Override
+    public Iterable<VscConverterStation> getVscConverterStations() {
+        return Iterables.transform(getDelegate().getVscConverterStations(),
+                                   getIndex()::getVscConverterStation);
+    }
+
+    @Override
+    public Stream<VscConverterStation> getVscConverterStationStream() {
+        return getDelegate().getVscConverterStationStream()
+                            .map(getIndex()::getVscConverterStation);
+    }
+
+    @Override
+    public VoltageLevel getVoltageLevel() {
+        return getIndex().getVoltageLevel(getDelegate().getVoltageLevel());
     }
 
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------
+    @Override
+    public double getV() {
+        return getDelegate().getV();
+    }
+
+    @Override
+    public Bus setV(final double v) {
+        getDelegate().setV(v);
+        return this;
+    }
+
+    @Override
+    public double getAngle() {
+        return getDelegate().getAngle();
+    }
+
+    @Override
+    public Bus setAngle(final double angle) {
+        getDelegate().setAngle(angle);
+        return this;
+    }
+
+    @Override
+    public double getP() {
+        return getDelegate().getP();
+    }
+
+    @Override
+    public double getQ() {
+        return getDelegate().getQ();
+    }
 
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
     @Override
-    public VoltageLevelAdapter getVoltageLevel() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getV() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public BusAdapter setV(final double v) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getAngle() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public BusAdapter setAngle(final double angle) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getP() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getQ() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean isInMainConnectedComponent() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public boolean isInMainSynchronousComponent() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public int getConnectedTerminalCount() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void visitConnectedEquipments(final TopologyVisitor visitor) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void visitConnectedOrConnectableEquipments(final TopologyVisitor visitor) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -129,56 +187,6 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     }
 
     @Override
-    public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<Generator> getGenerators() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Generator> getGeneratorStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<Battery> getBatteries() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Battery> getBatteryStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<Load> getLoads() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Load> getLoadStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<ShuntCompensator> getShuntCompensators() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<ShuntCompensator> getShuntCompensatorStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public Iterable<DanglingLine> getDanglingLines() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
@@ -189,32 +197,32 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     }
 
     @Override
-    public Iterable<StaticVarCompensator> getStaticVarCompensators() {
+    public Component getSynchronousComponent() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
+    public Component getConnectedComponent() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public Iterable<LccConverterStation> getLccConverterStations() {
+    public boolean isInMainConnectedComponent() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public Stream<LccConverterStation> getLccConverterStationStream() {
+    public boolean isInMainSynchronousComponent() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public Iterable<VscConverterStation> getVscConverterStations() {
+    public void visitConnectedEquipments(final TopologyVisitor visitor) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public Stream<VscConverterStation> getVscConverterStationStream() {
+    public void visitConnectedOrConnectableEquipments(final TopologyVisitor visitor) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 }

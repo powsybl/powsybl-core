@@ -34,7 +34,7 @@ public class LineAdapter extends AbstractBranchAdapter<Line> implements Line {
     }
 
     @Override
-    public LineAdapter setR(final double r) {
+    public Line setR(final double r) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -44,7 +44,7 @@ public class LineAdapter extends AbstractBranchAdapter<Line> implements Line {
     }
 
     @Override
-    public LineAdapter setX(final double x) {
+    public Line setX(final double x) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -54,7 +54,7 @@ public class LineAdapter extends AbstractBranchAdapter<Line> implements Line {
     }
 
     @Override
-    public LineAdapter setG1(final double g1) {
+    public Line setG1(final double g1) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -64,7 +64,7 @@ public class LineAdapter extends AbstractBranchAdapter<Line> implements Line {
     }
 
     @Override
-    public LineAdapter setG2(final double g2) {
+    public Line setG2(final double g2) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -74,7 +74,7 @@ public class LineAdapter extends AbstractBranchAdapter<Line> implements Line {
     }
 
     @Override
-    public LineAdapter setB1(final double b1) {
+    public Line setB1(final double b1) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -84,7 +84,7 @@ public class LineAdapter extends AbstractBranchAdapter<Line> implements Line {
     }
 
     @Override
-    public LineAdapter setB2(final double b2) {
+    public Line setB2(final double b2) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 }
