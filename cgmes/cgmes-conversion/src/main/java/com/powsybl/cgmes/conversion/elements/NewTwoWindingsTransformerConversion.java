@@ -223,21 +223,9 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         int phaseAngleClock1 = 0;
         int phaseAngleClock2 = 0;
 
-        if (alternative.isXfmr2PhaseAngleClockEnd1End2()) {
-            if (cgmesT2xModel.end1.phaseAngleClock != 0) {
-                if (alternative.isXfmr2PhaseAngleClock1Negate()) {
-                    phaseAngleClock2 = cgmesT2xModel.end1.phaseAngleClock;
-                } else {
-                    phaseAngleClock1 = cgmesT2xModel.end1.phaseAngleClock;
-                }
-            }
-            if (cgmesT2xModel.end2.phaseAngleClock != 0) {
-                if (alternative.isXfmr2PhaseAngleClock2Negate()) {
-                    phaseAngleClock1 = cgmesT2xModel.end2.phaseAngleClock;
-                } else {
-                    phaseAngleClock2 = cgmesT2xModel.end2.phaseAngleClock;
-                }
-            }
+        if (alternative.isXfmr2PhaseAngleClockOn()) {
+            phaseAngleClock1 = cgmesT2xModel.end1.phaseAngleClock;
+            phaseAngleClock2 = cgmesT2xModel.end2.phaseAngleClock;
         }
 
         AllPhaseAngleClock allPhaseAngleClock = new AllPhaseAngleClock();
