@@ -35,7 +35,7 @@ public class LegAdapter extends AbstractAdapter<ThreeWindingsTransformer.Leg> im
     }
 
     @Override
-    public LegAdapter setR(final double r) {
+    public ThreeWindingsTransformer.Leg setR(final double r) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -45,37 +45,7 @@ public class LegAdapter extends AbstractAdapter<ThreeWindingsTransformer.Leg> im
     }
 
     @Override
-    public LegAdapter setX(final double x) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getG() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public LegAdapter setG(final double x) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getB() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public LegAdapter setB(final double x) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getRatedU() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public LegAdapter setRatedU(final double ratedU) {
+    public ThreeWindingsTransformer.Leg setX(final double x) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -86,6 +56,36 @@ public class LegAdapter extends AbstractAdapter<ThreeWindingsTransformer.Leg> im
 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
+
+    @Override
+    public double getG() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
+
+    @Override
+    public ThreeWindingsTransformer.Leg setG(final double g) {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
+
+    @Override
+    public double getB() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
+
+    @Override
+    public ThreeWindingsTransformer.Leg setB(final double b) {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
+
+    @Override
+    public double getRatedU() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
+
+    @Override
+    public ThreeWindingsTransformer.Leg setRatedU(final double ratedU) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
