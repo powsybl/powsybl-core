@@ -6,6 +6,9 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
 import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
 
@@ -15,6 +18,8 @@ import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
  */
 class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeWindingsTransformerAdderImpl>
     implements ThreeWindingsTransformerAdder {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThreeWindingsTransformerAdderImpl.class);
 
     class LegAdderImpl implements Validable, LegAdder {
 
@@ -96,9 +101,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             if (Double.isNaN(b)) {
                 throw new ValidationException(this, "b is not set");
             }
-            if (Double.isNaN(ratedU)) {
-                throw new ValidationException(this, "rated u is not set");
-            }
+            ValidationUtil.checkRatedU(this, ratedU, "");
         }
 
         protected TerminalExt checkAndGetTerminal() {
@@ -240,6 +243,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         // Define ratedU0 equal to ratedU1 if it has not been defined
         if (Double.isNaN(ratedU0)) {
             ratedU0 = leg1.getRatedU();
+            LOGGER.info("RatedU0 is not set. Fixed to leg1 ratedU: {}", leg1.getRatedU());
         }
 
         ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(id, getName(), leg1, leg2, leg3,

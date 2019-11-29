@@ -8,6 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevel.TopologyTraverser;
 
 /**
@@ -15,7 +16,7 @@ import com.powsybl.iidm.network.VoltageLevel.TopologyTraverser;
  */
 public class TerminalAdapter extends AbstractAdapter<Terminal> implements Terminal {
 
-    protected TerminalAdapter(final Terminal delegate, final MergingViewIndex index) {
+    TerminalAdapter(final Terminal delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -23,7 +24,7 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
     // Not implemented methods -------
     // -------------------------------
     @Override
-    public VoltageLevelAdapter getVoltageLevel() {
+    public VoltageLevel getVoltageLevel() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -33,12 +34,12 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
     }
 
     @Override
-    public TerminalBusBreakerViewAdapter getBusBreakerView() {
+    public Terminal.BusBreakerView getBusBreakerView() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public TerminalBusViewAdapter getBusView() {
+    public Terminal.BusView getBusView() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -53,7 +54,7 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
     }
 
     @Override
-    public TerminalAdapter setP(final double p) {
+    public Terminal setP(final double p) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -63,7 +64,7 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
     }
 
     @Override
-    public TerminalAdapter setQ(final double q) {
+    public Terminal setQ(final double q) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 

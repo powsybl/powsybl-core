@@ -79,9 +79,6 @@ public class TwtData {
     private final boolean mainComponent2;
     private final boolean mainComponent3;
 
-    private final int phaseAngleClock2;
-    private final int phaseAngleClock3;
-
     private double computedP1;
     private double computedQ1;
     private double computedP2;
@@ -93,6 +90,10 @@ public class TwtData {
     private double starTheta;
 
     public TwtData(ThreeWindingsTransformer twt, double epsilonX, boolean applyReactanceCorrection, boolean splitShuntAdmittance) {
+        this(twt, 0, 0, epsilonX, applyReactanceCorrection, splitShuntAdmittance);
+    }
+
+    public TwtData(ThreeWindingsTransformer twt, int phaseAngleClock2, int phaseAngleClock3, double epsilonX, boolean applyReactanceCorrection, boolean splitShuntAdmittance) {
         Objects.requireNonNull(twt);
         id = twt.getId();
 
@@ -145,12 +146,9 @@ public class TwtData {
         double rhof = 1.0;
         double alphaf = 0.0;
 
-        phaseAngleClock2 = 0;
-        phaseAngleClock3 = 0;
-
         double angle1 = -alpha1;
-        double angle2 = -alpha2 + Math.toRadians(LinkData.getPhaseAngleClockDegrees(phaseAngleClock2));
-        double angle3 = -alpha3 + Math.toRadians(LinkData.getPhaseAngleClockDegrees(phaseAngleClock3));
+        double angle2 = -alpha2 - Math.toRadians(LinkData.getPhaseAngleClockDegrees(phaseAngleClock2));
+        double angle3 = -alpha3 - Math.toRadians(LinkData.getPhaseAngleClockDegrees(phaseAngleClock3));
         double anglef = -alphaf;
 
         LinkData.BranchAdmittanceMatrix branchAdmittanceLeg1 = LinkData.calculateBranchAdmittance(r1, x1,
