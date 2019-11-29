@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -94,7 +95,17 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
         });
 
         network.getThreeWindingsTransformerStream().forEach(twt -> {
+            int phaseAngleClock2 = 0;
+            int phaseAngleClock3 = 0;
+            ThreeWindingsTransformerPhaseAngleClock phaseAngleClockExtension = twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class);
+            if (phaseAngleClockExtension != null) {
+                phaseAngleClock2 = phaseAngleClockExtension.getPhaseAngleClockLeg2();
+                phaseAngleClock3 = phaseAngleClockExtension.getPhaseAngleClockLeg3();
+            }
+
             TwtData twtData = new TwtData(twt,
+                                          phaseAngleClock2,
+                                          phaseAngleClock3,
                                           parameters.getEpsilonX(),
                                           parameters.isApplyReactanceCorrection(),
                                           lfParameters.isSplitShuntAdmittanceXfmr3());
