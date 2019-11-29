@@ -10,14 +10,19 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.ieeecdf.model.*;
+import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
+import com.powsybl.iidm.parameters.ParameterType;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.time.ZoneOffset;
@@ -29,8 +34,16 @@ import java.util.*;
  */
 public class IeeeCdfImporter implements Importer {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(IeeeCdfImporter.class);
+
     private static final String FORMAT = "IEEE CDF";
+
     private static final String EXT = "txt";
+
+    private static final Parameter IGNORE_BASE_VOLTAGE_PARAMETER = new Parameter("ignore-base-voltage",
+                                                                                 ParameterType.BOOLEAN,
+                                                                                 "Ignore base voltage specified in the file",
+                                                                                 Boolean.TRUE);
 
     @Override
     public String getFormat() {
@@ -39,7 +52,7 @@ public class IeeeCdfImporter implements Importer {
 
     @Override
     public List<Parameter> getParameters() {
-        return Collections.emptyList();
+        return Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER);
     }
 
     @Override
@@ -83,7 +96,7 @@ public class IeeeCdfImporter implements Importer {
 
     private static final class PerUnitContext {
 
-        private final double sb;
+        private final double sb; // base apparent power
 
         private final boolean ignoreBaseVoltage;
 
@@ -401,6 +414,9 @@ public class IeeeCdfImporter implements Importer {
         }
         List<Float> rhos = new ArrayList<>();
         rhos.add(1f); // TODO create full table
+        if (ieeeCdfBranch.getMinTapOrPhaseShift() != 0 && ieeeCdfBranch.getMaxTapOrPhaseShift() != 0) {
+            LOGGER.warn("Tap steps are not yet supported ({})", transformer.getId());
+        }
         RatioTapChangerAdder ratioTapChangerAdder = transformer.newRatioTapChanger()
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(regulating)
@@ -429,6 +445,9 @@ public class IeeeCdfImporter implements Importer {
                 .setTapPosition(0);
         List<Float> alphas = new ArrayList<>();
         alphas.add(-ieeeCdfBranch.getFinalAngle());  // TODO create full table
+        if (ieeeCdfBranch.getMinTapOrPhaseShift() != 0 && ieeeCdfBranch.getMaxTapOrPhaseShift() != 0) {
+            LOGGER.warn("Phase shift steps are not yet supported ({})", transformer.getId());
+        }
         for (float alpha : alphas) {
             phaseTapChangerAdder.beginStep()
                     .setAlpha(alpha)
@@ -501,7 +520,9 @@ public class IeeeCdfImporter implements Importer {
             // build container to fit IIDM requirements
             ContainersMapping containerMapping = createContainerMapping(ieeeCdfModel);
 
-            PerUnitContext perUnitContext = new PerUnitContext(ieeeCdfModel.getTitle().getMvaBase(), true);
+            boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
+                                                                                  ParameterDefaultValueConfig.INSTANCE);
+            PerUnitContext perUnitContext = new PerUnitContext(ieeeCdfModel.getTitle().getMvaBase(), ignoreBaseVoltage);
 
             // create objects
             createBuses(ieeeCdfModel, containerMapping, perUnitContext, network);

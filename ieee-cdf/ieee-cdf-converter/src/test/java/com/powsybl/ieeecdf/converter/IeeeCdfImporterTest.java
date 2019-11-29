@@ -33,7 +33,8 @@ public class IeeeCdfImporterTest extends AbstractConverterTest {
         Importer importer = new IeeeCdfImporter();
         assertEquals("IEEE CDF", importer.getFormat());
         assertEquals("IEEE Common Data Format to IIDM converter", importer.getComment());
-        assertTrue(importer.getParameters().isEmpty());
+        assertEquals(1, importer.getParameters().size());
+        assertEquals("ignore-base-voltage", importer.getParameters().get(0).getName());
     }
 
     @Test

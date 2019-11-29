@@ -8,6 +8,7 @@ package com.powsybl.ieeecdf.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -27,7 +28,7 @@ public class IeeeCdfModel {
     private final List<IeeeCdfTieLine> tieLines = new ArrayList<>();
 
     public IeeeCdfModel(IeeeCdfTitle title) {
-        this.title = title;
+        this.title = Objects.requireNonNull(title);
     }
 
     public IeeeCdfTitle getTitle() {

@@ -15,13 +15,14 @@ public class SeasonConversion extends ObjectConversion<IeeeCdfTitle.Season> {
 
     @Override
     protected IeeeCdfTitle.Season fromString(String str) {
-        switch (str.charAt(0)) {
+        char season = str.charAt(0);
+        switch (season) {
             case 'S':
                 return IeeeCdfTitle.Season.SUMMER;
             case 'W':
                 return IeeeCdfTitle.Season.WINTER;
             default:
-                throw new AssertionError();
+                throw new AssertionError("Unknown season: " + season);
         }
     }
 
@@ -33,7 +34,7 @@ public class SeasonConversion extends ObjectConversion<IeeeCdfTitle.Season> {
             case WINTER:
                 return "W";
             default:
-                throw new AssertionError();
+                throw new AssertionError("Unknown season: " + season);
         }
     }
 }
