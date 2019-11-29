@@ -27,7 +27,7 @@ public class HvdcLineAdapter extends AbstractIdentifiableAdapter<HvdcLine> imple
     }
 
     @Override
-    public HvdcLineAdapter setConvertersMode(final ConvertersMode mode) {
+    public HvdcLine setConvertersMode(final ConvertersMode mode) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -37,7 +37,7 @@ public class HvdcLineAdapter extends AbstractIdentifiableAdapter<HvdcLine> imple
     }
 
     @Override
-    public HvdcLineAdapter setR(final double r) {
+    public HvdcLine setR(final double r) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -47,7 +47,7 @@ public class HvdcLineAdapter extends AbstractIdentifiableAdapter<HvdcLine> imple
     }
 
     @Override
-    public HvdcLineAdapter setNominalV(final double nominalV) {
+    public HvdcLine setNominalV(final double nominalV) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -57,7 +57,7 @@ public class HvdcLineAdapter extends AbstractIdentifiableAdapter<HvdcLine> imple
     }
 
     @Override
-    public HvdcLineAdapter setActivePowerSetpoint(final double activePowerSetpoint) {
+    public HvdcLine setActivePowerSetpoint(final double activePowerSetpoint) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -67,7 +67,7 @@ public class HvdcLineAdapter extends AbstractIdentifiableAdapter<HvdcLine> imple
     }
 
     @Override
-    public HvdcLineAdapter setMaxP(final double maxP) {
+    public HvdcLine setMaxP(final double maxP) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -85,5 +85,4 @@ public class HvdcLineAdapter extends AbstractIdentifiableAdapter<HvdcLine> imple
     public void remove() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
-
 }

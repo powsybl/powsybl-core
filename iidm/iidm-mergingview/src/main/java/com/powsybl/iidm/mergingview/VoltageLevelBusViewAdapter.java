@@ -6,18 +6,18 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.stream.Stream;
-
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevel.BusView;
+
+import java.util.stream.Stream;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class VoltageLevelBusViewAdapter extends AbstractAdapter<VoltageLevel.BusView> implements VoltageLevel.BusView {
 
-    protected VoltageLevelBusViewAdapter(final BusView delegate, final MergingViewIndex index) {
+    VoltageLevelBusViewAdapter(final BusView delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -35,13 +35,12 @@ public class VoltageLevelBusViewAdapter extends AbstractAdapter<VoltageLevel.Bus
     }
 
     @Override
-    public BusAdapter getBus(final String id) {
+    public Bus getBus(final String id) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public BusAdapter getMergedBus(final String configuredBusId) {
+    public Bus getMergedBus(final String configuredBusId) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
-
 }

@@ -51,10 +51,19 @@ class MergingViewIndex {
         return networks.stream();
     }
 
+    boolean contains(String id) {
+        for (Network n : networks) {
+            if (Objects.nonNull(n.getIdentifiable(id))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** Validate all networks added into merging network list */
     void checkAndAdd(final Network other) {
         // Check multi-variants network
-        ValidationUtil.checkSingleyVariant(other);
+        ValidationUtil.checkSingleVariant(other);
         // Check unique identifiable network
         ValidationUtil.checkUniqueIds(other, this);
         // Local storage for mergeable network
@@ -95,7 +104,7 @@ class MergingViewIndex {
     /** @return all adapters according to all Identifiables */
     Collection<Identifiable<?>> getIdentifiables() {
         // Search Identifiables into merging & working networks
-        return getIdentifiableStream().collect(Collectors.toSet());
+        return getIdentifiableStream().collect(Collectors.toList());
     }
 
     /** @return all Adapters according to all Substations into merging view */
