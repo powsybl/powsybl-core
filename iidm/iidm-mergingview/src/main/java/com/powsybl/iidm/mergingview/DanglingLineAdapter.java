@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.DanglingLine;
  */
 public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> implements DanglingLine {
 
-    protected DanglingLineAdapter(final DanglingLine delegate, final MergingViewIndex index) {
+    DanglingLineAdapter(final DanglingLine delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -28,7 +28,7 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public DanglingLineAdapter setP0(final double p0) {
+    public DanglingLine setP0(final double p0) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -38,7 +38,7 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public DanglingLineAdapter setQ0(final double q0) {
+    public DanglingLine setQ0(final double q0) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -48,7 +48,7 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public DanglingLineAdapter setR(final double r) {
+    public DanglingLine setR(final double r) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -58,7 +58,7 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public DanglingLineAdapter setX(final double x) {
+    public DanglingLine setX(final double x) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -68,7 +68,7 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public DanglingLineAdapter setG(final double g) {
+    public DanglingLine setG(final double g) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -78,7 +78,7 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public DanglingLineAdapter setB(final double b) {
+    public DanglingLine setB(final double b) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 

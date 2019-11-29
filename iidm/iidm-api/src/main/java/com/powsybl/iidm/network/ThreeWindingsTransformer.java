@@ -7,20 +7,31 @@
 package com.powsybl.iidm.network;
 
 /**
- * A 3 windings power transformer.
- *<p>
- * The equivalent star model used is:
- * <div>
- *    <object data="doc-files/threeWindingsTransformer.svg" type="image/svg+xml">
- *    </object>
- * </div>
- * <p>Side 1 is the primary (high voltage), side 2 and side 3 can be indifferently
- * the secondary (medium voltage) or the tertiary voltage (low voltage).
- * <p>b1, b2, b3 and g1, g2, g3 unit is siemens.
- * <p>r1, r2, r3, x1, x2 and x3 unit is ohm.
- * <p>A 3 windings transformer is connected to 3 voltage levels (side 1, side 2 and side 3)
- * that belong to the same substation.
- * <p>To create a 3 windings transformer, see {@link ThreeWindingsTransformerAdder}
+ * A Three Windings Power Transformer.
+ * <p>
+ * The equivalent star model used is: <div>
+ * <object data="doc-files/threeWindingsTransformer.svg" type="image/svg+xml">
+ * </object> </div>
+ * <p>
+ * Usually side 1 is the primary (high voltage), side 2 is the secondary (medium
+ * voltage) and side 3 the tertiary voltage (low voltage).
+ * <p>
+ * g1, g2, g3 and b1, b2, b3 unit is siemens.
+ * <p>
+ * r1, r2, r3, x1, x2 and x3 unit is ohm.
+ * <p>
+ * A Three Windings Transformer is connected to three voltage levels (side 1, side 2 and
+ * side 3) that belong to the same substation. It has three identical legs. Each leg has
+ * the same model of a Two Windings Power Transformer.
+ * <p>
+ * All three legs may have a Ratio Tap Changer and a Phase Tap Changer.
+ * A warning is emitted if a leg has both Ratio and Phase Tap Changers.
+ * <p>
+ * Only one Tap Changer is allowed to be regulating on the equipment. An exception is thrown if
+ * two or more regulating controls are enabled.
+ * <p>
+ * To create a three windings transformer, see {@link ThreeWindingsTransformerAdder}
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see RatioTapChanger
  * @see PhaseTapChanger

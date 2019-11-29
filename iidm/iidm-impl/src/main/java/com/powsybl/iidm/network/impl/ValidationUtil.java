@@ -228,16 +228,18 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkRatedU1(Validable validable, double ratedU1) {
-        if (Double.isNaN(ratedU1)) {
-            throw new ValidationException(validable, "rated U1 is invalid");
+    static void checkRatedU(Validable validable, double ratedU, String num) {
+        if (Double.isNaN(ratedU)) {
+            throw new ValidationException(validable, "rated U" + num + " is invalid");
         }
     }
 
+    static void checkRatedU1(Validable validable, double ratedU1) {
+        checkRatedU(validable, ratedU1, "1");
+    }
+
     static void checkRatedU2(Validable validable, double ratedU2) {
-        if (Double.isNaN(ratedU2)) {
-            throw new ValidationException(validable, "rated U2 is invalid");
-        }
+        checkRatedU(validable, ratedU2, "2");
     }
 
     static void checkSvcRegulator(Validable validable, double voltageSetpoint, double reactivePowerSetpoint, StaticVarCompensator.RegulationMode regulationMode) {
@@ -319,13 +321,10 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
-        Set<TapChanger> tapChangersNotIncludingTheModified, boolean regulating) {
-        if (regulating) {
-            long enabled = tapChangersNotIncludingTheModified.stream().filter(TapChanger::isRegulating).count();
-            if (enabled > 0) {
-                throw new ValidationException(validable, "Only one regulating control enabled is allowed");
-            }
+    static void checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
+                                                        Set<TapChanger> tapChangersNotIncludingTheModified, boolean regulating) {
+        if (regulating && tapChangersNotIncludingTheModified.stream().anyMatch(TapChanger::isRegulating)) {
+            throw new ValidationException(validable, "Only one regulating control enabled is allowed");
         }
     }
 

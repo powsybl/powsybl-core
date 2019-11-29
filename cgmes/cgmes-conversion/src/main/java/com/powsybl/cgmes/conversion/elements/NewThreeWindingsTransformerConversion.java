@@ -98,7 +98,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
 
         AllTapChanger windingInterpretedTapChanger = ratioPhaseAlternative(cgmesWinding, alternative);
         AllShunt windingInterpretedShunt = shuntAlternative(cgmesWinding, alternative);
-        AllPhaseAngleClock windingInterpretedClock = phaseAngleClockAlternative(cgmesWinding, alternative);
+        int windingInterpretedClock = phaseAngleClockAlternative(cgmesWinding, alternative);
         boolean windingRatio0AtEnd2 = ratio0Alternative(cgmesWinding, alternative);
 
         interpretedWinding.r = cgmesWinding.r;
@@ -107,7 +107,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         interpretedWinding.end1.b = windingInterpretedShunt.b1;
         interpretedWinding.end1.ratioTapChanger = windingInterpretedTapChanger.ratioTapChanger1;
         interpretedWinding.end1.phaseTapChanger = windingInterpretedTapChanger.phaseTapChanger1;
-        interpretedWinding.end1.phaseAngleClock = windingInterpretedClock.phaseAngleClock1;
+        interpretedWinding.end1.phaseAngleClock = windingInterpretedClock;
         interpretedWinding.end1.ratedU = cgmesWinding.ratedU;
         interpretedWinding.end1.terminal = cgmesWinding.terminal;
 
@@ -115,7 +115,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         interpretedWinding.end2.b = windingInterpretedShunt.b2;
         interpretedWinding.end2.ratioTapChanger = windingInterpretedTapChanger.ratioTapChanger2;
         interpretedWinding.end2.phaseTapChanger = windingInterpretedTapChanger.phaseTapChanger2;
-        interpretedWinding.end2.phaseAngleClock = windingInterpretedClock.phaseAngleClock2;
 
         interpretedWinding.ratio0AtEnd2 = windingRatio0AtEnd2;
     }
@@ -170,23 +169,14 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return allShunt;
     }
 
-    private AllPhaseAngleClock phaseAngleClockAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
-        int phaseAngleClock1 = 0;
-        int phaseAngleClock2 = 0;
+    private int phaseAngleClockAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
+        int phaseAngleClock = 0;
 
-        if (cgmesWinding.phaseAngleClock != 0) {
-            if (alternative.isXfmr3PhaseAngleClockNetworkSide()) {
-                phaseAngleClock1 = cgmesWinding.phaseAngleClock;
-            } else if (alternative.isXfmr3PhaseAngleClockStarBusSide()) {
-                phaseAngleClock2 = cgmesWinding.phaseAngleClock;
-            }
+        if (alternative.isXfmr3PhaseAngleClockOn()) {
+            phaseAngleClock = cgmesWinding.phaseAngleClock;
         }
 
-        AllPhaseAngleClock allPhaseAngleClock = new AllPhaseAngleClock();
-        allPhaseAngleClock.phaseAngleClock1 = phaseAngleClock1;
-        allPhaseAngleClock.phaseAngleClock2 = phaseAngleClock2;
-
-        return allPhaseAngleClock;
+        return phaseAngleClock;
     }
 
     private boolean ratio0Alternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
@@ -251,7 +241,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         convertedWinding.end1.terminal = interpretedWinding.end1.terminal;
         convertedWinding.end2.g = windingRc0.g2;
         convertedWinding.end2.b = windingRc0.b2;
-        convertedWinding.end2.phaseAngleClock = interpretedWinding.end2.phaseAngleClock;
     }
 
     private RatioConversion rc0Winding(InterpretedWinding interpretedWinding, double ratedUf) {
@@ -456,7 +445,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         double b;
         TapChangerConversion ratioTapChanger;
         TapChangerConversion phaseTapChanger;
-        int phaseAngleClock;
     }
 
     static class ConvertedT3xModel {
@@ -477,7 +465,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     static class ConvertedEnd2 {
         double g;
         double b;
-        int phaseAngleClock;
     }
 
     static class TapChangerWinding {
