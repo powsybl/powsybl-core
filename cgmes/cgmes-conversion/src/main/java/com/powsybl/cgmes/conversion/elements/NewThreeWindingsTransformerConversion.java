@@ -231,7 +231,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         convertedWinding.end1.terminal = interpretedWinding.end1.terminal;
         convertedWinding.end2.g = windingRc0.g2;
         convertedWinding.end2.b = windingRc0.b2;
-        convertedWinding.end2.phaseAngleClock = interpretedWinding.end2.phaseAngleClock;
     }
 
     private RatioConversion rc0Winding(InterpretedWinding interpretedWinding, double ratedUf) {
@@ -334,7 +333,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     static class ConvertedEnd2 {
         double g;
         double b;
-        int phaseAngleClock;
     }
 
     static class TapChangerWinding {
