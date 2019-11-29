@@ -147,7 +147,7 @@ public class Conversion {
     }
 
     private boolean isOldCgmesConversion() {
-        return true;
+        return false;
     }
 
     private void convert(
@@ -549,28 +549,12 @@ public class Conversion {
             this.xfmr2ShuntSplit = xfmr2ShuntSplit;
         }
 
-        public boolean isXfmr2PhaseAngleClockEnd1End2() {
-            return xfmr2PhaseAngleClockEnd1End2;
+        public boolean isXfmr2PhaseAngleClockOn() {
+            return xfmr2PhaseAngleClockOn;
         }
 
-        public void setXfmr2PhaseAngleClockEnd1End2(boolean xfmr2PhaseAngleClockEnd1End2) {
-            this.xfmr2PhaseAngleClockEnd1End2 = xfmr2PhaseAngleClockEnd1End2;
-        }
-
-        public boolean isXfmr2PhaseAngleClock1Negate() {
-            return xfmr2PhaseAngleClock1Negate;
-        }
-
-        public void setXfmr2PhaseAngleClock1Negate(boolean xfmr2PhaseAngleClock1Negate) {
-            this.xfmr2PhaseAngleClock1Negate = xfmr2PhaseAngleClock1Negate;
-        }
-
-        public boolean isXfmr2PhaseAngleClock2Negate() {
-            return xfmr2PhaseAngleClock2Negate;
-        }
-
-        public void setXfmr2PhaseAngleClock2Negate(boolean xfmr2PhaseAngleClock2Negate) {
-            this.xfmr2PhaseAngleClock2Negate = xfmr2PhaseAngleClock2Negate;
+        public void setXfmr2PhaseAngleClockOn(boolean xfmr2PhaseAngleClockOn) {
+            this.xfmr2PhaseAngleClockOn = xfmr2PhaseAngleClockOn;
         }
 
         public Config setXfmr2StructuralRatio(String value) {
@@ -662,20 +646,12 @@ public class Conversion {
             this.xfmr3ShuntSplit = xfmr3ShuntSplit;
         }
 
-        public boolean isXfmr3PhaseAngleClockNetworkSide() {
-            return xfmr3PhaseAngleClockNetworkSide;
+        public boolean isXfmr3PhaseAngleClockOn() {
+            return xfmr3PhaseAngleClockOn;
         }
 
-        public void setXfmr3PhaseAngleClockNetworkSide(boolean xfmr3PhaseAngleClockNetworkSide) {
-            this.xfmr3PhaseAngleClockNetworkSide = xfmr3PhaseAngleClockNetworkSide;
-        }
-
-        public boolean isXfmr3PhaseAngleClockStarBusSide() {
-            return xfmr3PhaseAngleClockStarBusSide;
-        }
-
-        public void setXfmr3PhaseAngleClockStarBusSide(boolean xfmr3PhaseAngleClockStarBusSide) {
-            this.xfmr3PhaseAngleClockStarBusSide = xfmr3PhaseAngleClockStarBusSide;
+        public void setXfmr3PhaseAngleClockOn(boolean xfmr3PhaseAngleClockOn) {
+            this.xfmr3PhaseAngleClockOn = xfmr3PhaseAngleClockOn;
         }
 
         public boolean isXfmr3Ratio0StarBusSide() {
@@ -729,9 +705,7 @@ public class Conversion {
             this.xfmr2ShuntEnd2 = false;
             this.xfmr2ShuntEnd1End2 = false;
             this.xfmr2ShuntSplit = false;
-            this.xfmr2PhaseAngleClockEnd1End2 = false;
-            this.xfmr2PhaseAngleClock1Negate = false;
-            this.xfmr2PhaseAngleClock2Negate = false;
+            this.xfmr2PhaseAngleClockOn = false;
             this.xfmr2Ratio0End1 = false;
             this.xfmr2Ratio0End2 = false;
             this.xfmr2Ratio0Rtc = false;
@@ -740,8 +714,7 @@ public class Conversion {
             this.xfmr3ShuntNetworkSide = false;
             this.xfmr3ShuntStarBusSide = false;
             this.xfmr3ShuntSplit = false;
-            this.xfmr3PhaseAngleClockNetworkSide = false;
-            this.xfmr3PhaseAngleClockStarBusSide = false;
+            this.xfmr3PhaseAngleClockOn = false;
             this.xfmr3Ratio0StarBusSide = false;
             this.xfmr3Ratio0NetworkSide = false;
             this.xfmr3Ratio0End1 = false;
@@ -770,9 +743,7 @@ public class Conversion {
         private boolean xfmr2ShuntEnd2 = false;
         private boolean xfmr2ShuntEnd1End2 = false;
         private boolean xfmr2ShuntSplit = false;
-        private boolean xfmr2PhaseAngleClockEnd1End2 = false;
-        private boolean xfmr2PhaseAngleClock1Negate = false;
-        private boolean xfmr2PhaseAngleClock2Negate = false;
+        private boolean xfmr2PhaseAngleClockOn = false;
         private boolean xfmr2Ratio0End1 = false;
         private boolean xfmr2Ratio0End2 = false;
         private boolean xfmr2Ratio0Rtc = false;
@@ -782,8 +753,7 @@ public class Conversion {
         private boolean xfmr3ShuntNetworkSide = true;
         private boolean xfmr3ShuntStarBusSide = false;
         private boolean xfmr3ShuntSplit = false;
-        private boolean xfmr3PhaseAngleClockNetworkSide = false;
-        private boolean xfmr3PhaseAngleClockStarBusSide = false;
+        private boolean xfmr3PhaseAngleClockOn = false;
         private boolean xfmr3Ratio0StarBusSide = true;
         private boolean xfmr3Ratio0NetworkSide = false;
         private boolean xfmr3Ratio0End1 = false;

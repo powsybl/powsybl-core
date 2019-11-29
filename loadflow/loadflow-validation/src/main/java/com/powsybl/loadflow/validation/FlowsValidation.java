@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
@@ -151,7 +152,13 @@ public final class FlowsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);
 
-        BranchData branch = new BranchData(twt, config.getEpsilonX(), config.applyReactanceCorrection(), config.getLoadFlowParameters().isSpecificCompatibility());
+        int phaseAngleClock = 0;
+        TwoWindingsTransformerPhaseAngleClock phaseAngleClockExtension = twt.getExtension(TwoWindingsTransformerPhaseAngleClock.class);
+        if (phaseAngleClockExtension != null) {
+            phaseAngleClock = phaseAngleClockExtension.getPhaseAngleClock();
+        }
+
+        BranchData branch = new BranchData(twt, phaseAngleClock, config.getEpsilonX(), config.applyReactanceCorrection(), config.getLoadFlowParameters().isSpecificCompatibility());
         return checkFlows(branch, config, flowsWriter);
     }
 

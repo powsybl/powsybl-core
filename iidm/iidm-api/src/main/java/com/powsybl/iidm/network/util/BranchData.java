@@ -49,7 +49,7 @@ public class BranchData {
     private final double p2;
     private final double q2;
 
-    private final int phaseAngleClock;
+    int phaseAngleClock;
 
     private final boolean connected1;
     private final boolean connected2;
@@ -156,6 +156,10 @@ public class BranchData {
     }
 
     public BranchData(TwoWindingsTransformer twt, double epsilonX, boolean applyReactanceCorrection, boolean specificCompatibility) {
+        this(twt, 0, epsilonX, applyReactanceCorrection, specificCompatibility);
+    }
+
+    public BranchData(TwoWindingsTransformer twt, int phaseAngleClock, double epsilonX, boolean applyReactanceCorrection, boolean specificCompatibility) {
         Objects.requireNonNull(twt);
 
         id = twt.getId();
@@ -188,7 +192,7 @@ public class BranchData {
         p2 = twt.getTerminal2().getP();
         q2 = twt.getTerminal2().getQ();
 
-        phaseAngleClock = 0;
+        this.phaseAngleClock = phaseAngleClock;
 
         connected1 = bus1 != null;
         connected2 = bus2 != null;
@@ -279,7 +283,7 @@ public class BranchData {
             computedQ2 = Double.NaN;
         } else {
             double angle1 = -alpha1;
-            double angle2 = -alpha2 + Math.toRadians(LinkData.getPhaseAngleClockDegrees(phaseAngleClock));
+            double angle2 = -alpha2 - Math.toRadians(LinkData.getPhaseAngleClockDegrees(phaseAngleClock));
 
             LinkData.BranchAdmittanceMatrix branchAdmittance = LinkData.calculateBranchAdmittance(r, x,
                 1 / rho1, angle1, 1 / rho2, angle2, new Complex(g1, b1), new Complex(g2, b2));

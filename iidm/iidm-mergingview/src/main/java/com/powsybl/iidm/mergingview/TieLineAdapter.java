@@ -6,21 +6,16 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.List;
+import com.powsybl.iidm.network.*;
 
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TieLine;
+import java.util.List;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class TieLineAdapter extends AbstractIdentifiableAdapter<Line> implements TieLine {
 
-    protected TieLineAdapter(final TieLine delegate, final MergingViewIndex index) {
+    TieLineAdapter(final TieLine delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -36,22 +31,22 @@ public class TieLineAdapter extends AbstractIdentifiableAdapter<Line> implements
     // Not implemented methods -------
     // -------------------------------
     @Override
-    public TerminalAdapter getTerminal1() {
+    public Terminal getTerminal1() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public TerminalAdapter getTerminal2() {
+    public Terminal getTerminal2() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public TerminalAdapter getTerminal(final Side side) {
+    public Terminal getTerminal(final Side side) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public TerminalAdapter getTerminal(final String voltageLevelId) {
+    public Terminal getTerminal(final String voltageLevelId) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -181,7 +176,7 @@ public class TieLineAdapter extends AbstractIdentifiableAdapter<Line> implements
     }
 
     @Override
-    public LineAdapter setR(final double r) {
+    public Line setR(final double r) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -191,7 +186,7 @@ public class TieLineAdapter extends AbstractIdentifiableAdapter<Line> implements
     }
 
     @Override
-    public LineAdapter setX(final double x) {
+    public Line setX(final double x) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -201,7 +196,7 @@ public class TieLineAdapter extends AbstractIdentifiableAdapter<Line> implements
     }
 
     @Override
-    public LineAdapter setG1(final double g1) {
+    public Line setG1(final double g1) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -211,7 +206,7 @@ public class TieLineAdapter extends AbstractIdentifiableAdapter<Line> implements
     }
 
     @Override
-    public LineAdapter setG2(final double g2) {
+    public Line setG2(final double g2) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -221,7 +216,7 @@ public class TieLineAdapter extends AbstractIdentifiableAdapter<Line> implements
     }
 
     @Override
-    public LineAdapter setB1(final double b1) {
+    public Line setB1(final double b1) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -231,7 +226,7 @@ public class TieLineAdapter extends AbstractIdentifiableAdapter<Line> implements
     }
 
     @Override
-    public LineAdapter setB2(final double b2) {
+    public Line setB2(final double b2) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
