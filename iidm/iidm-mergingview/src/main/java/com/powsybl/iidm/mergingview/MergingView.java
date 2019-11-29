@@ -37,17 +37,17 @@ public final class MergingView implements Network {
     /** To listen events from merging network */
     private final NetworkListener listener = new MergingNetworkListener();
 
-    private final BusBreakerViewAdapter busBreakerView;
+    private final NetworkBusBreakerViewAdapter busBreakerView;
 
-    private final BusViewAdapter busView;
+    private final NetworkBusViewAdapter busView;
 
     /** Constructor */
     private MergingView(final NetworkFactory factory, final String id, final String format) {
         Objects.requireNonNull(factory, "factory is null");
 
         index = new MergingViewIndex(this);
-        busBreakerView = new BusBreakerViewAdapter(index);
-        busView = new BusViewAdapter(index);
+        busBreakerView = new NetworkBusBreakerViewAdapter(index);
+        busView = new NetworkBusViewAdapter(index);
         // Working network will store view informations
         workingNetwork = factory.createNetwork(id, format);
         // Add working network as merging network
@@ -231,11 +231,11 @@ public final class MergingView implements Network {
     @Override
     public Iterable<Substation> getSubstations(final String country, final String tsoId, final String... geographicalTags) {
         return index.getNetworkStream()
-                .map(n -> n.getSubstations(country, tsoId, geographicalTags))
-                .flatMap(x -> StreamSupport.stream(x.spliterator(), false))
-                .filter(Objects::nonNull)
-                .map(index::getSubstation)
-                .collect(Collectors.toSet());
+                    .map(n -> n.getSubstations(country, tsoId, geographicalTags))
+                    .flatMap(x -> StreamSupport.stream(x.spliterator(), false))
+                    .filter(Objects::nonNull)
+                    .map(index::getSubstation)
+                    .collect(Collectors.toList());
     }
 
     @Override
@@ -696,7 +696,7 @@ public final class MergingView implements Network {
     }
 
     @Override
-    public BusBreakerViewAdapter getBusBreakerView() {
+    public NetworkBusBreakerViewAdapter getBusBreakerView() {
         return busBreakerView;
     }
 

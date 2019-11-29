@@ -6,28 +6,54 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.ShortIdDictionary;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.util.Random;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.ShortIdDictionary;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> implements VoltageLevel {
 
-    public VoltageLevelAdapter(final VoltageLevel delegate, final MergingViewIndex index) {
+    private VoltageLevelBusBreakerViewAdapter busBreakerView;
+
+    VoltageLevelAdapter(final VoltageLevel delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
     @Override
-    public SubstationAdapter getSubstation() {
+    public Substation getSubstation() {
         return getIndex().getSubstation(getDelegate().getSubstation());
+    }
+
+    @Override
+    public VscConverterStationAdder newVscConverterStation() {
+        return new VscConverterStationAdderAdapter(getDelegate().newVscConverterStation(), getIndex());
+    }
+
+    @Override
+    public VoltageLevel.BusBreakerView getBusBreakerView() {
+        if (busBreakerView == null) {
+            busBreakerView = new VoltageLevelBusBreakerViewAdapter(getDelegate().getBusBreakerView(), getIndex());
+        }
+        return busBreakerView;
+    }
+
+    @Override
+    public Iterable<VscConverterStation> getVscConverterStations() {
+        return getVscConverterStationStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<VscConverterStation> getVscConverterStationStream() {
+        return getDelegate().getVscConverterStationStream().map(getIndex()::getVscConverterStation);
     }
 
     // -------------------------------
@@ -169,21 +195,6 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public VscConverterStationAdder newVscConverterStation() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<VscConverterStation> getVscConverterStations() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<VscConverterStation> getVscConverterStationStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public LccConverterStationAdder newLccConverterStation() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
@@ -199,17 +210,12 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public VoltageLevelNodeBreakerViewAdapter getNodeBreakerView() {
+    public VoltageLevel.NodeBreakerView getNodeBreakerView() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public VoltageLevelBusBreakerViewAdapter getBusBreakerView() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public VoltageLevelBusViewAdapter getBusView() {
+    public VoltageLevel.BusView getBusView() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -257,7 +263,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public VoltageLevelAdapter setNominalV(final double nominalV) {
+    public VoltageLevel setNominalV(final double nominalV) {
         getDelegate().setNominalV(nominalV);
         return this;
     }
@@ -268,7 +274,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public VoltageLevelAdapter setLowVoltageLimit(final double lowVoltageLimit) {
+    public VoltageLevel setLowVoltageLimit(final double lowVoltageLimit) {
         getDelegate().setLowVoltageLimit(lowVoltageLimit);
         return this;
     }
@@ -279,7 +285,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public VoltageLevelAdapter setHighVoltageLimit(final double highVoltageLimit) {
+    public VoltageLevel setHighVoltageLimit(final double highVoltageLimit) {
         getDelegate().setHighVoltageLimit(highVoltageLimit);
         return this;
     }

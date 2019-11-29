@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.ShuntCompensator;
  */
 public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompensator> implements ShuntCompensator {
 
-    protected ShuntCompensatorAdapter(final ShuntCompensator delegate, final MergingViewIndex index) {
+    ShuntCompensatorAdapter(final ShuntCompensator delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -26,7 +26,7 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     }
 
     @Override
-    public ShuntCompensatorAdapter setMaximumSectionCount(final int maximumSectionCount) {
+    public ShuntCompensator setMaximumSectionCount(final int maximumSectionCount) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -36,7 +36,7 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     }
 
     @Override
-    public ShuntCompensatorAdapter setCurrentSectionCount(final int currentSectionCount) {
+    public ShuntCompensator setCurrentSectionCount(final int currentSectionCount) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -46,7 +46,7 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     }
 
     @Override
-    public ShuntCompensatorAdapter setbPerSection(final double bPerSection) {
+    public ShuntCompensator setbPerSection(final double bPerSection) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
