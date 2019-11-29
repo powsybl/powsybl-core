@@ -85,12 +85,19 @@ public class IeeeCdfImporter implements Importer {
 
         private final double sb;
 
-        private PerUnitContext(double sb) {
+        private final boolean ignoreBaseVoltage;
+
+        private PerUnitContext(double sb, boolean ignoreBaseVoltage) {
             this.sb = sb;
+            this.ignoreBaseVoltage = ignoreBaseVoltage;
         }
 
         private double getSb() {
             return sb;
+        }
+
+        public boolean isIgnoreBaseVoltage() {
+            return ignoreBaseVoltage;
         }
     }
 
@@ -172,7 +179,7 @@ public class IeeeCdfImporter implements Importer {
             Substation substation = createSubstation(network, substationId);
 
             // create voltage level
-            VoltageLevel voltageLevel = createVoltageLevel(ieeeCdfBus, voltageLevelId, substation, network);
+            VoltageLevel voltageLevel = createVoltageLevel(ieeeCdfBus, perUnitContext, voltageLevelId, substation, network);
 
             // create bus
             createBus(ieeeCdfBus, voltageLevel);
@@ -237,9 +244,9 @@ public class IeeeCdfImporter implements Importer {
         return substation;
     }
 
-    private static VoltageLevel createVoltageLevel(IeeeCdfBus ieeeCdfBus, String voltageLevelId, Substation substation,
-                                                   Network network) {
-        double nominalV = ieeeCdfBus.getBaseVoltage() == 0 ? 1 : ieeeCdfBus.getBaseVoltage();
+    private static VoltageLevel createVoltageLevel(IeeeCdfBus ieeeCdfBus, PerUnitContext perUnitContext,
+                                                   String voltageLevelId, Substation substation, Network network) {
+        double nominalV = perUnitContext.isIgnoreBaseVoltage() || ieeeCdfBus.getBaseVoltage() == 0 ? 1 : ieeeCdfBus.getBaseVoltage();
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             voltageLevel = substation.newVoltageLevel()
@@ -494,7 +501,7 @@ public class IeeeCdfImporter implements Importer {
             // build container to fit IIDM requirements
             ContainersMapping containerMapping = createContainerMapping(ieeeCdfModel);
 
-            PerUnitContext perUnitContext = new PerUnitContext(ieeeCdfModel.getTitle().getMvaBase());
+            PerUnitContext perUnitContext = new PerUnitContext(ieeeCdfModel.getTitle().getMvaBase(), true);
 
             // create objects
             createBuses(ieeeCdfModel, containerMapping, perUnitContext, network);
