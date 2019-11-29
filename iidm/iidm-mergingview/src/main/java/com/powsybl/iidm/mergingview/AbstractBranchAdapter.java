@@ -15,7 +15,7 @@ import java.util.List;
  */
 abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractIdentifiableAdapter<I> implements Branch<I> {
 
-    AbstractBranchAdapter(I delegate, MergingViewIndex index) {
+    protected AbstractBranchAdapter(I delegate, MergingViewIndex index) {
         super(delegate, index);
     }
 
