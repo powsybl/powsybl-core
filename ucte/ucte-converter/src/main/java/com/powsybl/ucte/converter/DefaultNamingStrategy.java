@@ -7,6 +7,7 @@
 
 package com.powsybl.ucte.converter;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.network.UcteElementId;
 import com.powsybl.ucte.network.UcteNodeCode;
@@ -19,11 +20,17 @@ import java.util.Map;
  *
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
+@AutoService(NamingStrategy.class)
 public class DefaultNamingStrategy implements NamingStrategy {
 
     private final Map<String, UcteNodeCode> ucteNodeIds = new HashMap<>();
 
     private final Map<String, UcteElementId> ucteElementIds = new HashMap<>();
+
+    @Override
+    public String getName() {
+        return "Default";
+    }
 
     @Override
     public UcteNodeCode getUcteNodeCode(String id) {

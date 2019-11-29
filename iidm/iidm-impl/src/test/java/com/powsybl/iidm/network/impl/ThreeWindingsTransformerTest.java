@@ -579,7 +579,7 @@ public class ThreeWindingsTransformerTest {
     @Test
     public void invalidLeg1ArgumentsRatedU() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("rated u is not set");
+        thrown.expectMessage("rated U is invalid");
         createThreeWindingsTransformerWithLeg1(1.0, 2.0, 3.0, 4.0, Double.NaN);
     }
 
@@ -644,7 +644,7 @@ public class ThreeWindingsTransformerTest {
     @Test
     public void invalidLeg2ArgumentsRatedU() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("rated u is not set");
+        thrown.expectMessage("rated U is invalid");
         createThreeWindingsTransformerWithLeg2(1.2, 2.2, 3.2, 4.2, Double.NaN);
     }
 
@@ -711,7 +711,7 @@ public class ThreeWindingsTransformerTest {
     @Test
     public void invalidLeg3ArgumentsRatedU() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("rated u is not set");
+        thrown.expectMessage("rated U is invalid");
         createThreeWindingsTransformerWithLeg3(1.3, 2.3, 3.3, 4.3, Double.NaN);
     }
 

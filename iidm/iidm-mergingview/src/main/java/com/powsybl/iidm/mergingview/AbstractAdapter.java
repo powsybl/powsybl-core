@@ -25,11 +25,11 @@ abstract class AbstractAdapter<I> {
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------
-    public I getDelegate() {
+    protected I getDelegate() {
         return delegate;
     }
 
-    public MergingViewIndex getIndex() {
+    protected MergingViewIndex getIndex() {
         return index;
     }
 }

@@ -10,8 +10,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -22,8 +20,6 @@ import java.util.stream.Collectors;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class NetworkIndex {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(NetworkIndex.class);
 
     private final Map<String, Identifiable<?>> objectsById = new HashMap<>();
 
@@ -37,27 +33,6 @@ class NetworkIndex {
 
     static String getUniqueId() {
         return UUID.randomUUID().toString();
-    }
-
-    String getUniqueId(String baseId) {
-        String checkedBaseId;
-        if (baseId != null && baseId.length() > 0) {
-            if (!objectsById.containsKey(baseId)) {
-                return baseId;
-            }
-            checkedBaseId = baseId;
-        } else {
-            checkedBaseId = "autoid";
-        }
-        String uniqueId;
-        int i = 0;
-        do {
-            uniqueId = checkedBaseId + '#' + Integer.toString(i++);
-        } while (i < Integer.MAX_VALUE && objectsById.containsKey(uniqueId));
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Object '{}' is not unique, rename to '{}'", baseId, uniqueId);
-        }
-        return uniqueId;
     }
 
     void checkAndAdd(Identifiable<?> obj) {
