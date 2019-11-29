@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.MinMaxReactiveLimits;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -101,6 +102,7 @@ public final class NetworkChanges {
             modifyGeneratorVoltageRegulation(network);
         }
         modifyShuntCompensatorSections(network);
+        modifyRatioTapChangerControl(network);
     }
 
     public static void modifyShuntCompensatorSections(Network network) {
@@ -114,6 +116,28 @@ public final class NetworkChanges {
         }
         if (!found) {
             LOG.error("Did not find a ShuntCompensator to test");
+        }
+    }
+
+    public static void modifyRatioTapChangerControl(Network network) {
+        boolean found = false;
+        for (TwoWindingsTransformer t2 : network.getTwoWindingsTransformers()) {
+            if (t2.getRatioTapChanger() != null) {
+                RatioTapChanger rtc = t2.getRatioTapChanger();
+                if (!Double.isNaN(rtc.getTargetV())) {
+                    rtc.setTargetV(rtc.getTargetV() * 1.1);
+                }
+                if (!Double.isNaN(rtc.getTargetDeadband())) {
+                    rtc.setTargetDeadband(rtc.getTargetDeadband() * 1.1);
+                }
+                if (rtc.isRegulating()) {
+                    rtc.setRegulating(false);
+                }
+            }
+            found = true;
+            if (!found) {
+                LOG.error("Did not find a TapChanger to test");
+            }
         }
     }
 

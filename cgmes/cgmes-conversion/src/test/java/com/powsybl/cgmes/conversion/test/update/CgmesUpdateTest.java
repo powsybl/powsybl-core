@@ -78,6 +78,11 @@ public class CgmesUpdateTest {
         testSimpleUpdate(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
     }
 
+    @Test
+    public void testSimpleUpdateMicroGridBaseCaseBE() throws IOException {
+        testSimpleUpdate(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource());
+    }
+
     void testSimpleUpdate(ReadOnlyDataSource ds) throws IOException {
         boolean invalidateFlows = true;
         testSimpleUpdate(ds, invalidateFlows);
