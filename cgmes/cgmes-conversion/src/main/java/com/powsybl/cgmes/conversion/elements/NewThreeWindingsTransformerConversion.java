@@ -369,13 +369,9 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
 
     private void setToIidmPhaseAngleClock(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx) {
         // add phaseAngleClock as an extension, cgmes does not allow pac at end1
-        if (convertedT3xModel.winding1.end1.phaseAngleClock != 0 || convertedT3xModel.winding1.end2.phaseAngleClock != 0) {
+        if (convertedT3xModel.winding1.end1.phaseAngleClock != 0) {
             String reason = "Unsupported modelling: threeWindingsTransformer with phaseAngleClock at end1";
             ignored("phaseAngleClock end1", reason);
-        }
-        if (convertedT3xModel.winding2.end2.phaseAngleClock != 0 || convertedT3xModel.winding3.end2.phaseAngleClock != 0) {
-            String reason = "Unsupported modelling: threeWindingsTransformer with phaseAngleClock at star bus side";
-            ignored("phaseAngleClock start bus side", reason);
         }
 
         if (convertedT3xModel.winding2.end1.phaseAngleClock != 0 || convertedT3xModel.winding3.end1.phaseAngleClock != 0) {
