@@ -17,12 +17,14 @@ import java.util.stream.Stream;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public enum IidmXmlVersion {
-    V_1_0(ImmutableList.of(1, 0)),
-    V_1_1(ImmutableList.of(1, 1));
+    V_1_0("itesla_project.eu", ImmutableList.of(1, 0)),
+    V_1_1("powsybl.org", ImmutableList.of(1, 1));
 
+    private final String domain;
     private final List<Integer> versionArray;
 
-    IidmXmlVersion(List<Integer> versionArray) {
+    IidmXmlVersion(String namespace, List<Integer> versionArray) {
+        this.domain = namespace;
         this.versionArray = versionArray;
     }
 
@@ -30,14 +32,29 @@ public enum IidmXmlVersion {
         return versionArray.stream().map(Object::toString).collect(Collectors.joining(separator));
     }
 
+    public String getNamespaceURI() {
+        return "http://www." + domain + "/schema/iidm/" + toString("_");
+    }
+
     public String getXsd() {
         return "iidm_V" + toString("_") + ".xsd";
+    }
+
+    public static IidmXmlVersion fromNamespaceURI(String namespaceURI) {
+        String version = namespaceURI.substring(namespaceURI.lastIndexOf('/') + 1);
+        IidmXmlVersion v = of(version);
+        String namespaceUriV = v.getNamespaceURI();
+        if (!namespaceURI.equals(namespaceUriV)) {
+            throw new PowsyblException("Namespace " + namespaceURI + " is not supported. " +
+                    "The namespace for version " + v.toString(".") + " is: " + namespaceUriV + ".");
+        }
+        return v;
     }
 
     public static IidmXmlVersion of(String version) {
         return Stream.of(IidmXmlVersion.values())
                 .filter(v -> version.equals(v.toString("_")))
-                .findFirst()
+                .findFirst() // there can only be 0 or exactly 1 match
                 .orElseThrow(() -> new PowsyblException("Version " + version + " is not supported."));
     }
 }

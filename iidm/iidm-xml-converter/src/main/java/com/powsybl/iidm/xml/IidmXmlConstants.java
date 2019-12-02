@@ -15,11 +15,9 @@ public final class IidmXmlConstants {
 
     public static final IidmXmlVersion CURRENT_IIDM_XML_VERSION = IidmXmlVersion.V_1_1;
 
-    public static final String IIDM_BASE_URI = "http://www.powsybl.org/schema/iidm/";
+    public static final String IIDM_URI = CURRENT_IIDM_XML_VERSION.getNamespaceURI();
 
     public static final String IIDM_PREFIX = "iidm";
-
-    public static final String IIDM_URI = IIDM_BASE_URI + CURRENT_IIDM_XML_VERSION.toString("_");
 
     private IidmXmlConstants() {
     }

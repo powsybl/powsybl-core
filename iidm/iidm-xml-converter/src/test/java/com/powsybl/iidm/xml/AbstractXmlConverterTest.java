@@ -25,7 +25,7 @@ abstract class AbstractXmlConverterTest extends AbstractConverterTest {
         for (IidmXmlVersion version : versions) {
             roundTripXmlTest(NetworkXml.read(getClass().getResourceAsStream(getVersionDir(version) + file)),
                     NetworkXml::writeAndValidate,
-                    NetworkXml::read,
+                    NetworkXml::validateAndRead,
                     getVersionDir(CURRENT_IIDM_XML_VERSION) + file);
         }
     }

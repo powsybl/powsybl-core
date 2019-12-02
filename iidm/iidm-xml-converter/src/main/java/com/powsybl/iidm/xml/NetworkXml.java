@@ -63,7 +63,6 @@ public final class NetworkXml {
     private static final String EXTENSION_CATEGORY_NAME = "network";
     static final String NETWORK_ROOT_ELEMENT_NAME = "network";
     private static final String EXTENSION_ELEMENT_NAME = "extension";
-    private static final String IIDM_XSD = "iidm.xsd";
     private static final String CASE_DATE = "caseDate";
     private static final String FORECAST_DISTANCE = "forecastDistance";
     private static final String SOURCE_FORMAT = "sourceFormat";
@@ -477,7 +476,7 @@ public final class NetworkXml {
                 state = reader.next();
             }
 
-            String version = readVersion(reader);
+            IidmXmlVersion version = IidmXmlVersion.fromNamespaceURI(reader.getNamespaceURI());
             String id = reader.getAttributeValue(null, ID);
             DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
             int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, FORECAST_DISTANCE, 0);
@@ -487,7 +486,7 @@ public final class NetworkXml {
             network.setCaseDate(date);
             network.setForecastDistance(forecastDistance);
 
-            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, IidmXmlVersion.of(version));
+            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version);
 
             Set<String> extensionNamesNotFound = new TreeSet<>();
 
@@ -879,10 +878,5 @@ public final class NetworkXml {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    private static String readVersion(XMLStreamReader reader) {
-        String namespaceURI = reader.getNamespaceURI();
-        return namespaceURI.substring(namespaceURI.lastIndexOf('/') + 1);
     }
 }
