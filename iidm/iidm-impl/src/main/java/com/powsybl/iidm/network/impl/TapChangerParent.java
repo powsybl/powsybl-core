@@ -21,4 +21,8 @@ interface TapChangerParent extends Validable {
     Identifiable getTransformer();
 
     Set<TapChanger> getAllTapChangers();
+
+    boolean hasRatioTapChanger();
+
+    boolean hasPhaseTapChanger();
 }
