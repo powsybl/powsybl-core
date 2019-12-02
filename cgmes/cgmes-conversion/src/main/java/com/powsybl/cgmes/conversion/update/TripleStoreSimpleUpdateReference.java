@@ -38,8 +38,7 @@ public class TripleStoreSimpleUpdateReference {
     }
 
     public TripleStoreSimpleUpdateReference(String predicate, String contextReference,
-        boolean valueIsUri,
-        BiFunction<Identifiable, CgmesModelTripleStore, String> subjectComputation) {
+        boolean valueIsUri, BiFunction<Identifiable, CgmesModelTripleStore, String> subjectComputation) {
         this.predicate = Objects.requireNonNull(predicate);
         this.contextReference = Objects.requireNonNull(contextReference);
         this.valueIsUri = Objects.requireNonNull(valueIsUri);

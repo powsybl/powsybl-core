@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.MinMaxReactiveLimits;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.ShuntCompensator;
@@ -103,6 +104,7 @@ public final class NetworkChanges {
         }
         modifyShuntCompensatorSections(network);
         modifyRatioTapChangerControl(network);
+        modifyPhaseTapChangerControl(network);
     }
 
     public static void modifyShuntCompensatorSections(Network network) {
@@ -141,6 +143,28 @@ public final class NetworkChanges {
         }
     }
 
+    public static void modifyPhaseTapChangerControl(Network network) {
+        boolean found = false;
+        for (TwoWindingsTransformer t2 : network.getTwoWindingsTransformers()) {
+            if (t2.getPhaseTapChanger() != null) {
+                PhaseTapChanger ptc = t2.getPhaseTapChanger();
+                if (!Double.isNaN(ptc.getRegulationValue())) {
+                    ptc.setRegulationValue(ptc.getRegulationValue() * 1.1);
+                }
+                if (!Double.isNaN(ptc.getTargetDeadband())) {
+                    ptc.setTargetDeadband(ptc.getTargetDeadband() * 1.1);
+                }
+                if (ptc.isRegulating()) {
+                    ptc.setRegulating(false);
+                }
+            }
+            found = true;
+            if (!found) {
+                LOG.error("Did not find a TapChanger to test");
+            }
+        }
+    }
+
     public static void modifyTwoWindingsTransformerRatedU(Network network) {
         TwoWindingsTransformer t2 = network.getTwoWindingsTransformers().iterator().next();
         t2.setRatedU1(t2.getRatedU1() + 10);
@@ -162,7 +186,12 @@ public final class NetworkChanges {
     public static void modifyTwoWindingsTransformerTapPosition(Network network) {
         for (TwoWindingsTransformer t2 : network.getTwoWindingsTransformers()) {
             if (t2.getRatioTapChanger() != null) {
-                t2.getRatioTapChanger().setTapPosition(2);
+                RatioTapChanger rtc = t2.getRatioTapChanger();
+                rtc.setTapPosition(rtc.getTapPosition() + 1);
+            }
+            if (t2.getPhaseTapChanger() != null) {
+                PhaseTapChanger ptc = t2.getPhaseTapChanger();
+                ptc.setTapPosition(ptc.getTapPosition() + 1);
             }
         }
     }

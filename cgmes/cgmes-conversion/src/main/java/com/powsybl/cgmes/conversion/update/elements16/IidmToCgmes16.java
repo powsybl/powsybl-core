@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.update.elements16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.cgmes.conversion.update.CgmesTypes;
 import com.powsybl.cgmes.conversion.update.IidmChange;
 import com.powsybl.cgmes.conversion.update.IidmToCgmes;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
@@ -29,14 +30,19 @@ public class IidmToCgmes16 {
     public IidmToCgmes findConversion(IidmChange change, CgmesModelTripleStore cgmests) {
         Identifiable o = change.getIdentifiable();
         if (o instanceof Generator) {
-            if (cgmesType(o, cgmests).equals("SynchronousMachine")) {
+            if (cgmesType(o, cgmests).equals(CgmesTypes.SYNCHRONOUS_MACHINE.type())) {
                 return generatorSm;
-            } else if (cgmesType(o, cgmests).equals("ExternalNetworkInjection")) {
+            } else if (cgmesType(o, cgmests).equals(CgmesTypes.EXTERNAL_NETWORK_INJECTION.type())) {
                 return generatorEni;
             }
             return generatorSm;
         } else if (o instanceof Load) {
-            return cgmesType(o, cgmests).equals("EnergyConsumer") ? loadEc : loadAm;
+            if (cgmesType(o, cgmests).equals(CgmesTypes.ENERGY_CONSUMER.type())) {
+                return loadEc;
+            } else if (cgmesType(o, cgmests).equals(CgmesTypes.ASYNCHRONOUS_MACHINE.type())) {
+                return loadAm;
+            }
+            return loadEc;
         } else if (o instanceof Line) {
             return line;
         } else if (o instanceof TwoWindingsTransformer) {

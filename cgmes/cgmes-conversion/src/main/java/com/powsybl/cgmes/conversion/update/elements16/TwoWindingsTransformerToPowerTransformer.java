@@ -9,12 +9,14 @@ package com.powsybl.cgmes.conversion.update.elements16;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.powsybl.cgmes.conversion.update.CgmesTypes;
 import com.powsybl.cgmes.conversion.update.IidmToCgmes;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -27,7 +29,8 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
         ignore("q1");
         ignore("p2");
         ignore("q2");
-        // TODO elena the below parameters must be completed with appropriate changes for TapChangers steps
+        // TODO elena conversion for the below parameters must be completed with
+        // appropriate changes for TapChangers steps
         unsupported("ratedU1");
         unsupported("ratedU2");
         unsupported("r");
@@ -51,10 +54,16 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
         computedSubjectUpdate("ratedU2", "cim:PowerTransformerEnd.ratedU", CgmesSubset.EQUIPMENT, this::end2);
         // RTC
         computedSubjectUpdate("ratioTapChanger.tapPosition", "cim:TapChanger.step", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::ratioTapChangerId);
-        computedSubjectUpdate("ratioTapChanger.targetV", "cim:RegulatingControl.targetValue", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::tapChangerControlId);
-        computedSubjectUpdate("ratioTapChanger.targetDeadband", "cim:RegulatingControl.targetDeadband", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::tapChangerControlId);
-        computedSubjectUpdate("ratioTapChanger.regulating", "cim:RegulatingControl.enabled", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::tapChangerControlId);
+        computedSubjectUpdate("ratioTapChanger.targetV", "cim:RegulatingControl.targetValue", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::ratioTapChangerControlId);
+        computedSubjectUpdate("ratioTapChanger.targetDeadband", "cim:RegulatingControl.targetDeadband", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::ratioTapChangerControlId);
+        computedSubjectUpdate("ratioTapChanger.regulating", "cim:RegulatingControl.enabled", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::ratioTapChangerControlId);
         computedSubjectUpdate("ratioTapChanger.regulating", "cim:TapChanger.controlEnabled", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::ratioTapChangerId);
+        // PTC
+        computedSubjectUpdate("phaseTapChanger.tapPosition", "cim:TapChanger.step", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::phaseTapChangerId);
+        computedSubjectUpdate("phaseTapChanger.regulationValue", "cim:RegulatingControl.targetValue", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::phaseTapChangerControlId);
+        computedSubjectUpdate("phaseTapChanger.targetDeadband", "cim:RegulatingControl.targetDeadband", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::phaseTapChangerControlId);
+        computedSubjectUpdate("phaseTapChanger.regulating", "cim:RegulatingControl.enabled", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::phaseTapChangerControlId);
+        computedSubjectUpdate("phaseTapChanger.regulating", "cim:TapChanger.controlEnabled", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::phaseTapChangerId);
     }
 
     private void unsupported(String attribute, String predicate, CgmesSubset subset) {
@@ -62,30 +71,30 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
     }
 
     private String ratioTapChangerId(Identifiable id, CgmesModelTripleStore cgmes) {
-        requireTwoWindingsTransformer(id);
-        String end;
-        idEnd1 = transformerEndId(id, cgmes).get(ID_END1);
-        idEnd2 = transformerEndId(id, cgmes).get(ID_END2);
-        for (PropertyBag rtc : cgmes.ratioTapChangers()) {
-            end = rtc.getId(TRANSFORMER_END);
-            if (end.equals(idEnd1) || end.equals(idEnd2)) {
-                return rtc.getId("RatioTapChanger");
-            } else {
-                continue;
-            }
-        }
-        return null;
+        return cgmesId(id, cgmes, cgmes.ratioTapChangers(), CgmesTypes.RATIO_TAP_CHANGER.type());
     }
 
-    private String tapChangerControlId(Identifiable id, CgmesModelTripleStore cgmes) {
+    private String phaseTapChangerId(Identifiable id, CgmesModelTripleStore cgmes) {
+        return cgmesId(id, cgmes, cgmes.phaseTapChangers(), CgmesTypes.PHASE_TAP_CHANGER.type());
+    }
+
+    private String ratioTapChangerControlId(Identifiable id, CgmesModelTripleStore cgmes) {
+        return cgmesId(id, cgmes, cgmes.ratioTapChangers(), TAPCHANGER_CONTROL);
+    }
+
+    private String phaseTapChangerControlId(Identifiable id, CgmesModelTripleStore cgmes) {
+        return cgmesId(id, cgmes, cgmes.phaseTapChangers(), TAPCHANGER_CONTROL);
+    }
+
+    private String cgmesId(Identifiable id, CgmesModelTripleStore cgmes, PropertyBags pbs, String tcType) {
         requireTwoWindingsTransformer(id);
         String end;
         idEnd1 = transformerEndId(id, cgmes).get(ID_END1);
         idEnd2 = transformerEndId(id, cgmes).get(ID_END2);
-        for (PropertyBag rtc : cgmes.ratioTapChangers()) {
-            end = rtc.getId(TRANSFORMER_END);
+        for (PropertyBag tc : pbs) {
+            end = tc.getId(TRANSFORMER_END);
             if (end.equals(idEnd1) || end.equals(idEnd2)) {
-                return rtc.getId("TapChangerControl");
+                return tc.getId(tcType);
             } else {
                 continue;
             }
@@ -107,7 +116,7 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
         String identifiableId = id.getId();
         Map<String, String> ids = new HashMap<>();
         for (PropertyBag end : cgmes.transformerEnds()) {
-            twt = end.getId(POWER_TRANSFORMER);
+            twt = end.getId(CgmesTypes.POWER_TRANSFORMER.type());
             windingType = end.get(END_NUMBER);
             if (twt.equals(identifiableId) && windingType.equals("1")) {
                 ids.put(ID_END1, end.getId(TRANSFORMER_END));
@@ -171,7 +180,7 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
         double gNetwork = twt.getG();
         double bNetwork = twt.getB();
         for (PropertyBag end : cgmes.transformerEnds()) {
-            if (end.getId(POWER_TRANSFORMER).equals(id.getId())) {
+            if (end.getId(CgmesTypes.POWER_TRANSFORMER.type()).equals(id.getId())) {
                 if (end.get(END_NUMBER).equals("1")) {
                     r1 = end.asDouble("r");
                     x1 = end.asDouble("x");
@@ -227,9 +236,9 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
 
     String idEnd1;
     String idEnd2;
-    private static final String POWER_TRANSFORMER = "PowerTransformer";
     private static final String TRANSFORMER_END = "TransformerEnd";
     private static final String END_NUMBER = "endNumber";
     private static final String ID_END1 = "idEnd1";
     private static final String ID_END2 = "idEnd2";
+    private static final String TAPCHANGER_CONTROL = "TapChangerControl";
 }
