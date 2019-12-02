@@ -19,19 +19,12 @@ public class CgmesModelExtension extends AbstractExtension<Network> {
 
     private final CgmesModel cgmes;
 
-    private final Context context;
-
-    public CgmesModelExtension(CgmesModel cgmes, Context context) {
+    public CgmesModelExtension(CgmesModel cgmes) {
         this.cgmes = Objects.requireNonNull(cgmes);
-        this.context = Objects.requireNonNull(context);
     }
 
     public CgmesModel getCgmesModel() {
         return cgmes;
-    }
-
-    public Context getContext() {
-        return context;
     }
 
     @Override

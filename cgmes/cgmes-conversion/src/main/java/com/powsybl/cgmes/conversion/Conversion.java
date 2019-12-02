@@ -140,7 +140,11 @@ public class Conversion {
         if (config.storeCgmesModelAsNetworkExtension()) {
             // Store a reference to the original CGMES model inside the IIDM network
             // We could also add listeners to be aware of changes in IIDM data
-            network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes, context));
+            network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes));
+        }
+        if (config.storeCgmesTerminalMappingAsNetworkExtension()) {
+            // Store the terminal mapping in an extension for external validation
+            network.addExtension(CgmesTerminalMappingExtension.class, new CgmesTerminalMappingExtension(context.terminalMapping()));
         }
 
         profiling.report();
@@ -437,6 +441,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean storeCgmesTerminalMappingAsNetworkExtension() {
+            return storeCgmesTerminalMappingAsNetworkExtension;
+        }
+
+        public Config setStoreCgmesTerminalMappingAsNetworkExtension(boolean storeCgmesTerminalMappingAsNetworkExtension) {
+            this.storeCgmesTerminalMappingAsNetworkExtension = storeCgmesTerminalMappingAsNetworkExtension;
+            return this;
+        }
+
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
@@ -447,6 +460,7 @@ public class Conversion {
         private boolean convertSvInjections = true;
         private StateProfile profileUsedForInitialStateValues = SSH;
         private boolean storeCgmesModelAsNetworkExtension = true;
+        private boolean storeCgmesTerminalMappingAsNetworkExtension = false;
 
     }
 

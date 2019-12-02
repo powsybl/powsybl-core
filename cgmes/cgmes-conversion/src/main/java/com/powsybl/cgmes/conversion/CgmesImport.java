@@ -188,6 +188,12 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
+                                defaultValueConfig))
+                .setStoreCgmesTerminalMappingAsNetworkExtension(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                STORE_CGMES_TERMINAL_MAPPING_AS_NETWORK_EXTENSION_PARAMETERT,
                                 defaultValueConfig));
     }
 
@@ -227,6 +233,7 @@ public class CgmesImport implements Importer {
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
     public static final String PROFILE_USED_FOR_INITIAL_STATE_VALUES = "iidm.import.cgmes.profile-used-for-initial-state-values";
     public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
+    public static final String STORE_CGMES_TERMINAL_MAPPING_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-terminal-mapping-as-network-extension";
 
     private static final Parameter ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER = new Parameter(
             ALLOW_UNSUPPORTED_TAP_CHANGERS,
@@ -279,6 +286,11 @@ public class CgmesImport implements Importer {
             "Store the initial CGMES model as a network extension",
             Boolean.TRUE)
             .addAdditionalNames("storeCgmesModelAsNetworkExtension");
+    private static final Parameter STORE_CGMES_TERMINAL_MAPPING_AS_NETWORK_EXTENSION_PARAMETERT = new Parameter(
+            STORE_CGMES_TERMINAL_MAPPING_AS_NETWORK_EXTENSION,
+            ParameterType.BOOLEAN,
+            "Store the CGMES-IIDM terminal mapping as a network extension",
+            Boolean.FALSE);
 
     private static final List<Parameter> STATIC_PARAMETERS = ImmutableList.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
