@@ -401,7 +401,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             .setOpen(open || !terminalConnected(1) || !terminalConnected(2));
     }
 
-    public void connect(LegAdder<?> adder, int terminal) {
+    public void connect(LegAdder adder, int terminal) {
         if (context.nodeBreaker()) {
             adder
                 .setVoltageLevel(iidmVoltageLevelId(terminal))

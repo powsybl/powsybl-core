@@ -12,43 +12,36 @@ package com.powsybl.iidm.network;
  */
 public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWindingsTransformerAdder> {
 
-    public interface LegAdder<L extends LegAdder> {
+    public interface LegAdder {
 
-        L setVoltageLevel(String voltageLevelId);
+        LegAdder setVoltageLevel(String voltageLevelId);
 
-        L setNode(int node);
+        LegAdder setNode(int node);
 
-        L setBus(String bus);
+        LegAdder setBus(String bus);
 
-        L setConnectableBus(String connectableBus);
+        LegAdder setConnectableBus(String connectableBus);
 
-        L setR(double r);
+        LegAdder setR(double r);
 
-        L setX(double x);
+        LegAdder setX(double x);
 
-        L setRatedU(double ratedU);
+        LegAdder setG(double g);
+
+        LegAdder setB(double b);
+
+        LegAdder setRatedU(double ratedU);
 
         ThreeWindingsTransformerAdder add();
     }
 
-    public interface Leg1Adder extends LegAdder<Leg1Adder> {
+    LegAdder newLeg1();
 
-        Leg1Adder setG(double g);
+    LegAdder newLeg2();
 
-        Leg1Adder setB(double b);
+    LegAdder newLeg3();
 
-    }
-
-    public interface Leg2or3Adder extends LegAdder<Leg2or3Adder> {
-
-    }
-
-    Leg1Adder newLeg1();
-
-    Leg2or3Adder newLeg2();
-
-    Leg2or3Adder newLeg3();
+    ThreeWindingsTransformerAdder setRatedU0(double ratedU0);
 
     ThreeWindingsTransformer add();
-
 }
