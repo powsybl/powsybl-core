@@ -446,7 +446,7 @@ public class Conversion {
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
         private StateProfile profileUsedForInitialStateValues = SSH;
-        private boolean storeCgmesModelAsNetworkExtension = false;
+        private boolean storeCgmesModelAsNetworkExtension = true;
 
     }
 
