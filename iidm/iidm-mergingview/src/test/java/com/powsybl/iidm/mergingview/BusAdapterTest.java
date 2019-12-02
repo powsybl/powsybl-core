@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.Network.BusBreakerView;
 import com.powsybl.iidm.network.Network.BusView;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import org.apache.commons.lang3.NotImplementedException;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -95,5 +97,12 @@ public class BusAdapterTest {
         assertTrue(busBreakerView.getSwitches().iterator().hasNext());
         busBreakerView.getSwitches().forEach(b -> assertTrue(b instanceof AbstractAdapter<?>));
         assertEquals(1, busBreakerView.getSwitchCount());
+    }
+
+    @Test
+    public void testNewDefaultMethodsOnBusApi() {
+        Assertions.assertThatThrownBy(bus::getConnectedTerminalStream).isInstanceOf(NotImplementedException.class);
+        Assertions.assertThatThrownBy(bus::getConnectedTerminals).isInstanceOf(NotImplementedException.class);
+        Assertions.assertThatThrownBy(bus::getNodes).isInstanceOf(NotImplementedException.class);
     }
 }
