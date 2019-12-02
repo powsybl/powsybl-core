@@ -16,81 +16,96 @@ import com.powsybl.iidm.network.VoltageLevel.TopologyTraverser;
  */
 public class TerminalAdapter extends AbstractAdapter<Terminal> implements Terminal {
 
+    private TerminalBusBreakerViewAdapter busBreakerView;
+    private TerminalBusViewAdapter busView;
+    private TerminalNodeBreakerViewAdapter nodeBreakerView;
+
     TerminalAdapter(final Terminal delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
+
     public VoltageLevel getVoltageLevel() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getVoltageLevel(getDelegate().getVoltageLevel());
     }
 
     @Override
-    public NodeBreakerView getNodeBreakerView() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public Terminal.NodeBreakerView getNodeBreakerView() {
+        if (nodeBreakerView == null) {
+            nodeBreakerView = new TerminalNodeBreakerViewAdapter(getDelegate().getNodeBreakerView(), getIndex());
+        }
+        return nodeBreakerView;
     }
 
     @Override
     public Terminal.BusBreakerView getBusBreakerView() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        if (busBreakerView == null) {
+            busBreakerView = new TerminalBusBreakerViewAdapter(getDelegate().getBusBreakerView(), getIndex());
+        }
+        return busBreakerView;
     }
 
     @Override
     public Terminal.BusView getBusView() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        if (busView == null) {
+            busView = new TerminalBusViewAdapter(getDelegate().getBusView(), getIndex());
+        }
+        return busView;
     }
 
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
     @Override
     public Connectable getConnectable() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getConnectable(getDelegate().getConnectable());
     }
 
     @Override
     public double getP() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getP();
     }
 
     @Override
     public Terminal setP(final double p) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setP(p);
+        return this;
     }
 
     @Override
     public double getQ() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getQ();
     }
 
     @Override
     public Terminal setQ(final double q) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setQ(q);
+        return this;
     }
 
     @Override
     public double getI() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getI();
     }
 
     @Override
     public boolean connect() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().connect();
     }
 
     @Override
     public boolean disconnect() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().disconnect();
     }
 
     @Override
     public boolean isConnected() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().isConnected();
     }
 
     @Override
     public void traverse(final TopologyTraverser traverser) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().traverse(traverser);
     }
-
 }

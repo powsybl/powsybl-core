@@ -20,16 +20,15 @@ public class TerminalBusViewAdapter extends AbstractAdapter<Terminal.BusView> im
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public Bus getBus() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getBus(getDelegate().getBus());
     }
 
     @Override
     public Bus getConnectableBus() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getBus(getDelegate().getConnectableBus());
     }
-
 }
