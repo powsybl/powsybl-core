@@ -18,12 +18,12 @@ public class GeneratorAdapter extends AbstractInjectionAdapter<Generator> implem
     }
 
     @Override
-    public GeneratorAdapter setRegulatingTerminal(final Terminal regulatingTerminal) {
-        Terminal param = regulatingTerminal;
-        if (param instanceof TerminalAdapter) {
-            param = ((TerminalAdapter) param).getDelegate();
+    public Generator setRegulatingTerminal(final Terminal regulatingTerminal) {
+        Terminal terminal = regulatingTerminal;
+        if (terminal instanceof TerminalAdapter) {
+            terminal = ((TerminalAdapter) terminal).getDelegate();
         }
-        getDelegate().setRegulatingTerminal(param);
+        getDelegate().setRegulatingTerminal(terminal);
         return this;
     }
 
