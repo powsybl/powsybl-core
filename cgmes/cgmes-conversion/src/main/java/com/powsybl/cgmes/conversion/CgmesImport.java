@@ -103,11 +103,6 @@ public class CgmesImport implements Importer {
     public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p) {
         CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p));
         Network network = new Conversion(cgmes, config(p), activatedPostProcessors(p), networkFactory).convert();
-        if (storeCgmesModelAsNetworkExtension(p)) {
-            // Store a reference to the original CGMES model inside the IIDM network
-            // We could also add listeners to be aware of changes in IIDM data
-            network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes));
-        }
         return network;
     }
 
@@ -187,8 +182,13 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 PROFILE_USED_FOR_INITIAL_STATE_VALUES_PARAMETER,
-                                defaultValueConfig)
-                );
+                                defaultValueConfig))
+                .setStoreCgmesModelAsNetworkExtension(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
+                                defaultValueConfig));
     }
 
     private List<CgmesImportPostProcessor> activatedPostProcessors(Properties p) {
@@ -204,14 +204,6 @@ public class CgmesImport implements Importer {
                 })
                 .map(postProcessors::get)
                 .collect(Collectors.toList());
-    }
-
-    private boolean storeCgmesModelAsNetworkExtension(Properties p) {
-        return ConversionParameters.readBooleanParameter(
-                getFormat(),
-                p,
-                STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
-                defaultValueConfig);
     }
 
     private void copyStream(ReadOnlyDataSource from, DataSource to, String fromName, String toName) throws IOException {
