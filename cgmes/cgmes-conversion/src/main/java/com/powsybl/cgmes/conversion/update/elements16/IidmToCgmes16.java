@@ -9,9 +9,9 @@ package com.powsybl.cgmes.conversion.update.elements16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.conversion.update.CgmesTypes;
 import com.powsybl.cgmes.conversion.update.IidmChange;
 import com.powsybl.cgmes.conversion.update.IidmToCgmes;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
@@ -31,19 +31,19 @@ public class IidmToCgmes16 {
         Identifiable o = change.getIdentifiable();
         String type = cgmesType(o, cgmests);
         if (o instanceof Generator) {
-            if (type.equals(CgmesTypes.SYNCHRONOUS_MACHINE.type())) {
+            if (type.equals(CgmesNames.SYNCHRONOUS_MACHINE)) {
                 return generatorSm;
             }
-            if (type.equals(CgmesTypes.EXTERNAL_NETWORK_INJECTION.type())) {
+            if (type.equals(CgmesNames.EXTERNAL_NETWORK_INJECTION)) {
                 return generatorEni;
             }
             LOG.warn("Currently not supported conversion for type {}", type);
             return null;
         } else if (o instanceof Load) {
-            if (type.equals(CgmesTypes.ENERGY_CONSUMER.type())) {
+            if (type.equals(CgmesNames.ENERGY_CONSUMER)) {
                 return loadEc;
             }
-            if (type.equals(CgmesTypes.ASYNCHRONOUS_MACHINE.type())) {
+            if (type.equals(CgmesNames.ASYNCHRONOUS_MACHINE)) {
                 return loadAm;
             }
             LOG.warn("Currently not supported conversion for type {}", type);

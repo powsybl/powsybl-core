@@ -14,15 +14,24 @@ public final class CgmesNames {
 
     public static final String FULL_MODEL = "FullModel";
 
+    public static final String AC_LINE_SEGMENT = "ACLineSegment";
+    public static final String ASYNCHRONOUS_MACHINE = "AsynchronousMachine";
+    public static final String ENERGY_CONSUMER = "EnergyConsumer";
+    public static final String EXTERNAL_NETWORK_INJECTION = "ExternalNetworkInjection";
+    public static final String PHASE_TAP_CHANGER = "PhaseTapChanger";
+    public static final String POWER_TRANSFORMER = "PowerTransformer";
+    public static final String RATIO_TAP_CHANGER = "RatioTapChanger";
+    public static final String SERIES_COMPENSATOR = "SeriesCompensator";
+    public static final String SYNCHRONOUS_MACHINE = "SynchronousMachine";
     public static final String SUBSTATION = "Substation";
     public static final String VOLTAGE_LEVEL = "VoltageLevel";
     public static final String TERMINAL = "Terminal";
-    public static final String AC_LINE_SEGMENT = "ACLineSegment";
-    public static final String SERIES_COMPENSATOR = "SeriesCompensator";
 
     public static final String TRANSFORMER_WINDING_RATED_U = "transformerWindingRatedU";
     public static final String TRANSFORMER_END = "TransformerEnd";
+    public static final String END_NUMBER = "endNumber";
     public static final String TAP_CHANGER = "TapChanger";
+    public static final String TAPCHANGER_CONTROL = "TapChangerControl";
     public static final String CONTINUOUS_POSITION = "continuousPosition";
     public static final String POSITION = "position";
     public static final String LOW_STEP = "lowStep";

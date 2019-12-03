@@ -9,8 +9,8 @@ package com.powsybl.cgmes.conversion.update.elements16;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.powsybl.cgmes.conversion.update.CgmesTypes;
 import com.powsybl.cgmes.conversion.update.IidmToCgmes;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Identifiable;
@@ -71,19 +71,19 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
     }
 
     private String ratioTapChangerId(Identifiable id, CgmesModelTripleStore cgmes) {
-        return cgmesId(id, cgmes, cgmes.ratioTapChangers(), CgmesTypes.RATIO_TAP_CHANGER.type());
+        return cgmesId(id, cgmes, cgmes.ratioTapChangers(), CgmesNames.RATIO_TAP_CHANGER);
     }
 
     private String phaseTapChangerId(Identifiable id, CgmesModelTripleStore cgmes) {
-        return cgmesId(id, cgmes, cgmes.phaseTapChangers(), CgmesTypes.PHASE_TAP_CHANGER.type());
+        return cgmesId(id, cgmes, cgmes.phaseTapChangers(), CgmesNames.PHASE_TAP_CHANGER);
     }
 
     private String ratioTapChangerControlId(Identifiable id, CgmesModelTripleStore cgmes) {
-        return cgmesId(id, cgmes, cgmes.ratioTapChangers(), TAPCHANGER_CONTROL);
+        return cgmesId(id, cgmes, cgmes.ratioTapChangers(), CgmesNames.TAPCHANGER_CONTROL);
     }
 
     private String phaseTapChangerControlId(Identifiable id, CgmesModelTripleStore cgmes) {
-        return cgmesId(id, cgmes, cgmes.phaseTapChangers(), TAPCHANGER_CONTROL);
+        return cgmesId(id, cgmes, cgmes.phaseTapChangers(), CgmesNames.TAPCHANGER_CONTROL);
     }
 
     private String cgmesId(Identifiable id, CgmesModelTripleStore cgmes, PropertyBags pbs, String tcType) {
@@ -91,7 +91,7 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
         String idEnd1 = transformerEndId(id, cgmes).get(ID_END1);
         String idEnd2 = transformerEndId(id, cgmes).get(ID_END2);
         for (PropertyBag tc : pbs) {
-            String end = tc.getId(TRANSFORMER_END);
+            String end = tc.getId(CgmesNames.TRANSFORMER_END);
             if (end.equals(idEnd1) || end.equals(idEnd2)) {
                 return tc.getId(tcType);
             } else {
@@ -112,13 +112,13 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
     private Map<String, String> transformerEndId(Identifiable id, CgmesModelTripleStore cgmes) {
         Map<String, String> ids = new HashMap<>();
         for (PropertyBag end : cgmes.transformerEnds()) {
-            String twt = end.getId(CgmesTypes.POWER_TRANSFORMER.type());
-            String windingType = end.get(END_NUMBER);
+            String twt = end.getId(CgmesNames.POWER_TRANSFORMER);
+            String windingType = end.get(CgmesNames.END_NUMBER);
             String identifiableId = id.getId();
             if (twt.equals(identifiableId) && windingType.equals("1")) {
-                ids.put(ID_END1, end.getId(TRANSFORMER_END));
+                ids.put(ID_END1, end.getId(CgmesNames.TRANSFORMER_END));
             } else if (twt.equals(identifiableId) && windingType.equals("2")) {
-                ids.put(ID_END2, end.getId(TRANSFORMER_END));
+                ids.put(ID_END2, end.getId(CgmesNames.TRANSFORMER_END));
             } else {
                 continue;
             }
@@ -177,13 +177,14 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
         double gNetwork = twt.getG();
         double bNetwork = twt.getB();
         for (PropertyBag end : cgmes.transformerEnds()) {
-            if (end.getId(CgmesTypes.POWER_TRANSFORMER.type()).equals(id.getId())) {
-                if (end.get(END_NUMBER).equals("1")) {
+            if (end.getId(CgmesNames.POWER_TRANSFORMER).equals(id.getId())) {
+                String num = end.get(CgmesNames.END_NUMBER);
+                if (num.equals("1")) {
                     r1 = end.asDouble("r");
                     x1 = end.asDouble("x");
                     b1 = end.asDouble("b");
                     g1 = end.asDouble("g");
-                } else if (end.get(END_NUMBER).equals("2")) {
+                } else if (num.equals("2")) {
                     r2 = end.asDouble("r");
                     x2 = end.asDouble("x");
                     b2 = end.asDouble("b");
@@ -231,9 +232,6 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
         }
     }
 
-    private static final String TRANSFORMER_END = "TransformerEnd";
-    private static final String END_NUMBER = "endNumber";
     private static final String ID_END1 = "idEnd1";
     private static final String ID_END2 = "idEnd2";
-    private static final String TAPCHANGER_CONTROL = "TapChangerControl";
 }
