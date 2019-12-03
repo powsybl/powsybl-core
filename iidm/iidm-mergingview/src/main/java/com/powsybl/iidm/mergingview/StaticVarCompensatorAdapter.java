@@ -22,51 +22,56 @@ public class StaticVarCompensatorAdapter extends AbstractInjectionAdapter<Static
     // -------------------------------
     @Override
     public double getBmin() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getBmin();
     }
 
     @Override
     public StaticVarCompensator setBmin(final double bMin) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setBmin(bMin);
+        return this;
     }
 
     @Override
     public double getBmax() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getBmax();
     }
 
     @Override
     public StaticVarCompensator setBmax(final double bMax) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setBmax(bMax);
+        return this;
     }
 
     @Override
     public double getVoltageSetPoint() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getVoltageSetPoint();
     }
 
     @Override
     public StaticVarCompensator setVoltageSetPoint(final double voltageSetPoint) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setVoltageSetPoint(voltageSetPoint);
+        return this;
     }
 
     @Override
     public double getReactivePowerSetPoint() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getReactivePowerSetPoint();
     }
 
     @Override
     public StaticVarCompensator setReactivePowerSetPoint(final double reactivePowerSetPoint) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setReactivePowerSetPoint(reactivePowerSetPoint);
+        return this;
     }
 
     @Override
     public RegulationMode getRegulationMode() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getRegulationMode();
     }
 
     @Override
     public StaticVarCompensator setRegulationMode(final RegulationMode regulationMode) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRegulationMode(regulationMode);
+        return this;
     }
 }
