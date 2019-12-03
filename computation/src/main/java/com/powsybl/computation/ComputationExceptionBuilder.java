@@ -16,66 +16,107 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+import static java.util.Objects.requireNonNull;
+
 /**
+ * Used to ease the creation of a {@link ComputationException}.
+ * The builder provides methods to register logs and files from different sources.
+ *
  * @author Yichen TANG <yichen.tang at rte-france.com>
+ * @author Sylvain LECLERC <sylvain.leclerc at rte-france.com>
  */
 public class ComputationExceptionBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComputationExceptionBuilder.class);
 
+    private String message;
+    private final Throwable cause;
     private final Map<String, String> outMsgByLogFileName = new HashMap<>();
     private final Map<String, String> errMsgByLogFileName = new HashMap<>();
     private final Map<String, byte[]> bytesByFileName = new HashMap<>();
-    private final List<Exception> exceptions = new ArrayList<>();
 
-    public ComputationExceptionBuilder(Exception exception) {
-        Objects.requireNonNull(exception);
-        exceptions.add(exception);
+    /**
+     * Initializes the builder, with no cause, no message and no logs.
+     */
+    public ComputationExceptionBuilder() {
+        this.cause = null;
     }
 
     /**
-     * Log the content of .out file. If path is {@literal null} or not exists, it skips.
-     * @param path
-     * @return
+     * Initializes the builder with the specified exception as the computation exception cause.
+     */
+    public ComputationExceptionBuilder(Throwable cause) {
+        this.cause = requireNonNull(cause);
+    }
+
+    /**
+     * Defines the detail message of the created computation exception.
+     *
+     * @param message the detail message of the computation exception.
+     * @return this
+     */
+    public ComputationExceptionBuilder message(@Nullable String message) {
+        this.message = message;
+        return this;
+    }
+
+    /**
+     * Reads the content of standard output file at specified path, assuming UTF-8 encoding.
+     * This log will be associated to the file name.
+     * If path is {@code null} or file does not exist, this is a no-op.
+     *
+     * @param path The path to the standard output file.
+     * @return this
      */
     public ComputationExceptionBuilder addOutLogIfExists(@Nullable Path path) {
         return readFileToMap(path, outMsgByLogFileName);
     }
 
     /**
-     * @param logName the log name, should not be null
-     * @param log log content, could be null
-     * @return
+     * Adds a standard output log to collected data.
+     *
+     * @param logName the log name, must not be {@code null}
+     * @param log log content, may be {@code null}
+     * @return this
      */
     public ComputationExceptionBuilder addOutLog(String logName, @Nullable String log) {
-        Objects.requireNonNull(logName);
+        requireNonNull(logName);
         outMsgByLogFileName.put(logName, log);
         return this;
     }
 
     /**
-     * Log the content of .err file. If path is {@literal null} or not exists, it skips.
-     * @param path
-     * @return
+     * Reads the content of standard error file at specified path, assuming UTF-8 encoding.
+     * This log will be associated to the file name.
+     * If path is {@code null} or file does not exist, this is a no-op.
+     *
+     * @param path The path to the standard error file.
+     * @return this
      */
     public ComputationExceptionBuilder addErrLogIfExists(@Nullable Path path) {
         return readFileToMap(path, errMsgByLogFileName);
     }
 
     /**
-     * @param logName the log name, should not be null
-     * @param log log content, could be null
-     * @return
+     * Adds an error log to collected data.
+     *
+     * @param logName the log name, must not be {@code null}
+     * @param log log content, may be {@code null}
+     * @return this
      */
     public ComputationExceptionBuilder addErrLog(String logName, @Nullable String log) {
-        Objects.requireNonNull(logName);
+        requireNonNull(logName);
         errMsgByLogFileName.put(logName, log);
         return this;
     }
 
     /**
-     * @param path to the potential file
-     * @return
+     * Adds the content of a the file at specified path to collected data.
+     * It will be associated to the file name.
+     * If path is {@code null} or file does not exist, this is a no-op.
+     *
+     * @param path to the file to be added to collected data.
+     * @return this
      */
     public ComputationExceptionBuilder addFileIfExists(@Nullable Path path) {
         if (path == null || !Files.exists(path)) {
@@ -91,33 +132,17 @@ public class ComputationExceptionBuilder {
     }
 
     /**
-     * Add bytes.
-     * @param key The name of bytes.
+     * Adds raw content of a file to collected data.
+     *
+     * @param key   The log file name.
      * @param bytes Bytes.
-     * @return
+     * @return this
      */
     public ComputationExceptionBuilder addBytes(String key, byte[] bytes) {
-        Objects.requireNonNull(bytes);
-        Objects.requireNonNull(key);
+        requireNonNull(bytes);
+        requireNonNull(key);
         bytesByFileName.put(key, bytes);
         return this;
-    }
-
-    /**
-     * If the exception is {@literal Null}, do nothing. Otherwise, this exception is logged in a {@literal List}
-     * @param exception
-     * @return
-     */
-    public ComputationExceptionBuilder addException(@Nullable Exception exception) {
-        if (exception == null) {
-            return this;
-        }
-        exceptions.add(exception);
-        return this;
-    }
-
-    public ComputationException build() {
-        return new ComputationException(outMsgByLogFileName, errMsgByLogFileName, bytesByFileName, exceptions);
     }
 
     private ComputationExceptionBuilder readFileToMap(@Nullable Path path, Map<String, String> map) {
@@ -132,5 +157,24 @@ public class ComputationExceptionBuilder {
             LOGGER.warn("Can not read log file '{}'", path);
         }
         return this;
+    }
+
+    /**
+     * Creates the computation exception.
+     *
+     * @return the created computation exception.
+     */
+    public ComputationException build() {
+        ComputationException exception;
+        if (message != null && cause != null) {
+            exception = new ComputationException(message, cause, outMsgByLogFileName, errMsgByLogFileName, bytesByFileName);
+        } else if (message != null) {
+            exception = new ComputationException(message, outMsgByLogFileName, errMsgByLogFileName, bytesByFileName);
+        } else if (cause != null) {
+            exception = new ComputationException(cause, outMsgByLogFileName, errMsgByLogFileName, bytesByFileName);
+        } else {
+            exception = new ComputationException(outMsgByLogFileName, errMsgByLogFileName, bytesByFileName);
+        }
+        return exception;
     }
 }
