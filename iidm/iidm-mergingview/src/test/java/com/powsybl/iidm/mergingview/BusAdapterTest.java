@@ -104,5 +104,6 @@ public class BusAdapterTest {
         Assertions.assertThatThrownBy(bus::getConnectedTerminalStream).isInstanceOf(NotImplementedException.class);
         Assertions.assertThatThrownBy(bus::getConnectedTerminals).isInstanceOf(NotImplementedException.class);
         Assertions.assertThatThrownBy(bus::getNodes).isInstanceOf(NotImplementedException.class);
+        Assertions.assertThatThrownBy(bus::getNodeCount).isInstanceOf(NotImplementedException.class);
     }
 }

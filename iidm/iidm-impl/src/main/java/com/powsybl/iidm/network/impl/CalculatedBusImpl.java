@@ -10,9 +10,11 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import gnu.trove.list.array.TIntArrayList;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -25,14 +27,14 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     private final List<NodeTerminal> terminals;
 
-    private final List<Integer> nodes;
+    private final TIntArrayList nodes;
 
     private NodeTerminal terminalRef;
 
     CalculatedBusImpl(String id, NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
         super(id, voltageLevel);
         this.terminals = Objects.requireNonNull(terminals);
-        this.nodes = Arrays.stream(nodes.toArray()).boxed().collect(Collectors.toList());
+        this.nodes = Objects.requireNonNull(nodes);
         this.terminalRef = findTerminal(voltageLevel, nodes, terminals);
     }
 
@@ -111,9 +113,15 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public List<Integer> getNodes() {
+    public int getNodeCount() {
         checkValidity();
-        return Collections.unmodifiableList(nodes);
+        return nodes.size();
+    }
+
+    @Override
+    public int[] getNodes() {
+        checkValidity();
+        return nodes.toArray();
     }
 
     @Override
