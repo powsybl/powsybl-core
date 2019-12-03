@@ -14,7 +14,7 @@ import com.powsybl.afs.ProjectFileCreationContext;
  * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
  */
 @Deprecated
-public abstract class AbstractModificationScript extends AbstractScript<AbstractModificationScript>{
+public abstract class AbstractModificationScript extends AbstractScript<AbstractModificationScript> {
     public AbstractModificationScript(ProjectFileCreationContext context, int codeVersion, String scriptContentName) {
         super(context, codeVersion, scriptContentName);
     }

@@ -17,7 +17,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -53,7 +56,7 @@ public abstract class AbstractScript<T extends AbstractScript> extends ProjectFi
         }
     }
 
-    public List<AbstractScript> getIncludedScripts(){
+    public List<AbstractScript> getIncludedScripts() {
         return orderedDependencyManager.getDependencies(INCLUDED_SCRIPTS_DEPENDENCY_NAME, AbstractScript.class);
     }
 
