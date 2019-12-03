@@ -6,15 +6,12 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
-import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -25,26 +22,40 @@ public class LoadAdapterTest {
     @Before
     public void setup() {
         mergingView = MergingView.create("LoadAdapterTest", "iidm");
-        mergingView.merge(FictitiousSwitchFactory.create());
     }
 
     @Test
     public void testSetterGetter() {
-        final Load load = mergingView.getLoad("CE");
-        assertNotNull(load);
-        assertTrue(load instanceof LoadAdapter);
-        assertSame(mergingView, load.getNetwork());
+        Network networkRef = FictitiousSwitchFactory.create();
+        mergingView.merge(networkRef);
+
+        final Load loadExpected = networkRef.getLoad("CE");
+        final Load loadActual = mergingView.getLoad("CE");
+        assertNotNull(loadActual);
+        assertTrue(loadActual instanceof LoadAdapter);
+        assertSame(mergingView, loadActual.getNetwork());
+
+        assertEquals(loadExpected.getType(), loadActual.getType());
+        assertTrue(loadActual.getTerminal() instanceof TerminalAdapter);
+        loadActual.getTerminals().forEach(t -> {
+            assertTrue(t instanceof TerminalAdapter);
+            assertNotNull(t);
+        });
+
+        assertEquals(loadExpected.getLoadType(), loadActual.getLoadType());
+        LoadType loadType = LoadType.UNDEFINED;
+        assertTrue(loadActual.setLoadType(loadType) instanceof LoadAdapter);
+        assertEquals(loadType, loadActual.getLoadType());
+        double p0 = loadExpected.getP0();
+        assertEquals(p0, loadActual.getP0(), 0.0d);
+        assertTrue(loadActual.setP0(++p0) instanceof LoadAdapter);
+        assertEquals(p0, loadActual.getP0(), 0.0d);
+        double q0 = loadExpected.getQ0();
+        assertEquals(q0, loadActual.getQ0(), 0.0d);
+        assertTrue(loadActual.setQ0(++q0) instanceof LoadAdapter);
+        assertEquals(q0, loadActual.getQ0(), 0.0d);
 
         // Not implemented yet !
-        TestUtil.notImplemented(load::getTerminal);
-        TestUtil.notImplemented(load::getType);
-        TestUtil.notImplemented(load::getTerminals);
-        TestUtil.notImplemented(load::remove);
-        TestUtil.notImplemented(load::getLoadType);
-        TestUtil.notImplemented(() -> load.setLoadType(null));
-        TestUtil.notImplemented(load::getP0);
-        TestUtil.notImplemented(() -> load.setP0(0.0d));
-        TestUtil.notImplemented(load::getQ0);
-        TestUtil.notImplemented(() -> load.setQ0(0.0d));
+        TestUtil.notImplemented(loadActual::remove);
     }
 }
