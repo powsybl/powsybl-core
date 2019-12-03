@@ -29,20 +29,25 @@ public class IidmToCgmes16 {
 
     public IidmToCgmes findConversion(IidmChange change, CgmesModelTripleStore cgmests) {
         Identifiable o = change.getIdentifiable();
+        String type = cgmesType(o, cgmests);
         if (o instanceof Generator) {
-            if (cgmesType(o, cgmests).equals(CgmesTypes.SYNCHRONOUS_MACHINE.type())) {
+            if (type.equals(CgmesTypes.SYNCHRONOUS_MACHINE.type())) {
                 return generatorSm;
-            } else if (cgmesType(o, cgmests).equals(CgmesTypes.EXTERNAL_NETWORK_INJECTION.type())) {
+            }
+            if (type.equals(CgmesTypes.EXTERNAL_NETWORK_INJECTION.type())) {
                 return generatorEni;
             }
-            return generatorSm;
+            LOG.warn("Currently not supported conversion for type {}", type);
+            return null;
         } else if (o instanceof Load) {
-            if (cgmesType(o, cgmests).equals(CgmesTypes.ENERGY_CONSUMER.type())) {
+            if (type.equals(CgmesTypes.ENERGY_CONSUMER.type())) {
                 return loadEc;
-            } else if (cgmesType(o, cgmests).equals(CgmesTypes.ASYNCHRONOUS_MACHINE.type())) {
+            }
+            if (type.equals(CgmesTypes.ASYNCHRONOUS_MACHINE.type())) {
                 return loadAm;
             }
-            return loadEc;
+            LOG.warn("Currently not supported conversion for type {}", type);
+            return null;
         } else if (o instanceof Line) {
             return line;
         } else if (o instanceof TwoWindingsTransformer) {

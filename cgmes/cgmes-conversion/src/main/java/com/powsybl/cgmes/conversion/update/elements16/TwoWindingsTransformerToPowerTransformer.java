@@ -29,7 +29,7 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
         ignore("q1");
         ignore("p2");
         ignore("q2");
-        // TODO elena conversion for the below parameters must be completed with
+        // TODO elena conversion for the below unsupported parameters must be completed with
         // appropriate changes for TapChangers steps
         unsupported("ratedU1");
         unsupported("ratedU2");
@@ -88,11 +88,10 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
 
     private String cgmesId(Identifiable id, CgmesModelTripleStore cgmes, PropertyBags pbs, String tcType) {
         requireTwoWindingsTransformer(id);
-        String end;
-        idEnd1 = transformerEndId(id, cgmes).get(ID_END1);
-        idEnd2 = transformerEndId(id, cgmes).get(ID_END2);
+        String idEnd1 = transformerEndId(id, cgmes).get(ID_END1);
+        String idEnd2 = transformerEndId(id, cgmes).get(ID_END2);
         for (PropertyBag tc : pbs) {
-            end = tc.getId(TRANSFORMER_END);
+            String end = tc.getId(TRANSFORMER_END);
             if (end.equals(idEnd1) || end.equals(idEnd2)) {
                 return tc.getId(tcType);
             } else {
@@ -111,13 +110,11 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
     }
 
     private Map<String, String> transformerEndId(Identifiable id, CgmesModelTripleStore cgmes) {
-        String twt;
-        String windingType;
-        String identifiableId = id.getId();
         Map<String, String> ids = new HashMap<>();
         for (PropertyBag end : cgmes.transformerEnds()) {
-            twt = end.getId(CgmesTypes.POWER_TRANSFORMER.type());
-            windingType = end.get(END_NUMBER);
+            String twt = end.getId(CgmesTypes.POWER_TRANSFORMER.type());
+            String windingType = end.get(END_NUMBER);
+            String identifiableId = id.getId();
             if (twt.equals(identifiableId) && windingType.equals("1")) {
                 ids.put(ID_END1, end.getId(TRANSFORMER_END));
             } else if (twt.equals(identifiableId) && windingType.equals("2")) {
@@ -234,8 +231,6 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
         }
     }
 
-    String idEnd1;
-    String idEnd2;
     private static final String TRANSFORMER_END = "TransformerEnd";
     private static final String END_NUMBER = "endNumber";
     private static final String ID_END1 = "idEnd1";

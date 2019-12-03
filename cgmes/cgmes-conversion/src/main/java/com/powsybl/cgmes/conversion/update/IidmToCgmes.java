@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.conversion.update;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -113,9 +114,8 @@ public class IidmToCgmes {
     }
 
     private List<TripleStoreSimpleUpdateReference> simpleUpdateReferences(IidmChangeUpdate change) {
-        List<TripleStoreSimpleUpdateReference> list = new ArrayList<>();
-        list.addAll(simpleUpdateReferences.get(change.getAttribute()));
-        return list;
+        List<TripleStoreSimpleUpdateReference> list = new ArrayList<>(simpleUpdateReferences.get(change.getAttribute()));
+        return Collections.unmodifiableList(list);
     }
 
     private final Multimap<String, TripleStoreSimpleUpdateReference> simpleUpdateReferences = ArrayListMultimap.create();
