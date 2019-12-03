@@ -40,6 +40,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -426,10 +427,10 @@ public class Comparison {
         if (expected == null && actual == null) {
             return;
         } else if (expected == null && actual != null) {
-            diff.unexpected("phaseAngleClock");
+            diff.unexpected("phaseAngleClock2wt");
             return;
         } else if (expected != null && actual == null) {
-            diff.unexpected("phaseAngleClock");
+            diff.unexpected("phaseAngleClock2wt");
             return;
         } else {
             diff.compare("phaseAngleClock", expected.getPhaseAngleClock(), actual.getPhaseAngleClock());
@@ -441,6 +442,22 @@ public class Comparison {
         compareLeg(expected.getLeg1(), actual.getLeg1(), expected, actual);
         compareLeg(expected.getLeg2(), actual.getLeg2(), expected, actual);
         compareLeg(expected.getLeg3(), actual.getLeg3(), expected, actual);
+        comparePhaseAngleClock(expected.getExtension(ThreeWindingsTransformerPhaseAngleClock.class), actual.getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
+    }
+
+    private void comparePhaseAngleClock(ThreeWindingsTransformerPhaseAngleClock expected, ThreeWindingsTransformerPhaseAngleClock actual) {
+        if (expected == null && actual == null) {
+            return;
+        } else if (expected == null && actual != null) {
+            diff.unexpected("phaseAngleClock3wt");
+            return;
+        } else if (expected != null && actual == null) {
+            diff.unexpected("phaseAngleClock3wt");
+            return;
+        } else {
+            diff.compare("phaseAngleClockLeg2", expected.getPhaseAngleClockLeg2(), actual.getPhaseAngleClockLeg2());
+            diff.compare("phaseAngleClockLeg3", expected.getPhaseAngleClockLeg3(), actual.getPhaseAngleClockLeg3());
+        }
     }
 
     private void compareLeg(ThreeWindingsTransformer.Leg expected, ThreeWindingsTransformer.Leg actual,
