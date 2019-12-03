@@ -130,5 +130,10 @@ public class ModificationScriptTest extends AbstractProjectFileTest {
         include3.addScript(include2);
         contentWithInclude = script.readScript(true);
         assertEquals(contentWithInclude, "var foo=\"bar\"\n\nvar p0=1\n\nvar pmax=2\n\nprintln 'bye'");
+
+        List<AbstractScript> includes = script.getIncludedScripts();
+        assertEquals(includes.size(), 2);
+        assertEquals(includes.get(0).getId(), include1.getId());
+        assertEquals(includes.get(1).getId(), include3.getId());
     }
 }

@@ -14,7 +14,7 @@ import com.powsybl.afs.ProjectFileCreationContext;
  * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
  */
 public class GenericScript extends AbstractScript<GenericScript> {
-    public static final String PSEUDO_CLASS = "modificationScript";
+    public static final String PSEUDO_CLASS = "genericScript";
     public static final int VERSION = 0;
     private static final String SCRIPT_CONTENT = "scriptContent";
 

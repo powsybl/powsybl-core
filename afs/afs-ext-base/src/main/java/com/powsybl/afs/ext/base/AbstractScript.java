@@ -53,6 +53,10 @@ public abstract class AbstractScript<T extends AbstractScript> extends ProjectFi
         }
     }
 
+    public List<AbstractScript> getIncludedScripts(){
+        return orderedDependencyManager.getDependencies(INCLUDED_SCRIPTS_DEPENDENCY_NAME, AbstractScript.class);
+    }
+
     public void addGenericScript(GenericScript genericScript) {
         orderedDependencyManager.appendDependencies(INCLUDED_SCRIPTS_DEPENDENCY_NAME, Collections.singletonList(genericScript));
     }
@@ -72,7 +76,6 @@ public abstract class AbstractScript<T extends AbstractScript> extends ProjectFi
             String includesScript = orderedDependencyManager
                     .getDependencies(INCLUDED_SCRIPTS_DEPENDENCY_NAME, AbstractScript.class)
                     .stream()
-                    // TODO(mathbagu) add commented header for script ? (script project node name ?)
                     .map(script -> script.readScript(true))
                     .collect(Collectors.joining(DEFAULT_SCRIPTS_DELIMITER));
             if (StringUtils.isNotBlank(includesScript)) {
