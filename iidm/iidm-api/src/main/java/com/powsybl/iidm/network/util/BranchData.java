@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author JosÃ© Antonio MarquÃ©s <marquesja at aia.es>
  */
 public class BranchData {
 
