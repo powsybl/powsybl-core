@@ -23,8 +23,8 @@ public enum IidmXmlVersion {
     private final String domain;
     private final List<Integer> versionArray;
 
-    IidmXmlVersion(String namespace, List<Integer> versionArray) {
-        this.domain = namespace;
+    IidmXmlVersion(String domain, List<Integer> versionArray) {
+        this.domain = domain;
         this.versionArray = versionArray;
     }
 
@@ -46,7 +46,7 @@ public enum IidmXmlVersion {
         String namespaceUriV = v.getNamespaceURI();
         if (!namespaceURI.equals(namespaceUriV)) {
             throw new PowsyblException("Namespace " + namespaceURI + " is not supported. " +
-                    "The namespace for version " + v.toString(".") + " is: " + namespaceUriV + ".");
+                    "The namespace for IIDM XML version " + v.toString(".") + " is: " + namespaceUriV + ".");
         }
         return v;
     }
