@@ -228,6 +228,10 @@ public class IeeeCdfImporter implements Importer {
                                 .setMaxQ(ieeeCdfBus.getMaxReactivePowerOrVoltageLimit())
                                 .add();
                     }
+                    // Keep the given value for reactive output
+                    // It is relevant if we want to load a solved case and validate it
+                    // Another option would be to store given p, q values at terminal
+                    generator.setTargetQ(ieeeCdfBus.getReactiveGeneration());
                     break;
 
                 default:
@@ -412,8 +416,8 @@ public class IeeeCdfImporter implements Importer {
                 targetV = regulatingBus.getV();
             }
         }
-        List<Float> rhos = new ArrayList<>();
-        rhos.add(1f); // TODO create full table
+        List<Double> rhos = new ArrayList<>();
+        rhos.add(1.0); // TODO create full table
         if (ieeeCdfBranch.getMinTapOrPhaseShift() != 0 && ieeeCdfBranch.getMaxTapOrPhaseShift() != 0) {
             LOGGER.warn("Tap steps are not yet supported ({})", transformer.getId());
         }
@@ -423,7 +427,7 @@ public class IeeeCdfImporter implements Importer {
                 .setRegulationTerminal(regulatingTerminal)
                 .setTargetV(targetV)
                 .setTapPosition(0);
-        for (float rho : rhos) {
+        for (double rho : rhos) {
             ratioTapChangerAdder.beginStep()
                     .setRho(rho)
                     .setR(0)
@@ -443,12 +447,12 @@ public class IeeeCdfImporter implements Importer {
                 .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
                 .setRegulating(false)
                 .setTapPosition(0);
-        List<Float> alphas = new ArrayList<>();
+        List<Double> alphas = new ArrayList<>();
         alphas.add(-ieeeCdfBranch.getFinalAngle());  // TODO create full table
         if (ieeeCdfBranch.getMinTapOrPhaseShift() != 0 && ieeeCdfBranch.getMaxTapOrPhaseShift() != 0) {
             LOGGER.warn("Phase shift steps are not yet supported ({})", transformer.getId());
         }
-        for (float alpha : alphas) {
+        for (double alpha : alphas) {
             phaseTapChangerAdder.beginStep()
                     .setAlpha(alpha)
                     .setRho(1)
