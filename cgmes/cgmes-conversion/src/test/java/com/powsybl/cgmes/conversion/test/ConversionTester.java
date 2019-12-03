@@ -219,7 +219,7 @@ public class ConversionTester {
         config.setThreshold(threshold);
         config.setOkMissingValues(false);
         config.setLoadFlowParameters(new LoadFlowParameters());
-        LOG.info("specificCompatibility is {}", config.getLoadFlowParameters().isSpecificCompatibility());
+        LOG.info("splitShuntAdmittanceXfmr2 is {}", config.getLoadFlowParameters().isSplitShuntAdmittanceXfmr2());
         return config;
     }
 

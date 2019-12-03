@@ -621,7 +621,7 @@ public class BranchDataTest {
             double b0 = b1 / rho0Square + b2;
             r = r0 * (1 + w.branch.end1.tap.r / 100);
             x = x0 * (1 + w.branch.end1.tap.x / 100);
-            if (w.config.specificCompatibility) {
+            if (w.config.splitShuntAdmittanceXfmr2) {
                 g1 = g0 / 2 * (1 + w.branch.end1.tap.g / 100);
                 b1 = b0 / 2 * (1 + w.branch.end1.tap.b / 100);
             } else {
@@ -699,7 +699,7 @@ public class BranchDataTest {
             double b0 = t.branch.end1.b / rho0Square + t.branch.end2.b;
             r = r0 * (1 + t.branch.end1.tap.r / 100);
             x = x0 * (1 + t.branch.end1.tap.x / 100);
-            if (t.config.specificCompatibility) {
+            if (t.config.splitShuntAdmittanceXfmr2) {
                 g1 = g0 / 2 * (1 + t.branch.end1.tap.g / 100);
                 b1 = b0 / 2 * (1 + t.branch.end1.tap.b / 100);
                 g2 = g0 / 2;
@@ -872,7 +872,7 @@ public class BranchDataTest {
         boolean convertAsTransformer = true;
         double toleranceFlow = TOLERANCE_FLOW;
         double toleranceVoltage = TOLERANCE_VOLTAGE;
-        boolean specificCompatibility = true;
+        boolean splitShuntAdmittanceXfmr2 = true;
         boolean applyReactanceCorrection = false;
         double epsilonX;
     }

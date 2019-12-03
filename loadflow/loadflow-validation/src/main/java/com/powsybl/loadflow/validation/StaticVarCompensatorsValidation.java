@@ -157,7 +157,7 @@ public final class StaticVarCompensatorsValidation {
             validated = false;
         }
         // for the computation of Qmin and Qmax use either the nominal voltage or the voltage of the  bus (depending on the SpecificCompatibility loadflow parameter)
-        double vAux = config.getLoadFlowParameters().isSpecificCompatibility() ? nominalV : v;
+        double vAux = config.getLoadFlowParameters().isSplitShuntAdmittanceXfmr2() ? nominalV : v;
         double qMin = bMin * vAux * vAux;
         double qMax = bMax * vAux * vAux;
         // if regulationMode = REACTIVE_POWER

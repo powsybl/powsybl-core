@@ -184,10 +184,10 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         // check default parameters can be changed
         SecurityAnalysisParameters parameters = runner.readParameters();
         assertNotNull(parameters);
-        assertFalse(parameters.getLoadFlowParameters().isSpecificCompatibility());
-        parameters.getLoadFlowParameters().setSpecificCompatibility(true);
+        assertFalse(parameters.getLoadFlowParameters().isSplitShuntAdmittanceXfmr2());
+        parameters.getLoadFlowParameters().setSplitShuntAdmittanceXfmr2(true);
         runner.writeParameters(parameters);
-        assertTrue(runner.readParameters().getLoadFlowParameters().isSpecificCompatibility());
+        assertTrue(runner.readParameters().getLoadFlowParameters().isSplitShuntAdmittanceXfmr2());
 
         // run security analysis
         runner.run();

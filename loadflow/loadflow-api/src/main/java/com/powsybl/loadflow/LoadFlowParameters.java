@@ -45,7 +45,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
     public static final boolean DEFAULT_NO_GENERATOR_REACTIVE_LIMITS = false;
     public static final boolean DEFAULT_PHASE_SHIFTER_REGULATION_ON = false;
-    public static final boolean DEFAULT_SPECIFIC_COMPATIBILITY = false;
+    public static final boolean DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR2 = false;
     public static final boolean DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR3 = false;
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
@@ -84,7 +84,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                     parameters.setTransformerVoltageControlOn(config.getBooleanProperty("transformerVoltageControlOn", DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON));
                     parameters.setNoGeneratorReactiveLimits(config.getBooleanProperty("noGeneratorReactiveLimits", DEFAULT_NO_GENERATOR_REACTIVE_LIMITS));
                     parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
-                    parameters.setSpecificCompatibility(config.getBooleanProperty("specificCompatibility", DEFAULT_SPECIFIC_COMPATIBILITY));
+                    parameters.setSplitShuntAdmittanceXfmr2(config.getBooleanProperty("splitShuntAdmittanceXfmr2", DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR2));
                     parameters.setSplitShuntAdmittanceXfmr3(config.getBooleanProperty("splitShuntAdmittanceXfmr3", DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR3));
                 });
     }
@@ -97,29 +97,29 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     private boolean phaseShifterRegulationOn;
 
-    private boolean specificCompatibility;
+    private boolean splitShuntAdmittanceXfmr2;
 
     private boolean splitShuntAdmittanceXfmr3;
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
-                              boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn, boolean specificCompatibility) {
+                              boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn, boolean splitShuntAdmittance) {
         this.voltageInitMode = voltageInitMode;
         this.transformerVoltageControlOn = transformerVoltageControlOn;
         this.noGeneratorReactiveLimits = noGeneratorReactiveLimits;
         this.phaseShifterRegulationOn = phaseShifterRegulationOn;
-        this.specificCompatibility = specificCompatibility;
+        this.splitShuntAdmittanceXfmr2 = splitShuntAdmittance;
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn) {
-        this(voltageInitMode, transformerVoltageControlOn, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPECIFIC_COMPATIBILITY);
+        this(voltageInitMode, transformerVoltageControlOn, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR2);
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode) {
-        this(voltageInitMode, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPECIFIC_COMPATIBILITY);
+        this(voltageInitMode, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR2);
     }
 
     public LoadFlowParameters() {
-        this(DEFAULT_VOLTAGE_INIT_MODE, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPECIFIC_COMPATIBILITY);
+        this(DEFAULT_VOLTAGE_INIT_MODE, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR2);
     }
 
     protected LoadFlowParameters(LoadFlowParameters other) {
@@ -128,7 +128,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         transformerVoltageControlOn = other.transformerVoltageControlOn;
         noGeneratorReactiveLimits = other.noGeneratorReactiveLimits;
         phaseShifterRegulationOn = other.phaseShifterRegulationOn;
-        specificCompatibility = other.specificCompatibility;
+        splitShuntAdmittanceXfmr2 = other.splitShuntAdmittanceXfmr2;
     }
 
     public VoltageInitMode getVoltageInitMode() {
@@ -167,12 +167,12 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
-    public boolean isSpecificCompatibility() {
-        return specificCompatibility;
+    public boolean isSplitShuntAdmittanceXfmr2() {
+        return splitShuntAdmittanceXfmr2;
     }
 
-    public LoadFlowParameters setSpecificCompatibility(boolean specificCompatibility) {
-        this.specificCompatibility = specificCompatibility;
+    public LoadFlowParameters setSplitShuntAdmittanceXfmr2(boolean splitShuntAdmittance) {
+        this.splitShuntAdmittanceXfmr2 = splitShuntAdmittance;
         return this;
     }
 
@@ -190,7 +190,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 "transformerVoltageControlOn", transformerVoltageControlOn,
                 "noGeneratorReactiveLimits", noGeneratorReactiveLimits,
                 "phaseShifterRegulationOn", phaseShifterRegulationOn,
-                "specificCompatibility", specificCompatibility);
+                "splitShuntAdmittanceXfmr2", splitShuntAdmittanceXfmr2);
     }
 
     public LoadFlowParameters copy() {
