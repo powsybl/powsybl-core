@@ -28,9 +28,15 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes {
         // This would be a major update
         // It would require changing the class of the generating unit linked to the
         // synchronous machine related to this IIDM generator
-        ignore("energySource");
+//        ignore("energySource");
 
         simpleUpdate("ratedS", "cim:RotatingMachine.ratedS", CgmesSubset.EQUIPMENT);
+        // The change of the sub-object reactiveLimits will be a not-so-simple change
+        // If the reactiveLimits kind is MIN_MAX,
+        // values could be written directly as attributes of the SynchronousMachine:
+        // cim:SynchronousMachine.minQ in CgmesSubset.EQUIPMENT
+        // cim:SynchronousMachine.maxQ in CgmesSubset.EQUIPMENT
+//        unsupported("reactiveLimits");
         computedValueUpdate("reactiveLimits", "cim:SynchronousMachine.minQ", CgmesSubset.EQUIPMENT, this::minQFromReactiveLimits);
         computedValueUpdate("reactiveLimits", "cim:SynchronousMachine.maxQ", CgmesSubset.EQUIPMENT, this::maxQFromReactiveLimits);
         computedSubjectUpdate("minP", "cim:GeneratingUnit.minOperatingP", CgmesSubset.EQUIPMENT, this::getGeneratingUnitId);
@@ -39,19 +45,10 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes {
         computedValueUpdate("targetP", "cim:RotatingMachine.p", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::pFromTargetP);
         computedValueUpdate("targetQ", "cim:RotatingMachine.q", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::qFromTargetQ);
 
-        // This computes RegulatingControl id
+        // Changes related to sub-object in CGMES (RegulatingControl)
         computedSubjectUpdate("targetV", "cim:RegulatingControl.targetValue", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::regulatingControlId);
         computedSubjectUpdate("voltageRegulatorOn", "cim:RegulatingControl.enabled", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::regulatingControlId);
 
-        // The change of the sub-object reactiveLimits will be a not-so-simple change
-        // If the reactiveLimits kind is MIN_MAX,
-        // values could be written directly as attributes of the SynchronousMachine:
-        // cim:SynchronousMachine.minQ in CgmesSubset.EQUIPMENT
-        // cim:SynchronousMachine.maxQ in CgmesSubset.EQUIPMENT
-//        unsupported("reactiveLimits");
-        // Changes related to sub-object in CGMES (RegulatingControl)
-//        unsupported("targetV");
-//        unsupported("voltageRegulatorOn");
     }
 
     private String pFromTargetP(Identifiable id) {

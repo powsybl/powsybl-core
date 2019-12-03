@@ -20,12 +20,6 @@ public class GeneratorToExternalNetworkInjection extends IidmToCgmes {
     public GeneratorToExternalNetworkInjection() {
         ignore("p");
         ignore("q");
-        // Changes in energy source are ignored
-        // In CGMES generating units with difFerent energy source are separate types
-        // This would be a major update
-        // It would require changing the class of the generating unit linked to the
-        // synchronous machine related to this IIDM generator
-        ignore("energySource");
 
         simpleUpdate("minP", "cim:ExternalNetworkInjection.minP", CgmesSubset.EQUIPMENT);
         simpleUpdate("maxP", "cim:ExternalNetworkInjection.maxP", CgmesSubset.EQUIPMENT);
@@ -36,15 +30,6 @@ public class GeneratorToExternalNetworkInjection extends IidmToCgmes {
         computedValueUpdate("reactiveLimits", "cim:ExternalNetworkInjection.minQ", CgmesSubset.EQUIPMENT, this::minQFromReactiveLimits);
         computedValueUpdate("reactiveLimits", "cim:ExternalNetworkInjection.maxQ", CgmesSubset.EQUIPMENT, this::maxQFromReactiveLimits);
 
-        // The change of the sub-object reactiveLimits will be a not-so-simple change
-        // If the reactiveLimits kind is MIN_MAX,
-        // values could be written directly as attributes of the SynchronousMachine:
-        // cim:SynchronousMachine.minQ in CgmesSubset.EQUIPMENT
-        // cim:SynchronousMachine.maxQ in CgmesSubset.EQUIPMENT
-//        unsupported("reactiveLimits");
-        // Changes related to sub-object in CGMES (RegulatingControl)
-//        unsupported("targetV");
-//        unsupported("voltageRegulatorOn");
     }
 
     private String pFromTargetP(Identifiable id) {

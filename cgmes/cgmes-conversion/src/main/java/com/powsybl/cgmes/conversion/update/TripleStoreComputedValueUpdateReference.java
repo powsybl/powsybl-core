@@ -25,14 +25,6 @@ public class TripleStoreComputedValueUpdateReference extends TripleStoreSimpleUp
         this.subjectComputation = null;
     }
 
-    public TripleStoreComputedValueUpdateReference(String predicate, String contextReference, Function<Identifiable, String> valueComputation,
-        BiFunction<Identifiable, CgmesModelTripleStore, String> subjectComputation) {
-        super(predicate, contextReference);
-        this.valueComputation = Objects.requireNonNull(valueComputation);
-        this.complexValueComputation = null;
-        this.subjectComputation = subjectComputation;
-    }
-
     public TripleStoreComputedValueUpdateReference(String predicate, String contextReference, BiFunction<Identifiable, CgmesModelTripleStore, String> complexValueComputation,
         BiFunction<Identifiable, CgmesModelTripleStore, String> subjectComputation) {
         super(predicate, contextReference);

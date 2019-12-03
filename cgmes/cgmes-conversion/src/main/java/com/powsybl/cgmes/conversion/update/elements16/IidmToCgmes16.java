@@ -46,6 +46,9 @@ public class IidmToCgmes16 {
             if (type.equals(CgmesNames.ASYNCHRONOUS_MACHINE)) {
                 return loadAm;
             }
+            if (type.equals(CgmesNames.ENERGY_SOURCE)) {
+                return loadEs;
+            }
             LOG.warn("Currently not supported conversion for type {}", type);
             return null;
         } else if (o instanceof Line) {
@@ -71,6 +74,7 @@ public class IidmToCgmes16 {
     private final IidmToCgmes generatorSm = new GeneratorToSynchronousMachine();
     private final IidmToCgmes generatorEni = new GeneratorToExternalNetworkInjection();
     private final IidmToCgmes loadEc = new LoadToEnergyConsumer();
+    private final IidmToCgmes loadEs = new LoadToEnergySource();
     private final IidmToCgmes loadAm = new LoadToAsynchronousMachine();
     private final IidmToCgmes line = new LineToACLineSegment();
     private final IidmToCgmes t2 = new TwoWindingsTransformerToPowerTransformer();
