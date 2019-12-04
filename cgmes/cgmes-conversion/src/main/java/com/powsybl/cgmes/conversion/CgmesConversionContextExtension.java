@@ -14,20 +14,20 @@ import java.util.Objects;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class CgmesTerminalMappingExtension extends AbstractExtension<Network> {
+public class CgmesConversionContextExtension extends AbstractExtension<Network> {
 
-    private final TerminalMapping terminalMapping;
+    private final Context context;
 
-    public CgmesTerminalMappingExtension(TerminalMapping terminalMapping) {
-        this.terminalMapping = Objects.requireNonNull(terminalMapping);
+    public CgmesConversionContextExtension(Context context) {
+        this.context = Objects.requireNonNull(context);
     }
 
-    public TerminalMapping getTerminalMapping() {
-        return terminalMapping;
+    public Context getContext() {
+        return context;
     }
 
     @Override
     public String getName() {
-        return "TerminalMapping";
+        return "CgmesConversionContext";
     }
 }

@@ -142,9 +142,9 @@ public class Conversion {
             // We could also add listeners to be aware of changes in IIDM data
             network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes));
         }
-        if (config.storeCgmesTerminalMappingAsNetworkExtension()) {
+        if (config.storeCgmesConversionContextAsNetworkExtension()) {
             // Store the terminal mapping in an extension for external validation
-            network.addExtension(CgmesTerminalMappingExtension.class, new CgmesTerminalMappingExtension(context.terminalMapping()));
+            network.addExtension(CgmesConversionContextExtension.class, new CgmesConversionContextExtension(context));
         }
 
         profiling.report();
@@ -441,12 +441,12 @@ public class Conversion {
             return this;
         }
 
-        public boolean storeCgmesTerminalMappingAsNetworkExtension() {
-            return storeCgmesTerminalMappingAsNetworkExtension;
+        public boolean storeCgmesConversionContextAsNetworkExtension() {
+            return storeCgmesConversionContextAsNetworkExtension;
         }
 
-        public Config setStoreCgmesTerminalMappingAsNetworkExtension(boolean storeCgmesTerminalMappingAsNetworkExtension) {
-            this.storeCgmesTerminalMappingAsNetworkExtension = storeCgmesTerminalMappingAsNetworkExtension;
+        public Config setStoreCgmesConversionContextAsNetworkExtension(boolean storeCgmesTerminalMappingAsNetworkExtension) {
+            this.storeCgmesConversionContextAsNetworkExtension = storeCgmesTerminalMappingAsNetworkExtension;
             return this;
         }
 
@@ -460,7 +460,7 @@ public class Conversion {
         private boolean convertSvInjections = true;
         private StateProfile profileUsedForInitialStateValues = SSH;
         private boolean storeCgmesModelAsNetworkExtension = true;
-        private boolean storeCgmesTerminalMappingAsNetworkExtension = false;
+        private boolean storeCgmesConversionContextAsNetworkExtension = false;
 
     }
 
