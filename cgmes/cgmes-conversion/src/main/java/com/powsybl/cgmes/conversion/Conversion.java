@@ -147,7 +147,7 @@ public class Conversion {
     }
 
     private boolean isOldCgmesConversion() {
-        return true;
+        return false;
     }
 
     private void convert(

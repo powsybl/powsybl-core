@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class TwtData {
 
@@ -41,8 +42,12 @@ public class TwtData {
     private final double u3;
     private final double theta3;
 
-    private final double g;
-    private final double b;
+    private final double g1;
+    private final double b1;
+    private final double g2;
+    private final double b2;
+    private final double g3;
+    private final double b3;
 
     private final double r1;
     private final double x1;
@@ -71,7 +76,15 @@ public class TwtData {
     private final double starU;
     private final double starTheta;
 
+    private final int phaseAngleClock2;
+    private final int phaseAngleClock3;
+    private final double ratedU0;
+
     public TwtData(ThreeWindingsTransformer twt, double epsilonX, boolean applyReactanceCorrection) {
+        this(twt, 0, 0, epsilonX, applyReactanceCorrection);
+    }
+
+    public TwtData(ThreeWindingsTransformer twt, int phaseAngleClock2, int phaseAngleClock3, double epsilonX, boolean applyReactanceCorrection) {
         Objects.requireNonNull(twt);
         id = twt.getId();
 
@@ -89,8 +102,12 @@ public class TwtData {
         u3 = getV(twt.getLeg3());
         theta3 = getTheta(twt.getLeg3());
 
-        g = twt.getLeg1().getG();
-        b = twt.getLeg1().getB();
+        g1 = twt.getLeg1().getG();
+        b1 = twt.getLeg1().getB();
+        g2 = twt.getLeg2().getG();
+        b2 = twt.getLeg2().getB();
+        g3 = twt.getLeg3().getG();
+        b3 = twt.getLeg3().getB();
 
         r1 = twt.getLeg1().getR();
         x1 = twt.getLeg1().getX();
@@ -110,21 +127,23 @@ public class TwtData {
         mainComponent3 = isMainComponent(twt.getLeg3());
 
         // Assume the ratedU at the star bus is equal to ratedU of Leg1
-        double ratedU0 = twt.getLeg1().getRatedU();
+        ratedU0 = twt.getRatedU0();
+        this.phaseAngleClock2 = phaseAngleClock2;
+        this.phaseAngleClock3 = phaseAngleClock3;
 
         Complex starVoltage = calcStarVoltage(twt, ratedU0);
         starU = starVoltage.abs();
         starTheta = starVoltage.getArgument();
 
-        BranchData leg1BranchData = legBranchData(twt.getId(), Side.ONE, twt.getLeg1(), ratedU0, starVoltage,
+        BranchData leg1BranchData = legBranchData(twt.getId(), Side.ONE, twt.getLeg1(), 0, ratedU0, starVoltage,
                 epsilonX, applyReactanceCorrection);
         computedP1 = leg1BranchData.getComputedP1();
         computedQ1 = leg1BranchData.getComputedQ1();
-        BranchData leg2BranchData = legBranchData(twt.getId(), Side.TWO, twt.getLeg2(), ratedU0, starVoltage,
+        BranchData leg2BranchData = legBranchData(twt.getId(), Side.TWO, twt.getLeg2(), phaseAngleClock2, ratedU0, starVoltage,
                 epsilonX, applyReactanceCorrection);
         computedP2 = leg2BranchData.getComputedP1();
         computedQ2 = leg2BranchData.getComputedQ1();
-        BranchData leg3BranchData = legBranchData(twt.getId(), Side.THREE, twt.getLeg3(), ratedU0, starVoltage,
+        BranchData leg3BranchData = legBranchData(twt.getId(), Side.THREE, twt.getLeg3(), phaseAngleClock3, ratedU0, starVoltage,
                 epsilonX, applyReactanceCorrection);
         computedP3 = leg3BranchData.getComputedP1();
         computedQ3 = leg3BranchData.getComputedQ1();
@@ -140,11 +159,11 @@ public class TwtData {
         Complex ytr3 = new Complex(adjustedR(twt.getLeg3()), adjustedX(twt.getLeg3())).reciprocal();
 
         Complex a01 = new Complex(1, 0);
-        Complex a1 = new Complex(twt.getLeg1().getRatedU() / ratedU0, 0);
+        Complex a1 = new Complex(1 / rho(twt.getLeg1(), ratedU0), -alpha(twt.getLeg1()));
         Complex a02 = new Complex(1, 0);
-        Complex a2 = new Complex(1 / rho(twt.getLeg2(), ratedU0), 0);
+        Complex a2 = new Complex(1 / rho(twt.getLeg2(), ratedU0), -alpha(twt.getLeg2()));
         Complex a03 = new Complex(1, 0);
-        Complex a3 = new Complex(1 / rho(twt.getLeg3(), ratedU0), 0);
+        Complex a3 = new Complex(1 / rho(twt.getLeg3(), ratedU0), -alpha(twt.getLeg3()));
 
         // IIDM model includes admittance to ground at star bus side in Leg1
         Complex ysh01 = new Complex(twt.getLeg1().getG(), twt.getLeg1().getB());
@@ -173,12 +192,16 @@ public class TwtData {
     private static double rho(Leg leg, double ratedU0) {
         double rho = ratedU0 / leg.getRatedU();
         if (leg.getRatioTapChanger() != null) {
-            RatioTapChangerStep step = leg.getRatioTapChanger().getCurrentStep();
-            if (step != null) {
-                rho *= step.getRho();
-            }
+            rho *= leg.getRatioTapChanger().getCurrentStep().getRho();
+        }
+        if (leg.getPhaseTapChanger() != null) {
+            rho *= leg.getPhaseTapChanger().getCurrentStep().getRho();
         }
         return rho;
+    }
+
+    private static double alpha(Leg leg) {
+        return leg.getPhaseTapChanger() != null ? Math.toRadians(leg.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
     }
 
     private static double adjustedR(Leg leg) {
@@ -210,13 +233,13 @@ public class TwtData {
         return bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
     }
 
-    private static BranchData legBranchData(String twtId, Side side, Leg leg, double ratedU0, Complex starVoltage,
+    private static BranchData legBranchData(String twtId, Side side, Leg leg, int phaseAngleClock, double ratedU0, Complex starVoltage,
             double epsilonX, boolean applyReactanceCorrection) {
         // All (gk, bk) are zero in the IIDM model
-        return legBranchData(twtId, side, leg, leg.getG(), leg.getB(), ratedU0, starVoltage, epsilonX, applyReactanceCorrection);
+        return legBranchData(twtId, side, leg, leg.getG(), leg.getB(), phaseAngleClock, ratedU0, starVoltage, epsilonX, applyReactanceCorrection);
     }
 
-    private static BranchData legBranchData(String twtId, Side side, Leg leg, double g, double b, double ratedU0,
+    private static BranchData legBranchData(String twtId, Side side, Leg leg, double g, double b, int phaseAngleClock, double ratedU0,
             Complex starVoltage,
             double epsilonX, boolean applyReactanceCorrection) {
         String branchId = twtId + "_" + side;
@@ -244,7 +267,7 @@ public class TwtData {
         double flowQ0 = Double.NaN;
         return new BranchData(branchId, r, x, rhok, rho0, uk, u0, thetak, theta0, alphak, alpha0, gk, g0, bk, b0,
                 flowPk, flowQk, flowP0, flowQ0, buskConnected, bus0Connected, buskMainComponent, bus0MainComponent,
-                epsilonX, applyReactanceCorrection);
+                phaseAngleClock, epsilonX, applyReactanceCorrection);
     }
 
     public String getId() {
@@ -343,12 +366,28 @@ public class TwtData {
         return starTheta;
     }
 
-    public double getG() {
-        return g;
+    public double getG1() {
+        return g1;
     }
 
-    public double getB() {
-        return b;
+    public double getB1() {
+        return b1;
+    }
+
+    public double getG2() {
+        return g2;
+    }
+
+    public double getB2() {
+        return b2;
+    }
+
+    public double getG3() {
+        return g3;
+    }
+
+    public double getB3() {
+        return b3;
     }
 
     public double getR(Side side) {
@@ -420,4 +459,17 @@ public class TwtData {
                 throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
         }
     }
+
+    public int getPhaseAngleClock2() {
+        return phaseAngleClock2;
+    }
+
+    public int getPhaseAngleClock3() {
+        return phaseAngleClock3;
+    }
+
+    public double getRatedU0() {
+        return ratedU0;
+    }
+
 }
