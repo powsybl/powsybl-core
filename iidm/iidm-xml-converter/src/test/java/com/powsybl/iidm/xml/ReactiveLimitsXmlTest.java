@@ -6,22 +6,25 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.test.ReactiveLimitsTestNetworkFactory;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class ReactiveLimitsXmlTest extends AbstractConverterTest {
+public class ReactiveLimitsXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
+        roundTripVersionnedXmlTest("reactiveLimitsRoundTripRef.xml", IidmXmlVersion.V_1_0);
+
         roundTripXmlTest(ReactiveLimitsTestNetworkFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/reactiveLimitsRoundTripRef.xml");
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "reactiveLimitsRoundTripRef.xml");
     }
 }

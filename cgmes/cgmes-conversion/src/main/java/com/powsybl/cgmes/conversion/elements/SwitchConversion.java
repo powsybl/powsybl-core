@@ -86,6 +86,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
             return SwitchKind.BREAKER;
         } else if (type.contains("disconnector")) {
             return SwitchKind.DISCONNECTOR;
+        } else if (type.contains("loadbreak")) {
+            return SwitchKind.LOAD_BREAK_SWITCH;
         }
         return SwitchKind.BREAKER;
     }

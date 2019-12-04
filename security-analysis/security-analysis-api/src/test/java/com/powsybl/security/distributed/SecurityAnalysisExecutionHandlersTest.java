@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.*;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.VariantManagerConstants;
@@ -20,7 +19,6 @@ import com.powsybl.security.*;
 import com.powsybl.security.converter.JsonSecurityAnalysisResultExporter;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import org.apache.commons.lang3.SystemUtils;
-import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +38,8 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.*;
 
 /**
@@ -80,15 +80,15 @@ public class SecurityAnalysisExecutionHandlersTest {
         String expectedDefaultProgram = SystemUtils.IS_OS_WINDOWS ? "itools.bat" : "itools";
         assertEquals(expectedDefaultProgram, command.getProgram());
         List<String> args = command.getArgs(0);
-        Assertions.assertThat(args).first().isEqualTo("security-analysis");
-        Assertions.assertThat(args.subList(1, args.size()))
+        assertThat(args).first().isEqualTo("security-analysis");
+        assertThat(args.subList(1, args.size()))
                 .containsExactlyInAnyOrder("--case-file=/work/network.xiidm",
                         "--parameters-file=/work/parameters.json",
                         "--output-file=/work/result.json",
                         "--output-format=JSON");
 
-        Assertions.assertThat(workingDir.resolve("network.xiidm")).exists();
-        Assertions.assertThat(workingDir.resolve("parameters.json")).exists();
+        assertThat(workingDir.resolve("network.xiidm")).exists();
+        assertThat(workingDir.resolve("parameters.json")).exists();
     }
 
     @Test
@@ -121,7 +121,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         List<CommandExecution> commandExecutions = handler.before(workingDir);
         SimpleCommand command = (SimpleCommand) commandExecutions.get(0).getCommand();
         List<String> args = command.getArgs(0);
-        Assertions.assertThat(args.subList(1, args.size()))
+        assertThat(args.subList(1, args.size()))
                 .containsExactlyInAnyOrder("--case-file=/work/network.xiidm",
                         "--parameters-file=/work/parameters.json",
                         "--output-file=/work/result.json",
@@ -131,9 +131,9 @@ public class SecurityAnalysisExecutionHandlersTest {
                         "--limit-types=CURRENT",
                         "--task-count=12");
 
-        Assertions.assertThat(workingDir.resolve("network.xiidm")).exists();
-        Assertions.assertThat(workingDir.resolve("parameters.json")).exists();
-        Assertions.assertThat(workingDir.resolve("contingencies.groovy")).exists();
+        assertThat(workingDir.resolve("network.xiidm")).exists();
+        assertThat(workingDir.resolve("parameters.json")).exists();
+        assertThat(workingDir.resolve("contingencies.groovy")).exists();
     }
 
     @Test
@@ -149,7 +149,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         List<CommandExecution> commandExecutions = handler.before(workingDir);
         SimpleCommand command = (SimpleCommand) commandExecutions.get(0).getCommand();
         List<String> args = command.getArgs(0);
-        Assertions.assertThat(command.getArgs(0).subList(1, args.size()))
+        assertThat(command.getArgs(0).subList(1, args.size()))
                 .containsExactlyInAnyOrder("--case-file=/work/network.xiidm",
                         "--parameters-file=/work/parameters.json",
                         "--output-file=/work/task_0_result.json",
@@ -159,7 +159,7 @@ public class SecurityAnalysisExecutionHandlersTest {
                         "--limit-types=CURRENT",
                         "--task=1/3");
 
-        Assertions.assertThat(command.getArgs(1).subList(1, args.size()))
+        assertThat(command.getArgs(1).subList(1, args.size()))
                 .containsExactlyInAnyOrder("--case-file=/work/network.xiidm",
                         "--parameters-file=/work/parameters.json",
                         "--output-file=/work/task_1_result.json",
@@ -181,7 +181,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         List<CommandExecution> commandExecutions = handler.before(workingDir);
         SimpleCommand command = (SimpleCommand) commandExecutions.get(0).getCommand();
         List<String> args = command.getArgs(0);
-        Assertions.assertThat(command.getArgs(0).subList(1, args.size()))
+        assertThat(command.getArgs(0).subList(1, args.size()))
                 .containsExactlyInAnyOrder("--case-file=/work/network.xiidm",
                         "--parameters-file=/work/parameters.json",
                         "--output-file=/work/task_0_result.json",
@@ -190,7 +190,7 @@ public class SecurityAnalysisExecutionHandlersTest {
                         "--task=1/3",
                         "--log-file=/work/logs_0.zip");
 
-        Assertions.assertThat(command.getArgs(1).subList(1, args.size()))
+        assertThat(command.getArgs(1).subList(1, args.size()))
                 .containsExactlyInAnyOrder("--case-file=/work/network.xiidm",
                         "--parameters-file=/work/parameters.json",
                         "--output-file=/work/task_1_result.json",
@@ -211,7 +211,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         List<CommandExecution> commandExecutions = handler.before(workingDir);
         SimpleCommand command = (SimpleCommand) commandExecutions.get(0).getCommand();
         List<String> args = command.getArgs(0);
-        Assertions.assertThat(command.getArgs(0).subList(1, args.size()))
+        assertThat(command.getArgs(0).subList(1, args.size()))
                 .containsExactlyInAnyOrder("--case-file=/work/network.xiidm",
                         "--parameters-file=/work/parameters.json",
                         "--output-file=/work/result.json",
@@ -236,13 +236,12 @@ public class SecurityAnalysisExecutionHandlersTest {
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
 
         ExecutionHandler<SecurityAnalysisResult> handler3 = SecurityAnalysisExecutionHandlers.distributed(input, 2);
-        try {
+        assertThatExceptionOfType(ComputationException.class).isThrownBy(() -> {
             Command cmd = Mockito.mock(Command.class);
             handler3.after(workingDir, new DefaultExecutionReport(Collections.singletonList(new ExecutionError(cmd, 0, 42))));
-            fail();
-        } catch (PowsyblException pe) {
-            assertEquals("Error during the execution in directory  /work exit codes: Task 0 : 42", pe.getMessage());
-        }
+        })
+            .withMessageContaining("An error occurred during security analysis command execution")
+            .withStackTraceContaining("Error during the execution in directory  /work exit codes: Task 0 : 42");
 
         try (Writer writer = Files.newBufferedWriter(workingDir.resolve("task_1_result.json"))) {
             exporter.export(resultForContingency("c2"), writer);
@@ -348,13 +347,15 @@ public class SecurityAnalysisExecutionHandlersTest {
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
 
         ExecutionHandler<SecurityAnalysisResultWithLog> handler2 = SecurityAnalysisExecutionHandlers.forwardedWithLogs(input, 2);
-        try {
-            SecurityAnalysisResultWithLog after = handler2.after(workingDir, new DefaultExecutionReport());
-            fail();
-        } catch (ComputationException ce) {
-            assertEquals("logs", ce.getErrLogs().get("security-analysis.err"));
-            assertEquals("logs", ce.getOutLogs().get("security-analysis.out"));
-        }
+
+        assertThatExceptionOfType(ComputationException.class)
+                .isThrownBy(() -> handler2.after(workingDir, new DefaultExecutionReport()))
+                .withStackTraceContaining("NoSuchFile")
+                .withStackTraceContaining("result.json")
+                .satisfies(ce -> {
+                    assertEquals("logs", ce.getErrLogs().get("security-analysis.err"));
+                    assertEquals("logs", ce.getOutLogs().get("security-analysis.out"));
+                });
 
         ExecutionHandler<SecurityAnalysisResultWithLog> handler = SecurityAnalysisExecutionHandlers.forwardedWithLogs(input, 2);
 

@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import org.joda.time.DateTime;
@@ -14,10 +13,12 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class NodeBreakerInternalConnectionsTest extends AbstractConverterTest {
+public class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
@@ -25,12 +26,15 @@ public class NodeBreakerInternalConnectionsTest extends AbstractConverterTest {
                 networkWithInternalConnections(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/internalConnections.xiidm");
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "internalConnections.xiidm");
+
+        // backward compatibility 1.0
+        roundTripVersionnedXmlTest("internalConnections.xiidm", IidmXmlVersion.V_1_0);
     }
 
     private Network networkWithInternalConnections() {
         Network network = Network.create("internal-connections", "test")
-                                 .setCaseDate(DateTime.parse("2018-11-08T12:33:26.208+01:00"));
+                .setCaseDate(DateTime.parse("2018-11-08T12:33:26.208+01:00"));
 
         Substation s1 = network.newSubstation()
                 .setId("s1")

@@ -34,8 +34,8 @@ import javax.xml.stream.events.XMLEvent;
 import java.io.*;
 import java.util.*;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
-import static com.powsybl.iidm.xml.IidmXmlConstants.VERSION;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -89,7 +89,7 @@ public class XMLImporter implements Importer {
 
     @Override
     public String getComment() {
-        return "IIDM XML v " + VERSION + " importer";
+        return "IIDM XML v " + CURRENT_IIDM_XML_VERSION.toString(".") + " importer";
     }
 
     private String findExtension(ReadOnlyDataSource dataSource) throws IOException {

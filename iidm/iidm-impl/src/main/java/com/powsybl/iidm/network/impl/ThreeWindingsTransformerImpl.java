@@ -16,9 +16,11 @@ import java.util.Set;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTransformer> implements ThreeWindingsTransformer {
+class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTransformer>
+    implements ThreeWindingsTransformer {
 
-    abstract static class AbstractLegBase<T extends AbstractLegBase<T>> implements Validable, CurrentLimitsOwner<Void> {
+    static class LegImpl
+        implements Validable, CurrentLimitsOwner<Void>, Leg, RatioTapChangerParent, PhaseTapChangerParent {
 
         protected ThreeWindingsTransformerImpl transformer;
 
@@ -26,14 +28,27 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private double x;
 
+        private double g;
+
+        private double b;
+
         private double ratedU;
 
         private CurrentLimits limits;
 
-        AbstractLegBase(double r, double x, double ratedU) {
+        private RatioTapChangerImpl ratioTapChanger;
+
+        private PhaseTapChangerImpl phaseTapChanger;
+
+        private int legNumber = 0;
+
+        LegImpl(double r, double x, double g, double b, double ratedU, int legNumber) {
             this.r = r;
             this.x = x;
+            this.g = g;
+            this.b = b;
             this.ratedU = ratedU;
+            this.legNumber = legNumber;
         }
 
         void setTransformer(ThreeWindingsTransformerImpl transformer) {
@@ -41,49 +56,112 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public TerminalExt getTerminal() {
-            return transformer.terminals.get(0);
+            return transformer.terminals.get(legNumber - 1);
         }
 
         public double getR() {
             return r;
         }
 
-        public T setR(double r) {
+        public Leg setR(double r) {
             if (Double.isNaN(r)) {
                 throw new ValidationException(this, "r is invalid");
             }
             double oldValue = this.r;
             this.r = r;
             transformer.notifyUpdate(() -> getLegAttribute() + ".r", oldValue, r);
-            return (T) this;
+            return this;
         }
 
         public double getX() {
             return x;
         }
 
-        public T setX(double x) {
+        public Leg setX(double x) {
             if (Double.isNaN(x)) {
                 throw new ValidationException(this, "x is invalid");
             }
             double oldValue = this.x;
             this.x = x;
             transformer.notifyUpdate(() -> getLegAttribute() + ".x", oldValue, x);
-            return (T) this;
+            return this;
+        }
+
+        public double getG() {
+            return g;
+        }
+
+        public Leg setG(double g) {
+            if (Double.isNaN(g)) {
+                throw new ValidationException(this, "g is invalid");
+            }
+            double oldValue = this.g;
+            this.g = g;
+            transformer.notifyUpdate(() -> getLegAttribute() + ".g", oldValue, g);
+            return this;
+        }
+
+        public double getB() {
+            return b;
+        }
+
+        public Leg setB(double b) {
+            if (Double.isNaN(b)) {
+                throw new ValidationException(this, "b is invalid");
+            }
+            double oldValue = this.b;
+            this.b = b;
+            transformer.notifyUpdate(() -> getLegAttribute() + ".b", oldValue, b);
+            return this;
         }
 
         public double getRatedU() {
             return ratedU;
         }
 
-        public T setRatedU(double ratedU) {
-            if (Double.isNaN(ratedU)) {
-                throw new ValidationException(this, "rated U is invalid");
-            }
+        public Leg setRatedU(double ratedU) {
+            ValidationUtil.checkRatedU(this, ratedU, "");
             double oldValue = this.ratedU;
             this.ratedU = ratedU;
-            transformer.notifyUpdate(() -> getLegAttribute() + ".ratedU", oldValue, x);
-            return (T) this;
+            transformer.notifyUpdate(() -> getLegAttribute() + ".ratedU", oldValue, ratedU);
+            return this;
+        }
+
+        public RatioTapChangerAdderImpl newRatioTapChanger() {
+            return new RatioTapChangerAdderImpl(this);
+        }
+
+        public RatioTapChangerImpl getRatioTapChanger() {
+            return ratioTapChanger;
+        }
+
+        public PhaseTapChangerAdderImpl newPhaseTapChanger() {
+            return new PhaseTapChangerAdderImpl(this);
+        }
+
+        public PhaseTapChangerImpl getPhaseTapChanger() {
+            return phaseTapChanger;
+        }
+
+        @Override
+        public NetworkImpl getNetwork() {
+            return transformer.getSubstation().getNetwork();
+        }
+
+        @Override
+        public void setRatioTapChanger(RatioTapChangerImpl ratioTapChanger) {
+            RatioTapChangerImpl oldValue = this.ratioTapChanger;
+            this.ratioTapChanger = ratioTapChanger;
+            transformer.notifyUpdate(() -> getLegAttribute() + "." + getTapChangerAttribute(), oldValue,
+                ratioTapChanger);
+        }
+
+        @Override
+        public void setPhaseTapChanger(PhaseTapChangerImpl phaseTapChanger) {
+            PhaseTapChangerImpl oldValue = this.phaseTapChanger;
+            this.phaseTapChanger = phaseTapChanger;
+            transformer.notifyUpdate(() -> getLegAttribute() + "." + getTapChangerAttribute(), oldValue,
+                phaseTapChanger);
         }
 
         @Override
@@ -119,155 +197,63 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             return getTypeDescription() + " '" + transformer.getId() + "': ";
         }
 
-        protected abstract String getLegAttribute();
-    }
-
-    static class Leg1Impl extends AbstractLegBase<Leg1Impl> implements Leg1 {
-
-        private double g;
-
-        private double b;
-
-        Leg1Impl(double r, double x, double g, double b, double ratedU) {
-            super(r, x, ratedU);
-            this.g = g;
-            this.b = b;
+        public String getTapChangerAttribute() {
+            return String.format("TapChanger%d", legNumber);
         }
 
-        @Override
-        public double getG() {
-            return g;
-        }
-
-        @Override
-        public Leg1Impl setG(double g) {
-            if (Double.isNaN(g)) {
-                throw new ValidationException(this, "g is invalid");
-            }
-            double oldValue = this.g;
-            this.g = g;
-            transformer.notifyUpdate(() -> getLegAttribute() + ".g", oldValue, g);
-            return this;
-        }
-
-        @Override
-        public double getB() {
-            return b;
-        }
-
-        @Override
-        public Leg1Impl setB(double b) {
-            if (Double.isNaN(b)) {
-                throw new ValidationException(this, "b is invalid");
-            }
-            double oldValue = this.b;
-            this.b = b;
-            transformer.notifyUpdate(() -> getLegAttribute() + ".b", oldValue, b);
-            return this;
-        }
-
-        @Override
         protected String getLegAttribute() {
-            return "leg1";
-        }
-    }
-
-    private abstract static class AbstractLeg2or3<T extends AbstractLeg2or3<T>> extends AbstractLegBase<T> implements RatioTapChangerParent {
-
-        private RatioTapChangerImpl ratioTapChanger;
-
-        AbstractLeg2or3(double r, double x, double ratedU) {
-            super(r, x, ratedU);
-        }
-
-        public RatioTapChangerAdderImpl newRatioTapChanger() {
-            return new RatioTapChangerAdderImpl(this);
-        }
-
-        public RatioTapChangerImpl getRatioTapChanger() {
-            return ratioTapChanger;
-        }
-
-        @Override
-        public NetworkImpl getNetwork() {
-            return transformer.getSubstation().getNetwork();
+            return String.format("leg%d", legNumber);
         }
 
         @Override
         public Set<TapChanger> getAllTapChangers() {
-            Set<TapChanger> tapChangers = new HashSet<TapChanger>();
-            if (transformer.getLeg2().getRatioTapChanger() != null) {
-                tapChangers.add(transformer.getLeg2().getRatioTapChanger());
+            Set<TapChanger> tapChangers = new HashSet<>();
+            if (transformer.leg1.getRatioTapChanger() != null) {
+                tapChangers.add(transformer.leg1.getRatioTapChanger());
             }
-            if (transformer.getLeg3().getRatioTapChanger() != null) {
-                tapChangers.add(transformer.getLeg3().getRatioTapChanger());
+            if (transformer.leg1.getPhaseTapChanger() != null) {
+                tapChangers.add(transformer.leg1.getPhaseTapChanger());
+            }
+            if (transformer.leg2.getRatioTapChanger() != null) {
+                tapChangers.add(transformer.leg2.getRatioTapChanger());
+            }
+            if (transformer.leg2.getPhaseTapChanger() != null) {
+                tapChangers.add(transformer.leg2.getPhaseTapChanger());
+            }
+            if (transformer.leg3.getRatioTapChanger() != null) {
+                tapChangers.add(transformer.leg3.getRatioTapChanger());
+            }
+            if (transformer.leg3.getPhaseTapChanger() != null) {
+                tapChangers.add(transformer.leg3.getPhaseTapChanger());
             }
             return tapChangers;
         }
 
         @Override
-        public void setRatioTapChanger(RatioTapChangerImpl ratioTapChanger) {
-            RatioTapChangerImpl oldValue = this.ratioTapChanger;
-            this.ratioTapChanger = ratioTapChanger;
-            transformer.notifyUpdate(() -> getLegAttribute() + "." + getTapChangerAttribute(), oldValue, ratioTapChanger);
+        public boolean hasRatioTapChanger() {
+            return ratioTapChanger != null;
+        }
+
+        @Override
+        public boolean hasPhaseTapChanger() {
+            return phaseTapChanger != null;
         }
     }
 
-    static class Leg2Impl extends AbstractLeg2or3<Leg2Impl> implements Leg2or3 {
+    private final LegImpl leg1;
 
-        Leg2Impl(double r, double x, double ratedU) {
-            super(r, x, ratedU);
-        }
+    private final LegImpl leg2;
 
-        @Override
-        public TerminalExt getTerminal() {
-            return transformer.terminals.get(1);
-        }
+    private final LegImpl leg3;
 
-        @Override
-        public String getTapChangerAttribute() {
-            return "TapChanger2";
-        }
+    private double ratedU0;
 
-        @Override
-        protected String getLegAttribute() {
-            return "leg2";
-        }
-    }
-
-    static class Leg3Impl extends AbstractLeg2or3<Leg3Impl> implements Leg2or3 {
-
-        Leg3Impl(double r, double x, double ratedU) {
-            super(r, x, ratedU);
-        }
-
-        @Override
-        public TerminalExt getTerminal() {
-            return transformer.terminals.get(2);
-        }
-
-        @Override
-        public String getTapChangerAttribute() {
-            return "TapChanger3";
-        }
-
-        @Override
-        protected String getLegAttribute() {
-            return "leg3";
-        }
-    }
-
-    private final Leg1Impl leg1;
-
-    private final Leg2Impl leg2;
-
-    private final Leg3Impl leg3;
-
-    ThreeWindingsTransformerImpl(String id, String name, Leg1Impl leg1, Leg2Impl leg2, Leg3Impl leg3) {
+    ThreeWindingsTransformerImpl(String id, String name, LegImpl leg1, LegImpl leg2, LegImpl leg3, double ratedU0) {
         super(id, name);
         this.leg1 = Objects.requireNonNull(leg1);
         this.leg2 = Objects.requireNonNull(leg2);
         this.leg3 = Objects.requireNonNull(leg3);
+        this.ratedU0 = ratedU0;
     }
 
     @Override
@@ -281,18 +267,23 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public Leg1Impl getLeg1() {
+    public LegImpl getLeg1() {
         return leg1;
     }
 
     @Override
-    public Leg2Impl getLeg2() {
+    public LegImpl getLeg2() {
         return leg2;
     }
 
     @Override
-    public Leg3Impl getLeg3() {
+    public LegImpl getLeg3() {
         return leg3;
+    }
+
+    @Override
+    public double getRatedU0() {
+        return ratedU0;
     }
 
     @Override
@@ -375,5 +366,4 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     protected String getTypeDescription() {
         return "3 windings transformer";
     }
-
 }

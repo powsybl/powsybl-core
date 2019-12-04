@@ -58,6 +58,7 @@ public final class SecurityAnalysisExecutionHandlers {
         Preconditions.checkArgument(forwardedTaskCount == null || forwardedTaskCount >= 1, TASK_COUNT_ERROR_MESSAGE, forwardedTaskCount);
         return new SecurityAnalysisExecutionHandler<>(SecurityAnalysisExecutionHandlers::readSingleResult,
             (workingDir, options) -> forwardedOptions(workingDir, options, forwardedTaskCount),
+            SecurityAnalysisExecutionHandlers::generateExceptionWithLogs,
             1,
             input);
     }
@@ -78,6 +79,7 @@ public final class SecurityAnalysisExecutionHandlers {
         Preconditions.checkArgument(forwardedTaskCount == null || forwardedTaskCount >= 1, TASK_COUNT_ERROR_MESSAGE, forwardedTaskCount);
         return new SecurityAnalysisExecutionHandler<>(SecurityAnalysisExecutionHandlers::readSingleResultWithLogs,
             (workingDir, options) -> forwardedWithLogsOptions(workingDir, options, forwardedTaskCount),
+            SecurityAnalysisExecutionHandlers::generateExceptionWithLogs,
             1,
             input);
     }
@@ -90,6 +92,7 @@ public final class SecurityAnalysisExecutionHandlers {
         Preconditions.checkArgument(subtaskCount >= 1, TASK_COUNT_ERROR_MESSAGE, subtaskCount);
         return new SecurityAnalysisExecutionHandler<>(workingDir -> readResults(workingDir, subtaskCount),
             (workingDir, options) -> distributedOptions(workingDir, options, subtaskCount),
+            (workingDir, cause) -> generateExceptionWithLogs(workingDir, cause, subtaskCount),
             subtaskCount,
             input);
     }
@@ -102,6 +105,7 @@ public final class SecurityAnalysisExecutionHandlers {
         Preconditions.checkArgument(subtaskCount >= 1, TASK_COUNT_ERROR_MESSAGE, subtaskCount);
         return new SecurityAnalysisExecutionHandler<>(workingDir -> readResultsWithLogs(workingDir, subtaskCount),
             (workingDir, options) -> distributedWithLogsOptions(workingDir, options, subtaskCount),
+            (workingDir, cause) -> generateExceptionWithLogs(workingDir, cause, subtaskCount),
             subtaskCount,
             input);
     }
@@ -112,23 +116,13 @@ public final class SecurityAnalysisExecutionHandlers {
     }
 
     public static SecurityAnalysisResultWithLog readSingleResultWithLogs(Path workingDir) {
-        try {
-            SecurityAnalysisResult re = readSingleResult(workingDir); // throws UncheckedIOException
-            List<String> collectedLogsFilename = new ArrayList<>();
-            collectedLogsFilename.add(workingDir.relativize(getLogPath(workingDir)).toString()); // logs_IDX.zip
-            collectedLogsFilename.add(saCmdOutLogName());
-            collectedLogsFilename.add(saCmdErrLogName());
-            byte[] logBytes = ZipPackager.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
-            return new SecurityAnalysisResultWithLog(re, logBytes);
-        } catch (Exception e) {
-            ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(e);
-            String outLogName = saCmdOutLogName();
-            String errLogName = saCmdErrLogName();
-            ceb.addOutLogIfExists(workingDir.resolve(outLogName))
-                    .addErrLogIfExists(workingDir.resolve(errLogName))
-                    .addFileIfExists(getLogPath(workingDir));
-            throw ceb.build();
-        }
+        SecurityAnalysisResult re = readSingleResult(workingDir); // throws UncheckedIOException
+        List<String> collectedLogsFilename = new ArrayList<>();
+        collectedLogsFilename.add(workingDir.relativize(getLogPath(workingDir)).toString()); // logs_IDX.zip
+        collectedLogsFilename.add(saCmdOutLogName());
+        collectedLogsFilename.add(saCmdErrLogName());
+        byte[] logBytes = ZipPackager.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
+        return new SecurityAnalysisResultWithLog(re, logBytes);
     }
 
     private static String saCmdOutLogName() {
@@ -175,23 +169,20 @@ public final class SecurityAnalysisExecutionHandlers {
     }
 
     public static SecurityAnalysisResultWithLog readResultsWithLogs(Path workingDir, int subtaskCount) {
-        try {
-            SecurityAnalysisResult re = readResults(workingDir, subtaskCount);
-            List<String> collectedLogsFilename = new ArrayList<>();
-            for (int i = 0; i < subtaskCount; i++) {
-                collectedLogsFilename.add(workingDir.relativize(getLogPathForTask(workingDir, i)).toString()); // logs_IDX.zip
-                collectedLogsFilename.add(satOutName(i));
-                collectedLogsFilename.add(satErrName(i));
-            }
-            byte[] logBytes = ZipPackager.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
-            return new SecurityAnalysisResultWithLog(re, logBytes);
-        } catch (Exception e) {
-            throw generateExceptionWithLogs(e, workingDir, subtaskCount);
+        SecurityAnalysisResult re = readResults(workingDir, subtaskCount);
+        List<String> collectedLogsFilename = new ArrayList<>();
+        for (int i = 0; i < subtaskCount; i++) {
+            collectedLogsFilename.add(workingDir.relativize(getLogPathForTask(workingDir, i)).toString()); // logs_IDX.zip
+            collectedLogsFilename.add(satOutName(i));
+            collectedLogsFilename.add(satErrName(i));
         }
+        byte[] logBytes = ZipPackager.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
+        return new SecurityAnalysisResultWithLog(re, logBytes);
     }
 
-    private static ComputationException generateExceptionWithLogs(Exception causedBy, Path workingDir, int count) {
-        ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(causedBy);
+    private static ComputationException generateExceptionWithLogs(Path workingDir, Exception cause, int count) {
+        ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(cause)
+                .message("An error occurred during security analysis command execution");
         IntStream.range(0, count).forEach(i -> {
             String outLogName = satOutName(i);
             String errLogName = satErrName(i);
@@ -199,6 +190,17 @@ public final class SecurityAnalysisExecutionHandlers {
                     .addErrLogIfExists(workingDir.resolve(errLogName))
                     .addFileIfExists(getLogPathForTask(workingDir, i));
         });
+        return ceb.build();
+    }
+
+    private static ComputationException generateExceptionWithLogs(Path workingDir, Exception cause) {
+        ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(cause)
+                .message("An error occurred during security analysis command execution");
+        String outLogName = saCmdOutLogName();
+        String errLogName = saCmdErrLogName();
+        ceb.addOutLogIfExists(workingDir.resolve(outLogName))
+                .addErrLogIfExists(workingDir.resolve(errLogName))
+                .addFileIfExists(getLogPath(workingDir));
         return ceb.build();
     }
 
