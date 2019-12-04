@@ -33,9 +33,13 @@ public class XMLImporterTest extends AbstractConverterTest {
     private XMLImporter importer;
 
     private void writeNetwork(String fileName, IidmXmlVersion version, boolean writeExt) throws IOException {
+        writeNetwork(fileName, version.getNamespaceURI(), writeExt);
+    }
+
+    private void writeNetwork(String fileName, String namespaceUri, boolean writeExt) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath(fileName), StandardCharsets.UTF_8)) {
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-            writer.write("<iidm:network xmlns:iidm=\"" + version.getNamespaceURI() + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\">");
+            writer.write("<iidm:network xmlns:iidm=\"" + namespaceUri + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\">");
             writer.newLine();
             writer.write("    <iidm:substation id=\"P1\" country=\"FR\"/>");
             writer.newLine();
@@ -80,6 +84,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         writeNetwork("/test3.txt", CURRENT_IIDM_XML_VERSION, false);
         writeNetwork("/test5.xiidm", CURRENT_IIDM_XML_VERSION, true);
         writeNetwork("/test6.xiidm", CURRENT_IIDM_XML_VERSION, false);
+        writeNetwork("/testDummy.xiidm", "http://wwww.dummy.foo/", false);
         try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath("/test6_mapping.csv"), StandardCharsets.UTF_8)) {
             writer.write("X1;P1");
             writer.newLine();
@@ -127,6 +132,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test2")));
         assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test3"))); // wrong extension
         assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test4"))); // does not exist
+        assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "testDummy"))); // namespace URI is not defined
     }
 
     @Test
