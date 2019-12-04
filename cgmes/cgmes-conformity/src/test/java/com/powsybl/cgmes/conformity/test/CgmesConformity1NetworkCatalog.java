@@ -1015,18 +1015,19 @@ public final class CgmesConformity1NetworkCatalog {
         LOG.debug("EXPECTED    u2,u1,rho0square {}, {}, {}", tx.getRatedU2(), tx.getRatedU1(), rho02);
         for (int k = 0; k < alphas.size(); k++) {
             double alpha = alphas.get(k);
+            double alphaRatio = -alpha;
             double rho = rhos.get(k);
 
             // x for current k
             double xn;
             if (type == PhaseTapChangerType.ASYMMETRICAL) {
                 double numer = Math.sin(theta) - Math.tan(alphaMax) * Math.cos(theta);
-                double denom = Math.sin(theta) - Math.tan(-alpha) * Math.cos(theta);
+                double denom = Math.sin(theta) - Math.tan(alphaRatio) * Math.cos(theta);
                 xn = xmin + (xmax - xmin)
-                        * Math.pow(Math.tan(-alpha) / Math.tan(alphaMax) * numer / denom, 2);
+                        * Math.pow(Math.tan(alphaRatio) / Math.tan(alphaMax) * numer / denom, 2);
             } else if (type == PhaseTapChangerType.SYMMETRICAL) {
                 xn = xmin + (xmax - xmin)
-                        * Math.pow(Math.sin(-alpha / 2) / Math.sin(alphaMax / 2), 2);
+                        * Math.pow(Math.sin(alphaRatio / 2) / Math.sin(alphaMax / 2), 2);
             } else {
                 xn = Double.NaN;
             }

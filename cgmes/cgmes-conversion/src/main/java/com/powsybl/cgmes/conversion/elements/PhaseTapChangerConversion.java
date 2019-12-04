@@ -351,15 +351,16 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
 
         for (int i = 0; i < alphas.size(); i++) {
             double alpha = alphas.get(i);
+            double alphaRatio = -alpha;
             double rho =  rhos.get(i);
             double x = 0.0;
             if (!xStepRangeIsConsistent || alphaMax == 0) {
                 x = tx.getX();
             } else {
                 if (asymmetrical()) {
-                    x = getStepXforAsymmetrical(xStepMin, xStepMax, -alpha, alphaMax, theta);
+                    x = getStepXforAsymmetrical(xStepMin, xStepMax, alphaRatio, alphaMax, theta);
                 } else if (symmetrical()) {
-                    x = getStepXforSymmetrical(xStepMin, xStepMax, -alpha, alphaMax);
+                    x = getStepXforSymmetrical(xStepMin, xStepMax, alphaRatio, alphaMax);
                 }
                 x = adjustx(x, rho0square);
             }
