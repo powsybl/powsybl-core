@@ -102,8 +102,7 @@ public class CgmesImport implements Importer {
     @Override
     public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p) {
         CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p));
-        Network network = new Conversion(cgmes, config(p), activatedPostProcessors(p), networkFactory).convert();
-        return network;
+        return new Conversion(cgmes, config(p), activatedPostProcessors(p), networkFactory).convert();
     }
 
     @Override
