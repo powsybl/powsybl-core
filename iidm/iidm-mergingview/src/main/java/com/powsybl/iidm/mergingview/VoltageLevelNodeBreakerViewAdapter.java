@@ -6,20 +6,17 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.stream.Stream;
-
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.BusbarSectionAdder;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
+
+import java.util.stream.Stream;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class VoltageLevelNodeBreakerViewAdapter extends AbstractAdapter<VoltageLevel.NodeBreakerView> implements VoltageLevel.NodeBreakerView {
 
-    protected VoltageLevelNodeBreakerViewAdapter(final NodeBreakerView delegate, final MergingViewIndex index) {
+    VoltageLevelNodeBreakerViewAdapter(final NodeBreakerView delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -37,7 +34,7 @@ public class VoltageLevelNodeBreakerViewAdapter extends AbstractAdapter<VoltageL
     }
 
     @Override
-    public VoltageLevelNodeBreakerViewAdapter setNodeCount(final int count) {
+    public VoltageLevel.NodeBreakerView setNodeCount(final int count) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -87,22 +84,22 @@ public class VoltageLevelNodeBreakerViewAdapter extends AbstractAdapter<VoltageL
     }
 
     @Override
-    public TerminalAdapter getTerminal(final int node) {
+    public Terminal getTerminal(final int node) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public TerminalAdapter getTerminal1(final String switchId) {
+    public Terminal getTerminal1(final String switchId) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public TerminalAdapter getTerminal2(final String switchId) {
+    public Terminal getTerminal2(final String switchId) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public SwitchAdapter getSwitch(final String switchId) {
+    public Switch getSwitch(final String switchId) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -147,7 +144,7 @@ public class VoltageLevelNodeBreakerViewAdapter extends AbstractAdapter<VoltageL
     }
 
     @Override
-    public BusbarSectionAdapter getBusbarSection(final String id) {
+    public BusbarSection getBusbarSection(final String id) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 

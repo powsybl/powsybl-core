@@ -7,7 +7,10 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.datasource.*;
+import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
@@ -15,8 +18,12 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.assertEquals;
 
 
@@ -25,7 +32,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class XMLImporterExporterBaseExtensionsTest extends AbstractConverterTest {
 
-    private void importExport(String xiidmBaseRef, String xiidmExtRef) throws IOException {
+    private void importExport(String directory) throws IOException {
         Properties exportProperties = new Properties();
         exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));
         List<String> exportExtensionsList = Arrays.asList("loadFoo", "loadBar");
@@ -35,7 +42,7 @@ public class XMLImporterExporterBaseExtensionsTest extends AbstractConverterTest
 
         Properties importProperties = new Properties();
         importProperties.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));
-        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/", xiidmBaseRef.substring(1, xiidmBaseRef.length()), xiidmExtRef.substring(1, xiidmExtRef.length())));
+        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet(directory, "multiple-extensions.xiidm", "multiple-extensions-ext.xiidm"));
         Network network = importer.importData(dataSourceBase, importProperties);
 
         assertEquals(2, network.getLoad("LOAD").getExtensions().size());
@@ -45,17 +52,17 @@ public class XMLImporterExporterBaseExtensionsTest extends AbstractConverterTest
         new XMLExporter().export(network, exportProperties, dataSource);
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
-            compareXml(getClass().getResourceAsStream(xiidmBaseRef), is);
+            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions.xiidm"), is);
         }
-        // check the exported extensions file and compare it to xiidmExtRef reference file
+        // check the exported extensions file and compare it to "multiple-extensions-ext.xiidm" reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("-ext", "xiidm"))) {
-            compareXml(getClass().getResourceAsStream(xiidmExtRef), is);
+            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions-ext.xiidm"), is);
         }
     }
 
     @Test
     public void importExportBaseExtensions() throws IOException {
-        importExport("/multiple-extensions.xiidm",
-                "/multiple-extensions-ext.xiidm");
+        importExport(getVersionDir(IidmXmlVersion.V_1_0));
+        importExport(getVersionDir(CURRENT_IIDM_XML_VERSION));
     }
 }

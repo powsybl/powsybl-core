@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.Substation;
@@ -32,15 +33,22 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected boolean hasSubElements(ThreeWindingsTransformer twt) {
-        return twt.getLeg2().getRatioTapChanger() != null
-                || twt.getLeg3().getRatioTapChanger() != null
-                || twt.getLeg1().getCurrentLimits() != null
-                || twt.getLeg2().getCurrentLimits() != null
-                || twt.getLeg3().getCurrentLimits() != null;
+        return twt.getLeg1().getRatioTapChanger() != null
+            || twt.getLeg2().getRatioTapChanger() != null
+            || twt.getLeg3().getRatioTapChanger() != null
+            || twt.getLeg1().getPhaseTapChanger() != null
+            || twt.getLeg2().getPhaseTapChanger() != null
+            || twt.getLeg3().getPhaseTapChanger() != null
+            || twt.getLeg1().getCurrentLimits() != null
+            || twt.getLeg2().getCurrentLimits() != null
+            || twt.getLeg3().getCurrentLimits() != null;
     }
 
     @Override
     protected void writeRootElementAttributes(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (twt.getLeg2().getG() != 0.0 || twt.getLeg2().getB() != 0.0 || twt.getLeg3().getG() != 0.0 || twt.getLeg3().getB() != 0.0) {
+            throw new PowsyblException("G and B in Leg 2 or 3 not supported by current version " + twt.getId());
+        }
         XmlUtil.writeDouble("r1", twt.getLeg1().getR(), context.getWriter());
         XmlUtil.writeDouble("x1", twt.getLeg1().getX(), context.getWriter());
         XmlUtil.writeDouble("g1", twt.getLeg1().getG(), context.getWriter());
@@ -64,6 +72,10 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected void writeSubElements(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (twt.getLeg1().getRatioTapChanger() != null || twt.getLeg1().getPhaseTapChanger() != null ||
+            twt.getLeg2().getPhaseTapChanger() != null || twt.getLeg3().getPhaseTapChanger() != null) {
+            throw new PowsyblException("Tap changer not supported by current version " + twt.getId());
+        }
         RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
         if (rtc2 != null) {
             writeRatioTapChanger("ratioTapChanger2", rtc2, context);

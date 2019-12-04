@@ -6,13 +6,13 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.iidm.network.*;
+
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.powsybl.iidm.network.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -24,7 +24,7 @@ class SubstationAdapter extends AbstractIdentifiableAdapter<Substation> implemen
     }
 
     @Override
-    public VoltageLevelAdderAdapter newVoltageLevel() {
+    public VoltageLevelAdder newVoltageLevel() {
         return new VoltageLevelAdderAdapter(getDelegate().newVoltageLevel(), getIndex());
     }
 
@@ -35,7 +35,7 @@ class SubstationAdapter extends AbstractIdentifiableAdapter<Substation> implemen
 
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
-        return Collections.unmodifiableSet(getVoltageLevelStream().collect(Collectors.toSet()));
+        return Collections.unmodifiableList(getVoltageLevelStream().collect(Collectors.toList()));
     }
 
     // -------------------------------
@@ -90,7 +90,7 @@ class SubstationAdapter extends AbstractIdentifiableAdapter<Substation> implemen
     }
 
     @Override
-    public SubstationAdapter setCountry(final Country country) {
+    public Substation setCountry(final Country country) {
         getDelegate().setCountry(country);
         return this;
     }
@@ -101,7 +101,7 @@ class SubstationAdapter extends AbstractIdentifiableAdapter<Substation> implemen
     }
 
     @Override
-    public SubstationAdapter setTso(final String tso) {
+    public Substation setTso(final String tso) {
         getDelegate().setTso(tso);
         return this;
     }
@@ -122,7 +122,7 @@ class SubstationAdapter extends AbstractIdentifiableAdapter<Substation> implemen
     }
 
     @Override
-    public SubstationAdapter addGeographicalTag(final String tag) {
+    public Substation addGeographicalTag(final String tag) {
         getDelegate().addGeographicalTag(tag);
         return this;
     }

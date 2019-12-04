@@ -11,34 +11,40 @@ import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 abstract class AbstractInjectionAdapter<I extends Injection<I>> extends AbstractIdentifiableAdapter<I> implements Injection<I> {
 
-    AbstractInjectionAdapter(I delegate, MergingViewIndex index) {
+    protected AbstractInjectionAdapter(I delegate, MergingViewIndex index) {
         super(delegate, index);
+    }
+
+    @Override
+    public Terminal getTerminal() {
+        return getIndex().getTerminal(getDelegate().getTerminal());
+    }
+
+    @Override
+    public List<? extends Terminal> getTerminals() {
+        return getDelegate().getTerminals().stream()
+                                           .map(getIndex()::getTerminal)
+                                           .collect(Collectors.toList());
+    }
+
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
+    @Override
+    public ConnectableType getType() {
+        return getDelegate().getType();
     }
 
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
-    @Override
-    public Terminal getTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ConnectableType getType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public List<? extends Terminal> getTerminals() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
     @Override
     public void remove() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;

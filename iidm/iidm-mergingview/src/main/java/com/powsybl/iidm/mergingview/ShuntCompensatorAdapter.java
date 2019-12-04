@@ -13,45 +13,48 @@ import com.powsybl.iidm.network.ShuntCompensator;
  */
 public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompensator> implements ShuntCompensator {
 
-    protected ShuntCompensatorAdapter(final ShuntCompensator delegate, final MergingViewIndex index) {
+    ShuntCompensatorAdapter(final ShuntCompensator delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public int getMaximumSectionCount() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getMaximumSectionCount();
     }
 
     @Override
-    public ShuntCompensatorAdapter setMaximumSectionCount(final int maximumSectionCount) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public ShuntCompensator setMaximumSectionCount(final int maximumSectionCount) {
+        getDelegate().setMaximumSectionCount(maximumSectionCount);
+        return this;
     }
 
     @Override
     public int getCurrentSectionCount() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getCurrentSectionCount();
     }
 
     @Override
-    public ShuntCompensatorAdapter setCurrentSectionCount(final int currentSectionCount) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public ShuntCompensator setCurrentSectionCount(final int currentSectionCount) {
+        getDelegate().setCurrentSectionCount(currentSectionCount);
+        return this;
     }
 
     @Override
     public double getbPerSection() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getbPerSection();
     }
 
     @Override
-    public ShuntCompensatorAdapter setbPerSection(final double bPerSection) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public ShuntCompensator setbPerSection(final double bPerSection) {
+        getDelegate().setbPerSection(bPerSection);
+        return this;
     }
 
     @Override
     public double getCurrentB() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getCurrentB();
     }
 }

@@ -6,6 +6,10 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.google.common.collect.Iterables;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.ShortIdDictionary;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
@@ -13,21 +17,119 @@ import java.nio.file.Path;
 import java.util.Random;
 import java.util.stream.Stream;
 
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.ShortIdDictionary;
-
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> implements VoltageLevel {
 
-    public VoltageLevelAdapter(final VoltageLevel delegate, final MergingViewIndex index) {
+    private VoltageLevelBusBreakerViewAdapter busBreakerView;
+
+    VoltageLevelAdapter(final VoltageLevel delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
     @Override
-    public SubstationAdapter getSubstation() {
+    public Substation getSubstation() {
         return getIndex().getSubstation(getDelegate().getSubstation());
+    }
+
+    @Override
+    public VscConverterStationAdder newVscConverterStation() {
+        return new VscConverterStationAdderAdapter(getDelegate().newVscConverterStation(), getIndex());
+    }
+
+    @Override
+    public VoltageLevel.BusBreakerView getBusBreakerView() {
+        if (busBreakerView == null) {
+            busBreakerView = new VoltageLevelBusBreakerViewAdapter(getDelegate().getBusBreakerView(), getIndex());
+        }
+        return busBreakerView;
+    }
+
+    @Override
+    public Iterable<VscConverterStation> getVscConverterStations() {
+        return Iterables.transform(getDelegate().getVscConverterStations(),
+                                   getIndex()::getVscConverterStation);
+    }
+
+    @Override
+    public Stream<VscConverterStation> getVscConverterStationStream() {
+        return getDelegate().getVscConverterStationStream().map(getIndex()::getVscConverterStation);
+    }
+
+    @Override
+    public Iterable<Battery> getBatteries() {
+        return Iterables.transform(getDelegate().getBatteries(),
+                                   getIndex()::getBattery);
+    }
+
+    @Override
+    public Stream<Battery> getBatteryStream() {
+        return getDelegate().getBatteryStream().map(getIndex()::getBattery);
+    }
+
+    @Override
+    public GeneratorAdder newGenerator() {
+        return new GeneratorAdderAdapter(getDelegate().newGenerator(), getIndex());
+    }
+
+    @Override
+    public Iterable<Generator> getGenerators() {
+        return Iterables.transform(getDelegate().getGenerators(),
+                                   getIndex()::getGenerator);
+    }
+
+    @Override
+    public Stream<Generator> getGeneratorStream() {
+        return getDelegate().getGeneratorStream().map(getIndex()::getGenerator);
+    }
+
+    @Override
+    public LoadAdder newLoad() {
+        return new LoadAdderAdapter(getDelegate().newLoad(), getIndex());
+    }
+
+    @Override
+    public Iterable<Load> getLoads() {
+        return Iterables.transform(getDelegate().getLoads(),
+                                   getIndex()::getLoad);
+    }
+
+    @Override
+    public Stream<Load> getLoadStream() {
+        return getDelegate().getLoadStream().map(getIndex()::getLoad);
+    }
+
+    @Override
+    public ShuntCompensatorAdder newShuntCompensator() {
+        return new ShuntCompensatorAdderAdapter(getDelegate().newShuntCompensator(), getIndex());
+    }
+
+    @Override
+    public Iterable<ShuntCompensator> getShuntCompensators() {
+        return Iterables.transform(getDelegate().getShuntCompensators(),
+                                   getIndex()::getShuntCompensator);
+    }
+
+    @Override
+    public Stream<ShuntCompensator> getShuntCompensatorStream() {
+        return getDelegate().getShuntCompensatorStream().map(getIndex()::getShuntCompensator);
+    }
+
+    @Override
+    public StaticVarCompensatorAdder newStaticVarCompensator() {
+        return new StaticVarCompensatorAdderAdapter(getDelegate().newStaticVarCompensator(), getIndex());
+    }
+
+    @Override
+    public Iterable<StaticVarCompensator> getStaticVarCompensators() {
+        return Iterables.transform(getDelegate().getStaticVarCompensators(),
+                                   getIndex()::getStaticVarCompensator);
+    }
+
+    @Override
+    public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
+        return getDelegate().getStaticVarCompensatorStream().map(getIndex()::getStaticVarCompensator);
     }
 
     // -------------------------------
@@ -69,67 +171,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public GeneratorAdder newGenerator() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<Generator> getGenerators() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Generator> getGeneratorStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public BatteryAdder newBattery() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<Battery> getBatteries() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Battery> getBatteryStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public LoadAdder newLoad() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<Load> getLoads() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<Load> getLoadStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public Iterable<Switch> getSwitches() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ShuntCompensatorAdder newShuntCompensator() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<ShuntCompensator> getShuntCompensators() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<ShuntCompensator> getShuntCompensatorStream() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -154,36 +196,6 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public StaticVarCompensatorAdder newStaticVarCompensator() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<StaticVarCompensator> getStaticVarCompensators() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public VscConverterStationAdder newVscConverterStation() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<VscConverterStation> getVscConverterStations() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<VscConverterStation> getVscConverterStationStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public LccConverterStationAdder newLccConverterStation() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
@@ -199,17 +211,12 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public VoltageLevelNodeBreakerViewAdapter getNodeBreakerView() {
+    public VoltageLevel.NodeBreakerView getNodeBreakerView() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
     @Override
-    public VoltageLevelBusBreakerViewAdapter getBusBreakerView() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public VoltageLevelBusViewAdapter getBusView() {
+    public VoltageLevel.BusView getBusView() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -257,7 +264,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public VoltageLevelAdapter setNominalV(final double nominalV) {
+    public VoltageLevel setNominalV(final double nominalV) {
         getDelegate().setNominalV(nominalV);
         return this;
     }
@@ -268,7 +275,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public VoltageLevelAdapter setLowVoltageLimit(final double lowVoltageLimit) {
+    public VoltageLevel setLowVoltageLimit(final double lowVoltageLimit) {
         getDelegate().setLowVoltageLimit(lowVoltageLimit);
         return this;
     }
@@ -279,7 +286,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public VoltageLevelAdapter setHighVoltageLimit(final double highVoltageLimit) {
+    public VoltageLevel setHighVoltageLimit(final double highVoltageLimit) {
         getDelegate().setHighVoltageLimit(highVoltageLimit);
         return this;
     }
@@ -327,5 +334,10 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public void exportTopology(final Writer writer) throws IOException {
         getDelegate().exportTopology(writer);
+    }
+
+    @Override
+    public BatteryAdderAdapter newBattery() {
+        return new BatteryAdderAdapter(getDelegate().newBattery(), getIndex());
     }
 }

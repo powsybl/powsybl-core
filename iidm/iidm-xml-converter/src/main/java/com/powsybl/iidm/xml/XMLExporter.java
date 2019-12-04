@@ -99,7 +99,7 @@ public class XMLExporter implements Exporter {
 
     @Override
     public String getComment() {
-        return "IIDM XML v" + VERSION + " exporter";
+        return "IIDM XML v" + CURRENT_IIDM_XML_VERSION.toString(".") + " exporter";
     }
 
     @Override

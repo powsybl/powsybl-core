@@ -14,41 +14,43 @@ import com.powsybl.iidm.network.LoadType;
  */
 public class LoadAdapter extends AbstractInjectionAdapter<Load> implements Load {
 
-    protected LoadAdapter(final Load delegate, final MergingViewIndex index) {
+    LoadAdapter(final Load delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public LoadType getLoadType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getLoadType();
     }
 
     @Override
-    public LoadAdapter setLoadType(final LoadType loadType) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public Load setLoadType(final LoadType loadType) {
+        getDelegate().setLoadType(loadType);
+        return this;
     }
 
     @Override
     public double getP0() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getP0();
     }
 
     @Override
-    public LoadAdapter setP0(final double p0) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public Load setP0(final double p0) {
+        getDelegate().setP0(p0);
+        return this;
     }
 
     @Override
     public double getQ0() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getQ0();
     }
 
     @Override
-    public LoadAdapter setQ0(final double q0) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public Load setQ0(final double q0) {
+        getDelegate().setQ0(q0);
+        return this;
     }
-
 }

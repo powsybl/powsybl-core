@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.StaticVarCompensator;
  */
 public class StaticVarCompensatorAdapter extends AbstractInjectionAdapter<StaticVarCompensator> implements StaticVarCompensator {
 
-    protected StaticVarCompensatorAdapter(final StaticVarCompensator delegate, final MergingViewIndex index) {
+    StaticVarCompensatorAdapter(final StaticVarCompensator delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -22,52 +22,56 @@ public class StaticVarCompensatorAdapter extends AbstractInjectionAdapter<Static
     // -------------------------------
     @Override
     public double getBmin() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getBmin();
     }
 
     @Override
-    public StaticVarCompensatorAdapter setBmin(final double bMin) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public StaticVarCompensator setBmin(final double bMin) {
+        getDelegate().setBmin(bMin);
+        return this;
     }
 
     @Override
     public double getBmax() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getBmax();
     }
 
     @Override
-    public StaticVarCompensatorAdapter setBmax(final double bMax) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public StaticVarCompensator setBmax(final double bMax) {
+        getDelegate().setBmax(bMax);
+        return this;
     }
 
     @Override
     public double getVoltageSetPoint() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getVoltageSetPoint();
     }
 
     @Override
-    public StaticVarCompensatorAdapter setVoltageSetPoint(final double voltageSetPoint) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public StaticVarCompensator setVoltageSetPoint(final double voltageSetPoint) {
+        getDelegate().setVoltageSetPoint(voltageSetPoint);
+        return this;
     }
 
     @Override
     public double getReactivePowerSetPoint() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getReactivePowerSetPoint();
     }
 
     @Override
-    public StaticVarCompensatorAdapter setReactivePowerSetPoint(final double reactivePowerSetPoint) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public StaticVarCompensator setReactivePowerSetPoint(final double reactivePowerSetPoint) {
+        getDelegate().setReactivePowerSetPoint(reactivePowerSetPoint);
+        return this;
     }
 
     @Override
     public RegulationMode getRegulationMode() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getRegulationMode();
     }
 
     @Override
-    public StaticVarCompensatorAdapter setRegulationMode(final RegulationMode regulationMode) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public StaticVarCompensator setRegulationMode(final RegulationMode regulationMode) {
+        getDelegate().setRegulationMode(regulationMode);
+        return this;
     }
-
 }
