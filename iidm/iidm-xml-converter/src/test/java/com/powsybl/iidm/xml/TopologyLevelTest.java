@@ -7,32 +7,24 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.export.ExportOptions;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.TopologyLevel;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static org.junit.Assert.*;
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Teofil Calin Banc<teofil-calin.banc at rte-france.com>
  */
 public class TopologyLevelTest extends AbstractConverterTest {
-
-    private PlatformConfig platformConfig;
-
-    @Before
-    public void setUp() throws IOException {
-        super.setUp();
-
-        platformConfig = new InMemoryPlatformConfig(fileSystem);
-    }
 
     @Test
     public void testComparison() {
@@ -47,33 +39,38 @@ public class TopologyLevelTest extends AbstractConverterTest {
 
     @Test
     public void testConversion() throws IOException {
-        Network network = FictitiousSwitchFactory.create();
-        writeTest(network, TopologyLevelTest::writeNodeBreaker, TopologyLevelTest::compareXml, "/fictitiousSwitchRef.xml");
+        testConversion(NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_0) + "fictitiousSwitchRef.xml")));
+
+        testConversion(FictitiousSwitchFactory.create());
+    }
+
+    private void testConversion(Network network) throws IOException {
+        writeXmlTest(network, TopologyLevelTest::writeNodeBreaker, getVersionDir(CURRENT_IIDM_XML_VERSION) + "fictitiousSwitchRef.xml");
 
         network.getSwitchStream().forEach(sw -> sw.setRetained(false));
         network.getSwitch("BJ").setRetained(true);
 
-        writeTest(network, TopologyLevelTest::writeBusBreaker, TopologyLevelTest::compareXml, "/fictitiousSwitchRef-bbk.xml");
-        writeTest(network, TopologyLevelTest::writeBusBranch, TopologyLevelTest::compareXml, "/fictitiousSwitchRef-bbr.xml");
+        writeXmlTest(network, TopologyLevelTest::writeBusBreaker, getVersionDir(CURRENT_IIDM_XML_VERSION) + "fictitiousSwitchRef-bbk.xml");
+        writeXmlTest(network, TopologyLevelTest::writeBusBranch, getVersionDir(CURRENT_IIDM_XML_VERSION) + "fictitiousSwitchRef-bbr.xml");
     }
 
     private static void writeNodeBreaker(Network network, Path path) {
         ExportOptions options = new ExportOptions()
-            .setTopologyLevel(TopologyLevel.NODE_BREAKER);
+                .setTopologyLevel(TopologyLevel.NODE_BREAKER);
 
         NetworkXml.write(network, options, path);
     }
 
     private static void writeBusBreaker(Network network, Path path) {
         ExportOptions options = new ExportOptions()
-            .setTopologyLevel(TopologyLevel.BUS_BREAKER);
+                .setTopologyLevel(TopologyLevel.BUS_BREAKER);
 
         NetworkXml.write(network, options, path);
     }
 
     private static void writeBusBranch(Network network, Path path) {
         ExportOptions options = new ExportOptions()
-            .setTopologyLevel(TopologyLevel.BUS_BRANCH);
+                .setTopologyLevel(TopologyLevel.BUS_BRANCH);
 
         NetworkXml.write(network, options, path);
     }
