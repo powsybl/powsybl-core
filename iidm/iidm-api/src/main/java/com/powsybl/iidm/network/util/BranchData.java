@@ -62,6 +62,20 @@ public class BranchData {
     private double computedQ2;
 
     public BranchData(String id,
+        double r, double x,
+        double rho1, double rho2,
+        double u1, double u2, double theta1, double theta2,
+        double alpha1, double alpha2,
+        double g1, double g2, double b1, double b2,
+        double p1, double q1, double p2, double q2,
+        boolean connected1, boolean connected2,
+        boolean mainComponent1, boolean mainComponent2,
+        double epsilonX, boolean applyReactanceCorrection) {
+        this(id, r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1,
+            connected2, mainComponent1, mainComponent2, 0, epsilonX, applyReactanceCorrection);
+    }
+
+    public BranchData(String id,
             double r, double x,
             double rho1, double rho2,
             double u1, double u2, double theta1, double theta2,
@@ -70,6 +84,7 @@ public class BranchData {
             double p1, double q1, double p2, double q2,
             boolean connected1, boolean connected2,
             boolean mainComponent1, boolean mainComponent2,
+            int phaseAngleClock,
             double epsilonX, boolean applyReactanceCorrection) {
         this.id = id;
         this.r = r;
@@ -94,7 +109,7 @@ public class BranchData {
         this.q1 = q1;
         this.p2 = p2;
         this.q2 = q2;
-        this.phaseAngleClock = 0;
+        this.phaseAngleClock = phaseAngleClock;
         this.connected1 = connected1;
         this.connected2 = connected2;
         this.mainComponent1 = mainComponent1;
@@ -437,5 +452,9 @@ public class BranchData {
             default:
                 throw new AssertionError("Unexpected side: " + side);
         }
+    }
+
+    public int getPhaseAngleClock() {
+        return phaseAngleClock;
     }
 }
