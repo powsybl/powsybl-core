@@ -335,6 +335,31 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
+    public void setMetadata(String nodeId, NodeGenericMetadata genericMetadata) {
+        Objects.requireNonNull(nodeId);
+        Objects.requireNonNull(genericMetadata);
+
+        // flush buffer to keep change order
+        changeBuffer.flush();
+
+        LOGGER.debug("setMetadata(fileSystemName={}, nodeId={}, genericMetadata={})", fileSystemName, nodeId, genericMetadata);
+
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/metadata")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .header(HttpHeaders.CONTENT_ENCODING, "gzip")
+                .acceptEncoding("gzip")
+                .put(Entity.json(genericMetadata));
+        try {
+            checkOk(response);
+        } finally {
+            response.close();
+        }
+    }
+
+    @Override
     public List<NodeInfo> getChildNodes(String nodeId) {
         Objects.requireNonNull(nodeId);
 

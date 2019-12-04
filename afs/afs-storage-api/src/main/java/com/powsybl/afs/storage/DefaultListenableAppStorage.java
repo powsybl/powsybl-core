@@ -60,6 +60,12 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     }
 
     @Override
+    public void setMetadata(String nodeId, NodeGenericMetadata genericMetadata) {
+        super.setMetadata(nodeId, genericMetadata);
+        addEvent(new NodeMetadataUpdated(nodeId, genericMetadata));
+    }
+
+    @Override
     public void setDescription(String nodeId, String description) {
         super.setDescription(nodeId, description);
         addEvent(new NodeDescriptionUpdated(nodeId, description));
