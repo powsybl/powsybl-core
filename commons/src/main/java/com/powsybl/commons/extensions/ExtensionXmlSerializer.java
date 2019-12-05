@@ -6,11 +6,14 @@
  */
 package com.powsybl.commons.extensions;
 
+import com.powsybl.commons.xml.IidmXmlVersion;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
+
+import static com.powsybl.commons.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * An ExtensionProvider able to serialize/deserialize extensions from XML.
@@ -23,7 +26,17 @@ public interface ExtensionXmlSerializer<T extends Extendable, E extends Extensio
 
     InputStream getXsdAsStream();
 
-    String getNamespaceUri();
+    /**
+     * @deprecated Use {@link #getNamespaceUri(IidmXmlVersion)} instead.
+     */
+    @Deprecated
+    default String getNamespaceUri() {
+        return getNamespaceUri(CURRENT_IIDM_XML_VERSION);
+    }
+
+    default String getNamespaceUri(IidmXmlVersion version) {
+        throw new UnsupportedOperationException();
+    }
 
     String getNamespacePrefix();
 
