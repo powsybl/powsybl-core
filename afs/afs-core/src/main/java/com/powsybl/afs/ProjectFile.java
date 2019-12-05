@@ -75,7 +75,7 @@ public class ProjectFile extends ProjectNode {
         storage.flush();
     }
 
-    public void replaceDependencies(String oldDependencyId, ProjectNode replacementNode) {
+    public void replaceDependency(String oldDependencyId, ProjectNode replacementNode) {
         Objects.requireNonNull(oldDependencyId);
         Objects.requireNonNull(replacementNode);
         Map<String, List<ProjectDependency<ProjectNode>>> dependencies = getDependencies().stream().collect(Collectors.groupingBy(ProjectDependency::getName));
