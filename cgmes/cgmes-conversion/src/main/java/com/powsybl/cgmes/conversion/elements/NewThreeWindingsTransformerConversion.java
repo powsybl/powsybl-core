@@ -133,6 +133,11 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
             phaseTapChanger2 = cgmesWinding.phaseTapChanger;
         }
 
+        if (alternative.isXfmr3PhaseNegate()) {
+            negatePhaseTapChanger(phaseTapChanger1);
+            negatePhaseTapChanger(phaseTapChanger2);
+        }
+
         AllTapChanger allTapChanger = new AllTapChanger();
         allTapChanger.ratioTapChanger1 = ratioTapChanger1;
         allTapChanger.phaseTapChanger1 = phaseTapChanger1;

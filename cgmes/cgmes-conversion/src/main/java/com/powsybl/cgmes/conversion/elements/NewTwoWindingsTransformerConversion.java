@@ -98,7 +98,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         } else {
             cgmesT2xModel.end1.xIsZero = false;
         }
-        cgmesT2xModel.end1.rtcDefined = rtc1 != null && rtc1.asDouble(STRING_STEP_VOLTAGE_INCREMENT) != 0.0;
 
         cgmesT2xModel.end2.g = end2.asDouble(STRING_G, 0);
         cgmesT2xModel.end2.b = end2.asDouble(STRING_B);
@@ -113,7 +112,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         } else {
             cgmesT2xModel.end2.xIsZero = false;
         }
-        cgmesT2xModel.end2.rtcDefined = rtc2 != null && rtc2.asDouble(STRING_STEP_VOLTAGE_INCREMENT) != 0.0;
 
         cgmesT2xModel.r = r;
         cgmesT2xModel.x = x;
@@ -181,10 +179,8 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
             }
         }
 
-        if (alternative.isXfmr2Phase1Negate()) {
+        if (alternative.isXfmr2PhaseNegate()) {
             negatePhaseTapChanger(phaseTapChanger1);
-        }
-        if (alternative.isXfmr2Phase2Negate()) {
             negatePhaseTapChanger(phaseTapChanger2);
         }
 
@@ -255,12 +251,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
             ratio0AtEnd2 = false;
         } else if (alternative.isXfmr2Ratio0End2()) {
             ratio0AtEnd2 = true;
-        } else if (alternative.isXfmr2Ratio0Rtc()) {
-            if (cgmesT2xModel.end1.rtcDefined) {
-                ratio0AtEnd2 = false;
-            } else {
-                ratio0AtEnd2 = true;
-            }
         } else {
             if (cgmesT2xModel.end1.xIsZero) {
                 ratio0AtEnd2 = false;
@@ -396,7 +386,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         int phaseAngleClock;
         String terminal;
         boolean xIsZero;
-        boolean rtcDefined;
     }
 
     static class InterpretedT2xModel {
