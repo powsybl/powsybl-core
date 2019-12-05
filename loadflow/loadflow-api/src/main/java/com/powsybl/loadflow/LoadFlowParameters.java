@@ -46,7 +46,6 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_NO_GENERATOR_REACTIVE_LIMITS = false;
     public static final boolean DEFAULT_PHASE_SHIFTER_REGULATION_ON = false;
     public static final boolean DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR2 = false;
-    public static final boolean DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR3 = false;
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "loadflow-parameters"));
@@ -85,7 +84,6 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                     parameters.setNoGeneratorReactiveLimits(config.getBooleanProperty("noGeneratorReactiveLimits", DEFAULT_NO_GENERATOR_REACTIVE_LIMITS));
                     parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
                     parameters.setSplitShuntAdmittanceXfmr2(config.getBooleanProperty("splitShuntAdmittanceXfmr2", DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR2));
-                    parameters.setSplitShuntAdmittanceXfmr3(config.getBooleanProperty("splitShuntAdmittanceXfmr3", DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR3));
                 });
     }
 
@@ -98,8 +96,6 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     private boolean phaseShifterRegulationOn;
 
     private boolean splitShuntAdmittanceXfmr2;
-
-    private boolean splitShuntAdmittanceXfmr3;
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
                               boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn, boolean splitShuntAdmittance) {
@@ -173,15 +169,6 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     public LoadFlowParameters setSplitShuntAdmittanceXfmr2(boolean splitShuntAdmittance) {
         this.splitShuntAdmittanceXfmr2 = splitShuntAdmittance;
-        return this;
-    }
-
-    public boolean isSplitShuntAdmittanceXfmr3() {
-        return splitShuntAdmittanceXfmr3;
-    }
-
-    public LoadFlowParameters setSplitShuntAdmittanceXfmr3(boolean splitShuntAdmittanceXfmr3) {
-        this.splitShuntAdmittanceXfmr3 = splitShuntAdmittanceXfmr3;
         return this;
     }
 
