@@ -154,8 +154,8 @@ public final class NetworkXml {
         if (extensionXmlSerializer == null) {
             return;
         }
-        writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri());
-        writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri());
+        writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri(CURRENT_IIDM_XML_VERSION));
+        writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri(CURRENT_IIDM_XML_VERSION));
     }
 
     private static void writeExtensionNamespaces(Network n, ExportOptions options, XMLStreamWriter writer) throws XMLStreamException {
@@ -166,18 +166,18 @@ public final class NetworkXml {
             if (extensionXmlSerializer == null) {
                 continue;
             }
-            if (extensionUris.contains(extensionXmlSerializer.getNamespaceUri())) {
+            if (extensionUris.contains(extensionXmlSerializer.getNamespaceUri(CURRENT_IIDM_XML_VERSION))) {
                 throw new PowsyblException("Extension namespace URI collision");
             } else {
-                extensionUris.add(extensionXmlSerializer.getNamespaceUri());
+                extensionUris.add(extensionXmlSerializer.getNamespaceUri(CURRENT_IIDM_XML_VERSION));
             }
             if (extensionPrefixes.contains(extensionXmlSerializer.getNamespacePrefix())) {
                 throw new PowsyblException("Extension namespace prefix collision");
             } else {
                 extensionPrefixes.add(extensionXmlSerializer.getNamespacePrefix());
             }
-            writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri());
-            writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri());
+            writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri(CURRENT_IIDM_XML_VERSION));
+            writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri(CURRENT_IIDM_XML_VERSION));
         }
     }
 
@@ -193,9 +193,9 @@ public final class NetworkXml {
             return;
         }
         if (extensionXmlSerializer.hasSubElements()) {
-            writer.writeStartElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
+            writer.writeStartElement(extensionXmlSerializer.getNamespaceUri(CURRENT_IIDM_XML_VERSION), extension.getName());
         } else {
-            writer.writeEmptyElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
+            writer.writeEmptyElement(extensionXmlSerializer.getNamespaceUri(CURRENT_IIDM_XML_VERSION), extension.getName());
         }
         extensionXmlSerializer.write(extension, context);
         if (extensionXmlSerializer.hasSubElements()) {

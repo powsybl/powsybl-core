@@ -50,7 +50,7 @@ public class TerminalMockXmlSerializer implements ExtensionXmlSerializer<Load, T
     @Override
     public void write(TerminalMockExt extension, XmlWriterContext context) throws XMLStreamException {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
-        TerminalRefXml.writeTerminalRef(extension.getTerminal(), networkContext, getNamespaceUri(), "terminal", context.getExtensionsWriter());
+        TerminalRefXml.writeTerminalRef(extension.getTerminal(), networkContext, getNamespaceUri(CURRENT_IIDM_XML_VERSION), "terminal", context.getExtensionsWriter());
     }
 
     @Override
