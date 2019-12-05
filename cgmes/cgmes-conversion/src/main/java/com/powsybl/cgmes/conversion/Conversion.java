@@ -493,12 +493,12 @@ public class Conversion {
             this.xfmr2RatioPhaseEnd1End2 = xfmr2RatioPhaseEnd1End2;
         }
 
-        public boolean isXfmr2RatioPhaseRtc() {
-            return xfmr2RatioPhaseRtc;
+        public boolean isXfmr2RatioPhaseX() {
+            return xfmr2RatioPhaseX;
         }
 
-        public void setXfmr2RatioPhaseRtc(boolean xfmr2RatioPhaseRtc) {
-            this.xfmr2RatioPhaseRtc = xfmr2RatioPhaseRtc;
+        public void setXfmr2RatioPhaseX(boolean xfmr2RatioPhaseX) {
+            this.xfmr2RatioPhaseX = xfmr2RatioPhaseX;
         }
 
         public boolean isXfmr2Phase1Negate() {
@@ -698,7 +698,7 @@ public class Conversion {
             this.xfmr2RatioPhaseEnd1 = false;
             this.xfmr2RatioPhaseEnd2 = false;
             this.xfmr2RatioPhaseEnd1End2 = false;
-            this.xfmr2RatioPhaseRtc = false;
+            this.xfmr2RatioPhaseX = false;
             this.xfmr2Phase1Negate = false;
             this.xfmr2Phase2Negate = false;
             this.xfmr2ShuntEnd1 = false;
@@ -736,7 +736,7 @@ public class Conversion {
         private boolean xfmr2RatioPhaseEnd1 = false;
         private boolean xfmr2RatioPhaseEnd2 = false;
         private boolean xfmr2RatioPhaseEnd1End2 = true;
-        private boolean xfmr2RatioPhaseRtc = false;
+        private boolean xfmr2RatioPhaseX = false;
         private boolean xfmr2Phase1Negate = false;
         private boolean xfmr2Phase2Negate = false;
         private boolean xfmr2ShuntEnd1 = true;
