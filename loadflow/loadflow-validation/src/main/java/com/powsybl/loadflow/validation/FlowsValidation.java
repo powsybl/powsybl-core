@@ -78,7 +78,7 @@ public final class FlowsValidation {
                     branch.getG1(), branch.getG2(), branch.getB1(), branch.getB2(),
                     branch.getRho1(), branch.getRho2(), branch.getAlpha1(), branch.getAlpha2(),
                     branch.getU1(), branch.getU2(), branch.getTheta1(), branch.getTheta2(),
-                    branch.getZ(), branch.getY(), branch.getKsi(),
+                    branch.getZ(), branch.getY(), branch.getKsi(), branch.getPhaseAngleClock(),
                     branch.isConnected1(), branch.isConnected2(),
                     branch.isMainComponent1(), branch.isMainComponent2(),
                     validated);
@@ -151,7 +151,6 @@ public final class FlowsValidation {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);
-
         int phaseAngleClock = 0;
         TwoWindingsTransformerPhaseAngleClock phaseAngleClockExtension = twt.getExtension(TwoWindingsTransformerPhaseAngleClock.class);
         if (phaseAngleClockExtension != null) {
@@ -201,5 +200,4 @@ public final class FlowsValidation {
 
         return linesValidated && transformersValidated;
     }
-
 }
