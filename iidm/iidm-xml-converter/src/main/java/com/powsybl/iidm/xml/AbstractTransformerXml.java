@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
+import static com.powsybl.commons.xml.IidmXmlConstants.IIDM_URI;
 
 /**
  *

@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.ReactiveLimitsHolder;
 
 import javax.xml.stream.XMLStreamException;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
+import static com.powsybl.commons.xml.IidmXmlConstants.IIDM_URI;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>

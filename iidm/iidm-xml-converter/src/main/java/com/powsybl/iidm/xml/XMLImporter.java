@@ -15,6 +15,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.xml.IidmXmlVersion;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.import_.ImportOptions;
@@ -38,7 +39,7 @@ import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.commons.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

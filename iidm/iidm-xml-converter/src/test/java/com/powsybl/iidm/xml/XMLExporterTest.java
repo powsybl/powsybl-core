@@ -18,7 +18,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
-import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.commons.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>

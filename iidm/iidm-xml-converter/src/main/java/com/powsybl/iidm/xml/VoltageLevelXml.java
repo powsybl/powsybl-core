@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
+import static com.powsybl.commons.xml.IidmXmlConstants.IIDM_URI;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

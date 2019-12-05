@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.*;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.*;
+import static com.powsybl.commons.xml.IidmXmlConstants.*;
 
 /**
  * XML export of an IIDM model.<p>

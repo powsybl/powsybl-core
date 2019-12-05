@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.xml.IidmXmlVersion;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import org.joda.time.DateTime;
@@ -13,7 +14,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.commons.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

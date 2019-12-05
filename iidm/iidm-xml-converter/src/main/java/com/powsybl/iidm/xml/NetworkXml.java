@@ -17,6 +17,7 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.xml.IidmXmlVersion;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.anonymizer.Anonymizer;
@@ -50,7 +51,7 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.*;
+import static com.powsybl.commons.xml.IidmXmlConstants.*;
 import static com.powsybl.iidm.xml.XMLImporter.SUFFIX_MAPPING;
 
 /**

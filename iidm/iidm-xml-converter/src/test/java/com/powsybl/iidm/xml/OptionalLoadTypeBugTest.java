@@ -6,10 +6,11 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.xml.IidmXmlVersion;
 import org.junit.Test;
 
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
-import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.commons.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.assertNotNull;
 
 /**

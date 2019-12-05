@@ -10,6 +10,7 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.xml.IidmXmlVersion;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
@@ -19,7 +20,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
-import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.commons.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

@@ -10,6 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.xml.IidmXmlVersion;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.export.ExportOptions;
@@ -24,7 +25,7 @@ import java.io.InputStream;
 
 import javax.xml.stream.XMLStreamException;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.commons.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.*;
 
 /**
