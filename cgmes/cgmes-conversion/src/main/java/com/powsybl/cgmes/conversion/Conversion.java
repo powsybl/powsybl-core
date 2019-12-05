@@ -678,33 +678,6 @@ public class Conversion {
             this.xfmr3Ratio0End3 = xfmr3Ratio0End3;
         }
 
-        public void reset() {
-            this.xfmr2RatioPhaseEnd1 = false;
-            this.xfmr2RatioPhaseEnd2 = false;
-            this.xfmr2RatioPhaseEnd1End2 = false;
-            this.xfmr2RatioPhaseX = false;
-            this.xfmr2PhaseNegate = false;
-            this.xfmr2ShuntEnd1 = false;
-            this.xfmr2ShuntEnd2 = false;
-            this.xfmr2ShuntEnd1End2 = false;
-            this.xfmr2ShuntSplit = false;
-            this.xfmr2PhaseAngleClockOn = false;
-            this.xfmr2Ratio0End1 = false;
-            this.xfmr2Ratio0End2 = false;
-            this.xfmr2Ratio0X = false;
-            this.xfmr3RatioPhaseNetworkSide = false;
-            this.xfmr3PhaseNegate = false;
-            this.xfmr3ShuntNetworkSide = false;
-            this.xfmr3ShuntStarBusSide = false;
-            this.xfmr3ShuntSplit = false;
-            this.xfmr3PhaseAngleClockOn = false;
-            this.xfmr3Ratio0StarBusSide = false;
-            this.xfmr3Ratio0NetworkSide = false;
-            this.xfmr3Ratio0End1 = false;
-            this.xfmr3Ratio0End2 = false;
-            this.xfmr3Ratio0End3 = false;
-        }
-
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
