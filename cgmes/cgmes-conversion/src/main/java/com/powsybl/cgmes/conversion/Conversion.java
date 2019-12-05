@@ -493,28 +493,20 @@ public class Conversion {
             this.xfmr2RatioPhaseEnd1End2 = xfmr2RatioPhaseEnd1End2;
         }
 
-        public boolean isXfmr2RatioPhaseRtc() {
-            return xfmr2RatioPhaseRtc;
+        public boolean isXfmr2RatioPhaseX() {
+            return xfmr2RatioPhaseX;
         }
 
-        public void setXfmr2RatioPhaseRtc(boolean xfmr2RatioPhaseRtc) {
-            this.xfmr2RatioPhaseRtc = xfmr2RatioPhaseRtc;
+        public void setXfmr2RatioPhaseX(boolean xfmr2RatioPhaseX) {
+            this.xfmr2RatioPhaseX = xfmr2RatioPhaseX;
         }
 
-        public boolean isXfmr2Phase1Negate() {
-            return xfmr2Phase1Negate;
+        public boolean isXfmr2PhaseNegate() {
+            return xfmr2PhaseNegate;
         }
 
-        public void setXfmr2Phase1Negate(boolean xfmr2Phase1Negate) {
-            this.xfmr2Phase1Negate = xfmr2Phase1Negate;
-        }
-
-        public boolean isXfmr2Phase2Negate() {
-            return xfmr2Phase2Negate;
-        }
-
-        public void setXfmr2Phase2Negate(boolean xfmr2Phase2Negate) {
-            this.xfmr2Phase2Negate = xfmr2Phase2Negate;
+        public void setXfmr2PhaseNegate(boolean xfmr2PhaseNegate) {
+            this.xfmr2PhaseNegate = xfmr2PhaseNegate;
         }
 
         public boolean isXfmr2ShuntEnd1() {
@@ -561,22 +553,14 @@ public class Conversion {
             if (value.equals("end1")) {
                 setXfmr2Ratio0End1(true);
                 setXfmr2Ratio0End2(false);
-                setXfmr2Ratio0Rtc(false);
                 setXfmr2Ratio0X(false);
             } else if (value.equals("end2")) {
                 setXfmr2Ratio0End1(false);
                 setXfmr2Ratio0End2(true);
-                setXfmr2Ratio0Rtc(false);
-                setXfmr2Ratio0X(false);
-            } else if (value.equals("rtc")) {
-                setXfmr2Ratio0End1(false);
-                setXfmr2Ratio0End2(false);
-                setXfmr2Ratio0Rtc(true);
                 setXfmr2Ratio0X(false);
             } else if (value.equals("x")) {
                 setXfmr2Ratio0End1(false);
                 setXfmr2Ratio0End2(false);
-                setXfmr2Ratio0Rtc(false);
                 setXfmr2Ratio0X(true);
             }
             return this;
@@ -598,14 +582,6 @@ public class Conversion {
             this.xfmr2Ratio0End2 = xfmr2Ratio0End2;
         }
 
-        public boolean isXfmr2Ratio0Rtc() {
-            return xfmr2Ratio0Rtc;
-        }
-
-        public void setXfmr2Ratio0Rtc(boolean xfmr2Ratio0Rtc) {
-            this.xfmr2Ratio0Rtc = xfmr2Ratio0Rtc;
-        }
-
         public boolean isXfmr2Ratio0X() {
             return xfmr2Ratio0X;
         }
@@ -620,6 +596,14 @@ public class Conversion {
 
         public void setXfmr3RatioPhaseNetworkSide(boolean xfmr3RatioPhaseNetworkSide) {
             this.xfmr3RatioPhaseNetworkSide = xfmr3RatioPhaseNetworkSide;
+        }
+
+        public boolean isXfmr3PhaseNegate() {
+            return xfmr3PhaseNegate;
+        }
+
+        public void setXfmr3PhaseNegate(boolean xfmr3PhaseNegate) {
+            this.xfmr3PhaseNegate = xfmr3PhaseNegate;
         }
 
         public boolean isXfmr3ShuntNetworkSide() {
@@ -698,9 +682,8 @@ public class Conversion {
             this.xfmr2RatioPhaseEnd1 = false;
             this.xfmr2RatioPhaseEnd2 = false;
             this.xfmr2RatioPhaseEnd1End2 = false;
-            this.xfmr2RatioPhaseRtc = false;
-            this.xfmr2Phase1Negate = false;
-            this.xfmr2Phase2Negate = false;
+            this.xfmr2RatioPhaseX = false;
+            this.xfmr2PhaseNegate = false;
             this.xfmr2ShuntEnd1 = false;
             this.xfmr2ShuntEnd2 = false;
             this.xfmr2ShuntEnd1End2 = false;
@@ -708,9 +691,9 @@ public class Conversion {
             this.xfmr2PhaseAngleClockOn = false;
             this.xfmr2Ratio0End1 = false;
             this.xfmr2Ratio0End2 = false;
-            this.xfmr2Ratio0Rtc = false;
             this.xfmr2Ratio0X = false;
             this.xfmr3RatioPhaseNetworkSide = false;
+            this.xfmr3PhaseNegate = false;
             this.xfmr3ShuntNetworkSide = false;
             this.xfmr3ShuntStarBusSide = false;
             this.xfmr3ShuntSplit = false;
@@ -736,9 +719,8 @@ public class Conversion {
         private boolean xfmr2RatioPhaseEnd1 = false;
         private boolean xfmr2RatioPhaseEnd2 = false;
         private boolean xfmr2RatioPhaseEnd1End2 = true;
-        private boolean xfmr2RatioPhaseRtc = false;
-        private boolean xfmr2Phase1Negate = false;
-        private boolean xfmr2Phase2Negate = false;
+        private boolean xfmr2RatioPhaseX = false;
+        private boolean xfmr2PhaseNegate = false;
         private boolean xfmr2ShuntEnd1 = true;
         private boolean xfmr2ShuntEnd2 = false;
         private boolean xfmr2ShuntEnd1End2 = false;
@@ -746,10 +728,10 @@ public class Conversion {
         private boolean xfmr2PhaseAngleClockOn = false;
         private boolean xfmr2Ratio0End1 = false;
         private boolean xfmr2Ratio0End2 = false;
-        private boolean xfmr2Ratio0Rtc = false;
         private boolean xfmr2Ratio0X = true;
 
         private boolean xfmr3RatioPhaseNetworkSide = true;
+        private boolean xfmr3PhaseNegate = false;
         private boolean xfmr3ShuntNetworkSide = true;
         private boolean xfmr3ShuntStarBusSide = false;
         private boolean xfmr3ShuntSplit = false;
