@@ -76,7 +76,7 @@ public final class Transformers3WValidation extends AbstractTransformersValidati
         }
 
         boolean validated = true;
-        TwtData twtData = new TwtData(twt, phaseAngleClock2, phaseAngleClock3, config.getEpsilonX(), config.applyReactanceCorrection(), false);
+        TwtData twtData = new TwtData(twt, phaseAngleClock2, phaseAngleClock3, config.getEpsilonX(), config.applyReactanceCorrection());
         validated &= checkLeg(twtData, Side.ONE, config);
         validated &= checkLeg(twtData, Side.TWO, config);
         validated &= checkLeg(twtData, Side.THREE, config);
@@ -104,5 +104,4 @@ public final class Transformers3WValidation extends AbstractTransformersValidati
         }
         return validated;
     }
-
 }
