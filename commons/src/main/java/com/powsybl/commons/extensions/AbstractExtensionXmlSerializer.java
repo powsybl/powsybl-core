@@ -9,6 +9,8 @@ package com.powsybl.commons.extensions;
 import com.powsybl.commons.xml.IidmXmlVersion;
 
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -61,8 +63,8 @@ public abstract class AbstractExtensionXmlSerializer<T extends Extendable, E ext
     }
 
     @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/" + xsdFileName);
+    public List<InputStream> getXsdAsStreamList() {
+        return Collections.singletonList(getClass().getResourceAsStream("/xsd/" + xsdFileName));
     }
 
     @Override

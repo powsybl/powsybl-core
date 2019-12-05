@@ -47,7 +47,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
-import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -135,9 +134,10 @@ public final class NetworkXml {
     }
 
     static void validateWithExtensions(InputStream is) {
-        List<Source> additionalSchemas = EXTENSIONS_SUPPLIER.get().getProviders().stream()
-                .map(e -> new StreamSource(e.getXsdAsStream()))
-                .collect(Collectors.toList());
+        List<Source> additionalSchemas = new ArrayList<>();
+        for (ExtensionXmlSerializer<?, ?> e : EXTENSIONS_SUPPLIER.get().getProviders()) {
+            e.getXsdAsStreamList().forEach(xsd -> additionalSchemas.add(new StreamSource(xsd)));
+        }
         validate(new StreamSource(is), additionalSchemas);
     }
 

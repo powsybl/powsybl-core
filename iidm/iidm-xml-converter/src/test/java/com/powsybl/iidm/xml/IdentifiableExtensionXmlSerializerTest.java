@@ -9,6 +9,7 @@ package com.powsybl.iidm.xml;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.IidmXmlVersion;
 import com.powsybl.commons.xml.XmlReaderContext;
@@ -130,41 +131,11 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
     }
 
     @AutoService(ExtensionXmlSerializer.class)
-    public static class NetworkSourceExtensionXmlSerializer implements ExtensionXmlSerializer<Network, NetworkSourceExtension> {
+    public static class NetworkSourceExtensionXmlSerializer extends AbstractExtensionXmlSerializer<Network, NetworkSourceExtension> {
 
-        @Override
-        public String getExtensionName() {
-            return "networkSource";
-        }
-
-        @Override
-        public String getCategoryName() {
-            return "network";
-        }
-
-        @Override
-        public Class<? super NetworkSourceExtension> getExtensionClass() {
-            return NetworkSourceExtension.class;
-        }
-
-        @Override
-        public boolean hasSubElements() {
-            return false;
-        }
-
-        @Override
-        public InputStream getXsdAsStream() {
-            return getClass().getResourceAsStream("/xsd/networkSource.xsd");
-        }
-
-        @Override
-        public String getNamespaceUri(IidmXmlVersion version) {
-            return "http://www.itesla_project.eu/schema/iidm/ext/networksource/1_0";
-        }
-
-        @Override
-        public String getNamespacePrefix() {
-            return "extNetworkSource";
+        public NetworkSourceExtensionXmlSerializer() {
+            super("networkSource", "network", NetworkSourceExtension.class, false, "networkSource.xsd",
+                    "http://www.itesla_project.eu/schema/iidm/ext/networksource/1_0", "extNetworkSource");
         }
 
         @Override

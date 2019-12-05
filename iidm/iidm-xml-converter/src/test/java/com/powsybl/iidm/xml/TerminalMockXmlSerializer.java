@@ -7,6 +7,8 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
+import com.google.common.collect.ImmutableList;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.IidmXmlVersion;
 import com.powsybl.commons.xml.XmlReaderContext;
@@ -18,6 +20,7 @@ import com.powsybl.iidm.network.test.TerminalMockExt;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
+import java.util.List;
 
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
 import static com.powsybl.commons.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
@@ -34,13 +37,21 @@ public class TerminalMockXmlSerializer implements ExtensionXmlSerializer<Load, T
     }
 
     @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "xsd/terminalMock.xsd");
+    public List<InputStream> getXsdAsStreamList() {
+        return ImmutableList.of(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_0) + "xsd/terminalMock.xsd"),
+                getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_1) + "xsd/terminalMock.xsd"));
     }
 
     @Override
     public String getNamespaceUri(IidmXmlVersion version) {
-        return "http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_1";
+        switch (version) {
+            case V_1_0:
+                return "http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_0";
+            case V_1_1:
+                return "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_1";
+            default:
+                throw new PowsyblException("Version " + version.toString(".") + " not supported by TerminalMock extension.");
+        }
     }
 
     @Override

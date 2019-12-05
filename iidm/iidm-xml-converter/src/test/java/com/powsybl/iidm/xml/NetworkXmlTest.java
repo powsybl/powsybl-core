@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.IidmXmlVersion;
 import com.powsybl.commons.xml.XmlReaderContext;
@@ -72,41 +73,11 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
     }
 
     @AutoService(ExtensionXmlSerializer.class)
-    public static class BusbarSectionExtXmlSerializer implements ExtensionXmlSerializer<BusbarSection, BusbarSectionExt> {
+    public static class BusbarSectionExtXmlSerializer extends AbstractExtensionXmlSerializer<BusbarSection, BusbarSectionExt> {
 
-        @Override
-        public String getExtensionName() {
-            return "busbarSectionExt";
-        }
-
-        @Override
-        public String getCategoryName() {
-            return "network";
-        }
-
-        @Override
-        public Class<? super BusbarSectionExt> getExtensionClass() {
-            return BusbarSectionExt.class;
-        }
-
-        @Override
-        public boolean hasSubElements() {
-            return false;
-        }
-
-        @Override
-        public InputStream getXsdAsStream() {
-            return getClass().getResourceAsStream("/xsd/busbarSectionExt.xsd");
-        }
-
-        @Override
-        public String getNamespaceUri(IidmXmlVersion version) {
-            return "http://www.itesla_project.eu/schema/iidm/ext/busbarSectionExt/1_0";
-        }
-
-        @Override
-        public String getNamespacePrefix() {
-            return "bbse";
+        public BusbarSectionExtXmlSerializer() {
+            super("busbarSectionExt", "network", BusbarSectionExt.class, false, "busbarSectionExt.xsd",
+                    "http://www.itesla_project.eu/schema/iidm/ext/busbarSectionExt/1_0", "bbse");
         }
 
         @Override

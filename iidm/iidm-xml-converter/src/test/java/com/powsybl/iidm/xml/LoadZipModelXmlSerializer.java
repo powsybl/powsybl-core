@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.IidmXmlVersion;
 import com.powsybl.commons.xml.XmlReaderContext;
@@ -22,41 +23,11 @@ import java.io.InputStream;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class LoadZipModelXmlSerializer implements ExtensionXmlSerializer<Load, LoadZipModel> {
+public class LoadZipModelXmlSerializer extends AbstractExtensionXmlSerializer<Load, LoadZipModel> {
 
-    @Override
-    public String getExtensionName() {
-        return "loadZipModel";
-    }
-
-    @Override
-    public String getCategoryName() {
-        return "network";
-    }
-
-    @Override
-    public Class<? super LoadZipModel> getExtensionClass() {
-        return LoadZipModel.class;
-    }
-
-    @Override
-    public boolean hasSubElements() {
-        return false;
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/loadZipModel.xsd");
-    }
-
-    @Override
-    public String getNamespaceUri(IidmXmlVersion version) {
-        return "http://www.itesla_project.eu/schema/iidm/ext/loadzipmodel/1_0";
-    }
-
-    @Override
-    public String getNamespacePrefix() {
-        return "extZip";
+    public LoadZipModelXmlSerializer() {
+        super("loadZipModel", "network", LoadZipModel.class, false, "loadZipModel.xsd",
+                "http://www.itesla_project.eu/schema/iidm/ext/loadzipmodel/1_0", "extZip");
     }
 
     @Override

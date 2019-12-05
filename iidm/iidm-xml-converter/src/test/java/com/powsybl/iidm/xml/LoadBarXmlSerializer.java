@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.IidmXmlVersion;
 import com.powsybl.commons.xml.XmlReaderContext;
@@ -21,41 +22,11 @@ import java.io.InputStream;
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class LoadBarXmlSerializer implements ExtensionXmlSerializer<Load, LoadBarExt> {
+public class LoadBarXmlSerializer extends AbstractExtensionXmlSerializer<Load, LoadBarExt> {
 
-    @Override
-    public String getExtensionName() {
-        return "loadBar";
-    }
-
-    @Override
-    public String getCategoryName() {
-        return "network";
-    }
-
-    @Override
-    public Class<? super LoadBarExt> getExtensionClass() {
-        return LoadBarExt.class;
-    }
-
-    @Override
-    public boolean hasSubElements() {
-        return false;
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/loadBar.xsd");
-    }
-
-    @Override
-    public String getNamespaceUri(IidmXmlVersion version) {
-        return "http://www.itesla_project.eu/schema/iidm/ext/loadbar/1_0";
-    }
-
-    @Override
-    public String getNamespacePrefix() {
-        return "bar";
+    public LoadBarXmlSerializer() {
+        super("loadBar", "network", LoadBarExt.class, false, "loadBar.xsd",
+                "http://www.itesla_project.eu/schema/iidm/ext/loadbar/1_0", "bar");
     }
 
     @Override

@@ -12,6 +12,7 @@ import com.powsybl.commons.xml.XmlWriterContext;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
+import java.util.List;
 
 import static com.powsybl.commons.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
@@ -24,7 +25,17 @@ public interface ExtensionXmlSerializer<T extends Extendable, E extends Extensio
 
     boolean hasSubElements();
 
-    InputStream getXsdAsStream();
+    /**
+     * @deprecated Use {@link #getXsdAsStreamList()} instead.
+     */
+    @Deprecated
+    default InputStream getXsdAsStream() {
+        throw new UnsupportedOperationException("Deprecated");
+    }
+
+    default List<InputStream> getXsdAsStreamList() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * @deprecated Use {@link #getNamespaceUri(IidmXmlVersion)} instead.
