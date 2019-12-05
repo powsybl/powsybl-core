@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import com.powsybl.afs.storage.events.*;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.timeseries.*;
 import org.junit.After;
@@ -22,14 +23,12 @@ import org.threeten.extra.Interval;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
 /**
@@ -173,9 +172,9 @@ public abstract class AbstractAppStorageTest {
         NodeInfo testDataInfo = storage.createNode(testFolderInfo.getId(), "data", DATA_FILE_CLASS, "", 0, new NodeGenericMetadata());
         NodeInfo testData2Info = storage.createNode(testFolderInfo.getId(), "data2", DATA_FILE_CLASS, "", 0,
                 new NodeGenericMetadata().setString("s1", "v1")
-                                         .setDouble("d1", 1d)
-                                         .setInt("i1", 2)
-                                         .setBoolean("b1", false));
+                        .setDouble("d1", 1d)
+                        .setInt("i1", 2)
+                        .setBoolean("b1", false));
         NodeInfo testData3Info = storage.createNode(testFolderInfo.getId(), "data3", DATA_FILE_CLASS, "", 0, new NodeGenericMetadata());
 
         storage.setConsistent(testDataInfo.getId());
@@ -185,11 +184,11 @@ public abstract class AbstractAppStorageTest {
 
         // check events
         assertEventStack(new NodeCreated(testDataInfo.getId(), testFolderInfo.getId()),
-                     new NodeCreated(testData2Info.getId(), testFolderInfo.getId()),
-                     new NodeCreated(testData3Info.getId(), testFolderInfo.getId()),
-                     new NodeConsistent(testDataInfo.getId()),
-                     new NodeConsistent(testData2Info.getId()),
-                     new NodeConsistent(testData3Info.getId()));
+                new NodeCreated(testData2Info.getId(), testFolderInfo.getId()),
+                new NodeCreated(testData3Info.getId(), testFolderInfo.getId()),
+                new NodeConsistent(testDataInfo.getId()),
+                new NodeConsistent(testData2Info.getId()),
+                new NodeConsistent(testData3Info.getId()));
 
         // check info are correctly stored even with metadata
         assertEquals(testData2Info, storage.getNodeInfo(testData2Info.getId()));
@@ -245,7 +244,7 @@ public abstract class AbstractAppStorageTest {
 
         // check event
         assertEventStack(new DependencyAdded(testDataInfo.getId(), "mylink"),
-                         new BackwardDependencyAdded(testData2Info.getId(), "mylink"));
+                new BackwardDependencyAdded(testData2Info.getId(), "mylink"));
 
         // check dependency state
         assertEquals(ImmutableSet.of(new NodeDependency("mylink", testData2Info)), storage.getDependencies(testDataInfo.getId()));
@@ -259,7 +258,7 @@ public abstract class AbstractAppStorageTest {
 
         // check event
         assertEventStack(new DependencyAdded(testDataInfo.getId(), "mylink2"),
-                         new BackwardDependencyAdded(testData2Info.getId(), "mylink2"));
+                new BackwardDependencyAdded(testData2Info.getId(), "mylink2"));
 
         assertEquals(ImmutableSet.of(new NodeDependency("mylink", testData2Info), new NodeDependency("mylink2", testData2Info)), storage.getDependencies(testDataInfo.getId()));
         assertEquals(ImmutableSet.of(testDataInfo), storage.getBackwardDependencies(testData2Info.getId()));
@@ -270,7 +269,7 @@ public abstract class AbstractAppStorageTest {
 
         // check event
         assertEventStack(new DependencyRemoved(testDataInfo.getId(), "mylink2"),
-                         new BackwardDependencyRemoved(testData2Info.getId(), "mylink2"));
+                new BackwardDependencyRemoved(testData2Info.getId(), "mylink2"));
 
         assertEquals(ImmutableSet.of(new NodeDependency("mylink", testData2Info)), storage.getDependencies(testDataInfo.getId()));
         assertEquals(ImmutableSet.of(testDataInfo), storage.getBackwardDependencies(testData2Info.getId()));
@@ -366,10 +365,10 @@ public abstract class AbstractAppStorageTest {
 
         // 13) create double time series
         TimeSeriesMetadata metadata1 = new TimeSeriesMetadata("ts1",
-                                                              TimeSeriesDataType.DOUBLE,
-                                                              ImmutableMap.of("var1", "value1"),
-                                                              RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:15:00Z"),
-                                                                                            Duration.ofMinutes(15)));
+                TimeSeriesDataType.DOUBLE,
+                ImmutableMap.of("var1", "value1"),
+                RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:15:00Z"),
+                        Duration.ofMinutes(15)));
         storage.createTimeSeries(testData2Info.getId(), metadata1);
         storage.flush();
 
@@ -387,8 +386,8 @@ public abstract class AbstractAppStorageTest {
         assertTrue(storage.getTimeSeriesMetadata(testData3Info.getId(), Sets.newHashSet("ts1")).isEmpty());
 
         // 14) add data to double time series
-        storage.addDoubleTimeSeriesData(testData2Info.getId(), 0, "ts1", Arrays.asList(new UncompressedDoubleDataChunk(2, new double[] {1d, 2d}),
-                                                                                       new UncompressedDoubleDataChunk(5, new double[] {3d})));
+        storage.addDoubleTimeSeriesData(testData2Info.getId(), 0, "ts1", Arrays.asList(new UncompressedDoubleDataChunk(2, new double[]{1d, 2d}),
+                new UncompressedDoubleDataChunk(5, new double[]{3d})));
         storage.flush();
 
         // check event
@@ -401,17 +400,17 @@ public abstract class AbstractAppStorageTest {
         // check double time series data query
         Map<String, List<DoubleDataChunk>> doubleTimeSeriesData = storage.getDoubleTimeSeriesData(testData2Info.getId(), Sets.newHashSet("ts1"), 0);
         assertEquals(1, doubleTimeSeriesData.size());
-        assertEquals(Arrays.asList(new UncompressedDoubleDataChunk(2, new double[] {1d, 2d}),
-                                   new UncompressedDoubleDataChunk(5, new double[] {3d})),
-                     doubleTimeSeriesData.get("ts1"));
+        assertEquals(Arrays.asList(new UncompressedDoubleDataChunk(2, new double[]{1d, 2d}),
+                new UncompressedDoubleDataChunk(5, new double[]{3d})),
+                doubleTimeSeriesData.get("ts1"));
         assertTrue(storage.getDoubleTimeSeriesData(testData3Info.getId(), Sets.newHashSet("ts1"), 0).isEmpty());
 
         // 15) create a second string time series
         TimeSeriesMetadata metadata2 = new TimeSeriesMetadata("ts2",
-                                                              TimeSeriesDataType.STRING,
-                                                              ImmutableMap.of(),
-                                                              RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:15:00Z"),
-                                                                                            Duration.ofMinutes(15)));
+                TimeSeriesDataType.STRING,
+                ImmutableMap.of(),
+                RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:15:00Z"),
+                        Duration.ofMinutes(15)));
         storage.createTimeSeries(testData2Info.getId(), metadata2);
         storage.flush();
 
@@ -424,8 +423,8 @@ public abstract class AbstractAppStorageTest {
         assertEquals(1, metadataList.size());
 
         // 16) add data to double time series
-        storage.addStringTimeSeriesData(testData2Info.getId(), 0, "ts2", Arrays.asList(new UncompressedStringDataChunk(2, new String[] {"a", "b"}),
-                                                                                       new UncompressedStringDataChunk(5, new String[] {"c"})));
+        storage.addStringTimeSeriesData(testData2Info.getId(), 0, "ts2", Arrays.asList(new UncompressedStringDataChunk(2, new String[]{"a", "b"}),
+                new UncompressedStringDataChunk(5, new String[]{"c"})));
         storage.flush();
 
         // check event
@@ -434,9 +433,9 @@ public abstract class AbstractAppStorageTest {
         // check string time series data query
         Map<String, List<StringDataChunk>> stringTimeSeriesData = storage.getStringTimeSeriesData(testData2Info.getId(), Sets.newHashSet("ts2"), 0);
         assertEquals(1, stringTimeSeriesData.size());
-        assertEquals(Arrays.asList(new UncompressedStringDataChunk(2, new String[] {"a", "b"}),
-                                   new UncompressedStringDataChunk(5, new String[] {"c"})),
-                     stringTimeSeriesData.get("ts2"));
+        assertEquals(Arrays.asList(new UncompressedStringDataChunk(2, new String[]{"a", "b"}),
+                new UncompressedStringDataChunk(5, new String[]{"c"})),
+                stringTimeSeriesData.get("ts2"));
 
         // 17) clear time series
         storage.clearTimeSeries(testData2Info.getId());
@@ -536,5 +535,77 @@ public abstract class AbstractAppStorageTest {
             fail();
         } catch (Exception ignored) {
         }
+
+        testUpdateNodeMetadata(rootFolderInfo);
     }
+
+    private void testUpdateNodeMetadata(NodeInfo rootFolderInfo) {
+        NodeGenericMetadata metadata = new NodeGenericMetadata();
+        NodeInfo node = storage.createNode(rootFolderInfo.getId(), "testNode", "unkownFile", "", 0, cloneMetadata(metadata));
+        storage.flush();
+
+        checkMetadataEquality(metadata, node.getGenericMetadata());
+
+        try {
+            storage.setMetadata(node.getId(), cloneMetadata(metadata));
+        } catch (PowsyblException e) {
+            assertThat(e).hasMessage("Not implemented");
+            return;
+        }
+
+        metadata.setString("test", "test");
+        assertThat(node.getGenericMetadata().getStrings().keySet().size()).isEqualTo(0);
+
+        storage.setMetadata(node.getId(), cloneMetadata(metadata));
+        node = storage.getNodeInfo(node.getId());
+        checkMetadataEquality(metadata, node.getGenericMetadata());
+
+        metadata.setBoolean("test1", true);
+        storage.setMetadata(node.getId(), cloneMetadata(metadata));
+        node = storage.getNodeInfo(node.getId());
+        checkMetadataEquality(metadata, node.getGenericMetadata());
+
+        metadata.getStrings().remove("test");
+        metadata.setDouble("test2", 0.1);
+        storage.setMetadata(node.getId(), cloneMetadata(metadata));
+        node = storage.getNodeInfo(node.getId());
+        checkMetadataEquality(metadata, node.getGenericMetadata());
+
+        metadata.setInt("test3", 1);
+        storage.setMetadata(node.getId(), cloneMetadata(metadata));
+        node = storage.getNodeInfo(node.getId());
+        checkMetadataEquality(metadata, node.getGenericMetadata());
+
+        storage.deleteNode(node.getId());
+    }
+
+    private void checkMetadataEquality(NodeGenericMetadata source, NodeGenericMetadata target) {
+        assertThat(target).isNotNull();
+        assertThat(source.getBooleans().keySet().size()).isEqualTo(target.getBooleans().keySet().size());
+        source.getBooleans().forEach((key, val) -> {
+            assertThat(target.getBooleans()).contains(new HashMap.SimpleEntry<>(key, val));
+        });
+        assertThat(source.getStrings().keySet().size()).isEqualTo(target.getStrings().keySet().size());
+        source.getStrings().forEach((key, val) -> {
+            assertThat(target.getStrings()).contains(new HashMap.SimpleEntry<>(key, val));
+        });
+        assertThat(source.getInts().keySet().size()).isEqualTo(target.getInts().keySet().size());
+        source.getInts().forEach((key, val) -> {
+            assertThat(target.getInts()).contains(new HashMap.SimpleEntry<>(key, val));
+        });
+        assertThat(source.getDoubles().keySet().size()).isEqualTo(target.getDoubles().keySet().size());
+        source.getDoubles().forEach((key, val) -> {
+            assertThat(target.getDoubles()).contains(new HashMap.SimpleEntry<>(key, val));
+        });
+    }
+
+    private NodeGenericMetadata cloneMetadata(NodeGenericMetadata metadata) {
+        NodeGenericMetadata clone = new NodeGenericMetadata();
+        clone.getStrings().putAll(metadata.getStrings());
+        clone.getBooleans().putAll(metadata.getBooleans());
+        clone.getInts().putAll(metadata.getInts());
+        clone.getDoubles().putAll(metadata.getDoubles());
+        return clone;
+    }
+
 }

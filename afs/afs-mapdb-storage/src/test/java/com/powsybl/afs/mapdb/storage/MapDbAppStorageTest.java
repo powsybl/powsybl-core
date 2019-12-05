@@ -18,4 +18,5 @@ public class MapDbAppStorageTest extends AbstractAppStorageTest {
     protected AppStorage createStorage() {
         return MapDbAppStorage.createMem("mem");
     }
+
 }
