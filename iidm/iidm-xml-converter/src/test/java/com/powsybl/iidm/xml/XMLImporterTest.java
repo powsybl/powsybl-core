@@ -7,10 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -35,10 +32,14 @@ public class XMLImporterTest extends AbstractConverterTest {
 
     private XMLImporter importer;
 
-    private void writeNetwork(String fileName, boolean writeExt) throws IOException {
+    private void writeNetwork(String fileName, IidmXmlVersion version, boolean writeExt) throws IOException {
+        writeNetwork(fileName, version.getNamespaceURI(), writeExt);
+    }
+
+    private void writeNetwork(String fileName, String namespaceUri, boolean writeExt) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath(fileName), StandardCharsets.UTF_8)) {
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-            writer.write("<iidm:network xmlns:iidm=\"http://www.powsybl.org/schema/iidm/" + CURRENT_IIDM_XML_VERSION.toString("_") + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\">");
+            writer.write("<iidm:network xmlns:iidm=\"" + namespaceUri + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\">");
             writer.newLine();
             writer.write("    <iidm:substation id=\"P1\" country=\"FR\"/>");
             writer.newLine();
@@ -77,12 +78,13 @@ public class XMLImporterTest extends AbstractConverterTest {
         //   /test5.xiidm that contains unsupported extensions
         //   /test6.xiidm + /test6_mapping.csv
         //   /test7.xiidm that contains a comment after xml prolog
-        writeNetwork("/test0.xiidm", false);
-        writeNetwork("/test1.iidm", false);
-        writeNetwork("/test2.xml", false);
-        writeNetwork("/test3.txt", false);
-        writeNetwork("/test5.xiidm", true);
-        writeNetwork("/test6.xiidm", false);
+        writeNetwork("/test0.xiidm", CURRENT_IIDM_XML_VERSION, false);
+        writeNetwork("/test1.iidm", CURRENT_IIDM_XML_VERSION, false);
+        writeNetwork("/test2.xml", CURRENT_IIDM_XML_VERSION, false);
+        writeNetwork("/test3.txt", CURRENT_IIDM_XML_VERSION, false);
+        writeNetwork("/test5.xiidm", CURRENT_IIDM_XML_VERSION, true);
+        writeNetwork("/test6.xiidm", CURRENT_IIDM_XML_VERSION, false);
+        writeNetwork("/testDummy.xiidm", "http://wwww.dummy.foo/", false);
         try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath("/test6_mapping.csv"), StandardCharsets.UTF_8)) {
             writer.write("X1;P1");
             writer.newLine();
@@ -90,6 +92,20 @@ public class XMLImporterTest extends AbstractConverterTest {
         writeNetworkWithComment("/test7.xiidm");
 
         importer = new XMLImporter();
+    }
+
+    @Test
+    public void backwardCompatibilityTest() throws IOException {
+        // create network and datasource
+        writeNetwork("/v_1_0.xiidm", IidmXmlVersion.V_1_0, false);
+        DataSource dataSource = new FileDataSource(fileSystem.getPath("/"), "v_1_0");
+
+        // exists
+        assertTrue(importer.exists(dataSource));
+
+        // importData
+        Network network = importer.importData(dataSource, null);
+        assertNotNull(network.getSubstation("P1"));
     }
 
     @Test
@@ -116,6 +132,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test2")));
         assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test3"))); // wrong extension
         assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test4"))); // does not exist
+        assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "testDummy"))); // namespace URI is not defined
     }
 
     @Test

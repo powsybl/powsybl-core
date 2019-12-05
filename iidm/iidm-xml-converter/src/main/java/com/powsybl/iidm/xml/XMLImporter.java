@@ -31,11 +31,14 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -60,7 +63,7 @@ public class XMLImporter implements Importer {
 
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER
             = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)
-                    .addAdditionalNames("throwExceptionIfExtensionNotFound");
+            .addAdditionalNames("throwExceptionIfExtensionNotFound");
 
     private static final Parameter EXTENSIONS_LIST_PARAMETER
             = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of extension files ", null);
@@ -123,7 +126,8 @@ public class XMLImporter implements Importer {
                             if (eventType == XMLEvent.START_ELEMENT) {
                                 String name = xmlsr.getLocalName();
                                 String ns = xmlsr.getNamespaceURI();
-                                return NetworkXml.NETWORK_ROOT_ELEMENT_NAME.equals(name) && IIDM_URI.equals(ns);
+                                return NetworkXml.NETWORK_ROOT_ELEMENT_NAME.equals(name)
+                                        && Stream.of(IidmXmlVersion.values()).anyMatch(v -> v.getNamespaceURI().equals(ns));
                             }
                         }
                     } finally {
