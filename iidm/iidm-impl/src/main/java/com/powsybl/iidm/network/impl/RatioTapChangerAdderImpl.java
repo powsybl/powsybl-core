@@ -10,16 +10,22 @@ import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RatioTapChangerAdderImpl.class);
 
     private final RatioTapChangerParent parent;
 
@@ -182,10 +188,14 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                 = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
                                           tapPosition, regulating, targetV, targetDeadband);
 
-        Set<TapChanger> tapChangers = new HashSet<TapChanger>();
+        Set<TapChanger> tapChangers = new HashSet<>();
         tapChangers.addAll(parent.getAllTapChangers());
         tapChangers.remove(parent.getRatioTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
+
+        if (parent.hasPhaseTapChanger()) {
+            LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);
+        }
 
         parent.setRatioTapChanger(tapChanger);
         return tapChanger;

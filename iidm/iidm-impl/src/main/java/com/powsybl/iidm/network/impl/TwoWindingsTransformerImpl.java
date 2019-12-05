@@ -18,7 +18,8 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> implements TwoWindingsTransformer, RatioTapChangerParent {
+class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
+    implements TwoWindingsTransformer, RatioTapChangerParent, PhaseTapChangerParent {
 
     private final SubstationImpl substation;
 
@@ -167,7 +168,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
 
     @Override
     public Set<TapChanger> getAllTapChangers() {
-        Set<TapChanger> tapChangers = new HashSet<TapChanger>();
+        Set<TapChanger> tapChangers = new HashSet<>();
         if (ratioTapChanger != null) {
             tapChangers.add(ratioTapChanger);
         }
@@ -175,6 +176,16 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
             tapChangers.add(phaseTapChanger);
         }
         return tapChangers;
+    }
+
+    @Override
+    public boolean hasRatioTapChanger() {
+        return ratioTapChanger != null;
+    }
+
+    @Override
+    public boolean hasPhaseTapChanger() {
+        return phaseTapChanger != null;
     }
 
     @Override
@@ -189,7 +200,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
         notifyUpdate("ratioTapChanger", oldValue, ratioTapChanger);
     }
 
-    void setPhaseTapChanger(PhaseTapChangerImpl phaseTapChanger) {
+    public void setPhaseTapChanger(PhaseTapChangerImpl phaseTapChanger) {
         PhaseTapChangerImpl oldValue = this.phaseTapChanger;
         this.phaseTapChanger = phaseTapChanger;
         notifyUpdate("phaseTapChanger", oldValue, phaseTapChanger);

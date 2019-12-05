@@ -18,40 +18,43 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public int getMaximumSectionCount() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getMaximumSectionCount();
     }
 
     @Override
     public ShuntCompensator setMaximumSectionCount(final int maximumSectionCount) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setMaximumSectionCount(maximumSectionCount);
+        return this;
     }
 
     @Override
     public int getCurrentSectionCount() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getCurrentSectionCount();
     }
 
     @Override
     public ShuntCompensator setCurrentSectionCount(final int currentSectionCount) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setCurrentSectionCount(currentSectionCount);
+        return this;
     }
 
     @Override
     public double getbPerSection() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getbPerSection();
     }
 
     @Override
     public ShuntCompensator setbPerSection(final double bPerSection) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setbPerSection(bPerSection);
+        return this;
     }
 
     @Override
     public double getCurrentB() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getCurrentB();
     }
 }

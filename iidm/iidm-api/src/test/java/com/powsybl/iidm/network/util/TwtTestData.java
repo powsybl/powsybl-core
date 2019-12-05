@@ -12,8 +12,7 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.Terminal.BusView;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg1;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg2or3;
+import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 
 /**
  *
@@ -83,7 +82,7 @@ public class TwtTestData {
         Mockito.when(leg1Terminal.getQ()).thenReturn(Q1);
         Mockito.when(leg1Terminal.getBusView()).thenReturn(leg1BusView);
 
-        Leg1 leg1 = Mockito.mock(Leg1.class);
+        Leg leg1 = Mockito.mock(Leg.class);
         Mockito.when(leg1.getR()).thenReturn(R1);
         Mockito.when(leg1.getX()).thenReturn(X1);
         Mockito.when(leg1.getRatedU()).thenReturn(RATED_U1);
@@ -105,7 +104,7 @@ public class TwtTestData {
         Mockito.when(leg2Terminal.getQ()).thenReturn(Q2);
         Mockito.when(leg2Terminal.getBusView()).thenReturn(leg2BusView);
 
-        Leg2or3 leg2 = Mockito.mock(Leg2or3.class);
+        Leg leg2 = Mockito.mock(Leg.class);
         Mockito.when(leg2.getR()).thenReturn(R2);
         Mockito.when(leg2.getX()).thenReturn(X2);
         Mockito.when(leg2.getRatedU()).thenReturn(RATED_U2);
@@ -125,7 +124,7 @@ public class TwtTestData {
         Mockito.when(leg3Terminal.getQ()).thenReturn(Q3);
         Mockito.when(leg3Terminal.getBusView()).thenReturn(leg3BusView);
 
-        Leg2or3 leg3 = Mockito.mock(Leg2or3.class);
+        Leg leg3 = Mockito.mock(Leg.class);
         Mockito.when(leg3.getR()).thenReturn(R3);
         Mockito.when(leg3.getX()).thenReturn(X3);
         Mockito.when(leg3.getRatedU()).thenReturn(RATED_U3);

@@ -170,4 +170,8 @@ public interface CgmesModel {
     CgmesContainer container(String containerId);
 
     double nominalVoltage(String baseVoltageId);
+
+    default PropertyBags modelProfiles() {
+        throw new UnsupportedOperationException();
+    }
 }

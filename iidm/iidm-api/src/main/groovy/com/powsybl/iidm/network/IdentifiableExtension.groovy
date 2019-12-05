@@ -17,11 +17,15 @@ class IdentifiableExtension {
     static Object propertyMissing(Identifiable self, String name) {
         // first check if an extension exist then a property
         Extension extension = self.getExtensionByName(name)
-        extension != null ? extension : self.getProperty(name)
+        extension != null ? extension : self.properties[name]
     }
 
     static void propertyMissing(Identifiable self, String name, Object value) {
-        self.setProperty(name, value != null ? value.toString() : value)
+        if (value == null) {
+            self.properties.remove(name)
+        } else {
+            self.properties[name] = value;
+        }
     }
 
     /**

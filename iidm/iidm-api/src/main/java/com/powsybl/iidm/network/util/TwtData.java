@@ -14,9 +14,7 @@ import org.apache.commons.math3.complex.ComplexUtils;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.RatioTapChangerStep;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg1;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg2or3;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.LegBase;
+import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
 
 /**
@@ -118,7 +116,7 @@ public class TwtData {
         starU = starVoltage.abs();
         starTheta = starVoltage.getArgument();
 
-        BranchData leg1BranchData = legBranchData(twt.getId(), twt.getLeg1(), starVoltage,
+        BranchData leg1BranchData = legBranchData(twt.getId(), Side.ONE, twt.getLeg1(), ratedU0, starVoltage,
                 epsilonX, applyReactanceCorrection);
         computedP1 = leg1BranchData.getComputedP1();
         computedQ1 = leg1BranchData.getComputedQ1();
@@ -163,16 +161,16 @@ public class TwtData {
                 .divide(y0101.add(y0202).add(y0303));
     }
 
-    private static double getV(LegBase<?> leg) {
+    private static double getV(Leg leg) {
         return leg.getTerminal().isConnected() ? leg.getTerminal().getBusView().getBus().getV() : Double.NaN;
     }
 
-    private static double getTheta(LegBase<?> leg) {
+    private static double getTheta(Leg leg) {
         return leg.getTerminal().isConnected() ? Math.toRadians(leg.getTerminal().getBusView().getBus().getAngle())
                 : Double.NaN;
     }
 
-    private static double rho(Leg2or3 leg, double ratedU0) {
+    private static double rho(Leg leg, double ratedU0) {
         double rho = ratedU0 / leg.getRatedU();
         if (leg.getRatioTapChanger() != null) {
             RatioTapChangerStep step = leg.getRatioTapChanger().getCurrentStep();
@@ -183,7 +181,7 @@ public class TwtData {
         return rho;
     }
 
-    private static double adjustedR(Leg2or3 leg) {
+    private static double adjustedR(Leg leg) {
         double r = leg.getR();
         if (leg.getRatioTapChanger() != null) {
             RatioTapChangerStep step = leg.getRatioTapChanger().getCurrentStep();
@@ -194,7 +192,7 @@ public class TwtData {
         return r;
     }
 
-    private static double adjustedX(Leg2or3 leg) {
+    private static double adjustedX(Leg leg) {
         double x = leg.getX();
         if (leg.getRatioTapChanger() != null) {
             RatioTapChangerStep step = leg.getRatioTapChanger().getCurrentStep();
@@ -205,33 +203,25 @@ public class TwtData {
         return x;
     }
 
-    private static boolean isMainComponent(LegBase<?> leg) {
+    private static boolean isMainComponent(Leg leg) {
         Bus bus = leg.getTerminal().getBusView().getBus();
         Bus connectableBus = leg.getTerminal().getBusView().getConnectableBus();
         boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
         return bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
     }
 
-    private static BranchData legBranchData(String twtId, Leg1 leg, Complex starVoltage, double epsilonX,
-            boolean applyReactanceCorrection) {
-        // In IIDM only the Leg1 has admittance to ground
-        // And it is modeled at end corresponding to star bus
-        return legBranchData(twtId, Side.ONE, leg, leg.getG(), leg.getB(), leg.getRatedU(), starVoltage, epsilonX,
-                applyReactanceCorrection);
-    }
-
-    private static BranchData legBranchData(String twtId, Side side, Leg2or3 leg, double ratedU0, Complex starVoltage,
+    private static BranchData legBranchData(String twtId, Side side, Leg leg, double ratedU0, Complex starVoltage,
             double epsilonX, boolean applyReactanceCorrection) {
         // All (gk, bk) are zero in the IIDM model
-        return legBranchData(twtId, side, leg, 0, 0, ratedU0, starVoltage, epsilonX, applyReactanceCorrection);
+        return legBranchData(twtId, side, leg, leg.getG(), leg.getB(), ratedU0, starVoltage, epsilonX, applyReactanceCorrection);
     }
 
-    private static BranchData legBranchData(String twtId, Side side, LegBase<?> leg, double g, double b, double ratedU0,
+    private static BranchData legBranchData(String twtId, Side side, Leg leg, double g, double b, double ratedU0,
             Complex starVoltage,
             double epsilonX, boolean applyReactanceCorrection) {
         String branchId = twtId + "_" + side;
-        double r = side == Side.ONE ? leg.getR() : adjustedR((Leg2or3) leg);
-        double x = side == Side.ONE ? leg.getX() : adjustedX((Leg2or3) leg);
+        double r = side == Side.ONE ? leg.getR() : adjustedR(leg);
+        double x = side == Side.ONE ? leg.getX() : adjustedX(leg);
         double uk = getV(leg);
         double thetak = getTheta(leg);
         double u0 = starVoltage.abs();
@@ -240,7 +230,7 @@ public class TwtData {
         double bk = 0;
         double g0 = g;
         double b0 = b;
-        double rhok = side == Side.ONE ? 1.0 : rho((Leg2or3) leg, ratedU0);
+        double rhok = side == Side.ONE ? 1.0 : rho(leg, ratedU0);
         double alphak = 0;
         double rho0 = 1;
         double alpha0 = 0;
