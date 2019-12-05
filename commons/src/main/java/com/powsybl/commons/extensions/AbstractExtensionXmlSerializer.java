@@ -6,6 +6,8 @@
  */
 package com.powsybl.commons.extensions;
 
+import com.powsybl.commons.xml.IidmXmlVersion;
+
 import java.io.InputStream;
 import java.util.Objects;
 
@@ -64,7 +66,7 @@ public abstract class AbstractExtensionXmlSerializer<T extends Extendable, E ext
     }
 
     @Override
-    public String getNamespaceUri() {
+    public String getNamespaceUri(IidmXmlVersion version) {
         return namespaceUri;
     }
 

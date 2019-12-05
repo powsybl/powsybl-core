@@ -100,7 +100,7 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
         }
 
         @Override
-        public String getNamespaceUri() {
+        public String getNamespaceUri(IidmXmlVersion version) {
             return "http://www.itesla_project.eu/schema/iidm/ext/busbarSectionExt/1_0";
         }
 

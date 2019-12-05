@@ -158,7 +158,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         }
 
         @Override
-        public String getNamespaceUri() {
+        public String getNamespaceUri(IidmXmlVersion version) {
             return "http://www.itesla_project.eu/schema/iidm/ext/networksource/1_0";
         }
 
