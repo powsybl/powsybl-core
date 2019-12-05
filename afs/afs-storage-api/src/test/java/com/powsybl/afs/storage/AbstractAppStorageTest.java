@@ -539,15 +539,18 @@ public abstract class AbstractAppStorageTest {
         testUpdateNodeMetadata(rootFolderInfo);
     }
 
-    private void testUpdateNodeMetadata(NodeInfo rootFolderInfo) {
+    private void testUpdateNodeMetadata(NodeInfo rootFolderInfo) throws InterruptedException {
         NodeGenericMetadata metadata = new NodeGenericMetadata();
         NodeInfo node = storage.createNode(rootFolderInfo.getId(), "testNode", "unkownFile", "", 0, cloneMetadata(metadata));
         storage.flush();
 
         checkMetadataEquality(metadata, node.getGenericMetadata());
+        discardEvents(17);
 
         try {
             storage.setMetadata(node.getId(), cloneMetadata(metadata));
+            storage.flush();
+            assertEventStack(new NodeMetadataUpdated(node.getId(), metadata));
         } catch (PowsyblException e) {
             assertThat(e).hasMessage("Not implemented");
             return;
@@ -557,26 +560,35 @@ public abstract class AbstractAppStorageTest {
         assertThat(node.getGenericMetadata().getStrings().keySet().size()).isEqualTo(0);
 
         storage.setMetadata(node.getId(), cloneMetadata(metadata));
+        storage.flush();
+        assertEventStack(new NodeMetadataUpdated(node.getId(), metadata));
         node = storage.getNodeInfo(node.getId());
         checkMetadataEquality(metadata, node.getGenericMetadata());
 
         metadata.setBoolean("test1", true);
         storage.setMetadata(node.getId(), cloneMetadata(metadata));
+        storage.flush();
+        assertEventStack(new NodeMetadataUpdated(node.getId(), metadata));
         node = storage.getNodeInfo(node.getId());
         checkMetadataEquality(metadata, node.getGenericMetadata());
 
         metadata.getStrings().remove("test");
         metadata.setDouble("test2", 0.1);
         storage.setMetadata(node.getId(), cloneMetadata(metadata));
+        storage.flush();
+        assertEventStack(new NodeMetadataUpdated(node.getId(), metadata));
         node = storage.getNodeInfo(node.getId());
         checkMetadataEquality(metadata, node.getGenericMetadata());
 
         metadata.setInt("test3", 1);
         storage.setMetadata(node.getId(), cloneMetadata(metadata));
+        storage.flush();
+        assertEventStack(new NodeMetadataUpdated(node.getId(), metadata));
         node = storage.getNodeInfo(node.getId());
         checkMetadataEquality(metadata, node.getGenericMetadata());
 
         storage.deleteNode(node.getId());
+        storage.flush();
     }
 
     private void checkMetadataEquality(NodeGenericMetadata source, NodeGenericMetadata target) {
