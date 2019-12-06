@@ -18,12 +18,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class SimpleAnonymizerTest extends AbstractConverterTest {
 
-    private void anonymisationTest(Network network, String xiidmRef, String anonymizedXiidmRef, String anonymizedCsvRef) throws IOException {
+    private void anonymisationTest(Network network) throws IOException {
         PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
 
         // export with anonymisation on
@@ -34,10 +37,10 @@ public class SimpleAnonymizerTest extends AbstractConverterTest {
 
         // check we have 2 files, the anonymized IIDM XML and a CSV mapping file and compare to anonymized reference files
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
-            compareXml(getClass().getResourceAsStream(anonymizedXiidmRef), is);
+            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial-example1-anonymized.xml"), is);
         }
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("_mapping", "csv"))) {
-            compareTxt(getClass().getResourceAsStream(anonymizedCsvRef), is);
+            compareTxt(getClass().getResourceAsStream("/eurostag-tutorial-example1-mapping.csv"), is);
         }
 
         // re-import the IIDM XML using the CSV mapping file
@@ -49,14 +52,13 @@ public class SimpleAnonymizerTest extends AbstractConverterTest {
         roundTripXmlTest(network2,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                xiidmRef);
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial-example1.xml");
     }
 
     @Test
     public void test() throws IOException {
-        anonymisationTest(NetworkXmlTest.createEurostagTutorialExample1(),
-                          "/eurostag-tutorial-example1.xml",
-                          "/eurostag-tutorial-example1-anonymized.xml",
-                          "/eurostag-tutorial-example1-mapping.csv");
+        anonymisationTest(NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_0) + "eurostag-tutorial-example1.xml")));
+
+        anonymisationTest(NetworkXmlTest.createEurostagTutorialExample1());
     }
 }

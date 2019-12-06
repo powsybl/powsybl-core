@@ -290,6 +290,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
         }
         UUID nodeUuid = checkNodeId(rootNodeInfo.getId());
         nodeConsistencyMap.put(nodeUuid, true);
+        this.setConsistent(rootNodeInfo.getId());
         return rootNodeInfo;
     }
 
@@ -460,6 +461,24 @@ public class MapDbAppStorage extends AbstractAppStorage {
         nodeConsistencyMap.put(nodeUuid, false);
         pushEvent(new NodeCreated(nodeUuid.toString(), parentNodeId), NODE_CREATED);
         return nodeInfo;
+    }
+
+    @Override
+    public void setMetadata(String nodeId, NodeGenericMetadata metadata) {
+        UUID nodeUuid = checkNodeId(nodeId);
+        NodeInfo nodeInfo = getNodeInfo(nodeId);
+        nodeInfo.getGenericMetadata().getDoubles().clear();
+        nodeInfo.getGenericMetadata().getStrings().clear();
+        nodeInfo.getGenericMetadata().getInts().clear();
+        nodeInfo.getGenericMetadata().getBooleans().clear();
+        if (metadata != null) {
+            nodeInfo.getGenericMetadata().getDoubles().putAll(metadata.getDoubles());
+            nodeInfo.getGenericMetadata().getStrings().putAll(metadata.getStrings());
+            nodeInfo.getGenericMetadata().getInts().putAll(metadata.getInts());
+            nodeInfo.getGenericMetadata().getBooleans().putAll(metadata.getBooleans());
+        }
+        nodeInfoMap.put(nodeUuid, nodeInfo);
+        pushEvent(new NodeMetadataUpdated(nodeUuid.toString(), metadata), NODE_CREATED);
     }
 
     @Override

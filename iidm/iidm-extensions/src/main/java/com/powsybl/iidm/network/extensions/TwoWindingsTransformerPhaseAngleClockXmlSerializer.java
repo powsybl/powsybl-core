@@ -7,13 +7,12 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-
-import java.io.InputStream;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -22,26 +21,12 @@ import javax.xml.stream.XMLStreamException;
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class TwoWindingsTransformerPhaseAngleClockXmlSerializer
-    implements ExtensionXmlSerializer<TwoWindingsTransformer, TwoWindingsTransformerPhaseAngleClock> {
+        extends AbstractExtensionXmlSerializer<TwoWindingsTransformer, TwoWindingsTransformerPhaseAngleClock> {
 
-    @Override
-    public boolean hasSubElements() {
-        return false;
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/twoWindingsTransformerPhaseAngleClock.xsd");
-    }
-
-    @Override
-    public String getNamespaceUri() {
-        return "http://www.powsybl.org/schema/iidm/ext/two_windings_transformer_phase_angle_clock/1_0";
-    }
-
-    @Override
-    public String getNamespacePrefix() {
-        return "twowtpac";
+    public TwoWindingsTransformerPhaseAngleClockXmlSerializer() {
+        super("twoWindingsTransformerPhaseAngleClock", "network", TwoWindingsTransformerPhaseAngleClock.class,
+                false, "twoWindingsTransformerPhaseAngleClock.xsd",
+                "http://www.powsybl.org/schema/iidm/ext/two_windings_transformer_phase_angle_clock/1_0", "twowtpac");
     }
 
     @Override
@@ -50,23 +35,8 @@ public class TwoWindingsTransformerPhaseAngleClockXmlSerializer
     }
 
     @Override
-    public TwoWindingsTransformerPhaseAngleClock read(TwoWindingsTransformer extendable, XmlReaderContext context) throws XMLStreamException {
+    public TwoWindingsTransformerPhaseAngleClock read(TwoWindingsTransformer extendable, XmlReaderContext context) {
         int phaseAngleClock = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "phaseAngleClock", 0);
         return new TwoWindingsTransformerPhaseAngleClock(extendable, phaseAngleClock);
-    }
-
-    @Override
-    public String getExtensionName() {
-        return "twoWindingsTransformerPhaseAngleClock";
-    }
-
-    @Override
-    public String getCategoryName() {
-        return "network";
-    }
-
-    @Override
-    public Class<? super TwoWindingsTransformerPhaseAngleClock> getExtensionClass() {
-        return TwoWindingsTransformerPhaseAngleClock.class;
     }
 }

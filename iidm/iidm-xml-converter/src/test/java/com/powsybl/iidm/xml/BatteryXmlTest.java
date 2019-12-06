@@ -6,22 +6,26 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
-public class BatteryXmlTest extends AbstractConverterTest {
+public class BatteryXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void batteryRoundTripTest() throws IOException {
         roundTripXmlTest(BatteryNetworkFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/batteryRoundTripRef.xml");
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "batteryRoundTripRef.xml");
+
+        //backward compatibility 1.0
+        roundTripVersionnedXmlTest("batteryRoundTripRef.xml", IidmXmlVersion.V_1_0);
     }
 }
