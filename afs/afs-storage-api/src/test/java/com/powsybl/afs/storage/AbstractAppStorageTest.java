@@ -35,14 +35,14 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractAppStorageTest {
 
-    static final String FOLDER_PSEUDO_CLASS = "folder";
+    protected static final String FOLDER_PSEUDO_CLASS = "folder";
     static final String DATA_FILE_CLASS = "data";
 
     protected AppStorage storage;
 
-    private BlockingQueue<NodeEvent> eventStack;
+    protected BlockingQueue<NodeEvent> eventStack;
 
-    private AppStorageListener l = eventList -> eventStack.addAll(eventList.getEvents());
+    protected AppStorageListener l = eventList -> eventStack.addAll(eventList.getEvents());
 
     protected abstract AppStorage createStorage();
 
@@ -533,16 +533,16 @@ public abstract class AbstractAppStorageTest {
         assertNotNull(storage.getEventsBus());
 
         storage.getEventsBus().pushEvent(new NodeCreated("test", "test"), "test useful for RemoteStorage event push");
-        //testUpdateNodeMetadata(rootFolderInfo);
     }
 
-    private void testUpdateNodeMetadata(NodeInfo rootFolderInfo) throws InterruptedException {
+    protected void testUpdateNodeMetadata(NodeInfo rootFolderInfo, AppStorage storage) throws InterruptedException {
         NodeGenericMetadata metadata = new NodeGenericMetadata();
         NodeInfo node = storage.createNode(rootFolderInfo.getId(), "testNode", "unkownFile", "", 0, cloneMetadata(metadata));
         storage.flush();
 
         checkMetadataEquality(metadata, node.getGenericMetadata());
-        discardEvents(18);
+
+        discardEvents(3);
 
         storage.setMetadata(node.getId(), cloneMetadata(metadata));
         storage.flush();
