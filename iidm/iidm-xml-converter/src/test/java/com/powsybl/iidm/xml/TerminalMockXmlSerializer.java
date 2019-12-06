@@ -22,8 +22,8 @@ import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.util.List;
 
-import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
 import static com.powsybl.commons.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -68,6 +68,14 @@ public class TerminalMockXmlSerializer implements ExtensionXmlSerializer<Load, T
     @Override
     public TerminalMockExt read(Load extendable, XmlReaderContext context) throws XMLStreamException {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
+
+        IidmXmlVersion version = networkContext.getVersion();
+        if (!networkContext.containsExtensionNamespaceUri(getNamespaceUri(version))) {
+            throw new PowsyblException("IIDM-XML version of network (" + version.toString(".")
+                    + ") is not compatible with the IIDM-XML version of TerminalMock extension's namespace URI. "
+                    + "TerminalMock extension's namespace URI must be '" + getNamespaceUri(version) + "'");
+        }
+
         TerminalMockExt terminalMockExt = new TerminalMockExt(extendable);
         XmlUtil.readUntilEndElement(getExtensionName(), networkContext.getReader(), () -> {
             if (networkContext.getReader().getLocalName().equals("terminal")) {

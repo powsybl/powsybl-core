@@ -478,6 +478,7 @@ public final class NetworkXml {
             }
 
             IidmXmlVersion version = IidmXmlVersion.fromNamespaceURI(reader.getNamespaceURI());
+
             String id = reader.getAttributeValue(null, ID);
             DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
             int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, FORECAST_DISTANCE, 0);
@@ -488,6 +489,12 @@ public final class NetworkXml {
             network.setForecastDistance(forecastDistance);
 
             NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version);
+
+            if (!config.withNoExtension()) {
+                EXTENSIONS_SUPPLIER.get().getProviders().stream()
+                        .filter(e -> reader.getNamespaceURI(e.getNamespacePrefix()) != null)
+                        .forEach(e -> context.addExtensionNamespaceUri(reader.getNamespaceURI(e.getNamespacePrefix())));
+            }
 
             Set<String> extensionNamesNotFound = new TreeSet<>();
 
@@ -687,6 +694,9 @@ public final class NetworkXml {
             }
 
             NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, options, CURRENT_IIDM_XML_VERSION);
+            EXTENSIONS_SUPPLIER.get().getProviders().stream()
+                    .filter(e -> reader.getNamespaceURI(e.getNamespacePrefix()) != null)
+                    .forEach(e -> context.addExtensionNamespaceUri(reader.getNamespaceURI(e.getNamespacePrefix())));
             Set<String> extensionNamesNotFound = new TreeSet<>();
 
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {

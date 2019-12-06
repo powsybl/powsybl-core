@@ -13,9 +13,7 @@ import com.powsybl.iidm.anonymizer.Anonymizer;
 import com.powsybl.iidm.import_.ImportOptions;
 
 import javax.xml.stream.XMLStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static com.powsybl.commons.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
@@ -30,6 +28,7 @@ public class NetworkXmlReaderContext extends AbstractConverterContext<ImportOpti
     private final ImportOptions options;
 
     private final IidmXmlVersion version;
+    private final Set<String> extensionsNamespaceUri = new HashSet<>();
 
     public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader) {
         this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_XML_VERSION);
@@ -58,5 +57,13 @@ public class NetworkXmlReaderContext extends AbstractConverterContext<ImportOpti
 
     public IidmXmlVersion getVersion() {
         return version;
+    }
+
+    public void addExtensionNamespaceUri(String extensionNamespaceUri) {
+        extensionsNamespaceUri.add(extensionNamespaceUri);
+    }
+
+    public boolean containsExtensionNamespaceUri(String extensionNamespaceUri) {
+        return extensionsNamespaceUri.contains(extensionNamespaceUri);
     }
 }
