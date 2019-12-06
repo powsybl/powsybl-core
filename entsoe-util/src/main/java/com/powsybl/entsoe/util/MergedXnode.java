@@ -16,8 +16,6 @@ import java.util.Objects;
  */
 public class MergedXnode extends AbstractExtension<Line> {
 
-    private final Line line;
-
     private float rdp; // r divider position 1 -> 2
 
     private float xdp; // x divider position 1 -> 2
@@ -38,7 +36,7 @@ public class MergedXnode extends AbstractExtension<Line> {
 
     public MergedXnode(Line line, float rdp, float xdp, double xnodeP1, double xnodeQ1, double xnodeP2, double xnodeQ2,
                        String line1Name, String line2Name, String code) {
-        this.line = Objects.requireNonNull(line);
+        super(line);
         this.rdp = checkDividerPosition(rdp);
         this.xdp = checkDividerPosition(xdp);
         this.xnodeP1 = checkPowerFlow(xnodeP1);
@@ -67,11 +65,6 @@ public class MergedXnode extends AbstractExtension<Line> {
     @Override
     public String getName() {
         return "mergedXnode";
-    }
-
-    @Override
-    public Line getExtendable() {
-        return line;
     }
 
     public float getRdp() {

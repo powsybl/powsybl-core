@@ -16,23 +16,16 @@ import java.util.Objects;
  */
 public class Xnode extends AbstractExtension<DanglingLine> {
 
-    private final DanglingLine dl;
-
     private String code;
 
     public Xnode(DanglingLine dl, String code) {
-        this.dl = Objects.requireNonNull(dl);
+        super(dl);
         this.code = Objects.requireNonNull(code);
     }
 
     @Override
     public String getName() {
         return "xnode";
-    }
-
-    @Override
-    public DanglingLine getExtendable() {
-        return dl;
     }
 
     public String getCode() {
