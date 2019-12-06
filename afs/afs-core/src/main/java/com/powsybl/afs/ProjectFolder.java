@@ -41,12 +41,14 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
                 case NODE_CREATED:
                     if (getId().equals(((NodeCreated) event).getParentId())) {
                         listeners.notify(listener -> listener.childAdded(event.getId()));
+                        storage.updateModificationTime(info.getId());
                     }
                     break;
 
                 case NODE_REMOVED:
                     if (getId().equals(((NodeRemoved) event).getParentId())) {
                         listeners.notify(listener -> listener.childRemoved(event.getId()));
+                        storage.updateModificationTime(info.getId());
                     }
                     break;
 

@@ -78,6 +78,7 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
                         return null;
                     }).join();
         } finally {
+            runner.updateModificationTime();
             runner.stopTask(taskId);
         }
     }

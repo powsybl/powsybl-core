@@ -59,6 +59,7 @@ public class SecurityAnalysisRunner extends ProjectFile {
             throw new AfsException("Bad project case " + aCase.getClass());
         }
         setDependencies(CASE_DEPENDENCY_NAME, Collections.singletonList(aCase));
+        updateModificationTime();
         caseDependency.invalidate();
     }
 
@@ -75,6 +76,7 @@ public class SecurityAnalysisRunner extends ProjectFile {
             }
             setDependencies(CONTINGENCY_STORE_DEPENDENCY_NAME, Collections.singletonList(contingencyStore));
         }
+        updateModificationTime();
         contingencyStoreDependency.invalidate();
     }
 
@@ -133,5 +135,9 @@ public class SecurityAnalysisRunner extends ProjectFile {
     @Override
     public boolean mandatoryDependenciesAreMissing() {
         return !getCase().isPresent() || !getContingencyStore().isPresent();
+    }
+
+    public void updateModificationTime() {
+        storage.updateModificationTime(info.getId());
     }
 }

@@ -48,6 +48,7 @@ public class ContingencyStore extends ProjectFile implements ContingenciesProvid
         Objects.requireNonNull(contingencies);
         try (OutputStream os = storage.writeBinaryData(info.getId(), CONTINGENCY_LIST_JSON_NAME)) {
             objectMapper.writeValue(os, contingencies);
+            storage.updateModificationTime(info.getId());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

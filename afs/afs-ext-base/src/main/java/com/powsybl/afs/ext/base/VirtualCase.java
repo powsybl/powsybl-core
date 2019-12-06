@@ -42,6 +42,7 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
     public void setCase(ProjectFile aCase) {
         Objects.requireNonNull(aCase);
         setDependencies(CASE_DEPENDENCY_NAME, Collections.singletonList(aCase));
+        storage.updateModificationTime(info.getId());
         projectCaseDependency.invalidate();
     }
 
@@ -52,6 +53,7 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
     public void setScript(ModificationScript aScript) {
         Objects.requireNonNull(aScript);
         setDependencies(SCRIPT_DEPENDENCY_NAME, Collections.singletonList(aScript));
+        storage.updateModificationTime(info.getId());
         modificationScriptDependency.invalidate();
     }
 
