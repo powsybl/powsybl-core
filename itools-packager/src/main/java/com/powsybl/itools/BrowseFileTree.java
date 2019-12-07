@@ -56,8 +56,13 @@ public final class BrowseFileTree {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 TarArchiveEntry entry = new TarArchiveEntry(new File(file + File.separator));
-                entry.setName(baseDir.relativize(file).toString());
-                entry.setSize(file.toFile().length());
+
+                String name = baseDir.relativize(file).toString();
+                if (name != null && name.contains("\\")) {
+                    name = name.replace('\\', '/');
+                }
+                entry.setName(name);
+                entry.setSize(Files.size(file));
                 if (Files.isExecutable(file)) {
                     entry.setMode(0770);
                 } else {
@@ -72,7 +77,11 @@ public final class BrowseFileTree {
 
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                os.putArchiveEntry(new TarArchiveEntry(baseDir.relativize(dir).toString() + File.separator));
+                String name = baseDir.relativize(dir).toString() + File.separator;
+                if (name != null && name.endsWith("\\")) {
+                    name = name.replace('\\', '/');
+                }
+                os.putArchiveEntry(new TarArchiveEntry(name));
                 os.closeArchiveEntry();
                 return FileVisitResult.CONTINUE;
             }
