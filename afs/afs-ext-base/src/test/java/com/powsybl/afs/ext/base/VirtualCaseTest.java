@@ -177,5 +177,18 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
 
         scriptWithError.delete();
         assertTrue(virtualCase3.mandatoryDependenciesAreMissing());
+
+        //test replace dependencies
+        assertEquals(importedCase2.getName(), virtualCase3.getCase().map(ProjectFile::getName).orElse(null));
+
+        ImportedCase importedCase3 = folder.fileBuilder(ImportedCaseBuilder.class)
+                .withCase(aCase)
+                .withName("importedCase3")
+                .build();
+
+        virtualCase3.replaceDependency(importedCase2.getId(), importedCase3);
+
+        assertNotEquals(importedCase2.getName(), virtualCase3.getCase().map(ProjectFile::getName).orElse(null));
+        assertEquals(importedCase3.getName(), virtualCase3.getCase().map(ProjectFile::getName).orElse(null));
     }
 }
