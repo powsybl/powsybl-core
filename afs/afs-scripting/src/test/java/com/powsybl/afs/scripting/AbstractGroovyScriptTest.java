@@ -7,7 +7,9 @@
 package com.powsybl.afs.scripting;
 
 import com.powsybl.afs.*;
-import com.powsybl.afs.storage.*;
+import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.NodeGenericMetadata;
+import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.scripting.groovy.GroovyScriptExtension;
 import com.powsybl.scripting.groovy.GroovyScripts;
@@ -17,7 +19,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.Reader;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,7 +46,6 @@ public abstract class AbstractGroovyScriptTest {
         public void unload() {
         }
     }
-
 
     protected AppData data;
 
