@@ -104,7 +104,18 @@ public class ConversionTester {
     }
 
     public void testConversion(Network expected, TestGridModel gm) throws IOException {
+        //testConversion(expected, gm, this.networkComparison);
+        Conversion.setNewCgmesConversion();
         testConversion(expected, gm, this.networkComparison);
+        Network nNew = lastConvertedNetwork();
+
+        Conversion.setCurrentCgmesConversion();
+        testConversion(expected, gm, this.networkComparison);
+        Network nCurrent = lastConvertedNetwork();
+
+        if (nCurrent != null && nNew != null) {
+            new Comparison(nCurrent, nNew, this.networkComparison).compare();
+        }
     }
 
     public void testConversion(Network expected, TestGridModel gm, ComparisonConfig config)

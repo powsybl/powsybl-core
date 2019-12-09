@@ -7,8 +7,6 @@
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
-import static org.junit.Assert.fail;
-
 import java.util.*;
 
 import org.slf4j.Logger;
