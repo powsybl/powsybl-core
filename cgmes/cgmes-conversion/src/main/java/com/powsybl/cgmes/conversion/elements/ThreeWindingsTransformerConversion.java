@@ -143,18 +143,20 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         context.tapChangerTransformers().add(ptc2, tx, "ptc", 2);
         context.tapChangerTransformers().add(ptc3, tx, "ptc", 3);
 
-        int phaseAngleClock1 = winding1.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
-        int phaseAngleClock2 = winding2.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
-        int phaseAngleClock3 = winding3.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
+        if (context.config().isXfmr3PhaseAngleClockOn()) {
+            int phaseAngleClock1 = winding1.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
+            int phaseAngleClock2 = winding2.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
+            int phaseAngleClock3 = winding3.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
 
-        // add phaseAngleClock as an extension, cgmes does not allow pac at end1
-        if (phaseAngleClock1 != 0) {
-            String reason = "Unsupported modelling: threeWindingsTransformer with phaseAngleClock at end1";
-            ignored("phaseAngleClock end1", reason);
-        }
-        if (phaseAngleClock2 != 0 || phaseAngleClock3 != 0) {
-            ThreeWindingsTransformerPhaseAngleClock phaseAngleClock = new ThreeWindingsTransformerPhaseAngleClock(tx, phaseAngleClock2, phaseAngleClock3);
-            tx.addExtension(ThreeWindingsTransformerPhaseAngleClock.class, phaseAngleClock);
+            // add phaseAngleClock as an extension, cgmes does not allow pac at end1
+            if (phaseAngleClock1 != 0) {
+                String reason = "Unsupported modelling: threeWindingsTransformer with phaseAngleClock at end1";
+                ignored("phaseAngleClock end1", reason);
+            }
+            if (phaseAngleClock2 != 0 || phaseAngleClock3 != 0) {
+                ThreeWindingsTransformerPhaseAngleClock phaseAngleClock = new ThreeWindingsTransformerPhaseAngleClock(tx, phaseAngleClock2, phaseAngleClock3);
+                tx.addExtension(ThreeWindingsTransformerPhaseAngleClock.class, phaseAngleClock);
+            }
         }
 
         setRegulatingControlContext(tx, rtc2, rtc3);
