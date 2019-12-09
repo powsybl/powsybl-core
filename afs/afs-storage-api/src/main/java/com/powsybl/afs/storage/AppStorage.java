@@ -224,6 +224,11 @@ public interface AppStorage extends AutoCloseable {
     void removeDependency(String nodeId, String name, String toNodeId);
 
     /**
+     * Get the events store.
+     */
+    EventsBus getEventsBus();
+
+    /**
      * Flush any changes to underlying storage.
      */
     void flush();

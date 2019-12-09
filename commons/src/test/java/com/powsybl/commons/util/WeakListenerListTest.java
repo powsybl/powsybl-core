@@ -8,8 +8,7 @@ package com.powsybl.commons.util;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -30,6 +29,7 @@ public class WeakListenerListTest {
             };
             listeners.add(l2);
         };
+
         listeners.add(l);
 
         // check there is no more java.util.ConcurrentModificationException coming from
@@ -38,5 +38,23 @@ public class WeakListenerListTest {
 
         assertTrue(listeners.remove(l));
         assertFalse(listeners.remove(l));
+    }
+
+    @Test
+    public void sampleTest() {
+        // 2 adds using a different target object
+        WeakListenerList<TestListener> listeners = new WeakListenerList<>();
+        TestListener l1 = () -> { };
+        TestListener l2 = () -> { };
+
+        listeners.add(l1);
+        listeners.add(l2);
+        assertEquals(2, listeners.size());
+
+        assertTrue(listeners.remove(l1));
+        assertEquals(1, listeners.size());
+
+        listeners.removeAll();
+        assertEquals(0, listeners.size());
     }
 }

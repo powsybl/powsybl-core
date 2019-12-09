@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.ListenableAppStorage;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Objects;
@@ -18,7 +18,7 @@ public class ProjectFileBuildContext extends ProjectFileContext {
 
     private final NodeInfo folderInfo;
 
-    public ProjectFileBuildContext(NodeInfo folderInfo, ListenableAppStorage storage, Project project) {
+    public ProjectFileBuildContext(NodeInfo folderInfo, AppStorage storage, Project project) {
         super(storage, project);
         this.folderInfo = Objects.requireNonNull(folderInfo);
     }
