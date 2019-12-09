@@ -48,6 +48,6 @@ public class TaskCancelableStatusChangeEvent extends TaskEvent {
 
     @Override
     public String toString() {
-        return "UpdateTaskMessageEvent(taskId=" + taskId + ", revision=" + revision + ", cancelable=" + cancelable + ")";
+        return "TaskCancelableStatusChangeEvent(taskId=" + taskId + ", revision=" + revision + ", cancelable=" + cancelable + ")";
     }
 }
