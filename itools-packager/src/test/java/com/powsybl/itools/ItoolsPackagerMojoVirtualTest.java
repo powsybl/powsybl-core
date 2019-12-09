@@ -71,6 +71,8 @@ public class ItoolsPackagerMojoVirtualTest {
             testZipFileWithGzExt();
             testZipFileWithBz2Ext();
             //testZipFileWithoutErrorExt();
+        } else {
+            LOGGER.info("Warning: Abandoned tests.");
         }
     }
 
@@ -178,7 +180,10 @@ public class ItoolsPackagerMojoVirtualTest {
         final Path targetDir = Paths.get(sourceFolderName).toAbsolutePath();
         Path packageDir = targetDir.resolve(packageNameNotNull);
 
-        assertTrue(Files.exists(targetDir));
+        if (!Files.exists(targetDir)) {
+            LOGGER.info("Warning for these tests: No found '{}' repertoire.", sourceFolderName);
+            return false;
+        }
 
         if (!Files.exists(packageDir)) {
             LOGGER.info("Warning for these tests: No found '{}' packageFile in '{}' repertoire.", packageNameNotNull, sourceFolderName);
