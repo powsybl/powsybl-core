@@ -21,9 +21,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.Assert.*;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -103,7 +103,7 @@ public class LocalTaskMonitorTest extends AbstractProjectFileTest {
             AtomicInteger taskCounter = new AtomicInteger(0);
             AtomicBoolean interrupted = new AtomicBoolean(false);
             CompletableFuture<Integer> dummyTaskProcess = CompletableFuture.supplyAsync(() -> {
-                for(int i=0; i<1000; i++) {
+                for (int i = 0; i < 1000; i++) {
                     taskCounter.incrementAndGet();
                     try {
                         Thread.sleep(100);

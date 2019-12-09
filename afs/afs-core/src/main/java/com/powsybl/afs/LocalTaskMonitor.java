@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class LocalTaskMonitor implements TaskMonitor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalTaskMonitor.class);
-    private final Map<UUID, CancelableTask> tasks = new HashMap<>();
+    private final Map<UUID, Task> tasks = new HashMap<>();
 
     private long revision = 0L;
 
@@ -44,7 +44,7 @@ public class LocalTaskMonitor implements TaskMonitor {
         lock.lock();
         try {
             revision++;
-            CancelableTask task = new CancelableTask(name, null, revision, project.getId());
+            Task task = new Task(name, null, revision, project.getId());
             tasks.put(task.getId(), task);
 
             // notification
@@ -147,7 +147,7 @@ public class LocalTaskMonitor implements TaskMonitor {
         Objects.requireNonNull(taskId);
         lock.lock();
         try {
-            CancelableTask task = tasks.get(taskId);
+            Task task = tasks.get(taskId);
             if (task == null) {
                 throw new IllegalArgumentException("Task '" + taskId + "' not found");
             }

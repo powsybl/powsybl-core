@@ -13,7 +13,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 /**
@@ -35,37 +34,6 @@ public interface TaskMonitor extends AutoCloseable {
 
     }
 
-    class CancelableTask extends Task {
-
-        @JsonIgnore
-        private Future future;
-
-        public CancelableTask(String name, String message, long revision, String projectId) {
-            super(name, message, revision, projectId);
-        }
-
-        protected CancelableTask(Task other) {
-            super(other);
-        }
-
-        public void setFuture(Future future) {
-            this.future = future;
-        }
-
-        public boolean isCancellable() {
-            return future != null;
-        }
-
-        void cancel() throws NotCancelableException {
-            if (future != null) {
-                future.cancel(true);
-            } else {
-                throw new NotCancelableException();
-            }
-        }
-
-    }
-
     class Task {
 
         @JsonProperty("id")
@@ -82,6 +50,9 @@ public interface TaskMonitor extends AutoCloseable {
 
         @JsonProperty("projectId")
         private final String projectId;
+
+        @JsonIgnore
+        private Future future;
 
         @JsonCreator
         public Task(@JsonProperty("name") String name,
@@ -102,6 +73,15 @@ public interface TaskMonitor extends AutoCloseable {
             message = other.message;
             revision = other.revision;
             projectId = other.projectId;
+        }
+
+        void setFuture(Future future) {
+            this.future = future;
+        }
+
+        @JsonIgnore
+        public boolean isCancellable() {
+            return future != null;
         }
 
         public UUID getId() {
@@ -128,11 +108,6 @@ public interface TaskMonitor extends AutoCloseable {
             this.revision = revision;
         }
 
-        @JsonIgnore
-        public boolean isCancellable() {
-            return false;
-        }
-
         String getProjectId() {
             return projectId;
         }
@@ -153,6 +128,14 @@ public interface TaskMonitor extends AutoCloseable {
                         && projectId.equals(other.projectId);
             }
             return false;
+        }
+
+        void cancel() throws NotCancelableException {
+            if (future != null) {
+                future.cancel(true);
+            } else {
+                throw new NotCancelableException();
+            }
         }
     }
 
@@ -195,6 +178,7 @@ public interface TaskMonitor extends AutoCloseable {
 
     /**
      * Create a task monitoring object
+     *
      * @param projectFile related project file
      * @return the newly created task
      */
@@ -202,7 +186,8 @@ public interface TaskMonitor extends AutoCloseable {
 
     /**
      * Create a task monitoring object
-     * @param name name of the task
+     *
+     * @param name    name of the task
      * @param project related project
      * @return the newly created task
      */
@@ -211,19 +196,22 @@ public interface TaskMonitor extends AutoCloseable {
     /**
      * Remove the task monitoring object.
      * To stop the process monitored by this task, use {@link TaskMonitor#cancelTaskComputation}
+     *
      * @param id id of the task
      */
     void stopTask(UUID id);
 
     /**
      * Update the display status of the task
-     * @param id id of the task
+     *
+     * @param id      id of the task
      * @param message new status message
      */
     void updateTaskMessage(UUID id, String message);
 
     /**
      * Return the complete state of tasks related to a project
+     *
      * @param projectId related project
      * @return
      */
@@ -232,6 +220,7 @@ public interface TaskMonitor extends AutoCloseable {
     /**
      * Try cancel/stop the computation process monitored by this task.
      * The {@link TaskMonitor#stopTask(UUID)} must still be called afterward to clean the task monitor object
+     *
      * @param id the id of the task
      * @throws NotCancelableException
      */
@@ -239,18 +228,21 @@ public interface TaskMonitor extends AutoCloseable {
 
     /**
      * Add a listener to task events
+     *
      * @param listener
      */
     void addListener(TaskListener listener);
 
     /**
      * Remove a listener of task events
+     *
      * @param listener
      */
     void removeListener(TaskListener listener);
 
     /**
      * Update the future of the computation process monitored by this task
+     *
      * @param taskId
      * @param future
      * @throws NotACancelableTaskMonitor in case the task monitor is operating as a remote task monitor
