@@ -88,8 +88,8 @@ public class LocalTaskMonitor implements TaskMonitor {
     }
 
     @Override
-    public void cancelTaskComputation(UUID id) throws NotCancelableException {
-        tasks.get(id).cancel();
+    public boolean cancelTaskComputation(UUID id) {
+        return tasks.get(id).cancel();
     }
 
     @Override
@@ -143,7 +143,7 @@ public class LocalTaskMonitor implements TaskMonitor {
     }
 
     @Override
-    public void updateTaskCancelableFuture(UUID taskId, Future future) {
+    public void updateTaskFuture(UUID taskId, Future future) {
         Objects.requireNonNull(taskId);
         lock.lock();
         try {
@@ -156,7 +156,7 @@ public class LocalTaskMonitor implements TaskMonitor {
             task.setRevision(revision);
 
             // notification
-            notifyListeners(new TaskCancelableStatusChangeEvent(taskId, revision, task.isCancelable()), task.getProjectId());
+            notifyListeners(new TaskCancellableStatusChangeEvent(taskId, revision, task.isCancellable()), task.getProjectId());
         } finally {
             lock.unlock();
         }

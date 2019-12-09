@@ -163,7 +163,7 @@ public class RemoteTaskMonitor implements TaskMonitor {
     }
 
     @Override
-    public void cancelTaskComputation(UUID id) {
+    public boolean cancelTaskComputation(UUID id) {
         LOGGER.debug("cancel(fileSystemName={}, id={})", fileSystemName, id);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/tasks/{taskId}/_cancel")
@@ -173,7 +173,7 @@ public class RemoteTaskMonitor implements TaskMonitor {
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .put(null);
         try {
-            checkOk(response);
+            return readEntityIfOk(response, Boolean.class);
         } finally {
             response.close();
         }
@@ -215,8 +215,8 @@ public class RemoteTaskMonitor implements TaskMonitor {
     }
 
     @Override
-    public void updateTaskCancelableFuture(UUID taskId, Future future) throws NotACancelableTaskMonitor {
-        throw new NotACancelableTaskMonitor("Cannot update task future from remote");
+    public void updateTaskFuture(UUID taskId, Future future) throws NotACancellableTaskMonitor {
+        throw new NotACancellableTaskMonitor("Cannot update task future from remote");
     }
 
     @Override

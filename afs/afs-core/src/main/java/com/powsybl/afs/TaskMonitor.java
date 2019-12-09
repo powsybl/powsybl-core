@@ -20,17 +20,17 @@ import java.util.concurrent.Future;
  */
 public interface TaskMonitor extends AutoCloseable {
 
-    class NotACancelableTaskMonitor extends Exception {
-        public NotACancelableTaskMonitor() {
+    class NotACancellableTaskMonitor extends Exception {
+        public NotACancellableTaskMonitor() {
             super();
         }
 
-        public NotACancelableTaskMonitor(String messsage) {
+        public NotACancellableTaskMonitor(String messsage) {
             super(messsage);
         }
     }
 
-    class NotCancelableException extends Exception {
+    class NotCancellableException extends Exception {
 
     }
 
@@ -54,8 +54,8 @@ public interface TaskMonitor extends AutoCloseable {
         @JsonIgnore
         private Future future;
 
-        @JsonProperty("cancelable")
-        private boolean cancelable;
+        @JsonProperty("cancellable")
+        private boolean cancellable;
 
         public Task(String name,
                     String message,
@@ -69,13 +69,13 @@ public interface TaskMonitor extends AutoCloseable {
                     @JsonProperty("message") String message,
                     @JsonProperty("revision") long revision,
                     @JsonProperty("projectId") String projectId,
-                    @JsonProperty("cancelable") boolean cancelable) {
+                    @JsonProperty("cancellable") boolean cancellable) {
             id = UUID.randomUUID();
             this.name = Objects.requireNonNull(name);
             this.message = message;
             this.revision = revision;
             this.projectId = Objects.requireNonNull(projectId);
-            this.cancelable = cancelable;
+            this.cancellable = cancellable;
         }
 
         protected Task(Task other) {
@@ -85,17 +85,17 @@ public interface TaskMonitor extends AutoCloseable {
             message = other.message;
             revision = other.revision;
             projectId = other.projectId;
-            cancelable = other.cancelable;
+            cancellable = other.cancellable;
             future = other.future;
         }
 
         void setFuture(Future future) {
             this.future = future;
-            this.cancelable = future != null;
+            this.cancellable = future != null;
         }
 
-        public boolean isCancelable() {
-            return cancelable;
+        public boolean isCancellable() {
+            return cancellable;
         }
 
         public UUID getId() {
@@ -144,12 +144,11 @@ public interface TaskMonitor extends AutoCloseable {
             return false;
         }
 
-        void cancel() throws NotCancelableException {
+        boolean cancel() {
             if (future != null) {
-                future.cancel(true);
-            } else {
-                throw new NotCancelableException();
+                return future.cancel(true);
             }
+            return false;
         }
     }
 
@@ -236,9 +235,9 @@ public interface TaskMonitor extends AutoCloseable {
      * The {@link TaskMonitor#stopTask(UUID)} must still be called afterward to clean the task monitor object
      *
      * @param id the id of the task
-     * @throws NotCancelableException
+     * @return a boolean indicating if the cancellation process has succeeded
      */
-    void cancelTaskComputation(UUID id) throws NotCancelableException;
+    boolean cancelTaskComputation(UUID id);
 
     /**
      * Add a listener to task events
@@ -259,9 +258,9 @@ public interface TaskMonitor extends AutoCloseable {
      *
      * @param taskId
      * @param future
-     * @throws NotACancelableTaskMonitor in case the task monitor is operating as a remote task monitor
+     * @throws NotACancellableTaskMonitor in case the task monitor is operating as a remote task monitor
      */
-    void updateTaskCancelableFuture(UUID taskId, Future future) throws NotACancelableTaskMonitor;
+    void updateTaskFuture(UUID taskId, Future future) throws NotACancellableTaskMonitor;
 
     @Override
     void close();

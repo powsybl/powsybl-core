@@ -661,9 +661,9 @@ public class AppStorageServer {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("fileSystems/{fileSystemName}/tasks/{taskId}/_cancel")
     public Response cancel(@PathParam("fileSystemName") String fileSystemName,
-                                 @PathParam("taskId") String taskId) throws TaskMonitor.NotCancelableException {
+                                 @PathParam("taskId") String taskId) throws TaskMonitor.NotCancellableException {
         AppFileSystem fileSystem = appDataBean.getFileSystem(fileSystemName);
-        fileSystem.getTaskMonitor().cancelTaskComputation(UUID.fromString(taskId));
-        return Response.ok().build();
+        boolean success = fileSystem.getTaskMonitor().cancelTaskComputation(UUID.fromString(taskId));
+        return Response.ok(success).build();
     }
 }
