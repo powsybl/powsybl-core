@@ -1,0 +1,10 @@
+#!/bin/bash
+POWSYBL_VERSION=fullconversion
+TEST_NAME=$1
+INVALIDATE_FLOWS=$2
+mvn test -Dtest=com.powsybl.cgmes.conversion.test.Csi#$TEST_NAME -DcgmesConversionValidationInvalidateFlows=$INVALIDATE_FLOWS -DcgmesConversionVersion=$POWSYBL_VERSION --projects cgmes/cgmes-conversion | tee kk-$TEST_NAME-$POWSYBL_VERSION.log
+clear
+egrep "(fail|SUM)" kk-$TEST_NAME-$POWSYBL_VERSION.log  | grep "fail" -A 1
+echo ""
+echo ""
+egrep "(fail|SUM)" kk-$TEST_NAME-$POWSYBL_VERSION.log  | grep "fail" -A 1 | grep SUM
