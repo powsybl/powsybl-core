@@ -118,10 +118,10 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 LOG.debug("ACTUAL du0,du,theta {} {} {}", du0, du, theta);
             }
 
-            List<Double> alphas = new ArrayList<>();
-            List<Double> rhos = new ArrayList<>();
-            fillAlphasRhos(du0, du, theta, alphas, rhos);
-            addSteps(alphas, rhos, theta, ptca);
+            List<Double> angles = new ArrayList<>();
+            List<Double> ratios = new ArrayList<>();
+            fillAnglesRatios(du0, du, theta, angles, ratios);
+            addSteps(angles, ratios, theta, ptca);
         }
 
         ptca.add();
@@ -240,18 +240,18 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         return theta;
     }
 
-    private void fillAlphasRhos(
+    private void fillAnglesRatios(
             double du0, double du, double theta,
             List<Double> angles,
             List<Double> ratios) {
         if (asymmetrical()) {
-            fillAlphaRhoListsAsymmetrical(du0, du, theta, angles, ratios);
+            fillAngleRatioListsAsymmetrical(du0, du, theta, angles, ratios);
         } else if (symmetrical()) {
-            fillAlphaRhoListsSymmetrical(du0, du, theta, angles, ratios);
+            fillAngleRatioListsSymmetrical(du0, du, theta, angles, ratios);
         }
     }
 
-    private void fillAlphaRhoListsAsymmetrical(
+    private void fillAngleRatioListsAsymmetrical(
             double du0, double du, double theta,
             List<Double> angles,
             List<Double> ratios) {
@@ -268,7 +268,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         }
     }
 
-    private void fillAlphaRhoListsSymmetrical(
+    private void fillAngleRatioListsSymmetrical(
             double du0, double du, double theta,
             List<Double> angles,
             List<Double> ratios) {
