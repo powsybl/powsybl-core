@@ -6,15 +6,13 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -25,28 +23,42 @@ public class ShuntCompensatorAdapterTest {
     @Before
     public void setup() {
         mergingView = MergingView.create("ShuntCompensatorAdapterTest", "iidm");
-        mergingView.merge(HvdcTestNetwork.createLcc());
     }
 
     @Test
     public void testSetterGetter() {
-        final ShuntCompensator shuntCompensator = mergingView.getShuntCompensator("C1_Filter1");
-        assertNotNull(shuntCompensator);
-        assertTrue(shuntCompensator instanceof ShuntCompensatorAdapter);
-        assertSame(mergingView, shuntCompensator.getNetwork());
+        Network networkRef = HvdcTestNetwork.createLcc();
+        mergingView.merge(networkRef);
+
+        final ShuntCompensator shuntCExpected = networkRef.getShuntCompensator("C1_Filter1");
+        final ShuntCompensator shuntCActual   = mergingView.getShuntCompensator("C1_Filter1");
+        assertNotNull(shuntCActual);
+        assertTrue(shuntCActual instanceof ShuntCompensatorAdapter);
+        assertSame(mergingView, shuntCActual.getNetwork());
+
+        assertEquals(shuntCExpected.getType(), shuntCActual.getType());
+        assertTrue(shuntCActual.getTerminal() instanceof TerminalAdapter);
+        shuntCActual.getTerminals().forEach(t -> {
+            assertTrue(t instanceof TerminalAdapter);
+            assertNotNull(t);
+        });
+
+        int maxCount = shuntCExpected.getMaximumSectionCount();
+        assertEquals(maxCount, shuntCActual.getMaximumSectionCount());
+        assertTrue(shuntCActual.setMaximumSectionCount(++maxCount) instanceof ShuntCompensatorAdapter);
+        assertEquals(maxCount, shuntCActual.getMaximumSectionCount());
+
+        int currentCount = shuntCExpected.getCurrentSectionCount();
+        assertEquals(currentCount, shuntCActual.getCurrentSectionCount());
+        assertTrue(shuntCActual.setCurrentSectionCount(++currentCount) instanceof ShuntCompensatorAdapter);
+        assertEquals(currentCount, shuntCActual.getCurrentSectionCount());
+
+        double b = shuntCExpected.getbPerSection();
+        assertEquals(b, shuntCActual.getbPerSection(), 0.0d);
+        assertTrue(shuntCActual.setbPerSection(++b) instanceof ShuntCompensatorAdapter);
+        assertEquals(shuntCExpected.getCurrentB(), shuntCActual.getCurrentB(), 0.0d);
 
         // Not implemented yet !
-        TestUtil.notImplemented(shuntCompensator::getTerminal);
-        TestUtil.notImplemented(shuntCompensator::getType);
-        TestUtil.notImplemented(shuntCompensator::getTerminals);
-        TestUtil.notImplemented(shuntCompensator::remove);
-        TestUtil.notImplemented(shuntCompensator::getMaximumSectionCount);
-        TestUtil.notImplemented(() -> shuntCompensator.setMaximumSectionCount(0));
-        TestUtil.notImplemented(shuntCompensator::getCurrentSectionCount);
-        TestUtil.notImplemented(() -> shuntCompensator.setCurrentSectionCount(0));
-        TestUtil.notImplemented(shuntCompensator::getbPerSection);
-        TestUtil.notImplemented(() -> shuntCompensator.setbPerSection(0.0d));
-        TestUtil.notImplemented(shuntCompensator::getMaximumB);
-        TestUtil.notImplemented(shuntCompensator::getCurrentB);
+        TestUtil.notImplemented(shuntCActual::remove);
     }
 }

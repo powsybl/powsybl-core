@@ -406,7 +406,18 @@ public final class CgmesConformity1Catalog {
                 .shuntCompensators("_002b0a40-3957-46db-b84a-30420083558f",
                         "_d771118f-36e9-4115-a128-cc3d9ce3e3da")
                 .synchronousMachines("_3a3b27be-b18b-4385-b557-6735d733baf0",
-                        "_550ebe0d-f2b2-48c1-991f-cebea43a21aa");
+                        "_550ebe0d-f2b2-48c1-991f-cebea43a21aa")
+                .modelProfiles("urn:uuid:0eb1540d-5ca3-40ab-9bf7-c91ec4c5d7c3",
+                        "urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66",
+                        "urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66",
+                        "urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66",
+                        "urn:uuid:239caf0a-38bf-468b-a4d8-15f619886c58",
+                        "urn:uuid:52b712d1-f3b0-4a59-9191-79f2fb1e4c4e",
+                        "urn:uuid:9e383122-10cf-4da3-9785-f404b3541588",
+                        "urn:uuid:c2960b34-0a04-4cd1-9c4d-f3112d85ec6c",
+                        "urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73",
+                        "urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73",
+                        "urn:uuid:f2f43818-09c8-4252-9611-7af80c398d20");
     }
 
     private static FakeCgmesModel expectedMiniNodeBreaker() {
@@ -895,7 +906,17 @@ public final class CgmesConformity1Catalog {
                         "_ca67be42-750e-4ebf-bfaa-24d446e59a22")
                 .asynchronousMachines("_062ece1f-ade5-4d20-9c3a-fd8f12d12ec1",
                         "_ba62884d-8800-41a8-9c26-698297d7ebaa",
-                        "_f184d87b-5565-45ee-89b4-29e8a42d3ad1");
+                        "_f184d87b-5565-45ee-89b4-29e8a42d3ad1")
+                .modelProfiles("urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66",
+                        "urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66",
+                        "urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66",
+                        "urn:uuid:239ecbd2-9a39-11e0-aa80-0800200c9a66",
+                        "urn:uuid:239ecbd2-9a39-11e0-aa80-0800200c9a66",
+                        "urn:uuid:239ecbd2-9a39-11e0-aa80-0800200c9a66",
+                        "urn:uuid:239scbd7-9a39-11e0-aa80-0800200c9a66",
+                        "urn:uuid:239tcbd4-9a39-11e0-aa80-0800200c9a66",
+                        "urn:uuid:239vcbd3-9a39-11e0-aa80-0800200c9a66",
+                        "urn:uuid:6fddfd60-de0d-11e2-8f45-b8f6b1180b6d");
     }
 
     public static CgmesModel expectedMicroGridType4BE() {
@@ -1069,6 +1090,18 @@ public final class CgmesConformity1Catalog {
                 "_36b83adb-3d45-4693-8967-96627b5f9ec9",
                 "_63454a73-f439-45bb-951a-e7b193986571");
         m.staticVarCompensators("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
+        m.modelProfiles().clear();
+        m.modelProfiles("urn:uuid:1a64ce59-b28c-4b43-bf21-50b51865d777",
+                "urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66",
+                "urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66",
+                "urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66",
+                "urn:uuid:75271ec4-af11-4a87-8137-d6d2b43b594d",
+                "urn:uuid:806f9f1b-ff69-4fb5-80f9-a8f393d31ebb",
+                "urn:uuid:80f1fec9-412f-4ca5-8706-d0d3382e9a71",
+                "urn:uuid:8d6b5a63-e64e-4a25-955f-9c5e107382eb",
+                "urn:uuid:96adadbe-902b-4cd6-9fc8-01a56ecbee79",
+                "urn:uuid:96adadbe-902b-4cd6-9fc8-01a56ecbee79",
+                "urn:uuid:af6ed855-b817-447c-b436-51d87f630214");
         return m;
     }
 

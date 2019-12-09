@@ -7,8 +7,6 @@
 
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -16,16 +14,10 @@ import java.io.IOException;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class DanglingLineXmlTest extends AbstractConverterTest {
+public class DanglingLineXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void test() throws IOException {
-        Network network = NetworkXml.read(getClass().getResourceAsStream("/danglingLine.xml"));
-
-        roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
-                "/danglingLine.xml");
-
+        roundTripAllVersionnedXmlTest("danglingLine.xml");
     }
 }

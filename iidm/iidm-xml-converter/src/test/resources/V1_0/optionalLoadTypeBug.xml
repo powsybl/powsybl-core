@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<network xmlns="http://www.itesla_project.eu/schema/iidm/1_0" id="test" sourceFormat="???" caseDate="2014-02-12T13:19:17+01:00" forecastDistance="0">
+    <substation id="S" country="FR" tso="RTE">
+        <voltageLevel id="V" nominalV="380"  topologyKind="BUS_BREAKER">
+            <busBreakerTopology>
+                <bus id="B"/>
+            </busBreakerTopology>
+            <load id="L" p0="1" q0="2" bus="B" connectableBus="B"/>
+        </voltageLevel>
+    </substation>
+</network>

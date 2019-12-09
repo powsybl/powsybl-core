@@ -142,6 +142,16 @@ public class Conversion {
             postProcessor.process(network, cgmes.tripleStore(), profiling);
         }
 
+        if (config.storeCgmesModelAsNetworkExtension()) {
+            // Store a reference to the original CGMES model inside the IIDM network
+            // We could also add listeners to be aware of changes in IIDM data
+            network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes));
+        }
+        if (config.storeCgmesConversionContextAsNetworkExtension()) {
+            // Store the terminal mapping in an extension for external validation
+            network.addExtension(CgmesConversionContextExtension.class, new CgmesConversionContextExtension(context));
+        }
+
         profiling.report();
         return network;
     }
@@ -469,6 +479,24 @@ public class Conversion {
             return this;
         }
 
+        public boolean storeCgmesModelAsNetworkExtension() {
+            return storeCgmesModelAsNetworkExtension;
+        }
+
+        public Config setStoreCgmesModelAsNetworkExtension(boolean storeCgmesModelAsNetworkExtension) {
+            this.storeCgmesModelAsNetworkExtension = storeCgmesModelAsNetworkExtension;
+            return this;
+        }
+
+        public boolean storeCgmesConversionContextAsNetworkExtension() {
+            return storeCgmesConversionContextAsNetworkExtension;
+        }
+
+        public Config setStoreCgmesConversionContextAsNetworkExtension(boolean storeCgmesTerminalMappingAsNetworkExtension) {
+            this.storeCgmesConversionContextAsNetworkExtension = storeCgmesTerminalMappingAsNetworkExtension;
+            return this;
+        }
+
         public boolean isXfmr2RatioPhaseEnd1() {
             return xfmr2RatioPhaseEnd1;
         }
@@ -714,6 +742,8 @@ public class Conversion {
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
         private StateProfile profileUsedForInitialStateValues = SSH;
+        private boolean storeCgmesModelAsNetworkExtension = true;
+        private boolean storeCgmesConversionContextAsNetworkExtension = false;
 
         // Default configuration. See CgmesImport.java config()
         private boolean xfmr2RatioPhaseEnd1 = false;
