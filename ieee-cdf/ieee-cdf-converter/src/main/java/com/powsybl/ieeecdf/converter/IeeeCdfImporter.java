@@ -6,6 +6,7 @@
  */
 package com.powsybl.ieeecdf.converter;
 
+import com.google.auto.service.AutoService;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -32,6 +33,7 @@ import java.util.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@AutoService(Importer.class)
 public class IeeeCdfImporter implements Importer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IeeeCdfImporter.class);
