@@ -156,7 +156,7 @@ public class LocalTaskMonitor implements TaskMonitor {
             task.setRevision(revision);
 
             // notification
-            notifyListeners(new TaskCancelableStatusChangeEvent(taskId, revision, task.isCancellable()), task.getProjectId());
+            notifyListeners(new TaskCancelableStatusChangeEvent(taskId, revision, task.isCancelable()), task.getProjectId());
         } finally {
             lock.unlock();
         }

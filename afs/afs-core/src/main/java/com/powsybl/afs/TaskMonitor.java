@@ -54,16 +54,28 @@ public interface TaskMonitor extends AutoCloseable {
         @JsonIgnore
         private Future future;
 
+        @JsonProperty("cancelable")
+        private boolean cancelable;
+
+        public Task(String name,
+                    String message,
+                    long revision,
+                    String projectId) {
+            this(name, message, revision, projectId, false);
+        }
+
         @JsonCreator
         public Task(@JsonProperty("name") String name,
                     @JsonProperty("message") String message,
                     @JsonProperty("revision") long revision,
-                    @JsonProperty("projectId") String projectId) {
+                    @JsonProperty("projectId") String projectId,
+                    @JsonProperty("cancelable") boolean cancelable) {
             id = UUID.randomUUID();
             this.name = Objects.requireNonNull(name);
             this.message = message;
             this.revision = revision;
             this.projectId = Objects.requireNonNull(projectId);
+            this.cancelable = cancelable;
         }
 
         protected Task(Task other) {
@@ -73,15 +85,17 @@ public interface TaskMonitor extends AutoCloseable {
             message = other.message;
             revision = other.revision;
             projectId = other.projectId;
+            cancelable = other.cancelable;
+            future = other.future;
         }
 
         void setFuture(Future future) {
             this.future = future;
+            this.cancelable = future != null;
         }
 
-        @JsonIgnore
-        public boolean isCancellable() {
-            return future != null;
+        public boolean isCancelable() {
+            return cancelable;
         }
 
         public UUID getId() {
