@@ -63,8 +63,7 @@ public class LocalTaskMonitor implements TaskMonitor {
         try {
             Task task = tasks.remove(id);
             if (task == null) {
-                LOGGER.warn("The task did not exist. Maybe it was cancelled or already stopped");
-                return;
+                throw new IllegalArgumentException("Task '" + id + "' not found");
             }
             revision++;
 
@@ -91,7 +90,6 @@ public class LocalTaskMonitor implements TaskMonitor {
     @Override
     public void cancelTaskComputation(UUID id) throws NotCancelableException {
         tasks.get(id).cancel();
-        stopTask(id);
     }
 
     @Override

@@ -16,8 +16,14 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,7 +41,7 @@ public class LocalTaskMonitorTest extends AbstractProjectFileTest {
     }
 
     @Test
-    public void test() throws IOException {
+    public void test() throws IOException, TaskMonitor.NotACancelableTaskMonitor, TaskMonitor.NotCancelableException {
         Project test = afs.getRootFolder().createProject("test");
         FooFile foo = test.getRootFolder().fileBuilder(FooFileBuilder.class)
                 .withName("foo")
@@ -91,11 +97,36 @@ public class LocalTaskMonitorTest extends AbstractProjectFileTest {
             } catch (IllegalArgumentException ignored) {
             }
 
+            monitor.updateTaskCancelableFuture(task.getId(), null);
+            assertEquals(1, events.size());
+            assertEquals(new TaskCancelableStatusChangeEvent(task.getId(), 3L, false), events.pop());
+            AtomicInteger taskCounter = new AtomicInteger(0);
+            AtomicBoolean interrupted = new AtomicBoolean(false);
+            CompletableFuture<Integer> dummyTaskProcess = CompletableFuture.supplyAsync(() -> {
+                for(int i=0; i<1000; i++) {
+                    taskCounter.incrementAndGet();
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        interrupted.set(true);
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                return taskCounter.get();
+            });
+            monitor.updateTaskCancelableFuture(task.getId(), dummyTaskProcess);
+            assertEquals(1, events.size());
+            assertEquals(new TaskCancelableStatusChangeEvent(task.getId(), 4L, true), events.pop());
+            monitor.cancelTaskComputation(task.getId());
+            assertThat(dummyTaskProcess.isCancelled()).isTrue();
+            assertThatCode(() -> dummyTaskProcess.get()).isInstanceOf(CancellationException.class);
+            assertThat(taskCounter.get()).isLessThan(800);
+
             monitor.stopTask(task.getId());
             assertEquals(1, events.size());
-            assertEquals(new StopTaskEvent(task.getId(), 3L), events.pop());
+            assertEquals(new StopTaskEvent(task.getId(), 5L), events.pop());
 
-            assertEquals(3L, monitor.takeSnapshot(null).getRevision());
+            assertEquals(5L, monitor.takeSnapshot(null).getRevision());
             assertTrue(monitor.takeSnapshot(null).getTasks().isEmpty());
 
             try {

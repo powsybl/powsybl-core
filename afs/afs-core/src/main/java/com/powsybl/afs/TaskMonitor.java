@@ -231,6 +231,7 @@ public interface TaskMonitor extends AutoCloseable {
 
     /**
      * Try cancel/stop the computation process monitored by this task.
+     * The {@link TaskMonitor#stopTask(UUID)} must still be called afterward to clean the task monitor object
      * @param id the id of the task
      * @throws NotCancelableException
      */
