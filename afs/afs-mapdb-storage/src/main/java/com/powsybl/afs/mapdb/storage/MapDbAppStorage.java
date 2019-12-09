@@ -449,6 +449,23 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
+    public void setMetadata(String nodeId, NodeGenericMetadata metadata) {
+        UUID nodeUuid = checkNodeId(nodeId);
+        NodeInfo nodeInfo = getNodeInfo(nodeId);
+        nodeInfo.getGenericMetadata().getDoubles().clear();
+        nodeInfo.getGenericMetadata().getStrings().clear();
+        nodeInfo.getGenericMetadata().getInts().clear();
+        nodeInfo.getGenericMetadata().getBooleans().clear();
+        if (metadata != null) {
+            nodeInfo.getGenericMetadata().getDoubles().putAll(metadata.getDoubles());
+            nodeInfo.getGenericMetadata().getStrings().putAll(metadata.getStrings());
+            nodeInfo.getGenericMetadata().getInts().putAll(metadata.getInts());
+            nodeInfo.getGenericMetadata().getBooleans().putAll(metadata.getBooleans());
+        }
+        nodeInfoMap.put(nodeUuid, nodeInfo);
+    }
+
+    @Override
     public void renameNode(String nodeId, String name) {
         UUID nodeUuid = checkNodeId(nodeId);
         NodeInfo nodeInfo = getNodeInfo(nodeId);

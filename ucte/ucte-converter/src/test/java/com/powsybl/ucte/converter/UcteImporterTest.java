@@ -143,5 +143,12 @@ public class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, null);
         assertEquals(1, network.getBusBreakerView().getBusStream().count());
     }
+
+    @Test
+    public void testEmptyLastCharacterOfLineImport() {
+        ResourceDataSource dataSource = new ResourceDataSource("lastCharacterIssue", new ResourceSet("/", "lastCharacterIssue.uct"));
+        Network network = new UcteImporter().importData(dataSource, null);
+        assertEquals(2, network.getBusBreakerView().getBusStream().count());
+    }
 }
 
