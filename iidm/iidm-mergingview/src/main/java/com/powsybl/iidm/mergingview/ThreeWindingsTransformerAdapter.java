@@ -26,32 +26,24 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
 
     ThreeWindingsTransformerAdapter(final ThreeWindingsTransformer delegate, final MergingViewIndex index) {
         super(delegate, index);
+        // no need to store LegAdapter in MergingViewIndex
+        leg1 = new LegAdapter(getDelegate().getLeg1(), getIndex());
+        leg2 = new LegAdapter(getDelegate().getLeg2(), getIndex());
+        leg3 = new LegAdapter(getDelegate().getLeg3(), getIndex());
     }
 
     @Override
     public ThreeWindingsTransformer.Leg getLeg1() {
-        // no need to store Leg1Adapter in MergingViewIndex
-        if (leg1 == null) {
-            leg1 = new LegAdapter(getDelegate().getLeg1(), getIndex());
-        }
         return leg1;
     }
 
     @Override
     public ThreeWindingsTransformer.Leg getLeg2() {
-        // no need to store Leg2or3Adapter in MergingViewIndex
-        if (leg2 == null) {
-            leg2 = new LegAdapter(getDelegate().getLeg2(), getIndex());
-        }
         return leg2;
     }
 
     @Override
     public ThreeWindingsTransformer.Leg getLeg3() {
-        // no need to store Leg2or3Adapter in MergingViewIndex
-        if (leg3 == null) {
-            leg3 = new LegAdapter(getDelegate().getLeg3(), getIndex());
-        }
         return leg3;
     }
 
