@@ -24,10 +24,12 @@ import com.powsybl.triplestore.api.PropertyBags;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
+@Deprecated
 public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversion {
 
     private static final String REGULATING_CONTROL_ENABLED = "regulatingControlEnabled";
 
+    @Deprecated
     public PhaseTapChangerConversion(PropertyBag ptc, Context context) {
         super("PhaseTapChanger", ptc, context);
 
@@ -48,6 +50,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         LOG.debug("PhaseTapChanger {} with ltcFlag {}", id, ltcFlag);
     }
 
+    @Deprecated
     @Override
     public boolean valid() {
         if (tx == null) {
@@ -100,6 +103,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         return true;
     }
 
+    @Deprecated
     @Override
     public void convert() {
         //int position = fromContinuous(p.asDouble("step", p.asDouble("SVtapStep", defaultStep)));

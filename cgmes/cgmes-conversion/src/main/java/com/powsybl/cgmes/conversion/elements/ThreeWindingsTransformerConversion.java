@@ -20,6 +20,7 @@ import com.powsybl.triplestore.api.PropertyBags;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
+@Deprecated
 public class ThreeWindingsTransformerConversion extends AbstractConductingEquipmentConversion {
 
     protected static final String STRING_PHASE_ANGLE_CLOCK = "phaseAngleClock";
@@ -34,6 +35,7 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         this.powerTransformerRatioTapChanger = powerTransformerRatioTapChanger;
     }
 
+    @Deprecated
     @Override
     public boolean valid() {
         if (!super.valid()) {
@@ -59,6 +61,7 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         return true;
     }
 
+    @Deprecated
     @Override
     public void convert() {
         // g is optional
