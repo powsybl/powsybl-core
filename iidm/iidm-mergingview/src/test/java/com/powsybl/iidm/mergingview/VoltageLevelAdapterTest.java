@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Random;
 
-import java.util.*;
+import java.util.Objects;
 
 import static org.junit.Assert.*;
 
@@ -73,17 +73,17 @@ public class VoltageLevelAdapterTest {
         }
 
         // VscConverterStation
-        final VscConverterStation cs1 = vlActual.newVscConverterStation()
-                                                    .setId("C1")
-                                                    .setName("Converter1")
-                                                    .setConnectableBus("busA")
-                                                    .setBus("busA")
-                                                    .setLossFactor(0.011f)
-                                                    .setVoltageSetpoint(405.0)
-                                                    .setVoltageRegulatorOn(true)
-                                                    .setReactivePowerSetpoint(123)
-                                                    .setEnsureIdUnicity(false)
-                                                 .add();
+        vlActual.newVscConverterStation()
+                    .setId("C1")
+                    .setName("Converter1")
+                    .setConnectableBus("busA")
+                    .setBus("busA")
+                    .setLossFactor(0.011f)
+                    .setVoltageSetpoint(405.0)
+                    .setVoltageRegulatorOn(true)
+                    .setReactivePowerSetpoint(123)
+                    .setEnsureIdUnicity(false)
+                 .add();
         vlActual.getVscConverterStations().forEach(b -> {
             assertTrue(b instanceof VscConverterStationAdapter);
             assertNotNull(b);
@@ -197,8 +197,6 @@ public class VoltageLevelAdapterTest {
         TestUtil.notImplemented(vlActual::newLccConverterStation);
         TestUtil.notImplemented(vlActual::getLccConverterStations);
         TestUtil.notImplemented(vlActual::getLccConverterStationStream);
-        // Bus
-        TestUtil.notImplemented(vlActual::getBusView);
         // Connectables
         TestUtil.notImplemented(() -> vlActual.getConnectable("", null));
         TestUtil.notImplemented(() -> vlActual.getConnectables(null));
@@ -210,10 +208,23 @@ public class VoltageLevelAdapterTest {
     }
 
     @Test
+    public void busViewTests() {
+        final VoltageLevel voltageLevelBB = mergingView.getVoltageLevel("vl1");
+        final VoltageLevel.BusView bv = voltageLevelBB.getBusView();
+        assertTrue(bv instanceof VoltageLevelAdapter.BusViewAdapter);
+
+        // Not implemented
+        TestUtil.notImplemented(bv::getBuses);
+        TestUtil.notImplemented(bv::getBusStream);
+        TestUtil.notImplemented(() -> bv.getBus(""));
+        TestUtil.notImplemented(() -> bv.getMergedBus(""));
+    }
+
+    @Test
     public void busBreakerViewTests() {
         final VoltageLevel voltageLevelBB = mergingView.getVoltageLevel("vl1");
         final VoltageLevel.BusBreakerView bbv = voltageLevelBB.getBusBreakerView();
-        assertTrue(bbv instanceof VoltageLevelBusBreakerViewAdapter);
+        assertTrue(bbv instanceof VoltageLevelAdapter.BusBreakerViewAdapter);
 
         final String switchId = "BBV_SW1";
         final String busId1 = "BBV_B1";
@@ -277,7 +288,7 @@ public class VoltageLevelAdapterTest {
                                                                                  .add();
 
         final VoltageLevel.NodeBreakerView nbv = voltageLevelNB.getNodeBreakerView();
-        assertTrue(nbv instanceof VoltageLevelNodeBreakerViewAdapter);
+        assertTrue(nbv instanceof VoltageLevelAdapter.NodeBreakerViewAdapter);
         nbv.setNodeCount(2);
         assertEquals(2, nbv.getNodeCount());
         assertEquals(2, nbv.getNodes().length);
