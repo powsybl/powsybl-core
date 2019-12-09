@@ -7,18 +7,12 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -55,41 +49,29 @@ public class TerminalAdapterTest {
         assertTrue(t1.connect());
         assertTrue(t1.isConnected());
 
-        final List<String> traversed = new ArrayList<>();
-        t1.traverse(new VoltageLevel.TopologyTraverser() {
-            @Override
-            public boolean traverse(Terminal terminal, boolean connected) {
-                traversed.add(terminal.getConnectable().getId());
-                return true;
-            }
-
-            @Override
-            public boolean traverse(Switch aSwitch) {
-                return true;
-            }
-        });
-        assertEquals(Arrays.asList("LOAD", "NHV2_NLOAD", "NHV2_NLOAD", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV2_NLOAD", "LOAD", "NHV1_NHV2_1", "NHV1_NHV2_2", "NGEN_NHV1", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV2_NLOAD", "NHV1_NHV2_2", "NHV1_NHV2_1", "NGEN_NHV1", "NHV1_NHV2_2", "NHV1_NHV2_1", "NHV2_NLOAD", "NGEN_NHV1", "GEN", "NGEN_NHV1", "NHV1_NHV2_1", "NHV1_NHV2_2"), traversed);
-
         // BusBreakerView
         final Terminal.BusBreakerView busBreakerView = t1.getBusBreakerView();
-        assertTrue(busBreakerView instanceof TerminalBusBreakerViewAdapter);
+        assertTrue(busBreakerView instanceof TerminalAdapter.BusBreakerViewAdapter);
         busBreakerView.setConnectableBus("NLOAD");
         assertNotNull(busBreakerView.getBus());
         assertNotNull(busBreakerView.getConnectableBus());
 
         // BusView
         final Terminal.BusView busView = t1.getBusView();
-        assertTrue(busView instanceof TerminalBusViewAdapter);
+        assertTrue(busView instanceof TerminalAdapter.BusViewAdapter);
         assertNotNull(busView.getBus());
         assertNotNull(busView.getConnectableBus());
 
         // NodeBreakerView
         final Terminal.NodeBreakerView nodeBreakerView = t1.getNodeBreakerView();
         assertNotNull(nodeBreakerView);
-        assertTrue(nodeBreakerView instanceof TerminalNodeBreakerViewAdapter);
+        assertTrue(nodeBreakerView instanceof TerminalAdapter.NodeBreakerViewAdapter);
 
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("Not supported in a bus breaker topology");
         nodeBreakerView.getNode();
+
+        // Not implemented yet !
+        TestUtil.notImplemented(() -> t1.traverse(null));
     }
 }

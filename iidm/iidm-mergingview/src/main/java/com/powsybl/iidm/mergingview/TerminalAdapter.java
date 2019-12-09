@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -16,41 +17,96 @@ import com.powsybl.iidm.network.VoltageLevel.TopologyTraverser;
  */
 public class TerminalAdapter extends AbstractAdapter<Terminal> implements Terminal {
 
-    private TerminalBusBreakerViewAdapter busBreakerView;
-    private TerminalBusViewAdapter busView;
-    private TerminalNodeBreakerViewAdapter nodeBreakerView;
+    static class BusBreakerViewAdapter extends AbstractAdapter<Terminal.BusBreakerView> implements Terminal.BusBreakerView {
+
+        BusBreakerViewAdapter(final BusBreakerView delegate, final MergingViewIndex index) {
+            super(delegate, index);
+        }
+
+        // -------------------------------
+        // Simple delegated methods ------
+        // -------------------------------
+        @Override
+        public Bus getBus() {
+            return getIndex().getBus(getDelegate().getBus());
+        }
+
+        @Override
+        public Bus getConnectableBus() {
+            return getIndex().getBus(getDelegate().getConnectableBus());
+        }
+
+        @Override
+        public void setConnectableBus(final String busId) {
+            getDelegate().setConnectableBus(busId);
+        }
+    }
+
+    private BusBreakerViewAdapter busBreakerView;
+
+    static class BusViewAdapter extends AbstractAdapter<Terminal.BusView> implements Terminal.BusView {
+
+        BusViewAdapter(final BusView delegate, final MergingViewIndex index) {
+            super(delegate, index);
+        }
+
+        // -------------------------------
+        // Simple delegated methods ------
+        // -------------------------------
+        @Override
+        public Bus getBus() {
+            return getIndex().getBus(getDelegate().getBus());
+        }
+
+        @Override
+        public Bus getConnectableBus() {
+            return getIndex().getBus(getDelegate().getConnectableBus());
+        }
+    }
+
+    private BusViewAdapter busView;
+
+    static class NodeBreakerViewAdapter extends AbstractAdapter<Terminal.NodeBreakerView> implements Terminal.NodeBreakerView {
+
+        NodeBreakerViewAdapter(Terminal.NodeBreakerView delegate, MergingViewIndex index) {
+            super(delegate, index);
+        }
+
+        // -------------------------------
+        // Simple delegated methods ------
+        // -------------------------------
+        @Override
+        public int getNode() {
+            return getDelegate().getNode();
+        }
+    }
+
+    private NodeBreakerViewAdapter nodeBreakerView;
 
     TerminalAdapter(final Terminal delegate, final MergingViewIndex index) {
         super(delegate, index);
+        busBreakerView = new BusBreakerViewAdapter(getDelegate().getBusBreakerView(), index);
+        busView = new BusViewAdapter(getDelegate().getBusView(), index);
+        nodeBreakerView = new NodeBreakerViewAdapter(getDelegate().getNodeBreakerView(), index);
     }
 
     @Override
-
     public VoltageLevel getVoltageLevel() {
         return getIndex().getVoltageLevel(getDelegate().getVoltageLevel());
     }
 
     @Override
     public Terminal.NodeBreakerView getNodeBreakerView() {
-        if (nodeBreakerView == null) {
-            nodeBreakerView = new TerminalNodeBreakerViewAdapter(getDelegate().getNodeBreakerView(), getIndex());
-        }
         return nodeBreakerView;
     }
 
     @Override
     public Terminal.BusBreakerView getBusBreakerView() {
-        if (busBreakerView == null) {
-            busBreakerView = new TerminalBusBreakerViewAdapter(getDelegate().getBusBreakerView(), getIndex());
-        }
         return busBreakerView;
     }
 
     @Override
     public Terminal.BusView getBusView() {
-        if (busView == null) {
-            busView = new TerminalBusViewAdapter(getDelegate().getBusView(), getIndex());
-        }
         return busView;
     }
 
@@ -104,8 +160,11 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
         return getDelegate().isConnected();
     }
 
+    // -------------------------------
+    // Not implemented methods -------
+    // -------------------------------
     @Override
     public void traverse(final TopologyTraverser traverser) {
-        getDelegate().traverse(traverser);
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 }
