@@ -42,7 +42,7 @@ public class LocalTaskMonitorTest extends AbstractProjectFileTest {
     }
 
     @Test
-    public void test() throws IOException, TaskMonitor.NotACancellableTaskMonitor, TaskMonitor.NotCancellableException, InterruptedException {
+    public void test() throws IOException, TaskMonitor.NotACancellableTaskMonitor, InterruptedException {
         Project test = afs.getRootFolder().createProject("test");
         FooFile foo = test.getRootFolder().fileBuilder(FooFileBuilder.class)
                 .withName("foo")

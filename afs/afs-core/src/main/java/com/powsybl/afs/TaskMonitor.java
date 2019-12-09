@@ -30,10 +30,6 @@ public interface TaskMonitor extends AutoCloseable {
         }
     }
 
-    class NotCancellableException extends Exception {
-
-    }
-
     class Task {
 
         @JsonProperty("id")
