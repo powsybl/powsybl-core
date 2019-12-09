@@ -10,9 +10,8 @@ import com.powsybl.afs.AfsException;
 import com.powsybl.afs.ProjectFileBuildContext;
 import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
-import com.powsybl.afs.storage.AppStorageDataSource;
-import com.powsybl.afs.storage.NodeGenericMetadata;
-import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.ext.base.events.CaseImported;
+import com.powsybl.afs.storage.*;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.MemDataSource;
@@ -42,6 +41,8 @@ import java.util.Properties;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
+
+    private static final String CASE_IMPORTED = "CASE_IMPORTED";
 
     private final ProjectFileBuildContext context;
 
@@ -150,9 +151,15 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
             throw new UncheckedIOException(e);
         }
         context.getStorage().setConsistent(info.getId());
+
         context.getStorage().flush();
 
-        return new ImportedCase(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()),
+        ImportedCase ic = new ImportedCase(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()),
                                 importersLoader);
+
+        context.getStorage().getEventsBus().pushEvent(new CaseImported(info.getId(),
+                context.getFolderInfo().getId(), ic.getPath().toString()), CASE_IMPORTED);
+
+        return ic;
     }
 }

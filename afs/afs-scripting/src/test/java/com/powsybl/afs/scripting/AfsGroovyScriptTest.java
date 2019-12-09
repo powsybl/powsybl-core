@@ -8,6 +8,7 @@ package com.powsybl.afs.scripting;
 
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.InMemoryEventsBus;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -19,7 +20,7 @@ public class AfsGroovyScriptTest extends AbstractGroovyScriptTest {
 
     @Override
     protected AppStorage createStorage() {
-        return MapDbAppStorage.createMem("mem");
+        return MapDbAppStorage.createMem("mem", new InMemoryEventsBus());
     }
 
     @Override

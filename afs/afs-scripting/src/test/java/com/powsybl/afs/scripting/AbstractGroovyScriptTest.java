@@ -8,7 +8,6 @@ package com.powsybl.afs.scripting;
 
 import com.powsybl.afs.*;
 import com.powsybl.afs.storage.*;
-import com.powsybl.afs.storage.events.AppStorageListener;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.scripting.groovy.GroovyScriptExtension;
 import com.powsybl.scripting.groovy.GroovyScripts;
@@ -31,25 +30,6 @@ import static org.junit.Assert.assertEquals;
  */
 public abstract class AbstractGroovyScriptTest {
 
-    private static class ListenableAppStorageMock extends ForwardingAppStorage implements ListenableAppStorage {
-
-        public ListenableAppStorageMock(AppStorage storage) {
-            super(storage);
-        }
-
-        @Override
-        public void addListener(AppStorageListener l) {
-        }
-
-        @Override
-        public void removeListener(AppStorageListener l) {
-        }
-
-        @Override
-        public void removeListeners() {
-        }
-    }
-
     private class AfsGroovyScriptExtensionMock implements GroovyScriptExtension {
 
         @Override
@@ -61,6 +41,7 @@ public abstract class AbstractGroovyScriptTest {
         public void unload() {
         }
     }
+
 
     protected AppData data;
 
@@ -98,7 +79,7 @@ public abstract class AbstractGroovyScriptTest {
     public void setUp() {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         data = new AppData(computationManager, computationManager,
-                singletonList(cm -> singletonList(new AppFileSystem("mem", false, new ListenableAppStorageMock(createStorage())))),
+                singletonList(cm -> singletonList(new AppFileSystem("mem", false, createStorage()))),
                 getFileExtensions(), getProjectFileExtensions(), getServiceExtensions());
     }
 
