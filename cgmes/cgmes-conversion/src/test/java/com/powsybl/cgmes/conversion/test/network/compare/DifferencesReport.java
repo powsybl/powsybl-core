@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
+import static org.junit.Assert.fail;
+
 import java.util.*;
 
 import org.slf4j.Logger;
@@ -94,6 +96,11 @@ public class DifferencesReport implements Differences {
 
     @Override
     public void notEquivalent(String context, Identifiable expected, Identifiable actual) {
+        record(context, expected, actual);
+    }
+
+    @Override
+    public void notSameIdentifier(String context, Identifiable expected, Identifiable actual) {
         record(context, expected, actual);
     }
 

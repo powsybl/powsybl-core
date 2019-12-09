@@ -264,7 +264,7 @@ public class Comparison {
         equivalent("VoltageLevel",
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
-        equivalent("ConnectableBus",
+        sameIdentifier("ConnectableBus",
                 expected.getTerminal().getBusBreakerView().getConnectableBus(),
                 actual.getTerminal().getBusBreakerView().getConnectableBus());
         Bus be = expected.getTerminal().getBusBreakerView().getBus();
@@ -279,7 +279,7 @@ public class Comparison {
                 diff.missing(be);
                 return;
             }
-            equivalent("Bus", be, ba);
+            sameIdentifier("Bus", be, ba);
         }
         compare("minP", expected.getMinP(), actual.getMinP());
         compare("maxP", expected.getMaxP(), actual.getMaxP());
@@ -293,7 +293,7 @@ public class Comparison {
         if (config.checkGeneratorRegulatingTerminal
                 && (expected.getRegulatingTerminal() != null
                 || actual.getRegulatingTerminal() != null)) {
-            equivalent("RegulatingTerminalBus",
+            sameIdentifier("RegulatingTerminalBus",
                     expected.getRegulatingTerminal().getBusBreakerView().getBus(),
                     actual.getRegulatingTerminal().getBusBreakerView().getBus());
         }
@@ -597,7 +597,7 @@ public class Comparison {
                     diff.missing("TapChanger regulating terminal");
                     return;
                 }
-                equivalent("tapChanger.getRegulationTerminal",
+                sameIdentifier("tapChanger.getRegulationTerminal",
                         expected.getRegulationTerminal().getBusBreakerView().getBus(),
                         actual.getRegulationTerminal().getBusBreakerView().getBus());
             }
@@ -675,6 +675,15 @@ public class Comparison {
             diff.notEquivalent(context, expected, actual);
         }
     }
+
+    private void sameIdentifier(
+        String context,
+        Identifiable expected,
+        Identifiable actual) {
+    if (!expected.getId().equals(actual.getId())) {
+        diff.notSameIdentifier(context, expected, actual);
+    }
+}
 
     public static String className(Identifiable o) {
         String s = o.getClass().getName();
