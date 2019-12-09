@@ -17,7 +17,7 @@ import java.util.Objects;
  */
 public class NodeMetadataUpdated extends NodeEvent {
 
-    static final String NODE_DESCRIPTION_UPDATED = "NODE_DESCRIPTION_UPDATED";
+    static final String NODE_METADATA_UPDATED = "NODE_METADATA_UPDATED";
 
     @JsonProperty("metadata")
     private final NodeGenericMetadata metadata;
@@ -25,7 +25,7 @@ public class NodeMetadataUpdated extends NodeEvent {
     @JsonCreator
     public NodeMetadataUpdated(@JsonProperty("id") String id,
                                @JsonProperty("metadata") NodeGenericMetadata metadata) {
-        super(id, NODE_DESCRIPTION_UPDATED);
+        super(id, NODE_METADATA_UPDATED);
         this.metadata = Objects.requireNonNull(metadata);
     }
 
