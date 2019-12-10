@@ -47,12 +47,18 @@ public class TwtData {
     private final double r3;
     private final double x3;
 
-    private final double g1;
-    private final double b1;
-    private final double g2;
-    private final double b2;
-    private final double g3;
-    private final double b3;
+    private final double g11;
+    private final double b11;
+    private final double g12;
+    private final double b12;
+    private final double g21;
+    private final double b21;
+    private final double g22;
+    private final double b22;
+    private final double g31;
+    private final double b31;
+    private final double g32;
+    private final double b32;
 
     private final double rho1;
     private final double alpha1;
@@ -86,11 +92,13 @@ public class TwtData {
     private final int phaseAngleClock3;
     private final double ratedU0;
 
-    public TwtData(ThreeWindingsTransformer twt, double epsilonX, boolean applyReactanceCorrection) {
-        this(twt, 0, 0, epsilonX, applyReactanceCorrection);
+    public TwtData(ThreeWindingsTransformer twt, double epsilonX, boolean applyReactanceCorrection,
+        boolean splitShuntAdmittance) {
+        this(twt, 0, 0, epsilonX, applyReactanceCorrection, splitShuntAdmittance);
     }
 
-    public TwtData(ThreeWindingsTransformer twt, int phaseAngleClock2, int phaseAngleClock3, double epsilonX, boolean applyReactanceCorrection) {
+    public TwtData(ThreeWindingsTransformer twt, int phaseAngleClock2, int phaseAngleClock3, double epsilonX,
+        boolean applyReactanceCorrection, boolean splitShuntAdmittance) {
         Objects.requireNonNull(twt);
         id = twt.getId();
 
@@ -115,12 +123,18 @@ public class TwtData {
         r3 = getR(twt.getLeg3());
         x3 = getX(twt.getLeg3());
 
-        g1 = twt.getLeg1().getG();
-        b1 = twt.getLeg1().getB();
-        g2 = twt.getLeg2().getG();
-        b2 = twt.getLeg2().getB();
-        g3 = twt.getLeg3().getG();
-        b3 = twt.getLeg3().getB();
+        g11 = getG1(twt.getLeg1(), splitShuntAdmittance);
+        b11 = getB1(twt.getLeg1(), splitShuntAdmittance);
+        g12 = getG2(twt.getLeg1(), splitShuntAdmittance);
+        b12 = getB2(twt.getLeg1(), splitShuntAdmittance);
+        g21 = getG1(twt.getLeg2(), splitShuntAdmittance);
+        b21 = getB1(twt.getLeg2(), splitShuntAdmittance);
+        g22 = getG2(twt.getLeg2(), splitShuntAdmittance);
+        b22 = getB2(twt.getLeg2(), splitShuntAdmittance);
+        g31 = getG1(twt.getLeg3(), splitShuntAdmittance);
+        b31 = getB1(twt.getLeg3(), splitShuntAdmittance);
+        g32 = getG2(twt.getLeg3(), splitShuntAdmittance);
+        b32 = getB2(twt.getLeg3(), splitShuntAdmittance);
 
         this.ratedU0 = twt.getRatedU0();
         this.phaseAngleClock2 = phaseAngleClock2;
@@ -146,13 +160,13 @@ public class TwtData {
         double anglef = -alphaf;
 
         LinkData.BranchAdmittanceMatrix branchAdmittanceLeg1 = LinkData.calculateBranchAdmittance(r1, x1,
-            1 / rho1, angle1, 1 / rhof, anglef, new Complex(g1, b1), Complex.ZERO);
+            1 / rho1, angle1, 1 / rhof, anglef, new Complex(g11, b11), new Complex(g12, b12));
 
         LinkData.BranchAdmittanceMatrix branchAdmittanceLeg2 = LinkData.calculateBranchAdmittance(r2, x2,
-            1 / rho2, angle2, 1 / rhof, anglef, new Complex(g2, b2), Complex.ZERO);
+            1 / rho2, angle2, 1 / rhof, anglef, new Complex(g21, b21), new Complex(g22, b22));
 
         LinkData.BranchAdmittanceMatrix branchAdmittanceLeg3 = LinkData.calculateBranchAdmittance(r3, x3,
-            1 / rho3, angle3, 1 / rhof, anglef, new Complex(g3, b3), Complex.ZERO);
+            1 / rho3, angle3, 1 / rhof, anglef, new Complex(g31, b31), new Complex(g32, b32));
 
         connected1 = twt.getLeg1().getTerminal().isConnected();
         connected2 = twt.getLeg2().getTerminal().isConnected();
@@ -372,6 +386,30 @@ public class TwtData {
                 leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getX() : 0);
     }
 
+    private static double getG1(Leg leg, boolean specificCompatibility) {
+        return getValue(specificCompatibility ? leg.getG() / 2 : leg.getG(),
+            leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getG() : 0,
+            leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getG() : 0);
+    }
+
+    private static double getB1(Leg leg, boolean specificCompatibility) {
+        return getValue(specificCompatibility ? leg.getB() / 2 : leg.getB(),
+            leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getB() : 0,
+            leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getB() : 0);
+    }
+
+    private static double getG2(Leg leg, boolean specificCompatibility) {
+        return getValue(specificCompatibility ? leg.getG() / 2 : 0.0,
+            leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getG() : 0,
+            leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getG() : 0);
+    }
+
+    private static double getB2(Leg leg, boolean specificCompatibility) {
+        return getValue(specificCompatibility ? leg.getB() / 2 : 0.0,
+            leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getB() : 0,
+            leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getB() : 0);
+    }
+
     private static boolean isMainComponent(Leg leg) {
         Bus bus = leg.getTerminal().getBusView().getBus();
         Bus connectableBus = leg.getTerminal().getBusView().getConnectableBus();
@@ -503,28 +541,60 @@ public class TwtData {
         }
     }
 
-    public double getG1() {
-        return g1;
+    public double getG1(Side side) {
+        Objects.requireNonNull(side);
+        switch (side) {
+            case ONE:
+                return g11;
+            case TWO:
+                return g21;
+            case THREE:
+                return g31;
+            default:
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+        }
     }
 
-    public double getB1() {
-        return b1;
+    public double getB1(Side side) {
+        Objects.requireNonNull(side);
+        switch (side) {
+            case ONE:
+                return b11;
+            case TWO:
+                return b21;
+            case THREE:
+                return b31;
+            default:
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+        }
     }
 
-    public double getG2() {
-        return g2;
+    public double getG2(Side side) {
+        Objects.requireNonNull(side);
+        switch (side) {
+            case ONE:
+                return g12;
+            case TWO:
+                return g22;
+            case THREE:
+                return g32;
+            default:
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+        }
     }
 
-    public double getB2() {
-        return b2;
-    }
-
-    public double getG3() {
-        return g3;
-    }
-
-    public double getB3() {
-        return b3;
+    public double getB2(Side side) {
+        Objects.requireNonNull(side);
+        switch (side) {
+            case ONE:
+                return b12;
+            case TWO:
+                return b22;
+            case THREE:
+                return b32;
+            default:
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+        }
     }
 
     public double getRatedU(Side side) {
