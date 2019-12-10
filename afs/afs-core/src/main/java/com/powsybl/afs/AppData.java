@@ -142,7 +142,7 @@ public class AppData implements AutoCloseable {
         return new ServiceLoaderCache<>(ServiceExtension.class).getServices();
     }
 
-    private void loadFileSystems() {
+    private synchronized void loadFileSystems() {
         if (fileSystems == null) {
             fileSystems = new HashMap<>();
             AppFileSystemProviderContext context = new AppFileSystemProviderContext(shortTimeExecutionComputationManager, tokenProvider.getToken(), eventsBus);
