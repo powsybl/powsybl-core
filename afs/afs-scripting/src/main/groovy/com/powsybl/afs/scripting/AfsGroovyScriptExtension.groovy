@@ -56,7 +56,7 @@ class AfsGroovyScriptExtension implements GroovyScriptExtension {
     void load(Binding binding, ComputationManager computationManager) {
         binding.afs = new AfsGroovyFacade(data);
 
-        if (binding.out != null) {
+        if (binding.hasProperty("out")) {
             SoutTaskListener listener = new SoutTaskListener(binding.out);
             for (AppFileSystem fileSystem : data.getFileSystems()) {
                 fileSystem.getTaskMonitor().addListener(listener);

@@ -6,6 +6,8 @@
  */
 package com.powsybl.scripting.groovy
 
+import com.powsybl.computation.ComputationManager
+import com.powsybl.computation.DefaultComputationManagerConfig
 import org.codehaus.groovy.tools.shell.CommandSupport
 import org.codehaus.groovy.tools.shell.Groovysh
 
@@ -19,5 +21,17 @@ class InitPowsybl extends CommandSupport {
     }
 
     Object execute(List args) {
+        // Computation manager
+        DefaultComputationManagerConfig config = DefaultComputationManagerConfig.load();
+        ComputationManager computationManager = config.createShortTimeExecutionComputationManager();
+
+        // load extensions
+        final Iterable<GroovyScriptExtension> extensions = ServiceLoader.load(GroovyScriptExtension.class)
+        extensions.forEach { it.load(getBinding(), computationManager) }
+
+        // Unload extensions at exit
+        Runtime.getRuntime().addShutdownHook(new Thread({
+            extensions.forEach { it.unload() }
+        }));
     }
 }
