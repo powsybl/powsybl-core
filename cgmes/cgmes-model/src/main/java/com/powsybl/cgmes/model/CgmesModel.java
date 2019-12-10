@@ -7,18 +7,17 @@
 
 package com.powsybl.cgmes.model;
 
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.TripleStore;
+import org.joda.time.DateTime;
+
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
-
-import org.joda.time.DateTime;
-
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.triplestore.api.TripleStore;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -95,6 +94,8 @@ public interface CgmesModel {
     PropertyBags energySources();
 
     PropertyBags shuntCompensators();
+
+    PropertyBags equivalentShunts();
 
     PropertyBags nonlinearShuntCompensatorPoints(String id);
 
