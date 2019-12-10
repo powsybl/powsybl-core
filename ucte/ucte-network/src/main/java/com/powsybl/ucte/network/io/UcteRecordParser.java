@@ -73,7 +73,7 @@ class UcteRecordParser {
     }
 
     Character parseChar(int index) {
-        return line == null || index > line.length() ? null : line.charAt(index);
+        return line == null || index >= line.length() ? null : line.charAt(index);
     }
 
     Integer parseInt(int beginIndex, int endIndex) {

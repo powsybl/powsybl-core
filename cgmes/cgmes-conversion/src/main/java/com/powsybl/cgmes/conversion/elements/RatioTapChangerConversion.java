@@ -24,8 +24,10 @@ import com.powsybl.triplestore.api.PropertyBags;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
+@Deprecated
 public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversion {
 
+    @Deprecated
     public RatioTapChangerConversion(PropertyBag rtc, Context context) {
         super("RatioTapChanger", rtc, context);
 
@@ -38,6 +40,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         ltcFlag = rtc.asBoolean("ltcFlag", false);
     }
 
+    @Deprecated
     @Override
     public boolean valid() {
         if (tx2 == null && tx3 == null) {
@@ -71,6 +74,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
             inRange("position", position, lowStep, highStep);
     }
 
+    @Deprecated
     @Override
     public void convert() {
         RatioTapChangerAdder rtca = adder();

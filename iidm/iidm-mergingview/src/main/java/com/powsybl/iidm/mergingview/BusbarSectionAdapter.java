@@ -18,16 +18,15 @@ public class BusbarSectionAdapter extends AbstractInjectionAdapter<BusbarSection
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public double getV() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getV();
     }
 
     @Override
     public double getAngle() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getAngle();
     }
-
 }

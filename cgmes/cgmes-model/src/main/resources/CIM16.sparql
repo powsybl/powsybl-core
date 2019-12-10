@@ -290,7 +290,7 @@ WHERE {
         a ?type ;
         cim:IdentifiedObject.name ?name ;
         cim:Equipment.EquipmentContainer ?EquipmentContainer .
-    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector } .
+    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch } .
     ?Terminal1
         a cim:Terminal ;
         cim:Terminal.ConductingEquipment ?Switch .
@@ -711,6 +711,19 @@ OPTIONAL { GRAPH ?graphSSH  {
         cim:EquivalentInjection.q ?q .
     OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationStatus ?regulationStatus }
     OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationTarget ?regulationTarget }
+}}
+}
+
+# query: equivalentShunts
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?EquivalentShunt
+        a cim:EquivalentShunt ;
+        cim:IdentifiedObject.name ?name ;
+        cim:EquivalentShunt.b ?b ;
+        cim:EquivalentShunt.g ?g .
+    ?Terminal cim:Terminal.ConductingEquipment ?EquivalentShunt .
 }}
 }
 

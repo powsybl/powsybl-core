@@ -9,7 +9,7 @@ package com.powsybl.afs;
 
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.DefaultListenableAppStorage;
+import com.powsybl.afs.storage.InMemoryEventsBus;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.computation.ComputationManager;
@@ -33,7 +33,7 @@ public class ProjectTest {
 
     @Before
     public void setup() {
-        storage = new DefaultListenableAppStorage(MapDbAppStorage.createMem("mem"));
+        storage = MapDbAppStorage.createMem("mem", new InMemoryEventsBus());
 
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         afs = new AppFileSystem("mem", true, storage);
