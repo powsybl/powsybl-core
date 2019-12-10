@@ -6,8 +6,12 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,14 +45,52 @@ public final class StateVariablesAdder {
         // http://iec.ch/TC57/61970-552/ModelDescription/1#
 
         PropertyBags voltages = new PropertyBags();
-        for (Bus b : n.getBusBreakerView().getBuses()) {
-            PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
-            p.put(CgmesNames.ANGLE, fs(b.getAngle()));
-            p.put(CgmesNames.VOLTAGE, fs(b.getV()));
-            p.put("TopologicalNode", topologicalNodeFromBusId(b.getId()));
-            voltages.add(p);
+//        for (Bus b : n.getBusBreakerView().getBuses()) {
+//            PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
+//            p.put(CgmesNames.ANGLE, fs(b.getAngle()));
+//            p.put(CgmesNames.VOLTAGE, fs(b.getV()));
+//            p.put("TopologicalNode", topologicalNodeFromBusId(b.getId()));
+//            voltages.add(p);
+//        }
+//        cgmes.add(CgmesSubset.STATE_VARIABLES, "SvVoltage", voltages);
+
+        // Check for bus branch model
+        if (!cgmes.isNodeBreaker()) {
+            // add voltages for TpNodes existing in the Model
+            for (PropertyBag tn : cgmes.topologicalNodes()) {
+                Bus b = n.getBusBreakerView().getBus(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
+                PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
+                if (b != null) {
+                    p.put(CgmesNames.ANGLE, fs(b.getAngle()));
+                    p.put(CgmesNames.VOLTAGE, fs(b.getV()));
+                    p.put(CgmesNames.TOPOLOGICAL_NODE, tn.getId(CgmesNames.TOPOLOGICAL_NODE));
+                    voltages.add(p);
+                }
+            }
+
+            // add voltages for TpNodes existing in the Model's boundaries
+            List<String> danglingLines = new ArrayList<>();
+            n.getDanglingLineStream().forEach(dLine -> danglingLines.add(dLine.getId()));
+            List<String> allBoundaryNodes = boundaryNodes(cgmes);
+            List<String> modelRelatedBoundaryNodes = new ArrayList<>();
+            for (Map<String, String> sides : acLineNodes(cgmes, danglingLines).values()) {
+                if (allBoundaryNodes.contains(sides.get(SIDE1))) {
+                    modelRelatedBoundaryNodes.add(sides.get(SIDE1));
+                }
+                if (allBoundaryNodes.contains(sides.get(SIDE2))) {
+                    modelRelatedBoundaryNodes.add(sides.get(SIDE2));
+                }
+            }
+
+            modelRelatedBoundaryNodes.forEach(node -> {
+                PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
+                    p.put(CgmesNames.ANGLE, fs(0.0));
+                    p.put(CgmesNames.VOLTAGE, fs(0.0));
+                    p.put(CgmesNames.TOPOLOGICAL_NODE, node);
+                    voltages.add(p);
+            });
+            cgmes.add(CgmesSubset.STATE_VARIABLES, "SvVoltage", voltages);
         }
-        cgmes.add(CgmesSubset.STATE_VARIABLES, "SvVoltage", voltages);
 
         PropertyBags powerFlows = new PropertyBags();
         for (Load l : n.getLoads()) {
@@ -103,6 +145,40 @@ public final class StateVariablesAdder {
         cgmes.add(CgmesSubset.STATE_VARIABLES, "SvTapStep", tapSteps);
     }
 
+    private static List<String> boundaryNodes(CgmesModel cgmes) {
+        PropertyBags boundaryNodes = cgmes.boundaryNodes();
+        List<String> nodesId = new ArrayList<>();
+        boundaryNodes.forEach(node -> nodesId.add(node.getId("Node")));
+        return Collections.unmodifiableList(nodesId);
+    }
+
+    private static Map<String, Map<String, String>> acLineNodes(CgmesModel cgmes, List<String> danglingLines) {
+        Map<String, Map<String, String>> acLineNodes = new HashMap<>();
+        PropertyBags terminals = cgmes.terminals();
+        for (PropertyBag line : cgmes.acLineSegments()) {
+            String lineId = line.getId(CgmesNames.AC_LINE_SEGMENT);
+            Map<String, String> m = new HashMap<String, String>();
+            // we need only acLinesSegments that were converted into DanglingLines
+            if (!danglingLines.contains(lineId)) {
+                continue;
+            }
+            for (PropertyBag terminal : terminals) {
+//                Map<String, String> m = new HashMap<String, String>();
+                String terminalId = terminal.getId(CgmesNames.TERMINAL);
+                if (terminalId.equals(line.getId(CgmesNames.TERMINAL1))) {
+                    m.put(SIDE1, terminal.getId(CgmesNames.TOPOLOGICAL_NODE));
+                    acLineNodes.put(lineId, m);
+                } else if (terminalId.equals(line.getId(CgmesNames.TERMINAL2))) {
+                    m.put(SIDE2, terminal.getId(CgmesNames.TOPOLOGICAL_NODE));
+                    acLineNodes.put(lineId, m);
+                } else {
+                    continue;
+                }
+            }
+        }
+        return acLineNodes;
+    }
+
     private static String getTapChangerPositionName(CgmesModel cgmes) {
         if (cgmes instanceof CgmesModelTripleStore) {
             return (((CgmesModelTripleStore) cgmes).getCimNamespace().indexOf("cim14#") != -1)
@@ -140,9 +216,13 @@ public final class StateVariablesAdder {
         return iidmBusId;
     }
 
-    private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList(CgmesNames.ANGLE, CgmesNames.VOLTAGE, "TopologicalNode");
+    private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList(CgmesNames.ANGLE, CgmesNames.VOLTAGE,
+        "TopologicalNode");
     private static final List<String> SV_POWERFLOW_PROPERTIES = Arrays.asList("p", "q", CgmesNames.TERMINAL);
-    private static final List<String> SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES = Arrays.asList("ShuntCompensator", "continuousSections");
+    private static final List<String> SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES = Arrays.asList("ShuntCompensator",
+        "continuousSections");
+    public static final String SIDE1 = "side1";
+    public static final String SIDE2 = "side2";
 
     private static final Logger LOG = LoggerFactory.getLogger(StateVariablesAdder.class);
 }

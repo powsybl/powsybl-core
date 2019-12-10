@@ -19,6 +19,7 @@ public final class CgmesNames {
     public static final String TERMINAL = "Terminal";
     public static final String AC_LINE_SEGMENT = "ACLineSegment";
     public static final String SERIES_COMPENSATOR = "SeriesCompensator";
+    public static final String TOPOLOGICAL_NODE = "TopologicalNode";
 
     public static final String TRANSFORMER_WINDING_RATED_U = "transformerWindingRatedU";
     public static final String TRANSFORMER_END = "TransformerEnd";
@@ -38,6 +39,9 @@ public final class CgmesNames {
 
     public static final String RATIO_TAP_CHANGER_TABLE = "RatioTapChangerTable";
     public static final String PHASE_TAP_CHANGER_TABLE = "PhaseTapChangerTable";
+
+    public static final String TERMINAL1 = "Terminal1";
+    public static final String TERMINAL2 = "Terminal2";
 
     private CgmesNames() {
     }
