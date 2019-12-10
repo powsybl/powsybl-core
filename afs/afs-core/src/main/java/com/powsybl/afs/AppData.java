@@ -155,7 +155,7 @@ public class AppData implements AutoCloseable {
         }
     }
 
-    private void loadServices() {
+    private synchronized void loadServices() {
         if (services == null) {
             services = new HashMap<>();
             ServiceCreationContext context = new ServiceCreationContext(tokenProvider.getToken());
