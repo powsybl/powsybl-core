@@ -47,6 +47,7 @@ public final class FakeCgmesModel implements CgmesModel {
     private PropertyBags energySources;
     private PropertyBags shuntCompensators;
     private PropertyBags staticVarCompensators;
+    private PropertyBags equivalentShunts;
     private PropertyBags synchronousMachines;
     private PropertyBags equivalentInjections;
     private PropertyBags externalNetworkInjections;
@@ -84,6 +85,7 @@ public final class FakeCgmesModel implements CgmesModel {
         energyConsumers = new PropertyBags();
         energySources = new PropertyBags();
         shuntCompensators = new PropertyBags();
+        equivalentShunts = new PropertyBags();
         staticVarCompensators = new PropertyBags();
         synchronousMachines = new PropertyBags();
         equivalentInjections = new PropertyBags();
@@ -396,6 +398,11 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public PropertyBags shuntCompensators() {
         return shuntCompensators;
+    }
+
+    @Override
+    public PropertyBags equivalentShunts() {
+        return equivalentShunts;
     }
 
     @Override

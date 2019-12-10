@@ -714,6 +714,19 @@ OPTIONAL { GRAPH ?graphSSH  {
 }}
 }
 
+# query: equivalentShunts
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?EquivalentShunt
+        a cim:EquivalentShunt ;
+        cim:IdentifiedObject.name ?name ;
+        cim:EquivalentShunt.b ?b ;
+        cim:EquivalentShunt.g ?g .
+    ?Terminal cim:Terminal.ConductingEquipment ?EquivalentShunt .
+}}
+}
+
 # query: svInjections
 SELECT *
 WHERE {
