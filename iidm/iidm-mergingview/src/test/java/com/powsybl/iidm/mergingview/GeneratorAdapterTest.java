@@ -7,7 +7,7 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class GeneratorAdapterTest {
     @Before
     public void setup() {
         mergingView = MergingView.create("GeneratorAdapterTest", "iidm");
-        mergingView.merge(NoEquipmentNetworkFactory.create());
+        mergingView.merge(FictitiousSwitchFactory.create());
     }
 
     @Test
@@ -39,14 +39,14 @@ public class GeneratorAdapterTest {
         double ratedS = 10.5;
         EnergySource energySource = EnergySource.NUCLEAR;
 
-        final VoltageLevel vl1 = mergingView.getVoltageLevel("vl1");
-        final GeneratorAdder generatorAdder = vl1.newGenerator();
+        final VoltageLevel vlNode = mergingView.getVoltageLevel("C");
+        final GeneratorAdder generatorAdder = vlNode.newGenerator();
         assertNotNull(generatorAdder);
         assertTrue(generatorAdder instanceof GeneratorAdderAdapter);
         final Generator generator = generatorAdder.setId(id)
                                                   .setVoltageRegulatorOn(true)
                                                   .setName(name)
-                                                  .setBus(busId)
+                                                  .setNode(1)
                                                   .setMaxP(maxP)
                                                   .setMinP(minP)
                                                   .setTargetV(targetV)
