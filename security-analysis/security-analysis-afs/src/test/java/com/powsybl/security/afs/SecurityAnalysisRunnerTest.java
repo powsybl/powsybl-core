@@ -200,6 +200,10 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         assertNotNull(result.getPreContingencyResult());
         assertEquals(1, result.getPreContingencyResult().getLimitViolations().size());
 
+        // clear results
+        runner.clearResults();
+        assertFalse(runner.hasResult());
+
         // update dependencies
         Case aCase2 = afs.getRootFolder().getChild(Case.class, "network2")
                 .orElseThrow(AssertionError::new);
