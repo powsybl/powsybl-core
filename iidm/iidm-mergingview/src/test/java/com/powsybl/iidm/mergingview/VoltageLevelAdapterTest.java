@@ -7,9 +7,15 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.ShortIdDictionary;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Random;
 
 import static org.junit.Assert.*;
 
@@ -61,7 +67,18 @@ public class VoltageLevelAdapterTest {
 
         assertEquals(0, voltageLevel.getShuntCompensatorCount());
         assertEquals(0, voltageLevel.getLccConverterStationCount());
+
+        // Topology
         assertEquals(TopologyKind.BUS_BREAKER, voltageLevel.getTopologyKind());
+        voltageLevel.visitEquipments(Mockito.mock(TopologyVisitor.class));
+        voltageLevel.printTopology();
+        voltageLevel.printTopology(System.out, Mockito.mock(ShortIdDictionary.class));
+        try {
+            voltageLevel.exportTopology(Mockito.mock(Writer.class), Mockito.mock(Random.class));
+            voltageLevel.exportTopology(Mockito.mock(Writer.class));
+        } catch (IOException e) {
+            // Ignored
+        }
 
         // Bus
         voltageLevel.getBusBreakerView().newBus()

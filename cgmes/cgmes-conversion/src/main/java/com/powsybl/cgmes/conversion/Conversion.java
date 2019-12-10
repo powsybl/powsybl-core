@@ -97,6 +97,7 @@ public class Conversion {
         convf = eni -> new ExternalNetworkInjectionConversion(eni, context);
         convert(cgmes.externalNetworkInjections(), convf);
         convert(cgmes.shuntCompensators(), sh -> new ShuntConversion(sh, context));
+        convert(cgmes.equivalentShunts(), es -> new EquivalentShuntConversion(es, context));
         convf = svc -> new StaticVarCompensatorConversion(svc, context);
         convert(cgmes.staticVarCompensators(), convf);
         convf = asm -> new AsynchronousMachineConversion(asm, context);

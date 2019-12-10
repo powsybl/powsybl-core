@@ -108,11 +108,30 @@ public class CgmesConformity1ConversionTest {
         Properties properties = new Properties();
         properties.put(CgmesImport.ALLOW_UNSUPPORTED_TAP_CHANGERS, "false");
         ConversionTester t = new ConversionTester(
-                properties,
-                TripleStoreFactory.onlyDefaultImplementation(),
-                new ComparisonConfig().tolerance(1e-5));
+            properties,
+            TripleStoreFactory.onlyDefaultImplementation(),
+            new ComparisonConfig().tolerance(1e-5));
         t.setTestExportImportCgmes(true);
         t.testConversion(CgmesConformity1NetworkCatalog.microBaseCaseBE(), CgmesConformity1Catalog.microGridBaseCaseBE());
+    }
+
+    @Test
+    public void microGridBaseCaseBEBusBalanceValidation() throws IOException {
+        // Check bus balance mismatches are low if we use SV voltages
+        // MicroGrid BaseCase BE contains an RTC defined at transformerEnd1
+        // with step != neutralStep,
+        // resulting in a significant ratio (far from 1.0).
+        // Validating bus balance of buses after conversion verifies that
+        // the interpretation of the location of tap changer
+        // relative to the transmission impedance is correct
+        Properties params = new Properties();
+        params.put(CgmesImport.PROFILE_USED_FOR_INITIAL_STATE_VALUES, "SV");
+        ConversionTester t = new ConversionTester(
+            params,
+            TripleStoreFactory.onlyDefaultImplementation(),
+            new ComparisonConfig());
+        t.setValidateBusBalancesUsingThreshold(1.2);
+        t.testConversion(null, CgmesConformity1Catalog.microGridBaseCaseBE());
     }
 
     @Test
@@ -190,9 +209,9 @@ public class CgmesConformity1ConversionTest {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         ConversionTester t = new ConversionTester(
-                importParams,
-                TripleStoreFactory.onlyDefaultImplementation(),
-                new ComparisonConfig());
+            importParams,
+            TripleStoreFactory.onlyDefaultImplementation(),
+            new ComparisonConfig());
         Network expected = null;
         t.testConversion(expected, CgmesConformity1Catalog.miniNodeBreaker());
         Substation substation = t.lastConvertedNetwork().getSubstation("_183d126d-2522-4ff2-a8cd-c5016cf09c1b_S");

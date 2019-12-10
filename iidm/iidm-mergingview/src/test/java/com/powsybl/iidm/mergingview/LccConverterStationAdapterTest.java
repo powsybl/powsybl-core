@@ -34,6 +34,7 @@ public class LccConverterStationAdapterTest {
         assertSame(mergingView, lcc.getNetwork());
 
         assertEquals(HvdcConverterStation.HvdcType.LCC, lcc.getHvdcType());
+        assertSame(mergingView.getHvdcLine("L"), lcc.getHvdcLine());
         lcc.setLossFactor(0.022f);
         assertEquals(0.022f, lcc.getLossFactor(), 0.0f);
         assertNotNull(lcc.getTerminal());
