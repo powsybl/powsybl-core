@@ -78,7 +78,7 @@ public final class BrowseFileTree {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                 String name = baseDir.relativize(dir).toString() + File.separator;
-                if (name != null && name.endsWith("\\")) {
+                if (name.endsWith("\\")) {
                     name = name.replace('\\', '/');
                 }
                 os.putArchiveEntry(new TarArchiveEntry(name));
