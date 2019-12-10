@@ -17,8 +17,8 @@ import com.powsybl.afs.ws.client.utils.ClientUtils;
 import com.powsybl.afs.ws.client.utils.UserSession;
 import com.powsybl.afs.ws.server.utils.AppDataBean;
 import com.powsybl.afs.ws.storage.RemoteAppStorage;
-import com.powsybl.afs.ws.storage.WebSocketEventsBus;
 import com.powsybl.afs.ws.storage.RemoteTaskMonitor;
+import com.powsybl.afs.ws.storage.WebSocketEventsBus;
 import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
@@ -41,9 +41,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * @author Ali Tahanout <ali.tahanout at rte-france.com>
@@ -117,8 +117,9 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
         assertEquals(0, ((WebSocketEventsBus) storage.getEventsBus()).getTopics().size());
     }
 
-    @Test
-    public void createTaskRemoteTest() {
+    @Override
+    protected void nextDependentTests() {
+        super.nextDependentTests();
         RemoteTaskMonitor taskMonitor = new RemoteTaskMonitor(AppDataBeanMock.TEST_FS_NAME, getRestUri(), userSession.getToken());
         NodeInfo root = storage.createRootNodeIfNotExists(storage.getFileSystemName(), Folder.PSEUDO_CLASS);
         NodeInfo projectNode = storage.createNode(root.getId(), "project", Project.PSEUDO_CLASS, "test project", 0, new NodeGenericMetadata());
@@ -135,5 +136,6 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
 
         // cleanup
         storage.deleteNode(projectNode.getId());
+        eventStack.clear();
     }
 }

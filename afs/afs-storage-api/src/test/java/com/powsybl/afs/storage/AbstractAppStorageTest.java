@@ -533,6 +533,13 @@ public abstract class AbstractAppStorageTest {
         assertNotNull(storage.getEventsBus());
 
         storage.getEventsBus().pushEvent(new NodeCreated("test", "test"), "test useful for RemoteStorage event push");
+
+        nextDependentTests();
+    }
+
+    protected void nextDependentTests() {
+        // Noop
+        // allow sub classes to continue tests using created node root
     }
 
     protected void testUpdateNodeMetadata(NodeInfo rootFolderInfo, AppStorage storage) throws InterruptedException {
