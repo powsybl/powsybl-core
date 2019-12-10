@@ -1,5 +1,17 @@
 package com.powsybl.cgmes.model.test;
 
+import com.powsybl.cgmes.model.CgmesContainer;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.CgmesTerminal;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.TripleStore;
+import org.joda.time.DateTime;
+import org.mockito.Mockito;
+
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -7,19 +19,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
-
-import org.joda.time.DateTime;
-import org.mockito.Mockito;
-
-import com.powsybl.cgmes.model.CgmesContainer;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesTerminal;
-import com.powsybl.cgmes.model.CgmesSubset;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.triplestore.api.TripleStore;
 
 public final class FakeCgmesModel implements CgmesModel {
     private final Properties properties;
@@ -48,6 +47,7 @@ public final class FakeCgmesModel implements CgmesModel {
     private PropertyBags energySources;
     private PropertyBags shuntCompensators;
     private PropertyBags staticVarCompensators;
+    private PropertyBags equivalentShunts;
     private PropertyBags synchronousMachines;
     private PropertyBags equivalentInjections;
     private PropertyBags externalNetworkInjections;
@@ -57,6 +57,7 @@ public final class FakeCgmesModel implements CgmesModel {
     private PropertyBags dcLineSegments;
     private PropertyBags dcTerminals;
     private PropertyBags numObjectsByType;
+    private PropertyBags modelProfiles;
 
     public FakeCgmesModel() {
         properties = new Properties();
@@ -84,6 +85,7 @@ public final class FakeCgmesModel implements CgmesModel {
         energyConsumers = new PropertyBags();
         energySources = new PropertyBags();
         shuntCompensators = new PropertyBags();
+        equivalentShunts = new PropertyBags();
         staticVarCompensators = new PropertyBags();
         synchronousMachines = new PropertyBags();
         equivalentInjections = new PropertyBags();
@@ -94,6 +96,7 @@ public final class FakeCgmesModel implements CgmesModel {
         dcLineSegments = new PropertyBags();
         dcTerminals = new PropertyBags();
         numObjectsByType = new PropertyBags();
+        modelProfiles = new PropertyBags();
     }
 
     @Override
@@ -237,6 +240,11 @@ public final class FakeCgmesModel implements CgmesModel {
 
     public FakeCgmesModel dcTerminals(String... ids) {
         fakeObjectsFromIdentifiers("DCTerminal", ids, dcTerminals);
+        return this;
+    }
+
+    public FakeCgmesModel modelProfiles(String... ids) {
+        fakeObjectsFromIdentifiers("FullModel", ids, modelProfiles);
         return this;
     }
 
@@ -393,6 +401,11 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags equivalentShunts() {
+        return equivalentShunts;
+    }
+
+    @Override
     public PropertyBags nonlinearShuntCompensatorPoints(String scId) {
         return null;
     }
@@ -425,6 +438,11 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public PropertyBags asynchronousMachines() {
         return asynchronousMachines;
+    }
+
+    @Override
+    public PropertyBags modelProfiles() {
+        return modelProfiles;
     }
 
     @Override

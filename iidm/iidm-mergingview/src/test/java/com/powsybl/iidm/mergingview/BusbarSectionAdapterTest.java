@@ -6,15 +6,13 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
 import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -25,22 +23,30 @@ public class BusbarSectionAdapterTest {
     @Before
     public void setup() {
         mergingView = MergingView.create("BusbarSectionAdapterTest", "iidm");
-        mergingView.merge(NetworkTest1Factory.create());
     }
 
     @Test
     public void testSetterGetter() {
-        final BusbarSection busbarSection = mergingView.getBusbarSection("voltageLevel1BusbarSection1");
-        assertNotNull(busbarSection);
-        assertTrue(busbarSection instanceof BusbarSectionAdapter);
-        assertSame(mergingView, busbarSection.getNetwork());
+        final Network networkRef = NetworkTest1Factory.create();
+        mergingView.merge(networkRef);
+
+        final BusbarSection expectedSJB = networkRef.getBusbarSection("voltageLevel1BusbarSection1");
+        final BusbarSection actualSJB   = mergingView.getBusbarSection("voltageLevel1BusbarSection1");
+        assertNotNull(actualSJB);
+        assertTrue(actualSJB instanceof BusbarSectionAdapter);
+        assertSame(mergingView, actualSJB.getNetwork());
+
+        assertEquals(expectedSJB.getType(), actualSJB.getType());
+        assertTrue(actualSJB.getTerminal() instanceof TerminalAdapter);
+        actualSJB.getTerminals().forEach(t -> {
+            assertTrue(t instanceof TerminalAdapter);
+            assertNotNull(t);
+        });
+
+        assertEquals(expectedSJB.getV(), actualSJB.getV(), 0.0d);
+        assertEquals(expectedSJB.getAngle(), actualSJB.getAngle(), 0.0d);
 
         // Not implemented yet !
-        TestUtil.notImplemented(busbarSection::getTerminal);
-        TestUtil.notImplemented(busbarSection::getType);
-        TestUtil.notImplemented(busbarSection::getTerminals);
-        TestUtil.notImplemented(busbarSection::remove);
-        TestUtil.notImplemented(busbarSection::getV);
-        TestUtil.notImplemented(busbarSection::getAngle);
+        TestUtil.notImplemented(actualSJB::remove);
     }
 }

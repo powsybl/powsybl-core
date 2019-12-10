@@ -7,7 +7,6 @@
 package com.powsybl.security.distributed;
 
 import com.google.common.io.ByteSource;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -50,6 +49,7 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
 
     private final ResultReader<R> reader;
     private final OptionsCustomizer optionsCustomizer;
+    private final ExceptionHandler exceptionHandler;
     private final int executionCount;
 
     private final SecurityAnalysisExecutionInput input;
@@ -74,12 +74,31 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
         void customizeOptions(Path workinDir, SecurityAnalysisCommandOptions options);
     }
 
+    /**
+     * Defines the creation of computation exceptions, in particular log reading.
+     */
+    @FunctionalInterface
+    interface ExceptionHandler {
+        ComputationException createComputationException(Path workingDir, Exception cause);
+    }
+
+    /**
+     * Creates a new security analysis execution handler.
+     *
+     * @param reader Defines how results should be read from working directory.
+     * @param optionsCustomizer If not {@code null}, defines additional command options.
+     * @param exceptionHandler Used to translate exceptions to a {@link ComputationException}.
+     * @param executionCount The number of executions of the command.
+     * @param input The execution input data.
+     */
     public SecurityAnalysisExecutionHandler(ResultReader<R> reader,
                                             OptionsCustomizer optionsCustomizer,
+                                            ExceptionHandler exceptionHandler,
                                             int executionCount,
                                             SecurityAnalysisExecutionInput input) {
         this.reader = requireNonNull(reader);
         this.optionsCustomizer = optionsCustomizer;
+        this.exceptionHandler = exceptionHandler;
         checkArgument(executionCount > 0, "Execution count must be positive.");
         this.executionCount = executionCount;
         this.input = requireNonNull(input);
@@ -101,29 +120,13 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
      */
     @Override
     public R after(Path workingDir, ExecutionReport report) throws IOException {
-        // read results and logs in case of runWithLog()
-        // 1. run() and no exception, after() do nothing and continue read json
-        // 2. run() and exception, an exception(PowsyblException:Error during the execution) would be thrown.
-        // 3. runWithLog() and no exception
-        // 4. runWithLog() and exception, a ComputationException will be re-thrown
-        PowsyblException rootException = null;
         try {
-            super.after(workingDir, report); // throw PowsybleException
-        } catch (PowsyblException pe) {
-            rootException = pe;
-        }
-        try {
-            R r = reader.read(workingDir); // throw ComputationException in runWithLog()
+            super.after(workingDir, report);
+            R result = reader.read(workingDir);
             LOGGER.debug("End of command execution in {}. ", workingDir);
-            return r;
-        } catch (ComputationException e) {
-            throw new ComputationException(e, rootException);
-        } catch (UncheckedIOException ioException) {
-            if (rootException != null) {
-                throw rootException;
-            } else {
-                throw ioException;
-            }
+            return result;
+        } catch (Exception exception) {
+            throw exceptionHandler.createComputationException(workingDir, exception);
         }
     }
 

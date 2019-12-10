@@ -4,25 +4,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class EurostagXmlTest extends AbstractConverterTest {
+public class EurostagXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void loadFlowResultsTest() throws IOException {
         roundTripXmlTest(EurostagTutorialExample1Factory.createWithLFResults(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/eurostag-tutorial1-lf.xml");
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial1-lf.xml");
+
+        //backward compatibility 1.0
+        roundTripVersionnedXmlTest("eurostag-tutorial1-lf.xml", IidmXmlVersion.V_1_0);
     }
 }

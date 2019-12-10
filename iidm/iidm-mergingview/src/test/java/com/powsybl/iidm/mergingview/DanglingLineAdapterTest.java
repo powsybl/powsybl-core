@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.*;
+
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -56,6 +58,13 @@ public class DanglingLineAdapterTest {
     public void testSetterGetter() {
         final DanglingLine danglingLine = network.getDanglingLine("dl1");
 
+        assertEquals(ConnectableType.DANGLING_LINE, danglingLine.getType());
+        assertTrue(danglingLine.getTerminal() instanceof TerminalAdapter);
+        danglingLine.getTerminals().forEach(t -> {
+            assertTrue(t instanceof TerminalAdapter);
+            assertNotNull(t);
+        });
+
         // Not implemented yet !
         TestUtil.notImplemented(danglingLine::getP0);
         TestUtil.notImplemented(() -> danglingLine.setP0(0.0d));
@@ -72,9 +81,6 @@ public class DanglingLineAdapterTest {
         TestUtil.notImplemented(danglingLine::getUcteXnodeCode);
         TestUtil.notImplemented(danglingLine::getCurrentLimits);
         TestUtil.notImplemented(danglingLine::newCurrentLimits);
-        TestUtil.notImplemented(danglingLine::getTerminal);
-        TestUtil.notImplemented(danglingLine::getType);
-        TestUtil.notImplemented(danglingLine::getTerminals);
         TestUtil.notImplemented(danglingLine::remove);
     }
 }

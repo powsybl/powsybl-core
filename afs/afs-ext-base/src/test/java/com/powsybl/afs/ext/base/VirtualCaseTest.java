@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.InMemoryEventsBus;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportConfig;
@@ -34,7 +35,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
 
     @Override
     protected AppStorage createStorage() {
-        return MapDbAppStorage.createMem("mem");
+        return MapDbAppStorage.createMem("mem", new InMemoryEventsBus());
     }
 
     @Override
@@ -176,5 +177,18 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
 
         scriptWithError.delete();
         assertTrue(virtualCase3.mandatoryDependenciesAreMissing());
+
+        //test replace dependencies
+        assertEquals(importedCase2.getName(), virtualCase3.getCase().map(ProjectFile::getName).orElse(null));
+
+        ImportedCase importedCase3 = folder.fileBuilder(ImportedCaseBuilder.class)
+                .withCase(aCase)
+                .withName("importedCase3")
+                .build();
+
+        virtualCase3.replaceDependency(importedCase2.getId(), importedCase3);
+
+        assertNotEquals(importedCase2.getName(), virtualCase3.getCase().map(ProjectFile::getName).orElse(null));
+        assertEquals(importedCase3.getName(), virtualCase3.getCase().map(ProjectFile::getName).orElse(null));
     }
 }
