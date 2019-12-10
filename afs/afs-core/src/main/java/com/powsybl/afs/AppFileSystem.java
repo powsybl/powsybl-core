@@ -122,6 +122,45 @@ public class AppFileSystem implements AutoCloseable {
     }
 
     /**
+     * Retrieve a project node with undefined class
+     * @param nodeId the node Id
+     * @return a typed node
+     */
+    private AbstractNodeBase fetchNode(String nodeId) {
+        Objects.requireNonNull(nodeId);
+
+        NodeInfo projectFileInfo = storage.getNodeInfo(nodeId);
+        NodeInfo parentInfo = storage.getParentNode(projectFileInfo.getId()).orElse(null);
+        while (parentInfo != null && !Project.PSEUDO_CLASS.equals(parentInfo.getPseudoClass())) {
+            parentInfo = storage.getParentNode(parentInfo.getId()).orElse(null);
+        }
+
+        NodeInfo projectInfo = parentInfo;
+        while (projectInfo != null && !Project.PSEUDO_CLASS.equals(projectInfo.getPseudoClass())) {
+            projectInfo = storage.getParentNode(projectInfo.getId()).orElse(null);
+        }
+        Project project = projectInfo != null && Project.PSEUDO_CLASS.equals(projectInfo.getPseudoClass()) ?
+                new Project(new FileCreationContext(projectInfo, storage, this)) : null;
+
+        if (parentInfo == null || project == null) {
+            return createNode(projectFileInfo);
+        }
+
+        ProjectFileCreationContext context = new ProjectFileCreationContext(projectFileInfo, storage, project);
+
+        if (ProjectFolder.PSEUDO_CLASS.equals(projectFileInfo.getPseudoClass())) {
+            return new ProjectFolder(context);
+        }
+
+        ProjectFileExtension extension = data.getProjectFileExtensionByPseudoClass(projectFileInfo.getPseudoClass());
+        if (extension != null) {
+            return extension.createProjectFile(context);
+        }
+        return createNode(projectFileInfo);
+    }
+
+
+    /**
      * Get a project by its ID
      *
      * @param projectId projectID
