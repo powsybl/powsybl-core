@@ -386,26 +386,26 @@ public class TwtData {
                 leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getX() : 0);
     }
 
-    private static double getG1(Leg leg, boolean specificCompatibility) {
-        return getValue(specificCompatibility ? leg.getG() / 2 : leg.getG(),
+    private static double getG1(Leg leg, boolean splitShuntAdmittance) {
+        return getValue(splitShuntAdmittance ? leg.getG() / 2 : leg.getG(),
             leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getG() : 0,
             leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getG() : 0);
     }
 
-    private static double getB1(Leg leg, boolean specificCompatibility) {
-        return getValue(specificCompatibility ? leg.getB() / 2 : leg.getB(),
+    private static double getB1(Leg leg, boolean splitShuntAdmittance) {
+        return getValue(splitShuntAdmittance ? leg.getB() / 2 : leg.getB(),
             leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getB() : 0,
             leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }
 
-    private static double getG2(Leg leg, boolean specificCompatibility) {
-        return getValue(specificCompatibility ? leg.getG() / 2 : 0.0,
+    private static double getG2(Leg leg, boolean splitShuntAdmittance) {
+        return getValue(splitShuntAdmittance ? leg.getG() / 2 : 0.0,
             leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getG() : 0,
             leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getG() : 0);
     }
 
-    private static double getB2(Leg leg, boolean specificCompatibility) {
-        return getValue(specificCompatibility ? leg.getB() / 2 : 0.0,
+    private static double getB2(Leg leg, boolean splitShuntAdmittance) {
+        return getValue(splitShuntAdmittance ? leg.getB() / 2 : 0.0,
             leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getB() : 0,
             leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }
