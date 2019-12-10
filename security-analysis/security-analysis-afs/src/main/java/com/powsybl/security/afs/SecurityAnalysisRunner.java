@@ -130,6 +130,12 @@ public class SecurityAnalysisRunner extends ProjectFile {
         storage.flush();
     }
 
+    public void clearResults(){
+        if (hasResult()) {
+            storage.removeData(info.getId(), RESULT_JSON_NAME);
+        }
+    }
+
     @Override
     public boolean mandatoryDependenciesAreMissing() {
         return !getCase().isPresent() || !getContingencyStore().isPresent();
