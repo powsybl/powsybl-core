@@ -211,6 +211,18 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBEEquivalentShunt() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource(),
+                NetworkFactory.findDefault(), null);
+
+        ShuntCompensator shunt = network.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da");
+        assertNotNull(shunt);
+        assertEquals(1, shunt.getMaximumSectionCount());
+        assertEquals(0.0012, shunt.getbPerSection(), 0.0);
+        assertEquals(1, shunt.getCurrentSectionCount());
+    }
+
+    @Test
     public void microT4InvalidSvcMode() {
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator svc = network.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
@@ -399,6 +411,29 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(load);
         assertEquals(-0.2, load.getP0(), 0.0);
         assertEquals(-13.8, load.getQ0(), 0.0);
+    }
+
+    @Test
+    public void miniNodeBreakerLoadBreakSwitch() {
+        Network network = new CgmesImport()
+                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerLoadBreakSwitch().dataSource(),
+                        NetworkFactory.findDefault(), null);
+
+        Switch sw = network.getSwitch("_fbdcf00d-8a07-4c62-9e39-86f459bea2be");
+        assertNotNull(sw);
+        assertEquals(SwitchKind.LOAD_BREAK_SWITCH, sw.getKind());
+    }
+
+    @Test
+    public void miniNodeBreakerProtectedSwitch() {
+        Network network = new CgmesImport()
+                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerProtectedSwitch().dataSource(),
+                        NetworkFactory.findDefault(), null);
+
+        Switch sw = network.getSwitch("_fbdcf00d-8a07-4c62-9e39-86f459bea2be");
+        assertNotNull(sw);
+        // By default, a switch not specifically assigned to a given kid should be considered BREAKER
+        assertEquals(SwitchKind.BREAKER, sw.getKind());
     }
 
     @Test

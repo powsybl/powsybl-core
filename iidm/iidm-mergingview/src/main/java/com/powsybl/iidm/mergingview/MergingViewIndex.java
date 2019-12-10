@@ -19,15 +19,15 @@ import java.util.stream.Stream;
 class MergingViewIndex {
 
     /** Local storage for adapters created */
-    private final Map<Identifiable<?>, AbstractAdapter<?>> identifiableCached = new WeakHashMap<>();
+    private final Map<Identifiable, AbstractAdapter<? extends Identifiable>> identifiableCached = new WeakHashMap<>();
 
-    private final Map<Component, AbstractAdapter<?>> componentCached = new WeakHashMap<>();
+    private final Map<Component, AbstractAdapter<? extends Component>> componentCached = new WeakHashMap<>();
 
-    private final Map<Terminal, AbstractAdapter<?>> terminalCached = new WeakHashMap<>();
+    private final Map<Terminal, AbstractAdapter<? extends Terminal>> terminalCached = new WeakHashMap<>();
 
-    private final Map<PhaseTapChanger, AbstractAdapter<?>> ptcCached = new WeakHashMap<>();
+    private final Map<PhaseTapChanger, AbstractAdapter<? extends PhaseTapChanger>> ptcCached = new WeakHashMap<>();
 
-    private final Map<RatioTapChanger, AbstractAdapter<?>> rtcCached = new WeakHashMap<>();
+    private final Map<RatioTapChanger, AbstractAdapter<? extends RatioTapChanger>> rtcCached = new WeakHashMap<>();
 
     /** Network asked to be merged */
     private final Collection<Network> networks = new ArrayList<>();

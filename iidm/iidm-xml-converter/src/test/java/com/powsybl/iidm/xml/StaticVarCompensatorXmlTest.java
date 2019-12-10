@@ -6,22 +6,25 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StaticVarCompensatorXmlTest extends AbstractConverterTest {
+public class StaticVarCompensatorXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
+        roundTripVersionnedXmlTest("staticVarCompensatorRoundTripRef.xml", IidmXmlVersion.V_1_0);
+
         roundTripXmlTest(SvcTestCaseFactory.create(),
-                         NetworkXml::writeAndValidate,
-                         NetworkXml::read,
-                         "/staticVarCompensatorRoundTripRef.xml");
+                NetworkXml::writeAndValidate,
+                NetworkXml::read,
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "staticVarCompensatorRoundTripRef.xml");
     }
 }

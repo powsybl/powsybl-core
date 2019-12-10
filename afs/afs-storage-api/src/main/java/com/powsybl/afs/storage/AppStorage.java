@@ -14,7 +14,6 @@ import java.io.OutputStream;
 import java.util.*;
 
 /**
- *
  * A storage which maintains data for an application file system. This is a low level object,
  * and should not be used by users of the AFS API, but only when extending the AFS API
  * with a new storage implementation or new file types for example.
@@ -22,7 +21,6 @@ import java.util.*;
  * <p>
  * An AppStorage implements low level methods to walk through a filesystem and to write and read data from this filesystem.
  * It relies on nodes uniquely identified by and ID.
- *
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -42,6 +40,16 @@ public interface AppStorage extends AutoCloseable {
      * The new node is by default inconsistent, {@link #setConsistent(String nodeId)} method should explicitly be called to set it consistent.
      */
     NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata);
+
+    /**
+     * Update a node metadata
+     *
+     * @param nodeId          id of the node
+     * @param genericMetadata new metadata that will override previous ones
+     */
+    default void setMetadata(String nodeId, NodeGenericMetadata genericMetadata) {
+        throw new PowsyblException("Not implemented");
+    }
 
     boolean isWritable(String nodeId);
 
@@ -214,6 +222,11 @@ public interface AppStorage extends AutoCloseable {
      * Removes a dependency named {@code name} from node with ID {@code nodeId} to node with ID {@code toNodeId}.
      */
     void removeDependency(String nodeId, String name, String toNodeId);
+
+    /**
+     * Get the events store.
+     */
+    EventsBus getEventsBus();
 
     /**
      * Flush any changes to underlying storage.

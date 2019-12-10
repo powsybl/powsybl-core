@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.ListenableAppStorage;
+import com.powsybl.afs.storage.AppStorage;
 
 import java.util.Objects;
 
@@ -15,16 +15,16 @@ import java.util.Objects;
  */
 public class ProjectFileContext {
 
-    private final ListenableAppStorage storage;
+    private final AppStorage storage;
 
     private final Project project;
 
-    protected ProjectFileContext(ListenableAppStorage storage, Project project) {
+    protected ProjectFileContext(AppStorage storage, Project project) {
         this.storage = Objects.requireNonNull(storage);
         this.project = Objects.requireNonNull(project);
     }
 
-    public ListenableAppStorage getStorage() {
+    public AppStorage getStorage() {
         return storage;
     }
 

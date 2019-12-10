@@ -48,7 +48,7 @@ import static org.junit.Assert.fail;
 public class ConversionTester {
 
     public ConversionTester(Properties importParams, List<String> tripleStoreImplementations,
-                            ComparisonConfig networkComparison) {
+        ComparisonConfig networkComparison) {
         this.importParams = importParams;
         this.tripleStoreImplementations = tripleStoreImplementations;
         this.networkComparison = networkComparison;
@@ -98,12 +98,28 @@ public class ConversionTester {
         this.validateBusBalances = b;
     }
 
+    public void setValidateBusBalancesUsingThreshold(double threshold) {
+        this.validateBusBalances = true;
+        this.validateBusBalancesThreshold = threshold;
+    }
+
     public void testConversion(Network expected, TestGridModel gm) throws IOException {
+        //testConversion(expected, gm, this.networkComparison);
+        Conversion.setNewCgmesConversion();
         testConversion(expected, gm, this.networkComparison);
+        Network nNew = lastConvertedNetwork();
+
+        Conversion.setCurrentCgmesConversion();
+        testConversion(expected, gm, this.networkComparison);
+        Network nCurrent = lastConvertedNetwork();
+
+        if (nCurrent != null && nNew != null) {
+            new Comparison(nCurrent, nNew, this.networkComparison).compare();
+        }
     }
 
     public void testConversion(Network expected, TestGridModel gm, ComparisonConfig config)
-            throws IOException {
+        throws IOException {
         if (onlyReport) {
             testConversionOnlyReport(gm);
         } else {
@@ -119,7 +135,7 @@ public class ConversionTester {
     }
 
     private void testConversion(Network expected, TestGridModel gm, ComparisonConfig cconfig, String impl)
-            throws IOException {
+        throws IOException {
         Properties iparams = importParams == null ? new Properties() : importParams;
         iparams.put("storeCgmesModelAsNetworkExtension", "true");
         iparams.put("powsyblTripleStore", impl);
@@ -189,7 +205,7 @@ public class ConversionTester {
     }
 
     private void testExportImportCgmes(Network network, FileSystem fs, CgmesImport i, Properties iparams,
-                                       ComparisonConfig config) throws IOException {
+        ComparisonConfig config) throws IOException {
 
         Path path = fs.getPath("temp-export-cgmes");
         Files.createDirectories(path);
@@ -201,11 +217,9 @@ public class ConversionTester {
         new Comparison(expected, actual, config).compare();
     }
 
-    public static void validateBusBalances(Network network) throws IOException {
-        // Precision required on bus balances (MVA)
-        double threshold = 0.01;
+    public void validateBusBalances(Network network) throws IOException {
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
-            ValidationConfig config = loadFlowValidationConfig(threshold);
+            ValidationConfig config = loadFlowValidationConfig(validateBusBalancesThreshold);
             Path working = Files.createDirectories(fs.getPath("lf-validation"));
 
             computeMissingFlows(network, config.getLoadFlowParameters());
@@ -225,10 +239,10 @@ public class ConversionTester {
 
     public static void computeMissingFlows(Network network, LoadFlowParameters lfparams) {
         LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(
-                LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,
-                LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT,
-                LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE,
-                LoadFlowResultsCompletionParameters.STRUCTURAL_RATIO_LINE_ON);
+            LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,
+            LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT,
+            LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE,
+            LoadFlowResultsCompletionParameters.STRUCTURAL_RATIO_LINE_ON);
         LoadFlowResultsCompletion lf = new LoadFlowResultsCompletion(p, lfparams);
         try {
             lf.run(network, null);
@@ -245,6 +259,7 @@ public class ConversionTester {
     private boolean exportCgmes;
     private boolean testExportImportCgmes;
     private boolean validateBusBalances;
+    private double validateBusBalancesThreshold = 0.01;
     private Consumer<String> reportConsumer;
     private boolean strictTopologyTest;
     private Network lastConvertedNetwork;

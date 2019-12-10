@@ -16,7 +16,6 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -30,7 +29,7 @@ public class CgmesModelTester {
         this.gridModel = gm;
     }
 
-    public void test() throws IOException {
+    public void test() {
         ReadOnlyDataSource ds = gridModel.dataSource();
 
         // Check that the case exists
@@ -91,6 +90,7 @@ public class CgmesModelTester {
         testPropertyBags(expected.staticVarCompensators(), actual.staticVarCompensators());
         testPropertyBags(expected.synchronousMachines(), actual.synchronousMachines());
         testPropertyBags(expected.asynchronousMachines(), actual.asynchronousMachines());
+        testPropertyBags(expected.modelProfiles(), actual.modelProfiles());
     }
 
     private void testPropertyBags(PropertyBags expecteds, PropertyBags actuals) {

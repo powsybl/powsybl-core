@@ -22,14 +22,12 @@ import org.threeten.extra.Interval;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
 /**
@@ -37,28 +35,22 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractAppStorageTest {
 
-    static final String FOLDER_PSEUDO_CLASS = "folder";
+    protected static final String FOLDER_PSEUDO_CLASS = "folder";
     static final String DATA_FILE_CLASS = "data";
 
-    protected ListenableAppStorage storage;
+    protected AppStorage storage;
 
-    private BlockingQueue<NodeEvent> eventStack;
+    protected BlockingQueue<NodeEvent> eventStack;
 
-    private AppStorageListener l = eventList -> eventStack.addAll(eventList.getEvents());
+    protected AppStorageListener l = eventList -> eventStack.addAll(eventList.getEvents());
 
     protected abstract AppStorage createStorage();
 
     @Before
     public void setUp() throws Exception {
         eventStack = new LinkedBlockingQueue<>();
-
-        AppStorage storage = createStorage();
-        if (storage instanceof ListenableAppStorage) {
-            this.storage = (ListenableAppStorage) storage;
-        } else {
-            this.storage = new DefaultListenableAppStorage(storage);
-        }
-        this.storage.addListener(l);
+        this.storage = createStorage();
+        this.storage.getEventsBus().addListener(l);
     }
 
     @After
@@ -90,7 +82,7 @@ public abstract class AbstractAppStorageTest {
         assertTrue(storage.isConsistent(rootFolderInfo.getId()));
 
         // check event
-        assertEventStack(new NodeCreated(rootFolderInfo.getId(), null));
+        assertEventStack(new NodeCreated(rootFolderInfo.getId(), null), new NodeConsistent(rootFolderInfo.getId()));
 
         assertNotNull(rootFolderInfo);
 
@@ -536,5 +528,87 @@ public abstract class AbstractAppStorageTest {
             fail();
         } catch (Exception ignored) {
         }
+
+        // 19 check that eventsBus is not null
+        assertNotNull(storage.getEventsBus());
+
+        storage.getEventsBus().pushEvent(new NodeCreated("test", "test"), "test useful for RemoteStorage event push");
+    }
+
+    protected void testUpdateNodeMetadata(NodeInfo rootFolderInfo, AppStorage storage) throws InterruptedException {
+        NodeGenericMetadata metadata = new NodeGenericMetadata();
+        NodeInfo node = storage.createNode(rootFolderInfo.getId(), "testNode", "unkownFile", "", 0, cloneMetadata(metadata));
+        storage.flush();
+
+        checkMetadataEquality(metadata, node.getGenericMetadata());
+
+        discardEvents(3);
+
+        storage.setMetadata(node.getId(), cloneMetadata(metadata));
+        storage.flush();
+        assertEventStack(new NodeMetadataUpdated(node.getId(), metadata));
+
+        metadata.setString("test", "test");
+        assertThat(node.getGenericMetadata().getStrings().keySet().size()).isEqualTo(0);
+
+        storage.setMetadata(node.getId(), cloneMetadata(metadata));
+        storage.flush();
+        assertEventStack(new NodeMetadataUpdated(node.getId(), metadata));
+        node = storage.getNodeInfo(node.getId());
+        checkMetadataEquality(metadata, node.getGenericMetadata());
+
+        metadata.setBoolean("test1", true);
+        storage.setMetadata(node.getId(), cloneMetadata(metadata));
+        storage.flush();
+        assertEventStack(new NodeMetadataUpdated(node.getId(), metadata));
+        node = storage.getNodeInfo(node.getId());
+        checkMetadataEquality(metadata, node.getGenericMetadata());
+
+        metadata.getStrings().remove("test");
+        metadata.setDouble("test2", 0.1);
+        storage.setMetadata(node.getId(), cloneMetadata(metadata));
+        storage.flush();
+        assertEventStack(new NodeMetadataUpdated(node.getId(), metadata));
+        node = storage.getNodeInfo(node.getId());
+        checkMetadataEquality(metadata, node.getGenericMetadata());
+
+        metadata.setInt("test3", 1);
+        storage.setMetadata(node.getId(), cloneMetadata(metadata));
+        storage.flush();
+        assertEventStack(new NodeMetadataUpdated(node.getId(), metadata));
+        node = storage.getNodeInfo(node.getId());
+        checkMetadataEquality(metadata, node.getGenericMetadata());
+
+        storage.deleteNode(node.getId());
+        storage.flush();
+    }
+
+    private void checkMetadataEquality(NodeGenericMetadata source, NodeGenericMetadata target) {
+        assertThat(target).isNotNull();
+        assertThat(source.getBooleans().keySet().size()).isEqualTo(target.getBooleans().keySet().size());
+        source.getBooleans().forEach((key, val) -> {
+            assertThat(target.getBooleans()).contains(new HashMap.SimpleEntry<>(key, val));
+        });
+        assertThat(source.getStrings().keySet().size()).isEqualTo(target.getStrings().keySet().size());
+        source.getStrings().forEach((key, val) -> {
+            assertThat(target.getStrings()).contains(new HashMap.SimpleEntry<>(key, val));
+        });
+        assertThat(source.getInts().keySet().size()).isEqualTo(target.getInts().keySet().size());
+        source.getInts().forEach((key, val) -> {
+            assertThat(target.getInts()).contains(new HashMap.SimpleEntry<>(key, val));
+        });
+        assertThat(source.getDoubles().keySet().size()).isEqualTo(target.getDoubles().keySet().size());
+        source.getDoubles().forEach((key, val) -> {
+            assertThat(target.getDoubles()).contains(new HashMap.SimpleEntry<>(key, val));
+        });
+    }
+
+    private NodeGenericMetadata cloneMetadata(NodeGenericMetadata metadata) {
+        NodeGenericMetadata clone = new NodeGenericMetadata();
+        clone.getStrings().putAll(metadata.getStrings());
+        clone.getBooleans().putAll(metadata.getBooleans());
+        clone.getInts().putAll(metadata.getInts());
+        clone.getDoubles().putAll(metadata.getDoubles());
+        return clone;
     }
 }
