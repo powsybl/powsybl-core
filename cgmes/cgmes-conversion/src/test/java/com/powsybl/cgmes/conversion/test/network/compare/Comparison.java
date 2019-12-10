@@ -48,9 +48,9 @@ import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClo
 public class Comparison {
 
     public Comparison(
-        Network expected,
-        Network actual,
-        ComparisonConfig config) {
+            Network expected,
+            Network actual,
+            ComparisonConfig config) {
         this.expected = expected;
         this.actual = actual;
         this.config = config;
@@ -65,62 +65,62 @@ public class Comparison {
         }
         // TODO Consider other attributes of network (name, caseData, forecastDistance, ...)
         compare(
-            expected.getSubstationStream(),
-            actual.getSubstationStream(),
-            this::compareSubstations);
+                expected.getSubstationStream(),
+                actual.getSubstationStream(),
+                this::compareSubstations);
         compare(
-            expected.getVoltageLevelStream(),
-            actual.getVoltageLevelStream(),
-            this::compareVoltageLevels);
+                expected.getVoltageLevelStream(),
+                actual.getVoltageLevelStream(),
+                this::compareVoltageLevels);
         compareBuses(
-            expected.getBusBreakerView().getBusStream(),
-            actual.getBusBreakerView().getBusStream(),
-            this::compareBuses);
+                expected.getBusBreakerView().getBusStream(),
+                actual.getBusBreakerView().getBusStream(),
+                this::compareBuses);
         compare(
-            expected.getLoadStream(),
-            actual.getLoadStream(),
-            this::compareLoads);
+                expected.getLoadStream(),
+                actual.getLoadStream(),
+                this::compareLoads);
         compare(
-            expected.getShuntCompensatorStream(),
-            actual.getShuntCompensatorStream(),
-            this::compareShunts);
+                expected.getShuntCompensatorStream(),
+                actual.getShuntCompensatorStream(),
+                this::compareShunts);
         compare(
-            expected.getStaticVarCompensatorStream(),
-            actual.getStaticVarCompensatorStream(),
-            this::compareStaticVarCompensators);
+                expected.getStaticVarCompensatorStream(),
+                actual.getStaticVarCompensatorStream(),
+                this::compareStaticVarCompensators);
         compare(
-            expected.getGeneratorStream(),
-            actual.getGeneratorStream(),
-            this::compareGenerators);
+                expected.getGeneratorStream(),
+                actual.getGeneratorStream(),
+                this::compareGenerators);
         compare(
-            expected.getSwitchStream(),
-            actual.getSwitchStream(),
-            this::compareSwitches);
+                expected.getSwitchStream(),
+                actual.getSwitchStream(),
+                this::compareSwitches);
         compare(
-            expected.getLineStream(),
-            actual.getLineStream(),
-            this::testLines);
+                expected.getLineStream(),
+                actual.getLineStream(),
+                this::testLines);
         compare(
-            expected.getTwoWindingsTransformerStream(),
-            actual.getTwoWindingsTransformerStream(),
-            this::compareTwoWindingTransformers);
+                expected.getTwoWindingsTransformerStream(),
+                actual.getTwoWindingsTransformerStream(),
+                this::compareTwoWindingTransformers);
         compare(
-            expected.getThreeWindingsTransformerStream(),
-            actual.getThreeWindingsTransformerStream(),
-            this::compareThreeWindingsTransformers);
+                expected.getThreeWindingsTransformerStream(),
+                actual.getThreeWindingsTransformerStream(),
+                this::compareThreeWindingsTransformers);
         compare(
-            expected.getDanglingLineStream(),
-            actual.getDanglingLineStream(),
-            this::compareDanglingLines);
+                expected.getDanglingLineStream(),
+                actual.getDanglingLineStream(),
+                this::compareDanglingLines);
         diff.end();
     }
 
     // The actual network does not contain unexpected identifiables
     // All identifiables in expected stream exist in actual network and have same attributes
     private <T extends Identifiable<T>> void compare(
-        Stream<T> expecteds,
-        Stream<T> actuals,
-        BiConsumer<T, T> testAttributes) {
+            Stream<T> expecteds,
+            Stream<T> actuals,
+            BiConsumer<T, T> testAttributes) {
         actuals.forEach(actual -> {
             Identifiable expected = networkMapping.findExpected(actual);
             if (expected == null) {
@@ -188,11 +188,11 @@ public class Comparison {
     private void compareSubstations(Substation expected, Substation actual) {
         compare("country", expected.getCountry(), actual.getCountry());
         Set<String> mappedActualGeoTags = actual.getGeographicalTags().stream()
-            .map(networkMapping::applyPrefixToActual)
-            .collect(Collectors.toSet());
+                .map(networkMapping::applyPrefixToActual)
+                .collect(Collectors.toSet());
         compare("geographicalTags",
-            expected.getGeographicalTags(),
-            mappedActualGeoTags);
+                expected.getGeographicalTags(),
+                mappedActualGeoTags);
     }
 
     private void compareVoltageLevels(VoltageLevel expected, VoltageLevel actual) {
@@ -200,11 +200,11 @@ public class Comparison {
         compare("nominalV", expected.getNominalV(), actual.getNominalV());
         if (config.checkVoltageLevelLimits) {
             compare("lowVoltageLimit",
-                expected.getLowVoltageLimit(),
-                actual.getLowVoltageLimit());
+                    expected.getLowVoltageLimit(),
+                    actual.getLowVoltageLimit());
             compare("highVoltageLimit",
-                expected.getHighVoltageLimit(),
-                actual.getHighVoltageLimit());
+                    expected.getHighVoltageLimit(),
+                    actual.getHighVoltageLimit());
         }
     }
 
@@ -216,8 +216,8 @@ public class Comparison {
 
     private void compareLoads(Load expected, Load actual) {
         equivalent("VoltageLevel",
-            expected.getTerminal().getVoltageLevel(),
-            actual.getTerminal().getVoltageLevel());
+                expected.getTerminal().getVoltageLevel(),
+                actual.getTerminal().getVoltageLevel());
         compare("p0", expected.getP0(), actual.getP0());
         compare("q0", expected.getQ0(), actual.getQ0());
         // TODO Should we check terminals ? (we are not setting terminal id)
@@ -227,46 +227,46 @@ public class Comparison {
 
     private void compareShunts(ShuntCompensator expected, ShuntCompensator actual) {
         equivalent("VoltageLevel",
-            expected.getTerminal().getVoltageLevel(),
-            actual.getTerminal().getVoltageLevel());
+                expected.getTerminal().getVoltageLevel(),
+                actual.getTerminal().getVoltageLevel());
         compare("maximumSectionCount",
-            expected.getMaximumSectionCount(),
-            actual.getMaximumSectionCount());
+                expected.getMaximumSectionCount(),
+                actual.getMaximumSectionCount());
         compare("bPerSection",
-            expected.getbPerSection(),
-            actual.getbPerSection());
+                expected.getbPerSection(),
+                actual.getbPerSection());
     }
 
     private void compareStaticVarCompensators(
-        StaticVarCompensator expected,
-        StaticVarCompensator actual) {
+            StaticVarCompensator expected,
+            StaticVarCompensator actual) {
         equivalent("VoltageLevel",
-            expected.getTerminal().getVoltageLevel(),
-            actual.getTerminal().getVoltageLevel());
+                expected.getTerminal().getVoltageLevel(),
+                actual.getTerminal().getVoltageLevel());
         compare("Bmin",
-            expected.getBmin(),
-            actual.getBmin());
+                expected.getBmin(),
+                actual.getBmin());
         compare("Bmax",
-            expected.getBmax(),
-            actual.getBmax());
+                expected.getBmax(),
+                actual.getBmax());
         compare("voltageSetPoint",
-            expected.getVoltageSetPoint(),
-            actual.getVoltageSetPoint());
+                expected.getVoltageSetPoint(),
+                actual.getVoltageSetPoint());
         compare("reactivePowerSetPoint",
-            expected.getReactivePowerSetPoint(),
-            actual.getReactivePowerSetPoint());
+                expected.getReactivePowerSetPoint(),
+                actual.getReactivePowerSetPoint());
         compare("regulationMode",
-            expected.getRegulationMode(),
-            actual.getRegulationMode());
+                expected.getRegulationMode(),
+                actual.getRegulationMode());
     }
 
     private void compareGenerators(Generator expected, Generator actual) {
         equivalent("VoltageLevel",
-            expected.getTerminal().getVoltageLevel(),
-            actual.getTerminal().getVoltageLevel());
+                expected.getTerminal().getVoltageLevel(),
+                actual.getTerminal().getVoltageLevel());
         sameIdentifier("ConnectableBus",
-            expected.getTerminal().getBusBreakerView().getConnectableBus(),
-            actual.getTerminal().getBusBreakerView().getConnectableBus());
+                expected.getTerminal().getBusBreakerView().getConnectableBus(),
+                actual.getTerminal().getBusBreakerView().getConnectableBus());
         Bus be = expected.getTerminal().getBusBreakerView().getBus();
         Bus ba = actual.getTerminal().getBusBreakerView().getBus();
         if (be == null) {
@@ -288,14 +288,14 @@ public class Comparison {
         compare("targetQ", expected.getTargetQ(), actual.getTargetQ());
         compare("targetV", expected.getTargetV(), actual.getTargetV());
         compare("isVoltageRegulatorOn",
-            expected.isVoltageRegulatorOn(),
-            actual.isVoltageRegulatorOn());
+                expected.isVoltageRegulatorOn(),
+                actual.isVoltageRegulatorOn());
         if (config.checkGeneratorRegulatingTerminal
-            && (expected.getRegulatingTerminal() != null
+                && (expected.getRegulatingTerminal() != null
                 || actual.getRegulatingTerminal() != null)) {
             sameIdentifier("RegulatingTerminalBus",
-                expected.getRegulatingTerminal().getBusBreakerView().getBus(),
-                actual.getRegulatingTerminal().getBusBreakerView().getBus());
+                    expected.getRegulatingTerminal().getBusBreakerView().getBus(),
+                    actual.getRegulatingTerminal().getBusBreakerView().getBus());
         }
 
         compare("energySource", expected.getEnergySource(), actual.getEnergySource());
@@ -324,15 +324,15 @@ public class Comparison {
         switch (expected.getKind()) {
             case MIN_MAX:
                 compareGeneratorMinMaxReactiveLimits(
-                    (MinMaxReactiveLimits) expected,
-                    (MinMaxReactiveLimits) actual);
+                        (MinMaxReactiveLimits) expected,
+                        (MinMaxReactiveLimits) actual);
                 break;
 
             case CURVE:
                 if (config.checkGeneratorReactiveCapabilityCurve) {
                     compareGeneratorReactiveCapabilityCurve(
-                        (ReactiveCapabilityCurve) expected,
-                        (ReactiveCapabilityCurve) actual);
+                            (ReactiveCapabilityCurve) expected,
+                            (ReactiveCapabilityCurve) actual);
                 }
                 break;
 
@@ -342,22 +342,22 @@ public class Comparison {
     }
 
     private void compareGeneratorMinMaxReactiveLimits(
-        MinMaxReactiveLimits expected,
-        MinMaxReactiveLimits actual) {
+            MinMaxReactiveLimits expected,
+            MinMaxReactiveLimits actual) {
         compare("minQ", expected.getMinQ(), actual.getMinQ());
         compare("maxQ", expected.getMaxQ(), actual.getMaxQ());
     }
 
     private void compareGeneratorReactiveCapabilityCurve(
-        ReactiveCapabilityCurve expected,
-        ReactiveCapabilityCurve actual) {
+            ReactiveCapabilityCurve expected,
+            ReactiveCapabilityCurve actual) {
         // From the IIDM API we don't know if the collection of points is sorted,
         // so we sort points by active power, then compare resulting lists point by point
         Comparator<Point> comparePoints = (p0, p1) -> Double.compare(p0.getP(), p1.getP());
         List<Point> e = expected.getPoints().stream().sorted(comparePoints)
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
         List<Point> a = actual.getPoints().stream().sorted(comparePoints)
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
         compare("reactiveCapabilityCurve.size", e.size(), a.size());
         for (int k = 0; k < e.size(); k++) {
             Point pe = e.get(k);
@@ -375,11 +375,11 @@ public class Comparison {
 
     private void testLines(Line expected, Line actual) {
         equivalent("VoltageLevel1",
-            expected.getTerminal1().getVoltageLevel(),
-            actual.getTerminal1().getVoltageLevel());
+                expected.getTerminal1().getVoltageLevel(),
+                actual.getTerminal1().getVoltageLevel());
         equivalent("VoltageLevel2",
-            expected.getTerminal2().getVoltageLevel(),
-            actual.getTerminal2().getVoltageLevel());
+                expected.getTerminal2().getVoltageLevel(),
+                actual.getTerminal2().getVoltageLevel());
         compare("r", expected.getR(), actual.getR());
         compare("x", expected.getX(), actual.getX());
         compare("g1", expected.getG1(), actual.getG1());
@@ -387,17 +387,17 @@ public class Comparison {
         compare("g2", expected.getG2(), actual.getG2());
         compare("b2", expected.getB2(), actual.getB2());
         compareCurrentLimits(expected, actual,
-            expected.getCurrentLimits1(),
-            actual.getCurrentLimits1());
+                expected.getCurrentLimits1(),
+                actual.getCurrentLimits1());
         compareCurrentLimits(expected, actual,
-            expected.getCurrentLimits2(),
-            actual.getCurrentLimits2());
+                expected.getCurrentLimits2(),
+                actual.getCurrentLimits2());
     }
 
     private void compareDanglingLines(DanglingLine expected, DanglingLine actual) {
         equivalent("VoltageLevel",
-            expected.getTerminal().getVoltageLevel(),
-            actual.getTerminal().getVoltageLevel());
+                expected.getTerminal().getVoltageLevel(),
+                actual.getTerminal().getVoltageLevel());
         compare("r", expected.getR(), actual.getR());
         compare("x", expected.getX(), actual.getX());
         compare("g", expected.getG(), actual.getG());
@@ -406,18 +406,18 @@ public class Comparison {
         compare("q0", expected.getQ0(), actual.getQ0());
         compare("UcteXnodeCode", expected.getUcteXnodeCode(), actual.getUcteXnodeCode());
         compareCurrentLimits(expected, actual,
-            expected.getCurrentLimits(),
-            actual.getCurrentLimits());
+                expected.getCurrentLimits(),
+                actual.getCurrentLimits());
         compareCurrentLimits(expected, actual,
-            expected.getCurrentLimits(),
-            actual.getCurrentLimits());
+                expected.getCurrentLimits(),
+                actual.getCurrentLimits());
     }
 
     private void compareCurrentLimits(
-        Identifiable bexpected,
-        Identifiable bactual,
-        CurrentLimits expected,
-        CurrentLimits actual) {
+            Identifiable bexpected,
+            Identifiable bactual,
+            CurrentLimits expected,
+            CurrentLimits actual) {
         if (expected == null) {
             if (actual != null) {
                 diff.unexpected(bactual);
@@ -434,13 +434,13 @@ public class Comparison {
     }
 
     private void compareTwoWindingTransformers(TwoWindingsTransformer expected,
-        TwoWindingsTransformer actual) {
+                                               TwoWindingsTransformer actual) {
         equivalent("VoltageLevel1",
-            expected.getTerminal1().getVoltageLevel(),
-            actual.getTerminal1().getVoltageLevel());
+                expected.getTerminal1().getVoltageLevel(),
+                actual.getTerminal1().getVoltageLevel());
         equivalent("VoltageLevel2",
-            expected.getTerminal2().getVoltageLevel(),
-            actual.getTerminal2().getVoltageLevel());
+                expected.getTerminal2().getVoltageLevel(),
+                actual.getTerminal2().getVoltageLevel());
         compare("r", expected.getR(), actual.getR());
         compare("x", expected.getX(), actual.getX());
         compare("g", expected.getG(), actual.getG());
@@ -448,11 +448,11 @@ public class Comparison {
         compare("ratedU1", expected.getRatedU1(), actual.getRatedU1());
         compare("ratedU2", expected.getRatedU2(), actual.getRatedU2());
         compareCurrentLimits(expected, actual,
-            expected.getCurrentLimits1(),
-            actual.getCurrentLimits1());
+                expected.getCurrentLimits1(),
+                actual.getCurrentLimits1());
         compareCurrentLimits(expected, actual,
-            expected.getCurrentLimits2(),
-            actual.getCurrentLimits2());
+                expected.getCurrentLimits2(),
+                actual.getCurrentLimits2());
 
         compareRatioTapChanger(expected.getRatioTapChanger(), actual.getRatioTapChanger());
         comparePhaseTapChanger(expected.getPhaseTapChanger(), actual.getPhaseTapChanger());
@@ -515,37 +515,37 @@ public class Comparison {
     }
 
     private void compareRatioTapChanger(
-        RatioTapChanger expected,
-        RatioTapChanger actual) {
+            RatioTapChanger expected,
+            RatioTapChanger actual) {
         compareTapChanger(expected, actual, this::compareRatioTapChangerStep);
         if (expected == null) {
             return;
         }
         compare("ratioTapChanger.hasLoadTapChangingCapabilities",
-            expected.hasLoadTapChangingCapabilities(),
-            actual.hasLoadTapChangingCapabilities());
+                expected.hasLoadTapChangingCapabilities(),
+                actual.hasLoadTapChangingCapabilities());
         compare("ratioTapChanger.targetV", expected.getTargetV(), actual.getTargetV());
     }
 
     private void comparePhaseTapChanger(
-        PhaseTapChanger expected,
-        PhaseTapChanger actual) {
+            PhaseTapChanger expected,
+            PhaseTapChanger actual) {
         compareTapChanger(expected, actual, this::comparePhaseTapChangerStep);
         if (expected == null) {
             return;
         }
         compare("phaseTapChanger.regulationMode",
-            expected.getRegulationMode(),
-            actual.getRegulationMode());
+                expected.getRegulationMode(),
+                actual.getRegulationMode());
         compare("phaseTapChanger.regulationValue",
-            expected.getRegulationValue(),
-            actual.getRegulationValue());
+                expected.getRegulationValue(),
+                actual.getRegulationValue());
     }
 
     private <TC extends TapChanger<TC, TCS>, TCS extends TapChangerStep<TCS>> void compareTapChanger(
-        TapChanger<TC, TCS> expected,
-        TapChanger<TC, TCS> actual,
-        BiConsumer<TCS, TCS> testTapChangerStep1) {
+            TapChanger<TC, TCS> expected,
+            TapChanger<TC, TCS> actual,
+            BiConsumer<TCS, TCS> testTapChangerStep1) {
         if (expected == null) {
             if (actual != null) {
                 diff.unexpected("TapChanger");
@@ -557,17 +557,17 @@ public class Comparison {
                 return;
             }
             compare("tapChanger.lowTapPosition",
-                expected.getLowTapPosition(),
-                actual.getLowTapPosition());
+                    expected.getLowTapPosition(),
+                    actual.getLowTapPosition());
             compare("tapChanger.highTapPosition",
-                expected.getHighTapPosition(),
-                actual.getHighTapPosition());
+                    expected.getHighTapPosition(),
+                    actual.getHighTapPosition());
             compare("tapChanger.tapPosition",
-                expected.getTapPosition(),
-                actual.getTapPosition());
+                    expected.getTapPosition(),
+                    actual.getTapPosition());
             compare("tapChanger.targetDeadband",
-                expected.getTargetDeadband(),
-                actual.getTargetDeadband());
+                    expected.getTargetDeadband(),
+                    actual.getTargetDeadband());
             compare("tapChanger.stepCount", expected.getStepCount(), actual.getStepCount());
             // Check steps
             for (int k = expected.getLowTapPosition(); k <= expected.getHighTapPosition(); k++) {
@@ -577,15 +577,15 @@ public class Comparison {
             }
             // Check regulation
             compare("tapChanger.isRegulating", expected.isRegulating(),
-                actual.isRegulating());
+                    actual.isRegulating());
             if (expected.getRegulationTerminal() == null
-                || actual.getRegulationTerminal() == null) {
+                    || actual.getRegulationTerminal() == null) {
                 // TODO We are not checking regulation terminals if one of them is null
             } else {
                 equivalent(
-                    "tapChanger.RegulationTerminalConnectable",
-                    expected.getRegulationTerminal().getConnectable(),
-                    actual.getRegulationTerminal().getConnectable());
+                        "tapChanger.RegulationTerminalConnectable",
+                        expected.getRegulationTerminal().getConnectable(),
+                        actual.getRegulationTerminal().getConnectable());
             }
 
             if (expected.getRegulationTerminal() != null || actual.getRegulationTerminal() != null) {
@@ -598,16 +598,16 @@ public class Comparison {
                     return;
                 }
                 sameIdentifier("tapChanger.getRegulationTerminal",
-                    expected.getRegulationTerminal().getBusBreakerView().getBus(),
-                    actual.getRegulationTerminal().getBusBreakerView().getBus());
+                        expected.getRegulationTerminal().getBusBreakerView().getBus(),
+                        actual.getRegulationTerminal().getBusBreakerView().getBus());
             }
         }
     }
 
     private <TC extends TapChanger<TC, TCS>, TCS extends TapChangerStep<TCS>> void compareTapChangerStep(
-        TCS expected,
-        TCS actual,
-        BiConsumer<TCS, TCS> testTapChangerStep1) {
+            TCS expected,
+            TCS actual,
+            BiConsumer<TCS, TCS> testTapChangerStep1) {
         compare("tapChangerStep.r", expected.getR(), actual.getR());
         compare("tapChangerStep.x", expected.getX(), actual.getX());
         compare("tapChangerStep.g", expected.getG(), actual.getG());
@@ -636,16 +636,16 @@ public class Comparison {
         if (config.compareNamesAllowSuffixes) {
             int endIndex = Math.min(expected.length(), actual.length());
             compare(context,
-                expected1.substring(0, endIndex),
-                actual1.substring(0, endIndex));
+                    expected1.substring(0, endIndex),
+                    actual1.substring(0, endIndex));
         } else {
             compare(context, expected1, actual1);
         }
     }
 
     private void compareTemporaryLimits(Identifiable bactual,
-        Collection<CurrentLimits.TemporaryLimit> expected,
-        Collection<CurrentLimits.TemporaryLimit> actual) {
+                                        Collection<CurrentLimits.TemporaryLimit> expected,
+                                        Collection<CurrentLimits.TemporaryLimit> actual) {
         if (expected.size() != actual.size()) {
             diff.unexpected(bactual);
             return;
@@ -668,9 +668,9 @@ public class Comparison {
     }
 
     private void equivalent(
-        String context,
-        Identifiable expected,
-        Identifiable actual) {
+            String context,
+            Identifiable expected,
+            Identifiable actual) {
         if (!networkMapping.equivalent(expected, actual)) {
             diff.notEquivalent(context, expected, actual);
         }

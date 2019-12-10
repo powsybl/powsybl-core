@@ -41,7 +41,7 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
             return false;
         }
         if (context.boundary().containsNode(nodeId(1))
-            || context.boundary().containsNode(nodeId(2))) {
+                || context.boundary().containsNode(nodeId(2))) {
             invalid("2 windings transformer end point at boundary is not supported");
             return false;
         }
@@ -71,12 +71,12 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
         double b0 = b1 / rho0Square + b2;
 
         TwoWindingsTransformerAdder adder = substation().newTwoWindingsTransformer()
-            .setR(r0)
-            .setX(x0)
-            .setG(g0)
-            .setB(b0)
-            .setRatedU1(ratedU1)
-            .setRatedU2(ratedU2);
+                .setR(r0)
+                .setX(x0)
+                .setG(g0)
+                .setB(b0)
+                .setRatedU1(ratedU1)
+                .setRatedU2(ratedU2);
         identify(adder);
         connect(adder);
         TwoWindingsTransformer tx = adder.add();
@@ -146,7 +146,7 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
                 String reason = "Unsupported modelling: two winding transformer with two ratio tap changers";
                 invalid(reason);
                 throw new PowsyblException(
-                    String.format("TwoWindingTransformer %s %s", id, reason));
+                        String.format("TwoWindingTransformer %s %s", id, reason));
             }
             rtc = rtc1;
             rtcSide = 1;
@@ -164,7 +164,7 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
                 String reason = "Unsupported modelling: transformer with two phase tap changers";
                 invalid(reason);
                 throw new PowsyblException(
-                    String.format("TwoWindingTransformer %s %s", id, reason));
+                        String.format("TwoWindingTransformer %s %s", id, reason));
             }
             ptc = ptc1;
             ptcSide = 1;
@@ -177,9 +177,9 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
         }
         if (rtcSide > 0 && ptcSide > 0 && rtcSide != ptcSide) {
             String reason = String.format(
-                "Unsupported modelling: transformer with ratio and tap changer not on the same winding, rtc: %s, ptc: %s",
-                rtc,
-                ptc);
+                    "Unsupported modelling: transformer with ratio and tap changer not on the same winding, rtc: %s, ptc: %s",
+                    rtc,
+                    ptc);
             invalid(reason);
         }
 
@@ -204,3 +204,5 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
     private final Map<String, PropertyBag> powerTransformerRatioTapChanger;
     private final Map<String, PropertyBag> powerTransformerPhaseTapChanger;
 }
+
+
