@@ -24,6 +24,8 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     private double bMax;
 
+    private TerminalExt regulatingTerminal;
+
     // attributes depending on the variant
 
     private final TDoubleArrayList voltageSetPoint;
@@ -33,7 +35,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     private final TIntArrayList regulationMode;
 
     StaticVarCompensatorImpl(String id, String name, double bMin, double bMax, double voltageSetPoint, double reactivePowerSetPoint,
-                             RegulationMode regulationMode, Ref<? extends VariantManagerHolder> ref) {
+                             RegulationMode regulationMode, TerminalExt regulatingTerminal, Ref<? extends VariantManagerHolder> ref) {
         super(id, name);
         this.bMin = bMin;
         this.bMax = bMax;
@@ -41,6 +43,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
         this.voltageSetPoint = new TDoubleArrayList(variantArraySize);
         this.reactivePowerSetPoint = new TDoubleArrayList(variantArraySize);
         this.regulationMode = new TIntArrayList(variantArraySize);
+        this.regulatingTerminal = regulatingTerminal;
         for (int i = 0; i < variantArraySize; i++) {
             this.voltageSetPoint.add(voltageSetPoint);
             this.reactivePowerSetPoint.add(reactivePowerSetPoint);
@@ -49,7 +52,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     }
 
     @Override
-    public Terminal getTerminal() {
+    public TerminalExt getTerminal() {
         return terminals.get(0);
     }
 
@@ -134,6 +137,18 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
                 regulationMode.ordinal())];
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("regulationMode", variantId, oldValue, regulationMode);
+        return this;
+    }
+
+    @Override
+    public TerminalExt getRegulatingTerminal() {
+        return regulatingTerminal;
+    }
+
+    @Override
+    public StaticVarCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
+        ValidationUtil.checkRegulatingTerminal(this, (TerminalExt) regulatingTerminal, getNetwork());
+        this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
         return this;
     }
 
