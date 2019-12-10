@@ -16,13 +16,15 @@ import java.util.Objects;
  */
 public class TimeSeriesDataUpdated extends NodeEvent {
 
+    public static final String TIME_SERIES_DATA_UPDATED = "TIME_SERIES_DATA_UPDATED";
+
     @JsonProperty("timeSeriesName")
     private final String timeSeriesName;
 
     @JsonCreator
     public TimeSeriesDataUpdated(@JsonProperty("id") String id,
                                  @JsonProperty("timeSeriesName") String timeSeriesName) {
-        super(id, NodeEventType.TIME_SERIES_DATA_UPDATED);
+        super(id, TIME_SERIES_DATA_UPDATED);
         this.timeSeriesName = Objects.requireNonNull(timeSeriesName);
     }
 

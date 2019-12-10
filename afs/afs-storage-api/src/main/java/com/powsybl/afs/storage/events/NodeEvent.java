@@ -6,7 +6,6 @@
  */
 package com.powsybl.afs.storage.events;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -21,10 +20,10 @@ public class NodeEvent {
     @JsonProperty("id")
     protected final String id;
 
-    @JsonIgnore
-    protected final NodeEventType type;
+    @JsonProperty
+    protected final String type;
 
-    protected NodeEvent(String id, NodeEventType type) {
+    protected NodeEvent(String id, String type) {
         this.id = Objects.requireNonNull(id);
         this.type = Objects.requireNonNull(type);
     }
@@ -33,7 +32,7 @@ public class NodeEvent {
         return id;
     }
 
-    public NodeEventType getType() {
+    public String getType() {
         return type;
     }
 }

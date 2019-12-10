@@ -8,10 +8,7 @@ package com.powsybl.afs.local.storage;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.Folder;
-import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.NodeDependency;
-import com.powsybl.afs.storage.NodeGenericMetadata;
-import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.*;
 import com.powsybl.commons.exceptions.UncheckedUnsupportedEncodingException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.timeseries.DoubleDataChunk;
@@ -32,7 +29,7 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LocalAppStorage implements AppStorage {
+public class LocalAppStorage extends AbstractAppStorage {
 
     private static final int DEFAULT_VERSION = 0;
 

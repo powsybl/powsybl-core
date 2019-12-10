@@ -19,25 +19,27 @@ public class RatioTapChangerAdapter extends AbstractTapChangerAdapter<RatioTapCh
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public double getTargetV() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getTargetV();
     }
 
     @Override
     public RatioTapChanger setTargetV(final double targetV) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setTargetV(targetV);
+        return this;
     }
 
     @Override
     public boolean hasLoadTapChangingCapabilities() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().hasLoadTapChangingCapabilities();
     }
 
     @Override
     public RatioTapChanger setLoadTapChangingCapabilities(final boolean status) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setLoadTapChangingCapabilities(status);
+        return this;
     }
 }

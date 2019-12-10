@@ -35,28 +35,22 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractAppStorageTest {
 
-    static final String FOLDER_PSEUDO_CLASS = "folder";
+    protected static final String FOLDER_PSEUDO_CLASS = "folder";
     static final String DATA_FILE_CLASS = "data";
 
-    protected ListenableAppStorage storage;
+    protected AppStorage storage;
 
-    private BlockingQueue<NodeEvent> eventStack;
+    protected BlockingQueue<NodeEvent> eventStack;
 
-    private AppStorageListener l = eventList -> eventStack.addAll(eventList.getEvents());
+    protected AppStorageListener l = eventList -> eventStack.addAll(eventList.getEvents());
 
     protected abstract AppStorage createStorage();
 
     @Before
     public void setUp() throws Exception {
         eventStack = new LinkedBlockingQueue<>();
-
-        AppStorage storage = createStorage();
-        if (storage instanceof ListenableAppStorage) {
-            this.storage = (ListenableAppStorage) storage;
-        } else {
-            this.storage = new DefaultListenableAppStorage(storage);
-        }
-        this.storage.addListener(l);
+        this.storage = createStorage();
+        this.storage.getEventsBus().addListener(l);
     }
 
     @After
@@ -88,7 +82,7 @@ public abstract class AbstractAppStorageTest {
         assertTrue(storage.isConsistent(rootFolderInfo.getId()));
 
         // check event
-        assertEventStack(new NodeCreated(rootFolderInfo.getId(), null));
+        assertEventStack(new NodeCreated(rootFolderInfo.getId(), null), new NodeConsistent(rootFolderInfo.getId()));
 
         assertNotNull(rootFolderInfo);
 
@@ -535,16 +529,20 @@ public abstract class AbstractAppStorageTest {
         } catch (Exception ignored) {
         }
 
-        testUpdateNodeMetadata(rootFolderInfo);
+        // 19 check that eventsBus is not null
+        assertNotNull(storage.getEventsBus());
+
+        storage.getEventsBus().pushEvent(new NodeCreated("test", "test"), "test useful for RemoteStorage event push");
     }
 
-    private void testUpdateNodeMetadata(NodeInfo rootFolderInfo) throws InterruptedException {
+    protected void testUpdateNodeMetadata(NodeInfo rootFolderInfo, AppStorage storage) throws InterruptedException {
         NodeGenericMetadata metadata = new NodeGenericMetadata();
         NodeInfo node = storage.createNode(rootFolderInfo.getId(), "testNode", "unkownFile", "", 0, cloneMetadata(metadata));
         storage.flush();
 
         checkMetadataEquality(metadata, node.getGenericMetadata());
-        discardEvents(17);
+
+        discardEvents(3);
 
         storage.setMetadata(node.getId(), cloneMetadata(metadata));
         storage.flush();

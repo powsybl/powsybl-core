@@ -10,6 +10,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.afs.storage.*;
+import com.powsybl.afs.storage.events.*;
 import com.powsybl.timeseries.*;
 import org.apache.commons.lang3.SystemUtils;
 import org.mapdb.Atomic;
@@ -27,19 +28,24 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MapDbAppStorage implements AppStorage {
+public class MapDbAppStorage extends AbstractAppStorage {
 
-    public static MapDbAppStorage createMem(String fileSystemName) {
+    @FunctionalInterface
+    public interface MapDbAppStorageProvider<F, S, T, R> {
+        public R apply(F first, S second, T third);
+    }
+
+    public static MapDbAppStorage createMem(String fileSystemName, EventsBus eventsBus) {
         DBMaker.Maker maker = DBMaker.memoryDB();
-        return new MapDbAppStorage(fileSystemName, maker::make);
+        return new MapDbAppStorage(fileSystemName, maker::make, eventsBus);
     }
 
-    public static MapDbAppStorage createHeap(String fileSystemName) {
+    public static MapDbAppStorage createHeap(String fileSystemName, EventsBus eventsBus) {
         DBMaker.Maker maker = DBMaker.heapDB();
-        return new MapDbAppStorage(fileSystemName, maker::make);
+        return new MapDbAppStorage(fileSystemName, maker::make, eventsBus);
     }
 
-    public static MapDbAppStorage createMmapFile(String fileSystemName, File dbFile) {
+    public static MapDbAppStorage createMmapFile(String fileSystemName, File dbFile, EventsBus eventsBus) {
         return new MapDbAppStorage(fileSystemName, () -> {
             DBMaker.Maker maker = DBMaker.fileDB(dbFile)
                     .transactionEnable();
@@ -50,7 +56,7 @@ public class MapDbAppStorage implements AppStorage {
                         .fileMmapPreclearDisable();
             }
             return maker.make();
-        });
+        }, eventsBus);
     }
 
     private final String fileSystemName;
@@ -89,7 +95,7 @@ public class MapDbAppStorage implements AppStorage {
 
     private final ConcurrentMap<UUID, List<UUID>> backwardDependencyNodesMap;
 
-    protected MapDbAppStorage(String fileSystemName, Supplier<DB> db) {
+    protected MapDbAppStorage(String fileSystemName, Supplier<DB> db, EventsBus eventsBus) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.db = db.get();
 
@@ -155,6 +161,8 @@ public class MapDbAppStorage implements AppStorage {
         backwardDependencyNodesMap = this.db
                 .hashMap("backwardDependencyNodes", UuidSerializer.INSTANCE, UuidListSerializer.INSTANCE)
                 .createOrOpen();
+
+        this.eventsBus = Objects.requireNonNull(eventsBus);
     }
 
     private static <K, V> Map<K, Set<V>> addToSet(Map<K, Set<V>> map, K key, V value) {
@@ -282,6 +290,7 @@ public class MapDbAppStorage implements AppStorage {
         }
         UUID nodeUuid = checkNodeId(rootNodeInfo.getId());
         nodeConsistencyMap.put(nodeUuid, true);
+        this.setConsistent(rootNodeInfo.getId());
         return rootNodeInfo;
     }
 
@@ -306,12 +315,14 @@ public class MapDbAppStorage implements AppStorage {
         NodeInfo nodeInfo = getNodeInfo(nodeId);
         nodeInfo.setDescription(description);
         nodeInfoMap.put(nodeUuid, nodeInfo);
+        pushEvent(new NodeDescriptionUpdated(nodeId, description), NODE_DESCRIPTION_UPDATED);
     }
 
     @Override
     public void setConsistent(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         nodeConsistencyMap.put(nodeUuid, true);
+        pushEvent(new NodeConsistent(nodeId), NODE_CONSISTENT);
     }
 
     @Override
@@ -416,6 +427,9 @@ public class MapDbAppStorage implements AppStorage {
         // add to new parent
         addToList(childNodesMap, newParentNodeUuid, nodeUuid);
         childNodeMap.put(new NamedLink(newParentNodeUuid, name), nodeUuid);
+
+        pushEvent(new ParentChanged(nodeId),
+                String.valueOf(PARENT_CHANGED));
     }
 
     @Override
@@ -445,6 +459,7 @@ public class MapDbAppStorage implements AppStorage {
         dependencyNodesMap.put(nodeUuid, new ArrayList<>());
         backwardDependencyNodesMap.put(nodeUuid, new ArrayList<>());
         nodeConsistencyMap.put(nodeUuid, false);
+        pushEvent(new NodeCreated(nodeUuid.toString(), parentNodeId), NODE_CREATED);
         return nodeInfo;
     }
 
@@ -463,6 +478,7 @@ public class MapDbAppStorage implements AppStorage {
             nodeInfo.getGenericMetadata().getBooleans().putAll(metadata.getBooleans());
         }
         nodeInfoMap.put(nodeUuid, nodeInfo);
+        pushEvent(new NodeMetadataUpdated(nodeUuid.toString(), metadata), NODE_CREATED);
     }
 
     @Override
@@ -476,12 +492,14 @@ public class MapDbAppStorage implements AppStorage {
         });
         nodeInfo.setName(name);
         nodeInfoMap.put(nodeUuid, nodeInfo);
+        pushEvent(new NodeNameUpdated(nodeId, name), NODE_NAME_UPDATED);
     }
 
     @Override
     public String deleteNode(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         UUID parentNodeUuid = deleteNode(nodeUuid);
+        pushEvent(new NodeRemoved(nodeId, parentNodeUuid.toString()), NODE_REMOVED);
         return parentNodeUuid.toString();
     }
 
@@ -553,6 +571,7 @@ public class MapDbAppStorage implements AppStorage {
                 // store the byte array
                 dataMap.put(new NamedLink(nodeUuid, name), toByteArray());
                 addToSet(dataNamesMap, nodeUuid, name);
+                pushEvent(new NodeDataUpdated(nodeId, name), NODE_DATA_UPDATED);
             }
         };
     }
@@ -576,6 +595,9 @@ public class MapDbAppStorage implements AppStorage {
         Objects.requireNonNull(name);
         boolean removed = removeFromSet(dataNamesMap, nodeUuid, name);
         dataMap.remove(new NamedLink(nodeUuid, name));
+        if (removed) {
+            pushEvent(new NodeDataRemoved(nodeId, name), NODE_DATA_REMOVED);
+        }
         return removed;
     }
 
@@ -590,6 +612,7 @@ public class MapDbAppStorage implements AppStorage {
         }
         addToSet(timeSeriesNamesMap, nodeUuid, metadata.getName());
         timeSeriesMetadataMap.put(new NamedLink(nodeUuid, metadata.getName()), metadata);
+        pushEvent(new TimeSeriesCreated(nodeId, metadata.getName()), TIME_SERIES_CREATED);
     }
 
     @Override
@@ -740,6 +763,7 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleDataChunk> chunks) {
         addTimeSeriesData(nodeId, version, timeSeriesName, chunks, doubleTimeSeriesChunksMap);
+        pushEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName), TIME_SERIES_DATA_UPDATED);
     }
 
     @Override
@@ -750,6 +774,7 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringDataChunk> chunks) {
         addTimeSeriesData(nodeId, version, timeSeriesName, chunks, stringTimeSeriesChunksMap);
+        pushEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName), TIME_SERIES_DATA_UPDATED);
     }
 
     @Override
@@ -763,9 +788,10 @@ public class MapDbAppStorage implements AppStorage {
         List<TimeSeriesKey> keys = timeSeriesLastChunkMap.keySet().stream()
                 .filter(key -> key.getNodeUuid().compareTo(nodeUuid) == 0)
                 .collect(Collectors.toList());
-        keys.forEach(key -> timeSeriesLastChunkMap.remove(key));
+        keys.forEach(timeSeriesLastChunkMap::remove);
         clearTimeSeriesData(nodeId, doubleTimeSeriesChunksMap);
         clearTimeSeriesData(nodeId, stringTimeSeriesChunksMap);
+        pushEvent(new TimeSeriesCleared(nodeId), TIME_SERIES_CLEARED);
     }
 
     @Override
@@ -778,6 +804,8 @@ public class MapDbAppStorage implements AppStorage {
         addToList(dependencyNodesMap, nodeUuid, new NamedLink(toNodeUuid, name));
         addToList(dependencyNodesByNameMap, new NamedLink(nodeUuid, name), toNodeUuid);
         addToList(backwardDependencyNodesMap, toNodeUuid, nodeUuid);
+        pushEvent(new DependencyAdded(nodeId, name), DEPENDENCY_ADDED);
+        pushEvent(new BackwardDependencyAdded(toNodeId, name), BACKWARD_DEPENDENCY_ADDED);
     }
 
     @Override
@@ -831,11 +859,14 @@ public class MapDbAppStorage implements AppStorage {
         removeFromList(dependencyNodesMap, nodeUuid, new NamedLink(toNodeUuid, name));
         removeFromList(dependencyNodesByNameMap, new NamedLink(nodeUuid, name), toNodeUuid);
         removeFromList(backwardDependencyNodesMap, toNodeUuid, nodeUuid);
+        pushEvent(new DependencyRemoved(nodeId, name), DEPENDENCY_REMOVED);
+        pushEvent(new BackwardDependencyRemoved(toNodeId, name), BACKWARD_DEPENDENCY_REMOVED);
     }
 
     @Override
     public void flush() {
         db.commit();
+        eventsBus.flush();
     }
 
     @Override

@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.VscConverterStationAdder;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class VscConverterStationAdderAdapter extends AbstractIdentifiableAdderAdapter<VscConverterStationAdder> implements VscConverterStationAdder {
+public class VscConverterStationAdderAdapter extends AbstractInjectionAdderAdapter<VscConverterStationAdder> implements VscConverterStationAdder {
 
     VscConverterStationAdderAdapter(final VscConverterStationAdder delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -27,43 +27,25 @@ public class VscConverterStationAdderAdapter extends AbstractIdentifiableAdderAd
     // Simple delegated methods ------
     // -------------------------------
     @Override
-    public VscConverterStationAdderAdapter setLossFactor(final float lossFactor) {
+    public VscConverterStationAdder setLossFactor(final float lossFactor) {
         getDelegate().setLossFactor(lossFactor);
         return this;
     }
 
     @Override
-    public VscConverterStationAdderAdapter setNode(final int node) {
-        getDelegate().setNode(node);
-        return this;
-    }
-
-    @Override
-    public VscConverterStationAdderAdapter setBus(final String bus) {
-        getDelegate().setBus(bus);
-        return this;
-    }
-
-    @Override
-    public VscConverterStationAdderAdapter setConnectableBus(final String connectableBus) {
-        getDelegate().setConnectableBus(connectableBus);
-        return this;
-    }
-
-    @Override
-    public VscConverterStationAdderAdapter setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
+    public VscConverterStationAdder setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
         getDelegate().setVoltageRegulatorOn(voltageRegulatorOn);
         return this;
     }
 
     @Override
-    public VscConverterStationAdderAdapter setVoltageSetpoint(final double voltageSetpoint) {
+    public VscConverterStationAdder setVoltageSetpoint(final double voltageSetpoint) {
         getDelegate().setVoltageSetpoint(voltageSetpoint);
         return this;
     }
 
     @Override
-    public VscConverterStationAdderAdapter setReactivePowerSetpoint(final double reactivePowerSetpoint) {
+    public VscConverterStationAdder setReactivePowerSetpoint(final double reactivePowerSetpoint) {
         getDelegate().setReactivePowerSetpoint(reactivePowerSetpoint);
         return this;
     }

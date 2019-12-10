@@ -236,4 +236,8 @@ public class ForwardingAppStorage implements AppStorage {
     public void close() {
         storage.close();
     }
+
+    public EventsBus getEventsBus() {
+        return storage.getEventsBus();
+    }
 }
