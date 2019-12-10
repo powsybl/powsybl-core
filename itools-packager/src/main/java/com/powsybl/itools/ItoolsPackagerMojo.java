@@ -140,8 +140,10 @@ public class ItoolsPackagerMojo extends AbstractMojo {
             Files.createDirectories(javaDir);
             for (Artifact artifact : project.getArtifacts()) {
                 Path jar = artifact.getFile().toPath();
-                getLog().info("Add jar " + jar + " to package");
-                Files.copy(jar, javaDir.resolve(jar.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+                if (jar.toString().toLowerCase().endsWith(".jar")) {
+                    getLog().info("Add jar " + jar + " to package");
+                    Files.copy(jar, javaDir.resolve(jar.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+                }
             }
 
             // create bin directory and add scripts
