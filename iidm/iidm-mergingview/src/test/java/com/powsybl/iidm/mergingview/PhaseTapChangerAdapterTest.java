@@ -6,52 +6,105 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
-
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class PhaseTapChangerAdapterTest {
     private MergingView mergingView;
+    private Terminal terminal;
 
     @Before
     public void setup() {
         mergingView = MergingView.create("PhaseTapChangerAdapterTest", "iidm");
-        mergingView.merge(PhaseShifterTestCaseFactory.create());
+        mergingView.merge(NoEquipmentNetworkFactory.create());
+
+        final Substation substation = mergingView.getSubstation("sub");
+        final TwoWindingsTransformer twt = substation.newTwoWindingsTransformer()
+                .setId("twt")
+                .setName("twt_name")
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setRatedU1(5.0)
+                .setRatedU2(6.0)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB")
+                .add();
+        terminal = twt.getTerminal(Branch.Side.ONE);
     }
 
     @Test
     public void testSetterGetter() {
-        final TwoWindingsTransformer twt = mergingView.getTwoWindingsTransformer("PS1");
-        final PhaseTapChanger ptc = twt.getPhaseTapChanger();
-        assertNotNull(ptc);
-        assertTrue(ptc instanceof PhaseTapChangerAdapter);
+        final TwoWindingsTransformer twt = mergingView.getTwoWindingsTransformer("twt");
+
+        // adder
+        final PhaseTapChanger phaseTapChanger = twt.newPhaseTapChanger()
+                .setTapPosition(1)
+                .setLowTapPosition(0)
+                .setRegulating(true)
+                .setTargetDeadband(1.0)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setRegulationValue(10.0)
+                .setRegulationTerminal(terminal)
+                .beginStep()
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setAlpha(5.0)
+                .setRho(6.0)
+                .endStep()
+                .beginStep()
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setAlpha(5.0)
+                .setRho(6.0)
+                .endStep()
+                .add();
+        assertTrue(twt instanceof TwoWindingsTransformerAdapter);
+        assertTrue(phaseTapChanger instanceof PhaseTapChangerAdapter);
+
+        assertEquals(2, phaseTapChanger.getStepCount());
+        assertEquals(0, phaseTapChanger.getLowTapPosition());
+        assertEquals(1, phaseTapChanger.getHighTapPosition());
+        assertTrue(phaseTapChanger.isRegulating());
+        assertEquals(1.0, phaseTapChanger.getTargetDeadband(), 0.0);
+        assertEquals(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, phaseTapChanger.getRegulationMode());
+        assertSame(terminal, phaseTapChanger.getRegulationTerminal());
+        assertEquals(10.0, phaseTapChanger.getRegulationValue(), 0.0);
+
+        // setter getter
+        phaseTapChanger.setTapPosition(0);
+        assertEquals(0, phaseTapChanger.getTapPosition());
+        assertSame(phaseTapChanger.getCurrentStep(), phaseTapChanger.getStep(0));
+        phaseTapChanger.setRegulationValue(5.0);
+        assertEquals(5.0, phaseTapChanger.getRegulationValue(), 0.0);
+        phaseTapChanger.setTargetDeadband(0.5);
+        assertEquals(0.5, phaseTapChanger.getTargetDeadband(), 0.0);
+        phaseTapChanger.setRegulating(false);
+        assertFalse(phaseTapChanger.isRegulating());
+        phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
+        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
+        final Terminal terminal2 = twt.getTerminal2();
+        phaseTapChanger.setRegulationTerminal(terminal2);
+        assertSame(terminal2, phaseTapChanger.getRegulationTerminal());
+        final int lowTapPosition = 2;
+        phaseTapChanger.setLowTapPosition(lowTapPosition);
+        assertEquals(lowTapPosition, phaseTapChanger.getLowTapPosition());
 
         // Not implemented yet !
-        TestUtil.notImplemented(ptc::getLowTapPosition);
-        TestUtil.notImplemented(() -> ptc.setLowTapPosition(0));
-        TestUtil.notImplemented(ptc::getHighTapPosition);
-        TestUtil.notImplemented(ptc::getTapPosition);
-        TestUtil.notImplemented(() -> ptc.setTapPosition(0));
-        TestUtil.notImplemented(ptc::getStepCount);
-        TestUtil.notImplemented(() -> ptc.getStep(0));
-        TestUtil.notImplemented(ptc::getCurrentStep);
-        TestUtil.notImplemented(ptc::isRegulating);
-        TestUtil.notImplemented(() -> ptc.setRegulating(false));
-        TestUtil.notImplemented(ptc::getRegulationTerminal);
-        TestUtil.notImplemented(() -> ptc.setRegulationTerminal(null));
-        TestUtil.notImplemented(ptc::remove);
-        TestUtil.notImplemented(ptc::getRegulationMode);
-        TestUtil.notImplemented(() -> ptc.setRegulationMode(null));
-        TestUtil.notImplemented(ptc::getRegulationValue);
-        TestUtil.notImplemented(() -> ptc.setRegulationValue(0.0d));
+        TestUtil.notImplemented(phaseTapChanger::remove);
     }
 }

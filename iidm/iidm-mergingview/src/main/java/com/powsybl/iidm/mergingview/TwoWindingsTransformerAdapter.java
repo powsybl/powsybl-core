@@ -27,81 +27,87 @@ public class TwoWindingsTransformerAdapter extends AbstractBranchAdapter<TwoWind
         return getIndex().getRatioTapChanger(getDelegate().getRatioTapChanger());
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
     public RatioTapChangerAdder newRatioTapChanger() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new RatioTapChangerAdderAdapter(getDelegate().newRatioTapChanger(), getIndex());
     }
 
     @Override
     public PhaseTapChangerAdder newPhaseTapChanger() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new PhaseTapChangerAdderAdapter(getDelegate().newPhaseTapChanger(), getIndex());
     }
 
     @Override
     public Substation getSubstation() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getIndex().getSubstation(getDelegate().getSubstation());
     }
 
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
     @Override
     public double getR() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getR();
     }
 
     @Override
     public TwoWindingsTransformer setR(final double r) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setR(r);
+        return this;
     }
 
     @Override
     public double getX() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getX();
     }
 
     @Override
     public TwoWindingsTransformer setX(final double x) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setX(x);
+        return this;
     }
 
     @Override
     public double getG() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getG();
     }
 
     @Override
     public TwoWindingsTransformer setG(final double g) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setG(g);
+        return this;
     }
 
     @Override
     public double getB() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getB();
     }
 
     @Override
     public TwoWindingsTransformer setB(final double b) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setB(b);
+        return this;
     }
 
     @Override
     public double getRatedU1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getRatedU1();
     }
 
     @Override
     public TwoWindingsTransformer setRatedU1(final double ratedU1) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRatedU1(ratedU1);
+        return this;
     }
 
     @Override
     public double getRatedU2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getRatedU2();
     }
 
     @Override
     public TwoWindingsTransformer setRatedU2(final double ratedU2) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRatedU2(ratedU2);
+        return this;
     }
 }

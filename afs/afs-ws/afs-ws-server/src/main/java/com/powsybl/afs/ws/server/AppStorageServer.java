@@ -113,6 +113,19 @@ public class AppStorageServer {
         return Response.ok().entity(newNodeInfo).build();
     }
 
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/metadata")
+    @ApiOperation (value = "Update node's metadata")
+    @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 500, message = "Error")})
+    public Response setMetadata(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
+                                              @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId,
+                                              @ApiParam(value = "Node Meta Data") NodeGenericMetadata nodeMetadata) {
+        AppStorage storage = appDataBean.getStorage(fileSystemName);
+        storage.setMetadata(nodeId, nodeMetadata);
+        return Response.ok().build();
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/parent")

@@ -10,14 +10,14 @@ import com.powsybl.afs.Folder;
 import com.powsybl.afs.Project;
 import com.powsybl.afs.TaskMonitor;
 import com.powsybl.afs.storage.AbstractAppStorageTest;
-import com.powsybl.afs.storage.ListenableAppStorage;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.ws.client.utils.ClientUtils;
 import com.powsybl.afs.ws.client.utils.UserSession;
 import com.powsybl.afs.ws.server.utils.AppDataBean;
 import com.powsybl.afs.ws.storage.RemoteAppStorage;
-import com.powsybl.afs.ws.storage.RemoteListenableAppStorage;
+import com.powsybl.afs.ws.storage.WebSocketEventsBus;
 import com.powsybl.afs.ws.storage.RemoteTaskMonitor;
 import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -94,10 +94,11 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
     }
 
     @Override
-    protected ListenableAppStorage createStorage() {
+    protected AppStorage createStorage() {
         URI restUri = getRestUri();
-        RemoteAppStorage storage = new RemoteAppStorage(AppDataBeanMock.TEST_FS_NAME, restUri, userSession.getToken());
-        return new RemoteListenableAppStorage(storage, restUri);
+        RemoteAppStorage storage = new RemoteAppStorage(AppDataBeanMock.TEST_FS_NAME, restUri,
+                userSession.getToken());
+        return storage;
     }
 
     @Test
@@ -107,6 +108,13 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
     }
 
     @Test
+    public void testRemoteEventsStore() throws InterruptedException {
+        URI restUri = getRestUri();
+        RemoteAppStorage storage = new RemoteAppStorage(AppDataBeanMock.TEST_FS_NAME, restUri,
+                userSession.getToken());
+        assertEquals(0, ((WebSocketEventsBus) storage.getEventsBus()).getTopics().size());
+    }
+
     public void createTaskRemoteTest() {
         RemoteTaskMonitor taskMonitor = new RemoteTaskMonitor(AppDataBeanMock.TEST_FS_NAME, getRestUri(), userSession.getToken());
         NodeInfo root = storage.createRootNodeIfNotExists(storage.getFileSystemName(), Folder.PSEUDO_CLASS);
@@ -122,5 +130,4 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
         // cleanup
         storage.deleteNode(projectNode.getId());
     }
-
 }
