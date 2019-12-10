@@ -130,7 +130,7 @@ public class SecurityAnalysisRunner extends ProjectFile {
         storage.flush();
     }
 
-    public void clearResult(){
+    public void clearResult() {
         if (hasResult()) {
             storage.removeData(info.getId(), RESULT_JSON_NAME);
         }
