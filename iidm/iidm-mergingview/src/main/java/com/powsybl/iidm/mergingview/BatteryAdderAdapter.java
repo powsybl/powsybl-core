@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.BatteryAdder;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class BatteryAdderAdapter extends AbstractIdentifiableAdderAdapter<BatteryAdder> implements BatteryAdder {
+public class BatteryAdderAdapter extends AbstractInjectionAdderAdapter<BatteryAdder> implements BatteryAdder {
 
     BatteryAdderAdapter(final BatteryAdder delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -27,43 +27,25 @@ public class BatteryAdderAdapter extends AbstractIdentifiableAdderAdapter<Batter
     // Simple delegated methods ------
     // -------------------------------
     @Override
-    public BatteryAdderAdapter setNode(final int node) {
-        getDelegate().setNode(node);
-        return this;
-    }
-
-    @Override
-    public BatteryAdderAdapter setBus(final String bus) {
-        getDelegate().setBus(bus);
-        return this;
-    }
-
-    @Override
-    public BatteryAdderAdapter setConnectableBus(final String connectableBus) {
-        getDelegate().setConnectableBus(connectableBus);
-        return this;
-    }
-
-    @Override
-    public BatteryAdderAdapter setP0(final double p0) {
+    public BatteryAdder setP0(final double p0) {
         getDelegate().setP0(p0);
         return this;
     }
 
     @Override
-    public BatteryAdderAdapter setQ0(final double q0) {
+    public BatteryAdder setQ0(final double q0) {
         getDelegate().setQ0(q0);
         return this;
     }
 
     @Override
-    public BatteryAdderAdapter setMinP(final double minP) {
+    public BatteryAdder setMinP(final double minP) {
         getDelegate().setMinP(minP);
         return this;
     }
 
     @Override
-    public BatteryAdderAdapter setMaxP(final double maxP) {
+    public BatteryAdder setMaxP(final double maxP) {
         getDelegate().setMaxP(maxP);
         return this;
     }

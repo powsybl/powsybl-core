@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.Terminal;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class GeneratorAdderAdapter extends AbstractIdentifiableAdderAdapter<GeneratorAdder> implements GeneratorAdder {
+public class GeneratorAdderAdapter extends AbstractInjectionAdderAdapter<GeneratorAdder> implements GeneratorAdder {
 
     GeneratorAdderAdapter(final GeneratorAdder delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -39,24 +39,6 @@ public class GeneratorAdderAdapter extends AbstractIdentifiableAdderAdapter<Gene
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------
-    @Override
-    public GeneratorAdder setNode(final int node) {
-        getDelegate().setNode(node);
-        return this;
-    }
-
-    @Override
-    public GeneratorAdder setBus(final String bus) {
-        getDelegate().setBus(bus);
-        return this;
-    }
-
-    @Override
-    public GeneratorAdder setConnectableBus(final String connectableBus) {
-        getDelegate().setConnectableBus(connectableBus);
-        return this;
-    }
-
     @Override
     public GeneratorAdder setEnergySource(final EnergySource energySource) {
         getDelegate().setEnergySource(energySource);
