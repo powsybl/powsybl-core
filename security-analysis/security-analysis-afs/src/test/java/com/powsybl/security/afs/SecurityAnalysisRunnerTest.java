@@ -201,7 +201,7 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         assertEquals(1, result.getPreContingencyResult().getLimitViolations().size());
 
         // clear results
-        runner.clearResults();
+        runner.clearResult();
         assertFalse(runner.hasResult());
 
         // update dependencies
