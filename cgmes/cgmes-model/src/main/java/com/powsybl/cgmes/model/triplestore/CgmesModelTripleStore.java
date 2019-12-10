@@ -358,6 +358,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags equivalentShunts() {
+        return namedQuery("equivalentShunts");
+    }
+
+    @Override
     public PropertyBags nonlinearShuntCompensatorPoints(String scId) {
         Objects.requireNonNull(scId);
         return namedQuery("nonlinearShuntCompensatorPoints", scId);
