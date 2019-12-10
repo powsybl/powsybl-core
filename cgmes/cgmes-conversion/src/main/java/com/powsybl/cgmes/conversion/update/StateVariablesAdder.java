@@ -6,9 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +19,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -69,26 +68,21 @@ public final class StateVariablesAdder {
             }
 
             // add voltages for TpNodes existing in the Model's boundaries
-            List<String> danglingLines = new ArrayList<>();
-            n.getDanglingLineStream().forEach(dLine -> danglingLines.add(dLine.getId()));
-            List<String> allBoundaryNodes = boundaryNodes(cgmes);
-            List<String> modelRelatedBoundaryNodes = new ArrayList<>();
-            for (Map<String, String> sides : acLineNodes(cgmes, danglingLines).values()) {
-                if (allBoundaryNodes.contains(sides.get(SIDE1))) {
-                    modelRelatedBoundaryNodes.add(sides.get(SIDE1));
-                }
-                if (allBoundaryNodes.contains(sides.get(SIDE2))) {
-                    modelRelatedBoundaryNodes.add(sides.get(SIDE2));
-                }
-            }
-
-            modelRelatedBoundaryNodes.forEach(node -> {
+            boundaryNodesFromDanglingLines(cgmes, n).entrySet().forEach(entry -> {
                 PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
+                Bus b = getBusFromLine(entry.getKey(), n);
+                if (b != null) {
+                    p.put(CgmesNames.ANGLE, fs(b.getAngle()));
+                    p.put(CgmesNames.VOLTAGE, fs(b.getV()));
+                    p.put(CgmesNames.TOPOLOGICAL_NODE, entry.getValue());
+                } else {
                     p.put(CgmesNames.ANGLE, fs(0.0));
                     p.put(CgmesNames.VOLTAGE, fs(0.0));
-                    p.put(CgmesNames.TOPOLOGICAL_NODE, node);
-                    voltages.add(p);
+                    p.put(CgmesNames.TOPOLOGICAL_NODE, entry.getValue());
+                }
+                voltages.add(p);
             });
+
             cgmes.add(CgmesSubset.STATE_VARIABLES, "SvVoltage", voltages);
         }
 
@@ -145,38 +139,32 @@ public final class StateVariablesAdder {
         cgmes.add(CgmesSubset.STATE_VARIABLES, "SvTapStep", tapSteps);
     }
 
-    private static List<String> boundaryNodes(CgmesModel cgmes) {
-        PropertyBags boundaryNodes = cgmes.boundaryNodes();
-        List<String> nodesId = new ArrayList<>();
-        boundaryNodes.forEach(node -> nodesId.add(node.getId("Node")));
-        return Collections.unmodifiableList(nodesId);
+    private static Bus getBusFromLine(String lineId, Network n) {
+        return n.getDanglingLine(lineId).getTerminal().getBusBreakerView().getBus();
     }
 
-    private static Map<String, Map<String, String>> acLineNodes(CgmesModel cgmes, List<String> danglingLines) {
-        Map<String, Map<String, String>> acLineNodes = new HashMap<>();
-        PropertyBags terminals = cgmes.terminals();
+    private static Map<String, String> boundaryNodesFromDanglingLines(CgmesModel cgmes, Network n) {
+        Map<String, String> nodesForLine = new HashMap<>();
         for (PropertyBag line : cgmes.acLineSegments()) {
             String lineId = line.getId(CgmesNames.AC_LINE_SEGMENT);
-            Map<String, String> m = new HashMap<String, String>();
+            DanglingLine dl = n.getDanglingLine(lineId);
             // we need only acLinesSegments that were converted into DanglingLines
-            if (!danglingLines.contains(lineId)) {
+            if (dl == null) {
                 continue;
             }
-            for (PropertyBag terminal : terminals) {
-//                Map<String, String> m = new HashMap<String, String>();
-                String terminalId = terminal.getId(CgmesNames.TERMINAL);
-                if (terminalId.equals(line.getId(CgmesNames.TERMINAL1))) {
-                    m.put(SIDE1, terminal.getId(CgmesNames.TOPOLOGICAL_NODE));
-                    acLineNodes.put(lineId, m);
-                } else if (terminalId.equals(line.getId(CgmesNames.TERMINAL2))) {
-                    m.put(SIDE2, terminal.getId(CgmesNames.TOPOLOGICAL_NODE));
-                    acLineNodes.put(lineId, m);
-                } else {
-                    continue;
-                }
+            String tpNode1 = cgmes.terminal(line.getId(CgmesNames.TERMINAL1)).topologicalNode();
+            String tpNode2 = cgmes.terminal(line.getId(CgmesNames.TERMINAL2)).topologicalNode();
+            Bus b = dl.getTerminal().getBusBreakerView().getBus();
+            // get boundary node for line
+            if (b != null) {
+                nodesForLine.put(lineId,
+                    b.getId().equals(tpNode1) ? tpNode2 : tpNode1);
+            } else {
+                nodesForLine.put(lineId,
+                    tpNode1 != null ? tpNode1 : tpNode2);
             }
         }
-        return acLineNodes;
+        return nodesForLine;
     }
 
     private static String getTapChangerPositionName(CgmesModel cgmes) {
