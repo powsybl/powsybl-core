@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.LoadType;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class LoadAdderAdapter extends AbstractIdentifiableAdderAdapter<LoadAdder> implements LoadAdder {
+public class LoadAdderAdapter extends AbstractInjectionAdderAdapter<LoadAdder> implements LoadAdder {
 
     LoadAdderAdapter(final LoadAdder delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -28,24 +28,6 @@ public class LoadAdderAdapter extends AbstractIdentifiableAdderAdapter<LoadAdder
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------
-    @Override
-    public LoadAdder setNode(final int node) {
-        getDelegate().setNode(node);
-        return this;
-    }
-
-    @Override
-    public LoadAdder setBus(final String bus) {
-        getDelegate().setBus(bus);
-        return this;
-    }
-
-    @Override
-    public LoadAdder setConnectableBus(final String connectableBus) {
-        getDelegate().setConnectableBus(connectableBus);
-        return this;
-    }
-
     @Override
     public LoadAdder setLoadType(final LoadType loadType) {
         getDelegate().setLoadType(loadType);

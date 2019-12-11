@@ -20,6 +20,8 @@ public interface StorableScript {
 
     String readScript();
 
+    String readScript(boolean withInclude);
+
     void writeScript(String content);
 
     void addListener(ScriptListener listener);

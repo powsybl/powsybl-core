@@ -99,84 +99,84 @@ public class IeeeCdfBus {
      */
     @FixedWidth(from = 27, to = 33)
     @Parsed
-    private float finalVoltage;
+    private double finalVoltage;
 
     /**
      * Final angle, degrees
      */
     @FixedWidth(from = 33, to = 40)
     @Parsed
-    private float finalAngle;
+    private double finalAngle;
 
     /**
      * Load MW
      */
     @FixedWidth(from = 40, to = 49)
     @Parsed
-    private float activeLoad;
+    private double activeLoad;
 
     /**
      * Load MVAR
      */
     @FixedWidth(from = 49, to = 59)
     @Parsed
-    private float reactiveLoad;
+    private double reactiveLoad;
 
     /**
      * Generation MW
      */
     @FixedWidth(from = 59, to = 67)
     @Parsed
-    private float activeGeneration;
+    private double activeGeneration;
 
     /**
      * Generation MVAR
      */
     @FixedWidth(from = 67, to = 75)
     @Parsed
-    private float reactiveGeneration;
+    private double reactiveGeneration;
 
     /**
      * Base KV
      */
     @FixedWidth(from = 76, to = 83)
     @Parsed
-    private float baseVoltage;
+    private double baseVoltage;
 
     /**
      * Desired volts (pu) (F) (This is desired remote voltage if this bus is controlling another bus.
      */
     @FixedWidth(from = 84, to = 90)
     @Parsed
-    private float desiredVoltage;
+    private double desiredVoltage;
 
     /**
      * Maximum MVAR or voltage limit
      */
     @FixedWidth(from = 90, to = 98)
     @Parsed
-    private float maxReactivePowerOrVoltageLimit;
+    private double maxReactivePowerOrVoltageLimit;
 
     /**
      * Minimum MVAR or voltage limit
      */
     @FixedWidth(from = 98, to = 106)
     @Parsed
-    private float minReactivePowerOrVoltageLimit;
+    private double minReactivePowerOrVoltageLimit;
 
     /**
      * Shunt conductance G (per unit)
      */
     @FixedWidth(from = 106, to = 114)
     @Parsed
-    private float shuntConductance;
+    private double shuntConductance;
 
     /**
      * Shunt susceptance B (per unit)
      */
     @FixedWidth(from = 114, to = 122)
     @Parsed
-    private float shuntSusceptance;
+    private double shuntSusceptance;
 
     /**
      * Remote controlled bus number
@@ -229,99 +229,99 @@ public class IeeeCdfBus {
         this.type = type;
     }
 
-    public float getFinalVoltage() {
+    public double getFinalVoltage() {
         return finalVoltage;
     }
 
-    public void setFinalVoltage(float finalVoltage) {
+    public void setFinalVoltage(double finalVoltage) {
         this.finalVoltage = finalVoltage;
     }
 
-    public float getFinalAngle() {
+    public double getFinalAngle() {
         return finalAngle;
     }
 
-    public void setFinalAngle(float finalAngle) {
+    public void setFinalAngle(double finalAngle) {
         this.finalAngle = finalAngle;
     }
 
-    public float getActiveLoad() {
+    public double getActiveLoad() {
         return activeLoad;
     }
 
-    public void setActiveLoad(float activeLoad) {
+    public void setActiveLoad(double activeLoad) {
         this.activeLoad = activeLoad;
     }
 
-    public float getReactiveLoad() {
+    public double getReactiveLoad() {
         return reactiveLoad;
     }
 
-    public void setReactiveLoad(float reactiveLoad) {
+    public void setReactiveLoad(double reactiveLoad) {
         this.reactiveLoad = reactiveLoad;
     }
 
-    public float getActiveGeneration() {
+    public double getActiveGeneration() {
         return activeGeneration;
     }
 
-    public void setActiveGeneration(float activeGeneration) {
+    public void setActiveGeneration(double activeGeneration) {
         this.activeGeneration = activeGeneration;
     }
 
-    public float getReactiveGeneration() {
+    public double getReactiveGeneration() {
         return reactiveGeneration;
     }
 
-    public void setReactiveGeneration(float reactiveGeneration) {
+    public void setReactiveGeneration(double reactiveGeneration) {
         this.reactiveGeneration = reactiveGeneration;
     }
 
-    public float getBaseVoltage() {
+    public double getBaseVoltage() {
         return baseVoltage;
     }
 
-    public void setBaseVoltage(float baseVoltage) {
+    public void setBaseVoltage(double baseVoltage) {
         this.baseVoltage = baseVoltage;
     }
 
-    public float getDesiredVoltage() {
+    public double getDesiredVoltage() {
         return desiredVoltage;
     }
 
-    public void setDesiredVoltage(float desiredVoltage) {
+    public void setDesiredVoltage(double desiredVoltage) {
         this.desiredVoltage = desiredVoltage;
     }
 
-    public float getMaxReactivePowerOrVoltageLimit() {
+    public double getMaxReactivePowerOrVoltageLimit() {
         return maxReactivePowerOrVoltageLimit;
     }
 
-    public void setMaxReactivePowerOrVoltageLimit(float maxReactivePowerOrVoltageLimit) {
+    public void setMaxReactivePowerOrVoltageLimit(double maxReactivePowerOrVoltageLimit) {
         this.maxReactivePowerOrVoltageLimit = maxReactivePowerOrVoltageLimit;
     }
 
-    public float getMinReactivePowerOrVoltageLimit() {
+    public double getMinReactivePowerOrVoltageLimit() {
         return minReactivePowerOrVoltageLimit;
     }
 
-    public void setMinReactivePowerOrVoltageLimit(float minReactivePowerOrVoltageLimit) {
+    public void setMinReactivePowerOrVoltageLimit(double minReactivePowerOrVoltageLimit) {
         this.minReactivePowerOrVoltageLimit = minReactivePowerOrVoltageLimit;
     }
 
-    public float getShuntConductance() {
+    public double getShuntConductance() {
         return shuntConductance;
     }
 
-    public void setShuntConductance(float shuntConductance) {
+    public void setShuntConductance(double shuntConductance) {
         this.shuntConductance = shuntConductance;
     }
 
-    public float getShuntSusceptance() {
+    public double getShuntSusceptance() {
         return shuntSusceptance;
     }
 
-    public void setShuntSusceptance(float shuntSusceptance) {
+    public void setShuntSusceptance(double shuntSusceptance) {
         this.shuntSusceptance = shuntSusceptance;
     }
 

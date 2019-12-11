@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.ShuntCompensatorAdder;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class ShuntCompensatorAdderAdapter extends AbstractIdentifiableAdderAdapter<ShuntCompensatorAdder> implements ShuntCompensatorAdder {
+public class ShuntCompensatorAdderAdapter extends AbstractInjectionAdderAdapter<ShuntCompensatorAdder> implements ShuntCompensatorAdder {
 
     ShuntCompensatorAdderAdapter(final ShuntCompensatorAdder delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -27,24 +27,6 @@ public class ShuntCompensatorAdderAdapter extends AbstractIdentifiableAdderAdapt
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------
-    @Override
-    public ShuntCompensatorAdder setNode(final int node) {
-        getDelegate().setNode(node);
-        return this;
-    }
-
-    @Override
-    public ShuntCompensatorAdder setBus(final String bus) {
-        getDelegate().setBus(bus);
-        return this;
-    }
-
-    @Override
-    public ShuntCompensatorAdder setConnectableBus(final String connectableBus) {
-        getDelegate().setConnectableBus(connectableBus);
-        return this;
-    }
-
     @Override
     public ShuntCompensatorAdder setbPerSection(final double bPerSection) {
         getDelegate().setbPerSection(bPerSection);
