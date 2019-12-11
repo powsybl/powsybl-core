@@ -35,20 +35,6 @@ import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
  */
 public class Conversion {
 
-    private static boolean useCurrentCgmesConversion = false;
-
-    private boolean isCurrentCgmesConversion() {
-        return useCurrentCgmesConversion;
-    }
-
-    public static void setCurrentCgmesConversion() {
-        useCurrentCgmesConversion = true;
-    }
-
-    public static void setNewCgmesConversion() {
-        useCurrentCgmesConversion = false;
-    }
-
     public Conversion(CgmesModel cgmes) {
         this(cgmes, new Config());
     }
@@ -124,12 +110,12 @@ public class Conversion {
         convert(cgmes.equivalentBranches(), eqb -> new EquivalentBranchConversion(eqb, context));
         convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
 
-        if (isCurrentCgmesConversion()) {
+        if (config.useNewTransformerConversion()) {
+            newConvertTransformers(context);
+        } else {
             convertTransformers(context);
             convert(cgmes.ratioTapChangers(), rtc -> new RatioTapChangerConversion(rtc, context));
             convert(cgmes.phaseTapChangers(), ptc -> new PhaseTapChangerConversion(ptc, context));
-        } else {
-            newConvertTransformers(context);
         }
 
         // DC Converters must be converted first
@@ -400,6 +386,18 @@ public class Conversion {
         public enum StateProfile {
             SSH,
             SV
+        }
+
+        // Temporal flag while we keep two versions of transformer conversion
+        private boolean useNewTransformerConversion = true;
+
+        private boolean useNewTransformerConversion() {
+            return useNewTransformerConversion;
+        }
+
+        public Config setUseNewTransformerConversion(boolean b) {
+            useNewTransformerConversion = b;
+            return this;
         }
 
         public List<String> substationIdsExcludedFromMapping() {
@@ -748,7 +746,7 @@ public class Conversion {
         }
 
         /**
-         * ThreeWindingsTransformer: Structural ratio at the start bus side of all legs. RateddU0 = 1 kv
+         * ThreeWindingsTransformer: Structural ratio at the start bus side of all legs. RatedU0 = RatedU1
          */
         public boolean isXfmr3Ratio0StarBusSide() {
             return xfmr3Ratio0StarBusSide;
@@ -760,7 +758,7 @@ public class Conversion {
         }
 
         /**
-         * ThreeWindingsTransformer: Structural ratio at the network side of all legs. RateddU0 = 1 kv
+         * ThreeWindingsTransformer: Structural ratio at the network side of all legs. RatedU0 = 1 kv
          */
         public boolean isXfmr3Ratio0NetworkSide() {
             return xfmr3Ratio0NetworkSide;
@@ -772,7 +770,7 @@ public class Conversion {
         }
 
         /**
-         * ThreeWindingsTransformer: Structural ratio at the network side of legs 2 and 3. RateddU0 = RatedU1
+         * ThreeWindingsTransformer: Structural ratio at the network side of legs 2 and 3. RatedU0 = RatedU1
          */
         public boolean isXfmr3Ratio0End1() {
             return xfmr3Ratio0End1;
@@ -784,7 +782,7 @@ public class Conversion {
         }
 
         /**
-         * ThreeWindingsTransformer: Structural ratio at the network side of legs 1 and 3. RateddU0 = RatedU2
+         * ThreeWindingsTransformer: Structural ratio at the network side of legs 1 and 3. RatedU0 = RatedU2
          */
         public boolean isXfmr3Ratio0End2() {
             return xfmr3Ratio0End2;
@@ -796,7 +794,7 @@ public class Conversion {
         }
 
         /**
-         * ThreeWindingsTransformer: Structural ratio at the network side of legs 1 and 2. RateddU0 = RatedU2
+         * ThreeWindingsTransformer: Structural ratio at the network side of legs 1 and 2. RatedU0 = RatedU2
          */
         public boolean isXfmr3Ratio0End3() {
             return xfmr3Ratio0End3;

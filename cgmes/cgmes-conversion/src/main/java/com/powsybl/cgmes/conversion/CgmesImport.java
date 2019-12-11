@@ -193,6 +193,12 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
+                                defaultValueConfig))
+                .setUseNewTransformerConversion(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                TEMP_USE_NEW_TRANSFORMER_CONVERSION_PARAMETER,
                                 defaultValueConfig));
     }
 
@@ -290,6 +296,11 @@ public class CgmesImport implements Importer {
             "Store the initial CGMES model as a network extension",
             Boolean.TRUE)
             .addAdditionalNames("storeCgmesModelAsNetworkExtension");
+    private static final Parameter TEMP_USE_NEW_TRANSFORMER_CONVERSION_PARAMETER = new Parameter(
+            "tempUseNewTransformerConversion",
+            ParameterType.BOOLEAN,
+            "Temporal parameter to configure which version of transformer conversion to use",
+            Boolean.TRUE);
 
     private static final List<Parameter> STATIC_PARAMETERS = ImmutableList.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
@@ -300,7 +311,8 @@ public class CgmesImport implements Importer {
             POST_PROCESSORS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
-            STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER);
+            STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
+            TEMP_USE_NEW_TRANSFORMER_CONVERSION_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Map<String, CgmesImportPostProcessor> postProcessors;
