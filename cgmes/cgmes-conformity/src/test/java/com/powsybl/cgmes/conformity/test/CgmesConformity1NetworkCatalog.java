@@ -966,8 +966,8 @@ public final class CgmesConformity1NetworkCatalog {
             PhaseTapChanger.RegulationMode mode, boolean regulating,
             double regulationValue, double targetDeadband) {
         LOG.debug("EXPECTED tx {}", tx.getId());
-        double rho0 = tx.getRatedU2() / tx.getRatedU1();
-        double rho02 = rho0 * rho0;
+        double ratio0 = tx.getRatedU2() / tx.getRatedU1();
+        double ratio02 = ratio0 * ratio0;
 
         PhaseTapChangerAdder ptca = tx.newPhaseTapChanger()
                 .setLowTapPosition(low)
@@ -981,56 +981,60 @@ public final class CgmesConformity1NetworkCatalog {
                         : 90);
         LOG.debug("EXPECTED du0,du,theta {} {} {}", du0, du, theta);
 
-        List<Double> alphas = new ArrayList<>();
-        List<Double> rhos = new ArrayList<>();
+        List<Double> angles = new ArrayList<>();
+        List<Double> ratios = new ArrayList<>();
         for (int k = low; k <= high; k++) {
             int n = k - neutral;
-            double alpha;
-            double rho;
+            double angle;
+            double ratio;
             if (type == PhaseTapChangerType.ASYMMETRICAL) {
                 double dx = (n * du - du0) * Math.cos(theta);
                 double dy = (n * du - du0) * Math.sin(theta);
-                alpha = Math.atan2(dy, 1 + dx);
-                rho = Math.hypot(dy, 1 + dx);
-                LOG.debug("EXPECTED    n,dx,dy,alpha,rho  {} {} {} {} {}", n, dx, dy, alpha, rho);
+                angle = Math.atan2(dy, 1 + dx);
+                ratio = Math.hypot(dy, 1 + dx);
+                LOG.debug("EXPECTED    n,dx,dy,angle,ratio  {} {} {} {} {}", n, dx, dy, angle, ratio);
             } else if (type == PhaseTapChangerType.SYMMETRICAL) {
                 double dy = (n * du / 2 - du0) * Math.sin(theta);
-                alpha = 2 * Math.asin(dy);
-                rho = 1.0;
-                LOG.debug("EXPECTED    n,dy,alpha,rho  {} {} {} {}", n, dy, alpha, rho);
+                angle = 2 * Math.asin(dy);
+                ratio = 1.0;
+                LOG.debug("EXPECTED    n,dy,angle,ratio  {} {} {} {}", n, dy, angle, ratio);
             } else {
-                alpha = Double.NaN;
-                rho = Double.NaN;
+                angle = Double.NaN;
+                ratio = Double.NaN;
             }
-            alphas.add(-alpha);
-            rhos.add(1 / rho);
+            angles.add(angle);
+            ratios.add(ratio);
         }
-        double alphaMax = alphas.stream()
+        // Use ratio, not rho to calculate step x
+        double angleMax = angles.stream()
                 .mapToDouble(Double::doubleValue)
                 .max()
                 .orElse(Double.NaN);
-        LOG.debug("EXPECTED    alphaMax {}", alphaMax);
+        LOG.debug("EXPECTED    angleMax {}", angleMax);
         LOG.debug("EXPECTED    xStepMin, xStepMax {}, {}", xmin, xmax);
-        LOG.debug("EXPECTED    u2,u1,rho0square {}, {}, {}", tx.getRatedU2(), tx.getRatedU1(), rho02);
-        for (int k = 0; k < alphas.size(); k++) {
-            double alpha = alphas.get(k);
-            double rho = rhos.get(k);
+        LOG.debug("EXPECTED    u2,u1,ratio0square {}, {}, {}", tx.getRatedU2(), tx.getRatedU1(), ratio02);
+        for (int k = 0; k < angles.size(); k++) {
+            double angle = angles.get(k);
+            double ratio = ratios.get(k);
 
             // x for current k
             double xn;
             if (type == PhaseTapChangerType.ASYMMETRICAL) {
-                double numer = Math.sin(theta) - Math.tan(alphaMax) * Math.cos(theta);
-                double denom = Math.sin(theta) - Math.tan(alpha) * Math.cos(theta);
+                double numer = Math.sin(theta) - Math.tan(angleMax) * Math.cos(theta);
+                double denom = Math.sin(theta) - Math.tan(angle) * Math.cos(theta);
                 xn = xmin + (xmax - xmin)
-                        * Math.pow(Math.tan(alpha) / Math.tan(alphaMax) * numer / denom, 2);
+                        * Math.pow(Math.tan(angle) / Math.tan(angleMax) * numer / denom, 2);
             } else if (type == PhaseTapChangerType.SYMMETRICAL) {
                 xn = xmin + (xmax - xmin)
-                        * Math.pow(Math.sin(alpha / 2) / Math.sin(alphaMax / 2), 2);
+                        * Math.pow(Math.sin(angle / 2) / Math.sin(angleMax / 2), 2);
             } else {
                 xn = Double.NaN;
             }
-            xn = xn * rho02;
+            xn = xn * ratio02;
             double dx = (xn - tx.getX()) / tx.getX() * 100;
+
+            double alpha = -angle;
+            double rho = 1 / ratio;
 
             ptca.beginStep()
                     .setRho(rho)
