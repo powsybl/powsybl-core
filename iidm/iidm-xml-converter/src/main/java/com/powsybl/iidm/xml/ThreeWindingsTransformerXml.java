@@ -7,17 +7,15 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 
 import javax.xml.stream.XMLStreamException;
+import java.util.function.BiConsumer;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTransformer, ThreeWindingsTransformerAdder> {
@@ -34,21 +32,18 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     @Override
     protected boolean hasSubElements(ThreeWindingsTransformer twt) {
         return twt.getLeg1().getRatioTapChanger() != null
-            || twt.getLeg2().getRatioTapChanger() != null
-            || twt.getLeg3().getRatioTapChanger() != null
-            || twt.getLeg1().getPhaseTapChanger() != null
-            || twt.getLeg2().getPhaseTapChanger() != null
-            || twt.getLeg3().getPhaseTapChanger() != null
-            || twt.getLeg1().getCurrentLimits() != null
-            || twt.getLeg2().getCurrentLimits() != null
-            || twt.getLeg3().getCurrentLimits() != null;
+                || twt.getLeg2().getRatioTapChanger() != null
+                || twt.getLeg3().getRatioTapChanger() != null
+                || twt.getLeg1().getPhaseTapChanger() != null
+                || twt.getLeg2().getPhaseTapChanger() != null
+                || twt.getLeg3().getPhaseTapChanger() != null
+                || twt.getLeg1().getCurrentLimits() != null
+                || twt.getLeg2().getCurrentLimits() != null
+                || twt.getLeg3().getCurrentLimits() != null;
     }
 
     @Override
     protected void writeRootElementAttributes(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (twt.getLeg2().getG() != 0.0 || twt.getLeg2().getB() != 0.0 || twt.getLeg3().getG() != 0.0 || twt.getLeg3().getB() != 0.0) {
-            throw new PowsyblException("G and B in Leg 2 or 3 not supported by current version " + twt.getId());
-        }
         XmlUtil.writeDouble("r1", twt.getLeg1().getR(), context.getWriter());
         XmlUtil.writeDouble("x1", twt.getLeg1().getX(), context.getWriter());
         XmlUtil.writeDouble("g1", twt.getLeg1().getG(), context.getWriter());
@@ -56,9 +51,13 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         XmlUtil.writeDouble("ratedU1", twt.getLeg1().getRatedU(), context.getWriter());
         XmlUtil.writeDouble("r2", twt.getLeg2().getR(), context.getWriter());
         XmlUtil.writeDouble("x2", twt.getLeg2().getX(), context.getWriter());
+        XmlUtil.writeDouble("g2", twt.getLeg2().getG(), context.getWriter());
+        XmlUtil.writeDouble("b2", twt.getLeg2().getB(), context.getWriter());
         XmlUtil.writeDouble("ratedU2", twt.getLeg2().getRatedU(), context.getWriter());
         XmlUtil.writeDouble("r3", twt.getLeg3().getR(), context.getWriter());
         XmlUtil.writeDouble("x3", twt.getLeg3().getX(), context.getWriter());
+        XmlUtil.writeDouble("g3", twt.getLeg3().getG(), context.getWriter());
+        XmlUtil.writeDouble("b3", twt.getLeg3().getB(), context.getWriter());
         XmlUtil.writeDouble("ratedU3", twt.getLeg3().getRatedU(), context.getWriter());
         writeNodeOrBus(1, twt.getLeg1().getTerminal(), context);
         writeNodeOrBus(2, twt.getLeg2().getTerminal(), context);
@@ -72,18 +71,12 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected void writeSubElements(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (twt.getLeg1().getRatioTapChanger() != null || twt.getLeg1().getPhaseTapChanger() != null ||
-            twt.getLeg2().getPhaseTapChanger() != null || twt.getLeg3().getPhaseTapChanger() != null) {
-            throw new PowsyblException("Tap changer not supported by current version " + twt.getId());
-        }
-        RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
-        if (rtc2 != null) {
-            writeRatioTapChanger("ratioTapChanger2", rtc2, context);
-        }
-        RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
-        if (rtc3 != null) {
-            writeRatioTapChanger("ratioTapChanger3", rtc3, context);
-        }
+        writeRatioTapChanger(twt.getLeg1().getRatioTapChanger(), 1, context);
+        writeRatioTapChanger(twt.getLeg2().getRatioTapChanger(), 2, context);
+        writeRatioTapChanger(twt.getLeg3().getRatioTapChanger(), 3, context);
+        writePhaseTapChanger(twt.getLeg1().getPhaseTapChanger(), 1, context);
+        writePhaseTapChanger(twt.getLeg2().getPhaseTapChanger(), 2, context);
+        writePhaseTapChanger(twt.getLeg3().getPhaseTapChanger(), 3, context);
         if (twt.getLeg1().getCurrentLimits() != null) {
             writeCurrentLimits(1, twt.getLeg1().getCurrentLimits(), context.getWriter());
         }
@@ -92,6 +85,18 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         }
         if (twt.getLeg3().getCurrentLimits() != null) {
             writeCurrentLimits(3, twt.getLeg3().getCurrentLimits(), context.getWriter());
+        }
+    }
+
+    private static void writeRatioTapChanger(RatioTapChanger rtc, int index, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (rtc != null) {
+            writeRatioTapChanger("ratioTapChanger" + index, rtc, context);
+        }
+    }
+
+    private static void writePhaseTapChanger(PhaseTapChanger ptc, int index, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (ptc != null) {
+            writePhaseTapChanger("phaseTapChanger" + index, ptc, context);
         }
     }
 
@@ -116,6 +121,8 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         LegAdder legAdder1 = adder.newLeg1().setR(r1).setX(x1).setG(g1).setB(b1).setRatedU(ratedU1);
         LegAdder legAdder2 = adder.newLeg2().setR(r2).setX(x2).setRatedU(ratedU2);
         LegAdder legAdder3 = adder.newLeg3().setR(r3).setX(x3).setRatedU(ratedU3);
+        readVersionedLegAttributes(legAdder2, 2, context);
+        readVersionedLegAttributes(legAdder3, 3, context);
         readNodeOrBus(1, legAdder1, context);
         readNodeOrBus(2, legAdder2, context);
         readNodeOrBus(3, legAdder3, context);
@@ -127,6 +134,19 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         readPQ(2, twt.getLeg2().getTerminal(), context.getReader());
         readPQ(3, twt.getLeg3().getTerminal(), context.getReader());
         return twt;
+    }
+
+    private static void readVersionedLegAttributes(LegAdder adder, int index, NetworkXmlReaderContext context) {
+        switch (context.getVersion()) {
+            case V_1_1:
+                adder.setG(XmlUtil.readDoubleAttribute(context.getReader(), "g" + index));
+                adder.setB(XmlUtil.readDoubleAttribute(context.getReader(), "b" + index));
+                break;
+            case V_1_0:
+                break;
+            default:
+                throw new PowsyblException("XIIDM version " + context.getVersion().toString(".") + " is not supported for ThreeWindingsTransformer.");
+        }
     }
 
     @Override
@@ -154,8 +174,44 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
                     break;
 
                 default:
-                    super.readSubElements(tx, context);
+                    readVersionedSubElements(context.getReader().getLocalName(), tx, context, (t, c) -> {
+                        try {
+                            super.readSubElements(tx, context);
+                        } catch (XMLStreamException e) {
+                            throw new UncheckedXmlStreamException(e);
+                        }
+                    });
             }
         });
+    }
+
+    private static void readVersionedSubElements(String localName, ThreeWindingsTransformer tx, NetworkXmlReaderContext context,
+                                                 BiConsumer<ThreeWindingsTransformer, NetworkXmlReaderContext> consumer) throws XMLStreamException {
+        switch (context.getVersion()) {
+            case V_1_1:
+                switch (localName) {
+                    case "ratioTapChanger1":
+                        readRatioTapChanger(1, tx.getLeg1(), context);
+                        break;
+                    case "phaseTapChanger1":
+                        readPhaseTapChanger(1, tx.getLeg1(), context);
+                        break;
+                    case "phaseTapChanger2":
+                        readPhaseTapChanger(2, tx.getLeg2(), context);
+                        break;
+                    case "phaseTapChanger3":
+                        readPhaseTapChanger(3, tx.getLeg3(), context);
+                        break;
+                    default:
+                        consumer.accept(tx, context);
+                        break;
+                }
+                break;
+            case V_1_0:
+                consumer.accept(tx, context);
+                break;
+            default:
+                throw new PowsyblException("XIIDM version " + context.getVersion().toString(".") + " is not supported for ThreeWindingsTransformer.");
+        }
     }
 }
