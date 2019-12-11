@@ -55,7 +55,7 @@ public class LocalNetworkCacheService implements NetworkCacheService {
     }
 
     private static ScriptResult<Network> applyScript(Network network, String previousScriptOutput, ModificationScript script) {
-        ScriptResult<Object> result = ScriptUtils.runScript(network, script.getScriptType(), script.readScript());
+        ScriptResult<Object> result = ScriptUtils.runScript(network, script.getScriptType(), script.readScript(true));
         if (result.getError() == null) {
             return new ScriptResult<>(network, previousScriptOutput + result.getOutput(), null);
         } else {

@@ -9,7 +9,7 @@ package com.powsybl.action.dsl.afs;
 import com.powsybl.action.dsl.ActionDb;
 import com.powsybl.action.dsl.ActionDslLoader;
 import com.powsybl.afs.ProjectFileCreationContext;
-import com.powsybl.afs.ext.base.AbstractModificationScript;
+import com.powsybl.afs.ext.base.AbstractScript;
 import com.powsybl.afs.ext.base.ScriptType;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
@@ -23,7 +23,7 @@ import java.util.ResourceBundle;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ActionScript extends AbstractModificationScript implements ContingenciesProvider {
+public class ActionScript extends AbstractScript<ActionScript> implements ContingenciesProvider {
 
     public static final String PSEUDO_CLASS = "actionScript";
     public static final int VERSION = 0;
@@ -48,7 +48,7 @@ public class ActionScript extends AbstractModificationScript implements Continge
 
     public ActionDb load(Network network) {
         Objects.requireNonNull(network);
-        return new ActionDslLoader(readScript()).load(network);
+        return new ActionDslLoader(readScript(true)).load(network);
     }
 
     @Override
