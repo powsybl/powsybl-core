@@ -548,8 +548,9 @@ WHERE {
     ?PhaseTapChangerTablePoint
         a cim:PhaseTapChangerTablePoint ;
         cim:PhaseTapChangerTablePoint.PhaseTapChangerTable ?PhaseTapChangerTable ;
-        cim:PhaseTapChangerTablePoint.angle ?angle ;
         cim:TapChangerTablePoint.step ?step .
+    # angle should be required, but we have found samples where it is missing
+    OPTIONAL { ?PhaseTapChangerTablePoint cim:PhaseTapChangerTablePoint.angle ?angle }
     OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.ratio ?ratio }
     OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.r ?r }
     OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.x ?x }
