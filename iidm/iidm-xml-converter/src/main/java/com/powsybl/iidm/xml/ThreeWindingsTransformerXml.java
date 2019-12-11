@@ -59,6 +59,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         XmlUtil.writeDouble("g3", twt.getLeg3().getG(), context.getWriter());
         XmlUtil.writeDouble("b3", twt.getLeg3().getB(), context.getWriter());
         XmlUtil.writeDouble("ratedU3", twt.getLeg3().getRatedU(), context.getWriter());
+        XmlUtil.writeDouble("ratedU0", twt.getRatedU0(), context.getWriter());
         writeNodeOrBus(1, twt.getLeg1().getTerminal(), context);
         writeNodeOrBus(2, twt.getLeg2().getTerminal(), context);
         writeNodeOrBus(3, twt.getLeg3().getTerminal(), context);
