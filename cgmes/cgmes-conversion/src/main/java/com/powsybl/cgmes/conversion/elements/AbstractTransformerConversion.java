@@ -186,6 +186,11 @@ public abstract class AbstractTransformerConversion
         if (phaseTapChanger == null) {
             return null;
         }
+        if (!validPhaseTapChangerType(phaseTapChanger)) {
+            String type = phaseTapChanger.getLocal(STRING_PHASE_TAP_CHANGER_TYPE).toLowerCase();
+            invalid(String.format("Unexpected phaseTapChangerType %s", type));
+            return null;
+        }
         TapChangerConversion tapChanger = new TapChangerConversion();
         int lowStep = phaseTapChanger.asInt(STRING_LOW_STEP);
         int highStep = phaseTapChanger.asInt(STRING_HIGH_STEP);
@@ -204,6 +209,12 @@ public abstract class AbstractTransformerConversion
 
         addPhaseSteps(phaseTapChanger, tapChanger, xtx);
         return tapChanger;
+    }
+
+    private boolean validPhaseTapChangerType(PropertyBag phaseTapChanger) {
+        String tableId = phaseTapChanger.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
+        String type = phaseTapChanger.getLocal(STRING_PHASE_TAP_CHANGER_TYPE).toLowerCase();
+        return isTabular(type, tableId) || isSymmetrical(type) || isAsymmetrical(type);
     }
 
     private void addPhaseRegulationData(PropertyBag phaseTapChanger, TapChangerConversion tapChanger) {
