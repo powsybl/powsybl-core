@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.BatteryAdder;
 
 /**
@@ -18,9 +19,9 @@ public class BatteryAdderAdapter extends AbstractInjectionAdderAdapter<BatteryAd
     }
 
     @Override
-    public BatteryAdapter add() {
+    public Battery add() {
         checkAndSetUniqueId();
-        return new BatteryAdapter(getDelegate().add(), getIndex());
+        return getIndex().getBattery(getDelegate().add());
     }
 
     // -------------------------------
