@@ -243,8 +243,8 @@ public class TwtData {
             Complex starVoltage,
             double epsilonX, boolean applyReactanceCorrection) {
         String branchId = twtId + "_" + side;
-        double r = side == Side.ONE ? leg.getR() : adjustedR(leg);
-        double x = side == Side.ONE ? leg.getX() : adjustedX(leg);
+        double r = adjustedR(leg);
+        double x = adjustedX(leg);
         double uk = getV(leg);
         double thetak = getTheta(leg);
         double u0 = starVoltage.abs();
@@ -253,8 +253,8 @@ public class TwtData {
         double bk = 0;
         double g0 = g;
         double b0 = b;
-        double rhok = side == Side.ONE ? 1.0 : rho(leg, ratedU0);
-        double alphak = 0;
+        double rhok = rho(leg, ratedU0);
+        double alphak = alpha(leg);
         double rho0 = 1;
         double alpha0 = 0;
         boolean buskMainComponent = true;
