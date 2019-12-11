@@ -9,6 +9,8 @@ package com.powsybl.ucte.network.io;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
 /**
@@ -24,8 +26,19 @@ class UcteRecordWriter {
 
     private final StringBuilder buffer = new StringBuilder();
 
+    private final DecimalFormat floatNumberFormatter = new DecimalFormat();
+
     UcteRecordWriter(BufferedWriter writer) {
         this.writer = writer;
+        initNumberFormatter();
+    }
+
+    private void initNumberFormatter() {
+        floatNumberFormatter.setGroupingUsed(false);
+        floatNumberFormatter.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
+        floatNumberFormatter.setMinimumIntegerDigits(1);
+        floatNumberFormatter.setMinimumFractionDigits(1);
+        floatNumberFormatter.setMaximumFractionDigits(5);
     }
 
     private void resizeBuffer(int length) {
@@ -59,12 +72,24 @@ class UcteRecordWriter {
         return formattedStr.substring(0, strLen);
     }
 
+    private int maxLimitInt(int numberOfChars) {
+        return (int) Math.pow(10, numberOfChars);
+    }
+
+    private int minLimitInt(int numberOfChars) {
+        return (int) -Math.pow(10, numberOfChars - 1);
+    }
+
     // floats are left aligned, zero padded to fill the field length
     void writeFloat(float value, int beginIndex, int endIndex) {
         if (Float.isNaN(value)) {
             return;
         }
-        String fieldStr = alignAndTruncate(Float.toString(value), endIndex - beginIndex, Alignment.LEFT);
+        int fieldLength = endIndex - beginIndex;
+        if (value >= maxLimitInt(fieldLength) || value <= minLimitInt(fieldLength)) {
+            throw new IllegalArgumentException(String.format("Float value %f does not fit into %d characters", value, fieldLength));
+        }
+        String fieldStr = alignAndTruncate(floatNumberFormatter.format(value), fieldLength, Alignment.LEFT);
         writeString(fieldStr.replace(' ', '0'), beginIndex, endIndex);
     }
 
@@ -73,7 +98,11 @@ class UcteRecordWriter {
         if (value == null) {
             return;
         }
-        String fieldStr = alignAndTruncate(Integer.toString(value), endIndex - beginIndex, Alignment.RIGHT);
+        int fieldLength = endIndex - beginIndex;
+        if (value >= maxLimitInt(fieldLength) || value <= minLimitInt(fieldLength)) {
+            throw new IllegalArgumentException(String.format("Integer value %d does not fit into %d characters", value, fieldLength));
+        }
+        String fieldStr = alignAndTruncate(Integer.toString(value), fieldLength, Alignment.RIGHT);
         writeString(fieldStr, beginIndex, endIndex);
     }
 
@@ -101,8 +130,9 @@ class UcteRecordWriter {
         if (value == null) {
             return;
         }
-        if (value.name().length() > (endIndex - beginIndex)) {
-            throw new UcteIoException("Enum value cannot fit into " + (endIndex - beginIndex) + " characters");
+        int fieldLength = endIndex - beginIndex;
+        if (value.name().length() > fieldLength) {
+            throw new UcteIoException(String.format("Enum value cannot fit into %d characters", fieldLength));
         }
         writeString(value.name(), beginIndex, endIndex);
     }
