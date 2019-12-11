@@ -144,7 +144,7 @@ public final class StateVariablesAdder {
     }
 
     private static Map<String, String> boundaryNodesFromDanglingLines(CgmesModel cgmes, Network n) {
-        Map<String, String> nodesForLine = new HashMap<>();
+        Map<String, String> nodesFromLines = new HashMap<>();
         for (PropertyBag line : cgmes.acLineSegments()) {
             String lineId = line.getId(CgmesNames.AC_LINE_SEGMENT);
             DanglingLine dl = n.getDanglingLine(lineId);
@@ -155,16 +155,16 @@ public final class StateVariablesAdder {
             String tpNode1 = cgmes.terminal(line.getId(CgmesNames.TERMINAL1)).topologicalNode();
             String tpNode2 = cgmes.terminal(line.getId(CgmesNames.TERMINAL2)).topologicalNode();
             Bus b = dl.getTerminal().getBusBreakerView().getBus();
-            // get boundary node for line
+            // find boundary node for line
             if (b != null) {
-                nodesForLine.put(lineId,
+                nodesFromLines.put(lineId,
                     b.getId().equals(tpNode1) ? tpNode2 : tpNode1);
             } else {
-                nodesForLine.put(lineId,
+                nodesFromLines.put(lineId,
                     tpNode1 != null ? tpNode1 : tpNode2);
             }
         }
-        return nodesForLine;
+        return nodesFromLines;
     }
 
     private static String getTapChangerPositionName(CgmesModel cgmes) {
