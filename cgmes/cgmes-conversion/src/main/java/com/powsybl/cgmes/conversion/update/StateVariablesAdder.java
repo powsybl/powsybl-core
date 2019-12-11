@@ -6,14 +6,18 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.complex.ComplexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.cgmes.conversion.update.LinkDataTmp.BranchAdmittanceMatrix;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
@@ -44,15 +48,6 @@ public final class StateVariablesAdder {
         // http://iec.ch/TC57/61970-552/ModelDescription/1#
 
         PropertyBags voltages = new PropertyBags();
-//        for (Bus b : n.getBusBreakerView().getBuses()) {
-//            PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
-//            p.put(CgmesNames.ANGLE, fs(b.getAngle()));
-//            p.put(CgmesNames.VOLTAGE, fs(b.getV()));
-//            p.put("TopologicalNode", topologicalNodeFromBusId(b.getId()));
-//            voltages.add(p);
-//        }
-//        cgmes.add(CgmesSubset.STATE_VARIABLES, "SvVoltage", voltages);
-
         // Check for bus branch model
         if (!cgmes.isNodeBreaker()) {
             // add voltages for TpNodes existing in the Model
@@ -70,10 +65,13 @@ public final class StateVariablesAdder {
             // add voltages for TpNodes existing in the Model's boundaries
             boundaryNodesFromDanglingLines(cgmes, n).entrySet().forEach(entry -> {
                 PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
-                Bus b = getBusFromLine(entry.getKey(), n);
+                DanglingLine dl = n.getDanglingLine(entry.getKey());
+                Bus b = dl.getTerminal().getBusBreakerView().getBus();
                 if (b != null) {
-                    p.put(CgmesNames.ANGLE, fs(b.getAngle()));
-                    p.put(CgmesNames.VOLTAGE, fs(b.getV()));
+                    // calculate complex voltage value: abs for VOLTAGE, degrees for ANGLE
+                    Complex v2 = complexVoltage(dl.getR(), dl.getX(), dl.getG(), dl.getB(), b.getV(), b.getAngle(), dl.getP0(), dl.getQ0());
+                    p.put(CgmesNames.ANGLE, fs(Math.toDegrees(v2.getArgument())));
+                    p.put(CgmesNames.VOLTAGE, fs(v2.abs()));
                     p.put(CgmesNames.TOPOLOGICAL_NODE, entry.getValue());
                 } else {
                     p.put(CgmesNames.ANGLE, fs(0.0));
@@ -139,29 +137,34 @@ public final class StateVariablesAdder {
         cgmes.add(CgmesSubset.STATE_VARIABLES, "SvTapStep", tapSteps);
     }
 
-    private static Bus getBusFromLine(String lineId, Network n) {
-        return n.getDanglingLine(lineId).getTerminal().getBusBreakerView().getBus();
+    // FIXME elena Uses LinkData class, not yet in master, I've copied in into the package as LinkDataTmp
+    private static Complex complexVoltage(double r, double x, double g, double b,
+        double v, double angle, double p, double q) {
+        BranchAdmittanceMatrix adm = LinkDataTmp.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0,
+            new Complex(g * 0.5, b * 0.5), new Complex(g * 0.5, b * 0.5));
+        Complex v1 = ComplexUtils.polar2Complex(v, Math.toRadians(angle));
+        Complex s1 = new Complex(p, q);
+        return (s1.conjugate().divide(v1.conjugate()).subtract(adm.y11.multiply(v1))).divide(adm.y12);
     }
 
     private static Map<String, String> boundaryNodesFromDanglingLines(CgmesModel cgmes, Network n) {
         Map<String, String> nodesFromLines = new HashMap<>();
+        List<String> boundaryNodes = new ArrayList<>();
+        cgmes.boundaryNodes().forEach(node -> boundaryNodes.add(node.getId("Node")));
+
         for (PropertyBag line : cgmes.acLineSegments()) {
             String lineId = line.getId(CgmesNames.AC_LINE_SEGMENT);
-            DanglingLine dl = n.getDanglingLine(lineId);
             // we need only acLinesSegments that were converted into DanglingLines
-            if (dl == null) {
+            if (n.getDanglingLine(lineId) == null) {
                 continue;
             }
             String tpNode1 = cgmes.terminal(line.getId(CgmesNames.TERMINAL1)).topologicalNode();
             String tpNode2 = cgmes.terminal(line.getId(CgmesNames.TERMINAL2)).topologicalNode();
-            Bus b = dl.getTerminal().getBusBreakerView().getBus();
-            // find boundary node for line
-            if (b != null) {
-                nodesFromLines.put(lineId,
-                    b.getId().equals(tpNode1) ? tpNode2 : tpNode1);
-            } else {
-                nodesFromLines.put(lineId,
-                    tpNode1 != null ? tpNode1 : tpNode2);
+            // find not null boundary node for line
+            if (boundaryNodes.contains(tpNode1)) {
+                nodesFromLines.put(lineId, tpNode1);
+            } else if (boundaryNodes.contains(tpNode2)) {
+                nodesFromLines.put(lineId, tpNode2);
             }
         }
         return nodesFromLines;
