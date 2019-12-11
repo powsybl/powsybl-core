@@ -126,7 +126,7 @@ public class AppFileSystem implements AutoCloseable {
      * @param nodeId the node Id
      * @return a typed node
      */
-    private AbstractNodeBase fetchNode(String nodeId) {
+    public AbstractNodeBase fetchNode(String nodeId) {
         Objects.requireNonNull(nodeId);
 
         NodeInfo projectFileInfo = storage.getNodeInfo(nodeId);

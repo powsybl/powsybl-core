@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import static org.junit.Assert.*;
 
@@ -297,4 +298,41 @@ public class AfsBaseTest {
         assertEquals(project.getFileSystem(), foundProject.getFileSystem());
         assertEquals(project.getCodeVersion(), foundProject.getCodeVersion());
     }
+
+    @Test
+    public void fetchNodeTest() {
+        Folder folder = afs.getRootFolder().createFolder("testFolder");
+        Project project = folder.createProject("test");
+        FooFile createdFile = project.getRootFolder().fileBuilder(FooFileBuilder.class)
+                .withName("foo")
+                .build();
+        ProjectFolder projectFolder = project.getRootFolder().createFolder("testFolder");
+        FooFile nestedFile = projectFolder.fileBuilder(FooFileBuilder.class)
+                .withName("bar")
+                .build();
+
+        BiConsumer<AbstractNodeBase, AbstractNodeBase> checkResult = (source, result) -> {
+            assertNotNull(result);
+            assertEquals(source.getClass(), result.getClass());
+            assertEquals(source.getId(), result.getId());
+            assertEquals(source.getName(), result.getName());
+            assertEquals(source.getName(), result.getName());
+            assertEquals(source.getDescription(), result.getDescription());
+            assertEquals(source.getCreationDate(), result.getCreationDate());
+            assertEquals(source.getModificationDate(), result.getModificationDate());
+            assertEquals(source.getCodeVersion(), result.getCodeVersion());
+
+            if (source instanceof ProjectNode) {
+                assertEquals(((ProjectNode) source).getProject().getId(), ((ProjectNode) result).getProject().getId());
+                assertEquals(((ProjectNode) source).getFileSystem(), ((ProjectNode) result).getFileSystem());
+            }
+        };
+
+        checkResult.accept(project, afs.fetchNode(project.getId()));
+        checkResult.accept(folder, afs.fetchNode(folder.getId()));
+        checkResult.accept(createdFile, afs.fetchNode(createdFile.getId()));
+        checkResult.accept(nestedFile, afs.fetchNode(nestedFile.getId()));
+        checkResult.accept(projectFolder, afs.fetchNode(projectFolder.getId()));
+    }
+
 }
