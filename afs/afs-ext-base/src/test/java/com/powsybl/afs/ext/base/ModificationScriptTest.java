@@ -14,6 +14,7 @@ import com.powsybl.afs.storage.InMemoryEventsBus;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
 
@@ -77,13 +78,12 @@ public class ModificationScriptTest extends AbstractProjectFileTest {
         assertFalse(script.isFolder());
         assertTrue(script.getDependencies().isEmpty());
         assertEquals("println 'hello'", script.readScript());
-        boolean[] scriptUpdated = new boolean[1];
-        scriptUpdated[0] = false;
-        ScriptListener listener = () -> scriptUpdated[0] = true;
+        AtomicBoolean scriptUpdated = new AtomicBoolean(false);
+        ScriptListener listener = () -> scriptUpdated.set(true);
         script.addListener(listener);
         script.writeScript("println 'bye'");
         assertEquals("println 'bye'", script.readScript());
-        assertTrue(scriptUpdated[0]);
+        assertTrue(scriptUpdated.get());
         script.removeListener(listener);
 
         // check script file is correctly scanned
@@ -91,5 +91,49 @@ public class ModificationScriptTest extends AbstractProjectFileTest {
         ProjectNode firstNode = rootFolder.getChildren().get(0);
         assertTrue(firstNode instanceof ModificationScript);
         assertEquals("script", firstNode.getName());
+
+        ModificationScript include1 = rootFolder.fileBuilder(ModificationScriptBuilder.class)
+                .withName("include_script1")
+                .withType(ScriptType.GROOVY)
+                .withContent("var foo=\"bar\"")
+                .build();
+        assertNotNull(include1);
+        script.addScript(include1);
+        String contentWithInclude = script.readScript(true);
+        assertEquals(contentWithInclude, "var foo=\"bar\"\n\nprintln 'bye'");
+
+        script.addScript(include1);
+        contentWithInclude = script.readScript(true);
+        assertEquals(contentWithInclude, "var foo=\"bar\"\n\nvar foo=\"bar\"\n\nprintln 'bye'");
+
+        ModificationScript include2 = rootFolder.fileBuilder(ModificationScriptBuilder.class)
+                .withName("include_script2")
+                .withType(ScriptType.GROOVY)
+                .withContent("var p0=1")
+                .build();
+        script.removeScript(include1.getId());
+        script.addScript(include1);
+        script.addScript(include2);
+        contentWithInclude = script.readScript(true);
+        assertEquals(contentWithInclude, "var foo=\"bar\"\n\nvar p0=1\n\nprintln 'bye'");
+
+        ModificationScript include3 = rootFolder.fileBuilder(ModificationScriptBuilder.class)
+                .withName("include_script3")
+                .withType(ScriptType.GROOVY)
+                .withContent("var pmax=2")
+                .build();
+        script.addScript(include3);
+        script.removeScript(include2.getId());
+        contentWithInclude = script.readScript(true);
+        assertEquals(contentWithInclude, "var foo=\"bar\"\n\nvar pmax=2\n\nprintln 'bye'");
+
+        include3.addScript(include2);
+        contentWithInclude = script.readScript(true);
+        assertEquals(contentWithInclude, "var foo=\"bar\"\n\nvar p0=1\n\nvar pmax=2\n\nprintln 'bye'");
+
+        List<AbstractScript> includes = script.getIncludedScripts();
+        assertEquals(includes.size(), 2);
+        assertEquals(includes.get(0).getId(), include1.getId());
+        assertEquals(includes.get(1).getId(), include3.getId());
     }
 }

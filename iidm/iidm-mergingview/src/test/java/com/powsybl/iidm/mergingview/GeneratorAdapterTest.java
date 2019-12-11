@@ -38,7 +38,6 @@ public class GeneratorAdapterTest {
         double targetQ = 300.5;
         double ratedS = 10.5;
         EnergySource energySource = EnergySource.NUCLEAR;
-
         final VoltageLevel vlNode = mergingView.getVoltageLevel("C");
         final GeneratorAdder generatorAdder = vlNode.newGenerator();
         assertNotNull(generatorAdder);
@@ -60,7 +59,6 @@ public class GeneratorAdapterTest {
         assertTrue(generator instanceof GeneratorAdapter);
         assertSame(mergingView, generator.getNetwork());
 
-        assertEquals(ConnectableType.GENERATOR, generator.getType());
         assertTrue(generator.getTerminal() instanceof TerminalAdapter);
         generator.getTerminals().forEach(t -> {
             assertTrue(t instanceof TerminalAdapter);
