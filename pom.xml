@@ -145,7 +145,7 @@
         <jgrapht.version>1.0.1</jgrapht.version>
         <jimfs.version>1.1</jimfs.version>
         <jjwt.version>0.9.0</jjwt.version>
-        <jline2.version>2.12</jline2.version>
+        <jline2.version>3.5.1</jline2.version>
         <jodatime.version>2.9.7</jodatime.version>
         <junit.version>4.12</junit.version>
         <logback.version>1.1.8</logback.version>
@@ -333,11 +333,12 @@
                         <sourceDirectories>
                             <sourceDirectory>${project.basedir}/action/action-dsl/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/action/action-util/src/main/groovy</sourceDirectory>
+                            <sourceDirectory>${project.basedir}/afs/afs-scripting/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/contingency/contingency-dsl/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/dsl/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/iidm/iidm-api/src/main/groovy</sourceDirectory>
-                            <sourceDirectory>${project.basedir}/loadflow/loadflow-api/src/main/groovy</sourceDirectory>
-                            <sourceDirectory>${project.basedir}/scripting/scripting-afs/src/main/groovy</sourceDirectory>
+                            <sourceDirectory>${project.basedir}/loadflow/loadflow-scripting/src/main/groovy</sourceDirectory>
+                            <sourceDirectory>${project.basedir}/scripting/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/time-series/time-series-api/src/main/groovy</sourceDirectory>
                         </sourceDirectories>
                         <jacocoReports>
@@ -646,7 +647,7 @@
                 <version>${jaxb-api.version}</version>
             </dependency>
             <dependency>
-                <groupId>jline</groupId>
+                <groupId>org.jline</groupId>
                 <artifactId>jline</artifactId>
                 <version>${jline2.version}</version>
             </dependency>
