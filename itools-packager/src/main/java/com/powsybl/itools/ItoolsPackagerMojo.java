@@ -167,6 +167,7 @@ public class ItoolsPackagerMojo extends AbstractMojo {
             Path etcDir = packageDir.resolve("etc");
             Files.createDirectories(etcDir);
             Files.copy(ItoolsPackagerMojo.class.getResourceAsStream("/logback-itools.xml"), etcDir.resolve("logback-itools.xml"), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(ItoolsPackagerMojo.class.getResourceAsStream("/logback-powsyblsh.xml"), etcDir.resolve("logback-powsyblsh.xml"), StandardCopyOption.REPLACE_EXISTING);
             try (BufferedWriter writer = Files.newBufferedWriter(etcDir.resolve("itools.conf"), StandardCharsets.UTF_8)) {
                 writeItoolsConf(writer);
             }
