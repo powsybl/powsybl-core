@@ -366,6 +366,7 @@
                     <xs:element name="currentLimits2" type="iidm:CurrentLimit" minOccurs="0"/>
                     <xs:element name="currentLimits3" type="iidm:CurrentLimit" minOccurs="0"/>
                 </xs:sequence>
+                <xs:attribute name="ratedU0" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU1" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU2" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU3" use="required" type="xs:double"/>

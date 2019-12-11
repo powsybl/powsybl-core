@@ -121,6 +121,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         LegAdder legAdder1 = adder.newLeg1().setR(r1).setX(x1).setG(g1).setB(b1).setRatedU(ratedU1);
         LegAdder legAdder2 = adder.newLeg2().setR(r2).setX(x2).setRatedU(ratedU2);
         LegAdder legAdder3 = adder.newLeg3().setR(r3).setX(x3).setRatedU(ratedU3);
+        readVersionedRootElementAttributes(adder, context);
         readVersionedLegAttributes(legAdder2, 2, context);
         readVersionedLegAttributes(legAdder3, 3, context);
         readNodeOrBus(1, legAdder1, context);
@@ -134,6 +135,18 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         readPQ(2, twt.getLeg2().getTerminal(), context.getReader());
         readPQ(3, twt.getLeg3().getTerminal(), context.getReader());
         return twt;
+    }
+
+    private static void readVersionedRootElementAttributes(ThreeWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
+        switch (context.getVersion()) {
+            case V_1_1:
+                adder.setRatedU0(XmlUtil.readDoubleAttribute(context.getReader(), "ratedU0"));
+                break;
+            case V_1_0:
+                break;
+            default:
+                throw new PowsyblException("XIIDM version " + context.getVersion().toString(".") + " is not supported for ThreeWindingsTransformer.");
+        }
     }
 
     private static void readVersionedLegAttributes(LegAdder adder, int index, NetworkXmlReaderContext context) {
