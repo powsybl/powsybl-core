@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 
 /**
@@ -18,7 +19,7 @@ public class VscConverterStationAdderAdapter extends AbstractInjectionAdderAdapt
     }
 
     @Override
-    public VscConverterStationAdapter add() {
+    public VscConverterStation add() {
         checkAndSetUniqueId();
         return getIndex().getVscConverterStation(getDelegate().add());
     }
