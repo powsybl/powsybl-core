@@ -12,14 +12,14 @@ import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class StaticVarCompensatorAdderAdapter extends AbstractIdentifiableAdderAdapter<StaticVarCompensatorAdder> implements StaticVarCompensatorAdder {
+public class StaticVarCompensatorAdderAdapter extends AbstractInjectionAdderAdapter<StaticVarCompensatorAdder> implements StaticVarCompensatorAdder {
 
     StaticVarCompensatorAdderAdapter(StaticVarCompensatorAdder delegate, MergingViewIndex index) {
         super(delegate, index);
     }
 
     @Override
-    public StaticVarCompensatorAdapter add() {
+    public StaticVarCompensator add() {
         checkAndSetUniqueId();
         return getIndex().getStaticVarCompensator(getDelegate().add());
     }
@@ -54,24 +54,6 @@ public class StaticVarCompensatorAdderAdapter extends AbstractIdentifiableAdderA
     @Override
     public StaticVarCompensatorAdder setRegulationMode(StaticVarCompensator.RegulationMode regulationMode) {
         getDelegate().setRegulationMode(regulationMode);
-        return this;
-    }
-
-    @Override
-    public StaticVarCompensatorAdder setNode(int node) {
-        getDelegate().setNode(node);
-        return this;
-    }
-
-    @Override
-    public StaticVarCompensatorAdder setBus(String bus) {
-        getDelegate().setBus(bus);
-        return this;
-    }
-
-    @Override
-    public StaticVarCompensatorAdder setConnectableBus(String connectableBus) {
-        getDelegate().setConnectableBus(connectableBus);
         return this;
     }
 }
