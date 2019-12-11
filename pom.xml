@@ -89,7 +89,7 @@
         <maven.assembly.version>3.1.0</maven.assembly.version>
         <maven.build-helper.version>3.0.0</maven.build-helper.version>
         <maven.buildnumber.version>1.4</maven.buildnumber.version>
-        <maven.checkstyle.version>3.0.0</maven.checkstyle.version>
+        <maven.checkstyle.version>3.1.0</maven.checkstyle.version>
         <maven.clean.version>3.1.0</maven.clean.version>
         <maven.compiler.version>3.8.0</maven.compiler.version>
         <maven.coveralls.version>4.3.0</maven.coveralls.version>
