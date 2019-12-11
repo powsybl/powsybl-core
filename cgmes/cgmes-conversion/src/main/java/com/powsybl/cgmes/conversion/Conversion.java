@@ -517,9 +517,9 @@ public class Conversion {
             return xfmr2RatioPhaseEnd1;
         }
 
-        public void setXfmr2RatioPhaseEnd1(boolean xfmr2RatioPhaseEnd1) {
+        public void setXfmr2RatioPhaseEnd1() {
             resetXfmr2RatioPhase();
-            this.xfmr2RatioPhaseEnd1 = xfmr2RatioPhaseEnd1;
+            xfmr2RatioPhaseEnd1 = true;
         }
 
         /**
@@ -530,9 +530,9 @@ public class Conversion {
             return xfmr2RatioPhaseEnd2;
         }
 
-        public void setXfmr2RatioPhaseEnd2(boolean xfmr2RatioPhaseEnd2) {
+        public void setXfmr2RatioPhaseEnd2() {
             resetXfmr2RatioPhase();
-            this.xfmr2RatioPhaseEnd2 = xfmr2RatioPhaseEnd2;
+            xfmr2RatioPhaseEnd2 = true;
         }
 
         /**
@@ -543,9 +543,9 @@ public class Conversion {
             return xfmr2RatioPhaseEnd1End2;
         }
 
-        public void setXfmr2RatioPhaseEnd1End2(boolean xfmr2RatioPhaseEnd1End2) {
+        public void setXfmr2RatioPhaseEnd1End2() {
             resetXfmr2RatioPhase();
-            this.xfmr2RatioPhaseEnd1End2 = xfmr2RatioPhaseEnd1End2;
+            xfmr2RatioPhaseEnd1End2 = true;
         }
 
         /**
@@ -556,9 +556,9 @@ public class Conversion {
             return xfmr2RatioPhaseX;
         }
 
-        public void setXfmr2RatioPhaseX(boolean xfmr2RatioPhaseX) {
+        public void setXfmr2RatioPhaseX() {
             resetXfmr2RatioPhase();
-            this.xfmr2RatioPhaseX = xfmr2RatioPhaseX;
+            xfmr2RatioPhaseX = true;
         }
 
         /**
@@ -579,9 +579,9 @@ public class Conversion {
             return xfmr2ShuntEnd1;
         }
 
-        public void setXfmr2ShuntEnd1(boolean xfmr2ShuntEnd1) {
+        public void setXfmr2ShuntEnd1() {
             resetXfmr2Shunt();
-            this.xfmr2ShuntEnd1 = xfmr2ShuntEnd1;
+            xfmr2ShuntEnd1 = true;
         }
 
         /**
@@ -591,9 +591,9 @@ public class Conversion {
             return xfmr2ShuntEnd2;
         }
 
-        public void setXfmr2ShuntEnd2(boolean xfmr2ShuntEnd2) {
+        public void setXfmr2ShuntEnd2() {
             resetXfmr2Shunt();
-            this.xfmr2ShuntEnd2 = xfmr2ShuntEnd2;
+            xfmr2ShuntEnd2 = true;
         }
 
         /**
@@ -603,9 +603,9 @@ public class Conversion {
             return xfmr2ShuntEnd1End2;
         }
 
-        public void setXfmr2ShuntEnd1End2(boolean xfmr2ShuntEnd1End2) {
+        public void setXfmr2ShuntEnd1End2() {
             resetXfmr2Shunt();
-            this.xfmr2ShuntEnd1End2 = xfmr2ShuntEnd1End2;
+            xfmr2ShuntEnd1End2 = true;
         }
 
         /**
@@ -615,9 +615,9 @@ public class Conversion {
             return xfmr2ShuntSplit;
         }
 
-        public void setXfmr2ShuntSplit(boolean xfmr2ShuntSplit) {
+        public void setXfmr2ShuntSplit() {
             resetXfmr2Shunt();
-            this.xfmr2ShuntSplit = xfmr2ShuntSplit;
+            xfmr2ShuntSplit = true;
         }
 
         /**
@@ -633,11 +633,11 @@ public class Conversion {
 
         public Config setXfmr2StructuralRatio(String value) {
             if (value.equals("end1")) {
-                setXfmr2Ratio0End1(true);
+                setXfmr2Ratio0End1();
             } else if (value.equals("end2")) {
-                setXfmr2Ratio0End2(true);
+                setXfmr2Ratio0End2();
             } else if (value.equals("x")) {
-                setXfmr2Ratio0X(true);
+                setXfmr2Ratio0X();
             }
             return this;
         }
@@ -649,9 +649,9 @@ public class Conversion {
             return xfmr2Ratio0End1;
         }
 
-        public void setXfmr2Ratio0End1(boolean xfmr2Ratio0End1) {
+        public void setXfmr2Ratio0End1() {
             resetXfmr2Ratio0();
-            this.xfmr2Ratio0End1 = xfmr2Ratio0End1;
+            xfmr2Ratio0End1 = true;
         }
 
         /**
@@ -661,9 +661,9 @@ public class Conversion {
             return xfmr2Ratio0End2;
         }
 
-        public void setXfmr2Ratio0End2(boolean xfmr2Ratio0End2) {
+        public void setXfmr2Ratio0End2() {
             resetXfmr2Ratio0();
-            this.xfmr2Ratio0End2 = xfmr2Ratio0End2;
+            xfmr2Ratio0End2 = true;
         }
 
         /**
@@ -673,9 +673,9 @@ public class Conversion {
             return xfmr2Ratio0X;
         }
 
-        public void setXfmr2Ratio0X(boolean xfmr2Ratio0X) {
+        public void setXfmr2Ratio0X() {
             resetXfmr2Ratio0();
-            this.xfmr2Ratio0X = xfmr2Ratio0X;
+            xfmr2Ratio0X = true;
         }
 
         /**
@@ -707,9 +707,9 @@ public class Conversion {
             return xfmr3ShuntNetworkSide;
         }
 
-        public void setXfmr3ShuntNetworkSide(boolean xfmr3ShuntNetworkSide) {
+        public void setXfmr3ShuntNetworkSide() {
             resetXfmr3Shunt();
-            this.xfmr3ShuntNetworkSide = xfmr3ShuntNetworkSide;
+            xfmr3ShuntNetworkSide = true;
         }
 
          /**
@@ -719,9 +719,9 @@ public class Conversion {
             return xfmr3ShuntStarBusSide;
         }
 
-        public void setXfmr3ShuntStarBusSide(boolean xfmr3ShuntStarBusSide) {
+        public void setXfmr3ShuntStarBusSide() {
             resetXfmr3Shunt();
-            this.xfmr3ShuntStarBusSide = xfmr3ShuntStarBusSide;
+            xfmr3ShuntStarBusSide = true;
         }
 
         /**
@@ -731,9 +731,9 @@ public class Conversion {
             return xfmr3ShuntSplit;
         }
 
-        public void setXfmr3ShuntSplit(boolean xfmr3ShuntSplit) {
+        public void setXfmr3ShuntSplit() {
             resetXfmr3Shunt();
-            this.xfmr3ShuntSplit = xfmr3ShuntSplit;
+            xfmr3ShuntSplit = true;
         }
 
         /**
@@ -754,9 +754,9 @@ public class Conversion {
             return xfmr3Ratio0StarBusSide;
         }
 
-        public void setXfmr3Ratio0StarBusSide(boolean xfmr3Ratio0StarBusSide) {
+        public void setXfmr3Ratio0StarBusSide() {
             resetXfmr3Ratio0();
-            this.xfmr3Ratio0StarBusSide = xfmr3Ratio0StarBusSide;
+            xfmr3Ratio0StarBusSide = true;
         }
 
         /**
@@ -766,9 +766,9 @@ public class Conversion {
             return xfmr3Ratio0NetworkSide;
         }
 
-        public void setXfmr3Ratio0NetworkSide(boolean xfmr3Ratio0NetworkSide) {
+        public void setXfmr3Ratio0NetworkSide() {
             resetXfmr3Ratio0();
-            this.xfmr3Ratio0NetworkSide = xfmr3Ratio0NetworkSide;
+            xfmr3Ratio0NetworkSide = true;
         }
 
         /**
@@ -778,22 +778,21 @@ public class Conversion {
             return xfmr3Ratio0End1;
         }
 
-        public void setXfmr3Ratio0End1(boolean xfmr3Ratio0End1) {
+        public void setXfmr3Ratio0End1() {
             resetXfmr3Ratio0();
-            this.xfmr3Ratio0End1 = xfmr3Ratio0End1;
+            xfmr3Ratio0End1 = true;
         }
 
         /**
          * ThreeWindingsTransformer: Structural ratio at the network side of legs 1 and 3. RateddU0 = RatedU2
          */
         public boolean isXfmr3Ratio0End2() {
-            resetXfmr3Ratio0();
             return xfmr3Ratio0End2;
         }
 
-        public void setXfmr3Ratio0End2(boolean xfmr3Ratio0End2) {
+        public void setXfmr3Ratio0End2() {
             resetXfmr3Ratio0();
-            this.xfmr3Ratio0End2 = xfmr3Ratio0End2;
+            xfmr3Ratio0End2 = true;
         }
 
         /**
@@ -803,9 +802,9 @@ public class Conversion {
             return xfmr3Ratio0End3;
         }
 
-        public void setXfmr3Ratio0End3(boolean xfmr3Ratio0End3) {
+        public void setXfmr3Ratio0End3() {
             resetXfmr3Ratio0();
-            this.xfmr3Ratio0End3 = xfmr3Ratio0End3;
+            xfmr3Ratio0End3 = true;
         }
 
         private void resetXfmr2RatioPhase() {
