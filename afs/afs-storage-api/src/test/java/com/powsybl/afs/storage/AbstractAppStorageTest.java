@@ -529,6 +529,8 @@ public abstract class AbstractAppStorageTest {
         } catch (Exception ignored) {
         }
 
+        testUpdateNodeMetadata(rootFolderInfo, storage);
+
         // 19 check that eventsBus is not null
         assertNotNull(storage.getEventsBus());
 
@@ -542,7 +544,7 @@ public abstract class AbstractAppStorageTest {
 
         checkMetadataEquality(metadata, node.getGenericMetadata());
 
-        discardEvents(3);
+        discardEvents(17);
 
         storage.setMetadata(node.getId(), cloneMetadata(metadata));
         storage.flush();
