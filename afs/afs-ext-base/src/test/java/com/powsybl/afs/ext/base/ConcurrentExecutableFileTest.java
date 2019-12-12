@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 /**
  * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
  */
-public class AbstractConcurrentExecutableFileTest extends AbstractProjectFileTest {
+public class ConcurrentExecutableFileTest extends AbstractProjectFileTest {
     static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
 
     @Override
