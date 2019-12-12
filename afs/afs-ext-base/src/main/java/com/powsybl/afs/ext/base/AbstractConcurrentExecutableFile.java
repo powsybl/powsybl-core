@@ -18,12 +18,12 @@ import java.io.IOException;
 /**
  * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
  */
-public abstract class ConcurrentExecutableFile<T> extends ProjectFile {
+public abstract class AbstractConcurrentExecutableFile<T> extends ProjectFile {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentExecutableFile.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractConcurrentExecutableFile.class);
     private static final String RUN_LOCK_DB = "ExecutableFileRunLock";
 
-    protected ConcurrentExecutableFile(ProjectFileCreationContext context, int codeVersion) {
+    protected AbstractConcurrentExecutableFile(ProjectFileCreationContext context, int codeVersion) {
         super(context, codeVersion);
     }
 
@@ -41,7 +41,7 @@ public abstract class ConcurrentExecutableFile<T> extends ProjectFile {
         }
     }
 
-    public boolean tryLock(){
+    public boolean tryLock() {
         storage.flush();
         if (storage.dataExists(info.getId(), RUN_LOCK_DB)) {
             return false;
@@ -56,7 +56,7 @@ public abstract class ConcurrentExecutableFile<T> extends ProjectFile {
         }
     }
 
-    private void unlock(){
+    private void unlock() {
         storage.removeData(info.getId(), RUN_LOCK_DB);
         storage.flush();
     }

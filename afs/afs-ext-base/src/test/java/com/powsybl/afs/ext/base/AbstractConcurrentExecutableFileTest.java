@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 /**
  * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
  */
-public class ConcurrentExecutableFileTest extends AbstractProjectFileTest{
+public class AbstractConcurrentExecutableFileTest extends AbstractProjectFileTest {
     static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
 
     @Override
@@ -77,7 +77,7 @@ public class ConcurrentExecutableFileTest extends AbstractProjectFileTest{
         CountDownLatch ended = new CountDownLatch(1);
     }
 
-    static class FooFileConcurrent extends ConcurrentExecutableFile<FooRunConfig> {
+    static class FooFileConcurrent extends AbstractConcurrentExecutableFile<FooRunConfig> {
         static String PSEUDO_CLASS = "FooFile";
 
         protected FooFileConcurrent(ProjectFileCreationContext context, int codeVersion) {
