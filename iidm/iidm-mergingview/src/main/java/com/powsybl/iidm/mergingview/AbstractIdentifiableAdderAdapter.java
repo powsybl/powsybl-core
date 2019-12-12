@@ -23,10 +23,6 @@ abstract class AbstractIdentifiableAdderAdapter<I extends IdentifiableAdder<I>> 
         super(delegate, index);
     }
 
-    public String getId() {
-        return id;
-    }
-
     @Override
     public I setId(final String id) {
         this.id = id;

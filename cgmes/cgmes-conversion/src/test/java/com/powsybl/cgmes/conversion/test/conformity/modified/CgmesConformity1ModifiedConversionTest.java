@@ -211,6 +211,18 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBEEquivalentShunt() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource(),
+                NetworkFactory.findDefault(), null);
+
+        ShuntCompensator shunt = network.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da");
+        assertNotNull(shunt);
+        assertEquals(1, shunt.getMaximumSectionCount());
+        assertEquals(0.0012, shunt.getbPerSection(), 0.0);
+        assertEquals(1, shunt.getCurrentSectionCount());
+    }
+
+    @Test
     public void microT4InvalidSvcMode() {
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator svc = network.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");

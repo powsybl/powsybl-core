@@ -13,7 +13,6 @@ import com.powsybl.afs.AppFileSystemProvider;
 import com.powsybl.afs.AppFileSystemProviderContext;
 import com.powsybl.afs.ws.client.utils.RemoteServiceConfig;
 import com.powsybl.afs.ws.storage.RemoteAppStorage;
-import com.powsybl.afs.ws.storage.RemoteListenableAppStorage;
 import com.powsybl.afs.ws.storage.RemoteTaskMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,9 +54,8 @@ public class RemoteAppFileSystemProvider implements AppFileSystemProvider {
                 return RemoteAppStorage.getFileSystemNames(uri, context.getToken()).stream()
                         .map(fileSystemName -> {
                             RemoteAppStorage storage = new RemoteAppStorage(fileSystemName, uri, context.getToken());
-                            RemoteListenableAppStorage listenableStorage = new RemoteListenableAppStorage(storage, uri);
                             RemoteTaskMonitor taskMonitor = new RemoteTaskMonitor(fileSystemName, uri, context.getToken());
-                            return new AppFileSystem(fileSystemName, true, listenableStorage, taskMonitor);
+                            return new AppFileSystem(fileSystemName, true, storage, taskMonitor);
                         })
                         .collect(Collectors.toList());
             } catch (ProcessingException e) {

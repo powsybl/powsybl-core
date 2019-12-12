@@ -47,14 +47,23 @@ public class BusAdapterTest {
         assertEquals(0.0d, bus.getP(), 0.0d);
         assertEquals(0.0d, bus.getQ(), 0.0d);
         assertTrue(bus.getTwoWindingsTransformers().iterator().hasNext());
+        assertEquals(1, bus.getTwoWindingsTransformerStream().count());
         assertFalse(bus.getThreeWindingsTransformers().iterator().hasNext());
+        assertEquals(0, bus.getThreeWindingsTransformerStream().count());
         assertTrue(bus.getGenerators().iterator().hasNext());
+        assertEquals(1, bus.getGeneratorStream().count());
         assertFalse(bus.getBatteries().iterator().hasNext());
+        assertEquals(0, bus.getBatteryStream().count());
         assertFalse(bus.getLoads().iterator().hasNext());
+        assertEquals(0, bus.getLoadStream().count());
         assertFalse(bus.getShuntCompensators().iterator().hasNext());
+        assertEquals(0, bus.getShuntCompensatorStream().count());
         assertFalse(bus.getStaticVarCompensators().iterator().hasNext());
+        assertEquals(0, bus.getStaticVarCompensatorStream().count());
         assertFalse(bus.getLccConverterStations().iterator().hasNext());
+        assertEquals(0, bus.getLccConverterStationStream().count());
         assertFalse(bus.getVscConverterStations().iterator().hasNext());
+        assertEquals(0, bus.getVscConverterStationStream().count());
 
         // Not implemented yet !
         TestUtil.notImplemented(bus::getConnectedTerminalCount);
@@ -71,6 +80,8 @@ public class BusAdapterTest {
         TestUtil.notImplemented(bus::getConnectedComponent);
         TestUtil.notImplemented(bus::isInMainConnectedComponent);
         TestUtil.notImplemented(bus::isInMainSynchronousComponent);
+        TestUtil.notImplemented(() -> bus.visitConnectedEquipments(null));
+        TestUtil.notImplemented(() -> bus.visitConnectedOrConnectableEquipments(null));
     }
 
     @Test

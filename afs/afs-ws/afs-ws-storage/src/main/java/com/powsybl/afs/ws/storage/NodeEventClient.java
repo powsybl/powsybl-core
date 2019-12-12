@@ -7,6 +7,8 @@
 package com.powsybl.afs.ws.storage;
 
 import com.powsybl.afs.storage.events.AppStorageListener;
+import com.powsybl.afs.storage.events.NodeEvent;
+import com.powsybl.afs.storage.events.NodeEventContainer;
 import com.powsybl.afs.storage.events.NodeEventList;
 import com.powsybl.commons.util.WeakListenerList;
 import org.slf4j.Logger;
@@ -18,7 +20,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@ClientEndpoint(decoders = {NodeEventListDecoder.class})
+@ClientEndpoint(decoders = {NodeEventListDecoder.class},  encoders = {NodeEventContainerEncoder.class})
 public class NodeEventClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NodeEventClient.class);
@@ -27,14 +29,29 @@ public class NodeEventClient {
 
     private final WeakListenerList<AppStorageListener> listeners;
 
+    private Session session = null;
+
     public NodeEventClient(String fileSystemName, WeakListenerList<AppStorageListener> listeners) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.listeners = Objects.requireNonNull(listeners);
     }
 
+    public void pushEvent(NodeEvent event, String fileSystemName, String topic) {
+        if (session.isOpen()) {
+            RemoteEndpoint.Async remote = session.getAsyncRemote();
+            remote.setSendTimeout(1000);
+            remote.sendObject(new NodeEventContainer(event, fileSystemName, topic), result -> {
+                if (!result.isOK()) {
+                    LOGGER.error(result.getException().toString(), result.getException());
+                }
+            });
+        }
+    }
+
     @OnOpen
     public void onOpen(Session session) {
         LOGGER.trace("Node event websocket session '{}' opened for file system '{}'", session.getId(), fileSystemName);
+        this.session = session;
     }
 
     @OnMessage

@@ -11,7 +11,7 @@ import com.powsybl.afs.ProjectFileCreationContext;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ModificationScript extends AbstractModificationScript {
+public class ModificationScript extends AbstractScript<ModificationScript> {
 
     public static final String PSEUDO_CLASS = "modificationScript";
     public static final int VERSION = 0;
