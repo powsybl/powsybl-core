@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
+import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
@@ -140,8 +141,9 @@ public class Conversion {
 
         if (config.storeCgmesModelAsNetworkExtension()) {
             // Store a reference to the original CGMES model inside the IIDM network
-            // We could also add listeners to be aware of changes in IIDM data
-            network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes));
+            // CgmesUpdate will add a listener to Network changes
+            CgmesUpdate cgmesUpdater = new CgmesUpdate(network);
+            network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes, cgmesUpdater));
         }
         if (config.storeCgmesConversionContextAsNetworkExtension()) {
             // Store the terminal mapping in an extension for external validation

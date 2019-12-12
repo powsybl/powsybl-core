@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
-import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
