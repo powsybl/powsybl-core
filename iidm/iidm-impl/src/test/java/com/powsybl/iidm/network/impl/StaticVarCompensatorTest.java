@@ -8,7 +8,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,13 +24,8 @@ public class StaticVarCompensatorTest {
     private Network network;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         network = SvcTestCaseFactory.create();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        network = null;
     }
 
     @Test
@@ -103,9 +97,26 @@ public class StaticVarCompensatorTest {
     }
 
     @Test
+    public void regulatingTerminalTest() {
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+        assertEquals(svc.getTerminal(), svc.getRegulatingTerminal());
+
+        Terminal loadTerminal = network.getLoad("L2").getTerminal();
+        svc.setRegulatingTerminal(loadTerminal);
+        assertEquals(loadTerminal, svc.getRegulatingTerminal());
+
+        StaticVarCompensator svc3 = createSvc("SVC3", null);
+        assertEquals(svc3.getTerminal(), svc3.getRegulatingTerminal());
+
+        svc3.remove();
+        StaticVarCompensator svc4 = createSvc("SVC4", loadTerminal);
+        assertEquals(loadTerminal, svc4.getRegulatingTerminal());
+    }
+
+    @Test
     public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
-        createSvc("testMultiVariant");
+        createSvc("testMultiVariant", null);
         StaticVarCompensator svc = network.getStaticVarCompensator("testMultiVariant");
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
@@ -146,9 +157,9 @@ public class StaticVarCompensatorTest {
         }
     }
 
-    private void createSvc(String id) {
+    private StaticVarCompensator createSvc(String id, Terminal regulatingTerminal) {
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
-        vl2.newStaticVarCompensator()
+        return vl2.newStaticVarCompensator()
                 .setId(id)
                 .setConnectableBus("B2")
                 .setBus("B2")
@@ -157,6 +168,7 @@ public class StaticVarCompensatorTest {
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetPoint(390.0)
                 .setReactivePowerSetPoint(1.0)
-            .add();
+                .setRegulatingTerminal(regulatingTerminal)
+                .add();
     }
 }
