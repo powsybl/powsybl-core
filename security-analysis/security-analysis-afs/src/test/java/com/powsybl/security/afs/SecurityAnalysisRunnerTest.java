@@ -12,6 +12,7 @@ import com.powsybl.afs.*;
 import com.powsybl.afs.ext.base.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.InMemoryEventsBus;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.DataSource;
@@ -108,7 +109,7 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
 
     @Override
     protected AppStorage createStorage() {
-        return MapDbAppStorage.createMem("mem");
+        return MapDbAppStorage.createMem("mem", new InMemoryEventsBus());
     }
 
     @Override
@@ -198,6 +199,10 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         assertNotNull(result);
         assertNotNull(result.getPreContingencyResult());
         assertEquals(1, result.getPreContingencyResult().getLimitViolations().size());
+
+        // clear results
+        runner.clearResult();
+        assertFalse(runner.hasResult());
 
         // update dependencies
         Case aCase2 = afs.getRootFolder().getChild(Case.class, "network2")

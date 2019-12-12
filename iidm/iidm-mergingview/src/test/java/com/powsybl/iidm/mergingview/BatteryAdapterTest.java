@@ -29,21 +29,18 @@ public class BatteryAdapterTest {
     public void testSetterGetter() {
         double delta = 0.0;
         final VoltageLevel vlbat = mergingView.getVoltageLevel("vl1");
-        final BatteryAdder batteryAdder = vlbat.newBattery();
-        assertNotNull(batteryAdder);
-        assertTrue(batteryAdder instanceof BatteryAdderAdapter);
-        batteryAdder.setId("BATEST")
-                    .setName("BATEST")
-                    .setBus("busA")
-                    .setMaxP(9999.99d)
-                    .setMinP(-9999.99d)
-                    .setP0(15.0d)
-                    .setQ0(-15.0d)
-                    .setEnsureIdUnicity(true)
-                .add();
+        final Battery battery = vlbat.newBattery()
+                                         .setId("BATEST")
+                                         .setName("BATEST")
+                                         .setBus("busA")
+                                         .setMaxP(9999.99d)
+                                         .setMinP(-9999.99d)
+                                         .setP0(15.0d)
+                                         .setQ0(-15.0d)
+                                         .setEnsureIdUnicity(true)
+                                     .add();
 
-        final Battery battery = mergingView.getBattery("BATEST");
-        assertNotNull(battery);
+        assertSame(battery, mergingView.getBattery("BATEST"));
         assertEquals(ConnectableType.BATTERY, battery.getType());
         assertTrue(battery instanceof BatteryAdapter);
         assertSame(mergingView, battery.getNetwork());

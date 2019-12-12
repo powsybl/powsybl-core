@@ -7,13 +7,12 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
-
-import java.io.InputStream;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -22,26 +21,13 @@ import javax.xml.stream.XMLStreamException;
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class ThreeWindingsTransformerPhaseAngleClockXmlSerializer
-    implements ExtensionXmlSerializer<ThreeWindingsTransformer, ThreeWindingsTransformerPhaseAngleClock> {
+        extends AbstractExtensionXmlSerializer<ThreeWindingsTransformer, ThreeWindingsTransformerPhaseAngleClock> {
 
-    @Override
-    public boolean hasSubElements() {
-        return false;
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/threeWindingsTransformerPhaseAngleClock.xsd");
-    }
-
-    @Override
-    public String getNamespaceUri() {
-        return "http://www.powsybl.org/schema/iidm/ext/three_windings_transformer_phase_angle_clock/1_0";
-    }
-
-    @Override
-    public String getNamespacePrefix() {
-        return "threewtpac";
+    public ThreeWindingsTransformerPhaseAngleClockXmlSerializer() {
+        super("threeWindingsTransformerPhaseAngleClock", "network", ThreeWindingsTransformerPhaseAngleClock.class,
+                false, "threeWindingsTransformerPhaseAngleClock.xsd",
+                "http://www.powsybl.org/schema/iidm/ext/three_windings_transformer_phase_angle_clock/1_0",
+                "threewtpac");
     }
 
     @Override
@@ -51,24 +37,9 @@ public class ThreeWindingsTransformerPhaseAngleClockXmlSerializer
     }
 
     @Override
-    public ThreeWindingsTransformerPhaseAngleClock read(ThreeWindingsTransformer extendable, XmlReaderContext context) throws XMLStreamException {
+    public ThreeWindingsTransformerPhaseAngleClock read(ThreeWindingsTransformer extendable, XmlReaderContext context) {
         int phaseAngleClockLeg2 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "phaseAngleClockLeg2", 0);
         int phaseAngleClockLeg3 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "phaseAngleClockLeg3", 0);
         return new ThreeWindingsTransformerPhaseAngleClock(extendable, phaseAngleClockLeg2, phaseAngleClockLeg3);
-    }
-
-    @Override
-    public String getExtensionName() {
-        return "threeWindingsTransformerPhaseAngleClock";
-    }
-
-    @Override
-    public String getCategoryName() {
-        return "network";
-    }
-
-    @Override
-    public Class<? super ThreeWindingsTransformerPhaseAngleClock> getExtensionClass() {
-        return ThreeWindingsTransformerPhaseAngleClock.class;
     }
 }

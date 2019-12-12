@@ -19,26 +19,27 @@ public class PhaseTapChangerAdapter extends AbstractTapChangerAdapter<PhaseTapCh
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public RegulationMode getRegulationMode() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getRegulationMode();
     }
 
     @Override
     public PhaseTapChanger setRegulationMode(final RegulationMode regulationMode) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRegulationMode(regulationMode);
+        return this;
     }
 
     @Override
     public double getRegulationValue() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getRegulationValue();
     }
 
     @Override
     public PhaseTapChanger setRegulationValue(final double regulationValue) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRegulationValue(regulationValue);
+        return this;
     }
-
 }
