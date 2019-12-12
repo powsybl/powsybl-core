@@ -19,7 +19,7 @@ public class StaticVarCompensatorAdderAdapter extends AbstractInjectionAdderAdap
     }
 
     @Override
-    public StaticVarCompensatorAdapter add() {
+    public StaticVarCompensator add() {
         checkAndSetUniqueId();
         return getIndex().getStaticVarCompensator(getDelegate().add());
     }
