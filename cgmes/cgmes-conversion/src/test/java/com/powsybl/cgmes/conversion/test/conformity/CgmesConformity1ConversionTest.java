@@ -15,16 +15,12 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1NetworkCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -49,7 +45,6 @@ public class CgmesConformity1ConversionTest {
     @Before
     public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
-        platformConfig = new InMemoryPlatformConfig(fileSystem);
     }
 
     @After
@@ -113,11 +108,30 @@ public class CgmesConformity1ConversionTest {
         Properties properties = new Properties();
         properties.put(CgmesImport.ALLOW_UNSUPPORTED_TAP_CHANGERS, "false");
         ConversionTester t = new ConversionTester(
-                properties,
-                TripleStoreFactory.onlyDefaultImplementation(),
-                new ComparisonConfig().tolerance(1e-5));
+            properties,
+            TripleStoreFactory.onlyDefaultImplementation(),
+            new ComparisonConfig().tolerance(1e-5));
         t.setTestExportImportCgmes(true);
         t.testConversion(CgmesConformity1NetworkCatalog.microBaseCaseBE(), CgmesConformity1Catalog.microGridBaseCaseBE());
+    }
+
+    @Test
+    public void microGridBaseCaseBEBusBalanceValidation() throws IOException {
+        // Check bus balance mismatches are low if we use SV voltages
+        // MicroGrid BaseCase BE contains an RTC defined at transformerEnd1
+        // with step != neutralStep,
+        // resulting in a significant ratio (far from 1.0).
+        // Validating bus balance of buses after conversion verifies that
+        // the interpretation of the location of tap changer
+        // relative to the transmission impedance is correct
+        Properties params = new Properties();
+        params.put(CgmesImport.PROFILE_USED_FOR_INITIAL_STATE_VALUES, "SV");
+        ConversionTester t = new ConversionTester(
+            params,
+            TripleStoreFactory.onlyDefaultImplementation(),
+            new ComparisonConfig());
+        t.setValidateBusBalancesUsingThreshold(1.2);
+        t.testConversion(null, CgmesConformity1Catalog.microGridBaseCaseBE());
     }
 
     @Test
@@ -195,9 +209,9 @@ public class CgmesConformity1ConversionTest {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         ConversionTester t = new ConversionTester(
-                importParams,
-                TripleStoreFactory.onlyDefaultImplementation(),
-                new ComparisonConfig());
+            importParams,
+            TripleStoreFactory.onlyDefaultImplementation(),
+            new ComparisonConfig());
         Network expected = null;
         t.testConversion(expected, CgmesConformity1Catalog.miniNodeBreaker());
         Substation substation = t.lastConvertedNetwork().getSubstation("_183d126d-2522-4ff2-a8cd-c5016cf09c1b_S");
@@ -221,7 +235,7 @@ public class CgmesConformity1ConversionTest {
     @Test
     public void smallNodeBreakerHvdc() {
         // Small Grid Node Breaker HVDC should be imported without errors
-        assertNotNull(new CgmesImport(platformConfig).importData(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), null));
+        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), null));
 
     }
 
@@ -231,9 +245,7 @@ public class CgmesConformity1ConversionTest {
     // LoadFlow)
     // must produce identical identifiers for calculated buses
     public void smallNodeBreakerStableBusNaming() {
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-
-        Network network = new CgmesImport(platformConfig).importData(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), null);
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), null);
 
         // Initial bus identifiers
         List<String> initialBusIds = network.getBusView().getBusStream()
@@ -300,5 +312,4 @@ public class CgmesConformity1ConversionTest {
     private static ConversionTester tester;
 
     private FileSystem fileSystem;
-    private PlatformConfig platformConfig;
 }

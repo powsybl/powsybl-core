@@ -6,15 +6,20 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> implements TwoWindingsTransformer, RatioTapChangerParent {
+class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
+    implements TwoWindingsTransformer, RatioTapChangerParent, PhaseTapChangerParent {
 
     private final SubstationImpl substation;
 
@@ -162,6 +167,28 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
     }
 
     @Override
+    public Set<TapChanger> getAllTapChangers() {
+        Set<TapChanger> tapChangers = new HashSet<>();
+        if (ratioTapChanger != null) {
+            tapChangers.add(ratioTapChanger);
+        }
+        if (phaseTapChanger != null) {
+            tapChangers.add(phaseTapChanger);
+        }
+        return tapChangers;
+    }
+
+    @Override
+    public boolean hasRatioTapChanger() {
+        return ratioTapChanger != null;
+    }
+
+    @Override
+    public boolean hasPhaseTapChanger() {
+        return phaseTapChanger != null;
+    }
+
+    @Override
     public NetworkImpl getNetwork() {
         return substation.getNetwork();
     }
@@ -173,7 +200,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
         notifyUpdate("ratioTapChanger", oldValue, ratioTapChanger);
     }
 
-    void setPhaseTapChanger(PhaseTapChangerImpl phaseTapChanger) {
+    public void setPhaseTapChanger(PhaseTapChangerImpl phaseTapChanger) {
         PhaseTapChangerImpl oldValue = this.phaseTapChanger;
         this.phaseTapChanger = phaseTapChanger;
         notifyUpdate("phaseTapChanger", oldValue, phaseTapChanger);

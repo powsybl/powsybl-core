@@ -11,7 +11,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.DefaultListenableAppStorage;
+import com.powsybl.afs.storage.InMemoryEventsBus;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.NetworkFactoryService;
 import org.junit.After;
@@ -21,8 +21,13 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -42,13 +47,15 @@ public class AfsBaseTest {
     @Before
     public void setup() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
-        storage = new DefaultListenableAppStorage(MapDbAppStorage.createMem("mem"));
-
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-        afs = new AppFileSystem("mem", true, storage);
-        ad = new AppData(computationManager, computationManager, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
+        ad = new AppData(computationManager, computationManager, Collections.emptyList(),
                 Collections.emptyList(), Collections.singletonList(new FooFileExtension()), Collections.emptyList());
+
+        storage = MapDbAppStorage.createMem("mem", ad.getEventsBus());
+
+        afs = new AppFileSystem("mem", true, storage);
         afs.setData(ad);
+        ad.addFileSystem(afs);
     }
 
     @After
@@ -59,6 +66,7 @@ public class AfsBaseTest {
 
     @Test
     public void baseTest() {
+        assertSame(InMemoryEventsBus.class, ad.getEventsBus().getClass());
         assertSame(afs, ad.getFileSystem("mem"));
         assertNull(ad.getFileSystem("???"));
         assertEquals(Collections.singletonList("mem"), ad.getRemotelyAccessibleFileSystemNames());
@@ -274,5 +282,19 @@ public class AfsBaseTest {
         assertEquals(createdFile.getFileSystem(), foundFile.getFileSystem());
         assertEquals(createdFile.getDependencies(), foundFile.getDependencies());
         assertEquals(createdFile.getCodeVersion(), foundFile.getCodeVersion());
+    }
+
+    @Test
+    public void findProjectTest() {
+        Project project = afs.getRootFolder().createProject("test");
+        Project foundProject = afs.findProject(project.getId()).orElse(null);
+        assertNotNull(foundProject);
+        assertEquals(project.getId(), foundProject.getId());
+        assertEquals(project.getName(), foundProject.getName());
+        assertEquals(project.getDescription(), foundProject.getDescription());
+        assertEquals(project.getCreationDate(), foundProject.getCreationDate());
+        assertEquals(project.getModificationDate(), foundProject.getModificationDate());
+        assertEquals(project.getFileSystem(), foundProject.getFileSystem());
+        assertEquals(project.getCodeVersion(), foundProject.getCodeVersion());
     }
 }

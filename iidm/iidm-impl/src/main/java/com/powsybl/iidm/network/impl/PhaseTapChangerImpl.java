@@ -7,17 +7,20 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
 import gnu.trove.list.array.TDoubleArrayList;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl, PhaseTapChangerImpl, PhaseTapChangerStepImpl>
+class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, PhaseTapChangerImpl, PhaseTapChangerStepImpl>
                           implements PhaseTapChanger {
 
     private RegulationMode regulationMode;
@@ -26,7 +29,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
 
     private final TDoubleArrayList regulationValue;
 
-    PhaseTapChangerImpl(TwoWindingsTransformerImpl parent, int lowTapPosition,
+    PhaseTapChangerImpl(PhaseTapChangerParent parent, int lowTapPosition,
                         List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal,
                         int tapPosition, boolean regulating, RegulationMode regulationMode, double regulationValue, double targetDeadband) {
         super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, targetDeadband);
@@ -49,6 +52,18 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
     @Override
     protected NetworkImpl getNetwork() {
         return parent.getNetwork();
+    }
+
+    @Override
+    public PhaseTapChangerImpl setRegulating(boolean regulating) {
+        ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), regulating, getRegulationTerminal(), getNetwork());
+
+        Set<TapChanger> tapChangers = new HashSet<TapChanger>();
+        tapChangers.addAll(parent.getAllTapChangers());
+        tapChangers.remove(parent.getPhaseTapChanger());
+        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
+
+        return super.setRegulating(regulating);
     }
 
     @Override

@@ -7,8 +7,10 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -20,11 +22,14 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static org.junit.Assert.*;
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
@@ -32,43 +37,25 @@ import static org.junit.Assert.assertSame;
 
 public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractConverterTest {
 
-    private MemDataSource exportOneFilePerExtensionType(Network network, List<String> extensions) {
+    private static MemDataSource exportOneFilePerExtensionType(Network network, List<String> extensions) {
         Properties exportProperties = new Properties();
         exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
         exportProperties.put(XMLExporter.EXTENSIONS_LIST, extensions);
 
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter(platformConfig).export(network, exportProperties, dataSource);
+        new XMLExporter().export(network, exportProperties, dataSource);
 
         return dataSource;
     }
 
-    private Network importOneFilePerExtensionType(DataSource dataSource, List<String> extensions) {
+    private static Network importOneFilePerExtensionType(ReadOnlyDataSource dataSource, List<String> extensions) {
         Properties importProperties = new Properties();
         importProperties.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
         importProperties.put(XMLImporter.EXTENSIONS_LIST, extensions);
-        return new XMLImporter(platformConfig).importData(dataSource, importProperties);
+        return new XMLImporter().importData(dataSource, importProperties);
     }
 
-    @Test
-    public void testMultipleExtensions() throws IOException {
-        Network network = MultipleExtensionsTestNetworkFactory.create();
-        List<String> extensions = Arrays.asList("loadFoo", "loadBar");
-        MemDataSource dataSource = exportOneFilePerExtensionType(network, extensions);
-
-        // check the base exported file and compare it to iidmBaseRef reference file
-        try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
-            compareXml(getClass().getResourceAsStream("/multiple-extensions.xiidm"), is);
-        }
-
-        try (InputStream is = new ByteArrayInputStream(dataSource.getData("-loadBar.xiidm"))) {
-            compareXml(getClass().getResourceAsStream("/multiple-extensions-loadBar.xiidm"), is);
-        }
-
-        try (InputStream is = new ByteArrayInputStream(dataSource.getData("-loadFoo.xiidm"))) {
-            compareXml(getClass().getResourceAsStream("/multiple-extensions-loadFoo.xiidm"), is);
-        }
-
+    private static void testImportMultipleExtensions(Network network, ReadOnlyDataSource dataSource, List<String> extensions) {
         Network n = importOneFilePerExtensionType(dataSource, extensions);
 
         assertNotNull(n);
@@ -79,6 +66,34 @@ public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractConv
         assertEquals(network.getIdentifiables().size(), n.getIdentifiables().size());
         assertEquals(network.getSubstationCount(), n.getSubstationCount());
         assertEquals(network.getVoltageLevelCount(), n.getVoltageLevelCount());
+    }
+
+    @Test
+    public void testMultipleExtensions() throws IOException {
+        Network network = MultipleExtensionsTestNetworkFactory.create();
+        List<String> extensions = Arrays.asList("loadFoo", "loadBar");
+        MemDataSource dataSource = exportOneFilePerExtensionType(network, extensions);
+
+        // check the base exported file and compare it to iidmBaseRef reference file
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
+            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions.xiidm"), is);
+        }
+
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("-loadBar.xiidm"))) {
+            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions-loadBar.xiidm"), is);
+        }
+
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("-loadFoo.xiidm"))) {
+            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions-loadFoo.xiidm"), is);
+        }
+
+        testImportMultipleExtensions(network, dataSource, extensions);
+
+        //backward compatibility 1.0
+        ResourceDataSource dataSource2 = new ResourceDataSource("multiple-extensions",
+                new ResourceSet(getVersionDir(IidmXmlVersion.V_1_0),
+                        "multiple-extensions.xiidm", "multiple-extensions-loadBar.xiidm", "multiple-extensions-loadFoo.xiidm"));
+        testImportMultipleExtensions(network, dataSource2, extensions);
     }
 
     @Test

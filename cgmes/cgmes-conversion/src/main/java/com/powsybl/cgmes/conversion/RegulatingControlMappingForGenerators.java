@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.cgmes.conversion;
 
 import java.util.HashMap;
@@ -28,15 +34,21 @@ public class RegulatingControlMappingForGenerators {
     }
 
     public static void initialize(GeneratorAdder adder) {
-        adder.setRegulatingTerminal(null);
-        adder.setTargetV(Double.NaN);
         adder.setVoltageRegulatorOn(false);
     }
 
-    public void add(String iidmId, PropertyBag sm) {
-        String rcId = getRegulatingControlId(sm);
+    public void add(String generatorId, PropertyBag sm) {
+        String cgmesRegulatingControlId = parent.getRegulatingControlId(sm);
         double qPercent = sm.asDouble(QPERCENT);
-        add(iidmId, rcId, qPercent);
+
+        if (mapping.containsKey(generatorId)) {
+            throw new CgmesModelException("Generator already added, IIDM Generator Id: " + generatorId);
+        }
+
+        CgmesRegulatingControlForGenerator rd = new CgmesRegulatingControlForGenerator();
+        rd.regulatingControlId = cgmesRegulatingControlId;
+        rd.qPercent = qPercent;
+        mapping.put(generatorId, rd);
     }
 
     void applyRegulatingControls(Network network) {
@@ -44,11 +56,11 @@ public class RegulatingControlMappingForGenerators {
     }
 
     private void apply(Generator gen) {
-        RegulatingControlForGenerator rd = mapping.get(gen.getId());
+        CgmesRegulatingControlForGenerator rd = mapping.get(gen.getId());
         apply(gen, rd);
     }
 
-    private void apply(Generator gen, RegulatingControlForGenerator rc) {
+    private void apply(Generator gen, CgmesRegulatingControlForGenerator rc) {
         if (rc == null) {
             return;
         }
@@ -65,23 +77,23 @@ public class RegulatingControlMappingForGenerators {
             return;
         }
 
+        boolean okSet = false;
         if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
-            RegulatingControlVoltage gcv = getRegulatingControlVoltage(controlId, control, rc.qPercent, gen);
-            apply(gcv, gen);
-            control.hasCorrectlySetEq(gen.getId());
+            okSet = setRegulatingControlVoltage(controlId, control, rc.qPercent, gen);
         } else {
             context.ignored(control.mode, String.format("Unsupported regulation mode for generator %s", gen.getId()));
         }
+        control.setCorrectlySet(okSet);
     }
 
-    private RegulatingControlVoltage getRegulatingControlVoltage(String controlId,
+    private boolean setRegulatingControlVoltage(String controlId,
         RegulatingControl control, double qPercent, Generator gen) {
 
         // Take default terminal if it has not been defined
         Terminal terminal = getRegulatingTerminal(gen, control.cgmesTerminal, control.topologicalNode);
         if (terminal == null) {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.topologicalNode));
-            return null;
+            return false;
         }
 
         double targetV;
@@ -97,28 +109,17 @@ public class RegulatingControlMappingForGenerators {
             voltageRegulatorOn = true;
         }
 
-        RegulatingControlVoltage gcv = new RegulatingControlVoltage();
-        gcv.terminal = terminal;
-        gcv.targetV = targetV;
-        gcv.voltageRegulatorOn = voltageRegulatorOn;
-        gcv.qPercent = qPercent;
-
-        return gcv;
-    }
-
-    private static void apply(RegulatingControlVoltage rcv, Generator gen) {
-        if (rcv == null) {
-            return;
-        }
-        gen.setRegulatingTerminal(rcv.terminal);
-        gen.setTargetV(rcv.targetV);
-        gen.setVoltageRegulatorOn(rcv.voltageRegulatorOn);
+        gen.setRegulatingTerminal(terminal);
+        gen.setTargetV(targetV);
+        gen.setVoltageRegulatorOn(voltageRegulatorOn);
 
         // add qPercent as an extension
-        if (!Double.isNaN(rcv.qPercent)) {
-            CoordinatedReactiveControl coordinatedReactiveControl = new CoordinatedReactiveControl(gen, rcv.qPercent);
+        if (!Double.isNaN(qPercent)) {
+            CoordinatedReactiveControl coordinatedReactiveControl = new CoordinatedReactiveControl(gen, qPercent);
             gen.addExtension(CoordinatedReactiveControl.class, coordinatedReactiveControl);
         }
+
+        return true;
     }
 
     private Terminal getRegulatingTerminal(Generator gen, String cgmesTerminal, String topologicalNode) {
@@ -140,44 +141,12 @@ public class RegulatingControlMappingForGenerators {
         return gen.getTerminal();
     }
 
-    private void add(String iidmGeneratorId, String cgmesRegulatingControlId, double qPercent) {
-        if (mapping.containsKey(iidmGeneratorId)) {
-            throw new CgmesModelException("Generator already added, IIDM Generator Id : " + iidmGeneratorId);
-        }
-
-        RegulatingControlForGenerator rd = new RegulatingControlForGenerator();
-        rd.regulatingControlId = cgmesRegulatingControlId;
-        rd.qPercent = qPercent;
-        mapping.put(iidmGeneratorId, rd);
-    }
-
-    private String getRegulatingControlId(PropertyBag p) {
-        String regulatingControlId = null;
-
-        if (p.containsKey(RegulatingControlMapping.REGULATING_CONTROL)) {
-            String controlId = p.getId(RegulatingControlMapping.REGULATING_CONTROL);
-            RegulatingControl control = parent.cachedRegulatingControls().get(controlId);
-            if (control != null) {
-                regulatingControlId = controlId;
-            }
-        }
-
-        return regulatingControlId;
-    }
-
-    private static class RegulatingControlForGenerator {
+    private static class CgmesRegulatingControlForGenerator {
         String regulatingControlId;
         double qPercent;
     }
 
-    private static class RegulatingControlVoltage {
-        Terminal terminal;
-        double targetV;
-        boolean voltageRegulatorOn;
-        double qPercent;
-    }
-
     private final RegulatingControlMapping parent;
-    private final Map<String, RegulatingControlForGenerator> mapping;
+    private final Map<String, CgmesRegulatingControlForGenerator> mapping;
     private final Context context;
 }

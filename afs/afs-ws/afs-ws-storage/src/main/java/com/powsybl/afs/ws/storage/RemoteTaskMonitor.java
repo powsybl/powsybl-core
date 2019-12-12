@@ -6,6 +6,7 @@
  */
 package com.powsybl.afs.ws.storage;
 
+import com.powsybl.afs.Project;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.TaskListener;
 import com.powsybl.afs.TaskMonitor;
@@ -37,7 +38,6 @@ import java.util.UUID;
 import static com.powsybl.afs.ws.client.utils.ClientUtils.checkOk;
 import static com.powsybl.afs.ws.client.utils.ClientUtils.readEntityIfOk;
 import static com.powsybl.afs.ws.storage.RemoteAppStorage.getWebTarget;
-import static com.powsybl.afs.ws.storage.RemoteListenableAppStorage.getWebSocketUri;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -79,6 +79,27 @@ public class RemoteTaskMonitor implements TaskMonitor {
         Response response = webTarget.path("fileSystems/{fileSystemName}/tasks")
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .queryParam("projectFileId", projectFile.getId())
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .put(Entity.text(""));
+        try {
+            return readEntityIfOk(response, TaskMonitor.Task.class);
+        } finally {
+            response.close();
+        }
+    }
+
+    @Override
+    public Task startTask(String name, Project project) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(project);
+
+        LOGGER.debug("startTask(fileSystemName={}, name={}, project={})", fileSystemName, name, project.getId());
+
+        Response response = webTarget.path("fileSystems/{fileSystemName}/tasks")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .queryParam("name", name)
+                .queryParam("projectId", project.getId())
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .put(Entity.text(""));
@@ -144,7 +165,7 @@ public class RemoteTaskMonitor implements TaskMonitor {
     public void addListener(TaskListener listener) {
         Objects.requireNonNull(listener);
 
-        URI wsUri = getWebSocketUri(restUri);
+        URI wsUri = SocketsUtils.getWebSocketUri(restUri);
         URI endPointUri = URI.create(wsUri + "/messages/" + AfsRestApi.RESOURCE_ROOT + "/" +
                 AfsRestApi.VERSION + "/task_events/" + fileSystemName + "/" + listener.getProjectId());
 

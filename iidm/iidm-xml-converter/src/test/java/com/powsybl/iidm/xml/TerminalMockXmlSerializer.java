@@ -18,6 +18,9 @@ import com.powsybl.iidm.network.test.TerminalMockExt;
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -31,12 +34,12 @@ public class TerminalMockXmlSerializer implements ExtensionXmlSerializer<Load, T
 
     @Override
     public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/terminalMock.xsd");
+        return getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "xsd/terminalMock.xsd");
     }
 
     @Override
     public String getNamespaceUri() {
-        return "http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_0";
+        return "http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_1";
     }
 
     @Override

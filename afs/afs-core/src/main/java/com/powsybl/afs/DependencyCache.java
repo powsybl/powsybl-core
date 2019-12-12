@@ -20,7 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class DependencyCache<T> {
+public class DependencyCache<T extends ProjectNode> {
 
     private final ProjectFile projectFile;
 

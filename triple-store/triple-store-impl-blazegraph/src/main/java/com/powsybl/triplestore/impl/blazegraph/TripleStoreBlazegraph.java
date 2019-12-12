@@ -14,16 +14,19 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
+import info.aduna.iteration.Iterations;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.BindingSet;
@@ -33,6 +36,7 @@ import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.QueryResults;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -54,12 +58,15 @@ import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
 import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreException;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
+
+    static final String NAME = "blazegraph";
 
     public TripleStoreBlazegraph() {
         final Properties props = new Properties();
@@ -79,6 +86,11 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         } catch (RepositoryException x) {
             LOG.error("Repository could not be created {}", x.getMessage());
         }
+    }
+
+    @Override
+    public String getImplementationName() {
+        return NAME;
     }
 
     private void closeConnection(RepositoryConnection cnx, String operation) {
@@ -229,6 +241,106 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     @Override
+    public void add(TripleStore source) {
+        Objects.requireNonNull(source);
+        Repository sourceRepository;
+        if (source instanceof TripleStoreBlazegraph) {
+            sourceRepository = ((TripleStoreBlazegraph) source).repo;
+            RepositoryConnection sourceConn = null;
+            try {
+                sourceConn = sourceRepository.getConnection();
+                copyFrom(sourceConn);
+            } catch (RepositoryException e) {
+                LOG.error("Connecting to the source repository : {}", e.getMessage());
+            } finally {
+                if (sourceConn != null) {
+                    closeConnection(sourceConn, "Copying from source");
+                }
+            }
+        } else {
+            throw new TripleStoreException(String.format("Add to %s from source %s is not supported",
+                getImplementationName(), source.getImplementationName()));
+        }
+    }
+
+    private void copyFrom(RepositoryConnection sourceConn) {
+        RepositoryConnection targetConn = null;
+        try {
+            targetConn = repo.getConnection();
+            targetConn.begin();
+            copyNamespaces(sourceConn, targetConn);
+            copyStatements(sourceConn, targetConn);
+            targetConn.commit();
+        } catch (RepositoryException e) {
+            LOG.error("Copying from source : {}", e.getMessage());
+        } finally {
+            if (targetConn != null) {
+                closeConnection(targetConn, "Copying from source");
+            }
+        }
+    }
+
+    private static void copyNamespaces(RepositoryConnection source, RepositoryConnection target) {
+        try {
+            RepositoryResult<Namespace> ns = source.getNamespaces();
+            for (Namespace namespace : Iterations.asList(ns)) {
+                target.setNamespace(namespace.getPrefix(), namespace.getName());
+            }
+        } catch (RepositoryException e) {
+            LOG.error("Copying Namespaces : {}", e.getMessage());
+        }
+    }
+
+    private static void copyStatements(RepositoryConnection sourceConn, RepositoryConnection targetConn)
+        throws RepositoryException {
+        ValueFactory vfac = targetConn.getValueFactory();
+
+        for (Resource context : Iterations.asList(sourceConn.getContextIDs())) {
+            RepositoryResult<Statement> statements = sourceConn.getStatements(null, null, null, true, context);
+            // we need to get StringValue from each item, to get rid of the source repo
+            // references.
+            for (Statement st : Iterations.asList(statements)) {
+                URI s = vfac.createURI(st.getSubject().stringValue());
+                URI p = vfac.createURI(st.getPredicate().stringValue());
+                Resource targetContext = vfac.createURI(st.getContext().stringValue());
+                Statement targetStatement;
+                if (st.getObject() instanceof URI) {
+                    URI o = vfac.createURI(st.getObject().stringValue());
+                    targetStatement = vfac.createStatement(s, p, o, targetContext);
+                } else if (st.getObject() instanceof Literal) {
+                    Literal o = vfac.createLiteral(st.getObject().stringValue());
+                    targetStatement = vfac.createStatement(s, p, o, targetContext);
+                } else {
+                    throw new TripleStoreException(String.format("Unsupported value: %s for subject %s",
+                        st.getObject().stringValue(), s.stringValue()));
+                }
+                Objects.requireNonNull(targetStatement);
+                targetConn.add(targetStatement);
+            }
+        }
+    }
+
+    @Override
+    public void update(String query) {
+        try {
+            RepositoryConnection conn = repo.getConnection();
+            update(conn, adjustedQuery(query));
+        } catch (RepositoryException e) {
+            throw new TripleStoreException("Opening repo for update", e);
+        }
+    }
+
+    private void update(RepositoryConnection conn, String query) {
+        try {
+            conn.prepareUpdate(QueryLanguage.SPARQL, query).execute();
+        } catch (MalformedQueryException | UpdateExecutionException | RepositoryException e) {
+            throw new TripleStoreException(String.format("Query [%s]", query), e);
+        } finally {
+            closeConnection(conn, "Update operation");
+        }
+    }
+
+    @Override
     public void add(String contextName, String objNs, String objType, PropertyBags statements) {
         RepositoryConnection cnx = null;
         try {
@@ -278,7 +390,8 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         PropertyBag statement,
         Resource context) {
         try {
-            URI resource = cnx.getValueFactory().createURI(cnx.getNamespace("data"), "_" + UUID.randomUUID().toString());
+            URI resource = cnx.getValueFactory().createURI(cnx.getNamespace("data"),
+                "_" + UUID.randomUUID().toString());
             URI parentPredicate = RDF.TYPE;
             URI parentObject = cnx.getValueFactory().createURI(objNs + objType);
             Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
@@ -410,5 +523,4 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreBlazegraph.class);
 
     private static final boolean PRINT_ALL_STATEMENTS = false;
-
 }

@@ -7,6 +7,9 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+
+import java.util.Set;
+
 import org.joda.time.DateTime;
 
 /**
@@ -225,16 +228,18 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkRatedU1(Validable validable, double ratedU1) {
-        if (Double.isNaN(ratedU1)) {
-            throw new ValidationException(validable, "rated U1 is invalid");
+    static void checkRatedU(Validable validable, double ratedU, String num) {
+        if (Double.isNaN(ratedU)) {
+            throw new ValidationException(validable, "rated U" + num + " is invalid");
         }
     }
 
+    static void checkRatedU1(Validable validable, double ratedU1) {
+        checkRatedU(validable, ratedU1, "1");
+    }
+
     static void checkRatedU2(Validable validable, double ratedU2) {
-        if (Double.isNaN(ratedU2)) {
-            throw new ValidationException(validable, "rated U2 is invalid");
-        }
+        checkRatedU(validable, ratedU2, "2");
     }
 
     static void checkSvcRegulator(Validable validable, double voltageSetpoint, double reactivePowerSetpoint, StaticVarCompensator.RegulationMode regulationMode) {
@@ -276,9 +281,9 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkRatioTapChangerRegulation(Validable validable, boolean loadTapChangingCapabilities, boolean regulating,
+    static void checkRatioTapChangerRegulation(Validable validable, boolean regulating,
                                                Terminal regulationTerminal, double targetV, Network network) {
-        if (loadTapChangingCapabilities && regulating) {
+        if (regulating) {
             if (Double.isNaN(targetV)) {
                 throw new ValidationException(validable,
                         "a target voltage has to be set for a regulating ratio tap changer");
@@ -313,6 +318,13 @@ public final class ValidationUtil {
         }
         if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP && regulating) {
             throw new ValidationException(validable, "phase regulation cannot be on if mode is FIXED");
+        }
+    }
+
+    static void checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
+                                                        Set<TapChanger> tapChangersNotIncludingTheModified, boolean regulating) {
+        if (regulating && tapChangersNotIncludingTheModified.stream().anyMatch(TapChanger::isRegulating)) {
+            throw new ValidationException(validable, "Only one regulating control enabled is allowed");
         }
     }
 

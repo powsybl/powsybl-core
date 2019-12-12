@@ -8,10 +8,7 @@ package com.powsybl.afs.ws.storage;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.UncheckedExecutionException;
-import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.NodeDependency;
-import com.powsybl.afs.storage.NodeGenericMetadata;
-import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.*;
 import com.powsybl.afs.storage.buffer.StorageChangeBuffer;
 import com.powsybl.afs.ws.client.utils.ClientUtils;
 import com.powsybl.afs.ws.utils.AfsRestApi;
@@ -45,7 +42,7 @@ import static com.powsybl.afs.ws.client.utils.ClientUtils.*;
  * @author Ali Tahanout <ali.tahanout at rte-france.com>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RemoteAppStorage implements AppStorage {
+public class RemoteAppStorage extends AbstractAppStorage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteAppStorage.class);
 
@@ -75,6 +72,7 @@ public class RemoteAppStorage implements AppStorage {
     public RemoteAppStorage(String fileSystemName, URI baseUri, String token) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.token = token;
+        this.eventsBus = new WebSocketEventsBus(this, baseUri);
 
         client = createClient();
 
@@ -329,6 +327,31 @@ public class RemoteAppStorage implements AppStorage {
                 .post(Entity.json(genericMetadata));
         try {
             return readEntityIfOk(response, NodeInfo.class);
+        } finally {
+            response.close();
+        }
+    }
+
+    @Override
+    public void setMetadata(String nodeId, NodeGenericMetadata genericMetadata) {
+        Objects.requireNonNull(nodeId);
+        Objects.requireNonNull(genericMetadata);
+
+        // flush buffer to keep change order
+        changeBuffer.flush();
+
+        LOGGER.debug("setMetadata(fileSystemName={}, nodeId={}, genericMetadata={})", fileSystemName, nodeId, genericMetadata);
+
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/metadata")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .header(HttpHeaders.CONTENT_ENCODING, "gzip")
+                .acceptEncoding("gzip")
+                .put(Entity.json(genericMetadata));
+        try {
+            checkOk(response);
         } finally {
             response.close();
         }
@@ -718,6 +741,11 @@ public class RemoteAppStorage implements AppStorage {
         } finally {
             response.close();
         }
+    }
+
+    @Override
+    public EventsBus getEventsBus() {
+        return eventsBus;
     }
 
     @Override

@@ -15,4 +15,7 @@ import groovy.lang.Binding;
 public interface GroovyScriptExtension {
 
     void load(Binding binding, ComputationManager computationManager);
+
+    void unload();
+
 }

@@ -6,62 +6,66 @@
  */
 package com.powsybl.scripting.groovy
 
-import com.powsybl.afs.*
 import org.codehaus.groovy.control.CompilerConfiguration
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
+
+import com.powsybl.computation.DefaultComputationManagerConfig
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class GroovyScripts {
 
-    static void run(Path file, AppData data) {
-        run(file, data, null)
+    static void run(Path file) {
+        run(file, null)
     }
 
-    static void run(Path file, AppData data, Writer out) {
-        run(file, data, new Binding(), out)
+    static void run(Path file, PrintStream out) {
+        run(file, new Binding(), out)
     }
 
-    static void run(Reader codeReader, AppData data, Writer out) {
-        run(codeReader, data, new Binding(), out)
+    static void run(Reader codeReader, PrintStream out) {
+        run(codeReader, new Binding(), out)
     }
 
-    static void run(Path file, AppData data, Binding binding, Writer out) {
+    static void run(Path file, Binding binding, PrintStream out) {
         file.withReader(StandardCharsets.UTF_8.name(), { reader ->
-            run(reader, data, binding, out)
+            run(reader, binding, out)
         })
     }
 
-    static void run(Reader codeReader, AppData data, Binding binding, Writer out) {
-        run(codeReader, data, binding, ServiceLoader.load(GroovyScriptExtension.class), out)
+    static void run(Reader codeReader, Binding binding, PrintStream out) {
+        run(codeReader, binding, ServiceLoader.load(GroovyScriptExtension.class), out)
     }
 
-    static void run(Reader codeReader, AppData data, Iterable<GroovyScriptExtension> extensions, Writer out) {
-        run(codeReader, data, new Binding(), extensions, out)
+    static void run(Reader codeReader, Iterable<GroovyScriptExtension> extensions, PrintStream out) {
+        run(codeReader, new Binding(), extensions, out)
     }
 
-    static void run(Reader codeReader, AppData data, Binding binding, Iterable<GroovyScriptExtension> extensions, Writer out) {
+    static void run(Reader codeReader, Binding binding, Iterable<GroovyScriptExtension> extensions, PrintStream out) {
         assert codeReader
-        assert data
         assert extensions != null
 
         CompilerConfiguration conf = new CompilerConfiguration()
 
-        binding.afs = new AfsGroovyFacade(data)
-
-        binding.computationManager = data.getShortTimeExecutionComputationManager()
+        // Computation manager
+        DefaultComputationManagerConfig config = DefaultComputationManagerConfig.load();
+        binding.computationManager = config.createShortTimeExecutionComputationManager();
 
         if (out != null) {
             binding.out = out
         }
 
-        // load extensions
-        extensions.forEach { it.load(binding, data.getShortTimeExecutionComputationManager()) }
+        try {
+            // load extensions
+            extensions.forEach { it.load(binding, binding.computationManager) }
 
-        GroovyShell shell = new GroovyShell(binding, conf)
-        shell.evaluate(codeReader)
+            GroovyShell shell = new GroovyShell(binding, conf)
+            shell.evaluate(codeReader)
+        } finally {
+            extensions.forEach { it.unload() }
+        }
     }
 }

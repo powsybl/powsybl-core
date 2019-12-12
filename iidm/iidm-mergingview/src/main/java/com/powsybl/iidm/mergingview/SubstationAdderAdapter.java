@@ -6,66 +6,41 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.Objects;
-
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.SubstationAdder;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-class SubstationAdderAdapter implements SubstationAdder {
-
-    private final SubstationAdder delegate;
-
-    private final MergingViewIndex index;
+class SubstationAdderAdapter extends AbstractIdentifiableAdderAdapter<SubstationAdder> implements SubstationAdder {
 
     SubstationAdderAdapter(final SubstationAdder delegate, final MergingViewIndex index) {
-        this.delegate = Objects.requireNonNull(delegate, "delegate is null");
-        this.index = Objects.requireNonNull(index, "merging view index is null");
+        super(delegate, index);
     }
 
     @Override
-    public SubstationAdapter add() {
-        return index.getSubstation(delegate.add());
+    public Substation add() {
+        checkAndSetUniqueId();
+        return getIndex().getSubstation(getDelegate().add());
     }
 
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------
     @Override
-    public SubstationAdderAdapter setId(final String id) {
-        delegate.setId(id);
+    public SubstationAdder setCountry(final Country country) {
+        getDelegate().setCountry(country);
         return this;
     }
 
     @Override
-    public SubstationAdderAdapter setEnsureIdUnicity(final boolean ensureIdUnicity) {
-        delegate.setEnsureIdUnicity(ensureIdUnicity);
+    public SubstationAdder setTso(final String tso) {
+        getDelegate().setTso(tso);
         return this;
     }
 
     @Override
-    public SubstationAdderAdapter setName(final String name) {
-        delegate.setName(name);
-        return this;
-    }
-
-    @Override
-    public SubstationAdderAdapter setCountry(final Country country) {
-        delegate.setCountry(country);
-        return this;
-    }
-
-    @Override
-    public SubstationAdderAdapter setTso(final String tso) {
-        delegate.setTso(tso);
-        return this;
-    }
-
-    @Override
-    public SubstationAdderAdapter setGeographicalTags(final String... tags) {
-        delegate.setGeographicalTags(tags);
+    public SubstationAdder setGeographicalTags(final String... tags) {
+        getDelegate().setGeographicalTags(tags);
         return this;
     }
 }

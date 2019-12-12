@@ -6,13 +6,10 @@
  */
 package com.powsybl.scripting.groovy
 
-import ch.qos.logback.classic.Level
-import ch.qos.logback.classic.Logger
-import com.powsybl.afs.AppData
+import com.powsybl.computation.ComputationManager
 import com.powsybl.computation.DefaultComputationManagerConfig
 import org.codehaus.groovy.tools.shell.CommandSupport
 import org.codehaus.groovy.tools.shell.Groovysh
-import org.slf4j.LoggerFactory
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,12 +21,17 @@ class InitPowsybl extends CommandSupport {
     }
 
     Object execute(List args) {
-        // force logback to error level
-        Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        rootLogger.setLevel(Level.ERROR);
-
+        // Computation manager
         DefaultComputationManagerConfig config = DefaultComputationManagerConfig.load();
-        getVariables().put("afs", new AfsGroovyFacade(new AppData(config.createShortTimeExecutionComputationManager(),
-                                                                  config.createLongTimeExecutionComputationManager())))
+        ComputationManager computationManager = config.createShortTimeExecutionComputationManager();
+
+        // load extensions
+        final Iterable<GroovyScriptExtension> extensions = ServiceLoader.load(GroovyScriptExtension.class)
+        extensions.forEach { it.load(getBinding(), computationManager) }
+
+        // Unload extensions at exit
+        Runtime.getRuntime().addShutdownHook(new Thread({
+            extensions.forEach { it.unload() }
+        }));
     }
 }

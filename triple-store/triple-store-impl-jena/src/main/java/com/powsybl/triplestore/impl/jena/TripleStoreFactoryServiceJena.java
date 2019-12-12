@@ -23,8 +23,15 @@ public class TripleStoreFactoryServiceJena implements TripleStoreFactoryService 
     }
 
     @Override
+    public TripleStore copy(TripleStore source) {
+        TripleStore ts = new TripleStoreJena();
+        ts.add(source);
+        return ts;
+    }
+
+    @Override
     public String getImplementationName() {
-        return "jena";
+        return TripleStoreJena.NAME;
     }
 
     @Override

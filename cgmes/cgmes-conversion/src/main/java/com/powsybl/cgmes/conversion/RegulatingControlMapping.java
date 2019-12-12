@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -21,16 +22,17 @@ public class RegulatingControlMapping {
     private static final String TERMINAL = "Terminal";
     static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES topological node: %s";
     private static final String VOLTAGE = "voltage";
-    private static final String REGULATING_CONTROL_REF = "Regulating control %s";
 
     private final Context context;
     private final RegulatingControlMappingForGenerators regulatingControlMappingForGenerators;
     private final RegulatingControlMappingForTransformers regulatingControlMappingForTransformers;
+    private final RegulatingControlMappingForStaticVarCompensators regulatingControlMappingForStaticVarCompensators;
 
     public RegulatingControlMapping(Context context) {
         this.context = context;
         regulatingControlMappingForGenerators = new RegulatingControlMappingForGenerators(this);
         regulatingControlMappingForTransformers = new RegulatingControlMappingForTransformers(this);
+        regulatingControlMappingForStaticVarCompensators = new RegulatingControlMappingForStaticVarCompensators(this);
     }
 
     public RegulatingControlMappingForGenerators forGenerators() {
@@ -39,6 +41,10 @@ public class RegulatingControlMapping {
 
     public RegulatingControlMappingForTransformers forTransformers() {
         return regulatingControlMappingForTransformers;
+    }
+
+    public RegulatingControlMappingForStaticVarCompensators forStaticVarCompensators() {
+        return regulatingControlMappingForStaticVarCompensators;
     }
 
     public Context context() {
@@ -52,8 +58,7 @@ public class RegulatingControlMapping {
         final boolean enabled;
         final double targetValue;
         final double targetDeadband;
-
-        private final Map<String, Boolean> idsEq = new HashMap<>();
+        private Boolean correctlySet;
 
         RegulatingControl(PropertyBag p) {
             this.mode = p.get("mode").toLowerCase();
@@ -64,9 +69,17 @@ public class RegulatingControlMapping {
             this.targetDeadband = p.asDouble("targetDeadband", Double.NaN);
         }
 
-        void hasCorrectlySetEq(String id) {
-            idsEq.put(id, true);
+        void setCorrectlySet(boolean okSet) {
+            if (okSet) {
+                if (correctlySet != null && !correctlySet) {
+                    return;
+                }
+                correctlySet = true;
+            } else {
+                correctlySet = false;
+            }
         }
+
     }
 
     private Map<String, RegulatingControl> cachedRegulatingControls = new HashMap<>();
@@ -79,87 +92,46 @@ public class RegulatingControlMapping {
         cachedRegulatingControls.put(p.getId(REGULATING_CONTROL), new RegulatingControl(p));
     }
 
-    public void setRegulatingControl(String idEq, PropertyBag p, StaticVarCompensatorAdder adder) {
-        if (!p.asBoolean("controlEnabled", false)) {
-            adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
-            return;
-        }
-        if (p.containsKey(REGULATING_CONTROL)) {
-            RegulatingControl control = cachedRegulatingControls.get(p.getId(REGULATING_CONTROL));
-            if (control != null) {
-                if (!control.enabled) {
-                    adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
-                    return;
-                }
-                if (context.terminalMapping().areAssociated(p.getId(TERMINAL), control.topologicalNode)) {
-                    setRegulatingControl(control, adder, idEq);
-                } else {
-                    context.pending(String.format("Remote control for static var compensator %s replaced by voltage local control at nominal voltage", idEq),
-                            "IIDM model does not support remote control for static var compensators");
-                    setDefaultRegulatingControl(p, adder, idEq);
-                }
-            } else {
-                context.missing(String.format(REGULATING_CONTROL_REF, p.getId(REGULATING_CONTROL)));
-                setDefaultRegulatingControl(p, adder, idEq);
-            }
-        } else {
-            setDefaultRegulatingControl(p, adder, idEq);
-        }
-    }
-
-    private void setDefaultRegulatingControl(PropertyBag p, StaticVarCompensatorAdder adder, String idEq) {
-        if (p.getId("controlMode").toLowerCase().endsWith(VOLTAGE)) {
-            adder.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                    .setVoltageSetPoint(p.asDouble("voltageSetPoint"));
-        } else if (p.getId("controlMode").toLowerCase().endsWith("reactivepower")) {
-            adder.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
-                    .setReactivePowerSetPoint(p.asDouble("q"));
-        } else {
-            context.fixed("SVCControlMode", String.format("Invalid control mode for static var compensator %s. Regulating control is disabled", idEq));
-            adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
-        }
-    }
-
-    private void setRegulatingControl(RegulatingControl control, StaticVarCompensatorAdder adder, String idEq) {
-        if (control.mode.toLowerCase().endsWith(VOLTAGE)) {
-            adder.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                    .setVoltageSetPoint(control.targetValue);
-        } else if (control.mode.toLowerCase().endsWith("reactivepower")) {
-            adder.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
-                    .setReactivePowerSetPoint(control.targetValue);
-        } else {
-            context.fixed(control.mode, String.format("Invalid control mode for static var compensator %s. Regulating control is disabled", idEq));
-            adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
-        }
-    }
-
     public void setAllRegulatingControls(Network network) {
         regulatingControlMappingForGenerators.applyRegulatingControls(network);
         regulatingControlMappingForTransformers.applyTapChangersRegulatingControl(network);
+        regulatingControlMappingForStaticVarCompensators.applyRegulatingControls(network);
 
-        cachedRegulatingControls.entrySet().removeIf(entry -> {
-            if (entry.getValue().idsEq.isEmpty()) {
-                return false;
+        cachedRegulatingControls.entrySet().forEach(entry -> {
+            if (entry.getValue().correctlySet == null || !entry.getValue().correctlySet) {
+                context.pending("Regulating terminal",
+                    String.format("The setting of the regulating control %s is not entirely handled.", entry.getKey()));
             }
-            for (Map.Entry<String, Boolean> e : entry.getValue().idsEq.entrySet()) {
-                if (!e.getValue()) {
-                    return false;
-                }
-            }
-            return true;
         });
 
-        cachedRegulatingControls.forEach((key, value) -> context.pending("Regulating terminal",
-                String.format("The setting of the regulating terminal of the regulating control %s is not entirely handled.", key)));
         cachedRegulatingControls.clear();
     }
 
-    public Terminal findRegulatingTerminal(String cgmesTerminal, String topologicalNode) {
-        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminal))
-                .orElseGet(() -> context.terminalMapping().findFromTopologicalNode(topologicalNode));
+    Terminal findRegulatingTerminal(String cgmesTerminal, String topologicalNode) {
+        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminal)).filter(Terminal::isConnected)
+                .orElseGet(() -> {
+                    context.invalid("Regulating terminal", String.format("No connected IIDM terminal has been found for CGMES terminal %s. " +
+                                    "A connected terminal linked to the topological node %s is searched.",
+                            cgmesTerminal, topologicalNode));
+                    return context.terminalMapping().findFromTopologicalNode(topologicalNode);
+                });
     }
 
     static boolean isControlModeVoltage(String controlMode) {
         return controlMode != null && controlMode.endsWith(VOLTAGE);
+    }
+
+    String getRegulatingControlId(PropertyBag p) {
+        String regulatingControlId = null;
+
+        if (p.containsKey(REGULATING_CONTROL)) {
+            String controlId = p.getId(REGULATING_CONTROL);
+            RegulatingControl control = cachedRegulatingControls().get(controlId);
+            if (control != null) {
+                regulatingControlId = controlId;
+            }
+        }
+
+        return regulatingControlId;
     }
 }

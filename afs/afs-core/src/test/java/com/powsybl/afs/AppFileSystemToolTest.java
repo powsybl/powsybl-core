@@ -37,10 +37,11 @@ public class AppFileSystemToolTest extends AbstractToolTest {
         tool = new AppFileSystemTool() {
             @Override
             protected AppData createAppData(ToolRunningContext context) {
-                AppStorage storage = MapDbAppStorage.createMem("mem");
-                AppFileSystem afs = new AppFileSystem("mem", false, storage);
-                AppData appData = new AppData(computationManager, computationManager, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
+                AppData appData = new AppData(computationManager, computationManager, Collections.emptyList(),
                         Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+                AppStorage storage = MapDbAppStorage.createMem("mem", appData.getEventsBus());
+                AppFileSystem afs = new AppFileSystem("mem", false, storage);
+                appData.addFileSystem(afs);
                 afs.getRootFolder().createProject("test_project1");
                 afs.getRootFolder().createProject("test_project2");
                 storage.createNode(afs.getRootFolder().getId(), "test", FOLDER_PSEUDO_CLASS, "", 0,
@@ -90,7 +91,7 @@ public class AppFileSystemToolTest extends AbstractToolTest {
     public void testFixInconsistentNodes() throws IOException {
         assertCommand(new String[] {"afs", "--fix-inconsistent-nodes", "mem"}, 0, "mem:"
                 + System.lineSeparator() + "[a-z0-9-]+ fixed", "");
-        assertCommand(new String[] {"afs", "--fix-inconsistent-nodes"}, 3, "", "");
+        assertCommand(new String[] {"afs", "--fix-inconsistent-nodes"}, 3, "", "IllegalArgumentException");
         assertCommand(new String[] {"afs", "--ls-inconsistent-nodes", "mem", "nodeId"}, 0, "mem:"
                 + System.lineSeparator() + "[a-z0-9-]+" + System.lineSeparator(), "");
     }
@@ -99,7 +100,7 @@ public class AppFileSystemToolTest extends AbstractToolTest {
     public void testRemoveInconsistentNodes() throws IOException {
         assertCommand(new String[] {"afs", "--rm-inconsistent-nodes", "mem"}, 0, "mem:"
                 + System.lineSeparator() + "[a-z0-9-]+ cleaned", "");
-        assertCommand(new String[] {"afs", "--rm-inconsistent-nodes"}, 3, "", "");
+        assertCommand(new String[] {"afs", "--rm-inconsistent-nodes"}, 3, "", "IllegalArgumentException");
     }
 
 }

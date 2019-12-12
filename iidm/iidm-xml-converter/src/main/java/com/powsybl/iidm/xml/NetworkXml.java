@@ -54,7 +54,6 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.*;
 import static com.powsybl.iidm.xml.XMLImporter.SUFFIX_MAPPING;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class NetworkXml {
@@ -64,7 +63,6 @@ public final class NetworkXml {
     private static final String EXTENSION_CATEGORY_NAME = "network";
     static final String NETWORK_ROOT_ELEMENT_NAME = "network";
     private static final String EXTENSION_ELEMENT_NAME = "extension";
-    private static final String IIDM_XSD = "iidm.xsd";
     private static final String CASE_DATE = "caseDate";
     private static final String FORECAST_DISTANCE = "forecastDistance";
     private static final String SOURCE_FORMAT = "sourceFormat";
@@ -102,10 +100,15 @@ public final class NetworkXml {
 
     private static void validate(Source xml, List<Source> additionalSchemas) {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Source[] sources = new Source[additionalSchemas.size() + 1];
-        sources[0] = new StreamSource(NetworkXml.class.getResourceAsStream("/xsd/" + IIDM_XSD));
-        for (int i = 0; i < additionalSchemas.size(); i++) {
-            sources[i + 1] = additionalSchemas.get(i);
+        int length = IidmXmlVersion.values().length;
+        Source[] sources = new Source[additionalSchemas.size() + length];
+        int i = 0;
+        for (IidmXmlVersion version : IidmXmlVersion.values()) {
+            sources[i] = new StreamSource(NetworkXml.class.getResourceAsStream("/xsd/" + version.getXsd()));
+            i++;
+        }
+        for (int j = 0; j < additionalSchemas.size(); j++) {
+            sources[j + length] = additionalSchemas.get(j);
         }
         try {
             Schema schema = factory.newSchema(sources);
@@ -298,7 +301,7 @@ public final class NetworkXml {
             String name = entry.getKey();
             Set<String> ids = entry.getValue();
             if (options.withExtension(name)) {
-                try (OutputStream os = dataSource.newOutputStream(dataSource.getBaseName() + "-" +  name + ext, false);
+                try (OutputStream os = dataSource.newOutputStream(dataSource.getBaseName() + "-" + name + ext, false);
                      BufferedOutputStream bos = new BufferedOutputStream(os)) {
                     XMLStreamWriter writer = initializeExtensionFileWriter(n, bos, options, name);
                     for (String id : ids) {
@@ -378,7 +381,7 @@ public final class NetworkXml {
     }
 
     private static DataSource getDataSourceFromPath(Path xmlFile) {
-        String fileBaseName =  FilenameUtils.getBaseName(xmlFile.getFileName().toString());
+        String fileBaseName = FilenameUtils.getBaseName(xmlFile.getFileName().toString());
         return new FileDataSource(xmlFile.getParent(), fileBaseName);
     }
 
@@ -472,6 +475,8 @@ public final class NetworkXml {
             while (state == XMLStreamReader.COMMENT) {
                 state = reader.next();
             }
+
+            IidmXmlVersion version = IidmXmlVersion.fromNamespaceURI(reader.getNamespaceURI());
             String id = reader.getAttributeValue(null, ID);
             DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
             int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, FORECAST_DISTANCE, 0);
@@ -481,7 +486,7 @@ public final class NetworkXml {
             network.setCaseDate(date);
             network.setForecastDistance(forecastDistance);
 
-            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config);
+            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version);
 
             Set<String> extensionNamesNotFound = new TreeSet<>();
 
@@ -611,7 +616,7 @@ public final class NetworkXml {
 
     private static void validate(Path xmlFile, IidmImportExportMode mode) throws IOException {
         DataSource dataSource = getDataSourceFromPath(xmlFile);
-        String ext =  getFileExtensionFromPath(xmlFile);
+        String ext = getFileExtensionFromPath(xmlFile);
 
         if (mode == IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE) {
             try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() + ext)) {
@@ -680,7 +685,7 @@ public final class NetworkXml {
                 throw new PowsyblException("Extension file do not match with the base file !");
             }
 
-            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, options);
+            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, options, CURRENT_IIDM_XML_VERSION);
             Set<String> extensionNamesNotFound = new TreeSet<>();
 
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
@@ -692,7 +697,7 @@ public final class NetworkXml {
                     }
                     readExtensions(identifiable, context, extensionNamesNotFound);
                 } else {
-                    throw new PowsyblException("Unexpected element: " +  reader.getLocalName());
+                    throw new PowsyblException("Unexpected element: " + reader.getLocalName());
                 }
             });
 
@@ -843,6 +848,7 @@ public final class NetworkXml {
 
     /**
      * Deep copy of the network using XML converter.
+     *
      * @param network the network to copy
      * @return the copy of the network
      */

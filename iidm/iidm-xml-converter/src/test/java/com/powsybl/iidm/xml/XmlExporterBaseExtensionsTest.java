@@ -21,7 +21,10 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
@@ -29,30 +32,29 @@ import static org.junit.Assert.*;
 
 public class XmlExporterBaseExtensionsTest extends AbstractConverterTest {
 
-    private void exporterTestBaseExtensions(Network network, String xiidmBaseRef, String xiidmExtRef) throws IOException {
+    private void exporterTestBaseExtensions(Network network) throws IOException {
         Properties exportProperties = new Properties();
         exportProperties.put(XMLExporter.ANONYMISED, "false");
         exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));
 
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter(platformConfig).export(network, exportProperties, dataSource);
+        new XMLExporter().export(network, exportProperties, dataSource);
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
             assertNotNull(is);
-            compareXml(getClass().getResourceAsStream(xiidmBaseRef), is);
+            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions.xiidm"), is);
         }
         // check the exported extensions file and compare it to xiidmExtRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("-ext", "xiidm"))) {
             assertNotNull(is);
-            compareXml(getClass().getResourceAsStream(xiidmExtRef), is);
+            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions-ext.xiidm"), is);
         }
     }
 
     @Test
     public void exportBaseExtensions() throws IOException {
-        exporterTestBaseExtensions(MultipleExtensionsTestNetworkFactory.create(),
-                "/multiple-extensions.xiidm",
-                "/multiple-extensions-ext.xiidm");
+        exporterTestBaseExtensions(NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_0) + "multiple-extensions.xml")));
+        exporterTestBaseExtensions(MultipleExtensionsTestNetworkFactory.create());
     }
 
     @Test

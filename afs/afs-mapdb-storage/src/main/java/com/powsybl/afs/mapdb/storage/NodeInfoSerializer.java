@@ -25,6 +25,7 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
 
     @Override
     public void serialize(DataOutput2 out, NodeInfo nodeInfo) throws IOException {
+        out.writeInt(MapDbStorageConstants.STORAGE_VERSION);
         UuidSerializer.INSTANCE.serialize(out, MapDbAppStorage.checkNodeId(nodeInfo.getId()));
         out.writeUTF(nodeInfo.getName());
         out.writeUTF(nodeInfo.getPseudoClass());
@@ -56,6 +57,7 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
 
     @Override
     public NodeInfo deserialize(DataInput2 input, int available) throws IOException {
+        input.readInt(); // Storage version is retrieved here
         String nodeId = UuidSerializer.INSTANCE.deserialize(input, available).toString();
         String name = input.readUTF();
         String pseudoClass = input.readUTF();
@@ -80,6 +82,7 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
         for (int i = 0; i < booleanMetadataSize; i++) {
             metadata.setBoolean(input.readUTF(), input.readBoolean());
         }
+        // Check storage version here to deserialize further version specific data
         return new NodeInfo(nodeId, name, pseudoClass, description, creationTime, modificationTime, version, metadata);
     }
 }

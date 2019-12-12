@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
@@ -28,7 +31,7 @@ public class XMLExporterTest extends AbstractConverterTest {
         properties.put(XMLExporter.ANONYMISED, "false");
 
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter(platformConfig).export(network, properties, dataSource);
+        new XMLExporter().export(network, properties, dataSource);
         // check the exported file and compare it to iidm reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
             compareXml(getClass().getResourceAsStream(xiidmRef), is);
@@ -38,6 +41,6 @@ public class XMLExporterTest extends AbstractConverterTest {
     @Test
     public void exportTest() throws IOException {
         exporterTest(MultipleExtensionsTestNetworkFactory.create(),
-                "/multiple-extensions.xml");
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions.xml");
     }
 }

@@ -6,78 +6,55 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.Objects;
-
 import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevelAdder;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-class VoltageLevelAdderAdapter implements VoltageLevelAdder {
-
-    private final VoltageLevelAdder delegate;
-
-    private final MergingViewIndex index;
+class VoltageLevelAdderAdapter extends AbstractIdentifiableAdderAdapter<VoltageLevelAdder> implements VoltageLevelAdder {
 
     VoltageLevelAdderAdapter(final VoltageLevelAdder delegate, final MergingViewIndex index) {
-        this.delegate = Objects.requireNonNull(delegate, "delegate is null");
-        this.index = Objects.requireNonNull(index, "merging view index is null");
+        super(delegate, index);
     }
 
     @Override
-    public VoltageLevelAdapter add() {
-        return index.getVoltageLevel(delegate.add());
+    public VoltageLevel add() {
+        checkAndSetUniqueId();
+        return getIndex().getVoltageLevel(getDelegate().add());
     }
 
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------
     @Override
-    public VoltageLevelAdderAdapter setId(final String id) {
-        delegate.setId(id);
+    public VoltageLevelAdder setNominalV(final double nominalV) {
+        getDelegate().setNominalV(nominalV);
         return this;
     }
 
     @Override
-    public VoltageLevelAdderAdapter setEnsureIdUnicity(final boolean ensureIdUnicity) {
-        delegate.setEnsureIdUnicity(ensureIdUnicity);
+    public VoltageLevelAdder setLowVoltageLimit(final double lowVoltageLimit) {
+        getDelegate().setLowVoltageLimit(lowVoltageLimit);
         return this;
     }
 
     @Override
-    public VoltageLevelAdderAdapter setName(final String name) {
-        delegate.setName(name);
+    public VoltageLevelAdder setHighVoltageLimit(final double highVoltageLimit) {
+        getDelegate().setHighVoltageLimit(highVoltageLimit);
         return this;
     }
 
     @Override
-    public VoltageLevelAdderAdapter setNominalV(final double nominalV) {
-        delegate.setNominalV(nominalV);
+    public VoltageLevelAdder setTopologyKind(final String topologyKind) {
+        getDelegate().setTopologyKind(topologyKind);
         return this;
     }
 
     @Override
-    public VoltageLevelAdderAdapter setLowVoltageLimit(final double lowVoltageLimit) {
-        delegate.setLowVoltageLimit(lowVoltageLimit);
-        return this;
-    }
-
-    @Override
-    public VoltageLevelAdderAdapter setHighVoltageLimit(final double highVoltageLimit) {
-        delegate.setHighVoltageLimit(highVoltageLimit);
-        return this;
-    }
-
-    @Override
-    public VoltageLevelAdderAdapter setTopologyKind(final String topologyKind) {
-        delegate.setTopologyKind(topologyKind);
-        return this;
-    }
-
-    @Override
-    public VoltageLevelAdderAdapter setTopologyKind(final TopologyKind topologyKind) {
-        delegate.setTopologyKind(topologyKind);
+    public VoltageLevelAdder setTopologyKind(final TopologyKind topologyKind) {
+        getDelegate().setTopologyKind(topologyKind);
         return this;
     }
 }
