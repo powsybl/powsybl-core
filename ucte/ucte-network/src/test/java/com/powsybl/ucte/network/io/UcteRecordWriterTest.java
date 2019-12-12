@@ -28,7 +28,7 @@ public class UcteRecordWriterTest {
         recordWriter.newLine();
         bufferedWriter.close();
 
-        assertEquals("3.1400\n", writer.toString());
+        assertEquals(String.format("3.1400%n"), writer.toString());
     }
 
     @Test
@@ -42,7 +42,7 @@ public class UcteRecordWriterTest {
         recordWriter.newLine();
         bufferedWriter.close();
 
-        assertEquals("3.1415\n", writer.toString());
+        assertEquals(String.format("3.1415%n"), writer.toString());
     }
 
     @Test
@@ -56,7 +56,7 @@ public class UcteRecordWriterTest {
         recordWriter.newLine();
         bufferedWriter.close();
 
-        assertEquals("-3.100\n", writer.toString());
+        assertEquals(String.format("-3.100%n"), writer.toString());
     }
 
     @Test
@@ -70,7 +70,7 @@ public class UcteRecordWriterTest {
         recordWriter.newLine();
         bufferedWriter.close();
 
-        assertEquals("0.0001\n", writer.toString());
+        assertEquals(String.format("0.0001%n"), writer.toString());
     }
 
     @Test
@@ -84,7 +84,7 @@ public class UcteRecordWriterTest {
         recordWriter.newLine();
         bufferedWriter.close();
 
-        assertEquals("\n", writer.toString());
+        assertEquals(String.format("%n"), writer.toString());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -122,7 +122,7 @@ public class UcteRecordWriterTest {
         recordWriter.newLine();
         bufferedWriter.close();
 
-        assertEquals("999999\n", writer.toString());
+        assertEquals(String.format("999999%n"), writer.toString());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -148,7 +148,7 @@ public class UcteRecordWriterTest {
         recordWriter.newLine();
         bufferedWriter.close();
 
-        assertEquals("-99999\n", writer.toString());
+        assertEquals(String.format("-99999%n"), writer.toString());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -198,7 +198,7 @@ public class UcteRecordWriterTest {
         recordWriter.newLine();
         bufferedWriter.close();
 
-        assertEquals("999999\n", writer.toString());
+        assertEquals(String.format("999999%n"), writer.toString());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -224,7 +224,7 @@ public class UcteRecordWriterTest {
         recordWriter.newLine();
         bufferedWriter.close();
 
-        assertEquals("-99999\n", writer.toString());
+        assertEquals(String.format("-99999%n"), writer.toString());
     }
 
     @Test(expected = IllegalArgumentException.class)
