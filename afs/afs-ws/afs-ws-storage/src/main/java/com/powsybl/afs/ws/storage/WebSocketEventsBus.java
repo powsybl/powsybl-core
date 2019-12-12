@@ -27,9 +27,6 @@ import java.util.*;
  */
 public class WebSocketEventsBus implements EventsBus {
 
-    // To trace events per topic locally
-    private final Map<String, List<NodeEvent>> topics = new HashMap<>();
-
     private final WeakListenerList<AppStorageListener> listeners = new WeakListenerList<>();
 
     private NodeEventClient nodeEventClient;
@@ -55,18 +52,7 @@ public class WebSocketEventsBus implements EventsBus {
 
     @Override
     public void pushEvent(NodeEvent event, String topic) {
-        topics.computeIfAbsent(topic, k -> new ArrayList<>());
-        topics.get(topic).add(event);
         nodeEventClient.pushEvent(event, storage.getFileSystemName(), topic);
-    }
-
-    public Map<String, List<NodeEvent>> getTopics() {
-        return topics;
-    }
-
-    @Override
-    public void flush() {
-        topics.clear();
     }
 
     @Override
@@ -82,5 +68,10 @@ public class WebSocketEventsBus implements EventsBus {
     @Override
     public void removeListeners() {
         listeners.removeAll();
+    }
+
+    @Override
+    public void flush() {
+
     }
 }

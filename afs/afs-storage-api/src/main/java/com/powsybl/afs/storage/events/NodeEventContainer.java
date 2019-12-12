@@ -23,7 +23,7 @@ public class NodeEventContainer {
     @JsonProperty("nodeEvent")
     private final NodeEvent nodeEvent;
 
-    @JsonProperty
+    @JsonProperty("topic")
     private final String topic;
 
     public  NodeEventContainer() {

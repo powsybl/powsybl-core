@@ -16,20 +16,32 @@ import java.util.*;
  */
 public class NodeEventList {
 
+    @JsonProperty("topic")
+    private String topic;
+
     @JsonProperty("events")
     private List<NodeEvent> events;
 
     public NodeEventList() {
-        this(new ArrayList<>());
+        this(new ArrayList<>(), null);
+    }
+
+    public NodeEventList(String topic) {
+        this(new ArrayList<>(), topic);
+    }
+
+    public NodeEventList(String topic, NodeEvent... events) {
+        this(new ArrayList<>(Arrays.asList(events)), topic);
     }
 
     public NodeEventList(NodeEvent... events) {
-        this(new ArrayList<>(Arrays.asList(events)));
+        this(new ArrayList<>(Arrays.asList(events)), null);
     }
 
     @JsonCreator
-    public NodeEventList(@JsonProperty("events") List<NodeEvent> events) {
+    public NodeEventList(@JsonProperty("events") List<NodeEvent> events, @JsonProperty("topic") String topic) {
         this.events = Objects.requireNonNull(events);
+        this.topic = topic;
     }
 
     public void addEvent(NodeEvent event) {
@@ -38,6 +50,14 @@ public class NodeEventList {
 
     public List<NodeEvent> getEvents() {
         return Collections.unmodifiableList(events);
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 
     @Override

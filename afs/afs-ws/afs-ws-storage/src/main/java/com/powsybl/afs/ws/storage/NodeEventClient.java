@@ -59,7 +59,11 @@ public class NodeEventClient {
         LOGGER.trace("Node event websocket session '{}' of file system '{}' received an event list: {}",
                 session.getId(), fileSystemName, nodeEventList);
         listeners.log();
-        listeners.notify(l -> l.onEvents(nodeEventList));
+        listeners.notify(l -> {
+            if (l.topics() == null || l.topics().contains(nodeEventList.getTopic())) {
+                l.onEvents(nodeEventList);
+            }
+        });
     }
 
     @OnError

@@ -12,9 +12,8 @@ import com.powsybl.afs.storage.events.NodeEventList;
 import com.powsybl.commons.util.WeakListenerList;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -23,24 +22,25 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class InMemoryEventsBus implements EventsBus {
 
-    private final Map<String, List<NodeEvent>> topics = new HashMap<>();
+    private final List<NodeEventList> topics = new ArrayList<>();
 
     private final WeakListenerList<AppStorageListener> listeners = new WeakListenerList<>();
-
-    private NodeEventList eventList = new NodeEventList();
 
     private final Lock lock = new ReentrantLock();
 
     @Override
     public void pushEvent(NodeEvent event, String topic) {
         lock.lock();
-        eventList.addEvent(event);
-        topics.computeIfAbsent(topic, k -> new ArrayList<>());
-        topics.get(topic).add(event);
+        NodeEventList lastEventTopic = topics.iterator().hasNext() ? topics.iterator().next() : null;
+        if (lastEventTopic != null && Objects.equals(lastEventTopic.getTopic(), topic)) {
+            lastEventTopic.addEvent(event);
+        } else {
+            topics.add(new NodeEventList(topic, event));
+        }
         lock.unlock();
     }
 
-    Map<String, List<NodeEvent>> getTopics() {
+    List<NodeEventList> getTopics() {
         return topics;
     }
 
@@ -49,8 +49,13 @@ public class InMemoryEventsBus implements EventsBus {
         lock.lock();
         try {
             listeners.log();
-            listeners.notify(l -> l.onEvents(eventList));
-            eventList = new NodeEventList();
+            listeners.notify(l -> {
+                topics.forEach(nodeEventList -> {
+                    if (l.topics() == null || l.topics().contains(nodeEventList.getTopic())) {
+                        l.onEvents(nodeEventList);
+                    }
+                });
+            });
             topics.clear();
         } finally {
             lock.unlock();

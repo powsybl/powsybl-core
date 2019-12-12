@@ -9,6 +9,7 @@ package com.powsybl.afs;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.EventsBus;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Objects;
@@ -71,6 +72,10 @@ public class AppFileSystem implements AutoCloseable {
 
     AppStorage getStorage() {
         return storage;
+    }
+
+    public EventsBus getEventBus() {
+        return storage.getEventsBus();
     }
 
     public Folder getRootFolder() {

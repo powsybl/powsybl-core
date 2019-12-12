@@ -65,6 +65,7 @@ public class NodeEventServer {
                 session.getId());
         AppStorage storage = appDataBean.getStorage(nodeEventContainer.getFileSystemName());
         storage.getEventsBus().pushEvent(nodeEventContainer.getNodeEvent(), nodeEventContainer.getTopic());
+        storage.getEventsBus().flush();
     }
 
     private void removeSession(String fileSystemName, Session session) {

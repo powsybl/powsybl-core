@@ -24,7 +24,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -534,7 +537,35 @@ public abstract class AbstractAppStorageTest {
         // 19 check that eventsBus is not null
         assertNotNull(storage.getEventsBus());
 
-        storage.getEventsBus().pushEvent(new NodeCreated("test", "test"), "test useful for RemoteStorage event push");
+        eventStack.clear();
+        String topic = "some topic";
+        CountDownLatch eventReceived = new CountDownLatch(1);
+        AtomicReference<NodeEventList> eventsCatched = new AtomicReference<>();
+        storage.getEventsBus().addListener(new AppStorageListener() {
+            @Override
+            public void onEvents(NodeEventList eventList) {
+                eventsCatched.set(eventList);
+                eventReceived.countDown();
+            }
+
+            @Override
+            public Set<String> topics() {
+                return Collections.singleton(topic);
+            }
+        });
+
+        NodeEvent eventToCatch = new NodeCreated("test2", "test");
+        NodeEvent eventNotToCatch = new NodeCreated("test1", "test");
+        storage.getEventsBus().pushEvent(eventNotToCatch, "other topic");
+        storage.getEventsBus().pushEvent(eventToCatch, topic);
+        storage.flush();
+
+        eventReceived.await(1000, TimeUnit.MILLISECONDS);
+        assertThat(eventsCatched.get()).isNotNull();
+        assertThat(eventsCatched.get().getTopic()).isEqualTo(topic);
+        assertThat(eventsCatched.get().getEvents()).hasSize(1);
+        assertThat(eventsCatched.get().getEvents().get(0)).isEqualTo(eventToCatch);
+        assertEventStack(eventNotToCatch, eventToCatch);
     }
 
     protected void testUpdateNodeMetadata(NodeInfo rootFolderInfo, AppStorage storage) throws InterruptedException {

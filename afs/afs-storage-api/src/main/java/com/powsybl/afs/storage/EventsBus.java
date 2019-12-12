@@ -13,6 +13,11 @@ import com.powsybl.afs.storage.events.NodeEvent;
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
 public interface EventsBus {
+    /**
+     * Add a new event to the event bus
+     * @param event
+     * @param topic
+     */
     void pushEvent(NodeEvent event, String topic);
 
     /**
