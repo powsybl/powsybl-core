@@ -7,6 +7,8 @@
  */
 package com.powsybl.ucte.network.io;
 
+import com.google.common.math.IntMath;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -73,11 +75,11 @@ class UcteRecordWriter {
     }
 
     private int maxLimitInt(int numberOfChars) {
-        return (int) Math.pow(10, numberOfChars);
+        return IntMath.pow(10, numberOfChars);
     }
 
     private int minLimitInt(int numberOfChars) {
-        return (int) -Math.pow(10, numberOfChars - 1);
+        return -IntMath.pow(10, numberOfChars - 1);
     }
 
     // floats are left aligned, zero padded to fill the field length
