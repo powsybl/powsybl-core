@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -302,10 +303,14 @@ public class Conversion {
     }
 
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
+        List<HvdcConverterStation> incompleteConverters = new ArrayList<>();
         network.getHvdcConverterStationStream().filter(converter -> converter.getHvdcLine() == null).forEach(converter -> {
             context.ignored(String.format("HVDC Converter Station %s", converter.getId()), "No correct linked HVDC line found.");
-            converter.remove();
+            incompleteConverters.add(converter);
         });
+        for (HvdcConverterStation incompleteConverter : incompleteConverters) {
+            incompleteConverter.remove();
+        }
     }
 
     private void debugTopology(Context context) {
