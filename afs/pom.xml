@@ -30,6 +30,7 @@
         <module>afs-mapdb</module>
         <module>afs-mapdb-storage</module>
         <module>afs-network</module>
+        <module>afs-scripting</module>
         <module>afs-storage-api</module>
         <module>afs-ws</module>
     </modules>
