@@ -67,7 +67,7 @@ public class ConcurrentExecutableFileTest extends AbstractProjectFileTest {
 
         runConfig2.started.await();
         runConfig2.wait.countDown();
-        runConfig1.ended.await();
+        runConfig2.ended.await();
         assertThat(runConfig2.ended.getCount()).isEqualTo(0);
     }
 
