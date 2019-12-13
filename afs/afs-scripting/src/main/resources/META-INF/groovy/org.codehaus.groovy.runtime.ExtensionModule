@@ -1,0 +1,3 @@
+moduleName = powsybl-scripting-module
+moduleVersion = 1.0
+extensionClasses = com.powsybl.afs.scripting.AfsGroovyExtensionModule

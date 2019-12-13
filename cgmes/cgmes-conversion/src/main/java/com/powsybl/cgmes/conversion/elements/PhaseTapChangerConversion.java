@@ -118,10 +118,10 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 LOG.debug("ACTUAL du0,du,theta {} {} {}", du0, du, theta);
             }
 
-            List<Double> alphas = new ArrayList<>();
-            List<Double> rhos = new ArrayList<>();
-            fillAlphasRhos(du0, du, theta, alphas, rhos);
-            addSteps(alphas, rhos, theta, ptca);
+            List<Double> angles = new ArrayList<>();
+            List<Double> ratios = new ArrayList<>();
+            fillAnglesRatios(du0, du, theta, angles, ratios);
+            addSteps(angles, ratios, theta, ptca);
         }
 
         ptca.add();
@@ -240,21 +240,21 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         return theta;
     }
 
-    private void fillAlphasRhos(
+    private void fillAnglesRatios(
             double du0, double du, double theta,
-            List<Double> alphas,
-            List<Double> rhos) {
+            List<Double> angles,
+            List<Double> ratios) {
         if (asymmetrical()) {
-            fillAlphaRhoListsAsymmetrical(du0, du, theta, alphas, rhos);
+            fillAngleRatioListsAsymmetrical(du0, du, theta, angles, ratios);
         } else if (symmetrical()) {
-            fillAlphaRhoListsSymmetrical(du0, du, theta, alphas, rhos);
+            fillAngleRatioListsSymmetrical(du0, du, theta, angles, ratios);
         }
     }
 
-    private void fillAlphaRhoListsAsymmetrical(
+    private void fillAngleRatioListsAsymmetrical(
             double du0, double du, double theta,
-            List<Double> alphas,
-            List<Double> rhos) {
+            List<Double> angles,
+            List<Double> ratios) {
         for (int step = lowStep; step <= highStep; step++) {
             int n = step - neutralStep;
             double dx = (n * du - du0) * Math.cos(theta);
@@ -262,25 +262,16 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             double angle = Math.atan2(dy, 1 + dx);
             double ratio = Math.hypot(dy, 1 + dx);
 
-            // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
-            // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
-            // V2 = V1 * rho and V2 = V1 / ratio
-            // This is why we have: rho=1/ratio and alpha=-angle
-            double alpha = -angle;
-            double rho = 1 / ratio;
-
-            // In IIDM, all PTC must be side one
-            alphas.add(side == 1 ? alpha : -alpha);
-            rhos.add(side == 1 ? rho : 1 / rho);
-
-            LOG.debug("ACTUAL    n,dx,dy,alpha,rho  {} {} {} {} {}", n, dx, dy, alpha, rho);
+            angles.add(angle);
+            ratios.add(ratio);
+            LOG.debug("ACTUAL    n,dx,dy,angle,ratio  {} {} {} {} {}", n, dx, dy, angle, ratio);
         }
     }
 
-    private void fillAlphaRhoListsSymmetrical(
+    private void fillAngleRatioListsSymmetrical(
             double du0, double du, double theta,
-            List<Double> alphas,
-            List<Double> rhos) {
+            List<Double> angles,
+            List<Double> ratios) {
         double stepPhaseShiftIncrement = p.asDouble("stepPhaseShiftIncrement");
         boolean stepPhaseShiftIncrementIsSet = p.containsKey("stepPhaseShiftIncrement");
         if (stepPhaseShiftIncrementIsSet && stepPhaseShiftIncrement != 0) {
@@ -291,16 +282,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                                 * stepPhaseShiftIncrement);
                 double ratio = 1.0;
 
-                // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
-                // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
-                // V2 = V1 * rho and V2 = V1 / ratio
-                // This is why we have: rho=1/ratio and alpha=-angle
-                double alpha = -angle;
-                double rho = 1 / ratio;
-
-                // In IIDM, all PTC must be side one
-                alphas.add(side == 1 ? alpha : -alpha);
-                rhos.add(side == 1 ? rho : 1 / rho);
+                angles.add(angle);
+                ratios.add(ratio);
             }
         } else {
             for (int step = lowStep; step <= highStep; step++) {
@@ -309,24 +292,15 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 double angle = 2 * Math.asin(dy);
                 double ratio = 1.0;
 
-                // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
-                // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
-                // V2 = V1 * rho and V2 = V1 / ratio
-                // This is why we have: rho=1/ratio and alpha=-angle
-                double alpha = -angle;
-                double rho = 1 / ratio;
-
-                // In IIDM, all PTC must be side one
-                alphas.add(side == 1 ? alpha : -alpha);
-                rhos.add(side == 1 ? rho : 1 / rho);
-
-                LOG.debug("ACTUAL    n,dy,alpha,rho  {} {} {} {}", n, dy, alpha, rho);
+                angles.add(angle);
+                ratios.add(ratio);
+                LOG.debug("ACTUAL    n,dy,angle,ratio  {} {} {} {}", n, dy, angle, ratio);
             }
         }
     }
 
     private void addSteps(
-            List<Double> alphas, List<Double> rhos,
+            List<Double> angles, List<Double> ratios,
             double theta,
             PhaseTapChangerAdder ptca) {
 
@@ -335,41 +309,62 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         double xStepMin = xs[0];
         double xStepMax = xs[1];
 
-        double alphaMax = alphas.stream()
+        double angleMax = angles.stream()
                 .mapToDouble(Double::doubleValue)
                 .max()
                 .orElse(Double.NaN);
-        LOG.debug("ACTUAL    alphaMax {}", alphaMax);
+        LOG.debug("ACTUAL    angleMax {}", angleMax);
         LOG.debug("ACTUAL    xStepMin, xStepMax {}, {}", xStepMin, xStepMax);
 
-        // rho0 adjustment computed the same way that is done in TwoWindingsTransformer,
-        // using factor rho0square as a float
-        double rho0 = tx.getRatedU2() / tx.getRatedU1();
-        double rho0square = rho0 * rho0;
-        LOG.debug("ACTUAL    u2,u1,rho0square {}, {}, {}", tx.getRatedU2(), tx.getRatedU1(), rho0square);
+        // Take structural ratio
+        double ratio0 = tx.getRatedU2() / tx.getRatedU1();
+        double ratio0square = ratio0 * ratio0;
+        LOG.debug("ACTUAL    u2,u1,ratio0square {}, {}, {}", tx.getRatedU2(), tx.getRatedU1(), ratio0square);
 
-        for (int i = 0; i < alphas.size(); i++) {
-            double alpha = alphas.get(i);
-            double rho =  rhos.get(i);
+        for (int i = 0; i < angles.size(); i++) {
+            double angle = angles.get(i);
+            double ratio =  ratios.get(i);
             double x = 0.0;
-            if (!xStepRangeIsConsistent || alphaMax == 0) {
+            if (!xStepRangeIsConsistent || angleMax == 0) {
                 x = tx.getX();
             } else {
                 if (asymmetrical()) {
-                    x = getStepXforAsymmetrical(xStepMin, xStepMax, alpha, alphaMax, theta);
+                    x = getStepXforAsymmetrical(xStepMin, xStepMax, angle, angleMax, theta);
                 } else if (symmetrical()) {
-                    x = getStepXforSymmetrical(xStepMin, xStepMax, alpha, alphaMax);
+                    x = getStepXforSymmetrical(xStepMin, xStepMax, angle, angleMax);
                 }
-                x = adjustx(x, rho0square);
+                x = adjustx(x, ratio0square);
             }
             double dx = (x - tx.getX()) / tx.getX() * 100;
+
+            // In IIDM, all PTC must be side one
+            double dr = 0.0;
+            double dg = 0.0;
+            double db = 0.0;
+            if (side != 1) {
+                double a2 = ratio * ratio;
+                ratio = 1.0 / ratio;
+                angle = -angle;
+                dr = 100 * ((1 + dr / 100) * a2 - 1);
+                dx = 100 * ((1 + dx / 100) * a2 - 1);
+                dg = 100 * ((1 + dg / 100) / a2 - 1);
+                db = 100 * ((1 + db / 100) / a2 - 1);
+            }
+
+            // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
+            // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
+            // V2 = V1 * rho and V2 = V1 / ratio
+            // This is why we have: rho=1/ratio and alpha=-angle
+            double alpha = -angle;
+            double rho = 1.0 / ratio;
+
             ptca.beginStep()
                     .setAlpha(Math.toDegrees(alpha))
                     .setRho(rho)
-                    .setR(0)
+                    .setR(dr)
                     .setX(dx)
-                    .setG(0)
-                    .setB(0)
+                    .setG(dg)
+                    .setB(db)
                     .endStep();
             if (LOG.isDebugEnabled()) {
                 int n = (lowStep + i) - neutralStep;

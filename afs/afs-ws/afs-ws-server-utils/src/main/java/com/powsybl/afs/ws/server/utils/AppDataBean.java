@@ -10,7 +10,7 @@ import com.powsybl.afs.AfsException;
 import com.powsybl.afs.AppData;
 import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.ProjectFile;
-import com.powsybl.afs.storage.ListenableAppStorage;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 
@@ -39,8 +39,8 @@ public class AppDataBean {
         return appData;
     }
 
-    public ListenableAppStorage getStorage(String fileSystemName) {
-        ListenableAppStorage storage = appData.getRemotelyAccessibleStorage(fileSystemName);
+    public AppStorage getStorage(String fileSystemName) {
+        AppStorage storage = appData.getRemotelyAccessibleStorage(fileSystemName);
         if (storage == null) {
             throw new WebApplicationException("App file system '" + fileSystemName + "' not found",
                     Response.Status.NOT_FOUND);

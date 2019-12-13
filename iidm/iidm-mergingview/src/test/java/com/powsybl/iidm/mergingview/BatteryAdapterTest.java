@@ -6,15 +6,12 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.test.BatteryNetworkFactory;
-
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -25,32 +22,75 @@ public class BatteryAdapterTest {
     @Before
     public void setup() {
         mergingView = MergingView.create("BatteryAdapterTest", "iidm");
-        mergingView.merge(BatteryNetworkFactory.create());
+        mergingView.merge(NoEquipmentNetworkFactory.create());
     }
 
     @Test
     public void testSetterGetter() {
-        final Battery battery = mergingView.getBattery("BAT");
-        assertNotNull(battery);
+        double delta = 0.0;
+        final VoltageLevel vlbat = mergingView.getVoltageLevel("vl1");
+        final Battery battery = vlbat.newBattery()
+                                         .setId("BATEST")
+                                         .setName("BATEST")
+                                         .setBus("busA")
+                                         .setMaxP(9999.99d)
+                                         .setMinP(-9999.99d)
+                                         .setP0(15.0d)
+                                         .setQ0(-15.0d)
+                                         .setEnsureIdUnicity(true)
+                                     .add();
+
+        assertSame(battery, mergingView.getBattery("BATEST"));
+        assertEquals(ConnectableType.BATTERY, battery.getType());
         assertTrue(battery instanceof BatteryAdapter);
         assertSame(mergingView, battery.getNetwork());
+        assertEquals("BATEST", battery.getId());
+        assertEquals(15.0d, battery.getP0(), delta);
+        assertNotNull(battery.setP0(0.0d));
+        assertEquals(0.0d, battery.getP0(), delta);
+        assertEquals(-15.0d, battery.getQ0(), delta);
+        assertNotNull(battery.setQ0(0.0d));
+        assertEquals(0.0d, battery.getQ0(), delta);
+        assertEquals(-9999.99d, battery.getMinP(), delta);
+        assertNotNull(battery.setMinP(-9999.95d));
+        assertEquals(-9999.95d, battery.getMinP(), delta);
+        assertEquals(9999.99d, battery.getMaxP(), delta);
+        assertNotNull(battery.setMaxP(9999.95d));
+        assertEquals(9999.95d, battery.getMaxP(), delta);
+        MinMaxReactiveLimits mmrl = battery.newMinMaxReactiveLimits()
+                                               .setMaxQ(9999.95d)
+                                               .setMinQ(-9999.95d)
+                                           .add();
+        assertSame(mmrl, battery.getReactiveLimits(MinMaxReactiveLimits.class));
+        assertEquals(mmrl.getMaxQ(), battery.getReactiveLimits().getMaxQ(1), delta);
+        assertEquals(mmrl.getMinQ(), battery.getReactiveLimits().getMinQ(1), delta);
+
+        ReactiveCapabilityCurve rcc = battery.newReactiveCapabilityCurve()
+                                                 .beginPoint()
+                                                     .setMaxQ(99999.99)
+                                                     .setMinQ(-99999.99)
+                                                     .setP(0.0d)
+                                                 .endPoint()
+                                                 .beginPoint()
+                                                     .setMaxQ(99999.95)
+                                                     .setMinQ(-99999.95)
+                                                     .setP(0.1d)
+                                                 .endPoint()
+                                             .add();
+        assertNotNull(rcc);
+
+        assertTrue(battery.getTerminal() instanceof TerminalAdapter);
+        battery.getTerminals().forEach(t -> {
+            assertTrue(t instanceof TerminalAdapter);
+            assertNotNull(t);
+        });
+
+        mergingView.getBatteries().forEach(b -> {
+            assertTrue(b instanceof BatteryAdapter);
+            assertNotNull(b);
+        });
 
         // Not implemented yet !
-        TestUtil.notImplemented(battery::getTerminal);
-        TestUtil.notImplemented(battery::getType);
-        TestUtil.notImplemented(battery::getTerminals);
         TestUtil.notImplemented(battery::remove);
-        TestUtil.notImplemented(battery::getReactiveLimits);
-        TestUtil.notImplemented(() -> battery.getReactiveLimits(null));
-        TestUtil.notImplemented(battery::newReactiveCapabilityCurve);
-        TestUtil.notImplemented(battery::newMinMaxReactiveLimits);
-        TestUtil.notImplemented(battery::getP0);
-        TestUtil.notImplemented(() -> battery.setP0(0.0d));
-        TestUtil.notImplemented(battery::getQ0);
-        TestUtil.notImplemented(() -> battery.setQ0(0.0d));
-        TestUtil.notImplemented(battery::getMinP);
-        TestUtil.notImplemented(() -> battery.setMinP(0.0d));
-        TestUtil.notImplemented(battery::getMaxP);
-        TestUtil.notImplemented(() -> battery.setMaxP(0.0d));
     }
 }

@@ -16,23 +16,16 @@ import java.util.Objects;
  */
 public class EntsoeArea extends AbstractExtension<Substation> {
 
-    private final Substation substation;
-
     private EntsoeGeographicalCode code;
 
     public EntsoeArea(Substation substation, EntsoeGeographicalCode code) {
-        this.substation = Objects.requireNonNull(substation);
+        super(substation);
         this.code = Objects.requireNonNull(code);
     }
 
     @Override
     public String getName() {
         return "entsoeArea";
-    }
-
-    @Override
-    public Substation getExtendable() {
-        return substation;
     }
 
     public EntsoeGeographicalCode getCode() {

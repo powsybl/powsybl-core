@@ -111,6 +111,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-afs-scripting</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-afs-storage-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -266,6 +272,18 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-ieee-cdf-model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-ieee-cdf-converter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -338,6 +356,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-loadflow-scripting</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-loadflow-validation</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -350,13 +374,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-scripting-afs</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-scripting-extension</artifactId>
+            <artifactId>powsybl-scripting</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -427,6 +445,12 @@
             <artifactId>powsybl-triple-store-impl-blazegraph</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>jline</groupId>
+                    <artifactId>jline</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- In provided scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
@@ -469,7 +493,8 @@
                     <javaXmx>8G</javaXmx>
                     <copyToEtc>
                         <files>
-                            <file>${project.basedir}/../iidm/iidm-xml-converter/src/main/resources/xsd/iidm.xsd</file>
+                            <file>${project.basedir}/../iidm/iidm-xml-converter/src/main/resources/xsd/iidm_V1_1.xsd</file>
+                            <file>${project.basedir}/../iidm/iidm-xml-converter/src/main/resources/xsd/iidm_V1_0.xsd</file>
                         </files>
                     </copyToEtc>
                 </configuration>

@@ -16,13 +16,15 @@ import java.util.Objects;
  */
 public class NodeDescriptionUpdated extends NodeEvent {
 
+    public static final String NODE_DESCRIPTION_UPDATED = "NODE_DESCRIPTION_UPDATED";
+
     @JsonProperty("description")
     private final String description;
 
     @JsonCreator
     public NodeDescriptionUpdated(@JsonProperty("id") String id,
                                   @JsonProperty("description") String description) {
-        super(id, NodeEventType.NODE_DESCRIPTION_UPDATED);
+        super(id, NODE_DESCRIPTION_UPDATED);
         this.description = Objects.requireNonNull(description);
     }
 
