@@ -537,7 +537,9 @@ public abstract class AbstractAppStorageTest {
         // 19 check that eventsBus is not null
         assertNotNull(storage.getEventsBus());
 
+        storage.flush();
         eventStack.clear();
+
         String topic = "some topic";
         CountDownLatch eventReceived = new CountDownLatch(1);
         AtomicReference<NodeEventList> eventsCatched = new AtomicReference<>();
