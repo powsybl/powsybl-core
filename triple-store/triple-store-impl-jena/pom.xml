@@ -40,10 +40,11 @@
 
     <dependencies>
         <!-- Compilation dependencies -->
+        <!-- we avoid the apache-jena-libs dependency because it
+        adds a spurious file jena-libs.pom to our distribution -->
         <dependency>
             <groupId>org.apache.jena</groupId>
-            <artifactId>apache-jena-libs</artifactId>
-            <type>pom</type>
+            <artifactId>jena-tdb</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
