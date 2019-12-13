@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.Test;
 
@@ -26,27 +25,25 @@ public class StaticVarCompensatorXmlTest extends AbstractXmlConverterTest {
         roundTripVersionnedXmlTest("staticVarCompensatorRoundTripRef.xml", IidmXmlVersion.V_1_0);
 
         Network network = SvcTestCaseFactory.create();
+        addProperties(network);
         roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 getVersionDir(CURRENT_IIDM_XML_VERSION) + "staticVarCompensatorRoundTripRef.xml");
+    }
 
-        // Add a SVC with a remote regulating terminal
-        network.getVoltageLevel("VL2")
-                .newStaticVarCompensator()
-                .setId("SVC3")
-                .setConnectableBus("B2")
-                .setBus("B2")
-                .setBmin(0.0002)
-                .setBmax(0.0008)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setVoltageSetPoint(390.0)
-                .setReactivePowerSetPoint(1.0)
-                .setRegulatingTerminal(network.getLoad("L2").getTerminal())
-                .add();
+    @Test
+    public void remoteRegulationRoundTripTest() throws IOException {
+        Network network = SvcTestCaseFactory.createWithRemoteRegulatingTerminal();
+        addProperties(network);
         roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 getVersionDir(CURRENT_IIDM_XML_VERSION) + "regulatingStaticVarCompensatorRoundTripRef.xml");
+    }
+
+    private static void addProperties(Network network) {
+        network.getStaticVarCompensator("SVC2")
+                .setProperty("test", "test");
     }
 }

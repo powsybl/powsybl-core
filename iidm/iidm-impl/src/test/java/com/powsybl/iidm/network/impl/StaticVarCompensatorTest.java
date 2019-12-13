@@ -105,6 +105,9 @@ public class StaticVarCompensatorTest {
         svc.setRegulatingTerminal(loadTerminal);
         assertEquals(loadTerminal, svc.getRegulatingTerminal());
 
+        svc.setRegulatingTerminal(null);
+        assertEquals(svc.getTerminal(), svc.getRegulatingTerminal());
+
         StaticVarCompensator svc3 = createSvc("SVC3", null);
         assertEquals(svc3.getTerminal(), svc3.getRegulatingTerminal());
 

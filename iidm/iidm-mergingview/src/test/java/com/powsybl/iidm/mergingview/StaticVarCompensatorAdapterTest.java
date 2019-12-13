@@ -27,7 +27,7 @@ public class StaticVarCompensatorAdapterTest {
 
     @Test
     public void testSetterGetter() {
-        Network networkRef = SvcTestCaseFactory.create();
+        Network networkRef = SvcTestCaseFactory.createWithRemoteRegulatingTerminal();
         mergingView.merge(networkRef);
 
         final StaticVarCompensator svcExpected = networkRef.getStaticVarCompensator("SVC2");
@@ -68,6 +68,8 @@ public class StaticVarCompensatorAdapterTest {
         regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
         assertTrue(svcActual.setRegulationMode(regulationMode) instanceof StaticVarCompensatorAdapter);
         assertEquals(regulationMode, svcActual.getRegulationMode());
+
+        assertTrue(svcActual.getRegulatingTerminal() instanceof TerminalAdapter);
 
         // Not implemented yet !
         TestUtil.notImplemented(svcActual::remove);
