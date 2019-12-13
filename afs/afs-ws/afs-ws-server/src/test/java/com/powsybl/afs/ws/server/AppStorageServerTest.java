@@ -13,10 +13,6 @@ import com.powsybl.afs.storage.AbstractAppStorageTest;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
-import com.powsybl.afs.storage.events.AppStorageListener;
-import com.powsybl.afs.storage.events.NodeCreated;
-import com.powsybl.afs.storage.events.NodeEvent;
-import com.powsybl.afs.storage.events.NodeEventList;
 import com.powsybl.afs.ws.client.utils.ClientUtils;
 import com.powsybl.afs.ws.client.utils.UserSession;
 import com.powsybl.afs.ws.server.utils.AppDataBean;
@@ -42,9 +38,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -111,35 +104,6 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
     public void getFileSystemNamesTest() {
         List<String> fileSystemNames = RemoteAppStorage.getFileSystemNames(getRestUri(), userSession.getToken());
         assertEquals(Collections.singletonList(AppDataBeanMock.TEST_FS_NAME), fileSystemNames);
-    }
-
-    @Test
-    public void testRemoteEventsStore() throws InterruptedException {
-        URI restUri = getRestUri();
-        RemoteAppStorage remoteAppStorage = new RemoteAppStorage(AppDataBeanMock.TEST_FS_NAME, restUri,
-                userSession.getToken());
-
-        NodeEvent nodeCreated = new NodeCreated("foo", "bar");
-        String topic = "topic";
-        AtomicReference<NodeEvent> eventReceived = new AtomicReference<>();
-        CountDownLatch wait = new CountDownLatch(1);
-        remoteAppStorage.getEventsBus().addListener(new AppStorageListener() {
-            @Override
-            public void onEvents(NodeEventList eventList) {
-                eventReceived.set(eventList.getEvents().get(0));
-                wait.countDown();
-            }
-
-            @Override
-            public Set<String> topics() {
-                return Collections.singleton(topic);
-            }
-        });
-
-        remoteAppStorage.getEventsBus().pushEvent(nodeCreated, topic);
-        remoteAppStorage.getEventsBus().flush();
-        wait.await();
-        assertEquals(nodeCreated, eventReceived.get());
     }
 
     public void createTaskRemoteTest() {
