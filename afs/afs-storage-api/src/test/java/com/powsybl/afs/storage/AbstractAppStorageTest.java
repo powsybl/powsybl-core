@@ -539,12 +539,14 @@ public abstract class AbstractAppStorageTest {
 
     protected void testUpdateNodeMetadata(NodeInfo rootFolderInfo, AppStorage storage) throws InterruptedException {
         NodeGenericMetadata metadata = new NodeGenericMetadata();
-        NodeInfo node = storage.createNode(rootFolderInfo.getId(), "testNode", "unkownFile", "", 0, cloneMetadata(metadata));
+        NodeInfo node = storage.createNode(rootFolderInfo.getId(), "testNode", "unknownFile", "", 0, cloneMetadata(metadata));
+        storage.setConsistent(node.getId());
+
         storage.flush();
 
         checkMetadataEquality(metadata, node.getGenericMetadata());
 
-        discardEvents(17);
+        discardEvents(18);
 
         storage.setMetadata(node.getId(), cloneMetadata(metadata));
         storage.flush();
@@ -558,12 +560,16 @@ public abstract class AbstractAppStorageTest {
         assertEventStack(new NodeMetadataUpdated(node.getId(), metadata));
         node = storage.getNodeInfo(node.getId());
         checkMetadataEquality(metadata, node.getGenericMetadata());
+        node = storage.getChildNode(rootFolderInfo.getId(), "testNode").get();
+        checkMetadataEquality(metadata, node.getGenericMetadata());
 
         metadata.setBoolean("test1", true);
         storage.setMetadata(node.getId(), cloneMetadata(metadata));
         storage.flush();
         assertEventStack(new NodeMetadataUpdated(node.getId(), metadata));
         node = storage.getNodeInfo(node.getId());
+        checkMetadataEquality(metadata, node.getGenericMetadata());
+        node = storage.getChildNode(rootFolderInfo.getId(), "testNode").get();
         checkMetadataEquality(metadata, node.getGenericMetadata());
 
         metadata.getStrings().remove("test");
@@ -573,12 +579,16 @@ public abstract class AbstractAppStorageTest {
         assertEventStack(new NodeMetadataUpdated(node.getId(), metadata));
         node = storage.getNodeInfo(node.getId());
         checkMetadataEquality(metadata, node.getGenericMetadata());
+        node = storage.getChildNode(rootFolderInfo.getId(), "testNode").get();
+        checkMetadataEquality(metadata, node.getGenericMetadata());
 
         metadata.setInt("test3", 1);
         storage.setMetadata(node.getId(), cloneMetadata(metadata));
         storage.flush();
         assertEventStack(new NodeMetadataUpdated(node.getId(), metadata));
         node = storage.getNodeInfo(node.getId());
+        checkMetadataEquality(metadata, node.getGenericMetadata());
+        node = storage.getChildNode(rootFolderInfo.getId(), "testNode").get();
         checkMetadataEquality(metadata, node.getGenericMetadata());
 
         storage.deleteNode(node.getId());
