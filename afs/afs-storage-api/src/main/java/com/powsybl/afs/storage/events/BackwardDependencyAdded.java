@@ -19,12 +19,12 @@ public class BackwardDependencyAdded extends NodeEvent implements DependencyEven
     @JsonProperty("dependencyName")
     private final String dependencyName;
 
-    private static final String BACKWARD_DEPENDENCY_ADDED = "BACKWARD_DEPENDENCY_ADDED";
+    public static final String TYPE = "BACKWARD_DEPENDENCY_ADDED";
 
     @JsonCreator
     public BackwardDependencyAdded(@JsonProperty("id") String id,
                                    @JsonProperty("dependencyName") String dependencyName) {
-        super(id, BACKWARD_DEPENDENCY_ADDED);
+        super(id, TYPE);
         this.dependencyName = Objects.requireNonNull(dependencyName);
     }
 

@@ -24,8 +24,6 @@ import java.util.Objects;
  */
 public class ModificationScriptBuilder implements ProjectFileBuilder<ModificationScript> {
 
-    private static final String SCRIPT_MODIFIED = "SCRIPT_MODIFIED";
-
     private final ProjectFileBuildContext context;
 
     private String name;
@@ -89,7 +87,7 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
         ModificationScript modificationScript = new ModificationScript(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
 
         context.getStorage().getEventsBus().pushEvent(new ScriptModified(info.getId(),
-                context.getFolderInfo().getId(), modificationScript.getPath().toString()), SCRIPT_MODIFIED);
+                context.getFolderInfo().getId(), modificationScript.getPath().toString()), ScriptModified.TYPE);
 
         return modificationScript;
     }

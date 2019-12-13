@@ -28,8 +28,6 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractScript<T extends AbstractScript> extends ProjectFile implements StorableScript {
 
-    private static final String  NODE_DATA_UPDATED = "NODE_DATA_UPDATED";
-
     private static final String INCLUDED_SCRIPTS_DEPENDENCY_NAME = "scriptIncludes";
     private static final String DEFAULT_SCRIPTS_DELIMITER = "\n\n";
     private final String scriptContentName;
@@ -45,7 +43,7 @@ public abstract class AbstractScript<T extends AbstractScript> extends ProjectFi
 
     private void processEvents(List<NodeEvent> events, String nodeId, List<ScriptListener> listeners) {
         for (NodeEvent event : events) {
-            if (NODE_DATA_UPDATED.equals(event.getType())) {
+            if (NodeDataUpdated.TYPE.equals(event.getType())) {
                 NodeDataUpdated dataUpdated = (NodeDataUpdated) event;
                 if (dataUpdated.getId().equals(nodeId) && scriptContentName.equals(dataUpdated.getDataName())) {
                     for (ScriptListener listener : listeners) {

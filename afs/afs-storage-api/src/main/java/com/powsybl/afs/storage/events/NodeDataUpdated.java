@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public class NodeDataUpdated extends NodeEvent {
 
-    public static final String NODE_DATA_UPDATED = "NODE_DATA_UPDATED";
+    public static final String TYPE = "NODE_DATA_UPDATED";
 
     @JsonProperty("dataName")
     private final String dataName;
@@ -24,7 +24,7 @@ public class NodeDataUpdated extends NodeEvent {
     @JsonCreator
     public NodeDataUpdated(@JsonProperty("id") String id,
                            @JsonProperty("dataName") String dataName) {
-        super(id, NODE_DATA_UPDATED);
+        super(id, TYPE);
         this.dataName = Objects.requireNonNull(dataName);
     }
 

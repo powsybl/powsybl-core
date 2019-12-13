@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public class DependencyRemoved extends NodeEvent implements DependencyEvent {
 
-    public static final String DEPENDENCY_REMOVED = "DEPENDENCY_REMOVED";
+    public static final String TYPE = "DEPENDENCY_REMOVED";
 
     @JsonProperty("dependencyName")
     private final String dependencyName;
@@ -24,7 +24,7 @@ public class DependencyRemoved extends NodeEvent implements DependencyEvent {
     @JsonCreator
     public DependencyRemoved(@JsonProperty("id") String id,
                              @JsonProperty("dependencyName") String dependencyName) {
-        super(id, DEPENDENCY_REMOVED);
+        super(id, TYPE);
         this.dependencyName = Objects.requireNonNull(dependencyName);
     }
 

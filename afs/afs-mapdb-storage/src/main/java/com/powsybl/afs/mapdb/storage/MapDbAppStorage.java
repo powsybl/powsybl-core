@@ -315,14 +315,14 @@ public class MapDbAppStorage extends AbstractAppStorage {
         NodeInfo nodeInfo = getNodeInfo(nodeId);
         nodeInfo.setDescription(description);
         nodeInfoMap.put(nodeUuid, nodeInfo);
-        pushEvent(new NodeDescriptionUpdated(nodeId, description), NODE_DESCRIPTION_UPDATED);
+        pushEvent(new NodeDescriptionUpdated(nodeId, description), APPSTORAGE_NODE_TOPIC);
     }
 
     @Override
     public void setConsistent(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         nodeConsistencyMap.put(nodeUuid, true);
-        pushEvent(new NodeConsistent(nodeId), NODE_CONSISTENT);
+        pushEvent(new NodeConsistent(nodeId), APPSTORAGE_NODE_TOPIC);
     }
 
     @Override
@@ -428,8 +428,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
         addToList(childNodesMap, newParentNodeUuid, nodeUuid);
         childNodeMap.put(new NamedLink(newParentNodeUuid, name), nodeUuid);
 
-        pushEvent(new ParentChanged(nodeId),
-                String.valueOf(PARENT_CHANGED));
+        pushEvent(new ParentChanged(nodeId), APPSTORAGE_NODE_TOPIC);
     }
 
     @Override
@@ -459,7 +458,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
         dependencyNodesMap.put(nodeUuid, new ArrayList<>());
         backwardDependencyNodesMap.put(nodeUuid, new ArrayList<>());
         nodeConsistencyMap.put(nodeUuid, false);
-        pushEvent(new NodeCreated(nodeUuid.toString(), parentNodeId), NODE_CREATED);
+        pushEvent(new NodeCreated(nodeUuid.toString(), parentNodeId), APPSTORAGE_NODE_TOPIC);
         return nodeInfo;
     }
 
@@ -478,7 +477,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
             nodeInfo.getGenericMetadata().getBooleans().putAll(metadata.getBooleans());
         }
         nodeInfoMap.put(nodeUuid, nodeInfo);
-        pushEvent(new NodeMetadataUpdated(nodeUuid.toString(), metadata), NODE_CREATED);
+        pushEvent(new NodeMetadataUpdated(nodeUuid.toString(), metadata), APPSTORAGE_NODE_TOPIC);
     }
 
     @Override
@@ -492,14 +491,14 @@ public class MapDbAppStorage extends AbstractAppStorage {
         });
         nodeInfo.setName(name);
         nodeInfoMap.put(nodeUuid, nodeInfo);
-        pushEvent(new NodeNameUpdated(nodeId, name), NODE_NAME_UPDATED);
+        pushEvent(new NodeNameUpdated(nodeId, name), APPSTORAGE_NODE_TOPIC);
     }
 
     @Override
     public String deleteNode(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         UUID parentNodeUuid = deleteNode(nodeUuid);
-        pushEvent(new NodeRemoved(nodeId, parentNodeUuid.toString()), NODE_REMOVED);
+        pushEvent(new NodeRemoved(nodeId, parentNodeUuid.toString()), APPSTORAGE_NODE_TOPIC);
         return parentNodeUuid.toString();
     }
 
@@ -571,7 +570,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
                 // store the byte array
                 dataMap.put(new NamedLink(nodeUuid, name), toByteArray());
                 addToSet(dataNamesMap, nodeUuid, name);
-                pushEvent(new NodeDataUpdated(nodeId, name), NODE_DATA_UPDATED);
+                pushEvent(new NodeDataUpdated(nodeId, name), APPSTORAGE_NODE_TOPIC);
             }
         };
     }
@@ -596,7 +595,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
         boolean removed = removeFromSet(dataNamesMap, nodeUuid, name);
         dataMap.remove(new NamedLink(nodeUuid, name));
         if (removed) {
-            pushEvent(new NodeDataRemoved(nodeId, name), NODE_DATA_REMOVED);
+            pushEvent(new NodeDataRemoved(nodeId, name), APPSTORAGE_NODE_TOPIC);
         }
         return removed;
     }
@@ -612,7 +611,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
         }
         addToSet(timeSeriesNamesMap, nodeUuid, metadata.getName());
         timeSeriesMetadataMap.put(new NamedLink(nodeUuid, metadata.getName()), metadata);
-        pushEvent(new TimeSeriesCreated(nodeId, metadata.getName()), TIME_SERIES_CREATED);
+        pushEvent(new TimeSeriesCreated(nodeId, metadata.getName()), APPSTORAGE_TIMESERIES_TOPIC);
     }
 
     @Override
@@ -763,7 +762,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
     @Override
     public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleDataChunk> chunks) {
         addTimeSeriesData(nodeId, version, timeSeriesName, chunks, doubleTimeSeriesChunksMap);
-        pushEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName), TIME_SERIES_DATA_UPDATED);
+        pushEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName), APPSTORAGE_TIMESERIES_TOPIC);
     }
 
     @Override
@@ -774,7 +773,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
     @Override
     public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringDataChunk> chunks) {
         addTimeSeriesData(nodeId, version, timeSeriesName, chunks, stringTimeSeriesChunksMap);
-        pushEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName), TIME_SERIES_DATA_UPDATED);
+        pushEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName), APPSTORAGE_TIMESERIES_TOPIC);
     }
 
     @Override
@@ -791,7 +790,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
         keys.forEach(timeSeriesLastChunkMap::remove);
         clearTimeSeriesData(nodeId, doubleTimeSeriesChunksMap);
         clearTimeSeriesData(nodeId, stringTimeSeriesChunksMap);
-        pushEvent(new TimeSeriesCleared(nodeId), TIME_SERIES_CLEARED);
+        pushEvent(new TimeSeriesCleared(nodeId), APPSTORAGE_TIMESERIES_TOPIC);
     }
 
     @Override
@@ -804,8 +803,8 @@ public class MapDbAppStorage extends AbstractAppStorage {
         addToList(dependencyNodesMap, nodeUuid, new NamedLink(toNodeUuid, name));
         addToList(dependencyNodesByNameMap, new NamedLink(nodeUuid, name), toNodeUuid);
         addToList(backwardDependencyNodesMap, toNodeUuid, nodeUuid);
-        pushEvent(new DependencyAdded(nodeId, name), DEPENDENCY_ADDED);
-        pushEvent(new BackwardDependencyAdded(toNodeId, name), BACKWARD_DEPENDENCY_ADDED);
+        pushEvent(new DependencyAdded(nodeId, name), APPSTORAGE_DEPENDENCY_TOPIC);
+        pushEvent(new BackwardDependencyAdded(toNodeId, name), APPSTORAGE_DEPENDENCY_TOPIC);
     }
 
     @Override
@@ -859,8 +858,8 @@ public class MapDbAppStorage extends AbstractAppStorage {
         removeFromList(dependencyNodesMap, nodeUuid, new NamedLink(toNodeUuid, name));
         removeFromList(dependencyNodesByNameMap, new NamedLink(nodeUuid, name), toNodeUuid);
         removeFromList(backwardDependencyNodesMap, toNodeUuid, nodeUuid);
-        pushEvent(new DependencyRemoved(nodeId, name), DEPENDENCY_REMOVED);
-        pushEvent(new BackwardDependencyRemoved(toNodeId, name), BACKWARD_DEPENDENCY_REMOVED);
+        pushEvent(new DependencyRemoved(nodeId, name), APPSTORAGE_DEPENDENCY_TOPIC);
+        pushEvent(new BackwardDependencyRemoved(toNodeId, name), APPSTORAGE_DEPENDENCY_TOPIC);
     }
 
     @Override

@@ -42,8 +42,6 @@ import java.util.Properties;
  */
 public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
-    private static final String CASE_IMPORTED = "CASE_IMPORTED";
-
     private final ProjectFileBuildContext context;
 
     private final ExportersLoader exportersLoader;
@@ -158,7 +156,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
                                 importersLoader);
 
         context.getStorage().getEventsBus().pushEvent(new CaseImported(info.getId(),
-                context.getFolderInfo().getId(), ic.getPath().toString()), CASE_IMPORTED);
+                context.getFolderInfo().getId(), ic.getPath().toString()), CaseImported.TYPE);
 
         return ic;
     }

@@ -16,11 +16,11 @@ import java.util.Objects;
  */
 public class NodeConsistent extends NodeEvent {
 
-    public static final String NODE_CONSISTENT = "NODE_CONSISTENT";
+    public static final String TYPE = "NODE_CONSISTENT";
 
     @JsonCreator
     public NodeConsistent(@JsonProperty("id") String id) {
-        super(id, NODE_CONSISTENT);
+        super(id, TYPE);
     }
 
     @Override

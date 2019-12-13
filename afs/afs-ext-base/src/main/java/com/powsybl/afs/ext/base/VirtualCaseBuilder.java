@@ -18,8 +18,6 @@ import java.util.Objects;
  */
 public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
 
-    private static final String  VIRTUAL_CASE_CREATED = "VIRTUAL_CASE_CREATED";
-
     private final ProjectFileBuildContext context;
 
     private String name;
@@ -96,7 +94,7 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
         VirtualCase virtualCase = new VirtualCase(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
 
         context.getStorage().getEventsBus().pushEvent(new VirtualCaseCreated(info.getId(),
-                context.getFolderInfo().getId(), virtualCase.getPath().toString()), VIRTUAL_CASE_CREATED);
+                context.getFolderInfo().getId(), virtualCase.getPath().toString()), VirtualCaseCreated.TYPE);
 
         return virtualCase;
     }

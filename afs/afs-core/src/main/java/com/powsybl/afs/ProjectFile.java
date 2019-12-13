@@ -7,9 +7,7 @@
 package com.powsybl.afs;
 
 import com.powsybl.afs.storage.NodeInfo;
-import com.powsybl.afs.storage.events.AppStorageListener;
-import com.powsybl.afs.storage.events.DependencyEvent;
-import com.powsybl.afs.storage.events.NodeEvent;
+import com.powsybl.afs.storage.events.*;
 import com.powsybl.commons.util.WeakListenerList;
 
 import java.util.List;
@@ -23,24 +21,19 @@ import java.util.stream.Collectors;
  */
 public class ProjectFile extends ProjectNode {
 
-    private static final String  DEPENDENCY_ADDED = "DEPENDENCY_ADDED";
-    private static final String  DEPENDENCY_REMOVED = "DEPENDENCY_REMOVED";
-    private static final String  BACKWARD_DEPENDENCY_ADDED = "BACKWARD_DEPENDENCY_ADDED";
-    private static final String  BACKWARD_DEPENDENCY_REMOVED = "BACKWARD_DEPENDENCY_REMOVED";
-
     private final WeakListenerList<ProjectFileListener> listeners = new WeakListenerList<>();
 
     private final AppStorageListener l = eventList -> {
         for (NodeEvent event : eventList.getEvents()) {
             if (event.getId().equals(getId())) {
                 switch (event.getType()) {
-                    case DEPENDENCY_ADDED:
-                    case DEPENDENCY_REMOVED:
+                    case DependencyAdded.TYPE:
+                    case DependencyRemoved.TYPE:
                         listeners.notify(listener -> listener.dependencyChanged(((DependencyEvent) event).getDependencyName()));
                         break;
 
-                    case BACKWARD_DEPENDENCY_ADDED:
-                    case BACKWARD_DEPENDENCY_REMOVED:
+                    case BackwardDependencyAdded.TYPE:
+                    case BackwardDependencyRemoved.TYPE:
                         listeners.notify(listener -> listener.backwardDependencyChanged(((DependencyEvent) event).getDependencyName()));
                         break;
 

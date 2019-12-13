@@ -16,12 +16,12 @@ import java.util.Objects;
  */
 public class CaseImported extends BusinessEvent {
 
-    private static final String CASE_IMPORTED = "CASE_IMPORTED";
+    public static final String TYPE = "CASE_IMPORTED";
 
     @JsonCreator
     public CaseImported(@JsonProperty("id") String id, @JsonProperty("parentId") String parentId,
                         @JsonProperty("path") String path) {
-        super(id, parentId, path, CASE_IMPORTED);
+        super(id, parentId, path, TYPE);
     }
 
     @Override

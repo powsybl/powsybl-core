@@ -19,12 +19,12 @@ public class BackwardDependencyRemoved extends NodeEvent implements DependencyEv
     @JsonProperty("dependencyName")
     private final String dependencyName;
 
-    private static final String BACKWARD_DEPENDENCY_REMOVED = "BACKWARD_DEPENDENCY_REMOVED";
+    public static final String TYPE = "BACKWARD_DEPENDENCY_REMOVED";
 
     @JsonCreator
     public BackwardDependencyRemoved(@JsonProperty("id") String id,
                                      @JsonProperty("dependencyName") String dependencyName) {
-        super(id, BACKWARD_DEPENDENCY_REMOVED);
+        super(id, TYPE);
         this.dependencyName = Objects.requireNonNull(dependencyName);
     }
 

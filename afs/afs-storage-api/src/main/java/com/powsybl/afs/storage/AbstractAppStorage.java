@@ -15,21 +15,9 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractAppStorage implements AppStorage {
 
-    protected static final String  NODE_CREATED = "NODE_CREATED";
-    protected static final String  NODE_REMOVED = "NODE_REMOVED";
-    protected static final String  NODE_DESCRIPTION_UPDATED = "NODE_DESCRIPTION_UPDATED";
-    protected static final String  NODE_NAME_UPDATED = "NODE_NAME_UPDATED";
-    protected static final String  NODE_DATA_UPDATED = "NODE_DATA_UPDATED";
-    protected static final String  NODE_DATA_REMOVED = "NODE_DATA_REMOVED";
-    protected static final String  NODE_CONSISTENT = "NODE_CONSISTENT";
-    protected static final String  PARENT_CHANGED = "PARENT_CHANGED";
-    protected static final String  DEPENDENCY_ADDED = "DEPENDENCY_ADDED";
-    protected static final String  DEPENDENCY_REMOVED = "DEPENDENCY_REMOVED";
-    protected static final String  BACKWARD_DEPENDENCY_ADDED = "BACKWARD_DEPENDENCY_ADDED";
-    protected static final String  BACKWARD_DEPENDENCY_REMOVED = "BACKWARD_DEPENDENCY_REMOVED";
-    protected static final String  TIME_SERIES_CREATED = "TIME_SERIES_CREATED";
-    protected static final String  TIME_SERIES_DATA_UPDATED = "TIME_SERIES_DATA_UPDATED";
-    protected static final String  TIME_SERIES_CLEARED = "TIME_SERIES_CLEARED";
+    protected static final String APPSTORAGE_NODE_TOPIC = "APPSTORAGE_NODE_TOPIC";
+    protected static final String APPSTORAGE_DEPENDENCY_TOPIC = "APPSTORAGE_DEPENDENCY_TOPIC";
+    protected static final String APPSTORAGE_TIMESERIES_TOPIC = "APPSTORAGE_TIMESERIES_TOPIC";
 
     protected EventsBus eventsBus;
 

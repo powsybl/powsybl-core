@@ -14,11 +14,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class TimeSeriesCleared extends NodeEvent {
 
-    public static final String TIME_SERIES_CLEARED = "TIME_SERIES_CLEARED";
+    public static final String TYPE = "TIME_SERIES_CLEARED";
 
     @JsonCreator
     public TimeSeriesCleared(@JsonProperty("id") String id) {
-        super(id, TIME_SERIES_CLEARED);
+        super(id, TYPE);
     }
 
     @Override
