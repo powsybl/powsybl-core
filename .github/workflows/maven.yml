@@ -19,6 +19,16 @@ jobs:
         with:
           java-version: 1.8
 
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ matrix.os }}-maven
+
+      # We clean our artifacts from the repository just in case
+      - name: clean powsybl cache
+        shell: bash
+        run: rm -rf ~/.m2/repository/com/powsybl
+
       - name: Build with Maven
         if: matrix.os == 'ubuntu-latest'
         run: mvn --batch-mode -Pjacoco install
@@ -37,3 +47,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # We clean some files to reduce the cache size because
+      # we are over the 400MB limit (as of 2019-12-12 between 400MB and 500MB)
+      # TODO is it better to remove some files or to split the cache in multiple files ?
+      - name: clean powsybl cache
+        shell: bash
+        run: |
+          rm -rf ~/.m2/repository/com/powsybl
+          rm -rf ~/.m2/repository/org/wildfly/wildfly-dist/
