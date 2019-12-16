@@ -262,13 +262,10 @@ public class StateVariablesAdder {
         return iidmBusId;
     }
 
-    private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList(CgmesNames.ANGLE, CgmesNames.VOLTAGE,
-        "TopologicalNode");
+    private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList(CgmesNames.ANGLE, CgmesNames.VOLTAGE, "TopologicalNode");
     private static final List<String> SV_POWERFLOW_PROPERTIES = Arrays.asList("p", "q", CgmesNames.TERMINAL);
-    private static final List<String> SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES = Arrays.asList("ShuntCompensator",
-        "continuousSections");
-    private static final List<String> SV_SVSTATUS_PROPERTIES = Arrays.asList("inService",
-        CgmesNames.CONDUCTING_EQUIPMENT);
+    private static final List<String> SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES = Arrays.asList("ShuntCompensator", "continuousSections");
+    private static final List<String> SV_SVSTATUS_PROPERTIES = Arrays.asList("inService", CgmesNames.CONDUCTING_EQUIPMENT);
     private CgmesModel cgmes;
     private Map<String, PropertyBags> originCgmesData = new HashMap<>();
 

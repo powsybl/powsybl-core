@@ -48,6 +48,11 @@ public class ForwardingAppStorage implements AppStorage {
     }
 
     @Override
+    public void setMetadata(String nodeId, NodeGenericMetadata genericMetadata) {
+        storage.setMetadata(nodeId, genericMetadata);
+    }
+
+    @Override
     public boolean isWritable(String nodeId) {
         return storage.isWritable(nodeId);
     }
@@ -230,5 +235,9 @@ public class ForwardingAppStorage implements AppStorage {
     @Override
     public void close() {
         storage.close();
+    }
+
+    public EventsBus getEventsBus() {
+        return storage.getEventsBus();
     }
 }

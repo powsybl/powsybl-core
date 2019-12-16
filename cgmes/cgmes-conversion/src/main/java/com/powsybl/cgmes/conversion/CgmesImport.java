@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
-import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
@@ -103,15 +102,7 @@ public class CgmesImport implements Importer {
     @Override
     public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p) {
         CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p));
-        Network network = new Conversion(cgmes, config(p), activatedPostProcessors(p), networkFactory).convert();
-
-        if (storeCgmesModelAsNetworkExtension(p)) {
-            // Store a reference to the original CGMES model inside the IIDM network
-            // CgmesUpdate will add a listener to Network changes
-            CgmesUpdate cgmesUpdater = new CgmesUpdate(network);
-            network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes, cgmesUpdater));
-        }
-        return network;
+        return new Conversion(cgmes, config(p), activatedPostProcessors(p), networkFactory).convert();
     }
 
     @Override
@@ -190,6 +181,18 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 PROFILE_USED_FOR_INITIAL_STATE_VALUES_PARAMETER,
+                                defaultValueConfig))
+                .setStoreCgmesModelAsNetworkExtension(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
+                                defaultValueConfig))
+                .setStoreCgmesConversionContextAsNetworkExtension(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
                                 defaultValueConfig));
     }
 
@@ -206,14 +209,6 @@ public class CgmesImport implements Importer {
                 })
                 .map(postProcessors::get)
                 .collect(Collectors.toList());
-    }
-
-    private boolean storeCgmesModelAsNetworkExtension(Properties p) {
-        return ConversionParameters.readBooleanParameter(
-                getFormat(),
-                p,
-                STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
-                defaultValueConfig);
     }
 
     private void copyStream(ReadOnlyDataSource from, DataSource to, String fromName, String toName) throws IOException {
@@ -237,6 +232,7 @@ public class CgmesImport implements Importer {
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
     public static final String PROFILE_USED_FOR_INITIAL_STATE_VALUES = "iidm.import.cgmes.profile-used-for-initial-state-values";
     public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
+    public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
 
     private static final Parameter ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER = new Parameter(
             ALLOW_UNSUPPORTED_TAP_CHANGERS,
@@ -282,6 +278,11 @@ public class CgmesImport implements Importer {
             ParameterType.STRING,
             "Profile used for initial state values",
             "SSH");
+    private static final Parameter STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
+            STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION,
+            ParameterType.BOOLEAN,
+            "Store the CGMES-IIDM terminal mapping as a network extension",
+            Boolean.FALSE);
     private static final Parameter STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,
@@ -293,10 +294,12 @@ public class CgmesImport implements Importer {
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
             CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
             CONVERT_BOUNDARY_PARAMETER,
+            CONVERT_SV_INJECTIONS_PARAMETER,
             CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
+            POST_PROCESSORS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
-            STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
-            POST_PROCESSORS_PARAMETER);
+            STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
+            STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Map<String, CgmesImportPostProcessor> postProcessors;

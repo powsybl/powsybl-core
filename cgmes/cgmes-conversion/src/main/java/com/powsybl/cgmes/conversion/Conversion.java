@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
+import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
@@ -96,6 +97,7 @@ public class Conversion {
         convf = eni -> new ExternalNetworkInjectionConversion(eni, context);
         convert(cgmes.externalNetworkInjections(), convf);
         convert(cgmes.shuntCompensators(), sh -> new ShuntConversion(sh, context));
+        convert(cgmes.equivalentShunts(), es -> new EquivalentShuntConversion(es, context));
         convf = svc -> new StaticVarCompensatorConversion(svc, context);
         convert(cgmes.staticVarCompensators(), convf);
         convf = asm -> new AsynchronousMachineConversion(asm, context);
@@ -136,6 +138,18 @@ public class Conversion {
             // FIXME generic cgmes models may not have an underlying triplestore
             postProcessor.process(network, cgmes.tripleStore());
         }
+
+        if (config.storeCgmesModelAsNetworkExtension()) {
+            // Store a reference to the original CGMES model inside the IIDM network
+            // CgmesUpdate will add a listener to Network changes
+            CgmesUpdate cgmesUpdater = new CgmesUpdate(network);
+            network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes, cgmesUpdater));
+        }
+        if (config.storeCgmesConversionContextAsNetworkExtension()) {
+            // Store the terminal mapping in an extension for external validation
+            network.addExtension(CgmesConversionContextExtension.class, new CgmesConversionContextExtension(context));
+        }
+
         return network;
     }
 
@@ -403,6 +417,24 @@ public class Conversion {
             return this;
         }
 
+        public boolean storeCgmesModelAsNetworkExtension() {
+            return storeCgmesModelAsNetworkExtension;
+        }
+
+        public Config setStoreCgmesModelAsNetworkExtension(boolean storeCgmesModelAsNetworkExtension) {
+            this.storeCgmesModelAsNetworkExtension = storeCgmesModelAsNetworkExtension;
+            return this;
+        }
+
+        public boolean storeCgmesConversionContextAsNetworkExtension() {
+            return storeCgmesConversionContextAsNetworkExtension;
+        }
+
+        public Config setStoreCgmesConversionContextAsNetworkExtension(boolean storeCgmesTerminalMappingAsNetworkExtension) {
+            this.storeCgmesConversionContextAsNetworkExtension = storeCgmesTerminalMappingAsNetworkExtension;
+            return this;
+        }
+
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
@@ -412,6 +444,8 @@ public class Conversion {
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
         private StateProfile profileUsedForInitialStateValues = SSH;
+        private boolean storeCgmesModelAsNetworkExtension = true;
+        private boolean storeCgmesConversionContextAsNetworkExtension = false;
 
     }
 
