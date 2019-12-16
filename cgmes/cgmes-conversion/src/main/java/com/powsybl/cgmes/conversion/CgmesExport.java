@@ -47,8 +47,9 @@ public class CgmesExport implements Exporter {
         cgmesUpdate.update(cgmes, variantId);
         // Clear the previous SV data in CGMES model
         // and fill it with the Network current state values
+        StateVariablesAdder stateVariablesAdder = new StateVariablesAdder(cgmes);
         cgmes.clear(CgmesSubset.STATE_VARIABLES);
-        StateVariablesAdder.add(network, cgmes);
+        stateVariablesAdder.add(network, cgmes);
         cgmes.write(ds);
     }
 

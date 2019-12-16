@@ -38,13 +38,21 @@ import com.powsybl.triplestore.api.PropertyBags;
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author Elena Kaltakova <kaltakovae at aia.es>
  */
-public final class StateVariablesAdder {
+public class StateVariablesAdder {
 
-    private StateVariablesAdder() {
+    public StateVariablesAdder(CgmesModel cgmes) {
+        this.cgmes = cgmes;
+        this.originCgmesData = originCgmesData(cgmes);
     }
 
-    public static void add(Network n, CgmesModel cgmes) {
+    public Map<String, PropertyBags> originCgmesData(CgmesModel cgmes) {
+        originCgmesData.put("terminals", cgmes.terminals());
+        return originCgmesData;
+    }
+
+    public void add(Network n, CgmesModel cgmes) {
         // TODO Add full model data with proper profile (StateVariables)
         // FullModel is defined in ModelDescription:
         // http://iec.ch/TC57/61970-552/ModelDescription/1#
@@ -112,26 +120,21 @@ public final class StateVariablesAdder {
             }
         }
 
-        // cgmes model has 34 "EquivalentInjection" elements, that are converted in IIDM
-        // Generators in boundary nodes.
-        // The powerFlow is assosiated with Dangling Lines?
-        // What should be the right way to calculate PowerFlow in such cases?
-
-//            for (PropertyBag terminal : cgmes.terminals()) {
-//                boundaryNodesFromDanglingLines.entrySet().forEach(entry -> {
-//                    if (terminal.getId("TopologicalNode").equals(entry.getValue())) {
-//                        DanglingLine dline = n.getDanglingLine(entry.getKey());
-//                        String cgmesTerminal = cgmes.terminalForEquipment(terminal.getId("Terminal"));
-//                        if (cgmesTerminal != null) {
-//                            PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
-//                            p.put("p", fs(dline.getP0()));
-//                            p.put("q", fs(dline.getQ0()));
-//                            p.put(CgmesNames.TERMINAL, cgmesTerminal);
-//                            powerFlows.add(p);
-//                        }
-//                    }
-//                });
-//            }
+        // PowerFlow at boundaries set as it was in original cgmes.
+        for (PropertyBag terminal : originCgmesData.get("terminals")) {
+            if (terminal.getId("graphSV") == null) {
+                continue;
+            }
+            boundaryNodesFromDanglingLines.values().forEach(value -> {
+                if (terminal.getId("TopologicalNode").equals(value)) {
+                    PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
+                    p.put("p", terminal.getId("p"));
+                    p.put("q", terminal.getId("q"));
+                    p.put(CgmesNames.TERMINAL, terminal.getId(CgmesNames.TERMINAL));
+                    powerFlows.add(p);
+                }
+            });
+        }
         cgmes.add(CgmesSubset.STATE_VARIABLES, "SvPowerFlow", powerFlows);
 
         PropertyBags shuntCompensatorSections = new PropertyBags();
@@ -266,6 +269,8 @@ public final class StateVariablesAdder {
         "continuousSections");
     private static final List<String> SV_SVSTATUS_PROPERTIES = Arrays.asList("inService",
         CgmesNames.CONDUCTING_EQUIPMENT);
+    private CgmesModel cgmes;
+    private Map<String, PropertyBags> originCgmesData = new HashMap<>();
 
     private static final Logger LOG = LoggerFactory.getLogger(StateVariablesAdder.class);
 }
