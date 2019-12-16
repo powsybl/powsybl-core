@@ -257,7 +257,6 @@ public class Conversion {
     }
 
     private void newConvertTransformers(Context context) {
-        profiling.start();
         Map<String, PropertyBag> powerTransformerRatioTapChanger = new HashMap<>();
         Map<String, PropertyBag> powerTransformerPhaseTapChanger = new HashMap<>();
         cgmes.ratioTapChangers().forEach(ratio -> {
@@ -290,7 +289,6 @@ public class Conversion {
                     c.convert();
                 }
             });
-        profiling.end("Transfomers");
     }
 
     @Deprecated
