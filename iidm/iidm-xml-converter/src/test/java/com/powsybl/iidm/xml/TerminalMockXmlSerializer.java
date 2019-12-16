@@ -8,32 +8,42 @@ package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.IidmXmlVersion;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.TerminalMockExt;
+import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.util.List;
 
-import static com.powsybl.commons.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class TerminalMockXmlSerializer implements ExtensionXmlSerializer<Load, TerminalMockExt> {
+public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Load, TerminalMockExt> {
+
+    public TerminalMockXmlSerializer() {
+        super("terminalMock", TerminalMockExt.class, true, "mock",
+                ImmutableMap.<IidmXmlVersion, ImmutableSortedSet<String>>builder()
+                        .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of("1.0"))
+                        .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of("1.1"))
+                        .build());
+    }
 
     @Override
-    public boolean hasSubElements() {
-        return true;
+    public InputStream getXsdAsStream() {
+        return getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "xsd/terminalMock.xsd");
     }
 
     @Override
@@ -43,38 +53,27 @@ public class TerminalMockXmlSerializer implements ExtensionXmlSerializer<Load, T
     }
 
     @Override
-    public String getNamespaceUri(IidmXmlVersion version) {
+    public String getNamespaceUri(String version) {
         switch (version) {
-            case V_1_0:
+            case "1.0":
                 return "http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_0";
-            case V_1_1:
+            case "1.1":
                 return "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_1";
             default:
-                throw new PowsyblException("Version " + version.toString(".") + " not supported by TerminalMock extension.");
+                throw new PowsyblException("Version " + version + " not supported by TerminalMock extension.");
         }
-    }
-
-    @Override
-    public String getNamespacePrefix() {
-        return "mock";
     }
 
     @Override
     public void write(TerminalMockExt extension, XmlWriterContext context) throws XMLStreamException {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
-        TerminalRefXml.writeTerminalRef(extension.getTerminal(), networkContext, getNamespaceUri(CURRENT_IIDM_XML_VERSION), "terminal", context.getExtensionsWriter());
+        TerminalRefXml.writeTerminalRef(extension.getTerminal(), networkContext, getNamespaceUri(), "terminal", context.getExtensionsWriter());
     }
 
     @Override
     public TerminalMockExt read(Load extendable, XmlReaderContext context) throws XMLStreamException {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
-
-        IidmXmlVersion version = networkContext.getVersion();
-        if (!networkContext.containsExtensionNamespaceUri(getNamespaceUri(version))) {
-            throw new PowsyblException("IIDM-XML version of network (" + version.toString(".")
-                    + ") is not compatible with the IIDM-XML version of TerminalMock extension's namespace URI. "
-                    + "TerminalMock extension's namespace URI must be '" + getNamespaceUri(version) + "'");
-        }
+        checkReadingCompatibility(networkContext);
 
         TerminalMockExt terminalMockExt = new TerminalMockExt(extendable);
         XmlUtil.readUntilEndElement(getExtensionName(), networkContext.getReader(), () -> {
@@ -90,20 +89,5 @@ public class TerminalMockXmlSerializer implements ExtensionXmlSerializer<Load, T
             }
         });
         return terminalMockExt;
-    }
-
-    @Override
-    public String getExtensionName() {
-        return "terminalMock";
-    }
-
-    @Override
-    public String getCategoryName() {
-        return "network";
-    }
-
-    @Override
-    public Class<? super TerminalMockExt> getExtensionClass() {
-        return TerminalMockExt.class;
     }
 }

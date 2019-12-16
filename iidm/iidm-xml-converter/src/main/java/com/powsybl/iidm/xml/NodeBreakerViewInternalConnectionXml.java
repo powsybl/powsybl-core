@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
-import static com.powsybl.commons.xml.IidmXmlConstants.IIDM_URI;
+import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
 
 import javax.xml.stream.XMLStreamException;
 

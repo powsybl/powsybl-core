@@ -17,7 +17,6 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.IidmXmlVersion;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.anonymizer.Anonymizer;
@@ -26,6 +25,7 @@ import com.powsybl.iidm.export.BusFilter;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.xml.extensions.NetworkExtensionXmlSerializer;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.apache.commons.io.FilenameUtils;
 import org.joda.time.DateTime;
@@ -50,7 +50,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import static com.powsybl.commons.xml.IidmXmlConstants.*;
+import static com.powsybl.iidm.xml.IidmXmlConstants.*;
 import static com.powsybl.iidm.xml.XMLImporter.SUFFIX_MAPPING;
 
 /**
@@ -154,8 +154,13 @@ public final class NetworkXml {
         if (extensionXmlSerializer == null) {
             return;
         }
-        writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri(CURRENT_IIDM_XML_VERSION));
-        writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri(CURRENT_IIDM_XML_VERSION));
+
+        // This extensionVersion will be useful when we can export in different versions
+        String extensionVersion = extensionXmlSerializer instanceof NetworkExtensionXmlSerializer ?
+                ((NetworkExtensionXmlSerializer) extensionXmlSerializer).getVersion(CURRENT_IIDM_XML_VERSION) : extensionXmlSerializer.getVersion();
+
+        writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri(extensionVersion));
+        writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri(extensionVersion));
     }
 
     private static void writeExtensionNamespaces(Network n, ExportOptions options, XMLStreamWriter writer) throws XMLStreamException {
@@ -166,18 +171,22 @@ public final class NetworkXml {
             if (extensionXmlSerializer == null) {
                 continue;
             }
-            if (extensionUris.contains(extensionXmlSerializer.getNamespaceUri(CURRENT_IIDM_XML_VERSION))) {
+            // This extensionVersion will be useful when we can export in different versions
+            String extensionVersion = extensionXmlSerializer instanceof NetworkExtensionXmlSerializer ?
+                    ((NetworkExtensionXmlSerializer) extensionXmlSerializer).getVersion(CURRENT_IIDM_XML_VERSION) : extensionXmlSerializer.getVersion();
+
+            if (extensionUris.contains(extensionXmlSerializer.getNamespaceUri(extensionVersion))) {
                 throw new PowsyblException("Extension namespace URI collision");
             } else {
-                extensionUris.add(extensionXmlSerializer.getNamespaceUri(CURRENT_IIDM_XML_VERSION));
+                extensionUris.add(extensionXmlSerializer.getNamespaceUri(extensionVersion));
             }
             if (extensionPrefixes.contains(extensionXmlSerializer.getNamespacePrefix())) {
                 throw new PowsyblException("Extension namespace prefix collision");
             } else {
                 extensionPrefixes.add(extensionXmlSerializer.getNamespacePrefix());
             }
-            writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri(CURRENT_IIDM_XML_VERSION));
-            writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri(CURRENT_IIDM_XML_VERSION));
+            writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri(extensionVersion));
+            writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri(extensionVersion));
         }
     }
 
@@ -192,10 +201,15 @@ public final class NetworkXml {
             }
             return;
         }
+
+        // This extensionVersion will be useful when we can export in different versions
+        String extensionVersion = extensionXmlSerializer instanceof NetworkExtensionXmlSerializer ?
+                ((NetworkExtensionXmlSerializer) extensionXmlSerializer).getVersion(CURRENT_IIDM_XML_VERSION) : extensionXmlSerializer.getVersion();
+
         if (extensionXmlSerializer.hasSubElements()) {
-            writer.writeStartElement(extensionXmlSerializer.getNamespaceUri(CURRENT_IIDM_XML_VERSION), extension.getName());
+            writer.writeStartElement(extensionXmlSerializer.getNamespaceUri(extensionVersion), extension.getName());
         } else {
-            writer.writeEmptyElement(extensionXmlSerializer.getNamespaceUri(CURRENT_IIDM_XML_VERSION), extension.getName());
+            writer.writeEmptyElement(extensionXmlSerializer.getNamespaceUri(extensionVersion), extension.getName());
         }
         extensionXmlSerializer.write(extension, context);
         if (extensionXmlSerializer.hasSubElements()) {

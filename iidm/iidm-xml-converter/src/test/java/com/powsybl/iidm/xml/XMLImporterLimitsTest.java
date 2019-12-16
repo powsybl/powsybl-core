@@ -8,7 +8,6 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.commons.xml.IidmXmlVersion;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
@@ -21,7 +20,7 @@ import java.util.Collections;
 import java.util.Properties;
 
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
-import static com.powsybl.commons.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.assertEquals;
 
 

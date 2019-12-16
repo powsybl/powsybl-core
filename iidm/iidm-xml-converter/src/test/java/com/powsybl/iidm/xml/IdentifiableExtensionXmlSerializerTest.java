@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.IidmXmlVersion;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.export.ExportOptions;
@@ -30,7 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import static com.powsybl.commons.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.*;
 
 /**
@@ -199,8 +198,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
     public void testThrowErrorUncompatibleExtensionVersion() {
         exception.expect(PowsyblException.class);
         exception.expectMessage("IIDM-XML version of network (1.1)"
-                + " is not compatible with the IIDM-XML version of LoadMock extension's namespace URI."
-                + " LoadMock extension's namespace URI must be 'http://www.powsybl.org/schema/iidm/ext/loadMock/1_1'");
+                + " is not compatible with the loadMock extension's namespace URI.");
         NetworkXml.read(getClass().getResourceAsStream("/V1_1/eurostag-tutorial-example1-with-bad-loadMockExt.xml"));
     }
 }

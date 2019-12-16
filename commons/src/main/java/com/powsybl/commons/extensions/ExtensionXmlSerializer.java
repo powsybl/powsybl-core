@@ -6,47 +6,34 @@
  */
 package com.powsybl.commons.extensions;
 
-import com.powsybl.commons.xml.IidmXmlVersion;
+import com.powsybl.commons.Versionable;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
-
-import static com.powsybl.commons.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * An ExtensionProvider able to serialize/deserialize extensions from XML.
  *
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public interface ExtensionXmlSerializer<T extends Extendable, E extends Extension<T>> extends ExtensionProvider<T, E> {
+public interface ExtensionXmlSerializer<T extends Extendable, E extends Extension<T>> extends ExtensionProvider<T, E>, Versionable {
 
     boolean hasSubElements();
 
-    /**
-     * @deprecated Use {@link #getXsdAsStreamList()} instead.
-     */
-    @Deprecated
-    default InputStream getXsdAsStream() {
-        throw new UnsupportedOperationException("Deprecated");
-    }
+    InputStream getXsdAsStream();
 
     default List<InputStream> getXsdAsStreamList() {
-        throw new UnsupportedOperationException();
+        return Collections.singletonList(getXsdAsStream());
     }
 
-    /**
-     * @deprecated Use {@link #getNamespaceUri(IidmXmlVersion)} instead.
-     */
-    @Deprecated
-    default String getNamespaceUri() {
-        return getNamespaceUri(CURRENT_IIDM_XML_VERSION);
-    }
+    String getNamespaceUri();
 
-    default String getNamespaceUri(IidmXmlVersion version) {
-        throw new UnsupportedOperationException();
+    default String getNamespaceUri(String version) {
+        return getNamespaceUri();
     }
 
     String getNamespacePrefix();
@@ -54,4 +41,12 @@ public interface ExtensionXmlSerializer<T extends Extendable, E extends Extensio
     void write(E extension, XmlWriterContext context) throws XMLStreamException;
 
     E read(T extendable, XmlReaderContext context) throws XMLStreamException;
+
+    default String getName() {
+        return getExtensionName();
+    }
+
+    default String getVersion() {
+        return "1.0";
+    }
 }
