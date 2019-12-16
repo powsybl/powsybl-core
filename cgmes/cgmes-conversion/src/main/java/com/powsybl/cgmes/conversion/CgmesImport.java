@@ -59,12 +59,12 @@ public class CgmesImport implements Importer {
                 platformConfig.getConfigDir().resolve(FORMAT).resolve("boundary").toString());
     }
 
-    public CgmesImport(List<CgmesImportPostProcessor> postProcessors) {
-        this(PlatformConfig.defaultConfig(), postProcessors);
-    }
-
     public CgmesImport(PlatformConfig platformConfig) {
         this(platformConfig, new ServiceLoaderCache<>(CgmesImportPostProcessor.class).getServices());
+    }
+
+    public CgmesImport(List<CgmesImportPostProcessor> postProcessors) {
+        this(PlatformConfig.defaultConfig(), postProcessors);
     }
 
     public CgmesImport() {
@@ -283,8 +283,7 @@ public class CgmesImport implements Importer {
             PROFILE_USED_FOR_INITIAL_STATE_VALUES,
             ParameterType.STRING,
             "Profile used for initial state values",
-            "SSH"
-    );
+            "SSH");
     private static final Parameter STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,
