@@ -58,9 +58,9 @@ public class SvChangeImportExportTest {
         }
     }
 
-    private Properties importParameters(String convert_boundary) {
+    private Properties importParameters(String convertBoundary) {
         Properties importParameters = new Properties();
-        importParameters.put(CgmesImport.CONVERT_BOUNDARY, convert_boundary);
+        importParameters.put(CgmesImport.CONVERT_BOUNDARY, convertBoundary);
         return importParameters;
     }
 

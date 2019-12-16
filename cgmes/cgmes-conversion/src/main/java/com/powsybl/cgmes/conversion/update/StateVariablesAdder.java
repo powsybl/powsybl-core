@@ -23,6 +23,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
@@ -30,6 +31,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -49,40 +51,43 @@ public final class StateVariablesAdder {
 
         PropertyBags voltages = new PropertyBags();
         // Check for bus branch model
-        if (!cgmes.isNodeBreaker()) {
-            // add voltages for TpNodes existing in the Model
-            for (PropertyBag tn : cgmes.topologicalNodes()) {
-                Bus b = n.getBusBreakerView().getBus(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
-                PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
-                if (b != null) {
-                    p.put(CgmesNames.ANGLE, fs(b.getAngle()));
-                    p.put(CgmesNames.VOLTAGE, fs(b.getV()));
-                    p.put(CgmesNames.TOPOLOGICAL_NODE, tn.getId(CgmesNames.TOPOLOGICAL_NODE));
-                    voltages.add(p);
-                }
-            }
-
-            // add voltages for TpNodes existing in the Model's boundaries
-            boundaryNodesFromDanglingLines(cgmes, n).entrySet().forEach(entry -> {
-                PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
-                DanglingLine dl = n.getDanglingLine(entry.getKey());
-                Bus b = dl.getTerminal().getBusBreakerView().getBus();
-                if (b != null) {
-                    // calculate complex voltage value: abs for VOLTAGE, degrees for ANGLE
-                    Complex v2 = complexVoltage(dl.getR(), dl.getX(), dl.getG(), dl.getB(), b.getV(), b.getAngle(), dl.getP0(), dl.getQ0());
-                    p.put(CgmesNames.ANGLE, fs(Math.toDegrees(v2.getArgument())));
-                    p.put(CgmesNames.VOLTAGE, fs(v2.abs()));
-                    p.put(CgmesNames.TOPOLOGICAL_NODE, entry.getValue());
-                } else {
-                    p.put(CgmesNames.ANGLE, fs(0.0));
-                    p.put(CgmesNames.VOLTAGE, fs(0.0));
-                    p.put(CgmesNames.TOPOLOGICAL_NODE, entry.getValue());
-                }
-                voltages.add(p);
-            });
-
-            cgmes.add(CgmesSubset.STATE_VARIABLES, "SvVoltage", voltages);
+        if (cgmes.isNodeBreaker()) {
+            return;
         }
+        // add voltages for TpNodes existing in the Model
+        for (PropertyBag tn : cgmes.topologicalNodes()) {
+            Bus b = n.getBusBreakerView().getBus(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
+            PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
+            if (b != null) {
+                p.put(CgmesNames.ANGLE, fs(b.getAngle()));
+                p.put(CgmesNames.VOLTAGE, fs(b.getV()));
+                p.put(CgmesNames.TOPOLOGICAL_NODE, tn.getId(CgmesNames.TOPOLOGICAL_NODE));
+                voltages.add(p);
+            }
+        }
+
+        // add voltages for TpNodes existing in the Model's boundaries
+        Map<String, String> boundaryNodesFromDanglingLines = boundaryNodesFromDanglingLines(cgmes, n);
+        boundaryNodesFromDanglingLines.entrySet().forEach(entry -> {
+            PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
+            DanglingLine dl = n.getDanglingLine(entry.getKey());
+            Bus b = dl.getTerminal().getBusBreakerView().getBus();
+            if (b != null) {
+                // calculate complex voltage value: abs for VOLTAGE, degrees for ANGLE
+                Complex v2 = complexVoltage(dl.getR(), dl.getX(), dl.getG(), dl.getB(), b.getV(), b.getAngle(),
+                    dl.getP0(), dl.getQ0());
+                p.put(CgmesNames.ANGLE, fs(Math.toDegrees(v2.getArgument())));
+                p.put(CgmesNames.VOLTAGE, fs(v2.abs()));
+                p.put(CgmesNames.TOPOLOGICAL_NODE, entry.getValue());
+            } else {
+                p.put(CgmesNames.ANGLE, fs(0.0));
+                p.put(CgmesNames.VOLTAGE, fs(0.0));
+                p.put(CgmesNames.TOPOLOGICAL_NODE, entry.getValue());
+            }
+            voltages.add(p);
+        });
+
+        cgmes.add(CgmesSubset.STATE_VARIABLES, "SvVoltage", voltages);
 
         PropertyBags powerFlows = new PropertyBags();
         for (Load l : n.getLoads()) {
@@ -103,9 +108,30 @@ public final class StateVariablesAdder {
         for (ShuntCompensator s : n.getShuntCompensators()) {
             PropertyBag p = createPowerFlowProperties(cgmes, s.getTerminal());
             if (p != null) {
-                powerFlows.add(createPowerFlowProperties(cgmes, s.getTerminal()));
+                powerFlows.add(p);
             }
         }
+
+        // cgmes model has 34 "EquivalentInjection" elements, that are converted in IIDM
+        // Generators in boundary nodes.
+        // The powerFlow is assosiated with Dangling Lines?
+        // What should be the right way to calculate PowerFlow in such cases?
+
+//            for (PropertyBag terminal : cgmes.terminals()) {
+//                boundaryNodesFromDanglingLines.entrySet().forEach(entry -> {
+//                    if (terminal.getId("TopologicalNode").equals(entry.getValue())) {
+//                        DanglingLine dline = n.getDanglingLine(entry.getKey());
+//                        String cgmesTerminal = cgmes.terminalForEquipment(terminal.getId("Terminal"));
+//                        if (cgmesTerminal != null) {
+//                            PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
+//                            p.put("p", fs(dline.getP0()));
+//                            p.put("q", fs(dline.getQ0()));
+//                            p.put(CgmesNames.TERMINAL, cgmesTerminal);
+//                            powerFlows.add(p);
+//                        }
+//                    }
+//                });
+//            }
         cgmes.add(CgmesSubset.STATE_VARIABLES, "SvPowerFlow", powerFlows);
 
         PropertyBags shuntCompensatorSections = new PropertyBags();
@@ -135,9 +161,35 @@ public final class StateVariablesAdder {
             }
         }
         cgmes.add(CgmesSubset.STATE_VARIABLES, "SvTapStep", tapSteps);
+
+        // create SvStatus, iterate on Connectables, check if Terminal isConnected, add
+        // to SvStatus
+        PropertyBags svStatus = new PropertyBags();
+        Map<String, Boolean> addedConnectables = new HashMap<>();
+        for (VoltageLevel v : n.getVoltageLevels()) {
+            for (Connectable<?> c : v.getConnectables()) {
+                for (Terminal t : c.getTerminals()) {
+                    if (t == null) {
+                        continue;
+                    }
+                    // need to check if connectable was already added
+                    if (addedConnectables.get(c.getId()) == null) {
+                        addedConnectables.put(c.getId(), true);
+                        PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
+                        if (c.getId() != null) {
+                            p.put("inService", String.valueOf(t.isConnected()));
+                            p.put(CgmesNames.CONDUCTING_EQUIPMENT, c.getId());
+                            svStatus.add(p);
+                        }
+                    }
+                }
+            }
+        }
+        cgmes.add(CgmesSubset.STATE_VARIABLES, "SvStatus", svStatus);
     }
 
-    // FIXME elena Uses LinkData class, not yet in master, I've copied in into the package as LinkDataTmp
+    // FIXME elena Uses LinkData class, not yet in master, I've copied in into the
+    // package as LinkDataTmp
     private static Complex complexVoltage(double r, double x, double g, double b,
         double v, double angle, double p, double q) {
         BranchAdmittanceMatrix adm = LinkDataTmp.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0,
@@ -212,8 +264,8 @@ public final class StateVariablesAdder {
     private static final List<String> SV_POWERFLOW_PROPERTIES = Arrays.asList("p", "q", CgmesNames.TERMINAL);
     private static final List<String> SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES = Arrays.asList("ShuntCompensator",
         "continuousSections");
-    public static final String SIDE1 = "side1";
-    public static final String SIDE2 = "side2";
+    private static final List<String> SV_SVSTATUS_PROPERTIES = Arrays.asList("inService",
+        CgmesNames.CONDUCTING_EQUIPMENT);
 
     private static final Logger LOG = LoggerFactory.getLogger(StateVariablesAdder.class);
 }

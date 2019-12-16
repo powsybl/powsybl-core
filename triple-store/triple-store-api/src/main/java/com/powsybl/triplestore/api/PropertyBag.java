@@ -175,6 +175,7 @@ public class PropertyBag extends HashMap<String, String> {
         // TODO do not rely on property name, use metadata or answer based on value?
         return name.equals("TopologicalNode") || name.equals("Terminal")
                 || name.equals("ShuntCompensator") || name.equals("TapChanger")
+                || name.equals("ConductingEquipment")
                 || resourceNames.contains(name);
     }
 
