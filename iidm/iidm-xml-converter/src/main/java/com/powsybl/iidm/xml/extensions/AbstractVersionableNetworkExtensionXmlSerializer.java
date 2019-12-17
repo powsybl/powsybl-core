@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml.extensions;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
@@ -16,17 +15,23 @@ import com.powsybl.iidm.xml.IidmXmlConstants;
 import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends Extendable, E extends Extension<T>> extends AbstractExtensionXmlSerializer<T, E> implements NetworkExtensionXmlSerializer<T, E> {
+public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends Extendable, E extends Extension<T>> extends AbstractExtensionXmlSerializer<T, E> {
 
-    private final ImmutableMap<IidmXmlVersion, ImmutableSortedSet<String>> extensionVersions;
+    private final Map<IidmXmlVersion, ImmutableSortedSet<String>> extensionVersions = new HashMap<>();
+    private final Map<String, String> namespaceUris = new HashMap<>();
 
     protected AbstractVersionableNetworkExtensionXmlSerializer(String extensionName, Class<? super E> extensionClass, boolean subElements, String namespacePrefix,
-                                                               ImmutableMap<IidmXmlVersion, ImmutableSortedSet<String>> extensionVersions) {
+                                                               Map<IidmXmlVersion, ImmutableSortedSet<String>> extensionVersions, Map<String, String> namespaceUris) {
         super(extensionName, "network", extensionClass, subElements, namespacePrefix);
-        this.extensionVersions = extensionVersions;
+        this.extensionVersions.putAll(Objects.requireNonNull(extensionVersions));
+        this.namespaceUris.putAll(Objects.requireNonNull(namespaceUris));
     }
 
     @Override
@@ -35,13 +40,14 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
     }
 
     @Override
-    public String getVersion() {
-        return getVersion(IidmXmlConstants.CURRENT_IIDM_XML_VERSION);
+    public String getNamespaceUri(String extensionVersion) {
+        return namespaceUris.get(extensionVersion);
     }
 
     @Override
-    public String getVersion(IidmXmlVersion version) {
-        return extensionVersions.get(version).last();
+    public String getVersion() {
+        return extensionVersions.get(IidmXmlConstants.CURRENT_IIDM_XML_VERSION).last();
+        // TODO: when it is possible to write in previous XIIDM version, a mecanism to retrieve the last compatible version linked to a given IidmXmlVersion will be needed
     }
 
     protected void checkReadingCompatibility(NetworkXmlReaderContext networkContext) {

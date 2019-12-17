@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
@@ -38,6 +37,10 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
                 ImmutableMap.<IidmXmlVersion, ImmutableSortedSet<String>>builder()
                         .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of("1.0"))
                         .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of("1.1"))
+                        .build(),
+                ImmutableMap.<String, String>builder()
+                        .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_0")
+                        .put("1.1", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_1")
                         .build());
     }
 
@@ -50,18 +53,6 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
     public List<InputStream> getXsdAsStreamList() {
         return ImmutableList.of(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_0) + "xsd/terminalMock.xsd"),
                 getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_1) + "xsd/terminalMock.xsd"));
-    }
-
-    @Override
-    public String getNamespaceUri(String version) {
-        switch (version) {
-            case "1.0":
-                return "http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_0";
-            case "1.1":
-                return "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_1";
-            default:
-                throw new PowsyblException("Version " + version + " not supported by TerminalMock extension.");
-        }
     }
 
     @Override

@@ -6,8 +6,6 @@
  */
 package com.powsybl.commons.extensions;
 
-import com.powsybl.commons.PowsyblException;
-
 import java.io.InputStream;
 import java.util.Objects;
 
@@ -36,20 +34,14 @@ public abstract class AbstractExtensionXmlSerializer<T extends Extendable, E ext
         this.categoryName = Objects.requireNonNull(categoryName);
         this.extensionClass = Objects.requireNonNull(extensionClass);
         this.subElements = subElements;
-        this.xsdFileName = Objects.requireNonNull(xsdFileName);
-        this.namespaceUri = Objects.requireNonNull(namespaceUri);
+        this.xsdFileName = xsdFileName;
+        this.namespaceUri = namespaceUri;
         this.namespacePrefix = Objects.requireNonNull(namespacePrefix);
     }
 
     protected AbstractExtensionXmlSerializer(String extensionName, String categoryName, Class<? super E> extensionClass,
                                              boolean subElements, String namespacePrefix) {
-        this.extensionName = Objects.requireNonNull(extensionName);
-        this.categoryName = Objects.requireNonNull(categoryName);
-        this.extensionClass = Objects.requireNonNull(extensionClass);
-        this.subElements = subElements;
-        this.xsdFileName = null;
-        this.namespaceUri = null;
-        this.namespacePrefix = Objects.requireNonNull(namespacePrefix);
+        this(extensionName, categoryName, extensionClass, subElements, null, null, namespacePrefix);
     }
 
     @Override
@@ -76,7 +68,7 @@ public abstract class AbstractExtensionXmlSerializer<T extends Extendable, E ext
         if (xsdFileName != null) {
             return getClass().getResourceAsStream("/xsd/" + xsdFileName);
         }
-        throw new PowsyblException("Undefined xsd file name");
+        throw new IllegalArgumentException("Unexpected null value for xsdFileName");
     }
 
     @Override
@@ -84,7 +76,7 @@ public abstract class AbstractExtensionXmlSerializer<T extends Extendable, E ext
         if (namespaceUri != null) {
             return namespaceUri;
         }
-        throw new PowsyblException("Undefined namespace URI");
+        throw new IllegalArgumentException("Unexpected null value for namespace URI");
     }
 
     @Override

@@ -32,7 +32,7 @@ public interface ExtensionXmlSerializer<T extends Extendable, E extends Extensio
 
     String getNamespaceUri();
 
-    default String getNamespaceUri(String version) {
+    default String getNamespaceUri(String extensionVersion) {
         return getNamespaceUri();
     }
 
