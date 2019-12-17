@@ -48,7 +48,6 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes {
         // Changes related to sub-object in CGMES (RegulatingControl)
         computedSubjectUpdate("targetV", "cim:RegulatingControl.targetValue", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::regulatingControlId);
         computedSubjectUpdate("voltageRegulatorOn", "cim:RegulatingControl.enabled", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::regulatingControlId);
-
     }
 
     private String pFromTargetP(Identifiable id) {

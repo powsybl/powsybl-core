@@ -71,8 +71,7 @@ public class IidmToCgmes {
             new TripleStoreSimpleUpdateReference(predicate, subset.getIdentifier()));
     }
 
-    protected void computedValueUpdate(String attribute, String predicate, CgmesSubset subset,
-        Function<Identifiable, String> valueComputation) {
+    protected void computedValueUpdate(String attribute, String predicate, CgmesSubset subset, Function<Identifiable, String> valueComputation) {
         simpleUpdateReferences.put(attribute,
             new TripleStoreComputedValueUpdateReference(predicate, subset.getIdentifier(), valueComputation));
     }

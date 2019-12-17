@@ -21,8 +21,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -197,6 +195,4 @@ public class CgmesUpdateTest {
 
     private FileSystem fileSystem;
     private CgmesImport cgmesImport;
-
-    private static final Logger LOG = LoggerFactory.getLogger(CgmesUpdateTest.class);
 }
