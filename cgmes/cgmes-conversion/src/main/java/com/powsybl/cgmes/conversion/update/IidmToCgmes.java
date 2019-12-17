@@ -33,8 +33,7 @@ public class IidmToCgmes {
         if (change instanceof IidmChangeUpdate) {
             return convertUpdate((IidmChangeUpdate) change, cgmests);
         } else {
-            throw new UnsupportedOperationException(
-                String.format("Changes of type %s are not yet supported", change.getClass().getSimpleName()));
+            throw new UnsupportedOperationException(String.format("Changes of type %s are not yet supported", change.getClass().getSimpleName()));
         }
     }
 
@@ -55,7 +54,7 @@ public class IidmToCgmes {
                     + change.getIdentifiable().getClass().getSimpleName() + "." + change.getAttribute());
             }
         }
-        return tschanges;
+        return Collections.unmodifiableList(tschanges);
     }
 
     public boolean isSupported(String attribute) {

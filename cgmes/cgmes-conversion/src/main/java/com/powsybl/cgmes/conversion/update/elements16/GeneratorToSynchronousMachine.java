@@ -24,7 +24,7 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes {
         ignore("p");
         ignore("q");
         // Changes in energy source are ignored
-        // In CGMES generating units with difFerent energy source are separate types
+        // In CGMES generating units with different energy source are separate types
         // This would be a major update
         // It would require changing the class of the generating unit linked to the
         // synchronous machine related to this IIDM generator

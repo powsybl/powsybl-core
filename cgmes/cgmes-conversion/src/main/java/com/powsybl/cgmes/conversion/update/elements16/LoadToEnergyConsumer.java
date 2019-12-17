@@ -23,4 +23,5 @@ public class LoadToEnergyConsumer extends IidmToCgmes {
         simpleUpdate("p0", "cim:EnergyConsumer.p", CgmesSubset.STEADY_STATE_HYPOTHESIS);
         simpleUpdate("q0", "cim:EnergyConsumer.q", CgmesSubset.STEADY_STATE_HYPOTHESIS);
     }
+
 }

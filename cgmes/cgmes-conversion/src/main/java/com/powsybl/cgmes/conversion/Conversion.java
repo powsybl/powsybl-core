@@ -149,6 +149,7 @@ public class Conversion {
             // Store the terminal mapping in an extension for external validation
             network.addExtension(CgmesConversionContextExtension.class, new CgmesConversionContextExtension(context));
         }
+
         return network;
     }
 
