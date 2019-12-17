@@ -443,6 +443,10 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         return namedQuery("dcTerminalsTP");
     }
 
+    public PropertyBags terminalsSV() {
+        return namedQuery("terminalsSV");
+    }
+
     @Override
     public PropertyBags modelProfiles() {
         return namedQuery(MODEL_PROFILES);

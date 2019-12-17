@@ -44,18 +44,20 @@ public class StateVariablesAdder {
 
     public StateVariablesAdder(CgmesModel cgmes) {
         this.cgmes = cgmes;
-        this.originCgmesData = originCgmesData(cgmes);
+        this.terminalsSVdata = terminalsSVdata(cgmes);
     }
 
-    public Map<String, PropertyBags> originCgmesData(CgmesModel cgmes) {
-        originCgmesData.put("terminals", cgmes.terminals());
-        return originCgmesData;
+    public Map<String, PropertyBags> terminalsSVdata(CgmesModel cgmes) {
+        terminalsSVdata.put("terminalsSV", cgmes.terminalsSV());
+        return terminalsSVdata;
     }
 
     public void add(Network n, CgmesModel cgmes) {
         // TODO Add full model data with proper profile (StateVariables)
         // FullModel is defined in ModelDescription:
         // http://iec.ch/TC57/61970-552/ModelDescription/1#
+
+        // TODO add TopologicalIsland as it was in cgmes : original topology is preserved.
 
         PropertyBags voltages = new PropertyBags();
         // Check for bus branch model
@@ -121,12 +123,12 @@ public class StateVariablesAdder {
         }
 
         // PowerFlow at boundaries set as it was in original cgmes.
-        for (PropertyBag terminal : originCgmesData.get("terminals")) {
-            if (terminal.getId("graphSV") == null) {
+        for (PropertyBag terminal : terminalsSVdata.get("terminalsSV")) {
+            if (terminal.getId("SvPowerFlow") == null) {
                 continue;
             }
             boundaryNodesFromDanglingLines.values().forEach(value -> {
-                if (terminal.getId("TopologicalNode").equals(value)) {
+                if (terminal.getId(CgmesNames.TOPOLOGICAL_NODE).equals(value)) {
                     PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
                     p.put("p", terminal.getId("p"));
                     p.put("q", terminal.getId("q"));
@@ -165,7 +167,7 @@ public class StateVariablesAdder {
         }
         cgmes.add(CgmesSubset.STATE_VARIABLES, "SvTapStep", tapSteps);
 
-        // create SvStatus, iterate on Connectables, check if Terminal isConnected, add
+        // create SvStatus, iterate on Connectables, check if Terminal status, add
         // to SvStatus
         PropertyBags svStatus = new PropertyBags();
         Map<String, Boolean> addedConnectables = new HashMap<>();
@@ -187,6 +189,21 @@ public class StateVariablesAdder {
                     }
                 }
             }
+        }
+
+        // SvStatus at boundaries set as it was in original cgmes.
+        for (PropertyBag terminal : terminalsSVdata.get("terminalsSV")) {
+            if (terminal.getId("SvStatus") == null) {
+                continue;
+            }
+            boundaryNodesFromDanglingLines.values().forEach(value -> {
+                if (terminal.getId(CgmesNames.TOPOLOGICAL_NODE).equals(value)) {
+                    PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
+                    p.put("inService", terminal.getId("inService"));
+                    p.put(CgmesNames.CONDUCTING_EQUIPMENT, terminal.getId(CgmesNames.CONDUCTING_EQUIPMENT));
+                    svStatus.add(p);
+                }
+            });
         }
         cgmes.add(CgmesSubset.STATE_VARIABLES, "SvStatus", svStatus);
     }
@@ -267,7 +284,7 @@ public class StateVariablesAdder {
     private static final List<String> SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES = Arrays.asList("ShuntCompensator", "continuousSections");
     private static final List<String> SV_SVSTATUS_PROPERTIES = Arrays.asList("inService", CgmesNames.CONDUCTING_EQUIPMENT);
     private CgmesModel cgmes;
-    private Map<String, PropertyBags> originCgmesData = new HashMap<>();
+    private Map<String, PropertyBags> terminalsSVdata = new HashMap<>();
 
     private static final Logger LOG = LoggerFactory.getLogger(StateVariablesAdder.class);
 }
