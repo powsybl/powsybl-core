@@ -201,4 +201,11 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
                 + " is not compatible with the loadMock extension's namespace URI.");
         NetworkXml.read(getClass().getResourceAsStream("/V1_1/eurostag-tutorial-example1-with-bad-loadMockExt.xml"));
     }
+
+    @Test
+    public void testThrowErrorUnsupportedExtensionVersion() {
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("IIDM-XML version of network (1.1) is not supported by the loadQux extension's XML serializer.");
+        NetworkXml.read(getClass().getResourceAsStream("/V1_1/eurostag-tutorial-example1-with-bad-loadQuxExt.xml"));
+    }
 }

@@ -9,9 +9,9 @@
 -->
 <xs:schema version="1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://www.itesla_project.eu/schema/iidm/ext/load_mock/1_0"
+           targetNamespace="http://www.itesla_project.eu/schema/iidm/ext/load_qux/1_0"
            elementFormDefault="qualified">
-    <xs:element name="loadMock">
+    <xs:element name="loadQux">
         <xs:complexType/>
     </xs:element>
 </xs:schema>
