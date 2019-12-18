@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.Terminal;
  */
 public class RatioTapChangerAdderAdapter extends AbstractAdapter<RatioTapChangerAdder> implements RatioTapChangerAdder {
 
-    class StepAdderAdapter extends AbstractAdapter<RatioTapChangerAdder.StepAdder> implements RatioTapChangerAdder.StepAdder {
+    private class StepAdderAdapter extends AbstractAdapter<RatioTapChangerAdder.StepAdder> implements RatioTapChangerAdder.StepAdder {
 
         StepAdderAdapter(final RatioTapChangerAdder.StepAdder delegate, final MergingViewIndex index) {
             super(delegate, index);

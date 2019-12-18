@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.*;
  */
 public class ThreeWindingsTransformerAdderAdapter extends AbstractIdentifiableAdderAdapter<ThreeWindingsTransformerAdder> implements ThreeWindingsTransformerAdder {
 
-    class LegAdderAdapter extends AbstractAdapter<ThreeWindingsTransformerAdder.LegAdder> implements ThreeWindingsTransformerAdder.LegAdder {
+    private class LegAdderAdapter extends AbstractAdapter<ThreeWindingsTransformerAdder.LegAdder> implements ThreeWindingsTransformerAdder.LegAdder {
 
         LegAdderAdapter(final ThreeWindingsTransformerAdder.LegAdder delegate, final MergingViewIndex index) {
             super(delegate, index);

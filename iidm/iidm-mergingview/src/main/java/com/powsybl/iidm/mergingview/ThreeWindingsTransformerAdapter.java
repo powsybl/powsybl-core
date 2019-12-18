@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  */
 public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter<ThreeWindingsTransformer> implements ThreeWindingsTransformer {
 
-    static class LegAdapter extends AbstractAdapter<ThreeWindingsTransformer.Leg> implements ThreeWindingsTransformer.Leg {
+    private static class LegAdapter extends AbstractAdapter<ThreeWindingsTransformer.Leg> implements ThreeWindingsTransformer.Leg {
 
         LegAdapter(final ThreeWindingsTransformer.Leg delegate, final MergingViewIndex index) {
             super(delegate, index);

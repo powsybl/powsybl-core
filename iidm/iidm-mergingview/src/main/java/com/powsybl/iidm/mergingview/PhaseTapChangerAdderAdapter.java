@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.Terminal;
  */
 public class PhaseTapChangerAdderAdapter extends AbstractAdapter<PhaseTapChangerAdder> implements PhaseTapChangerAdder {
 
-    class StepAdderAdapter extends AbstractAdapter<PhaseTapChangerAdder.StepAdder> implements PhaseTapChangerAdder.StepAdder {
+    private class StepAdderAdapter extends AbstractAdapter<PhaseTapChangerAdder.StepAdder> implements PhaseTapChangerAdder.StepAdder {
 
         StepAdderAdapter(final PhaseTapChangerAdder.StepAdder delegate, final MergingViewIndex index) {
             super(delegate, index);
