@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+    Copyright (c) 2019, RTE (http://www.rte-france.com)
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -13,14 +13,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.powsybl</groupId>
         <artifactId>powsybl-iidm</artifactId>
+        <groupId>com.powsybl</groupId>
         <version>3.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>powsybl-iidm-api</artifactId>
-    <name>IIDM network model</name>
-    <description>An API to describe the network model</description>
+    <artifactId>powsybl-iidm-scripting</artifactId>
+    <name>IIDM scripting</name>
+    <description>IIDM scripting support</description>
 
     <build>
         <plugins>
@@ -30,7 +30,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.iidm.api</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.iidm.scripting</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -42,38 +42,45 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 
     <dependencies>
-        <!-- Compilation dependencies -->
+        <!-- Compile dependencies -->
         <dependency>
-            <groupId>guru.nidi</groupId>
-            <artifactId>graphviz-java</artifactId>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-math3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-commons</artifactId>
+            <artifactId>powsybl-iidm-converter-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-test</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- Test dependencies -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -81,7 +88,13 @@
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
-    </dependencies>
-    
-</project>
 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>
