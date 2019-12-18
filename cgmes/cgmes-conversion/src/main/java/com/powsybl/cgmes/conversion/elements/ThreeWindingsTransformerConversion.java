@@ -20,6 +20,9 @@ import com.powsybl.triplestore.api.PropertyBags;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
+/**
+ * @deprecated Use {@link NewThreeWindingsTransformerConversion} instead.
+ */
 @Deprecated
 public class ThreeWindingsTransformerConversion extends AbstractConductingEquipmentConversion {
 
@@ -35,7 +38,6 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         this.powerTransformerRatioTapChanger = powerTransformerRatioTapChanger;
     }
 
-    @Deprecated
     @Override
     public boolean valid() {
         if (!super.valid()) {
@@ -61,7 +63,6 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         return true;
     }
 
-    @Deprecated
     @Override
     public void convert() {
         // g is optional

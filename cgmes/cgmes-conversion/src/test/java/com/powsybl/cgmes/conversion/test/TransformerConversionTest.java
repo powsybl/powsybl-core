@@ -17,6 +17,11 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Conversion.Xfmr2RatioPhaseInterpretationAlternative;
+import com.powsybl.cgmes.conversion.Conversion.Xfmr2ShuntInterpretationAlternative;
+import com.powsybl.cgmes.conversion.Conversion.Xfmr2StructuralRatioInterpretationAlternative;
+import com.powsybl.cgmes.conversion.Conversion.Xfmr3ShuntInterpretationAlternative;
+import com.powsybl.cgmes.conversion.Conversion.Xfmr3StructuralRatioInterpretationAlternative;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
@@ -51,7 +56,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr2ShuntEnd1() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr2ShuntEnd1();
+        config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.END1);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
@@ -60,7 +65,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr2ShuntEnd2() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr2ShuntEnd2();
+        config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.END2);
         // Same result as End1, IIDM model and LoadFlowParameters does not allow this configuration
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
@@ -70,7 +75,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr2ShuntEnd1End2() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr2ShuntEnd1End2();
+        config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.END1_END2);
         // Same result as End1, IIDM model and LoadFlowParameters does not allow this configuration
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
@@ -80,7 +85,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr2ShuntSplit() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr2ShuntSplit();
+        config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.SPLIT);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.970891, -15.839366, 94.270119, 20.925339);
         assertTrue(ok);
@@ -101,7 +106,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr2RatioPhaseEnd1() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr2RatioPhaseEnd1();
+        config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.END1);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
         boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -91.807775, 98.389959, 92.184500, -89.747219);
@@ -114,7 +119,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr2RatioPhaseEnd2() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr2RatioPhaseEnd2();
+        config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.END2);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
         boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
@@ -127,7 +132,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr2RatioPhaseEnd1End2() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr2RatioPhaseEnd1End2();
+        config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.END1_END2);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
         boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
@@ -140,7 +145,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr2RatioPhaseX() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr2RatioPhaseX();
+        config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.X);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
         boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
@@ -188,7 +193,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr2Ratio0End1() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr2Ratio0End1();
+        config.setXfmr2StructuralRatio(Xfmr2StructuralRatioInterpretationAlternative.END1);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
         boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -0.849849, -0.138409, 0.852591, 0.184615);
@@ -201,7 +206,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr2Ratio0End2() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr2Ratio0End2();
+        config.setXfmr2StructuralRatio(Xfmr2StructuralRatioInterpretationAlternative.END2);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
         boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
@@ -214,7 +219,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr2Ratio0X() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr2Ratio0X();
+        config.setXfmr2StructuralRatio(Xfmr2StructuralRatioInterpretationAlternative.X);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
         boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
@@ -237,7 +242,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr3ShuntNetworkSide() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr3ShuntNetworkSide();
+        config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
@@ -248,7 +253,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr3ShuntStarBusSide() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr3ShuntStarBusSide();
+        config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.STAR_BUS_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
@@ -259,7 +264,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr3ShuntSplit() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr3ShuntSplit();
+        config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.SPLIT);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
@@ -334,7 +339,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr3Ratio0StarBusSide() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr3Ratio0StarBusSide();
+        config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
@@ -345,7 +350,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr3Ratio0NetworkSide() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr3Ratio0NetworkSide();
+        config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.NETWORK_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
@@ -356,7 +361,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr3Ratio0End1() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr3Ratio0End1();
+        config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.END1);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
@@ -367,7 +372,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr3Ratio0End2() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr3Ratio0End2();
+        config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.END2);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
@@ -378,7 +383,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr3Ratio0End3() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr3Ratio0End3();
+        config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.END3);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
@@ -526,13 +531,23 @@ public class TransformerConversionTest {
         LoadFlowParameters copyLoadFlowParameters = loadFlowParameters.copy();
 
         boolean splitShuntAdmittanceXfmr2 = false;
-        if (config.isXfmr2ShuntSplit()) {
-            splitShuntAdmittanceXfmr2 = true;
+        switch (config.getXfmr2Shunt()) {
+            case END1:
+            case END2:
+            case END1_END2:
+                break;
+            case SPLIT:
+                splitShuntAdmittanceXfmr2 = true;
+                break;
         }
 
         boolean splitShuntAdmittanceXfmr3 = false;
-        if (config.isXfmr3ShuntSplit()) {
-            splitShuntAdmittanceXfmr3 = true;
+        switch (config.getXfmr3Shunt()) {
+            case NETWORK_SIDE:
+            case STAR_BUS_SIDE:
+                break;
+            case SPLIT:
+                splitShuntAdmittanceXfmr3 = true;
         }
 
         copyLoadFlowParameters.setSpecificCompatibility(splitShuntAdmittanceXfmr2);

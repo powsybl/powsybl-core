@@ -30,41 +30,7 @@ import com.powsybl.triplestore.api.PropertyBags;
 public abstract class AbstractTransformerConversion
     extends AbstractConductingEquipmentConversion {
 
-    protected static final String STRING_POWER_TRANSFORMER = "PowerTransformer";
-    protected static final String STRING_R = "r";
-    protected static final String STRING_X = "x";
-    protected static final String STRING_RATIO_TAP_CHANGER = "RatioTapChanger";
-    protected static final String STRING_PHASE_TAP_CHANGER = "PhaseTapChanger";
-    protected static final String STRING_RATEDU = "ratedU";
-    protected static final String STRING_G = "g";
-    protected static final String STRING_B = "b";
-    protected static final String STRING_PHASE_ANGLE_CLOCK = "phaseAngleClock";
-    protected static final String STRING_STEP_VOLTAGE_INCREMENT = "stepVoltageIncrement";
-    protected static final String STRING_STEP_PHASE_SHIFT_INCREMENT = "stepPhaseShiftIncrement";
-
-    protected static final String STRING_LOW_STEP = "lowStep";
-    protected static final String STRING_HIGH_STEP = "highStep";
-    protected static final String STRING_NEUTRAL_STEP = "neutralStep";
-    protected static final String STRING_NORMAL_STEP = "normalStep";
-    protected static final String STRING_SV_TAP_STEP = "SVtapStep";
-    protected static final String STRING_LTC_FLAG = "ltcFlag";
-    protected static final String STRING_STEP = "step";
-    protected static final String STRING_RATIO = "ratio";
-    protected static final String STRING_ANGLE = "angle";
-    protected static final String STRING_PHASE_TAP_CHANGER_TYPE = "phaseTapChangerType";
-    protected static final String STRING_X_STEP_MIN = "xStepMin";
-    protected static final String STRING_X_STEP_MAX = "xStepMax";
-    protected static final String STRING_X_MIN = "xMin";
-    protected static final String STRING_X_MAX = "xMax";
-    protected static final String STRING_VOLTAGE_STEP_INCREMENT = "voltageStepIncrement";
-    protected static final String STRING_WINDING_CONNECTION_ANGLE = "windingConnectionAngle";
-    protected static final String STRING_SYMMETRICAL = "symmetrical";
-    protected static final String STRING_ASYMMETRICAL = "asymmetrical";
-    protected static final String STRING_TABULAR = "tabular";
-    protected static final String STRING_TCUL_CONTROL_MODE = "tculControlMode";
-    protected static final String STRING_TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
-
-    protected enum TapChangerType {
+    private enum TapChangerType {
         NULL, FIXED, NON_REGULATING, REGULATING
     }
 
@@ -73,7 +39,7 @@ public abstract class AbstractTransformerConversion
     }
 
     // propertyBag
-    protected PropertyBag getTransformerTapChanger(PropertyBag end, String id,
+    protected static PropertyBag getTransformerTapChanger(PropertyBag end, String id,
         Map<String, PropertyBag> powerTransformerTapChanger) {
 
         String tcId = end.getId(id);
@@ -86,17 +52,17 @@ public abstract class AbstractTransformerConversion
             return null;
         }
         TapChangerConversion tapChanger = new TapChangerConversion();
-        int lowStep = ratioTapChanger.asInt(STRING_LOW_STEP);
-        int highStep = ratioTapChanger.asInt(STRING_HIGH_STEP);
-        int neutralStep = ratioTapChanger.asInt(STRING_NEUTRAL_STEP);
-        int normalStep = ratioTapChanger.asInt(STRING_NORMAL_STEP, neutralStep);
+        int lowStep = ratioTapChanger.asInt(CgmesNames.LOW_STEP);
+        int highStep = ratioTapChanger.asInt(CgmesNames.HIGH_STEP);
+        int neutralStep = ratioTapChanger.asInt(CgmesNames.NEUTRAL_STEP);
+        int normalStep = ratioTapChanger.asInt(CgmesNames.NORMAL_STEP, neutralStep);
         int position = getTapPosition(ratioTapChanger, normalStep);
         if (position > highStep || position < lowStep) {
             position = neutralStep;
         }
         tapChanger.setLowTapPosition(lowStep).setTapPosition(position);
 
-        boolean ltcFlag = ratioTapChanger.asBoolean(STRING_LTC_FLAG, false);
+        boolean ltcFlag = ratioTapChanger.asBoolean(CgmesNames.LTC_FLAG, false);
         tapChanger.setLtcFlag(ltcFlag);
 
         addRatioRegulationData(ratioTapChanger, tapChanger);
@@ -108,9 +74,9 @@ public abstract class AbstractTransformerConversion
     private int getTapPosition(PropertyBag tapChanger, int defaultStep) {
         switch (context.config().getProfileUsedForInitialStateValues()) {
             case SSH:
-                return fromContinuous(tapChanger.asDouble(STRING_STEP, tapChanger.asDouble(STRING_SV_TAP_STEP, defaultStep)));
+                return fromContinuous(tapChanger.asDouble(CgmesNames.STEP, tapChanger.asDouble(CgmesNames.SV_TAP_STEP, defaultStep)));
             case SV:
-                return fromContinuous(tapChanger.asDouble(STRING_SV_TAP_STEP, tapChanger.asDouble(STRING_STEP, defaultStep)));
+                return fromContinuous(tapChanger.asDouble(CgmesNames.SV_TAP_STEP, tapChanger.asDouble(CgmesNames.STEP, defaultStep)));
             default:
                 throw new CgmesModelException("Unexpected profile used for initial flows values: " + context.config().getProfileUsedForInitialStateValues());
         }
@@ -118,11 +84,11 @@ public abstract class AbstractTransformerConversion
 
     private void addRatioRegulationData(PropertyBag ratioTapChanger, TapChangerConversion tapChanger) {
         String regulatingControlId = context.regulatingControlMapping().forTransformers().getRegulatingControlId(ratioTapChanger);
-        tapChanger.setId(ratioTapChanger.getId(STRING_RATIO_TAP_CHANGER))
+        tapChanger.setId(ratioTapChanger.getId(CgmesNames.RATIO_TAP_CHANGER))
             .setRegulating(context.regulatingControlMapping().forTransformers().getRegulating(regulatingControlId))
             .setRegulatingControlId(regulatingControlId)
-            .setTculControlMode(ratioTapChanger.get(STRING_TCUL_CONTROL_MODE))
-            .setTapChangerControlEnabled(ratioTapChanger.asBoolean(STRING_TAP_CHANGER_CONTROL_ENABLED, false));
+            .setTculControlMode(ratioTapChanger.get(CgmesNames.TCUL_CONTROL_MODE))
+            .setTapChangerControlEnabled(ratioTapChanger.asBoolean(CgmesNames.TAP_CHANGER_CONTROL_ENABLED, false));
     }
 
     private void addRatioSteps(PropertyBag ratioTapChanger, TapChangerConversion tapChanger) {
@@ -137,15 +103,15 @@ public abstract class AbstractTransformerConversion
     private void addTabularRatioSteps(TapChangerConversion tapChanger, String tableId) {
         PropertyBags table = context.ratioTapChangerTable(tableId);
         Comparator<PropertyBag> byStep = Comparator
-            .comparingInt((PropertyBag p) -> p.asInt(STRING_STEP));
+            .comparingInt((PropertyBag p) -> p.asInt(CgmesNames.STEP));
         table.sort(byStep);
         for (PropertyBag point : table) {
-            int step = point.asInt(STRING_STEP);
-            double ratio = fixing(point, STRING_RATIO, 1.0, tableId, step);
-            double r = fixing(point, STRING_R, 0, tableId, step);
-            double x = fixing(point, STRING_X, 0, tableId, step);
-            double g = fixing(point, STRING_G, 0, tableId, step);
-            double b = fixing(point, STRING_B, 0, tableId, step);
+            int step = point.asInt(CgmesNames.STEP);
+            double ratio = fixing(point, CgmesNames.RATIO, 1.0, tableId, step);
+            double r = fixing(point, CgmesNames.R, 0, tableId, step);
+            double x = fixing(point, CgmesNames.X, 0, tableId, step);
+            double g = fixing(point, CgmesNames.G, 0, tableId, step);
+            double b = fixing(point, CgmesNames.B, 0, tableId, step);
             tapChanger.beginStep()
                 .setRatio(ratio)
                 .setR(r)
@@ -156,10 +122,10 @@ public abstract class AbstractTransformerConversion
         }
     }
 
-    private void addNonTabularRatioSteps(PropertyBag ratioTapChanger, TapChangerConversion tapChanger) {
-        double stepVoltageIncrement = ratioTapChanger.asDouble(STRING_STEP_VOLTAGE_INCREMENT);
-        int highStep = ratioTapChanger.asInt(STRING_HIGH_STEP);
-        int neutralStep = ratioTapChanger.asInt(STRING_NEUTRAL_STEP);
+    private static void addNonTabularRatioSteps(PropertyBag ratioTapChanger, TapChangerConversion tapChanger) {
+        double stepVoltageIncrement = ratioTapChanger.asDouble(CgmesNames.STEP_VOLTAGE_INCREMENT);
+        int highStep = ratioTapChanger.asInt(CgmesNames.HIGH_STEP);
+        int neutralStep = ratioTapChanger.asInt(CgmesNames.NEUTRAL_STEP);
         for (int step = tapChanger.getLowTapPosition(); step <= highStep; step++) {
             double ratio = 1.0 + (step - neutralStep) * (stepVoltageIncrement / 100.0);
             tapChanger.beginStep()
@@ -187,22 +153,22 @@ public abstract class AbstractTransformerConversion
             return null;
         }
         if (!validPhaseTapChangerType(phaseTapChanger)) {
-            String type = phaseTapChanger.getLocal(STRING_PHASE_TAP_CHANGER_TYPE).toLowerCase();
+            String type = phaseTapChanger.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE).toLowerCase();
             invalid(String.format("Unexpected phaseTapChangerType %s", type));
             return null;
         }
         TapChangerConversion tapChanger = new TapChangerConversion();
-        int lowStep = phaseTapChanger.asInt(STRING_LOW_STEP);
-        int highStep = phaseTapChanger.asInt(STRING_HIGH_STEP);
-        int neutralStep = phaseTapChanger.asInt(STRING_NEUTRAL_STEP);
-        int normalStep = phaseTapChanger.asInt(STRING_NORMAL_STEP, neutralStep);
+        int lowStep = phaseTapChanger.asInt(CgmesNames.LOW_STEP);
+        int highStep = phaseTapChanger.asInt(CgmesNames.HIGH_STEP);
+        int neutralStep = phaseTapChanger.asInt(CgmesNames.NEUTRAL_STEP);
+        int normalStep = phaseTapChanger.asInt(CgmesNames.NORMAL_STEP, neutralStep);
         int position = getTapPosition(phaseTapChanger, normalStep);
         if (position > highStep || position < lowStep) {
             position = neutralStep;
         }
         tapChanger.setLowTapPosition(lowStep).setTapPosition(position);
 
-        boolean ltcFlag = phaseTapChanger.asBoolean(STRING_LTC_FLAG, false);
+        boolean ltcFlag = phaseTapChanger.asBoolean(CgmesNames.LTC_FLAG, false);
         tapChanger.setLtcFlag(ltcFlag);
 
         addPhaseRegulationData(phaseTapChanger, tapChanger);
@@ -211,23 +177,23 @@ public abstract class AbstractTransformerConversion
         return tapChanger;
     }
 
-    private boolean validPhaseTapChangerType(PropertyBag phaseTapChanger) {
+    private static boolean validPhaseTapChangerType(PropertyBag phaseTapChanger) {
         String tableId = phaseTapChanger.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
-        String type = phaseTapChanger.getLocal(STRING_PHASE_TAP_CHANGER_TYPE).toLowerCase();
+        String type = phaseTapChanger.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE).toLowerCase();
         return isTabular(type, tableId) || isSymmetrical(type) || isAsymmetrical(type);
     }
 
     private void addPhaseRegulationData(PropertyBag phaseTapChanger, TapChangerConversion tapChanger) {
         String regulatingControlId = context.regulatingControlMapping().forTransformers().getRegulatingControlId(phaseTapChanger);
-        tapChanger.setId(phaseTapChanger.getId(STRING_PHASE_TAP_CHANGER))
+        tapChanger.setId(phaseTapChanger.getId(CgmesNames.PHASE_TAP_CHANGER))
             .setRegulating(context.regulatingControlMapping().forTransformers().getRegulating(regulatingControlId))
             .setRegulatingControlId(regulatingControlId)
-            .setTapChangerControlEnabled(phaseTapChanger.asBoolean(STRING_TAP_CHANGER_CONTROL_ENABLED, false));
+            .setTapChangerControlEnabled(phaseTapChanger.asBoolean(CgmesNames.TAP_CHANGER_CONTROL_ENABLED, false));
     }
 
     protected void addPhaseSteps(PropertyBag phaseTapChanger, TapChangerConversion tapChanger, double xtx) {
         String tableId = phaseTapChanger.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
-        String phaseTapChangerType = phaseTapChanger.getLocal(STRING_PHASE_TAP_CHANGER_TYPE).toLowerCase();
+        String phaseTapChangerType = phaseTapChanger.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE).toLowerCase();
         if (isTabular(phaseTapChangerType, tableId)) {
             addTabularPhaseSteps(tapChanger, tableId);
         } else if (isAsymmetrical(phaseTapChangerType)) {
@@ -245,16 +211,16 @@ public abstract class AbstractTransformerConversion
             return;
         }
         Comparator<PropertyBag> byStep = Comparator
-            .comparingInt((PropertyBag p) -> p.asInt(STRING_STEP));
+            .comparingInt((PropertyBag p) -> p.asInt(CgmesNames.STEP));
         table.sort(byStep);
         for (PropertyBag point : table) {
-            int step = point.asInt(STRING_STEP);
-            double angle = fixing(point, STRING_ANGLE, 0.0, tableId, step);
-            double ratio = fixing(point, STRING_RATIO, 1.0, tableId, step);
-            double r = fixing(point, STRING_R, 0, tableId, step);
-            double x = fixing(point, STRING_X, 0, tableId, step);
-            double g = fixing(point, STRING_G, 0, tableId, step);
-            double b = fixing(point, STRING_B, 0, tableId, step);
+            int step = point.asInt(CgmesNames.STEP);
+            double angle = fixing(point, CgmesNames.ANGLE, 0.0, tableId, step);
+            double ratio = fixing(point, CgmesNames.RATIO, 1.0, tableId, step);
+            double r = fixing(point, CgmesNames.R, 0, tableId, step);
+            double x = fixing(point, CgmesNames.X, 0, tableId, step);
+            double g = fixing(point, CgmesNames.G, 0, tableId, step);
+            double b = fixing(point, CgmesNames.B, 0, tableId, step);
             tapChanger.beginStep()
                 .setAngle(angle)
                 .setRatio(ratio)
@@ -266,12 +232,12 @@ public abstract class AbstractTransformerConversion
         }
     }
 
-    private void addAsymmetricalPhaseSteps(PropertyBag phaseTapChanger, TapChangerConversion tapChanger, double xtx) {
-        int lowStep = phaseTapChanger.asInt(STRING_LOW_STEP);
-        int highStep = phaseTapChanger.asInt(STRING_HIGH_STEP);
-        int neutralStep = phaseTapChanger.asInt(STRING_NEUTRAL_STEP);
-        double stepVoltageIncrement = phaseTapChanger.asDouble(STRING_VOLTAGE_STEP_INCREMENT);
-        double windingConnectionAngle = phaseTapChanger.asDouble(STRING_WINDING_CONNECTION_ANGLE);
+    private static void addAsymmetricalPhaseSteps(PropertyBag phaseTapChanger, TapChangerConversion tapChanger, double xtx) {
+        int lowStep = phaseTapChanger.asInt(CgmesNames.LOW_STEP);
+        int highStep = phaseTapChanger.asInt(CgmesNames.HIGH_STEP);
+        int neutralStep = phaseTapChanger.asInt(CgmesNames.NEUTRAL_STEP);
+        double stepVoltageIncrement = phaseTapChanger.asDouble(CgmesNames.VOLTAGE_STEP_INCREMENT);
+        double windingConnectionAngle = phaseTapChanger.asDouble(CgmesNames.WINDING_CONNECTION_ANGLE);
         for (int step = lowStep; step <= highStep; step++) {
             double dx = 1.0 + (step - neutralStep) * (stepVoltageIncrement / 100.0)
                 * Math.cos(Math.toRadians(windingConnectionAngle));
@@ -284,8 +250,8 @@ public abstract class AbstractTransformerConversion
                 .setRatio(ratio)
                 .endStep();
         }
-        double xMin = phaseTapChanger.asDouble(STRING_X_STEP_MIN, phaseTapChanger.asDouble(STRING_X_MIN));
-        double xMax = phaseTapChanger.asDouble(STRING_X_STEP_MAX, phaseTapChanger.asDouble(STRING_X_MAX));
+        double xMin = phaseTapChanger.asDouble(CgmesNames.X_STEP_MIN, phaseTapChanger.asDouble(CgmesNames.X_MIN));
+        double xMax = phaseTapChanger.asDouble(CgmesNames.X_STEP_MAX, phaseTapChanger.asDouble(CgmesNames.X_MAX));
         if (Double.isNaN(xMin) || Double.isNaN(xMax) || xMin < 0 || xMax <= 0 || xMin > xMax) {
             return;
         }
@@ -298,7 +264,7 @@ public abstract class AbstractTransformerConversion
         });
     }
 
-    private double getStepXforAsymmetrical(double xStepMin, double xStepMax, double alphaDegrees,
+    private static double getStepXforAsymmetrical(double xStepMin, double xStepMax, double alphaDegrees,
         double alphaMaxDegrees, double thetaDegrees) {
         double alpha = Math.toRadians(alphaDegrees);
         double alphaMax = Math.toRadians(alphaMaxDegrees);
@@ -309,12 +275,12 @@ public abstract class AbstractTransformerConversion
             * Math.pow(Math.tan(alpha) / Math.tan(alphaMax) * numer / denom, 2);
     }
 
-    private void addSymmetricalPhaseSteps(PropertyBag phaseTapChanger, TapChangerConversion tapChanger, double xtx) {
-        int lowStep = phaseTapChanger.asInt(STRING_LOW_STEP);
-        int highStep = phaseTapChanger.asInt(STRING_HIGH_STEP);
-        int neutralStep = phaseTapChanger.asInt(STRING_NEUTRAL_STEP);
-        double stepVoltageIncrement = phaseTapChanger.asDouble(STRING_VOLTAGE_STEP_INCREMENT);
-        double stepPhaseShiftIncrement = phaseTapChanger.asDouble(STRING_STEP_PHASE_SHIFT_INCREMENT);
+    private static void addSymmetricalPhaseSteps(PropertyBag phaseTapChanger, TapChangerConversion tapChanger, double xtx) {
+        int lowStep = phaseTapChanger.asInt(CgmesNames.LOW_STEP);
+        int highStep = phaseTapChanger.asInt(CgmesNames.HIGH_STEP);
+        int neutralStep = phaseTapChanger.asInt(CgmesNames.NEUTRAL_STEP);
+        double stepVoltageIncrement = phaseTapChanger.asDouble(CgmesNames.VOLTAGE_STEP_INCREMENT);
+        double stepPhaseShiftIncrement = phaseTapChanger.asDouble(CgmesNames.STEP_PHASE_SHIFT_INCREMENT);
         for (int step = lowStep; step <= highStep; step++) {
             double angle;
             if (!Double.isNaN(stepPhaseShiftIncrement) && stepPhaseShiftIncrement != 0.0) {
@@ -328,8 +294,8 @@ public abstract class AbstractTransformerConversion
                 .setAngle(angle)
                 .endStep();
         }
-        double xMin = phaseTapChanger.asDouble(STRING_X_STEP_MIN, phaseTapChanger.asDouble(STRING_X_MIN));
-        double xMax = phaseTapChanger.asDouble(STRING_X_STEP_MAX, phaseTapChanger.asDouble(STRING_X_MAX));
+        double xMin = phaseTapChanger.asDouble(CgmesNames.X_STEP_MIN, phaseTapChanger.asDouble(CgmesNames.X_MIN));
+        double xMax = phaseTapChanger.asDouble(CgmesNames.X_STEP_MAX, phaseTapChanger.asDouble(CgmesNames.X_MAX));
         if (Double.isNaN(xMin) || Double.isNaN(xMax) || xMin < 0 || xMax <= 0 || xMin > xMax) {
             return;
         }
@@ -342,7 +308,7 @@ public abstract class AbstractTransformerConversion
         });
     }
 
-    private double getStepXforSymmetrical(double xStepMin, double xStepMax, double alphaDegrees,
+    private static double getStepXforSymmetrical(double xStepMin, double xStepMax, double alphaDegrees,
         double alphaMaxDegrees) {
         double alpha = Math.toRadians(alphaDegrees);
         double alphaMax = Math.toRadians(alphaMaxDegrees);
@@ -350,21 +316,21 @@ public abstract class AbstractTransformerConversion
             + (xStepMax - xStepMin) * Math.pow(Math.sin(alpha / 2) / Math.sin(alphaMax / 2), 2);
     }
 
-    private void getPhaseDefaultStep(TapChangerConversion tapChanger) {
+    private static void getPhaseDefaultStep(TapChangerConversion tapChanger) {
         tapChanger.beginStep()
             .endStep();
     }
 
-    private boolean isTabular(String tapChangerType, String tableId) {
-        return tableId != null && tapChangerType != null && tapChangerType.endsWith(STRING_TABULAR);
+    private static boolean isTabular(String tapChangerType, String tableId) {
+        return tableId != null && tapChangerType != null && tapChangerType.endsWith(CgmesNames.TABULAR);
     }
 
-    private boolean isSymmetrical(String tapChangerType) {
-        return tapChangerType != null && !tapChangerType.endsWith(STRING_ASYMMETRICAL) && tapChangerType.endsWith(STRING_SYMMETRICAL);
+    private static boolean isSymmetrical(String tapChangerType) {
+        return tapChangerType != null && !tapChangerType.endsWith(CgmesNames.ASYMMETRICAL) && tapChangerType.endsWith(CgmesNames.SYMMETRICAL);
     }
 
-    private boolean isAsymmetrical(String tapChangerType) {
-        return tapChangerType != null && tapChangerType.endsWith(STRING_ASYMMETRICAL);
+    private static boolean isAsymmetrical(String tapChangerType) {
+        return tapChangerType != null && tapChangerType.endsWith(CgmesNames.ASYMMETRICAL);
     }
 
     // combine two tap changers
@@ -382,7 +348,7 @@ public abstract class AbstractTransformerConversion
         return null;
     }
 
-    private TapChangerConversion combineTapChangerNull(TapChangerConversion tc) {
+    private static TapChangerConversion combineTapChangerNull(TapChangerConversion tc) {
         switch (tapChangerType(tc)) {
             case NULL:
                 return null;
@@ -394,7 +360,7 @@ public abstract class AbstractTransformerConversion
         return null;
     }
 
-    private TapChangerConversion combineTapChangerFixed(TapChangerConversion fixTc, TapChangerConversion tc2) {
+    private static TapChangerConversion combineTapChangerFixed(TapChangerConversion fixTc, TapChangerConversion tc2) {
         switch (tapChangerType(tc2)) {
             case NULL:
                 return fixTc;
@@ -436,7 +402,7 @@ public abstract class AbstractTransformerConversion
         return null;
     }
 
-    private TapChangerConversion combineTapChanger(TapChangerConversion tc1, TapChangerConversion tc2) {
+    private static TapChangerConversion combineTapChanger(TapChangerConversion tc1, TapChangerConversion tc2) {
         TapChangerConversion tapChanger = baseCloneTapChanger(tc1);
         combineTapChangerFixTapChangerSteps(tapChanger, tc1, tc2);
         return tapChanger;
@@ -470,7 +436,7 @@ public abstract class AbstractTransformerConversion
         return tapChanger;
     }
 
-    private void combineTapChangerFixTapChangerSteps(TapChangerConversion tapChanger, TapChangerConversion tc1, TapChangerConversion fixTc) {
+    private static void combineTapChangerFixTapChangerSteps(TapChangerConversion tapChanger, TapChangerConversion tc1, TapChangerConversion fixTc) {
         StepAdder stepFixed = getFixStepTapChanger(fixTc);
         double ratioFixed = stepFixed.getRatio();
         double angleFixed = stepFixed.getAngle();
@@ -507,7 +473,7 @@ public abstract class AbstractTransformerConversion
         });
     }
 
-    private double combineTapChangerCorrection(double fixedCorrection, double correction) {
+    private static double combineTapChangerCorrection(double fixedCorrection, double correction) {
         if (fixedCorrection != 0.0 && correction != 0.0) {
             return fixedCorrection * correction;
         } else if (fixedCorrection != 0.0) {
@@ -520,7 +486,15 @@ public abstract class AbstractTransformerConversion
     }
 
     // Move tapChanger
-    protected TapChangerConversion moveTapChangerFrom1To2(TapChangerConversion tc) {
+    protected static TapChangerConversion  moveTapChangerFrom1To2(TapChangerConversion tc) {
+        return moveTapChangerFromOneEndToTheOther(tc);
+    }
+
+    protected static TapChangerConversion moveTapChangerFrom2To1(TapChangerConversion tc) {
+        return moveTapChangerFromOneEndToTheOther(tc);
+    }
+
+    protected static TapChangerConversion moveTapChangerFromOneEndToTheOther(TapChangerConversion tc) {
         switch (tapChangerType(tc)) {
             case NULL:
                 return null;
@@ -532,17 +506,13 @@ public abstract class AbstractTransformerConversion
         return null;
     }
 
-    protected TapChangerConversion moveTapChangerFrom2To1(TapChangerConversion tc) {
-        return moveTapChangerFrom1To2(tc);
-    }
-
-    private TapChangerConversion moveTapChanger(TapChangerConversion tc) {
+    private static TapChangerConversion moveTapChanger(TapChangerConversion tc) {
         TapChangerConversion tapChanger = baseCloneTapChanger(tc);
         moveTapChangerSteps(tapChanger, tc);
         return tapChanger;
     }
 
-    private void moveTapChangerSteps(TapChangerConversion tapChanger, TapChangerConversion tc) {
+    private static void moveTapChangerSteps(TapChangerConversion tapChanger, TapChangerConversion tc) {
         tc.getSteps().forEach(step -> {
             double ratio = step.getRatio();
             double angle = step.getAngle();
@@ -566,7 +536,7 @@ public abstract class AbstractTransformerConversion
         });
     }
 
-    private TapChangerStepConversion calculateConversionStep(double ratio, double angle, double r,
+    private static TapChangerStepConversion calculateConversionStep(double ratio, double angle, double r,
         double x, double g1, double b1, double g2, double b2) {
         TapChangerStepConversion step = new TapChangerStepConversion();
         Complex a = new Complex(ratio * Math.cos(Math.toRadians(angle)),
@@ -583,7 +553,7 @@ public abstract class AbstractTransformerConversion
         return step;
     }
 
-    protected RatioConversion identityRatioConversion(double r, double x, double g1,
+    protected static RatioConversion identityRatioConversion(double r, double x, double g1,
         double b1, double g2, double b2) {
         RatioConversion ratio = new RatioConversion();
         ratio.r = r;
@@ -595,17 +565,17 @@ public abstract class AbstractTransformerConversion
         return ratio;
     }
 
-    protected RatioConversion moveRatioFrom2To1(double a0, double angle, double r, double x, double g1,
+    protected static RatioConversion moveRatioFrom2To1(double a0, double angle, double r, double x, double g1,
         double b1, double g2, double b2) {
         return moveRatio(a0, angle, r, x, g1, b1, g2, b2);
     }
 
-    protected RatioConversion moveRatioFrom1To2(double a0, double angle, double r, double x, double g1,
+    protected static RatioConversion moveRatioFrom1To2(double a0, double angle, double r, double x, double g1,
         double b1, double g2, double b2) {
         return moveRatio(a0, angle, r, x, g1, b1, g2, b2);
     }
 
-    private RatioConversion moveRatio(double a0, double angle, double r, double x, double g1,
+    private static RatioConversion moveRatio(double a0, double angle, double r, double x, double g1,
         double b1, double g2, double b2) {
         RatioConversion ratio = new RatioConversion();
         Complex a = new Complex(a0 * Math.cos(Math.toRadians(angle)),
@@ -619,17 +589,17 @@ public abstract class AbstractTransformerConversion
         return ratio;
     }
 
-    private double admittanceConversion(double correction, Complex a) {
+    private static double admittanceConversion(double correction, Complex a) {
         double a2 = a.abs() * a.abs();
         return correction / a2;
     }
 
-    private double impedanceConversion(double correction, Complex a) {
+    private static double impedanceConversion(double correction, Complex a) {
         double a2 = a.abs() * a.abs();
         return correction * a2;
     }
 
-    private TapChangerConversion baseCloneTapChanger(TapChangerConversion rtc) {
+    private static TapChangerConversion baseCloneTapChanger(TapChangerConversion rtc) {
         TapChangerConversion tapChanger = new TapChangerConversion();
         String id = rtc.getId();
         boolean isLtcFlag = rtc.isLtcFlag();
@@ -650,7 +620,7 @@ public abstract class AbstractTransformerConversion
         return tapChanger;
     }
 
-    private StepAdder getFixStepTapChanger(TapChangerConversion tc) {
+    private static StepAdder getFixStepTapChanger(TapChangerConversion tc) {
         if (isTapChangerFixed(tc)) {
             return tc.getSteps().get(0);
         }
@@ -659,7 +629,7 @@ public abstract class AbstractTransformerConversion
         return tc.getSteps().get(position - lowPosition);
     }
 
-    protected void negatePhaseTapChanger(TapChangerConversion tc) {
+    protected static void negatePhaseTapChanger(TapChangerConversion tc) {
         if (tc == null) {
             return;
         }
@@ -669,7 +639,7 @@ public abstract class AbstractTransformerConversion
         });
     }
 
-    protected TapChangerType tapChangerType(TapChangerConversion tc) {
+    private static TapChangerType tapChangerType(TapChangerConversion tc) {
         if (isTapChangerNull(tc)) {
             return TapChangerType.NULL;
         }
@@ -683,19 +653,19 @@ public abstract class AbstractTransformerConversion
         }
     }
 
-    private boolean isTapChangerNull(TapChangerConversion tc) {
+    private static boolean isTapChangerNull(TapChangerConversion tc) {
         return tc == null;
     }
 
-    private boolean isTapChangerFixed(TapChangerConversion tc) {
+    private static boolean isTapChangerFixed(TapChangerConversion tc) {
         return tc.getSteps().size() == 1;
     }
 
-    private boolean isTapChangerRegulating(TapChangerConversion tc) {
+    private static boolean isTapChangerRegulating(TapChangerConversion tc) {
         return tc.isRegulating();
     }
 
-    protected void setToIidmRatioTapChanger(TapChangerConversion rtc, RatioTapChangerAdder rtca) {
+    protected static void setToIidmRatioTapChanger(TapChangerConversion rtc, RatioTapChangerAdder rtca) {
         boolean isLtcFlag = rtc.isLtcFlag();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
@@ -721,7 +691,7 @@ public abstract class AbstractTransformerConversion
         rtca.add();
     }
 
-    protected void setToIidmPhaseTapChanger(TapChangerConversion ptc, PhaseTapChangerAdder ptca) {
+    protected static void setToIidmPhaseTapChanger(TapChangerConversion ptc, PhaseTapChangerAdder ptca) {
         int lowStep = ptc.getLowTapPosition();
         int position = ptc.getTapPosition();
         ptca.setLowTapPosition(lowStep).setTapPosition(position);

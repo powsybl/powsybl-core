@@ -32,7 +32,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     public NewThreeWindingsTransformerConversion(PropertyBags ends,
         Map<String, PropertyBag> powerTransformerRatioTapChanger,
         Map<String, PropertyBag> powerTransformerPhaseTapChanger, Context context) {
-        super(STRING_POWER_TRANSFORMER, ends, context);
+        super(CgmesNames.POWER_TRANSFORMER, ends, context);
         this.powerTransformerRatioTapChanger = powerTransformerRatioTapChanger;
         this.powerTransformerPhaseTapChanger = powerTransformerPhaseTapChanger;
     }
@@ -58,34 +58,34 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     }
 
     private void loadWinding(PropertyBag winding, CgmesWinding cgmesWinding) {
-        PropertyBag rtc = getTransformerTapChanger(winding, STRING_RATIO_TAP_CHANGER,
+        PropertyBag rtc = getTransformerTapChanger(winding, CgmesNames.RATIO_TAP_CHANGER,
             powerTransformerRatioTapChanger);
-        PropertyBag ptc = getTransformerTapChanger(winding, STRING_PHASE_TAP_CHANGER,
+        PropertyBag ptc = getTransformerTapChanger(winding, CgmesNames.PHASE_TAP_CHANGER,
             powerTransformerPhaseTapChanger);
 
         String terminal = winding.getId(CgmesNames.TERMINAL);
-        double ratedU = winding.asDouble(STRING_RATEDU);
-        double x = winding.asDouble(STRING_X);
+        double ratedU = winding.asDouble(CgmesNames.RATEDU);
+        double x = winding.asDouble(CgmesNames.X);
 
         TapChangerConversion ratioTapChanger = getRatioTapChanger(rtc);
         TapChangerConversion phaseTapChanger = getPhaseTapChanger(ptc, x);
 
-        cgmesWinding.r = winding.asDouble(STRING_R);
+        cgmesWinding.r = winding.asDouble(CgmesNames.R);
         cgmesWinding.x = x;
-        cgmesWinding.g = winding.asDouble(STRING_G, 0);
-        cgmesWinding.b = winding.asDouble(STRING_B);
+        cgmesWinding.g = winding.asDouble(CgmesNames.G, 0);
+        cgmesWinding.b = winding.asDouble(CgmesNames.B);
         cgmesWinding.ratioTapChanger = ratioTapChanger;
         cgmesWinding.phaseTapChanger = phaseTapChanger;
         cgmesWinding.ratedU = ratedU;
-        cgmesWinding.phaseAngleClock = winding.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
+        cgmesWinding.phaseAngleClock = winding.asInt(CgmesNames.PHASE_ANGLE_CLOCK, 0);
         cgmesWinding.terminal = terminal;
     }
 
-    private InterpretedT3xModel interpret(CgmesT3xModel cgmesT3xModel, Conversion.Config alternative) {
+    private static InterpretedT3xModel interpret(CgmesT3xModel cgmesT3xModel, Conversion.Config alternative) {
 
         InterpretedT3xModel interpretedT3xModel = new InterpretedT3xModel();
-        double ratedUf = ratedUfAlternative(cgmesT3xModel, alternative);
-        interpretedT3xModel.ratedUf = ratedUf;
+        double ratedU0 = ratedU0Alternative(cgmesT3xModel, alternative);
+        interpretedT3xModel.ratedU0 = ratedU0;
 
         interpretWinding(cgmesT3xModel.winding1, alternative, interpretedT3xModel.winding1);
         interpretWinding(cgmesT3xModel.winding2, alternative, interpretedT3xModel.winding2);
@@ -94,7 +94,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return interpretedT3xModel;
     }
 
-    private void interpretWinding(CgmesWinding cgmesWinding, Conversion.Config alternative, InterpretedWinding interpretedWinding) {
+    private static void interpretWinding(CgmesWinding cgmesWinding, Conversion.Config alternative, InterpretedWinding interpretedWinding) {
 
         AllTapChanger windingInterpretedTapChanger = ratioPhaseAlternative(cgmesWinding, alternative);
         AllShunt windingInterpretedShunt = shuntAlternative(cgmesWinding, alternative);
@@ -119,7 +119,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         interpretedWinding.ratio0AtEnd2 = windingRatio0AtEnd2;
     }
 
-    private AllTapChanger ratioPhaseAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
+    private static AllTapChanger ratioPhaseAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
         TapChangerConversion ratioTapChanger1 = null;
         TapChangerConversion phaseTapChanger1 = null;
         TapChangerConversion ratioTapChanger2 = null;
@@ -147,22 +147,27 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return allTapChanger;
     }
 
-    private AllShunt shuntAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
+    private static AllShunt shuntAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
         double g1 = 0.0;
         double b1 = 0.0;
         double g2 = 0.0;
         double b2 = 0.0;
-        if (alternative.isXfmr3ShuntNetworkSide()) {
-            g1 = cgmesWinding.g;
-            b1 = cgmesWinding.b;
-        } else if (alternative.isXfmr3ShuntStarBusSide()) {
-            g2 = cgmesWinding.g;
-            b2 = cgmesWinding.b;
-        } else {
-            g1 = cgmesWinding.g * 0.5;
-            b1 = cgmesWinding.b * 0.5;
-            g2 = cgmesWinding.g * 0.5;
-            b2 = cgmesWinding.b * 0.5;
+
+        switch (alternative.getXfmr3Shunt()) {
+            case NETWORK_SIDE:
+                g1 = cgmesWinding.g;
+                b1 = cgmesWinding.b;
+                break;
+            case STAR_BUS_SIDE:
+                g2 = cgmesWinding.g;
+                b2 = cgmesWinding.b;
+                break;
+            case SPLIT:
+                g1 = cgmesWinding.g * 0.5;
+                b1 = cgmesWinding.b * 0.5;
+                g2 = cgmesWinding.g * 0.5;
+                b2 = cgmesWinding.b * 0.5;
+                break;
         }
 
         AllShunt allShunt = new AllShunt();
@@ -174,7 +179,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return allShunt;
     }
 
-    private int phaseAngleClockAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
+    private static int phaseAngleClockAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
         int phaseAngleClock = 0;
 
         if (alternative.isXfmr3PhaseAngleClockOn()) {
@@ -184,56 +189,60 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return phaseAngleClock;
     }
 
-    private boolean ratio0Alternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
-        boolean ratio0AtEnd2;
-        if (alternative.isXfmr3Ratio0StarBusSide()) {
-            ratio0AtEnd2 = true;
-        } else {
-            ratio0AtEnd2 = false;
+    // return true if the structural ratio is at end2 of the leg (star bus side)
+    private static boolean ratio0Alternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
+        switch (alternative.getXfmr3StructuralRatio()) {
+            case NETWORK_SIDE:
+            case END1:
+            case END2:
+            case END3:
+                return false;
+            case STAR_BUS_SIDE:
+                return true;
         }
-        return ratio0AtEnd2;
+        return false;
     }
 
-    private double ratedUfAlternative(CgmesT3xModel cgmesT3xModel, Conversion.Config alternative) {
-
-        double ratedUf = 1.0;
-        if (alternative.isXfmr3Ratio0StarBusSide()) {
-            ratedUf = selectRatedUf(cgmesT3xModel);
-        } else if (alternative.isXfmr3Ratio0NetworkSide()) {
-            ratedUf = 1.0;
-        } else if (alternative.isXfmr3Ratio0End1()) {
-            ratedUf = cgmesT3xModel.winding1.ratedU;
-        } else if (alternative.isXfmr3Ratio0End2()) {
-            ratedUf = cgmesT3xModel.winding2.ratedU;
-        } else if (alternative.isXfmr3Ratio0End3()) {
-            ratedUf = cgmesT3xModel.winding3.ratedU;
+    // return ratedU0
+    private static double ratedU0Alternative(CgmesT3xModel cgmesT3xModel, Conversion.Config alternative) {
+        switch (alternative.getXfmr3StructuralRatio()) {
+            case NETWORK_SIDE:
+                return 1.0;
+            case STAR_BUS_SIDE:
+                return selectRatedU0(cgmesT3xModel);
+            case END1:
+                return cgmesT3xModel.winding1.ratedU;
+            case END2:
+                return cgmesT3xModel.winding2.ratedU;
+            case END3:
+                return cgmesT3xModel.winding3.ratedU;
         }
-        return ratedUf;
+        return 1.0;
     }
 
-    // Select the ratedUf voltage
-    private double selectRatedUf(CgmesT3xModel cgmesT3xModel) {
+    // Select the ratedU0 voltage
+    private static double selectRatedU0(CgmesT3xModel cgmesT3xModel) {
         return cgmesT3xModel.winding1.ratedU;
     }
 
     private ConvertedT3xModel convertToIidm(InterpretedT3xModel interpretedT3xModel) {
 
-        double ratedUf = interpretedT3xModel.ratedUf;
+        double ratedU0 = interpretedT3xModel.ratedU0;
         ConvertedT3xModel convertedModel = new ConvertedT3xModel();
 
-        convertToIidmWinding(interpretedT3xModel.winding1, convertedModel.winding1, ratedUf);
-        convertToIidmWinding(interpretedT3xModel.winding2, convertedModel.winding2, ratedUf);
-        convertToIidmWinding(interpretedT3xModel.winding3, convertedModel.winding3, ratedUf);
+        convertToIidmWinding(interpretedT3xModel.winding1, convertedModel.winding1, ratedU0);
+        convertToIidmWinding(interpretedT3xModel.winding2, convertedModel.winding2, ratedU0);
+        convertToIidmWinding(interpretedT3xModel.winding3, convertedModel.winding3, ratedU0);
 
-        convertedModel.ratedUf = ratedUf;
+        convertedModel.ratedU0 = ratedU0;
 
         return convertedModel;
     }
 
-    private void convertToIidmWinding(InterpretedWinding interpretedWinding, ConvertedWinding convertedWinding, double ratedUf) {
+    private void convertToIidmWinding(InterpretedWinding interpretedWinding, ConvertedWinding convertedWinding, double ratedU0) {
         TapChangerWinding windingTapChanger = moveCombineTapChangerWinding(interpretedWinding);
 
-        RatioConversion windingRc0 = rc0Winding(interpretedWinding, ratedUf);
+        RatioConversion windingRc0 = rc0Winding(interpretedWinding, ratedU0);
 
         convertedWinding.r = windingRc0.r;
         convertedWinding.x = windingRc0.x;
@@ -248,11 +257,11 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         convertedWinding.end2.b = windingRc0.b2;
     }
 
-    private RatioConversion rc0Winding(InterpretedWinding interpretedWinding, double ratedUf) {
+    private static RatioConversion rc0Winding(InterpretedWinding interpretedWinding, double ratedU0) {
         RatioConversion rc0;
         // IIDM: Structural ratio always at network side
         if (interpretedWinding.ratio0AtEnd2) {
-            double a0 = ratedUf / interpretedWinding.end1.ratedU;
+            double a0 = ratedU0 / interpretedWinding.end1.ratedU;
             rc0 = moveRatioFrom2To1(a0, 0.0, interpretedWinding.r, interpretedWinding.x,
                 interpretedWinding.end1.g, interpretedWinding.end1.b,
                 interpretedWinding.end2.g, interpretedWinding.end2.b);
@@ -281,7 +290,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
 
     private void setToIidm(ConvertedT3xModel convertedT3xModel) {
         ThreeWindingsTransformerAdder txadder = substation().newThreeWindingsTransformer()
-            .setRatedU0(convertedT3xModel.ratedUf);
+            .setRatedU0(convertedT3xModel.ratedU0);
         identify(txadder);
 
         LegAdder l1adder = txadder.newLeg1();
@@ -314,7 +323,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         setRegulatingControlContext(convertedT3xModel, tx);
     }
 
-    private void setToIidmWindingAdder(ConvertedWinding convertedModelWinding, LegAdder ladder) {
+    private static void setToIidmWindingAdder(ConvertedWinding convertedModelWinding, LegAdder ladder) {
         ladder.setR(convertedModelWinding.r)
             .setX(convertedModelWinding.x)
             .setG(convertedModelWinding.end1.g + convertedModelWinding.end2.g)
@@ -322,13 +331,13 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
             .setRatedU(convertedModelWinding.end1.ratedU);
     }
 
-    private void setToIidmWindingTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedWinding convertedModelWinding,
+    private static void setToIidmWindingTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedWinding convertedModelWinding,
         ThreeWindingsTransformer tx) {
         setToIidmRatioTapChanger(convertedT3xModel, convertedModelWinding, tx);
         setToIidmPhaseTapChanger(convertedT3xModel, convertedModelWinding, tx);
     }
 
-    private void setToIidmRatioTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedWinding convertedWinding, ThreeWindingsTransformer tx) {
+    private static void setToIidmRatioTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedWinding convertedWinding, ThreeWindingsTransformer tx) {
         TapChangerConversion rtc = convertedWinding.end1.ratioTapChanger;
         if (rtc == null) {
             return;
@@ -338,7 +347,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         setToIidmRatioTapChanger(rtc, rtca);
     }
 
-    private void setToIidmPhaseTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedWinding convertedWinding, ThreeWindingsTransformer tx) {
+    private static void setToIidmPhaseTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedWinding convertedWinding, ThreeWindingsTransformer tx) {
         TapChangerConversion ptc = convertedWinding.end1.phaseTapChanger;
         if (ptc == null) {
             return;
@@ -348,7 +357,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         setToIidmPhaseTapChanger(ptc, ptca);
     }
 
-    protected RatioTapChangerAdder newRatioTapChanger(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx,
+    private static RatioTapChangerAdder newRatioTapChanger(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx,
         String terminal) {
         if (convertedT3xModel.winding1.end1.terminal.equals(terminal)) {
             return tx.getLeg1().newRatioTapChanger();
@@ -360,7 +369,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return null;
     }
 
-    protected PhaseTapChangerAdder newPhaseTapChanger(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx,
+    private static PhaseTapChangerAdder newPhaseTapChanger(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx,
         String terminal) {
         if (convertedT3xModel.winding1.end1.terminal.equals(terminal)) {
             return tx.getLeg1().newPhaseTapChanger();
@@ -419,7 +428,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         InterpretedWinding winding1 = new InterpretedWinding();
         InterpretedWinding winding2 = new InterpretedWinding();
         InterpretedWinding winding3 = new InterpretedWinding();
-        double ratedUf;
+        double ratedU0;
     }
 
     // 1 network side, 2 start bus side
@@ -452,7 +461,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         ConvertedWinding winding1 = new ConvertedWinding();
         ConvertedWinding winding2 = new ConvertedWinding();
         ConvertedWinding winding3 = new ConvertedWinding();
-        double ratedUf;
+        double ratedU0;
     }
 
     // 1 network side, 2 start bus side
