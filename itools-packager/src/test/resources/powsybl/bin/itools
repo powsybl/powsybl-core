@@ -1,0 +1,60 @@
+#!/bin/bash
+#
+# Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+if [ -z $JAVA_HOME ]; then
+    JAVA_BIN=`which java 2> /dev/null`
+    if [ $? -ne 0 ]; then
+        echo "Unable to find java" >&2
+        exit -1
+    fi
+else
+    JAVA_BIN=$JAVA_HOME/bin/java
+fi
+
+installBinDir=$(dirname "$(readlink -f $0)")
+installDir=${installBinDir%/*}
+
+. "$installDir/etc/itools.conf"
+
+args=("$@")
+for ((i=0; i<${#args[@]}; i++)); do
+    current=${args[i]}
+    next=${args[$((i+1))]}
+    case $current in
+        --config-name)
+           powsybl_config_name=$next
+           unset args[i]
+           unset args[$((i+1))]
+           ;;
+    esac
+done
+
+options=()
+[ -n "$powsybl_config_dirs" ] || powsybl_config_dirs="${HOME}/.itools:$installDir/etc"
+options[0]=-Dpowsybl.config.dirs=$powsybl_config_dirs
+[ -n "$powsybl_config_name" ] && options[1]=-Dpowsybl.config.name=$powsybl_config_name
+
+logFile="$installDir/etc/logback-itools.xml"
+separator=$IFS
+IFS=':'
+read -ra list <<< "$powsybl_config_dirs"
+for dir in "${list[@]}"; do
+    if [ -f "$dir/logback-itools.xml" ]; then
+      logFile=$dir/logback-itools.xml
+      break;
+    fi
+done
+IFS=$separator
+options[2]=-Dlogback.configurationFile=$logFile
+
+[ -z "$java_xmx" ] && java_xmx=8G
+$JAVA_BIN \
+-Xmx$java_xmx \
+-cp "$installDir/share/java/*" \
+"${options[@]}" \
+com.powsybl.tools.Main "${args[@]}"

@@ -1,0 +1,47 @@
+#!/bin/bash
+#
+# Copyright (c) 2018, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+if [ -z $GROOVY_HOME ]; then
+    GROOVY_BIN=`which groovysh 2> /dev/null`
+    if [ $? -ne 0 ]; then
+        echo "Unable to find groovysh" >&2
+        exit -1
+    fi
+else
+    GROOVY_BIN=$GROOVY_HOME/bin/groovysh
+fi
+
+installBinDir=$(dirname $(readlink -f $0))
+installDir=${installBinDir%/*}
+
+. "$installDir/etc/itools.conf"
+
+options=()
+[ -n "$powsybl_config_dirs" ] || powsybl_config_dirs="${HOME}/.itools:$installDir/etc"
+options[0]=-Dpowsybl.config.dirs=$powsybl_config_dirs
+[ -n "$powsybl_config_name" ] && options[1]=-Dpowsybl.config.name=$powsybl_config_name
+
+logFile="$installDir/etc/logback-powsyblsh.xml"
+separator=$IFS
+IFS=':'
+read -ra list <<< "$powsybl_config_dirs"
+for dir in "${list[@]}"; do
+    if [ -f "$dir/logback-powsyblsh.xml" ]; then
+      logFile=$dir/logback-powsyblsh.xml
+      break;
+    fi
+done
+IFS=$separator
+options[2]=-Dlogback.configurationFile=$logFile
+
+$GROOVY_BIN \
+-cp "$installDir/share/java/*" \
+"${options[@]}" \
+-e ":register com.powsybl.scripting.groovy.InitPowsybl
+:init_powsybl" \
+-q

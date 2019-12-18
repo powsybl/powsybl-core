@@ -16,6 +16,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
 import static com.powsybl.itools.util.TarZipArchive.decompressFiles;
+import static java.nio.file.Files.exists;
 import static org.junit.Assert.assertFalse;
 
 /**
@@ -40,9 +41,6 @@ public class DirectoriesAndFilesProcessing {
         // file extension: ".zip" by default
         String newArchiveName = archiveName.lastIndexOf('.') < 0 ? archiveName + CompressionType.ZIP.getExtension() : archiveName;
 
-        // Check : list of files created in '/work/resources' directory
-        //List<String> powsyblList = ListFileTree.listFileDir(virtualWorkDir, virtualWorkDir);
-
         // Decompress zip or gzip or bzip2 file
         Path zipFilePath = virtualWorkDir.resolve(newArchiveName);
         Path unzipPath = virtualWorkDir.resolve(uncompressedName);
@@ -62,7 +60,7 @@ public class DirectoriesAndFilesProcessing {
 
         // Do not delete the '/work/resources/powsybl' directory for further tests
         // Clean zip or gz or bz2 file
-        LOGGER.info("\nClean '{}' file and \nClean '{}' directory", zipFilePath.getFileName(), unzipPath);
+        LOGGER.info("Clean '{}' file and clean '{}' directory", zipFilePath.getFileName(), unzipPath);
         if (!deleteDirAndFiles(zipFilePath)) {
             return false;
         }
@@ -71,9 +69,6 @@ public class DirectoriesAndFilesProcessing {
         if (!deleteDirAndFiles(unzipPath)) {
             return false;
         }
-
-        // Check : list of '/work/resources/' directory
-        //powsyblList = ListFileTree.listFileDir(virtualWorkDir, virtualWorkDir);
 
         return booleanDelete;
     }
@@ -98,17 +93,17 @@ public class DirectoriesAndFilesProcessing {
         try {
             Files.delete(files);
         } catch (NoSuchFileException ex) {
-            System.err.format("Success : %s: no such file or directory\n", files);
+            LOGGER.info("'{}' is deleted.", files);
         } catch (DirectoryNotEmptyException ex) {
-            System.err.format("\nFailure : %s not empty", files);
+            LOGGER.error("%nFailure : {} not empty", files);
             booleanDelete = false;
         } catch (IOException ex) {
             // File permission problems
-            System.err.println(ex);
+            LOGGER.error("{}", ex);
             booleanDelete = false;
         }
 
-        assertFalse("Directory still exists", Files.exists(files));
+        assertFalse("Directory still exists", exists(files));
         return booleanDelete;
     }
 
@@ -118,17 +113,13 @@ public class DirectoriesAndFilesProcessing {
         Files.walkFileTree(fromPath, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(final Path path, final BasicFileAttributes attrs) throws IOException {
-                final String nom = path.getFileName().toString();
                 String virtualWorkDir = fromPath.relativize(path).toString();
 
                 if (virtualWorkDir != null && virtualWorkDir.contains(windowsSeparator)) {
                     virtualWorkDir = virtualWorkDir.replace(windowsSeparator, jimfsSeparator);
                 }
                 Path targetPath = toPath.resolve(virtualWorkDir);
-
-                //System.out.println("  copy File : " + nom + " (from " + path + " to " + targetPath + ")");
                 Files.copy(path, targetPath, StandardCopyOption.REPLACE_EXISTING);
-
                 return FileVisitResult.CONTINUE;
             }
 
@@ -141,8 +132,7 @@ public class DirectoriesAndFilesProcessing {
                 }
                 Path targetPath = toPath.resolve(virtualWorkDir);
 
-                if (!Files.exists(targetPath)) {
-                    //System.out.println("  createDirectory : " + targetPath);
+                if (!exists(targetPath)) {
                     Files.createDirectory(targetPath);
                 }
                 return FileVisitResult.CONTINUE;

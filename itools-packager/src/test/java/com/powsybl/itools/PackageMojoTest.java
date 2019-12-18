@@ -26,8 +26,8 @@ import static org.junit.Assert.*;
 /**
  * @author François Nicot <francois.nicot@rte-france.com>
  */
-public class ItoolsPackagerMojoVirtualTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ItoolsPackagerMojoVirtualTest.class);
+public class PackageMojoTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PackageMojoTest.class);
 
     private FileSystem fileSystem;
     private String jimfsSeparator;
@@ -58,19 +58,16 @@ public class ItoolsPackagerMojoVirtualTest {
     }
 
     // Prerequisites for these tests:
-    // You must have the directory 'powsybl' in .../powsybl-core/itools-packager/src/test/resources.
-    // This directory 'powsybl' is copied manually from .../powsybl-core/distribution-core/target/powsybl and
-    // contains the following directories: bin, etc, lib, share.
+    // We must have the simplified directory 'powsybl' in .../powsybl-core/itools-packager/src/test/resources.
 
     @Test
-    public void tests() throws IOException {
+    public void createPackage() throws IOException {
         if (initialization()) {
             testZipFileWithoutExt1();
             testZipFileWithoutExt2();
             testZipFileWithZipExt();
             testZipFileWithGzExt();
             testZipFileWithBz2Ext();
-            //testZipFileWithoutErrorExt();
         } else {
             LOGGER.info("Warning: Abandoned tests.");
         }
@@ -153,22 +150,6 @@ public class ItoolsPackagerMojoVirtualTest {
 
         if (!dirFilesProcessing.check(virtualTargetDir, archiveNameNotNull, packageNameNotNull)) {
             Assert.assertTrue("Error : Generate zip file package, test n°5", false);
-        }
-    }
-
-    public void testZipFileWithoutErrorExt() throws IOException {
-        String archiveName = "file4.tar.error";
-        String archiveNameNotNull = archiveName != null ? archiveName : packageNameNotNull;
-        assertNotNull(archiveNameNotNull);
-
-        LOGGER.info("====================================");
-        LOGGER.info("Generate zip file package : test n°6");
-        LOGGER.info("test zip file without extension (archiveName = archiveNameNotNull = {})", archiveNameNotNull);
-
-        new PackageMojo().createPackage(virtualPackageDir, virtualTargetDir, archiveNameNotNull);
-
-        if (!dirFilesProcessing.check(virtualTargetDir, archiveNameNotNull, packageNameNotNull)) {
-            LOGGER.info("Error : Generate zip file package, test n°6", false);
         }
     }
 
