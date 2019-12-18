@@ -86,11 +86,12 @@ public class BusAdapterTest {
     public void testBusViewSetterGetter() {
         final BusView busView = mergingView.getBusView();
         assertNotNull(busView);
-        assertTrue(busView instanceof MergingView.BusViewAdapter);
 
         assertTrue(busView.getBuses().iterator().hasNext());
-        busView.getBuses().forEach(b -> assertTrue(b instanceof AbstractAdapter<?>));
-        assertNotNull(busView.getBus("VLHV1_0"));
+        busView.getBuses().forEach(b -> assertTrue(b instanceof AbstractAdapter));
+        final Bus bus = busView.getBus("VLHV1_0");
+        assertNotNull(bus);
+        assertSame(mergingView, bus.getNetwork());
 
         // Not implemented yet !
         TestUtil.notImplemented(busView::getConnectedComponents);
@@ -100,12 +101,11 @@ public class BusAdapterTest {
     public void testBusBreakerViewSetterGetter() {
         final BusBreakerView busBreakerView = mergingView.getBusBreakerView();
         assertNotNull(busBreakerView);
-        assertTrue(busBreakerView instanceof MergingView.BusBreakerViewAdapter);
 
         assertTrue(busBreakerView.getBuses().iterator().hasNext());
-        busBreakerView.getBuses().forEach(b -> assertTrue(b instanceof AbstractAdapter<?>));
+        busBreakerView.getBuses().forEach(b -> assertTrue(b instanceof AbstractAdapter));
         assertTrue(busBreakerView.getSwitches().iterator().hasNext());
-        busBreakerView.getSwitches().forEach(b -> assertTrue(b instanceof AbstractAdapter<?>));
+        busBreakerView.getSwitches().forEach(b -> assertTrue(b instanceof AbstractAdapter));
         assertEquals(1, busBreakerView.getSwitchCount());
     }
 }

@@ -37,7 +37,7 @@ public final class MergingView implements Network {
     /** To listen events from merging network */
     private final NetworkListener listener = new MergingNetworkListener();
 
-    static class BusBreakerViewAdapter implements Network.BusBreakerView {
+    private static class BusBreakerViewAdapter implements Network.BusBreakerView {
 
         private final MergingViewIndex index;
 
@@ -94,7 +94,7 @@ public final class MergingView implements Network {
 
     private final BusBreakerViewAdapter busBreakerView;
 
-    static class BusViewAdapter implements Network.BusView {
+    private static class BusViewAdapter implements Network.BusView {
 
         private final MergingViewIndex index;
 
