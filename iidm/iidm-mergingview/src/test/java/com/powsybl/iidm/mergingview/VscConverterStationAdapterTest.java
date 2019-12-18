@@ -35,6 +35,7 @@ public class VscConverterStationAdapterTest {
         assertSame(mergingView, cs1.getNetwork());
 
         assertEquals(HvdcConverterStation.HvdcType.VSC, cs1.getHvdcType());
+        assertSame(mergingView.getHvdcLine("L"), cs1.getHvdcLine());
         cs1.setLossFactor(0.022f);
         assertEquals(0.022f, cs1.getLossFactor(), 0.0f);
         assertNotNull(cs1.getTerminal());

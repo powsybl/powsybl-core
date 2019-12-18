@@ -6,106 +6,107 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.PhaseTapChangerAdder;
-import com.powsybl.iidm.network.RatioTapChangerAdder;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class LegAdapter extends AbstractAdapter<ThreeWindingsTransformer.Leg> implements ThreeWindingsTransformer.Leg {
 
-    protected LegAdapter(final ThreeWindingsTransformer.Leg delegate, final MergingViewIndex index) {
+    LegAdapter(final ThreeWindingsTransformer.Leg delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
-    public TerminalAdapter getTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getR() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ThreeWindingsTransformer.Leg setR(final double r) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getX() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ThreeWindingsTransformer.Leg setX(final double x) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public CurrentLimits getCurrentLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public CurrentLimitsAdder newCurrentLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getG() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ThreeWindingsTransformer.Leg setG(final double g) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getB() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ThreeWindingsTransformer.Leg setB(final double b) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getRatedU() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public ThreeWindingsTransformer.Leg setRatedU(final double ratedU) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public RatioTapChangerAdder newRatioTapChanger() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public RatioTapChangerAdapter getRatioTapChanger() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public Terminal getTerminal() {
+        return getIndex().getTerminal(getDelegate().getTerminal());
     }
 
     @Override
     public PhaseTapChangerAdder newPhaseTapChanger() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return new PhaseTapChangerAdderAdapter(getDelegate().newPhaseTapChanger(), getIndex());
     }
 
     @Override
-    public PhaseTapChangerAdapter getPhaseTapChanger() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public PhaseTapChanger getPhaseTapChanger() {
+        return getIndex().getPhaseTapChanger(getDelegate().getPhaseTapChanger());
+    }
+
+    @Override
+    public RatioTapChangerAdder newRatioTapChanger() {
+        return new RatioTapChangerAdderAdapter(getDelegate().newRatioTapChanger(), getIndex());
+    }
+
+    @Override
+    public RatioTapChanger getRatioTapChanger() {
+        return getIndex().getRatioTapChanger(getDelegate().getRatioTapChanger());
+    }
+
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
+    @Override
+    public double getR() {
+        return getDelegate().getR();
+    }
+
+    @Override
+    public ThreeWindingsTransformer.Leg setR(final double r) {
+        getDelegate().setR(r);
+        return this;
+    }
+
+    @Override
+    public double getX() {
+        return getDelegate().getX();
+    }
+
+    @Override
+    public ThreeWindingsTransformer.Leg setX(final double x) {
+        getDelegate().setX(x);
+        return this;
+    }
+
+    @Override
+    public double getRatedU() {
+        return getDelegate().getRatedU();
+    }
+
+    @Override
+    public ThreeWindingsTransformer.Leg setRatedU(final double ratedU) {
+        getDelegate().setRatedU(ratedU);
+        return this;
+    }
+
+    @Override
+    public CurrentLimits getCurrentLimits() {
+        return getDelegate().getCurrentLimits();
+    }
+
+    @Override
+    public CurrentLimitsAdder newCurrentLimits() {
+        return getDelegate().newCurrentLimits();
+    }
+
+    @Override
+    public double getG() {
+        return getDelegate().getG();
+    }
+
+    @Override
+    public ThreeWindingsTransformer.Leg setG(final double g) {
+        getDelegate().setG(g);
+        return this;
+    }
+
+    @Override
+    public double getB() {
+        return getDelegate().getB();
+    }
+
+    @Override
+    public ThreeWindingsTransformer.Leg setB(final double b) {
+        getDelegate().setB(b);
+        return this;
     }
 }
