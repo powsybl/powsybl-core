@@ -191,7 +191,7 @@ public abstract class AbstractTransformerConversion
             .setTapChangerControlEnabled(phaseTapChanger.asBoolean(CgmesNames.TAP_CHANGER_CONTROL_ENABLED, false));
     }
 
-    protected void addPhaseSteps(PropertyBag phaseTapChanger, TapChangerConversion tapChanger, double xtx) {
+    private void addPhaseSteps(PropertyBag phaseTapChanger, TapChangerConversion tapChanger, double xtx) {
         String tableId = phaseTapChanger.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
         String phaseTapChangerType = phaseTapChanger.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE).toLowerCase();
         if (isTabular(phaseTapChangerType, tableId)) {
@@ -494,7 +494,7 @@ public abstract class AbstractTransformerConversion
         return moveTapChangerFromOneEndToTheOther(tc);
     }
 
-    protected static TapChangerConversion moveTapChangerFromOneEndToTheOther(TapChangerConversion tc) {
+    private static TapChangerConversion moveTapChangerFromOneEndToTheOther(TapChangerConversion tc) {
         switch (tapChangerType(tc)) {
             case NULL:
                 return null;

@@ -244,7 +244,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
     }
 
     // return true if the structural ratio is at end2
-    private boolean ratio0Alternative(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
+    private static boolean ratio0Alternative(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
         if (cgmesT2xModel.end1.ratedU == cgmesT2xModel.end2.ratedU) {
             return false;
         }
