@@ -29,6 +29,8 @@ public interface CgmesModel {
 
     Properties getProperties();
 
+    PropertyBags fullModelSV();
+
     boolean hasEquipmentCore();
 
     String modelId();

@@ -5,6 +5,23 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+# query: fullModelSV
+prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{ GRAPH ?graph { 
+	# We will return FullModel object of profile StateVariables
+    ?FullModel
+        a md:FullModel ;
+        md:Model.scenarioTime ?scenarioTime ;
+        md:Model.created ?created ;
+        md:Model.description ?description ;
+        md:Model.version ?version ;
+        md:Model.DependentOn ?DependentOn ;
+        md:Model.modelingAuthoritySet ?modelingAuthoritySet ;
+        md:Model.profile ?profile .
+    FILTER (regex(?profile, "StateVariables", "i"))
+}}
+
 # query: modelIds
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *
@@ -162,7 +179,7 @@ WHERE {
         cim:Terminal.ConductingEquipment ?ConductingEquipment .
     ?ConductingEquipment a ?conductingEquipmentType .
 }}
-{ GRAPH ?graphSV {
+OPTIONAL { GRAPH ?graphSV {
     OPTIONAL {?SvPowerFlow
         a cim:SvPowerFlow ;
         cim:SvPowerFlow.Terminal ?Terminal ;

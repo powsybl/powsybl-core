@@ -80,6 +80,34 @@ OPTIONAL { GRAPH ?graphTP2 {
 }}
 }
 
+# query: terminalsSV
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?Terminal
+        a cim:Terminal ;
+        cim:Terminal.ConductingEquipment ?ConductingEquipment .
+    ?ConductingEquipment a ?conductingEquipmentType .
+}}
+OPTIONAL { GRAPH ?graphSV {
+    OPTIONAL {?SvPowerFlow
+        a cim:SvPowerFlow ;
+        cim:SvPowerFlow.Terminal ?Terminal ;
+        cim:SvPowerFlow.p ?p ;
+        cim:SvPowerFlow.q ?q . 
+		}
+	OPTIONAL {?SvStatus
+		a cim:SvStatus ;
+		cim:SvStatus.ConductingEquipment ?ConductingEquipment ;
+		cim:SvStatus.inService ?inService . 
+		}
+}}
+{ GRAPH ?graphTPT {
+		?Terminal cim:Terminal.TopologicalNode ?TopologicalNode .
+}}
+}
+
+
 # query: topologicalNodes
 SELECT *
 WHERE {

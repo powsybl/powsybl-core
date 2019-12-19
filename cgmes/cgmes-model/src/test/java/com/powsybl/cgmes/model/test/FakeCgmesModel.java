@@ -262,6 +262,11 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags fullModelSV() {
+        return null;
+    }
+
+    @Override
     public String modelId() {
         return modelId;
     }

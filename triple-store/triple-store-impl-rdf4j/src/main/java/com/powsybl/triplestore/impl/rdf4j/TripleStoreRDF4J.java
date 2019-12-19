@@ -17,6 +17,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.rdf4j.IsolationLevels;
 import org.eclipse.rdf4j.common.iteration.Iterations;
@@ -260,33 +261,72 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     private static String createStatements(RepositoryConnection cnx, String objNs, String objType,
         PropertyBag statement,
         Resource context) {
+        if (objType.equals("FullModel")) {
+            return addDescription(cnx, objNs, objType, statement, context);
+        }
         IRI resource = cnx.getValueFactory().createIRI(cnx.getNamespace("data"), "_" + UUID.randomUUID().toString());
         IRI parentPredicate = RDF.TYPE;
         IRI parentObject = cnx.getValueFactory().createIRI(objNs + objType);
         Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
         cnx.add(parentSt, context);
+        // extract to another method
+        createStatement(cnx, objNs, objType, statement, context,  resource);
+        return resource.getLocalName();
+    }
 
+    private static boolean isComplex(String name) {
+        List<String> list = Stream.of("DependentOn", "TopologicalNodes").collect(Collectors.toList());
+        return list.contains(name);
+    }
+
+    private static String addDescription(RepositoryConnection cnx, String objNs, String objType,
+        PropertyBag statement, Resource context) {
+        IRI resource = cnx.getValueFactory().createIRI(cnx.getNamespace("data"), "urn:uuid:" + UUID.randomUUID().toString());
+        IRI parentPredicate = RDF.TYPE;
+        IRI parentObject = cnx.getValueFactory().createIRI(objNs + objType);
+        Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
+        cnx.add(parentSt, context);
+        String objTypeInn = "Model";
+        createStatement(cnx, objNs, objTypeInn, statement, context,  resource);
+        return resource.getLocalName();
+    }
+
+    private static void createStatement(RepositoryConnection cnx, String objNs, String objType,
+        PropertyBag statement, Resource context, IRI resource) {
         List<String> names = statement.propertyNames();
         names.forEach(name -> {
             String property = statement.isClassProperty(name) ? name : objType + "." + name;
+            String value = statement.get(name);
             IRI predicate = cnx.getValueFactory().createIRI(objNs + property);
-            Statement st;
             if (statement.isResource(name)) {
                 IRI object;
-                if (URIUtil.isValidURIReference(statement.get(name))) { // the value already contains the namespace
-                    object = cnx.getValueFactory().createIRI(statement.get(name));
-                } else { // the value is an id, add the base namespace
-                    String namespace = cnx.getNamespace(statement.namespacePrefix(name));
-                    object = cnx.getValueFactory().createIRI(namespace, statement.get(name));
+                if (isComplex(name)) {
+                    addComplex(cnx, value, resource, predicate, context);
+                } else {
+                    if (URIUtil.isValidURIReference(value)) { // the value already contains the namespace
+                        object = cnx.getValueFactory().createIRI(value);
+                    } else { // the value is an id, add the base namespace
+                        String namespace = cnx.getNamespace(statement.namespacePrefix(name));
+                        object = cnx.getValueFactory().createIRI(namespace, value);
+                    }
+                    Statement st = cnx.getValueFactory().createStatement(resource, predicate, object);
+                    cnx.add(st, context);
                 }
-                st = cnx.getValueFactory().createStatement(resource, predicate, object);
             } else {
-                Literal object = cnx.getValueFactory().createLiteral(statement.get(name));
-                st = cnx.getValueFactory().createStatement(resource, predicate, object);
+                Literal object = cnx.getValueFactory().createLiteral(value);
+                Statement st = cnx.getValueFactory().createStatement(resource, predicate, object);
+                cnx.add(st, context);
             }
-            cnx.add(st, context);
         });
-        return resource.getLocalName();
+    }
+
+    private static void addComplex(RepositoryConnection cnx, String value, IRI resource, IRI predicate, Resource context) {
+        String[] objs = value.split(",");
+        for (String o : objs) {
+            IRI object = cnx.getValueFactory().createIRI(o);
+            Statement st = cnx.getValueFactory().createStatement(resource, predicate, object);
+            cnx.add(st, context);
+        }
     }
 
     private void write(Model model, OutputStream out) {

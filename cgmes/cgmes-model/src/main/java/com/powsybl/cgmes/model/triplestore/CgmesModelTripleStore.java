@@ -27,6 +27,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
@@ -176,6 +177,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             });
         }
         return isNodeBreaker;
+    }
+
+    @Override
+    public PropertyBags fullModelSV() {
+        return namedQuery("fullModelSV");
     }
 
     @Override
@@ -443,6 +449,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         return namedQuery("dcTerminalsTP");
     }
 
+    @Override
     public PropertyBags terminalsSV() {
         return namedQuery("terminalsSV");
     }
@@ -552,11 +559,23 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     public void add(CgmesSubset subset, String type, PropertyBags objects) {
         String contextName = contextNameFor(subset);
         try {
-            tripleStore.add(contextName, cimNamespace, type, objects);
+            if (type.equals("FullModel")) {
+                tripleStore.add(contextName, mdNamespace(), type, objects);
+            } else {
+                tripleStore.add(contextName, cimNamespace, type, objects);
+            }
         } catch (TripleStoreException x) {
             String msg = String.format("Adding objects of type %s to subset %s, context %s", type, subset, contextName);
             throw new CgmesModelException(msg, x);
         }
+    }
+
+    private String mdNamespace() {
+        // Return the first namespace for the prefix md
+        // If no namespace is found, return default
+        PrefixNamespace def = new PrefixNamespace("md", "http://iec.ch/TC57/61970-552/ModelDescription/1#");
+        return tripleStore.getNamespaces().stream().filter(ns -> ns.getPrefix().equals("md"))
+        .findFirst().orElse(def).getNamespace();
     }
 
     private static final Pattern CIM_NAMESPACE_VERSION_PATTERN = Pattern.compile("^.*CIM-schema-cim([0-9]*)#$");
