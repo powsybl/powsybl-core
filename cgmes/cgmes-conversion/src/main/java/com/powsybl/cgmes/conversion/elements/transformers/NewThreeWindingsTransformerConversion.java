@@ -5,9 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.cgmes.conversion.elements;
-
-import java.util.Map;
+package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
@@ -28,12 +26,8 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class NewThreeWindingsTransformerConversion extends AbstractTransformerConversion {
 
-    public NewThreeWindingsTransformerConversion(PropertyBags ends,
-        Map<String, PropertyBag> powerTransformerRatioTapChanger,
-        Map<String, PropertyBag> powerTransformerPhaseTapChanger, Context context) {
+    public NewThreeWindingsTransformerConversion(PropertyBags ends, Context context) {
         super(CgmesNames.POWER_TRANSFORMER, ends, context);
-        this.powerTransformerRatioTapChanger = powerTransformerRatioTapChanger;
-        this.powerTransformerPhaseTapChanger = powerTransformerPhaseTapChanger;
     }
 
     @Override
@@ -56,23 +50,18 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return cgmesT3xModel;
     }
 
-    private void loadWinding(PropertyBag winding, CgmesWinding cgmesWinding) {
-        PropertyBag rtc = getTransformerTapChanger(winding, CgmesNames.RATIO_TAP_CHANGER,
-            powerTransformerRatioTapChanger);
-        PropertyBag ptc = getTransformerTapChanger(winding, CgmesNames.PHASE_TAP_CHANGER,
-            powerTransformerPhaseTapChanger);
+    private void loadWinding(PropertyBag end, CgmesWinding cgmesWinding) {
+        String terminal = end.getId(CgmesNames.TERMINAL);
+        double ratedU = end.asDouble(CgmesNames.RATEDU);
+        double x = end.asDouble(CgmesNames.X);
 
-        String terminal = winding.getId(CgmesNames.TERMINAL);
-        double ratedU = winding.asDouble(CgmesNames.RATEDU);
-        double x = winding.asDouble(CgmesNames.X);
+        TapChanger ratioTapChanger = TapChanger.ratioTapChangerFromEnd(end, context);
+        TapChanger phaseTapChanger = TapChanger.phaseTapChangerFromEnd(end, x, context);
 
-        TapChangerConversion ratioTapChanger = getRatioTapChanger(rtc);
-        TapChangerConversion phaseTapChanger = getPhaseTapChanger(ptc, x);
-
-        cgmesWinding.r = winding.asDouble(CgmesNames.R);
+        cgmesWinding.r = end.asDouble(CgmesNames.R);
         cgmesWinding.x = x;
-        cgmesWinding.g = winding.asDouble(CgmesNames.G, 0);
-        cgmesWinding.b = winding.asDouble(CgmesNames.B);
+        cgmesWinding.g = end.asDouble(CgmesNames.G, 0);
+        cgmesWinding.b = end.asDouble(CgmesNames.B);
         cgmesWinding.ratioTapChanger = ratioTapChanger;
         cgmesWinding.phaseTapChanger = phaseTapChanger;
         cgmesWinding.ratedU = ratedU;
@@ -116,10 +105,10 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     }
 
     private static AllTapChanger ratioPhaseAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
-        TapChangerConversion ratioTapChanger1 = null;
-        TapChangerConversion phaseTapChanger1 = null;
-        TapChangerConversion ratioTapChanger2 = null;
-        TapChangerConversion phaseTapChanger2 = null;
+        TapChanger ratioTapChanger1 = null;
+        TapChanger phaseTapChanger1 = null;
+        TapChanger ratioTapChanger2 = null;
+        TapChanger phaseTapChanger2 = null;
 
         if (alternative.isXfmr3RatioPhaseNetworkSide()) {
             ratioTapChanger1 = cgmesWinding.ratioTapChanger;
@@ -259,11 +248,11 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
 
     private TapChangerWinding moveCombineTapChangerWinding(InterpretedWinding interpretedWinding) {
 
-        TapChangerConversion nRatioTapChanger = moveTapChangerFrom2To1(interpretedWinding.end2.ratioTapChanger);
-        TapChangerConversion nPhaseTapChanger = moveTapChangerFrom2To1(interpretedWinding.end2.phaseTapChanger);
+        TapChanger nRatioTapChanger = moveTapChangerFrom2To1(interpretedWinding.end2.ratioTapChanger);
+        TapChanger nPhaseTapChanger = moveTapChangerFrom2To1(interpretedWinding.end2.phaseTapChanger);
 
-        TapChangerConversion cRatioTapChanger = combineTapChangers(interpretedWinding.end1.ratioTapChanger, nRatioTapChanger);
-        TapChangerConversion cPhaseTapChanger = combineTapChangers(interpretedWinding.end1.phaseTapChanger, nPhaseTapChanger);
+        TapChanger cRatioTapChanger = combineTapChangers(interpretedWinding.end1.ratioTapChanger, nRatioTapChanger);
+        TapChanger cPhaseTapChanger = combineTapChangers(interpretedWinding.end1.phaseTapChanger, nPhaseTapChanger);
 
         TapChangerWinding tapChangerWinding = new TapChangerWinding();
         tapChangerWinding.ratioTapChanger = cRatioTapChanger;
@@ -320,7 +309,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     }
 
     private static void setToIidmRatioTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedWinding convertedWinding, ThreeWindingsTransformer tx) {
-        TapChangerConversion rtc = convertedWinding.end1.ratioTapChanger;
+        TapChanger rtc = convertedWinding.end1.ratioTapChanger;
         if (rtc == null) {
             return;
         }
@@ -330,7 +319,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     }
 
     private static void setToIidmPhaseTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedWinding convertedWinding, ThreeWindingsTransformer tx) {
-        TapChangerConversion ptc = convertedWinding.end1.phaseTapChanger;
+        TapChanger ptc = convertedWinding.end1.phaseTapChanger;
         if (ptc == null) {
             return;
         }
@@ -385,8 +374,8 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         double x;
         double g;
         double b;
-        TapChangerConversion ratioTapChanger;
-        TapChangerConversion phaseTapChanger;
+        TapChanger ratioTapChanger;
+        TapChanger phaseTapChanger;
         double ratedU;
         String terminal;
     }
@@ -410,8 +399,8 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     static class InterpretedEnd1 {
         double g;
         double b;
-        TapChangerConversion ratioTapChanger;
-        TapChangerConversion phaseTapChanger;
+        TapChanger ratioTapChanger;
+        TapChanger phaseTapChanger;
         double ratedU;
         String terminal;
     }
@@ -419,8 +408,8 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     static class InterpretedEnd2 {
         double g;
         double b;
-        TapChangerConversion ratioTapChanger;
-        TapChangerConversion phaseTapChanger;
+        TapChanger ratioTapChanger;
+        TapChanger phaseTapChanger;
     }
 
     static class ConvertedT3xModel {
@@ -438,10 +427,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     }
 
     static class TapChangerWinding {
-        TapChangerConversion ratioTapChanger;
-        TapChangerConversion phaseTapChanger;
+        TapChanger ratioTapChanger;
+        TapChanger phaseTapChanger;
     }
-
-    private final Map<String, PropertyBag> powerTransformerRatioTapChanger;
-    private final Map<String, PropertyBag> powerTransformerPhaseTapChanger;
 }

@@ -8,6 +8,8 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
+import com.powsybl.cgmes.conversion.elements.transformers.NewThreeWindingsTransformerConversion;
+import com.powsybl.cgmes.conversion.elements.transformers.NewTwoWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
@@ -252,6 +254,8 @@ public class Conversion {
         Context context = new Context(cgmes, config, network);
         context.substationIdMapping().build();
         context.dc().initialize();
+        context.loadRatioTapChangers();
+        context.loadPhaseTapChangers();
         context.loadRatioTapChangerTables();
         context.loadPhaseTapChangerTables();
         context.loadReactiveCapabilityCurveData();
@@ -317,16 +321,6 @@ public class Conversion {
     }
 
     private void newConvertTransformers(Context context) {
-        Map<String, PropertyBag> powerTransformerRatioTapChanger = new HashMap<>();
-        Map<String, PropertyBag> powerTransformerPhaseTapChanger = new HashMap<>();
-        cgmes.ratioTapChangers().forEach(ratio -> {
-            String id = ratio.getId("RatioTapChanger");
-            powerTransformerRatioTapChanger.put(id, ratio);
-        });
-        cgmes.phaseTapChangers().forEach(phase -> {
-            String id = phase.getId("PhaseTapChanger");
-            powerTransformerPhaseTapChanger.put(id, phase);
-        });
         cgmes.groupedTransformerEnds().forEach((t, ends) -> {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Transformer {}, {}-winding", t, ends.size());
@@ -334,9 +328,9 @@ public class Conversion {
             }
             AbstractConductingEquipmentConversion c = null;
             if (ends.size() == 2) {
-                c = new NewTwoWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
+                c = new NewTwoWindingsTransformerConversion(ends, context);
             } else if (ends.size() == 3) {
-                c = new NewThreeWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
+                c = new NewThreeWindingsTransformerConversion(ends, context);
             } else {
                 String what = String.format("PowerTransformer %s", t);
                 String reason = String.format("Has %d ends. Only 2 or 3 ends are supported", ends.size());
@@ -350,17 +344,6 @@ public class Conversion {
 
     @Deprecated
     private void convertTransformers(Context context) {
-        Map<String, PropertyBag> powerTransformerRatioTapChanger = new HashMap<>();
-        Map<String, PropertyBag> powerTransformerPhaseTapChanger = new HashMap<>();
-        cgmes.ratioTapChangers().forEach(ratio -> {
-            String id = ratio.getId("RatioTapChanger");
-            powerTransformerRatioTapChanger.put(id, ratio);
-        });
-        cgmes.phaseTapChangers().forEach(phase -> {
-            String id = phase.getId("PhaseTapChanger");
-            powerTransformerPhaseTapChanger.put(id, phase);
-        });
-
         cgmes.groupedTransformerEnds().entrySet()
                 .forEach(tends -> {
                     String t = tends.getKey();
@@ -371,9 +354,9 @@ public class Conversion {
                     }
                     AbstractConductingEquipmentConversion c = null;
                     if (ends.size() == 2) {
-                        c = new TwoWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
+                        c = new TwoWindingsTransformerConversion(ends, context);
                     } else if (ends.size() == 3) {
-                        c = new ThreeWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, context);
+                        c = new ThreeWindingsTransformerConversion(ends, context);
                     } else {
                         String what = String.format("PowerTransformer %s", t);
                         String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",

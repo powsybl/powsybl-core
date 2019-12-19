@@ -7,9 +7,8 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import java.util.Map;
-
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.elements.transformers.NewThreeWindingsTransformerConversion;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
@@ -25,14 +24,11 @@ import com.powsybl.triplestore.api.PropertyBags;
 @Deprecated
 public class ThreeWindingsTransformerConversion extends AbstractConductingEquipmentConversion {
 
-    public ThreeWindingsTransformerConversion(PropertyBags ends,
-        Map<String, PropertyBag> powerTransformerRatioTapChanger,
-        Context context) {
+    public ThreeWindingsTransformerConversion(PropertyBags ends, Context context) {
         super("PowerTransformer", ends, context);
         winding1 = ends.get(0);
         winding2 = ends.get(1);
         winding3 = ends.get(2);
-        this.powerTransformerRatioTapChanger = powerTransformerRatioTapChanger;
     }
 
     @Override
@@ -151,11 +147,11 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
 
         PropertyBag rtc2 = null;
         if (rtc2Id != null) {
-            rtc2 = powerTransformerRatioTapChanger.get(rtc2Id);
+            rtc2 = context.ratioTapChanger(rtc2Id);
         }
         PropertyBag rtc3 = null;
         if (rtc3Id != null) {
-            rtc3 = powerTransformerRatioTapChanger.get(rtc3Id);
+            rtc3 = context.ratioTapChanger(rtc3Id);
         }
 
         context.regulatingControlMapping().forTransformers().add(tx.getId(), rtc2Id, rtc2, rtc3Id, rtc3);
@@ -164,5 +160,4 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
     private final PropertyBag winding1;
     private final PropertyBag winding2;
     private final PropertyBag winding3;
-    private final Map<String, PropertyBag> powerTransformerRatioTapChanger;
 }

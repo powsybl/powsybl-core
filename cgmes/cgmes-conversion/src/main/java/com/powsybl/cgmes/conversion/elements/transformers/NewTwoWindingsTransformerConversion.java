@@ -5,9 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.cgmes.conversion.elements;
-
-import java.util.Map;
+package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
@@ -27,12 +25,8 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class NewTwoWindingsTransformerConversion extends AbstractTransformerConversion {
 
-    public NewTwoWindingsTransformerConversion(PropertyBags ends,
-        Map<String, PropertyBag> powerTransformerRatioTapChanger,
-        Map<String, PropertyBag> powerTransformerPhaseTapChanger, Context context) {
+    public NewTwoWindingsTransformerConversion(PropertyBags ends, Context context) {
         super(CgmesNames.POWER_TRANSFORMER, ends, context);
-        this.powerTransformerRatioTapChanger = powerTransformerRatioTapChanger;
-        this.powerTransformerPhaseTapChanger = powerTransformerPhaseTapChanger;
     }
 
     @Override
@@ -70,18 +64,13 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         String terminal1 = end1.getId(CgmesNames.TERMINAL);
         String terminal2 = end2.getId(CgmesNames.TERMINAL);
 
-        PropertyBag rtc1 = getTransformerTapChanger(end1, CgmesNames.RATIO_TAP_CHANGER, powerTransformerRatioTapChanger);
-        PropertyBag ptc1 = getTransformerTapChanger(end1, CgmesNames.PHASE_TAP_CHANGER, powerTransformerPhaseTapChanger);
-        PropertyBag rtc2 = getTransformerTapChanger(end2, CgmesNames.RATIO_TAP_CHANGER, powerTransformerRatioTapChanger);
-        PropertyBag ptc2 = getTransformerTapChanger(end2, CgmesNames.PHASE_TAP_CHANGER, powerTransformerPhaseTapChanger);
+        TapChanger ratioTapChanger1 = TapChanger.ratioTapChangerFromEnd(end1, context);
+        TapChanger ratioTapChanger2 = TapChanger.ratioTapChangerFromEnd(end2, context);
+        TapChanger phaseTapChanger1 = TapChanger.phaseTapChangerFromEnd(end1, x, context);
+        TapChanger phaseTapChanger2 = TapChanger.phaseTapChangerFromEnd(end2, x, context);
 
         double ratedU1 = end1.asDouble(CgmesNames.RATEDU);
         double ratedU2 = end2.asDouble(CgmesNames.RATEDU);
-
-        TapChangerConversion ratioTapChanger1 = getRatioTapChanger(rtc1);
-        TapChangerConversion ratioTapChanger2 = getRatioTapChanger(rtc2);
-        TapChangerConversion phaseTapChanger1 = getPhaseTapChanger(ptc1, x);
-        TapChangerConversion phaseTapChanger2 = getPhaseTapChanger(ptc2, x);
 
         CgmesT2xModel cgmesT2xModel = new CgmesT2xModel();
         cgmesT2xModel.end1.g = end1.asDouble(CgmesNames.G, 0);
@@ -139,10 +128,10 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
     }
 
     private AllTapChanger ratioPhaseAlternative(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
-        TapChangerConversion ratioTapChanger1 = null;
-        TapChangerConversion phaseTapChanger1 = null;
-        TapChangerConversion ratioTapChanger2 = null;
-        TapChangerConversion phaseTapChanger2 = null;
+        TapChanger ratioTapChanger1 = null;
+        TapChanger phaseTapChanger1 = null;
+        TapChanger ratioTapChanger2 = null;
+        TapChanger phaseTapChanger2 = null;
 
         switch (alternative.getXfmr2RatioPhase()) {
             case END1:
@@ -239,11 +228,11 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
 
     private ConvertedT2xModel convertToIidm(InterpretedT2xModel interpretedT2xModel) {
 
-        TapChangerConversion nRatioTapChanger2 = moveTapChangerFrom2To1(interpretedT2xModel.end2.ratioTapChanger);
-        TapChangerConversion nPhaseTapChanger2 = moveTapChangerFrom2To1(interpretedT2xModel.end2.phaseTapChanger);
+        TapChanger nRatioTapChanger2 = moveTapChangerFrom2To1(interpretedT2xModel.end2.ratioTapChanger);
+        TapChanger nPhaseTapChanger2 = moveTapChangerFrom2To1(interpretedT2xModel.end2.phaseTapChanger);
 
-        TapChangerConversion ratioTapChanger = combineTapChangers(interpretedT2xModel.end1.ratioTapChanger, nRatioTapChanger2);
-        TapChangerConversion phaseTapChanger = combineTapChangers(interpretedT2xModel.end1.phaseTapChanger, nPhaseTapChanger2);
+        TapChanger ratioTapChanger = combineTapChangers(interpretedT2xModel.end1.ratioTapChanger, nRatioTapChanger2);
+        TapChanger phaseTapChanger = combineTapChangers(interpretedT2xModel.end1.phaseTapChanger, nPhaseTapChanger2);
 
         RatioConversion rc0;
         if (interpretedT2xModel.structuralRatioAtEnd2) {
@@ -294,7 +283,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
     }
 
     private static void setToIidmRatioTapChanger(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx) {
-        TapChangerConversion rtc = convertedT2xModel.end1.ratioTapChanger;
+        TapChanger rtc = convertedT2xModel.end1.ratioTapChanger;
         if (rtc == null) {
             return;
         }
@@ -304,7 +293,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
     }
 
     private static void setToIidmPhaseTapChanger(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx) {
-        TapChangerConversion ptc = convertedT2xModel.end1.phaseTapChanger;
+        TapChanger ptc = convertedT2xModel.end1.phaseTapChanger;
         if (ptc == null) {
             return;
         }
@@ -338,8 +327,8 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
     static class CgmesEnd {
         double g;
         double b;
-        TapChangerConversion ratioTapChanger;
-        TapChangerConversion phaseTapChanger;
+        TapChanger ratioTapChanger;
+        TapChanger phaseTapChanger;
         double ratedU;
         String terminal;
         boolean xIsZero;
@@ -356,8 +345,8 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
     static class InterpretedEnd {
         double g;
         double b;
-        TapChangerConversion ratioTapChanger;
-        TapChangerConversion phaseTapChanger;
+        TapChanger ratioTapChanger;
+        TapChanger phaseTapChanger;
         double ratedU;
         String terminal;
     }
@@ -373,7 +362,4 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         double ratedU;
         String terminal;
     }
-
-    private final Map<String, PropertyBag> powerTransformerRatioTapChanger;
-    private final Map<String, PropertyBag> powerTransformerPhaseTapChanger;
 }

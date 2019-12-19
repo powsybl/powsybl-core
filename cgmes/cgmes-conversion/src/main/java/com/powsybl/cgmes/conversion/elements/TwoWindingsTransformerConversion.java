@@ -7,9 +7,8 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import java.util.Map;
-
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.elements.transformers.NewTwoWindingsTransformerConversion;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
@@ -25,13 +24,10 @@ import com.powsybl.triplestore.api.PropertyBags;
 @Deprecated
 public class TwoWindingsTransformerConversion extends AbstractConductingEquipmentConversion {
 
-    public TwoWindingsTransformerConversion(PropertyBags ends, Map<String, PropertyBag> powerTransformerRatioTapChanger,
-        Map<String, PropertyBag> powerTransformerPhaseTapChanger, Context context) {
+    public TwoWindingsTransformerConversion(PropertyBags ends, Context context) {
         super("PowerTransformer", ends, context);
         end1 = ends.get(0);
         end2 = ends.get(1);
-        this.powerTransformerRatioTapChanger = powerTransformerRatioTapChanger;
-        this.powerTransformerPhaseTapChanger = powerTransformerPhaseTapChanger;
     }
 
     @Override
@@ -172,20 +168,18 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
     private void setRegulatingControlContext(TwoWindingsTransformer tx, String rtcId, String ptcId) {
         PropertyBag rtc = null;
         if (rtcId != null) {
-            rtc = powerTransformerRatioTapChanger.get(rtcId);
+            rtc = context.ratioTapChanger(rtcId);
         }
 
         PropertyBag ptc = null;
         if (ptcId != null) {
-            ptc = powerTransformerPhaseTapChanger.get(ptcId);
+            ptc = context.phaseTapChanger(ptcId);
         }
         context.regulatingControlMapping().forTransformers().add(tx.getId(), rtcId, rtc, ptc);
     }
 
     private final PropertyBag end1;
     private final PropertyBag end2;
-    private final Map<String, PropertyBag> powerTransformerRatioTapChanger;
-    private final Map<String, PropertyBag> powerTransformerPhaseTapChanger;
 }
 
 
