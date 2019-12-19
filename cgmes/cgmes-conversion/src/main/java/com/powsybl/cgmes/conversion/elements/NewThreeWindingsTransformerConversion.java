@@ -19,7 +19,6 @@ import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
-import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -77,7 +76,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         cgmesWinding.ratioTapChanger = ratioTapChanger;
         cgmesWinding.phaseTapChanger = phaseTapChanger;
         cgmesWinding.ratedU = ratedU;
-        cgmesWinding.phaseAngleClock = winding.asInt(CgmesNames.PHASE_ANGLE_CLOCK, 0);
         cgmesWinding.terminal = terminal;
     }
 
@@ -98,7 +96,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
 
         AllTapChanger windingInterpretedTapChanger = ratioPhaseAlternative(cgmesWinding, alternative);
         AllShunt windingInterpretedShunt = shuntAlternative(cgmesWinding, alternative);
-        int windingInterpretedClock = phaseAngleClockAlternative(cgmesWinding, alternative);
         boolean windingStructuralRatioAtEnd2 = structuralRatioAlternative(cgmesWinding, alternative);
 
         interpretedWinding.r = cgmesWinding.r;
@@ -107,7 +104,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         interpretedWinding.end1.b = windingInterpretedShunt.b1;
         interpretedWinding.end1.ratioTapChanger = windingInterpretedTapChanger.ratioTapChanger1;
         interpretedWinding.end1.phaseTapChanger = windingInterpretedTapChanger.phaseTapChanger1;
-        interpretedWinding.end1.phaseAngleClock = windingInterpretedClock;
         interpretedWinding.end1.ratedU = cgmesWinding.ratedU;
         interpretedWinding.end1.terminal = cgmesWinding.terminal;
 
@@ -179,16 +175,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return allShunt;
     }
 
-    private static int phaseAngleClockAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
-        int phaseAngleClock = 0;
-
-        if (alternative.isXfmr3PhaseAngleClockOn()) {
-            phaseAngleClock = cgmesWinding.phaseAngleClock;
-        }
-
-        return phaseAngleClock;
-    }
-
     // return true if the structural ratio is at end2 of the leg (star bus side)
     private static boolean structuralRatioAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
         switch (alternative.getXfmr3StructuralRatio()) {
@@ -250,7 +236,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         convertedWinding.end1.b = windingRc0.b1;
         convertedWinding.end1.ratioTapChanger = windingTapChanger.ratioTapChanger;
         convertedWinding.end1.phaseTapChanger = windingTapChanger.phaseTapChanger;
-        convertedWinding.end1.phaseAngleClock = interpretedWinding.end1.phaseAngleClock;
         convertedWinding.end1.ratedU = interpretedWinding.end1.ratedU;
         convertedWinding.end1.terminal = interpretedWinding.end1.terminal;
         convertedWinding.end2.g = windingRc0.g2;
@@ -319,7 +304,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.winding2, tx);
         setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.winding3, tx);
 
-        setToIidmPhaseAngleClock(convertedT3xModel, tx);
         setRegulatingControlContext(convertedT3xModel, tx);
     }
 
@@ -381,20 +365,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return null;
     }
 
-    private void setToIidmPhaseAngleClock(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx) {
-        // add phaseAngleClock as an extension, cgmes does not allow pac at end1
-        if (convertedT3xModel.winding1.end1.phaseAngleClock != 0) {
-            String reason = "Unsupported modelling: threeWindingsTransformer with phaseAngleClock at end1";
-            ignored("phaseAngleClock end1", reason);
-        }
-
-        if (convertedT3xModel.winding2.end1.phaseAngleClock != 0 || convertedT3xModel.winding3.end1.phaseAngleClock != 0) {
-            ThreeWindingsTransformerPhaseAngleClock phaseAngleClock = new ThreeWindingsTransformerPhaseAngleClock(tx,
-                convertedT3xModel.winding2.end1.phaseAngleClock, convertedT3xModel.winding3.end1.phaseAngleClock);
-            tx.addExtension(ThreeWindingsTransformerPhaseAngleClock.class, phaseAngleClock);
-        }
-    }
-
     private void setRegulatingControlContext(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx) {
         CgmesRegulatingControlRatio rcRtc1 = setContextRegulatingDataRatio(convertedT3xModel.winding1.end1.ratioTapChanger);
         CgmesRegulatingControlPhase rcPtc1 = setContextRegulatingDataPhase(convertedT3xModel.winding1.end1.phaseTapChanger);
@@ -420,7 +390,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         TapChangerConversion ratioTapChanger;
         TapChangerConversion phaseTapChanger;
         double ratedU;
-        int phaseAngleClock;
         String terminal;
     }
 
@@ -447,7 +416,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         TapChangerConversion phaseTapChanger;
         double ratedU;
         String terminal;
-        int phaseAngleClock;
     }
 
     static class InterpretedEnd2 {

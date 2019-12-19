@@ -166,19 +166,6 @@ public class TransformerConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBExfmr2PnaseAngleClockOn() throws IOException {
-        Conversion.Config config = new Conversion.Config();
-        config.setXfmr2PhaseAngleClockOn(true);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
-        assertTrue(ok);
-        // PhaseTapChanger
-        ok = t2xCompareFlow(n, "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
-        assertTrue(ok);
-    }
-
-    @Test
     public void microGridBaseCaseBExfmr2Ratio0Default() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
@@ -308,17 +295,6 @@ public class TransformerConversionTest {
     public void microGridBaseCaseBExfmr3PhaseNegate() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3PhaseNegate(true);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.236612, 3.005810, -216.192829, -85.626382, 117.975394, 92.378211);
-        assertTrue(ok);
-    }
-
-    @Test
-    public void microGridBaseCaseBExfmr3PhaseAngleClockOn() throws IOException {
-        Conversion.Config config = new Conversion.Config();
-        config.setXfmr3PhaseAngleClockOn(true);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger

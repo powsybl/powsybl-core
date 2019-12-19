@@ -47,8 +47,6 @@ import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
  * END1_END2. Shunt admittances to ground (g, b) at the end where they are defined in Cgmes model <br>
  * SPLIT. Split shunt admittances to ground (g, b) between end1 and end2. <br>
  * <p>
- * PhaseAngleClock. Only if it is true the phaseAngleClock is recorded in the IIDM model of transformer as an extension.
- * <p>
  * Structural Ratio (Xfmr2StructuralRatioInterpretationAlternative) <br>
  * END1. Structural ratio always at end1 (before transmission impedance) <br>
  * END2. Structural ratio always at end2 (after transmission impedance) <br>
@@ -64,8 +62,6 @@ import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
  * NETWORK_SIDE. Shunt admittances to ground at the network side (end1 of the leg) <br>
  * STAR_BUS_SIDE. Shunt admittances to ground at the start bus side (end2 of the leg) <br>
  * SPLIT. Split shunt admittances to ground between two ends of the leg
- * <p>
- * PhaseAngleClock. Only if it is true the phaseAngleClock is recorded in the IIDM model of transformer as an extension.
  * <p>
  * Structural Ratio Interpretation (Xfmr3StructuralRatioInterpretationAlternative) <br>
  * STAR_BUS_SIDE. Structural ratio at the star bus side of all legs and RatedU0 = RatedU1 <br>
@@ -574,14 +570,6 @@ public class Conversion {
             xfmr2Shunt = alternative;
         }
 
-        public boolean isXfmr2PhaseAngleClockOn() {
-            return xfmr2PhaseAngleClockOn;
-        }
-
-        public void setXfmr2PhaseAngleClockOn(boolean xfmr2PhaseAngleClockOn) {
-            this.xfmr2PhaseAngleClockOn = xfmr2PhaseAngleClockOn;
-        }
-
         public Xfmr2StructuralRatioInterpretationAlternative getXfmr2StructuralRatio() {
             return xfmr2StructuralRatio;
         }
@@ -614,14 +602,6 @@ public class Conversion {
             xfmr3Shunt = alternative;
         }
 
-        public boolean isXfmr3PhaseAngleClockOn() {
-            return xfmr3PhaseAngleClockOn;
-        }
-
-        public void setXfmr3PhaseAngleClockOn(boolean xfmr3PhaseAngleClockOn) {
-            this.xfmr3PhaseAngleClockOn = xfmr3PhaseAngleClockOn;
-        }
-
         public Xfmr3StructuralRatioInterpretationAlternative getXfmr3StructuralRatio() {
             return xfmr3StructuralRatio;
         }
@@ -646,13 +626,11 @@ public class Conversion {
         private Xfmr2RatioPhaseInterpretationAlternative xfmr2RatioPhase = Xfmr2RatioPhaseInterpretationAlternative.END1_END2;
         private boolean xfmr2PhaseNegate = false;
         private Xfmr2ShuntInterpretationAlternative xfmr2Shunt = Xfmr2ShuntInterpretationAlternative.END1;
-        private boolean xfmr2PhaseAngleClockOn = false;
         private Xfmr2StructuralRatioInterpretationAlternative xfmr2StructuralRatio = Xfmr2StructuralRatioInterpretationAlternative.X;
 
         private boolean xfmr3RatioPhaseNetworkSide = true;
         private boolean xfmr3PhaseNegate = false;
         private Xfmr3ShuntInterpretationAlternative xfmr3Shunt = Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE;
-        private boolean xfmr3PhaseAngleClockOn = false;
         private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
     }
 

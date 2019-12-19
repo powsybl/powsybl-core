@@ -763,7 +763,6 @@ public abstract class AbstractTransformerConversion
         TapChangerConversion phaseTapChanger;
         double ratedU;
         String terminal;
-        int phaseAngleClock;
     }
 
     static class AllTapChanger {
@@ -778,11 +777,6 @@ public abstract class AbstractTransformerConversion
         double b1;
         double g2;
         double b2;
-    }
-
-    static class AllPhaseAngleClock {
-        int phaseAngleClock1;
-        int phaseAngleClock2;
     }
 }
 

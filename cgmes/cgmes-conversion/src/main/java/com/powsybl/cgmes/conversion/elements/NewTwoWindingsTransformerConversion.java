@@ -18,7 +18,6 @@ import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
-import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -90,7 +89,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         cgmesT2xModel.end1.ratioTapChanger = ratioTapChanger1;
         cgmesT2xModel.end1.phaseTapChanger = phaseTapChanger1;
         cgmesT2xModel.end1.ratedU = ratedU1;
-        cgmesT2xModel.end1.phaseAngleClock = end1.asInt(CgmesNames.PHASE_ANGLE_CLOCK, 0);
         cgmesT2xModel.end1.terminal = terminal1;
 
         cgmesT2xModel.end1.xIsZero = x1 == 0.0;
@@ -100,7 +98,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         cgmesT2xModel.end2.ratioTapChanger = ratioTapChanger2;
         cgmesT2xModel.end2.phaseTapChanger = phaseTapChanger2;
         cgmesT2xModel.end2.ratedU = ratedU2;
-        cgmesT2xModel.end2.phaseAngleClock = end2.asInt(CgmesNames.PHASE_ANGLE_CLOCK, 0);
         cgmesT2xModel.end2.terminal = terminal2;
 
         cgmesT2xModel.end2.xIsZero = x2 == 0.0;
@@ -116,7 +113,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         AllTapChanger interpretedTapChanger = ratioPhaseAlternative(cgmesT2xModel, alternative);
         AllShunt interpretedShunt = shuntAlternative(cgmesT2xModel, alternative);
 
-        AllPhaseAngleClock interpretedClock = phaseAngleClockAlternative(cgmesT2xModel, alternative);
         boolean structuralRatioAtEnd2 = structuralRatioAlternative(cgmesT2xModel, alternative);
 
         InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel();
@@ -129,7 +125,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         interpretedT2xModel.end1.phaseTapChanger = interpretedTapChanger.phaseTapChanger1;
         interpretedT2xModel.end1.ratedU = cgmesT2xModel.end1.ratedU;
         interpretedT2xModel.end1.terminal = cgmesT2xModel.end1.terminal;
-        interpretedT2xModel.end1.phaseAngleClock = interpretedClock.phaseAngleClock1;
 
         interpretedT2xModel.end2.g = interpretedShunt.g2;
         interpretedT2xModel.end2.b = interpretedShunt.b2;
@@ -137,7 +132,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         interpretedT2xModel.end2.phaseTapChanger = interpretedTapChanger.phaseTapChanger2;
         interpretedT2xModel.end2.ratedU = cgmesT2xModel.end2.ratedU;
         interpretedT2xModel.end2.terminal = cgmesT2xModel.end2.terminal;
-        interpretedT2xModel.end2.phaseAngleClock = interpretedClock.phaseAngleClock2;
 
         interpretedT2xModel.structuralRatioAtEnd2 = structuralRatioAtEnd2;
 
@@ -227,22 +221,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         return allShunt;
     }
 
-    private static AllPhaseAngleClock phaseAngleClockAlternative(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
-        int phaseAngleClock1 = 0;
-        int phaseAngleClock2 = 0;
-
-        if (alternative.isXfmr2PhaseAngleClockOn()) {
-            phaseAngleClock1 = cgmesT2xModel.end1.phaseAngleClock;
-            phaseAngleClock2 = cgmesT2xModel.end2.phaseAngleClock;
-        }
-
-        AllPhaseAngleClock allPhaseAngleClock = new AllPhaseAngleClock();
-        allPhaseAngleClock.phaseAngleClock1 = phaseAngleClock1;
-        allPhaseAngleClock.phaseAngleClock2 = phaseAngleClock2;
-
-        return allPhaseAngleClock;
-    }
-
     // return true if the structural ratio is at end2
     private static boolean structuralRatioAlternative(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
         if (cgmesT2xModel.end1.ratedU == cgmesT2xModel.end2.ratedU) {
@@ -289,13 +267,11 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         convertedModel.end1.phaseTapChanger = phaseTapChanger;
         convertedModel.end1.ratedU = interpretedT2xModel.end1.ratedU;
         convertedModel.end1.terminal = interpretedT2xModel.end1.terminal;
-        convertedModel.end1.phaseAngleClock = interpretedT2xModel.end1.phaseAngleClock;
 
         convertedModel.end2.g = rc0.g2;
         convertedModel.end2.b = rc0.b2;
         convertedModel.end2.ratedU = interpretedT2xModel.end2.ratedU;
         convertedModel.end2.terminal = interpretedT2xModel.end2.terminal;
-        convertedModel.end2.phaseAngleClock = interpretedT2xModel.end2.phaseAngleClock;
 
         return convertedModel;
     }
@@ -316,7 +292,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         setToIidmRatioTapChanger(convertedT2xModel, tx);
         setToIidmPhaseTapChanger(convertedT2xModel, tx);
 
-        setToIidmPhaseAngleClock(convertedT2xModel, tx);
         setRegulatingControlContext(convertedT2xModel, tx);
     }
 
@@ -348,19 +323,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         return tx.newPhaseTapChanger();
     }
 
-    private void setToIidmPhaseAngleClock(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx) {
-        // add phaseAngleClock as an extension, cgmes does not allow pac at end1
-        if (convertedT2xModel.end1.phaseAngleClock != 0) {
-            String reason = "Unsupported modelling: twoWindingsTransformer with phaseAngleClock at end1";
-            ignored("phaseAngleClock end1", reason);
-        }
-        if (convertedT2xModel.end2.phaseAngleClock != 0) {
-            TwoWindingsTransformerPhaseAngleClock phaseAngleClock = new TwoWindingsTransformerPhaseAngleClock(tx,
-                convertedT2xModel.end2.phaseAngleClock);
-            tx.addExtension(TwoWindingsTransformerPhaseAngleClock.class, phaseAngleClock);
-        }
-    }
-
     private void setRegulatingControlContext(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx) {
         CgmesRegulatingControlRatio rcRtc = setContextRegulatingDataRatio(convertedT2xModel.end1.ratioTapChanger);
         CgmesRegulatingControlPhase rcPtc = setContextRegulatingDataPhase(convertedT2xModel.end1.phaseTapChanger);
@@ -381,7 +343,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         TapChangerConversion ratioTapChanger;
         TapChangerConversion phaseTapChanger;
         double ratedU;
-        int phaseAngleClock;
         String terminal;
         boolean xIsZero;
     }
@@ -401,7 +362,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         TapChangerConversion phaseTapChanger;
         double ratedU;
         String terminal;
-        int phaseAngleClock;
     }
 
     static class ConvertedT2xModel {
@@ -416,7 +376,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         double b;
         double ratedU;
         String terminal;
-        int phaseAngleClock;
     }
 
     private final Map<String, PropertyBag> powerTransformerRatioTapChanger;
