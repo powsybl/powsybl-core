@@ -261,15 +261,13 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         convertedModel.r = rc0.r;
         convertedModel.x = rc0.x;
 
-        convertedModel.end1.g = rc0.g1;
-        convertedModel.end1.b = rc0.b1;
+        convertedModel.end1.g = rc0.g1 + rc0.g2;
+        convertedModel.end1.b = rc0.b1 + rc0.b2;
         convertedModel.end1.ratioTapChanger = ratioTapChanger;
         convertedModel.end1.phaseTapChanger = phaseTapChanger;
         convertedModel.end1.ratedU = interpretedT2xModel.end1.ratedU;
         convertedModel.end1.terminal = interpretedT2xModel.end1.terminal;
 
-        convertedModel.end2.g = rc0.g2;
-        convertedModel.end2.b = rc0.b2;
         convertedModel.end2.ratedU = interpretedT2xModel.end2.ratedU;
         convertedModel.end2.terminal = interpretedT2xModel.end2.terminal;
 
@@ -280,8 +278,8 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         TwoWindingsTransformerAdder adder = substation().newTwoWindingsTransformer()
             .setR(convertedT2xModel.r)
             .setX(convertedT2xModel.x)
-            .setG(convertedT2xModel.end1.g + convertedT2xModel.end2.g)
-            .setB(convertedT2xModel.end1.b + convertedT2xModel.end2.b)
+            .setG(convertedT2xModel.end1.g)
+            .setB(convertedT2xModel.end1.b)
             .setRatedU1(convertedT2xModel.end1.ratedU)
             .setRatedU2(convertedT2xModel.end2.ratedU);
         identify(adder);
@@ -372,8 +370,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
     }
 
     static class ConvertedEnd2 {
-        double g;
-        double b;
         double ratedU;
         String terminal;
     }

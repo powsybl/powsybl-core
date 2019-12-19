@@ -232,14 +232,12 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
 
         convertedWinding.r = windingRc0.r;
         convertedWinding.x = windingRc0.x;
-        convertedWinding.end1.g = windingRc0.g1;
-        convertedWinding.end1.b = windingRc0.b1;
+        convertedWinding.end1.g = windingRc0.g1 + windingRc0.g2;
+        convertedWinding.end1.b = windingRc0.b1 + windingRc0.b2;
         convertedWinding.end1.ratioTapChanger = windingTapChanger.ratioTapChanger;
         convertedWinding.end1.phaseTapChanger = windingTapChanger.phaseTapChanger;
         convertedWinding.end1.ratedU = interpretedWinding.end1.ratedU;
         convertedWinding.end1.terminal = interpretedWinding.end1.terminal;
-        convertedWinding.end2.g = windingRc0.g2;
-        convertedWinding.end2.b = windingRc0.b2;
     }
 
     private static RatioConversion moveStructuralRatioWinding(InterpretedWinding interpretedWinding, double ratedU0) {
@@ -310,8 +308,8 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     private static void setToIidmWindingAdder(ConvertedWinding convertedModelWinding, LegAdder ladder) {
         ladder.setR(convertedModelWinding.r)
             .setX(convertedModelWinding.x)
-            .setG(convertedModelWinding.end1.g + convertedModelWinding.end2.g)
-            .setB(convertedModelWinding.end1.b + convertedModelWinding.end2.b)
+            .setG(convertedModelWinding.end1.g)
+            .setB(convertedModelWinding.end1.b)
             .setRatedU(convertedModelWinding.end1.ratedU);
     }
 
@@ -437,12 +435,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         double r;
         double x;
         ConvertedEnd1 end1 = new ConvertedEnd1();
-        ConvertedEnd2 end2 = new ConvertedEnd2();
-    }
-
-    static class ConvertedEnd2 {
-        double g;
-        double b;
     }
 
     static class TapChangerWinding {
