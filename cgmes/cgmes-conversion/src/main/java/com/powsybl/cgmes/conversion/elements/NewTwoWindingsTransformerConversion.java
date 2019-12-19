@@ -117,7 +117,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         AllShunt interpretedShunt = shuntAlternative(cgmesT2xModel, alternative);
 
         AllPhaseAngleClock interpretedClock = phaseAngleClockAlternative(cgmesT2xModel, alternative);
-        boolean ratio0AtEnd2 = ratio0Alternative(cgmesT2xModel, alternative);
+        boolean structuralRatioAtEnd2 = structuralRatioAlternative(cgmesT2xModel, alternative);
 
         InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel();
         interpretedT2xModel.r = cgmesT2xModel.r;
@@ -139,7 +139,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         interpretedT2xModel.end2.terminal = cgmesT2xModel.end2.terminal;
         interpretedT2xModel.end2.phaseAngleClock = interpretedClock.phaseAngleClock2;
 
-        interpretedT2xModel.ratio0AtEnd2 = ratio0AtEnd2;
+        interpretedT2xModel.structuralRatioAtEnd2 = structuralRatioAtEnd2;
 
         return interpretedT2xModel;
     }
@@ -244,7 +244,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
     }
 
     // return true if the structural ratio is at end2
-    private static boolean ratio0Alternative(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
+    private static boolean structuralRatioAlternative(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
         if (cgmesT2xModel.end1.ratedU == cgmesT2xModel.end2.ratedU) {
             return false;
         }
@@ -268,7 +268,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         TapChangerConversion phaseTapChanger = combineTapChangers(interpretedT2xModel.end1.phaseTapChanger, nPhaseTapChanger2);
 
         RatioConversion rc0;
-        if (interpretedT2xModel.ratio0AtEnd2) {
+        if (interpretedT2xModel.structuralRatioAtEnd2) {
             double a0 = interpretedT2xModel.end2.ratedU / interpretedT2xModel.end1.ratedU;
             rc0 = moveRatioFrom2To1(a0, 0.0, interpretedT2xModel.r, interpretedT2xModel.x,
                 interpretedT2xModel.end1.g, interpretedT2xModel.end1.b,
@@ -391,7 +391,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         double x;
         InterpretedEnd end1 = new InterpretedEnd();
         InterpretedEnd end2 = new InterpretedEnd();
-        boolean ratio0AtEnd2;
+        boolean structuralRatioAtEnd2;
     }
 
     static class InterpretedEnd {

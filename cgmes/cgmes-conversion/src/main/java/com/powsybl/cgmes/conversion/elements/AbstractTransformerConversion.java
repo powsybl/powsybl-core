@@ -672,20 +672,20 @@ public abstract class AbstractTransformerConversion
         rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition(position);
 
         rtc.getSteps().forEach(step -> {
-            double ratio0 = step.getRatio();
-            double r0 = step.getR();
-            double x0 = step.getX();
-            double b01 = step.getB1();
-            double g01 = step.getG1();
-            // double b02 = step.getB2();
-            // double g02 = step.getG2();
-            // Only b01 and g01 instead of b01 + b02 and g01 + g02
+            double ratio = step.getRatio();
+            double r = step.getR();
+            double x = step.getX();
+            double b1 = step.getB1();
+            double g1 = step.getG1();
+            // double b2 = step.getB2();
+            // double g2 = step.getG2();
+            // Only b1 and g1 instead of b1 + b2 and g1 + g2
             rtca.beginStep()
-                .setRho(1 / ratio0)
-                .setR(r0)
-                .setX(x0)
-                .setB(b01)
-                .setG(g01)
+                .setRho(1 / ratio)
+                .setR(r)
+                .setX(x)
+                .setB(b1)
+                .setG(g1)
                 .endStep();
         });
         rtca.add();
@@ -697,22 +697,22 @@ public abstract class AbstractTransformerConversion
         ptca.setLowTapPosition(lowStep).setTapPosition(position);
 
         ptc.getSteps().forEach(step -> {
-            double ratio0 = step.getRatio();
-            double angle0 = step.getAngle();
-            double r0 = step.getR();
-            double x0 = step.getX();
-            double b01 = step.getB1();
-            double g01 = step.getG1();
-            // double b02 = step.getB2();
-            // double g02 = step.getG2();
-            // Only b01 and g01 instead of b01 + b02 and g01 + g02
+            double ratio = step.getRatio();
+            double angle = step.getAngle();
+            double r = step.getR();
+            double x = step.getX();
+            double b1 = step.getB1();
+            double g1 = step.getG1();
+            // double b2 = step.getB2();
+            // double g2 = step.getG2();
+            // Only b1 and g1 instead of b1 + b2 and g1 + g2
             ptca.beginStep()
-                .setRho(1 / ratio0)
-                .setAlpha(-angle0)
-                .setR(r0)
-                .setX(x0)
-                .setB(b01)
-                .setG(g01)
+                .setRho(1 / ratio)
+                .setAlpha(-angle)
+                .setR(r)
+                .setX(x)
+                .setB(b1)
+                .setG(g1)
                 .endStep();
         });
         ptca.add();

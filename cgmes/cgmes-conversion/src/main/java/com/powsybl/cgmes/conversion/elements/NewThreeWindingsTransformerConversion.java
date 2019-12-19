@@ -99,7 +99,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         AllTapChanger windingInterpretedTapChanger = ratioPhaseAlternative(cgmesWinding, alternative);
         AllShunt windingInterpretedShunt = shuntAlternative(cgmesWinding, alternative);
         int windingInterpretedClock = phaseAngleClockAlternative(cgmesWinding, alternative);
-        boolean windingRatio0AtEnd2 = ratio0Alternative(cgmesWinding, alternative);
+        boolean windingStructuralRatioAtEnd2 = structuralRatioAlternative(cgmesWinding, alternative);
 
         interpretedWinding.r = cgmesWinding.r;
         interpretedWinding.x = cgmesWinding.x;
@@ -116,7 +116,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         interpretedWinding.end2.ratioTapChanger = windingInterpretedTapChanger.ratioTapChanger2;
         interpretedWinding.end2.phaseTapChanger = windingInterpretedTapChanger.phaseTapChanger2;
 
-        interpretedWinding.ratio0AtEnd2 = windingRatio0AtEnd2;
+        interpretedWinding.structuralRatioAtEnd2 = windingStructuralRatioAtEnd2;
     }
 
     private static AllTapChanger ratioPhaseAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
@@ -190,7 +190,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     }
 
     // return true if the structural ratio is at end2 of the leg (star bus side)
-    private static boolean ratio0Alternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
+    private static boolean structuralRatioAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
         switch (alternative.getXfmr3StructuralRatio()) {
             case NETWORK_SIDE:
             case END1:
@@ -242,7 +242,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     private void convertToIidmWinding(InterpretedWinding interpretedWinding, ConvertedWinding convertedWinding, double ratedU0) {
         TapChangerWinding windingTapChanger = moveCombineTapChangerWinding(interpretedWinding);
 
-        RatioConversion windingRc0 = rc0Winding(interpretedWinding, ratedU0);
+        RatioConversion windingRc0 = moveStructuralRatioWinding(interpretedWinding, ratedU0);
 
         convertedWinding.r = windingRc0.r;
         convertedWinding.x = windingRc0.x;
@@ -257,10 +257,10 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         convertedWinding.end2.b = windingRc0.b2;
     }
 
-    private static RatioConversion rc0Winding(InterpretedWinding interpretedWinding, double ratedU0) {
+    private static RatioConversion moveStructuralRatioWinding(InterpretedWinding interpretedWinding, double ratedU0) {
         RatioConversion rc0;
-        // IIDM: Structural ratio always at network side
-        if (interpretedWinding.ratio0AtEnd2) {
+        // IIDM: Structural ratio always at network side of the leg (end1)
+        if (interpretedWinding.structuralRatioAtEnd2) {
             double a0 = ratedU0 / interpretedWinding.end1.ratedU;
             rc0 = moveRatioFrom2To1(a0, 0.0, interpretedWinding.r, interpretedWinding.x,
                 interpretedWinding.end1.g, interpretedWinding.end1.b,
@@ -437,7 +437,7 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         double x;
         InterpretedEnd1 end1 = new InterpretedEnd1();
         InterpretedEnd2 end2 = new InterpretedEnd2();
-        boolean ratio0AtEnd2;
+        boolean structuralRatioAtEnd2;
     }
 
     static class InterpretedEnd1 {
