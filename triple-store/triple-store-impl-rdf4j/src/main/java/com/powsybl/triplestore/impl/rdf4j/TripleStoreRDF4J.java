@@ -275,7 +275,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     private static boolean isComplex(String name) {
-        List<String> list = Stream.of("DependentOn", "TopologicalNodes").collect(Collectors.toList());
+        List<String> list = Stream.of("DependentOn", "topologicalNodes").collect(Collectors.toList());
         return list.contains(name);
     }
 
@@ -323,6 +323,9 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     private static void addComplex(RepositoryConnection cnx, String value, IRI resource, IRI predicate, Resource context) {
         String[] objs = value.split(",");
         for (String o : objs) {
+            if(!o.startsWith("urn:uuid:")) {
+                o = cnx.getNamespace("data")+o;
+            }
             IRI object = cnx.getValueFactory().createIRI(o);
             Statement st = cnx.getValueFactory().createStatement(resource, predicate, object);
             cnx.add(st, context);

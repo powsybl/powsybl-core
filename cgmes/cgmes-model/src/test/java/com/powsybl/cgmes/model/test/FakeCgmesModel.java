@@ -500,6 +500,11 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags topologicalIslands() {
+        return null;
+    }
+
+    @Override
     public void print(PrintStream out) {
         // FakeCgmesModel, no need to implement dump
     }

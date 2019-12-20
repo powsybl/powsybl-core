@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
@@ -51,28 +52,31 @@ public class StateVariablesAdder {
         originalSVdata.put("terminalsSV", cgmes.terminalsSV());
         if (!isCimVersion14(cgmes)) {
             originalSVdata.put("fullModelSV", cgmes.fullModelSV());
+            originalSVdata.put("topologicalIslands", cgmes.topologicalIslands());
         }
         return originalSVdata;
     }
 
-    private String getDependentOn() {
-        List<String> l = new ArrayList<>();
-        originalSVdata.get("fullModelSV").forEach(m -> {
-            l.add(m.getId("DependentOn"));
-        });
-        return String.join(",", l);
+    private String getComplexProperty(PropertyBags originalModelDescription, String complexPropertyName) {
+        // for properties such as "md:Model.DependentOn" which might have arbitrary
+        // number of values,
+        // SPARQL will return multiple result sets. We will loop through all and collect
+        // all values for the property.
+        List<String> list = new ArrayList<>();
+        originalModelDescription.forEach(m -> list.add(m.getId(complexPropertyName)));
+        return String.join(",", list);
     }
 
     public void add(Network n, CgmesModel cgmes) {
         // TODO Add full model data with proper profile (StateVariables)
         // FullModel is defined in ModelDescription:
         // http://iec.ch/TC57/61970-552/ModelDescription/1#
-        if (!isCimVersion14(cgmes)) {
-            addFullModel();
-        }
-
         // TODO add TopologicalIsland as it was in cgmes : original topology is
         // preserved.
+        if (!isCimVersion14(cgmes)) {
+            addFullModel();
+            addTopologicalIsland();
+        }
 
         PropertyBags voltages = new PropertyBags();
         // Check for bus branch model
@@ -231,20 +235,50 @@ public class StateVariablesAdder {
         return is14;
     }
 
+    private void addTopologicalIsland() {
+        PropertyBags all = originalSVdata.get("topologicalIslands");
+        // there can be > 1 TopologicalIsland, we need to group PropertyBags by
+        // TopologicalIsland ID
+        Map<String, PropertyBags> byTopologicalIslandId = new HashMap<>();
+        all.forEach(a -> {
+            String island = a.getId("TopologicalIsland");
+            if (byTopologicalIslandId.keySet().contains(island)) {
+                byTopologicalIslandId.get(island).add(a);
+            } else {
+                PropertyBags pbs = new PropertyBags();
+                pbs.add(a);
+                byTopologicalIslandId.put(island, pbs);
+            }
+        });
+        // now we can process all TPNodes from each island, put them in one ComplexProperty.
+        PropertyBags topologicalIslands = new PropertyBags();
+        PropertyBag topologicalIsland = new PropertyBag(SV_TOPOLOGICALISLAND_PROPERTIES);
+        byTopologicalIslandId.values().forEach(value -> {
+                topologicalIsland.put("angleRefTopologicalNode", value.get(0).getId("AngleRefTopologicalNode"));
+                topologicalIsland.put("topologicalNodes", getComplexProperty(value, "TopologicalNodes"));
+                topologicalIslands.add(topologicalIsland);
+        });
+        cgmes.add(CgmesSubset.STATE_VARIABLES, "TopologicalIsland", topologicalIslands);
+    }
+
     private void addFullModel() {
         PropertyBags fullModelSV = new PropertyBags();
-        PropertyBag originModelObj = originalSVdata.get("fullModelSV").get(0);
+        PropertyBags originalModelDescription = originalSVdata.get("fullModelSV");
+        // for properties such as "md:Model.DependentOn" which might have arbitrary
+        // number of values,
+        // SPARQL will return multiple result sets. All are equal, except the complex
+        // property value.
+        // There is only one FullModel per graph,
+        PropertyBag newModelDescription = new PropertyBag(SV_FULLMODEL_PROPERTIES);
+        newModelDescription.put("scenarioTime", originalModelDescription.get(0).getId("scenarioTime"));
+        newModelDescription.put("created", originalModelDescription.get(0).getId("created"));
+        newModelDescription.put("description", originalModelDescription.get(0).getId("description"));
+        newModelDescription.put("version", originalModelDescription.get(0).getId("version"));
+        newModelDescription.put("DependentOn", getComplexProperty(originalModelDescription, "DependentOn"));
+        newModelDescription.put("profile", originalModelDescription.get(0).getId("profile"));
+        newModelDescription.put("modelingAuthoritySet", originalModelDescription.get(0).getId("modelingAuthoritySet"));
 
-        PropertyBag newModelObj = new PropertyBag(SV_FULLMODEL_PROPERTIES);
-        newModelObj.put("scenarioTime", originModelObj.getId("scenarioTime"));
-        newModelObj.put("created", originModelObj.getId("created"));
-        newModelObj.put("description", originModelObj.getId("description"));
-        newModelObj.put("version", originModelObj.getId("version"));
-        newModelObj.put("DependentOn", getDependentOn());
-        newModelObj.put("profile", originModelObj.getId("profile"));
-        newModelObj.put("modelingAuthoritySet", originModelObj.getId("modelingAuthoritySet"));
-
-        fullModelSV.add(newModelObj);
+        fullModelSV.add(newModelDescription);
         cgmes.add(CgmesSubset.STATE_VARIABLES, "FullModel", fullModelSV);
     }
 
@@ -328,6 +362,8 @@ public class StateVariablesAdder {
         CgmesNames.CONDUCTING_EQUIPMENT);
     private static final List<String> SV_FULLMODEL_PROPERTIES = Arrays.asList("scenarioTime", "created", "description",
         "version", "DependentOn", "profile", "modelingAuthoritySet");
+    private static final List<String> SV_TOPOLOGICALISLAND_PROPERTIES = Arrays.asList("angleRefTopologicalNode",
+        "topologicalNodes");
     private CgmesModel cgmes;
     private Map<String, PropertyBags> originalSVdata = new HashMap<>();
 

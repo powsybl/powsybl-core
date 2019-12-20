@@ -132,6 +132,8 @@ public interface CgmesModel {
 
     PropertyBags terminalsSV();
 
+    PropertyBags topologicalIslands();
+
     void clear(CgmesSubset subset);
 
     void add(CgmesSubset subset, String type, PropertyBags objects);

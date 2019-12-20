@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -173,10 +174,10 @@ public class PropertyBag extends HashMap<String, String> {
 
     public boolean isResource(String name) {
         // TODO do not rely on property name, use metadata or answer based on value?
-        return name.equals("TopologicalNode") || name.equals("Terminal")
-                || name.equals("ShuntCompensator") || name.equals("TapChanger")
-                || name.equals("ConductingEquipment") || name.equals("DependentOn")
-                || resourceNames.contains(name);
+        List<String> list = Stream.of("TopologicalNode", "Terminal", "ShuntCompensator",
+            "TapChanger", "ConductingEquipment", "DependentOn", "topologicalNodes",
+            "angleRefTopologicalNode").collect(Collectors.toList());
+        return list.contains(name) || resourceNames.contains(name);
     }
 
     public String namespacePrefix(String name) {

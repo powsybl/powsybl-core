@@ -243,6 +243,15 @@ OPTIONAL { GRAPH ?graphSVT {
 }}
 }
 
+# query: topologicalIslands
+SELECT *
+{ GRAPH ?graph { 
+	?TopologicalIsland
+		a cim:TopologicalIsland ;
+        cim:TopologicalIsland.AngleRefTopologicalNode ?AngleRefTopologicalNode ;
+        cim:TopologicalIsland.TopologicalNodes ?TopologicalNodes .
+}}
+
 # query: connectivityNodeContainers
 SELECT *
 WHERE {
