@@ -14,11 +14,36 @@ import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.Cgme
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TapChanger.Step;
+import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
+ * TapChangerTypes
+ * <p>
+ * TapChangers are classified into four categories: NULL, FIXED, NON_REGULATING and REGULATING <br>
+ * NULL: TapChanger does not exist <br>
+ * FIXED: TapChanger has only one step <br>
+ * NON_REGULATING: TapChanger is not regulating. It has several steps <br>
+ * REGULATING: TapChanger is regulating and has several steps
+ * <p>
+ * These categories are used to establish a priority ranking when two tapChanger are combined to only one.
+ * The tapChanger with lower priority is fixed at the current tap position and the tapChanger with higher priority
+ * is preserved. NULL is the lowest priority and REGULATING the highest one. <br>
+ * If both tapChangers are regulating tapChanger at end2 is fixed
+ * <p>
+ * The combineTapChanger method does a Cartesian product of two tapChangers getting as result a new tapChanger with
+ * steps1 x steps2 steps. The combined tapChanger will not be useful for network analysis and it is not possible to
+ * map back to the original one. <br>
+ * To avoid this, one of the tapChangers must be fixed. To do that the tapChangerFixPosition method is used.
+ * <p>
+ * A warning message is logged when a tapChanger is fixed.
+ * <p>
+ * When structural ratio is moved a correction is applied to transmission impedance (r, x) and shunt admittance (g and b). <br>
+ * When tapChanger is moved the transmission impedance and shunt admittance correction is managed as step correction
+ * expressed as percentage deviation of nominal value.
+ * <p>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
@@ -33,7 +58,6 @@ public abstract class AbstractTransformerConversion
         super(type, ends, context);
     }
 
-    // combine two tap changers
     protected TapChanger combineTapChangers(TapChanger tc1, TapChanger tc2) {
         switch (tapChangerType(tc1)) {
             case NULL:
@@ -104,10 +128,13 @@ public abstract class AbstractTransformerConversion
 
     private static TapChanger combineTapChanger(TapChanger tc1, TapChanger tc2) {
         TapChanger tapChanger = baseCloneTapChanger(tc1);
-        combineTapChangerFixTapChangerSteps(tapChanger, tc1, tc2);
+        combineTapChangerSteps(tapChanger, tc1, tc2);
         return tapChanger;
     }
 
+    /**
+     * A new tapChanger is created with only one step, the current tap position.
+    */
     private TapChanger tapChangerFixPosition(TapChanger tc) {
         if (tc.getLowTapPosition() != tc.getHighTapPosition()) {
             fixed(String.format("TapChanger Id %s fixed tap at position %d ", tc.getId(), tc.getTapPosition()), "");
@@ -136,7 +163,28 @@ public abstract class AbstractTransformerConversion
         return tapChanger;
     }
 
-    private static void combineTapChangerFixTapChangerSteps(TapChanger tapChanger, TapChanger tc1, TapChanger fixTc) {
+    /**
+     * A new tapChanger is created as Cartesian product of tc1 and tc2
+     * One of the tapChangers must be fixed (only one step)
+    */
+    private static void combineTapChangerSteps(TapChanger tapChanger, TapChanger tc1, TapChanger tc2) {
+        TapChanger fixTc;
+        TapChanger tc;
+        if (tc1 != null && tc2 != null && tc1.getSteps().size() == 1
+            && tc1.getLowTapPosition() == tc1.getHighTapPosition()) {
+            fixTc = tc1;
+            tc = tc2;
+        } else if (tc1 != null && tc2 != null && tc2.getSteps().size() == 1
+            && tc2.getLowTapPosition() == tc2.getHighTapPosition()) {
+            fixTc = tc2;
+            tc = tc1;
+        } else if (tc1 != null && tc2 != null) {
+            throw new CgmesModelException(
+                "Unexpected number of steps in tapChangers: " + tc1.getId() + ", " + tc2.getId());
+        } else {
+            throw new CgmesModelException("Unexpected null tapChanger");
+        }
+
         Step stepFixed = getTapChangerFixedStep(fixTc);
         double ratioFixed = stepFixed.getRatio();
         double angleFixed = stepFixed.getAngle();
@@ -148,7 +196,7 @@ public abstract class AbstractTransformerConversion
         double b2Fixed = stepFixed.getB2();
         Complex aFixed = new Complex(ratioFixed * Math.cos(Math.toRadians(angleFixed)),
             ratioFixed * Math.sin(Math.toRadians(angleFixed)));
-        tc1.getSteps().forEach(step -> {
+        tc.getSteps().forEach(step -> {
             double ratio = step.getRatio();
             double angle = step.getAngle();
             double r = step.getR();
@@ -171,21 +219,27 @@ public abstract class AbstractTransformerConversion
                 .setB2(combineTapChangerCorrection(b2Fixed, b2))
                 .endStep();
         });
+        tapChanger.setLowTapPosition(tc.getLowTapPosition());
+        tapChanger.setTapPosition(tc.getTapPosition());
     }
 
-    private static double combineTapChangerCorrection(double fixedCorrection, double correction) {
-        if (fixedCorrection != 0.0 && correction != 0.0) {
-            return fixedCorrection * correction;
-        } else if (fixedCorrection != 0.0) {
-            return fixedCorrection;
-        } else if (correction != 0.0) {
-            return correction;
+    /**
+     * To combine the percentage deviations express them as multiplying factor, then combine and
+     * express them again as percentage deviation
+     */
+    private static double combineTapChangerCorrection(double correction1, double correction2) {
+        if (correction1 != 0.0 && correction2 != 0.0) {
+            return 100 * ((1 + correction1 / 100) * (1 + correction2 / 100) - 1);
+        } else if (correction1 != 0.0) {
+            return correction1;
+        } else if (correction2 != 0.0) {
+            return correction2;
         } else {
             return 0.0;
         }
     }
 
-    // Move tapChanger
+    // not used at the moment
     protected static TapChanger  moveTapChangerFrom1To2(TapChanger tc) {
         return moveTapChangerFromOneEndToTheOther(tc);
     }
@@ -206,6 +260,19 @@ public abstract class AbstractTransformerConversion
         return null;
     }
 
+    /**
+     * A new equivalent tapChanger located at the other side is created.
+     * When given in RatioTapChangerTablePoint
+     * r, x, g, b of the step are already percentage deviations of nominal values
+     * R = R * (1 + r / 100)
+     * X = X * (1 + x / 100)
+     * G = G * (1 + g / 100)
+     * B = B * (1 + b / 100)
+     *
+     * New tapChanger
+     * Will have the same base attributes, ratio will be the reciprocal and
+     * an impedance/admittance deviation is required by step
+     */
     private static TapChanger moveTapChanger(TapChanger tc) {
         TapChanger tapChanger = baseCloneTapChanger(tc);
         moveTapChangerSteps(tapChanger, tc);
@@ -236,11 +303,20 @@ public abstract class AbstractTransformerConversion
         });
     }
 
-    private static TapChangerStepConversion calculateConversionStep(double ratio, double angle, double r,
+    private static TapChangerStepConversion calculateConversionStep(double a, double angle, double r,
+        double x, double g1, double b1, double g2, double b2) {
+        Complex ratio = new Complex(a * Math.cos(Math.toRadians(angle)),
+            a * Math.sin(Math.toRadians(angle)));
+        return calculateConversionStep(ratio, r, x, g1, b1, g2, b2);
+    }
+
+    /**
+     * To calculate the step correction express it as multiplying factor, then apply the correction
+     * and express again as percentage deviation
+     */
+    private static TapChangerStepConversion calculateConversionStep(Complex a, double r,
         double x, double g1, double b1, double g2, double b2) {
         TapChangerStepConversion step = new TapChangerStepConversion();
-        Complex a = new Complex(ratio * Math.cos(Math.toRadians(angle)),
-            ratio * Math.sin(Math.toRadians(angle)));
         Complex na = a.reciprocal();
         step.ratio = na.abs();
         step.angle = Math.toDegrees(na.getArgument());
@@ -265,21 +341,29 @@ public abstract class AbstractTransformerConversion
         return ratio;
     }
 
-    protected static RatioConversion moveRatioFrom2To1(double a0, double angle, double r, double x, double g1,
+    protected static RatioConversion moveRatioFrom2To1(double a, double angle, double r, double x, double g1,
         double b1, double g2, double b2) {
-        return moveRatio(a0, angle, r, x, g1, b1, g2, b2);
+        return moveRatio(a, angle, r, x, g1, b1, g2, b2);
     }
 
-    protected static RatioConversion moveRatioFrom1To2(double a0, double angle, double r, double x, double g1,
+    protected static RatioConversion moveRatioFrom1To2(double a, double angle, double r, double x, double g1,
         double b1, double g2, double b2) {
-        return moveRatio(a0, angle, r, x, g1, b1, g2, b2);
+        return moveRatio(a, angle, r, x, g1, b1, g2, b2);
     }
 
-    private static RatioConversion moveRatio(double a0, double angle, double r, double x, double g1,
+    /**
+     * Equivalent impedance / admittance after moving a complex ratio from one end to the other
+     */
+    private static RatioConversion moveRatio(double a, double angle, double r, double x, double g1,
+        double b1, double g2, double b2) {
+        Complex ratio = new Complex(a * Math.cos(Math.toRadians(angle)),
+            a * Math.sin(Math.toRadians(angle)));
+        return moveRatio(ratio, r, x, g1, b1, g2, b2);
+    }
+
+    private static RatioConversion moveRatio(Complex a, double r, double x, double g1,
         double b1, double g2, double b2) {
         RatioConversion ratio = new RatioConversion();
-        Complex a = new Complex(a0 * Math.cos(Math.toRadians(angle)),
-            a0 * Math.sin(Math.toRadians(angle)));
         ratio.r = impedanceConversion(r, a);
         ratio.x = impedanceConversion(x, a);
         ratio.g1 = admittanceConversion(g1, a);
@@ -299,6 +383,9 @@ public abstract class AbstractTransformerConversion
         return correction * a2;
     }
 
+    /**
+     * A new tapChanger is created with the same base attributes. Steps are not cloned.
+     */
     private static TapChanger baseCloneTapChanger(TapChanger rtc) {
         TapChanger tapChanger = new TapChanger();
         String id = rtc.getId();
@@ -479,4 +566,3 @@ public abstract class AbstractTransformerConversion
         double b2;
     }
 }
-

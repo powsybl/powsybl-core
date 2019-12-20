@@ -20,6 +20,37 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
+ * TwoWindingsTransformer Cgmes Conversion
+ * <p>
+ * Cgmes conversion for transformers (two and three windings) is divided into four stages: load, interpret, convert and set.
+ * <p>
+ * Load <br>
+ * Native CGMES data is loaded from the triple store query and is put in the CGMES model object (CgmesT2xModel).
+ * <p>
+ * Interpret <br>
+ * CgmesT2xModel data is mapped to a more general two windings transformer model (InterpretedT2xModel)
+ * according to a predefined configured alternative. It is an elemental process as the only objective is to put
+ * Cgmes data in the placeholders of the general two windings transformer model.
+ * All possible alternatives and the default one are defined in conversion class. See {@link Conversion} <br>
+ * InterpretedT2xModel supports ratioTapChanger and phaseTapChanger at each end. Shunt admittances can be defined at both ends and
+ * allows to specify the end of the structural ratio.
+ * <p>
+ * Convert <br>
+ * Converts the interpreted model (InterpretedT2xModel) to the converted model object (ConvertedT2xModel). <br>
+ * The ConvertedT2xModel only allows to define ratioTapChanger and phaseTapChanger at end1.
+ * Shunt admittances and structural ratio must be also at end1. <br>
+ * To do this process the following methods are used: <br>
+ * moveTapChangerFrom2To1: To move a tapChanger from end2 to end1 <br>
+ * combineTapChanger: To reduce two tapChangers to one <br>
+ * moveRatioFrom2To1: To move structural ratio from end2 to end1 <br>
+ * Finally shunt admittance of both ends is added to end1. This step is an approximation and only
+ * will be possible to reproduce the exact case result if Cgmes shunts are defined at end1 or
+ * are split and the LoadflowParameter splitShuntAdmittance option is selected. <br>
+ * See {@link AbstractTransformerConversion}
+ * <p>
+ * Set <br>
+ * A direct map from ConvertedT2xModel to IIDM model
+ * <p>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
@@ -97,6 +128,10 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         return cgmesT2xModel;
     }
 
+    /**
+    * Maps Cgmes ratioTapChangers, phaseTapChangers, shuntAdmittances and structural ratio
+    * according to the alternative. The rest of the Cgmes data is directly mapped.
+    */
     private InterpretedT2xModel interpret(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
 
         AllTapChanger interpretedTapChanger = ratioPhaseAlternative(cgmesT2xModel, alternative);
@@ -127,6 +162,14 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         return interpretedT2xModel;
     }
 
+    /**
+     * END1. All tapChangers of the Cgmes model are supposed to be at end1. The interpreted model only supports
+     * one ratioTapChanger or phaseTapChanger at each end so they should be combined to only one as two are possible.
+     * END2. All tapChangers of the Cgmes model are supposed to be at end2. They should be combined.
+     * END1_END2. Tap changers are directly mapped at each end.
+     * X. Tap changers are mapped at end1 or end2 depending on the xIsZero attribute.
+     * Finally the angle sign is changed according to the alternative
+     */
     private AllTapChanger ratioPhaseAlternative(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
         TapChanger ratioTapChanger1 = null;
         TapChanger phaseTapChanger1 = null;
@@ -173,6 +216,9 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         return allTapChanger;
     }
 
+    /**
+     * Shunt admittances are mapped according to alternative options
+     */
     private static AllShunt shuntAlternative(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
         double g1 = 0.0;
         double b1 = 0.0;
@@ -210,7 +256,9 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         return allShunt;
     }
 
-    // return true if the structural ratio is at end2
+    /**
+     * return true if the structural ratio is at end2
+     */
     private static boolean structuralRatioAlternative(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
         if (cgmesT2xModel.end1.ratedU == cgmesT2xModel.end2.ratedU) {
             return false;
@@ -225,6 +273,13 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
         }
         return false;
     }
+
+    /**
+     * ratioTapChanger and phaseTapChanger of end2 are moved to end1 and then combined with the tapChangers
+     * initially  defined at end1.
+     * If the structural ratio is defined at end2 is moved to end1
+     * The rest of attributes are directly mapped
+     */
 
     private ConvertedT2xModel convertToIidm(InterpretedT2xModel interpretedT2xModel) {
 

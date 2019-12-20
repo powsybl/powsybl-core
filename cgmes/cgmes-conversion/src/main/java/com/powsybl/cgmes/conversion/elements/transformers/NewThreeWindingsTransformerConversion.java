@@ -21,6 +21,37 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
+ * ThreeWindingsTransformer Cgmes Conversion
+ * <p>
+ * Cgmes conversion for transformers (two and three windings) is divided into four stages: load, interpret, convert and set.
+ * <p>
+ * Load <br>
+ * Native CGMES data is loaded from the triple store query and is put in the CGMES model object (CgmesT3xModel).
+ * <p>
+ * Interpret <br>
+ * CgmesT3xModel data is mapped to a more general three windings transformer model (InterpretedT3xModel)
+ * according to a predefined configured alternative. It is an elemental process as the only objective is to put
+ * Cgmes data in the placeholders of the general three windings transformer model.
+ * All possible alternatives and the default one are defined in conversion class. See {@link Conversion} <br>
+ * InterpretedT3xModel supports ratioTapChanger and phaseTapChanger at each end of any leg. Shunt admittances
+ * can also be defined at both ends of each leg and allows to specify the end of the structural ratio by leg.
+ * <p>
+ * Convert <br>
+ * Converts the interpreted model (InterpretedT3xModel) to the converted model object (ConvertedT3xModel). <br>
+ * The ConvertedT3xModel only allows to define ratioTapChanger and phaseTapChanger at the network side of any leg.
+ * Shunt admittances and structural ratio must be also at the network side. <br>
+ * To do this process the following methods are applied to each leg: <br>
+ * moveTapChangerFrom2To1: To move a tapChanger from star bus side to network side <br>
+ * combineTapChanger: To reduce two tapChangers to one <br>
+ * moveRatioFrom2To1: To move structural ratio from star bus side to network side <br>
+ * Finally shunt admittance of both ends of the leg is added to network side. This step is an approximation and only
+ * will be possible to reproduce the exact case result if Cgmes shunts are defined at network side or
+ * are split and the LoadflowParameter splitShuntAdmittance option is selected. <br>
+ * See {@link AbstractTransformerConversion}
+ * <p>
+ * Set <br>
+ * A direct map from ConvertedT3xModel to IIDM model
+ * <p>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
@@ -68,6 +99,9 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         cgmesWinding.terminal = terminal;
     }
 
+    /**
+    * RatedU0 is selected according to the alternative. Each leg or winding is interpreted.
+    */
     private static InterpretedT3xModel interpret(CgmesT3xModel cgmesT3xModel, Conversion.Config alternative) {
 
         InterpretedT3xModel interpretedT3xModel = new InterpretedT3xModel();
@@ -81,6 +115,10 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return interpretedT3xModel;
     }
 
+    /**
+     * Maps Cgmes ratioTapChangers, phaseTapChangers, shuntAdmittances and structural ratio
+     * according to the alternative. The rest of the Cgmes data is directly mapped.
+     */
     private static void interpretWinding(CgmesWinding cgmesWinding, Conversion.Config alternative, InterpretedWinding interpretedWinding) {
 
         AllTapChanger windingInterpretedTapChanger = ratioPhaseAlternative(cgmesWinding, alternative);
@@ -104,6 +142,11 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         interpretedWinding.structuralRatioAtEnd2 = windingStructuralRatioAtEnd2;
     }
 
+    /**
+     * RatioTapChanger and PhaseTapChanger are assigned according the alternative
+     * Network side is always the end1 of the leg and star bus side end2
+     * Finally the angle sign is changed according to the alternative
+     */
     private static AllTapChanger ratioPhaseAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
         TapChanger ratioTapChanger1 = null;
         TapChanger phaseTapChanger1 = null;
@@ -132,6 +175,9 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return allTapChanger;
     }
 
+    /**
+     * Shunt admittances are mapped according to alternative options
+     */
     private static AllShunt shuntAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
         double g1 = 0.0;
         double b1 = 0.0;
@@ -164,7 +210,9 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return allShunt;
     }
 
-    // return true if the structural ratio is at end2 of the leg (star bus side)
+    /**
+     * return true if the structural ratio is at end2 of the leg (star bus side)
+     */
     private static boolean structuralRatioAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
         switch (alternative.getXfmr3StructuralRatio()) {
             case NETWORK_SIDE:
@@ -178,7 +226,12 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return false;
     }
 
-    // return ratedU0
+    /**
+     * return the ratedU0 (ratedU at the star bus side)
+     * If the structural ratio is defined at the star bus side ratedU0 can be any value. selectRatedU0 selects it.
+     * If the structural ratio is defined at the network side only four options are considered,
+     * 1.0 kv, ratedU1, ratedU2 and ratedU3
+     */
     private static double ratedU0Alternative(CgmesT3xModel cgmesT3xModel, Conversion.Config alternative) {
         switch (alternative.getXfmr3StructuralRatio()) {
             case NETWORK_SIDE:
@@ -195,7 +248,6 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return 1.0;
     }
 
-    // Select the ratedU0 voltage
     private static double selectRatedU0(CgmesT3xModel cgmesT3xModel) {
         return cgmesT3xModel.winding1.ratedU;
     }
@@ -214,6 +266,13 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
         return convertedModel;
     }
 
+    /**
+     * At each winding or leg:
+     * TapChanger are moved from star bus side (end2) to network side (end1) then are combined with tapChangers
+     * initially defined at the network side.
+     * Structural ratio is moved from star bus side to network side if it is necessary
+     * The rest of attributes are directly mapped
+     */
     private void convertToIidmWinding(InterpretedWinding interpretedWinding, ConvertedWinding convertedWinding, double ratedU0) {
         TapChangerWinding windingTapChanger = moveCombineTapChangerWinding(interpretedWinding);
 
