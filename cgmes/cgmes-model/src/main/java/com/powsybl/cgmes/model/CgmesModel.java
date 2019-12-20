@@ -24,6 +24,7 @@ import java.util.function.Consumer;
  */
 public interface CgmesModel {
 
+    // FIXME generic cgmes models may not have an underlying triplestore
     TripleStore tripleStore();
 
     Properties getProperties();
@@ -135,13 +136,13 @@ public interface CgmesModel {
 
     void print(Consumer<String> liner);
 
-    // read/write
-
     static String baseName(ReadOnlyDataSource ds) {
         return new CgmesOnDataSource(ds).baseName();
     }
 
     void setBasename(String baseName);
+
+    String getBasename();
 
     void write(DataSource ds);
 
