@@ -93,7 +93,7 @@ public class ProjectFile extends ProjectNode {
         }).collect(Collectors.toList())));
     }
 
-    public <T> List<T> getDependencies(String name, Class<T> nodeClass) {
+    public <T extends ProjectNode> List<T> getDependencies(String name, Class<T> nodeClass) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(nodeClass);
         return storage.getDependencies(info.getId(), name).stream()
