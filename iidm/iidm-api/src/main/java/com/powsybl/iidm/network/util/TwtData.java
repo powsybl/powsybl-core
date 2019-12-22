@@ -121,7 +121,7 @@ public class TwtData {
         b2 = getB(twt.getLeg2());
         g3 = getG(twt.getLeg3());
         b3 = getB(twt.getLeg3());
-        
+
         this.ratedU0 = twt.getRatedU0();
         this.phaseAngleClock2 = phaseAngleClock2;
         this.phaseAngleClock3 = phaseAngleClock3;
@@ -136,7 +136,7 @@ public class TwtData {
         ratedU1 = twt.getLeg1().getRatedU();
         ratedU2 = twt.getLeg2().getRatedU();
         ratedU3 = twt.getLeg3().getRatedU();
-        
+
         double rhof = 1.0;
         double alphaf = 0.0;
 
