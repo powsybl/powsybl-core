@@ -175,9 +175,15 @@ public class PropertyBag extends HashMap<String, String> {
     public boolean isResource(String name) {
         // TODO do not rely on property name, use metadata or answer based on value?
         List<String> list = Stream.of("TopologicalNode", "Terminal", "ShuntCompensator",
-            "TapChanger", "ConductingEquipment", "DependentOn", "topologicalNodes",
-            "angleRefTopologicalNode").collect(Collectors.toList());
+            "TapChanger", "ConductingEquipment", "DependentOn", "TopologicalNodes",
+            "AngleRefTopologicalNode").collect(Collectors.toList());
         return list.contains(name) || resourceNames.contains(name);
+    }
+
+    public boolean isMultivaluedProperty(String name) {
+        // TODO do not rely on property name, use metadata or answer based on value?
+        List<String> list = Stream.of("DependentOn", "TopologicalNodes").collect(Collectors.toList());
+        return list.contains(name);
     }
 
     public String namespacePrefix(String name) {

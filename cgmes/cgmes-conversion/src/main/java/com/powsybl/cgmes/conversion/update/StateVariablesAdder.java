@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
@@ -57,25 +56,16 @@ public class StateVariablesAdder {
         return originalSVdata;
     }
 
-    private String getComplexProperty(PropertyBags originalModelDescription, String complexPropertyName) {
-        // for properties such as "md:Model.DependentOn" which might have arbitrary
-        // number of values,
-        // SPARQL will return multiple result sets. We will loop through all and collect
-        // all values for the property.
-        List<String> list = new ArrayList<>();
-        originalModelDescription.forEach(m -> list.add(m.getId(complexPropertyName)));
-        return String.join(",", list);
-    }
-
     public void add(Network n, CgmesModel cgmes) {
-        // TODO Add full model data with proper profile (StateVariables)
-        // FullModel is defined in ModelDescription:
-        // http://iec.ch/TC57/61970-552/ModelDescription/1#
-        // TODO add TopologicalIsland as it was in cgmes : original topology is
-        // preserved.
+
         if (!isCimVersion14(cgmes)) {
-            addFullModel();
-            addTopologicalIsland();
+            // Added full model data with proper profile (StateVariables)
+            // FullModel is defined in ModelDescription:
+            // http://iec.ch/TC57/61970-552/ModelDescription/1#
+            addModelDescription();
+            // added TopologicalIsland as it was in cgmes : original topology is
+            // preserved.
+            addTopologicalIslands();
         }
 
         PropertyBags voltages = new PropertyBags();
@@ -235,13 +225,13 @@ public class StateVariablesAdder {
         return is14;
     }
 
-    private void addTopologicalIsland() {
+    private void addTopologicalIslands() {
         PropertyBags all = originalSVdata.get("topologicalIslands");
         // there can be > 1 TopologicalIsland, we need to group PropertyBags by
         // TopologicalIsland ID
         Map<String, PropertyBags> byTopologicalIslandId = new HashMap<>();
         all.forEach(a -> {
-            String island = a.getId("TopologicalIsland");
+            String island = a.getId(CgmesNames.TOPOLOGICAL_ISLAND);
             if (byTopologicalIslandId.keySet().contains(island)) {
                 byTopologicalIslandId.get(island).add(a);
             } else {
@@ -250,36 +240,46 @@ public class StateVariablesAdder {
                 byTopologicalIslandId.put(island, pbs);
             }
         });
-        // now we can process all TPNodes from each island, put them in one ComplexProperty.
+        // now we can process all TPNodes from each island, put them in one
+        // multivaluedProperty.
         PropertyBags topologicalIslands = new PropertyBags();
         PropertyBag topologicalIsland = new PropertyBag(SV_TOPOLOGICALISLAND_PROPERTIES);
         byTopologicalIslandId.values().forEach(value -> {
-                topologicalIsland.put("angleRefTopologicalNode", value.get(0).getId("AngleRefTopologicalNode"));
-                topologicalIsland.put("topologicalNodes", getComplexProperty(value, "TopologicalNodes"));
-                topologicalIslands.add(topologicalIsland);
+            topologicalIsland.put(CgmesNames.ANGLEREF_TOPOLOGICALNODE,
+                value.get(0).getId(CgmesNames.ANGLEREF_TOPOLOGICALNODE));
+            topologicalIsland.put(CgmesNames.TOPOLOGICAL_NODES,
+                getMultivaluedProperty(value, CgmesNames.TOPOLOGICAL_NODES));
+            topologicalIslands.add(topologicalIsland);
         });
-        cgmes.add(CgmesSubset.STATE_VARIABLES, "TopologicalIsland", topologicalIslands);
+        cgmes.add(CgmesSubset.STATE_VARIABLES, CgmesNames.TOPOLOGICAL_ISLAND, topologicalIslands);
     }
 
-    private void addFullModel() {
+    private String getMultivaluedProperty(PropertyBags pb, String multivaluedPropertyName) {
+        // for properties such as "md:Model.DependentOn" which might have arbitrary
+        // number of values, SPARQL will return multiple result sets. We will loop
+        // through all and collect all values for multiValued property.
+        List<String> list = new ArrayList<>();
+        pb.forEach(m -> list.add(m.getId(multivaluedPropertyName)));
+        return String.join(",", list);
+    }
+
+    private void addModelDescription() {
         PropertyBags fullModelSV = new PropertyBags();
         PropertyBags originalModelDescription = originalSVdata.get("fullModelSV");
         // for properties such as "md:Model.DependentOn" which might have arbitrary
-        // number of values,
-        // SPARQL will return multiple result sets. All are equal, except the complex
-        // property value.
-        // There is only one FullModel per graph,
+        // number of values, SPARQL will return multiple result sets.
+        // All are equal, except the multiValued property value.
         PropertyBag newModelDescription = new PropertyBag(SV_FULLMODEL_PROPERTIES);
-        newModelDescription.put("scenarioTime", originalModelDescription.get(0).getId("scenarioTime"));
-        newModelDescription.put("created", originalModelDescription.get(0).getId("created"));
-        newModelDescription.put("description", originalModelDescription.get(0).getId("description"));
-        newModelDescription.put("version", originalModelDescription.get(0).getId("version"));
-        newModelDescription.put("DependentOn", getComplexProperty(originalModelDescription, "DependentOn"));
-        newModelDescription.put("profile", originalModelDescription.get(0).getId("profile"));
-        newModelDescription.put("modelingAuthoritySet", originalModelDescription.get(0).getId("modelingAuthoritySet"));
+        newModelDescription.put(CgmesNames.SCENARIO_TIME, originalModelDescription.get(0).getId(CgmesNames.SCENARIO_TIME));
+        newModelDescription.put(CgmesNames.CREATED, originalModelDescription.get(0).getId(CgmesNames.CREATED));
+        newModelDescription.put(CgmesNames.DESCRIPTION, originalModelDescription.get(0).getId(CgmesNames.DESCRIPTION));
+        newModelDescription.put(CgmesNames.VERSION, originalModelDescription.get(0).getId(CgmesNames.VERSION));
+        newModelDescription.put(CgmesNames.DEPENDENT_ON, getMultivaluedProperty(originalModelDescription, CgmesNames.DEPENDENT_ON));
+        newModelDescription.put(CgmesNames.PROFILE, originalModelDescription.get(0).getId(CgmesNames.PROFILE));
+        newModelDescription.put(CgmesNames.MODELING_AUTHORITY_SET, originalModelDescription.get(0).getId(CgmesNames.MODELING_AUTHORITY_SET));
 
         fullModelSV.add(newModelDescription);
-        cgmes.add(CgmesSubset.STATE_VARIABLES, "FullModel", fullModelSV);
+        cgmes.add(CgmesSubset.STATE_VARIABLES, CgmesNames.FULL_MODEL, fullModelSV);
     }
 
     // FIXME elena Uses LinkData class, not yet in master, I've copied in into the
@@ -348,11 +348,6 @@ public class StateVariablesAdder {
         return String.valueOf(value);
     }
 
-    private static String topologicalNodeFromBusId(String iidmBusId) {
-        // TODO Consider potential namingStrategy transformations
-        return iidmBusId;
-    }
-
     private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList(CgmesNames.ANGLE, CgmesNames.VOLTAGE,
         CgmesNames.TOPOLOGICAL_NODE);
     private static final List<String> SV_POWERFLOW_PROPERTIES = Arrays.asList("p", "q", CgmesNames.TERMINAL);
@@ -360,10 +355,12 @@ public class StateVariablesAdder {
         "continuousSections");
     private static final List<String> SV_SVSTATUS_PROPERTIES = Arrays.asList("inService",
         CgmesNames.CONDUCTING_EQUIPMENT);
-    private static final List<String> SV_FULLMODEL_PROPERTIES = Arrays.asList("scenarioTime", "created", "description",
-        "version", "DependentOn", "profile", "modelingAuthoritySet");
-    private static final List<String> SV_TOPOLOGICALISLAND_PROPERTIES = Arrays.asList("angleRefTopologicalNode",
-        "topologicalNodes");
+    private static final List<String> SV_FULLMODEL_PROPERTIES = Arrays.asList(CgmesNames.SCENARIO_TIME,
+        CgmesNames.CREATED, CgmesNames.DESCRIPTION,
+        CgmesNames.VERSION, CgmesNames.DEPENDENT_ON,
+        CgmesNames.PROFILE, CgmesNames.MODELING_AUTHORITY_SET);
+    private static final List<String> SV_TOPOLOGICALISLAND_PROPERTIES = Arrays.asList(
+        CgmesNames.ANGLEREF_TOPOLOGICALNODE, CgmesNames.TOPOLOGICAL_NODES);
     private CgmesModel cgmes;
     private Map<String, PropertyBags> originalSVdata = new HashMap<>();
 

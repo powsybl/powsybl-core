@@ -13,6 +13,13 @@ package com.powsybl.cgmes.model;
 public final class CgmesNames {
 
     public static final String FULL_MODEL = "FullModel";
+    public static final String SCENARIO_TIME = "scenarioTime";
+    public static final String CREATED = "created";
+    public static final String DESCRIPTION = "description";
+    public static final String VERSION = "version";
+    public static final String DEPENDENT_ON = "DependentOn";
+    public static final String PROFILE = "profile";
+    public static final String MODELING_AUTHORITY_SET = "modelingAuthoritySet";
 
     public static final String SUBSTATION = "Substation";
     public static final String VOLTAGE_LEVEL = "VoltageLevel";
@@ -43,6 +50,10 @@ public final class CgmesNames {
 
     public static final String TERMINAL1 = "Terminal1";
     public static final String TERMINAL2 = "Terminal2";
+
+    public static final String TOPOLOGICAL_ISLAND = "TopologicalIsland";
+    public static final String ANGLEREF_TOPOLOGICALNODE = "AngleRefTopologicalNode";
+    public static final String TOPOLOGICAL_NODES = "TopologicalNodes";
 
     private CgmesNames() {
     }

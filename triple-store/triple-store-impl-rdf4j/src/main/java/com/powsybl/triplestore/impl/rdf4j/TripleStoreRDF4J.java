@@ -17,7 +17,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.rdf4j.IsolationLevels;
 import org.eclipse.rdf4j.common.iteration.Iterations;
@@ -262,7 +261,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         PropertyBag statement,
         Resource context) {
         if (objType.equals("FullModel")) {
-            return addDescription(cnx, objNs, objType, statement, context);
+            return addModelDescription(cnx, objNs, objType, statement, context);
         }
         IRI resource = cnx.getValueFactory().createIRI(cnx.getNamespace("data"), "_" + UUID.randomUUID().toString());
         IRI parentPredicate = RDF.TYPE;
@@ -274,14 +273,9 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         return resource.getLocalName();
     }
 
-    private static boolean isComplex(String name) {
-        List<String> list = Stream.of("DependentOn", "topologicalNodes").collect(Collectors.toList());
-        return list.contains(name);
-    }
-
-    private static String addDescription(RepositoryConnection cnx, String objNs, String objType,
+    private static String addModelDescription(RepositoryConnection cnx, String objNs, String objType,
         PropertyBag statement, Resource context) {
-        IRI resource = cnx.getValueFactory().createIRI(cnx.getNamespace("data"), "urn:uuid:" + UUID.randomUUID().toString());
+        IRI resource = cnx.getValueFactory().createIRI("urn:uuid:" + UUID.randomUUID().toString());
         IRI parentPredicate = RDF.TYPE;
         IRI parentObject = cnx.getValueFactory().createIRI(objNs + objType);
         Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
@@ -300,8 +294,8 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             IRI predicate = cnx.getValueFactory().createIRI(objNs + property);
             if (statement.isResource(name)) {
                 IRI object;
-                if (isComplex(name)) {
-                    addComplex(cnx, value, resource, predicate, context);
+                if (statement.isMultivaluedProperty(name)) {
+                    addMultivaluedProperty(cnx, value, resource, predicate, context);
                 } else {
                     if (URIUtil.isValidURIReference(value)) { // the value already contains the namespace
                         object = cnx.getValueFactory().createIRI(value);
@@ -320,11 +314,11 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         });
     }
 
-    private static void addComplex(RepositoryConnection cnx, String value, IRI resource, IRI predicate, Resource context) {
+    private static void addMultivaluedProperty(RepositoryConnection cnx, String value, IRI resource, IRI predicate, Resource context) {
         String[] objs = value.split(",");
         for (String o : objs) {
-            if(!o.startsWith("urn:uuid:")) {
-                o = cnx.getNamespace("data")+o;
+            if (!o.startsWith("urn:uuid:")) {
+                o = cnx.getNamespace("data") + o;
             }
             IRI object = cnx.getValueFactory().createIRI(o);
             Statement st = cnx.getValueFactory().createStatement(resource, predicate, object);

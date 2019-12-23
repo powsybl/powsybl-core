@@ -564,7 +564,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     public void add(CgmesSubset subset, String type, PropertyBags objects) {
         String contextName = contextNameFor(subset);
         try {
-            if (type.equals("FullModel")) {
+            if (type.equals(CgmesNames.FULL_MODEL)) {
                 tripleStore.add(contextName, mdNamespace(), type, objects);
             } else {
                 tripleStore.add(contextName, cimNamespace, type, objects);
@@ -578,7 +578,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private String mdNamespace() {
         // Return the first namespace for the prefix md
         // If no namespace is found, return default
-        PrefixNamespace def = new PrefixNamespace("md", "http://iec.ch/TC57/61970-552/ModelDescription/1#");
+        PrefixNamespace def = new PrefixNamespace("md", MD_NAMESPACE);
         return tripleStore.getNamespaces().stream().filter(ns -> ns.getPrefix().equals("md"))
         .findFirst().orElse(def).getNamespace();
     }
@@ -652,4 +652,5 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private static final String PROFILE = "profile";
     private static final Logger LOG = LoggerFactory.getLogger(CgmesModelTripleStore.class);
     private static final String[] PARAMETER_REFERENCE = {"{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}", "{7}", "{8}", "{9}"};
+    private static final String MD_NAMESPACE = "http://iec.ch/TC57/61970-552/ModelDescription/1#";
 }
