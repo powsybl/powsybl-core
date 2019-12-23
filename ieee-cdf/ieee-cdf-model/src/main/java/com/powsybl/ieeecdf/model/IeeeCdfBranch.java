@@ -125,21 +125,21 @@ public class IeeeCdfBranch {
      */
     @FixedWidth(from = 19, to = 29, alignment = FieldAlignment.RIGHT)
     @Parsed
-    private float resistance;
+    private double resistance;
 
     /**
      * Branch reactance X, per unit (F) * No zero impedance lines
      */
     @FixedWidth(from = 29, to = 40, alignment = FieldAlignment.RIGHT)
     @Parsed
-    private float reactance;
+    private double reactance;
 
     /**
      * Line charging B, per unit (F) * (total line charging, +B)
      */
     @FixedWidth(from = 40, to = 50, alignment = FieldAlignment.RIGHT)
     @Parsed
-    private float chargingSusceptance;
+    private double chargingSusceptance;
 
     /**
      * Line MVA rating No 1 (I) Left justify!
@@ -182,49 +182,49 @@ public class IeeeCdfBranch {
      */
     @FixedWidth(from = 76, to = 82)
     @Parsed
-    private float finalTurnsRatio;
+    private double finalTurnsRatio;
 
     /**
      * Transformer (phase shifter) final angle (F)
      */
     @FixedWidth(from = 83, to = 90)
     @Parsed
-    private float finalAngle;
+    private double finalAngle;
 
     /**
      * Minimum tap or phase shift (F)
      */
     @FixedWidth(from = 90, to = 97)
     @Parsed
-    private float minTapOrPhaseShift;
+    private double minTapOrPhaseShift;
 
     /**
      * Maximum tap or phase shift (F)
      */
     @FixedWidth(from = 97, to = 104)
     @Parsed
-    private float maxTapOrPhaseShift;
+    private double maxTapOrPhaseShift;
 
     /**
      * Step size (F)
      */
     @FixedWidth(from = 105, to = 112)
     @Parsed
-    private float stepSize;
+    private double stepSize;
 
     /**
      * Minimum voltage, MVAR or MW limit (F)
      */
     @FixedWidth(from = 112, to = 118)
     @Parsed
-    private float minVoltageActiveOrReactivePowerLimit;
+    private double minVoltageActiveOrReactivePowerLimit;
 
     /**
      * Maximum voltage, MVAR or MW limit (F)
      */
     @FixedWidth(from = 119, to = 126)
     @Parsed
-    private float maxVoltageActiveOrReactivePowerLimit;
+    private double maxVoltageActiveOrReactivePowerLimit;
 
     /**
      * This parameter does not exist in the specification but is present in 300 buses case.
@@ -281,27 +281,27 @@ public class IeeeCdfBranch {
         this.type = type;
     }
 
-    public float getResistance() {
+    public double getResistance() {
         return resistance;
     }
 
-    public void setResistance(float resistance) {
+    public void setResistance(double resistance) {
         this.resistance = resistance;
     }
 
-    public float getReactance() {
+    public double getReactance() {
         return reactance;
     }
 
-    public void setReactance(float reactance) {
+    public void setReactance(double reactance) {
         this.reactance = reactance;
     }
 
-    public float getChargingSusceptance() {
+    public double getChargingSusceptance() {
         return chargingSusceptance;
     }
 
-    public void setChargingSusceptance(float chargingSusceptance) {
+    public void setChargingSusceptance(double chargingSusceptance) {
         this.chargingSusceptance = chargingSusceptance;
     }
 
@@ -345,59 +345,59 @@ public class IeeeCdfBranch {
         this.side = side;
     }
 
-    public float getFinalTurnsRatio() {
+    public double getFinalTurnsRatio() {
         return finalTurnsRatio;
     }
 
-    public void setFinalTurnsRatio(float finalTurnsRatio) {
+    public void setFinalTurnsRatio(double finalTurnsRatio) {
         this.finalTurnsRatio = finalTurnsRatio;
     }
 
-    public float getFinalAngle() {
+    public double getFinalAngle() {
         return finalAngle;
     }
 
-    public void setFinalAngle(float finalAngle) {
+    public void setFinalAngle(double finalAngle) {
         this.finalAngle = finalAngle;
     }
 
-    public float getMinTapOrPhaseShift() {
+    public double getMinTapOrPhaseShift() {
         return minTapOrPhaseShift;
     }
 
-    public void setMinTapOrPhaseShift(float minTapOrPhaseShift) {
+    public void setMinTapOrPhaseShift(double minTapOrPhaseShift) {
         this.minTapOrPhaseShift = minTapOrPhaseShift;
     }
 
-    public float getMaxTapOrPhaseShift() {
+    public double getMaxTapOrPhaseShift() {
         return maxTapOrPhaseShift;
     }
 
-    public void setMaxTapOrPhaseShift(float maxTapOrPhaseShift) {
+    public void setMaxTapOrPhaseShift(double maxTapOrPhaseShift) {
         this.maxTapOrPhaseShift = maxTapOrPhaseShift;
     }
 
-    public float getStepSize() {
+    public double getStepSize() {
         return stepSize;
     }
 
-    public void setStepSize(float stepSize) {
+    public void setStepSize(double stepSize) {
         this.stepSize = stepSize;
     }
 
-    public float getMinVoltageActiveOrReactivePowerLimit() {
+    public double getMinVoltageActiveOrReactivePowerLimit() {
         return minVoltageActiveOrReactivePowerLimit;
     }
 
-    public void setMinVoltageActiveOrReactivePowerLimit(float minVoltageActiveOrReactivePowerLimit) {
+    public void setMinVoltageActiveOrReactivePowerLimit(double minVoltageActiveOrReactivePowerLimit) {
         this.minVoltageActiveOrReactivePowerLimit = minVoltageActiveOrReactivePowerLimit;
     }
 
-    public float getMaxVoltageActiveOrReactivePowerLimit() {
+    public double getMaxVoltageActiveOrReactivePowerLimit() {
         return maxVoltageActiveOrReactivePowerLimit;
     }
 
-    public void setMaxVoltageActiveOrReactivePowerLimit(float maxVoltageActiveOrReactivePowerLimit) {
+    public void setMaxVoltageActiveOrReactivePowerLimit(double maxVoltageActiveOrReactivePowerLimit) {
         this.maxVoltageActiveOrReactivePowerLimit = maxVoltageActiveOrReactivePowerLimit;
     }
 }

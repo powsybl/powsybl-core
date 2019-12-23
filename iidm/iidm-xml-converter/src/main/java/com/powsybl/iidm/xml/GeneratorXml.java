@@ -7,13 +7,15 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Objects;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, VoltageLevel> {
@@ -48,9 +50,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
 
     @Override
     protected void writeSubElements(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (g.getRegulatingTerminal() != null
-                && !Objects.equals(g.getRegulatingTerminal().getBusBreakerView().getConnectableBus(),
-                                  g.getTerminal().getBusBreakerView().getConnectableBus())) {
+        if (!Objects.equals(g, g.getRegulatingTerminal().getConnectable())) {
             TerminalRefXml.writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal");
         }
         ReactiveLimitsXml.INSTANCE.write(g, context);

@@ -44,7 +44,7 @@ public class CgmesImportPostProcessorTest {
         }
 
         @Override
-        public void process(Network network, TripleStore tripleStore, Profiling profiling) {
+        public void process(Network network, TripleStore tripleStore) {
             activatedPostProcessorNames.add(getName());
         }
     }
