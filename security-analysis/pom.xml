@@ -24,8 +24,6 @@
     <description>Security analysis aggregator module</description>
 
     <modules>
-        <module>security-analysis-afs</module>
-        <module>security-analysis-afs-local</module>
         <module>security-analysis-api</module>
     </modules>
 
