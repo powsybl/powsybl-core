@@ -87,7 +87,7 @@ public class TransformerConversionTest {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.SPLIT);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.970891, -15.839366, 94.270119, 20.925339);
+        boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.970891, -15.839366, 94.275697, 20.952066);
         assertTrue(ok);
     }
 
@@ -222,7 +222,7 @@ public class TransformerConversionTest {
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.236612, 3.005810, -216.192829, -85.626382, 117.975394, 92.378211);
+        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
@@ -233,7 +233,7 @@ public class TransformerConversionTest {
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.236612, 3.005810, -216.192829, -85.626382, 117.975394, 92.378211);
+        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
@@ -244,7 +244,7 @@ public class TransformerConversionTest {
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.236612, 3.005810, -216.192829, -85.626382, 117.975394, 92.378211);
+        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
@@ -255,7 +255,7 @@ public class TransformerConversionTest {
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.236612, 3.005810, -216.192829, -85.626382, 117.975394, 92.378211);
+        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
@@ -265,7 +265,7 @@ public class TransformerConversionTest {
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.236612, 3.005810, -216.192829, -85.626382, 117.975394, 92.378211);
+        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
@@ -276,7 +276,7 @@ public class TransformerConversionTest {
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.236612, 3.005810, -216.192829, -85.626382, 117.975394, 92.378211);
+        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
@@ -287,7 +287,7 @@ public class TransformerConversionTest {
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.236612, 3.005810, -216.192829, -85.626382, 117.975394, 92.378211);
+        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
@@ -298,7 +298,7 @@ public class TransformerConversionTest {
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.236612, 3.005810, -216.192829, -85.626382, 117.975394, 92.378211);
+        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
@@ -308,7 +308,7 @@ public class TransformerConversionTest {
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.236612, 3.005810, -216.192829, -85.626382, 117.975394, 92.378211);
+        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
@@ -319,7 +319,7 @@ public class TransformerConversionTest {
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.236612, 3.005810, -216.192829, -85.626382, 117.975394, 92.378211);
+        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
@@ -330,7 +330,7 @@ public class TransformerConversionTest {
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", -0.000166, -0.000839, -0.006802, -0.004135, 0.006989, 0.005350);
+        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", -0.000166, -0.000842, -0.006802, -0.004135, 0.006989, 0.005353);
         assertTrue(ok);
     }
 
@@ -341,7 +341,7 @@ public class TransformerConversionTest {
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", -26.608632, -134.288695, -1088.276892, -661.574294, 1118.293555, 856.016208);
+        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", -26.608872, -134.702971, -1088.277421, -661.570093, 1118.294368, 856.437794);
         assertTrue(ok);
     }
 
@@ -352,7 +352,7 @@ public class TransformerConversionTest {
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", -8.049111, -40.622330, -329.203760, -200.126224, 338.283800, 258.944903);
+        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", -8.049184, -40.747649, -329.203920, -200.124953, 338.284046, 259.072433);
         assertTrue(ok);
     }
 
@@ -363,7 +363,7 @@ public class TransformerConversionTest {
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", -0.073340, -0.370133, -2.999563, -1.823464, 3.082297, 2.359395);
+        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", -0.073341, -0.371275, -2.999565, -1.823453, 3.082299, 2.360557);
         assertTrue(ok);
     }
 
