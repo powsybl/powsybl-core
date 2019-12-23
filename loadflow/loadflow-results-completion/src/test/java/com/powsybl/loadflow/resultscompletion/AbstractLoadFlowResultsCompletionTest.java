@@ -61,7 +61,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
 
     protected String                   twt3wId = "twt3w";
     protected double                   leg1P   = 99.218431;
-    protected double                   leg1Q   = 3.304328;
+    protected double                   leg1Q   = 2.747147;
     protected double                   leg2P   = -216.19819;
     protected double                   leg2Q   = -85.368180;
     protected double                   leg3P   = 118;

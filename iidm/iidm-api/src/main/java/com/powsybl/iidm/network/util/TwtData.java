@@ -165,9 +165,9 @@ public class TwtData {
         Complex a3 = new Complex(1 / rho(twt.getLeg3(), ratedU0), -alpha(twt.getLeg3()));
 
         // IIDM model includes admittance to ground at star bus side in Leg1
-        Complex ysh01 = new Complex(getG(twt.getLeg1()), getB(twt.getLeg1()));
-        Complex ysh02 = new Complex(getG(twt.getLeg2()), getB(twt.getLeg2()));
-        Complex ysh03 = new Complex(getG(twt.getLeg3()), getB(twt.getLeg3()));
+        Complex ysh01 = new Complex(0, 0);
+        Complex ysh02 = new Complex(0, 0);
+        Complex ysh03 = new Complex(0, 0);
         Complex y01 = ytr1.negate().divide(a01.conjugate().multiply(a1));
         Complex y02 = ytr2.negate().divide(a02.conjugate().multiply(a2));
         Complex y03 = ytr3.negate().divide(a03.conjugate().multiply(a3));
@@ -254,10 +254,10 @@ public class TwtData {
         double thetak = getTheta(leg);
         double u0 = starVoltage.abs();
         double theta0 = starVoltage.getArgument();
-        double gk = 0;
-        double bk = 0;
-        double g0 = g;
-        double b0 = b;
+        double gk = g;
+        double bk = b;
+        double g0 = 0;
+        double b0 = 0;
         double rhok = rho(leg, ratedU0);
         double alphak = alpha(leg);
         double rho0 = 1;

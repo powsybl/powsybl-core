@@ -21,18 +21,18 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 public class TwtTestData {
 
     public static double P1 = 99.218431;
-    public static double Q1 = 3.304328;
+    public static double Q1 = 2.7304328;
     public static double P2 = -216.19819;
     public static double Q2 = -85.368180;
     public static double P3 = 118;
     public static double Q3 = 92.612077;
 
-    public static double COMPUTED_P1 = 99.2366;
-    public static double COMPUTED_Q1 = 3.00581;
-    public static double COMPUTED_P2 = -216.1928;
-    public static double COMPUTED_Q2 = -85.6264;
-    public static double COMPUTED_P3 = 117.9754;
-    public static double COMPUTED_Q3 = 92.3782;
+    public static double COMPUTED_P1 = 99.227288294050368;
+    public static double COMPUTED_Q1 = 2.747147185209846;
+    public static double COMPUTED_P2 = -216.195866533486196;
+    public static double COMPUTED_Q2 = -85.490493190353362;
+    public static double COMPUTED_P3 = 117.988318295632794;
+    public static double COMPUTED_Q3 = 92.500849015581423;
 
     public static double U1 = 412.989001;
     public static double ANGLE1 = -6.78071;
@@ -41,8 +41,8 @@ public class TwtTestData {
     public static double U3 = 21.987;
     public static double ANGLE3 = -6.6508;
 
-    public static double STAR_U = 412.66853716385845;
-    public static double STAR_ANGLE = -7.353779246544198;
+    public static double STAR_U = 412.662007016922757;
+    public static double STAR_ANGLE = -7.353686938578365;
 
     public static double G1 = 0;
     public static double B1 = 2.4375E-6;

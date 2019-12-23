@@ -196,9 +196,9 @@ public class BranchData {
         alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
         alpha2 = 0f;
         g1 = getG1(twt, specificCompatibility);
-        g2 = specificCompatibility ? twt.getG() / 2 : 0f;
+        g2 = getG2(twt, specificCompatibility);
         b1 = getB1(twt, specificCompatibility);
-        b2 = specificCompatibility ? twt.getB() / 2 : 0f;
+        b2 = getB2(twt, specificCompatibility);
         p1 = twt.getTerminal1().getP();
         q1 = twt.getTerminal1().getQ();
         p2 = twt.getTerminal2().getP();
@@ -244,6 +244,18 @@ public class BranchData {
 
     private double getB1(TwoWindingsTransformer twt, boolean specificCompatibility) {
         return getValue(specificCompatibility ? twt.getB() / 2 : twt.getB(),
+                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
+                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
+    }
+
+    private double getG2(TwoWindingsTransformer twt, boolean specificCompatibility) {
+        return getValue(specificCompatibility ? twt.getG() / 2 : 0,
+                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getG() : 0,
+                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getG() : 0);
+    }
+
+    private double getB2(TwoWindingsTransformer twt, boolean specificCompatibility) {
+        return getValue(specificCompatibility ? twt.getB() / 2 : 0,
                         twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
                         twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }
