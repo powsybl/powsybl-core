@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import com.powsybl.iidm.network.NetworkFactory;
 
 public class SvChangeImportExportTest {
 
+    @Ignore("Tmp test for StateVariablesAdder")
     @Test
     public void testHops() throws IOException {
         importExport();
