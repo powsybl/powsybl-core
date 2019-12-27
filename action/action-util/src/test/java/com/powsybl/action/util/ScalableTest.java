@@ -555,4 +555,20 @@ public class ScalableTest {
         }
     }
 
+    @Test
+    public void testProportionalScaleIterativeTwoSteps() {
+        double done = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, g2, g3), false).scale(network, 270.0);
+        assertEquals(181.0, done, 0.0);
+        assertEquals(100.0, network.getGenerator("g1").getTargetP(), 1e-3);
+        assertEquals(54, network.getGenerator("g2").getTargetP(), 1e-3);
+        assertEquals(27, network.getGenerator("g3").getTargetP(), 1e-3);
+
+        reset();
+        done = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, g2, g3), true).scale(network, 270.0);
+        assertEquals(270.0, done, 0.0);
+        assertEquals(100.0, network.getGenerator("g1").getTargetP(), 1e-3);
+        assertEquals(100.0, network.getGenerator("g2").getTargetP(), 1e-3);
+        assertEquals(70.0, network.getGenerator("g3").getTargetP(), 1e-3);
+    }
+
 }
