@@ -18,10 +18,15 @@ public class IidmChange {
 
     public IidmChange(Identifiable identifiable) {
         this.identifiable = Objects.requireNonNull(identifiable);
+        index++;
     }
 
     public Identifiable getIdentifiable() {
         return identifiable;
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     // Should this change be explicitly copied to change log of target variant?
@@ -30,4 +35,5 @@ public class IidmChange {
     }
 
     private final Identifiable identifiable;
+    private static int index;
 }

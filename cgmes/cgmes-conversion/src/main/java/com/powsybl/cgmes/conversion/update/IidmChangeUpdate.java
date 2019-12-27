@@ -38,4 +38,5 @@ public class IidmChangeUpdate extends IidmChange {
     private final String attribute;
     private final Object oldValue;
     private final Object newValue;
+    int index = getIndex();
 }

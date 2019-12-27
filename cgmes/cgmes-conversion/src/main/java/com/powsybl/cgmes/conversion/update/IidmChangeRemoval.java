@@ -18,4 +18,5 @@ public class IidmChangeRemoval extends IidmChange {
         super(identifiable);
     }
 
+    int index = getIndex();
 }
