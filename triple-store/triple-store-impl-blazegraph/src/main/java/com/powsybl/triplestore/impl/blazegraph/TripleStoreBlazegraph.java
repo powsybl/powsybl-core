@@ -73,6 +73,10 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         props.put(Options.BUFFER_MODE, "MemStore");
         props.put(AbstractTripleStore.Options.QUADS_MODE, "true");
         props.put(BigdataSail.Options.TRUTH_MAINTENANCE, "false");
+        // Read-write operations use getConnection()to obtain a mutable view. This delegates
+        // to either getUnisolatedConnection() or getReadWriteConnection() depending on how the Sail is configured.
+        // The highest throughput is generally obtained using getUnisolatedConnection() in which case you do not need to enabled Options.ISOLATABLE_INDICES.
+        props.put(BigdataSail.Options.ISOLATABLE_INDICES, "false");
 
         // Quiet
         System.getProperties().setProperty("com.bigdata.Banner.quiet", "true");

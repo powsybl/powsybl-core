@@ -60,6 +60,8 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     public TripleStoreJena() {
         // creates an in-memory Jena model that is able to contain multiple graphs
         dataset = DatasetFactory.createMem();
+        // Isolation level: no need to set to NONE as in Jena models API operations are not thread safe by default.
+        // dataset.supportsTransactions() return false.
 
         // Create a model just to obtain a writer and configure it
         writer = ModelFactory.createDefaultModel().getWriter("RDF/XML-ABBREV");

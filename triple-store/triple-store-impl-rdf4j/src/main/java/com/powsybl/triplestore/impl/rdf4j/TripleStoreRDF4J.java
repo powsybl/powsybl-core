@@ -203,7 +203,9 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         if (source instanceof TripleStoreRDF4J) {
             sourceRepo = ((TripleStoreRDF4J) source).repo;
             try (RepositoryConnection sourceConn = sourceRepo.getConnection()) {
+                sourceConn.setIsolationLevel(IsolationLevels.NONE);
                 try (RepositoryConnection targetConn = repo.getConnection()) {
+                    targetConn.setIsolationLevel(IsolationLevels.NONE);
                     copyNamespacesToRepository(sourceConn, targetConn);
                     // copy statements
                     RepositoryResult<Resource> contexts = sourceConn.getContextIDs();
@@ -235,6 +237,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     @Override
     public void update(String query) {
         try (RepositoryConnection conn = repo.getConnection()) {
+            conn.setIsolationLevel(IsolationLevels.NONE);
             conn.prepareUpdate(QueryLanguage.SPARQL, adjustedQuery(query)).execute();
         } catch (MalformedQueryException | UpdateExecutionException | RepositoryException e) {
             throw new TripleStoreException(String.format("Query [%s]", query), e);
