@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
@@ -133,6 +134,7 @@ public class StateVariablesAdder {
 
         // PowerFlow at boundaries set as it was in original cgmes.
         for (PropertyBag terminal : originalSVdata.get("terminalsSV")) {
+            Objects.requireNonNull(terminal);
             if (terminal.getId("SvPowerFlow") == null) {
                 continue;
             }
@@ -176,7 +178,7 @@ public class StateVariablesAdder {
         }
         cgmes.add(CgmesSubset.STATE_VARIABLES, "SvTapStep", tapSteps);
 
-        // create SvStatus, iterate on Connectables, check if Terminal status, add
+        // create SvStatus, iterate on Connectables, check Terminal status, add
         // to SvStatus
         PropertyBags svStatus = new PropertyBags();
         Map<String, Boolean> addedConnectables = new HashMap<>();
@@ -202,6 +204,7 @@ public class StateVariablesAdder {
 
         // SvStatus at boundaries set as it was in original cgmes.
         for (PropertyBag terminal : originalSVdata.get("terminalsSV")) {
+            Objects.requireNonNull(terminal);
             if (terminal.getId("SvStatus") == null) {
                 continue;
             }
@@ -227,8 +230,10 @@ public class StateVariablesAdder {
 
     private void addTopologicalIslands() {
         PropertyBags all = originalSVdata.get("topologicalIslands");
+        Objects.requireNonNull(all);
         // there can be > 1 TopologicalIsland, we need to group PropertyBags by
-        // TopologicalIsland ID
+        // TopologicalIsland ID. For each TopologicalIsland we will have multiple results from SPARQL query,
+        // due to Multivalued Property "TopologicalNodes"
         Map<String, PropertyBags> byTopologicalIslandId = new HashMap<>();
         all.forEach(a -> {
             String island = a.getId(CgmesNames.TOPOLOGICAL_ISLAND);
@@ -240,7 +245,7 @@ public class StateVariablesAdder {
                 byTopologicalIslandId.put(island, pbs);
             }
         });
-        // now we can process all TPNodes from each island, put them in one
+        // now we can process all TPNodes from each island, and put them in one
         // multivaluedProperty.
         PropertyBags topologicalIslands = new PropertyBags();
         PropertyBag topologicalIsland = new PropertyBag(SV_TOPOLOGICALISLAND_PROPERTIES);
@@ -266,6 +271,7 @@ public class StateVariablesAdder {
     private void addModelDescription() {
         PropertyBags fullModelSV = new PropertyBags();
         PropertyBags originalModelDescription = originalSVdata.get("fullModelSV");
+        Objects.requireNonNull(originalModelDescription);
         // for properties such as "md:Model.DependentOn" which might have arbitrary
         // number of values, SPARQL will return multiple result sets.
         // All are equal, except the multiValued property value.
