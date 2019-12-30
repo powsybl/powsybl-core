@@ -248,6 +248,7 @@ SELECT *
 { GRAPH ?graph { 
 	?TopologicalIsland
 		a cim:TopologicalIsland ;
+		cim:IdentifiedObject.name ?name ;
         cim:TopologicalIsland.AngleRefTopologicalNode ?AngleRefTopologicalNode ;
         cim:TopologicalIsland.TopologicalNodes ?TopologicalNodes .
 }}

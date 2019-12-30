@@ -175,15 +175,9 @@ public class PropertyBag extends HashMap<String, String> {
     public boolean isResource(String name) {
         // TODO do not rely on property name, use metadata or answer based on value?
         List<String> list = Stream.of("TopologicalNode", "Terminal", "ShuntCompensator",
-            "TapChanger", "ConductingEquipment", "DependentOn", "TopologicalNodes",
+            "TapChanger", "ConductingEquipment", "Model.DependentOn", "TopologicalNodes",
             "AngleRefTopologicalNode").collect(Collectors.toList());
         return list.contains(name) || resourceNames.contains(name);
-    }
-
-    public boolean isMultivaluedProperty(String name) {
-        // TODO do not rely on property name, use metadata or answer based on value?
-        List<String> list = Stream.of("DependentOn", "TopologicalNodes").collect(Collectors.toList());
-        return list.contains(name);
     }
 
     public String namespacePrefix(String name) {
@@ -203,10 +197,23 @@ public class PropertyBag extends HashMap<String, String> {
         return classPropertyNames.contains(name);
     }
 
+    public void setMultivaluedProperty(List<String> multiValuedPropertyNames) {
+        this.multiValuedPropertyNames = Objects.requireNonNull(multiValuedPropertyNames);
+    }
+
+    public boolean isMultivaluedProperty(String name) {
+        return multiValuedPropertyNames.contains(name);
+    }
+
+    public boolean isModelDescription(String objType) {
+        return objType.equals("FullModel");
+    }
+
     private final List<String> propertyNames;
     private final boolean removeInitialUnderscoreForIdentifiers;
     private List<String> resourceNames = new ArrayList<>();
     private List<String> classPropertyNames = new ArrayList<>();
+    private List<String> multiValuedPropertyNames = new ArrayList<>();
 
     private static final String NAMESPACE_PREFIX = "data";
     private static final String INDENTATION = "    ";

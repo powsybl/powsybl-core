@@ -260,32 +260,23 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     private static String createStatements(RepositoryConnection cnx, String objNs, String objType,
         PropertyBag statement,
         Resource context) {
-        if (objType.equals("FullModel")) {
-            return addModelDescription(cnx, objNs, objType, statement, context);
+        IRI resource;
+        if (statement.isModelDescription(objType)) {
+            resource = cnx.getValueFactory().createIRI("urn:uuid:" + UUID.randomUUID().toString());
+        } else {
+            resource = cnx.getValueFactory().createIRI(cnx.getNamespace("data"),
+                "_" + UUID.randomUUID().toString());
         }
-        IRI resource = cnx.getValueFactory().createIRI(cnx.getNamespace("data"), "_" + UUID.randomUUID().toString());
         IRI parentPredicate = RDF.TYPE;
         IRI parentObject = cnx.getValueFactory().createIRI(objNs + objType);
         Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
         cnx.add(parentSt, context);
-        // extract to another method
-        createStatement(cnx, objNs, objType, statement, context,  resource);
+        // add rest of statements for subject
+        createStatements(cnx, objNs, objType, statement, context,  resource);
         return resource.getLocalName();
     }
 
-    private static String addModelDescription(RepositoryConnection cnx, String objNs, String objType,
-        PropertyBag statement, Resource context) {
-        IRI resource = cnx.getValueFactory().createIRI("urn:uuid:" + UUID.randomUUID().toString());
-        IRI parentPredicate = RDF.TYPE;
-        IRI parentObject = cnx.getValueFactory().createIRI(objNs + objType);
-        Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
-        cnx.add(parentSt, context);
-        String objTypeInn = "Model";
-        createStatement(cnx, objNs, objTypeInn, statement, context,  resource);
-        return resource.getLocalName();
-    }
-
-    private static void createStatement(RepositoryConnection cnx, String objNs, String objType,
+    private static void createStatements(RepositoryConnection cnx, String objNs, String objType,
         PropertyBag statement, Resource context, IRI resource) {
         List<String> names = statement.propertyNames();
         names.forEach(name -> {
