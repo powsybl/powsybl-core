@@ -246,8 +246,8 @@ public class StateVariablesAdder {
             // now we can process all TPNodes from each island, and put them in one
             // multivaluedProperty.
             PropertyBags topologicalIslands = new PropertyBags();
-            PropertyBag topologicalIsland = new PropertyBag(SV_TOPOLOGICALISLAND_PROPERTIES);
             byTopologicalIslandId.values().forEach(value -> {
+                PropertyBag topologicalIsland = new PropertyBag(SV_TOPOLOGICALISLAND_PROPERTIES);
                 topologicalIsland.setClassPropertyNames(Arrays.asList(CgmesNames.NAME));
                 topologicalIsland.setMultivaluedProperty(Arrays.asList("TopologicalNodes"));
                 topologicalIsland.put(CgmesNames.NAME, value.get(0).getId("name"));
