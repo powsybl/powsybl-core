@@ -81,7 +81,7 @@ public class Changelog implements NetworkListener {
 
     public List<IidmChange> getChangesForVariant(String variantId) {
         if (!changesByVariant.containsKey(variantId)) {
-            baseChanges.sort(Comparator.comparing(IidmChange::getIndex));
+            // If we only have baseChanges we assume they are already ordered
             return Collections.unmodifiableList(baseChanges);
         } else {
             List<IidmChange> cs = new ArrayList<>(baseChanges.size() + changesByVariant.size());

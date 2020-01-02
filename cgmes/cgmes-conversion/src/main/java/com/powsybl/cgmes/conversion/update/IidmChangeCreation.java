@@ -17,6 +17,4 @@ public class IidmChangeCreation extends IidmChange {
     public IidmChangeCreation(Identifiable<?> identifiable) {
         super(identifiable);
     }
-
-    int index = getIndex();
 }
