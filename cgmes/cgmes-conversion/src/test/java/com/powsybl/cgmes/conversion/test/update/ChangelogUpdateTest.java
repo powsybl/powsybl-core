@@ -117,23 +117,20 @@ public final class ChangelogUpdateTest {
         assertTrue(changes.size() > 1);
         // Removal is base change, without sorting by index it would be first change in the list.
         // Check the changes order is correct, and removal is last, as it was made last
-        assertTrue(isSorted(changes));
+        assertTrue(isSortedByIndex(changes));
         assertTrue(changes.get(0) instanceof IidmChangeUpdate);
         assertTrue(Iterables.getLast(changes) instanceof IidmChangeRemoval);
     }
 
-    public static boolean isSorted(List<IidmChange> changes) {
-        return isSorted(changes, changes.size());
-    }
-
-    public static boolean isSorted(List<IidmChange> changes, int num) {
-        if (num < 2) {
-            return true;
-        } else if (changes.get(num - 2).getIndex() > changes.get(num - 1).getIndex()) {
-            return false;
-        } else {
-            return isSorted(changes, num - 1);
+    private static boolean isSortedByIndex(List<IidmChange> changes) {
+        int last = -1;
+        for (IidmChange c : changes) {
+            if (c.getIndex() < last) {
+                return false;
+            }
+            last = c.getIndex();
         }
+        return true;
     }
 
     private void makeNetworkChangesOnBase(Network network) {
