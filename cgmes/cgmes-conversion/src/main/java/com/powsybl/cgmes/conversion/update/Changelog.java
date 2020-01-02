@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.update;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -80,11 +81,13 @@ public class Changelog implements NetworkListener {
 
     public List<IidmChange> getChangesForVariant(String variantId) {
         if (!changesByVariant.containsKey(variantId)) {
+            // If we only have baseChanges we assume they are already ordered
             return Collections.unmodifiableList(baseChanges);
         } else {
             List<IidmChange> cs = new ArrayList<>(baseChanges.size() + changesByVariant.size());
             cs.addAll(baseChanges);
             cs.addAll(changesByVariant.get(variantId));
+            cs.sort(Comparator.comparing(IidmChange::getIndex));
             return Collections.unmodifiableList(cs);
         }
     }

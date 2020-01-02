@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion.test.update;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,8 +62,8 @@ public final class ChangelogCreationRemovalTest {
         makeRemoveChanges(network);
         List<IidmChange> currentChanges = changelog.getChangesForVariant(variant);
         // Check there is one Removal event, we ignore Update events for this check.
-        assertTrue(
-            sizeIgnoreUpdateOnRemoval(currentChanges) == 1 && currentChanges.get(0) instanceof IidmChangeRemoval);
+        List<IidmChange> removeChanges = ignoreUpdateOnRemoval(currentChanges);
+        assertTrue(removeChanges.size() == 1 && removeChanges.get(0) instanceof IidmChangeRemoval);
         // Expected to be Line, with right name and id
         assertTrue(currentChanges.get(0).getIdentifiable() instanceof Line);
         assertTrue(expected("remove").equals(actual(currentChanges)));
@@ -85,15 +86,15 @@ public final class ChangelogCreationRemovalTest {
         return actual;
     }
 
-    private int sizeIgnoreUpdateOnRemoval(List<IidmChange> changes) {
-        int count = 0;
+    private List<IidmChange> ignoreUpdateOnRemoval(List<IidmChange> changes) {
+        List<IidmChange> list = new ArrayList<>();
         for (IidmChange i : changes) {
             if (!(i instanceof IidmChangeRemoval)) {
                 continue;
             }
-            count++;
+            list.add(i);
         }
-        return count;
+        return list;
     }
 
     private void makeCreateChanges(Network network) {

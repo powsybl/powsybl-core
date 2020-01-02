@@ -17,8 +17,11 @@ import java.util.Objects;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.cgmes.conversion.update.Changelog;
 import com.powsybl.cgmes.conversion.update.IidmChange;
+import com.powsybl.cgmes.conversion.update.IidmChangeRemoval;
+import com.powsybl.cgmes.conversion.update.IidmChangeUpdate;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
@@ -104,6 +107,35 @@ public final class ChangelogUpdateTest {
         assertTrue(changesVariant1b.size() == changesVariant1.size());
     }
 
+    @Test
+    public void testChangesLogRightOrder() {
+        String variant1 = network.getVariantManager().getWorkingVariantId();
+        // Make changes, on Variant and base.
+        makeNetworkChangesVariantSpecific(network);
+        makeRemoveChanges(network);
+        List<IidmChange> changes =  new ArrayList<>(changelog.getChangesForVariant(variant1));
+        assertTrue(changes.size() > 1);
+        // Removal is base change, without sorting by index it would be first change in the list.
+        // Check the changes order is correct, and removal is last, as it was made last
+        assertTrue(isSorted(changes));
+        assertTrue(changes.get(0) instanceof IidmChangeUpdate);
+        assertTrue(Iterables.getLast(changes) instanceof IidmChangeRemoval);
+    }
+
+    public static boolean isSorted(List<IidmChange> changes) {
+        return isSorted(changes, changes.size());
+    }
+
+    public static boolean isSorted(List<IidmChange> changes, int num) {
+        if (num < 2) {
+            return true;
+        } else if (changes.get(num - 2).getIndex() > changes.get(num - 1).getIndex()) {
+            return false;
+        } else {
+            return isSorted(changes, num - 1);
+        }
+    }
+
     private void makeNetworkChangesOnBase(Network network) {
         Line line = network.getLine("line");
         double newR = line.getR() * 1.1;
@@ -121,6 +153,10 @@ public final class ChangelogUpdateTest {
         newP = load.getP0() * 1.1;
         newQ = load.getQ0() * 1.1;
         load.setP0(newP).setQ0(newQ).getTerminal().setP(newP).setQ(newQ);
+    }
+
+    private void makeRemoveChanges(Network network) {
+        network.getLoad("load").remove();
     }
 
     private boolean containsAny(List<IidmChange> changes, List<IidmChange> other) {
