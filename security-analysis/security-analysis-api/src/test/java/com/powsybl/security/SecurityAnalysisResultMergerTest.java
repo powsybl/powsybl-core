@@ -8,6 +8,9 @@ package com.powsybl.security;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.security.interceptors.RunningContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -15,7 +18,9 @@ import org.mockito.Mockito;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static junit.framework.TestCase.assertSame;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author Yichen Tang <yichen.tang at rte-france.com>
@@ -25,6 +30,7 @@ public class SecurityAnalysisResultMergerTest {
     private SecurityAnalysisResult result1;
     private SecurityAnalysisResult result2;
     private SecurityAnalysisResult failedResult;
+    private SecurityAnalysisResult failedResult2;
 
     private LimitViolationsResult preContingencyResult;
     private LimitViolationsResult failedPreContingencyResult;
@@ -52,6 +58,13 @@ public class SecurityAnalysisResultMergerTest {
 
         failedPreContingencyResult = new LimitViolationsResult(false, Collections.emptyList());
         failedResult = new SecurityAnalysisResult(failedPreContingencyResult, Collections.emptyList());
+
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        SecurityAnalysisResultBuilder sb = new SecurityAnalysisResultBuilder(new LimitViolationFilter(),
+                new RunningContext(network, network.getVariantManager().getWorkingVariantId()));
+        sb.preContingency().setComputationOk(true).endPreContingency();
+        sb.contingency(contingency1).setComputationOk(false).endContingency();
+        failedResult2 = sb.build();
     }
 
     @Test
@@ -71,5 +84,15 @@ public class SecurityAnalysisResultMergerTest {
         };
         SecurityAnalysisResult mergedResult = SecurityAnalysisResultMerger.merge(results);
         assertEquals(SecurityAnalysisResultMerger.FAILED_SECURITY_ANALYSIS_RESULT, mergedResult);
+    }
+
+    @Test
+    public void testFailedPostContingency() {
+        SecurityAnalysisResult[] results = new SecurityAnalysisResult[]{
+            failedResult2, result2
+        };
+        SecurityAnalysisResult mergedResult = SecurityAnalysisResultMerger.merge(results);
+        assertFalse(mergedResult.getPostContingencyResults().get(0).getLimitViolationsResult().isComputationOk());
+        assertSame(postContingencyResult2, mergedResult.getPostContingencyResults().get(1));
     }
 }

@@ -10,7 +10,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
@@ -72,66 +71,70 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
         network.getVariantManager().allowVariantMultiThreadAccess(true);
 
         return LoadFlow.runAsync(network, workingStateId, computationManager, loadFlowParameters) // run base load flow
-                .thenComposeAsync(loadFlowResult -> {
+                .thenComposeAsync(baseLfResult -> {
                     network.getVariantManager().setWorkingVariant(workingStateId);
 
-                    SecurityAnalysisResultBuilder resultBuilder = createResultBuilder(workingStateId);
-
+                    List<Contingency> contingencies = contingenciesProvider.getContingencies(network);
+                    SecurityAnalysisResultBuilder[] builders = new SecurityAnalysisResultBuilder[contingencies.size()];
+                    for (int i = 0; i < contingencies.size(); i++) {
+                        builders[i] = createResultBuilder(workingStateId);
+                    }
                     CompletableFuture<Void>[] futures;
 
-                    if (loadFlowResult.isOk()) {
-
-                        resultBuilder.preContingency()
-                                .setComputationOk(true);
-                        violationDetector.checkAll(network, resultBuilder::addViolation);
-                        resultBuilder.endPreContingency();
-
-                        List<Contingency> contingencies = contingenciesProvider.getContingencies(network);
-
-                        futures = new CompletableFuture[contingencies.size()];
-
-                        String hash = UUID.randomUUID().toString();
+                    String hash = UUID.randomUUID().toString();
+                    if (baseLfResult.isOk()) {
                         for (int i = 0; i < contingencies.size(); i++) {
                             Contingency contingency = contingencies.get(i);
+                            SecurityAnalysisResultBuilder builderPerContingency = builders[i];
+                            builderPerContingency.preContingency()
+                                    .setComputationOk(true);
+                            String postContStateId = hash + "_" + contingency.getId();
+                            violationDetector.checkAll(network, builderPerContingency::addViolation);
+                            builderPerContingency.endPreContingency();
+                            network.getVariantManager().cloneVariant(workingStateId, postContStateId);
+                            network.getVariantManager().setWorkingVariant(postContStateId);
 
+                            // apply the contingency on the network
+                            contingency.toTask().modify(network, computationManager);
+                        }
+                        futures = new CompletableFuture[contingencies.size()];
+
+                        for (int i = 0; i < contingencies.size(); i++) {
+                            Contingency contingency = contingencies.get(i);
+                            SecurityAnalysisResultBuilder builderPerContingency = builders[i];
                             String postContStateId = hash + "_" + contingency.getId();
 
                             // run one loadflow per contingency
-                            futures[i] = CompletableFuture
-                                    .supplyAsync(() -> {
-                                        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, postContStateId);
+                            futures[i] = LoadFlow.runAsync(network, postContStateId, computationManager, postContParameters)
+                                    .handleAsync((lfResultPerContingency, throwable) -> {
                                         network.getVariantManager().setWorkingVariant(postContStateId);
-
-                                        // apply the contingency on the network
-                                        contingency.toTask().modify(network, computationManager);
-
-                                        return null;
-                                    }, computationManager.getExecutor())
-                                    .thenComposeAsync(aVoid -> LoadFlow.runAsync(network, postContStateId, computationManager, postContParameters), computationManager.getExecutor())
-                                    .handleAsync((lfResult, throwable) -> {
-                                        network.getVariantManager().setWorkingVariant(postContStateId);
-
-                                        resultBuilder.contingency(contingency)
-                                                .setComputationOk(lfResult.isOk());
-                                        violationDetector.checkAll(contingency, network, resultBuilder::addViolation);
-                                        resultBuilder.endContingency();
+                                        builderPerContingency.contingency(contingency);
+                                        builderPerContingency.setComputationOk(lfResultPerContingency.isOk());
+                                        violationDetector.checkAll(contingency, network, builderPerContingency::addViolation);
+                                        builderPerContingency.endContingency();
                                         network.getVariantManager().removeVariant(postContStateId);
-
                                         return null;
                                     }, computationManager.getExecutor());
                         }
                     } else {
-                        resultBuilder.preContingency()
-                                .setComputationOk(false)
-                                .endPreContingency()
-                                .build();
                         futures = new CompletableFuture[0];
                     }
 
                     return CompletableFuture.allOf(futures)
                         .thenApplyAsync(aVoid -> {
                             network.getVariantManager().setWorkingVariant(workingStateId);
-                            return resultBuilder.build();
+                            if (baseLfResult.isOk()) {
+                                SecurityAnalysisResult[] securityAnalysisResults = new SecurityAnalysisResult[contingencies.size()];
+                                for (int i = 0; i < contingencies.size(); i++) {
+                                    SecurityAnalysisResultBuilder builderPerContingency = builders[i];
+                                    securityAnalysisResults[i] = builderPerContingency.build();
+                                }
+                                return SecurityAnalysisResultMerger.merge(securityAnalysisResults);
+                            }
+                            return createResultBuilder(workingStateId).preContingency()
+                                    .setComputationOk(false)
+                                    .endPreContingency()
+                                    .build();
                         });
                 }, computationManager.getExecutor());
     }

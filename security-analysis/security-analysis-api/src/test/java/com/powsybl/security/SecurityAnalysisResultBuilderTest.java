@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
  */
 public class SecurityAnalysisResultBuilderTest {
 
-    private final Network network = EurostagTutorialExample1Factory.createWithCurrentLimits();
+    private final Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
     @Test
     public void failedResult() {
