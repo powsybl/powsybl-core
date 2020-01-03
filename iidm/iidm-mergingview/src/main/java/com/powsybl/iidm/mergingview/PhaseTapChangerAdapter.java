@@ -14,31 +14,32 @@ import com.powsybl.iidm.network.PhaseTapChangerStep;
  */
 public class PhaseTapChangerAdapter extends AbstractTapChangerAdapter<PhaseTapChanger, PhaseTapChangerStep> implements PhaseTapChanger {
 
-    protected PhaseTapChangerAdapter(final PhaseTapChanger delegate, final MergingViewIndex index) {
+    PhaseTapChangerAdapter(final PhaseTapChanger delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public RegulationMode getRegulationMode() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getRegulationMode();
     }
 
     @Override
-    public PhaseTapChangerAdapter setRegulationMode(final RegulationMode regulationMode) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public PhaseTapChanger setRegulationMode(final RegulationMode regulationMode) {
+        getDelegate().setRegulationMode(regulationMode);
+        return this;
     }
 
     @Override
     public double getRegulationValue() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getRegulationValue();
     }
 
     @Override
-    public PhaseTapChangerAdapter setRegulationValue(final double regulationValue) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public PhaseTapChanger setRegulationValue(final double regulationValue) {
+        getDelegate().setRegulationValue(regulationValue);
+        return this;
     }
-
 }

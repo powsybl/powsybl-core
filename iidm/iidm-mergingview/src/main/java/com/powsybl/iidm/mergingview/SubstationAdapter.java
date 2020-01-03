@@ -6,13 +6,12 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.Collections;
+import com.google.common.collect.Iterables;
+import com.powsybl.iidm.network.*;
+
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.powsybl.iidm.network.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -24,51 +23,54 @@ class SubstationAdapter extends AbstractIdentifiableAdapter<Substation> implemen
     }
 
     @Override
-    public VoltageLevelAdderAdapter newVoltageLevel() {
+    public VoltageLevelAdder newVoltageLevel() {
         return new VoltageLevelAdderAdapter(getDelegate().newVoltageLevel(), getIndex());
     }
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
-        return getDelegate().getVoltageLevelStream().map(getIndex()::getVoltageLevel);
+        return getDelegate().getVoltageLevelStream()
+                            .map(getIndex()::getVoltageLevel);
     }
 
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
-        return Collections.unmodifiableSet(getVoltageLevelStream().collect(Collectors.toSet()));
+        return Iterables.transform(getDelegate().getVoltageLevels(),
+                                   getIndex()::getVoltageLevel);
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
-    public TwoWindingsTransformerAdder newTwoWindingsTransformer() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public TwoWindingsTransformerAdderAdapter newTwoWindingsTransformer() {
+        return new TwoWindingsTransformerAdderAdapter(getDelegate().newTwoWindingsTransformer(), getIndex());
     }
 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return Iterables.transform(getDelegate().getTwoWindingsTransformers(),
+                                   getIndex()::getTwoWindingsTransformer);
     }
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getTwoWindingsTransformerStream()
+                            .map(getIndex()::getTwoWindingsTransformer);
     }
 
     @Override
-    public ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public ThreeWindingsTransformerAdderAdapter newThreeWindingsTransformer() {
+        return new ThreeWindingsTransformerAdderAdapter(getDelegate().newThreeWindingsTransformer(), getIndex());
     }
 
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return Iterables.transform(getDelegate().getThreeWindingsTransformers(),
+                                   getIndex()::getThreeWindingsTransformer);
     }
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getThreeWindingsTransformerStream()
+                            .map(getIndex()::getThreeWindingsTransformer);
     }
 
     // -------------------------------
@@ -90,7 +92,7 @@ class SubstationAdapter extends AbstractIdentifiableAdapter<Substation> implemen
     }
 
     @Override
-    public SubstationAdapter setCountry(final Country country) {
+    public Substation setCountry(final Country country) {
         getDelegate().setCountry(country);
         return this;
     }
@@ -101,7 +103,7 @@ class SubstationAdapter extends AbstractIdentifiableAdapter<Substation> implemen
     }
 
     @Override
-    public SubstationAdapter setTso(final String tso) {
+    public Substation setTso(final String tso) {
         getDelegate().setTso(tso);
         return this;
     }
@@ -122,7 +124,7 @@ class SubstationAdapter extends AbstractIdentifiableAdapter<Substation> implemen
     }
 
     @Override
-    public SubstationAdapter addGeographicalTag(final String tag) {
+    public Substation addGeographicalTag(final String tag) {
         getDelegate().addGeographicalTag(tag);
         return this;
     }

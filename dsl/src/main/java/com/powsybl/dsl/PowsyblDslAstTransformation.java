@@ -6,26 +6,60 @@
  */
 package com.powsybl.dsl;
 
-import com.powsybl.commons.ast.AbstractAstTransformation;
 import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.ClassCodeExpressionTransformer;
+import org.codehaus.groovy.ast.MethodNode;
+import org.codehaus.groovy.ast.ModuleNode;
 import org.codehaus.groovy.ast.expr.*;
+import org.codehaus.groovy.ast.stmt.BlockStatement;
 import org.codehaus.groovy.control.SourceUnit;
+import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @GroovyASTTransformation
-public class PowsyblDslAstTransformation extends AbstractAstTransformation {
+public class PowsyblDslAstTransformation implements ASTTransformation {
+
+    protected static final Logger LOGGER = LoggerFactory.getLogger(PowsyblDslAstTransformation.class);
 
     private static final boolean DEBUG = false;
 
-    public void visit(ASTNode[] nodes, SourceUnit sourceUnit) {
-        visit(sourceUnit, new CustomClassCodeExpressionTransformer(sourceUnit), DEBUG);
+    protected void visit(SourceUnit sourceUnit, ClassCodeExpressionTransformer transformer) {
+        LOGGER.trace("Apply AST transformation");
+        ModuleNode ast = sourceUnit.getAST();
+        BlockStatement blockStatement = ast.getStatementBlock();
+
+        if (DEBUG) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(AstUtil.toString(blockStatement));
+            }
+        }
+
+        List<MethodNode> methods = ast.getMethods();
+        for (MethodNode methodNode : methods) {
+            methodNode.getCode().visit(transformer);
+        }
+
+        blockStatement.visit(transformer);
+
+        if (DEBUG) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(AstUtil.toString(blockStatement));
+            }
+        }
     }
 
-    class CustomClassCodeExpressionTransformer extends ClassCodeExpressionTransformer {
+    public void visit(ASTNode[] nodes, SourceUnit sourceUnit) {
+        visit(sourceUnit, new CustomClassCodeExpressionTransformer(sourceUnit));
+    }
+
+    static class CustomClassCodeExpressionTransformer extends ClassCodeExpressionTransformer {
         SourceUnit sourceUnit;
 
         CustomClassCodeExpressionTransformer(SourceUnit sourceUnit) {

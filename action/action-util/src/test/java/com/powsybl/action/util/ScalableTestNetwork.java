@@ -54,6 +54,7 @@ public final class ScalableTestNetwork {
                 .add();
         vl.newGenerator()
                 .setId("g3")
+                .setBus("bus1")
                 .setConnectableBus("bus1")
                 .setMinP(0.0)
                 .setMaxP(100.0)
@@ -70,6 +71,29 @@ public final class ScalableTestNetwork {
                 .setLoadType(LoadType.UNDEFINED)
                 .add();
 
+        VoltageLevel vl2 = s.newVoltageLevel()
+                .setId("vl2")
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .setNominalV(380)
+                .add();
+        vl2.getBusBreakerView().newBus()
+                .setId("bus2")
+                .add();
+        network.newLine()
+                .setId("l12")
+                .setVoltageLevel1("vl1")
+                .setConnectableBus1("bus1")
+                .setBus1("bus1")
+                .setVoltageLevel2("vl2")
+                .setConnectableBus2("bus2")
+                .setBus2("bus2")
+                .setR(1)
+                .setX(1)
+                .setG1(0)
+                .setG2(0)
+                .setB1(0)
+                .setB2(0)
+                .add();
         return network;
     }
 }

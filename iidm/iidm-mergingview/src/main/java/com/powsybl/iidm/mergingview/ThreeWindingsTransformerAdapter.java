@@ -6,67 +6,91 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import java.util.List;
+import com.powsybl.iidm.network.*;
 
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
+ * This adaptation hide true implementation of {@link ThreeWindingsTransformer}.
+ *
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter<ThreeWindingsTransformer> implements ThreeWindingsTransformer {
 
-    protected ThreeWindingsTransformerAdapter(final ThreeWindingsTransformer delegate, final MergingViewIndex index) {
+    private LegAdapter leg1;
+
+    private LegAdapter leg2;
+
+    private LegAdapter leg3;
+
+    ThreeWindingsTransformerAdapter(final ThreeWindingsTransformer delegate, final MergingViewIndex index) {
         super(delegate, index);
+        // no need to store LegAdapter in MergingViewIndex
+        leg1 = new LegAdapter(getDelegate().getLeg1(), getIndex());
+        leg2 = new LegAdapter(getDelegate().getLeg2(), getIndex());
+        leg3 = new LegAdapter(getDelegate().getLeg3(), getIndex());
+    }
+
+    @Override
+    public ThreeWindingsTransformer.Leg getLeg1() {
+        return leg1;
+    }
+
+    @Override
+    public ThreeWindingsTransformer.Leg getLeg2() {
+        return leg2;
+    }
+
+    @Override
+    public ThreeWindingsTransformer.Leg getLeg3() {
+        return leg3;
+    }
+
+    @Override
+    public List<? extends TerminalAdapter> getTerminals() {
+        return getDelegate().getTerminals().stream()
+                                           .map(getIndex()::getTerminal)
+                                           .collect(Collectors.toList());
+    }
+
+    @Override
+    public Terminal getTerminal(final Side side) {
+        return getIndex().getTerminal(getDelegate().getTerminal(side));
+    }
+
+    @Override
+    public Side getSide(final Terminal side) {
+        Terminal terminal = side;
+        if (terminal instanceof TerminalAdapter) {
+            terminal = ((TerminalAdapter) terminal).getDelegate();
+        }
+        return getDelegate().getSide(terminal);
+    }
+
+    @Override
+    public Substation getSubstation() {
+        return getIndex().getSubstation(getDelegate().getSubstation());
+    }
+
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
+    @Override
+    public ConnectableType getType() {
+        return getDelegate().getType();
+    }
+
+    @Override
+    public double getRatedU0() {
+        return getDelegate().getRatedU0();
     }
 
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
     @Override
-    public ConnectableType getType() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public List<? extends TerminalAdapter> getTerminals() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
     public void remove() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
-
-    @Override
-    public TerminalAdapter getTerminal(final Side side) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Side getSide(final Terminal terminal) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public SubstationAdapter getSubstation() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Leg1Adapter getLeg1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Leg2or3Adapter getLeg2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Leg2or3Adapter getLeg3() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
 }

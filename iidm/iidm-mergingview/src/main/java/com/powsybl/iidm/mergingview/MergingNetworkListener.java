@@ -15,16 +15,16 @@ import com.powsybl.iidm.network.NetworkListener;
 public class MergingNetworkListener implements NetworkListener {
     @Override
     public void onCreation(final Identifiable identifiable) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        // Not implemented yet !
     }
 
     @Override
     public void onRemoval(final Identifiable identifiable) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        // Not implemented yet !
     }
 
     @Override
     public void onUpdate(final Identifiable identifiable, final String attribute, final Object oldValue, final Object newValue) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        // Not implemented yet !
     }
 }

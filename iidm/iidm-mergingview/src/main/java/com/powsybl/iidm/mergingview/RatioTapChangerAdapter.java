@@ -14,30 +14,32 @@ import com.powsybl.iidm.network.RatioTapChangerStep;
  */
 public class RatioTapChangerAdapter extends AbstractTapChangerAdapter<RatioTapChanger, RatioTapChangerStep> implements RatioTapChanger {
 
-    protected RatioTapChangerAdapter(final RatioTapChanger delegate, final MergingViewIndex index) {
+    RatioTapChangerAdapter(final RatioTapChanger delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public double getTargetV() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getTargetV();
     }
 
     @Override
-    public RatioTapChangerAdapter setTargetV(final double targetV) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public RatioTapChanger setTargetV(final double targetV) {
+        getDelegate().setTargetV(targetV);
+        return this;
     }
 
     @Override
     public boolean hasLoadTapChangingCapabilities() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().hasLoadTapChangingCapabilities();
     }
 
     @Override
-    public RatioTapChangerAdapter setLoadTapChangingCapabilities(final boolean status) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public RatioTapChanger setLoadTapChangingCapabilities(final boolean status) {
+        getDelegate().setLoadTapChangingCapabilities(status);
+        return this;
     }
 }

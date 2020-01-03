@@ -19,15 +19,15 @@ import java.util.stream.Stream;
 class MergingViewIndex {
 
     /** Local storage for adapters created */
-    private final Map<Identifiable<?>, AbstractAdapter<?>> identifiableCached = new WeakHashMap<>();
+    private final Map<Identifiable, AbstractAdapter<? extends Identifiable>> identifiableCached = new WeakHashMap<>();
 
-    private final Map<Component, AbstractAdapter<?>> componentCached = new WeakHashMap<>();
+    private final Map<Component, AbstractAdapter<? extends Component>> componentCached = new WeakHashMap<>();
 
-    private final Map<Terminal, AbstractAdapter<?>> terminalCached = new WeakHashMap<>();
+    private final Map<Terminal, AbstractAdapter<? extends Terminal>> terminalCached = new WeakHashMap<>();
 
-    private final Map<PhaseTapChanger, AbstractAdapter<?>> ptcCached = new WeakHashMap<>();
+    private final Map<PhaseTapChanger, AbstractAdapter<? extends PhaseTapChanger>> ptcCached = new WeakHashMap<>();
 
-    private final Map<RatioTapChanger, AbstractAdapter<?>> rtcCached = new WeakHashMap<>();
+    private final Map<RatioTapChanger, AbstractAdapter<? extends RatioTapChanger>> rtcCached = new WeakHashMap<>();
 
     /** Network asked to be merged */
     private final Collection<Network> networks = new ArrayList<>();
@@ -51,10 +51,19 @@ class MergingViewIndex {
         return networks.stream();
     }
 
+    boolean contains(String id) {
+        for (Network n : networks) {
+            if (Objects.nonNull(n.getIdentifiable(id))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** Validate all networks added into merging network list */
     void checkAndAdd(final Network other) {
         // Check multi-variants network
-        ValidationUtil.checkSingleyVariant(other);
+        ValidationUtil.checkSingleVariant(other);
         // Check unique identifiable network
         ValidationUtil.checkUniqueIds(other, this);
         // Local storage for mergeable network
@@ -95,7 +104,7 @@ class MergingViewIndex {
     /** @return all adapters according to all Identifiables */
     Collection<Identifiable<?>> getIdentifiables() {
         // Search Identifiables into merging & working networks
-        return getIdentifiableStream().collect(Collectors.toSet());
+        return getIdentifiableStream().collect(Collectors.toList());
     }
 
     /** @return all Adapters according to all Substations into merging view */

@@ -6,15 +6,12 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
-import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -31,29 +28,50 @@ public class VscConverterStationAdapterTest {
 
     @Test
     public void testSetterGetter() {
-        final VscConverterStation vscConverterStation = mergingView.getVscConverterStation("C1");
-        assertNotNull(vscConverterStation);
-        assertSame(vscConverterStation, mergingView.getHvdcConverterStation("C1"));
-        assertTrue(vscConverterStation instanceof VscConverterStationAdapter);
-        assertSame(mergingView, vscConverterStation.getNetwork());
+        final VscConverterStation cs1 = mergingView.getVscConverterStation("C1");
+        assertNotNull(cs1);
+        assertSame(cs1, mergingView.getHvdcConverterStation("C1"));
+        assertTrue(cs1 instanceof VscConverterStationAdapter);
+        assertSame(mergingView, cs1.getNetwork());
+
+        assertEquals(HvdcConverterStation.HvdcType.VSC, cs1.getHvdcType());
+        assertSame(mergingView.getHvdcLine("L"), cs1.getHvdcLine());
+        cs1.setLossFactor(0.022f);
+        assertEquals(0.022f, cs1.getLossFactor(), 0.0f);
+        assertNotNull(cs1.getTerminal());
+        assertEquals(ConnectableType.HVDC_CONVERTER_STATION, cs1.getType());
+        assertEquals(1, cs1.getTerminals().size());
+
+        assertNotNull(cs1.getReactiveLimits());
+        assertNotNull(cs1.getReactiveLimits(ReactiveCapabilityCurve.class));
+
+        cs1.newReactiveCapabilityCurve()
+                .beginPoint()
+                .setP(0)
+                .setMinQ(-59.3)
+                .setMaxQ(60.0)
+                .endPoint()
+                .beginPoint()
+                .setP(70.0)
+                .setMinQ(-54.55)
+                .setMaxQ(46.25)
+                .endPoint()
+                .add();
+
+        cs1.newMinMaxReactiveLimits()
+                .setMinQ(-9999.99)
+                .setMaxQ(9999.99)
+                .add();
+
+        cs1.setVoltageSetpoint(406.0);
+        assertEquals(406.0, cs1.getVoltageSetpoint(), 0.0);
+        assertTrue(Double.isNaN(cs1.getReactivePowerSetpoint()));
+        cs1.setReactivePowerSetpoint(124.0);
+        assertEquals(124.0, cs1.getReactivePowerSetpoint(), 0.0);
+        cs1.setVoltageRegulatorOn(false);
+        assertFalse(cs1.isVoltageRegulatorOn());
 
         // Not implemented yet !
-        TestUtil.notImplemented(vscConverterStation::getHvdcType);
-        TestUtil.notImplemented(vscConverterStation::getLossFactor);
-        TestUtil.notImplemented(() -> vscConverterStation.setLossFactor(0.0f));
-        TestUtil.notImplemented(vscConverterStation::getTerminal);
-        TestUtil.notImplemented(vscConverterStation::getType);
-        TestUtil.notImplemented(vscConverterStation::getTerminals);
-        TestUtil.notImplemented(vscConverterStation::remove);
-        TestUtil.notImplemented(vscConverterStation::getReactiveLimits);
-        TestUtil.notImplemented(() -> vscConverterStation.getReactiveLimits(null));
-        TestUtil.notImplemented(vscConverterStation::newReactiveCapabilityCurve);
-        TestUtil.notImplemented(vscConverterStation::newMinMaxReactiveLimits);
-        TestUtil.notImplemented(vscConverterStation::isVoltageRegulatorOn);
-        TestUtil.notImplemented(() -> vscConverterStation.setVoltageRegulatorOn(false));
-        TestUtil.notImplemented(vscConverterStation::getVoltageSetpoint);
-        TestUtil.notImplemented(() -> vscConverterStation.setVoltageSetpoint(0.0d));
-        TestUtil.notImplemented(vscConverterStation::getReactivePowerSetpoint);
-        TestUtil.notImplemented(() -> vscConverterStation.setReactivePowerSetpoint(0.0d));
+        TestUtil.notImplemented(cs1::remove);
     }
 }

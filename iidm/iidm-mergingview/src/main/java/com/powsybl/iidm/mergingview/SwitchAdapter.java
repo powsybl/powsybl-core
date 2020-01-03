@@ -8,56 +8,57 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.VoltageLevel;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class SwitchAdapter extends AbstractIdentifiableAdapter<Switch> implements Switch {
 
-    protected SwitchAdapter(final Switch delegate, final MergingViewIndex index) {
+    SwitchAdapter(final Switch delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
-    public VoltageLevelAdapter getVoltageLevel() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public VoltageLevel getVoltageLevel() {
+        return getIndex().getVoltageLevel(getDelegate().getVoltageLevel());
     }
 
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
     @Override
     public SwitchKind getKind() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getKind();
     }
 
     @Override
     public boolean isOpen() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().isOpen();
     }
 
     @Override
     public void setOpen(final boolean open) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setOpen(open);
     }
 
     @Override
     public boolean isRetained() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().isRetained();
     }
 
     @Override
     public void setRetained(final boolean retained) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setRetained(retained);
     }
 
     @Override
     public boolean isFictitious() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().isFictitious();
     }
 
     @Override
     public void setFictitious(final boolean fictitious) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setFictitious(fictitious);
     }
 }

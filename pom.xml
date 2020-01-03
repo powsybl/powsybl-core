@@ -51,7 +51,6 @@
 
     <modules>
         <module>action</module>
-        <module>afs</module>
         <module>ampl-converter</module>
         <module>cgmes</module>
         <module>cim-anonymiser</module>
@@ -65,6 +64,7 @@
         <module>dsl</module>
         <module>dynamic-simulation</module>
         <module>entsoe-util</module>
+        <module>ieee-cdf</module>
         <module>iidm</module>
         <module>itools-packager</module>
         <module>loadflow</module>
@@ -86,9 +86,8 @@
         <java.version>8</java.version>
 
         <maven.assembly.version>3.1.0</maven.assembly.version>
-        <maven.build-helper.version>3.0.0</maven.build-helper.version>
         <maven.buildnumber.version>1.4</maven.buildnumber.version>
-        <maven.checkstyle.version>3.0.0</maven.checkstyle.version>
+        <maven.checkstyle.version>3.1.0</maven.checkstyle.version>
         <maven.clean.version>3.1.0</maven.clean.version>
         <maven.compiler.version>3.8.0</maven.compiler.version>
         <maven.coveralls.version>4.3.0</maven.coveralls.version>
@@ -121,7 +120,6 @@
             **/generated/**/*
         </sonar.exclusions>
 
-        <arquillianbom.version>1.2.0.Final</arquillianbom.version>
         <assertj.version>3.11.0</assertj.version>
         <autoservice.version>1.0-rc2</autoservice.version>
         <blazegraph.version>2.1.4</blazegraph.version>
@@ -135,41 +133,31 @@
         <groovy.version>2.5.8</groovy.version>
         <guava.version>20.0</guava.version>
         <jackson.version>2.8.11.3</jackson.version>
-        <jackson.jaxrs.version>2.8.11</jackson.jaxrs.version>
         <jama.version>1.0.3</jama.version>
-        <javaeeapi.version>7.0</javaeeapi.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
         <jaxb-runtime.version>2.4.0-b180830.0438</jaxb-runtime.version>
         <jena.version>3.0.0</jena.version>
         <jgrapht.version>1.0.1</jgrapht.version>
         <jimfs.version>1.1</jimfs.version>
-        <jjwt.version>0.9.0</jjwt.version>
-        <jline2.version>2.12</jline2.version>
+        <jline2.version>3.5.1</jline2.version>
         <jodatime.version>2.9.7</jodatime.version>
         <junit.version>4.12</junit.version>
         <logback.version>1.1.8</logback.version>
-        <mapdb.version>3.0.6</mapdb.version>
         <maven.core.version>3.3.9</maven.core.version>
         <maven.plugin.annotations.version>3.6.0</maven.plugin.annotations.version>
         <mockito.version>1.10.19</mockito.version>
         <nativelibloader.version>2.3.4</nativelibloader.version>
         <poi.version>3.15</poi.version>
-        <protobuf.version>2.5.0</protobuf.version>
         <rdf4j.version>2.4.4</rdf4j.version>
-        <resteasy.version>3.1.4.Final</resteasy.version>
-        <shrinkwrap-resolver.version>2.2.6</shrinkwrap-resolver.version>
         <sirocco.version>1.0</sirocco.version>
         <slf4j.version>1.7.22</slf4j.version>
         <snakeyaml.version>1.21</snakeyaml.version>
         <staxutils.version>20070216</staxutils.version>
         <supercsv.version>2.4.0</supercsv.version>
-        <swaggerjaxrs.version>1.5.16</swaggerjaxrs.version>
         <threeten.version>1.0</threeten.version>
         <trove4j.version>3.0.3</trove4j.version>
         <truevfs.version>0.12.0</truevfs.version>
-        <tyrus.version>1.13.1</tyrus.version>
-        <wildfly.dist.version>11.0.0.Final</wildfly.dist.version>
-        <wildflyarquilliancontainerembedded.version>2.1.0.Final</wildflyarquilliancontainerembedded.version>
+        <univocity-parsers.version>2.8.3</univocity-parsers.version>
         <xmlunit.version>2.3.0</xmlunit.version>
 
         <powsyblmathnative.version>1.0.1</powsyblmathnative.version>
@@ -177,37 +165,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>${maven.build-helper.version}</version>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>src/main/groovy</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>add-test-source</id>
-                        <phase>generate-test-sources</phase>
-                        <goals>
-                            <goal>add-test-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>src/test/groovy</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
@@ -334,8 +291,8 @@
                             <sourceDirectory>${project.basedir}/contingency/contingency-dsl/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/dsl/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/iidm/iidm-api/src/main/groovy</sourceDirectory>
-                            <sourceDirectory>${project.basedir}/loadflow/loadflow-api/src/main/groovy</sourceDirectory>
-                            <sourceDirectory>${project.basedir}/scripting/scripting-afs/src/main/groovy</sourceDirectory>
+                            <sourceDirectory>${project.basedir}/loadflow/loadflow-scripting/src/main/groovy</sourceDirectory>
+                            <sourceDirectory>${project.basedir}/scripting/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/time-series/time-series-api/src/main/groovy</sourceDirectory>
                         </sourceDirectories>
                         <jacocoReports>
@@ -569,11 +526,6 @@
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-json-provider</artifactId>
-                <version>${jackson.jaxrs.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.auto.service</groupId>
                 <artifactId>auto-service</artifactId>
                 <version>${autoservice.version}</version>
@@ -589,14 +541,14 @@
                 <version>${jimfs.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.google.protobuf</groupId>
-                <artifactId>protobuf-java</artifactId>
-                <version>${protobuf.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-math-native</artifactId>
                 <version>${powsyblmathnative.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.univocity</groupId>
+                <artifactId>univocity-parsers</artifactId>
+                <version>${univocity-parsers.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-cli</groupId>
@@ -619,27 +571,12 @@
                 <version>${graphvizjava.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt</artifactId>
-                <version>${jjwt.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-jaxrs</artifactId>
-                <version>${swaggerjaxrs.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax</groupId>
-                <artifactId>javaee-api</artifactId>
-                <version>${javaeeapi.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>${jaxb-api.version}</version>
             </dependency>
             <dependency>
-                <groupId>jline</groupId>
+                <groupId>org.jline</groupId>
                 <artifactId>jline</artifactId>
                 <version>${jline2.version}</version>
             </dependency>
@@ -727,11 +664,6 @@
             </dependency>
             <dependency>
                 <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-json</artifactId>
-                <version>${groovy.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-groovysh</artifactId>
                 <version>${groovy.version}</version>
             </dependency>
@@ -757,36 +689,9 @@
                 <version>${rdf4j.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.glassfish.tyrus</groupId>
-                <artifactId>tyrus-client</artifactId>
-                <version>${tyrus.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.tyrus</groupId>
-                <artifactId>tyrus-container-jdk-client</artifactId>
-                <version>${tyrus.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.arquillian</groupId>
-                <artifactId>arquillian-bom</artifactId>
-                <version>${arquillianbom.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.resteasy</groupId>
-                <artifactId>resteasy-client</artifactId>
-                <version>${resteasy.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.jgrapht</groupId>
                 <artifactId>jgrapht-core</artifactId>
                 <version>${jgrapht.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mapdb</groupId>
-                <artifactId>mapdb</artifactId>
-                <version>${mapdb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -853,12 +758,6 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.jboss.shrinkwrap.resolver</groupId>
-                <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
-                <version>${shrinkwrap-resolver.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
                 <version>${mockito.version}</version>
@@ -868,12 +767,6 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
                 <version>${slf4j.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.wildfly.arquillian</groupId>
-                <artifactId>wildfly-arquillian-container-embedded</artifactId>
-                <version>${wildflyarquilliancontainerembedded.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

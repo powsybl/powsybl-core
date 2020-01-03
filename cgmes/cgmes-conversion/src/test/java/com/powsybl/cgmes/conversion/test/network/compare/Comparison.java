@@ -40,6 +40,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -426,10 +427,10 @@ public class Comparison {
         if (expected == null && actual == null) {
             return;
         } else if (expected == null && actual != null) {
-            diff.unexpected("phaseAngleClock");
+            diff.unexpected("phaseAngleClock2wt");
             return;
         } else if (expected != null && actual == null) {
-            diff.unexpected("phaseAngleClock");
+            diff.unexpected("phaseAngleClock2wt");
             return;
         } else {
             diff.compare("phaseAngleClock", expected.getPhaseAngleClock(), actual.getPhaseAngleClock());
@@ -441,26 +442,40 @@ public class Comparison {
         compareLeg(expected.getLeg1(), actual.getLeg1(), expected, actual);
         compareLeg(expected.getLeg2(), actual.getLeg2(), expected, actual);
         compareLeg(expected.getLeg3(), actual.getLeg3(), expected, actual);
+        comparePhaseAngleClock(expected.getExtension(ThreeWindingsTransformerPhaseAngleClock.class), actual.getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
     }
 
-    private void compareLeg(ThreeWindingsTransformer.LegBase expected, ThreeWindingsTransformer.LegBase actual,
+    private void comparePhaseAngleClock(ThreeWindingsTransformerPhaseAngleClock expected, ThreeWindingsTransformerPhaseAngleClock actual) {
+        if (expected == null && actual == null) {
+            return;
+        } else if (expected == null && actual != null) {
+            diff.unexpected("phaseAngleClock3wt");
+            return;
+        } else if (expected != null && actual == null) {
+            diff.unexpected("phaseAngleClock3wt");
+            return;
+        } else {
+            diff.compare("phaseAngleClockLeg2", expected.getPhaseAngleClockLeg2(), actual.getPhaseAngleClockLeg2());
+            diff.compare("phaseAngleClockLeg3", expected.getPhaseAngleClockLeg3(), actual.getPhaseAngleClockLeg3());
+        }
+    }
+
+    private void compareLeg(ThreeWindingsTransformer.Leg expected, ThreeWindingsTransformer.Leg actual,
         ThreeWindingsTransformer expectedt, ThreeWindingsTransformer actualt) {
         equivalent("VoltageLevel",
             expected.getTerminal().getVoltageLevel(),
             actual.getTerminal().getVoltageLevel());
         compare("r", expected.getR(), actual.getR());
         compare("x", expected.getX(), actual.getX());
-        if (actual instanceof ThreeWindingsTransformer.Leg1) {
-            compare("g", ((ThreeWindingsTransformer.Leg1) expected).getG(), ((ThreeWindingsTransformer.Leg1) actual).getG());
-            compare("b", ((ThreeWindingsTransformer.Leg1) expected).getB(), ((ThreeWindingsTransformer.Leg1) actual).getB());
-        }
+        compare("g", expected.getG(), actual.getG());
+        compare("b", expected.getB(), actual.getB());
+
         compare("ratedU", expected.getRatedU(), actual.getRatedU());
         compareCurrentLimits(expectedt, actualt,
             expected.getCurrentLimits(),
             actual.getCurrentLimits());
-        if (actual instanceof ThreeWindingsTransformer.Leg2or3) {
-            compareRatioTapChanger(((ThreeWindingsTransformer.Leg2or3) expected).getRatioTapChanger(), ((ThreeWindingsTransformer.Leg2or3) actual).getRatioTapChanger());
-        }
+        compareRatioTapChanger(expected.getRatioTapChanger(), actual.getRatioTapChanger());
+        comparePhaseTapChanger(expected.getPhaseTapChanger(), actual.getPhaseTapChanger());
     }
 
     private void compareRatioTapChanger(

@@ -19,79 +19,91 @@ abstract class AbstractTapChangerAdapter<P extends TapChanger<P, S>, S extends T
         super(delegate, index);
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
-    public int getLowTapPosition() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public Terminal getRegulationTerminal() {
+        return getIndex().getTerminal(getDelegate().getRegulationTerminal());
     }
 
     @Override
-    public P setLowTapPosition(int lowTapPosition) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public P setRegulationTerminal(final Terminal regulationTerminal) {
+        Terminal terminal = regulationTerminal;
+        if (regulationTerminal instanceof TerminalAdapter) {
+            terminal = ((TerminalAdapter) terminal).getDelegate();
+        }
+        getDelegate().setRegulationTerminal(terminal);
+        return (P) this;
+    }
+
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
+    @Override
+    public int getLowTapPosition() {
+        return getDelegate().getLowTapPosition();
+    }
+
+    @Override
+    public P setLowTapPosition(final int lowTapPosition) {
+        getDelegate().setLowTapPosition(lowTapPosition);
+        return (P) this;
     }
 
     @Override
     public int getHighTapPosition() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getHighTapPosition();
     }
 
     @Override
     public int getTapPosition() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getTapPosition();
     }
 
     @Override
-    public P setTapPosition(int tapPosition) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public P setTapPosition(final int tapPosition) {
+        getDelegate().setTapPosition(tapPosition);
+        return (P) this;
     }
 
     @Override
     public int getStepCount() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getStepCount();
     }
 
     @Override
-    public S getStep(int tapPosition) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public S getStep(final int tapPosition) {
+        return getDelegate().getStep(tapPosition);
     }
 
     @Override
     public S getCurrentStep() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getCurrentStep();
     }
 
     @Override
     public boolean isRegulating() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().isRegulating();
     }
 
     @Override
-    public P setRegulating(boolean regulating) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public TerminalAdapter getRegulationTerminal() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public P setRegulationTerminal(Terminal regulationTerminal) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public P setRegulating(final boolean regulating) {
+        getDelegate().setRegulating(regulating);
+        return (P) this;
     }
 
     @Override
     public double getTargetDeadband() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getTargetDeadband();
     }
 
     @Override
-    public P setTargetDeadband(double targetDeadband) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public P setTargetDeadband(final double targetDeadband) {
+        getDelegate().setTargetDeadband(targetDeadband);
+        return (P) this;
     }
 
+    // ------------------------------
+    // Not implemented methods ------
+    // ------------------------------
     @Override
     public void remove() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;

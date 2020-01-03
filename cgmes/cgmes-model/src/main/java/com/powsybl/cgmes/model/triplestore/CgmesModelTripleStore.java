@@ -86,7 +86,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                 if (p != null && p.contains("/EquipmentCore/")) {
                     if (LOG.isInfoEnabled()) {
                         LOG.info("Model contains Equipment Core data profile in model {}",
-                            m.get(CgmesNames.FULL_MODEL));
+                                m.get(CgmesNames.FULL_MODEL));
                     }
                     return true;
                 }
@@ -165,10 +165,10 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         boolean isNodeBreaker = eqModelHasEquipmentOperationProfile.values().stream().allMatch(Boolean::valueOf);
         if (isNodeBreaker) {
             LOG.info(
-                "All FullModel objects have EquipmentOperation profile, so conversion will be considered node-breaker");
+                    "All FullModel objects have EquipmentOperation profile, so conversion will be considered node-breaker");
         } else {
             LOG.info(
-                "Following FullModel objects do not have EquipmentOperation profile, so conversion will not be considered node-breaker:");
+                    "Following FullModel objects do not have EquipmentOperation profile, so conversion will not be considered node-breaker:");
             eqModelHasEquipmentOperationProfile.entrySet().forEach(meqop -> {
                 if (!meqop.getValue()) {
                     LOG.info("    {}", meqop.getKey());
@@ -361,6 +361,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags equivalentShunts() {
+        return namedQuery("equivalentShunts");
+    }
+
+    @Override
     public PropertyBags nonlinearShuntCompensatorPoints(String scId) {
         Objects.requireNonNull(scId);
         return namedQuery("nonlinearShuntCompensatorPoints", scId);
@@ -436,6 +441,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     @Override
     public PropertyBags dcTerminalsTP() {
         return namedQuery("dcTerminalsTP");
+    }
+
+    @Override
+    public PropertyBags modelProfiles() {
+        return namedQuery(MODEL_PROFILES);
     }
 
     public PropertyBags namedQuery(String name, String... params) {
@@ -559,8 +569,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private String contextNameFor(CgmesSubset subset) {
         String contextNameEQ = contextNameForEquipmentSubset();
         return contextNameEQ != null
-            ? buildContextNameForSubsetFrom(contextNameEQ, subset)
-            : modelId() + "_" + subset + ".xml";
+                ? buildContextNameForSubsetFrom(contextNameEQ, subset)
+                : modelId() + "_" + subset + ".xml";
     }
 
     private String contextNameForEquipmentSubset() {

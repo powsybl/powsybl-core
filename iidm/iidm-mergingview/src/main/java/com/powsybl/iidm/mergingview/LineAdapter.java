@@ -25,66 +25,69 @@ public class LineAdapter extends AbstractBranchAdapter<Line> implements Line {
         return getDelegate().isTieLine();
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
     public double getR() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getR();
     }
 
     @Override
-    public LineAdapter setR(final double r) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public Line setR(final double r) {
+        getDelegate().setR(r);
+        return this;
     }
 
     @Override
     public double getX() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getX();
     }
 
     @Override
-    public LineAdapter setX(final double x) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public Line setX(final double x) {
+        getDelegate().setX(x);
+        return this;
     }
 
     @Override
     public double getG1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getG1();
     }
 
     @Override
-    public LineAdapter setG1(final double g1) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public Line setG1(final double g1) {
+        getDelegate().setG1(g1);
+        return this;
     }
 
     @Override
     public double getG2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getG2();
     }
 
     @Override
-    public LineAdapter setG2(final double g2) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public Line setG2(final double g2) {
+        getDelegate().setG2(g2);
+        return this;
     }
 
     @Override
     public double getB1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getB1();
     }
 
     @Override
-    public LineAdapter setB1(final double b1) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public Line setB1(final double b1) {
+        getDelegate().setB1(b1);
+        return this;
     }
 
     @Override
     public double getB2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getB2();
     }
 
     @Override
-    public LineAdapter setB2(final double b2) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public Line setB2(final double b2) {
+        getDelegate().setB2(b2);
+        return this;
     }
 }

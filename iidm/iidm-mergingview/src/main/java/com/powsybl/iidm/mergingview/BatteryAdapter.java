@@ -6,81 +6,81 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.MinMaxReactiveLimitsAdder;
-import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
-import com.powsybl.iidm.network.ReactiveLimits;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class BatteryAdapter extends AbstractInjectionAdapter<Battery> implements Battery {
 
-    protected BatteryAdapter(final Battery delegate, final MergingViewIndex index) {
+    BatteryAdapter(final Battery delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public ReactiveLimits getReactiveLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getReactiveLimits();
     }
 
     @Override
     public <L extends ReactiveLimits> L getReactiveLimits(final Class<L> type) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getReactiveLimits(type);
     }
 
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().newReactiveCapabilityCurve();
     }
 
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().newMinMaxReactiveLimits();
     }
 
     @Override
     public double getP0() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getP0();
     }
 
     @Override
-    public Battery setP0(final double p0) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public BatteryAdapter setP0(final double p0) {
+        getDelegate().setP0(p0);
+        return this;
     }
 
     @Override
     public double getQ0() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getQ0();
     }
 
     @Override
-    public Battery setQ0(final double q0) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public BatteryAdapter setQ0(final double q0) {
+        getDelegate().setQ0(q0);
+        return this;
     }
 
     @Override
     public double getMinP() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getMinP();
     }
 
     @Override
-    public Battery setMinP(final double minP) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public BatteryAdapter setMinP(final double minP) {
+        getDelegate().setMinP(minP);
+        return this;
     }
 
     @Override
     public double getMaxP() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getMaxP();
     }
 
     @Override
-    public Battery setMaxP(final double maxP) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    public BatteryAdapter setMaxP(final double maxP) {
+        getDelegate().setMaxP(maxP);
+        return this;
     }
-
 }
