@@ -25,6 +25,10 @@ public final class CgmesModelFactory {
     private CgmesModelFactory() {
     }
 
+    public static CgmesModel create(ReadOnlyDataSource dataSource) {
+        return create(dataSource, TripleStoreFactory.DEFAULT_IMPLEMENTATION);
+    }
+
     public static CgmesModel create(ReadOnlyDataSource dataSource, String implementation) {
         Objects.requireNonNull(dataSource);
         Objects.requireNonNull(implementation);
