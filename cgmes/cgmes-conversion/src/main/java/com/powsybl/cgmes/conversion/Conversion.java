@@ -11,7 +11,7 @@ import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
 
@@ -49,7 +50,7 @@ public class Conversion {
     }
 
     public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors,
-        NetworkFactory networkFactory) {
+                      NetworkFactory networkFactory) {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
         this.postProcessors = Objects.requireNonNull(postProcessors);
@@ -81,11 +82,11 @@ public class Conversion {
         convert(cgmes.substations(), s -> new SubstationConversion(s, context));
         convert(cgmes.voltageLevels(), vl -> new VoltageLevelConversion(vl, context));
         PropertyBags nodes = context.nodeBreaker()
-            ? cgmes.connectivityNodes()
-            : cgmes.topologicalNodes();
+                ? cgmes.connectivityNodes()
+                : cgmes.topologicalNodes();
         String nodeTypeName = context.nodeBreaker()
-            ? "ConnectivityNode"
-            : "TopologicalNode";
+                ? "ConnectivityNode"
+                : "TopologicalNode";
         convert(nodes, n -> new NodeConversion(nodeTypeName, n, context));
         if (!context.config().createBusbarSectionForEveryConnectivityNode()) {
             convert(cgmes.busBarSections(), bbs -> new BusbarSectionConversion(bbs, context));
@@ -155,8 +156,8 @@ public class Conversion {
     }
 
     private void convert(
-        PropertyBags elements,
-        Function<PropertyBag, AbstractObjectConversion> f) {
+            PropertyBags elements,
+            Function<PropertyBag, AbstractObjectConversion> f) {
         String conversion = null;
 
         for (PropertyBag element : elements) {
@@ -195,9 +196,9 @@ public class Conversion {
 
     private void assignNetworkProperties(Context context) {
         context.network().setProperty(NETWORK_PS_CGMES_MODEL_DETAIL,
-            context.nodeBreaker()
-                ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
-                : NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH);
+                context.nodeBreaker()
+                        ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
+                        : NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH);
         DateTime modelScenarioTime = cgmes.scenarioTime();
         DateTime modelCreated = cgmes.created();
         long forecastDistance = new Duration(modelCreated, modelScenarioTime).getStandardMinutes();
@@ -303,18 +304,12 @@ public class Conversion {
     }
 
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
-        List<HvdcConverterStation<?>> incompleteConverters = new ArrayList<>();
         network.getHvdcConverterStationStream()
-            .filter(converter -> converter.getHvdcLine() == null)
-            .forEach(converter -> {
-                context.ignored(String.format("HVDC Converter Station %s",
-                    converter.getId()),
-                    "No correct linked HVDC line found.");
-                incompleteConverters.add(converter);
-            });
-        for (HvdcConverterStation<?> incompleteConverter : incompleteConverters) {
-            incompleteConverter.remove();
-        }
+                .filter(converter -> converter.getHvdcLine() == null)
+                .peek(converter -> context.ignored(String.format("HVDC Converter Station %s",
+                        converter.getId()), "No correct linked HVDC line found."))
+                .collect(Collectors.toList())
+                .forEach(Connectable::remove);
     }
 
     private void debugTopology(Context context) {
