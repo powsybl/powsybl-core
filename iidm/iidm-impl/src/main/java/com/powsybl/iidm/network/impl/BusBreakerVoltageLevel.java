@@ -366,6 +366,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public int[] getNodes(String busId) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
         public NodeBreakerView setNodeCount(int count) {
             throw createNotSupportedBusBreakerTopologyException();
         }

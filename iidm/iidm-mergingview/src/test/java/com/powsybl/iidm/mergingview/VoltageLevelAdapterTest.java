@@ -7,10 +7,9 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
-import org.apache.commons.lang3.NotImplementedException;
-import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -363,6 +362,15 @@ public class VoltageLevelAdapterTest {
         // Not implemented
         TestUtil.notImplemented(() -> nbv.removeSwitch(""));
         TestUtil.notImplemented(() -> nbv.traverse(0, null));
-        Assertions.assertThatThrownBy(() -> nbv.getNodes("BBV_B1")).isInstanceOf(NotImplementedException.class);
+    }
+
+    @Test
+    public void testNbv() {
+        MergingView merge = MergingView.create("testNbv", "iidm");
+        Network ref = NetworkTest1Factory.create();
+        merge.merge(ref);
+        VoltageLevel vl = merge.getVoltageLevel("voltageLevel1");
+        assertTrue(vl instanceof VoltageLevelAdapter);
+        assertArrayEquals(new int[]{0, 1, 6, 5, 3, 2}, vl.getNodeBreakerView().getNodes("voltageLevel1_0"));
     }
 }
