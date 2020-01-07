@@ -25,7 +25,6 @@
 
     <modules>
         <module>action-dsl</module>
-        <module>action-dsl-afs</module>
         <module>action-dsl-spi</module>
         <module>action-simulator</module>
         <module>action-util</module>

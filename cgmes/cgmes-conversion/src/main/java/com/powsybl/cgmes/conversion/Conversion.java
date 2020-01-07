@@ -8,6 +8,9 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
+import com.powsybl.cgmes.conversion.elements.transformers.NewThreeWindingsTransformerConversion;
+import com.powsybl.cgmes.conversion.elements.transformers.NewTwoWindingsTransformerConversion;
+import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
@@ -30,23 +33,69 @@ import java.util.function.Function;
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
 
 /**
+ * TwoWindingsTransformer Interpretation
+ * <p>
+ * Ratio and Phase Interpretation (Xfmr2RatioPhaseInterpretationAlternative) <br>
+ * END1. All tapChangers (ratioTapChanger and phaseTapChanger) are considered at end1 (before transmission impedance) <br>
+ * END2. All tapChangers (ratioTapChanger and phaseTapChanger) are considered at end2 (after transmission impedance) <br>
+ * END1_END2. TapChangers (ratioTapChanger and phaseTapChanger) are considered at the end where they are defined in Cgmes <br>
+ * X. If x1 == 0 all tapChangers (ratioTapChanger and phaseTapChanger) are considered at the end1 otherwise they are considered at end2
+ * <p>
+ * Phase Angle Negate. All phaseTapChanger angles are considered -angle.
+ * <p>
+ * Shunt Admittance Interpretation (Xfmr2ShuntInterpretationAlternative) <br>
+ * END1. All shunt admittances to ground (g, b) at end1 (before transmission impedance) <br>
+ * END2. All shunt admittances to ground (g, b) at end2 (after transmission impedance) <br>
+ * END1_END2. Shunt admittances to ground (g, b) at the end where they are defined in Cgmes model <br>
+ * SPLIT. Split shunt admittances to ground (g, b) between end1 and end2. <br>
+ * <p>
+ * Structural Ratio (Xfmr2StructuralRatioInterpretationAlternative) <br>
+ * END1. Structural ratio always at end1 (before transmission impedance) <br>
+ * END2. Structural ratio always at end2 (after transmission impedance) <br>
+ * X. If x1 == 0 structural ratio at end1, otherwise at end2
+ * <p>
+ * ThreeWindingsTransformer Interpretation.
+ * <p>
+ * Ratio and Phase Interpretation.  If it is true all tapChangers (ratioTapChanger and phaseTapChanger) at the network side, otherwise at the star bus side
+ * <p>
+ * Phase Angle Negate. All phaseTapChanger angles are considered -angle
+ * <p>
+ * Shunt Admittance Interpretation (Xfmr3ShuntInterpretationAlternative) <br>
+ * NETWORK_SIDE. Shunt admittances to ground at the network side (end1 of the leg) <br>
+ * STAR_BUS_SIDE. Shunt admittances to ground at the start bus side (end2 of the leg) <br>
+ * SPLIT. Split shunt admittances to ground between two ends of the leg
+ * <p>
+ * Structural Ratio Interpretation (Xfmr3StructuralRatioInterpretationAlternative) <br>
+ * STAR_BUS_SIDE. Structural ratio at the star bus side of all legs and RatedU0 = RatedU1 <br>
+ * NETWORK_SIDE. Structural ratio at the network side of all legs. RatedU0 = 1 kv <br>
+ * END1. Structural ratio at the network side of legs 2 and 3. RatedU0 = RatedU1 <br>
+ * END2. Structural ratio at the network side of legs 1 and 3. RatedU0 = RatedU2 <br>
+ * END3. Structural ratio at the network side of legs 1 and 2. RatedU0 = RatedU2 <br>
+ * <p>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
+ *
  */
 public class Conversion {
 
-    private static boolean useCurrentCgmesConversion = false;
-
-    private boolean isCurrentCgmesConversion() {
-        return useCurrentCgmesConversion;
+    public enum Xfmr2RatioPhaseInterpretationAlternative {
+        END1, END2, END1_END2, X
     }
 
-    public static void setCurrentCgmesConversion() {
-        useCurrentCgmesConversion = true;
+    public enum Xfmr2ShuntInterpretationAlternative {
+        END1, END2, END1_END2, SPLIT
     }
 
-    public static void setNewCgmesConversion() {
-        useCurrentCgmesConversion = false;
+    public enum Xfmr2StructuralRatioInterpretationAlternative {
+        END1, END2, X
+    }
+
+    public enum Xfmr3ShuntInterpretationAlternative {
+        NETWORK_SIDE, STAR_BUS_SIDE, SPLIT
+    }
+
+    public enum Xfmr3StructuralRatioInterpretationAlternative {
+        NETWORK_SIDE, STAR_BUS_SIDE, END1, END2, END3
     }
 
     public Conversion(CgmesModel cgmes) {
@@ -74,7 +123,6 @@ public class Conversion {
     }
 
     public Network convert() {
-        profiling = new Profiling();
 
         if (LOG.isDebugEnabled() && cgmes.baseVoltages() != null) {
             LOG.debug(cgmes.baseVoltages().tabulate());
@@ -124,12 +172,12 @@ public class Conversion {
         convert(cgmes.equivalentBranches(), eqb -> new EquivalentBranchConversion(eqb, context));
         convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
 
-        if (isCurrentCgmesConversion()) {
+        if (config.useNewTransformerConversion()) {
+            newConvertTransformers(context);
+        } else {
             convertTransformers(context);
             convert(cgmes.ratioTapChangers(), rtc -> new RatioTapChangerConversion(rtc, context));
             convert(cgmes.phaseTapChangers(), ptc -> new PhaseTapChangerConversion(ptc, context));
-        } else {
-            newConvertTransformers(context);
         }
 
         // DC Converters must be converted first
@@ -154,20 +202,21 @@ public class Conversion {
 
         // apply post-processors
         for (CgmesImportPostProcessor postProcessor : postProcessors) {
-            postProcessor.process(network, cgmes.tripleStore(), profiling);
+            // FIXME generic cgmes models may not have an underlying triplestore
+            postProcessor.process(network, cgmes.tripleStore());
         }
 
         if (config.storeCgmesModelAsNetworkExtension()) {
             // Store a reference to the original CGMES model inside the IIDM network
-            // We could also add listeners to be aware of changes in IIDM data
-            network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes));
+            // CgmesUpdate will add a listener to Network changes
+            CgmesUpdate cgmesUpdater = new CgmesUpdate(network);
+            network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes, cgmesUpdater));
         }
         if (config.storeCgmesConversionContextAsNetworkExtension()) {
             // Store the terminal mapping in an extension for external validation
             network.addExtension(CgmesConversionContextExtension.class, new CgmesConversionContextExtension(context));
         }
 
-        profiling.report();
         return network;
     }
 
@@ -175,7 +224,7 @@ public class Conversion {
             PropertyBags elements,
             Function<PropertyBag, AbstractObjectConversion> f) {
         String conversion = null;
-        profiling.start();
+
         for (PropertyBag element : elements) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(element.tabulateLocals());
@@ -192,34 +241,28 @@ public class Conversion {
                 c.convert();
             }
         }
-        if (conversion != null) {
-            profiling.end(conversion);
-        }
     }
 
     private Network createNetwork() {
-        profiling.start();
         String networkId = cgmes.modelId();
         String sourceFormat = "CGMES";
         Network network = networkFactory.createNetwork(networkId, sourceFormat);
-        profiling.end("createNetwork");
         return network;
     }
 
     private Context createContext(Network network) {
-        profiling.start();
         Context context = new Context(cgmes, config, network);
         context.substationIdMapping().build();
         context.dc().initialize();
+        context.loadRatioTapChangers();
+        context.loadPhaseTapChangers();
         context.loadRatioTapChangerTables();
         context.loadPhaseTapChangerTables();
         context.loadReactiveCapabilityCurveData();
-        profiling.end("createContext");
         return context;
     }
 
     private void assignNetworkProperties(Context context) {
-        profiling.start();
         context.network().setProperty(NETWORK_PS_CGMES_MODEL_DETAIL,
                 context.nodeBreaker()
                         ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
@@ -233,11 +276,9 @@ public class Conversion {
         LOG.info("cgmes modelCreated       : {}", modelCreated);
         LOG.info("network caseDate         : {}", context.network().getCaseDate());
         LOG.info("network forecastDistance : {}", context.network().getForecastDistance());
-        profiling.end("networkProperties");
     }
 
     private void convertACLineSegmentsToLines(Context context) {
-        profiling.start();
         PropertyBags lines = cgmes.acLineSegments();
 
         // Context stores some statistics about line conversion
@@ -277,60 +318,32 @@ public class Conversion {
             c.convert();
         });
         context.endLinesConversion();
-        profiling.end("ACLineSegments");
     }
 
     private void newConvertTransformers(Context context) {
-        profiling.start();
-        Map<String, PropertyBag> powerTransformerRatioTapChanger = new HashMap<>();
-        Map<String, PropertyBag> powerTransformerPhaseTapChanger = new HashMap<>();
-        cgmes.ratioTapChangers().forEach(ratio -> {
-            String id = ratio.getId("RatioTapChanger");
-            powerTransformerRatioTapChanger.put(id, ratio);
+        cgmes.groupedTransformerEnds().forEach((t, ends) -> {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Transformer {}, {}-winding", t, ends.size());
+                ends.forEach(e -> LOG.debug(e.tabulateLocals("TransformerEnd")));
+            }
+            AbstractConductingEquipmentConversion c = null;
+            if (ends.size() == 2) {
+                c = new NewTwoWindingsTransformerConversion(ends, context);
+            } else if (ends.size() == 3) {
+                c = new NewThreeWindingsTransformerConversion(ends, context);
+            } else {
+                String what = String.format("PowerTransformer %s", t);
+                String reason = String.format("Has %d ends. Only 2 or 3 ends are supported", ends.size());
+                context.invalid(what, reason);
+            }
+            if (c != null && c.valid()) {
+                c.convert();
+            }
         });
-        cgmes.phaseTapChangers().forEach(phase -> {
-            String id = phase.getId("PhaseTapChanger");
-            powerTransformerPhaseTapChanger.put(id, phase);
-        });
-        cgmes.groupedTransformerEnds().entrySet()
-            .forEach(tends -> {
-                String t = tends.getKey();
-                PropertyBags ends = tends.getValue();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Transformer {}, {}-winding", t, ends.size());
-                    ends.forEach(e -> LOG.debug(e.tabulateLocals("TransformerEnd")));
-                }
-                AbstractConductingEquipmentConversion c = null;
-                if (ends.size() == 2) {
-                    c = new NewTwoWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
-                } else if (ends.size() == 3) {
-                    c = new NewThreeWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
-                } else {
-                    String what = String.format("PowerTransformer %s", t);
-                    String reason = String.format("Has %d ends. Only 2 or 3 ends are supported", ends.size());
-                    context.invalid(what, reason);
-                }
-                if (c != null && c.valid()) {
-                    c.convert();
-                }
-            });
-        profiling.end("Transfomers");
     }
 
     @Deprecated
     private void convertTransformers(Context context) {
-        profiling.start();
-        Map<String, PropertyBag> powerTransformerRatioTapChanger = new HashMap<>();
-        Map<String, PropertyBag> powerTransformerPhaseTapChanger = new HashMap<>();
-        cgmes.ratioTapChangers().forEach(ratio -> {
-            String id = ratio.getId("RatioTapChanger");
-            powerTransformerRatioTapChanger.put(id, ratio);
-        });
-        cgmes.phaseTapChangers().forEach(phase -> {
-            String id = phase.getId("PhaseTapChanger");
-            powerTransformerPhaseTapChanger.put(id, phase);
-        });
-
         cgmes.groupedTransformerEnds().entrySet()
                 .forEach(tends -> {
                     String t = tends.getKey();
@@ -341,9 +354,9 @@ public class Conversion {
                     }
                     AbstractConductingEquipmentConversion c = null;
                     if (ends.size() == 2) {
-                        c = new TwoWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
+                        c = new TwoWindingsTransformerConversion(ends, context);
                     } else if (ends.size() == 3) {
-                        c = new ThreeWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, context);
+                        c = new ThreeWindingsTransformerConversion(ends, context);
                     } else {
                         String what = String.format("PowerTransformer %s", t);
                         String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",
@@ -354,11 +367,9 @@ public class Conversion {
                         c.convert();
                     }
                 });
-        profiling.end("Transfomers");
     }
 
     private void voltageAngles(PropertyBags nodes, Context context) {
-        profiling.start();
         if (context.nodeBreaker()) {
             // TODO(Luma): we create again one conversion object for every node
             // In node-breaker conversion,
@@ -370,7 +381,6 @@ public class Conversion {
                 }
             }
         }
-        profiling.end("voltageAngles");
     }
 
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
@@ -381,7 +391,6 @@ public class Conversion {
     }
 
     private void debugTopology(Context context) {
-        profiling.start();
         context.network().getVoltageLevels().forEach(vl -> {
             String name = vl.getSubstation().getName() + "-" + vl.getName();
             name = name.replace('/', '-');
@@ -392,7 +401,6 @@ public class Conversion {
                 throw new UncheckedIOException(e);
             }
         });
-        profiling.end("debugTopology");
     }
 
     public static class Config {
@@ -400,6 +408,18 @@ public class Conversion {
         public enum StateProfile {
             SSH,
             SV
+        }
+
+        // Temporal flag while we keep two versions of transformer conversion
+        private boolean useNewTransformerConversion = true;
+
+        private boolean useNewTransformerConversion() {
+            return useNewTransformerConversion;
+        }
+
+        public Config setUseNewTransformerConversion(boolean b) {
+            useNewTransformerConversion = b;
+            return this;
         }
 
         public List<String> substationIdsExcludedFromMapping() {
@@ -509,61 +529,14 @@ public class Conversion {
             return this;
         }
 
-        /**
-         * TwoWindingsTransformer: All tapChangers (ratioTapChanger and phaseTapChanger)
-         * are considered at end1 (before transmission impedance)
-         */
-        public boolean isXfmr2RatioPhaseEnd1() {
-            return xfmr2RatioPhaseEnd1;
+        public Xfmr2RatioPhaseInterpretationAlternative getXfmr2RatioPhase() {
+            return xfmr2RatioPhase;
         }
 
-        public void setXfmr2RatioPhaseEnd1() {
-            resetXfmr2RatioPhase();
-            xfmr2RatioPhaseEnd1 = true;
+        public void setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative alternative) {
+            xfmr2RatioPhase = alternative;
         }
 
-        /**
-         * TwoWindingsTransformer: All tapChangers (ratioTapChanger and phaseTapChanger)
-         * are considered at end2 (after transmission impedance)
-         */
-        public boolean isXfmr2RatioPhaseEnd2() {
-            return xfmr2RatioPhaseEnd2;
-        }
-
-        public void setXfmr2RatioPhaseEnd2() {
-            resetXfmr2RatioPhase();
-            xfmr2RatioPhaseEnd2 = true;
-        }
-
-        /**
-         * TwoWindingsTransformer: TapChangers (ratioTapChanger and phaseTapChanger)
-         * are considered at the end where they are defined in Cgmes
-         */
-        public boolean isXfmr2RatioPhaseEnd1End2() {
-            return xfmr2RatioPhaseEnd1End2;
-        }
-
-        public void setXfmr2RatioPhaseEnd1End2() {
-            resetXfmr2RatioPhase();
-            xfmr2RatioPhaseEnd1End2 = true;
-        }
-
-        /**
-         * TwoWindingsTransformer: If x1 == 0 all tapChangers (ratioTapChanger and phaseTapChanger)
-         * are considered at the end1 otherwise they are considered at end2
-         */
-        public boolean isXfmr2RatioPhaseX() {
-            return xfmr2RatioPhaseX;
-        }
-
-        public void setXfmr2RatioPhaseX() {
-            resetXfmr2RatioPhase();
-            xfmr2RatioPhaseX = true;
-        }
-
-        /**
-         * TwoWindingsTransformer: All phaseTapChanger angles are considered -angle.
-         */
         public boolean isXfmr2PhaseNegate() {
             return xfmr2PhaseNegate;
         }
@@ -572,115 +545,22 @@ public class Conversion {
             this.xfmr2PhaseNegate = xfmr2PhaseNegate;
         }
 
-        /**
-         * TwoWindingsTransformer: All shunt admittances to ground (g, b) at end1 (before transmission impedance)
-         */
-        public boolean isXfmr2ShuntEnd1() {
-            return xfmr2ShuntEnd1;
+        public Xfmr2ShuntInterpretationAlternative getXfmr2Shunt() {
+            return xfmr2Shunt;
         }
 
-        public void setXfmr2ShuntEnd1() {
-            resetXfmr2Shunt();
-            xfmr2ShuntEnd1 = true;
+        public void setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative alternative) {
+            xfmr2Shunt = alternative;
         }
 
-        /**
-         * TwoWindingsTransformer: All shunt admittances to ground (g, b) at end2 (after transmission impedance)
-         */
-        public boolean isXfmr2ShuntEnd2() {
-            return xfmr2ShuntEnd2;
+        public Xfmr2StructuralRatioInterpretationAlternative getXfmr2StructuralRatio() {
+            return xfmr2StructuralRatio;
         }
 
-        public void setXfmr2ShuntEnd2() {
-            resetXfmr2Shunt();
-            xfmr2ShuntEnd2 = true;
+        public void setXfmr2StructuralRatio(Xfmr2StructuralRatioInterpretationAlternative alternative) {
+            xfmr2StructuralRatio = alternative;
         }
 
-        /**
-         * TwoWindingsTransformer: Shunt admittances to ground (g, b) at the end where they are defined in Cgmes model
-         */
-        public boolean isXfmr2ShuntEnd1End2() {
-            return xfmr2ShuntEnd1End2;
-        }
-
-        public void setXfmr2ShuntEnd1End2() {
-            resetXfmr2Shunt();
-            xfmr2ShuntEnd1End2 = true;
-        }
-
-        /**
-         * TwoWindingsTransformer: Split shunt admittances to ground (g, b) between end1 and end2.
-         */
-        public boolean isXfmr2ShuntSplit() {
-            return xfmr2ShuntSplit;
-        }
-
-        public void setXfmr2ShuntSplit() {
-            resetXfmr2Shunt();
-            xfmr2ShuntSplit = true;
-        }
-
-        /**
-         * TwoWindingsTransformer: PhaseAngleClock is considered.
-         */
-        public boolean isXfmr2PhaseAngleClockOn() {
-            return xfmr2PhaseAngleClockOn;
-        }
-
-        public void setXfmr2PhaseAngleClockOn(boolean xfmr2PhaseAngleClockOn) {
-            this.xfmr2PhaseAngleClockOn = xfmr2PhaseAngleClockOn;
-        }
-
-        public Config setXfmr2StructuralRatio(String value) {
-            if (value.equals("end1")) {
-                setXfmr2Ratio0End1();
-            } else if (value.equals("end2")) {
-                setXfmr2Ratio0End2();
-            } else if (value.equals("x")) {
-                setXfmr2Ratio0X();
-            }
-            return this;
-        }
-
-        /**
-         * TwoWindingsTransformer: Structural ratio always at end1 (before transmission impedance).
-         */
-        public boolean isXfmr2Ratio0End1() {
-            return xfmr2Ratio0End1;
-        }
-
-        public void setXfmr2Ratio0End1() {
-            resetXfmr2Ratio0();
-            xfmr2Ratio0End1 = true;
-        }
-
-        /**
-         * TwoWindingsTransformer: Structural ratio always at end2 (after transmission impedance).
-         */
-        public boolean isXfmr2Ratio0End2() {
-            return xfmr2Ratio0End2;
-        }
-
-        public void setXfmr2Ratio0End2() {
-            resetXfmr2Ratio0();
-            xfmr2Ratio0End2 = true;
-        }
-
-        /**
-         * TwoWindingsTransformer: If x1 == 0 structural ratio at end1, otherwise at end2
-         */
-        public boolean isXfmr2Ratio0X() {
-            return xfmr2Ratio0X;
-        }
-
-        public void setXfmr2Ratio0X() {
-            resetXfmr2Ratio0();
-            xfmr2Ratio0X = true;
-        }
-
-        /**
-         * ThreeWindingsTransformer: All tapChangers (ratioTapChanger and phaseTapChanger) at the network side, otherwise at the star bus side
-         */
         public boolean isXfmr3RatioPhaseNetworkSide() {
             return xfmr3RatioPhaseNetworkSide;
         }
@@ -689,9 +569,6 @@ public class Conversion {
             this.xfmr3RatioPhaseNetworkSide = xfmr3RatioPhaseNetworkSide;
         }
 
-        /**
-         * ThreeWindingsTransformer: All phaseTapChanger angles are considered -angle
-         */
         public boolean isXfmr3PhaseNegate() {
             return xfmr3PhaseNegate;
         }
@@ -700,145 +577,20 @@ public class Conversion {
             this.xfmr3PhaseNegate = xfmr3PhaseNegate;
         }
 
-        /**
-         * ThreeWindingsTransformer: Shunt admittances to ground at the network side (end1 of the leg)
-         */
-        public boolean isXfmr3ShuntNetworkSide() {
-            return xfmr3ShuntNetworkSide;
+        public Xfmr3ShuntInterpretationAlternative getXfmr3Shunt() {
+            return xfmr3Shunt;
         }
 
-        public void setXfmr3ShuntNetworkSide() {
-            resetXfmr3Shunt();
-            xfmr3ShuntNetworkSide = true;
+        public void setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative alternative) {
+            xfmr3Shunt = alternative;
         }
 
-         /**
-          * ThreeWindingsTransformer: Shunt admittances to ground at the start bus side (end2 of the leg)
-          */
-        public boolean isXfmr3ShuntStarBusSide() {
-            return xfmr3ShuntStarBusSide;
+        public Xfmr3StructuralRatioInterpretationAlternative getXfmr3StructuralRatio() {
+            return xfmr3StructuralRatio;
         }
 
-        public void setXfmr3ShuntStarBusSide() {
-            resetXfmr3Shunt();
-            xfmr3ShuntStarBusSide = true;
-        }
-
-        /**
-         * ThreeWindingsTransformer: Split shunt admittances to ground between two ends of the leg
-         */
-        public boolean isXfmr3ShuntSplit() {
-            return xfmr3ShuntSplit;
-        }
-
-        public void setXfmr3ShuntSplit() {
-            resetXfmr3Shunt();
-            xfmr3ShuntSplit = true;
-        }
-
-        /**
-         * ThreeWindingsTransformer: PhaseAngleClock is considered
-         */
-        public boolean isXfmr3PhaseAngleClockOn() {
-            return xfmr3PhaseAngleClockOn;
-        }
-
-        public void setXfmr3PhaseAngleClockOn(boolean xfmr3PhaseAngleClockOn) {
-            this.xfmr3PhaseAngleClockOn = xfmr3PhaseAngleClockOn;
-        }
-
-        /**
-         * ThreeWindingsTransformer: Structural ratio at the start bus side of all legs. RateddU0 = 1 kv
-         */
-        public boolean isXfmr3Ratio0StarBusSide() {
-            return xfmr3Ratio0StarBusSide;
-        }
-
-        public void setXfmr3Ratio0StarBusSide() {
-            resetXfmr3Ratio0();
-            xfmr3Ratio0StarBusSide = true;
-        }
-
-        /**
-         * ThreeWindingsTransformer: Structural ratio at the network side of all legs. RateddU0 = 1 kv
-         */
-        public boolean isXfmr3Ratio0NetworkSide() {
-            return xfmr3Ratio0NetworkSide;
-        }
-
-        public void setXfmr3Ratio0NetworkSide() {
-            resetXfmr3Ratio0();
-            xfmr3Ratio0NetworkSide = true;
-        }
-
-        /**
-         * ThreeWindingsTransformer: Structural ratio at the network side of legs 2 and 3. RateddU0 = RatedU1
-         */
-        public boolean isXfmr3Ratio0End1() {
-            return xfmr3Ratio0End1;
-        }
-
-        public void setXfmr3Ratio0End1() {
-            resetXfmr3Ratio0();
-            xfmr3Ratio0End1 = true;
-        }
-
-        /**
-         * ThreeWindingsTransformer: Structural ratio at the network side of legs 1 and 3. RateddU0 = RatedU2
-         */
-        public boolean isXfmr3Ratio0End2() {
-            return xfmr3Ratio0End2;
-        }
-
-        public void setXfmr3Ratio0End2() {
-            resetXfmr3Ratio0();
-            xfmr3Ratio0End2 = true;
-        }
-
-        /**
-         * ThreeWindingsTransformer: Structural ratio at the network side of legs 1 and 2. RateddU0 = RatedU2
-         */
-        public boolean isXfmr3Ratio0End3() {
-            return xfmr3Ratio0End3;
-        }
-
-        public void setXfmr3Ratio0End3() {
-            resetXfmr3Ratio0();
-            xfmr3Ratio0End3 = true;
-        }
-
-        private void resetXfmr2RatioPhase() {
-            this.xfmr2RatioPhaseEnd1 = false;
-            this.xfmr2RatioPhaseEnd2 = false;
-            this.xfmr2RatioPhaseEnd1End2 = false;
-            this.xfmr2RatioPhaseX = false;
-        }
-
-        private void resetXfmr2Shunt() {
-            this.xfmr2ShuntEnd1 = false;
-            this.xfmr2ShuntEnd2 = false;
-            this.xfmr2ShuntEnd1End2 = false;
-            this.xfmr2ShuntSplit = false;
-        }
-
-        private void resetXfmr2Ratio0() {
-            this.xfmr2Ratio0End1 = false;
-            this.xfmr2Ratio0End2 = false;
-            this.xfmr2Ratio0X = false;
-        }
-
-        private void resetXfmr3Shunt() {
-            this.xfmr3ShuntNetworkSide = false;
-            this.xfmr3ShuntStarBusSide = false;
-            this.xfmr3ShuntSplit = false;
-        }
-
-        private void resetXfmr3Ratio0() {
-            this.xfmr3Ratio0StarBusSide = false;
-            this.xfmr3Ratio0NetworkSide = false;
-            this.xfmr3Ratio0End1 = false;
-            this.xfmr3Ratio0End2 = false;
-            this.xfmr3Ratio0End3 = false;
+        public void setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative alternative) {
+            xfmr3StructuralRatio = alternative;
         }
 
         private boolean allowUnsupportedTapChangers = true;
@@ -853,40 +605,22 @@ public class Conversion {
         private boolean storeCgmesModelAsNetworkExtension = true;
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
 
-        // Default configuration. See CgmesImport.java config()
-        private boolean xfmr2RatioPhaseEnd1 = false;
-        private boolean xfmr2RatioPhaseEnd2 = false;
-        private boolean xfmr2RatioPhaseEnd1End2 = true;
-        private boolean xfmr2RatioPhaseX = false;
+        // Default interpretation.
+        private Xfmr2RatioPhaseInterpretationAlternative xfmr2RatioPhase = Xfmr2RatioPhaseInterpretationAlternative.END1_END2;
         private boolean xfmr2PhaseNegate = false;
-        private boolean xfmr2ShuntEnd1 = true;
-        private boolean xfmr2ShuntEnd2 = false;
-        private boolean xfmr2ShuntEnd1End2 = false;
-        private boolean xfmr2ShuntSplit = false;
-        private boolean xfmr2PhaseAngleClockOn = false;
-        private boolean xfmr2Ratio0End1 = false;
-        private boolean xfmr2Ratio0End2 = false;
-        private boolean xfmr2Ratio0X = true;
+        private Xfmr2ShuntInterpretationAlternative xfmr2Shunt = Xfmr2ShuntInterpretationAlternative.END1_END2;
+        private Xfmr2StructuralRatioInterpretationAlternative xfmr2StructuralRatio = Xfmr2StructuralRatioInterpretationAlternative.X;
 
         private boolean xfmr3RatioPhaseNetworkSide = true;
         private boolean xfmr3PhaseNegate = false;
-        private boolean xfmr3ShuntNetworkSide = true;
-        private boolean xfmr3ShuntStarBusSide = false;
-        private boolean xfmr3ShuntSplit = false;
-        private boolean xfmr3PhaseAngleClockOn = false;
-        private boolean xfmr3Ratio0StarBusSide = true;
-        private boolean xfmr3Ratio0NetworkSide = false;
-        private boolean xfmr3Ratio0End1 = false;
-        private boolean xfmr3Ratio0End2 = false;
-        private boolean xfmr3Ratio0End3 = false;
+        private Xfmr3ShuntInterpretationAlternative xfmr3Shunt = Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE;
+        private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
     }
 
     private final CgmesModel cgmes;
     private final Config config;
     private final List<CgmesImportPostProcessor> postProcessors;
     private final NetworkFactory networkFactory;
-
-    private Profiling profiling;
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
 

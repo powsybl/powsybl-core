@@ -39,6 +39,16 @@ public final class IeeeCdfNetworkFactory {
         return create14(NetworkFactory.findDefault());
     }
 
+    // test case adapted to CDF from .raw file obtained
+    // https://icseg.iti.illinois.edu/ieee-14-bus-system/
+    public static Network create14Solved(NetworkFactory networkFactory) {
+        return create("ieee14cdf-solved", networkFactory);
+    }
+
+    public static Network create14Solved() {
+        return create14Solved(NetworkFactory.findDefault());
+    }
+
     public static Network create30(NetworkFactory networkFactory) {
         return create("ieee30cdf", networkFactory);
     }

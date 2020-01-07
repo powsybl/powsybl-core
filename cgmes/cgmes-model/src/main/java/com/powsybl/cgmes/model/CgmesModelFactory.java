@@ -10,7 +10,10 @@ package com.powsybl.cgmes.model;
 import java.util.Objects;
 
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
@@ -47,5 +50,34 @@ public final class CgmesModelFactory {
         TripleStore tripleStore = TripleStoreFactory.create(implementation);
         String cimNamespace = new CgmesOnDataSource(ds).cimNamespace();
         return new CgmesModelTripleStore(cimNamespace, tripleStore);
+    }
+
+    public static CgmesModel copy(CgmesModel cgmes) {
+        if (cgmes instanceof CgmesModelTripleStore) {
+            CgmesModelTripleStore cgmests = (CgmesModelTripleStore) cgmes;
+            TripleStore tripleStore = TripleStoreFactory.copy(cgmests.tripleStore());
+            CgmesModel cgmesCopy = new CgmesModelTripleStore(cgmests.getCimNamespace(), tripleStore);
+            cgmesCopy.setBasename(cgmes.getBasename());
+            buildCaches(cgmesCopy);
+            return cgmesCopy;
+        } else {
+            throw new PowsyblException("CGMES model copy not supported, soource is " + cgmes.getClass().getSimpleName());
+        }
+    }
+
+    private static void buildCaches(CgmesModel cgmes) {
+        // TODO This is rebuilding only some caches
+        boolean isNodeBreaker = cgmes.isNodeBreaker();
+        for (PropertyBags tends : cgmes.groupedTransformerEnds().values()) {
+            for (PropertyBag end : tends) {
+                CgmesTerminal t = cgmes.terminal(end.getId(CgmesNames.TERMINAL));
+                cgmes.substation(t);
+                if (isNodeBreaker) {
+                    t.connectivityNode();
+                } else {
+                    t.topologicalNode();
+                }
+            }
+        }
     }
 }

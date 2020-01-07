@@ -311,8 +311,18 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         for (final Resource subject : model.subjects()) {
             // First write the statements RDF.TYPE for this subject
             // A resource may be described as an instance of more than one class
+            boolean rdfTypeFound = false;
             for (final Statement st0 : model.filter(subject, RDF.TYPE, null)) {
                 writer.handleStatement(st0);
+                rdfTypeFound = true;
+            }
+            if (!rdfTypeFound) {
+                String message = "subject is missing an rdfType " + subject;
+                LOGGER.error(message);
+                for (final Statement st : model.filter(subject, null, null)) {
+                    LOGGER.error("    {} {} {}", st.getSubject(), st.getPredicate(), st.getObject());
+                }
+                throw new TripleStoreException(message);
             }
             // Then all the other statements
             for (final Statement st : model.filter(subject, null, null)) {
