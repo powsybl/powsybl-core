@@ -48,8 +48,8 @@
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>
-            <groupId>guru.nidi</groupId>
-            <artifactId>graphviz-java</artifactId>
+            <groupId>org.anarres.graphviz</groupId>
+            <artifactId>graphviz-builder</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
