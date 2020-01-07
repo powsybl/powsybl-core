@@ -54,14 +54,14 @@ public class IeeeCdfInterchangeData {
      */
     @FixedWidth(from = 20, to = 28)
     @Parsed
-    private float areaInterchangeExport;
+    private double areaInterchangeExport;
 
     /**
      * Area interchange tolerance, MW
      */
     @FixedWidth(from = 29, to = 35)
     @Parsed
-    private float areaInterchangeTolerance;
+    private double areaInterchangeTolerance;
 
     /**
      * Area code (abbreviated name)
@@ -101,19 +101,19 @@ public class IeeeCdfInterchangeData {
         this.alternateSwingBusName = alternateSwingBusName;
     }
 
-    public float getAreaInterchangeExport() {
+    public double getAreaInterchangeExport() {
         return areaInterchangeExport;
     }
 
-    public void setAreaInterchangeExport(float areaInterchangeExport) {
+    public void setAreaInterchangeExport(double areaInterchangeExport) {
         this.areaInterchangeExport = areaInterchangeExport;
     }
 
-    public float getAreaInterchangeTolerance() {
+    public double getAreaInterchangeTolerance() {
         return areaInterchangeTolerance;
     }
 
-    public void setAreaInterchangeTolerance(float areaInterchangeTolerance) {
+    public void setAreaInterchangeTolerance(double areaInterchangeTolerance) {
         this.areaInterchangeTolerance = areaInterchangeTolerance;
     }
 

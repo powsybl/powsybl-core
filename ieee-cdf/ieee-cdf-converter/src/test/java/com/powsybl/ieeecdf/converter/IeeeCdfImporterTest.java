@@ -6,22 +6,30 @@
  */
 package com.powsybl.ieeecdf.converter;
 
-import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.iidm.import_.Importer;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+
+import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.iidm.import_.Importer;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
+import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
+import com.powsybl.loadflow.validation.ValidationConfig;
+import com.powsybl.loadflow.validation.ValidationType;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -40,7 +48,7 @@ public class IeeeCdfImporterTest extends AbstractConverterTest {
     @Test
     public void copyTest() {
         new IeeeCdfImporter().copy(new ResourceDataSource("ieee14cdf", new ResourceSet("/", "ieee14cdf.txt")),
-                                   new FileDataSource(fileSystem.getPath("/work"), "copy"));
+            new FileDataSource(fileSystem.getPath("/work"), "copy"));
         assertTrue(Files.exists(fileSystem.getPath("/work").resolve("copy.txt")));
     }
 
@@ -57,6 +65,42 @@ public class IeeeCdfImporterTest extends AbstractConverterTest {
         }
     }
 
+    private void testSolved(Network network) throws IOException {
+        // Precision required on bus balances (MVA)
+        double threshold = 1.05;
+        ValidationConfig config = loadFlowValidationConfig(threshold);
+        Path work = Files.createDirectories(fileSystem.getPath("/lf-validation" + network.getId()));
+        computeMissingFlows(network, config.getLoadFlowParameters());
+        assertTrue(ValidationType.BUSES.check(network, config, work));
+    }
+
+    private static ValidationConfig loadFlowValidationConfig(double threshold) {
+        ValidationConfig config = ValidationConfig.load();
+        config.setVerbose(true);
+        config.setThreshold(threshold);
+        config.setOkMissingValues(false);
+        LoadFlowParameters lf = new LoadFlowParameters();
+        lf.setSpecificCompatibility(true);
+        config.setLoadFlowParameters(lf);
+        return config;
+    }
+
+    public static void computeMissingFlows(Network network, LoadFlowParameters lfparams) {
+        for (Load l : network.getLoads()) {
+            l.getTerminal().setP(l.getP0());
+            l.getTerminal().setQ(l.getQ0());
+        }
+        for (Generator g : network.getGenerators()) {
+            g.getTerminal().setP(-g.getTargetP());
+            if (Double.isNaN(g.getTerminal().getQ())) {
+                g.getTerminal().setQ(-g.getTargetQ());
+            }
+        }
+        LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters();
+        LoadFlowResultsCompletion lf = new LoadFlowResultsCompletion(p, lfparams);
+        lf.run(network, null);
+    }
+
     @Test
     public void testIeee9() throws IOException {
         testNetwork(IeeeCdfNetworkFactory.create9());
@@ -65,6 +109,13 @@ public class IeeeCdfImporterTest extends AbstractConverterTest {
     @Test
     public void testIeee14() throws IOException {
         testNetwork(IeeeCdfNetworkFactory.create14());
+    }
+
+    @Test
+    public void testIeee14Solved() throws IOException {
+        Network network = IeeeCdfNetworkFactory.create14Solved();
+        testSolved(network);
+        testNetwork(network);
     }
 
     @Test
