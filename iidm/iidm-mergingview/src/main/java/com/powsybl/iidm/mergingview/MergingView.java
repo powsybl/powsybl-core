@@ -118,15 +118,12 @@ public final class MergingView implements Network {
 
         @Override
         public Bus getBus(final String id) {
-            final List<Network.BusView> views = index.getNetworkStream()
-                    .map(Network::getBusView).collect(Collectors.toList());
-            for (final Network.BusView bv : views) {
-                final Bus bus = bv.getBus(id);
-                if (Objects.nonNull(bus)) {
-                    return index.getBus(bus);
-                }
-            }
-            return null;
+            return index.getNetworkStream()
+                    .map(n -> n.getBusView().getBus(id))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .map(index::getBus)
+                    .orElse(null);
         }
 
         // -------------------------------
