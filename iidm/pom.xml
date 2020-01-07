@@ -31,6 +31,7 @@
         <module>iidm-impl</module>
         <module>iidm-mergingview</module>
         <module>iidm-reducer</module>
+        <module>iidm-scripting</module>
         <module>iidm-test</module>
         <module>iidm-util</module>
         <module>iidm-xml-converter</module>

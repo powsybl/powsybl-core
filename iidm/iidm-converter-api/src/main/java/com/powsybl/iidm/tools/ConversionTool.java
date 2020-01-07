@@ -12,7 +12,6 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DefaultDataSourceObserver;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.export.Exporters;
-import com.powsybl.iidm.import_.GroovyScriptPostProcessor;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -23,7 +22,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import java.nio.file.Path;
 import java.util.Properties;
 
 import static com.powsybl.iidm.tools.ConversionToolUtils.*;
@@ -39,7 +37,6 @@ public class ConversionTool implements Tool {
     private static final String INPUT_FILE = "input-file";
     private static final String OUTPUT_FORMAT = "output-format";
     private static final String OUTPUT_FILE = "output-file";
-    private static final String GROOVY_SCRIPT = "groovy-script";
 
     protected ImportConfig createImportConfig() {
         return ImportConfig.load();
@@ -89,11 +86,6 @@ public class ConversionTool implements Tool {
                 options.addOption(createImportParameterOption());
                 options.addOption(createExportParametersFileOption());
                 options.addOption(createExportParameterOption());
-                options.addOption(Option.builder().longOpt(GROOVY_SCRIPT)
-                        .desc("Groovy script to change the network")
-                        .hasArg()
-                        .argName("FILE")
-                        .build());
                 return options;
             }
 
@@ -117,12 +109,6 @@ public class ConversionTool implements Tool {
 
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
         Network network = Importers.loadNetwork(context.getFileSystem().getPath(inputFile), context.getShortTimeExecutionComputationManager(), createImportConfig(), inputParams);
-
-        if (line.hasOption(GROOVY_SCRIPT)) {
-            Path groovyScript = context.getFileSystem().getPath(line.getOptionValue(GROOVY_SCRIPT));
-            context.getOutputStream().println("Applying Groovy script " + groovyScript + "...");
-            new GroovyScriptPostProcessor(groovyScript).process(network, context.getShortTimeExecutionComputationManager());
-        }
 
         Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
         DataSource ds2 = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new DefaultDataSourceObserver() {
