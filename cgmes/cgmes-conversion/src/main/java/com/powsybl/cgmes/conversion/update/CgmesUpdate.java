@@ -10,16 +10,21 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.conversion.Profiling;
 import com.powsybl.cgmes.conversion.update.elements16.IidmToCgmes16;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStore;
 
@@ -52,15 +57,50 @@ public class CgmesUpdate {
             return;
         }
         UpdateContext context = new UpdateContext(cgmests, profiling);
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        // Before parallel execution, group changes by Identifiable in sublists.
+        // Updates within each sublist must be sequential.
+        // Once changes are grouped - group of Changes can be updated in parallel.
+        try {
+            List<Future<?>> futures = changes.stream()
+                .collect(Collectors.groupingBy(IidmChange::getIdentifiable))
+                .values().parallelStream().filter(Objects::nonNull)
+                .map(groupOfChanges -> executor.submit(() -> sequentialUpdate(groupOfChanges, context, cgmests)))
+                .collect(Collectors.toList());
+
+            executeFutures(futures);
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    private void sequentialUpdate(List<IidmChange> changes, UpdateContext context, CgmesModelTripleStore cgmests) {
         for (IidmChange change : changes) {
-            List<TripleStoreChange> tsChanges = convert(change, context);
-            update(cgmests, tsChanges, context);
+            update(cgmests, convert(change, context), context);
+        }
+    }
+
+    private void executeFutures(List<Future<?>> futures) {
+        for (Future<?> future : futures) {
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new PowsyblException(e.getMessage());
+            } catch (ExecutionException e) {
+                if (e.getCause() instanceof UnsupportedOperationException) {
+                    throw new UnsupportedOperationException("UnsupportedOperationException while converting to CGMES a change on IIDM ");
+                } else {
+                    throw new PowsyblException(e.getMessage());
+                }
+            }
         }
     }
 
     private void requireCgmesModelTripleStore(CgmesModel cgmes) {
         if (!(cgmes instanceof CgmesModelTripleStore)) {
-            throw new ConversionException("Unsupported conversion to CGMES model implementation " + cgmes.getClass().getSimpleName());
+            throw new ConversionException(
+                "Unsupported conversion to CGMES model implementation " + cgmes.getClass().getSimpleName());
         }
     }
 
@@ -77,7 +117,8 @@ public class CgmesUpdate {
 
     private void requireChangeIsUpdate(IidmChange change) {
         if (!(change instanceof IidmChangeUpdate)) {
-            throw new ConversionException("Unsupported conversion to CGMES for IIDM change type " + change.getClass().getSimpleName());
+            throw new ConversionException(
+                "Unsupported conversion to CGMES for IIDM change type " + change.getClass().getSimpleName());
         }
     }
 
