@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -27,6 +28,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
 
@@ -277,28 +279,28 @@ public class Conversion {
         });
 
         cgmes.groupedTransformerEnds().entrySet()
-                .forEach(tends -> {
-                    String t = tends.getKey();
-                    PropertyBags ends = tends.getValue();
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Transformer {}, {}-winding", t, ends.size());
-                        ends.forEach(e -> LOG.debug(e.tabulateLocals("TransformerEnd")));
-                    }
-                    AbstractConductingEquipmentConversion c = null;
-                    if (ends.size() == 2) {
-                        c = new TwoWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
-                    } else if (ends.size() == 3) {
-                        c = new ThreeWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, context);
-                    } else {
-                        String what = String.format("PowerTransformer %s", t);
-                        String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",
-                                ends.size());
-                        context.invalid(what, reason);
-                    }
-                    if (c != null && c.valid()) {
-                        c.convert();
-                    }
-                });
+            .forEach(tends -> {
+                String t = tends.getKey();
+                PropertyBags ends = tends.getValue();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Transformer {}, {}-winding", t, ends.size());
+                    ends.forEach(e -> LOG.debug(e.tabulateLocals("TransformerEnd")));
+                }
+                AbstractConductingEquipmentConversion c = null;
+                if (ends.size() == 2) {
+                    c = new TwoWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
+                } else if (ends.size() == 3) {
+                    c = new ThreeWindingsTransformerConversion(ends, powerTransformerRatioTapChanger, context);
+                } else {
+                    String what = String.format("PowerTransformer %s", t);
+                    String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",
+                        ends.size());
+                    context.invalid(what, reason);
+                }
+                if (c != null && c.valid()) {
+                    c.convert();
+                }
+            });
         profiling.end("Transfomers");
     }
 
@@ -319,10 +321,12 @@ public class Conversion {
     }
 
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
-        network.getHvdcConverterStationStream().filter(converter -> converter.getHvdcLine() == null).forEach(converter -> {
-            context.ignored(String.format("HVDC Converter Station %s", converter.getId()), "No correct linked HVDC line found.");
-            converter.remove();
-        });
+        network.getHvdcConverterStationStream()
+                .filter(converter -> converter.getHvdcLine() == null)
+                .peek(converter -> context.ignored(String.format("HVDC Converter Station %s",
+                        converter.getId()), "No correct linked HVDC line found."))
+                .collect(Collectors.toList())
+                .forEach(Connectable::remove);
     }
 
     private void debugTopology(Context context) {
