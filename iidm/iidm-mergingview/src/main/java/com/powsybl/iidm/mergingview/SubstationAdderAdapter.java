@@ -6,8 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.SubstationAdder;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -19,7 +18,7 @@ class SubstationAdderAdapter extends AbstractIdentifiableAdderAdapter<Substation
     }
 
     @Override
-    public SubstationAdapter add() {
+    public Substation add() {
         checkAndSetUniqueId();
         return getIndex().getSubstation(getDelegate().add());
     }

@@ -55,7 +55,7 @@ public class IeeeCdfTitle {
      */
     @FixedWidth(from = 31, to = 37)
     @Parsed
-    private float mvaBase;
+    private double mvaBase;
 
     /**
      * Year
@@ -95,11 +95,11 @@ public class IeeeCdfTitle {
         this.originatorName = originatorName;
     }
 
-    public float getMvaBase() {
+    public double getMvaBase() {
         return mvaBase;
     }
 
-    public void setMvaBase(float mvaBase) {
+    public void setMvaBase(double mvaBase) {
         this.mvaBase = mvaBase;
     }
 
