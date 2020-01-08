@@ -73,7 +73,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         props.put(Options.BUFFER_MODE, "MemStore");
         props.put(AbstractTripleStore.Options.QUADS_MODE, "true");
         props.put(BigdataSail.Options.TRUTH_MAINTENANCE, "false");
-
+        props.put(BigdataSail.Options.ISOLATABLE_INDICES, "false");
         // Quiet
         System.getProperties().setProperty("com.bigdata.Banner.quiet", "true");
         System.getProperties().setProperty("com.bigdata.util.config.LogUtil.quiet", "true");
