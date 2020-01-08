@@ -521,7 +521,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
 
     @Override
     public Iterable<LccConverterStation> getLccConverterStations() {
-        return getLccConverterStationStream().collect(Collectors.toSet());
+        return getLccConverterStationStream().collect(Collectors.toList());
     }
 
     @Override
