@@ -73,6 +73,7 @@ public class CgmesUpdateTest {
         testSimpleUpdate(CgmesConformity1Catalog.smallBusBranch().dataSource());
     }
 
+    @Ignore("Test is temporary added, datasource is local")
     @Test
     public void testSimpleUpdateHopsGrid() throws IOException {
         testSimpleUpdate(new ResourceDataSource("20191009_1130_FO3_HR1",
@@ -84,6 +85,7 @@ public class CgmesUpdateTest {
                 "20190812T0000Z__ENTSOE_TPBD_001.xml")));
     }
 
+    @Ignore("Test is temporary added, datasource is local")
     @Test
     public void testSimpleUpdateRteGrid() throws IOException {
         testSimpleUpdate(new ResourceDataSource("20191009_1130_FO3_XX0",
