@@ -6,10 +6,12 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.iidm.network.VariantManagerConstants;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -36,7 +38,10 @@ class MergingVariantManager implements VariantManager {
     @Override
     public Collection<String> getVariantIds() {
         final VariantManager vm = getVariantManagerStream().findFirst().orElse(null);
-        return Objects.nonNull(vm) ? vm.getVariantIds() : Collections.emptyList();
+        if (Objects.isNull(vm)) {
+            throw new PowsyblException("No VariantManager found");
+        }
+        return vm.getVariantIds();
     }
 
     @Override
