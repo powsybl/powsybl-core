@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -13,5 +15,13 @@ package com.powsybl.iidm.network.impl;
 interface CalculatedBus extends BusExt {
 
     void invalidate();
+
+    /**
+     * Get nodes in this bus.
+     * @return Returns the nodes in array.
+     */
+    default int[] getNodes() {
+        throw new PowsyblException("Not implemented yet");
+    }
 
 }

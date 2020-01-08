@@ -292,8 +292,8 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         }
 
         @Override
-        public int[] getNodes(String busId) {
-            return getDelegate().getNodes(busId);
+        public int[] getNodes(int node) {
+            return getDelegate().getNodes(node);
         }
 
         @Override

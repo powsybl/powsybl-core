@@ -371,6 +371,6 @@ public class VoltageLevelAdapterTest {
         merge.merge(ref);
         VoltageLevel vl = merge.getVoltageLevel("voltageLevel1");
         assertTrue(vl instanceof VoltageLevelAdapter);
-        assertArrayEquals(new int[]{0, 1, 6, 5, 3, 2}, vl.getNodeBreakerView().getNodes("voltageLevel1_0"));
+        assertArrayEquals(new int[]{0, 1, 6, 5, 3, 2}, vl.getNodeBreakerView().getNodes(0));
     }
 }

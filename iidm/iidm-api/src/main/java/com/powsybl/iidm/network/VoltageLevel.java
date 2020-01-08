@@ -368,9 +368,9 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         int[] getNodes();
 
         /**
-         * Get the list of nodes in bus.
+         * Get the list of connected nodes.
          */
-        int[] getNodes(String busId);
+        int[] getNodes(int node);
 
         /**
          * Set the number of node.

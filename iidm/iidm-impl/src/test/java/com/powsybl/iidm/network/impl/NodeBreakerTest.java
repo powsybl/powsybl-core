@@ -306,14 +306,17 @@ public class NodeBreakerTest {
         Network network = NetworkTest1Factory.create();
         VoltageLevel vl = network.getVoltageLevel("voltageLevel1");
         assertEquals(1, vl.getBusView().getBusStream().count());
-        assertArrayEquals(new int[]{0, 1, 6, 5, 3, 2}, vl.getNodeBreakerView().getNodes("voltageLevel1_0"));
+        assertArrayEquals(new int[]{0, 1, 6, 5, 3, 2}, vl.getNodeBreakerView().getNodes(0));
 
         // disconnect breaker
         network.getSwitch("voltageLevel1Breaker1").setOpen(true);
-        int[] nodes1 = vl.getNodeBreakerView().getNodes("voltageLevel1_0");
-        int[] nodes2 = vl.getNodeBreakerView().getNodes("voltageLevel1_1");
         assertEquals(2, vl.getBusView().getBusStream().count());
-        assertArrayEquals(new int[]{0, 3, 2}, nodes1);
-        assertArrayEquals(new int[]{1, 6, 5}, nodes2);
+        assertArrayEquals(new int[]{0, 3, 2}, vl.getNodeBreakerView().getNodes(0));
+        assertArrayEquals(new int[]{0, 3, 2}, vl.getNodeBreakerView().getNodes(3));
+        assertArrayEquals(new int[]{0, 3, 2}, vl.getNodeBreakerView().getNodes(2));
+        assertArrayEquals(new int[]{1, 6, 5}, vl.getNodeBreakerView().getNodes(1));
+        assertArrayEquals(new int[]{1, 6, 5}, vl.getNodeBreakerView().getNodes(6));
+        assertArrayEquals(new int[]{1, 6, 5}, vl.getNodeBreakerView().getNodes(5));
+        assertArrayEquals(new int[]{4}, vl.getNodeBreakerView().getNodes(4));
     }
 }
