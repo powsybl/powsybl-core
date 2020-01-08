@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -64,7 +63,7 @@ public class CgmesUpdate {
         try {
             List<Future<?>> futures = changes.stream()
                 .collect(Collectors.groupingBy(IidmChange::getIdentifiable))
-                .values().parallelStream().filter(Objects::nonNull)
+                .values().parallelStream()
                 .map(groupOfChanges -> executor.submit(() -> sequentialUpdate(groupOfChanges, context, cgmests)))
                 .collect(Collectors.toList());
 

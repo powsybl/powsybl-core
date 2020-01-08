@@ -39,6 +39,8 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Network;
@@ -69,6 +71,28 @@ public class CgmesUpdateTest {
     @Test
     public void testSimpleUpdateSmallGrid() throws IOException {
         testSimpleUpdate(CgmesConformity1Catalog.smallBusBranch().dataSource());
+    }
+
+    @Test
+    public void testSimpleUpdateHopsGrid() throws IOException {
+        testSimpleUpdate(new ResourceDataSource("20191009_1130_FO3_HR1",
+            new ResourceSet("/20191009_1130_FO3_HR1/", "20191008T2230Z_1D_HOPS_EQ_001.xml",
+                "20191009T0930Z_1D_HOPS_SSH_001.xml",
+                "20191009T0930Z_1D_HOPS_SV_001.xml",
+                "20191009T0930Z_1D_HOPS_TP_001.xml"),
+            new ResourceSet("/cgmes-boundaries/", "20190812T0000Z__ENTSOE_EQBD_001.xml",
+                "20190812T0000Z__ENTSOE_TPBD_001.xml")));
+    }
+
+    @Test
+    public void testSimpleUpdateRteGrid() throws IOException {
+        testSimpleUpdate(new ResourceDataSource("20191009_1130_FO3_XX0",
+            new ResourceSet("/20191009_1130_FO3_XX0/", "20191009T0930Z_1D_RTEFRANCE_EQ_000.xml",
+                "20191009T0930Z_1D_RTEFRANCE_SSH_000.xml",
+                "20191009T0930Z_1D_RTEFRANCE_SV_000.xml",
+                "20191009T0930Z_1D_RTEFRANCE_TP_000.xml"),
+            new ResourceSet("/cgmes-boundaries/", "20190812T0000Z__ENTSOE_EQBD_001.xml",
+                "20190812T0000Z__ENTSOE_TPBD_001.xml")));
     }
 
     @Ignore("Contains an AsynchronousMachine that is mapped to an IIDM load")
@@ -114,7 +138,8 @@ public class CgmesUpdateTest {
         int numChangesInLoadsAndGenerators = isBigNetwork ? 1000 : Integer.MAX_VALUE;
         NetworkChanges.scaleLoadGenerator(network0, numChangesInLoadsAndGenerators);
         profiling.end(Operations.SCALING.name());
-        int numChangesBeforeLoadFlow = network0.getExtension(CgmesModelExtension.class).getCgmesUpdate().changelog().getChangesForVariant(network0.getVariantManager().getWorkingVariantId()).size();
+        int numChangesBeforeLoadFlow = network0.getExtension(CgmesModelExtension.class).getCgmesUpdate().changelog()
+            .getChangesForVariant(network0.getVariantManager().getWorkingVariantId()).size();
         NetworkChanges.modifySteadyStateHypothesis(network0);
 
         profiling.start();
@@ -124,7 +149,8 @@ public class CgmesUpdateTest {
             runLoadFlowResultsCompletion(network0, invalidateFlows);
         }
         profiling.end(Operations.LOAD_FLOW.name());
-        List<IidmChange> changes = network0.getExtension(CgmesModelExtension.class).getCgmesUpdate().changelog().getChangesForVariant(network0.getVariantManager().getWorkingVariantId());
+        List<IidmChange> changes = network0.getExtension(CgmesModelExtension.class).getCgmesUpdate().changelog()
+            .getChangesForVariant(network0.getVariantManager().getWorkingVariantId());
         int numChangesAfterLoadFlow = changes.size();
 
         DataSource tmp = tmpDataSource(impl);
@@ -137,7 +163,8 @@ public class CgmesUpdateTest {
         runLoadFlowResultsCompletion(network1, false);
         compare(network0, network1);
 
-        reportProfiling(ds, network0, impl, numChangesBeforeLoadFlow, numChangesAfterLoadFlow, invalidateFlows, profiling);
+        reportProfiling(ds, network0, impl, numChangesBeforeLoadFlow, numChangesAfterLoadFlow, invalidateFlows,
+            profiling);
     }
 
     private void compare(Network network0, Network network1) {
