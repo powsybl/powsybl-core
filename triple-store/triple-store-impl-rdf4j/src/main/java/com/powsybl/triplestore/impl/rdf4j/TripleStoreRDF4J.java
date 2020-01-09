@@ -237,8 +237,9 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     @Override
     public void update(String query) {
         try (RepositoryConnection conn = repo.getConnection()) {
-            conn.setIsolationLevel(IsolationLevels.NONE);
+            conn.begin(IsolationLevels.SNAPSHOT_READ);
             conn.prepareUpdate(QueryLanguage.SPARQL, adjustedQuery(query)).execute();
+            conn.commit();
         } catch (MalformedQueryException | UpdateExecutionException | RepositoryException e) {
             throw new TripleStoreException(String.format("Query [%s]", query), e);
         }
