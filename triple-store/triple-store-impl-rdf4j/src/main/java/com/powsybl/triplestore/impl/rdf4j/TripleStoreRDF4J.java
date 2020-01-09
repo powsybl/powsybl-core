@@ -41,6 +41,7 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.repository.util.Repositories;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
@@ -167,6 +168,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         String query1 = adjustedQuery(query);
         PropertyBags results = new PropertyBags();
         try (RepositoryConnection conn = repo.getConnection()) {
+            conn.setIsolationLevel(IsolationLevels.NONE);
             // Default language is SPARQL
             TupleQuery q = conn.prepareTupleQuery(query1);
             // Duplicated triplets are returned in queries
@@ -236,10 +238,9 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
     @Override
     public void update(String query) {
-        try (RepositoryConnection conn = repo.getConnection()) {
-            conn.begin(IsolationLevels.SNAPSHOT_READ);
-            conn.prepareUpdate(QueryLanguage.SPARQL, adjustedQuery(query)).execute();
-            conn.commit();
+        try {
+            // this will apply IsolationLevels.SNAPSHOT_READ, default for rdf4j.
+            Repositories.consume(repo, conn -> conn.prepareUpdate(QueryLanguage.SPARQL, adjustedQuery(query)).execute());
         } catch (MalformedQueryException | UpdateExecutionException | RepositoryException e) {
             throw new TripleStoreException(String.format("Query [%s]", query), e);
         }
