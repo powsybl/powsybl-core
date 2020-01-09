@@ -119,6 +119,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     @Override
     public void write(DataSource ds) {
         try (RepositoryConnection conn = repo.getConnection()) {
+            conn.setIsolationLevel(IsolationLevels.NONE);
             RepositoryResult<Resource> contexts = conn.getContextIDs();
             while (contexts.hasNext()) {
                 Resource context = contexts.next();
@@ -139,6 +140,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     public void print(PrintStream out) {
         out.println("TripleStore based on RDF4J. Graph names and sizes");
         try (RepositoryConnection conn = repo.getConnection()) {
+            conn.setIsolationLevel(IsolationLevels.NONE);
             RepositoryResult<Resource> ctxs = conn.getContextIDs();
             while (ctxs.hasNext()) {
                 Resource ctx = ctxs.next();
@@ -151,6 +153,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     @Override
     public Set<String> contextNames() {
         try (RepositoryConnection conn = repo.getConnection()) {
+            conn.setIsolationLevel(IsolationLevels.NONE);
             return Iterations.stream(conn.getContextIDs()).map(Resource::stringValue).collect(Collectors.toSet());
         }
     }
@@ -158,6 +161,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     @Override
     public void clear(String contextName) {
         try (RepositoryConnection conn = repo.getConnection()) {
+            conn.setIsolationLevel(IsolationLevels.NONE);
             Resource context = context(conn, contextName);
             conn.clear(context);
         }
@@ -240,7 +244,8 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     public void update(String query) {
         try {
             // this will apply IsolationLevels.SNAPSHOT_READ, default for rdf4j.
-            Repositories.consume(repo, conn -> conn.prepareUpdate(QueryLanguage.SPARQL, adjustedQuery(query)).execute());
+            Repositories.consume(repo,
+                conn -> conn.prepareUpdate(QueryLanguage.SPARQL, adjustedQuery(query)).execute());
         } catch (MalformedQueryException | UpdateExecutionException | RepositoryException e) {
             throw new TripleStoreException(String.format("Query [%s]", query), e);
         }
@@ -370,6 +375,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     @Override
     public void addNamespace(String prefix, String namespace) {
         try (RepositoryConnection conn = repo.getConnection()) {
+            conn.setIsolationLevel(IsolationLevels.NONE);
             conn.setNamespace(prefix, namespace);
         }
     }
@@ -378,6 +384,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     public List<PrefixNamespace> getNamespaces() {
         List<PrefixNamespace> namespaces = new ArrayList<>();
         try (RepositoryConnection conn = repo.getConnection()) {
+            conn.setIsolationLevel(IsolationLevels.NONE);
             RepositoryResult<Namespace> ns = conn.getNamespaces();
             while (ns.hasNext()) {
                 Namespace namespace = ns.next();
