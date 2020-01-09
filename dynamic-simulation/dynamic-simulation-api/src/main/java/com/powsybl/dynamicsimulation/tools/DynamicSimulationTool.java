@@ -6,8 +6,6 @@
  */
 package com.powsybl.dynamicsimulation.tools;
 
-import static com.powsybl.iidm.tools.ConversionToolUtils.createExportParameterOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.createExportParametersFileOption;
 import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParameterOption;
 import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParametersFileOption;
 import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
