@@ -243,7 +243,8 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     @Override
     public void update(String query) {
         try {
-            // this will apply IsolationLevels.SNAPSHOT_READ, default for rdf4j.
+            // consume() will apply IsolationLevels.SNAPSHOT_READ which is default for rdf4j.
+            // considered to be the safest for concurrent updates.
             Repositories.consume(repo,
                 conn -> conn.prepareUpdate(QueryLanguage.SPARQL, adjustedQuery(query)).execute());
         } catch (MalformedQueryException | UpdateExecutionException | RepositoryException e) {
