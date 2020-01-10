@@ -416,16 +416,6 @@ public abstract class AbstractTransformerConversion
         return tc.getSteps().get(position - lowPosition);
     }
 
-    protected static void negatePhaseTapChanger(TapChanger tc) {
-        if (tc == null) {
-            return;
-        }
-        tc.getSteps().forEach(step -> {
-            double angle = step.getAngle();
-            step.setAngle(-angle);
-        });
-    }
-
     private static TapChangerType tapChangerType(TapChanger tc) {
         if (isTapChangerNull(tc)) {
             return TapChangerType.NULL;

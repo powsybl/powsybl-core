@@ -202,11 +202,6 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
                 break;
         }
 
-        if (alternative.isXfmr2PhaseNegate()) {
-            negatePhaseTapChanger(phaseTapChanger1);
-            negatePhaseTapChanger(phaseTapChanger2);
-        }
-
         AllTapChanger allTapChanger = new AllTapChanger();
         allTapChanger.ratioTapChanger1 = ratioTapChanger1;
         allTapChanger.phaseTapChanger1 = phaseTapChanger1;

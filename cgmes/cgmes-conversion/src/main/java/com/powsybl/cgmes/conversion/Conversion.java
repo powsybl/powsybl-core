@@ -537,14 +537,6 @@ public class Conversion {
             xfmr2RatioPhase = alternative;
         }
 
-        public boolean isXfmr2PhaseNegate() {
-            return xfmr2PhaseNegate;
-        }
-
-        public void setXfmr2PhaseNegate(boolean xfmr2PhaseNegate) {
-            this.xfmr2PhaseNegate = xfmr2PhaseNegate;
-        }
-
         public Xfmr2ShuntInterpretationAlternative getXfmr2Shunt() {
             return xfmr2Shunt;
         }
@@ -567,14 +559,6 @@ public class Conversion {
 
         public void setXfmr3RatioPhaseNetworkSide(boolean xfmr3RatioPhaseNetworkSide) {
             this.xfmr3RatioPhaseNetworkSide = xfmr3RatioPhaseNetworkSide;
-        }
-
-        public boolean isXfmr3PhaseNegate() {
-            return xfmr3PhaseNegate;
-        }
-
-        public void setXfmr3PhaseNegate(boolean xfmr3PhaseNegate) {
-            this.xfmr3PhaseNegate = xfmr3PhaseNegate;
         }
 
         public Xfmr3ShuntInterpretationAlternative getXfmr3Shunt() {
@@ -607,12 +591,10 @@ public class Conversion {
 
         // Default interpretation.
         private Xfmr2RatioPhaseInterpretationAlternative xfmr2RatioPhase = Xfmr2RatioPhaseInterpretationAlternative.END1_END2;
-        private boolean xfmr2PhaseNegate = false;
         private Xfmr2ShuntInterpretationAlternative xfmr2Shunt = Xfmr2ShuntInterpretationAlternative.END1_END2;
         private Xfmr2StructuralRatioInterpretationAlternative xfmr2StructuralRatio = Xfmr2StructuralRatioInterpretationAlternative.X;
 
         private boolean xfmr3RatioPhaseNetworkSide = true;
-        private boolean xfmr3PhaseNegate = false;
         private Xfmr3ShuntInterpretationAlternative xfmr3Shunt = Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
     }
