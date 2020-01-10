@@ -37,10 +37,7 @@ class MergingVariantManager implements VariantManager {
 
     @Override
     public Collection<String> getVariantIds() {
-        final VariantManager vm = getVariantManagerStream().findFirst().orElse(null);
-        if (Objects.isNull(vm)) {
-            throw new PowsyblException("No VariantManager found");
-        }
+        final VariantManager vm = getVariantManagerStream().findFirst().orElseThrow(() -> new PowsyblException("No VariantManager found"));
         return vm.getVariantIds();
     }
 
