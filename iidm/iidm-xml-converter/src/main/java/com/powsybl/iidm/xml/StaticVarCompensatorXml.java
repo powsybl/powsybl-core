@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
@@ -83,6 +82,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
                     super.readSubElements(svc, context);
                     break;
                 case V_1_1:
+                default: // more recent that XIIDM 1.1
                     if ("regulatingTerminal".equals(context.getReader().getLocalName())) {
                         String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                         String side = context.getReader().getAttributeValue(null, "side");
@@ -91,8 +91,6 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
                         super.readSubElements(svc, context);
                     }
                     break;
-                default:
-                    throw new PowsyblException("IIDM-XML version " + context.getVersion().toString(".") + " is not supported by Static Var Compensator");
             }
         });
     }
