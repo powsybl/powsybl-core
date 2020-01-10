@@ -137,32 +137,8 @@ public class HvdcLineAdderAdapter implements HvdcLineAdder {
     }
 
     @Override
-    public HvdcLineAdder setR(double r) {
-        this.r = r;
-        return this;
-    }
-
-    @Override
-    public HvdcLineAdder setConvertersMode(HvdcLine.ConvertersMode convertersMode) {
-        this.convertersMode = convertersMode;
-        return this;
-    }
-
-    @Override
-    public HvdcLineAdder setNominalV(double nominalV) {
-        this.nominalV = nominalV;
-        return this;
-    }
-
-    @Override
-    public HvdcLineAdder setActivePowerSetpoint(double activePowerSetpoint) {
-        this.activePowerSetpoint = activePowerSetpoint;
-        return this;
-    }
-
-    @Override
-    public HvdcLineAdder setMaxP(double maxP) {
-        this.maxP = maxP;
+    public HvdcLineAdder setConverterStationId2(String converterStationId2) {
+        this.converterStationId2 = converterStationId2;
         return this;
     }
 
@@ -173,8 +149,32 @@ public class HvdcLineAdderAdapter implements HvdcLineAdder {
     }
 
     @Override
-    public HvdcLineAdder setConverterStationId2(String converterStationId2) {
-        this.converterStationId2 = converterStationId2;
+    public HvdcLineAdder setMaxP(double maxP) {
+        this.maxP = maxP;
+        return this;
+    }
+
+    @Override
+    public HvdcLineAdder setActivePowerSetpoint(double activePowerSetpoint) {
+        this.activePowerSetpoint = activePowerSetpoint;
+        return this;
+    }
+
+    @Override
+    public HvdcLineAdder setNominalV(double nominalV) {
+        this.nominalV = nominalV;
+        return this;
+    }
+
+    @Override
+    public HvdcLineAdder setConvertersMode(HvdcLine.ConvertersMode convertersMode) {
+        this.convertersMode = convertersMode;
+        return this;
+    }
+
+    @Override
+    public HvdcLineAdder setR(double r) {
+        this.r = r;
         return this;
     }
 }
