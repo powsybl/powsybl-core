@@ -18,39 +18,27 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class CgmesT3xModel {
 
-    private final CgmesWinding winding1;
-    private final CgmesWinding winding2;
-    private final CgmesWinding winding3;
+    final CgmesEnd end1;
+    final CgmesEnd end2;
+    final CgmesEnd end3;
 
     public CgmesT3xModel(PropertyBags ends, Context context) {
-        this.winding1 = new CgmesWinding(ends.get(0), context);
-        this.winding2 = new CgmesWinding(ends.get(1), context);
-        this.winding3 = new CgmesWinding(ends.get(2), context);
+        this.end1 = new CgmesEnd(ends.get(0), context);
+        this.end2 = new CgmesEnd(ends.get(1), context);
+        this.end3 = new CgmesEnd(ends.get(2), context);
     }
 
-    public CgmesWinding getWinding1() {
-        return this.winding1;
-    }
+    static class CgmesEnd {
+        final double r;
+        final double x;
+        final double g;
+        final double b;
+        final TapChanger ratioTapChanger;
+        final TapChanger phaseTapChanger;
+        final double ratedU;
+        final String terminal;
 
-    public CgmesWinding getWinding2() {
-        return this.winding2;
-    }
-
-    public CgmesWinding getWinding3() {
-        return this.winding3;
-    }
-
-    static class CgmesWinding {
-        private final double r;
-        private final double x;
-        private final double g;
-        private final double b;
-        private final TapChanger ratioTapChanger;
-        private final TapChanger phaseTapChanger;
-        private final double ratedU;
-        private final String terminal;
-
-        CgmesWinding(PropertyBag end, Context context) {
+        CgmesEnd(PropertyBag end, Context context) {
             double x = end.asDouble(CgmesNames.X);
 
             this.r = end.asDouble(CgmesNames.R);
@@ -61,38 +49,6 @@ public class CgmesT3xModel {
             this.phaseTapChanger = TapChanger.phaseTapChangerFromEnd(end, x, context);
             this.ratedU = end.asDouble(CgmesNames.RATEDU);
             this.terminal = end.getId(CgmesNames.TERMINAL);
-        }
-
-        public double getR() {
-            return this.r;
-        }
-
-        public double getX() {
-            return this.x;
-        }
-
-        public double getG() {
-            return this.g;
-        }
-
-        public double getB() {
-            return this.b;
-        }
-
-        public TapChanger getRatioTapChanger() {
-            return this.ratioTapChanger;
-        }
-
-        public TapChanger getPhaseTapChanger() {
-            return this.phaseTapChanger;
-        }
-
-        public double getRatedU() {
-            return this.ratedU;
-        }
-
-        public String getTerminal() {
-            return this.terminal;
         }
     }
 }

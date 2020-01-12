@@ -16,11 +16,11 @@ import com.powsybl.cgmes.conversion.Conversion;
  */
 public class InterpretedT2xModel {
 
-    private final double r;
-    private final double x;
-    private final InterpretedEnd end1;
-    private final InterpretedEnd end2;
-    private final boolean structuralRatioAtEnd2;
+    final double r;
+    final double x;
+    final TapChangerConversion.InterpretedEnd end1;
+    final TapChangerConversion.InterpretedEnd end2;
+    final boolean structuralRatioAtEnd2;
 
     /**
      * Maps Cgmes ratioTapChangers, phaseTapChangers, shuntAdmittances and
@@ -35,14 +35,14 @@ public class InterpretedT2xModel {
         TapChangerConversion.AllShunt interpretedShunt = shuntAlternative(cgmesT2xModel, alternative);
         boolean structuralRatioAtEnd2 = structuralRatioAlternative(cgmesT2xModel, alternative);
 
-        this.r = cgmesT2xModel.getR();
-        this.x = cgmesT2xModel.getX();
-        this.end1 = new InterpretedEnd(interpretedShunt.g1, interpretedShunt.b1, interpretedTapChanger.ratioTapChanger1,
-            interpretedTapChanger.phaseTapChanger1, cgmesT2xModel.getEnd1().getRatedU(),
-            cgmesT2xModel.getEnd1().getTerminal());
-        this.end2 = new InterpretedEnd(interpretedShunt.g2, interpretedShunt.b2, interpretedTapChanger.ratioTapChanger2,
-            interpretedTapChanger.phaseTapChanger2, cgmesT2xModel.getEnd2().getRatedU(),
-            cgmesT2xModel.getEnd2().getTerminal());
+        this.r = cgmesT2xModel.r;
+        this.x = cgmesT2xModel.x;
+        this.end1 = new TapChangerConversion.InterpretedEnd(interpretedShunt.g1, interpretedShunt.b1,
+            interpretedTapChanger.ratioTapChanger1, interpretedTapChanger.phaseTapChanger1,
+            cgmesT2xModel.end1.ratedU, cgmesT2xModel.end1.terminal);
+        this.end2 = new TapChangerConversion.InterpretedEnd(interpretedShunt.g2, interpretedShunt.b2,
+            interpretedTapChanger.ratioTapChanger2, interpretedTapChanger.phaseTapChanger2,
+            cgmesT2xModel.end2.ratedU, cgmesT2xModel.end2.terminal);
         this.structuralRatioAtEnd2 = structuralRatioAtEnd2;
     }
 
@@ -64,34 +64,34 @@ public class InterpretedT2xModel {
 
         switch (alternative.getXfmr2RatioPhase()) {
             case END1:
-                ratioTapChanger1 = tcc.combineTapChangers(cgmesT2xModel.getEnd1().getRatioTapChanger(),
-                    cgmesT2xModel.getEnd2().getRatioTapChanger());
-                phaseTapChanger1 = tcc.combineTapChangers(cgmesT2xModel.getEnd1().getPhaseTapChanger(),
-                    cgmesT2xModel.getEnd2().getPhaseTapChanger());
+                ratioTapChanger1 = tcc.combineTapChangers(cgmesT2xModel.end1.ratioTapChanger,
+                    cgmesT2xModel.end2.ratioTapChanger);
+                phaseTapChanger1 = tcc.combineTapChangers(cgmesT2xModel.end1.phaseTapChanger,
+                    cgmesT2xModel.end2.phaseTapChanger);
                 break;
             case END2:
-                ratioTapChanger2 = tcc.combineTapChangers(cgmesT2xModel.getEnd2().getRatioTapChanger(),
-                    cgmesT2xModel.getEnd1().getRatioTapChanger());
-                phaseTapChanger2 = tcc.combineTapChangers(cgmesT2xModel.getEnd2().getPhaseTapChanger(),
-                    cgmesT2xModel.getEnd1().getPhaseTapChanger());
+                ratioTapChanger2 = tcc.combineTapChangers(cgmesT2xModel.end2.ratioTapChanger,
+                    cgmesT2xModel.end1.ratioTapChanger);
+                phaseTapChanger2 = tcc.combineTapChangers(cgmesT2xModel.end2.phaseTapChanger,
+                    cgmesT2xModel.end1.phaseTapChanger);
                 break;
             case END1_END2:
-                ratioTapChanger1 = cgmesT2xModel.getEnd1().getRatioTapChanger();
-                phaseTapChanger1 = cgmesT2xModel.getEnd1().getPhaseTapChanger();
-                ratioTapChanger2 = cgmesT2xModel.getEnd2().getRatioTapChanger();
-                phaseTapChanger2 = cgmesT2xModel.getEnd2().getPhaseTapChanger();
+                ratioTapChanger1 = cgmesT2xModel.end1.ratioTapChanger;
+                phaseTapChanger1 = cgmesT2xModel.end1.phaseTapChanger;
+                ratioTapChanger2 = cgmesT2xModel.end2.ratioTapChanger;
+                phaseTapChanger2 = cgmesT2xModel.end2.phaseTapChanger;
                 break;
             case X:
-                if (cgmesT2xModel.getEnd1().isXisZero()) {
-                    ratioTapChanger1 = tcc.combineTapChangers(cgmesT2xModel.getEnd1().getRatioTapChanger(),
-                        cgmesT2xModel.getEnd2().getRatioTapChanger());
-                    phaseTapChanger1 = tcc.combineTapChangers(cgmesT2xModel.getEnd1().getPhaseTapChanger(),
-                        cgmesT2xModel.getEnd2().getPhaseTapChanger());
+                if (cgmesT2xModel.x1IsZero) {
+                    ratioTapChanger1 = tcc.combineTapChangers(cgmesT2xModel.end1.ratioTapChanger,
+                        cgmesT2xModel.end2.ratioTapChanger);
+                    phaseTapChanger1 = tcc.combineTapChangers(cgmesT2xModel.end1.phaseTapChanger,
+                        cgmesT2xModel.end2.phaseTapChanger);
                 } else {
-                    ratioTapChanger2 = tcc.combineTapChangers(cgmesT2xModel.getEnd2().getRatioTapChanger(),
-                        cgmesT2xModel.getEnd1().getRatioTapChanger());
-                    phaseTapChanger2 = tcc.combineTapChangers(cgmesT2xModel.getEnd2().getPhaseTapChanger(),
-                        cgmesT2xModel.getEnd1().getPhaseTapChanger());
+                    ratioTapChanger2 = tcc.combineTapChangers(cgmesT2xModel.end2.ratioTapChanger,
+                        cgmesT2xModel.end1.ratioTapChanger);
+                    phaseTapChanger2 = tcc.combineTapChangers(cgmesT2xModel.end2.phaseTapChanger,
+                        cgmesT2xModel.end1.phaseTapChanger);
                 }
                 break;
         }
@@ -115,24 +115,24 @@ public class InterpretedT2xModel {
         double b2 = 0.0;
         switch (alternative.getXfmr2Shunt()) {
             case END1:
-                g1 = cgmesT2xModel.getEnd1().getG() + cgmesT2xModel.getEnd2().getG();
-                b1 = cgmesT2xModel.getEnd1().getB() + cgmesT2xModel.getEnd2().getB();
+                g1 = cgmesT2xModel.end1.g + cgmesT2xModel.end2.g;
+                b1 = cgmesT2xModel.end1.b + cgmesT2xModel.end2.b;
                 break;
             case END2:
-                g2 = cgmesT2xModel.getEnd1().getG() + cgmesT2xModel.getEnd2().getG();
-                b2 = cgmesT2xModel.getEnd1().getB() + cgmesT2xModel.getEnd2().getB();
+                g2 = cgmesT2xModel.end1.g + cgmesT2xModel.end2.g;
+                b2 = cgmesT2xModel.end1.b + cgmesT2xModel.end2.b;
                 break;
             case END1_END2:
-                g1 = cgmesT2xModel.getEnd1().getG();
-                b1 = cgmesT2xModel.getEnd1().getB();
-                g2 = cgmesT2xModel.getEnd2().getG();
-                b2 = cgmesT2xModel.getEnd2().getB();
+                g1 = cgmesT2xModel.end1.g;
+                b1 = cgmesT2xModel.end1.b;
+                g2 = cgmesT2xModel.end2.g;
+                b2 = cgmesT2xModel.end2.b;
                 break;
             case SPLIT:
-                g1 = (cgmesT2xModel.getEnd1().getG() + cgmesT2xModel.getEnd2().getG()) * 0.5;
-                b1 = (cgmesT2xModel.getEnd1().getB() + cgmesT2xModel.getEnd2().getB()) * 0.5;
-                g2 = (cgmesT2xModel.getEnd1().getG() + cgmesT2xModel.getEnd2().getG()) * 0.5;
-                b2 = (cgmesT2xModel.getEnd1().getB() + cgmesT2xModel.getEnd2().getB()) * 0.5;
+                g1 = (cgmesT2xModel.end1.g + cgmesT2xModel.end2.g) * 0.5;
+                b1 = (cgmesT2xModel.end1.b + cgmesT2xModel.end2.b) * 0.5;
+                g2 = (cgmesT2xModel.end1.g + cgmesT2xModel.end2.g) * 0.5;
+                b2 = (cgmesT2xModel.end1.b + cgmesT2xModel.end2.b) * 0.5;
                 break;
         }
 
@@ -149,7 +149,7 @@ public class InterpretedT2xModel {
      * return true if the structural ratio is at end2
      */
     private static boolean structuralRatioAlternative(CgmesT2xModel cgmesT2xModel, Conversion.Config alternative) {
-        if (cgmesT2xModel.getEnd1().getRatedU() == cgmesT2xModel.getEnd2().getRatedU()) {
+        if (cgmesT2xModel.end1.ratedU == cgmesT2xModel.end2.ratedU) {
             return false;
         }
         switch (alternative.getXfmr2StructuralRatio()) {
@@ -158,71 +158,8 @@ public class InterpretedT2xModel {
             case END2:
                 return true;
             case X:
-                return !cgmesT2xModel.getEnd1().isXisZero();
+                return !cgmesT2xModel.x1IsZero;
         }
         return false;
-    }
-
-    public double getR() {
-        return this.r;
-    }
-
-    public double getX() {
-        return this.x;
-    }
-
-    public InterpretedEnd getEnd1() {
-        return this.end1;
-    }
-
-    public InterpretedEnd getEnd2() {
-        return this.end2;
-    }
-
-    public boolean isStructuralRatioAtEnd2() {
-        return this.structuralRatioAtEnd2;
-    }
-
-    static class InterpretedEnd {
-        private final double g;
-        private final double b;
-        private final TapChanger ratioTapChanger;
-        private final TapChanger phaseTapChanger;
-        private final double ratedU;
-        private final String terminal;
-
-        InterpretedEnd(double g, double b, TapChanger ratioTapChanger, TapChanger phaseTapChanger, double ratedU,
-            String terminal) {
-            this.g = g;
-            this.b = b;
-            this.ratioTapChanger = ratioTapChanger;
-            this.phaseTapChanger = phaseTapChanger;
-            this.ratedU = ratedU;
-            this.terminal = terminal;
-        }
-
-        public double getG() {
-            return this.g;
-        }
-
-        public double getB() {
-            return this.b;
-        }
-
-        public TapChanger getRatioTapChanger() {
-            return this.ratioTapChanger;
-        }
-
-        public TapChanger getPhaseTapChanger() {
-            return this.phaseTapChanger;
-        }
-
-        public double getRatedU() {
-            return this.ratedU;
-        }
-
-        public String getTerminal() {
-            return this.terminal;
-        }
     }
 }

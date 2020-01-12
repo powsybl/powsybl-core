@@ -18,10 +18,11 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class CgmesT2xModel {
 
-    private final double r;
-    private final double x;
-    private final CgmesEnd end1;
-    private final CgmesEnd end2;
+    final double r;
+    final double x;
+    final CgmesEnd end1;
+    final CgmesEnd end2;
+    final boolean x1IsZero;
 
     public CgmesT2xModel(PropertyBags ends, Context context) {
 
@@ -32,91 +33,28 @@ public class CgmesT2xModel {
         double x2 = bagEnd2.asDouble(CgmesNames.X);
         double x = x1 + x2;
 
-        TapChanger ratioTapChanger1 = TapChanger.ratioTapChangerFromEnd(bagEnd1, context);
-        TapChanger ratioTapChanger2 = TapChanger.ratioTapChangerFromEnd(bagEnd2, context);
-        TapChanger phaseTapChanger1 = TapChanger.phaseTapChangerFromEnd(bagEnd1, x, context);
-        TapChanger phaseTapChanger2 = TapChanger.phaseTapChangerFromEnd(bagEnd2, x, context);
-
-        double g1 = bagEnd1.asDouble(CgmesNames.G, 0);
-        double b1 = bagEnd1.asDouble(CgmesNames.B);
-        String terminal1 = bagEnd1.getId(CgmesNames.TERMINAL);
-        double ratedU1 = bagEnd1.asDouble(CgmesNames.RATEDU);
-        boolean x1IsZero = x1 == 0.0;
-
-        double g2 = bagEnd2.asDouble(CgmesNames.G, 0);
-        double b2 = bagEnd2.asDouble(CgmesNames.B);
-        String terminal2 = bagEnd2.getId(CgmesNames.TERMINAL);
-        double ratedU2 = bagEnd2.asDouble(CgmesNames.RATEDU);
-        boolean x2IsZero = x2 == 0.0;
-
         this.r = bagEnd1.asDouble(CgmesNames.R) + bagEnd2.asDouble(CgmesNames.R);
         this.x = x;
-        this.end1 = new CgmesEnd(g1, b1, ratioTapChanger1, phaseTapChanger1, ratedU1, terminal1, x1IsZero);
-        this.end2 = new CgmesEnd(g2, b2, ratioTapChanger2, phaseTapChanger2, ratedU2, terminal2, x2IsZero);
-    }
-
-    public double getR() {
-        return this.r;
-    }
-
-    public double getX() {
-        return this.x;
-    }
-
-    public CgmesEnd getEnd1() {
-        return this.end1;
-    }
-
-    public CgmesEnd getEnd2() {
-        return this.end2;
+        this.end1 = new CgmesEnd(bagEnd1, x, context);
+        this.end2 = new CgmesEnd(bagEnd2, x, context);
+        this.x1IsZero = x1 == 0.0;
     }
 
     static class CgmesEnd {
-        private final double g;
-        private final double b;
-        private final TapChanger ratioTapChanger;
-        private final TapChanger phaseTapChanger;
-        private final double ratedU;
-        private final String terminal;
-        private final boolean xIsZero;
+        final double g;
+        final double b;
+        final TapChanger ratioTapChanger;
+        final TapChanger phaseTapChanger;
+        final double ratedU;
+        final String terminal;
 
-        CgmesEnd(double g, double b, TapChanger ratioTapChanger, TapChanger phaseTapChanger, double ratedU,
-            String terminal, boolean xIsZero) {
-            this.g = g;
-            this.b = b;
-            this.ratioTapChanger = ratioTapChanger;
-            this.phaseTapChanger = phaseTapChanger;
-            this.ratedU = ratedU;
-            this.terminal = terminal;
-            this.xIsZero = xIsZero;
-        }
-
-        public double getG() {
-            return this.g;
-        }
-
-        public double getB() {
-            return this.b;
-        }
-
-        public TapChanger getRatioTapChanger() {
-            return this.ratioTapChanger;
-        }
-
-        public TapChanger getPhaseTapChanger() {
-            return this.phaseTapChanger;
-        }
-
-        public double getRatedU() {
-            return this.ratedU;
-        }
-
-        public String getTerminal() {
-            return this.terminal;
-        }
-
-        public boolean isXisZero() {
-            return this.xIsZero;
+        CgmesEnd(PropertyBag bagEnd, double x, Context context) {
+            this.g = bagEnd.asDouble(CgmesNames.G, 0);
+            this.b = bagEnd.asDouble(CgmesNames.B);
+            this.ratioTapChanger = TapChanger.ratioTapChangerFromEnd(bagEnd, context);
+            this.phaseTapChanger = TapChanger.phaseTapChangerFromEnd(bagEnd, x, context);
+            this.ratedU = bagEnd.asDouble(CgmesNames.RATEDU);
+            this.terminal = bagEnd.getId(CgmesNames.TERMINAL);
         }
     }
 }

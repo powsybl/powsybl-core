@@ -83,12 +83,12 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
 
     private void setToIidm(ConvertedT2xModel convertedT2xModel) {
         TwoWindingsTransformerAdder adder = substation().newTwoWindingsTransformer()
-            .setR(convertedT2xModel.getR())
-            .setX(convertedT2xModel.getX())
-            .setG(convertedT2xModel.getEnd1().getG())
-            .setB(convertedT2xModel.getEnd1().getB())
-            .setRatedU1(convertedT2xModel.getEnd1().getRatedU())
-            .setRatedU2(convertedT2xModel.getEnd2().getRatedU());
+            .setR(convertedT2xModel.r)
+            .setX(convertedT2xModel.x)
+            .setG(convertedT2xModel.end1.g)
+            .setB(convertedT2xModel.end1.b)
+            .setRatedU1(convertedT2xModel.end1.ratedU)
+            .setRatedU2(convertedT2xModel.end2.ratedU);
         identify(adder);
         connect(adder);
         TwoWindingsTransformer tx = adder.add();
@@ -101,7 +101,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
     }
 
     private static void setToIidmRatioTapChanger(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx) {
-        TapChanger rtc = convertedT2xModel.getEnd1().getRatioTapChanger();
+        TapChanger rtc = convertedT2xModel.end1.ratioTapChanger;
         if (rtc == null) {
             return;
         }
@@ -111,7 +111,7 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
     }
 
     private static void setToIidmPhaseTapChanger(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx) {
-        TapChanger ptc = convertedT2xModel.getEnd1().getPhaseTapChanger();
+        TapChanger ptc = convertedT2xModel.end1.phaseTapChanger;
         if (ptc == null) {
             return;
         }
@@ -129,8 +129,8 @@ public class NewTwoWindingsTransformerConversion extends AbstractTransformerConv
     }
 
     private void setRegulatingControlContext(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx) {
-        CgmesRegulatingControlRatio rcRtc = setContextRegulatingDataRatio(convertedT2xModel.getEnd1().getRatioTapChanger());
-        CgmesRegulatingControlPhase rcPtc = setContextRegulatingDataPhase(convertedT2xModel.getEnd1().getPhaseTapChanger());
+        CgmesRegulatingControlRatio rcRtc = setContextRegulatingDataRatio(convertedT2xModel.end1.ratioTapChanger);
+        CgmesRegulatingControlPhase rcPtc = setContextRegulatingDataPhase(convertedT2xModel.end1.phaseTapChanger);
 
         context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc, rcPtc);
     }

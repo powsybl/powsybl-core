@@ -71,21 +71,21 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
 
     private void setToIidm(ConvertedT3xModel convertedT3xModel) {
         ThreeWindingsTransformerAdder txadder = substation().newThreeWindingsTransformer()
-            .setRatedU0(convertedT3xModel.getRatedU0());
+            .setRatedU0(convertedT3xModel.ratedU0);
         identify(txadder);
 
         LegAdder l1adder = txadder.newLeg1();
-        setToIidmWindingAdder(convertedT3xModel.getWinding1(), l1adder);
+        setToIidmWindingAdder(convertedT3xModel.winding1, l1adder);
         connect(l1adder, 1);
         l1adder.add();
 
         LegAdder l2adder = txadder.newLeg2();
-        setToIidmWindingAdder(convertedT3xModel.getWinding2(), l2adder);
+        setToIidmWindingAdder(convertedT3xModel.winding2, l2adder);
         connect(l2adder, 2);
         l2adder.add();
 
         LegAdder l3adder = txadder.newLeg3();
-        setToIidmWindingAdder(convertedT3xModel.getWinding3(), l3adder);
+        setToIidmWindingAdder(convertedT3xModel.winding3, l3adder);
         connect(l3adder, 3);
         l3adder.add();
 
@@ -96,19 +96,19 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
             tx.getLeg2().getTerminal(),
             tx.getLeg3().getTerminal());
 
-        setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.getWinding1(), tx);
-        setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.getWinding2(), tx);
-        setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.getWinding3(), tx);
+        setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.winding1, tx);
+        setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.winding2, tx);
+        setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.winding3, tx);
 
         setRegulatingControlContext(convertedT3xModel, tx);
     }
 
     private static void setToIidmWindingAdder(ConvertedT3xModel.ConvertedWinding convertedModelWinding, LegAdder ladder) {
-        ladder.setR(convertedModelWinding.getR())
-            .setX(convertedModelWinding.getX())
-            .setG(convertedModelWinding.getEnd1().getG())
-            .setB(convertedModelWinding.getEnd1().getB())
-            .setRatedU(convertedModelWinding.getEnd1().getRatedU());
+        ladder.setR(convertedModelWinding.r)
+            .setX(convertedModelWinding.x)
+            .setG(convertedModelWinding.end1.g)
+            .setB(convertedModelWinding.end1.b)
+            .setRatedU(convertedModelWinding.end1.ratedU);
     }
 
     private static void setToIidmWindingTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedT3xModel.ConvertedWinding convertedModelWinding,
@@ -118,32 +118,32 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
     }
 
     private static void setToIidmRatioTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedT3xModel.ConvertedWinding convertedWinding, ThreeWindingsTransformer tx) {
-        TapChanger rtc = convertedWinding.getEnd1().getRatioTapChanger();
+        TapChanger rtc = convertedWinding.end1.ratioTapChanger;
         if (rtc == null) {
             return;
         }
 
-        RatioTapChangerAdder rtca = newRatioTapChanger(convertedT3xModel, tx, convertedWinding.getEnd1().getTerminal());
+        RatioTapChangerAdder rtca = newRatioTapChanger(convertedT3xModel, tx, convertedWinding.end1.terminal);
         setToIidmRatioTapChanger(rtc, rtca);
     }
 
     private static void setToIidmPhaseTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedT3xModel.ConvertedWinding convertedWinding, ThreeWindingsTransformer tx) {
-        TapChanger ptc = convertedWinding.getEnd1().getPhaseTapChanger();
+        TapChanger ptc = convertedWinding.end1.phaseTapChanger;
         if (ptc == null) {
             return;
         }
 
-        PhaseTapChangerAdder ptca = newPhaseTapChanger(convertedT3xModel, tx, convertedWinding.getEnd1().getTerminal());
+        PhaseTapChangerAdder ptca = newPhaseTapChanger(convertedT3xModel, tx, convertedWinding.end1.terminal);
         setToIidmPhaseTapChanger(ptc, ptca);
     }
 
     private static RatioTapChangerAdder newRatioTapChanger(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx,
         String terminal) {
-        if (convertedT3xModel.getWinding1().getEnd1().getTerminal().equals(terminal)) {
+        if (convertedT3xModel.winding1.end1.terminal.equals(terminal)) {
             return tx.getLeg1().newRatioTapChanger();
-        } else if (convertedT3xModel.getWinding2().getEnd1().getTerminal().equals(terminal)) {
+        } else if (convertedT3xModel.winding2.end1.terminal.equals(terminal)) {
             return tx.getLeg2().newRatioTapChanger();
-        } else if (convertedT3xModel.getWinding3().getEnd1().getTerminal().equals(terminal)) {
+        } else if (convertedT3xModel.winding3.end1.terminal.equals(terminal)) {
             return tx.getLeg3().newRatioTapChanger();
         }
         return null;
@@ -151,23 +151,23 @@ public class NewThreeWindingsTransformerConversion extends AbstractTransformerCo
 
     private static PhaseTapChangerAdder newPhaseTapChanger(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx,
         String terminal) {
-        if (convertedT3xModel.getWinding1().getEnd1().getTerminal().equals(terminal)) {
+        if (convertedT3xModel.winding1.end1.terminal.equals(terminal)) {
             return tx.getLeg1().newPhaseTapChanger();
-        } else if (convertedT3xModel.getWinding2().getEnd1().getTerminal().equals(terminal)) {
+        } else if (convertedT3xModel.winding2.end1.terminal.equals(terminal)) {
             return tx.getLeg2().newPhaseTapChanger();
-        } else if (convertedT3xModel.getWinding3().getEnd1().getTerminal().equals(terminal)) {
+        } else if (convertedT3xModel.winding3.end1.terminal.equals(terminal)) {
             return tx.getLeg3().newPhaseTapChanger();
         }
         return null;
     }
 
     private void setRegulatingControlContext(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx) {
-        CgmesRegulatingControlRatio rcRtc1 = setContextRegulatingDataRatio(convertedT3xModel.getWinding1().getEnd1().getRatioTapChanger());
-        CgmesRegulatingControlPhase rcPtc1 = setContextRegulatingDataPhase(convertedT3xModel.getWinding1().getEnd1().getPhaseTapChanger());
-        CgmesRegulatingControlRatio rcRtc2 = setContextRegulatingDataRatio(convertedT3xModel.getWinding2().getEnd1().getRatioTapChanger());
-        CgmesRegulatingControlPhase rcPtc2 = setContextRegulatingDataPhase(convertedT3xModel.getWinding2().getEnd1().getPhaseTapChanger());
-        CgmesRegulatingControlRatio rcRtc3 = setContextRegulatingDataRatio(convertedT3xModel.getWinding3().getEnd1().getRatioTapChanger());
-        CgmesRegulatingControlPhase rcPtc3 = setContextRegulatingDataPhase(convertedT3xModel.getWinding3().getEnd1().getPhaseTapChanger());
+        CgmesRegulatingControlRatio rcRtc1 = setContextRegulatingDataRatio(convertedT3xModel.winding1.end1.ratioTapChanger);
+        CgmesRegulatingControlPhase rcPtc1 = setContextRegulatingDataPhase(convertedT3xModel.winding1.end1.phaseTapChanger);
+        CgmesRegulatingControlRatio rcRtc2 = setContextRegulatingDataRatio(convertedT3xModel.winding2.end1.ratioTapChanger);
+        CgmesRegulatingControlPhase rcPtc2 = setContextRegulatingDataPhase(convertedT3xModel.winding2.end1.phaseTapChanger);
+        CgmesRegulatingControlRatio rcRtc3 = setContextRegulatingDataRatio(convertedT3xModel.winding3.end1.ratioTapChanger);
+        CgmesRegulatingControlPhase rcPtc3 = setContextRegulatingDataPhase(convertedT3xModel.winding3.end1.phaseTapChanger);
 
         context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc1, rcPtc1, rcRtc2, rcPtc2, rcRtc3, rcPtc3);
     }

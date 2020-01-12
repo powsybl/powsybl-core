@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.elements.transformers.CgmesT3xModel.CgmesWinding;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -16,10 +15,10 @@ import com.powsybl.cgmes.conversion.elements.transformers.CgmesT3xModel.CgmesWin
  */
 public class InterpretedT3xModel {
 
-    private final InterpretedWinding winding1;
-    private final InterpretedWinding winding2;
-    private final InterpretedWinding winding3;
-    private final double ratedU0;
+    final InterpretedWinding winding1;
+    final InterpretedWinding winding2;
+    final InterpretedWinding winding3;
+    final double ratedU0;
 
     /**
      * RatedU0 is selected according to the alternative. Each leg or winding is
@@ -29,9 +28,9 @@ public class InterpretedT3xModel {
 
         this.ratedU0 = ratedU0Alternative(cgmesT3xModel, alternative);
 
-        this.winding1 = new InterpretedWinding(cgmesT3xModel.getWinding1(), alternative);
-        this.winding2 = new InterpretedWinding(cgmesT3xModel.getWinding2(), alternative);
-        this.winding3 = new InterpretedWinding(cgmesT3xModel.getWinding3(), alternative);
+        this.winding1 = new InterpretedWinding(cgmesT3xModel.end1, alternative);
+        this.winding2 = new InterpretedWinding(cgmesT3xModel.end2, alternative);
+        this.winding3 = new InterpretedWinding(cgmesT3xModel.end3, alternative);
     }
 
      /**
@@ -47,58 +46,42 @@ public class InterpretedT3xModel {
             case STAR_BUS_SIDE:
                 return selectRatedU0(cgmesT3xModel);
             case END1:
-                return cgmesT3xModel.getWinding1().getRatedU();
+                return cgmesT3xModel.end1.ratedU;
             case END2:
-                return cgmesT3xModel.getWinding2().getRatedU();
+                return cgmesT3xModel.end2.ratedU;
             case END3:
-                return cgmesT3xModel.getWinding3().getRatedU();
+                return cgmesT3xModel.end3.ratedU;
         }
         return 1.0;
     }
 
     private static double selectRatedU0(CgmesT3xModel cgmesT3xModel) {
-        return cgmesT3xModel.getWinding1().getRatedU();
-    }
-
-    public InterpretedWinding getWinding1() {
-        return this.winding1;
-    }
-
-    public InterpretedWinding getWinding2() {
-        return this.winding2;
-    }
-
-    public InterpretedWinding getWinding3() {
-        return this.winding3;
-    }
-
-    public double getRatedU0() {
-        return this.ratedU0;
+        return cgmesT3xModel.end1.ratedU;
     }
 
     static class InterpretedWinding {
-        private final double r;
-        private final double x;
-        private final InterpretedEnd1 end1;
-        private final InterpretedEnd2 end2;
-        private final boolean structuralRatioAtEnd2;
+        final double r;
+        final double x;
+        final TapChangerConversion.InterpretedEnd end1;
+        final InterpretedEnd2 end2;
+        final boolean structuralRatioAtEnd2;
 
         /**
          * Maps Cgmes ratioTapChangers, phaseTapChangers, shuntAdmittances and
          * structural ratio according to the alternative. The rest of the Cgmes data is
          * directly mapped.
          */
-        InterpretedWinding(CgmesWinding cgmesWinding, Conversion.Config alternative) {
+        InterpretedWinding(CgmesT3xModel.CgmesEnd cgmesEnd, Conversion.Config alternative) {
 
-            TapChangerConversion.AllTapChanger windingInterpretedTapChanger = ratioPhaseAlternative(cgmesWinding, alternative);
-            TapChangerConversion.AllShunt windingInterpretedShunt = shuntAlternative(cgmesWinding, alternative);
+            TapChangerConversion.AllTapChanger windingInterpretedTapChanger = ratioPhaseAlternative(cgmesEnd, alternative);
+            TapChangerConversion.AllShunt windingInterpretedShunt = shuntAlternative(cgmesEnd, alternative);
             boolean windingStructuralRatioAtEnd2 = structuralRatioAlternative(alternative);
 
-            this.r = cgmesWinding.getR();
-            this.x = cgmesWinding.getX();
-            this.end1 = new InterpretedEnd1(windingInterpretedShunt.g1, windingInterpretedShunt.b1,
+            this.r = cgmesEnd.r;
+            this.x = cgmesEnd.x;
+            this.end1 = new TapChangerConversion.InterpretedEnd(windingInterpretedShunt.g1, windingInterpretedShunt.b1,
                 windingInterpretedTapChanger.ratioTapChanger1, windingInterpretedTapChanger.phaseTapChanger1,
-                cgmesWinding.getRatedU(), cgmesWinding.getTerminal());
+                cgmesEnd.ratedU, cgmesEnd.terminal);
             this.end2 = new InterpretedEnd2(windingInterpretedShunt.g2, windingInterpretedShunt.b2,
                 windingInterpretedTapChanger.ratioTapChanger2, windingInterpretedTapChanger.phaseTapChanger2);
             this.structuralRatioAtEnd2 = windingStructuralRatioAtEnd2;
@@ -108,18 +91,18 @@ public class InterpretedT3xModel {
          * RatioTapChanger and PhaseTapChanger are assigned according the alternative
          * Network side is always the end1 of the leg and star bus side end2
          */
-        private static TapChangerConversion.AllTapChanger ratioPhaseAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
+        private static TapChangerConversion.AllTapChanger ratioPhaseAlternative(CgmesT3xModel.CgmesEnd cgmesEnd, Conversion.Config alternative) {
             TapChanger ratioTapChanger1 = null;
             TapChanger phaseTapChanger1 = null;
             TapChanger ratioTapChanger2 = null;
             TapChanger phaseTapChanger2 = null;
 
             if (alternative.isXfmr3RatioPhaseNetworkSide()) {
-                ratioTapChanger1 = cgmesWinding.getRatioTapChanger();
-                phaseTapChanger1 = cgmesWinding.getPhaseTapChanger();
+                ratioTapChanger1 = cgmesEnd.ratioTapChanger;
+                phaseTapChanger1 = cgmesEnd.phaseTapChanger;
             } else {
-                ratioTapChanger2 = cgmesWinding.getRatioTapChanger();
-                phaseTapChanger2 = cgmesWinding.getPhaseTapChanger();
+                ratioTapChanger2 = cgmesEnd.ratioTapChanger;
+                phaseTapChanger2 = cgmesEnd.phaseTapChanger;
             }
 
             TapChangerConversion.AllTapChanger allTapChanger = new TapChangerConversion.AllTapChanger();
@@ -134,7 +117,7 @@ public class InterpretedT3xModel {
         /**
          * Shunt admittances are mapped according to alternative options
          */
-        private static TapChangerConversion.AllShunt shuntAlternative(CgmesWinding cgmesWinding,
+        private static TapChangerConversion.AllShunt shuntAlternative(CgmesT3xModel.CgmesEnd cgmesEnd,
             Conversion.Config alternative) {
             double g1 = 0.0;
             double b1 = 0.0;
@@ -143,18 +126,18 @@ public class InterpretedT3xModel {
 
             switch (alternative.getXfmr3Shunt()) {
                 case NETWORK_SIDE:
-                    g1 = cgmesWinding.getG();
-                    b1 = cgmesWinding.getB();
+                    g1 = cgmesEnd.g;
+                    b1 = cgmesEnd.b;
                     break;
                 case STAR_BUS_SIDE:
-                    g2 = cgmesWinding.getG();
-                    b2 = cgmesWinding.getB();
+                    g2 = cgmesEnd.g;
+                    b2 = cgmesEnd.b;
                     break;
                 case SPLIT:
-                    g1 = cgmesWinding.getG() * 0.5;
-                    b1 = cgmesWinding.getB() * 0.5;
-                    g2 = cgmesWinding.getG() * 0.5;
-                    b2 = cgmesWinding.getB() * 0.5;
+                    g1 = cgmesEnd.g * 0.5;
+                    b1 = cgmesEnd.b * 0.5;
+                    g2 = cgmesEnd.g * 0.5;
+                    b2 = cgmesEnd.b * 0.5;
                     break;
             }
 
@@ -182,36 +165,15 @@ public class InterpretedT3xModel {
             }
             return false;
         }
-
-        public double getR() {
-            return this.r;
-        }
-
-        public double getX() {
-            return this.x;
-        }
-
-        public InterpretedEnd1 getEnd1() {
-            return this.end1;
-        }
-
-        public InterpretedEnd2 getEnd2() {
-            return this.end2;
-        }
-
-        public boolean isStructuralRatioAtEnd2() {
-            return this.structuralRatioAtEnd2;
-        }
-
     }
 
     static class InterpretedEnd1 {
-        private final double g;
-        private final double b;
-        private final TapChanger ratioTapChanger;
-        private final TapChanger phaseTapChanger;
-        private final double ratedU;
-        private final String terminal;
+        final double g;
+        final double b;
+        final TapChanger ratioTapChanger;
+        final TapChanger phaseTapChanger;
+        final double ratedU;
+        final String terminal;
 
         InterpretedEnd1(double g, double b, TapChanger ratioTapChanger, TapChanger phaseTapChanger, double ratedU,
             String terminal) {
@@ -222,59 +184,19 @@ public class InterpretedT3xModel {
             this.ratedU = ratedU;
             this.terminal = terminal;
         }
-
-        public double getG() {
-            return this.g;
-        }
-
-        public double getB() {
-            return this.b;
-        }
-
-        public TapChanger getRatioTapChanger() {
-            return this.ratioTapChanger;
-        }
-
-        public TapChanger getPhaseTapChanger() {
-            return this.phaseTapChanger;
-        }
-
-        public double getRatedU() {
-            return this.ratedU;
-        }
-
-        public String getTerminal() {
-            return this.terminal;
-        }
     }
 
     static class InterpretedEnd2 {
-        private final double g;
-        private final double b;
-        private final TapChanger ratioTapChanger;
-        private final TapChanger phaseTapChanger;
+        final double g;
+        final double b;
+        final TapChanger ratioTapChanger;
+        final TapChanger phaseTapChanger;
 
         InterpretedEnd2(double g, double b, TapChanger ratioTapChanger, TapChanger phaseTapChanger) {
             this.g = g;
             this.b = b;
             this.ratioTapChanger = ratioTapChanger;
             this.phaseTapChanger = phaseTapChanger;
-        }
-
-        public double getG() {
-            return this.g;
-        }
-
-        public double getB() {
-            return this.b;
-        }
-
-        public TapChanger getRatioTapChanger() {
-            return this.ratioTapChanger;
-        }
-
-        public TapChanger getPhaseTapChanger() {
-            return this.phaseTapChanger;
         }
     }
 }

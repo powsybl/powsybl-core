@@ -15,10 +15,10 @@ import com.powsybl.cgmes.conversion.Context;
  */
 public class ConvertedT2xModel {
 
-    private final double r;
-    private final double x;
-    private final TapChangerConversion.ConvertedEnd1 end1;
-    private final ConvertedEnd2 end2;
+    final double r;
+    final double x;
+    final TapChangerConversion.ConvertedEnd1 end1;
+    final ConvertedEnd2 end2;
 
     /**
      * ratioTapChanger and phaseTapChanger of end2 are moved to end1 and then
@@ -30,63 +30,39 @@ public class ConvertedT2xModel {
 
         TapChangerConversion tcc = new TapChangerConversion(context);
 
-        TapChanger nRatioTapChanger2 = TapChangerConversion.moveTapChangerFrom2To1(interpretedT2xModel.getEnd2().getRatioTapChanger());
-        TapChanger nPhaseTapChanger2 = TapChangerConversion.moveTapChangerFrom2To1(interpretedT2xModel.getEnd2().getPhaseTapChanger());
+        TapChanger nRatioTapChanger2 = TapChangerConversion.moveTapChangerFrom2To1(interpretedT2xModel.end2.ratioTapChanger);
+        TapChanger nPhaseTapChanger2 = TapChangerConversion.moveTapChangerFrom2To1(interpretedT2xModel.end2.phaseTapChanger);
 
-        TapChanger ratioTapChanger = tcc.combineTapChangers(interpretedT2xModel.getEnd1().getRatioTapChanger(), nRatioTapChanger2);
-        TapChanger phaseTapChanger = tcc.combineTapChangers(interpretedT2xModel.getEnd1().getPhaseTapChanger(), nPhaseTapChanger2);
+        TapChanger ratioTapChanger = tcc.combineTapChangers(interpretedT2xModel.end1.ratioTapChanger, nRatioTapChanger2);
+        TapChanger phaseTapChanger = tcc.combineTapChangers(interpretedT2xModel.end1.phaseTapChanger, nPhaseTapChanger2);
 
         TapChangerConversion.RatioConversion rc0;
-        if (interpretedT2xModel.isStructuralRatioAtEnd2()) {
-            double a0 = interpretedT2xModel.getEnd2().getRatedU() / interpretedT2xModel.getEnd1().getRatedU();
-            rc0 = TapChangerConversion.moveRatioFrom2To1(a0, 0.0, interpretedT2xModel.getR(), interpretedT2xModel.getX(),
-                interpretedT2xModel.getEnd1().getG(), interpretedT2xModel.getEnd1().getB(),
-                interpretedT2xModel.getEnd2().getG(), interpretedT2xModel.getEnd2().getB());
+        if (interpretedT2xModel.structuralRatioAtEnd2) {
+            double a0 = interpretedT2xModel.end2.ratedU / interpretedT2xModel.end1.ratedU;
+            rc0 = TapChangerConversion.moveRatioFrom2To1(a0, 0.0, interpretedT2xModel.r, interpretedT2xModel.x,
+                interpretedT2xModel.end1.g, interpretedT2xModel.end1.b,
+                interpretedT2xModel.end2.g, interpretedT2xModel.end2.b);
         } else {
-            rc0 = TapChangerConversion.identityRatioConversion(interpretedT2xModel.getR(), interpretedT2xModel.getX(),
-                interpretedT2xModel.getEnd1().getG(), interpretedT2xModel.getEnd1().getB(),
-                interpretedT2xModel.getEnd2().getG(), interpretedT2xModel.getEnd2().getB());
+            rc0 = TapChangerConversion.identityRatioConversion(interpretedT2xModel.r, interpretedT2xModel.x,
+                interpretedT2xModel.end1.g, interpretedT2xModel.end1.b,
+                interpretedT2xModel.end2.g, interpretedT2xModel.end2.b);
         }
 
         this.r = rc0.r;
         this.x = rc0.x;
         this.end1 = new TapChangerConversion.ConvertedEnd1(rc0.g1 + rc0.g2, rc0.b1 + rc0.b2, ratioTapChanger, phaseTapChanger,
-            interpretedT2xModel.getEnd1().getRatedU(), interpretedT2xModel.getEnd1().getTerminal());
-        this.end2 = new ConvertedEnd2(interpretedT2xModel.getEnd2().getRatedU(), interpretedT2xModel.getEnd2().getTerminal());
+            interpretedT2xModel.end1.ratedU, interpretedT2xModel.end1.terminal);
+        this.end2 = new ConvertedEnd2(interpretedT2xModel.end2.ratedU, interpretedT2xModel.end2.terminal);
 
-    }
-
-    public double getR() {
-        return this.r;
-    }
-
-    public double getX() {
-        return this.x;
-    }
-
-    public TapChangerConversion.ConvertedEnd1 getEnd1() {
-        return this.end1;
-    }
-
-    public ConvertedEnd2 getEnd2() {
-        return this.end2;
     }
 
     static class ConvertedEnd2 {
-        double ratedU;
-        String terminal;
+        final double ratedU;
+        final String terminal;
 
         ConvertedEnd2(double ratedU, String terminal) {
             this.ratedU = ratedU;
             this.terminal = terminal;
-        }
-
-        public double getRatedU() {
-            return this.ratedU;
-        }
-
-        public String getTerminal() {
-            return this.terminal;
         }
     }
 }

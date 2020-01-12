@@ -16,42 +16,26 @@ import com.powsybl.cgmes.conversion.elements.transformers.InterpretedT3xModel.In
  */
 public class ConvertedT3xModel {
 
-    private final ConvertedWinding winding1;
-    private final ConvertedWinding winding2;
-    private final ConvertedWinding winding3;
-    private final double ratedU0;
+    final ConvertedWinding winding1;
+    final ConvertedWinding winding2;
+    final ConvertedWinding winding3;
+    final double ratedU0;
 
     public ConvertedT3xModel(InterpretedT3xModel interpretedT3xModel, Context context) {
 
         TapChangerConversion tcc = new TapChangerConversion(context);
 
-        double ratedU0 = interpretedT3xModel.getRatedU0();
-        this.winding1 = new ConvertedWinding(interpretedT3xModel.getWinding1(), ratedU0, tcc);
-        this.winding2 = new ConvertedWinding(interpretedT3xModel.getWinding2(), ratedU0, tcc);
-        this.winding3 = new ConvertedWinding(interpretedT3xModel.getWinding3(), ratedU0, tcc);
+        double ratedU0 = interpretedT3xModel.ratedU0;
+        this.winding1 = new ConvertedWinding(interpretedT3xModel.winding1, ratedU0, tcc);
+        this.winding2 = new ConvertedWinding(interpretedT3xModel.winding2, ratedU0, tcc);
+        this.winding3 = new ConvertedWinding(interpretedT3xModel.winding3, ratedU0, tcc);
         this.ratedU0 = ratedU0;
     }
 
-    public ConvertedWinding getWinding1() {
-        return this.winding1;
-    }
-
-    public ConvertedWinding getWinding2() {
-        return this.winding2;
-    }
-
-    public ConvertedWinding getWinding3() {
-        return this.winding3;
-    }
-
-    public double getRatedU0() {
-        return this.ratedU0;
-    }
-
     static class ConvertedWinding {
-        private final double r;
-        private final double x;
-        private final TapChangerConversion.ConvertedEnd1 end1;
+        final double r;
+        final double x;
+        final TapChangerConversion.ConvertedEnd1 end1;
 
         /**
          * At each winding or leg:
@@ -71,17 +55,17 @@ public class ConvertedT3xModel {
                 windingRc0.b1 + windingRc0.b2,
                 windingTapChanger.ratioTapChanger,
                 windingTapChanger.phaseTapChanger,
-                interpretedWinding.getEnd1().getRatedU(),
-                interpretedWinding.getEnd1().getTerminal());
+                interpretedWinding.end1.ratedU,
+                interpretedWinding.end1.terminal);
         }
 
         private TapChangerWinding moveCombineTapChangerWinding(InterpretedWinding interpretedWinding, TapChangerConversion tcc) {
 
-            TapChanger nRatioTapChanger = TapChangerConversion.moveTapChangerFrom2To1(interpretedWinding.getEnd2().getRatioTapChanger());
-            TapChanger nPhaseTapChanger = TapChangerConversion.moveTapChangerFrom2To1(interpretedWinding.getEnd2().getPhaseTapChanger());
+            TapChanger nRatioTapChanger = TapChangerConversion.moveTapChangerFrom2To1(interpretedWinding.end2.ratioTapChanger);
+            TapChanger nPhaseTapChanger = TapChangerConversion.moveTapChangerFrom2To1(interpretedWinding.end2.phaseTapChanger);
 
-            TapChanger cRatioTapChanger = tcc.combineTapChangers(interpretedWinding.getEnd1().getRatioTapChanger(), nRatioTapChanger);
-            TapChanger cPhaseTapChanger = tcc.combineTapChangers(interpretedWinding.getEnd1().getPhaseTapChanger(), nPhaseTapChanger);
+            TapChanger cRatioTapChanger = tcc.combineTapChangers(interpretedWinding.end1.ratioTapChanger, nRatioTapChanger);
+            TapChanger cPhaseTapChanger = tcc.combineTapChangers(interpretedWinding.end1.phaseTapChanger, nPhaseTapChanger);
 
             TapChangerWinding tapChangerWinding = new TapChangerWinding();
             tapChangerWinding.ratioTapChanger = cRatioTapChanger;
@@ -92,15 +76,15 @@ public class ConvertedT3xModel {
         private static TapChangerConversion.RatioConversion moveStructuralRatioWinding(InterpretedWinding interpretedWinding, double ratedU0) {
             TapChangerConversion.RatioConversion rc0;
             // IIDM: Structural ratio always at network side of the leg (end1)
-            if (interpretedWinding.isStructuralRatioAtEnd2()) {
-                double a0 = ratedU0 / interpretedWinding.getEnd1().getRatedU();
-                rc0 = TapChangerConversion.moveRatioFrom2To1(a0, 0.0, interpretedWinding.getR(), interpretedWinding.getX(),
-                    interpretedWinding.getEnd1().getG(), interpretedWinding.getEnd1().getB(),
-                    interpretedWinding.getEnd2().getG(), interpretedWinding.getEnd2().getB());
+            if (interpretedWinding.structuralRatioAtEnd2) {
+                double a0 = ratedU0 / interpretedWinding.end1.ratedU;
+                rc0 = TapChangerConversion.moveRatioFrom2To1(a0, 0.0, interpretedWinding.r, interpretedWinding.x,
+                    interpretedWinding.end1.g, interpretedWinding.end1.b,
+                    interpretedWinding.end2.g, interpretedWinding.end2.b);
             } else {
-                rc0 = TapChangerConversion.identityRatioConversion(interpretedWinding.getR(), interpretedWinding.getX(),
-                    interpretedWinding.getEnd1().getG(), interpretedWinding.getEnd1().getB(),
-                    interpretedWinding.getEnd2().getG(), interpretedWinding.getEnd2().getB());
+                rc0 = TapChangerConversion.identityRatioConversion(interpretedWinding.r, interpretedWinding.x,
+                    interpretedWinding.end1.g, interpretedWinding.end1.b,
+                    interpretedWinding.end2.g, interpretedWinding.end2.b);
             }
 
             return rc0;
@@ -109,18 +93,6 @@ public class ConvertedT3xModel {
         static class TapChangerWinding {
             TapChanger ratioTapChanger;
             TapChanger phaseTapChanger;
-        }
-
-        public double getR() {
-            return this.r;
-        }
-
-        public double getX() {
-            return this.x;
-        }
-
-        public TapChangerConversion.ConvertedEnd1 getEnd1() {
-            return this.end1;
         }
     }
 }

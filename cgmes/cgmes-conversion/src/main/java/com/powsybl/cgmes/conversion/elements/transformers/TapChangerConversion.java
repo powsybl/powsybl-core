@@ -440,16 +440,15 @@ public class TapChangerConversion {
         return tc.isRegulating();
     }
 
-    static class ConvertedEnd1 {
-        private final double g;
-        private final double b;
-        private final TapChanger ratioTapChanger;
-        private final TapChanger phaseTapChanger;
-        private final double ratedU;
-        private final String terminal;
+    static class InterpretedEnd {
+        final double g;
+        final double b;
+        final TapChanger ratioTapChanger;
+        final TapChanger phaseTapChanger;
+        final double ratedU;
+        final String terminal;
 
-        ConvertedEnd1(double g, double b, TapChanger ratioTapChanger, TapChanger phaseTapChanger, double ratedU,
-            String terminal) {
+        InterpretedEnd(double g, double b, TapChanger ratioTapChanger, TapChanger phaseTapChanger, double ratedU, String terminal) {
             this.g = g;
             this.b = b;
             this.ratioTapChanger = ratioTapChanger;
@@ -457,31 +456,24 @@ public class TapChangerConversion {
             this.ratedU = ratedU;
             this.terminal = terminal;
         }
+    }
 
-        public double getG() {
-            return this.g;
+    static class ConvertedEnd1 {
+        final double g;
+        final double b;
+        final TapChanger ratioTapChanger;
+        final TapChanger phaseTapChanger;
+        final double ratedU;
+        final String terminal;
+
+        ConvertedEnd1(double g, double b, TapChanger ratioTapChanger, TapChanger phaseTapChanger, double ratedU, String terminal) {
+            this.g = g;
+            this.b = b;
+            this.ratioTapChanger = ratioTapChanger;
+            this.phaseTapChanger = phaseTapChanger;
+            this.ratedU = ratedU;
+            this.terminal = terminal;
         }
-
-        public double getB() {
-            return this.b;
-        }
-
-        public TapChanger getRatioTapChanger() {
-            return this.ratioTapChanger;
-        }
-
-        public TapChanger getPhaseTapChanger() {
-            return this.phaseTapChanger;
-        }
-
-        public double getRatedU() {
-            return this.ratedU;
-        }
-
-        public String getTerminal() {
-            return this.terminal;
-        }
-
     }
 
     static class TapChangerStepConversion {
