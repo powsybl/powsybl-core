@@ -167,25 +167,6 @@ public class InterpretedT3xModel {
         }
     }
 
-    static class InterpretedEnd1 {
-        final double g;
-        final double b;
-        final TapChanger ratioTapChanger;
-        final TapChanger phaseTapChanger;
-        final double ratedU;
-        final String terminal;
-
-        InterpretedEnd1(double g, double b, TapChanger ratioTapChanger, TapChanger phaseTapChanger, double ratedU,
-            String terminal) {
-            this.g = g;
-            this.b = b;
-            this.ratioTapChanger = ratioTapChanger;
-            this.phaseTapChanger = phaseTapChanger;
-            this.ratedU = ratedU;
-            this.terminal = terminal;
-        }
-    }
-
     static class InterpretedEnd2 {
         final double g;
         final double b;
