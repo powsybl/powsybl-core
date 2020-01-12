@@ -13,6 +13,7 @@ import com.powsybl.cgmes.conversion.elements.transformers.NewTwoWindingsTransfor
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -29,6 +30,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
 
@@ -384,10 +386,12 @@ public class Conversion {
     }
 
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
-        network.getHvdcConverterStationStream().filter(converter -> converter.getHvdcLine() == null).forEach(converter -> {
-            context.ignored(String.format("HVDC Converter Station %s", converter.getId()), "No correct linked HVDC line found.");
-            converter.remove();
-        });
+        network.getHvdcConverterStationStream()
+                .filter(converter -> converter.getHvdcLine() == null)
+                .peek(converter -> context.ignored(String.format("HVDC Converter Station %s",
+                        converter.getId()), "No correct linked HVDC line found."))
+                .collect(Collectors.toList())
+                .forEach(Connectable::remove);
     }
 
     private void debugTopology(Context context) {
