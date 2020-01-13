@@ -50,7 +50,6 @@ public interface CgmesImportPostProcessor {
      *
      * @param network the IIDM network model
      * @param tripleStore the triple store
-     * @param profiling profiling tool
      */
     void process(Network network, TripleStore tripleStore);
 }
