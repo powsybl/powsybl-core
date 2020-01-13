@@ -13,6 +13,7 @@ import com.powsybl.cgmes.conversion.elements.transformers.NewTwoWindingsTransfor
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -29,6 +30,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
 
@@ -384,10 +386,12 @@ public class Conversion {
     }
 
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
-        network.getHvdcConverterStationStream().filter(converter -> converter.getHvdcLine() == null).forEach(converter -> {
-            context.ignored(String.format("HVDC Converter Station %s", converter.getId()), "No correct linked HVDC line found.");
-            converter.remove();
-        });
+        network.getHvdcConverterStationStream()
+                .filter(converter -> converter.getHvdcLine() == null)
+                .peek(converter -> context.ignored(String.format("HVDC Converter Station %s",
+                        converter.getId()), "No correct linked HVDC line found."))
+                .collect(Collectors.toList())
+                .forEach(Connectable::remove);
     }
 
     private void debugTopology(Context context) {
@@ -537,14 +541,6 @@ public class Conversion {
             xfmr2RatioPhase = alternative;
         }
 
-        public boolean isXfmr2PhaseNegate() {
-            return xfmr2PhaseNegate;
-        }
-
-        public void setXfmr2PhaseNegate(boolean xfmr2PhaseNegate) {
-            this.xfmr2PhaseNegate = xfmr2PhaseNegate;
-        }
-
         public Xfmr2ShuntInterpretationAlternative getXfmr2Shunt() {
             return xfmr2Shunt;
         }
@@ -567,14 +563,6 @@ public class Conversion {
 
         public void setXfmr3RatioPhaseNetworkSide(boolean xfmr3RatioPhaseNetworkSide) {
             this.xfmr3RatioPhaseNetworkSide = xfmr3RatioPhaseNetworkSide;
-        }
-
-        public boolean isXfmr3PhaseNegate() {
-            return xfmr3PhaseNegate;
-        }
-
-        public void setXfmr3PhaseNegate(boolean xfmr3PhaseNegate) {
-            this.xfmr3PhaseNegate = xfmr3PhaseNegate;
         }
 
         public Xfmr3ShuntInterpretationAlternative getXfmr3Shunt() {
@@ -607,12 +595,10 @@ public class Conversion {
 
         // Default interpretation.
         private Xfmr2RatioPhaseInterpretationAlternative xfmr2RatioPhase = Xfmr2RatioPhaseInterpretationAlternative.END1_END2;
-        private boolean xfmr2PhaseNegate = false;
         private Xfmr2ShuntInterpretationAlternative xfmr2Shunt = Xfmr2ShuntInterpretationAlternative.END1_END2;
         private Xfmr2StructuralRatioInterpretationAlternative xfmr2StructuralRatio = Xfmr2StructuralRatioInterpretationAlternative.X;
 
         private boolean xfmr3RatioPhaseNetworkSide = true;
-        private boolean xfmr3PhaseNegate = false;
         private Xfmr3ShuntInterpretationAlternative xfmr3Shunt = Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
     }
