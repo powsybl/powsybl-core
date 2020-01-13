@@ -25,16 +25,14 @@ public class CgmesT2xModel {
     final boolean x1IsZero;
 
     public CgmesT2xModel(PropertyBags ends, Context context) {
-
         PropertyBag bagEnd1 = ends.get(0);
         PropertyBag bagEnd2 = ends.get(1);
 
         double x1 = bagEnd1.asDouble(CgmesNames.X);
         double x2 = bagEnd2.asDouble(CgmesNames.X);
-        double x = x1 + x2;
 
         this.r = bagEnd1.asDouble(CgmesNames.R) + bagEnd2.asDouble(CgmesNames.R);
-        this.x = x;
+        this.x = x1 + x2;
         this.end1 = new CgmesPartialEnd(bagEnd1, x, context);
         this.end2 = new CgmesPartialEnd(bagEnd2, x, context);
         this.x1IsZero = x1 == 0.0;

@@ -25,14 +25,14 @@ public class TapChanger {
         Objects.requireNonNull(end);
         Objects.requireNonNull(context);
         PropertyBag rtc = context.ratioTapChanger(end.getId(CgmesNames.RATIO_TAP_CHANGER));
-        return rtc != null ? CgmesTapChangerBuilder.newRatioTapChanger(rtc, context).build() : null;
+        return rtc != null ? AbstractCgmesTapChangerBuilder.newRatioTapChanger(rtc, context).build() : null;
     }
 
     public static TapChanger phaseTapChangerFromEnd(PropertyBag end, double x, Context context) {
         Objects.requireNonNull(end);
         Objects.requireNonNull(context);
         PropertyBag ptc = context.phaseTapChanger(end.getId(CgmesNames.PHASE_TAP_CHANGER));
-        return ptc != null ? CgmesTapChangerBuilder.newPhaseTapChanger(ptc, x, context).build() : null;
+        return ptc != null ? AbstractCgmesTapChangerBuilder.newPhaseTapChanger(ptc, x, context).build() : null;
     }
 
     private int lowTapPosition = 0;

@@ -19,7 +19,7 @@ import com.powsybl.triplestore.api.PropertyBags;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 
-public class CgmesPhaseTapChangerBuilder extends CgmesTapChangerBuilder {
+public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder {
 
     private final double xtx;
 
@@ -34,22 +34,7 @@ public class CgmesPhaseTapChangerBuilder extends CgmesTapChangerBuilder {
             context.invalid(CgmesNames.PHASE_TAP_CHANGER_TYPE, String.format("Unexpected type %s", type));
             return null;
         }
-        int lowStep = p.asInt(CgmesNames.LOW_STEP);
-        int highStep = p.asInt(CgmesNames.HIGH_STEP);
-        int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
-        int normalStep = p.asInt(CgmesNames.NORMAL_STEP, neutralStep);
-        int position = initialTapPosition(normalStep);
-        if (position > highStep || position < lowStep) {
-            position = neutralStep;
-        }
-        tapChanger.setLowTapPosition(lowStep).setTapPosition(position);
-
-        boolean ltcFlag = p.asBoolean(CgmesNames.LTC_FLAG, false);
-        tapChanger.setLtcFlag(ltcFlag);
-
-        addRegulationData();
-        addSteps();
-        return tapChanger;
+        return super.build();
     }
 
     private boolean validType() {
@@ -58,15 +43,17 @@ public class CgmesPhaseTapChangerBuilder extends CgmesTapChangerBuilder {
         return isTabular(type, tableId) || isSymmetrical(type) || isAsymmetrical(type);
     }
 
-    private void addRegulationData() {
+    @Override
+    protected void addRegulationData() {
         String regulatingControlId = context.regulatingControlMapping().forTransformers().getRegulatingControlId(p);
         tapChanger.setId(p.getId(CgmesNames.PHASE_TAP_CHANGER))
-            .setRegulating(context.regulatingControlMapping().forTransformers().getRegulating(regulatingControlId))
-            .setRegulatingControlId(regulatingControlId)
-            .setTapChangerControlEnabled(p.asBoolean(CgmesNames.TAP_CHANGER_CONTROL_ENABLED, false));
+                .setRegulating(context.regulatingControlMapping().forTransformers().getRegulating(regulatingControlId))
+                .setRegulatingControlId(regulatingControlId)
+                .setTapChangerControlEnabled(p.asBoolean(CgmesNames.TAP_CHANGER_CONTROL_ENABLED, false));
     }
 
-    private void addSteps() {
+    @Override
+    protected void addSteps() {
         String tableId = p.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
         String phaseTapChangerType = p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE).toLowerCase();
         if (isTabular(phaseTapChangerType, tableId)) {
@@ -87,7 +74,7 @@ public class CgmesPhaseTapChangerBuilder extends CgmesTapChangerBuilder {
             return;
         }
         Comparator<PropertyBag> byStep = Comparator
-            .comparingInt((PropertyBag p) -> p.asInt(CgmesNames.STEP));
+                .comparingInt((PropertyBag p) -> p.asInt(CgmesNames.STEP));
         table.sort(byStep);
         for (PropertyBag point : table) {
             int step = point.asInt(CgmesNames.STEP);
@@ -98,13 +85,13 @@ public class CgmesPhaseTapChangerBuilder extends CgmesTapChangerBuilder {
             double g = fixing(point, CgmesNames.G, 0, tableId, step);
             double b = fixing(point, CgmesNames.B, 0, tableId, step);
             tapChanger.beginStep()
-                .setAngle(angle)
-                .setRatio(ratio)
-                .setR(r)
-                .setX(x)
-                .setG1(g)
-                .setB1(b)
-                .endStep();
+                    .setAngle(angle)
+                    .setRatio(ratio)
+                    .setR(r)
+                    .setX(x)
+                    .setG1(g)
+                    .setB1(b)
+                    .endStep();
         }
     }
 
@@ -116,23 +103,23 @@ public class CgmesPhaseTapChangerBuilder extends CgmesTapChangerBuilder {
         double windingConnectionAngle = p.asDouble(CgmesNames.WINDING_CONNECTION_ANGLE);
         for (int step = lowStep; step <= highStep; step++) {
             double dx = 1.0 + (step - neutralStep) * (stepVoltageIncrement / 100.0)
-                * Math.cos(Math.toRadians(windingConnectionAngle));
+                    * Math.cos(Math.toRadians(windingConnectionAngle));
             double dy = (step - neutralStep) * (stepVoltageIncrement / 100.0)
-                * Math.sin(Math.toRadians(windingConnectionAngle));
+                    * Math.sin(Math.toRadians(windingConnectionAngle));
             double ratio = Math.hypot(dx, dy);
             double angle = Math.toDegrees(Math.atan2(dy, dx));
             tapChanger.beginStep()
-                .setAngle(angle)
-                .setRatio(ratio)
-                .endStep();
+                    .setAngle(angle)
+                    .setRatio(ratio)
+                    .endStep();
         }
         double xMin = p.asDouble(CgmesNames.X_STEP_MIN, p.asDouble(CgmesNames.X_MIN));
         double xMax = p.asDouble(CgmesNames.X_STEP_MAX, p.asDouble(CgmesNames.X_MAX));
         if (Double.isNaN(xMin) || Double.isNaN(xMax) || xMin < 0 || xMax <= 0 || xMin > xMax) {
             return;
         }
-        double alphaMax = tapChanger.getSteps().stream().map(step -> step.getAngle())
-            .mapToDouble(Double::doubleValue).max().orElse(Double.NaN);
+        double alphaMax = tapChanger.getSteps().stream().map(TapChanger.Step::getAngle)
+                .mapToDouble(Double::doubleValue).max().orElse(Double.NaN);
         tapChanger.getSteps().forEach(step -> {
             double alpha = step.getAngle();
             double x = getStepXforAsymmetrical(xMin, xMax, alpha, alphaMax, windingConnectionAngle);
@@ -141,14 +128,14 @@ public class CgmesPhaseTapChangerBuilder extends CgmesTapChangerBuilder {
     }
 
     private static double getStepXforAsymmetrical(double xStepMin, double xStepMax, double alphaDegrees,
-        double alphaMaxDegrees, double thetaDegrees) {
+                                                  double alphaMaxDegrees, double thetaDegrees) {
         double alpha = Math.toRadians(alphaDegrees);
         double alphaMax = Math.toRadians(alphaMaxDegrees);
         double theta = Math.toRadians(thetaDegrees);
         double numer = Math.sin(theta) - Math.tan(alphaMax) * Math.cos(theta);
         double denom = Math.sin(theta) - Math.tan(alpha) * Math.cos(theta);
         return xStepMin + (xStepMax - xStepMin)
-            * Math.pow(Math.tan(alpha) / Math.tan(alphaMax) * numer / denom, 2);
+                * Math.pow(Math.tan(alpha) / Math.tan(alphaMax) * numer / denom, 2);
     }
 
     private void addStepsSymmetrical() {
@@ -166,17 +153,17 @@ public class CgmesPhaseTapChangerBuilder extends CgmesTapChangerBuilder {
                 angle = Math.toDegrees(2 * Math.asin(dy / 2));
             }
             tapChanger.beginStep()
-                .setRatio(1.0)
-                .setAngle(angle)
-                .endStep();
+                    .setRatio(1.0)
+                    .setAngle(angle)
+                    .endStep();
         }
         double xMin = p.asDouble(CgmesNames.X_STEP_MIN, p.asDouble(CgmesNames.X_MIN));
         double xMax = p.asDouble(CgmesNames.X_STEP_MAX, p.asDouble(CgmesNames.X_MAX));
         if (Double.isNaN(xMin) || Double.isNaN(xMax) || xMin < 0 || xMax <= 0 || xMin > xMax) {
             return;
         }
-        double alphaMax = tapChanger.getSteps().stream().map(step -> step.getAngle())
-            .mapToDouble(Double::doubleValue).max().orElse(Double.NaN);
+        double alphaMax = tapChanger.getSteps().stream().map(TapChanger.Step::getAngle)
+                .mapToDouble(Double::doubleValue).max().orElse(Double.NaN);
         tapChanger.getSteps().forEach(step -> {
             double alpha = step.getAngle();
             double x = getStepXforSymmetrical(xMin, xMax, alpha, alphaMax);
@@ -185,11 +172,11 @@ public class CgmesPhaseTapChangerBuilder extends CgmesTapChangerBuilder {
     }
 
     private static double getStepXforSymmetrical(double xStepMin, double xStepMax, double alphaDegrees,
-        double alphaMaxDegrees) {
+                                                 double alphaMaxDegrees) {
         double alpha = Math.toRadians(alphaDegrees);
         double alphaMax = Math.toRadians(alphaMaxDegrees);
         return xStepMin
-            + (xStepMax - xStepMin) * Math.pow(Math.sin(alpha / 2) / Math.sin(alphaMax / 2), 2);
+                + (xStepMax - xStepMin) * Math.pow(Math.sin(alpha / 2) / Math.sin(alphaMax / 2), 2);
     }
 
     private static boolean isTabular(String tapChangerType, String tableId) {

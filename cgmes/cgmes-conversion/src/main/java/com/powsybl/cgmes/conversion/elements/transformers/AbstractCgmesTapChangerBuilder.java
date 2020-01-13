@@ -19,13 +19,13 @@ import com.powsybl.triplestore.api.PropertyBag;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class CgmesTapChangerBuilder {
+abstract class AbstractCgmesTapChangerBuilder {
 
     protected final Context context;
     protected final PropertyBag p;
     protected final TapChanger tapChanger;
 
-    CgmesTapChangerBuilder(PropertyBag p, Context context) {
+    AbstractCgmesTapChangerBuilder(PropertyBag p, Context context) {
         Objects.requireNonNull(p);
         Objects.requireNonNull(context);
         this.context = context;
@@ -52,12 +52,35 @@ public class CgmesTapChangerBuilder {
         }
     }
 
+    protected TapChanger build() {
+        int lowStep = p.asInt(CgmesNames.LOW_STEP);
+        int highStep = p.asInt(CgmesNames.HIGH_STEP);
+        int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
+        int normalStep = p.asInt(CgmesNames.NORMAL_STEP, neutralStep);
+        int position = initialTapPosition(normalStep);
+        if (position > highStep || position < lowStep) {
+            position = neutralStep;
+        }
+        tapChanger.setLowTapPosition(lowStep).setTapPosition(position);
+
+        boolean ltcFlag = p.asBoolean(CgmesNames.LTC_FLAG, false);
+        tapChanger.setLtcFlag(ltcFlag);
+
+        addRegulationData();
+        addSteps();
+        return tapChanger;
+    }
+
+    protected abstract void addRegulationData();
+
+    protected abstract void addSteps();
+
     double fixing(PropertyBag point, String attr, double defaultValue, String tableId, int step) {
         double value = point.asDouble(attr, defaultValue);
         if (Double.isNaN(value)) {
             context.fixed(
-                "RatioTapChangerTablePoint " + attr + " for step " + step + " in table " + tableId,
-                "invalid value " + point.get(attr));
+                    "RatioTapChangerTablePoint " + attr + " for step " + step + " in table " + tableId,
+                    "invalid value " + point.get(attr));
             return defaultValue;
         }
         return value;

@@ -346,6 +346,9 @@ public class Conversion {
         });
     }
 
+    /**
+     * @deprecated Use @link{{@link #newConvertTransformers(Context)}}
+     */
     @Deprecated
     private void convertTransformers(Context context) {
         cgmes.groupedTransformerEnds().entrySet()
