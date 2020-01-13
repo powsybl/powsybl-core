@@ -44,7 +44,7 @@ public class ThreeWindingsTransformerAdapterTest {
         // Leg1
         final ThreeWindingsTransformer.Leg leg1 = twt.getLeg1();
         assertNotNull(leg1);
-        assertTrue(leg1 instanceof LegAdapter);
+        assertTrue(leg1 instanceof AbstractAdapter);
         assertNotNull(leg1.setR(2.0));
         assertEquals(2.0, leg1.getR(), 0.0);
         assertNotNull(leg1.setX(2.1));
@@ -102,7 +102,7 @@ public class ThreeWindingsTransformerAdapterTest {
         // Leg 2
         final ThreeWindingsTransformer.Leg leg2 = twt.getLeg2();
         assertNotNull(leg2);
-        assertTrue(leg2 instanceof LegAdapter);
+        assertTrue(leg2 instanceof AbstractAdapter);
         // --> PhaseTapChanger
         PhaseTapChanger ptc = leg2.newPhaseTapChanger()
                     .setTapPosition(1)
@@ -130,7 +130,7 @@ public class ThreeWindingsTransformerAdapterTest {
         // Leg 3
         final ThreeWindingsTransformer.Leg leg3 = twt.getLeg3();
         assertNotNull(leg3);
-        assertTrue(leg3 instanceof LegAdapter);
+        assertTrue(leg3 instanceof AbstractAdapter);
 
         // Not implemented yet !
         TestUtil.notImplemented(twt::remove);
