@@ -90,7 +90,7 @@ public class Changelog implements NetworkListener {
                 Comparator.comparing(IidmChange::getIndex)));
             ss.addAll(baseChanges);
             ss.addAll(changesByVariant.get(variantId));
-            return new ArrayList<IidmChange>(Collections.unmodifiableCollection(ss));
+            return new ArrayList<>(Collections.unmodifiableCollection(ss));
         }
     }
 
