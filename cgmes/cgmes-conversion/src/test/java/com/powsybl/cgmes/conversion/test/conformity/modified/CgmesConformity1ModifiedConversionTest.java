@@ -470,5 +470,11 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcNanTargetPpcc().dataSource(), null));
     }
 
+    @Test
+    public void smallNodeBrokerHvdcMissingDCLineSegment() {
+        // Small Grid Node Breaker HVDC modified so there is not DC Line Segment
+        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcMissingDCLineSegment().dataSource(), null));
+    }
+
     private FileSystem fileSystem;
 }

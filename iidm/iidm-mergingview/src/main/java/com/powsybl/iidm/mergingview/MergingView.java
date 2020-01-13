@@ -37,17 +37,113 @@ public final class MergingView implements Network {
     /** To listen events from merging network */
     private final NetworkListener listener = new MergingNetworkListener();
 
-    private final NetworkBusBreakerViewAdapter busBreakerView;
+    private static class BusBreakerViewAdapter implements Network.BusBreakerView {
 
-    private final NetworkBusViewAdapter busView;
+        private final MergingViewIndex index;
+
+        BusBreakerViewAdapter(final MergingViewIndex index) {
+            this.index = index;
+        }
+
+        @Override
+        public Bus getBus(final String id) {
+            final List<Network.BusBreakerView> views = index.getNetworkStream()
+                                                      .map(Network::getBusBreakerView).collect(Collectors.toList());
+            for (final Network.BusBreakerView bb : views) {
+                final Bus bus = bb.getBus(id);
+                if (Objects.nonNull(bus)) {
+                    return index.getBus(bus);
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public Iterable<Bus> getBuses() {
+            return Collections.unmodifiableList(getBusStream().collect(Collectors.toList()));
+        }
+
+        @Override
+        public Stream<Bus> getBusStream() {
+            return index.getNetworkStream()
+                    .map(Network::getBusBreakerView)
+                    .map(Network.BusBreakerView::getBusStream)
+                    .flatMap(stream -> stream)
+                    .map(index::getBus);
+        }
+
+        @Override
+        public Iterable<Switch> getSwitches() {
+            return Collections.unmodifiableList(getSwitchStream().collect(Collectors.toList()));
+        }
+
+        @Override
+        public Stream<Switch> getSwitchStream() {
+            return index.getNetworkStream()
+                    .map(Network::getBusBreakerView)
+                    .map(Network.BusBreakerView::getSwitchStream)
+                    .flatMap(stream -> stream)
+                    .map(index::getSwitch);
+        }
+
+        @Override
+        public int getSwitchCount() {
+            return (int) getSwitchStream().count();
+        }
+    }
+
+    private final BusBreakerViewAdapter busBreakerView;
+
+    private static class BusViewAdapter implements Network.BusView {
+
+        private final MergingViewIndex index;
+
+        BusViewAdapter(final MergingViewIndex index) {
+            this.index = index;
+        }
+
+        @Override
+        public Iterable<Bus> getBuses() {
+            return Collections.unmodifiableList(getBusStream().collect(Collectors.toList()));
+        }
+
+        @Override
+        public Stream<Bus> getBusStream() {
+            return index.getNetworkStream()
+                    .map(Network::getBusView)
+                    .map(Network.BusView::getBusStream)
+                    .flatMap(stream -> stream)
+                    .map(index::getBus);
+        }
+
+        @Override
+        public Bus getBus(final String id) {
+            return index.getNetworkStream()
+                    .map(n -> n.getBusView().getBus(id))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .map(index::getBus)
+                    .orElse(null);
+        }
+
+        // -------------------------------
+        // Not implemented methods -------
+        // -------------------------------
+        @Override
+        public Collection<Component> getConnectedComponents() {
+            throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        }
+    }
+
+    private final BusViewAdapter busView;
 
     /** Constructor */
     private MergingView(final NetworkFactory factory, final String id, final String format) {
         Objects.requireNonNull(factory, "factory is null");
 
         index = new MergingViewIndex(this);
-        busBreakerView = new NetworkBusBreakerViewAdapter(index);
-        busView = new NetworkBusViewAdapter(index);
+        busBreakerView = new BusBreakerViewAdapter(index);
+        busView = new BusViewAdapter(index);
         // Working network will store view informations
         workingNetwork = factory.createNetwork(id, format);
         // Add working network as merging network
@@ -696,12 +792,12 @@ public final class MergingView implements Network {
     }
 
     @Override
-    public NetworkBusBreakerViewAdapter getBusBreakerView() {
+    public Network.BusBreakerView getBusBreakerView() {
         return busBreakerView;
     }
 
     @Override
-    public BusView getBusView() {
+    public Network.BusView getBusView() {
         return busView;
     }
 
