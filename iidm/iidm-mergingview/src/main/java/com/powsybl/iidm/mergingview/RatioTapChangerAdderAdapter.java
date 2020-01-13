@@ -15,6 +15,52 @@ import com.powsybl.iidm.network.Terminal;
  */
 public class RatioTapChangerAdderAdapter extends AbstractAdapter<RatioTapChangerAdder> implements RatioTapChangerAdder {
 
+    private class StepAdderAdapter extends AbstractAdapter<RatioTapChangerAdder.StepAdder> implements RatioTapChangerAdder.StepAdder {
+
+        StepAdderAdapter(final RatioTapChangerAdder.StepAdder delegate, final MergingViewIndex index) {
+            super(delegate, index);
+        }
+
+        @Override
+        public RatioTapChangerAdder endStep() {
+            getDelegate().endStep();
+            return RatioTapChangerAdderAdapter.this;
+        }
+
+        // -------------------------------
+        // Simple delegated methods ------
+        // -------------------------------
+        @Override
+        public RatioTapChangerAdder.StepAdder setRho(final double rho) {
+            getDelegate().setRho(rho);
+            return this;
+        }
+
+        @Override
+        public RatioTapChangerAdder.StepAdder setR(final double r) {
+            getDelegate().setR(r);
+            return this;
+        }
+
+        @Override
+        public RatioTapChangerAdder.StepAdder setX(final double x) {
+            getDelegate().setX(x);
+            return this;
+        }
+
+        @Override
+        public RatioTapChangerAdder.StepAdder setG(final double g) {
+            getDelegate().setG(g);
+            return this;
+        }
+
+        @Override
+        public RatioTapChangerAdder.StepAdder setB(final double b) {
+            getDelegate().setB(b);
+            return this;
+        }
+    }
+
     RatioTapChangerAdderAdapter(final RatioTapChangerAdder delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
@@ -38,7 +84,7 @@ public class RatioTapChangerAdderAdapter extends AbstractAdapter<RatioTapChanger
 
     @Override
     public RatioTapChangerAdder.StepAdder beginStep() {
-        return new RatioTapChangerStepAdderAdapter(this, getDelegate().beginStep(), getIndex());
+        return new StepAdderAdapter(getDelegate().beginStep(), getIndex());
     }
 
     // -------------------------------

@@ -119,5 +119,5 @@ public final class TripleStoreFactory {
         return DEFAULT_IMPLEMENTATION;
     }
 
-    private static final String DEFAULT_IMPLEMENTATION = "rdf4j";
+    public static final String DEFAULT_IMPLEMENTATION = "rdf4j";
 }

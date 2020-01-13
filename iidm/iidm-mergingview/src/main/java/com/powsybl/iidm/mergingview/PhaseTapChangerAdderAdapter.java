@@ -16,6 +16,58 @@ import com.powsybl.iidm.network.Terminal;
  */
 public class PhaseTapChangerAdderAdapter extends AbstractAdapter<PhaseTapChangerAdder> implements PhaseTapChangerAdder {
 
+    private class StepAdderAdapter extends AbstractAdapter<PhaseTapChangerAdder.StepAdder> implements PhaseTapChangerAdder.StepAdder {
+
+        StepAdderAdapter(final PhaseTapChangerAdder.StepAdder delegate, final MergingViewIndex index) {
+            super(delegate, index);
+        }
+
+        @Override
+        public PhaseTapChangerAdder endStep() {
+            getDelegate().endStep();
+            return PhaseTapChangerAdderAdapter.this;
+        }
+
+        // -------------------------------
+        // Simple delegated methods ------
+        // -------------------------------
+        @Override
+        public PhaseTapChangerAdder.StepAdder setAlpha(final double alpha) {
+            getDelegate().setAlpha(alpha);
+            return this;
+        }
+
+        @Override
+        public PhaseTapChangerAdder.StepAdder setRho(final double rho) {
+            getDelegate().setRho(rho);
+            return this;
+        }
+
+        @Override
+        public PhaseTapChangerAdder.StepAdder setR(final double r) {
+            getDelegate().setR(r);
+            return this;
+        }
+
+        @Override
+        public PhaseTapChangerAdder.StepAdder setX(final double x) {
+            getDelegate().setX(x);
+            return this;
+        }
+
+        @Override
+        public PhaseTapChangerAdder.StepAdder setG(final double g) {
+            getDelegate().setG(g);
+            return this;
+        }
+
+        @Override
+        public PhaseTapChangerAdder.StepAdder setB(final double b) {
+            getDelegate().setB(b);
+            return this;
+        }
+    }
+
     PhaseTapChangerAdderAdapter(final PhaseTapChangerAdder delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
@@ -79,6 +131,6 @@ public class PhaseTapChangerAdderAdapter extends AbstractAdapter<PhaseTapChanger
 
     @Override
     public PhaseTapChangerAdder.StepAdder beginStep() {
-        return new PhaseTapChangerStepAdderAdapter(this, getDelegate().beginStep(), getIndex());
+        return new PhaseTapChangerAdderAdapter.StepAdderAdapter(getDelegate().beginStep(), getIndex());
     }
 }
