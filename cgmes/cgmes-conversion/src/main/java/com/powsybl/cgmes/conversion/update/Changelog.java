@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
@@ -84,11 +86,11 @@ public class Changelog implements NetworkListener {
             // If we only have baseChanges we assume they are already ordered
             return Collections.unmodifiableList(baseChanges);
         } else {
-            List<IidmChange> cs = new ArrayList<>(baseChanges.size() + changesByVariant.size());
-            cs.addAll(baseChanges);
-            cs.addAll(changesByVariant.get(variantId));
-            cs.sort(Comparator.comparing(IidmChange::getIndex));
-            return Collections.unmodifiableList(cs);
+            SortedSet<IidmChange> ss = Collections.synchronizedSortedSet(new TreeSet<>(
+                Comparator.comparing(IidmChange::getIndex)));
+            ss.addAll(baseChanges);
+            ss.addAll(changesByVariant.get(variantId));
+            return new ArrayList<IidmChange>(Collections.unmodifiableCollection(ss));
         }
     }
 

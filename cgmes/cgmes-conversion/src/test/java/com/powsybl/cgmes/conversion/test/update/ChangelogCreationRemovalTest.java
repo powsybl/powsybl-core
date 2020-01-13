@@ -8,10 +8,10 @@ package com.powsybl.cgmes.conversion.test.update;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -86,18 +86,11 @@ public final class ChangelogCreationRemovalTest {
         return actual;
     }
 
-    private List<IidmChange> ignoreUpdateOnRemoval(List<IidmChange> changes) {
-        List<IidmChange> list = new ArrayList<>();
-        for (IidmChange i : changes) {
-            if (!(i instanceof IidmChangeRemoval)) {
-                continue;
-            }
-            list.add(i);
-        }
-        return list;
+    private static List<IidmChange> ignoreUpdateOnRemoval(List<IidmChange> changes) {
+        return changes.stream().filter(IidmChangeRemoval.class::isInstance).collect(Collectors.toList());
     }
 
-    private void makeCreateChanges(Network network) {
+    private static void makeCreateChanges(Network network) {
         Substation substation = network.getSubstation("substation");
         substation.newTwoWindingsTransformer()
             .setId("twt")
@@ -115,14 +108,14 @@ public final class ChangelogCreationRemovalTest {
             .add();
     }
 
-    private void makeRemoveChanges(Network network) {
+    private static void makeRemoveChanges(Network network) {
         network.getLine("line").remove();
     }
 
     private Network network;
     private Changelog changelog;
-    Map<String, String> expected;
-    Map<String, String> actual;
-    String variant;
+    private Map<String, String> expected;
+    private Map<String, String> actual;
+    private String variant;
 
 }

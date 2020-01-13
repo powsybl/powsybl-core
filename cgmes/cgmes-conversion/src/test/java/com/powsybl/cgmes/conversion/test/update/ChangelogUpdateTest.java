@@ -114,6 +114,7 @@ public final class ChangelogUpdateTest {
         makeNetworkChangesVariantSpecific(network);
         makeRemoveChanges(network);
         List<IidmChange> changes =  new ArrayList<>(changelog.getChangesForVariant(variant1));
+        // To test the right ordering, the list of changes should have multiple items
         assertTrue(changes.size() > 1);
         // Removal is base change, without sorting by index it would be first change in the list.
         // Check the changes order is correct, and removal is last, as it was made last
@@ -133,14 +134,14 @@ public final class ChangelogUpdateTest {
         return true;
     }
 
-    private void makeNetworkChangesOnBase(Network network) {
+    private static void makeNetworkChangesOnBase(Network network) {
         Line line = network.getLine("line");
         double newR = line.getR() * 1.1;
         double newX = line.getX() * 1.1;
         line.setR(newR).setX(newX);
     }
 
-    private void makeNetworkChangesVariantSpecific(Network network) {
+    private static void makeNetworkChangesVariantSpecific(Network network) {
         Generator g = network.getGenerator("generator");
         double newP = g.getTargetP() * 1.1;
         double newQ = g.getTargetQ() * 1.1;
@@ -152,11 +153,11 @@ public final class ChangelogUpdateTest {
         load.setP0(newP).setQ0(newQ).getTerminal().setP(newP).setQ(newQ);
     }
 
-    private void makeRemoveChanges(Network network) {
+    private static void makeRemoveChanges(Network network) {
         network.getLoad("load").remove();
     }
 
-    private boolean containsAny(List<IidmChange> changes, List<IidmChange> other) {
+    private static boolean containsAny(List<IidmChange> changes, List<IidmChange> other) {
         for (IidmChange c : other) {
             if (changes.contains(c)) {
                 return true;
