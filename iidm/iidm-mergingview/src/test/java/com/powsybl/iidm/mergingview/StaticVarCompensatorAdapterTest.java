@@ -70,6 +70,9 @@ public class StaticVarCompensatorAdapterTest {
         assertEquals(regulationMode, svcActual.getRegulationMode());
 
         assertTrue(svcActual.getRegulatingTerminal() instanceof TerminalAdapter);
+        assertEquals(svcActual.getRegulatingTerminal(), mergingView.getLoad("L2").getTerminal());
+        assertTrue(svcActual.setRegulatingTerminal(mergingView.getLine("L1").getTerminal1()) instanceof StaticVarCompensatorAdapter);
+        assertEquals(svcActual.getRegulatingTerminal(), mergingView.getLine("L1").getTerminal1());
 
         // Not implemented yet !
         TestUtil.notImplemented(svcActual::remove);
