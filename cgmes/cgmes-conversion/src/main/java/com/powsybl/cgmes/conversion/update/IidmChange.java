@@ -19,7 +19,7 @@ public class IidmChange {
 
     public IidmChange(Identifiable identifiable) {
         this.identifiable = Objects.requireNonNull(identifiable);
-        this.index = counter.getAndIncrement();
+        this.index = COUNTER.getAndIncrement();
     }
 
     public Identifiable getIdentifiable() {
@@ -37,5 +37,5 @@ public class IidmChange {
 
     private final Identifiable identifiable;
     private final int index;
-    private static AtomicInteger counter = new AtomicInteger();
+    private static final AtomicInteger COUNTER = new AtomicInteger();
 }
