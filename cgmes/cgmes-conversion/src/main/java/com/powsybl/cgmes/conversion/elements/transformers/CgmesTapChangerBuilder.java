@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.cgmes.conversion.elements.transformers;
 
 import java.util.Objects;
@@ -8,13 +15,17 @@ import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBag;
 
-public class TapChangerBuilder {
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
+ */
+public class CgmesTapChangerBuilder {
 
     protected final Context context;
     protected final PropertyBag p;
     protected final TapChanger tapChanger;
 
-    TapChangerBuilder(PropertyBag p, Context context) {
+    CgmesTapChangerBuilder(PropertyBag p, Context context) {
         Objects.requireNonNull(p);
         Objects.requireNonNull(context);
         this.context = context;
@@ -22,12 +33,12 @@ public class TapChangerBuilder {
         tapChanger = new TapChanger();
     }
 
-    static RatioTapChangerBuilder newRatioTapChanger(PropertyBag ratioTapChanger, Context context) {
-        return new RatioTapChangerBuilder(ratioTapChanger, context);
+    static CgmesRatioTapChangerBuilder newRatioTapChanger(PropertyBag ratioTapChanger, Context context) {
+        return new CgmesRatioTapChangerBuilder(ratioTapChanger, context);
     }
 
-    static PhaseTapChangerBuilder newPhaseTapChanger(PropertyBag phaseTapChanger, double xtx, Context context) {
-        return new PhaseTapChangerBuilder(phaseTapChanger, xtx, context);
+    static CgmesPhaseTapChangerBuilder newPhaseTapChanger(PropertyBag phaseTapChanger, double xtx, Context context) {
+        return new CgmesPhaseTapChangerBuilder(phaseTapChanger, xtx, context);
     }
 
     protected int initialTapPosition(int defaultStep) {

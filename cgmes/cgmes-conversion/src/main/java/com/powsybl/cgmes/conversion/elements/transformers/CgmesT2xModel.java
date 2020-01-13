@@ -20,8 +20,8 @@ public class CgmesT2xModel {
 
     final double r;
     final double x;
-    final CgmesEnd end1;
-    final CgmesEnd end2;
+    final CgmesPartialEnd end1;
+    final CgmesPartialEnd end2;
     final boolean x1IsZero;
 
     public CgmesT2xModel(PropertyBags ends, Context context) {
@@ -35,12 +35,12 @@ public class CgmesT2xModel {
 
         this.r = bagEnd1.asDouble(CgmesNames.R) + bagEnd2.asDouble(CgmesNames.R);
         this.x = x;
-        this.end1 = new CgmesEnd(bagEnd1, x, context);
-        this.end2 = new CgmesEnd(bagEnd2, x, context);
+        this.end1 = new CgmesPartialEnd(bagEnd1, x, context);
+        this.end2 = new CgmesPartialEnd(bagEnd2, x, context);
         this.x1IsZero = x1 == 0.0;
     }
 
-    static class CgmesEnd {
+    static class CgmesPartialEnd {
         final double g;
         final double b;
         final TapChanger ratioTapChanger;
@@ -48,7 +48,7 @@ public class CgmesT2xModel {
         final double ratedU;
         final String terminal;
 
-        CgmesEnd(PropertyBag bagEnd, double x, Context context) {
+        CgmesPartialEnd(PropertyBag bagEnd, double x, Context context) {
             this.g = bagEnd.asDouble(CgmesNames.G, 0);
             this.b = bagEnd.asDouble(CgmesNames.B);
             this.ratioTapChanger = TapChanger.ratioTapChangerFromEnd(bagEnd, context);

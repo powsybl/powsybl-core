@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.elements.transformers.CgmesT3xModel.CgmesEnd;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -71,7 +72,7 @@ public class InterpretedT3xModel {
          * structural ratio according to the alternative. The rest of the Cgmes data is
          * directly mapped.
          */
-        InterpretedWinding(CgmesT3xModel.CgmesEnd cgmesEnd, Conversion.Config alternative) {
+        InterpretedWinding(CgmesEnd cgmesEnd, Conversion.Config alternative) {
 
             TapChangerConversion.AllTapChanger windingInterpretedTapChanger = ratioPhaseAlternative(cgmesEnd, alternative);
             TapChangerConversion.AllShunt windingInterpretedShunt = shuntAlternative(cgmesEnd, alternative);
@@ -91,18 +92,21 @@ public class InterpretedT3xModel {
          * RatioTapChanger and PhaseTapChanger are assigned according the alternative
          * Network side is always the end1 of the leg and star bus side end2
          */
-        private static TapChangerConversion.AllTapChanger ratioPhaseAlternative(CgmesT3xModel.CgmesEnd cgmesEnd, Conversion.Config alternative) {
+        private static TapChangerConversion.AllTapChanger ratioPhaseAlternative(CgmesEnd cgmesEnd, Conversion.Config alternative) {
             TapChanger ratioTapChanger1 = null;
             TapChanger phaseTapChanger1 = null;
             TapChanger ratioTapChanger2 = null;
             TapChanger phaseTapChanger2 = null;
 
-            if (alternative.isXfmr3RatioPhaseNetworkSide()) {
-                ratioTapChanger1 = cgmesEnd.ratioTapChanger;
-                phaseTapChanger1 = cgmesEnd.phaseTapChanger;
-            } else {
-                ratioTapChanger2 = cgmesEnd.ratioTapChanger;
-                phaseTapChanger2 = cgmesEnd.phaseTapChanger;
+            switch (alternative.getXfmr3RatioPhase()) {
+                case NETWORK_SIDE:
+                    ratioTapChanger1 = cgmesEnd.ratioTapChanger;
+                    phaseTapChanger1 = cgmesEnd.phaseTapChanger;
+                    break;
+                case STAR_BUS_SIDE:
+                    ratioTapChanger2 = cgmesEnd.ratioTapChanger;
+                    phaseTapChanger2 = cgmesEnd.phaseTapChanger;
+                    break;
             }
 
             TapChangerConversion.AllTapChanger allTapChanger = new TapChangerConversion.AllTapChanger();
@@ -117,7 +121,7 @@ public class InterpretedT3xModel {
         /**
          * Shunt admittances are mapped according to alternative options
          */
-        private static TapChangerConversion.AllShunt shuntAlternative(CgmesT3xModel.CgmesEnd cgmesEnd,
+        private static TapChangerConversion.AllShunt shuntAlternative(CgmesEnd cgmesEnd,
             Conversion.Config alternative) {
             double g1 = 0.0;
             double b1 = 0.0;

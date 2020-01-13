@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.cgmes.conversion.elements.transformers;
 
 import java.util.Comparator;
@@ -7,11 +14,16 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-public class PhaseTapChangerBuilder extends TapChangerBuilder {
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
+ */
+
+public class CgmesPhaseTapChangerBuilder extends CgmesTapChangerBuilder {
 
     private final double xtx;
 
-    PhaseTapChangerBuilder(PropertyBag phaseTapChanger, double xtx, Context context) {
+    CgmesPhaseTapChangerBuilder(PropertyBag phaseTapChanger, double xtx, Context context) {
         super(phaseTapChanger, context);
         this.xtx = xtx;
     }
