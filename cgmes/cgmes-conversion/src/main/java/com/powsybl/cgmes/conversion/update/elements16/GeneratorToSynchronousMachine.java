@@ -6,6 +6,8 @@
  */
 package com.powsybl.cgmes.conversion.update.elements16;
 
+import java.util.Optional;
+
 import com.powsybl.cgmes.conversion.update.IidmToCgmes;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
@@ -13,7 +15,6 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.MinMaxReactiveLimits;
 import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -37,17 +38,25 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes {
         // cim:SynchronousMachine.minQ in CgmesSubset.EQUIPMENT
         // cim:SynchronousMachine.maxQ in CgmesSubset.EQUIPMENT
 //        unsupported("reactiveLimits");
-        computedValueUpdate("reactiveLimits", "cim:SynchronousMachine.minQ", CgmesSubset.EQUIPMENT, this::minQFromReactiveLimits);
-        computedValueUpdate("reactiveLimits", "cim:SynchronousMachine.maxQ", CgmesSubset.EQUIPMENT, this::maxQFromReactiveLimits);
-        computedSubjectUpdate("minP", "cim:GeneratingUnit.minOperatingP", CgmesSubset.EQUIPMENT, this::getGeneratingUnitId);
-        computedSubjectUpdate("maxP", "cim:GeneratingUnit.maxOperatingP", CgmesSubset.EQUIPMENT, this::getGeneratingUnitId);
+        computedValueUpdate("reactiveLimits", "cim:SynchronousMachine.minQ", CgmesSubset.EQUIPMENT,
+            this::minQFromReactiveLimits);
+        computedValueUpdate("reactiveLimits", "cim:SynchronousMachine.maxQ", CgmesSubset.EQUIPMENT,
+            this::maxQFromReactiveLimits);
+        computedSubjectUpdate("minP", "cim:GeneratingUnit.minOperatingP", CgmesSubset.EQUIPMENT,
+            this::getGeneratingUnitId);
+        computedSubjectUpdate("maxP", "cim:GeneratingUnit.maxOperatingP", CgmesSubset.EQUIPMENT,
+            this::getGeneratingUnitId);
 
-        computedValueUpdate("targetP", "cim:RotatingMachine.p", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::pFromTargetP);
-        computedValueUpdate("targetQ", "cim:RotatingMachine.q", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::qFromTargetQ);
+        computedValueUpdate("targetP", "cim:RotatingMachine.p", CgmesSubset.STEADY_STATE_HYPOTHESIS,
+            this::pFromTargetP);
+        computedValueUpdate("targetQ", "cim:RotatingMachine.q", CgmesSubset.STEADY_STATE_HYPOTHESIS,
+            this::qFromTargetQ);
 
         // Changes related to sub-object in CGMES (RegulatingControl)
-        computedSubjectUpdate("targetV", "cim:RegulatingControl.targetValue", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::regulatingControlId);
-        computedSubjectUpdate("voltageRegulatorOn", "cim:RegulatingControl.enabled", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::regulatingControlId);
+        computedSubjectUpdate("targetV", "cim:RegulatingControl.targetValue", CgmesSubset.STEADY_STATE_HYPOTHESIS,
+            this::regulatingControlId);
+        computedSubjectUpdate("voltageRegulatorOn", "cim:RegulatingControl.enabled",
+            CgmesSubset.STEADY_STATE_HYPOTHESIS, this::regulatingControlId);
     }
 
     private String pFromTargetP(Identifiable id) {
@@ -65,26 +74,17 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes {
     // FIXME elena: current implementation is inefficient, need to be amended
     private String regulatingControlId(Identifiable id, CgmesModelTripleStore cgmes) {
         requireGenerator(id);
-        PropertyBags synchronousMachines = cgmes.synchronousMachines();
-        for (PropertyBag pb : synchronousMachines) {
-            if (pb.getId("SynchronousMachine").equals(id.getId())) {
-                return pb.getId("RegulatingControl");
-            } else {
-                continue;
-            }
-        }
-        return null;
+        Optional<PropertyBag> opb = cgmes.synchronousMachines().stream()
+            .filter(pb -> pb.getId("SynchronousMachine").equals(id.getId()))
+            .findAny();
+        return opb.isPresent() ? opb.get().getId("RegulatingControl") : null;
     }
 
     private String getGeneratingUnitId(Identifiable id, CgmesModelTripleStore cgmes) {
-        for (PropertyBag pb : cgmes.synchronousMachines()) {
-            if (pb.getId("SynchronousMachine").equals(id.getId())) {
-                return pb.getId("GeneratingUnit");
-            } else {
-                continue;
-            }
-        }
-        return null;
+        Optional<PropertyBag> opb = cgmes.synchronousMachines().stream()
+            .filter(pb -> pb.getId("SynchronousMachine").equals(id.getId()))
+            .findAny();
+        return opb.isPresent() ? opb.get().getId("GeneratingUnit") : null;
     }
 
     private String maxQFromReactiveLimits(Identifiable id) {

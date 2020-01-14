@@ -44,8 +44,7 @@ public class IidmToCgmes {
                 String subject = simpleUpdateReference.subject(change, cgmests);
                 String value = simpleUpdateReference.value(change, cgmests);
                 TripleStoreChangeParams updateParams = new TripleStoreChangeParams(simpleUpdateReference, value);
-                TripleStoreChange tschange = new TripleStoreChange("update", subject, updateParams);
-                tschanges.add(tschange);
+                tschanges.add(new TripleStoreChange("update", subject, updateParams));
             } else if (ignoredAttributes.contains(change.getAttribute())) {
                 LOG.info(String.format("Changes of type %s are not yet supported", change.getAttribute()));
                 continue;
