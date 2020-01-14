@@ -28,6 +28,7 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         this.xtx = xtx;
     }
 
+    @Override
     public TapChanger build() {
         if (!validType()) {
             String type = p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE).toLowerCase();

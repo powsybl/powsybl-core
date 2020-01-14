@@ -19,9 +19,9 @@ import com.powsybl.triplestore.api.PropertyBags;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public abstract class AbstractTransformerConversion extends AbstractConductingEquipmentConversion {
+abstract class AbstractTransformerConversion extends AbstractConductingEquipmentConversion {
 
-    public AbstractTransformerConversion(String type, PropertyBags ends, Context context) {
+    AbstractTransformerConversion(String type, PropertyBags ends, Context context) {
         super(type, ends, context);
     }
 
