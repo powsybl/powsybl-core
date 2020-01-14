@@ -31,13 +31,13 @@ public class LineToACLineSegment extends IidmToCgmes {
         computedValueUpdate("g2", "cim:ACLineSegment.gch", CgmesSubset.EQUIPMENT, this::computeGch);
     }
 
-    public String computeBch(Identifiable id) {
+    private String computeBch(Identifiable id) {
         requireLine(id);
         Line line = (Line) id;
         return Double.toString(line.getB1() + line.getB2());
     }
 
-    public String computeGch(Identifiable id) {
+    private String computeGch(Identifiable id) {
         requireLine(id);
         Line line = (Line) id;
         return Double.toString(line.getG1() + line.getG2());

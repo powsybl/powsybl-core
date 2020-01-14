@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion.update.elements16;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import com.powsybl.cgmes.conversion.update.IidmToCgmes;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -29,7 +30,8 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
         ignore("q1");
         ignore("p2");
         ignore("q2");
-        // TODO elena conversion for the below unsupported parameters must be completed with
+        // TODO elena conversion for the below unsupported parameters must be completed
+        // with
         // appropriate changes for TapChangers steps
         unsupported("ratedU1");
         unsupported("ratedU2");
@@ -53,17 +55,27 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
         computedSubjectUpdate("ratedU1", "cim:PowerTransformerEnd.ratedU", CgmesSubset.EQUIPMENT, this::end1);
         computedSubjectUpdate("ratedU2", "cim:PowerTransformerEnd.ratedU", CgmesSubset.EQUIPMENT, this::end2);
         // RTC
-        computedSubjectUpdate("ratioTapChanger.tapPosition", "cim:TapChanger.step", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::ratioTapChangerId);
-        computedSubjectUpdate("ratioTapChanger.targetV", "cim:RegulatingControl.targetValue", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::ratioTapChangerControlId);
-        computedSubjectUpdate("ratioTapChanger.targetDeadband", "cim:RegulatingControl.targetDeadband", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::ratioTapChangerControlId);
-        computedSubjectUpdate("ratioTapChanger.regulating", "cim:RegulatingControl.enabled", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::ratioTapChangerControlId);
-        computedSubjectUpdate("ratioTapChanger.regulating", "cim:TapChanger.controlEnabled", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::ratioTapChangerId);
+        computedSubjectUpdate("ratioTapChanger.tapPosition", "cim:TapChanger.step", CgmesSubset.STEADY_STATE_HYPOTHESIS,
+            this::ratioTapChangerId);
+        computedSubjectUpdate("ratioTapChanger.targetV", "cim:RegulatingControl.targetValue",
+            CgmesSubset.STEADY_STATE_HYPOTHESIS, this::ratioTapChangerControlId);
+        computedSubjectUpdate("ratioTapChanger.targetDeadband", "cim:RegulatingControl.targetDeadband",
+            CgmesSubset.STEADY_STATE_HYPOTHESIS, this::ratioTapChangerControlId);
+        computedSubjectUpdate("ratioTapChanger.regulating", "cim:RegulatingControl.enabled",
+            CgmesSubset.STEADY_STATE_HYPOTHESIS, this::ratioTapChangerControlId);
+        computedSubjectUpdate("ratioTapChanger.regulating", "cim:TapChanger.controlEnabled",
+            CgmesSubset.STEADY_STATE_HYPOTHESIS, this::ratioTapChangerId);
         // PTC
-        computedSubjectUpdate("phaseTapChanger.tapPosition", "cim:TapChanger.step", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::phaseTapChangerId);
-        computedSubjectUpdate("phaseTapChanger.regulationValue", "cim:RegulatingControl.targetValue", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::phaseTapChangerControlId);
-        computedSubjectUpdate("phaseTapChanger.targetDeadband", "cim:RegulatingControl.targetDeadband", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::phaseTapChangerControlId);
-        computedSubjectUpdate("phaseTapChanger.regulating", "cim:RegulatingControl.enabled", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::phaseTapChangerControlId);
-        computedSubjectUpdate("phaseTapChanger.regulating", "cim:TapChanger.controlEnabled", CgmesSubset.STEADY_STATE_HYPOTHESIS, this::phaseTapChangerId);
+        computedSubjectUpdate("phaseTapChanger.tapPosition", "cim:TapChanger.step", CgmesSubset.STEADY_STATE_HYPOTHESIS,
+            this::phaseTapChangerId);
+        computedSubjectUpdate("phaseTapChanger.regulationValue", "cim:RegulatingControl.targetValue",
+            CgmesSubset.STEADY_STATE_HYPOTHESIS, this::phaseTapChangerControlId);
+        computedSubjectUpdate("phaseTapChanger.targetDeadband", "cim:RegulatingControl.targetDeadband",
+            CgmesSubset.STEADY_STATE_HYPOTHESIS, this::phaseTapChangerControlId);
+        computedSubjectUpdate("phaseTapChanger.regulating", "cim:RegulatingControl.enabled",
+            CgmesSubset.STEADY_STATE_HYPOTHESIS, this::phaseTapChangerControlId);
+        computedSubjectUpdate("phaseTapChanger.regulating", "cim:TapChanger.controlEnabled",
+            CgmesSubset.STEADY_STATE_HYPOTHESIS, this::phaseTapChangerId);
     }
 
     private void unsupported(String attribute, String predicate, CgmesSubset subset) {
@@ -86,19 +98,15 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
         return cgmesId(id, cgmes, cgmes.phaseTapChangers(), CgmesNames.TAPCHANGER_CONTROL);
     }
 
-    private String cgmesId(Identifiable id, CgmesModelTripleStore cgmes, PropertyBags pbs, String tcType) {
+    private String cgmesId(Identifiable id, CgmesModelTripleStore cgmes, PropertyBags pbs, String tapChangerType) {
         requireTwoWindingsTransformer(id);
         String idEnd1 = transformerEndId(id, cgmes).get(ID_END1);
         String idEnd2 = transformerEndId(id, cgmes).get(ID_END2);
-        for (PropertyBag tc : pbs) {
-            String end = tc.getId(CgmesNames.TRANSFORMER_END);
-            if (end.equals(idEnd1) || end.equals(idEnd2)) {
-                return tc.getId(tcType);
-            } else {
-                continue;
-            }
-        }
-        return null;
+        Optional<PropertyBag> opb = pbs.stream()
+            .filter(pb -> pb.getId(CgmesNames.TRANSFORMER_END).equals(idEnd1)
+                || pb.getId(CgmesNames.TRANSFORMER_END).equals(idEnd2))
+            .findAny();
+        return opb.isPresent() ? opb.get().getId(tapChangerType) : null;
     }
 
     private String end1(Identifiable id, CgmesModelTripleStore cgmes) {
