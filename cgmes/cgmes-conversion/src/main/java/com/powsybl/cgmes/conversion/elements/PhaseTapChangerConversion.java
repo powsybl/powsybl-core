@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import com.powsybl.cgmes.conversion.elements.transformers.NewThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
@@ -23,6 +24,8 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
+ *
+ * @deprecated Use {@link NewThreeWindingsTransformerConversion} or {@link NewThreeWindingsTransformerConversion} instead.
  */
 @Deprecated
 public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversion {

@@ -43,8 +43,7 @@ import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
  * END1_END2. TapChangers (ratioTapChanger and phaseTapChanger) are considered at the end where they are defined in Cgmes <br>
  * X. If x1 == 0 all tapChangers (ratioTapChanger and phaseTapChanger) are considered at the end1 otherwise they are considered at end2
  * <p>
- * Phase Angle Negate. All phaseTapChanger angles are considered -angle.
- * <p>
+>>>>>>> master
  * Shunt Admittance Interpretation (Xfmr2ShuntInterpretationAlternative) <br>
  * END1. All shunt admittances to ground (g, b) at end1 (before transmission impedance) <br>
  * END2. All shunt admittances to ground (g, b) at end2 (after transmission impedance) <br>
@@ -58,9 +57,9 @@ import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
  * <p>
  * ThreeWindingsTransformer Interpretation.
  * <p>
- * Ratio and Phase Interpretation.  If it is true all tapChangers (ratioTapChanger and phaseTapChanger) at the network side, otherwise at the star bus side
- * <p>
- * Phase Angle Negate. All phaseTapChanger angles are considered -angle
+ * Ratio and Phase Interpretation.  (Xfmr3RatioPhaseInterpretationAlternative) <br>
+ * NETWORK_SIDE. All tapChangers (ratioTapChanger and phaseTapChanger) at the network side. <br>
+ * STAR_BUS_SIDE. All tapChangers (ratioTapChanger and phaseTapChanger) at the star bus side.
  * <p>
  * Shunt Admittance Interpretation (Xfmr3ShuntInterpretationAlternative) <br>
  * NETWORK_SIDE. Shunt admittances to ground at the network side (end1 of the leg) <br>
@@ -90,6 +89,10 @@ public class Conversion {
 
     public enum Xfmr2StructuralRatioInterpretationAlternative {
         END1, END2, X
+    }
+
+    public enum Xfmr3RatioPhaseInterpretationAlternative {
+        NETWORK_SIDE, STAR_BUS_SIDE
     }
 
     public enum Xfmr3ShuntInterpretationAlternative {
@@ -344,6 +347,9 @@ public class Conversion {
         });
     }
 
+    /**
+     * @deprecated Use @link{{@link #newConvertTransformers(Context)}}
+     */
     @Deprecated
     private void convertTransformers(Context context) {
         cgmes.groupedTransformerEnds().entrySet()
@@ -557,12 +563,12 @@ public class Conversion {
             xfmr2StructuralRatio = alternative;
         }
 
-        public boolean isXfmr3RatioPhaseNetworkSide() {
-            return xfmr3RatioPhaseNetworkSide;
+        public Xfmr3RatioPhaseInterpretationAlternative getXfmr3RatioPhase() {
+            return xfmr3RatioPhase;
         }
 
-        public void setXfmr3RatioPhaseNetworkSide(boolean xfmr3RatioPhaseNetworkSide) {
-            this.xfmr3RatioPhaseNetworkSide = xfmr3RatioPhaseNetworkSide;
+        public void setXfmr3RatioPhase(Xfmr3RatioPhaseInterpretationAlternative alternative) {
+            this.xfmr3RatioPhase = alternative;
         }
 
         public Xfmr3ShuntInterpretationAlternative getXfmr3Shunt() {
@@ -598,7 +604,7 @@ public class Conversion {
         private Xfmr2ShuntInterpretationAlternative xfmr2Shunt = Xfmr2ShuntInterpretationAlternative.END1_END2;
         private Xfmr2StructuralRatioInterpretationAlternative xfmr2StructuralRatio = Xfmr2StructuralRatioInterpretationAlternative.X;
 
-        private boolean xfmr3RatioPhaseNetworkSide = true;
+        private Xfmr3RatioPhaseInterpretationAlternative xfmr3RatioPhase = Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3ShuntInterpretationAlternative xfmr3Shunt = Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
     }
