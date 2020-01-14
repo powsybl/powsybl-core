@@ -25,6 +25,8 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.z0flows.Z0FlowsCompletion;
 import com.powsybl.loadflow.resultscompletion.z0flows.Z0LineChecker;
 import com.powsybl.loadflow.validation.CandidateComputation;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 
 /**
  *
@@ -72,7 +74,14 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             });
 
         network.getTwoWindingsTransformerStream().forEach(twt -> {
+            int phaseAngleClock = 0;
+            TwoWindingsTransformerPhaseAngleClock phaseAngleClockExtension = twt.getExtension(TwoWindingsTransformerPhaseAngleClock.class);
+            if (phaseAngleClockExtension != null) {
+                phaseAngleClock = phaseAngleClockExtension.getPhaseAngleClock();
+            }
+
             BranchData twtData = new BranchData(twt,
+                                                phaseAngleClock,
                                                 parameters.getEpsilonX(),
                                                 parameters.isApplyReactanceCorrection(),
                                                 lfParameters.isSpecificCompatibility());
@@ -94,7 +103,17 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
         });
 
         network.getThreeWindingsTransformerStream().forEach(twt -> {
+            int phaseAngleClock2 = 0;
+            int phaseAngleClock3 = 0;
+            ThreeWindingsTransformerPhaseAngleClock phaseAngleClockExtension = twt.getExtension(ThreeWindingsTransformerPhaseAngleClock.class);
+            if (phaseAngleClockExtension != null) {
+                phaseAngleClock2 = phaseAngleClockExtension.getPhaseAngleClockLeg2();
+                phaseAngleClock3 = phaseAngleClockExtension.getPhaseAngleClockLeg3();
+            }
+
             TwtData twtData = new TwtData(twt,
+                                          phaseAngleClock2,
+                                          phaseAngleClock3,
                                           parameters.getEpsilonX(),
                                           parameters.isApplyReactanceCorrection());
             completeTerminalData(twt.getLeg1().getTerminal(), ThreeWindingsTransformer.Side.ONE, twtData);
