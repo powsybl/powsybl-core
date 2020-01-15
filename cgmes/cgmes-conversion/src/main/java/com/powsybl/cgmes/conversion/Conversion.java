@@ -43,7 +43,6 @@ import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
  * END1_END2. TapChangers (ratioTapChanger and phaseTapChanger) are considered at the end where they are defined in Cgmes <br>
  * X. If x1 == 0 all tapChangers (ratioTapChanger and phaseTapChanger) are considered at the end1 otherwise they are considered at end2
  * <p>
->>>>>>> master
  * Shunt Admittance Interpretation (Xfmr2ShuntInterpretationAlternative) <br>
  * END1. All shunt admittances to ground (g, b) at end1 (before transmission impedance) <br>
  * END2. All shunt admittances to ground (g, b) at end2 (after transmission impedance) <br>

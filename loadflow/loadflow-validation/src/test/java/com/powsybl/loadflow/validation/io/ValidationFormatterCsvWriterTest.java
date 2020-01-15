@@ -1405,4 +1405,5 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
     protected ValidationWriter getTwts3wValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
         return new ValidationFormatterCsvWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.TWTS3W, compareResults);
     }
+
 }
