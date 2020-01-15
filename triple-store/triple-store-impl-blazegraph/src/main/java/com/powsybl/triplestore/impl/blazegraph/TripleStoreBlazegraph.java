@@ -422,7 +422,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         try {
             final TupleQuery tupleQuery = cnx.prepareTupleQuery(QueryLanguage.SPARQL, query);
             tupleQuery.setIncludeInferred(false);
-            TupleQueryResult r = tupleQuery.evaluate();
+            TupleQueryResult r = QueryResults.distinctResults(tupleQuery.evaluate());
             try {
                 List<String> names = r.getBindingNames();
                 while (r.hasNext()) {
