@@ -19,6 +19,10 @@ public final class LinkData {
     private LinkData() {
     }
 
+    static double getFixedX(double x, double epsilonX, boolean applyReactanceCorrection) {
+        return Math.abs(x) < epsilonX && applyReactanceCorrection ? epsilonX : x;
+    }
+
     static BranchAdmittanceMatrix calculateBranchAdmittance(double r, double x, double ratio1, double alpha1,
         double ratio2, double alpha2, Complex ysh1, Complex ysh2) {
 

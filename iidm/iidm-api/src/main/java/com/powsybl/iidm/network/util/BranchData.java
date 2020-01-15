@@ -89,7 +89,7 @@ public class BranchData {
         this.id = id;
         this.r = r;
         this.x = x;
-        double fixedX = getFixedX(x, epsilonX, applyReactanceCorrection);
+        double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
         z = Math.hypot(r, fixedX);
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);
@@ -129,7 +129,7 @@ public class BranchData {
 
         r = line.getR();
         x = line.getX();
-        double fixedX = getFixedX(x, epsilonX, applyReactanceCorrection);
+        double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
         z = Math.hypot(r, fixedX);
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);
@@ -178,7 +178,7 @@ public class BranchData {
 
         r = getR(twt);
         x = getX(twt);
-        double fixedX = getFixedX(x, epsilonX, applyReactanceCorrection);
+        double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
         z = Math.hypot(r, fixedX);
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);
@@ -211,10 +211,6 @@ public class BranchData {
         computeValues();
     }
 
-    private double getFixedX(double x, double epsilonX, boolean applyReactanceCorrection) {
-        return Math.abs(x) < epsilonX && applyReactanceCorrection ? epsilonX : x;
-    }
-
     private double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {
         return initialValue * (1 + rtcStepValue / 100) * (1 + ptcStepValue / 100);
     }
@@ -239,8 +235,8 @@ public class BranchData {
 
     private double getB1(TwoWindingsTransformer twt, boolean specificCompatibility) {
         return getValue(specificCompatibility ? twt.getB() / 2 : twt.getB(),
-            twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
-            twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
+                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
+                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }
 
     private double getG2(TwoWindingsTransformer twt, boolean specificCompatibility) {
