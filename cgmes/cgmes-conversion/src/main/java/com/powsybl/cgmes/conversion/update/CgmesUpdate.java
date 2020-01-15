@@ -15,8 +15,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.conversion.Profiling;
 import com.powsybl.cgmes.conversion.update.elements16.IidmToCgmes16;
@@ -66,7 +68,7 @@ public class CgmesUpdate {
                 .values().parallelStream()
                 .map(groupOfChanges -> executor.submit(() -> sequentialUpdate(groupOfChanges, context, cgmests)))
                 .collect(Collectors.toList());
-
+            // FIXME it might throw ConcurrentModificationException
             executeFutures(futures);
         } finally {
             executor.shutdownNow();
@@ -74,9 +76,8 @@ public class CgmesUpdate {
     }
 
     private void sequentialUpdate(List<IidmChange> changes, UpdateContext context, CgmesModelTripleStore cgmests) {
-        for (IidmChange change : changes) {
-            update(cgmests, convert(change, context), context);
-        }
+        // keep sequential order for updates
+        changes.stream().forEachOrdered(c -> update(cgmests, convert(c, context), context));
     }
 
     private void executeFutures(List<Future<?>> futures) {
@@ -88,7 +89,8 @@ public class CgmesUpdate {
                 throw new PowsyblException(e.getMessage());
             } catch (ExecutionException e) {
                 if (e.getCause() instanceof UnsupportedOperationException) {
-                    throw new UnsupportedOperationException("UnsupportedOperationException while converting to CGMES a change on IIDM ");
+                    throw new UnsupportedOperationException(
+                        "UnsupportedOperationException while converting to CGMES a change on IIDM ");
                 } else {
                     throw new PowsyblException(e.getMessage());
                 }
