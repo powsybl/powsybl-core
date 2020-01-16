@@ -57,4 +57,16 @@ public enum IidmXmlVersion {
                 .findFirst() // there can only be 0 or exactly 1 match
                 .orElseThrow(() -> new PowsyblException("Version " + version + " is not supported."));
     }
+
+    public static int compare(IidmXmlVersion version1, IidmXmlVersion version2) {
+        if (version1 == version2) {
+            return 0;
+        }
+        for (int i = 0; i < Math.min(version1.versionArray.size(), version2.versionArray.size()); i++) {
+            if (!version1.versionArray.get(i).equals(version2.versionArray.get(i))) {
+                return version1.versionArray.get(i).compareTo(version2.versionArray.get(i));
+            }
+        }
+        return version1.versionArray.size() > version2.versionArray.size() ? 1  : -1;
+    }
 }

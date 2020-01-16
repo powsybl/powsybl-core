@@ -10,6 +10,7 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Objects;
@@ -22,6 +23,8 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     static final StaticVarCompensatorXml INSTANCE = new StaticVarCompensatorXml();
 
     static final String ROOT_ELEMENT_NAME = "staticVarCompensator";
+
+    private static final String REGULATING_TERMINAL = "regulatingTerminal";
 
     @Override
     protected String getRootElementName() {
@@ -47,7 +50,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     @Override
     protected void writeSubElements(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (!Objects.equals(svc, svc.getRegulatingTerminal().getConnectable())) {
-            TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, "regulatingTerminal");
+            TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL);
         }
     }
 
@@ -77,20 +80,14 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     @Override
     protected void readSubElements(StaticVarCompensator svc, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getVersion()) {
-                case V_1_0:
-                    super.readSubElements(svc, context);
-                    break;
-                case V_1_1:
-                default: // more recent that XIIDM 1.1
-                    if ("regulatingTerminal".equals(context.getReader().getLocalName())) {
-                        String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
-                        String side = context.getReader().getAttributeValue(null, "side");
-                        context.getEndTasks().add(() -> svc.setRegulatingTerminal(TerminalRefXml.readTerminalRef(svc.getTerminal().getVoltageLevel().getSubstation().getNetwork(), id, side)));
-                    } else {
-                        super.readSubElements(svc, context);
-                    }
-                    break;
+            if (context.getReader().getLocalName().equals(REGULATING_TERMINAL)) {
+                IidmXmlUtil.assertMinimumVersion(REGULATING_TERMINAL, IidmXmlVersion.V_1_1, context);
+                String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
+                String side = context.getReader().getAttributeValue(null, "side");
+                context.getEndTasks().add(() -> svc.setRegulatingTerminal(TerminalRefXml
+                        .readTerminalRef(svc.getTerminal().getVoltageLevel().getSubstation().getNetwork(), id, side)));
+            } else {
+                super.readSubElements(svc, context);
             }
         });
     }
