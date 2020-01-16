@@ -100,6 +100,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                             new Column("z"),
                                             new Column("y"),
                                             new Column("ksi"),
+                                            new Column("phaseAngleClock"),
                                             new Column(CONNECTED + "1"),
                                             new Column(CONNECTED + "2"),
                                             new Column(MAIN_COMPONENT + "1"),
@@ -135,6 +136,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                 new Column("z" + POST_COMPUTATION_SUFFIX),
                                                 new Column("y" + POST_COMPUTATION_SUFFIX),
                                                 new Column("ksi" + POST_COMPUTATION_SUFFIX),
+                                                new Column("phaseAngleClock" + POST_COMPUTATION_SUFFIX),
                                                 new Column(CONNECTED + "1" + POST_COMPUTATION_SUFFIX),
                                                 new Column(CONNECTED + "2" + POST_COMPUTATION_SUFFIX),
                                                 new Column(MAIN_COMPONENT + "1" + POST_COMPUTATION_SUFFIX),
@@ -403,8 +405,12 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                             new Column(THETA2),
                                             new Column(THETA3),
                                             new Column("starTheta"),
-                                            new Column("g"),
-                                            new Column("b"),
+                                            new Column("g1"),
+                                            new Column("b1"),
+                                            new Column("g2"),
+                                            new Column("b2"),
+                                            new Column("g3"),
+                                            new Column("b3"),
                                             new Column("r1"),
                                             new Column("r2"),
                                             new Column("r3"),
@@ -414,6 +420,9 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                             new Column("ratedU1"),
                                             new Column("ratedU2"),
                                             new Column("ratedU3"),
+                                            new Column("phaseAngleClock2"),
+                                            new Column("phaseAngleClock3"),
+                                            new Column("ratedU0"),
                                             new Column(CONNECTED + "1"),
                                             new Column(CONNECTED + "2"),
                                             new Column(CONNECTED + "3"),
@@ -446,8 +455,12 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                 new Column(THETA2 + POST_COMPUTATION_SUFFIX),
                                                 new Column(THETA3 + POST_COMPUTATION_SUFFIX),
                                                 new Column("starTheta" + POST_COMPUTATION_SUFFIX),
-                                                new Column("g" + POST_COMPUTATION_SUFFIX),
-                                                new Column("b" + POST_COMPUTATION_SUFFIX),
+                                                new Column("g1" + POST_COMPUTATION_SUFFIX),
+                                                new Column("b1" + POST_COMPUTATION_SUFFIX),
+                                                new Column("g2" + POST_COMPUTATION_SUFFIX),
+                                                new Column("b2" + POST_COMPUTATION_SUFFIX),
+                                                new Column("g3" + POST_COMPUTATION_SUFFIX),
+                                                new Column("b3" + POST_COMPUTATION_SUFFIX),
                                                 new Column("r1" + POST_COMPUTATION_SUFFIX),
                                                 new Column("r2" + POST_COMPUTATION_SUFFIX),
                                                 new Column("r3" + POST_COMPUTATION_SUFFIX),
@@ -457,6 +470,9 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                 new Column("ratedU1" + POST_COMPUTATION_SUFFIX),
                                                 new Column("ratedU2" + POST_COMPUTATION_SUFFIX),
                                                 new Column("ratedU3" + POST_COMPUTATION_SUFFIX),
+                                                new Column("phaseAngleClock2" + POST_COMPUTATION_SUFFIX),
+                                                new Column("phaseAngleClock3" + POST_COMPUTATION_SUFFIX),
+                                                new Column("ratedU0" + POST_COMPUTATION_SUFFIX),
                                                 new Column(CONNECTED + "1" + POST_COMPUTATION_SUFFIX),
                                                 new Column(CONNECTED + "2" + POST_COMPUTATION_SUFFIX),
                                                 new Column(CONNECTED + "3" + POST_COMPUTATION_SUFFIX),
@@ -472,26 +488,26 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     @Override
     protected void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
                          double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                         double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean connected1, boolean connected2,
+                         double u1, double u2, double theta1, double theta2, double z, double y, double ksi, int phaseAngleClock, boolean connected1, boolean connected2,
                          boolean mainComponent1, boolean mainComponent2, boolean validated, FlowData flowData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(branchId);
         if (compareResults) {
             formatter = found ?
                         write(found, flowData.p1, flowData.p1Calc, flowData.q1, flowData.q1Calc, flowData.p2, flowData.p2Calc, flowData.q2, flowData.q2Calc,
                               flowData.r, flowData.x, flowData.g1, flowData.g2, flowData.b1, flowData.b2, flowData.rho1, flowData.rho2, flowData.alpha1, flowData.alpha2,
-                              flowData.u1, flowData.u2, flowData.theta1, flowData.theta2, flowData.z, flowData.y, flowData.ksi, flowData.connected1, flowData.connected2,
+                              flowData.u1, flowData.u2, flowData.theta1, flowData.theta2, flowData.z, flowData.y, flowData.ksi, flowData.phaseAngleClock, flowData.connected1, flowData.connected2,
                               flowData.mainComponent1, flowData.mainComponent2, flowData.validated) :
                         write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                               Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, false, false, false);
+                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, 0, false, false, false, false, false);
         }
         formatter = write(writeValues, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2,
-                          u1, u2, theta1, theta2, z, y, ksi, connected1, connected2, mainComponent1, mainComponent2, validated);
+                          u1, u2, theta1, theta2, z, y, ksi, phaseAngleClock, connected1, connected2, mainComponent1, mainComponent2, validated);
     }
 
     private TableFormatter write(boolean writeValues, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
                                  double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                                 double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean connected1, boolean connected2,
+                                 double u1, double u2, double theta1, double theta2, double z, double y, double ksi, int phaseAngleClock, boolean connected1, boolean connected2,
                                  boolean mainComponent1, boolean mainComponent2, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(p1)
@@ -522,12 +538,13 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(z)
                                  .writeCell(y)
                                  .writeCell(ksi)
+                                 .writeCell(phaseAngleClock)
                                  .writeCell(connected1)
                                  .writeCell(connected2)
                                  .writeCell(mainComponent1)
                                  .writeCell(mainComponent2)
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCells(22);
+                        formatter.writeEmptyCells(23);
         }
         return formatter;
     }
@@ -778,8 +795,12 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(twtData.getTheta(ThreeWindingsTransformer.Side.TWO))
                                  .writeCell(twtData.getTheta(ThreeWindingsTransformer.Side.THREE))
                                  .writeCell(twtData.getStarTheta())
-                                 .writeCell(twtData.getG())
-                                 .writeCell(twtData.getB())
+                                 .writeCell(twtData.getG1())
+                                 .writeCell(twtData.getB1())
+                                 .writeCell(twtData.getG2())
+                                 .writeCell(twtData.getB2())
+                                 .writeCell(twtData.getG3())
+                                 .writeCell(twtData.getB3())
                                  .writeCell(twtData.getR(ThreeWindingsTransformer.Side.ONE))
                                  .writeCell(twtData.getR(ThreeWindingsTransformer.Side.TWO))
                                  .writeCell(twtData.getR(ThreeWindingsTransformer.Side.THREE))
@@ -789,6 +810,9 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(twtData.getRatedU(ThreeWindingsTransformer.Side.ONE))
                                  .writeCell(twtData.getRatedU(ThreeWindingsTransformer.Side.TWO))
                                  .writeCell(twtData.getRatedU(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(twtData.getPhaseAngleClock2())
+                                 .writeCell(twtData.getPhaseAngleClock3())
+                                 .writeCell(twtData.getRatedU0())
                                  .writeCell(twtData.isConnected(ThreeWindingsTransformer.Side.ONE))
                                  .writeCell(twtData.isConnected(ThreeWindingsTransformer.Side.TWO))
                                  .writeCell(twtData.isConnected(ThreeWindingsTransformer.Side.THREE))
@@ -796,7 +820,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(twtData.isMainComponent(ThreeWindingsTransformer.Side.TWO))
                                  .writeCell(twtData.isMainComponent(ThreeWindingsTransformer.Side.THREE))
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCells(26);
+                        formatter.writeEmptyCells(33);
         }
         return formatter;
     }
