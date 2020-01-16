@@ -81,7 +81,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     protected void readSubElements(StaticVarCompensator svc, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             if (context.getReader().getLocalName().equals(REGULATING_TERMINAL)) {
-                IidmXmlUtil.assertMinimumVersion(REGULATING_TERMINAL, IidmXmlVersion.V_1_1, context);
+                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlVersion.V_1_1, context);
                 String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                 String side = context.getReader().getAttributeValue(null, "side");
                 context.getEndTasks().add(() -> svc.setRegulatingTerminal(TerminalRefXml
