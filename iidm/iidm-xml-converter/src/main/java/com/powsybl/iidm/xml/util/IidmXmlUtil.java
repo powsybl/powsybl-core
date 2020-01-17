@@ -16,7 +16,7 @@ import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 public final class IidmXmlUtil {
 
     public static void assertMinimumVersion(String rootElementName, String elementName, IidmXmlVersion minVersion, NetworkXmlReaderContext context) {
-        if (IidmXmlVersion.compare(context.getVersion(), minVersion) == -1) {
+        if (context.getVersion().compareTo(minVersion) < 0) {
             throw new PowsyblException(rootElementName + "." + elementName + " is not supported for IIDM-XML version " + context.getVersion().toString(".") + ". " +
                     "IIDM-XML version should be >= " + minVersion.toString("."));
         }
