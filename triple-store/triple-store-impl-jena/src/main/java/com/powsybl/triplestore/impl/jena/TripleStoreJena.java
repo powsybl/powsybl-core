@@ -64,7 +64,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         // Create a model just to obtain a writer and configure it
         writer = ModelFactory.createDefaultModel().getWriter("RDF/XML-ABBREV");
         writer.setProperty("showXmlDeclaration", "true");
-        writer.setProperty("tab", "8");
+        writer.setProperty("tab", "4");
         writer.setProperty("relativeURIs", "same-document,relative");
 
         // We create a model that will be the union of all loaded graphs,
@@ -83,8 +83,13 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     public void read(InputStream is, String baseName, String contextName) {
         Model m = ModelFactory.createDefaultModel();
         m.read(is, baseName, guessFormatFromName(contextName));
+        addNamespaceForBase(m, baseName);
         dataset.addNamedModel(namedModelFromName(contextName), m);
         union = union.union(m);
+    }
+
+    private static void addNamespaceForBase(Model m, String baseName) {
+        m.setNsPrefix("data", baseName + "#");
     }
 
     private static String guessFormatFromName(String name) {
@@ -103,6 +108,8 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
             String n = k.next();
             Model m = dataset.getNamedModel(n);
             writer.setProperty("prettyTypes", subjectsTypes(m));
+            // this will improve output readability
+            writer.setProperty("xmlbase", m.getNsPrefixMap().get("data"));
             writer.write(m, outputStream(ds, n), n);
         }
     }
