@@ -39,11 +39,6 @@ public abstract class AbstractExtensionXmlSerializer<T extends Extendable, E ext
         this.namespacePrefix = Objects.requireNonNull(namespacePrefix);
     }
 
-    protected AbstractExtensionXmlSerializer(String extensionName, String categoryName, Class<? super E> extensionClass,
-                                             boolean subElements, String namespacePrefix) {
-        this(extensionName, categoryName, extensionClass, subElements, null, null, namespacePrefix);
-    }
-
     @Override
     public String getExtensionName() {
         return extensionName;
@@ -65,18 +60,12 @@ public abstract class AbstractExtensionXmlSerializer<T extends Extendable, E ext
 
     @Override
     public InputStream getXsdAsStream() {
-        if (xsdFileName != null) {
-            return getClass().getResourceAsStream("/xsd/" + xsdFileName);
-        }
-        throw new IllegalArgumentException("Unexpected null value for xsdFileName");
+        return getClass().getResourceAsStream("/xsd/" + xsdFileName);
     }
 
     @Override
     public String getNamespaceUri() {
-        if (namespaceUri != null) {
-            return namespaceUri;
-        }
-        throw new IllegalArgumentException("Unexpected null value for namespace URI");
+        return namespaceUri;
     }
 
     @Override
