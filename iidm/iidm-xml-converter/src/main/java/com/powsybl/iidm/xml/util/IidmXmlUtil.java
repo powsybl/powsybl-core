@@ -26,6 +26,10 @@ public final class IidmXmlUtil {
         }
     }
 
+    /**
+     * Assert that the context's IIDM-XML version equals or is more recent than a given IIDM-XML version.
+     * If not, throw an exception with a given type of error message.
+     */
     public static void assertMinimumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlReaderContext context) {
         if (context.getVersion().compareTo(minVersion) < 0) {
             throw new PowsyblException(rootElementName + "." + elementName + " is " + type.message + " for IIDM-XML version " + context.getVersion().toString(".") + ". " +
@@ -33,6 +37,10 @@ public final class IidmXmlUtil {
         }
     }
 
+    /**
+     * Assert that the context's IIDM-XML version is strictly older than a given IIDM-XML version.
+     * If not, throw an exception with a given type of error message.
+     */
     public static void assertStrictMaximumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion maxVersion, NetworkXmlReaderContext context) {
         if (context.getVersion().compareTo(maxVersion) >= 0) {
             throw new PowsyblException(rootElementName + "." + elementName + " is " + type.message + " for IIDM-XML version " + context.getVersion().toString(".") + ". " +
@@ -40,10 +48,24 @@ public final class IidmXmlUtil {
         }
     }
 
+    /**
+     * Read an attribute which is <b>mandatory</b> from a given minimum IIDM-XML version. <br>
+     * If the context's IIDM-XML version is strictly older than the given minimum IIDM-XML version, the attribute <b>should not exist</b> (else an exception is thrown).
+     * In this case, return Double.NaN <br>
+     * If the context's IIDM-XML version equals or is more recent than the given minimum IIDM-XML version, the attribute <b>must exist</b> (else an exception is thrown).
+     * In this case, return the read double value.
+     */
     public static double readDoubleAttributeFromMinimumVersion(String rootElementName, String attributeName, IidmXmlVersion minVersion, NetworkXmlReaderContext context) {
         return readDoubleAttributeFromMinimumVersion(rootElementName, attributeName, Double.NaN, minVersion, context);
     }
 
+    /**
+     * Read an attribute which is <b>mandatory</b> from a given minimum IIDM-XML version. <br>
+     * If the context's IIDM-XML version is strictly older than the given minimum IIDM-XML version, the attribute <b>should not exist</b> (else an exception is thrown).
+     * In this case, return a given defaultValue. <br>
+     * If the context's IIDM-XML version equals or is more recent than the given minimum IIDM-XML version, the attribute <b>must exist</b> (else an exception is thrown).
+     * In this case, return the read double value.
+     */
     public static double readDoubleAttributeFromMinimumVersion(String rootElementName, String attributeName, double defaultValue, IidmXmlVersion minVersion, NetworkXmlReaderContext context) {
         String attributeStr = context.getReader().getAttributeValue(null, attributeName);
         if (attributeStr != null) {
