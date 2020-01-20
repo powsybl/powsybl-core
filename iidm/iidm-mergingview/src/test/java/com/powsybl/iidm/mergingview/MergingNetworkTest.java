@@ -197,8 +197,6 @@ public class MergingNetworkTest {
         // Lines
         TestUtil.notImplemented(mergingView::newLine);
         TestUtil.notImplemented(mergingView::newTieLine);
-        // HvdcLines
-        TestUtil.notImplemented(mergingView::newHvdcLine);
         // Listeners
         TestUtil.notImplemented(() -> mergingView.addListener(null));
         TestUtil.notImplemented(() -> mergingView.removeListener(null));
