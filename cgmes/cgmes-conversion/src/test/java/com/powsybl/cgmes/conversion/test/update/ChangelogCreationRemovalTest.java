@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -61,8 +62,8 @@ public final class ChangelogCreationRemovalTest {
         makeRemoveChanges(network);
         List<IidmChange> currentChanges = changelog.getChangesForVariant(variant);
         // Check there is one Removal event, we ignore Update events for this check.
-        assertTrue(
-            sizeIgnoreUpdateOnRemoval(currentChanges) == 1 && currentChanges.get(0) instanceof IidmChangeRemoval);
+        List<IidmChange> removeChanges = ignoreUpdateOnRemoval(currentChanges);
+        assertTrue(removeChanges.size() == 1 && removeChanges.get(0) instanceof IidmChangeRemoval);
         // Expected to be Line, with right name and id
         assertTrue(currentChanges.get(0).getIdentifiable() instanceof Line);
         assertTrue(expected("remove").equals(actual(currentChanges)));
@@ -85,18 +86,11 @@ public final class ChangelogCreationRemovalTest {
         return actual;
     }
 
-    private int sizeIgnoreUpdateOnRemoval(List<IidmChange> changes) {
-        int count = 0;
-        for (IidmChange i : changes) {
-            if (!(i instanceof IidmChangeRemoval)) {
-                continue;
-            }
-            count++;
-        }
-        return count;
+    private static List<IidmChange> ignoreUpdateOnRemoval(List<IidmChange> changes) {
+        return changes.stream().filter(IidmChangeRemoval.class::isInstance).collect(Collectors.toList());
     }
 
-    private void makeCreateChanges(Network network) {
+    private static void makeCreateChanges(Network network) {
         Substation substation = network.getSubstation("substation");
         substation.newTwoWindingsTransformer()
             .setId("twt")
@@ -114,14 +108,14 @@ public final class ChangelogCreationRemovalTest {
             .add();
     }
 
-    private void makeRemoveChanges(Network network) {
+    private static void makeRemoveChanges(Network network) {
         network.getLine("line").remove();
     }
 
     private Network network;
     private Changelog changelog;
-    Map<String, String> expected;
-    Map<String, String> actual;
-    String variant;
+    private Map<String, String> expected;
+    private Map<String, String> actual;
+    private String variant;
 
 }
