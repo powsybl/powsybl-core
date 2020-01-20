@@ -767,6 +767,11 @@ public final class MergingView implements Network {
 
     // HvdcLines
     @Override
+    public HvdcLineAdder newHvdcLine() {
+        return new HvdcLineAdderAdapter(index);
+    }
+
+    @Override
     public Iterable<HvdcLine> getHvdcLines() {
         return Collections.unmodifiableCollection(index.getHvdcLines());
     }
@@ -842,11 +847,6 @@ public final class MergingView implements Network {
 
     @Override
     public TieLineAdder newTieLine() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public HvdcLineAdder newHvdcLine() {
         throw NOT_IMPLEMENTED_EXCEPTION;
     }
 

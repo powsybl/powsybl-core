@@ -181,6 +181,23 @@ public class VoltageLevelAdapterTest {
         assertEquals(vlExpected.getStaticVarCompensatorCount(), vlActual.getStaticVarCompensatorCount());
         assertEquals(vlExpected.getStaticVarCompensatorStream().count(), vlActual.getStaticVarCompensatorStream().count());
 
+        // LccConverterStation
+        vlActual.newLccConverterStation()
+                    .setId("C2")
+                    .setName("Converter2")
+                    .setConnectableBus("busA")
+                    .setBus("busA")
+                    .setLossFactor(0.011f)
+                    .setPowerFactor(0.5f)
+                    .setEnsureIdUnicity(false)
+                .add();
+        vlActual.getLccConverterStations().forEach(b -> {
+            assertTrue(b instanceof LccConverterStationAdapter);
+            assertNotNull(b);
+        });
+        assertEquals(vlExpected.getLccConverterStationCount(), vlActual.getLccConverterStationCount());
+        assertEquals(vlExpected.getLccConverterStationStream().count(), vlActual.getLccConverterStationStream().count());
+
         // Switch
         vlActual.getSwitches().forEach(s -> {
             assertTrue(s instanceof SwitchAdapter);
@@ -194,10 +211,6 @@ public class VoltageLevelAdapterTest {
         TestUtil.notImplemented(vlActual::getDanglingLines);
         TestUtil.notImplemented(vlActual::getDanglingLineStream);
         TestUtil.notImplemented(vlActual::getDanglingLineCount);
-        // LccConverterStation
-        TestUtil.notImplemented(vlActual::newLccConverterStation);
-        TestUtil.notImplemented(vlActual::getLccConverterStations);
-        TestUtil.notImplemented(vlActual::getLccConverterStationStream);
         // Connectables
         TestUtil.notImplemented(() -> vlActual.getConnectable("", null));
         TestUtil.notImplemented(() -> vlActual.getConnectables(null));
