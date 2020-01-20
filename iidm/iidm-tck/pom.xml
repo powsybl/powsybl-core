@@ -22,11 +22,6 @@
     <name>IIDM TCK</name>
     <description>The IIDM Technology Compatibility Kit</description>
 
-    <properties>
-        <!-- This module contains only test code -->
-        <sonar.skip>true</sonar.skip>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
