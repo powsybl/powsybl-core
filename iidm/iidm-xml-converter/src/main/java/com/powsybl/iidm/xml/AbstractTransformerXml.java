@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.*;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import java.util.function.BiConsumer;
+
 import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
 
 /**
@@ -19,6 +21,10 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 abstract class AbstractTransformerXml<T extends Connectable, A extends IdentifiableAdder<A>> extends AbstractConnectableXml<T, A, Substation> {
+
+    private interface StepConsumer {
+        void accept(double r, double x, double g, double b, double rho);
+    }
 
     private static final String ATTR_LOW_TAP_POSITION = "lowTapPosition";
     private static final String ATTR_TAP_POSITION = "tapPosition";
@@ -81,28 +87,20 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         XmlUtil.readUntilEndElement(elementName, context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case ELEM_TERMINAL_REF:
-                    String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
-                    String side = context.getReader().getAttributeValue(null, "side");
-                    context.getEndTasks().add(() ->  {
+                    readTerminalRef(context, hasTerminalRef, (id, side) -> {
                         adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(terminal.getVoltageLevel().getSubstation().getNetwork(), id, side));
                         adder.add();
                     });
-                    hasTerminalRef[0] = true;
                     break;
 
                 case ELEM_STEP:
-                    double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
-                    double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
-                    double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
-                    double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
-                    double rho = XmlUtil.readDoubleAttribute(context.getReader(), "rho");
-                    adder.beginStep()
+                    readSteps(context, (r, x, g, b, rho) -> adder.beginStep()
                             .setR(r)
                             .setX(x)
                             .setG(g)
                             .setB(b)
                             .setRho(rho)
-                            .endStep();
+                            .endStep());
                     break;
 
                 default:
@@ -162,29 +160,21 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         XmlUtil.readUntilEndElement(name, context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case ELEM_TERMINAL_REF:
-                    String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
-                    String side = context.getReader().getAttributeValue(null, "side");
-                    context.getEndTasks().add(() ->  {
+                    readTerminalRef(context, hasTerminalRef, (id, side) -> {
                         adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(terminal.getVoltageLevel().getSubstation().getNetwork(), id, side));
                         adder.add();
                     });
-                    hasTerminalRef[0] = true;
                     break;
 
                 case ELEM_STEP:
-                    double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
-                    double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
-                    double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
-                    double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
-                    double rho = XmlUtil.readDoubleAttribute(context.getReader(), "rho");
-                    double alpha = XmlUtil.readDoubleAttribute(context.getReader(), "alpha");
-                    adder.beginStep()
-                            .setR(r)
+                    PhaseTapChangerAdder.StepAdder stepAdder = adder.beginStep();
+                    readSteps(context, (r, x, g, b, rho) -> stepAdder.setR(r)
                             .setX(x)
                             .setG(g)
                             .setB(b)
-                            .setRho(rho)
-                            .setAlpha(alpha)
+                            .setRho(rho));
+                    double alpha = XmlUtil.readDoubleAttribute(context.getReader(), "alpha");
+                    stepAdder.setAlpha(alpha)
                             .endStep();
                     break;
 
@@ -203,5 +193,21 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
 
     protected static void readPhaseTapChanger(int leg, ThreeWindingsTransformer.Leg twl, NetworkXmlReaderContext context) throws XMLStreamException {
         readPhaseTapChanger("phaseTapChanger" + leg, twl.newPhaseTapChanger(), twl.getTerminal(), context);
+    }
+
+    private static void readTerminalRef(NetworkXmlReaderContext context, boolean[] hasTerminalRef, BiConsumer<String, String > consumer) {
+        String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
+        String side = context.getReader().getAttributeValue(null, "side");
+        context.getEndTasks().add(() -> consumer.accept(id, side));
+        hasTerminalRef[0] = true;
+    }
+
+    private static void readSteps(NetworkXmlReaderContext context, StepConsumer consumer) {
+        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
+        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
+        double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
+        double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
+        double rho = XmlUtil.readDoubleAttribute(context.getReader(), "rho");
+        consumer.accept(r, x, g, b, rho);
     }
 }
