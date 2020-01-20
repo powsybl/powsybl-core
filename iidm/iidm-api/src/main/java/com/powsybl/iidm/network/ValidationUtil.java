@@ -54,7 +54,8 @@ public final class ValidationUtil {
         if (voltageRegulatorOn == null) {
             throw new ValidationException(validable, "voltage regulator status is not set");
         }
-        if (voltageRegulatorOn) {
+        boolean bVoltageRegulatorOn = voltageRegulatorOn; // make sonar happy java:S5411 Boxed "Boolean" should be avoided in boolean expressions
+        if (bVoltageRegulatorOn) {
             if (Double.isNaN(voltageSetpoint) || voltageSetpoint <= 0) {
                 throw createInvalidValueException(validable, voltageSetpoint, "voltage setpoint", "voltage regulator is on");
             }
