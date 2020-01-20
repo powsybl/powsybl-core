@@ -71,10 +71,10 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     @Override
     protected void writeSubElements(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         writeRatioTapChanger(twt.getLeg1().getRatioTapChanger(), 1, context);
-        writeRatioTapChanger(twt.getLeg2().getRatioTapChanger(), 2, context);
-        writeRatioTapChanger(twt.getLeg3().getRatioTapChanger(), 3, context);
         writePhaseTapChanger(twt.getLeg1().getPhaseTapChanger(), 1, context);
+        writeRatioTapChanger(twt.getLeg2().getRatioTapChanger(), 2, context);
         writePhaseTapChanger(twt.getLeg2().getPhaseTapChanger(), 2, context);
+        writeRatioTapChanger(twt.getLeg3().getRatioTapChanger(), 3, context);
         writePhaseTapChanger(twt.getLeg3().getPhaseTapChanger(), 3, context);
         if (twt.getLeg1().getCurrentLimits() != null) {
             writeCurrentLimits(1, twt.getLeg1().getCurrentLimits(), context.getWriter());
