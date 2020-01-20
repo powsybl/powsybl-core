@@ -6,14 +6,12 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
-import java.util.function.BiConsumer;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -108,6 +106,8 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
+        double ratedU0 = IidmXmlUtil.readDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "ratedU0", IidmXmlVersion.V_1_1, context);
+        adder.setRatedU0(ratedU0);
         double r1 = XmlUtil.readDoubleAttribute(context.getReader(), "r1");
         double x1 = XmlUtil.readDoubleAttribute(context.getReader(), "x1");
         double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1");
@@ -115,16 +115,17 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         double ratedU1 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU1");
         double r2 = XmlUtil.readDoubleAttribute(context.getReader(), "r2");
         double x2 = XmlUtil.readDoubleAttribute(context.getReader(), "x2");
+        double g2 = IidmXmlUtil.readDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "g2", 0, IidmXmlVersion.V_1_1, context);
+        double b2 = IidmXmlUtil.readDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "b2", 0, IidmXmlVersion.V_1_1, context);
         double ratedU2 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU2");
         double r3 = XmlUtil.readDoubleAttribute(context.getReader(), "r3");
         double x3 = XmlUtil.readDoubleAttribute(context.getReader(), "x3");
+        double g3 = IidmXmlUtil.readDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "g3", 0, IidmXmlVersion.V_1_1, context);
+        double b3 = IidmXmlUtil.readDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "b3", 0, IidmXmlVersion.V_1_1, context);
         double ratedU3 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU3");
         LegAdder legAdder1 = adder.newLeg1().setR(r1).setX(x1).setG(g1).setB(b1).setRatedU(ratedU1);
-        LegAdder legAdder2 = adder.newLeg2().setR(r2).setX(x2).setRatedU(ratedU2);
-        LegAdder legAdder3 = adder.newLeg3().setR(r3).setX(x3).setRatedU(ratedU3);
-        readVersionedRootElementAttributes(adder, context);
-        readVersionedLegAttributes(legAdder2, 2, context);
-        readVersionedLegAttributes(legAdder3, 3, context);
+        LegAdder legAdder2 = adder.newLeg2().setR(r2).setX(x2).setG(g2).setB(b2).setRatedU(ratedU2);
+        LegAdder legAdder3 = adder.newLeg3().setR(r3).setX(x3).setG(g3).setB(b3).setRatedU(ratedU3);
         readNodeOrBus(1, legAdder1, context);
         readNodeOrBus(2, legAdder2, context);
         readNodeOrBus(3, legAdder3, context);
@@ -136,31 +137,6 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         readPQ(2, twt.getLeg2().getTerminal(), context.getReader());
         readPQ(3, twt.getLeg3().getTerminal(), context.getReader());
         return twt;
-    }
-
-    private static void readVersionedRootElementAttributes(ThreeWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
-        switch (context.getVersion()) {
-            case V_1_1:
-                adder.setRatedU0(XmlUtil.readDoubleAttribute(context.getReader(), "ratedU0"));
-                break;
-            case V_1_0:
-                break;
-            default:
-                throw new PowsyblException("XIIDM version " + context.getVersion().toString(".") + " is not supported for ThreeWindingsTransformer.");
-        }
-    }
-
-    private static void readVersionedLegAttributes(LegAdder adder, int index, NetworkXmlReaderContext context) {
-        switch (context.getVersion()) {
-            case V_1_1:
-                adder.setG(XmlUtil.readDoubleAttribute(context.getReader(), "g" + index));
-                adder.setB(XmlUtil.readDoubleAttribute(context.getReader(), "b" + index));
-                break;
-            case V_1_0:
-                break;
-            default:
-                throw new PowsyblException("XIIDM version " + context.getVersion().toString(".") + " is not supported for ThreeWindingsTransformer.");
-        }
     }
 
     @Override
@@ -179,53 +155,38 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
                     readCurrentLimits(3, tx.getLeg3()::newCurrentLimits, context.getReader());
                     break;
 
+                case "ratioTapChanger1":
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, "ratioTapChanger1", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
+                    readRatioTapChanger(1, tx.getLeg1(), context);
+                    break;
+
+                case "phaseTapChanger1":
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, "phaseTapChanger1", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
+                    readPhaseTapChanger(1, tx.getLeg1(), context);
+                    break;
+
                 case "ratioTapChanger2":
                     readRatioTapChanger(2, tx.getLeg2(), context);
+                    break;
+
+                case "phaseTapChanger2":
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, "phaseTapChanger2", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
+                    readPhaseTapChanger(2, tx.getLeg2(), context);
                     break;
 
                 case "ratioTapChanger3":
                     readRatioTapChanger(3, tx.getLeg3(), context);
                     break;
 
+                case "phaseTapChanger3":
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, "phaseTapChanger3", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
+                    readPhaseTapChanger(3, tx.getLeg3(), context);
+                    break;
+
                 default:
-                    readVersionedSubElements(context.getReader().getLocalName(), tx, context, (t, c) -> {
-                        try {
-                            super.readSubElements(tx, context);
-                        } catch (XMLStreamException e) {
-                            throw new UncheckedXmlStreamException(e);
-                        }
-                    });
+                    super.readSubElements(tx, context);
+                    break;
             }
         });
-    }
-
-    private static void readVersionedSubElements(String localName, ThreeWindingsTransformer tx, NetworkXmlReaderContext context,
-                                                 BiConsumer<ThreeWindingsTransformer, NetworkXmlReaderContext> consumer) throws XMLStreamException {
-        switch (context.getVersion()) {
-            case V_1_1:
-                switch (localName) {
-                    case "ratioTapChanger1":
-                        readRatioTapChanger(1, tx.getLeg1(), context);
-                        break;
-                    case "phaseTapChanger1":
-                        readPhaseTapChanger(1, tx.getLeg1(), context);
-                        break;
-                    case "phaseTapChanger2":
-                        readPhaseTapChanger(2, tx.getLeg2(), context);
-                        break;
-                    case "phaseTapChanger3":
-                        readPhaseTapChanger(3, tx.getLeg3(), context);
-                        break;
-                    default:
-                        consumer.accept(tx, context);
-                        break;
-                }
-                break;
-            case V_1_0:
-                consumer.accept(tx, context);
-                break;
-            default:
-                throw new PowsyblException("XIIDM version " + context.getVersion().toString(".") + " is not supported for ThreeWindingsTransformer.");
-        }
     }
 }
