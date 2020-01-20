@@ -34,8 +34,8 @@ public abstract class AbstractExtensionXmlSerializer<T extends Extendable, E ext
         this.categoryName = Objects.requireNonNull(categoryName);
         this.extensionClass = Objects.requireNonNull(extensionClass);
         this.subElements = subElements;
-        this.xsdFileName = xsdFileName;
-        this.namespaceUri = namespaceUri;
+        this.xsdFileName = Objects.requireNonNull(xsdFileName);
+        this.namespaceUri = Objects.requireNonNull(namespaceUri);
         this.namespacePrefix = Objects.requireNonNull(namespacePrefix);
     }
 
