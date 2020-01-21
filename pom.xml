@@ -136,7 +136,7 @@
         <jama.version>1.0.3</jama.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
         <jaxb-runtime.version>2.4.0-b180830.0438</jaxb-runtime.version>
-        <jena.version>3.0.0</jena.version>
+        <jena.version>3.13.1</jena.version>
         <jgrapht.version>1.0.1</jgrapht.version>
         <jimfs.version>1.1</jimfs.version>
         <jline2.version>3.5.1</jline2.version>

@@ -37,9 +37,9 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.impl.Util;
 import org.apache.jena.shared.PropertyNotFoundException;
-import org.apache.jena.util.IteratorCollection;
 import org.apache.jena.update.UpdateAction;
 import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.util.IteratorCollection;
 import org.apache.jena.vocabulary.RDF;
 
 import com.powsybl.commons.datasource.DataSource;
@@ -58,10 +58,12 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     static final String NAME = "jena";
 
     public TripleStoreJena() {
-        // creates an in-memory Jena model that is able to contain multiple graphs
-        dataset = DatasetFactory.createMem();
-
-        // Create a model just to obtain a writer and configure it
+//       creates an in-memory Jena model that is able to contain multiple graphs
+//       Jena version 3.0.0 has no transactional support.
+//       DatasetFactory.createMem() is deprecated in 3.1.0.
+//       Create an in-memory transactional Dataset. Introduced in Jena version 3.1.0
+        dataset = DatasetFactory.createTxnMem();
+//         Create a model just to obtain a writer and configure it
         writer = ModelFactory.createDefaultModel().getWriter("RDF/XML-ABBREV");
         writer.setProperty("showXmlDeclaration", "true");
         writer.setProperty("tab", "4");
@@ -89,7 +91,10 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     private static void addNamespaceForBase(Model m, String baseName) {
-        m.setNsPrefix("data", baseName + "#");
+        String basePrefix = m.getNsPrefixURI("data");
+        if (basePrefix == null || basePrefix.isEmpty()) {
+            m.setNsPrefix("data", baseName + "#");
+        }
     }
 
     private static String guessFormatFromName(String name) {
@@ -103,14 +108,17 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
     @Override
     public void write(DataSource ds) {
-        Iterator<String> k = dataset.listNames();
-        while (k.hasNext()) {
-            String n = k.next();
-            Model m = dataset.getNamedModel(n);
-            writer.setProperty("prettyTypes", subjectsTypes(m));
-            // this will improve output readability
-            writer.setProperty("xmlbase", m.getNsPrefixMap().get("data"));
-            writer.write(m, outputStream(ds, n), n);
+        Iterator<String> contexts = dataset.listNames();
+        while (contexts.hasNext()) {
+            String context = contexts.next();
+            Model model = dataset.getNamedModel(context);
+            // when upgrading from 3.0.0 to latest versions, namespaces not present in model, need to
+            // be added from union
+            model.setNsPrefixes(union.getNsPrefixMap());
+            writer.setProperty("prettyTypes", subjectsTypes(model));
+            // set xmlbase will improve output readability
+            writer.setProperty("xmlbase", model.getNsPrefixMap().get("data"));
+            writer.write(model, outputStream(ds, context), context);
         }
     }
 
@@ -177,20 +185,20 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         Dataset sourceDataset;
         if (source instanceof TripleStoreJena) {
             sourceDataset = ((TripleStoreJena) source).dataset;
+            union = union.union(((TripleStoreJena) source).union);
             for (String name : IteratorCollection.iteratorToList(sourceDataset.listNames())) {
                 String context = namedModelFromName(name);
                 if (sourceDataset.containsNamedModel(context)) {
                     Model targetModel = ModelFactory.createDefaultModel();
                     Model sourceModel = sourceDataset.getNamedModel(context);
-                    copyNamespaces(sourceModel, targetModel);
-
+                    copyNamespaces(union, targetModel);
                     for (Statement st : IteratorCollection.iteratorToList(sourceModel.listStatements())) {
                         targetModel.add(st);
                     }
                     dataset.addNamedModel(context, targetModel);
-                    union = union.union(targetModel);
                 }
             }
+
         } else {
             throw new TripleStoreException(String.format("Add to %s from source %s is not supported",
                 getImplementationName(), source.getImplementationName()));
