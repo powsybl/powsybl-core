@@ -39,7 +39,7 @@ public class TerminalMockXmlSerializer implements ExtensionXmlSerializer<Load, T
 
     @Override
     public String getNamespaceUri() {
-        return "http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_0";
+        return "http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_1";
     }
 
     @Override
