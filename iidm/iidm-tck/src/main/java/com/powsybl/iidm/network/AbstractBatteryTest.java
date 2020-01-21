@@ -24,6 +24,12 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractBatteryTest {
 
+    private static final String INVALID = "invalid";
+
+    private static final String TO_REMOVE = "toRemove";
+
+    private static final String BAT_ID = "bat_id";
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -63,35 +69,35 @@ public abstract class AbstractBatteryTest {
     public void invalidP0() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("p0 is invalid");
-        createBattery("invalid", Double.NaN, 12.0, 10.0, 20.0);
+        createBattery(INVALID, Double.NaN, 12.0, 10.0, 20.0);
     }
 
     @Test
     public void invalidQ0() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("q0 is invalid");
-        createBattery("invalid", 11, Double.NaN, 10.0, 20.0);
+        createBattery(INVALID, 11, Double.NaN, 10.0, 20.0);
     }
 
     @Test
     public void invalidMinP() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("for minimum P");
-        createBattery("invalid", 11, 12, Double.NaN, 20.0);
+        createBattery(INVALID, 11, 12, Double.NaN, 20.0);
     }
 
     @Test
     public void invalidMaxP() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("for maximum P");
-        createBattery("invalid", 11, 12, 10, Double.NaN);
+        createBattery(INVALID, 11, 12, 10, Double.NaN);
     }
 
     @Test
     public void invalidLimitsP() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("invalid active limits");
-        createBattery("invalid", 11, 12, 20.0, 11.0);
+        createBattery(INVALID, 11, 12, 20.0, 11.0);
     }
 
     /**
@@ -105,14 +111,14 @@ public abstract class AbstractBatteryTest {
     @Test
     public void invalidPowerBounds() {
         try {
-            createBattery("invalid", 0.0, 12.0, 10.0, 20.0);
+            createBattery(INVALID, 0.0, 12.0, 10.0, 20.0);
             fail("Should throw an exception");
         } catch (ValidationException e) {
             assertEquals("Battery 'invalid': invalid active power p < minP: 0.0 < 10.0", e.getMessage());
         }
 
         try {
-            createBattery("invalid", 30.0, 12.0, 10.0, 20.0);
+            createBattery(INVALID, 30.0, 12.0, 10.0, 20.0);
             fail("Should throw an exception");
         } catch (ValidationException e) {
             assertEquals("Battery 'invalid': invalid active power p > maxP: 30.0 > 20.0", e.getMessage());
@@ -137,16 +143,16 @@ public abstract class AbstractBatteryTest {
     @Test
     public void testAdder() {
         voltageLevel.newBattery()
-                .setId("bat_id")
+                .setId(BAT_ID)
                 .setMaxP(20.0)
                 .setMinP(10.0)
                 .setP0(15.0)
                 .setQ0(10.0)
                 .setBus("NBAT")
                 .add();
-        Battery battery = network.getBattery("bat_id");
+        Battery battery = network.getBattery(BAT_ID);
         assertNotNull(battery);
-        assertEquals("bat_id", battery.getId());
+        assertEquals(BAT_ID, battery.getId());
         assertEquals(20.0, battery.getMaxP(), 0.0);
         assertEquals(10.0, battery.getMinP(), 0.0);
         assertEquals(15.0, battery.getP0(), 0.0);
@@ -155,14 +161,14 @@ public abstract class AbstractBatteryTest {
 
     @Test
     public void testRemove() {
-        createBattery("toRemove", 11.0, 12, 10, 20.0);
+        createBattery(TO_REMOVE, 11.0, 12, 10, 20.0);
         int count = network.getBatteryCount();
-        Battery battery = network.getBattery("toRemove");
+        Battery battery = network.getBattery(TO_REMOVE);
         assertNotNull(battery);
         battery.remove();
         assertNotNull(battery);
-        assertEquals(count - 1, network.getBatteryCount());
-        assertNull(network.getBattery("toRemove"));
+        assertEquals(count - 1L, network.getBatteryCount());
+        assertNull(network.getBattery(TO_REMOVE));
     }
 
     @Test
@@ -203,6 +209,7 @@ public abstract class AbstractBatteryTest {
             battery.getP0();
             fail();
         } catch (Exception ignored) {
+            // ignore
         }
     }
 

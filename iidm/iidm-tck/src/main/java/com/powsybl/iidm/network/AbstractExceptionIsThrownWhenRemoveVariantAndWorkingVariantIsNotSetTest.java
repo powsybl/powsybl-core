@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class AbstractExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest {
 
     @Test
-    public void test() throws Exception {
+    public void test() throws InterruptedException {
         Network network = EurostagTutorialExample1Factory.create();
         network.getVariantManager().allowVariantMultiThreadAccess(true);
         network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "s");
@@ -30,7 +31,7 @@ public abstract class AbstractExceptionIsThrownWhenRemoveVariantAndWorkingVarian
         executorService.execute(() -> {
             try {
                 network.getVariantManager().removeVariant("s");
-            } catch (Throwable e) {
+            } catch (PowsyblException e) {
                 exceptionThrown[0] = true;
             }
         });

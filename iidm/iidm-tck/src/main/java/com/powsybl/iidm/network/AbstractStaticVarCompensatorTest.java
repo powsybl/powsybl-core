@@ -76,6 +76,7 @@ public abstract class AbstractStaticVarCompensatorTest {
             svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
             fail();
         } catch (Exception ignored) {
+            // ignore
         }
     }
 
@@ -156,6 +157,7 @@ public abstract class AbstractStaticVarCompensatorTest {
             svc.getReactivePowerSetPoint();
             fail();
         } catch (Exception ignored) {
+            // ignore
         }
     }
 

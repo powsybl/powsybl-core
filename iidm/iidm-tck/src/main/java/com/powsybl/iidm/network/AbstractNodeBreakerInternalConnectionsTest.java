@@ -14,12 +14,14 @@ import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractNodeBreakerInternalConnectionsTest {
 
+    private static final String S5_10K_V = "S5 10kV";
+
     @Test
     public void testTraversalInternalConnections() {
         Network network = Network.create("testTraversalInternalConnections", "test");
         InternalConnections all = new InternalConnections();
         createNetwork(network, all);
-        VoltageLevel vl = network.getVoltageLevel("S5 10kV");
+        VoltageLevel vl = network.getVoltageLevel(S5_10K_V);
 
         assertEquals(6, vl.getNodeBreakerView().getInternalConnectionCount());
         List<InternalConnection> internalConnections = vl.getNodeBreakerView().getInternalConnectionStream().collect(Collectors.toList());
@@ -59,7 +61,7 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
                 .setCountry(Country.FR)
                 .add();
         VoltageLevel vl = s.newVoltageLevel()
-                .setId("S5 10kV")
+                .setId(S5_10K_V)
                 .setNominalV(10.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
@@ -137,7 +139,7 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
                 .setId("L6")
                 .setVoltageLevel1("S4 10kV")
                 .setNode1(0)
-                .setVoltageLevel2("S5 10kV")
+                .setVoltageLevel2(S5_10K_V)
                 .setNode2(10)
                 .setR(0.082)
                 .setX(0.086)

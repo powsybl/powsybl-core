@@ -91,10 +91,10 @@ public abstract class AbstractCurrentLimitsTest {
 
         l.getTerminal1().setP(800.0).setQ(400.0); // i = 1324.0969
         assertTrue(l.isOverloaded());
-        assertEquals(5 * 60, l.getOverloadDuration());
+        assertEquals(5 * 60L, l.getOverloadDuration());
         assertTrue(l.checkPermanentLimit1());
         assertNotNull(l.checkTemporaryLimits1());
-        assertEquals(5 * 60, l.checkTemporaryLimits1().getTemporaryLimit().getAcceptableDuration());
+        assertEquals(5 * 60L, l.checkTemporaryLimits1().getTemporaryLimit().getAcceptableDuration());
         assertEquals(1200.0, l.checkTemporaryLimits1().getPreviousLimit(), 0.0);
 
         l.getTerminal1().setP(900.0).setQ(500.0); // i = 1524.1499
@@ -132,6 +132,7 @@ public abstract class AbstractCurrentLimitsTest {
                     .endTemporaryLimit();
             fail();
         } catch (ValidationException ignored) {
+            // ignore
         }
 
         CurrentLimits currentLimits = currentLimitsAdder.beginTemporaryLimit()
@@ -151,6 +152,7 @@ public abstract class AbstractCurrentLimitsTest {
             currentLimits.setPermanentLimit(-0.5);
             fail();
         } catch (ValidationException ignored) {
+            // ignore
         }
 
         currentLimits.setPermanentLimit(1000.0);

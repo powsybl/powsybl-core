@@ -18,6 +18,24 @@ import static org.junit.Assert.*;
 
 public abstract class AbstractThreeWindingsTransformerTest {
 
+    private static final String TWT_NAME = "twtName";
+
+    private static final String ERROR_RATED_U_IS_INVALID = "rated U is invalid";
+
+    private static final String ERROR_B_IS_NOT_SET = "b is not set";
+
+    private static final String ERROR_G_IS_NOT_SET = "g is not set";
+
+    private static final String ERROR_X_IS_NOT_SET = "x is not set";
+
+    private static final String ERROR_R_IS_NOT_SET = "r is not set";
+
+    private static final String ERROR_TRANSFORMER_LEG3_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED = "3 windings transformer leg3 'twt': Only one regulating control enabled is allowed";
+
+    private static final String ERROR_LEG1_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED = "3 windings transformer leg1 'twt': Only one regulating control enabled is allowed";
+
+    private static final String ERROR_LEG2_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED = "3 windings transformer leg2 'twt': Only one regulating control enabled is allowed";
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -35,7 +53,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
 
         assertEquals("twt", transformer.getId());
-        assertEquals("twtName", transformer.getName());
+        assertEquals(TWT_NAME, transformer.getName());
         assertEquals(substation, transformer.getSubstation());
         assertEquals(ConnectableType.THREE_WINDINGS_TRANSFORMER, transformer.getType());
 
@@ -142,7 +160,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
         transformer.remove();
         assertNull(network.getThreeWindingsTransformer("twt"));
         assertNotNull(transformer);
-        assertEquals(count - 1, network.getThreeWindingsTransformerCount());
+        assertEquals(count - 1L, network.getThreeWindingsTransformerCount());
     }
 
     @Test
@@ -153,7 +171,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
         createPhaseTapChanger(leg1, transformer.getTerminal(ThreeWindingsTransformer.Side.ONE));
 
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("3 windings transformer leg1 'twt': Only one regulating control enabled is allowed");
+        thrown.expectMessage(ERROR_LEG1_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED);
         leg1.getRatioTapChanger().setRegulating(true);
         leg1.getPhaseTapChanger().setRegulating(true);
     }
@@ -166,7 +184,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
         createPhaseTapChanger(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO));
 
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("3 windings transformer leg2 'twt': Only one regulating control enabled is allowed");
+        thrown.expectMessage(ERROR_LEG2_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED);
         leg2.getRatioTapChanger().setRegulating(true);
         leg2.getPhaseTapChanger().setRegulating(true);
     }
@@ -180,7 +198,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
         createRatioTapChanger(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
 
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("3 windings transformer leg3 'twt': Only one regulating control enabled is allowed");
+        thrown.expectMessage(ERROR_TRANSFORMER_LEG3_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED);
         leg3.getRatioTapChanger().setRegulating(true);
         leg3.getPhaseTapChanger().setRegulating(true);
     }
@@ -194,7 +212,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
         createRatioTapChanger(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
 
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("3 windings transformer leg3 'twt': Only one regulating control enabled is allowed");
+        thrown.expectMessage(ERROR_TRANSFORMER_LEG3_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED);
         leg1.getRatioTapChanger().setRegulating(true);
         leg3.getRatioTapChanger().setRegulating(true);
     }
@@ -208,7 +226,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
         createPhaseTapChanger(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO));
 
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("3 windings transformer leg2 'twt': Only one regulating control enabled is allowed");
+        thrown.expectMessage(ERROR_LEG2_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED);
         leg1.getPhaseTapChanger().setRegulating(true);
         leg2.getPhaseTapChanger().setRegulating(true);
     }
@@ -220,7 +238,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
         createRatioTapChanger(leg1, transformer.getTerminal(ThreeWindingsTransformer.Side.ONE), true);
 
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("3 windings transformer leg3 'twt': Only one regulating control enabled is allowed");
+        thrown.expectMessage(ERROR_TRANSFORMER_LEG3_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED);
 
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
         createRatioTapChanger(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), true);
@@ -233,7 +251,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
         createPhaseTapChanger(leg1, transformer.getTerminal(ThreeWindingsTransformer.Side.ONE), true);
 
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("3 windings transformer leg2 'twt': Only one regulating control enabled is allowed");
+        thrown.expectMessage(ERROR_LEG2_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED);
 
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
         createPhaseTapChanger(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), true);
@@ -246,7 +264,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
         createPhaseTapChanger(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), true);
 
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("3 windings transformer leg1 'twt': Only one regulating control enabled is allowed");
+        thrown.expectMessage(ERROR_LEG1_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED);
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
         createRatioTapChanger(leg1, transformer.getTerminal(ThreeWindingsTransformer.Side.ONE), true);
     }
@@ -289,7 +307,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
 
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("r is not set");
+        thrown.expectMessage(ERROR_R_IS_NOT_SET);
         createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), 0.0, Double.NaN, 0.0, 0.0, 0.0);
     }
 
@@ -299,7 +317,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
 
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("x is not set");
+        thrown.expectMessage(ERROR_X_IS_NOT_SET);
         createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), 0.0, 0.0, Double.NaN, 0.0, 0.0);
     }
 
@@ -309,7 +327,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
 
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("g is not set");
+        thrown.expectMessage(ERROR_G_IS_NOT_SET);
         createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), 0.0, 0.0, 0.0, Double.NaN, 0.0);
     }
 
@@ -319,7 +337,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
 
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("b is not set");
+        thrown.expectMessage(ERROR_B_IS_NOT_SET);
         createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), 0.0, 0.0, 0.0, 0.0, Double.NaN);
     }
 
@@ -349,7 +367,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
 
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("r is not set");
+        thrown.expectMessage(ERROR_R_IS_NOT_SET);
         createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), 0.0, 0.0, Double.NaN, 0.0, 0.0, 0.0);
     }
 
@@ -359,7 +377,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
 
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("x is not set");
+        thrown.expectMessage(ERROR_X_IS_NOT_SET);
         createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), 0.0, 0.0, 0.0,
             Double.NaN, 0.0, 0.0);
     }
@@ -370,7 +388,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
 
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("g is not set");
+        thrown.expectMessage(ERROR_G_IS_NOT_SET);
         createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), 0.0, 0.0, 0.0,
             0.0, Double.NaN, 0.0);
     }
@@ -381,15 +399,15 @@ public abstract class AbstractThreeWindingsTransformerTest {
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
 
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("b is not set");
+        thrown.expectMessage(ERROR_B_IS_NOT_SET);
         createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), 0.0, 0.0, 0.0,
             0.0, 0.0, Double.NaN);
     }
 
     private ThreeWindingsTransformer createThreeWindingsTransformer() {
-        ThreeWindingsTransformer transformer = substation.newThreeWindingsTransformer()
+        return substation.newThreeWindingsTransformer()
             .setId("twt")
-            .setName("twtName")
+            .setName(TWT_NAME)
             .newLeg1()
             .setR(1.3)
             .setX(1.4)
@@ -419,8 +437,6 @@ public abstract class AbstractThreeWindingsTransformerTest {
             .setConnectableBus("busB")
             .add()
             .add();
-
-        return transformer;
     }
 
     private RatioTapChanger createRatioTapChanger(Leg leg, Terminal terminal) {
@@ -428,7 +444,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
     }
 
     private RatioTapChanger createRatioTapChanger(Leg leg, Terminal terminal, boolean regulating) {
-        RatioTapChanger ratioTapChangerInLeg = leg.newRatioTapChanger()
+        return leg.newRatioTapChanger()
             .setTargetV(200.0)
             .setLoadTapChangingCapabilities(false)
             .setLowTapPosition(0)
@@ -458,12 +474,10 @@ public abstract class AbstractThreeWindingsTransformerTest {
                 .setRho(1.0)
                 .endStep()
             .add();
-
-        return ratioTapChangerInLeg;
     }
 
     private RatioTapChanger createRatioTapChangerOneStep(Leg leg, Terminal terminal, double rho, double r, double x, double g, double b) {
-        RatioTapChanger ratioTapChangerInLeg = leg.newRatioTapChanger()
+        return leg.newRatioTapChanger()
             .setTargetV(200.0)
             .setLoadTapChangingCapabilities(false)
             .setLowTapPosition(0)
@@ -479,8 +493,6 @@ public abstract class AbstractThreeWindingsTransformerTest {
                 .setRho(rho)
             .endStep()
             .add();
-
-        return ratioTapChangerInLeg;
     }
 
     private PhaseTapChanger createPhaseTapChanger(Leg leg, Terminal terminal) {
@@ -488,7 +500,7 @@ public abstract class AbstractThreeWindingsTransformerTest {
     }
 
     private PhaseTapChanger createPhaseTapChanger(Leg leg, Terminal terminal, boolean regulating) {
-        PhaseTapChanger phaseTapChangerInLeg = leg.newPhaseTapChanger()
+        return leg.newPhaseTapChanger()
             .setRegulationValue(200.0)
             .setLowTapPosition(0)
             .setTapPosition(0)
@@ -521,12 +533,10 @@ public abstract class AbstractThreeWindingsTransformerTest {
                 .setAlpha(10.0)
                 .endStep()
             .add();
-
-        return phaseTapChangerInLeg;
     }
 
     private PhaseTapChanger createPhaseTapChangerOneStep(Leg leg, Terminal terminal, double rho, double alpha, double r, double x, double g, double b) {
-        PhaseTapChanger phaseTapChangerInLeg = leg.newPhaseTapChanger()
+        return leg.newPhaseTapChanger()
             .setRegulationValue(200.0)
             .setLowTapPosition(0)
             .setTapPosition(0)
@@ -543,49 +553,47 @@ public abstract class AbstractThreeWindingsTransformerTest {
                 .setAlpha(alpha)
             .endStep()
             .add();
-
-        return phaseTapChangerInLeg;
     }
 
     @Test
     public void invalidLeg1ArgumentsR() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("r is not set");
+        thrown.expectMessage(ERROR_R_IS_NOT_SET);
         createThreeWindingsTransformerWithLeg1(Double.NaN, 2.0, 3.0, 4.0, 5.0);
     }
 
     @Test
     public void invalidLeg1ArgumentsX() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("x is not set");
+        thrown.expectMessage(ERROR_X_IS_NOT_SET);
         createThreeWindingsTransformerWithLeg1(1.0, Double.NaN, 3.0, 4.0, 5.0);
     }
 
     @Test
     public void invalidLeg1ArgumentsG() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("g is not set");
+        thrown.expectMessage(ERROR_G_IS_NOT_SET);
         createThreeWindingsTransformerWithLeg1(1.0, 2.0, Double.NaN, 4.0, 5.0);
     }
 
     @Test
     public void invalidLeg1ArgumentsB() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("b is not set");
+        thrown.expectMessage(ERROR_B_IS_NOT_SET);
         createThreeWindingsTransformerWithLeg1(1.0, 2.0, 3.0, Double.NaN, 5.0);
     }
 
     @Test
     public void invalidLeg1ArgumentsRatedU() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("rated U is invalid");
+        thrown.expectMessage(ERROR_RATED_U_IS_INVALID);
         createThreeWindingsTransformerWithLeg1(1.0, 2.0, 3.0, 4.0, Double.NaN);
     }
 
     private void createThreeWindingsTransformerWithLeg1(double r, double x, double g, double b, double ratedU) {
         substation.newThreeWindingsTransformer()
                     .setId("twt")
-                    .setName("twtName")
+                    .setName(TWT_NAME)
                     .newLeg1()
                         .setR(r)
                         .setX(x)
@@ -615,42 +623,42 @@ public abstract class AbstractThreeWindingsTransformerTest {
     @Test
     public void invalidLeg2ArgumentsR() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("r is not set");
+        thrown.expectMessage(ERROR_R_IS_NOT_SET);
         createThreeWindingsTransformerWithLeg2(Double.NaN, 2.2, 3.2, 4.2, 5.2);
     }
 
     @Test
     public void invalidLeg2ArgumentsX() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("x is not set");
+        thrown.expectMessage(ERROR_X_IS_NOT_SET);
         createThreeWindingsTransformerWithLeg2(1.2, Double.NaN, 3.2, 4.2, 5.2);
     }
 
     @Test
     public void invalidLeg2ArgumentsG() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("g is not set");
+        thrown.expectMessage(ERROR_G_IS_NOT_SET);
         createThreeWindingsTransformerWithLeg2(1.2, 2.2, Double.NaN, 4.2, 5.2);
     }
 
     @Test
     public void invalidLeg2ArgumentsB() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("b is not set");
+        thrown.expectMessage(ERROR_B_IS_NOT_SET);
         createThreeWindingsTransformerWithLeg2(1.2, 2.2, 3.2, Double.NaN, 5.2);
     }
 
     @Test
     public void invalidLeg2ArgumentsRatedU() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("rated U is invalid");
+        thrown.expectMessage(ERROR_RATED_U_IS_INVALID);
         createThreeWindingsTransformerWithLeg2(1.2, 2.2, 3.2, 4.2, Double.NaN);
     }
 
     private void createThreeWindingsTransformerWithLeg2(double r, double x, double g, double b, double ratedU) {
         substation.newThreeWindingsTransformer()
             .setId("twt")
-            .setName("twtName")
+            .setName(TWT_NAME)
             .newLeg1()
             .setR(2.03)
             .setX(2.04)
@@ -682,42 +690,42 @@ public abstract class AbstractThreeWindingsTransformerTest {
     @Test
     public void invalidLeg3ArgumentsR() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("r is not set");
+        thrown.expectMessage(ERROR_R_IS_NOT_SET);
         createThreeWindingsTransformerWithLeg3(Double.NaN, 2.3, 3.3, 4.3, 5.3);
     }
 
     @Test
     public void invalidLeg3ArgumentsX() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("x is not set");
+        thrown.expectMessage(ERROR_X_IS_NOT_SET);
         createThreeWindingsTransformerWithLeg3(1.3, Double.NaN, 3.3, 4.3, 5.3);
     }
 
     @Test
     public void invalidLeg3ArgumentsG() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("g is not set");
+        thrown.expectMessage(ERROR_G_IS_NOT_SET);
         createThreeWindingsTransformerWithLeg3(1.3, 2.3, Double.NaN, 4.3, 5.3);
     }
 
     @Test
     public void invalidLeg3ArgumentsB() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("b is not set");
+        thrown.expectMessage(ERROR_B_IS_NOT_SET);
         createThreeWindingsTransformerWithLeg3(1.3, 2.3, 3.3, Double.NaN, 5.3);
     }
 
     @Test
     public void invalidLeg3ArgumentsRatedU() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("rated U is invalid");
+        thrown.expectMessage(ERROR_RATED_U_IS_INVALID);
         createThreeWindingsTransformerWithLeg3(1.3, 2.3, 3.3, 4.3, Double.NaN);
     }
 
     private void createThreeWindingsTransformerWithLeg3(double r, double x, double g, double b, double ratedU) {
         substation.newThreeWindingsTransformer()
             .setId("twt")
-            .setName("twtName")
+            .setName(TWT_NAME)
             .newLeg1()
             .setR(2.03)
             .setX(2.04)

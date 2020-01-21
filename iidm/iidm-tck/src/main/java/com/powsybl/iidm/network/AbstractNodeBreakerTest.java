@@ -217,6 +217,7 @@ public abstract class AbstractNodeBreakerTest {
             newLoad.add();
             fail("Should have thrown a validation exception");
         } catch (ValidationException ignored) {
+            // ignore
         }
 
         l1.remove();

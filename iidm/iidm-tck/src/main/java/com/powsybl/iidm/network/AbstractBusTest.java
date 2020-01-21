@@ -73,6 +73,7 @@ public abstract class AbstractBusTest {
             bus.setV(-1.0);
             fail();
         } catch (ValidationException ignored) {
+            // ignore
         }
         bus.setV(200.0);
         assertEquals(200.0, bus.getV(), 0.0);

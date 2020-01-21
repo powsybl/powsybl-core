@@ -100,7 +100,7 @@ public abstract class AbstractVscTest {
         cs1.remove();
         assertNotNull(cs1);
         assertNull(network.getVscConverterStation("C1"));
-        assertEquals(count - 1, network.getVscConverterStationCount());
+        assertEquals(count - 1L, network.getVscConverterStationCount());
     }
 
     @Test
@@ -142,6 +142,7 @@ public abstract class AbstractVscTest {
             cs1.isVoltageRegulatorOn();
             fail();
         } catch (Exception ignored) {
+            // ignore
         }
     }
 }

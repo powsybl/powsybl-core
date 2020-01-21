@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network;
 
 import com.google.common.collect.Sets;
+
 import com.powsybl.commons.PowsyblException;
 
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
@@ -14,7 +15,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,6 +23,7 @@ import java.util.List;
 import static com.powsybl.iidm.network.VariantManagerConstants.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Yichen Tang <yichen.tang at rte-france.com>
@@ -72,12 +73,12 @@ public abstract class AbstractManipulationsOnVariantsTest {
 
     @Test
     public void baseTests() {
-        NetworkListener exceptionListener = Mockito.mock(DefaultNetworkListener.class);
-        Mockito.doThrow(new UnsupportedOperationException()).when(exceptionListener).onVariantCreated(Mockito.any(), Mockito.anyString());
-        Mockito.doThrow(new UnsupportedOperationException()).when(exceptionListener).onVariantOverwritten(Mockito.any(), Mockito.any());
-        Mockito.doThrow(new UnsupportedOperationException()).when(exceptionListener).onVariantRemoved(Mockito.any());
+        NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onVariantCreated(any(), anyString());
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onVariantOverwritten(any(), any());
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onVariantRemoved(any());
 
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
         // Add observer changes to current network
         network.addListener(exceptionListener);
         network.addListener(mockedListener);
@@ -88,19 +89,19 @@ public abstract class AbstractManipulationsOnVariantsTest {
         assertEquals(Sets.newHashSet(INITIAL_VARIANT_ID, "s1", "s2", "s3", "s4"), variantManager.getVariantIds());
 
         // Check variant creation notification
-        Mockito.verify(mockedListener, Mockito.times(1)).onVariantCreated(INITIAL_VARIANT_ID, "s1");
-        Mockito.verify(mockedListener, Mockito.times(1)).onVariantCreated(INITIAL_VARIANT_ID, "s2");
-        Mockito.verify(mockedListener, Mockito.times(1)).onVariantCreated(INITIAL_VARIANT_ID, "s3");
-        Mockito.verify(mockedListener, Mockito.times(1)).onVariantCreated(INITIAL_VARIANT_ID, "s4");
+        verify(mockedListener, times(1)).onVariantCreated(INITIAL_VARIANT_ID, "s1");
+        verify(mockedListener, times(1)).onVariantCreated(INITIAL_VARIANT_ID, "s2");
+        verify(mockedListener, times(1)).onVariantCreated(INITIAL_VARIANT_ID, "s3");
+        verify(mockedListener, times(1)).onVariantCreated(INITIAL_VARIANT_ID, "s4");
 
         // delete
         variantManager.removeVariant("s2");
         assertEquals(Sets.newHashSet(INITIAL_VARIANT_ID, "s1", "s3", "s4"), variantManager.getVariantIds());
 
         // Check variant removal notification
-        Mockito.verify(mockedListener, Mockito.times(1)).onVariantRemoved("s2");
+        verify(mockedListener, times(1)).onVariantRemoved("s2");
         // No notification for Allocation & Reduction
-        Mockito.verifyNoMoreInteractions(mockedListener);
+        verifyNoMoreInteractions(mockedListener);
 
         // allocate
         variantManager.cloneVariant("s4", "s2b");
@@ -108,7 +109,7 @@ public abstract class AbstractManipulationsOnVariantsTest {
 
         // Overwrite
         variantManager.cloneVariant("s4", "s2b", true);
-        Mockito.verify(mockedListener, Mockito.times(1)).onVariantOverwritten("s4", "s2b");
+        verify(mockedListener, times(1)).onVariantOverwritten("s4", "s2b");
 
         // reduce
         variantManager.setWorkingVariant("s4");
@@ -119,6 +120,7 @@ public abstract class AbstractManipulationsOnVariantsTest {
             variantManager.getWorkingVariantId();
             fail();
         } catch (Exception ignored) {
+            // ignore
         }
 
         network.removeListener(mockedListener);

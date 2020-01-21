@@ -18,6 +18,8 @@ import static org.junit.Assert.assertNotNull;
 
 public abstract class AbstractMergeNetworkTest {
 
+    private static final String MERGE2 = "merge";
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -27,9 +29,9 @@ public abstract class AbstractMergeNetworkTest {
 
     @Before
     public void setup() {
-        merge = NetworkFactory.create("merge", "asdf");
-        n1 = NetworkFactory.create("n1", "asdf");
-        n2 = NetworkFactory.create("n2", "qwer");
+        merge = Network.create(MERGE2, "asdf");
+        n1 = Network.create("n1", "asdf");
+        n2 = Network.create("n2", "qwer");
     }
 
     @Test
@@ -70,7 +72,7 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     private void addSubstation(Network network, String substationId) {
-        Substation substation = network.newSubstation()
+        network.newSubstation()
                             .setId(substationId)
                             .setCountry(Country.FR)
                             .setTso("RTE")
@@ -138,21 +140,21 @@ public abstract class AbstractMergeNetworkTest {
     @Test
     public void test() {
         merge.merge(n1, n2);
-        assertEquals("merge", merge.getId());
+        assertEquals(MERGE2, merge.getId());
         assertEquals("hybrid", merge.getSourceFormat());
     }
 
     @Test
     public void checkMergingSameFormat() {
         merge.merge(n1);
-        assertEquals("merge", merge.getId());
+        assertEquals(MERGE2, merge.getId());
         assertEquals("asdf", merge.getSourceFormat());
     }
 
     @Test
     public void checkMergingDifferentFormat() {
         merge.merge(n2);
-        assertEquals("merge", merge.getId());
+        assertEquals(MERGE2, merge.getId());
         assertEquals("hybrid", merge.getSourceFormat());
     }
 }

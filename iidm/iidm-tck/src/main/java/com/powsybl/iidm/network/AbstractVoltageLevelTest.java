@@ -18,15 +18,18 @@ import static org.junit.Assert.assertSame;
 
 public abstract class AbstractVoltageLevelTest {
 
+    private static final String DUPLICATE = "duplicate";
+
+    private static final String INVALID = "invalid";
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private Network network;
     private Substation substation;
 
     @Before
     public void setUp() {
-        network = Network.create("test", "test");
+        Network network = Network.create("test", "test");
         substation = network.newSubstation()
                                 .setCountry(Country.AF)
                                 .setTso("tso")
@@ -65,35 +68,35 @@ public abstract class AbstractVoltageLevelTest {
     public void invalidNominalV() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("nominal voltage is invalid");
-        createVoltageLevel("invalid", "invalid", -100.0, 1.0, 2.0);
+        createVoltageLevel(INVALID, INVALID, -100.0, 1.0, 2.0);
     }
 
     @Test
     public void invalidLowVoltageLimit() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("low voltage limit is < 0");
-        createVoltageLevel("invalid", "invalid", 100.0, -1.0, 2.0);
+        createVoltageLevel(INVALID, INVALID, 100.0, -1.0, 2.0);
     }
 
     @Test
     public void invalidHighVoltageLimit() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("high voltage limit is < 0");
-        createVoltageLevel("invalid", "invalid", 100.0, 1.0, -2.0);
+        createVoltageLevel(INVALID, INVALID, 100.0, 1.0, -2.0);
     }
 
     @Test
     public void inconsistentVoltageLimitRange() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("Inconsistent voltage limit range");
-        createVoltageLevel("invalid", "invalid", 100.0, 2.0, 1.0);
+        createVoltageLevel(INVALID, INVALID, 100.0, 2.0, 1.0);
     }
 
     @Test
     public void duplicateVoltageLevel() {
-        createVoltageLevel("duplicate", "duplicate", 100.0, 2.0, 10.0);
+        createVoltageLevel(DUPLICATE, DUPLICATE, 100.0, 2.0, 10.0);
         thrown.expect(PowsyblException.class);
-        createVoltageLevel("duplicate", "duplicate", 100.0, 2.0, 10.0);
+        createVoltageLevel(DUPLICATE, DUPLICATE, 100.0, 2.0, 10.0);
     }
 
     private void createVoltageLevel(String id, String name, double v, double low, double high) {

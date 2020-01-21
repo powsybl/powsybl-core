@@ -20,6 +20,16 @@ import static org.junit.Assert.*;
 
 public abstract class AbstractDanglingLineTest {
 
+    private static final String DUPLICATE = "duplicate";
+
+    private static final String INVALID = "invalid";
+
+    private static final String TEST_MULTI_VARIANT = "testMultiVariant";
+
+    private static final String TO_REMOVE = "toRemove";
+
+    private static final String BUS_VL_ID = "bus_vl";
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -43,8 +53,8 @@ public abstract class AbstractDanglingLineTest {
                                     .setTopologyKind(TopologyKind.BUS_BREAKER)
                                 .add();
         voltageLevel.getBusBreakerView().newBus()
-                                            .setId("bus_vl")
-                                            .setName("bus_vl")
+                                            .setId(BUS_VL_ID)
+                                            .setName(BUS_VL_ID)
                                         .add();
     }
 
@@ -69,8 +79,8 @@ public abstract class AbstractDanglingLineTest {
                         .setP0(p0)
                         .setQ0(q0)
                         .setUcteXnodeCode(ucteXnodeCode)
-                        .setBus("bus_vl")
-                        .setConnectableBus("bus_vl")
+                        .setBus(BUS_VL_ID)
+                        .setConnectableBus(BUS_VL_ID)
                     .add();
         DanglingLine danglingLine = network.getDanglingLine(id);
         // adder
@@ -110,7 +120,7 @@ public abstract class AbstractDanglingLineTest {
                     .add();
         assertEquals(100.0, danglingLine.getCurrentLimits().getPermanentLimit(), 0.0);
 
-        Bus bus = voltageLevel.getBusBreakerView().getBus("bus_vl");
+        Bus bus = voltageLevel.getBusBreakerView().getBus(BUS_VL_ID);
         Bus terminal = danglingLine.getTerminal().getBusBreakerView().getBus();
         assertSame(bus, terminal);
     }
@@ -119,69 +129,69 @@ public abstract class AbstractDanglingLineTest {
     public void testInvalidR() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("r is invalid");
-        createDanglingLine("invalid", "invalid", Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
+        createDanglingLine(INVALID, INVALID, Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
     }
 
     @Test
     public void testInvalidX() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("x is invalid");
-        createDanglingLine("invalid", "invalid", 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0, "code");
+        createDanglingLine(INVALID, INVALID, 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0, "code");
     }
 
     @Test
     public void testInvalidG() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("g is invalid");
-        createDanglingLine("invalid", "invalid", 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0, "code");
+        createDanglingLine(INVALID, INVALID, 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0, "code");
     }
 
     @Test
     public void testInvalidB() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("b is invalid");
-        createDanglingLine("invalid", "invalid", 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0, "code");
+        createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0, "code");
     }
 
     @Test
     public void testInvalidP0() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("p0 is invalid");
-        createDanglingLine("invalid", "invalid", 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0, "code");
+        createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0, "code");
     }
 
     @Test
     public void testInvalidQ0() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("q0 is invalid");
-        createDanglingLine("invalid", "invalid", 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN, "code");
+        createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN, "code");
     }
 
     @Test
     public void duplicateDanglingLine() {
-        createDanglingLine("duplicate", "duplicate", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
-        assertNotNull(network.getDanglingLine("duplicate"));
+        createDanglingLine(DUPLICATE, DUPLICATE, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
+        assertNotNull(network.getDanglingLine(DUPLICATE));
         thrown.expect(PowsyblException.class);
-        createDanglingLine("duplicate", "duplicate", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
+        createDanglingLine(DUPLICATE, DUPLICATE, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
     }
 
     @Test
     public void testRemove() {
-        createDanglingLine("toRemove", "toRemove", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
-        DanglingLine danglingLine = network.getDanglingLine("toRemove");
+        createDanglingLine(TO_REMOVE, TO_REMOVE, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
+        DanglingLine danglingLine = network.getDanglingLine(TO_REMOVE);
         int count = network.getDanglingLineCount();
         assertNotNull(danglingLine);
         danglingLine.remove();
-        assertEquals(count - 1, network.getDanglingLineCount());
-        assertNull(network.getDanglingLine("toRemove"));
+        assertEquals(count - 1L, network.getDanglingLineCount());
+        assertNull(network.getDanglingLine(TO_REMOVE));
         assertNotNull(danglingLine);
     }
 
     @Test
     public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
-        createDanglingLine("testMultiVariant", "testMultiVariant", 1.0, 1.1, 2.2, 1.0, 1.0, 1.2, "code");
-        DanglingLine danglingLine = network.getDanglingLine("testMultiVariant");
+        createDanglingLine(TEST_MULTI_VARIANT, TEST_MULTI_VARIANT, 1.0, 1.1, 2.2, 1.0, 1.0, 1.2, "code");
+        DanglingLine danglingLine = network.getDanglingLine(TEST_MULTI_VARIANT);
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
@@ -213,6 +223,7 @@ public abstract class AbstractDanglingLineTest {
             danglingLine.getQ0();
             fail();
         } catch (Exception ignored) {
+            // ignore
         }
     }
 
@@ -228,8 +239,8 @@ public abstract class AbstractDanglingLineTest {
                         .setP0(p0)
                         .setQ0(q0)
                         .setUcteXnodeCode(ucteCode)
-                        .setBus("bus_vl")
-                        .setConnectableBus("bus_vl")
+                        .setBus(BUS_VL_ID)
+                        .setConnectableBus(BUS_VL_ID)
                     .add();
     }
 

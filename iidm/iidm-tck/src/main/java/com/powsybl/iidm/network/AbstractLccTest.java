@@ -20,6 +20,8 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractLccTest {
 
+    private static final String C1_FILTER2 = "C1_Filter2";
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -54,12 +56,12 @@ public abstract class AbstractLccTest {
         assertEquals(2, network.getVoltageLevel("VL2").getShuntCompensatorCount());
         assertEquals(1e-5, network.getShuntCompensator("C1_Filter1").getCurrentB(), 0.0);
         assertTrue(network.getShuntCompensator("C1_Filter1").getTerminal().isConnected());
-        assertEquals(0.0, network.getShuntCompensator("C1_Filter2").getCurrentB(), 0.0);
+        assertEquals(0.0, network.getShuntCompensator(C1_FILTER2).getCurrentB(), 0.0);
 
         // TODO: delete this line when getMaximumB() is deleted
-        assertEquals(2e-5, network.getShuntCompensator("C1_Filter2").getMaximumB(), 0.0);
+        assertEquals(2e-5, network.getShuntCompensator(C1_FILTER2).getMaximumB(), 0.0);
 
-        assertFalse(network.getShuntCompensator("C1_Filter2").getTerminal().isConnected());
+        assertFalse(network.getShuntCompensator(C1_FILTER2).getTerminal().isConnected());
         assertEquals(1, network.getHvdcLineCount());
         HvdcLine l = network.getHvdcLine("L");
         assertNotNull(l);
@@ -99,7 +101,7 @@ public abstract class AbstractLccTest {
         cs1.remove();
         assertNotNull(cs1);
         assertNull(network.getLccConverterStation("C1"));
-        assertEquals(count - 1, network.getLccConverterStationCount());
+        assertEquals(count - 1L, network.getLccConverterStationCount());
     }
 
     @Test

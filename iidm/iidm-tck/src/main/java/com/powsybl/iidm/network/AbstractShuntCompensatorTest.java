@@ -19,6 +19,12 @@ import static org.junit.Assert.*;
 
 public abstract class AbstractShuntCompensatorTest {
 
+    private static final String INVALID = "invalid";
+
+    private static final String SHUNT = "shunt";
+
+    private static final String TEST_MULTI_VARIANT = "testMultiVariant";
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -36,7 +42,7 @@ public abstract class AbstractShuntCompensatorTest {
         // adder
         ShuntCompensator shuntCompensator = voltageLevel
                                         .newShuntCompensator()
-                                            .setId("shunt")
+                                            .setId(SHUNT)
                                             .setName("shuntName")
                                             .setConnectableBus("busA")
                                             .setbPerSection(5.0)
@@ -45,7 +51,7 @@ public abstract class AbstractShuntCompensatorTest {
                                         .add();
         assertEquals(ConnectableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
         assertEquals("shuntName", shuntCompensator.getName());
-        assertEquals("shunt", shuntCompensator.getId());
+        assertEquals(SHUNT, shuntCompensator.getId());
         assertEquals(5.0, shuntCompensator.getbPerSection(), 0.0);
         assertEquals(6, shuntCompensator.getCurrentSectionCount());
         assertEquals(10, shuntCompensator.getMaximumSectionCount());
@@ -55,6 +61,7 @@ public abstract class AbstractShuntCompensatorTest {
             shuntCompensator.setbPerSection(0.0);
             fail();
         } catch (ValidationException ignored) {
+            // ignore
         }
         shuntCompensator.setbPerSection(1.0);
         assertEquals(1.0, shuntCompensator.getbPerSection(), 0.0);
@@ -63,12 +70,14 @@ public abstract class AbstractShuntCompensatorTest {
             shuntCompensator.setCurrentSectionCount(-1);
             fail();
         } catch (ValidationException ignored) {
+            // ignore
         }
         try {
             // max = 10 , current could not be 20
             shuntCompensator.setCurrentSectionCount(20);
             fail();
         } catch (ValidationException ignored) {
+            // ignore
         }
         shuntCompensator.setCurrentSectionCount(6);
         assertEquals(6, shuntCompensator.getCurrentSectionCount());
@@ -77,6 +86,7 @@ public abstract class AbstractShuntCompensatorTest {
             shuntCompensator.setMaximumSectionCount(1);
             fail();
         } catch (ValidationException ignored) {
+            // ignore
         }
         shuntCompensator.setMaximumSectionCount(20);
         assertEquals(20, shuntCompensator.getMaximumSectionCount());
@@ -84,37 +94,37 @@ public abstract class AbstractShuntCompensatorTest {
         // remove
         int count = network.getShuntCompensatorCount();
         shuntCompensator.remove();
-        assertNull(network.getShuntCompensator("shunt"));
+        assertNull(network.getShuntCompensator(SHUNT));
         assertNotNull(shuntCompensator);
-        assertEquals(count - 1, network.getShuntCompensatorCount());
+        assertEquals(count - 1L, network.getShuntCompensatorCount());
     }
 
     @Test
     public void invalidbPerSection() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("susceptance per section is invalid");
-        createShunt("invalid", "invalid", Double.NaN, 5, 10);
+        createShunt(INVALID, INVALID, Double.NaN, 5, 10);
     }
 
     @Test
     public void invalidZerobPerSection() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("susceptance per section is equal to zero");
-        createShunt("invalid", "invalid", 0.0, 5, 10);
+        createShunt(INVALID, INVALID, 0.0, 5, 10);
     }
 
     @Test
     public void invalidNegativeMaxPerSection() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("should be greater than 0");
-        createShunt("invalid", "invalid", 2.0, 0, -1);
+        createShunt(INVALID, INVALID, 2.0, 0, -1);
     }
 
     @Test
     public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
-        createShunt("testMultiVariant", "testMultiVariant", 2.0, 5, 10);
-        ShuntCompensator shunt = network.getShuntCompensator("testMultiVariant");
+        createShunt(TEST_MULTI_VARIANT, TEST_MULTI_VARIANT, 2.0, 5, 10);
+        ShuntCompensator shunt = network.getShuntCompensator(TEST_MULTI_VARIANT);
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
@@ -146,6 +156,7 @@ public abstract class AbstractShuntCompensatorTest {
             shunt.getCurrentSectionCount();
             fail();
         } catch (Exception ignored) {
+            // ignore
         }
     }
 

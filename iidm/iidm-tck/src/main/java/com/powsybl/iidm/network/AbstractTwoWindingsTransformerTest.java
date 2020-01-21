@@ -16,6 +16,10 @@ import static org.junit.Assert.*;
 
 public abstract class AbstractTwoWindingsTransformerTest {
 
+    private static final String INVALID = "invalid";
+
+    private static final String TWT_NAME = "twt_name";
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -33,7 +37,7 @@ public abstract class AbstractTwoWindingsTransformerTest {
         // adder
         TwoWindingsTransformer twoWindingsTransformer = substation.newTwoWindingsTransformer()
                                                                     .setId("twt")
-                                                                    .setName("twt_name")
+                                                                    .setName(TWT_NAME)
                                                                     .setR(1.0)
                                                                     .setX(2.0)
                                                                     .setG(3.0)
@@ -46,7 +50,7 @@ public abstract class AbstractTwoWindingsTransformerTest {
                                                                     .setConnectableBus2("busB")
                                                                 .add();
         assertEquals("twt", twoWindingsTransformer.getId());
-        assertEquals("twt_name", twoWindingsTransformer.getName());
+        assertEquals(TWT_NAME, twoWindingsTransformer.getName());
         assertEquals(1.0, twoWindingsTransformer.getR(), 0.0);
         assertEquals(2.0, twoWindingsTransformer.getX(), 0.0);
         assertEquals(3.0, twoWindingsTransformer.getG(), 0.0);
@@ -83,42 +87,42 @@ public abstract class AbstractTwoWindingsTransformerTest {
     public void testInvalidR() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("r is invalid");
-        createTwoWindingTransformer("invalid", "invalid", Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0);
+        createTwoWindingTransformer(INVALID, INVALID, Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0);
     }
 
     @Test
     public void testInvalidX() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("x is invalid");
-        createTwoWindingTransformer("invalid", "invalid", 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0);
+        createTwoWindingTransformer(INVALID, INVALID, 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0);
     }
 
     @Test
     public void testInvalidG() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("g is invalid");
-        createTwoWindingTransformer("invalid", "invalid", 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0);
+        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0);
     }
 
     @Test
     public void testInvalidB() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("b is invalid");
-        createTwoWindingTransformer("invalid", "invalid", 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0);
+        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0);
     }
 
     @Test
     public void testInvalidRatedU1() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("rated U1 is invalid");
-        createTwoWindingTransformer("invalid", "invalid", 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0);
+        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0);
     }
 
     @Test
     public void testInvalidRatedU2() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("rated U2 is invalid");
-        createTwoWindingTransformer("invalid", "invalid", 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN);
+        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN);
     }
 
     @Test
@@ -144,7 +148,7 @@ public abstract class AbstractTwoWindingsTransformerTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("the 2 windings of the transformer shall belong to the substation");
         substation.newTwoWindingsTransformer().setId("invalidTwt")
-                        .setName("twt_name")
+                        .setName(TWT_NAME)
                         .setR(1.0)
                         .setX(2.0)
                         .setG(3.0)

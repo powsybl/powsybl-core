@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,6 +18,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.*;
 
 public abstract class AbstractTapChangerTest {
     @Rule
@@ -110,19 +110,22 @@ public abstract class AbstractTapChangerTest {
             phaseTapChanger.setTapPosition(5);
             fail();
         } catch (Exception ignored) {
+            // ignore
         }
         try {
             phaseTapChanger.getStep(5);
             fail();
         } catch (Exception ignored) {
+            // ignore
         }
         try {
             phaseTapChanger.setTargetDeadband(-1);
         } catch (Exception ignored) {
+            // ignore
         }
 
         // Changes listener
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
         // Add observer changes to current network
         network.addListener(mockedListener);
         // Changes will raise notifications
@@ -133,8 +136,7 @@ public abstract class AbstractTapChangerTest {
         currentStep.setB(5.0);
         currentStep.setAlpha(6.0);
         currentStep.setRho(7.0);
-        Mockito.verify(mockedListener, Mockito.times(6))
-               .onUpdate(Mockito.any(Identifiable.class), Mockito.anyString(), Mockito.any(), Mockito.any());
+        verify(mockedListener, times(6)).onUpdate(any(Identifiable.class), anyString(), any(), any());
         // Remove observer
         network.removeListener(mockedListener);
         // Cancel modification
@@ -145,7 +147,7 @@ public abstract class AbstractTapChangerTest {
         currentStep.setAlpha(5.0);
         currentStep.setRho(6.0);
         // Check no notification
-        Mockito.verifyNoMoreInteractions(mockedListener);
+        verifyNoMoreInteractions(mockedListener);
         // remove
         phaseTapChanger.remove();
         assertNull(twt.getPhaseTapChanger());
@@ -294,6 +296,7 @@ public abstract class AbstractTapChangerTest {
             tapChanger.getTapPosition();
             fail();
         } catch (Exception ignored) {
+            // ignore
         }
     }
 
@@ -401,6 +404,7 @@ public abstract class AbstractTapChangerTest {
             ratioTapChanger.setTargetDeadband(-1);
             fail();
         } catch (Exception ignored) {
+            // ignore
         }
 
         // ratio tap changer step setter/getter

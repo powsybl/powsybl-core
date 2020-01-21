@@ -21,6 +21,12 @@ import static org.junit.Assert.*;
 
 public abstract class AbstractGeneratorTest {
 
+    private static final String GEN_ID = "gen_id";
+
+    private static final String INVALID = "invalid";
+
+    private static final String TO_REMOVE = "toRemove";
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -75,7 +81,7 @@ public abstract class AbstractGeneratorTest {
     public void invalidSource() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("energy source is not set");
-        createGenerator("invalid", null, 20.0, 10.0, 20.0,
+        createGenerator(INVALID, null, 20.0, 10.0, 20.0,
                 30.0, 40.0, false, 20.0);
     }
 
@@ -83,7 +89,7 @@ public abstract class AbstractGeneratorTest {
     public void invalidMaxP() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("for maximum P");
-        createGenerator("invalid", EnergySource.HYDRO, Double.NaN, 10.0, 20.0,
+        createGenerator(INVALID, EnergySource.HYDRO, Double.NaN, 10.0, 20.0,
                 30.0, 40.0, false, 20.0);
     }
 
@@ -91,7 +97,7 @@ public abstract class AbstractGeneratorTest {
     public void invalidMinP() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("for minimum P");
-        createGenerator("invalid", EnergySource.HYDRO, 20.0, Double.NaN, 20.0,
+        createGenerator(INVALID, EnergySource.HYDRO, 20.0, Double.NaN, 20.0,
                 30.0, 40.0, false, 20.0);
     }
 
@@ -99,7 +105,7 @@ public abstract class AbstractGeneratorTest {
     public void invalidLimitsP() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("invalid active limits");
-        createGenerator("invalid", EnergySource.HYDRO, 20.0, 21., 20.0,
+        createGenerator(INVALID, EnergySource.HYDRO, 20.0, 21., 20.0,
                 30.0, 40.0, false, 20.0);
     }
 
@@ -125,7 +131,7 @@ public abstract class AbstractGeneratorTest {
     public void invalidRatedS() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("Invalid value of rated S");
-        createGenerator("invalid", EnergySource.HYDRO, 20.0, 11., 0.0,
+        createGenerator(INVALID, EnergySource.HYDRO, 20.0, 11., 0.0,
                 15.0, 40.0, false, 20.0);
     }
 
@@ -133,7 +139,7 @@ public abstract class AbstractGeneratorTest {
     public void invalidRatedS2() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("Invalid value of rated S");
-        createGenerator("invalid", EnergySource.HYDRO, 20.0, 11., -1.0,
+        createGenerator(INVALID, EnergySource.HYDRO, 20.0, 11., -1.0,
                 15.0, 40.0, false, 20.0);
     }
 
@@ -141,7 +147,7 @@ public abstract class AbstractGeneratorTest {
     public void invalidActiveP() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("for active power setpoint");
-        createGenerator("invalid", EnergySource.HYDRO, 20.0, 11., 2.0,
+        createGenerator(INVALID, EnergySource.HYDRO, 20.0, 11., 2.0,
                 Double.NaN, 10.0, false, 10.0);
     }
 
@@ -149,7 +155,7 @@ public abstract class AbstractGeneratorTest {
     public void invalidReactiveQ() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("for reactive power setpoint");
-        createGenerator("invalid", EnergySource.HYDRO, 20.0, 11., 2.0,
+        createGenerator(INVALID, EnergySource.HYDRO, 20.0, 11., 2.0,
                 30.0, Double.NaN, false, 10.0);
     }
 
@@ -157,7 +163,7 @@ public abstract class AbstractGeneratorTest {
     public void invalidVoltageSetpoint() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("for voltage setpoint");
-        createGenerator("invalid", EnergySource.HYDRO, 20.0, 11., 2.0,
+        createGenerator(INVALID, EnergySource.HYDRO, 20.0, 11., 2.0,
                 30.0, 40.0, true, 0.0);
     }
 
@@ -182,7 +188,7 @@ public abstract class AbstractGeneratorTest {
     @Test
     public void testAdder() {
         voltageLevel.newGenerator()
-                .setId("gen_id")
+                .setId(GEN_ID)
                 .setVoltageRegulatorOn(true)
                 .setEnergySource(EnergySource.NUCLEAR)
                 .setMaxP(100.0)
@@ -193,9 +199,9 @@ public abstract class AbstractGeneratorTest {
                 .setNode(1)
                 .setTargetV(31.0)
                 .add();
-        Generator generator = network.getGenerator("gen_id");
+        Generator generator = network.getGenerator(GEN_ID);
         assertNotNull(generator);
-        assertEquals("gen_id", generator.getId());
+        assertEquals(GEN_ID, generator.getId());
         assertTrue(generator.isVoltageRegulatorOn());
         assertEquals(EnergySource.NUCLEAR, generator.getEnergySource());
         assertEquals(100.0, generator.getMaxP(), 0.0);
@@ -208,15 +214,15 @@ public abstract class AbstractGeneratorTest {
 
     @Test
     public void testRemove() {
-        createGenerator("toRemove", EnergySource.HYDRO, 20.0, 11., 2.0,
+        createGenerator(TO_REMOVE, EnergySource.HYDRO, 20.0, 11., 2.0,
                 15.0, 40.0, true, 2.0);
         int count = network.getGeneratorCount();
-        Generator generator = network.getGenerator("toRemove");
+        Generator generator = network.getGenerator(TO_REMOVE);
         assertNotNull(generator);
         generator.remove();
         assertNotNull(generator);
-        assertEquals(count - 1, network.getGeneratorCount());
-        assertNull(network.getGenerator("toRemove"));
+        assertEquals(count - 1L, network.getGeneratorCount());
+        assertNull(network.getGenerator(TO_REMOVE));
     }
 
     @Test
@@ -265,6 +271,7 @@ public abstract class AbstractGeneratorTest {
             generator.getTargetP();
             fail();
         } catch (Exception ignored) {
+            // ignore
         }
     }
 

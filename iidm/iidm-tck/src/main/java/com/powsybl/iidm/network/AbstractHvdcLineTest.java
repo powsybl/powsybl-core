@@ -21,6 +21,18 @@ import static org.junit.Assert.*;
 
 public abstract class AbstractHvdcLineTest {
 
+    private static final String INVALID = "invalid";
+
+    private static final String DUPLICATE = "duplicate";
+
+    private static final String INVLID = "invlid";
+
+    private static final String NON_EXISTING = "non_existing";
+
+    private static final String TEST_MULTI_VARIANT = "testMultiVariant";
+
+    private static final String TO_REMOVE = "toRemove";
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -33,7 +45,6 @@ public abstract class AbstractHvdcLineTest {
 
     @Test
     public void testHvdcLineOneVariantAttributes() {
-        Network network = HvdcTestNetwork.createLcc();
         HvdcLine l = network.getHvdcLine("L");
         assertNotNull(l);
         assertEquals(1, l.getR(), 0.0);
@@ -80,7 +91,7 @@ public abstract class AbstractHvdcLineTest {
     public void invalidR() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("r is invalid");
-        createHvdcLine("invlid", "invalid", Double.NaN, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+        createHvdcLine(INVLID, INVALID, Double.NaN, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 440.0, 10.0, 20.0, "C1", "C2");
     }
 
@@ -88,7 +99,7 @@ public abstract class AbstractHvdcLineTest {
     public void invalidConvertersMode() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("converter mode is invalid");
-        createHvdcLine("invlid", "invalid", 10.0, null,
+        createHvdcLine(INVLID, INVALID, 10.0, null,
                 440.0, 10.0, 20.0, "C1", "C2");
     }
 
@@ -96,7 +107,7 @@ public abstract class AbstractHvdcLineTest {
     public void invalidNominalV() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("nominal voltage is invalid");
-        createHvdcLine("invlid", "invalid", 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+        createHvdcLine(INVLID, INVALID, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 0.0, 10.0, 20.0, "C1", "C2");
     }
 
@@ -104,7 +115,7 @@ public abstract class AbstractHvdcLineTest {
     public void invalidActivePowerSetpoint() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("for active power setpoint");
-        createHvdcLine("invlid", "invalid", 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+        createHvdcLine(INVLID, INVALID, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 510.0, Double.NaN, 20.0, "C1", "C2");
     }
 
@@ -112,60 +123,60 @@ public abstract class AbstractHvdcLineTest {
     public void invalidMaxP() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("for maximum P");
-        createHvdcLine("invlid", "invalid", 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+        createHvdcLine(INVLID, INVALID, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 510.0, 77.0, Double.NaN, "C1", "C2");
     }
 
     @Test
     public void nonExistingConverterStationSide1() {
-        HvdcConverterStation<?> nonExistingConverterStation = network.getHvdcConverterStation("non_existing");
+        HvdcConverterStation<?> nonExistingConverterStation = network.getHvdcConverterStation(NON_EXISTING);
         assertNull(nonExistingConverterStation);
         thrown.expect(RuntimeException.class);
         thrown.expectMessage("Side 1 converter station");
-        createHvdcLine("invlid", "invalid", 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
-                510.0, 77.0, 22.0, "non_existing", "C2");
+        createHvdcLine(INVLID, INVALID, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+                510.0, 77.0, 22.0, NON_EXISTING, "C2");
     }
 
     @Test
     public void nonExistingConverterStationSide2() {
-        HvdcConverterStation<?> nonExistingConverterStation = network.getHvdcConverterStation("non_existing");
+        HvdcConverterStation<?> nonExistingConverterStation = network.getHvdcConverterStation(NON_EXISTING);
         assertNull(nonExistingConverterStation);
         thrown.expect(RuntimeException.class);
         thrown.expectMessage("Side 2 converter station");
-        createHvdcLine("invlid", "invalid", 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
-                510.0, 77.0, 22.0, "C1", "non_existing");
+        createHvdcLine(INVLID, INVALID, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+                510.0, 77.0, 22.0, "C1", NON_EXISTING);
     }
 
     @Test
     public void duplicateHvdcLine() {
-        createHvdcLine("duplicate", "duplicate", 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+        createHvdcLine(DUPLICATE, DUPLICATE, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 10.0, 10.0, 20.0, "C1", "C2");
-        HvdcLine line = network.getHvdcLine("duplicate");
+        HvdcLine line = network.getHvdcLine(DUPLICATE);
         assertNotNull(line);
         thrown.expect(PowsyblException.class);
-        createHvdcLine("duplicate", "duplicate", 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+        createHvdcLine(DUPLICATE, DUPLICATE, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 10.0, 10.0, 20.0, "C1", "C2");
     }
 
     @Test
     public void removeHvdcLine() {
-        createHvdcLine("toRemove", "toRemove", 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+        createHvdcLine(TO_REMOVE, TO_REMOVE, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 10.0, 10.0, 20.0, "C1", "C2");
-        HvdcLine line = network.getHvdcLine("toRemove");
+        HvdcLine line = network.getHvdcLine(TO_REMOVE);
         assertNotNull(line);
         int hvdcLineCount = network.getHvdcLineCount();
         line.remove();
         assertNotNull(line);
-        assertNull(network.getHvdcLine("toRemove"));
-        assertEquals(hvdcLineCount - 1, network.getHvdcLineCount());
+        assertNull(network.getHvdcLine(TO_REMOVE));
+        assertEquals(hvdcLineCount - 1L, network.getHvdcLineCount());
     }
 
     @Test
     public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
-        createHvdcLine("testMultiVariant", "testMultiVariant", 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+        createHvdcLine(TEST_MULTI_VARIANT, TEST_MULTI_VARIANT, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 11.0, 12.0, 22.0, "C1", "C2");
-        HvdcLine hvdcLine = network.getHvdcLine("testMultiVariant");
+        HvdcLine hvdcLine = network.getHvdcLine(TEST_MULTI_VARIANT);
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
@@ -198,6 +209,7 @@ public abstract class AbstractHvdcLineTest {
             hvdcLine.getConvertersMode();
             fail();
         } catch (Exception ignored) {
+            // ignore
         }
     }
 

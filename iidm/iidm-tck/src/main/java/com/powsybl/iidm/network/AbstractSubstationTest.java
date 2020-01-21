@@ -12,12 +12,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.*;
 
 public abstract class AbstractSubstationTest {
+
+    private static final String SUB_NAME = "sub_name";
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -34,14 +36,14 @@ public abstract class AbstractSubstationTest {
         // adder
         Substation substation = network.newSubstation()
                                     .setId("sub")
-                                    .setName("sub_name")
+                                    .setName(SUB_NAME)
                                     .setCountry(Country.AD)
                                     .setTso("TSO")
                                     .setEnsureIdUnicity(false)
                                     .setGeographicalTags("geoTag1", "geoTag2")
                                 .add();
         assertEquals("sub", substation.getId());
-        assertEquals("sub_name", substation.getName());
+        assertEquals(SUB_NAME, substation.getName());
         assertEquals(Country.AD, substation.getCountry().orElse(null));
         assertEquals("TSO", substation.getTso());
         assertEquals(ContainerType.SUBSTATION, substation.getContainerType());
@@ -53,21 +55,21 @@ public abstract class AbstractSubstationTest {
         assertEquals("new tso", substation.getTso());
 
         // Create mocked network listeners
-        NetworkListener exceptionListener = Mockito.mock(DefaultNetworkListener.class);
-        Mockito.doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementAdded(Mockito.any(), Mockito.anyString(), Mockito.any());
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementAdded(any(), anyString(), any());
+        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
         // Test without listeners registered
         substation.addGeographicalTag("no listeners");
-        Mockito.verifyNoMoreInteractions(mockedListener);
-        Mockito.verifyNoMoreInteractions(exceptionListener);
+        verifyNoMoreInteractions(mockedListener);
+        verifyNoMoreInteractions(exceptionListener);
         // Add observer changes to current network
         network.addListener(exceptionListener);
         network.addListener(mockedListener);
         // Change in order to raise update notification
         substation.addGeographicalTag("test");
         // Check notification done
-        Mockito.verify(mockedListener, Mockito.times(1))
-               .onElementAdded(Mockito.any(Substation.class), Mockito.anyString(), Mockito.anyString());
+        verify(mockedListener, times(1))
+               .onElementAdded(any(Substation.class), anyString(), anyString());
         // Remove observer
         network.removeListener(mockedListener);
     }
@@ -85,7 +87,7 @@ public abstract class AbstractSubstationTest {
         thrown.expect(ValidationException.class);
         Substation substation = network.newSubstation()
                                         .setId("sub")
-                                        .setName("sub_name")
+                                        .setName(SUB_NAME)
                                         .setCountry(Country.AD)
                                         .setTso("TSO")
                                         .setEnsureIdUnicity(false)
@@ -100,14 +102,14 @@ public abstract class AbstractSubstationTest {
     public void duplicateSubstation() {
         network.newSubstation()
                 .setId("duplicate")
-                .setName("sub_name")
+                .setName(SUB_NAME)
                 .setCountry(Country.AD)
             .add();
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("with the id 'duplicate'");
         network.newSubstation()
                 .setId("duplicate")
-                .setName("sub_name")
+                .setName(SUB_NAME)
                 .setCountry(Country.AD)
             .add();
     }

@@ -13,12 +13,22 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public abstract class AbstractLineTest {
+
+    private static final String HALF1_NAME = "half1_name";
+
+    private static final String INVALID = "invalid";
+
+    private static final String LINE_NAME = "lineName";
+
+    private static final String TO_REMOVE = "toRemove";
+
+    private static final String DUPLICATE = "duplicate";
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -39,7 +49,7 @@ public abstract class AbstractLineTest {
         // adder
         Line acLine = network.newLine()
             .setId("line")
-            .setName("lineName")
+            .setName(LINE_NAME)
             .setR(1.0)
             .setX(2.0)
             .setG1(3.0)
@@ -54,7 +64,7 @@ public abstract class AbstractLineTest {
             .setConnectableBus2("busB")
             .add();
         assertEquals("line", acLine.getId());
-        assertEquals("lineName", acLine.getName());
+        assertEquals(LINE_NAME, acLine.getName());
         assertEquals(1.0, acLine.getR(), 0.0);
         assertEquals(2.0, acLine.getX(), 0.0);
         assertEquals(3.0, acLine.getG1(), 0.0);
@@ -143,11 +153,12 @@ public abstract class AbstractLineTest {
     @Test
     public void testChangesNotification() {
         // Changes listener
-        NetworkListener exceptionListener = Mockito.mock(DefaultNetworkListener.class);
-        Mockito.doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any());
-        Mockito.doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any());
+        NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), anyString(), any(), any());
+        doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(any(), any(), anyString(), any(),
+                any());
 
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
         // Add observer changes to current network
         network.addListener(exceptionListener);
         network.addListener(mockedListener);
@@ -155,7 +166,7 @@ public abstract class AbstractLineTest {
         // Tested instance
         Line acLine = network.newLine()
             .setId("line")
-            .setName("lineName")
+            .setName(LINE_NAME)
             .setR(1.0)
             .setX(2.0)
             .setG1(3.0)
@@ -169,7 +180,7 @@ public abstract class AbstractLineTest {
             .setConnectableBus1("busA")
             .setConnectableBus2("busB")
             .add();
-        Mockito.verify(mockedListener, Mockito.times(1)).onCreation(acLine);
+        verify(mockedListener, times(1)).onCreation(acLine);
         // Get initial values
         double p0OldValue = acLine.getTerminal1().getP();
         double q0OldValue = acLine.getTerminal1().getQ();
@@ -178,21 +189,21 @@ public abstract class AbstractLineTest {
         acLine.getTerminal1().setQ(Math.sqrt(2.0));
 
         // Check update notification
-        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(acLine, "p1", INITIAL_VARIANT_ID, p0OldValue, 1.0);
-        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(acLine, "q1", INITIAL_VARIANT_ID, q0OldValue, Math.sqrt(2.0));
+        verify(mockedListener, times(1)).onUpdate(acLine, "p1", INITIAL_VARIANT_ID, p0OldValue, 1.0);
+        verify(mockedListener, times(1)).onUpdate(acLine, "q1", INITIAL_VARIANT_ID, q0OldValue, Math.sqrt(2.0));
 
         // Change values that not depend on the variant
         acLine.setR(1.5);
-        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(acLine, "r", 1.0, 1.5);
+        verify(mockedListener, times(1)).onUpdate(acLine, "r", 1.0, 1.5);
 
         // Simulate exception for onUpdate calls
-        Mockito.doThrow(new PowsyblException())
+        doThrow(new PowsyblException())
                .when(mockedListener)
-               .onUpdate(Mockito.any(Line.class), Mockito.anyString(), Mockito.anyDouble(), Mockito.anyDouble());
+                .onUpdate(any(Line.class), anyString(), anyDouble(), anyDouble());
         // Change P1 value
         try {
             acLine.getTerminal1().setP(1.1);
-            Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(acLine, "p1", INITIAL_VARIANT_ID, 1.0, 1.1);
+            verify(mockedListener, times(1)).onUpdate(acLine, "p1", INITIAL_VARIANT_ID, 1.0, 1.1);
         } catch (PowsyblException notExpected) {
             fail();
         }
@@ -209,68 +220,68 @@ public abstract class AbstractLineTest {
         acLine.getTerminal1().setQ(1.0);
 
         // Check no notification
-        Mockito.verifyNoMoreInteractions(mockedListener);
+        verifyNoMoreInteractions(mockedListener);
     }
 
     @Test
     public void invalidR() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("r is invalid");
-        createLineBetweenVoltageAB("invalid", "invalid", Double.NaN, 2.0, 3.0, 3.5, 4.0, 4.5);
+        createLineBetweenVoltageAB(INVALID, INVALID, Double.NaN, 2.0, 3.0, 3.5, 4.0, 4.5);
     }
 
     @Test
     public void invalidX() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("x is invalid");
-        createLineBetweenVoltageAB("invalid", "invalid", 1.0, Double.NaN, 3.0, 3.5, 4.0, 4.5);
+        createLineBetweenVoltageAB(INVALID, INVALID, 1.0, Double.NaN, 3.0, 3.5, 4.0, 4.5);
     }
 
     @Test
     public void invalidG1() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("g1 is invalid");
-        createLineBetweenVoltageAB("invalid", "invalid", 1.0, 2.0, Double.NaN, 3.5, 4.0, 4.5);
+        createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, Double.NaN, 3.5, 4.0, 4.5);
     }
 
     @Test
     public void invalidG2() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("g2 is invalid");
-        createLineBetweenVoltageAB("invalid", "invalid", 1.0, 2.0, 3.0, Double.NaN, 4.0, 4.5);
+        createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, 3.0, Double.NaN, 4.0, 4.5);
     }
 
     @Test
     public void invalidB1() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("b1 is invalid");
-        createLineBetweenVoltageAB("invalid", "invalid", 1.0, 2.0, 3.0, 3.5, Double.NaN, 4.5);
+        createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, 3.0, 3.5, Double.NaN, 4.5);
     }
 
     @Test
     public void invalidB2() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("b2 is invalid");
-        createLineBetweenVoltageAB("invalid", "invalid", 1.0, 2.0, 3.0, 3.5, 4.0, Double.NaN);
+        createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, 3.0, 3.5, 4.0, Double.NaN);
     }
 
     @Test
     public void duplicateAcLine() {
-        createLineBetweenVoltageAB("duplicate", "duplicate", 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
+        createLineBetweenVoltageAB(DUPLICATE, DUPLICATE, 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
         thrown.expect(PowsyblException.class);
-        createLineBetweenVoltageAB("duplicate", "duplicate", 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
+        createLineBetweenVoltageAB(DUPLICATE, DUPLICATE, 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
     }
 
     @Test
     public void testRemoveAcLine() {
-        createLineBetweenVoltageAB("toRemove", "toRemove", 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
-        Line line = network.getLine("toRemove");
+        createLineBetweenVoltageAB(TO_REMOVE, TO_REMOVE, 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
+        Line line = network.getLine(TO_REMOVE);
         assertNotNull(line);
         int count = network.getLineCount();
         line.remove();
         assertNotNull(line);
-        assertNull(network.getLine("toRemove"));
-        assertEquals(count - 1, network.getLineCount());
+        assertNull(network.getLine(TO_REMOVE));
+        assertEquals(count - 1L, network.getLineCount());
     }
 
     @Test
@@ -302,7 +313,7 @@ public abstract class AbstractLineTest {
             .setUcteXnodeCode("ucte")
             .line1()
             .setId("hl1")
-            .setName("half1_name")
+            .setName(HALF1_NAME)
             .setR(r)
             .setX(x)
             .setB1(hl1b1)
@@ -325,7 +336,7 @@ public abstract class AbstractLineTest {
         assertTrue(tieLine.isTieLine());
         assertEquals(ConnectableType.LINE, tieLine.getType());
         assertEquals("ucte", tieLine.getUcteXnodeCode());
-        assertEquals("half1_name", tieLine.getHalf1().getName());
+        assertEquals(HALF1_NAME, tieLine.getHalf1().getName());
         assertEquals("hl2", tieLine.getHalf2().getId());
         assertEquals(r + r2, tieLine.getR(), 0.0);
         assertEquals(x + x2, tieLine.getX(), 0.0);
@@ -339,36 +350,42 @@ public abstract class AbstractLineTest {
             tieLine.setR(1.0);
             fail();
         } catch (ValidationException ignored) {
+            // ignore
         }
 
         try {
             tieLine.setX(1.0);
             fail();
         } catch (ValidationException ignored) {
+            // ignore
         }
 
         try {
             tieLine.setB1(1.0);
             fail();
         } catch (ValidationException ignored) {
+            // ignore
         }
 
         try {
             tieLine.setB2(1.0);
             fail();
         } catch (ValidationException ignored) {
+            // ignore
         }
 
         try {
             tieLine.setG1(1.0);
             fail();
         } catch (ValidationException ignored) {
+            // ignore
         }
 
         try {
             tieLine.setG2(1.0);
             fail();
         } catch (ValidationException ignored) {
+            // ignore
         }
 
         TieLine.HalfLine half1 = tieLine.getHalf1();
@@ -380,7 +397,7 @@ public abstract class AbstractLineTest {
         assertEquals(xnodeQ, half2.getXnodeQ(), 0.0);
 
         // Check notification on HalfLine changes
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
         // Add observer changes to current network
         network.addListener(mockedListener);
         // Apply changes on Half lines
@@ -400,7 +417,7 @@ public abstract class AbstractLineTest {
         half2.setG2(hl2g2 + 1);
         half2.setB1(hl2b1 + 1);
         half2.setB2(hl2b2 + 1);
-        Mockito.verify(mockedListener, Mockito.times(16)).onUpdate(Mockito.any(TieLine.class), Mockito.anyString(), Mockito.any(), Mockito.any());
+        verify(mockedListener, times(16)).onUpdate(any(TieLine.class), anyString(), any(), any());
         // Remove observer
         network.removeListener(mockedListener);
         // Cancel changes on Half lines
@@ -421,14 +438,14 @@ public abstract class AbstractLineTest {
         half2.setB1(hl2b1);
         half2.setB2(hl2b2);
         // Check no notification
-        Mockito.verifyNoMoreInteractions(mockedListener);
+        verifyNoMoreInteractions(mockedListener);
     }
 
     @Test
     public void invalidHalfLineCharacteristicsR() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("r is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", Double.NaN, 2.0,
+        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, Double.NaN, 2.0,
             3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
     }
 
@@ -436,7 +453,7 @@ public abstract class AbstractLineTest {
     public void invalidHalfLineCharacteristicsX() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("x is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, Double.NaN,
+        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, Double.NaN,
             3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
     }
 
@@ -444,7 +461,7 @@ public abstract class AbstractLineTest {
     public void invalidHalfLineCharacteristicsG1() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("g1 is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
+        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
             Double.NaN, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
     }
 
@@ -452,7 +469,7 @@ public abstract class AbstractLineTest {
     public void invalidHalfLineCharacteristicsG2() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("g2 is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
+        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
             3.0, Double.NaN, 4.0, 4.5, 5.0, 6.0, "code");
     }
 
@@ -460,7 +477,7 @@ public abstract class AbstractLineTest {
     public void invalidHalfLineCharacteristicsB1() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("b1 is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
+        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
             3.0, 3.5, Double.NaN, 4.5, 5.0, 6.0, "code");
     }
 
@@ -468,7 +485,7 @@ public abstract class AbstractLineTest {
     public void invalidHalfLineCharacteristicsB2() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("b2 is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
+        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
             3.0, 3.5, 4.0, Double.NaN, 5.0, 6.0, "code");
     }
 
@@ -476,7 +493,7 @@ public abstract class AbstractLineTest {
     public void invalidHalfLineCharacteristicsP() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("xnodeP is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
+        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
             3.0, 3.5, 4.0, 4.5, Double.NaN, 6.0, "code");
     }
 
@@ -484,7 +501,7 @@ public abstract class AbstractLineTest {
     public void invalidHalfLineCharacteristicsQ() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("xnodeQ is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
+        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
             3.0, 3.5, 4.0, 4.5, 5.0, Double.NaN, "code");
     }
 
@@ -492,7 +509,7 @@ public abstract class AbstractLineTest {
     public void halfLineIdNull() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("id is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", null, 1.0, 2.0,
+        createTieLineWithHalfline2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
             3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
     }
 
@@ -500,31 +517,31 @@ public abstract class AbstractLineTest {
     public void uctecodeNull() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("ucteXnodeCode is not set");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
+        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
             3.0, 3.5, 4.0, 4.5, 5.0, 6.0, null);
     }
 
     @Test
     public void duplicate() {
-        createTieLineWithHalfline2ByDefault("duplicate", "duplicate", "id1", 1.0, 2.0,
-            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "duplicate");
+        createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
+            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, DUPLICATE);
         thrown.expect(PowsyblException.class);
-        createTieLineWithHalfline2ByDefault("duplicate", "duplicate", "id1", 1.0, 2.0,
-            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "duplicate");
+        createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
+            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, DUPLICATE);
     }
 
     @Test
     public void testRemove() {
-        createTieLineWithHalfline2ByDefault("toRemove", "toRemove", "id1", 1.0, 2.0,
-            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "toRemove");
-        Line line = network.getLine("toRemove");
+        createTieLineWithHalfline2ByDefault(TO_REMOVE, TO_REMOVE, "id1", 1.0, 2.0,
+            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, TO_REMOVE);
+        Line line = network.getLine(TO_REMOVE);
         assertNotNull(line);
         assertTrue(line.isTieLine());
         int count = network.getLineCount();
         line.remove();
-        assertNull(network.getLine("toRemove"));
+        assertNull(network.getLine(TO_REMOVE));
         assertNotNull(line);
-        assertEquals(count - 1, network.getLineCount());
+        assertEquals(count - 1L, network.getLineCount());
     }
 
     private void createLineBetweenVoltageAB(String id, String name, double r, double x,
@@ -555,7 +572,7 @@ public abstract class AbstractLineTest {
             .setName(name)
             .line1()
             .setId(halfLineId)
-            .setName("half1_name")
+            .setName(HALF1_NAME)
             .setR(r)
             .setX(x)
             .setB1(b1)

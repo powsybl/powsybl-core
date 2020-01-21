@@ -21,6 +21,10 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractNetworkRemoveTest {
 
+    private static final String NEW_BUS = "NEW_BUS";
+    private static final String NLOAD = "NLOAD";
+    private static final String NHV2_NLOAD = "NHV2_NLOAD";
+    private static final String VLLOAD = "VLLOAD";
     private Network network;
 
     @Before
@@ -45,27 +49,27 @@ public abstract class AbstractNetworkRemoveTest {
 
     @Test
     public void moveLoadToNewBus() {
-        VoltageLevel vl = network.getVoltageLevel("VLLOAD");
+        VoltageLevel vl = network.getVoltageLevel(VLLOAD);
         vl.getBusBreakerView().newBus()
-                .setId("NEW_BUS")
+                .setId(NEW_BUS)
                 .add();
         Load l = network.getLoad("LOAD");
-        assertEquals("NLOAD", l.getTerminal().getBusBreakerView().getBus().getId());
+        assertEquals(NLOAD, l.getTerminal().getBusBreakerView().getBus().getId());
         assertTrue(l.getTerminal().isConnected());
-        l.getTerminal().getBusBreakerView().setConnectableBus("NEW_BUS");
-        assertEquals("NEW_BUS", l.getTerminal().getBusBreakerView().getBus().getId());
+        l.getTerminal().getBusBreakerView().setConnectableBus(NEW_BUS);
+        assertEquals(NEW_BUS, l.getTerminal().getBusBreakerView().getBus().getId());
         assertTrue(l.getTerminal().isConnected());
     }
 
     private void extend(Network n) {
-        VoltageLevel vl = network.getVoltageLevel("VLLOAD");
+        VoltageLevel vl = n.getVoltageLevel(VLLOAD);
         vl.getBusBreakerView().newBus()
-                .setId("NEW_BUS")
+                .setId(NEW_BUS)
                 .add();
         vl.getBusBreakerView().newSwitch()
                 .setId("COUPL")
-                .setBus1("NLOAD")
-                .setBus2("NEW_BUS")
+                .setBus1(NLOAD)
+                .setBus2(NEW_BUS)
                 .setOpen(false)
                 .add();
     }
@@ -73,10 +77,10 @@ public abstract class AbstractNetworkRemoveTest {
     @Test
     public void removeAll() {
         extend(network);
-        VoltageLevel vl = network.getVoltageLevel("VLLOAD");
+        VoltageLevel vl = network.getVoltageLevel(VLLOAD);
         vl.getBusBreakerView().removeAllSwitches();
         network.getLoad("LOAD").remove();
-        network.getTwoWindingsTransformer("NHV2_NLOAD").remove();
+        network.getTwoWindingsTransformer(NHV2_NLOAD).remove();
         vl.getBusBreakerView().removeAllBuses();
         assertEquals(0, Iterables.size(vl.getBusBreakerView().getBuses()));
         assertEquals(0, Iterables.size(vl.getBusBreakerView().getSwitches()));
@@ -84,20 +88,21 @@ public abstract class AbstractNetworkRemoveTest {
 
     @Test
     public void removeBusFailure() {
-        VoltageLevel vl = network.getVoltageLevel("VLLOAD");
+        VoltageLevel vl = network.getVoltageLevel(VLLOAD);
         try {
-            vl.getBusBreakerView().removeBus("NLOAD");
+            vl.getBusBreakerView().removeBus(NLOAD);
             fail();
         } catch (Exception ignored) {
+            // ignore
         }
     }
 
     @Test
     public void removeBus() {
         network.getLoad("LOAD").remove();
-        network.getTwoWindingsTransformer("NHV2_NLOAD").remove();
-        VoltageLevel vl = network.getVoltageLevel("VLLOAD");
-        vl.getBusBreakerView().removeBus("NLOAD");
+        network.getTwoWindingsTransformer(NHV2_NLOAD).remove();
+        VoltageLevel vl = network.getVoltageLevel(VLLOAD);
+        vl.getBusBreakerView().removeBus(NLOAD);
         assertEquals(0, Iterables.size(vl.getBusBreakerView().getBuses()));
     }
 
@@ -105,30 +110,32 @@ public abstract class AbstractNetworkRemoveTest {
     public void removeBusFailureBecauseOfSwitch() {
         extend(network);
         network.getLoad("LOAD").remove();
-        network.getTwoWindingsTransformer("NHV2_NLOAD").remove();
-        VoltageLevel vl = network.getVoltageLevel("VLLOAD");
+        network.getTwoWindingsTransformer(NHV2_NLOAD).remove();
+        VoltageLevel vl = network.getVoltageLevel(VLLOAD);
         try {
-            vl.getBusBreakerView().removeBus("NLOAD");
+            vl.getBusBreakerView().removeBus(NLOAD);
             fail();
         } catch (Exception ignored) {
+            // ignore
         }
     }
 
     @Test
     public void removeSwitchFailure() {
         extend(network);
-        VoltageLevel vl = network.getVoltageLevel("VLLOAD");
+        VoltageLevel vl = network.getVoltageLevel(VLLOAD);
         try {
             vl.getBusBreakerView().removeSwitch("XXX");
             fail();
         } catch (Exception ignored) {
+            // ignore
         }
     }
 
     @Test
     public void removeSwitch() {
         extend(network);
-        VoltageLevel vl = network.getVoltageLevel("VLLOAD");
+        VoltageLevel vl = network.getVoltageLevel(VLLOAD);
         vl.getBusBreakerView().removeSwitch("COUPL");
     }
 }

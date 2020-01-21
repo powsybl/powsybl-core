@@ -22,6 +22,8 @@ import static org.junit.Assert.*;
 
 public abstract class AbstractLoadTest {
 
+    private static final String TO_REMOVE = "toRemove";
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -142,14 +144,14 @@ public abstract class AbstractLoadTest {
 
     @Test
     public void testRemove() {
-        createLoad("toRemove", 2.0, 1.0);
-        Load load = network.getLoad("toRemove");
+        createLoad(TO_REMOVE, 2.0, 1.0);
+        Load load = network.getLoad(TO_REMOVE);
         int loadCount = network.getLoadCount();
         assertNotNull(load);
         load.remove();
         assertNotNull(load);
-        assertNull(network.getLoad("toRemove"));
-        assertEquals(loadCount - 1, network.getLoadCount());
+        assertNull(network.getLoad(TO_REMOVE));
+        assertEquals(loadCount - 1L, network.getLoadCount());
     }
 
     @Test
@@ -197,6 +199,7 @@ public abstract class AbstractLoadTest {
             load.getQ0();
             fail();
         } catch (Exception ignored) {
+            // ignore
         }
 
         // Remove observer changes

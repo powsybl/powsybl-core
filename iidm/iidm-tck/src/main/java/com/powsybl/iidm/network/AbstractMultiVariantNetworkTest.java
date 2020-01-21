@@ -25,12 +25,15 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractMultiVariantNetworkTest {
 
+    private static final String NLOAD2 = "NLOAD";
+    private static final String SECOND_VARIANT = "SecondVariant";
+
     @Test
     public void singleThreadTest() {
         Network network = EurostagTutorialExample1Factory.create();
         final VariantManager manager = network.getVariantManager();
-        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "SecondVariant");
-        manager.setWorkingVariant("SecondVariant");
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, SECOND_VARIANT);
+        manager.setWorkingVariant(SECOND_VARIANT);
         final Generator generator = network.getGenerator("GEN");
         generator.setVoltageRegulatorOn(false);
         assertFalse(generator.isVoltageRegulatorOn());
@@ -44,14 +47,14 @@ public abstract class AbstractMultiVariantNetworkTest {
         final VariantManager manager = network.getVariantManager();
         manager.allowVariantMultiThreadAccess(true);
 
-        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "SecondVariant");
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, SECOND_VARIANT);
 
         final Generator generator = network.getGenerator("GEN");
 
         manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         generator.setVoltageRegulatorOn(true);
 
-        manager.setWorkingVariant("SecondVariant");
+        manager.setWorkingVariant(SECOND_VARIANT);
         generator.setVoltageRegulatorOn(false);
 
         final boolean[] voltageRegulatorOnInitialVariant = new boolean[1];
@@ -67,7 +70,7 @@ public abstract class AbstractMultiVariantNetworkTest {
                 return null;
             },
             () -> {
-                manager.setWorkingVariant("SecondVariant");
+                manager.setWorkingVariant(SECOND_VARIANT);
                 latch.countDown();
                 latch.await();
                 voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn();
@@ -81,18 +84,18 @@ public abstract class AbstractMultiVariantNetworkTest {
     }
 
     @Test
-    public void multiVariantTopologyTest() throws InterruptedException {
+    public void multiVariantTopologyTest() {
         Network network = EurostagTutorialExample1Factory.create();
         VariantManager manager = network.getVariantManager();
         manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "NEW_VARIANT");
         VoltageLevel vlload = network.getVoltageLevel("VLLOAD");
-        Bus nload = vlload.getBusBreakerView().getBus("NLOAD");
+        Bus nload = vlload.getBusBreakerView().getBus(NLOAD2);
         Load newLoad = vlload.newLoad()
                 .setId("NEW_LOAD")
                 .setP0(10)
                 .setQ0(10)
-                .setBus("NLOAD")
-                .setConnectableBus("NLOAD")
+                .setBus(NLOAD2)
+                .setConnectableBus(NLOAD2)
             .add();
         manager.setWorkingVariant("NEW_VARIANT");
         assertNotNull(newLoad.getTerminal().getBusBreakerView().getBus());
@@ -119,6 +122,7 @@ public abstract class AbstractMultiVariantNetworkTest {
                 network.getGenerator("GEN").getTargetP();
                 fail();
             } catch (Exception ignored) {
+                // ignore
             }
         });
         service.shutdown();
