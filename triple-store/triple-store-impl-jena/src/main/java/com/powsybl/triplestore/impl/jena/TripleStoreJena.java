@@ -27,6 +27,7 @@ import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.TxnType;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
@@ -83,11 +84,17 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
     @Override
     public void read(InputStream is, String baseName, String contextName) {
-        Model m = ModelFactory.createDefaultModel();
-        m.read(is, baseName, guessFormatFromName(contextName));
-        addNamespaceForBase(m, baseName);
-        dataset.addNamedModel(namedModelFromName(contextName), m);
-        union = union.union(m);
+        dataset.begin(TxnType.WRITE);
+        try {
+            Model m = ModelFactory.createDefaultModel();
+            m.read(is, baseName, guessFormatFromName(contextName));
+            addNamespaceForBase(m, baseName);
+            dataset.addNamedModel(namedModelFromName(contextName), m);
+            union = union.union(m);
+            dataset.commit();
+        } finally {
+            dataset.end();
+        }
     }
 
     private static void addNamespaceForBase(Model m, String baseName) {
@@ -108,17 +115,24 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
     @Override
     public void write(DataSource ds) {
-        Iterator<String> contexts = dataset.listNames();
-        while (contexts.hasNext()) {
-            String context = contexts.next();
-            Model model = dataset.getNamedModel(context);
-            // when upgrading from 3.0.0 to latest versions, namespaces not present in model, need to
-            // be added from union
-            model.setNsPrefixes(union.getNsPrefixMap());
-            writer.setProperty("prettyTypes", subjectsTypes(model));
-            // set xmlbase will improve output readability
-            writer.setProperty("xmlbase", model.getNsPrefixMap().get("data"));
-            writer.write(model, outputStream(ds, context), context);
+        dataset.begin(TxnType.WRITE);
+        try {
+            Iterator<String> contexts = dataset.listNames();
+            while (contexts.hasNext()) {
+                String context = contexts.next();
+                Model model = dataset.getNamedModel(context);
+                // when upgrading from 3.0.0 to latest versions, namespaces not present in
+                // model, need to
+                // be added from union
+                model.setNsPrefixes(union.getNsPrefixMap());
+                writer.setProperty("prettyTypes", subjectsTypes(model));
+                // set xmlbase will improve output readability
+                writer.setProperty("xmlbase", model.getNsPrefixMap().get("data"));
+                writer.write(model, outputStream(ds, context), context);
+            }
+            dataset.commit();
+        } finally {
+            dataset.end();
         }
     }
 
@@ -142,11 +156,17 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
     @Override
     public void clear(String contextName) {
-        String mname = namedModelFromName(contextName);
-        Model m = dataset.getNamedModel(mname);
-        union.remove(m);
-        dataset.removeNamedModel(mname);
-        m.removeAll();
+        dataset.begin(TxnType.WRITE);
+        try {
+            String mname = namedModelFromName(contextName);
+            Model m = dataset.getNamedModel(mname);
+            union.remove(m);
+            dataset.removeNamedModel(mname);
+            m.removeAll();
+            dataset.commit();
+        } finally {
+            dataset.end();
+        }
     }
 
     @Override
@@ -184,19 +204,25 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         Objects.requireNonNull(source);
         Dataset sourceDataset;
         if (source instanceof TripleStoreJena) {
-            sourceDataset = ((TripleStoreJena) source).dataset;
-            union = union.union(((TripleStoreJena) source).union);
-            for (String name : IteratorCollection.iteratorToList(sourceDataset.listNames())) {
-                String context = namedModelFromName(name);
-                if (sourceDataset.containsNamedModel(context)) {
-                    Model targetModel = ModelFactory.createDefaultModel();
-                    Model sourceModel = sourceDataset.getNamedModel(context);
-                    copyNamespaces(union, targetModel);
-                    for (Statement st : IteratorCollection.iteratorToList(sourceModel.listStatements())) {
-                        targetModel.add(st);
+            dataset.begin(TxnType.WRITE);
+            try {
+                sourceDataset = ((TripleStoreJena) source).dataset;
+                union = union.union(((TripleStoreJena) source).union);
+                for (String name : IteratorCollection.iteratorToList(sourceDataset.listNames())) {
+                    String context = namedModelFromName(name);
+                    if (sourceDataset.containsNamedModel(context)) {
+                        Model targetModel = ModelFactory.createDefaultModel();
+                        Model sourceModel = sourceDataset.getNamedModel(context);
+                        copyNamespaces(union, targetModel);
+                        for (Statement st : IteratorCollection.iteratorToList(sourceModel.listStatements())) {
+                            targetModel.add(st);
+                        }
+                        dataset.addNamedModel(context, targetModel);
                     }
-                    dataset.addNamedModel(context, targetModel);
                 }
+                dataset.commit();
+            } finally {
+                dataset.end();
             }
 
         } else {
@@ -217,20 +243,33 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
     @Override
     public void add(String contextName, String objNs, String objType, PropertyBags statements) {
-        Model m = getModel(contextName);
-        for (PropertyBag statement : statements) {
-            createStatements(m, objNs, objType, statement);
+        dataset.begin(TxnType.WRITE);
+        try {
+            Model m = getModel(contextName);
+            for (PropertyBag statement : statements) {
+                createStatements(m, objNs, objType, statement);
+            }
+            dataset.addNamedModel(contextName, m);
+            union = union.union(m);
+            dataset.commit();
+        } finally {
+            dataset.end();
         }
-        dataset.addNamedModel(contextName, m);
-        union = union.union(m);
     }
 
     @Override
     public String add(String contextName, String objNs, String objType, PropertyBag properties) {
-        Model m = getModel(contextName);
-        String id = createStatements(m, objNs, objType, properties);
-        dataset.addNamedModel(contextName, m);
-        union = union.union(m);
+        String id;
+        dataset.begin(TxnType.WRITE);
+        try {
+            Model m = getModel(contextName);
+            id = createStatements(m, objNs, objType, properties);
+            dataset.addNamedModel(contextName, m);
+            union = union.union(m);
+            dataset.commit();
+        } finally {
+            dataset.end();
+        }
         return id;
     }
 
