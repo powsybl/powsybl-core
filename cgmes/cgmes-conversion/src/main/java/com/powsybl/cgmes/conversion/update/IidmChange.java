@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.conversion.update;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.powsybl.iidm.network.Identifiable;
 
@@ -18,6 +19,7 @@ public class IidmChange {
 
     public IidmChange(Identifiable identifiable) {
         this.identifiable = Objects.requireNonNull(identifiable);
+        this.index = COUNTER.getAndIncrement();
     }
 
     public Identifiable getIdentifiable() {
@@ -29,5 +31,12 @@ public class IidmChange {
         return false;
     }
 
+    public int getIndex() {
+        return index;
+
+    }
+
     private final Identifiable identifiable;
+    private final int index;
+    private static final AtomicInteger COUNTER = new AtomicInteger();
 }

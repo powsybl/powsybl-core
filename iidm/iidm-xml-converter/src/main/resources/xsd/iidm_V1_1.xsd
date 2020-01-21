@@ -305,6 +305,9 @@
     <xs:complexType name="StaticVarCompensator">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
+                <xs:sequence>
+                    <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
+                </xs:sequence>
                 <xs:attribute name="bMin" use="required" type="xs:double"/>
                 <xs:attribute name="bMax" use="required" type="xs:double"/>
                 <xs:attribute name="voltageSetPoint" use="optional" type="xs:double"/>

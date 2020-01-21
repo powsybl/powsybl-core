@@ -104,17 +104,28 @@ public class ConversionTester {
     }
 
     public void testConversion(Network expected, TestGridModel gm) throws IOException {
-        testConversion(expected, gm, this.networkComparison);
+        //testConversion(expected, gm, this.networkComparison);
+        boolean useNewTransformerConversion = true;
+        testConversion(expected, gm, this.networkComparison, useNewTransformerConversion);
+        Network nNew = lastConvertedNetwork();
+
+        useNewTransformerConversion = false;
+        testConversion(expected, gm, this.networkComparison, useNewTransformerConversion);
+        Network nCurrent = lastConvertedNetwork();
+
+        if (nCurrent != null && nNew != null) {
+            new Comparison(nCurrent, nNew, this.networkComparison).compare();
+        }
     }
 
-    public void testConversion(Network expected, TestGridModel gm, ComparisonConfig config)
+    public void testConversion(Network expected, TestGridModel gm, ComparisonConfig config, boolean useNewTransformerConversion)
         throws IOException {
         if (onlyReport) {
             testConversionOnlyReport(gm);
         } else {
             for (String impl : tripleStoreImplementations) {
                 LOG.info("testConversion. TS implementation {}, grid model {}", impl, gm.name());
-                testConversion(expected, gm, config, impl);
+                testConversion(expected, gm, config, impl, useNewTransformerConversion);
             }
         }
     }
@@ -123,7 +134,7 @@ public class ConversionTester {
         return lastConvertedNetwork;
     }
 
-    private void testConversion(Network expected, TestGridModel gm, ComparisonConfig cconfig, String impl)
+    private void testConversion(Network expected, TestGridModel gm, ComparisonConfig cconfig, String impl, boolean useNewTransformerConversion)
         throws IOException {
         Properties iparams = importParams == null ? new Properties() : importParams;
         iparams.put("storeCgmesModelAsNetworkExtension", "true");
@@ -131,6 +142,7 @@ public class ConversionTester {
         // This is to be able to easily compare the topology computed
         // by powsybl against the topology present in the CGMES model
         iparams.put("createBusbarSectionForEveryConnectivityNode", "true");
+        iparams.put("tempUseNewTransformerConversion", Boolean.toString(useNewTransformerConversion));
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             CgmesImport i = new CgmesImport();
             ReadOnlyDataSource ds = gm.dataSource();

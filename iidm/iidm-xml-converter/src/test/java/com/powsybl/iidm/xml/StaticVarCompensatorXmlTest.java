@@ -6,8 +6,12 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 
@@ -18,13 +22,43 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
  */
 public class StaticVarCompensatorXmlTest extends AbstractXmlConverterTest {
 
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
+
     @Test
     public void roundTripTest() throws IOException {
+        // backward compatibility
         roundTripVersionnedXmlTest("staticVarCompensatorRoundTripRef.xml", IidmXmlVersion.V_1_0);
 
-        roundTripXmlTest(SvcTestCaseFactory.create(),
+        Network network = SvcTestCaseFactory.create();
+        addProperties(network);
+        roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 getVersionDir(CURRENT_IIDM_XML_VERSION) + "staticVarCompensatorRoundTripRef.xml");
+    }
+
+    @Test
+    public void remoteRegulationRoundTripTest() throws IOException {
+        Network network = SvcTestCaseFactory.createWithRemoteRegulatingTerminal();
+        addProperties(network);
+        roundTripXmlTest(network,
+                NetworkXml::writeAndValidate,
+                NetworkXml::read,
+                getVersionDir(CURRENT_IIDM_XML_VERSION) + "regulatingStaticVarCompensatorRoundTripRef.xml");
+    }
+
+    @Test
+    public void faultyVersionRegulatingSvcFile() {
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("staticVarCompensator.regulatingTerminal is not supported for IIDM-XML version 1.0. " +
+                "IIDM-XML version should be >= 1.1");
+        NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_0) +
+                "faultyRegulatingStaticVarCompensatorRoundTripRef.xml"));
+    }
+
+    private static void addProperties(Network network) {
+        network.getStaticVarCompensator("SVC2")
+                .setProperty("test", "test");
     }
 }
