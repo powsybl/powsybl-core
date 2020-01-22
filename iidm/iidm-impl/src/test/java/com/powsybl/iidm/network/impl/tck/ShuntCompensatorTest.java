@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractShuntCompensatorTest;
+import com.powsybl.iidm.network.tck.AbstractShuntCompensatorTest;
 
 public class ShuntCompensatorTest extends AbstractShuntCompensatorTest { }

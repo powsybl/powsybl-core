@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractSwitchSetRetainedTest;
+import com.powsybl.iidm.network.tck.AbstractSwitchSetRetainedTest;
 
 public class SwitchSetRetainedTest extends AbstractSwitchSetRetainedTest { }

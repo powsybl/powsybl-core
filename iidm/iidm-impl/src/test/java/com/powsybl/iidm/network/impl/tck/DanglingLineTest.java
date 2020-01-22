@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractDanglingLineTest;
+import com.powsybl.iidm.network.tck.AbstractDanglingLineTest;
 
 public class DanglingLineTest extends AbstractDanglingLineTest { }

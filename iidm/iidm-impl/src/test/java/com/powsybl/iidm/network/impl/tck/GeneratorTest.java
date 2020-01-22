@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractGeneratorTest;
+import com.powsybl.iidm.network.tck.AbstractGeneratorTest;
 
 public class GeneratorTest extends AbstractGeneratorTest { }

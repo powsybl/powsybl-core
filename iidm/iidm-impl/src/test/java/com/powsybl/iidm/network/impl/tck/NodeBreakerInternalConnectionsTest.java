@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractNodeBreakerInternalConnectionsTest;
+import com.powsybl.iidm.network.tck.AbstractNodeBreakerInternalConnectionsTest;
 
 public class NodeBreakerInternalConnectionsTest extends AbstractNodeBreakerInternalConnectionsTest { }

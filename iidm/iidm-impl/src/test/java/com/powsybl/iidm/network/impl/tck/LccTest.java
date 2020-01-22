@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractLccTest;
+import com.powsybl.iidm.network.tck.AbstractLccTest;
 
 public class LccTest extends AbstractLccTest { }

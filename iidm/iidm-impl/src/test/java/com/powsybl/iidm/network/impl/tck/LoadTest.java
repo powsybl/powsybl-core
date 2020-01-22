@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractLoadTest;
+import com.powsybl.iidm.network.tck.AbstractLoadTest;
 
 public class LoadTest extends AbstractLoadTest { }

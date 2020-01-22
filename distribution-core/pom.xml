@@ -225,12 +225,12 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- In test scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
+        <!-- In provided scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-tck</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

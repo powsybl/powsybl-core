@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractSubstationTest;
+import com.powsybl.iidm.network.tck.AbstractSubstationTest;
 
 public class SubstationTest extends AbstractSubstationTest { }

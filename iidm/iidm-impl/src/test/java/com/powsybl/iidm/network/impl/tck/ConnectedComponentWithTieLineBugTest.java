@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractConnectedComponentWithTieLineBugTest;
+import com.powsybl.iidm.network.tck.AbstractConnectedComponentWithTieLineBugTest;
 
 public class ConnectedComponentWithTieLineBugTest extends AbstractConnectedComponentWithTieLineBugTest { }

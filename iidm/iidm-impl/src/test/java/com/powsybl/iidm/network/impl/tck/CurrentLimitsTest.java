@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractCurrentLimitsTest;
+import com.powsybl.iidm.network.tck.AbstractCurrentLimitsTest;
 
 public class CurrentLimitsTest extends AbstractCurrentLimitsTest { }

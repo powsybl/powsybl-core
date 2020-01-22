@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractVoltageLevelExportTest;
+import com.powsybl.iidm.network.tck.AbstractVoltageLevelExportTest;
 
 public class VoltageLevelExportTest extends AbstractVoltageLevelExportTest { }

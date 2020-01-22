@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractVscTest;
+import com.powsybl.iidm.network.tck.AbstractVscTest;
 
 public class VscTest extends AbstractVscTest { }

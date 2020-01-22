@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractFictitiousSwitchTest;
+import com.powsybl.iidm.network.tck.AbstractFictitiousSwitchTest;
 
 public class FictitiousSwitchTest extends AbstractFictitiousSwitchTest { }

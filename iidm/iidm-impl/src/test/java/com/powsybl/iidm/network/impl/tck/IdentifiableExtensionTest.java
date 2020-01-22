@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractIdentifiableExtensionTest;
+import com.powsybl.iidm.network.tck.AbstractIdentifiableExtensionTest;
 
 public class IdentifiableExtensionTest extends AbstractIdentifiableExtensionTest { }

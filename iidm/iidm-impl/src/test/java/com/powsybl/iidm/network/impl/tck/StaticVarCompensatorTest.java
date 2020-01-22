@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractStaticVarCompensatorTest;
+import com.powsybl.iidm.network.tck.AbstractStaticVarCompensatorTest;
 
 public class StaticVarCompensatorTest extends AbstractStaticVarCompensatorTest { }

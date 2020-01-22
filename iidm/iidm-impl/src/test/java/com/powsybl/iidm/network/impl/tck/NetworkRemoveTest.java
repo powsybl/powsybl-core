@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractNetworkRemoveTest;
+import com.powsybl.iidm.network.tck.AbstractNetworkRemoveTest;
 
 public class NetworkRemoveTest extends AbstractNetworkRemoveTest { }

@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractMergeNetworkTest;
+import com.powsybl.iidm.network.tck.AbstractMergeNetworkTest;
 
 public class MergeNetworkTest extends AbstractMergeNetworkTest { }

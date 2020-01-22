@@ -6,15 +6,18 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.AbstractVscTest;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class VscReactiveLimitsTest extends AbstractVscTest {
+public class VscReactiveLimitsTest {
 
     @Test
     public void testReactiveLimits() {
+        Network network = HvdcTestNetwork.createVsc();
+        VscConverterStation cs1 = network.getVscConverterStation("C1");
         cs1.newMinMaxReactiveLimits()
                 .setMinQ(10.0)
                 .setMaxQ(100.0)

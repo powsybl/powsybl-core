@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractBusTest;
+import com.powsybl.iidm.network.tck.AbstractBusTest;
 
 public class BusTest extends AbstractBusTest { }

@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractCalculatedTopologyTest;
+import com.powsybl.iidm.network.tck.AbstractCalculatedTopologyTest;
 
 public class CalculatedTopologyTest extends AbstractCalculatedTopologyTest { }

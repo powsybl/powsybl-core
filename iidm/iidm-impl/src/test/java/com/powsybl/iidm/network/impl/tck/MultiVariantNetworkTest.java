@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractMultiVariantNetworkTest;
+import com.powsybl.iidm.network.tck.AbstractMultiVariantNetworkTest;
 
 public class MultiVariantNetworkTest extends AbstractMultiVariantNetworkTest { }

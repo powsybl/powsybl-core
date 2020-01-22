@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractBatteryTest;
+import com.powsybl.iidm.network.tck.AbstractBatteryTest;
 
 public class BatteryTest extends AbstractBatteryTest { }

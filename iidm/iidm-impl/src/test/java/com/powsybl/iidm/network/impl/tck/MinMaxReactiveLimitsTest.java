@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractMinMaxReactiveLimitsTest;
+import com.powsybl.iidm.network.tck.AbstractMinMaxReactiveLimitsTest;
 
 public class MinMaxReactiveLimitsTest extends AbstractMinMaxReactiveLimitsTest { }

@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractManipulationsOnVariantsTest;
+import com.powsybl.iidm.network.tck.AbstractManipulationsOnVariantsTest;
 
 public class ManipulationsOnVariantsTest extends AbstractManipulationsOnVariantsTest { }

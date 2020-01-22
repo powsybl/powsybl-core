@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractTwoWindingsTransformerTest;
+import com.powsybl.iidm.network.tck.AbstractTwoWindingsTransformerTest;
 
 public class TwoWindingsTransformerTest extends AbstractTwoWindingsTransformerTest { }

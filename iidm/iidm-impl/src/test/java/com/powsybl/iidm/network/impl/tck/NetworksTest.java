@@ -6,6 +6,6 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.AbstractNetworksTest;
+import com.powsybl.iidm.network.tck.AbstractNetworksTest;
 
 public class NetworksTest extends AbstractNetworksTest { }
