@@ -7,31 +7,16 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import org.junit.Before;
-import org.junit.Rule;
+import com.powsybl.iidm.network.tck.internal.AbstractTransformerTest;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.*;
 
-public abstract class AbstractTwoWindingsTransformerTest {
+public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransformerTest {
 
     private static final String INVALID = "invalid";
 
     private static final String TWT_NAME = "twt_name";
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    private Network network;
-    private Substation substation;
-
-    @Before
-    public void setUp() {
-        network = NoEquipmentNetworkFactory.create();
-        substation = network.getSubstation("sub");
-    }
 
     @Test
     public void baseTests() {

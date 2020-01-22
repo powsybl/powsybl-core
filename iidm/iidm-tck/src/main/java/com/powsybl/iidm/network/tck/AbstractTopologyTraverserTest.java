@@ -12,6 +12,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static org.junit.Assert.assertEquals;
 
@@ -169,50 +170,30 @@ public abstract class AbstractTopologyTraverserTest {
     @Test
     public void test1() {
         Network network = createNodeBreakerNetwork();
-
-        List<String> traversed = new ArrayList<>();
-        network.getGenerator("G").getTerminal().traverse(new VoltageLevel.TopologyTraverser() {
-            @Override
-            public boolean traverse(Terminal terminal, boolean connected) {
-                traversed.add(terminal.getConnectable().getId());
-                return true;
-            }
-
-            @Override
-            public boolean traverse(Switch aSwitch) {
-                return true;
-            }
-        });
+        Terminal start = network.getGenerator("G").getTerminal();
+        List<String> traversed = recordTraversed(start, s -> true);
         assertEquals(Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD"), traversed);
     }
 
     @Test
     public void test2() {
         Network network = createNodeBreakerNetwork();
-
-        List<String> traversed = new ArrayList<>();
-        network.getVoltageLevel("VL1").getNodeBreakerView().getBusbarSection("BBS1")
-            .getTerminal().traverse(new VoltageLevel.TopologyTraverser() {
-                @Override
-                public boolean traverse(Terminal terminal, boolean connected) {
-                    traversed.add(terminal.getConnectable().getId());
-                    return connected;
-                }
-
-                @Override
-                public boolean traverse(Switch aSwitch) {
-                    return !aSwitch.isOpen() && aSwitch.getKind() != SwitchKind.BREAKER;
-                }
-            });
+        Terminal start = network.getVoltageLevel("VL1").getNodeBreakerView().getBusbarSection("BBS1").getTerminal();
+        List<String> traversed = recordTraversed(start, aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() != SwitchKind.BREAKER);
         assertEquals(Arrays.asList("BBS1", "G"), traversed);
     }
 
     @Test
     public void test3() {
         Network network = createMixedNodeBreakerBusBreakerNetwork();
+        Terminal start = network.getGenerator("G").getTerminal();
+        List<String> traversed = recordTraversed(start, s -> true);
+        assertEquals(Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD", "L2", "L2", "LD2"), traversed);
+    }
 
+    private List<String> recordTraversed(Terminal start, Predicate<Switch> switchPredicate) {
         List<String> traversed = new ArrayList<>();
-        network.getGenerator("G").getTerminal().traverse(new VoltageLevel.TopologyTraverser() {
+        start.traverse(new VoltageLevel.TopologyTraverser() {
             @Override
             public boolean traverse(Terminal terminal, boolean connected) {
                 traversed.add(terminal.getConnectable().getId());
@@ -221,9 +202,10 @@ public abstract class AbstractTopologyTraverserTest {
 
             @Override
             public boolean traverse(Switch aSwitch) {
-                return true;
+                return switchPredicate.test(aSwitch);
             }
         });
-        assertEquals(Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD", "L2", "L2", "LD2"), traversed);
+        return traversed;
     }
+
 }

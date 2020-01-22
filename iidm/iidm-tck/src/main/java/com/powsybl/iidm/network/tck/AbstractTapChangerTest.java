@@ -222,18 +222,7 @@ public abstract class AbstractTapChangerTest {
 
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
-        assertEquals(1, phaseTapChanger.getTapPosition());
-        assertFalse(phaseTapChanger.isRegulating());
-        assertEquals(1.0, phaseTapChanger.getRegulationValue(), 0.0);
-        assertEquals(1, ratioTapChanger.getTapPosition());
-        assertTrue(ratioTapChanger.isRegulating());
-        assertEquals(10.0, ratioTapChanger.getTargetV(), 0.0);
-        assertEquals(1, ratioTapChangerInLeg2.getTapPosition());
-        assertTrue(ratioTapChangerInLeg2.isRegulating());
-        assertEquals(10.0, ratioTapChangerInLeg2.getTargetV(), 0.0);
-        assertEquals(3, ratioTapChangerInLeg3.getTapPosition());
-        assertFalse(ratioTapChangerInLeg3.isRegulating());
-        assertEquals(11.0, ratioTapChangerInLeg3.getTargetV(), 0.0);
+        assertKnownState(phaseTapChanger, ratioTapChanger, ratioTapChangerInLeg2, ratioTapChangerInLeg3);
 
         // change values in s4
         phaseTapChanger.setTapPosition(0);
@@ -270,6 +259,19 @@ public abstract class AbstractTapChangerTest {
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertKnownState(phaseTapChanger, ratioTapChanger, ratioTapChangerInLeg2, ratioTapChangerInLeg3);
+
+        // remove working variant s4
+        variantManager.setWorkingVariant("s4");
+        variantManager.removeVariant("s4");
+        getTapPositionThrowsException(phaseTapChanger);
+        getTapPositionThrowsException(ratioTapChanger);
+        getTapPositionThrowsException(ratioTapChangerInLeg2);
+        getTapPositionThrowsException(ratioTapChangerInLeg3);
+    }
+
+    private void assertKnownState(PhaseTapChanger phaseTapChanger, RatioTapChanger ratioTapChanger,
+            RatioTapChanger ratioTapChangerInLeg2, RatioTapChanger ratioTapChangerInLeg3) {
         assertEquals(1, phaseTapChanger.getTapPosition());
         assertFalse(phaseTapChanger.isRegulating());
         assertEquals(1.0, phaseTapChanger.getRegulationValue(), 0.0);
@@ -282,14 +284,6 @@ public abstract class AbstractTapChangerTest {
         assertEquals(3, ratioTapChangerInLeg3.getTapPosition());
         assertFalse(ratioTapChangerInLeg3.isRegulating());
         assertEquals(11.0, ratioTapChangerInLeg3.getTargetV(), 0.0);
-
-        // remove working variant s4
-        variantManager.setWorkingVariant("s4");
-        variantManager.removeVariant("s4");
-        getTapPositionThrowsException(phaseTapChanger);
-        getTapPositionThrowsException(ratioTapChanger);
-        getTapPositionThrowsException(ratioTapChangerInLeg2);
-        getTapPositionThrowsException(ratioTapChangerInLeg3);
     }
 
     private void getTapPositionThrowsException(TapChanger tapChanger) {

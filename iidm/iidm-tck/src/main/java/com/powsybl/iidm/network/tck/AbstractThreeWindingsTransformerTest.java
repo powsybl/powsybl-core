@@ -9,15 +9,12 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
-import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import org.junit.Before;
-import org.junit.Rule;
+import com.powsybl.iidm.network.tck.internal.AbstractTransformerTest;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.*;
 
-public abstract class AbstractThreeWindingsTransformerTest {
+public abstract class AbstractThreeWindingsTransformerTest extends AbstractTransformerTest {
 
     private static final String TWT_NAME = "twtName";
 
@@ -36,18 +33,6 @@ public abstract class AbstractThreeWindingsTransformerTest {
     private static final String ERROR_LEG1_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED = "3 windings transformer leg1 'twt': Only one regulating control enabled is allowed";
 
     private static final String ERROR_LEG2_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED = "3 windings transformer leg2 'twt': Only one regulating control enabled is allowed";
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    private Network network;
-    private Substation substation;
-
-    @Before
-    public void setUp() {
-        network = NoEquipmentNetworkFactory.create();
-        substation = network.getSubstation("sub");
-    }
 
     @Test
     public void baseTests() {

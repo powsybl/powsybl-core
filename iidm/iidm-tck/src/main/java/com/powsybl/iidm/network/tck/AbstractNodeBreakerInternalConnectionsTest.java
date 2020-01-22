@@ -26,18 +26,13 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
 
         assertEquals(6, vl.getNodeBreakerView().getInternalConnectionCount());
         List<InternalConnection> internalConnections = vl.getNodeBreakerView().getInternalConnectionStream().collect(Collectors.toList());
-        assertEquals(7, internalConnections.get(0).getNode1());
-        assertEquals(0, internalConnections.get(0).getNode2());
-        assertEquals(6, internalConnections.get(1).getNode1());
-        assertEquals(3, internalConnections.get(1).getNode2());
-        assertEquals(4, internalConnections.get(2).getNode1());
-        assertEquals(3, internalConnections.get(2).getNode2());
-        assertEquals(5, internalConnections.get(3).getNode1());
-        assertEquals(2, internalConnections.get(3).getNode2());
-        assertEquals(9, internalConnections.get(4).getNode1());
-        assertEquals(2, internalConnections.get(4).getNode2());
-        assertEquals(8, internalConnections.get(5).getNode1());
-        assertEquals(1, internalConnections.get(5).getNode2());
+        int[] expecteds1 = new int[] {7, 6, 4, 5, 9, 8 };
+        int[] expecteds2 = new int[] {0, 3, 3, 2, 2, 1 };
+        assertEquals(expecteds1.length, expecteds2.length);
+        for (int i = 0; i < expecteds1.length; i++) {
+            assertEquals(expecteds1[i], internalConnections.get(i).getNode1());
+            assertEquals(expecteds2[i], internalConnections.get(i).getNode2());
+        }
 
         InternalConnections foundStoppingAtTerminals = findInternalConnectionsTraverseStoppingAtTerminals(vl);
         // If we stop traversal at terminals
