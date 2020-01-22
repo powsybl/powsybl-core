@@ -19,9 +19,6 @@ public final class CgmesNames {
     public static final String ENERGY_CONSUMER = "EnergyConsumer";
     public static final String ENERGY_SOURCE = "EnergySource";
     public static final String EXTERNAL_NETWORK_INJECTION = "ExternalNetworkInjection";
-    public static final String PHASE_TAP_CHANGER = "PhaseTapChanger";
-    public static final String POWER_TRANSFORMER = "PowerTransformer";
-    public static final String RATIO_TAP_CHANGER = "RatioTapChanger";
     public static final String SERIES_COMPENSATOR = "SeriesCompensator";
     public static final String SYNCHRONOUS_MACHINE = "SynchronousMachine";
     public static final String SUBSTATION = "Substation";
