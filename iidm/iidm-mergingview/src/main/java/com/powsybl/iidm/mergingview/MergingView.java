@@ -24,7 +24,7 @@ import java.util.stream.StreamSupport;
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public final class MergingView implements Network {
-    public static final PowsyblException NOT_IMPLEMENTED_EXCEPTION = new PowsyblException("Not implemented exception");
+    static final PowsyblException NOT_IMPLEMENTED_EXCEPTION = new PowsyblException("Not implemented exception");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MergingView.class);
 
@@ -137,11 +137,15 @@ public final class MergingView implements Network {
 
     private final BusViewAdapter busView;
 
+    /** Variant management for all merged networks */
+    private final MergingVariantManager variantManager;
+
     /** Constructor */
     private MergingView(final NetworkFactory factory, final String id, final String format) {
         Objects.requireNonNull(factory, "factory is null");
 
         index = new MergingViewIndex(this);
+        variantManager = new MergingVariantManager(index);
         busBreakerView = new BusBreakerViewAdapter(index);
         busView = new BusViewAdapter(index);
         // Working network will store view informations
@@ -831,15 +835,14 @@ public final class MergingView implements Network {
         return workingNetwork.getExtensions();
     }
 
+    @Override
+    public VariantManager getVariantManager() {
+        return variantManager;
+    }
+
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
-
-    @Override
-    public VariantManager getVariantManager() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
     @Override
     public LineAdder newLine() {
         throw NOT_IMPLEMENTED_EXCEPTION;
