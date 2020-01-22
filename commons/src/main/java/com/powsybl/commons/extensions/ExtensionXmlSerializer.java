@@ -17,6 +17,10 @@ import java.util.List;
 
 /**
  * An ExtensionProvider able to serialize/deserialize extensions from XML.
+ * <p>
+ * An ExtensionXmlSerializer can have several versions with one XSD schema per version: the XML serialization/deserialization of an extension is versionable.
+ *
+ *
  *
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
@@ -24,14 +28,27 @@ public interface ExtensionXmlSerializer<T extends Extendable, E extends Extensio
 
     boolean hasSubElements();
 
+    /**
+     * Return the XSD schema describing the extension to serialize in the latest version of its serialization.
+     */
     InputStream getXsdAsStream();
 
+    /**
+     * Return the list of all XSD schemas describing the extension to serialize. <br>
+     * There is a distinct XSD schema for each version of its serialization.
+     */
     default List<InputStream> getXsdAsStreamList() {
         return Collections.singletonList(getXsdAsStream());
     }
 
+    /**
+     * Return the namespace URI of the extension in the latest version of its serialization.
+     */
     String getNamespaceUri();
 
+    /**
+     * Return the namespace URI of the extension in a given version of its serialization.
+     */
     default String getNamespaceUri(String extensionVersion) {
         return getNamespaceUri();
     }
@@ -46,6 +63,9 @@ public interface ExtensionXmlSerializer<T extends Extendable, E extends Extensio
         return getExtensionName();
     }
 
+    /**
+     * Return the latest version of the serialization of the extension.
+     */
     default String getVersion() {
         return "1.0";
     }
