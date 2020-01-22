@@ -32,6 +32,8 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     private static final String ELEM_TERMINAL_REF = "terminalRef";
     private static final String ELEM_STEP = "step";
     private static final String TARGET_DEADBAND = "targetDeadband";
+    private static final String RATIO_TAP_CHANGER = "ratioTapChanger";
+    private static final String PHASE_TAP_CHANGER = "phaseTapChanger";
 
     protected static void writeTapChangerStep(TapChangerStep<?> tcs, XMLStreamWriter writer) throws XMLStreamException {
         XmlUtil.writeDouble("r", tcs.getR(), writer);
@@ -113,11 +115,11 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     }
 
     protected static void readRatioTapChanger(TwoWindingsTransformer twt, NetworkXmlReaderContext context) throws XMLStreamException {
-        readRatioTapChanger("ratioTapChanger", twt.newRatioTapChanger(), twt.getTerminal1(), context);
+        readRatioTapChanger(RATIO_TAP_CHANGER, twt.newRatioTapChanger(), twt.getTerminal1(), context);
     }
 
     protected static void readRatioTapChanger(int leg, ThreeWindingsTransformer.Leg twl, NetworkXmlReaderContext context) throws XMLStreamException {
-        readRatioTapChanger("ratioTapChanger" + leg, twl.newRatioTapChanger(), twl.getTerminal(), context);
+        readRatioTapChanger(RATIO_TAP_CHANGER + leg, twl.newRatioTapChanger(), twl.getTerminal(), context);
     }
 
     protected static void writePhaseTapChanger(String name, PhaseTapChanger ptc, NetworkXmlWriterContext context) throws XMLStreamException {
@@ -145,7 +147,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     protected static void readPhaseTapChanger(String name, PhaseTapChangerAdder adder, Terminal terminal, NetworkXmlReaderContext context) throws XMLStreamException {
         int lowTapPosition = XmlUtil.readIntAttribute(context.getReader(), ATTR_LOW_TAP_POSITION);
         int tapPosition = XmlUtil.readIntAttribute(context.getReader(), ATTR_TAP_POSITION);
-        double targetDeadband = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetDeadband");
+        double targetDeadband = XmlUtil.readOptionalDoubleAttribute(context.getReader(), TARGET_DEADBAND);
         PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.valueOf(context.getReader().getAttributeValue(null, "regulationMode"));
         double regulationValue = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "regulationValue");
         boolean regulating = XmlUtil.readOptionalBoolAttribute(context.getReader(), ATTR_REGULATING, false);
@@ -188,11 +190,11 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     }
 
     protected static void readPhaseTapChanger(TwoWindingsTransformer twt, NetworkXmlReaderContext context) throws XMLStreamException {
-        readPhaseTapChanger("phaseTapChanger", twt.newPhaseTapChanger(), twt.getTerminal1(), context);
+        readPhaseTapChanger(PHASE_TAP_CHANGER, twt.newPhaseTapChanger(), twt.getTerminal1(), context);
     }
 
     protected static void readPhaseTapChanger(int leg, ThreeWindingsTransformer.Leg twl, NetworkXmlReaderContext context) throws XMLStreamException {
-        readPhaseTapChanger("phaseTapChanger" + leg, twl.newPhaseTapChanger(), twl.getTerminal(), context);
+        readPhaseTapChanger(PHASE_TAP_CHANGER + leg, twl.newPhaseTapChanger(), twl.getTerminal(), context);
     }
 
     private static void readTerminalRef(NetworkXmlReaderContext context, boolean[] hasTerminalRef, BiConsumer<String, String > consumer) {
