@@ -136,13 +136,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminals[n - 1].t.id();
     }
 
-    String nodeId() {
+    protected String nodeId() {
         return context.nodeBreaker()
             ? terminals[0].t.connectivityNode()
             : terminals[0].t.topologicalNode();
     }
 
-    String nodeId(int n) {
+    protected String nodeId(int n) {
         return context.nodeBreaker()
             ? terminals[n - 1].t.connectivityNode()
             : terminals[n - 1].t.topologicalNode();
@@ -205,7 +205,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminals[n - 1].voltageLevel;
     }
 
-    Substation substation() {
+    protected Substation substation() {
         String sid = context.cgmes().substation(terminals[0].t);
         return context.network().getSubstation(context.substationIdMapping().iidm(sid));
     }
@@ -268,7 +268,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     // Terminals
 
-    void convertedTerminals(Terminal... ts) {
+    protected void convertedTerminals(Terminal... ts) {
         assert ts.length == numTerminals;
         for (int k = 0; k < ts.length; k++) {
             int n = k + 1;

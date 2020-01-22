@@ -57,6 +57,37 @@ public final class CgmesNames {
     public static final String ANGLEREF_TOPOLOGICALNODE = "AngleRefTopologicalNode";
     public static final String TOPOLOGICAL_NODES = "TopologicalNodes";
 
+    public static final String POWER_TRANSFORMER = "PowerTransformer";
+    public static final String R = "r";
+    public static final String X = "x";
+    public static final String RATIO_TAP_CHANGER = "RatioTapChanger";
+    public static final String PHASE_TAP_CHANGER = "PhaseTapChanger";
+    public static final String RATEDU = "ratedU";
+    public static final String G = "g";
+    public static final String B = "b";
+    public static final String PHASE_ANGLE_CLOCK = "phaseAngleClock";
+    public static final String STEP_VOLTAGE_INCREMENT = "stepVoltageIncrement";
+    public static final String STEP_PHASE_SHIFT_INCREMENT = "stepPhaseShiftIncrement";
+    public static final String NEUTRAL_STEP = "neutralStep";
+    public static final String NORMAL_STEP = "normalStep";
+    public static final String SV_TAP_STEP = "SVtapStep";
+    public static final String LTC_FLAG = "ltcFlag";
+    public static final String STEP = "step";
+    public static final String RATIO = "ratio";
+
+    public static final String PHASE_TAP_CHANGER_TYPE = "phaseTapChangerType";
+    public static final String X_STEP_MIN = "xStepMin";
+    public static final String X_STEP_MAX = "xStepMax";
+    public static final String X_MIN = "xMin";
+    public static final String X_MAX = "xMax";
+    public static final String VOLTAGE_STEP_INCREMENT = "voltageStepIncrement";
+    public static final String WINDING_CONNECTION_ANGLE = "windingConnectionAngle";
+    public static final String SYMMETRICAL = "symmetrical";
+    public static final String ASYMMETRICAL = "asymmetrical";
+    public static final String TABULAR = "tabular";
+    public static final String TCUL_CONTROL_MODE = "tculControlMode";
+    public static final String TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
+
     private CgmesNames() {
     }
 }

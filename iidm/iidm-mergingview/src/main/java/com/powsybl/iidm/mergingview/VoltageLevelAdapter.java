@@ -511,7 +511,22 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public Iterable<Switch> getSwitches() {
         return Iterables.transform(getDelegate().getSwitches(),
-                                   getIndex()::getSwitch);
+                getIndex()::getSwitch);
+    }
+
+    @Override
+    public LccConverterStationAdder newLccConverterStation() {
+        return new LccConverterStationAdderAdapter(getDelegate().newLccConverterStation(), getIndex());
+    }
+
+    @Override
+    public Iterable<LccConverterStation> getLccConverterStations() {
+        return getLccConverterStationStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<LccConverterStation> getLccConverterStationStream() {
+        return getDelegate().getLccConverterStationStream().map(getIndex()::getLccConverterStation);
     }
 
     // -------------------------------
@@ -569,21 +584,6 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
 
     @Override
     public int getDanglingLineCount() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public LccConverterStationAdder newLccConverterStation() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<LccConverterStation> getLccConverterStations() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<LccConverterStation> getLccConverterStationStream() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
