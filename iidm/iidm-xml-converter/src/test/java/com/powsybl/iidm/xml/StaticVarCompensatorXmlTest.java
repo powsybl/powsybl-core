@@ -7,13 +7,16 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
@@ -49,12 +52,22 @@ public class StaticVarCompensatorXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void faultyVersionRegulatingSvcFile() {
+    public void readFaultyVersionRegulatingSvcFile() {
         exception.expect(PowsyblException.class);
         exception.expectMessage("staticVarCompensator.regulatingTerminal is not supported for IIDM-XML version 1.0. " +
                 "IIDM-XML version should be >= 1.1");
         NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_0) +
                 "faultyRegulatingStaticVarCompensatorRoundTripRef.xml"));
+    }
+
+    @Test
+    public void writeFaultyVersionRegulatingSvcFile() throws IOException {
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("staticVarCompensator.regulatingTerminal is not supported for IIDM-XML version 1.0. " +
+                "IIDM-XML version should be >= 1.1");
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            NetworkXml.write(SvcTestCaseFactory.createWithRemoteRegulatingTerminal(), new ExportOptions().setVersion("1.0"), os);
+        }
     }
 
     private static void addProperties(Network network) {
