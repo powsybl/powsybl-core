@@ -30,7 +30,7 @@ public class LoadQuxXmlSerializer extends AbstractVersionableNetworkExtensionXml
                         .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of("1.0"))
                         .build(),
                 ImmutableMap.<String, String>builder()
-                        .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/load_qux/1_0")
+                        .put("1.0", "http://www.powsybl.org/schema/iidm/ext/load_qux/1_0")
                         .build());
     }
 

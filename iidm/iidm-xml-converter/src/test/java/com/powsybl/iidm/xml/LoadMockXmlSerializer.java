@@ -33,7 +33,7 @@ public class LoadMockXmlSerializer extends AbstractVersionableNetworkExtensionXm
                         .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of("1.1", "1.2"))
                         .build(),
                 ImmutableMap.<String, String>builder()
-                        .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/load_mock/1_0")
+                        .put("1.0", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_0")
                         .put("1.1", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_1")
                         .put("1.2", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_2")
                         .build());
