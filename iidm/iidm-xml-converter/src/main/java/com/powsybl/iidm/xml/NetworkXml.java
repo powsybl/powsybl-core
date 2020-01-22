@@ -493,9 +493,7 @@ public final class NetworkXml {
             NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version);
 
             if (!config.withNoExtension()) {
-                EXTENSIONS_SUPPLIER.get().getProviders().stream()
-                        .filter(e -> reader.getNamespaceURI(e.getNamespacePrefix()) != null)
-                        .forEach(e -> context.addExtensionNamespaceUri(reader.getNamespaceURI(e.getNamespacePrefix())));
+                context.buildExtensionNamespaceUriList(EXTENSIONS_SUPPLIER.get().getProviders().stream());
             }
 
             Set<String> extensionNamesNotFound = new TreeSet<>();
@@ -696,9 +694,7 @@ public final class NetworkXml {
             }
 
             NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, options, CURRENT_IIDM_XML_VERSION);
-            EXTENSIONS_SUPPLIER.get().getProviders().stream()
-                    .filter(e -> reader.getNamespaceURI(e.getNamespacePrefix()) != null)
-                    .forEach(e -> context.addExtensionNamespaceUri(reader.getNamespaceURI(e.getNamespacePrefix())));
+            context.buildExtensionNamespaceUriList(EXTENSIONS_SUPPLIER.get().getProviders().stream());
             Set<String> extensionNamesNotFound = new TreeSet<>();
 
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {

@@ -34,10 +34,10 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
 
     protected AbstractVersionableNetworkExtensionXmlSerializer(String extensionName, Class<? super E> extensionClass, boolean subElements, String namespacePrefix,
                                                                Map<IidmXmlVersion, ImmutableSortedSet<String>> extensionVersions, Map<String, String> namespaceUris) {
-        this.extensionName = extensionName;
-        this.extensionClass = extensionClass;
+        this.extensionName = Objects.requireNonNull(extensionName);
+        this.extensionClass = Objects.requireNonNull(extensionClass);
         this.subElements = subElements;
-        this.namespacePrefix = namespacePrefix;
+        this.namespacePrefix = Objects.requireNonNull(namespacePrefix);
         this.extensionVersions.putAll(Objects.requireNonNull(extensionVersions));
         this.namespaceUris.putAll(Objects.requireNonNull(namespaceUris));
     }
