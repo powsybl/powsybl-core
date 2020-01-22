@@ -77,13 +77,13 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         writeRatioTapChanger(twt.getLeg3().getRatioTapChanger(), 3, context);
         writePhaseTapChanger(twt.getLeg3().getPhaseTapChanger(), 3, context);
         if (twt.getLeg1().getCurrentLimits() != null) {
-            writeCurrentLimits(1, twt.getLeg1().getCurrentLimits(), context.getWriter());
+            writeCurrentLimits(1, twt.getLeg1().getCurrentLimits(), context.getWriter(), context.getVersion());
         }
         if (twt.getLeg2().getCurrentLimits() != null) {
-            writeCurrentLimits(2, twt.getLeg2().getCurrentLimits(), context.getWriter());
+            writeCurrentLimits(2, twt.getLeg2().getCurrentLimits(), context.getWriter(), context.getVersion());
         }
         if (twt.getLeg3().getCurrentLimits() != null) {
-            writeCurrentLimits(3, twt.getLeg3().getCurrentLimits(), context.getWriter());
+            writeCurrentLimits(3, twt.getLeg3().getCurrentLimits(), context.getWriter(), context.getVersion());
         }
     }
 

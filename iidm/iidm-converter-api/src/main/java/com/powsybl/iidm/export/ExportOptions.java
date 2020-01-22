@@ -39,6 +39,8 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private boolean throwExceptionIfExtensionNotFound = false;
 
+    private String version;
+
     public ExportOptions() {
     }
 
@@ -48,6 +50,11 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         this.onlyMainCc = onlyMainCc;
         this.topologyLevel = Objects.requireNonNull(topologyLevel);
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
+    }
+
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, String version) {
+        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound);
+        this.version = version;
     }
 
     @Override
@@ -134,6 +141,15 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions setThrowExceptionIfExtensionNotFound(boolean throwException) {
         this.throwExceptionIfExtensionNotFound = throwException;
+        return this;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public ExportOptions setVersion(String version) {
+        this.version = version;
         return this;
     }
 

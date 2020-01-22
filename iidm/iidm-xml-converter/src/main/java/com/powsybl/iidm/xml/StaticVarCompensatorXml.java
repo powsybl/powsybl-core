@@ -50,6 +50,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     @Override
     protected void writeSubElements(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (!Objects.equals(svc, svc.getRegulatingTerminal().getConnectable())) {
+            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlVersion.V_1_1, context);
             TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL);
         }
     }

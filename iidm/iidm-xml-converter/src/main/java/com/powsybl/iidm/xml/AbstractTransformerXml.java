@@ -13,11 +13,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import java.util.function.BiConsumer;
-
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
-
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 abstract class AbstractTransformerXml<T extends Connectable, A extends IdentifiableAdder<A>> extends AbstractConnectableXml<T, A, Substation> {
@@ -50,7 +46,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     }
 
     protected static void writeRatioTapChanger(String name, RatioTapChanger rtc, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeStartElement(IIDM_URI, name);
+        context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), name);
         writeTapChanger(rtc, context.getWriter());
         context.getWriter().writeAttribute("loadTapChangingCapabilities", Boolean.toString(rtc.hasLoadTapChangingCapabilities()));
         if (rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating()) {
@@ -64,7 +60,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         }
         for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
             RatioTapChangerStep rtcs = rtc.getStep(p);
-            context.getWriter().writeEmptyElement(IIDM_URI, ELEM_STEP);
+            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), ELEM_STEP);
             writeTapChangerStep(rtcs, context.getWriter());
         }
         context.getWriter().writeEndElement();
@@ -123,7 +119,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     }
 
     protected static void writePhaseTapChanger(String name, PhaseTapChanger ptc, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeStartElement(IIDM_URI, name);
+        context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), name);
         writeTapChanger(ptc, context.getWriter());
         context.getWriter().writeAttribute("regulationMode", ptc.getRegulationMode().name());
         if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || !Double.isNaN(ptc.getRegulationValue())) {
@@ -137,7 +133,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         }
         for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
             PhaseTapChangerStep ptcs = ptc.getStep(p);
-            context.getWriter().writeEmptyElement(IIDM_URI, ELEM_STEP);
+            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), ELEM_STEP);
             writeTapChangerStep(ptcs, context.getWriter());
             XmlUtil.writeDouble("alpha", ptcs.getAlpha(), context.getWriter());
         }

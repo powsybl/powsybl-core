@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml.util;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.xml.AbstractNetworkXmlContext;
 import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 
@@ -30,7 +31,7 @@ public final class IidmXmlUtil {
      * Assert that the context's IIDM-XML version equals or is more recent than a given IIDM-XML version.
      * If not, throw an exception with a given type of error message.
      */
-    public static void assertMinimumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlReaderContext context) {
+    public static <C extends AbstractNetworkXmlContext> void assertMinimumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion minVersion, C context) {
         if (context.getVersion().compareTo(minVersion) < 0) {
             throw new PowsyblException(rootElementName + "." + elementName + " is " + type.message + " for IIDM-XML version " + context.getVersion().toString(".") + ". " +
                     "IIDM-XML version should be >= " + minVersion.toString("."));
@@ -41,7 +42,7 @@ public final class IidmXmlUtil {
      * Assert that the context's IIDM-XML version is strictly older than a given IIDM-XML version.
      * If not, throw an exception with a given type of error message.
      */
-    public static void assertStrictMaximumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion maxVersion, NetworkXmlReaderContext context) {
+    public static <C extends AbstractNetworkXmlContext> void assertStrictMaximumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion maxVersion, C context) {
         if (context.getVersion().compareTo(maxVersion) >= 0) {
             throw new PowsyblException(rootElementName + "." + elementName + " is " + type.message + " for IIDM-XML version " + context.getVersion().toString(".") + ". " +
                     "IIDM-XML version should be < " + maxVersion.toString("."));

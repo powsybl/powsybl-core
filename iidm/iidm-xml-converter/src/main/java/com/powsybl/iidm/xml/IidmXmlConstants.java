@@ -15,8 +15,6 @@ public final class IidmXmlConstants {
 
     public static final IidmXmlVersion CURRENT_IIDM_XML_VERSION = IidmXmlVersion.V_1_1;
 
-    public static final String IIDM_URI = CURRENT_IIDM_XML_VERSION.getNamespaceURI();
-
     public static final String IIDM_PREFIX = "iidm";
 
     private IidmXmlConstants() {
