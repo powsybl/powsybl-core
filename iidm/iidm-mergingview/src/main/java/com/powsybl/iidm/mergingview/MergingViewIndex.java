@@ -18,6 +18,9 @@ import java.util.stream.Stream;
  */
 class MergingViewIndex {
 
+    /** Local storage for merged lines created */
+    private final Map<String, MergedLine> mergedLineCached = new WeakHashMap<>();
+
     /** Local storage for adapters created */
     private final Map<Identifiable, AbstractAdapter<? extends Identifiable>> identifiableCached = new WeakHashMap<>();
 
@@ -68,6 +71,33 @@ class MergingViewIndex {
         ValidationUtil.checkUniqueIds(other, this);
         // Local storage for mergeable network
         networks.add(other);
+        // Manage DanglingLines
+        other.getDanglingLineStream().forEach(this::checkNewDanglingLine);
+    }
+
+    void checkNewDanglingLine(final DanglingLine dll2) {
+        Objects.requireNonNull(dll2, "DanglingLine is null");
+        // Manage DanglingLines
+        final String code = dll2.getUcteXnodeCode();
+        // Find other DanglingLine if exist
+        final Set<DanglingLine> danglingLines = getNetworkStream().flatMap(Network::getDanglingLineStream).filter(d -> d.getUcteXnodeCode().equals(code)).collect(Collectors.toSet());
+        for (DanglingLine dll1 : danglingLines) {
+            if (dll1 != dll2) {
+                // Create MergedLine from 2 dangling lines
+                mergedLineCached.computeIfAbsent(code, key -> new MergedLine(this, dll1, dll2));
+            }
+        }
+    }
+
+    MergedLine getMergedLineByCode(final String ucteXnodeCode) {
+        return mergedLineCached.get(ucteXnodeCode);
+    }
+
+    Line getMergedLine(final String id) {
+        return mergedLineCached.values().stream()
+                                        .filter(l -> l.getId().equals(id))
+                                        .findFirst()
+                                        .orElse(null);
     }
 
     /** @return adapter according to given parameter */
@@ -244,16 +274,21 @@ class MergingViewIndex {
 
     Collection<Line> getLines() {
         // Search Line into merging & working networks
-        return getNetworkStream()
-                .flatMap(Network::getLineStream)
-                .map(this::getLine)
-                .collect(Collectors.toList());
+        return Stream.concat(getNetworkStream().flatMap(Network::getLineStream)
+                                               .map(this::getLine),
+                             mergedLineCached.values().stream())
+                     .collect(Collectors.toList());
+    }
+
+    boolean asDanglingLine(final DanglingLine dl) {
+        return !mergedLineCached.containsKey(dl.getUcteXnodeCode());
     }
 
     Collection<DanglingLine> getDanglingLines() {
         // Search DanglingLine into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getDanglingLineStream)
+                .filter(this::asDanglingLine)
                 .map(this::getDanglingLine)
                 .collect(Collectors.toList());
     }
@@ -397,7 +432,9 @@ class MergingViewIndex {
             case SHUNT_COMPENSATOR:
                 return getShuntCompensator((ShuntCompensator) connectable);
             case DANGLING_LINE:
-                return getDanglingLine((DanglingLine) connectable);
+                final DanglingLine danglingLine = (DanglingLine) connectable;
+                final Line mergedLine = getMergedLine(danglingLine.getUcteXnodeCode());
+                return Objects.nonNull(mergedLine) ? mergedLine : getDanglingLine(danglingLine);
             case STATIC_VAR_COMPENSATOR:
                 return getStaticVarCompensator((StaticVarCompensator) connectable);
             case HVDC_CONVERTER_STATION:

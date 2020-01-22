@@ -535,13 +535,14 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
 
     @Override
     public Iterable<DanglingLine> getDanglingLines() {
-        return Iterables.transform(getDelegate().getDanglingLines(),
-                                   getIndex()::getDanglingLine);
+        return getDanglingLineStream().collect(Collectors.toList());
     }
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        return getDelegate().getDanglingLineStream().map(getIndex()::getDanglingLine);
+        return getDelegate().getDanglingLineStream()
+                            .filter(getIndex()::asDanglingLine)
+                            .map(getIndex()::getDanglingLine);
     }
 
     @Override

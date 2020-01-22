@@ -35,7 +35,7 @@ public final class MergingView implements Network {
     private final Network workingNetwork;
 
     /** To listen events from merging network */
-    private final NetworkListener listener = new MergingNetworkListener();
+    private final NetworkListener listener;
 
     private static class BusBreakerViewAdapter implements Network.BusBreakerView {
 
@@ -146,6 +146,7 @@ public final class MergingView implements Network {
 
         index = new MergingViewIndex(this);
         variantManager = new MergingVariantManager(index);
+        listener = new MergingNetworkListener(index);
         busBreakerView = new BusBreakerViewAdapter(index);
         busView = new BusViewAdapter(index);
         // Working network will store view informations
@@ -719,6 +720,11 @@ public final class MergingView implements Network {
 
     // Lines
     @Override
+    public LineAdder newLine() {
+        return new LineAdderAdapter(index);
+    }
+
+    @Override
     public Iterable<Line> getLines() {
         return Collections.unmodifiableCollection(index.getLines());
     }
@@ -735,12 +741,16 @@ public final class MergingView implements Network {
 
     @Override
     public Line getLine(final String id) {
-        return index.getNetworkStream()
-                .map(n -> n.getLine(id))
-                .filter(Objects::nonNull)
-                .map(index::getLine)
-                .findFirst()
-                .orElse(null);
+        Line line = index.getMergedLine(id);
+        if (Objects.isNull(line)) {
+            line = index.getNetworkStream()
+                        .map(n -> n.getLine(id))
+                        .filter(Objects::nonNull)
+                        .map(index::getLine)
+                        .findFirst()
+                        .orElse(null);
+        }
+        return line;
     }
 
     // DanglingLines
@@ -764,6 +774,7 @@ public final class MergingView implements Network {
         return index.getNetworkStream()
                 .map(n -> n.getDanglingLine(id))
                 .filter(Objects::nonNull)
+                .filter(index::asDanglingLine)
                 .map(index::getDanglingLine)
                 .findFirst()
                 .orElse(null);
@@ -843,11 +854,6 @@ public final class MergingView implements Network {
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
-    @Override
-    public LineAdder newLine() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
     @Override
     public TieLineAdder newTieLine() {
         throw NOT_IMPLEMENTED_EXCEPTION;
