@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
+ * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class BranchData {
 
@@ -49,6 +50,8 @@ public class BranchData {
     private final double p2;
     private final double q2;
 
+    int phaseAngleClock;
+
     private final boolean connected1;
     private final boolean connected2;
     private final boolean mainComponent1;
@@ -64,6 +67,20 @@ public class BranchData {
     private double computedQ2;
 
     public BranchData(String id,
+        double r, double x,
+        double rho1, double rho2,
+        double u1, double u2, double theta1, double theta2,
+        double alpha1, double alpha2,
+        double g1, double g2, double b1, double b2,
+        double p1, double q1, double p2, double q2,
+        boolean connected1, boolean connected2,
+        boolean mainComponent1, boolean mainComponent2,
+        double epsilonX, boolean applyReactanceCorrection) {
+        this(id, r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1,
+            connected2, mainComponent1, mainComponent2, 0, epsilonX, applyReactanceCorrection);
+    }
+
+    public BranchData(String id,
             double r, double x,
             double rho1, double rho2,
             double u1, double u2, double theta1, double theta2,
@@ -72,6 +89,7 @@ public class BranchData {
             double p1, double q1, double p2, double q2,
             boolean connected1, boolean connected2,
             boolean mainComponent1, boolean mainComponent2,
+            int phaseAngleClock,
             double epsilonX, boolean applyReactanceCorrection) {
         this.id = id;
         this.r = r;
@@ -96,6 +114,7 @@ public class BranchData {
         this.q1 = q1;
         this.p2 = p2;
         this.q2 = q2;
+        this.phaseAngleClock = phaseAngleClock;
         this.connected1 = connected1;
         this.connected2 = connected2;
         this.mainComponent1 = mainComponent1;
@@ -136,6 +155,8 @@ public class BranchData {
         p2 = line.getTerminal2().getP();
         q2 = line.getTerminal2().getQ();
 
+        phaseAngleClock = 0;
+
         connected1 = bus1 != null;
         connected2 = bus2 != null;
         boolean connectableMainComponent1 = connectableBus1 != null && connectableBus1.isInMainConnectedComponent();
@@ -147,6 +168,10 @@ public class BranchData {
     }
 
     public BranchData(TwoWindingsTransformer twt, double epsilonX, boolean applyReactanceCorrection, boolean specificCompatibility) {
+        this(twt, 0, epsilonX, applyReactanceCorrection, specificCompatibility);
+    }
+
+    public BranchData(TwoWindingsTransformer twt, int phaseAngleClock, double epsilonX, boolean applyReactanceCorrection, boolean specificCompatibility) {
         Objects.requireNonNull(twt);
 
         id = twt.getId();
@@ -171,13 +196,15 @@ public class BranchData {
         alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
         alpha2 = 0f;
         g1 = getG1(twt, specificCompatibility);
-        g2 = specificCompatibility ? twt.getG() / 2 : 0f;
+        g2 = getG2(twt, specificCompatibility);
         b1 = getB1(twt, specificCompatibility);
-        b2 = specificCompatibility ? twt.getB() / 2 : 0f;
+        b2 = getB2(twt, specificCompatibility);
         p1 = twt.getTerminal1().getP();
         q1 = twt.getTerminal1().getQ();
         p2 = twt.getTerminal2().getP();
         q2 = twt.getTerminal2().getQ();
+
+        this.phaseAngleClock = phaseAngleClock;
 
         connected1 = bus1 != null;
         connected2 = bus2 != null;
@@ -221,6 +248,18 @@ public class BranchData {
                         twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }
 
+    private double getG2(TwoWindingsTransformer twt, boolean specificCompatibility) {
+        return getValue(specificCompatibility ? twt.getG() / 2 : 0,
+                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getG() : 0,
+                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getG() : 0);
+    }
+
+    private double getB2(TwoWindingsTransformer twt, boolean specificCompatibility) {
+        return getValue(specificCompatibility ? twt.getB() / 2 : 0,
+                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
+                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
+    }
+
     private double getRho1(TwoWindingsTransformer twt) {
         double rho = twt.getRatedU2() / twt.getRatedU1();
         if (twt.getRatioTapChanger() != null) {
@@ -243,7 +282,7 @@ public class BranchData {
             Complex y1 = new Complex(g1, b1);
             Complex y2 = new Complex(g2, b2);
             Complex a1 = ComplexUtils.polar2Complex(1 / rho1, -alpha1);
-            Complex a2 = ComplexUtils.polar2Complex(1 / rho2, -alpha2);
+            Complex a2 = ComplexUtils.polar2Complex(1 / rho2, -alpha2 - Math.toRadians(getPhaseAngleClockDegrees(phaseAngleClock)));
             Complex a1cc = a1.conjugate();
             Complex a2cc = a2.conjugate();
 
@@ -466,5 +505,19 @@ public class BranchData {
             default:
                 throw new AssertionError("Unexpected side: " + side);
         }
+    }
+
+    public int getPhaseAngleClock() {
+        return phaseAngleClock;
+    }
+
+    private double getPhaseAngleClockDegrees(int phaseAngleClock) {
+        double phaseAngleClockDegree = 0.0;
+        phaseAngleClockDegree += phaseAngleClock * 30.0;
+        phaseAngleClockDegree = Math.IEEEremainder(phaseAngleClockDegree, 360.0);
+        if (phaseAngleClockDegree > 180.0) {
+            phaseAngleClockDegree -= 360.0;
+        }
+        return phaseAngleClockDegree;
     }
 }
