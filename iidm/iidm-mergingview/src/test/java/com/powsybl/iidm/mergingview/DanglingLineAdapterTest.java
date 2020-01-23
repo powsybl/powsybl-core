@@ -105,11 +105,20 @@ public class DanglingLineAdapterTest {
         assertEquals(1, mergingView.getDanglingLineCount());
         assertEquals(0, mergingView.getLineCount());
         final DanglingLine dl2 = createDanglingLine(mergingView, "vl2", "dl2", "dl2", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", "busB");
+        // Check no access to Dl1 & Dl2
         assertEquals(0, mergingView.getDanglingLineCount());
+        assertNull(mergingView.getDanglingLine("dl1"));
+        assertNull(mergingView.getDanglingLine("dl2"));
+        // Check access to MergedLine
         assertEquals(1, mergingView.getLineCount());
+        assertEquals(1, mergingView.getBranchCount());
         final Line line = mergingView.getLine("dl1 + dl2");
-        assertNotNull(line);
+        assertSame(line, mergingView.getIdentifiable("dl1 + dl2"));
+        assertSame(line, mergingView.getBranch("dl1 + dl2"));
+        assertSame(line, mergingView.getIdentifiable("dl1"));
+        assertSame(line, mergingView.getIdentifiable("dl2"));
         assertTrue(line instanceof MergedLine);
+        assertTrue(mergingView.getIdentifiables().contains(line));
 
         // MergedLine
         final MergedLine mergedLine = (MergedLine) line;

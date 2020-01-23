@@ -112,11 +112,6 @@ class MergedLine implements Line {
         return id;
     }
 
-    public MergedLine setId(String id) {
-        this.id = id;
-        return this;
-    }
-
     @Override
     public double getR() {
         return dl1.getR() + dl2.getR();

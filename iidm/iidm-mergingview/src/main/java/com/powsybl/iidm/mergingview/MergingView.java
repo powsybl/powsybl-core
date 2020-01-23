@@ -290,12 +290,16 @@ public final class MergingView implements Network {
 
     @Override
     public Identifiable<?> getIdentifiable(final String id) {
-        return index.getNetworkStream()
-                .map(n -> n.getIdentifiable(id))
-                .filter(Objects::nonNull)
-                .map(index::getIdentifiable)
-                .findFirst()
-                .orElse(null);
+        Identifiable<?> searchId = index.getMergedLine(id);
+        if (Objects.isNull(searchId)) {
+            searchId = index.getNetworkStream()
+                            .map(n -> n.getIdentifiable(id))
+                            .filter(Objects::nonNull)
+                            .map(index::getIdentifiable)
+                            .findFirst()
+                            .orElse(null);
+        }
+        return searchId;
     }
 
     @Override
@@ -669,12 +673,16 @@ public final class MergingView implements Network {
     // Branches
     @Override
     public Branch getBranch(final String id) {
-        return index.getNetworkStream()
-                .map(n -> n.getBranch(id))
-                .filter(Objects::nonNull)
-                .map(index::getBranch)
-                .findFirst()
-                .orElse(null);
+        Branch searchBranch = index.getMergedLine(id);
+        if (Objects.isNull(searchBranch)) {
+            searchBranch = index.getNetworkStream()
+                                .map(n -> n.getBranch(id))
+                                .filter(Objects::nonNull)
+                                .map(index::getBranch)
+                                .findFirst()
+                                .orElse(null);
+        }
+        return searchBranch;
     }
 
     @Override
