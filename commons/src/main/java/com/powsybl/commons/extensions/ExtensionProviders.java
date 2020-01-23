@@ -35,6 +35,7 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
     }
 
     private ExtensionProviders(Class<T> clazz) {
+        Objects.requireNonNull(clazz);
         providers = new ServiceLoaderCache<>(clazz).getServices().stream()
             .collect(Collectors.toMap(T::getExtensionName, e -> e));
     }

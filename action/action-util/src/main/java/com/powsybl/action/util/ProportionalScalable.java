@@ -153,11 +153,19 @@ class ProportionalScalable extends AbstractCompoundScalable {
     public double scale(Network n, double asked, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
+        reinitIterationPercentage();
         if (iterative) {
             return iterativeScale(n, asked, scalingConvention);
         } else {
             return scaleIteration(n, asked, scalingConvention);
         }
+    }
+
+    private void reinitIterationPercentage() {
+        scalablePercentageList.forEach(scalablePercentage -> {
+            scalablePercentage.setSaturated(false);
+            scalablePercentage.setIterationPercentage(scalablePercentage.getPercentage());
+        });
     }
 
 }
