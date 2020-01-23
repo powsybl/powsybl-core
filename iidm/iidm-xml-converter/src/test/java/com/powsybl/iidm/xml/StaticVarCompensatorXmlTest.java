@@ -61,7 +61,7 @@ public class StaticVarCompensatorXmlTest extends AbstractXmlConverterTest {
     @Test
     public void writeFaultyVersionRegulatingSvcFile() throws IOException {
         exception.expect(PowsyblException.class);
-        exception.expectMessage("staticVarCompensator.regulatingTerminal is not supported for IIDM-XML version 1.0. " +
+        exception.expectMessage("staticVarCompensator.regulatingTerminal is not defined as default and not supported for IIDM-XML version 1.0. " +
                 "IIDM-XML version should be >= 1.1");
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             NetworkXml.write(SvcTestCaseFactory.createWithRemoteRegulatingTerminal(), new ExportOptions().setVersion("1.0"), os);
