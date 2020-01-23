@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -25,8 +27,6 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.z0flows.Z0FlowsCompletion;
 import com.powsybl.loadflow.resultscompletion.z0flows.Z0LineChecker;
 import com.powsybl.loadflow.validation.CandidateComputation;
-import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
-import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 
 /**
  *
