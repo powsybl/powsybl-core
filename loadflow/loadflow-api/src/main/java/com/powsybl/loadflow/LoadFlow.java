@@ -11,6 +11,7 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -19,7 +20,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+
 
 /**
  * LoadFlow main API. It is a utility class (so with only static methods) used as an entry point for running
@@ -102,7 +103,9 @@ public final class LoadFlow {
      * @return a runner for loadflow implementation named {@code name}
      */
     public static Runner find(String name) {
-        return find(name, PROVIDERS_SUPPLIERS.get(), PlatformConfig.defaultConfig());
+        return new Runner(PlatformConfigNamedProvider.Finder
+                .findBackwardsCompatible(name, "load-flow", PROVIDERS_SUPPLIERS.get(),
+                PlatformConfig.defaultConfig()));
     }
 
     /**
@@ -113,51 +116,6 @@ public final class LoadFlow {
      */
     public static Runner find() {
         return find(null);
-    }
-
-    /**
-     * A variant of {@link LoadFlow#find(String)} intended to be used for unit testing that allow passing
-     * an explicit provider list instead of relying on service loader and an explicit {@link PlatformConfig}
-     * instead of global one.
-     *
-     * @param name name of the load flow implementation, null if we want to use default one
-     * @param providers loadflow provider list
-     * @param platformConfig platform config to look for default loadflow implementation name
-     * @return a runner for loadflow implementation named {@code name}
-     */
-    public static Runner find(String name, List<LoadFlowProvider> providers, PlatformConfig platformConfig) {
-        Objects.requireNonNull(providers);
-        Objects.requireNonNull(platformConfig);
-
-        if (providers.isEmpty()) {
-            throw new PowsyblException("No loadflow providers found");
-        }
-
-        // if no loadflow implementation name is provided through the API we look for information
-        // in platform configuration
-        String loadFlowName = name != null ? name : platformConfig.getOptionalModuleConfig("load-flow")
-                                                                  .flatMap(mc -> mc.getOptionalStringProperty("default"))
-                                                                  .orElse(null);
-        LoadFlowProvider provider;
-        if (providers.size() == 1 && loadFlowName == null) {
-            // no information to select the implementation but only one provider, so we can use it by default
-            // (that is be the most common use case)
-            provider = providers.get(0);
-        } else {
-            if (providers.size() > 1 && loadFlowName == null) {
-                // several providers and no information to select which one to choose, we can only throw
-                // an exception
-                List<String> loadFlowNames = providers.stream().map(LoadFlowProvider::getName).collect(Collectors.toList());
-                throw new PowsyblException("Several loadflow implementations found (" + loadFlowNames
-                        + "), you must add configuration to select the implementation");
-            }
-            provider = providers.stream()
-                    .filter(p -> p.getName().equals(loadFlowName))
-                    .findFirst()
-                    .orElseThrow(() -> new PowsyblException("Loadflow '" + loadFlowName + "' not found"));
-        }
-
-        return new Runner(provider);
     }
 
     public static CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
