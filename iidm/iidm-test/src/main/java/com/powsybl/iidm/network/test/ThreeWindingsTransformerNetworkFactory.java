@@ -94,6 +94,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
 
         ThreeWindingsTransformer twt = substation.newThreeWindingsTransformer()
                 .setId("3WT")
+                .setRatedU0(132.0)
                 .newLeg1()
                 .setR(17.424)
                 .setX(1.7424)
