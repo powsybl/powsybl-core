@@ -236,7 +236,7 @@ public class BranchData {
         if (nominalV2 == 0.0 || Double.isNaN(nominalV2)) {
             return false;
         }
-        return (nominalV1 != nominalV2);
+        return nominalV1 != nominalV2;
     }
 
     private double structuralRatioEnd1(Line line) {
