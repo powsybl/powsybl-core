@@ -131,7 +131,7 @@ public final class FlowsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);
 
-        BranchData branch = new BranchData(l, config.getEpsilonX(), config.applyReactanceCorrection(), config.isStructuralRatioLineOn());
+        BranchData branch = new BranchData(l, config.getEpsilonX(), config.applyReactanceCorrection());
         return checkFlows(branch, config, flowsWriter);
     }
 

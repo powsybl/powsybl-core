@@ -117,7 +117,7 @@ public class BranchData {
         computeValues();
     }
 
-    public BranchData(Line line, double epsilonX, boolean applyReactanceCorrection, boolean structuralRatioLineOn) {
+    public BranchData(Line line, double epsilonX, boolean applyReactanceCorrection) {
         Objects.requireNonNull(line);
 
         id = line.getId();
@@ -155,7 +155,7 @@ public class BranchData {
         mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
         mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
 
-        if (structuralRatioLineOn) {
+        if (isStructuralRatioLineNeeded(line)) {
             rho1 = 1.0 / structuralRatioEnd1(line);
             rho2 = 1f;
             alpha1 = 0f;
@@ -219,19 +219,32 @@ public class BranchData {
         computeValues();
     }
 
-    private double structuralRatioEnd1(Line line) {
-        double a0 = 1.0;
+    private boolean isStructuralRatioLineNeeded(Line line) {
+        if (line.getTerminal1() == null || line.getTerminal1().getVoltageLevel() == null) {
+            return false;
+        }
+        if (line.getTerminal2() == null || line.getTerminal2().getVoltageLevel() == null) {
+            return false;
+        }
+
         double nominalV1 = line.getTerminal1().getVoltageLevel().getNominalV();
         double nominalV2 = line.getTerminal2().getVoltageLevel().getNominalV();
+
         if (nominalV1 == 0.0 || Double.isNaN(nominalV1)) {
-            return a0;
+            return false;
         }
         if (nominalV2 == 0.0 || Double.isNaN(nominalV2)) {
-            return a0;
+            return false;
         }
         if (nominalV1 == nominalV2) {
-            return a0;
+            return false;
         }
+        return true;
+    }
+
+    private double structuralRatioEnd1(Line line) {
+        double nominalV1 = line.getTerminal1().getVoltageLevel().getNominalV();
+        double nominalV2 = line.getTerminal2().getVoltageLevel().getNominalV();
         return nominalV1 / nominalV2;
     }
 
