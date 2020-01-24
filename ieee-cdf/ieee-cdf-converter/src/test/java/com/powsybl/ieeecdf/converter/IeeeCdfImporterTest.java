@@ -100,7 +100,6 @@ public class IeeeCdfImporterTest extends AbstractConverterTest {
             LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,
             LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT,
             LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE);
-
         LoadFlowResultsCompletion lf = new LoadFlowResultsCompletion(p, lfparams);
         lf.run(network, null);
     }
