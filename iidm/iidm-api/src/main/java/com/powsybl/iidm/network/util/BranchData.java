@@ -235,10 +235,6 @@ public class BranchData {
         return nominalV1 / nominalV2;
     }
 
-    private double getFixedX(double x, double epsilonX, boolean applyReactanceCorrection) {
-        return Math.abs(x) < epsilonX && applyReactanceCorrection ? epsilonX : x;
-    }
-
     private double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {
         return initialValue * (1 + rtcStepValue / 100) * (1 + ptcStepValue / 100);
     }
