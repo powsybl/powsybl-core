@@ -81,6 +81,7 @@ public final class LinkData {
     static Complex flowYshunt(Complex ysh, double u, double theta) {
 
         Complex v = ComplexUtils.polar2Complex(u, theta);
+
         return ysh.conjugate().multiply(v.conjugate().multiply(v));
     }
 

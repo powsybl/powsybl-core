@@ -30,6 +30,7 @@ public class CgmesT2xModel {
 
         double x1 = bagEnd1.asDouble(CgmesNames.X);
         double x2 = bagEnd2.asDouble(CgmesNames.X);
+
         this.r = bagEnd1.asDouble(CgmesNames.R) + bagEnd2.asDouble(CgmesNames.R);
         this.x = x1 + x2;
         this.end1 = new CgmesPartialEnd(bagEnd1, x, context);

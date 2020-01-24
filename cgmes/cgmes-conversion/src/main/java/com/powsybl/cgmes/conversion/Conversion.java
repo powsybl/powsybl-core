@@ -43,11 +43,6 @@ import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
  * END1_END2. TapChangers (ratioTapChanger and phaseTapChanger) are considered at the end where they are defined in Cgmes <br>
  * X. If x1 == 0 all tapChangers (ratioTapChanger and phaseTapChanger) are considered at the end1 otherwise they are considered at end2
  * <p>
-<<<<<<< HEAD
- * Phase Angle Negate. All phaseTapChanger angles are considered -angle.
- * <p>
-=======
->>>>>>> master
  * Shunt Admittance Interpretation (Xfmr2ShuntInterpretationAlternative) <br>
  * END1. All shunt admittances to ground (g, b) at end1 (before transmission impedance) <br>
  * END2. All shunt admittances to ground (g, b) at end2 (after transmission impedance) <br>
@@ -61,15 +56,9 @@ import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
  * <p>
  * ThreeWindingsTransformer Interpretation.
  * <p>
-<<<<<<< HEAD
- * Ratio and Phase Interpretation.  If it is true all tapChangers (ratioTapChanger and phaseTapChanger) at the network side, otherwise at the star bus side
- * <p>
- * Phase Angle Negate. All phaseTapChanger angles are considered -angle
-=======
  * Ratio and Phase Interpretation.  (Xfmr3RatioPhaseInterpretationAlternative) <br>
  * NETWORK_SIDE. All tapChangers (ratioTapChanger and phaseTapChanger) at the network side. <br>
  * STAR_BUS_SIDE. All tapChangers (ratioTapChanger and phaseTapChanger) at the star bus side.
->>>>>>> master
  * <p>
  * Shunt Admittance Interpretation (Xfmr3ShuntInterpretationAlternative) <br>
  * NETWORK_SIDE. Shunt admittances to ground at the network side (end1 of the leg) <br>
