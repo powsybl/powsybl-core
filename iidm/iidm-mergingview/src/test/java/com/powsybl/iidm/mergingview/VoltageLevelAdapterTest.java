@@ -205,12 +205,28 @@ public class VoltageLevelAdapterTest {
         });
         assertEquals(vlExpected.getSwitchCount(), vlActual.getSwitchCount());
 
-        // Not implemented yet !
         // DanglingLine
-        TestUtil.notImplemented(vlActual::newDanglingLine);
-        TestUtil.notImplemented(vlActual::getDanglingLines);
-        TestUtil.notImplemented(vlActual::getDanglingLineStream);
-        TestUtil.notImplemented(vlActual::getDanglingLineCount);
+        vlActual.newDanglingLine().setId("DLL1")
+                .setId("DLL1")
+                .setName("DLL1")
+                .setR(1)
+                .setX(2)
+                .setG(3)
+                .setB(4)
+                .setP0(5)
+                .setQ0(6)
+                .setUcteXnodeCode("code")
+                .setBus("busA")
+                .setConnectableBus("busA")
+            .add();
+        vlActual.getDanglingLines().forEach(s -> {
+            assertTrue(s instanceof DanglingLineAdapter);
+            assertNotNull(s);
+        });
+        assertEquals(vlExpected.getDanglingLineCount(), vlActual.getDanglingLineCount());
+        assertEquals(vlExpected.getDanglingLineStream().count(), vlActual.getDanglingLineStream().count());
+
+        // Not implemented yet !
         // Connectables
         TestUtil.notImplemented(() -> vlActual.getConnectable("", null));
         TestUtil.notImplemented(() -> vlActual.getConnectables(null));
