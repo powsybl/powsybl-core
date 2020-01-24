@@ -33,7 +33,6 @@ public class InterpretedT2xModel {
 
         TapChangerConversion.AllTapChanger interpretedTapChanger = ratioPhaseAlternative(cgmesT2xModel, alternative, tcc);
         TapChangerConversion.AllShunt interpretedShunt = shuntAlternative(cgmesT2xModel, alternative);
-        boolean structuralRatioAtEnd2 = structuralRatioAlternative(cgmesT2xModel, alternative);
 
         this.r = cgmesT2xModel.r;
         this.x = cgmesT2xModel.x;
@@ -43,7 +42,7 @@ public class InterpretedT2xModel {
         this.end2 = new TapChangerConversion.InterpretedEnd(interpretedShunt.g2, interpretedShunt.b2,
             interpretedTapChanger.ratioTapChanger2, interpretedTapChanger.phaseTapChanger2,
             cgmesT2xModel.end2.ratedU, cgmesT2xModel.end2.terminal);
-        this.structuralRatioAtEnd2 = structuralRatioAtEnd2;
+        this.structuralRatioAtEnd2 = structuralRatioAlternative(cgmesT2xModel, alternative);
     }
 
     /**

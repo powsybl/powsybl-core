@@ -25,11 +25,10 @@ public class ConvertedT3xModel {
 
         TapChangerConversion tcc = new TapChangerConversion(context);
 
-        double ratedU0 = interpretedT3xModel.ratedU0;
-        this.winding1 = new ConvertedWinding(interpretedT3xModel.winding1, ratedU0, tcc);
-        this.winding2 = new ConvertedWinding(interpretedT3xModel.winding2, ratedU0, tcc);
-        this.winding3 = new ConvertedWinding(interpretedT3xModel.winding3, ratedU0, tcc);
-        this.ratedU0 = ratedU0;
+        this.winding1 = new ConvertedWinding(interpretedT3xModel.winding1, interpretedT3xModel.ratedU0, tcc);
+        this.winding2 = new ConvertedWinding(interpretedT3xModel.winding2, interpretedT3xModel.ratedU0, tcc);
+        this.winding3 = new ConvertedWinding(interpretedT3xModel.winding3, interpretedT3xModel.ratedU0, tcc);
+        this.ratedU0 = interpretedT3xModel.ratedU0;
     }
 
     static class ConvertedWinding {

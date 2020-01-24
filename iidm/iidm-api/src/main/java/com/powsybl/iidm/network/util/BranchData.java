@@ -89,7 +89,7 @@ public class BranchData {
         this.id = id;
         this.r = r;
         this.x = x;
-        double fixedX = getFixedX(x, epsilonX, applyReactanceCorrection);
+        double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
         z = Math.hypot(r, fixedX);
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);
@@ -129,7 +129,7 @@ public class BranchData {
 
         r = line.getR();
         x = line.getX();
-        double fixedX = getFixedX(x, epsilonX, applyReactanceCorrection);
+        double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
         z = Math.hypot(r, fixedX);
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);
@@ -186,7 +186,7 @@ public class BranchData {
 
         r = getR(twt);
         x = getX(twt);
-        double fixedX = getFixedX(x, epsilonX, applyReactanceCorrection);
+        double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
         z = Math.hypot(r, fixedX);
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);

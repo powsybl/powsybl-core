@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -17,6 +17,10 @@ import org.apache.commons.math3.complex.ComplexUtils;
 public final class LinkData {
 
     private LinkData() {
+    }
+
+    static double getFixedX(double x, double epsilonX, boolean applyReactanceCorrection) {
+        return Math.abs(x) < epsilonX && applyReactanceCorrection ? epsilonX : x;
     }
 
     static BranchAdmittanceMatrix calculateBranchAdmittance(double r, double x, double ratio1, double alpha1,
@@ -77,9 +81,7 @@ public final class LinkData {
     static Complex flowYshunt(Complex ysh, double u, double theta) {
 
         Complex v = ComplexUtils.polar2Complex(u, theta);
-
-        Complex s = ysh.conjugate().multiply(v.conjugate().multiply(v));
-        return s;
+        return ysh.conjugate().multiply(v.conjugate().multiply(v));
     }
 
     static Flow flowBothEnds(Complex y11, Complex y12, Complex y21, Complex y22,

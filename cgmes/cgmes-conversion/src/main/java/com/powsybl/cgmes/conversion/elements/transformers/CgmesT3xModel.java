@@ -39,10 +39,8 @@ public class CgmesT3xModel {
         final String terminal;
 
         CgmesEnd(PropertyBag end, Context context) {
-            double x = end.asDouble(CgmesNames.X);
-
             this.r = end.asDouble(CgmesNames.R);
-            this.x = x;
+            this.x = end.asDouble(CgmesNames.X);
             this.g = end.asDouble(CgmesNames.G, 0);
             this.b = end.asDouble(CgmesNames.B);
             this.ratioTapChanger = TapChanger.ratioTapChangerFromEnd(end, context);

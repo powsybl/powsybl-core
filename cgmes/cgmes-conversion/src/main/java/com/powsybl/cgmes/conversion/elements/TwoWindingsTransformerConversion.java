@@ -17,8 +17,7 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
- */
-/**
+ *
  * @deprecated Use {@link NewTwoWindingsTransformerConversion} instead.
  */
 @Deprecated

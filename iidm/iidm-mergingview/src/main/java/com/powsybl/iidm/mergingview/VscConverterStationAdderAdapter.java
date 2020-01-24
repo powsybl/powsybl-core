@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.VscConverterStationAdder;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class VscConverterStationAdderAdapter extends AbstractInjectionAdderAdapter<VscConverterStationAdder> implements VscConverterStationAdder {
+public class VscConverterStationAdderAdapter extends AbstractHvdcConverterStationAdderAdapter<VscConverterStationAdder> implements VscConverterStationAdder {
 
     VscConverterStationAdderAdapter(final VscConverterStationAdder delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -27,13 +27,6 @@ public class VscConverterStationAdderAdapter extends AbstractInjectionAdderAdapt
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------
-    @Override
-    public VscConverterStationAdder setLossFactor(final float lossFactor) {
-        getDelegate().setLossFactor(lossFactor);
-        return this;
-    }
-
-    @Override
     public VscConverterStationAdder setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
         getDelegate().setVoltageRegulatorOn(voltageRegulatorOn);
         return this;
