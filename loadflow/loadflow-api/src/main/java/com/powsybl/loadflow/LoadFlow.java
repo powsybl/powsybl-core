@@ -6,21 +6,16 @@
  */
 package com.powsybl.loadflow;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
-import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-
 
 /**
  * LoadFlow main API. It is a utility class (so with only static methods) used as an entry point for running
@@ -32,9 +27,6 @@ public final class LoadFlow {
 
     private LoadFlow() {
     }
-
-    private static final Supplier<List<LoadFlowProvider>> PROVIDERS_SUPPLIERS
-            = Suppliers.memoize(() -> new ServiceLoaderCache<>(LoadFlowProvider.class).getServices());
 
     /**
      * A loadflow runner is responsible for providing convenient methods on top of {@link LoadFlowProvider}:
@@ -104,7 +96,7 @@ public final class LoadFlow {
      */
     public static Runner find(String name) {
         return new Runner(PlatformConfigNamedProvider.Finder
-                .findBackwardsCompatible(name, "load-flow", PROVIDERS_SUPPLIERS.get(),
+                .findBackwardsCompatible(name, "load-flow", LoadFlowProvider.class,
                 PlatformConfig.defaultConfig()));
     }
 

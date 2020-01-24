@@ -6,16 +6,12 @@
  */
 package com.powsybl.dynamicsimulation;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
-import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -27,9 +23,6 @@ public final class DynamicSimulation {
 
     private DynamicSimulation() {
     }
-
-    private static final Supplier<List<DynamicSimulationProvider>> PROVIDERS_SUPPLIERS = Suppliers
-        .memoize(() -> new ServiceLoaderCache<>(DynamicSimulationProvider.class).getServices());
 
     public static class Runner implements Versionable {
 
@@ -93,7 +86,7 @@ public final class DynamicSimulation {
 
     public static Runner find(String name) {
         return new Runner(PlatformConfigNamedProvider.Finder.findBackwardsCompatible(name,
-                "dynamic-simulation", PROVIDERS_SUPPLIERS.get(),
+                "dynamic-simulation", DynamicSimulationProvider.class,
                 PlatformConfig.defaultConfig()));
     }
 

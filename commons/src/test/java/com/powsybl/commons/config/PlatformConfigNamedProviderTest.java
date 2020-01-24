@@ -34,8 +34,14 @@ public class PlatformConfigNamedProviderTest {
 
     private static final String DEFAULT_IMPL_NAME_PROPERTY = "default-impl-name";
 
-    private static final ImmutableList<TestProvider> MULTIPLE_PROVIDERS = ImmutableList
-            .of(new TestProvider("a"), new TestProvider(GOOD_NAME), new TestProvider("c"));
+    private static final ImmutableList<PlatformConfigNamedProvider> MULTIPLE_PROVIDERS = ImmutableList
+            .of(new TestProvider("a"), new TestProvider(GOOD_NAME),
+                    new TestProvider("c"));
+
+    private static final ImmutableList<String> DEFAULT_PROPERTY_LIST = ImmutableList
+            .of(DEFAULT_IMPL_NAME_PROPERTY, LEGACY_IMPL_NAME_PROPERTY);
+    private static final ImmutableList<String> LEGACY_PROPERTY_LIST = ImmutableList
+            .of(DEFAULT_IMPL_NAME_PROPERTY, LEGACY_IMPL_NAME_PROPERTY);
 
     private static final String MODULE = "module";
 
@@ -69,24 +75,24 @@ public class PlatformConfigNamedProviderTest {
     @Test(expected = PowsyblException.class)
     public void testDefaultNoProvider() {
         // case without any provider, an exception is expected
-        PlatformConfigNamedProvider.Finder.findDefault(MODULE, ImmutableList.of(),
-                platformConfig);
+        PlatformConfigNamedProvider.Finder.find(null, MODULE, ImmutableList.of(),
+                ImmutableList.of(), platformConfig, PlatformConfigNamedProvider.class);
     }
 
     @Test
     public void testOneProvider() {
         // case with multiple providers without any config
-        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder
-                .findDefault(MODULE, ImmutableList.of(new TestProvider("b")),
-                        platformConfig);
+        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder.find(
+                null, MODULE, ImmutableList.of(), ImmutableList.of(new TestProvider("b")),
+                platformConfig, PlatformConfigNamedProvider.class);
         assertEquals(GOOD_NAME, provider.getName());
     }
 
     @Test(expected = PowsyblException.class)
     public void testDefaultTwoProviders() {
         // case with 2 providers without any config, an exception is expected
-        PlatformConfigNamedProvider.Finder.findDefault(MODULE, MULTIPLE_PROVIDERS,
-                platformConfig);
+        PlatformConfigNamedProvider.Finder.find(null, MODULE, ImmutableList.of(),
+                MULTIPLE_PROVIDERS, platformConfig, PlatformConfigNamedProvider.class);
     }
 
     @Test
@@ -95,8 +101,8 @@ public class PlatformConfigNamedProviderTest {
         // use in platform config
         platformConfig.createModuleConfig(MODULE)
                 .setStringProperty(DEFAULT_IMPL_NAME_PROPERTY, GOOD_NAME);
-        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder
-                .findDefault(MODULE, MULTIPLE_PROVIDERS, platformConfig);
+        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder.find(
+                null, MODULE, DEFAULT_PROPERTY_LIST, MULTIPLE_PROVIDERS, platformConfig, PlatformConfigNamedProvider.class);
         assertEquals(GOOD_NAME, provider.getName());
     }
 
@@ -106,47 +112,24 @@ public class PlatformConfigNamedProviderTest {
         // provider.
         platformConfig.createModuleConfig(MODULE)
                 .setStringProperty(DEFAULT_IMPL_NAME_PROPERTY, BAD_NAME);
-        PlatformConfigNamedProvider.Finder.findDefault(MODULE,
-                ImmutableList.of(new TestProvider("a")), platformConfig);
+        PlatformConfigNamedProvider.Finder.find(null, MODULE, DEFAULT_PROPERTY_LIST,
+                ImmutableList.of(new TestProvider("a")), platformConfig, PlatformConfigNamedProvider.class);
     }
 
     @Test
     public void testNamedMultipleProviders() {
         // case with multiple providers and specifying programmatically
-        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder
-                .find(GOOD_NAME, MODULE, MULTIPLE_PROVIDERS, platformConfig);
+        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder.find(
+                GOOD_NAME, MODULE, DEFAULT_PROPERTY_LIST, MULTIPLE_PROVIDERS,
+                platformConfig, PlatformConfigNamedProvider.class);
         assertEquals(GOOD_NAME, provider.getName());
     }
 
     @Test(expected = PowsyblException.class)
     public void testBadNamedMultipleProviders() {
         // case with multiple providers and specifying programmatically with an error
-        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder
-                .find(BAD_NAME, MODULE, MULTIPLE_PROVIDERS, platformConfig);
-    }
-
-    @Test(expected = PowsyblException.class)
-    public void testDefaultNoProviderBackwardsCompatible() {
-        // case without any provider, an exception is expected
-        PlatformConfigNamedProvider.Finder.findDefaultBackwardsCompatible(MODULE,
-                ImmutableList.of(), platformConfig);
-    }
-
-    @Test
-    public void testOneProviderBackwardsCompatible() {
-        // case with multiple providers without any config
-        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder
-                .findDefaultBackwardsCompatible(MODULE,
-                        ImmutableList.of(new TestProvider("b")),
-                        platformConfig);
-        assertEquals(GOOD_NAME, provider.getName());
-    }
-
-    @Test(expected = PowsyblException.class)
-    public void testDefaultTwoProvidersBackwardsCompatible() {
-        // case with 2 providers without any config, an exception is expected
-        PlatformConfigNamedProvider.Finder.findDefaultBackwardsCompatible(MODULE,
-                MULTIPLE_PROVIDERS, platformConfig);
+        PlatformConfigNamedProvider.Finder.find(BAD_NAME, MODULE, ImmutableList.of(),
+                MULTIPLE_PROVIDERS, platformConfig, PlatformConfigNamedProvider.class);
     }
 
     @Test
@@ -155,9 +138,8 @@ public class PlatformConfigNamedProviderTest {
         // use in platform config in backwards compatible mode with the new property
         platformConfig.createModuleConfig(MODULE)
                 .setStringProperty(DEFAULT_IMPL_NAME_PROPERTY, GOOD_NAME);
-        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder
-                .findDefaultBackwardsCompatible(MODULE, MULTIPLE_PROVIDERS,
-                        platformConfig);
+        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder.find(
+                null, MODULE, LEGACY_PROPERTY_LIST, MULTIPLE_PROVIDERS, platformConfig, PlatformConfigNamedProvider.class);
         assertEquals(GOOD_NAME, provider.getName());
     }
 
@@ -167,18 +149,32 @@ public class PlatformConfigNamedProviderTest {
         // use in platform config in backwards compatible mode with the old property
         platformConfig.createModuleConfig(MODULE)
                 .setStringProperty(LEGACY_IMPL_NAME_PROPERTY, GOOD_NAME);
-        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder
-                .findDefaultBackwardsCompatible(MODULE, MULTIPLE_PROVIDERS,
-                        platformConfig);
+        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder.find(
+                null, MODULE, LEGACY_PROPERTY_LIST, MULTIPLE_PROVIDERS, platformConfig, PlatformConfigNamedProvider.class);
         assertEquals(GOOD_NAME, provider.getName());
     }
 
     @Test
-    public void testNamedMultipleProvidersBackwardsCompatible() {
-        // case with multiple providers and specifying programmatically
-        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder
-                .findBackwardsCompatible(GOOD_NAME, MODULE, MULTIPLE_PROVIDERS, platformConfig);
+    public void testDefaultMultipleProvidersPlatformConfigBackwardsCompatiblePriority1() {
+        // case with multiple providers without any config but specifying which one to
+        // use in platform config in backwards compatible mode with the new property
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig(MODULE);
+        moduleConfig.setStringProperty(DEFAULT_IMPL_NAME_PROPERTY, GOOD_NAME);
+        moduleConfig.setStringProperty(LEGACY_IMPL_NAME_PROPERTY, BAD_NAME);
+        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder.find(
+                null, MODULE, LEGACY_PROPERTY_LIST, MULTIPLE_PROVIDERS, platformConfig, PlatformConfigNamedProvider.class);
         assertEquals(GOOD_NAME, provider.getName());
+    }
+
+    @Test(expected = PowsyblException.class)
+    public void testDefaultMultipleProvidersPlatformConfigBackwardsCompatiblePriority2() {
+        // case with multiple providers without any config but specifying which one to
+        // use in platform config in backwards compatible mode with the new property
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig(MODULE);
+        moduleConfig.setStringProperty(DEFAULT_IMPL_NAME_PROPERTY, BAD_NAME);
+        moduleConfig.setStringProperty(LEGACY_IMPL_NAME_PROPERTY, GOOD_NAME);
+        PlatformConfigNamedProvider.Finder.find(
+                null, MODULE, LEGACY_PROPERTY_LIST, MULTIPLE_PROVIDERS, platformConfig, PlatformConfigNamedProvider.class);
     }
 
     @Test(expected = PowsyblException.class)
@@ -187,9 +183,8 @@ public class PlatformConfigNamedProviderTest {
         // use in platform config with error
         platformConfig.createModuleConfig(MODULE)
                 .setStringProperty(LEGACY_IMPL_NAME_PROPERTY, BAD_NAME);
-        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder
-                .findDefaultBackwardsCompatible(MODULE,
-                        ImmutableList.of(new TestProvider("a")), platformConfig);
+        PlatformConfigNamedProvider.Finder.find(null, MODULE, LEGACY_PROPERTY_LIST,
+                ImmutableList.of(new TestProvider("a")), platformConfig, PlatformConfigNamedProvider.class);
     }
 
     @Test(expected = PowsyblException.class)
@@ -198,17 +193,9 @@ public class PlatformConfigNamedProviderTest {
         // use in platform config with error
         platformConfig.createModuleConfig(MODULE)
                 .setStringProperty(DEFAULT_IMPL_NAME_PROPERTY, BAD_NAME);
-        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder
-                .findDefaultBackwardsCompatible(MODULE,
-                        ImmutableList.of(new TestProvider("a")), platformConfig);
+        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder.find(
+                null, MODULE, LEGACY_PROPERTY_LIST,
+                ImmutableList.of(new TestProvider("a")), platformConfig, PlatformConfigNamedProvider.class);
     }
 
-    @Test(expected = PowsyblException.class)
-    public void testBadNamedMultipleProvidersBackwardsCompatible() {
-        // case with 1 provider with config but with a name that is not the one of
-        // provider.
-        PlatformConfigNamedProvider provider = PlatformConfigNamedProvider.Finder
-                .findBackwardsCompatible(BAD_NAME, MODULE,
-                        ImmutableList.of(new TestProvider("a")), platformConfig);
-    }
 }

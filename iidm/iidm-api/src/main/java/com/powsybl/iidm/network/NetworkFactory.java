@@ -6,13 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
-import com.powsybl.commons.util.ServiceLoaderCache;
-
-import java.util.List;
 
 /**
  *
@@ -37,7 +32,7 @@ public interface NetworkFactory {
      */
     static NetworkFactory find(String name) {
         return PlatformConfigNamedProvider.Finder.find(
-                name, "network", Private.PROVIDERS_SUPPLIERS.get(),
+                name, "network", NetworkFactoryService.class,
                 PlatformConfig.defaultConfig())
                 .createNetworkFactory();
     }
@@ -59,15 +54,4 @@ public interface NetworkFactory {
         return findDefault().createNetwork(id, sourceFormat);
     }
 
-    /**
-     * @deprecated Do not use. Exists only to have private static state.
-     */
-    @Deprecated
-    static final class Private {
-        Private() { }
-
-        private static final Supplier<List<NetworkFactoryService>> PROVIDERS_SUPPLIERS = Suppliers
-                .memoize(() -> new ServiceLoaderCache<>(NetworkFactoryService.class)
-                        .getServices());
-    }
 }
