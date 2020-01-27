@@ -6,15 +6,15 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.iidm.AbstractConverterContext;
 import com.powsybl.iidm.anonymizer.Anonymizer;
 import com.powsybl.iidm.import_.ImportOptions;
 
 import javax.xml.stream.XMLStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
@@ -29,6 +29,7 @@ public class NetworkXmlReaderContext extends AbstractConverterContext<ImportOpti
     private final ImportOptions options;
 
     private final IidmXmlVersion version;
+    private final Set<String> extensionsNamespaceUri = new HashSet<>();
 
     public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader) {
         this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_XML_VERSION);
@@ -57,5 +58,14 @@ public class NetworkXmlReaderContext extends AbstractConverterContext<ImportOpti
 
     public IidmXmlVersion getVersion() {
         return version;
+    }
+
+    public void buildExtensionNamespaceUriList(Stream<ExtensionXmlSerializer> providers) {
+        providers.filter(e -> reader.getNamespaceURI(e.getNamespacePrefix()) != null)
+                .forEach(e -> extensionsNamespaceUri.add(reader.getNamespaceURI(e.getNamespacePrefix())));
+    }
+
+    public boolean containsExtensionNamespaceUri(String extensionNamespaceUri) {
+        return extensionsNamespaceUri.contains(extensionNamespaceUri);
     }
 }
