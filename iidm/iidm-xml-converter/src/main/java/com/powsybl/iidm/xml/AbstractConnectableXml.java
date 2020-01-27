@@ -161,18 +161,10 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         adder.add();
     }
 
-    /**
-     * @deprecated Use {@link #writeCurrentLimits(Integer, CurrentLimits, XMLStreamWriter, IidmXmlVersion)} instead.
-     */
-    @Deprecated
     public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer) throws XMLStreamException {
         writeCurrentLimits(index, limits, writer, IidmXmlConstants.CURRENT_IIDM_XML_VERSION);
     }
 
-    /**
-     * @deprecated Use {@link #writeCurrentLimits(Integer, CurrentLimits, XMLStreamWriter, String, IidmXmlVersion)} instead.
-     */
-    @Deprecated
     public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri) throws XMLStreamException {
         writeCurrentLimits(index, limits, writer, nsUri, IidmXmlConstants.CURRENT_IIDM_XML_VERSION);
     }

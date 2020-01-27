@@ -9,6 +9,8 @@ package com.powsybl.iidm.xml;
 import com.powsybl.iidm.AbstractConverterContext;
 import com.powsybl.iidm.anonymizer.Anonymizer;
 
+import java.util.Objects;
+
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -18,7 +20,7 @@ public abstract class AbstractNetworkXmlContext<T> extends AbstractConverterCont
 
     AbstractNetworkXmlContext(Anonymizer anonymizer, IidmXmlVersion version) {
         super(anonymizer);
-        this.version = version;
+        this.version = Objects.requireNonNull(version);
     }
 
     public IidmXmlVersion getVersion() {

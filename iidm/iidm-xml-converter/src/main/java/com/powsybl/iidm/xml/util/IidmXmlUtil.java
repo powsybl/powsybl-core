@@ -21,10 +21,6 @@ import java.util.Objects;
  */
 public final class IidmXmlUtil {
 
-    public interface IidmXmlRunnable {
-        void run() throws XMLStreamException;
-    }
-
     public enum ErrorMessage {
         NOT_SUPPORTED("not supported"),
         MANDATORY("mandatory"),
@@ -70,7 +66,7 @@ public final class IidmXmlUtil {
      */
     public static <C extends AbstractNetworkXmlContext> void assertMinimumVersionAndRunIfNotDefault(boolean valueIsNotDefault, String rootElementName,
                                                                                                     String elementName, ErrorMessage type, IidmXmlVersion minVersion,
-                                                                                                    C context, IidmXmlRunnable runnable) throws XMLStreamException {
+                                                                                                    C context, Runnable runnable) {
         if (valueIsNotDefault) {
             assertMinimumVersion(rootElementName, elementName, type, minVersion, context);
             runnable.run();

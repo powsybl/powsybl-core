@@ -45,15 +45,15 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     }
 
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound) {
+        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound, null);
+    }
+
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, String version) {
         this.withBranchSV = withBranchSV;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
         this.topologyLevel = Objects.requireNonNull(topologyLevel);
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
-    }
-
-    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, String version) {
-        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound);
         this.version = version;
     }
 

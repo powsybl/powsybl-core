@@ -38,6 +38,7 @@ public class NetworkXmlReaderContext extends AbstractNetworkXmlContext<ImportOpt
         super(anonymizer, version);
         this.reader = Objects.requireNonNull(reader);
         this.options = Objects.requireNonNull(options);
+        this.version = version;
     }
 
     @Override

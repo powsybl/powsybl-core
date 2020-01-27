@@ -24,7 +24,9 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     private static final String RATIO_TAP_CHANGER_1 = "ratioTapChanger1";
     private static final String PHASE_TAP_CHANGER_1 = "phaseTapChanger1";
+    private static final String RATIO_TAP_CHANGER_2 = "ratioTapChanger2";
     private static final String PHASE_TAP_CHANGER_2 = "phaseTapChanger2";
+    private static final String RATIO_TAP_CHANGER_3 = "ratioTapChanger3";
     private static final String PHASE_TAP_CHANGER_3 = "phaseTapChanger3";
 
     @Override
@@ -183,7 +185,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
                     readPhaseTapChanger(1, tx.getLeg1(), context);
                     break;
 
-                case "ratioTapChanger2":
+                case RATIO_TAP_CHANGER_2:
                     readRatioTapChanger(2, tx.getLeg2(), context);
                     break;
 
@@ -192,7 +194,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
                     readPhaseTapChanger(2, tx.getLeg2(), context);
                     break;
 
-                case "ratioTapChanger3":
+                case RATIO_TAP_CHANGER_3:
                     readRatioTapChanger(3, tx.getLeg3(), context);
                     break;
 
