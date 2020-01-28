@@ -11,7 +11,6 @@ digraph G {
 	n2 -> n3 [label="BREAKER\lJ",fontsize="10",style="solid"];
 	n5 -> n6 [label="BREAKER\lL",fontsize="10",style="solid"];
 	subgraph cluster_c1 {
-		// scope=824208363
 		cluster_c1 [label="",shape=point,style=invis];
 		pencolor="transparent";
 		n5;
@@ -19,13 +18,11 @@ digraph G {
 		n0;
 	}
 	subgraph cluster_c4 {
-		// scope=824208363
 		cluster_c4 [label="",shape=point,style=invis];
 		pencolor="transparent";
 		n3;
 	}
 	subgraph cluster_c7 {
-		// scope=824208363
 		cluster_c7 [label="",shape=point,style=invis];
 		pencolor="transparent";
 		n6;
