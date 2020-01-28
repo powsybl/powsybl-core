@@ -92,6 +92,10 @@ public class TwtData {
     private final int phaseAngleClock3;
     private final double ratedU0;
 
+    public TwtData(ThreeWindingsTransformer twt, double epsilonX, boolean applyReactanceCorrection) {
+        this(twt, 0, 0, epsilonX, applyReactanceCorrection, false);
+    }
+
     public TwtData(ThreeWindingsTransformer twt, double epsilonX, boolean applyReactanceCorrection,
         boolean splitShuntAdmittance) {
         this(twt, 0, 0, epsilonX, applyReactanceCorrection, splitShuntAdmittance);
