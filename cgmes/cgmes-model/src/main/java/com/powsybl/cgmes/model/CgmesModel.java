@@ -130,6 +130,8 @@ public interface CgmesModel {
 
     PropertyBags dcTerminalsTP();
 
+    CgmesDcTerminal dcTerminal(String dcTerminalId);
+
     void clear(CgmesSubset subset);
 
     void add(CgmesSubset subset, String type, PropertyBags objects);

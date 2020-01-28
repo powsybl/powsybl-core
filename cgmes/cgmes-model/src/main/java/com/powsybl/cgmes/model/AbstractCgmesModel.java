@@ -54,6 +54,14 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
+    public CgmesDcTerminal dcTerminal(String dcTerminalId) {
+        if (cachedDcTerminals == null) {
+            cachedDcTerminals = computeDcTerminals();
+        }
+        return cachedDcTerminals.get(dcTerminalId);
+    }
+
+    @Override
     public String terminalForEquipment(String conduntingEquipmentId) {
         // TODO Not all conducting equipment have a single terminal
         // For the current purposes of this mapping (export State Variables)
@@ -183,6 +191,20 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         return ts;
     }
 
+    private Map<String, CgmesDcTerminal> computeDcTerminals() {
+        Map<String, CgmesDcTerminal> ts = new HashMap<>();
+        conductingEquipmentTerminal = new HashMap<>();
+        dcTerminals().forEach(t -> {
+            CgmesDcTerminal td = new CgmesDcTerminal(t);
+            if (ts.containsKey(td.id())) {
+                return;
+            }
+            ts.put(td.id(), td);
+            conductingEquipmentTerminal.put(t.getId("ConductingEquipment"), t.getId(CgmesNames.DC_TERMINAL));
+        });
+        return ts;
+    }
+
     // TODO(Luma): better caches create an object "Cache" that is final ...
     // (avoid filling all places with if cached == null...)
     private Map<String, CgmesContainer> computeContainers() {
@@ -244,6 +266,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     private Map<String, String> conductingEquipmentTerminal;
     private Map<String, String> powerTransformerRatioTapChanger;
     private Map<String, String> powerTransformerPhaseTapChanger;
+    private Map<String, CgmesDcTerminal> cachedDcTerminals;
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCgmesModel.class);
 }

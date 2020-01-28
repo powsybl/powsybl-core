@@ -1,6 +1,7 @@
 package com.powsybl.cgmes.model.test;
 
 import com.powsybl.cgmes.model.CgmesContainer;
+import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.CgmesTerminal;
@@ -528,6 +529,12 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public CgmesTerminal terminal(String terminalId) {
         // FakeCgmesModel does not provide info on terminals
+        return null;
+    }
+
+    @Override
+    public CgmesDcTerminal dcTerminal(String dcTerminalId) {
+        // FakeCgmesModel does not provide info on dcTerminals
         return null;
     }
 

@@ -871,11 +871,19 @@ UNION
     ?DCConductingEquipment a ?dcConductingEquipmentType .
 }}
 }
+OPTIONAL { ?DCTerminal cim:IdentifiedObject.name ?name }
 OPTIONAL { GRAPH ?graphSSH {
     ?DCTerminal cim:ACDCTerminal.connected ?connected
 }}
+OPTIONAL { GRAPH ?graphCN {
+?DCTerminal cim:DCBaseTerminal.DCNode ?DCNode .
+}}
+OPTIONAL { GRAPH ?graphTPT {
+?DCTerminal cim:DCBaseTerminal.DCTopologicalNode ?DCTopologicalNode .
+}}
 }
 
+# TODO DELETE (JAM)
 # query: dcTerminalsTP
 SELECT *
 WHERE {

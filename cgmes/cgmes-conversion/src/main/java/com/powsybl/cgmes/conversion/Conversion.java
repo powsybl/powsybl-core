@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
+import com.powsybl.cgmes.conversion.elements.HVDC.CgmesDc;
 import com.powsybl.cgmes.conversion.elements.transformers.NewThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.NewTwoWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
@@ -183,6 +184,10 @@ public class Conversion {
             convert(cgmes.ratioTapChangers(), rtc -> new RatioTapChangerConversion(rtc, context));
             convert(cgmes.phaseTapChangers(), ptc -> new PhaseTapChangerConversion(ptc, context));
         }
+
+        // newDC
+        CgmesDc cgmesDc = new CgmesDc(cgmes);
+        // endDC
 
         // DC Converters must be converted first
         convert(cgmes.acDcConverters(), c -> new AcDcConverterConversion(c, context));
