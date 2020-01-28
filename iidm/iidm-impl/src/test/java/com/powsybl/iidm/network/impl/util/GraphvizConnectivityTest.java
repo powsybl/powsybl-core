@@ -36,7 +36,7 @@ public class GraphvizConnectivityTest extends AbstractConverterTest {
         try (StringWriter writer = new StringWriter()) {
             new GraphvizConnectivity(network, new Random(0)).write(writer);
             writer.flush();
-            // as Graphviz builder library do not have to stable export (order of nodes and edges can change at any run)
+            // as Graphviz builder library do not have to stable export (order of nodes and edges can change at each run)
             // we only compare unsorted lines
             List<String> linesRef = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/eurostag-tutorial-example1.dot"))).lines().collect(Collectors.toList());
             List<String> lines = Arrays.asList(writer.toString().split(System.lineSeparator()));
