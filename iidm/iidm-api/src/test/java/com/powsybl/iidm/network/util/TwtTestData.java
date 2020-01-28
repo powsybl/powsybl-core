@@ -44,21 +44,20 @@ public class TwtTestData {
     public static double STAR_U = 412.662007016922757;
     public static double STAR_ANGLE = -7.353686938578365;
 
-    public static double G1 = 0;
-    public static double B1 = 2.4375E-6;
-    public static double G2 = 0;
-    public static double B2 = 0;
-    public static double G3 = 0;
-    public static double B3 = 0;
-
     public static double R1 = 0.898462;
     public static double X1 = 17.204128;
+    public static double G1 = 0;
+    public static double B1 = 2.4375E-6;
     public static double RATED_U1 = 400;
     public static double R2 = 1.070770247933884;
     public static double X2 = 19.6664;
+    public static double G2 = 0;
+    public static double B2 = 0;
     public static double RATED_U2 = 220;
     public static double R3 = 4.837006802721089;
     public static double X3 = 21.76072562358277;
+    public static double G3 = 0;
+    public static double B3 = 0;
     public static double RATED_U3 = 21;
     public static int PHASE_ANGLE_CLOCK_2 = 0;
     public static int PHASE_ANGLE_CLOCK_3 = 0;
@@ -72,6 +71,8 @@ public class TwtTestData {
     public static boolean MAIN_COMPONENT3 = true;
 
     private Terminal leg1Terminal;
+    private Terminal leg2Terminal;
+    private Terminal leg3Terminal;
     private ThreeWindingsTransformer twt3w;
 
     public TwtTestData() {
@@ -105,7 +106,7 @@ public class TwtTestData {
         BusView leg2BusView = Mockito.mock(BusView.class);
         Mockito.when(leg2BusView.getBus()).thenReturn(leg2Bus);
 
-        Terminal leg2Terminal = Mockito.mock(Terminal.class);
+        leg2Terminal = Mockito.mock(Terminal.class);
         Mockito.when(leg2Terminal.isConnected()).thenReturn(CONNECTED2);
         Mockito.when(leg2Terminal.getP()).thenReturn(P2);
         Mockito.when(leg2Terminal.getQ()).thenReturn(Q2);
@@ -127,7 +128,7 @@ public class TwtTestData {
         BusView leg3BusView = Mockito.mock(BusView.class);
         Mockito.when(leg3BusView.getBus()).thenReturn(leg3Bus);
 
-        Terminal leg3Terminal = Mockito.mock(Terminal.class);
+        leg3Terminal = Mockito.mock(Terminal.class);
         Mockito.when(leg3Terminal.isConnected()).thenReturn(CONNECTED3);
         Mockito.when(leg3Terminal.getP()).thenReturn(P3);
         Mockito.when(leg3Terminal.getQ()).thenReturn(Q3);
@@ -157,4 +158,15 @@ public class TwtTestData {
         Mockito.when(leg1Terminal.getP()).thenReturn(Double.NaN);
     }
 
+    public void setLeg1Disconnected() {
+        Mockito.when(leg1Terminal.isConnected()).thenReturn(false);
+    }
+
+    public void setLeg2Disconnected() {
+        Mockito.when(leg2Terminal.isConnected()).thenReturn(false);
+    }
+
+    public void setLeg3Disconnected() {
+        Mockito.when(leg3Terminal.isConnected()).thenReturn(false);
+    }
 }

@@ -9,14 +9,16 @@ package com.powsybl.ucte.network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class UcteElementId implements Comparable<UcteElementId> {
+
+    private static final List<Character> ORDER_CODES = Arrays.asList('1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
+        'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', '-', '.', ' ');
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteElementId.class);
 
@@ -114,9 +116,11 @@ public class UcteElementId implements Comparable<UcteElementId> {
     }
 
     private static boolean isOrderCode(char orderCode) {
-        if (orderCode == '0') {
-            LOGGER.warn("Invalid order code: {}", orderCode);
-        }
-        return (orderCode >= '0' && orderCode <= '9') || (orderCode >= 'A' && orderCode <= 'Z');
+        /*
+           Update to match modification on UCTE format
+           The new update is availble on the ENTSO-E website:
+           https://docstore.entsoe.eu/Documents/Publications/SOC/Continental_Europe/150420_quality_of_datasets_and_calculations_3rd_edition.pdf
+         */
+        return ORDER_CODES.contains(orderCode);
     }
 }
