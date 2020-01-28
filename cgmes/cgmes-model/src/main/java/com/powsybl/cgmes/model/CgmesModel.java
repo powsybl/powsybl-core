@@ -116,6 +116,8 @@ public interface CgmesModel {
 
     PropertyBags ratioTapChangerTablesPoints();
 
+    PropertyBags phaseTapChangerTablesPoints();
+
     PropertyBags ratioTapChangerTable(String tableId);
 
     PropertyBags phaseTapChangerTable(String tableId);

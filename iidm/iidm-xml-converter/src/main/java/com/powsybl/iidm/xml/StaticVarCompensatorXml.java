@@ -10,8 +10,10 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -22,6 +24,8 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     static final String ROOT_ELEMENT_NAME = "staticVarCompensator";
 
+    private static final String REGULATING_TERMINAL = "regulatingTerminal";
+
     @Override
     protected String getRootElementName() {
         return ROOT_ELEMENT_NAME;
@@ -29,7 +33,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected boolean hasSubElements(StaticVarCompensator svc) {
-        return false;
+        return !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable());
     }
 
     @Override
@@ -41,6 +45,13 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
         context.getWriter().writeAttribute("regulationMode", svc.getRegulationMode().name());
         writeNodeOrBus(null, svc.getTerminal(), context);
         writePQ(null, svc.getTerminal(), context.getWriter());
+    }
+
+    @Override
+    protected void writeSubElements(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (!Objects.equals(svc, svc.getRegulatingTerminal().getConnectable())) {
+            TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL);
+        }
     }
 
     @Override
@@ -68,6 +79,16 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected void readSubElements(StaticVarCompensator svc, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> super.readSubElements(svc, context));
+        readUntilEndRootElement(context.getReader(), () -> {
+            if (context.getReader().getLocalName().equals(REGULATING_TERMINAL)) {
+                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
+                String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
+                String side = context.getReader().getAttributeValue(null, "side");
+                context.getEndTasks().add(() -> svc.setRegulatingTerminal(TerminalRefXml
+                        .readTerminalRef(svc.getTerminal().getVoltageLevel().getSubstation().getNetwork(), id, side)));
+            } else {
+                super.readSubElements(svc, context);
+            }
+        });
     }
 }
