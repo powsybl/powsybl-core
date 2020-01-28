@@ -71,6 +71,8 @@ public class TwtTestData {
     public static boolean MAIN_COMPONENT3 = true;
 
     private Terminal leg1Terminal;
+    private Terminal leg2Terminal;
+    private Terminal leg3Terminal;
     private ThreeWindingsTransformer twt3w;
 
     public TwtTestData() {
@@ -104,7 +106,7 @@ public class TwtTestData {
         BusView leg2BusView = Mockito.mock(BusView.class);
         Mockito.when(leg2BusView.getBus()).thenReturn(leg2Bus);
 
-        Terminal leg2Terminal = Mockito.mock(Terminal.class);
+        leg2Terminal = Mockito.mock(Terminal.class);
         Mockito.when(leg2Terminal.isConnected()).thenReturn(CONNECTED2);
         Mockito.when(leg2Terminal.getP()).thenReturn(P2);
         Mockito.when(leg2Terminal.getQ()).thenReturn(Q2);
@@ -126,7 +128,7 @@ public class TwtTestData {
         BusView leg3BusView = Mockito.mock(BusView.class);
         Mockito.when(leg3BusView.getBus()).thenReturn(leg3Bus);
 
-        Terminal leg3Terminal = Mockito.mock(Terminal.class);
+        leg3Terminal = Mockito.mock(Terminal.class);
         Mockito.when(leg3Terminal.isConnected()).thenReturn(CONNECTED3);
         Mockito.when(leg3Terminal.getP()).thenReturn(P3);
         Mockito.when(leg3Terminal.getQ()).thenReturn(Q3);
@@ -154,5 +156,17 @@ public class TwtTestData {
 
     public void setNanLeg1P() {
         Mockito.when(leg1Terminal.getP()).thenReturn(Double.NaN);
+    }
+
+    public void setLeg1Disconnected() {
+        Mockito.when(leg1Terminal.isConnected()).thenReturn(false);
+    }
+
+    public void setLeg2Disconnected() {
+        Mockito.when(leg2Terminal.isConnected()).thenReturn(false);
+    }
+
+    public void setLeg3Disconnected() {
+        Mockito.when(leg3Terminal.isConnected()).thenReturn(false);
     }
 }

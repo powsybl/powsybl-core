@@ -32,14 +32,12 @@ public abstract class AbstractValidationTest {
                                                                         ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT,
                                                                         ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(), ValidationConfig.OK_MISSING_VALUES_DEFAULT,
                                                                         ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT, ValidationConfig.COMPARE_RESULTS_DEFAULT,
-                                                                        ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS,
-                                                                        ValidationConfig.STRUCTURAL_RATIO_LINE_ON);
+                                                                        ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
     protected final ValidationConfig strictConfig = new ValidationConfig(0.01, false, "LoadFlowMock", ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                                                                          ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT,
                                                                          ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(), ValidationConfig.OK_MISSING_VALUES_DEFAULT,
                                                                          ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT, ValidationConfig.COMPARE_RESULTS_DEFAULT,
-                                                                         ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS,
-                                                                         ValidationConfig.STRUCTURAL_RATIO_LINE_ON);
+                                                                         ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
 
     @Before
     public void setUp() throws IOException {

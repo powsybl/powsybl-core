@@ -141,7 +141,7 @@ public class ValidationConfigTest {
                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),
                                  ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
                                  ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
-                                 ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS, ValidationConfig.STRUCTURAL_RATIO_LINE_ON);
+                                 ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
             fail();
         } catch (Exception ignored) {
         }
@@ -149,13 +149,13 @@ public class ValidationConfigTest {
                              ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),
                              ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
                              ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
-                             ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS, ValidationConfig.STRUCTURAL_RATIO_LINE_ON);
+                             ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
         try {
             new ValidationConfig(1, false, loadFlowName, null, ValidationConfig.EPSILON_X_DEFAULT,
                                 ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),
                                 ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
                                 ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
-                                ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS, ValidationConfig.STRUCTURAL_RATIO_LINE_ON);
+                                ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
             fail();
         } catch (Exception ignored) {
         }
@@ -164,7 +164,7 @@ public class ValidationConfigTest {
                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(),
                                  ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
                                  ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
-                                 ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS, ValidationConfig.STRUCTURAL_RATIO_LINE_ON);
+                                 ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
             fail();
         } catch (Exception ignored) {
         }
@@ -173,7 +173,7 @@ public class ValidationConfigTest {
                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, null, new LoadFlowParameters(),
                                  ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT,
                                  ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
-                                 ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS, ValidationConfig.STRUCTURAL_RATIO_LINE_ON);
+                                 ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
             fail();
         } catch (Exception ignored) {
         }

@@ -20,6 +20,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.Conversion.Xfmr2RatioPhaseInterpretationAlternative;
 import com.powsybl.cgmes.conversion.Conversion.Xfmr2ShuntInterpretationAlternative;
 import com.powsybl.cgmes.conversion.Conversion.Xfmr2StructuralRatioInterpretationAlternative;
+import com.powsybl.cgmes.conversion.Conversion.Xfmr3RatioPhaseInterpretationAlternative;
 import com.powsybl.cgmes.conversion.Conversion.Xfmr3ShuntInterpretationAlternative;
 import com.powsybl.cgmes.conversion.Conversion.Xfmr3StructuralRatioInterpretationAlternative;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -262,7 +263,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr3RatioPhaseNetworkSide() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr3RatioPhaseNetworkSide(true);
+        config.setXfmr3RatioPhase(Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
@@ -273,7 +274,7 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr3RatioPhaseStarBusSide() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        config.setXfmr3RatioPhaseNetworkSide(false);
+        config.setXfmr3RatioPhase(Xfmr3RatioPhaseInterpretationAlternative.STAR_BUS_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
