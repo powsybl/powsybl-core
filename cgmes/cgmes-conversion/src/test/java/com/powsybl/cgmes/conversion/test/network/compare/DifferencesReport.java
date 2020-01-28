@@ -97,6 +97,11 @@ public class DifferencesReport implements Differences {
         record(context, expected, actual);
     }
 
+    @Override
+    public void notSameIdentifier(String context, Identifiable expected, Identifiable actual) {
+        record(context, expected, actual);
+    }
+
     private static class Diff {
         Diff(Object expected, Object actual) {
             this.expected = expected;

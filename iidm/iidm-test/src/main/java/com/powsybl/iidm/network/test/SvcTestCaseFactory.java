@@ -126,4 +126,17 @@ public final class SvcTestCaseFactory {
 
         return network;
     }
+
+    public static Network createWithRemoteRegulatingTerminal() {
+        return createWithRemoteRegulatingTerminal(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithRemoteRegulatingTerminal(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
+
+        network.getStaticVarCompensator("SVC2")
+                .setRegulatingTerminal(network.getLoad("L2").getTerminal());
+
+        return network;
+    }
 }

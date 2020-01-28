@@ -458,6 +458,12 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags phaseTapChangerTablesPoints() {
+        // FakeCgmesModel does not implement phase tap changer tables
+        return null;
+    }
+
+    @Override
     public PropertyBags ratioTapChangerTable(String tableId) {
         // FakeCgmesModel does not implement ratio tap changer tables
         return null;
@@ -563,6 +569,12 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public void setBasename(String baseName) {
         // TODO Review if required by current tests
+    }
+
+    @Override
+    public String getBasename() {
+        // TODO Review if required by current tests
+        return null;
     }
 
     @Override

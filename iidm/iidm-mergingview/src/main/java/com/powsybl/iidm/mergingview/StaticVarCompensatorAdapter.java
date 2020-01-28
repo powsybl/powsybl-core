@@ -7,6 +7,7 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.Terminal;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -72,6 +73,21 @@ public class StaticVarCompensatorAdapter extends AbstractInjectionAdapter<Static
     @Override
     public StaticVarCompensator setRegulationMode(final RegulationMode regulationMode) {
         getDelegate().setRegulationMode(regulationMode);
+        return this;
+    }
+
+    @Override
+    public Terminal getRegulatingTerminal() {
+        return getIndex().getTerminal(getDelegate().getRegulatingTerminal());
+    }
+
+    @Override
+    public StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
+        Terminal terminal = regulatingTerminal;
+        if (terminal instanceof TerminalAdapter) {
+            terminal = ((TerminalAdapter) terminal).getDelegate();
+        }
+        getDelegate().setRegulatingTerminal(terminal);
         return this;
     }
 }
