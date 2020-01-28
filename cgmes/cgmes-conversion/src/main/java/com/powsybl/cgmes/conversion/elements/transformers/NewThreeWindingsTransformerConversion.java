@@ -30,7 +30,7 @@ import com.powsybl.triplestore.api.PropertyBags;
  * Interpret <br>
  * CgmesT3xModel data is mapped to a more general three windings transformer model (InterpretedT3xModel)
  * according to a predefined configured alternative. It is an elemental process as the only objective is to put
- * Cgmes data in the placeholders of the general three windings transformer model.
+ * Cgmes data in the fields of the general three windings transformer model.
  * All possible alternatives and the default one are defined in conversion class. See {@link Conversion} <br>
  * InterpretedT3xModel supports ratioTapChanger and phaseTapChanger at each end of any leg. Shunt admittances
  * can also be defined at both ends of each leg and allows to specify the end of the structural ratio by leg.

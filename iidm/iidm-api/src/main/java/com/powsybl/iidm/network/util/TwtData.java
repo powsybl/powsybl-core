@@ -117,11 +117,11 @@ public class TwtData {
         theta3 = getTheta(twt.getLeg3());
 
         r1 = getR(twt.getLeg1());
-        x1 = getX(twt.getLeg1());
+        x1 = LinkData.getFixedX(getX(twt.getLeg1()), epsilonX, applyReactanceCorrection);
         r2 = getR(twt.getLeg2());
-        x2 = getX(twt.getLeg2());
+        x2 = LinkData.getFixedX(getX(twt.getLeg2()), epsilonX, applyReactanceCorrection);
         r3 = getR(twt.getLeg3());
-        x3 = getX(twt.getLeg3());
+        x3 = LinkData.getFixedX(getX(twt.getLeg3()), epsilonX, applyReactanceCorrection);
 
         g11 = getG1(twt.getLeg1(), splitShuntAdmittance);
         b11 = getB1(twt.getLeg1(), splitShuntAdmittance);

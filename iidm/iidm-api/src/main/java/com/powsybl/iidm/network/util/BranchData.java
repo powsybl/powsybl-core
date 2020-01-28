@@ -89,7 +89,7 @@ public class BranchData {
         this.id = id;
         this.r = r;
         this.x = x;
-        double fixedX = getFixedX(x, epsilonX, applyReactanceCorrection);
+        double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
         z = Math.hypot(r, fixedX);
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);
@@ -117,7 +117,7 @@ public class BranchData {
         computeValues();
     }
 
-    public BranchData(Line line, double epsilonX, boolean applyReactanceCorrection, boolean structuralRatioLineOn) {
+    public BranchData(Line line, double epsilonX, boolean applyReactanceCorrection) {
         Objects.requireNonNull(line);
 
         id = line.getId();
@@ -129,7 +129,7 @@ public class BranchData {
 
         r = line.getR();
         x = line.getX();
-        double fixedX = getFixedX(x, epsilonX, applyReactanceCorrection);
+        double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
         z = Math.hypot(r, fixedX);
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);
@@ -155,16 +155,13 @@ public class BranchData {
         mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
         mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
 
-        if (structuralRatioLineOn) {
+        rho2 = 1f;
+        alpha1 = 0f;
+        alpha2 = 0f;
+        if (isStructuralRatioLineNeeded(line)) {
             rho1 = 1.0 / structuralRatioEnd1(line);
-            rho2 = 1f;
-            alpha1 = 0f;
-            alpha2 = 0f;
         } else {
             rho1 = 1f;
-            rho2 = 1f;
-            alpha1 = 0f;
-            alpha2 = 0f;
         }
 
         computeValues();
@@ -186,7 +183,7 @@ public class BranchData {
 
         r = getR(twt);
         x = getX(twt);
-        double fixedX = getFixedX(x, epsilonX, applyReactanceCorrection);
+        double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
         z = Math.hypot(r, fixedX);
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);
@@ -219,24 +216,26 @@ public class BranchData {
         computeValues();
     }
 
-    private double structuralRatioEnd1(Line line) {
-        double a0 = 1.0;
+    private boolean isStructuralRatioLineNeeded(Line line) {
+        if (line.getTerminal1() == null || line.getTerminal1().getVoltageLevel() == null ||
+            line.getTerminal2() == null || line.getTerminal2().getVoltageLevel() == null) {
+            return false;
+        }
+
         double nominalV1 = line.getTerminal1().getVoltageLevel().getNominalV();
         double nominalV2 = line.getTerminal2().getVoltageLevel().getNominalV();
-        if (nominalV1 == 0.0 || Double.isNaN(nominalV1)) {
-            return a0;
+
+        if (nominalV1 == 0.0 || Double.isNaN(nominalV1) ||
+            nominalV2 == 0.0 || Double.isNaN(nominalV2)) {
+            return false;
         }
-        if (nominalV2 == 0.0 || Double.isNaN(nominalV2)) {
-            return a0;
-        }
-        if (nominalV1 == nominalV2) {
-            return a0;
-        }
-        return nominalV1 / nominalV2;
+        return nominalV1 != nominalV2;
     }
 
-    private double getFixedX(double x, double epsilonX, boolean applyReactanceCorrection) {
-        return Math.abs(x) < epsilonX && applyReactanceCorrection ? epsilonX : x;
+    private double structuralRatioEnd1(Line line) {
+        double nominalV1 = line.getTerminal1().getVoltageLevel().getNominalV();
+        double nominalV2 = line.getTerminal2().getVoltageLevel().getNominalV();
+        return nominalV1 / nominalV2;
     }
 
     private double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {
@@ -263,20 +262,20 @@ public class BranchData {
 
     private double getB1(TwoWindingsTransformer twt, boolean splitShuntAdmittance) {
         return getValue(splitShuntAdmittance ? twt.getB() / 2 : twt.getB(),
-            twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
-            twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
+                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
+                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }
 
     private double getG2(TwoWindingsTransformer twt, boolean splitShuntAdmittance) {
         return getValue(splitShuntAdmittance ? twt.getG() / 2 : 0,
-            twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getG() : 0,
-            twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getG() : 0);
+                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getG() : 0,
+                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getG() : 0);
     }
 
     private double getB2(TwoWindingsTransformer twt, boolean splitShuntAdmittance) {
         return getValue(splitShuntAdmittance ? twt.getB() / 2 : 0,
-            twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
-            twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
+                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
+                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }
 
     private double getRho1(TwoWindingsTransformer twt) {
