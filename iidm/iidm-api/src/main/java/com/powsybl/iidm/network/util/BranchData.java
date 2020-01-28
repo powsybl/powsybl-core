@@ -155,16 +155,13 @@ public class BranchData {
         mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
         mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
 
+        rho2 = 1f;
+        alpha1 = 0f;
+        alpha2 = 0f;
         if (isStructuralRatioLineNeeded(line)) {
             rho1 = 1.0 / structuralRatioEnd1(line);
-            rho2 = 1f;
-            alpha1 = 0f;
-            alpha2 = 0f;
         } else {
             rho1 = 1f;
-            rho2 = 1f;
-            alpha1 = 0f;
-            alpha2 = 0f;
         }
 
         computeValues();
@@ -220,20 +217,16 @@ public class BranchData {
     }
 
     private boolean isStructuralRatioLineNeeded(Line line) {
-        if (line.getTerminal1() == null || line.getTerminal1().getVoltageLevel() == null) {
-            return false;
-        }
-        if (line.getTerminal2() == null || line.getTerminal2().getVoltageLevel() == null) {
+        if (line.getTerminal1() == null || line.getTerminal1().getVoltageLevel() == null ||
+            line.getTerminal2() == null || line.getTerminal2().getVoltageLevel() == null) {
             return false;
         }
 
         double nominalV1 = line.getTerminal1().getVoltageLevel().getNominalV();
         double nominalV2 = line.getTerminal2().getVoltageLevel().getNominalV();
 
-        if (nominalV1 == 0.0 || Double.isNaN(nominalV1)) {
-            return false;
-        }
-        if (nominalV2 == 0.0 || Double.isNaN(nominalV2)) {
+        if (nominalV1 == 0.0 || Double.isNaN(nominalV1) ||
+            nominalV2 == 0.0 || Double.isNaN(nominalV2)) {
             return false;
         }
         return nominalV1 != nominalV2;

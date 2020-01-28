@@ -18,15 +18,15 @@ import com.powsybl.iidm.network.Terminal.BusView;
  *
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class BranchTestData {
+class BranchTestData {
 
     private Line line;
     private Terminal terminal1;
-    VoltageLevel voltageLevel1;
+    private VoltageLevel voltageLevel1;
     private Terminal terminal2;
-    VoltageLevel voltageLevel2;
+    private VoltageLevel voltageLevel2;
 
-    public BranchTestData() {
+    BranchTestData() {
         Bus bus1 = Mockito.mock(Bus.class);
         Mockito.when(bus1.getV()).thenReturn(400.0);
         Mockito.when(bus1.getAngle()).thenReturn(2.0);
@@ -74,31 +74,31 @@ public class BranchTestData {
 
     }
 
-    public Line getLine() {
+    Line getLine() {
         return line;
     }
 
-    public void setTerminal1Null() {
+    void setTerminal1Null() {
         Mockito.when(line.getTerminal1()).thenReturn(null);
     }
 
-    public void setTerminal2Null() {
+    void setTerminal2Null() {
         Mockito.when(line.getTerminal1()).thenReturn(null);
     }
 
-    public void setVoltageLevel1Null() {
+    void setVoltageLevel1Null() {
         Mockito.when(terminal1.getVoltageLevel()).thenReturn(null);
     }
 
-    public void setVoltageLevel2Null() {
+    void setVoltageLevel2Null() {
         Mockito.when(terminal2.getVoltageLevel()).thenReturn(null);
     }
 
-    public void setNominalV1(double nominalV) {
+    void setNominalV1(double nominalV) {
         Mockito.when(voltageLevel1.getNominalV()).thenReturn(nominalV);
     }
 
-    public void setNominalV2(double nominalV) {
+    void setNominalV2(double nominalV) {
         Mockito.when(voltageLevel2.getNominalV()).thenReturn(nominalV);
     }
 }
