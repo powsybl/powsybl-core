@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
@@ -14,6 +15,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Branch.Side;
 
 /**
@@ -21,6 +23,144 @@ import com.powsybl.iidm.network.Branch.Side;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class BranchDataTest {
+
+    // Test BranchData
+
+    @Test
+    public void testBranchDataFlow() {
+        Line line = new BranchTestData().getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testBranchDataFlowStructuralRatio1() {
+        BranchTestData branchTestData = new BranchTestData();
+        branchTestData.setNominalV1(395.0);
+
+        Line line = branchTestData.getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -223.390802, 328.051088, 223.390802, -316.050498);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testBranchDataFlowStructuralRatio1Vnominal2Zero() {
+        BranchTestData branchTestData = new BranchTestData();
+        branchTestData.setNominalV1(395.0);
+        branchTestData.setNominalV2(0.0);
+
+        Line line = branchTestData.getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testBranchDataFlowStructuralRatio1Vnominal2NaN() {
+        BranchTestData branchTestData = new BranchTestData();
+        branchTestData.setNominalV1(395.0);
+        branchTestData.setNominalV2(Double.NaN);
+
+        Line line = branchTestData.getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testBranchDataFlowStructuralRatio1VoltageLevel2Null() {
+        BranchTestData branchTestData = new BranchTestData();
+        branchTestData.setNominalV1(395.0);
+        branchTestData.setVoltageLevel2Null();
+
+        Line line = branchTestData.getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testBranchDataFlowStructuralRatio2Vnominal1Zero() {
+        BranchTestData branchTestData = new BranchTestData();
+        branchTestData.setNominalV2(395.0);
+        branchTestData.setNominalV1(0.0);
+
+        Line line = branchTestData.getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testBranchDataFlowStructuralRatio2Vnominal1NaN() {
+        BranchTestData branchTestData = new BranchTestData();
+        branchTestData.setNominalV2(395.0);
+        branchTestData.setNominalV1(Double.NaN);
+
+        Line line = branchTestData.getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testBranchDataFlowStructuralRatio2VoltageLevel1Null() {
+        BranchTestData branchTestData = new BranchTestData();
+        branchTestData.setNominalV2(395.0);
+        branchTestData.setVoltageLevel1Null();
+
+        Line line = branchTestData.getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testBranchDataFlowStructuralRatio2() {
+        BranchTestData branchTestData = new BranchTestData();
+        branchTestData.setNominalV2(395.0);
+
+        Line line = branchTestData.getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -217.840937, 1.90106, 217.840937, 1.901069);
+        assertTrue(ok);
+    }
+
+    private boolean branchCompareFlow(BranchData branchData, double p1, double q1, double p2, double q2) {
+        BranchFlow actual = new BranchFlow();
+        actual.p1 = branchData.getComputedP1();
+        actual.q1 = branchData.getComputedQ1();
+        actual.p2 = branchData.getComputedP2();
+        actual.q2 = branchData.getComputedQ2();
+
+        BranchFlow expected = new BranchFlow();
+        expected.p1 = p1;
+        expected.q1 = q1;
+        expected.p2 = p2;
+        expected.q2 = q2;
+
+        return sameFlow(expected, actual);
+    }
+
+    private boolean sameFlow(BranchFlow expected, BranchFlow actual) {
+        double tol = 0.00001;
+        if (Math.abs(expected.p1 - actual.p1) > tol ||
+            Math.abs(expected.q1 - actual.q1) > tol ||
+            Math.abs(expected.p2 - actual.p2) > tol ||
+            Math.abs(expected.q2 - actual.q2) > tol) {
+            return false;
+        }
+        return true;
+    }
+
+    static class BranchFlow {
+        double p1 = Double.NaN;
+        double q1 = Double.NaN;
+        double p2 = Double.NaN;
+        double q2 = Double.NaN;
+    }
 
     // Some tests for a transmission line disconnected at one end
 
