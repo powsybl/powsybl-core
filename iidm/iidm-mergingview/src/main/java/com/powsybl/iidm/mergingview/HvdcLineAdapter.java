@@ -14,73 +14,81 @@ import com.powsybl.iidm.network.HvdcLine;
  */
 public class HvdcLineAdapter extends AbstractIdentifiableAdapter<HvdcLine> implements HvdcLine {
 
-    protected HvdcLineAdapter(final HvdcLine delegate, final MergingViewIndex index) {
+    HvdcLineAdapter(final HvdcLine delegate, final MergingViewIndex index) {
         super(delegate, index);
+    }
+
+    @Override
+    public HvdcConverterStation<?> getConverterStation1() {
+        return getIndex().getHvdcConverterStation(getDelegate().getConverterStation1());
+    }
+
+    @Override
+    public HvdcConverterStation<?> getConverterStation2() {
+        return getIndex().getHvdcConverterStation(getDelegate().getConverterStation2());
+    }
+
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
+    @Override
+    public ConvertersMode getConvertersMode() {
+        return getDelegate().getConvertersMode();
+    }
+
+    @Override
+    public HvdcLine setConvertersMode(final ConvertersMode mode) {
+        getDelegate().setConvertersMode(mode);
+        return this;
+    }
+
+    @Override
+    public double getR() {
+        return getDelegate().getR();
+    }
+
+    @Override
+    public HvdcLine setR(final double r) {
+        getDelegate().setR(r);
+        return this;
+    }
+
+    @Override
+    public double getNominalV() {
+        return getDelegate().getNominalV();
+    }
+
+    @Override
+    public HvdcLine setNominalV(final double nominalV) {
+        getDelegate().setNominalV(nominalV);
+        return this;
+    }
+
+    @Override
+    public double getActivePowerSetpoint() {
+        return getDelegate().getActivePowerSetpoint();
+    }
+
+    @Override
+    public HvdcLine setActivePowerSetpoint(final double activePowerSetpoint) {
+        getDelegate().setActivePowerSetpoint(activePowerSetpoint);
+        return this;
+    }
+
+    @Override
+    public double getMaxP() {
+        return getDelegate().getMaxP();
+    }
+
+    @Override
+    public HvdcLine setMaxP(final double maxP) {
+        getDelegate().setMaxP(maxP);
+        return this;
     }
 
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
-    @Override
-    public ConvertersMode getConvertersMode() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public HvdcLine setConvertersMode(final ConvertersMode mode) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getR() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public HvdcLine setR(final double r) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getNominalV() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public HvdcLine setNominalV(final double nominalV) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getActivePowerSetpoint() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public HvdcLine setActivePowerSetpoint(final double activePowerSetpoint) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public double getMaxP() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public HvdcLine setMaxP(final double maxP) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public HvdcConverterStation<?> getConverterStation1() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public HvdcConverterStation<?> getConverterStation2() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
     @Override
     public void remove() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;

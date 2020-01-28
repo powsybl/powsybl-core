@@ -338,7 +338,18 @@ public final class CgmesConformity1NetworkCatalog {
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
-        lineBE2.newCurrentLimits2().setPermanentLimit(1443.0).add();
+        lineBE2.newCurrentLimits2().setPermanentLimit(1443.0)
+                .beginTemporaryLimit()
+                    .setName("_43d42f99-7c35-4907-a6ea-372b41eb8f77")
+                    .setValue(1574.0)
+                    .setAcceptableDuration(20)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("_3ab4897f-cf5e-418b-8e1c-94f9cde91501")
+                    .setValue(1705.0)
+                    .setAcceptableDuration(10)
+                .endTemporaryLimit()
+                .add();
         // expected.newLine()
         // .setId("78736387-5f60-4832-b3fe-d50daf81b0a6")
         // .add();
@@ -376,7 +387,18 @@ public final class CgmesConformity1NetworkCatalog {
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
-        lineBE6.newCurrentLimits2().setPermanentLimit(1180.0).add();
+        lineBE6.newCurrentLimits2().setPermanentLimit(1180.0)
+                .beginTemporaryLimit()
+                    .setName("_a634eecf-b900-4808-8b74-d91e36c383a0")
+                    .setValue(1312.0)
+                    .setAcceptableDuration(20)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("_5a4a910c-f57f-456b-b9ca-670ab3676adb")
+                    .setValue(1443.0)
+                    .setAcceptableDuration(10)
+                .endTemporaryLimit()
+                .add();
         {
             double u1 = 110.34375;
             double u2 = 10.5;
@@ -422,7 +444,18 @@ public final class CgmesConformity1NetworkCatalog {
                         .setAcceptableDuration(10)
                     .endTemporaryLimit()
                     .add();
-            tx.newCurrentLimits2().setPermanentLimit(13746.4).add();
+            tx.newCurrentLimits2().setPermanentLimit(13746.4)
+                    .beginTemporaryLimit()
+                        .setName("_3674d58e-946d-4901-8084-eb21afe1565a")
+                        .setValue(14746.4)
+                        .setAcceptableDuration(20)
+                    .endTemporaryLimit()
+                    .beginTemporaryLimit()
+                        .setName("_a1cfb7e6-ed0d-4369-b555-007826ba82fb")
+                        .setValue(15746.4)
+                        .setAcceptableDuration(10)
+                    .endTemporaryLimit()
+                    .add();
             int low = 1;
             int high = 33;
             int neutral = 17;
@@ -491,7 +524,18 @@ public final class CgmesConformity1NetworkCatalog {
                     .setRatedU1(u1)
                     .setRatedU2(u2)
                     .add();
-            txBE22.newCurrentLimits2().setPermanentLimit(3411.6).add();
+            txBE22.newCurrentLimits2().setPermanentLimit(3411.6)
+                    .beginTemporaryLimit()
+                        .setName("_7939fc42-08ef-4ce7-9912-97552a4db39a")
+                        .setValue(3611.6)
+                        .setAcceptableDuration(20)
+                    .endTemporaryLimit()
+                    .beginTemporaryLimit()
+                        .setName("_84d4dbeb-ef3b-43a1-9a7e-ce5713013498")
+                        .setValue(3811.6)
+                        .setAcceptableDuration(10)
+                    .endTemporaryLimit()
+                    .add();
             int low = 1;
             int high = 25;
             int neutral = 13;
@@ -552,7 +596,18 @@ public final class CgmesConformity1NetworkCatalog {
                     .setRatedU1(u1)
                     .setRatedU2(u2)
                     .add();
-            txBE21.newCurrentLimits2().setPermanentLimit(3411.6).add();
+            txBE21.newCurrentLimits2().setPermanentLimit(3411.6)
+                    .beginTemporaryLimit()
+                        .setName("_da1cb116-0730-4a00-b795-8ab0b52ad89f")
+                        .setValue(3611.6)
+                        .setAcceptableDuration(20)
+                    .endTemporaryLimit()
+                    .beginTemporaryLimit()
+                        .setName("_4af98ccd-29f1-4039-86cd-c23fc2deb3bc")
+                        .setValue(3811.6)
+                        .setAcceptableDuration(10)
+                    .endTemporaryLimit()
+                    .add();
             int low = 1;
             int high = 25;
             int neutral = 13;
@@ -886,6 +941,18 @@ public final class CgmesConformity1NetworkCatalog {
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
+        txBE22.newCurrentLimits2().setPermanentLimit(3411.6)
+                .beginTemporaryLimit()
+                    .setName("_6236459d-8471-44be-9b66-b271ac407165")
+                    .setValue(3611.6)
+                    .setAcceptableDuration(20)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("_9b2c1328-381e-4277-9042-94b0085f2b77")
+                    .setValue(3811.6)
+                    .setAcceptableDuration(10)
+                .endTemporaryLimit()
+                .add();
 
         TwoWindingsTransformer txBE21 = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
         txBE21.getPhaseTapChanger().remove();
@@ -916,6 +983,18 @@ public final class CgmesConformity1NetworkCatalog {
                 .beginTemporaryLimit()
                     .setName("_dea05113-ef3e-4161-957d-4602c874839e")
                     .setValue(998.2)
+                    .setAcceptableDuration(10)
+                .endTemporaryLimit()
+                .add();
+        txBE21.newCurrentLimits2().setPermanentLimit(3411.6)
+                .beginTemporaryLimit()
+                    .setName("_e1ae19e7-8bb7-42ce-8ae6-24893f16e366")
+                    .setValue(3611.6)
+                    .setAcceptableDuration(20)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("_1e793cd6-1608-46af-a3f7-b4d1cabc9d58")
+                    .setValue(3811.6)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();

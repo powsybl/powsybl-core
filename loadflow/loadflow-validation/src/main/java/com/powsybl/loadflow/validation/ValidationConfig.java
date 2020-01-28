@@ -32,7 +32,6 @@ public class ValidationConfig {
     public static final boolean COMPARE_RESULTS_DEFAULT = false;
     public static final boolean CHECK_MAIN_COMPONENT_ONLY_DEFAULT = true;
     public static final boolean NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS = false;
-    public static final boolean STRUCTURAL_RATIO_LINE_ON = false;
 
     private double threshold;
     private boolean verbose;
@@ -47,7 +46,6 @@ public class ValidationConfig {
     private boolean compareResults;
     private boolean checkMainComponentOnly;
     private boolean noRequirementIfSetpointOutsidePowerBounds;
-    private boolean structuralRatioLineOn;
 
     public static ValidationConfig load() {
         return load(PlatformConfig.defaultConfig());
@@ -66,7 +64,6 @@ public class ValidationConfig {
         boolean compareResults = COMPARE_RESULTS_DEFAULT;
         boolean checkMainComponentOnly = CHECK_MAIN_COMPONENT_ONLY_DEFAULT;
         boolean noRequirementIfSetpointOutsidePowerBounds = NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS;
-        boolean structuralRatioLineOn = STRUCTURAL_RATIO_LINE_ON;
         LoadFlowParameters loadFlowParameter = LoadFlowParameters.load(platformConfig);
         if (platformConfig.moduleExists("loadflow-validation")) {
             ModuleConfig config = platformConfig.getModuleConfig("loadflow-validation");
@@ -82,18 +79,16 @@ public class ValidationConfig {
             compareResults = config.getBooleanProperty("compare-results", COMPARE_RESULTS_DEFAULT);
             checkMainComponentOnly = config.getBooleanProperty("check-main-component-only", CHECK_MAIN_COMPONENT_ONLY_DEFAULT);
             noRequirementIfSetpointOutsidePowerBounds = config.getBooleanProperty("no-requirement-if-setpoint-outside-power-bounds", NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
-            structuralRatioLineOn = config.getBooleanProperty("structural_ratio_line_on", STRUCTURAL_RATIO_LINE_ON);
         }
         return new ValidationConfig(threshold, verbose, loadFlowName, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, loadFlowParameter,
-                                    okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds,
-                                    structuralRatioLineOn);
+                                    okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds);
     }
 
     public ValidationConfig(double threshold, boolean verbose, String loadFlowName,
                             Class<? extends TableFormatterFactory> tableFormatterFactory, double epsilonX,
                             boolean applyReactanceCorrection, ValidationOutputWriter validationOutputWriter, LoadFlowParameters loadFlowParameters,
                             boolean okMissingValues, boolean noRequirementIfReactiveBoundInversion, boolean compareResults, boolean checkMainComponentOnly,
-                            boolean noRequirementIfSetpointOutsidePowerBounds, boolean structuralRatioLineOn) {
+                            boolean noRequirementIfSetpointOutsidePowerBounds) {
         if (threshold < 0) {
             throw new IllegalArgumentException("Negative values for threshold not permitted");
         }
@@ -113,7 +108,6 @@ public class ValidationConfig {
         this.compareResults = compareResults;
         this.checkMainComponentOnly = checkMainComponentOnly;
         this.noRequirementIfSetpointOutsidePowerBounds = noRequirementIfSetpointOutsidePowerBounds;
-        this.structuralRatioLineOn = structuralRatioLineOn;
     }
 
     public double getThreshold() {
@@ -168,10 +162,6 @@ public class ValidationConfig {
         return noRequirementIfSetpointOutsidePowerBounds;
     }
 
-    public boolean isStructuralRatioLineOn() {
-        return structuralRatioLineOn;
-    }
-
     public void setThreshold(double threshold) {
         this.threshold = threshold;
     }
@@ -222,10 +212,6 @@ public class ValidationConfig {
 
     public void setNoRequirementIfSetpointOutsidePowerBounds(boolean noRequirementIfSetpointOutsidePowerBounds) {
         this.noRequirementIfSetpointOutsidePowerBounds = noRequirementIfSetpointOutsidePowerBounds;
-    }
-
-    public void setStructuralRatioLineOn(boolean structuralRatioLineOn) {
-        this.structuralRatioLineOn = structuralRatioLineOn;
     }
 
     @Override

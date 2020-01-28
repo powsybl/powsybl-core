@@ -46,7 +46,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
-import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -134,9 +133,10 @@ public final class NetworkXml {
     }
 
     static void validateWithExtensions(InputStream is) {
-        List<Source> additionalSchemas = EXTENSIONS_SUPPLIER.get().getProviders().stream()
-                .map(e -> new StreamSource(e.getXsdAsStream()))
-                .collect(Collectors.toList());
+        List<Source> additionalSchemas = new ArrayList<>();
+        for (ExtensionXmlSerializer<?, ?> e : EXTENSIONS_SUPPLIER.get().getProviders()) {
+            e.getXsdAsStreamList().forEach(xsd -> additionalSchemas.add(new StreamSource(xsd)));
+        }
         validate(new StreamSource(is), additionalSchemas);
     }
 
@@ -153,6 +153,7 @@ public final class NetworkXml {
         if (extensionXmlSerializer == null) {
             return;
         }
+
         writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri());
         writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri());
     }
@@ -165,6 +166,7 @@ public final class NetworkXml {
             if (extensionXmlSerializer == null) {
                 continue;
             }
+
             if (extensionUris.contains(extensionXmlSerializer.getNamespaceUri())) {
                 throw new PowsyblException("Extension namespace URI collision");
             } else {
@@ -191,6 +193,7 @@ public final class NetworkXml {
             }
             return;
         }
+
         if (extensionXmlSerializer.hasSubElements()) {
             writer.writeStartElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
         } else {
@@ -477,6 +480,7 @@ public final class NetworkXml {
             }
 
             IidmXmlVersion version = IidmXmlVersion.fromNamespaceURI(reader.getNamespaceURI());
+
             String id = reader.getAttributeValue(null, ID);
             DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
             int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, FORECAST_DISTANCE, 0);
@@ -487,6 +491,10 @@ public final class NetworkXml {
             network.setForecastDistance(forecastDistance);
 
             NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version);
+
+            if (!config.withNoExtension()) {
+                context.buildExtensionNamespaceUriList(EXTENSIONS_SUPPLIER.get().getProviders().stream());
+            }
 
             Set<String> extensionNamesNotFound = new TreeSet<>();
 
@@ -686,6 +694,7 @@ public final class NetworkXml {
             }
 
             NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, options, CURRENT_IIDM_XML_VERSION);
+            context.buildExtensionNamespaceUriList(EXTENSIONS_SUPPLIER.get().getProviders().stream());
             Set<String> extensionNamesNotFound = new TreeSet<>();
 
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {

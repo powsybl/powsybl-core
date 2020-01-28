@@ -242,8 +242,7 @@ public class ConversionTester {
         LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(
             LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,
             LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT,
-            LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE,
-            LoadFlowResultsCompletionParameters.STRUCTURAL_RATIO_LINE_ON);
+            LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE);
         LoadFlowResultsCompletion lf = new LoadFlowResultsCompletion(p, lfparams);
         try {
             lf.run(network, null);
