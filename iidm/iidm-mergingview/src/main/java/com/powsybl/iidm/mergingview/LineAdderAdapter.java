@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.PowsyblException;
@@ -5,6 +11,9 @@ import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 
+/**
+ * @author Thomas Adam <tadam at silicom.fr>
+ */
 class LineAdderAdapter implements LineAdder {
 
     private final MergingViewIndex index;
@@ -62,57 +71,45 @@ class LineAdderAdapter implements LineAdder {
     }
 
     private Line addLine(final Network network) {
-        final LineAdder adder = network.newLine()
-                .setId(id)
-                .setEnsureIdUnicity(ensureIdUnicity)
-                .setName(name)
-                .setR(r)
-                .setX(x)
-                .setG1(g1)
-                .setB1(b1)
-                .setG2(g2)
-                .setB2(b2)
-                .setVoltageLevel1(voltageLevelId1)
-                .setVoltageLevel2(voltageLevelId2);
-        if (network.getVoltageLevel(voltageLevelId1).getTopologyKind() == TopologyKind.BUS_BREAKER) {
-            adder.setBus1(bus1)
-                 .setConnectableBus1(connectableBus1);
-        } else {
-            adder.setNode1(node1);
-        }
-        if (network.getVoltageLevel(voltageLevelId2).getTopologyKind() == TopologyKind.BUS_BREAKER) {
-            adder.setBus2(bus2)
-                 .setConnectableBus2(connectableBus2);
-        } else {
-            adder.setNode2(node2);
-        }
+        LineAdder adder = network.newLine()
+                    .setId(id)
+                    .setEnsureIdUnicity(ensureIdUnicity)
+                    .setName(name)
+                    .setR(r)
+                    .setX(x)
+                    .setG1(g1)
+                    .setB1(b1)
+                    .setG2(g2)
+                    .setB2(b2)
+                    .setVoltageLevel1(voltageLevelId1)
+                    .setVoltageLevel2(voltageLevelId2)
+                    .setBus1(bus1)
+                    .setConnectableBus1(connectableBus1)
+                    .setBus2(bus2)
+                    .setConnectableBus2(connectableBus2)
+                    .setNode1(node1)
+                    .setNode2(node2);
         return adder.add();
     }
 
     private Network checkAndGetNetwork1() {
         if (voltageLevelId1 == null) {
-            throw new PowsyblException("first voltage level is not set");
+            throw new PowsyblException("First voltage level is not set");
         }
-        Network network = index.getNetworkStream()
-                .filter(n -> n.getVoltageLevel(voltageLevelId1) != null)
-                .findFirst()
-                .orElse(null);
+        Network network = index.getNetwork(n -> n.getVoltageLevel(voltageLevelId1) != null);
         if (network == null) {
-            throw new PowsyblException("first voltage level '" + voltageLevelId1 + "' not found");
+            throw new PowsyblException("First voltage level '" + voltageLevelId1 + "' not found");
         }
         return network;
     }
 
     private Network checkAndGetNetwork2() {
         if (voltageLevelId2 == null) {
-            throw new PowsyblException("second voltage level is not set");
+            throw new PowsyblException("Second voltage level is not set");
         }
-        Network network = index.getNetworkStream()
-                .filter(n -> n.getVoltageLevel(voltageLevelId2) != null)
-                .findFirst()
-                .orElse(null);
+        Network network = index.getNetwork(n -> n.getVoltageLevel(voltageLevelId2) != null);
         if (network == null) {
-            throw new PowsyblException("second voltage level '" + voltageLevelId2 + "' not found");
+            throw new PowsyblException("Second voltage level '" + voltageLevelId2 + "' not found");
         }
         return network;
     }
@@ -163,7 +160,7 @@ class LineAdderAdapter implements LineAdder {
     }
 
     @Override
-    public LineAdder setNode1(int node1) {
+    public LineAdder setNode1(Integer node1) {
         this.node1 = node1;
         return this;
     }
@@ -187,7 +184,7 @@ class LineAdderAdapter implements LineAdder {
     }
 
     @Override
-    public LineAdder setNode2(int node2) {
+    public LineAdder setNode2(Integer node2) {
         this.node2 = node2;
         return this;
     }

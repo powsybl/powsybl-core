@@ -34,7 +34,7 @@ public class TwoWindingsTransformerAdderAdapter extends AbstractIdentifiableAdde
     }
 
     @Override
-    public TwoWindingsTransformerAdder setNode1(final int node1) {
+    public TwoWindingsTransformerAdder setNode1(final Integer node1) {
         getDelegate().setNode1(node1);
         return this;
     }
@@ -58,7 +58,7 @@ public class TwoWindingsTransformerAdderAdapter extends AbstractIdentifiableAdde
     }
 
     @Override
-    public TwoWindingsTransformerAdder setNode2(final int node2) {
+    public TwoWindingsTransformerAdder setNode2(final Integer node2) {
         getDelegate().setNode2(node2);
         return this;
     }

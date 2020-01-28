@@ -21,9 +21,9 @@ public class DanglingLineAdderAdapter extends AbstractInjectionAdderAdapter<Dang
     @Override
     public DanglingLine add() {
         checkAndSetUniqueId();
-        final DanglingLine dll = getDelegate().add();
-        getIndex().checkNewDanglingLine(dll);
-        return getIndex().getDanglingLine(dll);
+        final DanglingLine dl = getDelegate().add();
+        getIndex().checkNewDanglingLine(dl);
+        return getIndex().getDanglingLine(dl);
     }
 
     // -------------------------------

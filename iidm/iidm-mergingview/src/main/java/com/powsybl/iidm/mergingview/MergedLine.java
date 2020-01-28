@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -35,7 +35,17 @@ class MergedLine implements Line {
         this.index = Objects.requireNonNull(index, "merging view index is null");
         this.dl1 = Objects.requireNonNull(dl1, "dangling line 1 is null");
         this.dl2 = Objects.requireNonNull(dl2, "dangling line 2 is null");
-        this.id = dl1.getId().compareTo(dl2.getId()) < 0 ? dl1.getId() + " + " + dl2.getId() : dl2.getId() + " + " + dl1.getId();
+        this.id = buildId(dl1, dl2);
+    }
+
+    private static String buildId(final DanglingLine dl1, final DanglingLine dl2) {
+        String id;
+        if (dl1.getId().compareTo(dl2.getId()) < 0) {
+            id = dl1.getId() + " + " + dl2.getId();
+        } else {
+            id = dl2.getId() + " + " + dl1.getId();
+        }
+        return id;
     }
 
     @Override
@@ -61,7 +71,7 @@ class MergedLine implements Line {
             case TWO:
                 return getTerminal2();
             default:
-                throw new AssertionError();
+                throw new AssertionError("Unexpected side value: " + side);
         }
     }
 
@@ -83,7 +93,7 @@ class MergedLine implements Line {
             case TWO:
                 return getCurrentLimits2();
             default:
-                throw new AssertionError();
+                throw new AssertionError("Unexpected side value: " + side);
         }
     }
 
@@ -184,12 +194,12 @@ class MergedLine implements Line {
     public Terminal getTerminal(final String voltageLevelId) {
         Objects.requireNonNull(voltageLevelId);
 
-        Terminal termDl1 = dl1.getTerminal();
-        Terminal termDl2 = dl2.getTerminal();
-        if (voltageLevelId.equals(termDl1.getVoltageLevel().getId())) {
-            return termDl1;
-        } else if (voltageLevelId.equals(termDl2.getVoltageLevel().getId())) {
-            return termDl2;
+        Terminal terminal1 = dl1.getTerminal();
+        Terminal terminal2 = dl2.getTerminal();
+        if (voltageLevelId.equals(terminal1.getVoltageLevel().getId())) {
+            return terminal1;
+        } else if (voltageLevelId.equals(terminal2.getVoltageLevel().getId())) {
+            return terminal2;
         } else {
             throw new PowsyblException("No terminal connected to voltage level " + voltageLevelId);
         }
@@ -242,7 +252,7 @@ class MergedLine implements Line {
                 return checkPermanentLimit2(limitReduction);
 
             default:
-                throw new AssertionError();
+                throw new AssertionError("Unexpected side value: " + side);
         }
     }
 

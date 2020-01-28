@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.*;
+import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -91,9 +92,9 @@ class MergingViewIndex {
 
     Line getMergedLine(final String id) {
         return mergedLineCached.values().stream()
-                                        .filter(l -> l.getId().equals(id))
-                                        .findFirst()
-                                        .orElse(null);
+                .filter(l -> l.getId().equals(id))
+                .findFirst()
+                .orElse(null);
     }
 
     /** @return adapter according to given parameter */
@@ -121,9 +122,9 @@ class MergingViewIndex {
     Stream<Identifiable<?>> getIdentifiableStream() {
         // Search Identifiables into merging & working networks, and MergedLines
         return Stream.concat(getNetworkStream().map(Network::getIdentifiables)
-                                               .filter(n -> !(n instanceof Network))
-                                               .flatMap(Collection::stream),
-                             mergedLineCached.values().stream());
+                        .filter(n -> !(n instanceof Network))
+                        .flatMap(Collection::stream),
+                mergedLineCached.values().stream());
     }
 
     /** @return all adapters according to all Identifiables */
@@ -245,9 +246,9 @@ class MergingViewIndex {
     Collection<Branch> getBranches() {
         // Search Branch into merging & working networks, and MergedLines
         return Stream.concat(getNetworkStream().flatMap(Network::getBranchStream)
-                                               .map(this::getBranch),
-                             mergedLineCached.values().stream())
-                     .collect(Collectors.toList());
+                        .map(this::getBranch),
+                mergedLineCached.values().stream())
+                .collect(Collectors.toList());
     }
 
     Collection<ThreeWindingsTransformer> getThreeWindingsTransformers() {
@@ -270,9 +271,9 @@ class MergingViewIndex {
     Collection<Line> getLines() {
         // Search Line into merging & working networks, and MergedLines
         return Stream.concat(getNetworkStream().flatMap(Network::getLineStream)
-                                               .map(this::getLine),
-                             mergedLineCached.values().stream())
-                     .collect(Collectors.toList());
+                        .map(this::getLine),
+                mergedLineCached.values().stream())
+                .collect(Collectors.toList());
     }
 
     boolean asDanglingLine(final DanglingLine dl) {
@@ -451,5 +452,24 @@ class MergingViewIndex {
             default:
                 throw new AssertionError(b.getType().name() + " is not valid to be adapted to branch");
         }
+    }
+
+    <T> T get(final Function<? super Network, ? extends T> mapNetworkIndex, final UnaryOperator<T> mapToAdapter) {
+        Objects.requireNonNull(mapNetworkIndex, "mapNetworkIndex is null");
+        Objects.requireNonNull(mapToAdapter, "mapToAdapter is null");
+
+        return getNetworkStream()
+                .map(mapNetworkIndex)
+                .filter(Objects::nonNull)
+                .map(mapToAdapter)
+                .findFirst()
+                .orElse(null);
+    }
+
+    Network getNetwork(final Predicate<? super Network> filter) {
+        return getNetworkStream()
+                    .filter(filter)
+                    .findFirst()
+                    .orElse(null);
     }
 }
