@@ -37,7 +37,7 @@ public class VoltageLevelExportTest extends AbstractConverterTest {
             // as Graphviz builder library do not have to stable export (order of nodes and edges can change at each run)
             // we only compare unsorted lines
             List<String> linesRef = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/fictitious-switch-c.dot"))).lines().collect(Collectors.toList());
-            List<String> lines = Arrays.asList(writer.toString().split(System.lineSeparator()));
+            List<String> lines = Arrays.asList(writer.toString().split("[\\r\\n]+"));
             assertTrue(lines.containsAll(linesRef));
         }
     }
@@ -51,7 +51,7 @@ public class VoltageLevelExportTest extends AbstractConverterTest {
             // as Graphviz builder library do not have to stable export (order of nodes and edges can change at each run)
             // we only compare unsorted lines
             List<String> linesRef = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/eurostag-tutorial-example1-vlhv1.dot"))).lines().collect(Collectors.toList());
-            List<String> lines = Arrays.asList(writer.toString().split(System.lineSeparator()));
+            List<String> lines = Arrays.asList(writer.toString().split("[\\r\\n]+"));
             assertTrue(lines.containsAll(linesRef));
         }
     }
