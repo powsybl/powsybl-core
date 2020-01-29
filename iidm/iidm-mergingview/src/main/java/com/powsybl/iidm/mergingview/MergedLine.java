@@ -292,7 +292,7 @@ class MergedLine implements Line {
                 return checkTemporaryLimits2(limitReduction);
 
             default:
-                throw new AssertionError();
+                throw new AssertionError("Unexpected side value: " + side);
         }
     }
 
