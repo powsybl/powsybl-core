@@ -6,10 +6,13 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.PowsyblException;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.util.ServiceLoaderCache;
 
-import java.util.Objects;
+import java.util.List;
 
 /**
  *
@@ -33,11 +36,9 @@ public interface NetworkFactory {
      * @return {@code NetworkFactory} instance with the given name.
      */
     static NetworkFactory find(String name) {
-        Objects.requireNonNull(name);
-        return new ServiceLoaderCache<>(NetworkFactoryService.class).getServices().stream()
-                .filter(s -> s.getName().equals(name))
-                .findFirst()
-                .orElseThrow(() -> new PowsyblException("'" + name + "' IIDM implementation not found"))
+        return PlatformConfigNamedProvider.Finder.find(
+                name, "network", Private.PROVIDERS_SUPPLIERS.get(),
+                PlatformConfig.defaultConfig())
                 .createNetworkFactory();
     }
 
@@ -47,7 +48,7 @@ public interface NetworkFactory {
      * @return default {@code NetworkFactory} instance.
      */
     static NetworkFactory findDefault() {
-        return find(NetworkFactoryConstants.DEFAULT);
+        return find(null);
     }
 
     /**
@@ -56,5 +57,17 @@ public interface NetworkFactory {
     @Deprecated
     static Network create(String id, String sourceFormat) {
         return findDefault().createNetwork(id, sourceFormat);
+    }
+
+    /**
+     * @deprecated Do not use. Exists only to have private static state.
+     */
+    @Deprecated
+    static final class Private {
+        Private() { }
+
+        private static final Supplier<List<NetworkFactoryService>> PROVIDERS_SUPPLIERS = Suppliers
+                .memoize(() -> new ServiceLoaderCache<>(NetworkFactoryService.class)
+                        .getServices());
     }
 }
