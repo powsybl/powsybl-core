@@ -6,9 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -20,81 +18,86 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     // -------------------------------
-    // Not implemented methods -------
+    // Simple delegated methods ------
     // -------------------------------
     @Override
     public double getP0() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getP0();
     }
 
     @Override
     public DanglingLine setP0(final double p0) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setP0(p0);
+        return this;
     }
 
     @Override
     public double getQ0() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getQ0();
     }
 
     @Override
     public DanglingLine setQ0(final double q0) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setQ0(q0);
+        return this;
     }
 
     @Override
     public double getR() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getR();
     }
 
     @Override
     public DanglingLine setR(final double r) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setR(r);
+        return this;
     }
 
     @Override
     public double getX() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getX();
     }
 
     @Override
     public DanglingLine setX(final double x) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setX(x);
+        return this;
     }
 
     @Override
     public double getG() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getG();
     }
 
     @Override
     public DanglingLine setG(final double g) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setG(g);
+        return this;
     }
 
     @Override
     public double getB() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getB();
     }
 
     @Override
     public DanglingLine setB(final double b) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().setB(b);
+        return this;
     }
 
     @Override
     public String getUcteXnodeCode() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getUcteXnodeCode();
     }
 
     @Override
     public CurrentLimits getCurrentLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().getCurrentLimits();
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        return getDelegate().newCurrentLimits();
     }
-
 }

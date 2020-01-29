@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.util;
 import java.util.Objects;
 
 import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.complex.ComplexUtils;
 
 import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Bus;
@@ -57,10 +56,6 @@ public class BranchData {
     private final boolean mainComponent1;
     private final boolean mainComponent2;
 
-    private double computedU1;
-    private double computedU2;
-    private double computedTheta1;
-    private double computedTheta2;
     private double computedP1;
     private double computedQ1;
     private double computedP2;
@@ -94,7 +89,7 @@ public class BranchData {
         this.id = id;
         this.r = r;
         this.x = x;
-        double fixedX = getFixedX(x, epsilonX, applyReactanceCorrection);
+        double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
         z = Math.hypot(r, fixedX);
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);
@@ -134,18 +129,14 @@ public class BranchData {
 
         r = line.getR();
         x = line.getX();
-        double fixedX = getFixedX(x, epsilonX, applyReactanceCorrection);
+        double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
         z = Math.hypot(r, fixedX);
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);
-        rho1 = 1f;
-        rho2 = 1f;
         u1 = bus1 != null ? bus1.getV() : Double.NaN;
         u2 = bus2 != null ? bus2.getV() : Double.NaN;
         theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
         theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
-        alpha1 = 0f;
-        alpha2 = 0f;
         g1 = line.getG1();
         g2 = line.getG2();
         b1 = line.getB1();
@@ -163,6 +154,15 @@ public class BranchData {
         boolean connectableMainComponent2 = connectableBus2 != null && connectableBus2.isInMainConnectedComponent();
         mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
         mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
+
+        rho2 = 1f;
+        alpha1 = 0f;
+        alpha2 = 0f;
+        if (isStructuralRatioLineNeeded(line)) {
+            rho1 = 1.0 / structuralRatioEnd1(line);
+        } else {
+            rho1 = 1f;
+        }
 
         computeValues();
     }
@@ -183,7 +183,7 @@ public class BranchData {
 
         r = getR(twt);
         x = getX(twt);
-        double fixedX = getFixedX(x, epsilonX, applyReactanceCorrection);
+        double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
         z = Math.hypot(r, fixedX);
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);
@@ -216,8 +216,26 @@ public class BranchData {
         computeValues();
     }
 
-    private double getFixedX(double x, double epsilonX, boolean applyReactanceCorrection) {
-        return Math.abs(x) < epsilonX && applyReactanceCorrection ? epsilonX : x;
+    private boolean isStructuralRatioLineNeeded(Line line) {
+        if (line.getTerminal1() == null || line.getTerminal1().getVoltageLevel() == null ||
+            line.getTerminal2() == null || line.getTerminal2().getVoltageLevel() == null) {
+            return false;
+        }
+
+        double nominalV1 = line.getTerminal1().getVoltageLevel().getNominalV();
+        double nominalV2 = line.getTerminal2().getVoltageLevel().getNominalV();
+
+        if (nominalV1 == 0.0 || Double.isNaN(nominalV1) ||
+            nominalV2 == 0.0 || Double.isNaN(nominalV2)) {
+            return false;
+        }
+        return nominalV1 != nominalV2;
+    }
+
+    private double structuralRatioEnd1(Line line) {
+        double nominalV1 = line.getTerminal1().getVoltageLevel().getNominalV();
+        double nominalV2 = line.getTerminal2().getVoltageLevel().getNominalV();
+        return nominalV1 / nominalV2;
     }
 
     private double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {
@@ -278,72 +296,40 @@ public class BranchData {
             computedP2 = Double.NaN;
             computedQ2 = Double.NaN;
         } else {
-            Complex ytr;
-            Complex y1 = new Complex(g1, b1);
-            Complex y2 = new Complex(g2, b2);
-            Complex a1 = ComplexUtils.polar2Complex(1 / rho1, -alpha1);
-            Complex a2 = ComplexUtils.polar2Complex(1 / rho2, -alpha2 - Math.toRadians(getPhaseAngleClockDegrees(phaseAngleClock)));
-            Complex a1cc = a1.conjugate();
-            Complex a2cc = a2.conjugate();
+            double angle1 = -alpha1;
+            double angle2 = -alpha2 - Math.toRadians(LinkData.getPhaseAngleClockDegrees(phaseAngleClock));
 
-            Complex y11;
-            Complex y12 = Complex.ZERO;
-            Complex y22;
-            Complex y21 = Complex.ZERO;
-            if (r == 0.0 && x == 0.0) {
-                y11 = y1.multiply(rho1 * rho1);
-                y22 = y2.multiply(rho2 * rho2);
+            LinkData.BranchAdmittanceMatrix branchAdmittance = LinkData.calculateBranchAdmittance(r, x,
+                1 / rho1, angle1, 1 / rho2, angle2, new Complex(g1, b1), new Complex(g2, b2));
+
+            if (connected1 && connected2) {
+                LinkData.Flow flow = LinkData.flowBothEnds(branchAdmittance.y11, branchAdmittance.y12,
+                    branchAdmittance.y21, branchAdmittance.y22, u1, theta1, u2, theta2);
+
+                computedP1 = flow.fromTo.getReal();
+                computedQ1 = flow.fromTo.getImaginary();
+                computedP2 = flow.toFrom.getReal();
+                computedQ2 = flow.toFrom.getImaginary();
+            } else if (connected1) {
+
+                Complex ysh = LinkData.kronAntenna(branchAdmittance.y11, branchAdmittance.y12,
+                    branchAdmittance.y21, branchAdmittance.y22, false);
+                Complex sFrom = LinkData.flowYshunt(ysh, u1, theta1);
+
+                computedP1 = sFrom.getReal();
+                computedQ1 = sFrom.getImaginary();
+                computedP2 = 0.0;
+                computedQ2 = 0.0;
             } else {
-                ytr = new Complex(r, x).reciprocal();
-                // Optimization: .divide(a1.multiply(a1.conjugate())) == .multiply(rho1 * rho1)
-                y11 = ytr.add(y1).multiply(rho1 * rho1);
-                y12 = ytr.negate().divide(a1cc.multiply(a2));
-                // Optimization: .divide(a2.multiply(a2.conjugate())) == .multiply(rho2 * rho2)
-                y22 = ytr.add(y2).multiply(rho2 * rho2);
-                y21 = ytr.negate().divide(a1.multiply(a2cc));
+                Complex ysh = LinkData.kronAntenna(branchAdmittance.y11, branchAdmittance.y12,
+                    branchAdmittance.y21, branchAdmittance.y22, true);
+                Complex sTo = LinkData.flowYshunt(ysh, u2, theta2);
+
+                computedP1 = 0.0;
+                computedQ1 = 0.0;
+                computedP2 = sTo.getReal();
+                computedQ2 = sTo.getImaginary();
             }
-
-            // If one of the ends is disconnected,
-            // compute the voltage at the disconnected end
-            if (connected1) {
-                computedU1 = u1;
-                computedTheta1 = theta1;
-            } else if (y11.equals(Complex.ZERO)) {
-                // v1 equal v2 if z0 line
-                computedU1 = u2;
-                computedTheta1 = theta2;
-            } else {
-                Complex v2 = ComplexUtils.polar2Complex(u2, theta2);
-                Complex v1 = y12.negate().multiply(v2).divide(y11);
-                computedU1 = v1.abs();
-                computedTheta1 = v1.getArgument();
-            }
-            if (connected2) {
-                computedU2 = u2;
-                computedTheta2 = theta2;
-            } else if (y22.equals(Complex.ZERO)) {
-                computedU2 = u1;
-                computedTheta2 = theta1;
-            } else {
-                Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
-                Complex v2 = y21.negate().multiply(v1).divide(y22);
-                computedU2 = v2.abs();
-                computedTheta2 = v2.getArgument();
-            }
-
-            Complex v1 = ComplexUtils.polar2Complex(computedU1, computedTheta1);
-            Complex v2 = ComplexUtils.polar2Complex(computedU2, computedTheta2);
-
-            Complex i12 = y11.multiply(v1).add(y12.multiply(v2));
-            Complex i21 = y22.multiply(v2).add(y21.multiply(v1));
-
-            Complex s1 = i12.conjugate().multiply(v1);
-            Complex s2 = i21.conjugate().multiply(v2);
-
-            computedP1 = s1.getReal();
-            computedQ1 = s1.getImaginary();
-            computedP2 = s2.getReal();
-            computedQ2 = s2.getImaginary();
         }
     }
 
@@ -451,22 +437,6 @@ public class BranchData {
         return q2;
     }
 
-    public double getComputedU1() {
-        return computedU1;
-    }
-
-    public double getComputedTheta1() {
-        return computedTheta1;
-    }
-
-    public double getComputedU2() {
-        return computedU2;
-    }
-
-    public double getComputedTheta2() {
-        return computedTheta2;
-    }
-
     public double getComputedP1() {
         return computedP1;
     }
@@ -509,15 +479,5 @@ public class BranchData {
 
     public int getPhaseAngleClock() {
         return phaseAngleClock;
-    }
-
-    private double getPhaseAngleClockDegrees(int phaseAngleClock) {
-        double phaseAngleClockDegree = 0.0;
-        phaseAngleClockDegree += phaseAngleClock * 30.0;
-        phaseAngleClockDegree = Math.IEEEremainder(phaseAngleClockDegree, 360.0);
-        if (phaseAngleClockDegree > 180.0) {
-            phaseAngleClockDegree -= 360.0;
-        }
-        return phaseAngleClockDegree;
     }
 }

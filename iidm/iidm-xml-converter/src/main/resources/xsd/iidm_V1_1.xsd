@@ -356,12 +356,17 @@
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
                 <xs:sequence>
+                    <xs:element name="ratioTapChanger1" type="iidm:RatioTapChanger" minOccurs="0"/>
+                    <xs:element name="phaseTapChanger1" type="iidm:PhaseTapChanger" minOccurs="0"/>
                     <xs:element name="ratioTapChanger2" type="iidm:RatioTapChanger" minOccurs="0"/>
+                    <xs:element name="phaseTapChanger2" type="iidm:PhaseTapChanger" minOccurs="0"/>
                     <xs:element name="ratioTapChanger3" type="iidm:RatioTapChanger" minOccurs="0"/>
+                    <xs:element name="phaseTapChanger3" type="iidm:PhaseTapChanger" minOccurs="0"/>
                     <xs:element name="currentLimits1" type="iidm:CurrentLimit" minOccurs="0"/>
                     <xs:element name="currentLimits2" type="iidm:CurrentLimit" minOccurs="0"/>
                     <xs:element name="currentLimits3" type="iidm:CurrentLimit" minOccurs="0"/>
                 </xs:sequence>
+                <xs:attribute name="ratedU0" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU1" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU2" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU3" use="required" type="xs:double"/>
@@ -372,7 +377,11 @@
                 <xs:attribute name="x2" use="required" type="xs:double"/>
                 <xs:attribute name="x3" use="required" type="xs:double"/>
                 <xs:attribute name="g1" use="required" type="xs:double"/>
+                <xs:attribute name="g2" use="required" type="xs:double"/>
+                <xs:attribute name="g3" use="required" type="xs:double"/>
                 <xs:attribute name="b1" use="required" type="xs:double"/>
+                <xs:attribute name="b2" use="required" type="xs:double"/>
+                <xs:attribute name="b3" use="required" type="xs:double"/>
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
                 <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="voltageLevelId1" use="required" type="iidm:nonEmptyString"/>
