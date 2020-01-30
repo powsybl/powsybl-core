@@ -47,10 +47,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
         // A line is considered Z0 (null impedance) if and only if
         // it is connected at both ends and the voltage at end buses are the same
         this.z0checker = (Line l) -> {
-            if (!l.getTerminal1().isConnected()) {
-                return false;
-            }
-            if (!l.getTerminal2().isConnected()) {
+            if (!l.getTerminal1().isConnected() || !l.getTerminal2().isConnected()) {
                 return false;
             }
             Bus b1 = l.getTerminal1().getBusView().getBus();
