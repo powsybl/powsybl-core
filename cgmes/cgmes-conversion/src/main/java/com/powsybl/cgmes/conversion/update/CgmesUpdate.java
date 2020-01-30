@@ -71,7 +71,7 @@ public class CgmesUpdate {
             // FIXME it might throw ConcurrentModificationException
             executeFutures(futures);
         } finally {
-            executor.shutdownNow();
+            executor.shutdown();
         }
     }
 
