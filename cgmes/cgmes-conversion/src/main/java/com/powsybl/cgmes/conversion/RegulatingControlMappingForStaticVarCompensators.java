@@ -14,6 +14,7 @@ import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -23,9 +24,9 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 public class RegulatingControlMappingForStaticVarCompensators {
 
-    public RegulatingControlMappingForStaticVarCompensators(RegulatingControlMapping parent) {
+    RegulatingControlMappingForStaticVarCompensators(RegulatingControlMapping parent, Context context) {
         this.parent = parent;
-        this.context = parent.context();
+        this.context = context;
         mapping = new HashMap<>();
     }
 
@@ -34,7 +35,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     public void add(String iidmId, PropertyBag sm) {
-        String rcId = parent.getRegulatingControlId(sm);
+        String rcId = RegulatingControlMapping.getRegulatingControlId(sm);
         boolean controlEnabledProperty = sm.asBoolean("controlEnabled", false);
         double defaultTargetVoltage = sm.asDouble("voltageSetPoint");
         double defaultTargetReactivePower = sm.asDouble("q");
@@ -42,7 +43,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
         if (mapping.containsKey(iidmId)) {
             throw new CgmesModelException(
-                "StaticVarCompensator already added, IIDM StaticVarCompensator Id: " + iidmId);
+                    "StaticVarCompensator already added, IIDM StaticVarCompensator Id: " + iidmId);
         }
 
         CgmesRegulatingControlForStaticVarCompensator rc = new CgmesRegulatingControlForStaticVarCompensator();
@@ -89,22 +90,13 @@ public class RegulatingControlMappingForStaticVarCompensators {
             return;
         }
 
-        boolean okSet = false;
-        if (context.terminalMapping().areAssociated(control.cgmesTerminal, control.topologicalNode)) {
-            okSet = setRegulatingControl(control, svc);
-        } else {
-            context.pending(
-                String.format(
-                    "Remote regulating control for static var compensator %s replaced by control defined at Equipment",
-                    svc.getId()),
-                "IIDM model does not support remote control for static var compensators");
-
-            setDefaultRegulatingControl(rc, svc);
-        }
-        control.setCorrectlySet(okSet);
+        control.setCorrectlySet(setRegulatingControl(control, svc));
     }
 
     private boolean setRegulatingControl(RegulatingControl control, StaticVarCompensator svc) {
+
+        // Take default terminal if it has not been defined in CGMES files (it is never null)
+        Terminal terminal = parent.getRegulatingTerminal(svc, control.cgmesTerminal, control.topologicalNode);
 
         double targetVoltage = Double.NaN;
         double targetReactivePower = Double.NaN;
@@ -127,6 +119,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         svc.setVoltageSetPoint(targetVoltage);
         svc.setReactivePowerSetPoint(targetReactivePower);
         svc.setRegulationMode(regulationMode);
+        svc.setRegulatingTerminal(terminal);
 
         return okSet;
     }
@@ -153,7 +146,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         svc.setRegulationMode(regulationMode);
     }
 
-    private boolean isControlModeReactivePower(String controlMode) {
+    private static boolean isControlModeReactivePower(String controlMode) {
         return controlMode != null && controlMode.endsWith("reactivepower");
     }
 
