@@ -15,9 +15,9 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-abstract class AbstractXmlConverterTest extends AbstractConverterTest {
+public abstract class AbstractXmlConverterTest extends AbstractConverterTest {
 
-    static String getVersionDir(IidmXmlVersion version) {
+    public static String getVersionDir(IidmXmlVersion version) {
         return "/V" + version.toString("_") + "/";
     }
 
