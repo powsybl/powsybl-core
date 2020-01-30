@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
-import com.powsybl.cgmes.conversion.elements.HVDC.CgmesDc;
+import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDc;
 import com.powsybl.cgmes.conversion.elements.transformers.NewThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.NewTwoWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
