@@ -247,6 +247,7 @@ public class CgmesUpdateTest {
 
     private DataSource tmpDataSource(String impl) throws IOException {
         Path exportFolder = fileSystem.getPath("impl-" + impl);
+//        Path exportFolder = Paths.get("tmp/" + impl);
         if (Files.exists(exportFolder)) {
             FileUtils.cleanDirectory(exportFolder.toFile());
         }
