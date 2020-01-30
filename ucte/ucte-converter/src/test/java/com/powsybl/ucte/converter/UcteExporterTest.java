@@ -128,4 +128,10 @@ public class UcteExporterTest extends AbstractConverterTest {
         namingStrategy = UcteExporter.findNamingStrategy("OtherNamingStrategy", ImmutableList.of(new DefaultNamingStrategy(), new OtherNamingStrategy()));
         assertEquals("OtherNamingStrategy", namingStrategy.getName());
     }
+
+    @Test
+    public void testWithIdDuplicationBetweenLineAndTransformer() throws IOException {
+        Network network = loadNetworkFromResourceFile("/id_duplication_test.uct");
+        testExporter(network, "/id_duplication_test.uct");
+    }
 }

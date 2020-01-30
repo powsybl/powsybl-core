@@ -74,6 +74,16 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         props.put(AbstractTripleStore.Options.QUADS_MODE, "true");
         props.put(BigdataSail.Options.TRUTH_MAINTENANCE, "false");
         props.put(BigdataSail.Options.ISOLATABLE_INDICES, "false");
+        props.put(BigdataSail.Options.ALLOW_AUTO_COMMIT, "false");
+//        props.put(AbstractTripleStore.Options.JUSTIFY, "false");
+//        props.put(AbstractTripleStore.Options.AXIOMS_CLASS, "NoAxioms");
+//        props.put(AbstractTripleStore.Options.STATEMENT_IDENTIFIERS, "false");
+//        props.put(BigdataSail.Options.BUFFER_CAPACITY, "100000");
+
+//        props.put(AbstractTripleStore.Options.TEXT_INDEX, "true");
+//        props.put(Journal.Options.minimumInitialExtent, 10485760);
+//        props.put(Journal.Options.MAXIMUM_EXTENT, "20971520");
+
         // Quiet
         System.getProperties().setProperty("com.bigdata.Banner.quiet", "true");
         System.getProperties().setProperty("com.bigdata.util.config.LogUtil.quiet", "true");
@@ -332,7 +342,9 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
 
     private void update(RepositoryConnection conn, String query) {
         try {
+            conn.begin();
             conn.prepareUpdate(QueryLanguage.SPARQL, query).execute();
+            conn.commit();
         } catch (MalformedQueryException | UpdateExecutionException | RepositoryException e) {
             throw new TripleStoreException(String.format("Query [%s]", query), e);
         } finally {
