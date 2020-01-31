@@ -569,14 +569,28 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     public void add(CgmesSubset subset, String type, PropertyBags objects) {
         String contextName = contextNameFor(subset);
         try {
-            if (type.equals(CgmesNames.FULL_MODEL)) {
-                tripleStore.add(contextName, mdNamespace(), type, objects);
-            } else {
-                tripleStore.add(contextName, cimNamespace, type, objects);
-            }
+            addForContext(contextName, type, objects);
         } catch (TripleStoreException x) {
             String msg = String.format("Adding objects of type %s to subset %s, context %s", type, subset, contextName);
             throw new CgmesModelException(msg, x);
+        }
+    }
+
+    @Override
+    public void add(String contextName, String type, PropertyBags objects) {
+        try {
+            addForContext(contextName, type, objects);
+        } catch (TripleStoreException x) {
+            String msg = String.format("Adding objects of type %s to context %s", type, contextName);
+            throw new CgmesModelException(msg, x);
+        }
+    }
+
+    private void addForContext(String contextName, String type, PropertyBags objects) {
+        if (type.equals(CgmesNames.FULL_MODEL)) {
+            tripleStore.add(contextName, mdNamespace(), type, objects);
+        } else {
+            tripleStore.add(contextName, cimNamespace, type, objects);
         }
     }
 
@@ -585,7 +599,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         // If no namespace is found, return default
         PrefixNamespace def = new PrefixNamespace("md", MD_NAMESPACE);
         return tripleStore.getNamespaces().stream().filter(ns -> ns.getPrefix().equals("md"))
-        .findFirst().orElse(def).getNamespace();
+            .findFirst().orElse(def).getNamespace();
     }
 
     private static final Pattern CIM_NAMESPACE_VERSION_PATTERN = Pattern.compile("^.*CIM-schema-cim([0-9]*)#$");

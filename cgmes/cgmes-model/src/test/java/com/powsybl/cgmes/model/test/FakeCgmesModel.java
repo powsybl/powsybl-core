@@ -536,6 +536,11 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
+    public void add(String contextName, String type, PropertyBags objects) {
+     // FakeCgmesModel, no need to implement storage of objects
+    }
+
+    @Override
     public Properties getProperties() {
         return properties;
     }

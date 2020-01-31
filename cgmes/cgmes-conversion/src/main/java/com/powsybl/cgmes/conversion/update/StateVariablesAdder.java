@@ -44,17 +44,28 @@ import com.powsybl.triplestore.api.PropertyBags;
 public class StateVariablesAdder {
 
     public StateVariablesAdder(CgmesModel cgmes) {
-        this.cgmes = cgmes;
+        this.cgmes = Objects.requireNonNull(cgmes);
         this.originalSVdata = originalSVdata(cgmes);
+        this.originalSVcontext = originalSVcontext(cgmes);
     }
 
-    public Map<String, PropertyBags> originalSVdata(CgmesModel cgmes) {
+    private Map<String, PropertyBags> originalSVdata(CgmesModel cgmes) {
         originalSVdata.put(TERMINALS_SV, cgmes.terminalsSV());
         if (!isCimVersion14(cgmes)) {
             originalSVdata.put("fullModelSV", cgmes.fullModelSV());
             originalSVdata.put("topologicalIslands", cgmes.topologicalIslands());
         }
         return originalSVdata;
+    }
+
+    private String originalSVcontext(CgmesModel cgmes) {
+        if (!isCimVersion14(cgmes)) {
+            PropertyBags pb = cgmes.fullModelSV();
+            if (pb.get(0).containsKey("graph")) {
+                return pb.get(0).getId("graph");
+            }
+        }
+        return CgmesSubset.STATE_VARIABLES.getIdentifier();
     }
 
     public void add(Network n, CgmesModel cgmes) {
@@ -102,7 +113,7 @@ public class StateVariablesAdder {
             voltages.add(p);
         });
 
-        cgmes.add(CgmesSubset.STATE_VARIABLES, "SvVoltage", voltages);
+        cgmes.add(originalSVcontext, "SvVoltage", voltages);
 
         PropertyBags powerFlows = new PropertyBags();
         for (Load l : n.getLoads()) {
@@ -143,7 +154,7 @@ public class StateVariablesAdder {
                 }
             });
         }
-        cgmes.add(CgmesSubset.STATE_VARIABLES, "SvPowerFlow", powerFlows);
+        cgmes.add(originalSVcontext, "SvPowerFlow", powerFlows);
 
         PropertyBags shuntCompensatorSections = new PropertyBags();
         for (ShuntCompensator s : n.getShuntCompensators()) {
@@ -152,7 +163,7 @@ public class StateVariablesAdder {
             p.put("ShuntCompensator", s.getId());
             shuntCompensatorSections.add(p);
         }
-        cgmes.add(CgmesSubset.STATE_VARIABLES, "SvShuntCompensatorSections", shuntCompensatorSections);
+        cgmes.add(originalSVcontext, "SvShuntCompensatorSections", shuntCompensatorSections);
 
         PropertyBags tapSteps = new PropertyBags();
         String tapChangerPositionName = getTapChangerPositionName(cgmes);
@@ -171,7 +182,7 @@ public class StateVariablesAdder {
                 tapSteps.add(p);
             }
         }
-        cgmes.add(CgmesSubset.STATE_VARIABLES, "SvTapStep", tapSteps);
+        cgmes.add(originalSVcontext, "SvTapStep", tapSteps);
 
         // create SvStatus, iterate on Connectables, check Terminal status, add
         // to SvStatus
@@ -212,7 +223,7 @@ public class StateVariablesAdder {
                 }
             });
         }
-        cgmes.add(CgmesSubset.STATE_VARIABLES, "SvStatus", svStatus);
+        cgmes.add(originalSVcontext, "SvStatus", svStatus);
     }
 
     private boolean isCimVersion14(CgmesModel cgmes) {
@@ -257,7 +268,7 @@ public class StateVariablesAdder {
                     getMultivaluedProperty(value, CgmesNames.TOPOLOGICAL_NODES));
                 topologicalIslands.add(topologicalIsland);
             });
-            cgmes.add(CgmesSubset.STATE_VARIABLES, CgmesNames.TOPOLOGICAL_ISLAND, topologicalIslands);
+            cgmes.add(originalSVcontext, CgmesNames.TOPOLOGICAL_ISLAND, topologicalIslands);
         }
     }
 
@@ -288,7 +299,7 @@ public class StateVariablesAdder {
             newModelDescription.put(CgmesNames.MODELING_AUTHORITY_SET,
                 originalModelDescription.get(0).getId("modelingAuthoritySet"));
             fullModelSV.add(newModelDescription);
-            cgmes.add(CgmesSubset.STATE_VARIABLES, CgmesNames.FULL_MODEL, fullModelSV);
+            cgmes.add(originalSVcontext, CgmesNames.FULL_MODEL, fullModelSV);
         }
     }
 
@@ -369,6 +380,7 @@ public class StateVariablesAdder {
 
     private CgmesModel cgmes;
     private Map<String, PropertyBags> originalSVdata = new HashMap<>();
+    private String originalSVcontext;
     private static final String TERMINALS_SV = "terminalsSV";
     private static final String IN_SERVICE = "inService";
 

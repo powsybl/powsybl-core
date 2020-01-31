@@ -140,6 +140,8 @@ public interface CgmesModel {
 
     void add(CgmesSubset subset, String type, PropertyBags objects);
 
+    void add(String contextName, String type, PropertyBags objects);
+
     void print(PrintStream out);
 
     void print(Consumer<String> liner);
