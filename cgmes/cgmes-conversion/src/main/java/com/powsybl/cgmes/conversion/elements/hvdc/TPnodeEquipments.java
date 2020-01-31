@@ -131,8 +131,8 @@ class TPnodeEquipments {
         if (listEquipment == null) {
             return false;
         }
-        TPnodeEquipment tpe = new TPnodeEquipment(EquipmentType.DC_LINE_SEGMENT, dcLineSegment);
-        return listEquipment.contains(tpe);
+        return listEquipment.stream()
+            .anyMatch(eq -> eq.type == EquipmentType.DC_LINE_SEGMENT && eq.equipmentId.equals(dcLineSegment));
     }
 
     void print() {

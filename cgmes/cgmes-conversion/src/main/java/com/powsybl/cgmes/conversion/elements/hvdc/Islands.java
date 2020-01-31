@@ -46,10 +46,10 @@ class Islands {
         adjacentTopologicalNodes.add(topologicalNodeId);
         visitedTopologicalNodes.add(topologicalNodeId);
 
-        if (adjacency.adjacency.containsKey(topologicalNodeId)) {
-            int k = 0;
-            while (k < adjacentTopologicalNodes.size()) {
-                String topologicalNode = adjacentTopologicalNodes.get(k);
+        int k = 0;
+        while (k < adjacentTopologicalNodes.size()) {
+            String topologicalNode = adjacentTopologicalNodes.get(k);
+            if (adjacency.adjacency.containsKey(topologicalNode)) {
                 adjacency.adjacency.get(topologicalNode).forEach(adjacent -> {
                     if (visitedTopologicalNodes.contains(adjacent.topologicalNode)) {
                         return;
@@ -57,8 +57,8 @@ class Islands {
                     adjacentTopologicalNodes.add(adjacent.topologicalNode);
                     visitedTopologicalNodes.add(adjacent.topologicalNode);
                 });
-                k++;
             }
+            k++;
         }
         return adjacentTopologicalNodes;
     }
@@ -68,5 +68,5 @@ class Islands {
         islandsNodes.forEach(island -> LOG.info(" {} ", island));
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(Adjacency.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Islands.class);
 }

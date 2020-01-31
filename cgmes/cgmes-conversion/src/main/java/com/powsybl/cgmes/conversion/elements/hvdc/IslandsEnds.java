@@ -34,6 +34,9 @@ class IslandsEnds {
         if (islandNodes.isEmpty()) {
             return;
         }
+        if (!islandNodes.contains("_48950a5a-1366-4171-ba80-a1ab3d341e86")) {
+            return;
+        }
         Set<String> visitedTopologicalNodes = new HashSet<>();
 
         String topologicalNodeEnd1 = islandNodes.get(0);
@@ -68,11 +71,12 @@ class IslandsEnds {
 
         List<String> adjacentTopologicalNodes = new ArrayList<>();
         adjacentTopologicalNodes.add(topologicalNodeId);
+        visitedTopologicalNodes.add(topologicalNodeId);
 
-        if (adjacency.adjacency.containsKey(topologicalNodeId)) {
-            int k = 0;
-            while (k < adjacentTopologicalNodes.size()) {
-                String topologicalNode = adjacentTopologicalNodes.get(k);
+        int k = 0;
+        while (k < adjacentTopologicalNodes.size()) {
+            String topologicalNode = adjacentTopologicalNodes.get(k);
+            if (adjacency.adjacency.containsKey(topologicalNode)) {
                 adjacency.adjacency.get(topologicalNode).forEach(adjacent -> {
                     if (Adjacency.isDcLineSegment(adjacent.type)) {
                         return;
@@ -83,8 +87,8 @@ class IslandsEnds {
                     adjacentTopologicalNodes.add(adjacent.topologicalNode);
                     visitedTopologicalNodes.add(adjacent.topologicalNode);
                 });
-                k++;
             }
+            k++;
         }
         return adjacentTopologicalNodes;
     }
@@ -134,5 +138,5 @@ class IslandsEnds {
         }
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(Adjacency.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IslandsEnds.class);
 }
