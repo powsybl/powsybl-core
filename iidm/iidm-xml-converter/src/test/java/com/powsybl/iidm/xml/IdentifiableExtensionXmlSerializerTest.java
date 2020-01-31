@@ -191,7 +191,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         assertSame(loadXml.getTerminal(), terminalMockExtXml.getTerminal());
 
         // backward compatibility 1.0
-        //roundTripVersionnedXmlTest("eurostag-tutorial-example1-with-terminalMock-ext.xml", IidmXmlVersion.V_1_0); // TODO add versions mechanism for extensions
+        roundTripVersionnedXmlTest("eurostag-tutorial-example1-with-terminalMock-ext.xml", IidmXmlVersion.V_1_0);
         roundTripXmlTest(NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_0)
                         + "eurostag-tutorial-example1-with-terminalMock-ext.xml")),
                 NetworkXml::writeAndValidate,

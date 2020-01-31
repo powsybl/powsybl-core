@@ -25,6 +25,8 @@ import java.util.Objects;
  */
 public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends Extendable, E extends Extension<T>> implements ExtensionXmlSerializer<T, E> {
 
+    private static final String INCOMPATIBILITY_NETWORK_VERSION_MESSAGE = "IIDM-XML version of network (";
+
     private final String extensionName;
     private final Class<? super E> extensionClass;
     private final boolean subElements;
@@ -74,20 +76,37 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
 
     @Override
     public String getVersion() {
-        return extensionVersions.get(IidmXmlConstants.CURRENT_IIDM_XML_VERSION).last();
-        // TODO: when it is possible to write in previous XIIDM version, a mecanism to retrieve
-        // the last compatible version linked to a given IidmXmlVersion will be needed
+        return getVersion(IidmXmlConstants.CURRENT_IIDM_XML_VERSION);
+    }
+
+    public String getVersion(IidmXmlVersion networkVersion) {
+        return extensionVersions.get(networkVersion).last();
     }
 
     protected void checkReadingCompatibility(NetworkXmlReaderContext networkContext) {
         IidmXmlVersion version = networkContext.getVersion();
-        if (!extensionVersions.containsKey(version)) {
-            throw new PowsyblException("IIDM-XML version of network (" + version.toString(".")
-                    + ") is not supported by the " + getExtensionName() + " extension's XML serializer.");
-        }
+        checkCompatibilityNetworkVersion(version);
         if (extensionVersions.get(version).stream().noneMatch(v -> networkContext.containsExtensionNamespaceUri(getNamespaceUri(v)))) {
-            throw new PowsyblException("IIDM-XML version of network (" + version.toString(".")
-                    + ") is not compatible with the " + getExtensionName() + " extension's namespace URI.");
+            throw new PowsyblException(INCOMPATIBILITY_NETWORK_VERSION_MESSAGE + version.toString(".")
+                    + ") is not compatible with the " + extensionName + " extension's namespace URI.");
+        }
+    }
+
+    public void checkWritingCompatibility(String extensionVersion, IidmXmlVersion version) {
+        if (!namespaceUris.containsKey(extensionVersion)) {
+            throw new PowsyblException("The version " + extensionVersion + " of the " + extensionName + " extension is not supported.");
+        }
+        checkCompatibilityNetworkVersion(version);
+        if (!extensionVersions.get(version).contains(extensionVersion)) {
+            throw new PowsyblException(INCOMPATIBILITY_NETWORK_VERSION_MESSAGE + version.toString(".")
+                    + ") is not compatible with the version " + extensionVersion + " of the " + extensionName + " extension.");
+        }
+    }
+
+    private void checkCompatibilityNetworkVersion(IidmXmlVersion version) {
+        if (!extensionVersions.containsKey(version)) {
+            throw new PowsyblException(INCOMPATIBILITY_NETWORK_VERSION_MESSAGE + version.toString(".")
+                    + ") is not supported by the " + getExtensionName() + " extension's XML serializer.");
         }
     }
 

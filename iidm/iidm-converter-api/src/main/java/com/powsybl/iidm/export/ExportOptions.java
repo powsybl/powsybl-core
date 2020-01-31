@@ -14,10 +14,7 @@ import com.powsybl.iidm.network.TopologyLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -40,6 +37,8 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     private boolean throwExceptionIfExtensionNotFound = false;
 
     private String version;
+
+    private Map<String, String> extensionsVersions = new HashMap<>();
 
     public ExportOptions() {
     }
@@ -151,6 +150,15 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     public ExportOptions setVersion(String version) {
         this.version = version;
         return this;
+    }
+
+    public ExportOptions addExtensionVersion(String extensionName, String extensionVersion) {
+        extensionsVersions.put(extensionName, extensionVersion);
+        return this;
+    }
+
+    public Optional<String> getExtensionVersion(String extensionName) {
+        return Optional.ofNullable(extensionsVersions.get(extensionName));
     }
 
     /**
