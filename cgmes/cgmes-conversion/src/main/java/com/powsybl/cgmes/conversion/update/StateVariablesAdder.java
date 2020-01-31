@@ -18,8 +18,6 @@ import org.apache.commons.math3.complex.ComplexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.util.LinkData;
-import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
@@ -32,8 +30,11 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.util.LinkData;
+import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -184,6 +185,23 @@ public class StateVariablesAdder {
                 tapSteps.add(p);
             }
         }
+
+        for (ThreeWindingsTransformer t : n.getThreeWindingsTransformers()) {
+            PropertyBag p = new PropertyBag(svTapStepProperties);
+            Arrays.asList(t.getLeg1(), t.getLeg2(), t.getLeg3()).forEach(leg -> {
+                if (leg.getPhaseTapChanger() != null) {
+                    p.put(tapChangerPositionName, is(leg.getPhaseTapChanger().getTapPosition()));
+                    p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerForPowerTransformer(t.getId()));
+                    tapSteps.add(p);
+                } else if (leg.getRatioTapChanger() != null) {
+                    p.put(tapChangerPositionName, is(leg.getRatioTapChanger().getTapPosition()));
+                    p.put(CgmesNames.TAP_CHANGER, cgmes.ratioTapChangerForPowerTransformer(t.getId()));
+                    tapSteps.add(p);
+                }
+            });
+
+        }
+
         cgmes.add(originalSVcontext, "SvTapStep", tapSteps);
 
         // create SvStatus, iterate on Connectables, check Terminal status, add
