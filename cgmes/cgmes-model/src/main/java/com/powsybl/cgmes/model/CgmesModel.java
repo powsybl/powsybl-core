@@ -138,9 +138,7 @@ public interface CgmesModel {
 
     void clear(CgmesSubset subset);
 
-    void add(CgmesSubset subset, String type, PropertyBags objects);
-
-    void add(String contextName, String type, PropertyBags objects);
+    void add(String contextOrSubset, String type, PropertyBags objects);
 
     void print(PrintStream out);
 

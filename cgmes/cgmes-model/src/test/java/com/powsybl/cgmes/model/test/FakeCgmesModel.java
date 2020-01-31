@@ -531,12 +531,7 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public void add(CgmesSubset subset, String type, PropertyBags objects) {
-        // FakeCgmesModel, no need to implement storage of objects
-    }
-
-    @Override
-    public void add(String contextName, String type, PropertyBags objects) {
+    public void add(String contextOrSubset, String type, PropertyBags objects) {
      // FakeCgmesModel, no need to implement storage of objects
     }
 

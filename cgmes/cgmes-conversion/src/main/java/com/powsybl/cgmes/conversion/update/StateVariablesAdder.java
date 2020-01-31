@@ -60,13 +60,14 @@ public class StateVariablesAdder {
     }
 
     private String originalSVcontext(CgmesModel cgmes) {
+        // if grid has no FullModel, then we can return Subset
         if (!isCimVersion14(cgmes)) {
             PropertyBags pb = cgmes.fullModelSV();
             if (pb.get(0).containsKey("graph")) {
                 return pb.get(0).getId("graph");
             }
         }
-        return CgmesSubset.STATE_VARIABLES.getIdentifier();
+        return CgmesSubset.STATE_VARIABLES.toString();
     }
 
     public void add(Network n, CgmesModel cgmes) {

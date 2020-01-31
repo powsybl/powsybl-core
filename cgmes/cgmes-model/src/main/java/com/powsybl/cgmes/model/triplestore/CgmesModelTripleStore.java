@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -566,31 +567,21 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public void add(CgmesSubset subset, String type, PropertyBags objects) {
-        String contextName = contextNameFor(subset);
+    public void add(String contextOrSubset, String type, PropertyBags objects) {
+        // contextName will be the string passed by caller. Caller method can pass just a subset,
+        // then we need to construct contextName from EQ
+        String contextName = EnumUtils.isValidEnum(CgmesSubset.class, contextOrSubset)
+            ? contextNameFor(CgmesSubset.valueOf(contextOrSubset))
+            : contextOrSubset;
         try {
-            addForContext(contextName, type, objects);
-        } catch (TripleStoreException x) {
-            String msg = String.format("Adding objects of type %s to subset %s, context %s", type, subset, contextName);
-            throw new CgmesModelException(msg, x);
-        }
-    }
-
-    @Override
-    public void add(String contextName, String type, PropertyBags objects) {
-        try {
-            addForContext(contextName, type, objects);
+            if (type.equals(CgmesNames.FULL_MODEL)) {
+                tripleStore.add(contextName, mdNamespace(), type, objects);
+            } else {
+                tripleStore.add(contextName, cimNamespace, type, objects);
+            }
         } catch (TripleStoreException x) {
             String msg = String.format("Adding objects of type %s to context %s", type, contextName);
             throw new CgmesModelException(msg, x);
-        }
-    }
-
-    private void addForContext(String contextName, String type, PropertyBags objects) {
-        if (type.equals(CgmesNames.FULL_MODEL)) {
-            tripleStore.add(contextName, mdNamespace(), type, objects);
-        } else {
-            tripleStore.add(contextName, cimNamespace, type, objects);
         }
     }
 
