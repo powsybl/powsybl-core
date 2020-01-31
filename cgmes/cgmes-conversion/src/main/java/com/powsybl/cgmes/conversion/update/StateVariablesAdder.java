@@ -18,7 +18,8 @@ import org.apache.commons.math3.complex.ComplexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.conversion.update.LinkDataTmp.BranchAdmittanceMatrix;
+import com.powsybl.iidm.network.util.LinkData;
+import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
@@ -312,11 +313,9 @@ public class StateVariablesAdder {
         return String.join(",", list);
     }
 
-    // FIXME elena Uses LinkData class, not yet in master, I've copied in into the
-    // package as LinkDataTmp
     private static Complex complexVoltage(double r, double x, double g, double b,
         double v, double angle, double p, double q) {
-        BranchAdmittanceMatrix adm = LinkDataTmp.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0,
+        BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0,
             new Complex(g * 0.5, b * 0.5), new Complex(g * 0.5, b * 0.5));
         Complex v1 = ComplexUtils.polar2Complex(v, Math.toRadians(angle));
         Complex s1 = new Complex(p, q);
