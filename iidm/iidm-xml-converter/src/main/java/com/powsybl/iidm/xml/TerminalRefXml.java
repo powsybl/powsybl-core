@@ -10,6 +10,8 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -32,7 +34,17 @@ public final class TerminalRefXml {
             throw new PowsyblException("Oups, terminal ref point to a filtered equipment " + c.getId());
         }
         writer.writeEmptyElement(namespace, elementName);
-        writer.writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
+        String terminalRefId = c.getId();
+        if (c instanceof BusbarSection) {
+            // Found remote terminal that refers to a busbar section
+            // Choose a bus for the terminal ref depending on export topology level
+            if (context.getOptions().getTopologyLevel() == TopologyLevel.BUS_BREAKER) {
+                terminalRefId = ((BusbarSection) c).getTerminal().getBusBreakerView().getConnectableBus().getId();
+            } else if (context.getOptions().getTopologyLevel() == TopologyLevel.BUS_BRANCH) {
+                terminalRefId = ((BusbarSection) c).getTerminal().getBusView().getConnectableBus().getId();
+            }
+        }
+        writer.writeAttribute("id", context.getAnonymizer().anonymizeString(terminalRefId));
         if (c.getTerminals().size() > 1) {
             if (c instanceof Injection) {
                 // nothing to do
@@ -58,11 +70,76 @@ public final class TerminalRefXml {
         } else if (identifiable instanceof ThreeWindingsTransformer) {
             ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
             return twt.getTerminal(ThreeWindingsTransformer.Side.valueOf(side));
+        } else if (identifiable instanceof Bus) {
+            Terminal t = findConnectedTerminal((Bus) identifiable);
+            if (t != null) {
+                return t;
+            } else {
+                throw new AssertionError("Could not find connected terminal for bus from terminalRef : " + identifiable.getId());
+            }
         } else {
             throw new AssertionError("Unexpected Identifiable instance: " + identifiable.getClass());
         }
     }
 
+    private static Terminal findConnectedTerminal(Bus  bus) {
+        // Network API does not provide a direct way of obtaining connected terminals
+        int numTerminals = bus.getConnectedTerminalCount();
+        if (numTerminals <= 0) {
+            return null;
+        }
+        final AtomicReference<Terminal> terminalRef = new AtomicReference<>();
+        bus.visitConnectedEquipments(new TopologyVisitor() {
+            public void visitBusbarSection(BusbarSection section) {
+                terminalRef.compareAndSet(null, section.getTerminal());
+            }
+
+            public void visitLine(Line line, Branch.Side side) {
+                terminalRef.compareAndSet(null, line.getTerminal(side));
+            }
+
+            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+                terminalRef.compareAndSet(null, transformer.getTerminal(side));
+            }
+
+            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+                terminalRef.compareAndSet(null, transformer.getTerminal(side));
+            }
+
+            public void visitGenerator(Generator generator) {
+                terminalRef.compareAndSet(null, generator.getTerminal());
+            }
+
+            @Override
+            public void visitBattery(Battery battery) {
+                terminalRef.compareAndSet(null, battery.getTerminal());
+            }
+
+            public void visitLoad(Load load) {
+                terminalRef.compareAndSet(null, load.getTerminal());
+            }
+
+            public void visitShuntCompensator(ShuntCompensator sc) {
+                terminalRef.compareAndSet(null, sc.getTerminal());
+            }
+
+            public void visitDanglingLine(DanglingLine danglingLine) {
+                terminalRef.compareAndSet(null, danglingLine.getTerminal());
+            }
+
+            public void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
+                terminalRef.compareAndSet(null, staticVarCompensator.getTerminal());
+            }
+
+            @Override
+            public void visitHvdcConverterStation(HvdcConverterStation<?> converterStation) {
+                terminalRef.compareAndSet(null, converterStation.getTerminal());
+            }
+        });
+        return terminalRef.get();
+    }
+
     private TerminalRefXml() {
     }
+
 }
