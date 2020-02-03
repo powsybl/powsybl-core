@@ -153,6 +153,9 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     }
 
     public ExportOptions addExtensionVersion(String extensionName, String extensionVersion) {
+        if (extensions != null && !extensions.contains(extensionName)) {
+            throw new PowsyblException(extensionName + " is not an extension you have passed in the extensions list to export.");
+        }
         extensionsVersions.put(extensionName, extensionVersion);
         return this;
     }
