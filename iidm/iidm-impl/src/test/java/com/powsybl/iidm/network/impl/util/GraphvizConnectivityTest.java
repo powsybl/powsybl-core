@@ -12,10 +12,17 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.util.GraphvizConnectivity;
 import org.junit.Test;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -29,7 +36,11 @@ public class GraphvizConnectivityTest extends AbstractConverterTest {
         try (StringWriter writer = new StringWriter()) {
             new GraphvizConnectivity(network, new Random(0)).write(writer);
             writer.flush();
-            compareTxt(getClass().getResourceAsStream("/eurostag-tutorial-example1.dot"), writer.toString());
+            // as Graphviz builder library do not have to stable export (order of nodes and edges can change at each run)
+            // we only compare unsorted lines
+            List<String> linesRef = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/eurostag-tutorial-example1.dot"))).lines().collect(Collectors.toList());
+            List<String> lines = Arrays.asList(writer.toString().split("[\\r\\n]+"));
+            assertTrue(lines.containsAll(linesRef));
         }
     }
 }

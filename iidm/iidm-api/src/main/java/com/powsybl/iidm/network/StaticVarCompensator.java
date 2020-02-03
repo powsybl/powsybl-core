@@ -94,4 +94,19 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      */
     StaticVarCompensator setRegulationMode(RegulationMode regulationMode);
 
+    /**
+     * <p>Get the terminal used for regulation.</p>
+     * @return the terminal used for regulation
+     */
+    default Terminal getRegulatingTerminal() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    /**
+     * <p>Set the terminal used for regulation.</p>
+     * @return this to allow method chaining
+     */
+    default StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }

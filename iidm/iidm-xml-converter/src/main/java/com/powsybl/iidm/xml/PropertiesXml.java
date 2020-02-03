@@ -7,8 +7,6 @@
 
 package com.powsybl.iidm.xml;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
-
 import javax.xml.stream.XMLStreamException;
 
 import com.powsybl.iidm.network.Identifiable;
@@ -27,7 +25,7 @@ public final class PropertiesXml {
         if (identifiable.hasProperty()) {
             for (String name : identifiable.getPropertyNames()) {
                 String value = identifiable.getProperty(name);
-                context.getWriter().writeEmptyElement(IIDM_URI, PROPERTY);
+                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), PROPERTY);
                 context.getWriter().writeAttribute(NAME, name);
                 context.getWriter().writeAttribute(VALUE, value);
             }

@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -38,10 +40,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     public CgmesModelTripleStore(String cimNamespace, TripleStore tripleStore) {
         this.cimNamespace = cimNamespace;
+        this.cimVersion = cimVersionFromCimNamespace(cimNamespace);
         this.tripleStore = tripleStore;
         tripleStore.defineQueryPrefix("cim", cimNamespace);
         tripleStore.defineQueryPrefix("entsoe", CgmesNamespace.ENTSOE_NAMESPACE);
-        queryCatalog = queryCatalogFor(cimNamespace);
+        queryCatalog = queryCatalogFor(cimVersion);
         Objects.requireNonNull(queryCatalog);
     }
 
@@ -409,6 +412,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags phaseTapChangerTablesPoints() {
+        return namedQuery("phaseTapChangerTablesPoints");
+    }
+
+    @Override
     public PropertyBags ratioTapChangerTable(String tableId) {
         Objects.requireNonNull(tableId);
         return namedQuery("ratioTapChangerTable", tableId);
@@ -464,8 +472,29 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         return r;
     }
 
+    public void namedQueryUpdate(String name, String... params) {
+        String queryText = queryCatalog.get(name);
+        if (queryText == null) {
+            LOG.warn("Query [{}] not found in catalog", name);
+        }
+        queryText = injectParams(queryText, params);
+        update(queryText);
+    }
+
+    public String getCimNamespace() {
+        return cimNamespace;
+    }
+
+    public int getCimVersion() {
+        return cimVersion;
+    }
+
     public PropertyBags query(String queryText) {
         return tripleStore.query(queryText);
+    }
+
+    public void update(String queryText) {
+        tripleStore.update(queryText);
     }
 
     @Override
@@ -474,6 +503,37 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     // Updates
+
+    public void update(
+        String queryName,
+        String context,
+        String baseName,
+        String subject,
+        String predicate,
+        String value,
+        boolean valueIsUri) {
+        Objects.requireNonNull(cimNamespace);
+        String baseUri = getBaseUri(baseName);
+        String value1 = valueIsUri ? baseUri.concat(value) : value;
+        if (value.contains("cim:")) {
+            value1 = cimNamespace.concat(value.substring(4));
+        }
+        namedQueryUpdate(
+            queryName,
+            context,
+            baseUri.concat(subject),
+            predicate,
+            value1,
+            String.valueOf(valueIsUri));
+    }
+
+    private String getBaseUri(String baseName) {
+        if (tripleStore.getImplementationName().equals("rdf4j")) {
+            return baseName.concat("/#");
+        } else {
+            return baseName.concat("#");
+        }
+    }
 
     @Override
     public void clear(CgmesSubset subset) {
@@ -500,6 +560,17 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         }
     }
 
+    private static final Pattern CIM_NAMESPACE_VERSION_PATTERN = Pattern.compile("^.*CIM-schema-cim([0-9]*)#$");
+
+    private static int cimVersionFromCimNamespace(String cimNamespace) {
+        Matcher m = CIM_NAMESPACE_VERSION_PATTERN.matcher(cimNamespace);
+        if (m.matches()) {
+            return Integer.valueOf(m.group(1));
+        } else {
+            return -1;
+        }
+    }
+
     private String contextNameFor(CgmesSubset subset) {
         String contextNameEQ = contextNameForEquipmentSubset();
         return contextNameEQ != null
@@ -523,14 +594,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         return contextNameEQ.replace(eq, subset.getIdentifier());
     }
 
-    private QueryCatalog queryCatalogFor(String cimNamespace) {
+    private QueryCatalog queryCatalogFor(int cimVersion) {
         QueryCatalog qc = null;
-        String version = cimNamespace.substring(cimNamespace.lastIndexOf("cim"));
         String resourceName = null;
-        if (version.equals("cim14#")) {
-            resourceName = "CIM14.sparql";
-        } else if (version.equals("cim16#")) {
-            resourceName = "CIM16.sparql";
+        if (cimVersion > 0) {
+            resourceName = String.format("CIM%d.sparql", cimVersion);
         }
         if (resourceName != null) {
             qc = new QueryCatalog(resourceName);
@@ -540,18 +608,25 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     private String injectParams(String queryText, String... params) {
         String injected = queryText;
-        for (int k = 0; k < params.length; k++) {
-            String pkref = "{" + k + "}";
-            injected = injected.replace(pkref, params[k]);
+        // Avoid computing parameter reference for first parameters
+        int k = 0;
+        for (; k < Math.min(PARAMETER_REFERENCE.length, params.length); k++) {
+            injected = injected.replace(PARAMETER_REFERENCE[k], params[k]);
+        }
+        for (; k < params.length; k++) {
+            String paramRef = "{" + k + "}";
+            injected = injected.replace(paramRef, params[k]);
         }
         return injected;
     }
 
     private final String cimNamespace;
+    private final int cimVersion;
     private final TripleStore tripleStore;
     private final QueryCatalog queryCatalog;
 
     private static final String MODEL_PROFILES = "modelProfiles";
     private static final String PROFILE = "profile";
     private static final Logger LOG = LoggerFactory.getLogger(CgmesModelTripleStore.class);
+    private static final String[] PARAMETER_REFERENCE = {"{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}", "{7}", "{8}", "{9}"};
 }

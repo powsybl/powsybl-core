@@ -193,12 +193,9 @@ public class MergingNetworkTest {
         assertTrue(mergingView.getExtensions().isEmpty());
 
         // Not implemented yet !
-        TestUtil.notImplemented(mergingView::getVariantManager);
         // Lines
         TestUtil.notImplemented(mergingView::newLine);
         TestUtil.notImplemented(mergingView::newTieLine);
-        // HvdcLines
-        TestUtil.notImplemented(mergingView::newHvdcLine);
         // Listeners
         TestUtil.notImplemented(() -> mergingView.addListener(null));
         TestUtil.notImplemented(() -> mergingView.removeListener(null));

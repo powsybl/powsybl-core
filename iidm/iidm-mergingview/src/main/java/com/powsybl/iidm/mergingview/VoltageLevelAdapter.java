@@ -388,13 +388,13 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         }
     }
 
-    private BusViewAdapter busViewAdapter;
+    private BusViewAdapter busView;
 
     VoltageLevelAdapter(final VoltageLevel delegate, final MergingViewIndex index) {
         super(delegate, index);
         busBreakerView = new BusBreakerViewAdapter(getDelegate().getBusBreakerView(), getIndex());
         nodeBreakerView = new NodeBreakerViewAdapter(getDelegate().getNodeBreakerView(), getIndex());
-        busViewAdapter = new BusViewAdapter(getDelegate().getBusView(), getIndex());
+        busView = new BusViewAdapter(getDelegate().getBusView(), getIndex());
     }
 
     @Override
@@ -409,7 +409,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
 
     @Override
     public VoltageLevel.BusView getBusView() {
-        return busViewAdapter;
+        return busView;
     }
 
     @Override
@@ -511,7 +511,42 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public Iterable<Switch> getSwitches() {
         return Iterables.transform(getDelegate().getSwitches(),
-                                   getIndex()::getSwitch);
+                getIndex()::getSwitch);
+    }
+
+    @Override
+    public LccConverterStationAdder newLccConverterStation() {
+        return new LccConverterStationAdderAdapter(getDelegate().newLccConverterStation(), getIndex());
+    }
+
+    @Override
+    public Iterable<LccConverterStation> getLccConverterStations() {
+        return getLccConverterStationStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<LccConverterStation> getLccConverterStationStream() {
+        return getDelegate().getLccConverterStationStream().map(getIndex()::getLccConverterStation);
+    }
+
+    public DanglingLineAdder newDanglingLine() {
+        return new DanglingLineAdderAdapter(getDelegate().newDanglingLine(), getIndex());
+    }
+
+    @Override
+    public Iterable<DanglingLine> getDanglingLines() {
+        return Iterables.transform(getDelegate().getDanglingLines(),
+                                   getIndex()::getDanglingLine);
+    }
+
+    @Override
+    public Stream<DanglingLine> getDanglingLineStream() {
+        return getDelegate().getDanglingLineStream().map(getIndex()::getDanglingLine);
+    }
+
+    @Override
+    public int getDanglingLineCount() {
+        return (int) getDanglingLineStream().count();
     }
 
     // -------------------------------
@@ -549,41 +584,6 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
 
     @Override
     public int getConnectableCount() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public DanglingLineAdder newDanglingLine() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public int getDanglingLineCount() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public LccConverterStationAdder newLccConverterStation() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Iterable<LccConverterStation> getLccConverterStations() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public Stream<LccConverterStation> getLccConverterStationStream() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 
@@ -704,7 +704,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     }
 
     @Override
-    public BatteryAdderAdapter newBattery() {
+    public BatteryAdder newBattery() {
         return new BatteryAdderAdapter(getDelegate().newBattery(), getIndex());
     }
 }

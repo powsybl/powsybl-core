@@ -75,6 +75,17 @@ public class DifferencesFail implements Differences {
     }
 
     @Override
+    public void notSameIdentifier(String context, Identifiable expected, Identifiable actual) {
+        LOG.error("Not same identifer {}.{} for {}: expected {}, actual {}",
+                Comparison.className(current),
+                context,
+                current.getId(),
+                expected.getId(),
+                actual.getId());
+        fail();
+    }
+
+    @Override
     public void match(Identifiable i) {
         // A match has been found, nothing to do
     }

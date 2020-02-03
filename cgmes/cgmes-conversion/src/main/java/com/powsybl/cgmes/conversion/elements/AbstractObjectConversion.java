@@ -56,7 +56,8 @@ public abstract class AbstractObjectConversion {
         // and convert them to integers for IIDM.
         // We should consider storing these attributes in IIDM also as real numbers.
         // This method is used only to clearly identify the affected properties
-        return (int) value;
+        // The value is supposed to be rounded to the nearest integer
+        return (int) Math.round(value);
     }
 
     public boolean presentMandatoryProperty(String pname) {
