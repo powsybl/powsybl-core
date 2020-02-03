@@ -28,6 +28,7 @@ import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.*;
@@ -197,6 +198,21 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
                 NetworkXml::writeAndValidate,
                 NetworkXml::validateAndRead,
                 getVersionDir(IidmXmlConstants.CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial-example1-with-terminalMock-ext.xml");
+    }
+
+    @Test
+    public void testNotLatestVersionTerminalExtension() throws IOException {
+        ExportOptions options = new ExportOptions()
+                .setVersion(IidmXmlVersion.V_1_1.toString("."))
+                .addExtensionVersion("loadMock", "1.1");
+        Network network = NetworkXml.read(getClass().getResourceAsStream("/V1_1/eurostag-tutorial-example1-with-loadMockExt-1_2.xml"));
+        roundTripXmlTest(network, (n, path) -> {
+            try {
+                NetworkXml.writeAndValidate(n, options, path);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }, NetworkXml::read, getVersionDir(CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial-example1-with-loadMockExt-1_1.xml");
     }
 
     @Test
