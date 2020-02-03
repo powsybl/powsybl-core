@@ -47,6 +47,8 @@ class Adjacency {
         CgmesDcTerminal t1 = cgmesModel.dcTerminal(equipment.getId(CgmesNames.DC_TERMINAL + 1));
         CgmesDcTerminal t2 = cgmesModel.dcTerminal(equipment.getId(CgmesNames.DC_TERMINAL + 2));
         if (!t1.connected() || !t2.connected()) {
+            System.err.printf("JAM-DC-LineSegment Open %s %b %b %n", equipment.getId("DCLineSegment"),
+                t1.connected(), t2.connected());
             return;
         }
         addAdjacency(t1.dcTopologicalNode(), t2.dcTopologicalNode(), AdjacentType.DC_LINE_SEGMENT);

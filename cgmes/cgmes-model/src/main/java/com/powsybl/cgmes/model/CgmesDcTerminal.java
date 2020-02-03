@@ -27,11 +27,6 @@ public class CgmesDcTerminal {
         this.connected = t.asBoolean("connected", false);
         this.dcNode = t.getId("DCNode");
         this.dcTopologicalNode = t.getId("DCTopologicalNode");
-
-        System.err.printf("DC-Terminal Id %s  Connected %s %s %s dcNode %s dcTopologicalNode %s %n",
-            this.id, this.connected,
-            this.dcConductingEquipment, this.dcConductingEquipmentType,
-            this.dcNode, this.dcTopologicalNode);
     }
 
     public String id() {

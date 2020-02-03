@@ -34,7 +34,16 @@ class IslandsEnds {
         if (islandNodes.isEmpty()) {
             return;
         }
+        System.err.printf("IslandNodes ---> %s %n", islandNodes.toString());
+        // energinet
+        //if (!islandNodes.contains("_b7750093-2c47-4202-b3a2-2080d76a1b6c")) {
+        //if (!islandNodes.contains("_e4228fdf-3944-4ce1-a784-8d4506cd1ba5")) {
+        //if (!islandNodes.contains("_d255c52a-32e0-4d44-8efc-dd953bb677d6")) {
         if (!islandNodes.contains("_48950a5a-1366-4171-ba80-a1ab3d341e86")) {
+        // eirgridsoni
+        //if (!islandNodes.contains("_b5b275aa-86c2-465e-8b69-a58c98e8c2ea")) {
+        //if (!islandNodes.contains("_652873ea-33cd-4397-82be-c3cc12f4ee45")) {
+        //if (!islandNodes.contains("_5f39589f-6d45-4afe-a9cb-b9849e3af100")) {
             return;
         }
         Set<String> visitedTopologicalNodes = new HashSet<>();

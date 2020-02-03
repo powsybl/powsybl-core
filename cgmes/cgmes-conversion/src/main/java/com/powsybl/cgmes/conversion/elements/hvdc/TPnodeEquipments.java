@@ -41,7 +41,7 @@ class TPnodeEquipments {
         cgmesModel.dcLineSegments().forEach(dcls -> computeDcLineSegment(cgmesModel, adjacency, dcls));
 
         AcDcConverterNodes acDcConverterNodes = new AcDcConverterNodes(cgmesModel);
-        acDcConverterNodes.print();
+        //acDcConverterNodes.print();
 
         acDcConverterNodes.converterNodes.entrySet()
             .forEach(entry -> addEquipment(adjacency, entry.getValue().id, entry.getValue().acTopologicalNode,
@@ -126,13 +126,50 @@ class TPnodeEquipments {
             .forEach(n -> nodeEquipments.computeIfAbsent(n, k -> new ArrayList<>()).add(eq));
     }
 
-    boolean containsDcLineSegmentInNode(String dcLineSegment, String topologicalNode) {
+    boolean containsThisDcLineSegmentInNode(String dcLineSegment, String topologicalNode) {
         List<TPnodeEquipment> listEquipment = nodeEquipments.get(topologicalNode);
         if (listEquipment == null) {
             return false;
         }
         return listEquipment.stream()
             .anyMatch(eq -> eq.type == EquipmentType.DC_LINE_SEGMENT && eq.equipmentId.equals(dcLineSegment));
+    }
+
+    boolean containsAnyDcLineSegmentInNode(String topologicalNode) {
+        List<TPnodeEquipment> listEquipment = nodeEquipments.get(topologicalNode);
+        if (listEquipment == null) {
+            return false;
+        }
+        return listEquipment.stream()
+            .anyMatch(eq -> eq.type == EquipmentType.DC_LINE_SEGMENT);
+    }
+
+    boolean containsAcDcConverter(String topologicalNode) {
+        List<TPnodeEquipment> listEquipment = nodeEquipments.get(topologicalNode);
+        if (listEquipment == null) {
+            return false;
+        }
+        return listEquipment.stream()
+            .anyMatch(eq -> eq.type == EquipmentType.AC_DC_CONVERTER);
+    }
+
+    boolean containsAnyTransformer(String topologicalNode) {
+        List<TPnodeEquipment> listEquipment = nodeEquipments.get(topologicalNode);
+        if (listEquipment == null) {
+            return false;
+        }
+        return listEquipment.stream()
+            .anyMatch(eq -> eq.type == EquipmentType.TRANSFORMER);
+    }
+
+    boolean multiAcDcConverter(String topologicalNode) {
+        List<TPnodeEquipment> listEquipment = nodeEquipments.get(topologicalNode);
+        if (listEquipment == null) {
+            return false;
+        }
+        return listEquipment.stream()
+            .filter(eq -> eq.type == EquipmentType.AC_DC_CONVERTER)
+            .count() >= 2;
     }
 
     void print() {

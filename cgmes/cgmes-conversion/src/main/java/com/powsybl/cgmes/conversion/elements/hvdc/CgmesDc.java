@@ -27,22 +27,28 @@ public class CgmesDc {
         this.cgmesModel = cgmes;
 
         Adjacency adjacency = new Adjacency(cgmesModel);
-        adjacency.print();
+        //adjacency.print();
 
         TPnodeEquipments tpNodeEquipments = new TPnodeEquipments(cgmesModel, adjacency);
-        tpNodeEquipments.print();
+        //tpNodeEquipments.print();
 
         Islands islands = new Islands(adjacency);
-        islands.print();
+        //islands.print();
 
         IslandsEnds islandsEnds = new IslandsEnds();
         islands.islandsNodes.forEach(listNodes -> islandsEnds.add(adjacency, listNodes));
         islandsEnds.print();
 
         Hvdc hvdc = new Hvdc();
-        islandsEnds.islandsEndsNodes.forEach(ine -> hvdc.add(adjacency, tpNodeEquipments,
-            ine.commonTopologicalNode1, ine.topologicalNodes1, ine.commonTopologicalNode2,
-            ine.topologicalNodes2));
+        islandsEnds.islandsEndsNodes.forEach(ien -> {
+            IslandEndHvdc islandEndHvdc1 = new IslandEndHvdc();
+            islandEndHvdc1.add(adjacency, tpNodeEquipments, ien.topologicalNodes1);
+            islandEndHvdc1.print();
+
+            IslandEndHvdc islandEndHvdc2 = new IslandEndHvdc();
+            islandEndHvdc2.add(adjacency, tpNodeEquipments, ien.topologicalNodes2);
+            islandEndHvdc2.print();
+        });
         hvdc.print();
     }
 }
