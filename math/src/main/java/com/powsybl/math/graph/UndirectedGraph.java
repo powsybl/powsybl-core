@@ -33,6 +33,13 @@ public interface UndirectedGraph<V, E> {
     int addVertex();
 
     /**
+     * If the specified vertex does not exist or is null, create it and notify the {@link UndirectedGraphListener}
+     */
+    default void addVertexIfNotPresent(int v) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Remove the specified vertex and notify the {@link UndirectedGraphListener}s.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist or if an edge is connected to this vertex.
      *
@@ -48,6 +55,10 @@ public interface UndirectedGraph<V, E> {
      * @return the number of vertices.
      */
     int getVertexCount();
+
+    default int getMaximumVertexIndex() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Create an edge between the two specified vertices and notify the {@link UndirectedGraphListener}s.

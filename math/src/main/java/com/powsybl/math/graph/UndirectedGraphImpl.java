@@ -130,6 +130,24 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
+    public void addVertexIfNotPresent(int v) {
+        if (v < vertices.size()) {
+            if (removedVertices.contains(v)) {
+                vertices.set(v, new Vertex<>());
+                removedVertices.remove(v);
+            }
+        } else {
+            for (int i = vertices.size(); i < v; i++) {
+                vertices.add(null);
+                removedVertices.add(i);
+            }
+            vertices.add(new Vertex<>());
+        }
+        invalidateAdjacencyList();
+        notifyListener();
+    }
+
+    @Override
     public V removeVertex(int v) {
         checkVertex(v);
         for (Edge<E> e : edges) {
@@ -139,7 +157,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
         V obj = vertices.get(v).getObject();
         if (v == vertices.size() - 1) {
-            vertices.remove(v);
+            cleanVertices(v);
         } else {
             vertices.set(v, null);
             removedVertices.add(v);
@@ -149,9 +167,27 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         return obj;
     }
 
+    private void cleanVertices(int v) {
+        vertices.remove(v);
+        removedVertices.remove(v);
+        if (removedVertices.contains(v - 1)) {
+            cleanVertices(v - 1);
+        }
+    }
+
     @Override
     public int getVertexCount() {
         return vertices.size() - removedVertices.size();
+    }
+
+    @Override
+    public int getMaximumVertexIndex() {
+        for (int i = vertices.size(); i > 0; i--) {
+            if (!removedVertices.contains(i - 1)) {
+                return i - 1;
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -241,8 +277,8 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     @Override
     public Iterable<V> getVerticesObj() {
         return FluentIterable.from(vertices)
-                             .filter(Predicates.notNull())
-                             .transform(Vertex::getObject);
+                .filter(Predicates.notNull())
+                .transform(Vertex::getObject);
     }
 
     @Override
@@ -277,8 +313,8 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     @Override
     public Iterable<E> getEdgesObject() {
         return FluentIterable.from(edges)
-                             .filter(Predicates.notNull())
-                             .transform(Edge::getObject);
+                .filter(Predicates.notNull())
+                .transform(Edge::getObject);
     }
 
     @Override
@@ -303,7 +339,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             int e = adjacentEdges.getQuick(i);
             Edge<E> edge = edges.get(e);
             if ((edge.getV1() == v1 && edge.getV2() == v2)
-                || (edge.getV1() == v2 && edge.getV2() == v1)) {
+                    || (edge.getV1() == v2 && edge.getV2() == v1)) {
                 edgeObjects.add(edge.getObject());
             }
         }

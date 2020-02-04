@@ -61,7 +61,6 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
                 .setNominalV(10.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl.getNodeBreakerView().setNodeCount(14);
         vl.getNodeBreakerView().newBusbarSection()
                 .setId("NODE13")
                 .setNode(0)
@@ -125,12 +124,11 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
                 .setId("S4")
                 .setCountry(Country.FR)
                 .add();
-        VoltageLevel vl4 = s4.newVoltageLevel()
+        s4.newVoltageLevel()
                 .setId("S4 10kV")
                 .setNominalV(10.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl4.getNodeBreakerView().setNodeCount(1);
         network.newLine()
                 .setId("L6")
                 .setVoltageLevel1("S4 10kV")

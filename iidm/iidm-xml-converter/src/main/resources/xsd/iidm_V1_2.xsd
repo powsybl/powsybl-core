@@ -108,7 +108,6 @@
             <xs:element name="internalConnection" minOccurs="0" maxOccurs="unbounded" type="iidm:InternalConnection"/>
             <xs:element name="bus" minOccurs="0" maxOccurs="unbounded" type="iidm:CalculatedBus"/>
         </xs:sequence>
-        <xs:attribute name="nodeCount" use="required" type="xs:int"/>
     </xs:complexType>
     <xs:complexType name="BusBreakerTopology">
         <xs:sequence>

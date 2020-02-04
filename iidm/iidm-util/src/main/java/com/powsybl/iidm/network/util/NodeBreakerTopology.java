@@ -73,7 +73,6 @@ public final class NodeBreakerTopology {
         VoltageLevel.NodeBreakerView topo = bb.getTerminal().getVoltageLevel().getNodeBreakerView();
 
         int oldCount = topo.getNodeCount();
-        topo.setNodeCount(oldCount + 2);
         topo.newDisconnector()
                 .setId(String.format("disconnector %s-%d", bb.getId(), oldCount))
                 .setNode1(n)

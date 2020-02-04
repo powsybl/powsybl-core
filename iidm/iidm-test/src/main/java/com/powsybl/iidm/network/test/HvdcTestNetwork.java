@@ -53,7 +53,6 @@ public final class HvdcTestNetwork {
                 .setNominalV(400)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl2.getNodeBreakerView().setNodeCount(3);
         vl2.getNodeBreakerView().newBusbarSection()
                 .setId("BBS1")
                 .setName("BusbarSection")
@@ -180,7 +179,6 @@ public final class HvdcTestNetwork {
                 .setP(100.0)
                 .setQ(50.0);
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
-        vl2.getNodeBreakerView().setNodeCount(7);
         vl2.getNodeBreakerView().newDisconnector()
                 .setId("DISC_BBS1_BK2")
                 .setName(DISCONNECTOR_NAME)
