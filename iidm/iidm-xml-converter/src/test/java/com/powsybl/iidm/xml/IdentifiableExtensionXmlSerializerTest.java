@@ -9,20 +9,25 @@ package com.powsybl.iidm.xml;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.export.ExportOptions;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.*;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.LoadZipModel;
+import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
+import com.powsybl.iidm.network.test.TerminalMockExt;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-
-import javax.xml.stream.XMLStreamException;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.*;
@@ -31,6 +36,9 @@ import static org.junit.Assert.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverterTest {
+
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
 
     @Test
     public void test() throws IOException {
@@ -129,41 +137,11 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
     }
 
     @AutoService(ExtensionXmlSerializer.class)
-    public static class NetworkSourceExtensionXmlSerializer implements ExtensionXmlSerializer<Network, NetworkSourceExtension> {
+    public static class NetworkSourceExtensionXmlSerializer extends AbstractExtensionXmlSerializer<Network, NetworkSourceExtension> {
 
-        @Override
-        public String getExtensionName() {
-            return "networkSource";
-        }
-
-        @Override
-        public String getCategoryName() {
-            return "network";
-        }
-
-        @Override
-        public Class<? super NetworkSourceExtension> getExtensionClass() {
-            return NetworkSourceExtension.class;
-        }
-
-        @Override
-        public boolean hasSubElements() {
-            return false;
-        }
-
-        @Override
-        public InputStream getXsdAsStream() {
-            return getClass().getResourceAsStream("/xsd/networkSource.xsd");
-        }
-
-        @Override
-        public String getNamespaceUri() {
-            return "http://www.itesla_project.eu/schema/iidm/ext/networksource/1_0";
-        }
-
-        @Override
-        public String getNamespacePrefix() {
-            return "extNetworkSource";
+        public NetworkSourceExtensionXmlSerializer() {
+            super("networkSource", "network", NetworkSourceExtension.class, false, "networkSource.xsd",
+                    "http://www.itesla_project.eu/schema/iidm/ext/networksource/1_0", "extNetworkSource");
         }
 
         @Override
@@ -213,6 +191,26 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         assertSame(loadXml.getTerminal(), terminalMockExtXml.getTerminal());
 
         // backward compatibility 1.0
-        roundTripVersionnedXmlTest("eurostag-tutorial-example1-with-terminalMock-ext.xml", IidmXmlVersion.V_1_0);
+        //roundTripVersionnedXmlTest("eurostag-tutorial-example1-with-terminalMock-ext.xml", IidmXmlVersion.V_1_0); // TODO add versions mechanism for extensions
+        roundTripXmlTest(NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_0)
+                        + "eurostag-tutorial-example1-with-terminalMock-ext.xml")),
+                NetworkXml::writeAndValidate,
+                NetworkXml::validateAndRead,
+                getVersionDir(IidmXmlConstants.CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial-example1-with-terminalMock-ext.xml");
+    }
+
+    @Test
+    public void testThrowErrorUncompatibleExtensionVersion() {
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("IIDM-XML version of network (1.1)"
+                + " is not compatible with the loadMock extension's namespace URI.");
+        NetworkXml.read(getClass().getResourceAsStream("/V1_1/eurostag-tutorial-example1-with-bad-loadMockExt.xml"));
+    }
+
+    @Test
+    public void testThrowErrorUnsupportedExtensionVersion() {
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("IIDM-XML version of network (1.1) is not supported by the loadQux extension's XML serializer.");
+        NetworkXml.read(getClass().getResourceAsStream("/V1_1/eurostag-tutorial-example1-with-bad-loadQuxExt.xml"));
     }
 }

@@ -16,13 +16,10 @@ import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.math.graph.UndirectedGraphImpl;
-import guru.nidi.graphviz.attribute.Color;
-import guru.nidi.graphviz.attribute.Font;
-import guru.nidi.graphviz.attribute.Label;
-import guru.nidi.graphviz.attribute.Style;
-import guru.nidi.graphviz.model.Link;
-import guru.nidi.graphviz.model.MutableGraph;
-import guru.nidi.graphviz.model.MutableNode;
+import org.anarres.graphviz.builder.GraphVizAttribute;
+import org.anarres.graphviz.builder.GraphVizEdge;
+import org.anarres.graphviz.builder.GraphVizGraph;
+import org.anarres.graphviz.builder.GraphVizScope;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -35,9 +32,6 @@ import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import static guru.nidi.graphviz.model.Factory.mutGraph;
-import static guru.nidi.graphviz.model.Factory.mutNode;
 
 /**
  *
@@ -926,24 +920,24 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         Objects.requireNonNull(writer);
         Objects.requireNonNull(random);
 
-        MutableGraph gv = mutGraph(BusBreakerVoltageLevel.this.id);
+        GraphVizScope scope = new GraphVizScope.Impl();
+        GraphVizGraph gvGraph = new GraphVizGraph();
 
-        Map<Identifiable, MutableNode> nodes = new HashMap<>();
         String[] colors = Colors.generateColorScale(graph.getVertexCount(), random);
         int i = 0;
         for (ConfiguredBus bus : graph.getVerticesObj()) {
-            MutableNode n = mutNode(Label.of("BUS\\n" + bus.getId()))
-                    .add(Style.FILLED)
-                    .add(Color.rgb(colors[i]));
-            gv.add(n);
-            nodes.put(bus, n);
+            gvGraph.node(scope, bus.getId())
+                    .label("BUS" + System.lineSeparator() + bus.getId())
+                    .shape("ellipse")
+                    .style("filled")
+                    .attr(GraphVizAttribute.fillcolor, colors[i]);
             for (TerminalExt terminal : bus.getTerminals()) {
                 AbstractConnectable connectable = terminal.getConnectable();
-                n = mutNode(Label.of(connectable.getType().toString() + "\\n" + connectable.getId()))
-                        .add(Style.FILLED)
-                        .add(Color.rgb(colors[i]));
-                gv.add(n);
-                nodes.put(connectable, n);
+                gvGraph.node(scope, connectable.getId())
+                        .label(connectable.getType().toString() + System.lineSeparator() + connectable.getId())
+                        .shape("ellipse")
+                        .style("filled")
+                        .attr(GraphVizAttribute.fillcolor, colors[i]);
             }
             i++;
         }
@@ -951,9 +945,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         for (ConfiguredBus bus : graph.getVerticesObj()) {
             for (TerminalExt terminal : bus.getTerminals()) {
                 AbstractConnectable connectable = terminal.getConnectable();
-                MutableNode n1 = nodes.get(bus);
-                MutableNode n2 = nodes.get(connectable);
-                n1.addLink(n1.linkTo(n2).with(terminal.isConnected() ? Style.SOLID : Style.DOTTED));
+                gvGraph.edge(scope, bus.getId(), connectable.getId())
+                        .style(terminal.isConnected() ? "solid" : "dotted");
             }
         }
         for (int e = 0; e < graph.getEdgeCount(); e++) {
@@ -962,19 +955,16 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             SwitchImpl sw = graph.getEdgeObject(e);
             ConfiguredBus bus1 = graph.getVertexObject(v1);
             ConfiguredBus bus2 = graph.getVertexObject(v2);
-            MutableNode n1 = nodes.get(bus1);
-            MutableNode n2 = nodes.get(bus2);
-            Link link = n1.linkTo(n2)
-                    .with(sw.isOpen() ? Style.DOTTED : Style.SOLID);
+            GraphVizEdge edge = gvGraph.edge(scope, bus1.getId(), bus2.getId())
+                    .style(sw.isOpen() ? "solid" : "dotted");
             if (DRAW_SWITCH_ID) {
-                link = link.with(Label.of(sw.getId()))
-                        .with(Font.size(10));
+                edge.label(sw.getId())
+                        .attr(GraphVizAttribute.fontsize, "10");
             }
-            n1.addLink(link);
         }
 
         try {
-            writer.write(gv.toString());
+            gvGraph.writeTo(writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

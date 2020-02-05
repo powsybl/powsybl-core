@@ -13,15 +13,13 @@ import com.powsybl.iidm.network.*;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
-
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
 public final class TerminalRefXml {
 
     public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
-        writeTerminalRef(t, context, IIDM_URI, elementName);
+        writeTerminalRef(t, context, context.getVersion().getNamespaceURI(), elementName);
     }
 
     public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName) throws XMLStreamException {

@@ -133,14 +133,10 @@ public class BranchData {
         z = Math.hypot(r, fixedX);
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);
-        rho1 = 1f;
-        rho2 = 1f;
         u1 = bus1 != null ? bus1.getV() : Double.NaN;
         u2 = bus2 != null ? bus2.getV() : Double.NaN;
         theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
         theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
-        alpha1 = 0f;
-        alpha2 = 0f;
         g1 = line.getG1();
         g2 = line.getG2();
         b1 = line.getB1();
@@ -158,6 +154,15 @@ public class BranchData {
         boolean connectableMainComponent2 = connectableBus2 != null && connectableBus2.isInMainConnectedComponent();
         mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
         mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
+
+        rho2 = 1f;
+        alpha1 = 0f;
+        alpha2 = 0f;
+        if (isStructuralRatioLineNeeded(line)) {
+            rho1 = 1.0 / structuralRatioEnd1(line);
+        } else {
+            rho1 = 1f;
+        }
 
         computeValues();
     }
@@ -209,6 +214,28 @@ public class BranchData {
         mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
 
         computeValues();
+    }
+
+    private boolean isStructuralRatioLineNeeded(Line line) {
+        if (line.getTerminal1() == null || line.getTerminal1().getVoltageLevel() == null ||
+            line.getTerminal2() == null || line.getTerminal2().getVoltageLevel() == null) {
+            return false;
+        }
+
+        double nominalV1 = line.getTerminal1().getVoltageLevel().getNominalV();
+        double nominalV2 = line.getTerminal2().getVoltageLevel().getNominalV();
+
+        if (nominalV1 == 0.0 || Double.isNaN(nominalV1) ||
+            nominalV2 == 0.0 || Double.isNaN(nominalV2)) {
+            return false;
+        }
+        return nominalV1 != nominalV2;
+    }
+
+    private double structuralRatioEnd1(Line line) {
+        double nominalV1 = line.getTerminal1().getVoltageLevel().getNominalV();
+        double nominalV2 = line.getTerminal2().getVoltageLevel().getNominalV();
+        return nominalV1 / nominalV2;
     }
 
     private double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {

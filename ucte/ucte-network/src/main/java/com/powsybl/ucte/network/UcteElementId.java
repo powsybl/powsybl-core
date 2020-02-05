@@ -107,7 +107,7 @@ public class UcteElementId implements Comparable<UcteElementId> {
 
     public static boolean isUcteElementId(String id) {
         return id != null &&
-                id.length() == 19 &&
+                id.length() >= 19 &&
                 UcteNodeCode.isUcteNodeId(id.substring(0, 8)) &&
                 id.charAt(8) == ' ' &&
                 UcteNodeCode.isUcteNodeId(id.substring(9, 17)) &&
