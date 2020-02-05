@@ -1,10 +1,12 @@
-graph "sim1" {
-"VLGEN_0" ["fillcolor"="#7AF385","shape"="ellipse","tooltip"="load=0MW&#13;&#10;max generation=10000MW&#13;&#10;cc=0","fontsize"="10","style"="filled"]
-"VLHV1_0" ["fillcolor"="#7AF385","shape"="ellipse","tooltip"="load=0MW&#13;&#10;max generation=0MW&#13;&#10;cc=0","fontsize"="10","style"="filled"]
-"VLHV2_0" ["fillcolor"="#7AF385","shape"="ellipse","tooltip"="load=0MW&#13;&#10;max generation=0MW&#13;&#10;cc=0","fontsize"="10","style"="filled"]
-"VLLOAD_0" ["fillcolor"="#7AF385","shape"="ellipse","tooltip"="load=600MW&#13;&#10;max generation=0MW&#13;&#10;cc=0","fontsize"="10","style"="filled"]
-"VLGEN_0" -- "VLHV1_0" ["tooltip"="NGEN_NHV1"]
-"VLHV1_0" -- "VLHV2_0" ["tooltip"="NHV1_NHV2_1"]
-"VLHV1_0" -- "VLHV2_0" ["tooltip"="NHV1_NHV2_2"]
-"VLHV2_0" -- "VLLOAD_0" ["tooltip"="NHV2_NLOAD"]
+digraph G {
+	node [shape=box];
+	compound=true;
+	label="sim1";
+	n1 [label="VLHV1_0",shape="ellipse",style="filled",fontsize="10",fillcolor="#7AF385",tooltip="load=0MW&#13;&#10;max generation=0MW&#13;&#10;cc=0"];
+	n2 [label="VLHV2_0",shape="ellipse",style="filled",fontsize="10",fillcolor="#7AF385",tooltip="load=0MW&#13;&#10;max generation=0MW&#13;&#10;cc=0"];
+	n0 [label="VLGEN_0",shape="ellipse",style="filled",fontsize="10",fillcolor="#7AF385",tooltip="load=0MW&#13;&#10;max generation=10000MW&#13;&#10;cc=0"];
+	n3 [label="VLLOAD_0",shape="ellipse",style="filled",fontsize="10",fillcolor="#7AF385",tooltip="load=600MW&#13;&#10;max generation=0MW&#13;&#10;cc=0"];
+	n1 -> n2 [label="NHV1_NHV2_1\lNHV1_NHV2_2\l"];
+	n0 -> n1 [label="NGEN_NHV1\l"];
+	n2 -> n3 [label="NHV2_NLOAD\l"];
 }

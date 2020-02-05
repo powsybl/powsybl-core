@@ -14,8 +14,6 @@ import com.powsybl.iidm.network.IdentifiableAdder;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
-
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -34,9 +32,9 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
     public final void write(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException {
         boolean hasSubElements = hasSubElements(identifiable);
         if (hasSubElements || identifiable.hasProperty()) {
-            context.getWriter().writeStartElement(IIDM_URI, getRootElementName());
+            context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), getRootElementName());
         } else {
-            context.getWriter().writeEmptyElement(IIDM_URI, getRootElementName());
+            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), getRootElementName());
         }
         context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
         if (!identifiable.getId().equals(identifiable.getName())) {
