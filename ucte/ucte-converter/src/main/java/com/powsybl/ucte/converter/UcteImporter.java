@@ -254,7 +254,7 @@ public class UcteImporter implements Importer {
                 .setQ0(q0)
                 .setUcteXnodeCode(xnode.getCode().toString())
                 .add();
-        dl.addExtension(Xnode.class, new Xnode(dl, xnode.getCode().toString()));
+        dl.newExtension(XnodeAdder.class).withCode(xnode.getCode().toString()).add();
 
         if (ucteLine.getCurrentLimit() != null) {
             dl.newCurrentLimits()
@@ -535,7 +535,7 @@ public class UcteImporter implements Importer {
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
                 .add();
-        yDanglingLine.addExtension(Xnode.class, new Xnode(yDanglingLine, ucteXnode.getCode().toString()));
+        yDanglingLine.newExtension(XnodeAdder.class).withCode(ucteXnode.getCode().toString()).add();
 
         String voltageLevelId1;
         String voltageLevelId2;
