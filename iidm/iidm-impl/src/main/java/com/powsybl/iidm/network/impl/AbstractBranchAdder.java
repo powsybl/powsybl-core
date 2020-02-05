@@ -28,7 +28,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     private String voltageLevelId2;
 
-    public T setNode1(Integer node1) {
+    public T setNode1(int node1) {
         this.node1 = node1;
         return (T) this;
     }
@@ -68,7 +68,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
         return voltageLevel1;
     }
 
-    public T setNode2(Integer node2) {
+    public T setNode2(int node2) {
         this.node2 = node2;
         return (T) this;
     }

@@ -86,9 +86,13 @@ class LineAdderAdapter implements LineAdder {
                     .setBus1(bus1)
                     .setConnectableBus1(connectableBus1)
                     .setBus2(bus2)
-                    .setConnectableBus2(connectableBus2)
-                    .setNode1(node1)
-                    .setNode2(node2);
+                    .setConnectableBus2(connectableBus2);
+        if( node1 != null ) {
+            adder.setNode1(node1);
+        }
+        if( node2 != null ) {
+            adder.setNode1(node2);
+        }
         return adder.add();
     }
 
@@ -160,7 +164,7 @@ class LineAdderAdapter implements LineAdder {
     }
 
     @Override
-    public LineAdder setNode1(Integer node1) {
+    public LineAdder setNode1(int node1) {
         this.node1 = node1;
         return this;
     }
@@ -184,7 +188,7 @@ class LineAdderAdapter implements LineAdder {
     }
 
     @Override
-    public LineAdder setNode2(Integer node2) {
+    public LineAdder setNode2(int node2) {
         this.node2 = node2;
         return this;
     }

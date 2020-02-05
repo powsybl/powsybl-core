@@ -14,7 +14,7 @@ public interface BranchAdder<T extends BranchAdder> extends IdentifiableAdder<T>
 
     T setVoltageLevel1(String voltageLevelId1);
 
-    T setNode1(Integer node1);
+    T setNode1(int node1);
 
     T setBus1(String bus1);
 
@@ -22,7 +22,7 @@ public interface BranchAdder<T extends BranchAdder> extends IdentifiableAdder<T>
 
     T setVoltageLevel2(String voltageLevelId2);
 
-    T setNode2(Integer node2);
+    T setNode2(int node2);
 
     T setBus2(String bus2);
 
