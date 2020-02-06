@@ -8,8 +8,12 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Networks;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.stream.XMLStreamException;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -84,6 +88,15 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             NodeBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
         }
         writeNodeBreakerTopologyInternalConnections(vl, context);
+        Map<String, Set<Integer>> nodesByBus = Networks.getNodesByBus(vl);
+        for (Bus bus : vl.getBusView().getBuses()) {
+            context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), "bus");
+            XmlUtil.writeDouble("v", bus.getV(), context.getWriter());
+            XmlUtil.writeDouble("angle", bus.getAngle(), context.getWriter());
+            Set<Integer> nodes = nodesByBus.get(bus.getId());
+            context.getWriter().writeAttribute("nodes", StringUtils.join(nodes.toArray(), ','));
+            context.getWriter().writeEndElement();
+        }
         context.getWriter().writeEndElement();
     }
 
