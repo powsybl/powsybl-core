@@ -90,12 +90,11 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         writeNodeBreakerTopologyInternalConnections(vl, context);
         Map<String, Set<Integer>> nodesByBus = Networks.getNodesByBus(vl);
         for (Bus bus : vl.getBusView().getBuses()) {
-            context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), "bus");
+            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "bus");
             XmlUtil.writeDouble("v", bus.getV(), context.getWriter());
             XmlUtil.writeDouble("angle", bus.getAngle(), context.getWriter());
             Set<Integer> nodes = nodesByBus.get(bus.getId());
             context.getWriter().writeAttribute("nodes", StringUtils.join(nodes.toArray(), ','));
-            context.getWriter().writeEndElement();
         }
         context.getWriter().writeEndElement();
     }
@@ -265,6 +264,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                                         }
                                     }
                                 });
+                                break;
 
                             default:
                                 throw new AssertionError();
