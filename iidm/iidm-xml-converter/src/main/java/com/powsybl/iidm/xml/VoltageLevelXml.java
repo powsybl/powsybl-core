@@ -248,6 +248,24 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                                 NodeBreakerViewInternalConnectionXml.INSTANCE.read(vl, context);
                                 break;
 
+                            case BusXml.ROOT_ELEMENT_NAME:
+                                double v = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "v");
+                                double angle = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "angle");
+                                String nodesString = context.getReader().getAttributeValue(null, "nodes");
+                                context.getEndTasks().add(() -> {
+                                    for (String str : nodesString.split(",")) {
+                                        int node = Integer.parseInt(str);
+                                        Terminal terminal = vl.getNodeBreakerView().getTerminal(node);
+                                        if (terminal != null) {
+                                            Bus b = terminal.getBusView().getBus();
+                                            if (b != null) {
+                                                b.setV(v).setAngle(angle);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                });
+
                             default:
                                 throw new AssertionError();
                         }

@@ -395,9 +395,13 @@ public final class Networks {
             if (sw != null && sw.isOpen()) {
                 return false;
             }
-            equivalentTerminal[0] = voltageLevel.getNodeBreakerView().getTerminal(node2);
-            return equivalentTerminal[0] == null;
+            Terminal t = voltageLevel.getNodeBreakerView().getTerminal(node2);
+            if (t != null) {
+                equivalentTerminal[0] = t;
+            }
+            return t == null;
         };
+
         voltageLevel.getNodeBreakerView().traverse(node, traverser);
 
         return equivalentTerminal[0];
