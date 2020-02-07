@@ -24,7 +24,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static junit.framework.TestCase.assertSame;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
