@@ -38,7 +38,7 @@ public class IeeeCdfImporter implements Importer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IeeeCdfImporter.class);
 
-    private static final String FORMAT = "IEEE CDF";
+    private static final String FORMAT = "IEEE-CDF";
 
     private static final String EXT = "txt";
 
