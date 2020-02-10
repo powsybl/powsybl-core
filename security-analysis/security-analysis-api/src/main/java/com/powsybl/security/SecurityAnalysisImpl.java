@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -109,19 +110,12 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                 AtomicInteger ai = new AtomicInteger(0);
                 for (int k = 0; k < count; k++) {
                     int i = k;
-                    futures[k] = CompletableFuture.supplyAsync(() -> {
-                        LoadFlowWorker worker = new LoadFlowWorker(i, ai, contingencies, limitViolationsResult, loadFlowContext);
-                        Thread workerPerThread = new Thread(worker);
-                        workerPerThread.start();
-                        try {
-                            workerPerThread.join();
-                            results[i] = worker.getResult();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            Thread.currentThread().interrupt();
-                        }
-                        return null;
-                    }, computationManager.getExecutor());
+                    futures[k] = CompletableFuture.supplyAsync(new LoadFlowWorker(i, ai, contingencies, limitViolationsResult, loadFlowContext),
+                            computationManager.getExecutor())
+                            .thenComposeAsync(r -> CompletableFuture.supplyAsync(() -> {
+                                results[i] = r;
+                                return null;
+                            }), computationManager.getExecutor());
                 }
                 return CompletableFuture.allOf(futures)
                         .thenComposeAsync(aVoid -> CompletableFuture.supplyAsync(() -> SecurityAnalysisResultMerger.merge(results)), computationManager.getExecutor()).join();
@@ -169,7 +163,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
         }
     }
 
-    private class LoadFlowWorker implements Runnable {
+    private class LoadFlowWorker implements Supplier<SecurityAnalysisResult> {
 
         private final AtomicInteger ai;
         private final List<Contingency> contingencies;
@@ -233,8 +227,9 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
         }
 
         @Override
-        public void run() {
+        public SecurityAnalysisResult get() {
             work();
+            return getResult();
         }
     }
 }
