@@ -17,6 +17,8 @@ import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
@@ -30,6 +32,8 @@ import java.util.stream.IntStream;
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityAnalysisImpl.class);
 
     private final ComputationManager computationManager;
 
@@ -73,7 +77,8 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
         LoadFlowParameters postContParameters = loadFlowParameters.copy().setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES);
 
         network.getVariantManager().allowVariantMultiThreadAccess(true);
-        int contSize = contingenciesProvider.getContingencies(network).size();
+        List<Contingency> contingencies = contingenciesProvider.getContingencies(network);
+        int contSize = contingencies.size();
         int count = Math.min(computationManager.getResourcesStatus().getAvailableCores(), contSize);
         SecurityAnalysisResult[] results = new SecurityAnalysisResult[count];
         LoadFlowContext loadFlowContext = new LoadFlowContext(network, postContParameters, computationManager, violationDetector, workingVariantId);
@@ -101,7 +106,6 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
         }), computationManager.getExecutor()).thenComposeAsync(limitViolationsResult -> CompletableFuture.supplyAsync(() -> {
             if (limitViolationsResult.isComputationOk()) {
                 CompletableFuture[] futures = new CompletableFuture[count];
-                List<Contingency> contingencies = contingenciesProvider.getContingencies(network);
                 AtomicInteger ai = new AtomicInteger(0);
                 for (int k = 0; k < count; k++) {
                     int i = k;
@@ -117,10 +121,10 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                             Thread.currentThread().interrupt();
                         }
                         return null;
-                    });
+                    }, computationManager.getExecutor());
                 }
                 return CompletableFuture.allOf(futures)
-                        .thenComposeAsync(Void -> CompletableFuture.supplyAsync(() -> SecurityAnalysisResultMerger.merge(results)), computationManager.getExecutor()).join();
+                        .thenComposeAsync(aVoid -> CompletableFuture.supplyAsync(() -> SecurityAnalysisResultMerger.merge(results)), computationManager.getExecutor()).join();
             } else {
                 return createResultBuilder(workingVariantId).preContingency(limitViolationsResult, workingVariantId).build();
             }
@@ -200,19 +204,25 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
             int idx = ai.getAndIncrement();
             network.getVariantManager().setWorkingVariant(variantId);
             while (idx < size) {
+                LOGGER.info("{} run loadflow with contingency '{}'.", variantId, contingencies.get(idx).getId());
                 network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantId, true);
                 Contingency contingency = contingencies.get(idx);
                 // apply the contingency on the network
                 contingency.toTask().modify(network, computationManager);
 
-                LoadFlow.runAsync(network, variantId, computationManager, postContParameters)
-                        .handleAsync((lfResult, exce) -> {
-                            resultBuilder.contingency(contingency)
-                                    .setComputationOk(lfResult.isOk());
-                            violationDetector.checkAll(contingency, network, resultBuilder::addViolation);
-                            resultBuilder.endContingency();
-                            return null;
-                        }, computationManager.getExecutor()).join();
+                CompletableFuture<LoadFlowResult> loadFlowResultCompletableFuture = LoadFlow.runAsync(network, variantId, computationManager, postContParameters);
+                try {
+                    LoadFlowResult lfResult = loadFlowResultCompletableFuture.get();
+                    resultBuilder.contingency(contingency)
+                            .setComputationOk(lfResult.isOk());
+                    violationDetector.checkAll(contingency, network, resultBuilder::addViolation);
+                    resultBuilder.endContingency();
+                } catch (Exception e) {
+                    LOGGER.warn(e.getMessage());
+                    resultBuilder.contingency(contingency)
+                            .setComputationOk(false);
+                    resultBuilder.endContingency();
+                }
                 idx = ai.getAndIncrement();
             }
             build = resultBuilder.build();
