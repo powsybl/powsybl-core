@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.ValidationUtil;
+
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */

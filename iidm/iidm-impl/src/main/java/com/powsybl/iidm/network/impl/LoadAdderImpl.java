@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  *

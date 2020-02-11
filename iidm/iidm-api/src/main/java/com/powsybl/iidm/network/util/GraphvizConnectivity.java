@@ -8,9 +8,10 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
-import guru.nidi.graphviz.attribute.*;
-import guru.nidi.graphviz.model.MutableGraph;
-import guru.nidi.graphviz.model.MutableNode;
+import org.anarres.graphviz.builder.GraphVizAttribute;
+import org.anarres.graphviz.builder.GraphVizEdge;
+import org.anarres.graphviz.builder.GraphVizGraph;
+import org.anarres.graphviz.builder.GraphVizScope;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -19,13 +20,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
-
-import static guru.nidi.graphviz.model.Factory.mutGraph;
-import static guru.nidi.graphviz.model.Factory.mutNode;
 
 /**
  * Example to generate a svg from the dot file:
@@ -62,35 +58,33 @@ public class GraphvizConnectivity {
 
     public void write(Writer writer) {
         Objects.requireNonNull(writer);
-        MutableGraph graph = mutGraph(network.getId());
+        GraphVizGraph graph = new GraphVizGraph().label(network.getId());
+        GraphVizScope scope = new GraphVizScope.Impl();
         int maxCC = network.getBusView().getBusStream().mapToInt(b -> b.getConnectedComponent().getNum()).max().getAsInt();
         String[] colors = Colors.generateColorScale(maxCC + 1, random);
-        Map<String, MutableNode> nodes = new HashMap<>();
         for (Bus b : network.getBusView().getBuses()) {
             long load = Math.round(b.getLoadStream().mapToDouble(Load::getP0).sum());
             long maxGeneration = Math.round(b.getGeneratorStream().mapToDouble(Generator::getMaxP).sum());
             String busId = getBusId(b);
-            MutableNode n = mutNode(Label.of(busId))
-                    .attrs()
-                    .add(Shape.ELLIPSE)
-                    .add(Style.FILLED)
-                    .add(Font.size(10))
-                    .add(Color.rgb(colors[b.getConnectedComponent().getNum()]).fill())
-                    .add("tooltip", "load=" + load + "MW" + NEWLINE + "max generation=" + maxGeneration + "MW" + NEWLINE + "cc=" + b.getConnectedComponent().getNum());
-            nodes.put(busId, n);
-            graph.add(n);
+            String tooltip = "load=" + load + "MW" + NEWLINE + "max generation=" + maxGeneration + "MW" + NEWLINE + "cc=" + b.getConnectedComponent().getNum();
+            graph.node(scope, busId).label(busId)
+                    .attr(GraphVizAttribute.shape, "ellipse")
+                    .attr(GraphVizAttribute.style, "filled")
+                    .attr(GraphVizAttribute.fontsize, "10")
+                    .attr(GraphVizAttribute.fillcolor, colors[b.getConnectedComponent().getNum()])
+                    .attr(GraphVizAttribute.tooltip, tooltip);
         }
         for (Branch branch : network.getBranches()) {
             Bus b1 = branch.getTerminal1().getBusView().getBus();
             Bus b2 = branch.getTerminal2().getBusView().getBus();
             if (b1 != null && b2 != null) {
-                MutableNode n1 = nodes.get(getBusId(b1));
-                MutableNode n2 = nodes.get(getBusId(b2));
-                n1.addLink(n1.linkTo(n2).with("tooltip", branch.getName()));
+                GraphVizEdge edge = graph.edge(scope, getBusId(b1), getBusId(b2));
+                // to workaround the multigraph lack of support, we add one line to the label per branch
+                edge.label().append(branch.getId()).append(System.lineSeparator());
             }
         }
         try {
-            writer.write(graph.toString());
+            graph.writeTo(writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
