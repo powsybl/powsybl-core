@@ -6,6 +6,7 @@
  */
 package com.powsybl.loadflow;
 
+import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
@@ -14,7 +15,11 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -182,6 +187,22 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     public LoadFlowParameters copy() {
         return new LoadFlowParameters(this);
+    }
+
+    public LoadFlowParameters copyWithExtensions() {
+        byte[] bytes = writeInMemory();
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes)) {
+            return JsonLoadFlowParameters.read(bais);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private byte[] writeInMemory() {
+        try (ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder()) {
+            JsonLoadFlowParameters.write(this, byteArrayBuilder);
+            return byteArrayBuilder.toByteArray();
+        }
     }
 
     @Override

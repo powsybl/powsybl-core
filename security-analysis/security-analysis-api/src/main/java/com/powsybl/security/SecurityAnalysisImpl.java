@@ -67,7 +67,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
         LoadFlowParameters loadFlowParameters = securityAnalysisParameters.getLoadFlowParameters();
 
         // start post contingency LF from pre-contingency state variables
-        LoadFlowParameters postContParameters = loadFlowParameters.copy().setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES);
+        LoadFlowParameters postContParameters = loadFlowParameters.copyWithExtensions().setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES);
 
         network.getVariantManager().allowVariantMultiThreadAccess(true);
 
