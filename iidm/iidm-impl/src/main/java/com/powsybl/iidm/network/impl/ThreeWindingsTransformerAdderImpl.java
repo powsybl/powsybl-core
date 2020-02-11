@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
 import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  *

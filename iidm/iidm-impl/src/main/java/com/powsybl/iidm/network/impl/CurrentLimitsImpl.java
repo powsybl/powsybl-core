@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.ValidationUtil;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.TreeMap;

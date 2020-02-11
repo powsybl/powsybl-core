@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Validable;
 
 import java.util.*;
 import java.util.stream.Collectors;

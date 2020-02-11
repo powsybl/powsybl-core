@@ -7,6 +7,8 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationException;
 
 /**
  *
