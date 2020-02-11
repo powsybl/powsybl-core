@@ -186,10 +186,6 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     }
 
     public LoadFlowParameters copy() {
-        return new LoadFlowParameters(this);
-    }
-
-    public LoadFlowParameters copyWithExtensions() {
         byte[] bytes = writeInMemory();
         try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes)) {
             return JsonLoadFlowParameters.read(bais);

@@ -161,7 +161,7 @@ public class LoadFlowParametersTest {
         DummyExtension dummyExtension = new DummyExtension();
         parameters.addExtension(DummyExtension.class, dummyExtension);
 
-        LoadFlowParameters copy = parameters.copyWithExtensions();
+        LoadFlowParameters copy = parameters.copy();
         assertEquals(1, copy.getExtensions().size());
         Extension<LoadFlowParameters> copiedExt = copy.getExtensionByName("dummyExtension");
         assertSame(parameters, dummyExtension.getExtendable());
