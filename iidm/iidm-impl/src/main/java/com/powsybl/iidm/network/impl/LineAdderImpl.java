@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LineAdder;
+import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  *
