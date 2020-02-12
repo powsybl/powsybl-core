@@ -169,7 +169,7 @@ public interface CgmesModel {
 
     String substation(CgmesTerminal t);
 
-    String voltageLevel(CgmesTerminal t);
+    String voltageLevel(CgmesTerminal t, boolean nodeBreaker);
 
     CgmesContainer container(String containerId);
 

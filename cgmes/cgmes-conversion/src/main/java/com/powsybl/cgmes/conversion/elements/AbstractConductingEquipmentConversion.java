@@ -296,7 +296,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             } else {
                 // cgmesVoltageLevelId may be null if terminal is contained in a Line
                 // (happens in boundaries)
-                cgmesVoltageLevelId = context.cgmes().voltageLevel(t);
+                cgmesVoltageLevelId = context.cgmes().voltageLevel(t, context.nodeBreaker());
             }
             if (cgmesVoltageLevelId != null) {
                 iidmVoltageLevelId = context.namingStrategy().getId("VoltageLevel",

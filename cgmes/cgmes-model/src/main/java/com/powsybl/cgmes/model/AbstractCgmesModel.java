@@ -73,7 +73,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
 
     @Override
     public String substation(CgmesTerminal t) {
-        CgmesContainer c = container(t);
+        CgmesContainer c = container(t, true);
         if (c == null) {
             return null;
         }
@@ -81,8 +81,8 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public String voltageLevel(CgmesTerminal t) {
-        CgmesContainer c = container(t);
+    public String voltageLevel(CgmesTerminal t, boolean nodeBreaker) {
+        CgmesContainer c = container(t, nodeBreaker);
         if (c == null) {
             return null;
         }
@@ -111,12 +111,12 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         }
     }
 
-    private CgmesContainer container(CgmesTerminal t) {
+    private CgmesContainer container(CgmesTerminal t, boolean nodeBreaker) {
         if (cachedNodes == null) {
             cachedNodes = computeNodes();
         }
         String containerId = null;
-        String nodeId = t.connectivityNode() != null ? t.connectivityNode() : t.topologicalNode();
+        String nodeId = nodeBreaker ? t.connectivityNode() : t.topologicalNode();
         if (nodeId != null) {
             PropertyBag node = cachedNodes.get(nodeId);
             if (node != null) {
