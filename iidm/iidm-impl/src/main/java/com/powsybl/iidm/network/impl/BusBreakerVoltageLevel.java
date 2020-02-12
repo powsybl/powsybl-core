@@ -253,8 +253,9 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                         }
                     }, encountered);
                     if (isBusValid(busSet)) {
-                        String mergedBusId = BusBreakerVoltageLevel.this.id + "_" + busNum++;
-                        String mergedBusName = BusBreakerVoltageLevel.this.name != null ? BusBreakerVoltageLevel.this.name + "_" + busNum++ : null;
+                        String suffix = "_" + busNum++;
+                        String mergedBusId = BusBreakerVoltageLevel.this.id + suffix;
+                        String mergedBusName = BusBreakerVoltageLevel.this.name != null ? BusBreakerVoltageLevel.this.name + suffix : null;
                         MergedBus mergedBus = new MergedBus(mergedBusId, mergedBusName, busSet);
                         mergedBuses.put(mergedBus.getId(), mergedBus);
                         busSet.forEach(bus -> mapping.put(bus, mergedBus));
