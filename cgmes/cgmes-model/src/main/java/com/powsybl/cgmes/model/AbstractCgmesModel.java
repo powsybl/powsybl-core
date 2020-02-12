@@ -116,7 +116,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
             cachedNodes = computeNodes();
         }
         String containerId = null;
-        String nodeId = nodeBreaker ? t.connectivityNode() : t.topologicalNode();
+        String nodeId = nodeBreaker && t.connectivityNode() != null ? t.connectivityNode() : t.topologicalNode();
         if (nodeId != null) {
             PropertyBag node = cachedNodes.get(nodeId);
             if (node != null) {
