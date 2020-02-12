@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.CurrentLimits.TemporaryLimit;
 import com.powsybl.iidm.network.CurrentLimitsAdder;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.CurrentLimitsImpl.TemporaryLimitImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
