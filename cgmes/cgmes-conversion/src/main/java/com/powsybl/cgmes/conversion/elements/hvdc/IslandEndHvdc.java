@@ -24,7 +24,11 @@ import com.powsybl.cgmes.conversion.elements.hvdc.TPnodeEquipments.TPnodeEquipme
  */
 class IslandEndHvdc {
 
-    private Set<HvdcEnd> hvdc;
+    enum HvdcEndType {
+        HVDC_NONE, HVDC_T1_C1_LS1, HVDC_Tn_Cn_LSn, HVDC_T1_C1_LS2, HVDC_T2_C2_LS1,
+    }
+
+    Set<HvdcEnd> hvdc;
 
     IslandEndHvdc() {
         hvdc = new HashSet<>();
@@ -34,9 +38,9 @@ class IslandEndHvdc {
         if (islandNodesEnd.isEmpty()) {
             return;
         }
-        printAd(adjacency, islandNodesEnd);
-        printEq(tpNodeEquipments, islandNodesEnd);
-        printDcLs(tpNodeEquipments, islandNodesEnd);
+        //printAd(adjacency, islandNodesEnd);
+        //printEq(tpNodeEquipments, islandNodesEnd);
+        //printDcLs(tpNodeEquipments, islandNodesEnd);
         Set<String> visitedTopologicalNodes = new HashSet<>();
 
         // Take a non-visited node with transformers
@@ -117,14 +121,33 @@ class IslandEndHvdc {
             .forEachOrdered(eq -> listEq.add(eq.equipmentId));
     }
 
+    HvdcEnd selectSimetricHvdcEnd(HvdcEnd hvdcEnd1) {
+        return hvdc.stream().filter(h -> isCompatible(hvdcEnd1, h)).findFirst().orElse(null);
+    }
+
+    private boolean isCompatible(HvdcEnd hvdcEnd1, HvdcEnd hvdcEnd2) {
+        if (hvdcEnd1.transformersEnd.size() != hvdcEnd2.transformersEnd.size()) {
+            return false;
+        }
+        if (hvdcEnd1.acDcConvertersEnd.size() != hvdcEnd2.acDcConvertersEnd.size()) {
+            return false;
+        }
+        if (hvdcEnd1.dcLineSegmentsEnd.size() != hvdcEnd2.dcLineSegmentsEnd.size()) {
+            return false;
+        }
+
+        return !hvdcEnd1.dcLineSegmentsEnd.stream()
+            .anyMatch(ls -> !hvdcEnd2.dcLineSegmentsEnd.contains(ls));
+    }
+
     private void printAd(Adjacency adjacency, List<String> lnodes) {
         lnodes.forEach(n -> printAd(adjacency, n));
     }
 
     private void printAd(Adjacency adjacency, String node) {
-        System.err.printf("JAM AD Nodo %s %n", node);
+        LOG.info("AD TopologicalNode {}", node);
         if (adjacency.adjacency.containsKey(node)) {
-            adjacency.adjacency.get(node).forEach(ad -> System.err.printf("    %s %s %n", ad.type, ad.topologicalNode));
+            adjacency.adjacency.get(node).forEach(ad -> LOG.info("    {} {}", ad.type, ad.topologicalNode));
         }
     }
 
@@ -133,10 +156,10 @@ class IslandEndHvdc {
     }
 
     private void printEq(TPnodeEquipments tpNodeEquipments, String node) {
-        System.err.printf("JAM EQ. Nodo %s %n", node);
+        LOG.info("EQ. TopologicalNode {}", node);
         if (tpNodeEquipments.nodeEquipments.containsKey(node)) {
             tpNodeEquipments.nodeEquipments.get(node)
-                .forEach(eq -> System.err.printf("    %s %s %n", eq.type, eq.equipmentId));
+                .forEach(eq -> LOG.info("    {} {}", eq.type, eq.equipmentId));
         }
     }
 
@@ -148,7 +171,7 @@ class IslandEndHvdc {
         if (tpNodeEquipments.nodeEquipments.containsKey(node)) {
             tpNodeEquipments.nodeEquipments.get(node).stream()
                 .filter(eq -> eq.type == TPnodeEquipments.EquipmentType.DC_LINE_SEGMENT)
-                .forEach(eq -> System.err.printf("JAM - %s %s %n", eq.type, eq.equipmentId));
+                .forEach(eq -> LOG.info("DcLineSegment {}", eq.equipmentId));
         }
     }
 
@@ -168,6 +191,23 @@ class IslandEndHvdc {
             this.transformersEnd = transformersEnd;
             this.acDcConvertersEnd = acDcConvertersEnd;
             this.dcLineSegmentsEnd = dcLineSegmentsEnd;
+        }
+
+        HvdcEndType computeType() {
+            int t = this.transformersEnd.size();
+            int c = this.acDcConvertersEnd.size();
+            int ls = this.dcLineSegmentsEnd.size();
+
+            if (t == 1 && c == 1 && ls == 1) {
+                return HvdcEndType.HVDC_T1_C1_LS1;
+            } else if (t == 1 && c == 1 && ls == 2) {
+                return HvdcEndType.HVDC_T1_C1_LS2;
+            } else if (t == 2 && c == 2 && ls == 1) {
+                return HvdcEndType.HVDC_T2_C2_LS1;
+            } else if (t == c && c == ls && t > 1) {
+                return HvdcEndType.HVDC_Tn_Cn_LSn;
+            }
+            return HvdcEndType.HVDC_NONE;
         }
 
         void print() {

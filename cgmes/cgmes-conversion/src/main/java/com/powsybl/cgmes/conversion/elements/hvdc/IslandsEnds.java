@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion.elements.hvdc;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -34,24 +33,24 @@ class IslandsEnds {
         if (islandNodes.isEmpty()) {
             return;
         }
-        System.err.printf("IslandNodes ---> %s %n", islandNodes.toString());
         // energinet
         //if (!islandNodes.contains("_b7750093-2c47-4202-b3a2-2080d76a1b6c")) {
         //if (!islandNodes.contains("_e4228fdf-3944-4ce1-a784-8d4506cd1ba5")) {
         //if (!islandNodes.contains("_d255c52a-32e0-4d44-8efc-dd953bb677d6")) {
-        if (!islandNodes.contains("_48950a5a-1366-4171-ba80-a1ab3d341e86")) {
+        //if (!islandNodes.contains("_48950a5a-1366-4171-ba80-a1ab3d341e86")) {
+        // DK10
+        //if (!islandNodes.contains("_e0052af0-da34-47d7-a99f-2c01b87c42db")) {
         // eirgridsoni
         //if (!islandNodes.contains("_b5b275aa-86c2-465e-8b69-a58c98e8c2ea")) {
         //if (!islandNodes.contains("_652873ea-33cd-4397-82be-c3cc12f4ee45")) {
         //if (!islandNodes.contains("_5f39589f-6d45-4afe-a9cb-b9849e3af100")) {
-            return;
-        }
+        //    return;
+        //}
         Set<String> visitedTopologicalNodes = new HashSet<>();
 
         String topologicalNodeEnd1 = islandNodes.get(0);
         List<String> adjacentTopologicalNodeEnd1 = computeAdjacentTopologicalNodes(topologicalNodeEnd1,
             adjacency, visitedTopologicalNodes);
-        String commonTopologicalNodeEnd1 = computeCommontopologicalNode(adjacency, adjacentTopologicalNodeEnd1);
 
         String topologicalNodeEnd2 = getTopologicalNodeOtherEnd(islandNodes, visitedTopologicalNodes);
         if (topologicalNodeEnd2 == null) {
@@ -59,11 +58,8 @@ class IslandsEnds {
         }
         List<String> adjacentTopologicalNodeEnd2 = computeAdjacentTopologicalNodes(topologicalNodeEnd2,
             adjacency, visitedTopologicalNodes);
-        String commonTopologicalNodeEnd2 = computeCommontopologicalNode(adjacency, adjacentTopologicalNodeEnd2);
 
-        IslandEnd islandEnd = new IslandEnd(commonTopologicalNodeEnd1, adjacentTopologicalNodeEnd1,
-            commonTopologicalNodeEnd2,
-            adjacentTopologicalNodeEnd2);
+        IslandEnd islandEnd = new IslandEnd(adjacentTopologicalNodeEnd1, adjacentTopologicalNodeEnd2);
 
         islandsEndsNodes.add(islandEnd);
     }
@@ -102,46 +98,22 @@ class IslandsEnds {
         return adjacentTopologicalNodes;
     }
 
-    private String computeCommontopologicalNode(Adjacency adjacency, List<String> topologicalNodeEnd) {
-        Optional<String> n = topologicalNodeEnd.stream()
-            .max((n1, n2) -> Integer.compare(computeAdjacents(adjacency, n1), computeAdjacents(adjacency, n2)));
-
-        if (n.isPresent()) {
-            return n.get();
-        }
-        return null;
-    }
-
-    private int computeAdjacents(Adjacency adjacency, String topologicalNode) {
-        return (int) adjacency.adjacency.get(topologicalNode).stream()
-            .filter(adj -> Adjacency.isAcDcConverter(adj.type))
-            .count();
-    }
-
     void print() {
         LOG.info("IslandsEnds");
         islandsEndsNodes.forEach(islandEnd -> islandEnd.print());
     }
 
     static class IslandEnd {
-        String commonTopologicalNode1;
         List<String> topologicalNodes1;
-
-        String commonTopologicalNode2;
         List<String> topologicalNodes2;
 
-        IslandEnd(String commonTopologicalNode1, List<String> topologicalNodes1, String commonTopologicalNode2,
-            List<String> topologicalNodes2) {
-            this.commonTopologicalNode1 = commonTopologicalNode1;
+        IslandEnd(List<String> topologicalNodes1, List<String> topologicalNodes2) {
             this.topologicalNodes1 = topologicalNodes1;
-            this.commonTopologicalNode2 = commonTopologicalNode2;
             this.topologicalNodes2 = topologicalNodes2;
         }
 
         void print() {
-            LOG.info("    commonTopologicalNode1: {}", this.commonTopologicalNode1);
             LOG.info("    topologicalNodes1: {}", this.topologicalNodes1);
-            LOG.info("    commonTopologicalNode2: {}", this.commonTopologicalNode2);
             LOG.info("    topologicalNodes2: {}", this.topologicalNodes2);
             LOG.info("---");
         }

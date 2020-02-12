@@ -37,17 +37,19 @@ public class CgmesDc {
 
         IslandsEnds islandsEnds = new IslandsEnds();
         islands.islandsNodes.forEach(listNodes -> islandsEnds.add(adjacency, listNodes));
-        islandsEnds.print();
+        //islandsEnds.print();
 
         Hvdc hvdc = new Hvdc();
         islandsEnds.islandsEndsNodes.forEach(ien -> {
             IslandEndHvdc islandEndHvdc1 = new IslandEndHvdc();
             islandEndHvdc1.add(adjacency, tpNodeEquipments, ien.topologicalNodes1);
-            islandEndHvdc1.print();
+            // islandEndHvdc1.print();
 
             IslandEndHvdc islandEndHvdc2 = new IslandEndHvdc();
             islandEndHvdc2.add(adjacency, tpNodeEquipments, ien.topologicalNodes2);
-            islandEndHvdc2.print();
+            // islandEndHvdc2.print();
+
+            hvdc.add(tpNodeEquipments, islandEndHvdc1, islandEndHvdc2);
         });
         hvdc.print();
     }

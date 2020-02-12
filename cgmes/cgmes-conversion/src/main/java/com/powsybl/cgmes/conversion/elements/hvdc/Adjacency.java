@@ -18,7 +18,9 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  *
@@ -28,7 +30,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 class Adjacency {
 
     enum AdjacentType {
-        DC_LINE_SEGMENT, AC_DC_CONVERTER,
+        DC_LINE_SEGMENT, AC_DC_CONVERTER, AC_TRANSFORMER
     }
 
     Map<String, List<Adjacent>> adjacency;
@@ -41,16 +43,20 @@ class Adjacency {
         acDcConverterNodes.converterNodes.entrySet()
             .forEach(entry -> computeAcDcConverterAdjacency(entry.getValue().acTopologicalNode,
                 entry.getValue().dcTopologicalNode));
+
+        cgmesModel.groupedTransformerEnds().forEach((t, ends) -> {
+            if (ends.size() == 2) {
+                computeTwoWindingsTransformerAdjacency(cgmesModel, ends);
+            } else if (ends.size() == 3) {
+                computeThreeWindingsTransformerAdjacency(cgmesModel, ends);
+            }
+        });
     }
 
     private void computeDcLineSegmentAdjacency(CgmesModel cgmesModel, PropertyBag equipment) {
         CgmesDcTerminal t1 = cgmesModel.dcTerminal(equipment.getId(CgmesNames.DC_TERMINAL + 1));
         CgmesDcTerminal t2 = cgmesModel.dcTerminal(equipment.getId(CgmesNames.DC_TERMINAL + 2));
-        if (!t1.connected() || !t2.connected()) {
-            System.err.printf("JAM-DC-LineSegment Open %s %b %b %n", equipment.getId("DCLineSegment"),
-                t1.connected(), t2.connected());
-            return;
-        }
+
         addAdjacency(t1.dcTopologicalNode(), t2.dcTopologicalNode(), AdjacentType.DC_LINE_SEGMENT);
     }
 
@@ -61,6 +67,44 @@ class Adjacency {
             String dcTopologicalNode = dcTopologicalNodes.get(k);
             for (int l = k + 1; l < dcTopologicalNodes.size(); l++) {
                 addAdjacency(dcTopologicalNode, dcTopologicalNodes.get(l), AdjacentType.AC_DC_CONVERTER);
+            }
+        }
+    }
+
+    private void computeTwoWindingsTransformerAdjacency(CgmesModel cgmesModel, PropertyBags ends) {
+        PropertyBag end1 = ends.get(0);
+        CgmesTerminal t1 = cgmesModel.terminal(end1.getId(CgmesNames.TERMINAL));
+        PropertyBag end2 = ends.get(1);
+        CgmesTerminal t2 = cgmesModel.terminal(end2.getId(CgmesNames.TERMINAL));
+
+        List<String> topologicalNodes = new ArrayList<>();
+        topologicalNodes.add(t1.topologicalNode());
+        topologicalNodes.add(t2.topologicalNode());
+        addTransformerAdjacency(topologicalNodes);
+    }
+
+    private void computeThreeWindingsTransformerAdjacency(CgmesModel cgmesModel, PropertyBags ends) {
+        PropertyBag end1 = ends.get(0);
+        CgmesTerminal t1 = cgmesModel.terminal(end1.getId(CgmesNames.TERMINAL));
+        PropertyBag end2 = ends.get(1);
+        CgmesTerminal t2 = cgmesModel.terminal(end2.getId(CgmesNames.TERMINAL));
+        PropertyBag end3 = ends.get(2);
+        CgmesTerminal t3 = cgmesModel.terminal(end3.getId(CgmesNames.TERMINAL));
+
+        List<String> topologicalNodes = new ArrayList<>();
+        topologicalNodes.add(t1.topologicalNode());
+        topologicalNodes.add(t2.topologicalNode());
+        topologicalNodes.add(t3.topologicalNode());
+        addTransformerAdjacency(topologicalNodes);
+    }
+
+    private void addTransformerAdjacency(List<String> topologicalNodes) {
+        if (topologicalNodes.stream().anyMatch(n -> adjacency.containsKey(n))) {
+            for (int k = 0; k < topologicalNodes.size() - 1; k++) {
+                String topologicalNode = topologicalNodes.get(k);
+                for (int l = k + 1; l < topologicalNodes.size(); l++) {
+                    addAdjacency(topologicalNode, topologicalNodes.get(l), AdjacentType.AC_TRANSFORMER);
+                }
             }
         }
     }

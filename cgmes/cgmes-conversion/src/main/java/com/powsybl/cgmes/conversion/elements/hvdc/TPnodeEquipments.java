@@ -59,9 +59,6 @@ class TPnodeEquipments {
     private void computeDcLineSegment(CgmesModel cgmesModel, Adjacency adjacency, PropertyBag equipment) {
         CgmesDcTerminal t1 = cgmesModel.dcTerminal(equipment.getId(CgmesNames.DC_TERMINAL + 1));
         CgmesDcTerminal t2 = cgmesModel.dcTerminal(equipment.getId(CgmesNames.DC_TERMINAL + 2));
-        if (!t1.connected() || !t2.connected()) {
-            return;
-        }
         String id = equipment.getId("DCLineSegment");
         addEquipment(adjacency, id, t1.dcTopologicalNode(), t2.dcTopologicalNode(), EquipmentType.DC_LINE_SEGMENT);
     }
@@ -126,33 +123,6 @@ class TPnodeEquipments {
             .forEach(n -> nodeEquipments.computeIfAbsent(n, k -> new ArrayList<>()).add(eq));
     }
 
-    boolean containsThisDcLineSegmentInNode(String dcLineSegment, String topologicalNode) {
-        List<TPnodeEquipment> listEquipment = nodeEquipments.get(topologicalNode);
-        if (listEquipment == null) {
-            return false;
-        }
-        return listEquipment.stream()
-            .anyMatch(eq -> eq.type == EquipmentType.DC_LINE_SEGMENT && eq.equipmentId.equals(dcLineSegment));
-    }
-
-    boolean containsAnyDcLineSegmentInNode(String topologicalNode) {
-        List<TPnodeEquipment> listEquipment = nodeEquipments.get(topologicalNode);
-        if (listEquipment == null) {
-            return false;
-        }
-        return listEquipment.stream()
-            .anyMatch(eq -> eq.type == EquipmentType.DC_LINE_SEGMENT);
-    }
-
-    boolean containsAcDcConverter(String topologicalNode) {
-        List<TPnodeEquipment> listEquipment = nodeEquipments.get(topologicalNode);
-        if (listEquipment == null) {
-            return false;
-        }
-        return listEquipment.stream()
-            .anyMatch(eq -> eq.type == EquipmentType.AC_DC_CONVERTER);
-    }
-
     boolean containsAnyTransformer(String topologicalNode) {
         List<TPnodeEquipment> listEquipment = nodeEquipments.get(topologicalNode);
         if (listEquipment == null) {
@@ -170,6 +140,20 @@ class TPnodeEquipments {
         return listEquipment.stream()
             .filter(eq -> eq.type == EquipmentType.AC_DC_CONVERTER)
             .count() >= 2;
+    }
+
+    boolean connectedEquipments(String equipment1, String equipment2, List<String> topologicalNodes) {
+        return topologicalNodes.stream().anyMatch(n -> connectedEquipment(n, equipment1, equipment2));
+    }
+
+    private boolean connectedEquipment(String topologicalNode, String equipment1, String equipment2) {
+        List<TPnodeEquipment> listEquipment = nodeEquipments.get(topologicalNode);
+        if (listEquipment == null) {
+            return false;
+        }
+        return listEquipment.stream()
+            .filter(eq -> eq.equipmentId.equals(equipment1) || eq.equipmentId.equals(equipment2))
+            .count() == 2;
     }
 
     void print() {
