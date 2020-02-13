@@ -7,6 +7,6 @@
     "transformerVoltageControlOn" : false,
     "phaseShifterRegulationOn" : false,
     "noGeneratorReactiveLimits" : false,
-    "splitShuntAdmittanceSfmr2" : false
+    "splitShuntAdmittanceXfmr2" : false
   }
 }

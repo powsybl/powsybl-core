@@ -30,12 +30,12 @@ import java.util.Properties;
 public class AmplExporter implements Exporter {
 
     public static final String EXPORT_RATIOTAPCHANGER_VT = "iidm.export.ampl.export-ratio-tap-changer-voltage-target";
-    public static final String SPECIFIC_COMPATIBILITY = "iidm.export.ampl.specific-compatibility";
+    public static final String SPLIT_SHUNT_ADMITTANCE_XFMR2 = "iidm.export.ampl.split-shunt-admittance-xfmr2";
 
     private static final Parameter EXPORT_RATIOTAPCHANGER_VT_PARAMETER = new Parameter(EXPORT_RATIOTAPCHANGER_VT, ParameterType.BOOLEAN, "Export ratio tap changer voltage target", Boolean.FALSE)
             .addAdditionalNames("iidm.export.ampl.exportRatioTapChangerVoltageTarget");
-    private static final Parameter SPECIFIC_COMPATIBILITY_PARAMETER = new Parameter(SPECIFIC_COMPATIBILITY, ParameterType.BOOLEAN, "Export specific compatibility", Boolean.FALSE)
-            .addAdditionalNames("iidm.export.ampl.specificCompatibility");
+    private static final Parameter SPLIT_SHUNT_ADMITTANCE_XFMR2_PARAMETER = new Parameter(SPLIT_SHUNT_ADMITTANCE_XFMR2, ParameterType.BOOLEAN, "Export split shunt admittance xfmr2", Boolean.FALSE)
+            .addAdditionalNames("iidm.export.ampl.splitShuntAdmittanceXfmr2");
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -63,8 +63,8 @@ public class AmplExporter implements Exporter {
         Objects.requireNonNull(dataSource);
         try {
             boolean exportRatioTapChangerVoltageTarget = ConversionParameters.readBooleanParameter(getFormat(), parameters, EXPORT_RATIOTAPCHANGER_VT_PARAMETER, defaultValueConfig);
-            boolean specificCompatibility = ConversionParameters.readBooleanParameter(getFormat(), parameters, SPECIFIC_COMPATIBILITY_PARAMETER, defaultValueConfig);
-            new AmplNetworkWriter(network, dataSource, new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false, AmplExportConfig.ExportActionType.CURATIVE, exportRatioTapChangerVoltageTarget, specificCompatibility))
+            boolean splitShuntAdmittanceXfmr2 = ConversionParameters.readBooleanParameter(getFormat(), parameters, SPLIT_SHUNT_ADMITTANCE_XFMR2_PARAMETER, defaultValueConfig);
+            new AmplNetworkWriter(network, dataSource, new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false, AmplExportConfig.ExportActionType.CURATIVE, exportRatioTapChangerVoltageTarget, splitShuntAdmittanceXfmr2))
                     .write();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
