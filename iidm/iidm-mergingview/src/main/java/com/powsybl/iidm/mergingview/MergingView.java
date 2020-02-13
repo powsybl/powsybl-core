@@ -277,11 +277,8 @@ public final class MergingView implements Network {
 
     @Override
     public Identifiable<?> getIdentifiable(final String id) {
-        Identifiable<?> search = index.getMergedLine(id);
-        if (Objects.isNull(search)) {
-            search = index.get(n -> n.getIdentifiable(id), index::getIdentifiable);
-        }
-        return search;
+        // Need to cast into Identifiable in order to check MergedLine first
+        return Optional.ofNullable((Identifiable) index.getMergedLine(id)).orElse(index.get(n -> n.getIdentifiable(id), index::getIdentifiable));
     }
 
     @Override
@@ -590,11 +587,8 @@ public final class MergingView implements Network {
     // Branches
     @Override
     public Branch getBranch(final String id) {
-        Branch search = index.getMergedLine(id);
-        if (Objects.isNull(search)) {
-            search = index.get(n -> n.getBranch(id), index::getBranch);
-        }
-        return search;
+        // Need to cast into Branch in order to check MergedLine first
+        return Optional.ofNullable((Branch) index.getMergedLine(id)).orElse(index.get(n -> n.getBranch(id), index::getBranch));
     }
 
     @Override
@@ -656,11 +650,7 @@ public final class MergingView implements Network {
 
     @Override
     public Line getLine(final String id) {
-        Line search = index.getMergedLine(id);
-        if (Objects.isNull(search)) {
-            search = index.get(n -> n.getLine(id), index::getLine);
-        }
-        return search;
+        return Optional.ofNullable(index.getMergedLine(id)).orElse(index.get(n -> n.getLine(id), index::getLine));
     }
 
     // DanglingLines
@@ -682,7 +672,7 @@ public final class MergingView implements Network {
     @Override
     public DanglingLine getDanglingLine(final String id) {
         final DanglingLine dl = index.get(n -> n.getDanglingLine(id), index::getDanglingLine);
-        return index.asDanglingLine(dl) ? dl : null;
+        return index.isMerged(dl) ? dl : null;
     }
 
     // HvdcLines

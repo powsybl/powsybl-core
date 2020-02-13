@@ -56,12 +56,7 @@ class MergingViewIndex {
     }
 
     boolean contains(String id) {
-        for (Network n : networks) {
-            if (Objects.nonNull(n.getIdentifiable(id))) {
-                return true;
-            }
-        }
-        return false;
+        return Objects.nonNull(this.currentView.getIdentifiable(id));
     }
 
     /** Validate all networks added into merging network list */
@@ -276,7 +271,7 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
-    boolean asDanglingLine(final DanglingLine dl) {
+    boolean isMerged(final DanglingLine dl) {
         return !mergedLineCached.containsKey(dl.getUcteXnodeCode());
     }
 
@@ -284,7 +279,7 @@ class MergingViewIndex {
         // Search DanglingLine into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getDanglingLineStream)
-                .filter(this::asDanglingLine)
+                .filter(this::isMerged)
                 .map(this::getDanglingLine)
                 .collect(Collectors.toList());
     }

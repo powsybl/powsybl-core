@@ -87,10 +87,10 @@ class LineAdderAdapter implements LineAdder {
                     .setConnectableBus1(connectableBus1)
                     .setBus2(bus2)
                     .setConnectableBus2(connectableBus2);
-        if( node1 != null ) {
+        if (node1 != null) {
             adder.setNode1(node1);
         }
-        if( node2 != null ) {
+        if (node2 != null) {
             adder.setNode1(node2);
         }
         return adder.add();

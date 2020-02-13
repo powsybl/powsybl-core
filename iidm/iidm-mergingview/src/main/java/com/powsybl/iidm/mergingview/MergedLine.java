@@ -6,15 +6,16 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,19 +24,31 @@ import java.util.stream.Stream;
  */
 class MergedLine implements Line {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MergedLine.class);
+
     private final MergingViewIndex index;
 
     private final DanglingLine dl1;
 
     private final DanglingLine dl2;
 
-    private String id;
+    private final String id;
 
-    MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2) {
+    private final String name;
+
+    private final Properties properties = new Properties();
+
+    MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2, boolean ensureIdUnicity) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
         this.dl1 = Objects.requireNonNull(dl1, "dangling line 1 is null");
         this.dl2 = Objects.requireNonNull(dl2, "dangling line 2 is null");
-        this.id = buildId(dl1, dl2);
+        this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildId(dl1, dl2), index::contains) : buildId(dl1, dl2);
+        this.name = buildName(dl1, dl2);
+        mergeProperties(dl1, dl2);
+    }
+
+    MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2) {
+        this(index, dl1, dl2, false);
     }
 
     private static String buildId(final DanglingLine dl1, final DanglingLine dl2) {
@@ -46,6 +59,40 @@ class MergedLine implements Line {
             id = dl2.getId() + " + " + dl1.getId();
         }
         return id;
+    }
+
+    private static String buildName(final DanglingLine dl1, final DanglingLine dl2) {
+        String name;
+        int compareResult = dl1.getName().compareTo(dl2.getName());
+        if (compareResult == 0) {
+            name = dl1.getName();
+        } else if (compareResult < 0) {
+            name = dl1.getName() + " + " + dl2.getName();
+        } else {
+            name = dl2.getName() + " + " + dl1.getName();
+        }
+        return name;
+    }
+
+    private void mergeProperties(DanglingLine dl1, DanglingLine dl2) {
+        Set<String> dl1Properties = dl1.getPropertyNames();
+        Set<String> dl2Properties = dl2.getPropertyNames();
+        Set<String> commonProperties = Sets.intersection(dl1Properties, dl2Properties);
+        Sets.difference(dl1Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl1.getProperty(prop)));
+        Sets.difference(dl2Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl2.getProperty(prop)));
+        commonProperties.forEach(prop -> {
+            if (dl1.getProperty(prop).equals(dl2.getProperty(prop))) {
+                properties.setProperty(prop, dl1.getProperty(prop));
+            } else if (dl1.getProperty(prop).isEmpty()) {
+                LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
+                properties.setProperty(prop, dl2.getProperty(prop));
+            } else if (dl2.getProperty(prop).isEmpty()) {
+                LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
+                properties.setProperty(prop, dl1.getProperty(prop));
+            } else {
+                LOGGER.error("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
+            }
+        });
     }
 
     @Override
@@ -331,44 +378,46 @@ class MergedLine implements Line {
 
     @Override
     public String getName() {
-        return this.id;
+        return name;
     }
 
     @Override
     public boolean hasProperty() {
-        return dl1.hasProperty() || dl2.hasProperty();
+        return !properties.isEmpty();
     }
 
     @Override
     public boolean hasProperty(final String key) {
-        return dl1.hasProperty(key) || dl2.hasProperty(key);
+        return properties.containsKey(key);
     }
 
     @Override
     public Set<String> getPropertyNames() {
-        final Set<String> names = dl1.getPropertyNames();
-        names.addAll(dl2.getPropertyNames());
-        return names;
+        return properties.keySet().stream().map(Object::toString).collect(Collectors.toSet());
+    }
+
+    @Override
+    public String getProperty(final String key) {
+        Object val = properties.get(key);
+        return val != null ? val.toString() : null;
+    }
+
+    @Override
+    public String getProperty(final String key, final String defaultValue) {
+        Object val = properties.getOrDefault(key, defaultValue);
+        return val != null ? val.toString() : null;
+    }
+
+    @Override
+    public String setProperty(final String key, final String value) {
+        dl1.setProperty(key, value);
+        dl2.setProperty(key, value);
+        return (String) properties.setProperty(key, value);
     }
 
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
-    @Override
-    public String setProperty(final String key, final String value) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public String getProperty(final String key) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public String getProperty(final String key, final String defaultValue) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
     @Override
     public void remove() {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;

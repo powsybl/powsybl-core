@@ -31,11 +31,12 @@ public class DanglingLineAdapterTest {
     public void initNetwork() {
         mergingView = MergingView.create("DanglingLineAdapterTest", "iidm");
         noEquipNetwork = NoEquipmentNetworkFactory.create();
-        mergingView.merge(noEquipNetwork);
     }
 
     @Test
     public void baseTests() {
+        mergingView.merge(noEquipNetwork);
+
         double r = 10.0;
         double x = 20.0;
         double g = 30.0;
@@ -100,6 +101,8 @@ public class DanglingLineAdapterTest {
 
     @Test
     public void mergedDanglingLine() {
+        mergingView.merge(noEquipNetwork);
+
         final DanglingLine dl1 = createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", "busA");
         assertNotNull(mergingView.getDanglingLine("dl1"));
         assertEquals(1, mergingView.getDanglingLineCount());
@@ -192,14 +195,7 @@ public class DanglingLineAdapterTest {
             assertNotNull(t);
         });
 
-        assertFalse(mergedLine.hasProperty());
-        assertFalse(mergedLine.hasProperty("key"));
-        assertEquals(0, mergedLine.getPropertyNames().size());
-
         // Not implemented yet !
-        TestUtil.notImplemented(() -> mergedLine.setProperty("", ""));
-        TestUtil.notImplemented(() -> mergedLine.getProperty(""));
-        TestUtil.notImplemented(() -> mergedLine.getProperty("", ""));
         TestUtil.notImplemented(mergedLine::remove);
         TestUtil.notImplemented(() -> mergedLine.addExtension(null, null));
         TestUtil.notImplemented(() -> mergedLine.getExtension(null));
@@ -214,33 +210,67 @@ public class DanglingLineAdapterTest {
     }
 
     @Test
+    public void testProperties() {
+        final DanglingLine dl1 = createDanglingLine(noEquipNetwork, "vl1", "dl1", "dl", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", "busA");
+        dl1.setProperty("ucteCode", dl1.getUcteXnodeCode()); // test equals property
+        dl1.setProperty("id", dl1.getId()); // test not equals property
+        dl1.setProperty("network", "noEquipNetwork"); // test empty property
+        dl1.setProperty("vl", ""); // test empty property
+
+        final DanglingLine dl2 = createDanglingLine(noEquipNetwork, "vl2", "dl2", "dl", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", "busB");
+        dl2.setProperty("ucteCode", dl2.getUcteXnodeCode()); // test equals property
+        dl2.setProperty("id", dl2.getId()); // test not equals property
+        dl2.setProperty("network", ""); // test empty property
+        dl2.setProperty("vl", "vl2"); // test empty property
+
+        mergingView.merge(noEquipNetwork);
+        final Line line = mergingView.getLine("dl1 + dl2");
+        final MergedLine mergedLine = (MergedLine) line;
+        assertEquals("dl", mergedLine.getName());
+
+        assertTrue(mergedLine.hasProperty());
+        assertTrue(mergedLine.hasProperty("ucteCode"));
+        assertEquals(3, mergedLine.getPropertyNames().size());
+        mergedLine.setProperty("key", "value");
+        assertEquals("value", mergedLine.getProperty("key"));
+        assertEquals("defaultValue", mergedLine.getProperty("noKey", "defaultValue"));
+    }
+
+    @Test
     public void testListener() {
-        createDanglingLine(mergingView, "vl1", "testListener1", "testListener1", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "testListenerCode", "busA");
+        mergingView.merge(noEquipNetwork);
+        createDanglingLine(mergingView, "vl1", "testListener1", "testListener2", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "testListenerCode", "busA");
         assertNotNull(mergingView.getDanglingLine("testListener1"));
         assertEquals(1, mergingView.getDanglingLineCount());
         assertEquals(0, mergingView.getLineCount());
-        createDanglingLine(noEquipNetwork, "vl2", "testListener2", "testListener2", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "testListenerCode", "busB");
+        createDanglingLine(noEquipNetwork, "vl2", "testListener2", "testListener1", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "testListenerCode", "busB");
         assertNull(mergingView.getDanglingLine("testListener1"));
         assertNull(mergingView.getDanglingLine("testListener2"));
         assertEquals(0, mergingView.getDanglingLineCount());
         assertEquals(1, mergingView.getLineCount());
+        final Line line = mergingView.getLine("testListener1 + testListener2");
+        final MergedLine mergedLine = (MergedLine) line;
+        assertEquals("testListener1 + testListener2", mergedLine.getName());
+
     }
 
     private static DanglingLine createDanglingLine(Network n, String vlId, String id, String name, double r, double x, double g, double b,
                                             double p0, double q0, String ucteCode, String busId) {
-        return n.getVoltageLevel(vlId).newDanglingLine()
-                                          .setId(id)
-                                          .setName(name)
-                                          .setR(r)
-                                          .setX(x)
-                                          .setG(g)
-                                          .setB(b)
-                                          .setP0(p0)
-                                          .setQ0(q0)
-                                          .setUcteXnodeCode(ucteCode)
-                                          .setBus(busId)
-                                          .setConnectableBus(busId)
-                                          .setEnsureIdUnicity(false)
-                                      .add();
+
+        DanglingLine dl = n.getVoltageLevel(vlId).newDanglingLine()
+                                                     .setId(id)
+                                                     .setName(name)
+                                                     .setR(r)
+                                                     .setX(x)
+                                                     .setG(g)
+                                                     .setB(b)
+                                                     .setP0(p0)
+                                                     .setQ0(q0)
+                                                     .setUcteXnodeCode(ucteCode)
+                                                     .setBus(busId)
+                                                     .setConnectableBus(busId)
+                                                     .setEnsureIdUnicity(false)
+                                                 .add();
+        return dl;
     }
 }
