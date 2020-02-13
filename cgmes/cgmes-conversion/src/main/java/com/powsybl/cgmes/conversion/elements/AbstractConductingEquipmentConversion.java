@@ -206,7 +206,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected Substation substation() {
-        String sid = context.cgmes().substation(terminals[0].t);
+        String sid = context.cgmes().substation(terminals[0].t, context.nodeBreaker());
         return context.network().getSubstation(context.substationIdMapping().iidm(sid));
     }
 

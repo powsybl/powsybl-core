@@ -72,8 +72,8 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public String substation(CgmesTerminal t) {
-        CgmesContainer c = container(t, true);
+    public String substation(CgmesTerminal t, boolean nodeBreaker) {
+        CgmesContainer c = container(t, nodeBreaker);
         if (c == null) {
             return null;
         }

@@ -547,7 +547,7 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public String substation(CgmesTerminal t) {
+    public String substation(CgmesTerminal t, boolean nodeBreaker) {
         return null;
     }
 
