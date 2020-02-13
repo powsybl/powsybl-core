@@ -98,12 +98,12 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     private boolean splitShuntAdmittanceXfmr2;
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
-                              boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn, boolean splitShuntAdmittance) {
+                              boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn, boolean splitShuntAdmittanceXfmr2) {
         this.voltageInitMode = voltageInitMode;
         this.transformerVoltageControlOn = transformerVoltageControlOn;
         this.noGeneratorReactiveLimits = noGeneratorReactiveLimits;
         this.phaseShifterRegulationOn = phaseShifterRegulationOn;
-        this.splitShuntAdmittanceXfmr2 = splitShuntAdmittance;
+        this.splitShuntAdmittanceXfmr2 = splitShuntAdmittanceXfmr2;
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn) {
@@ -167,8 +167,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return splitShuntAdmittanceXfmr2;
     }
 
-    public LoadFlowParameters setSplitShuntAdmittanceXfmr2(boolean splitShuntAdmittance) {
-        this.splitShuntAdmittanceXfmr2 = splitShuntAdmittance;
+    public LoadFlowParameters setSplitShuntAdmittanceXfmr2(boolean splitShuntAdmittanceXfmr2) {
+        this.splitShuntAdmittanceXfmr2 = splitShuntAdmittanceXfmr2;
         return this;
     }
 
