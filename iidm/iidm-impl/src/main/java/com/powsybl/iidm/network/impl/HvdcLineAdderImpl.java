@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.HvdcLineAdder;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.Objects;
