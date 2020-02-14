@@ -61,10 +61,10 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
             writePhaseTapChanger("phaseTapChanger", ptc, context);
         }
         if (twt.getCurrentLimits1() != null) {
-            writeCurrentLimits(1, twt.getCurrentLimits1(), context.getWriter());
+            writeCurrentLimits(1, twt.getCurrentLimits1(), context.getWriter(), context.getVersion());
         }
         if (twt.getCurrentLimits2() != null) {
-            writeCurrentLimits(2, twt.getCurrentLimits2(), context.getWriter());
+            writeCurrentLimits(2, twt.getCurrentLimits2(), context.getWriter(), context.getVersion());
         }
     }
 

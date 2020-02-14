@@ -11,8 +11,6 @@ import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -77,7 +75,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeNodeBreakerTopology(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeStartElement(IIDM_URI, NODE_BREAKER_TOPOLOGY_ELEMENT_NAME);
+        context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), NODE_BREAKER_TOPOLOGY_ELEMENT_NAME);
         context.getWriter().writeAttribute("nodeCount", Integer.toString(vl.getNodeBreakerView().getNodeCount()));
         for (BusbarSection bs : vl.getNodeBreakerView().getBusbarSections()) {
             BusbarSectionXml.INSTANCE.write(bs, null, context);
@@ -96,7 +94,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeBusBreakerTopology(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeStartElement(IIDM_URI, BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
+        context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
         for (Bus b : vl.getBusBreakerView().getBuses()) {
             if (!context.getFilter().test(b)) {
                 continue;
@@ -115,7 +113,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeBusBranchTopology(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeStartElement(IIDM_URI, BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
+        context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
         for (Bus b : vl.getBusView().getBuses()) {
             if (!context.getFilter().test(b)) {
                 continue;

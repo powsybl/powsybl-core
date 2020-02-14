@@ -8,6 +8,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.impl.ReactiveCapabilityCurveImpl.PointImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

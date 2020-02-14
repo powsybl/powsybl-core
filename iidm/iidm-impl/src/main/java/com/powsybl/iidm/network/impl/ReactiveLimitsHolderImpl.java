@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ReactiveLimits;
+import com.powsybl.iidm.network.ValidationException;
 
 import java.util.Objects;
 

@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
@@ -14,47 +15,16 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.test.LoadFooExt;
 
 import javax.xml.stream.XMLStreamException;
-import java.io.InputStream;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class LoadFooXmlSerializer implements ExtensionXmlSerializer<Load, LoadFooExt> {
+public class LoadFooXmlSerializer extends AbstractExtensionXmlSerializer<Load, LoadFooExt> {
 
-    @Override
-    public String getExtensionName() {
-        return "loadFoo";
-    }
-
-    @Override
-    public String getCategoryName() {
-        return "network";
-    }
-
-    @Override
-    public Class<? super LoadFooExt> getExtensionClass() {
-        return LoadFooExt.class;
-    }
-
-    @Override
-    public boolean hasSubElements() {
-        return false;
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/loadFoo.xsd");
-    }
-
-    @Override
-    public String getNamespaceUri() {
-        return "http://www.itesla_project.eu/schema/iidm/ext/loadfoo/1_0";
-    }
-
-    @Override
-    public String getNamespacePrefix() {
-        return "foo";
+    public LoadFooXmlSerializer() {
+        super("loadFoo", "network", LoadFooExt.class, false, "loadFoo.xsd",
+                "http://www.itesla_project.eu/schema/iidm/ext/loadfoo/1_0", "foo");
     }
 
     @Override
