@@ -36,7 +36,7 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
     private double q = 3.72344;
     private double v = 380;
     private double nominalV = 380;
-    private double reactivePowerSetpoint = 3.72344;
+    private double reactivePowerSetpoint = -3.72344;
     private final double voltageSetpoint = 380;
     private RegulationMode regulationMode = RegulationMode.REACTIVE_POWER;
     private final double bMin = -.01;
