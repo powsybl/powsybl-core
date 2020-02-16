@@ -179,7 +179,7 @@ public final class StaticVarCompensatorsValidation {
         // if regulationMode = VOLTAGE then
         // either q is equal to Qmax = -bMin * V * V and V is lower than voltageSetpoint
         // or q is equal to Qmin = -bMax * V * V and V is higher than voltageSetpoint
-        // or V at the connected bus is equal to voltageSetpoint and q is bounded within [Qmin=-bMax*V*V, Qmax=-bMin*V*V]
+        // or V at the controlled bus is equal to voltageSetpoint and q is bounded within [Qmin=-bMax*V*V, Qmax=-bMin*V*V]
         if (regulationMode == RegulationMode.VOLTAGE
             && (ValidationUtils.areNaN(config, qMin, qMax, vControlled, voltageSetpoint)
                 || (vControlled < voltageSetpoint - config.getThreshold() && Math.abs(q - qMax) > config.getThreshold())
