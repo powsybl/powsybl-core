@@ -195,23 +195,4 @@ public final class StaticVarCompensatorsValidation {
         }
         return validated;
     }
-
-    private static double closestBound(double bound1, double bound2, double value) {
-        if (Double.isNaN(value)) {
-            return Double.NaN;
-        }
-        if (Double.isNaN(bound1)) {
-            return bound2;
-        }
-        if (Double.isNaN(bound2)) {
-            return bound1;
-        }
-        return Math.abs(value - bound1) < Math.abs(value - bound2) ? bound1 : bound2;
-    }
-
-    private static double getReactivePowerSetpoint(double reactivePowerSetpoint, double qMin, double qMax, ValidationConfig config) {
-        return ValidationUtils.boundedWithin(qMin, qMax, reactivePowerSetpoint, config.getThreshold())
-               ? reactivePowerSetpoint
-               : closestBound(qMin, qMax, reactivePowerSetpoint);
-    }
 }
