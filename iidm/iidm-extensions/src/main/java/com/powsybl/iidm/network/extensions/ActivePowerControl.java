@@ -6,52 +6,25 @@
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.Generator;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
 
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
-public class ActivePowerControl<T extends Injection> extends AbstractExtension<T> {
-
-    private boolean participate;
-
-    private float droop;
-
-    public ActivePowerControl(Generator generator, boolean participate, float droop) {
-        this((T) generator, participate, droop);
-    }
-
-    public ActivePowerControl(Battery battery, boolean participate, float droop) {
-        this((T) battery, participate, droop);
-    }
-
-    ActivePowerControl(T component, boolean participate, float droop) {
-        super(component);
-        this.participate = participate;
-        this.droop = droop;
-    }
+public interface ActivePowerControl<I extends Injection<I>> extends Extension<I> {
 
     @Override
-    public String getName() {
+    default String getName() {
         return "activePowerControl";
     }
 
-    public boolean isParticipate() {
-        return participate;
-    }
+    public boolean isParticipate();
 
-    public void setParticipate(boolean participate) {
-        this.participate = participate;
-    }
+    public void setParticipate(boolean participate);
 
-    public float getDroop() {
-        return droop;
-    }
+    public float getDroop();
 
-    public void setDroop(float droop) {
-        this.droop = droop;
-    }
+    public void setDroop(float droop);
+
 }
