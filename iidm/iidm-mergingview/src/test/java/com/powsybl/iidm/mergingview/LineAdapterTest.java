@@ -40,7 +40,8 @@ public class LineAdapterTest {
 
     @Test
     public void testSetterGetter() {
-        final Line lineRef = networkRef.getLine("NHV1_NHV2_1");
+        final String id = "NHV1_NHV2_1";
+        final Line lineRef = networkRef.getLine(id);
         final Line lineAdapted = mergingView.getLine(lineRef.getId());
         // setter / getter
         assertTrue(lineAdapted instanceof LineAdapter);
@@ -101,8 +102,8 @@ public class LineAdapterTest {
         assertEquals(lineRef.getType(), lineAdapted.getType());
         assertEquals(lineRef.getTerminals().size(), lineAdapted.getTerminals().size());
 
-        // Not implemented yet !
-        TestUtil.notImplemented(lineAdapted::remove);
+        lineAdapted.remove();
+        assertNull(mergingView.getLine(id));
     }
 
     @Test
@@ -153,5 +154,11 @@ public class LineAdapterTest {
                                                       .setConnectableBus1("busA")
                                                       .setConnectableBus2("NBAT")
                                                   .add();
+        assertNotNull(lineOnBothNetwork);
+        assertSame(lineOnBothNetwork, mergingView.getLine("lineOnBothNetworkId"));
+
+        // Remove
+        lineOnBothNetwork.remove();
+        assertNull(mergingView.getLine("lineOnBothNetworkId"));
     }
 }

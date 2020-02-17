@@ -27,11 +27,12 @@ public class ShuntCompensatorAdapterTest {
 
     @Test
     public void testSetterGetter() {
-        Network networkRef = HvdcTestNetwork.createLcc();
+        final String id = "C1_Filter1";
+        final Network networkRef = HvdcTestNetwork.createLcc();
         mergingView.merge(networkRef);
 
-        final ShuntCompensator shuntCExpected = networkRef.getShuntCompensator("C1_Filter1");
-        final ShuntCompensator shuntCActual   = mergingView.getShuntCompensator("C1_Filter1");
+        final ShuntCompensator shuntCExpected = networkRef.getShuntCompensator(id);
+        final ShuntCompensator shuntCActual   = mergingView.getShuntCompensator(id);
         assertNotNull(shuntCActual);
         assertTrue(shuntCActual instanceof ShuntCompensatorAdapter);
         assertSame(mergingView, shuntCActual.getNetwork());
@@ -58,7 +59,8 @@ public class ShuntCompensatorAdapterTest {
         assertTrue(shuntCActual.setbPerSection(++b) instanceof ShuntCompensatorAdapter);
         assertEquals(shuntCExpected.getCurrentB(), shuntCActual.getCurrentB(), 0.0d);
 
-        // Not implemented yet !
-        TestUtil.notImplemented(shuntCActual::remove);
+        shuntCActual.remove();
+        assertNull(mergingView.getShuntCompensator(id));
+        assertNull(networkRef.getShuntCompensator(id));
     }
 }

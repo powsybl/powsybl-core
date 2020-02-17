@@ -186,11 +186,8 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
         return getDelegate().getRatedU0();
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
     public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().remove();
     }
 }

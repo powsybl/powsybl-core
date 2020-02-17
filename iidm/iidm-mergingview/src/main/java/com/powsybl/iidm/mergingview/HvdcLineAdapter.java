@@ -86,11 +86,8 @@ public class HvdcLineAdapter extends AbstractIdentifiableAdapter<HvdcLine> imple
         return this;
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
     public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().remove();
     }
 }

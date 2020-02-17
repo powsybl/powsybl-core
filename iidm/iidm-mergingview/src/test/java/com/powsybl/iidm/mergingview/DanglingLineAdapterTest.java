@@ -102,7 +102,7 @@ public class DanglingLineAdapterTest {
     @Test
     public void mergedDanglingLine() {
         mergingView.merge(noEquipNetwork);
-
+        final String id = "dl1 + dl2";
         final DanglingLine dl1 = createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", "busA");
         assertNotNull(mergingView.getDanglingLine("dl1"));
         assertEquals(1, mergingView.getDanglingLineCount());
@@ -115,9 +115,9 @@ public class DanglingLineAdapterTest {
         // Check access to MergedLine
         assertEquals(1, mergingView.getLineCount());
         assertEquals(1, mergingView.getBranchCount());
-        final Line line = mergingView.getLine("dl1 + dl2");
-        assertSame(line, mergingView.getIdentifiable("dl1 + dl2"));
-        assertSame(line, mergingView.getBranch("dl1 + dl2"));
+        final Line line = mergingView.getLine(id);
+        assertSame(line, mergingView.getIdentifiable(id));
+        assertSame(line, mergingView.getBranch(id));
         assertSame(line, mergingView.getIdentifiable("dl1"));
         assertSame(line, mergingView.getIdentifiable("dl2"));
         assertTrue(line instanceof MergedLine);
@@ -156,8 +156,8 @@ public class DanglingLineAdapterTest {
         assertSame(currentLimits2, mergedLine.getCurrentLimits2());
         assertSame(currentLimits1, mergedLine.getCurrentLimits(Branch.Side.ONE));
         assertSame(currentLimits2, mergedLine.getCurrentLimits(Branch.Side.TWO));
-        assertEquals("dl1 + dl2", mergedLine.getId());
-        assertEquals("dl1 + dl2", mergedLine.getName());
+        assertEquals(id, mergedLine.getId());
+        assertEquals(id, mergedLine.getName());
         assertSame(mergedLine, mergedLine.setR(1.0d));
         assertEquals(dl1.getR() + dl2.getR(), mergedLine.getR(), 0.0d);
         assertSame(mergedLine, mergedLine.setX(2.0d));
@@ -196,7 +196,6 @@ public class DanglingLineAdapterTest {
         });
 
         // Not implemented yet !
-        TestUtil.notImplemented(mergedLine::remove);
         TestUtil.notImplemented(() -> mergedLine.addExtension(null, null));
         TestUtil.notImplemented(() -> mergedLine.getExtension(null));
         TestUtil.notImplemented(() -> mergedLine.getExtensionByName(""));
@@ -207,6 +206,22 @@ public class DanglingLineAdapterTest {
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("No terminal connected to voltage level invalid");
         mergedLine.getTerminal("invalid");
+    }
+
+    @Test
+    public void removeMergedLine() {
+        mergingView.merge(noEquipNetwork);
+        final String id = "dl1 + dl2";
+        final DanglingLine dl1 = createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", "busA");
+        final DanglingLine dl2 = createDanglingLine(mergingView, "vl2", "dl2", "dl2", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", "busB");
+        final Line line = mergingView.getLine(id);
+        // MergedLine
+        final MergedLine mergedLine = (MergedLine) line;
+
+        mergedLine.remove();
+        assertNull(mergingView.getLine(id));
+        assertNull(mergingView.getDanglingLine("dl1"));
+        assertNull(mergingView.getDanglingLine("dl2"));
     }
 
     @Test

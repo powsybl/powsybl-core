@@ -109,7 +109,7 @@ public class GeneratorAdapterTest {
         assertTrue(generator.setRatedS(++ratedS) instanceof GeneratorAdapter);
         assertEquals(ratedS, generator.getRatedS(), delta);
 
-        // Not implemented yet !
-        TestUtil.notImplemented(generator::remove);
+        generator.remove();
+        assertNull(mergingView.getGenerator(id));
     }
 }

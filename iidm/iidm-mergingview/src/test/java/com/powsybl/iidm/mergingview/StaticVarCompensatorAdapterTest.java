@@ -27,11 +27,12 @@ public class StaticVarCompensatorAdapterTest {
 
     @Test
     public void testSetterGetter() {
+        final String id = "SVC2";
         Network networkRef = SvcTestCaseFactory.createWithRemoteRegulatingTerminal();
         mergingView.merge(networkRef);
 
-        final StaticVarCompensator svcExpected = networkRef.getStaticVarCompensator("SVC2");
-        final StaticVarCompensator svcActual = mergingView.getStaticVarCompensator("SVC2");
+        final StaticVarCompensator svcExpected = networkRef.getStaticVarCompensator(id);
+        final StaticVarCompensator svcActual = mergingView.getStaticVarCompensator(id);
         assertNotNull(svcActual);
         assertTrue(svcActual instanceof StaticVarCompensatorAdapter);
         assertSame(mergingView, svcActual.getNetwork());
@@ -74,7 +75,8 @@ public class StaticVarCompensatorAdapterTest {
         assertTrue(svcActual.setRegulatingTerminal(mergingView.getLine("L1").getTerminal1()) instanceof StaticVarCompensatorAdapter);
         assertEquals(svcActual.getRegulatingTerminal(), mergingView.getLine("L1").getTerminal1());
 
-        // Not implemented yet !
-        TestUtil.notImplemented(svcActual::remove);
+        svcActual.remove();
+        assertNull(mergingView.getStaticVarCompensator(id));
+        assertNull(networkRef.getStaticVarCompensator(id));
     }
 }

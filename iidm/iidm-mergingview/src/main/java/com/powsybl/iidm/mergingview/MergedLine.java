@@ -415,14 +415,15 @@ class MergedLine implements Line {
         return (String) properties.setProperty(key, value);
     }
 
+    @Override
+    public void remove() {
+        dl1.remove();
+        dl2.remove();
+    }
+
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
-    @Override
-    public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
-    }
-
     @Override
     public <E extends Extension<Line>> void addExtension(final Class<? super E> type, final E extension) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;

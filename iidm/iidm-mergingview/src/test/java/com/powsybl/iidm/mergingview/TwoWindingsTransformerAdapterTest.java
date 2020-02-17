@@ -28,6 +28,7 @@ public class TwoWindingsTransformerAdapterTest {
 
     @Test
     public void testSetterGetter() {
+        final String id = "twt";
         final Substation substation = mergingView.getSubstation("sub");
 
         // adder
@@ -46,7 +47,7 @@ public class TwoWindingsTransformerAdapterTest {
                     .setConnectableBus2("busB")
                 .add();
         assertNotNull(twt);
-        assertSame(mergingView.getTwoWindingsTransformer("twt"), mergingView.getBranch("twt"));
+        assertSame(mergingView.getTwoWindingsTransformer(id), mergingView.getBranch(id));
         assertTrue(twt instanceof TwoWindingsTransformerAdapter);
         assertSame(mergingView, twt.getNetwork());
 
@@ -183,7 +184,8 @@ public class TwoWindingsTransformerAdapterTest {
         assertNull(twt.checkTemporaryLimits2());
         assertNull(twt.checkTemporaryLimits2(0.9f));
 
-        // Not implemented yet !
-        TestUtil.notImplemented(twt::remove);
+        // Remove
+        twt.remove();
+        assertNull(mergingView.getTwoWindingsTransformer(id));
     }
 }

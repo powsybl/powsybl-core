@@ -28,7 +28,8 @@ public class ThreeWindingsTransformerAdapterTest {
 
     @Test
     public void testSetterGetter() {
-        final ThreeWindingsTransformer twt = mergingView.getThreeWindingsTransformer("3WT");
+        final String id = "3WT";
+        final ThreeWindingsTransformer twt = mergingView.getThreeWindingsTransformer(id);
         assertNotNull(twt);
         assertTrue(twt instanceof ThreeWindingsTransformerAdapter);
         assertSame(mergingView, twt.getNetwork());
@@ -132,7 +133,13 @@ public class ThreeWindingsTransformerAdapterTest {
         assertNotNull(leg3);
         assertTrue(leg3 instanceof AbstractAdapter);
 
-        // Not implemented yet !
-        TestUtil.notImplemented(twt::remove);
+        // Remove
+        leg1.getRatioTapChanger().remove();
+        assertNull(leg1.getRatioTapChanger());
+        leg2.getPhaseTapChanger().remove();
+        assertNull(leg2.getPhaseTapChanger());
+
+        twt.remove();
+        assertNull(mergingView.getThreeWindingsTransformer(id));
     }
 }

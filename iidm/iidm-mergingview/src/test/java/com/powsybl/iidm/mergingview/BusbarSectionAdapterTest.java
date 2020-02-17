@@ -27,11 +27,12 @@ public class BusbarSectionAdapterTest {
 
     @Test
     public void testSetterGetter() {
+        final String id = "voltageLevel1BusbarSection1";
         final Network networkRef = NetworkTest1Factory.create();
         mergingView.merge(networkRef);
 
-        final BusbarSection expectedSJB = networkRef.getBusbarSection("voltageLevel1BusbarSection1");
-        final BusbarSection actualSJB   = mergingView.getBusbarSection("voltageLevel1BusbarSection1");
+        final BusbarSection expectedSJB = networkRef.getBusbarSection(id);
+        final BusbarSection actualSJB   = mergingView.getBusbarSection(id);
         assertNotNull(actualSJB);
         assertTrue(actualSJB instanceof BusbarSectionAdapter);
         assertSame(mergingView, actualSJB.getNetwork());
@@ -46,7 +47,7 @@ public class BusbarSectionAdapterTest {
         assertEquals(expectedSJB.getV(), actualSJB.getV(), 0.0d);
         assertEquals(expectedSJB.getAngle(), actualSJB.getAngle(), 0.0d);
 
-        // Not implemented yet !
-        TestUtil.notImplemented(actualSJB::remove);
+        actualSJB.remove();
+        assertNull(mergingView.getBusbarSection(id));
     }
 }

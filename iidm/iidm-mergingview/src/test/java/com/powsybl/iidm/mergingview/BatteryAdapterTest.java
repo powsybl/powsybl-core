@@ -28,10 +28,11 @@ public class BatteryAdapterTest {
     @Test
     public void testSetterGetter() {
         double delta = 0.0;
+        final String id = "BATEST";
         final VoltageLevel vlbat = mergingView.getVoltageLevel("vl1");
         final Battery battery = vlbat.newBattery()
-                                         .setId("BATEST")
-                                         .setName("BATEST")
+                                         .setId(id)
+                                         .setName(id)
                                          .setBus("busA")
                                          .setMaxP(9999.99d)
                                          .setMinP(-9999.99d)
@@ -40,11 +41,11 @@ public class BatteryAdapterTest {
                                          .setEnsureIdUnicity(true)
                                      .add();
 
-        assertSame(battery, mergingView.getBattery("BATEST"));
+        assertSame(battery, mergingView.getBattery(id));
         assertEquals(ConnectableType.BATTERY, battery.getType());
         assertTrue(battery instanceof BatteryAdapter);
         assertSame(mergingView, battery.getNetwork());
-        assertEquals("BATEST", battery.getId());
+        assertEquals(id, battery.getId());
         assertEquals(15.0d, battery.getP0(), delta);
         assertNotNull(battery.setP0(0.0d));
         assertEquals(0.0d, battery.getP0(), delta);
@@ -90,7 +91,7 @@ public class BatteryAdapterTest {
             assertNotNull(b);
         });
 
-        // Not implemented yet !
-        TestUtil.notImplemented(battery::remove);
+        battery.remove();
+        assertNull(mergingView.getBattery(id));
     }
 }

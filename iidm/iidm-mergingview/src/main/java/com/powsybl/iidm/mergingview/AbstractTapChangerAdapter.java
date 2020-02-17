@@ -101,11 +101,8 @@ abstract class AbstractTapChangerAdapter<P extends TapChanger<P, S>, S extends T
         return (P) this;
     }
 
-    // ------------------------------
-    // Not implemented methods ------
-    // ------------------------------
     @Override
     public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().remove();
     }
 }

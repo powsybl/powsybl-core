@@ -272,7 +272,11 @@ class MergingViewIndex {
     }
 
     boolean isMerged(final DanglingLine dl) {
-        return !mergedLineCached.containsKey(dl.getUcteXnodeCode());
+        boolean isMerged = false;
+        if (dl != null) {
+            isMerged = !mergedLineCached.containsKey(dl.getUcteXnodeCode());
+        }
+        return isMerged;
     }
 
     Collection<DanglingLine> getDanglingLines() {
@@ -466,5 +470,23 @@ class MergingViewIndex {
                     .filter(filter)
                     .findFirst()
                     .orElse(null);
+    }
+
+    void remove(final Identifiable toRemove) {
+        Objects.requireNonNull(toRemove, "Identifiable to remove is null");
+
+        if (toRemove instanceof DanglingLine) {
+            // if DanglingLine, check if MergedLine need to be removed
+            mergedLineCached.remove(((DanglingLine) toRemove).getUcteXnodeCode());
+        }
+        identifiableCached.remove(toRemove);
+    }
+
+    void remove(final PhaseTapChanger toRemove) {
+        ptcCached.remove(toRemove);
+    }
+
+    void remove(final RatioTapChanger toRemove) {
+        rtcCached.remove(toRemove);
     }
 }

@@ -42,11 +42,8 @@ abstract class AbstractInjectionAdapter<I extends Injection<I>> extends Abstract
         return getDelegate().getType();
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
     public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().remove();
     }
 }

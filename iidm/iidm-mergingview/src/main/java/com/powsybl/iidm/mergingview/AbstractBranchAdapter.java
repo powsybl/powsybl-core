@@ -164,11 +164,8 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractIdenti
         return getDelegate().getType();
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
     public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().remove();
     }
 }

@@ -36,8 +36,9 @@ public class HvdcLineAdapterTest {
 
     @Test
     public void baseTests() {
-        final HvdcLine expectedLine = networkRef.getHvdcLine("L");
-        final HvdcLine lineAdapted = mergingView.getHvdcLine("L");
+        final String id = "L";
+        final HvdcLine expectedLine = networkRef.getHvdcLine(id);
+        final HvdcLine lineAdapted = mergingView.getHvdcLine(id);
         assertTrue(lineAdapted instanceof HvdcLineAdapter);
         assertSame(mergingView, lineAdapted.getNetwork());
 
@@ -73,8 +74,8 @@ public class HvdcLineAdapterTest {
         assertSame(lineAdapted.getConverterStation2().getId(), expectedLine.getConverterStation2().getId());
         assertSame(lineAdapted.getConverterStation2(), lineAdapted.getConverterStation(HvdcLine.Side.TWO));
 
-        // Test not implemented !
-        TestUtil.notImplemented(lineAdapted::remove);
+        lineAdapted.remove();
+        assertNull(mergingView.getHvdcLine(id));
     }
 
     @Test

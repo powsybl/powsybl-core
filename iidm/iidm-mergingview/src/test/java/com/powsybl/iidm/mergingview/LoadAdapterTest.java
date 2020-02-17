@@ -26,11 +26,12 @@ public class LoadAdapterTest {
 
     @Test
     public void testSetterGetter() {
+        final String id = "CE";
         Network networkRef = FictitiousSwitchFactory.create();
         mergingView.merge(networkRef);
 
-        final Load loadExpected = networkRef.getLoad("CE");
-        final Load loadActual = mergingView.getLoad("CE");
+        final Load loadExpected = networkRef.getLoad(id);
+        final Load loadActual = mergingView.getLoad(id);
         assertNotNull(loadActual);
         assertTrue(loadActual instanceof LoadAdapter);
         assertSame(mergingView, loadActual.getNetwork());
@@ -55,7 +56,7 @@ public class LoadAdapterTest {
         assertTrue(loadActual.setQ0(++q0) instanceof LoadAdapter);
         assertEquals(q0, loadActual.getQ0(), 0.0d);
 
-        // Not implemented yet !
-        TestUtil.notImplemented(loadActual::remove);
+        loadActual.remove();
+        assertNull(mergingView.getLoad(id));
     }
 }

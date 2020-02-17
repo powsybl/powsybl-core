@@ -64,11 +64,8 @@ abstract class AbstractHvdcConverterStationAdapter<I extends HvdcConverterStatio
         return getDelegate().getLossFactor();
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
     public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        getDelegate().remove();
     }
 }
