@@ -12,6 +12,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>com.powsybl</groupId>
+        <artifactId>powsybl-parent</artifactId>
+        <version>1</version>
+        <relativePath/>
+    </parent>
     <groupId>com.powsybl</groupId>
     <artifactId>powsybl-core</artifactId>
     <version>3.2.0-SNAPSHOT</version>
@@ -20,13 +26,6 @@
     <name>powsybl</name>
     <description>A framework to build power system oriented software</description>
     <url>https://www.powsybl.org</url>
-
-    <licenses>
-        <license>
-            <name>Mozilla Public License, Version 2.0</name>
-            <url>https://www.mozilla.org/en-US/MPL/2.0/</url>
-        </license>
-    </licenses>
 
     <scm>
         <connection>scm:git:https://github.com/powsybl/powsybl-core.git</connection>
@@ -80,59 +79,25 @@
     </modules>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- javac's source and target arguments accept both 1.8 and 8, but release accepts only 8 -->
-        <java.version>8</java.version>
-
-        <maven.assembly.version>3.1.0</maven.assembly.version>
-        <maven.buildnumber.version>1.4</maven.buildnumber.version>
-        <maven.checkstyle.version>3.1.0</maven.checkstyle.version>
-        <maven.clean.version>3.1.0</maven.clean.version>
-        <maven.compiler.version>3.8.0</maven.compiler.version>
-        <maven.coveralls.version>4.3.0</maven.coveralls.version>
-        <maven.dependency.version>3.1.1</maven.dependency.version>
-        <maven.deploy.version>2.8.2</maven.deploy.version>
-        <maven.enforcer.version>3.0.0-M2</maven.enforcer.version>
-        <maven.findbugs.version>3.0.5</maven.findbugs.version>
-        <maven.gmavenplus.version>1.6.1</maven.gmavenplus.version>
-        <maven.gpg.version>1.6</maven.gpg.version>
-        <maven.install.version>2.5.2</maven.install.version>
-        <maven.jacoco.version>0.8.2</maven.jacoco.version>
-        <maven.jar.version>3.1.0</maven.jar.version>
-        <maven.javadoc.version>3.0.1</maven.javadoc.version>
-        <maven.plugin.version>3.6.0</maven.plugin.version>
-        <maven.resources.version>3.1.0</maven.resources.version>
-        <maven.shade.version>3.1.1</maven.shade.version>
-        <maven.site.version>3.7.1</maven.site.version>
-        <maven.source.version>3.0.1</maven.source.version>
-        <maven.surefire.version>2.22.1</maven.surefire.version>
-        <maven.templating.version>1.0.0</maven.templating.version>
-        <maven.versions.version>2.7</maven.versions.version>
-
         <sonar.coverage.jacoco.xmlReportPaths>
             ../distribution-core/target/site/jacoco-aggregate/jacoco.xml,
             ../../distribution-core/target/site/jacoco-aggregate/jacoco.xml,
             ../../../distribution-core/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
 
-        <sonar.exclusions>
-            **/generated/**/*
-        </sonar.exclusions>
-
         <assertj.version>3.11.0</assertj.version>
         <autoservice.version>1.0-rc2</autoservice.version>
         <blazegraph.version>2.1.4</blazegraph.version>
         <commonscli.version>1.3.1</commonscli.version>
-        <commonscompress.version>1.17</commonscompress.version>
+        <commonscompress.version>1.19</commonscompress.version>
         <commonsio.version>2.5</commonsio.version>
         <commonslang3.version>3.4</commonslang3.version>
         <commonsmath3.version>3.6.1</commonsmath3.version>
         <gdata.version>1.41.1_1</gdata.version>
-        <graphvizjava.version>0.8.4</graphvizjava.version>
+        <graphviz-builder.version>1.0.11</graphviz-builder.version>
         <groovy.version>2.5.8</groovy.version>
         <guava.version>20.0</guava.version>
-        <jackson.version>2.8.11.3</jackson.version>
+        <jackson.version>2.10.1</jackson.version>
         <jama.version>1.0.3</jama.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
         <jaxb-runtime.version>2.4.0-b180830.0438</jaxb-runtime.version>
@@ -163,284 +128,7 @@
         <powsyblmathnative.version>1.0.1</powsyblmathnative.version>
     </properties>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${maven.findbugs.version}</version>
-                <configuration>
-                    <findbugsXmlOutput>true</findbugsXmlOutput>
-                    <xmlOutput>true</xmlOutput>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>versions-maven-plugin</artifactId>
-                <version>${maven.versions.version}</version>
-                <configuration>
-                    <generateBackupPoms>false</generateBackupPoms>
-                </configuration>
-            </plugin>
-        </plugins>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-clean-plugin</artifactId>
-                    <version>${maven.clean.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${maven.compiler.version}</version>
-                    <configuration>
-                        <source>${java.version}</source>
-                        <target>${java.version}</target>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-install-plugin</artifactId>
-                    <version>${maven.install.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <version>${maven.site.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${maven.surefire.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>${maven.resources.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>${maven.assembly.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>${maven.dependency.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                    <version>${maven.deploy.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>${maven.jar.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>${maven.javadoc.version}</version>
-                    <configuration>
-                        <additionalOptions>-Xdoclint:none</additionalOptions>
-                        <docfilessubdirs>true</docfilessubdirs>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>buildnumber-maven-plugin</artifactId>
-                    <version>${maven.buildnumber.version}</version>
-                    <executions>
-                        <execution>
-                            <phase>validate</phase>
-                            <goals>
-                                <goal>create</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <doCheck>false</doCheck>
-                        <doUpdate>false</doUpdate>
-                        <revisionOnScmFailure>UNKNOWN_BUILD</revisionOnScmFailure>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>templating-maven-plugin</artifactId>
-                    <version>${maven.templating.version}</version>
-                    <executions>
-                        <execution>
-                            <id>filter-src</id>
-                            <goals>
-                                <goal>filter-sources</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.eluder.coveralls</groupId>
-                    <artifactId>coveralls-maven-plugin</artifactId>
-                    <version>${maven.coveralls.version}</version>
-                    <configuration>
-                        <!-- groovy source roots need to be manually added -->
-                        <sourceDirectories>
-                            <sourceDirectory>${project.basedir}/action/action-dsl/src/main/groovy</sourceDirectory>
-                            <sourceDirectory>${project.basedir}/action/action-util/src/main/groovy</sourceDirectory>
-                            <sourceDirectory>${project.basedir}/contingency/contingency-dsl/src/main/groovy</sourceDirectory>
-                            <sourceDirectory>${project.basedir}/dsl/src/main/groovy</sourceDirectory>
-                            <sourceDirectory>${project.basedir}/iidm/iidm-api/src/main/groovy</sourceDirectory>
-                            <sourceDirectory>${project.basedir}/loadflow/loadflow-scripting/src/main/groovy</sourceDirectory>
-                            <sourceDirectory>${project.basedir}/scripting/src/main/groovy</sourceDirectory>
-                            <sourceDirectory>${project.basedir}/time-series/time-series-api/src/main/groovy</sourceDirectory>
-                        </sourceDirectories>
-                        <jacocoReports>
-                            <jacocoReport>${project.basedir}/distribution-core/target/site/jacoco-aggregate/jacoco.xml</jacocoReport>
-                        </jacocoReports>
-                    </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>javax.xml.bind</groupId>
-                            <artifactId>jaxb-api</artifactId>
-                            <version>${jaxb-api.version}</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.gmavenplus</groupId>
-                    <artifactId>gmavenplus-plugin</artifactId>
-                    <version>${maven.gmavenplus.version}</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>addSources</goal>
-                                <goal>addTestSources</goal>
-                                <goal>generateStubs</goal>
-                                <goal>compile</goal>
-                                <goal>generateTestStubs</goal>
-                                <goal>compileTests</goal>
-                                <goal>removeStubs</goal>
-                                <goal>removeTestStubs</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
-
     <profiles>
-        <profile>
-            <id>java9+</id>
-            <activation>
-                <jdk>[9,)</jdk>
-            </activation>
-            <build>
-                <!-- This is merged in the main configuration but plexus-compiler-javac is smart enough
-                  to ignore the source and target arguments when the release argument is supplied. -->
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-compiler-plugin</artifactId>
-                            <configuration>
-                                <release>${java.version}</release>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-        <profile>
-            <id>jacoco</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>${maven.jacoco.version}</version>
-                        <configuration>
-                            <excludes>
-                                <!-- exclude generated classes -->
-                                <exclude>**/generated/**/*</exclude>
-                            </excludes>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>prepare-agent</id>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>report</id>
-                                <goals>
-                                    <goal>report</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>checks</id>
-            <activation>
-                <property>
-                    <name>powsyblchecks</name>
-                    <value>!false</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-checkstyle-plugin</artifactId>
-                        <version>${maven.checkstyle.version}</version>
-                        <executions>
-                            <execution>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                                <configuration>
-                                    <configLocation>checkstyle.xml</configLocation>
-                                    <consoleOutput>true</consoleOutput>
-                                    <failsOnError>true</failsOnError>
-                                    <excludes>**/generated/**/*</excludes>
-                                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-enforcer-plugin</artifactId>
-                        <version>${maven.enforcer.version}</version>
-                        <executions>
-                            <execution>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>enforce</goal>
-                                </goals>
-                                <configuration>
-                                    <fail>false</fail>
-                                    <rules>
-                                        <requireMavenVersion>
-                                            <version>${maven.core.version}</version>
-                                        </requireMavenVersion>
-                                    </rules>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
         <profile>
             <id>release</id>
             <activation>
@@ -450,29 +138,8 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>${maven.gpg.version}</version>
-                        <executions>
-                            <execution>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${maven.javadoc.version}</version>
                         <executions>
-                            <execution>
-                                <id>javadoc-jar</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
                             <execution>
                                 <id>javadoc-aggregate-jar</id>
                                 <phase>package</phase>
@@ -483,32 +150,8 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>${maven.source.version}</version>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                    <goal>test-jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
                 </plugins>
             </build>
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-                </snapshotRepository>
-                <repository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
-            </distributionManagement>
         </profile>
     </profiles>
 
@@ -566,11 +209,6 @@
                 <version>${jama.version}</version>
             </dependency>
             <dependency>
-                <groupId>guru.nidi</groupId>
-                <artifactId>graphviz-java</artifactId>
-                <version>${graphvizjava.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>${jaxb-api.version}</version>
@@ -612,6 +250,11 @@
                 <version>${trove4j.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.anarres.graphviz</groupId>
+                <artifactId>graphviz-builder</artifactId>
+                <version>${graphviz-builder.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>${commonscompress.version}</version>
@@ -626,10 +269,11 @@
                 <artifactId>commons-math3</artifactId>
                 <version>${commonsmath3.version}</version>
             </dependency>
+            <!-- we avoid the apache-jena-libs dependency because it
+            adds a spurious file jena-libs.pom to our distribution -->
             <dependency>
                 <groupId>org.apache.jena</groupId>
-                <artifactId>apache-jena-libs</artifactId>
-                <type>pom</type>
+                <artifactId>jena-tdb</artifactId>
                 <version>${jena.version}</version>
                 <exclusions>
                     <exclusion>

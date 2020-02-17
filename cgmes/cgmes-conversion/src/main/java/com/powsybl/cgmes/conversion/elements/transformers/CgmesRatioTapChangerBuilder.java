@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements.transformers;
 import java.util.Comparator;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -26,7 +27,7 @@ public class CgmesRatioTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
 
     @Override
     protected void addRegulationData() {
-        String regulatingControlId = context.regulatingControlMapping().forTransformers().getRegulatingControlId(p);
+        String regulatingControlId = RegulatingControlMappingForTransformers.getRegulatingControlId(p);
         tapChanger.setId(p.getId(CgmesNames.RATIO_TAP_CHANGER))
                 .setRegulating(context.regulatingControlMapping().forTransformers().getRegulating(regulatingControlId))
                 .setRegulatingControlId(regulatingControlId)
