@@ -131,9 +131,6 @@ public class LineAdapterTest {
 
     @Test
     public void adderFromBothNetworkTests() {
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Not implemented exception");
-
         mergingView.merge(NoEquipmentNetworkFactory.create());
         // adder line with both voltage level in different network
         final Line lineOnBothNetwork = mergingView.newLine()
@@ -153,5 +150,29 @@ public class LineAdapterTest {
                                                       .setConnectableBus1("busA")
                                                       .setConnectableBus2("NBAT")
                                                   .add();
+        assertNotNull(lineOnBothNetwork);
+        assertEquals(lineOnBothNetwork, mergingView.getLine("lineOnBothNetworkId"));
+
+        // Exception(s)
+        thrown.expect(PowsyblException.class);
+        thrown.expectMessage("The network already contains an object with the id 'lineOnBothNetworkId'");
+        mergingView.newLine()
+                       .setId("lineOnBothNetworkId")
+                       .setVoltageLevel1("vl1")
+                       .setVoltageLevel2("VLBAT")
+                   .add();
+    }
+
+    @Test
+    public void addLineWithoutIdTests() {
+        mergingView.merge(NoEquipmentNetworkFactory.create());
+
+        // Exception(s)
+        thrown.expect(PowsyblException.class);
+        thrown.expectMessage("LineAdderAdapter id is not set");
+        mergingView.newLine()
+                       .setVoltageLevel1("vl1")
+                       .setVoltageLevel2("VLBAT")
+                   .add();
     }
 }

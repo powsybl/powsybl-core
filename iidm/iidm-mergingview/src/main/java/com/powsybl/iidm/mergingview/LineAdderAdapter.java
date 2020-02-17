@@ -8,6 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Identifiables;
 
 import java.util.Objects;
 
@@ -15,6 +16,10 @@ import java.util.Objects;
  * @author Thomas Adam <tadam at silicom.fr>
  */
 class LineAdderAdapter implements LineAdder {
+
+    private static final String DL1_SUFFIX = "_1";
+
+    private static final String DL2_SUFFIX = "_2";
 
     private final MergingViewIndex index;
 
@@ -52,22 +57,81 @@ class LineAdderAdapter implements LineAdder {
 
     private double b2 = Double.NaN;
 
+    private double p0 = Double.NaN;
+
+    private double q0 = Double.NaN;
+
+    private String ucteXnodeCode;
+
     LineAdderAdapter(final MergingViewIndex index) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
     }
 
     @Override
     public Line add() {
-        Line newLine = null;
+        Line newLine;
         final Network n1 = checkAndGetNetwork1();
         final Network n2 = checkAndGetNetwork2();
         if (n1 == n2) {
             newLine = index.getLine(addLine(n1));
         } else {
+            // FIXME : how to compute P0, Q0 & ucteXnodeCode ?
+            ucteXnodeCode = "";
+            p0 = 0.0;
+            q0 = 0.0;
+
+            // Taking into account ensureIdUnicity
+            checkAndSetUniqueId();
             // Creation of 2 dangling lines
-            throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+            // -- first dangling line
+            final MergingView view = index.getView();
+            final VoltageLevel vl1 = view.getVoltageLevel(voltageLevelId1);
+            addDanglingLine(vl1, id + DL1_SUFFIX, connectableBus1, bus1, node1, g1, b1);
+            // -- second dangling line
+            final VoltageLevel vl2 = view.getVoltageLevel(voltageLevelId2);
+            addDanglingLine(vl2, id + DL2_SUFFIX, connectableBus2, bus2, node2, g2, b2);
+            // MergedLine.id is forced here
+            // Return the merged line as the new line
+            newLine = index.getMergedLineByCode(ucteXnodeCode)
+                           .setId(id);
         }
         return newLine;
+    }
+
+    private void checkAndSetUniqueId() {
+        if (this.id == null) {
+            throw new PowsyblException(getClass().getSimpleName() + " id is not set");
+        }
+        if (ensureIdUnicity) {
+            setId(Identifiables.getUniqueId(id, index::contains));
+        } else {
+            // Check Id is unique in all merging view
+            if (index.contains(id)) {
+                throw new PowsyblException("The network already contains an object with the id '"
+                        + id
+                        + "'");
+            }
+        }
+    }
+
+    private DanglingLine addDanglingLine(final VoltageLevel vl, final String id, final String connectableBus, final String bus, final Integer node, final double g, final double b) {
+        DanglingLineAdder adder = vl.newDanglingLine()
+                    .setId(id)
+                    .setName(name)
+                    .setP0(p0)
+                    .setQ0(q0)
+                    .setR(r)
+                    .setX(x)
+                    .setG(g)
+                    .setB(b)
+                    .setUcteXnodeCode(ucteXnodeCode)
+                    .setBus(bus)
+                    .setConnectableBus(connectableBus);
+        if (node != null) {
+            adder.setNode(node);
+        }
+
+        return adder.add();
     }
 
     private Line addLine(final Network network) {

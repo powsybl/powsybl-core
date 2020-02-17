@@ -672,7 +672,7 @@ public final class MergingView implements Network {
     @Override
     public DanglingLine getDanglingLine(final String id) {
         final DanglingLine dl = index.get(n -> n.getDanglingLine(id), index::getDanglingLine);
-        return index.isMerged(dl) ? dl : null;
+        return !index.isMerged(dl) ? dl : null;
     }
 
     // HvdcLines
