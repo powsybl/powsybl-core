@@ -27,9 +27,9 @@ public class RegulatingControlMappingForGenerators {
 
     private static final String QPERCENT = "qPercent";
 
-    public RegulatingControlMappingForGenerators(RegulatingControlMapping parent) {
+    RegulatingControlMappingForGenerators(RegulatingControlMapping parent, Context context) {
         this.parent = parent;
-        this.context = parent.context();
+        this.context = context;
         mapping = new HashMap<>();
     }
 
@@ -38,7 +38,7 @@ public class RegulatingControlMappingForGenerators {
     }
 
     public void add(String generatorId, PropertyBag sm) {
-        String cgmesRegulatingControlId = parent.getRegulatingControlId(sm);
+        String cgmesRegulatingControlId = RegulatingControlMapping.getRegulatingControlId(sm);
         double qPercent = sm.asDouble(QPERCENT);
 
         if (mapping.containsKey(generatorId)) {
@@ -87,19 +87,16 @@ public class RegulatingControlMappingForGenerators {
     }
 
     private boolean setRegulatingControlVoltage(String controlId,
-        RegulatingControl control, double qPercent, Generator gen) {
+                                                RegulatingControl control, double qPercent, Generator gen) {
 
-        // Take default terminal if it has not been defined
-        Terminal terminal = getRegulatingTerminal(gen, control.cgmesTerminal, control.topologicalNode);
-        if (terminal == null) {
-            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.topologicalNode));
-            return false;
-        }
+        // Take default terminal if it has not been defined in CGMES file (it is never null)
+        Terminal terminal = parent.getRegulatingTerminal(gen, control.cgmesTerminal, control.topologicalNode);
 
         double targetV;
         if (control.targetValue <= 0.0 || Double.isNaN(control.targetValue)) {
             targetV = terminal.getVoltageLevel().getNominalV();
-            context.fixed(controlId, "Invalid value for regulating target value", control.targetValue, targetV);
+            terminal = gen.getTerminal();
+            context.fixed(controlId, "Invalid value for regulating target value. Regulation considered as local.", control.targetValue, targetV);
         } else {
             targetV = control.targetValue;
         }
@@ -120,25 +117,6 @@ public class RegulatingControlMappingForGenerators {
         }
 
         return true;
-    }
-
-    private Terminal getRegulatingTerminal(Generator gen, String cgmesTerminal, String topologicalNode) {
-        // Will take default terminal ONLY if it has not been explicitly defined in
-        // CGMES
-        Terminal terminal = getDefaultTerminal(gen);
-        if (cgmesTerminal != null || topologicalNode != null) {
-            terminal = parent.findRegulatingTerminal(cgmesTerminal, topologicalNode);
-            // If terminal is null here it means that no IIDM terminal has been found
-            // from the initial CGMES terminal or topological node,
-            // we will consider the regulating control invalid,
-            // in this case we will not use the default terminal
-            // (no localization of regulating controls)
-        }
-        return terminal;
-    }
-
-    private static Terminal getDefaultTerminal(Generator gen) {
-        return gen.getTerminal();
     }
 
     private static class CgmesRegulatingControlForGenerator {

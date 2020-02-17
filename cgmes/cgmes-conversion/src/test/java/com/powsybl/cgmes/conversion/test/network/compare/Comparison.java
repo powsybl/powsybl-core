@@ -258,6 +258,9 @@ public class Comparison {
         compare("regulationMode",
                 expected.getRegulationMode(),
                 actual.getRegulationMode());
+        sameIdentifier("regulationTerminal",
+                expected.getRegulatingTerminal().getBusBreakerView().getBus(),
+                actual.getRegulatingTerminal().getBusBreakerView().getBus());
     }
 
     private void compareGenerators(Generator expected, Generator actual) {
@@ -680,7 +683,7 @@ public class Comparison {
         String context,
         Identifiable expected,
         Identifiable actual) {
-        boolean sameIdentifier = true;
+        boolean sameIdentifier;
         if (expected == null) {
             sameIdentifier = actual == null;
         } else if (actual == null) {
