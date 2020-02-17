@@ -123,15 +123,6 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         this(DEFAULT_VOLTAGE_INIT_MODE, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPECIFIC_COMPATIBILITY);
     }
 
-    protected LoadFlowParameters(LoadFlowParameters other) {
-        Objects.requireNonNull(other);
-        voltageInitMode = other.voltageInitMode;
-        transformerVoltageControlOn = other.transformerVoltageControlOn;
-        noGeneratorReactiveLimits = other.noGeneratorReactiveLimits;
-        phaseShifterRegulationOn = other.phaseShifterRegulationOn;
-        specificCompatibility = other.specificCompatibility;
-    }
-
     public VoltageInitMode getVoltageInitMode() {
         return voltageInitMode;
     }
@@ -185,6 +176,11 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 "specificCompatibility", specificCompatibility);
     }
 
+    /**
+     * This copy methods uses json serializer mechanism to rebuild all extensions in the this parameters.
+     * If an extension's serializer not found via {@code @AutoService}, the extension would be lost in copied.
+     * @return a new copied instance and with original's extensions found based-on json serializer.
+     */
     public LoadFlowParameters copy() {
         byte[] bytes = writeInMemory();
         try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes)) {
