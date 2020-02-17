@@ -238,7 +238,9 @@ public final class NetworkXml {
                     .orElseGet(() -> networkExtensionXmlSerializer.getNamespaceUri(networkExtensionXmlSerializer.getVersion(networkVersion)));
 
         }
-        return extensionXmlSerializer.getNamespaceUri();
+        return options.getExtensionVersion(extensionXmlSerializer.getExtensionName())
+                .map(extensionXmlSerializer::getNamespaceUri)
+                .orElseGet(extensionXmlSerializer::getNamespaceUri);
     }
 
     static Map<String, Set<String>> getIdentifiablesPerExtensionType(Network n) {
