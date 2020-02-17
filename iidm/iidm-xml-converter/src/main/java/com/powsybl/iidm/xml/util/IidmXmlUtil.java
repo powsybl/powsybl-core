@@ -147,6 +147,24 @@ public final class IidmXmlUtil {
     }
 
     /**
+     * Run a given runnable if the context's IIDM-XML version equals or is more recent than a given minimum IIDM-XML version.
+     */
+    public static <C extends AbstractNetworkXmlContext> void runFromMinimumVersion(IidmXmlVersion minVersion, C context, Runnable runnable) {
+        if (context.getVersion().compareTo(minVersion) >= 0) {
+            runnable.run();
+        }
+    }
+
+    /**
+     * Run a given runnable if the context's IIDM-XML version equals or is older than a given maximum IIDM-XML version.
+     */
+    public static <C extends AbstractNetworkXmlContext> void runUntilMaximumVersion(IidmXmlVersion maxVersion, C context, Runnable runnable) {
+        if (context.getVersion().compareTo(maxVersion) <= 0) {
+            runnable.run();
+        }
+    }
+
+    /**
      * Write a <b>mandatory</b> double attribute from a given minimum IIDM-XML version.<br>
      * If the context's IIDM-XML version is strictly older than the given minimum IIDM-XML version, the attribute's value <b>should be default</b>
      * (else an exception is thrown).
