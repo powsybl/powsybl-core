@@ -13,7 +13,7 @@ import com.powsybl.cgmes.model.CgmesModel;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class CgmesDc {
+public class CgmesDcConversion {
     private final CgmesModel cgmesModel;
 
     // En cada isla guardar
@@ -23,7 +23,7 @@ public class CgmesDc {
     // AcNodes
     // Transformers
     // DcGrounds (No se considera incluirlo)
-    public CgmesDc(CgmesModel cgmes) {
+    public CgmesDcConversion(CgmesModel cgmes) {
         this.cgmesModel = cgmes;
 
         Adjacency adjacency = new Adjacency(cgmesModel);

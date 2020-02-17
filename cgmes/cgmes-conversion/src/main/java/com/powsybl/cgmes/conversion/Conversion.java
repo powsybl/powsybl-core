@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
-import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDc;
+import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.NewThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.NewTwoWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
@@ -186,7 +186,7 @@ public class Conversion {
         }
 
         // newDC
-        CgmesDc cgmesDc = new CgmesDc(cgmes);
+        CgmesDcConversion cgmesDc = new CgmesDcConversion(cgmes);
         // endDC
 
         // DC Converters must be converted first
