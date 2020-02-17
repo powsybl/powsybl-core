@@ -34,6 +34,13 @@ public final class IidmXmlUtil {
         }
     }
 
+    public static <C extends AbstractNetworkXmlContext> void assertMaximumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion maxVersion, C context) {
+        if (context.getVersion().compareTo(maxVersion) > 0) {
+            throw new PowsyblException(rootElementName + "." + elementName + " is " + type.message + " for IIDM-XML version " + context.getVersion().toString(".") + ". " +
+                    "IIDM-XML version should be <= " + maxVersion.toString("."));
+        }
+    }
+
     /**
      * Assert that the context's IIDM-XML version equals or is more recent than a given IIDM-XML version.
      * If not, throw an exception with a given type of error message.
@@ -110,6 +117,33 @@ public final class IidmXmlUtil {
             assertStrictMaximumVersion(rootElementName, attributeName, ErrorMessage.MANDATORY, minVersion, context);
         }
         return attributeStr == null ? defaultValue : Double.valueOf(attributeStr);
+    }
+
+    /**
+     * Read a double attribute which is <b>optional</b> until a given maximum IIDM-XML version. <br>
+     * If the context's IIDM-XML version is strictly more recent thant the given maximum IIDM-XML version, the attribute <b>should not exist</b> (else an exception is thrown).
+     * In this case, return a given defaultValue. <br>
+     * If the context's IIDM-XML version equals or is older than the given maximum IIDM-XML version, the attribute <b>can exist</b>. If it exists, return the read double value.
+     * Else, return a given defaultValue.
+     */
+    public static double readOptionalDoubleAttributeUntilMaximumVersion(String rootElementName, String attributeName, double defaultValue, IidmXmlVersion maxVersion, NetworkXmlReaderContext context) {
+        String attributeStr = context.getReader().getAttributeValue(null, attributeName);
+        if (attributeStr != null) {
+            assertMaximumVersion(rootElementName, attributeName, ErrorMessage.NOT_SUPPORTED, maxVersion, context);
+            return Double.valueOf(attributeStr);
+        }
+        return defaultValue;
+    }
+
+    /**
+     * Read a double attribute which is <b>optional</b> until a given maximum IIDM-XML version. <br>
+     * If the context's IIDM-XML version is strictly more recent thant the given maximum IIDM-XML version, the attribute <b>should not exist</b> (else an exception is thrown).
+     * In this case, return a given Double.NaN <br>
+     * If the context's IIDM-XML version equals or is older than the given maximum IIDM-XML version, the attribute <b>can exist</b>. If it exists, return the read double value.
+     * Else, return Double.NaN
+     */
+    public static double readOptionalDoubleAttributeUntilMaximumVersion(String rootElementName, String attributeName, IidmXmlVersion maxVersion, NetworkXmlReaderContext context) {
+        return readOptionalDoubleAttributeUntilMaximumVersion(rootElementName, attributeName, Double.NaN, maxVersion, context);
     }
 
     /**
