@@ -212,7 +212,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
-        }, NetworkXml::read, getVersionDir(CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial-example1-with-loadMockExt-1_1.xml");
+        }, NetworkXml::read, getVersionDir(IidmXmlVersion.V_1_1) + "eurostag-tutorial-example1-with-loadMockExt-1_1.xml");
     }
 
     @Test
@@ -220,13 +220,13 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         exception.expect(PowsyblException.class);
         exception.expectMessage("IIDM-XML version of network (1.1)"
                 + " is not compatible with the loadMock extension's namespace URI.");
-        NetworkXml.read(getClass().getResourceAsStream("/V1_1/eurostag-tutorial-example1-with-bad-loadMockExt.xml"));
+        NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_1) + "eurostag-tutorial-example1-with-bad-loadMockExt.xml"));
     }
 
     @Test
     public void testThrowErrorUnsupportedExtensionVersion() {
         exception.expect(PowsyblException.class);
         exception.expectMessage("IIDM-XML version of network (1.1) is not supported by the loadQux extension's XML serializer.");
-        NetworkXml.read(getClass().getResourceAsStream("/V1_1/eurostag-tutorial-example1-with-bad-loadQuxExt.xml"));
+        NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_1) + "eurostag-tutorial-example1-with-bad-loadQuxExt.xml"));
     }
 }
