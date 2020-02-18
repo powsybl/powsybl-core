@@ -175,23 +175,13 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     }
 
-    private final class InternalConnectionAdderImpl extends AbstractIdentifiableAdder<InternalConnectionAdderImpl> implements NodeBreakerView.InternalConnectionAdder {
+    private final class InternalConnectionAdderImpl implements NodeBreakerView.InternalConnectionAdder {
 
         private Integer node1;
 
         private Integer node2;
 
         private InternalConnectionAdderImpl() {
-        }
-
-        @Override
-        protected NetworkImpl getNetwork() {
-            return NodeBreakerVoltageLevel.this.getNetwork();
-        }
-
-        @Override
-        protected String getTypeDescription() {
-            return "InternalConnection";
         }
 
         @Override
@@ -209,10 +199,10 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         @Override
         public void add() {
             if (node1 == null) {
-                throw new ValidationException(this, "first connection node is not set");
+                throw new ValidationException(NodeBreakerVoltageLevel.this, "first connection node is not set");
             }
             if (node2 == null) {
-                throw new ValidationException(this, "second connection node is not set");
+                throw new ValidationException(NodeBreakerVoltageLevel.this, "second connection node is not set");
             }
 
             graph.addEdge(node1, node2, null);

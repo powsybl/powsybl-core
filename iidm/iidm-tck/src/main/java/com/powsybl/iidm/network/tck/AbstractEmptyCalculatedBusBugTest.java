@@ -58,7 +58,6 @@ public abstract class AbstractEmptyCalculatedBusBugTest {
         vl.getNodeBreakerView()
                 .setNodeCount(3)
                 .newInternalConnection()
-                .setId("IC")
                 .setNode1(1)
                 .setNode2(2)
                 .add();
