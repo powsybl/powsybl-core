@@ -125,7 +125,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
                                                     return null;
                                                 }, computationManager.getExecutor())
-                                                .thenComposeAsync(aVoid -> LoadFlow.runAsync(network, postContStateId, computationManager, postContParameters), computationManager.getExecutor())
+                                                .thenCompose(aVoid -> LoadFlow.runAsync(network, postContStateId, computationManager, postContParameters))
                                                 .handleAsync((lfResult, throwable) -> {
                                                     network.getVariantManager().setWorkingVariant(postContStateId);
                                                     synchronized (resultBuilder) {
@@ -153,7 +153,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                     }
 
                     return future
-                        .thenApplyAsync(aVoid -> {
+                        .thenApply(aVoid -> {
                             network.getVariantManager().setWorkingVariant(workingStateId);
                             return resultBuilder.build();
                         });
