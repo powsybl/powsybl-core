@@ -116,14 +116,12 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                                     }, computationManager.getExecutor())
                                     .thenCompose(postContStateId -> {
                                         return CompletableFuture
-                                                .supplyAsync(() -> {
+                                                .runAsync(() -> {
                                                     network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, postContStateId, true);
                                                     network.getVariantManager().setWorkingVariant(postContStateId);
 
                                                     // apply the contingency on the network
                                                     contingency.toTask().modify(network, computationManager);
-
-                                                    return null;
                                                 }, computationManager.getExecutor())
                                                 .thenCompose(aVoid -> LoadFlow.runAsync(network, postContStateId, computationManager, postContParameters))
                                                 .handleAsync((lfResult, throwable) -> {
