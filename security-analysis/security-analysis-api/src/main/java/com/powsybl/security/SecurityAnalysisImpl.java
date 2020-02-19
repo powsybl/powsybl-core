@@ -124,7 +124,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                                                     contingency.toTask().modify(network, computationManager);
                                                 }, computationManager.getExecutor())
                                                 .thenCompose(aVoid -> LoadFlow.runAsync(network, postContStateId, computationManager, postContParameters))
-                                                .handleAsync((lfResult, throwable) -> {
+                                                .<Void>thenApplyAsync(lfResult -> { // not sure why Void is needed here to infer types..
                                                     network.getVariantManager().setWorkingVariant(postContStateId);
                                                     synchronized (resultBuilder) {
                                                         resultBuilder.contingency(contingency)
@@ -132,9 +132,11 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                                                         violationDetector.checkAll(contingency, network, resultBuilder::addViolation);
                                                         resultBuilder.endContingency();
                                                     }
-                                                    queue.add(postContStateId); //Will always work because we are putting back in the queue the id we took
                                                     return null;
-                                                }, computationManager.getExecutor());
+                                                }, computationManager.getExecutor())
+                                                .whenComplete((aVoid, throwable) ->
+                                                    queue.add(postContStateId) //Will always work because we are putting back in the queue the id we took
+                                                );
                                     });
                         }
                         future = CompletableFuture.allOf(futures).whenComplete((aVoid, throwable) -> {
