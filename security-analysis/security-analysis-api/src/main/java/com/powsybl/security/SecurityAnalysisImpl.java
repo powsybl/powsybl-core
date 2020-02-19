@@ -148,8 +148,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                     } else {
                         resultBuilder.preContingency()
                                 .setComputationOk(false)
-                                .endPreContingency()
-                                .build();
+                                .endPreContingency();
                         future = CompletableFuture.completedFuture(null);
                     }
 
