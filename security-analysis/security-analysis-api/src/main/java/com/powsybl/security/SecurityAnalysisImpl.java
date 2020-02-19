@@ -128,10 +128,12 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                                                 .thenComposeAsync(aVoid -> LoadFlow.runAsync(network, postContStateId, computationManager, postContParameters), computationManager.getExecutor())
                                                 .handleAsync((lfResult, throwable) -> {
                                                     network.getVariantManager().setWorkingVariant(postContStateId);
-                                                    resultBuilder.contingency(contingency)
-                                                            .setComputationOk(lfResult.isOk());
-                                                    violationDetector.checkAll(contingency, network, resultBuilder::addViolation);
-                                                    resultBuilder.endContingency();
+                                                    synchronized (resultBuilder) {
+                                                        resultBuilder.contingency(contingency)
+                                                                .setComputationOk(lfResult.isOk());
+                                                        violationDetector.checkAll(contingency, network, resultBuilder::addViolation);
+                                                        resultBuilder.endContingency();
+                                                    }
                                                     queue.add(postContStateId); //Will always work because we are putting back in the queue the id we took
                                                     return null;
                                                 }, computationManager.getExecutor());
