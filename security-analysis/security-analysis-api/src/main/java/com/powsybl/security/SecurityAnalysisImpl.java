@@ -74,6 +74,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
         // start post contingency LF from pre-contingency state variables
         LoadFlowParameters postContParameters = loadFlowParameters.copy().setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES);
 
+        boolean previousMultiThreadAcces = network.getVariantManager().isVariantMultiThreadAccessAllowed();
         network.getVariantManager().allowVariantMultiThreadAccess(true);
 
         return LoadFlow.runAsync(network, workingStateId, computationManager, loadFlowParameters) // run base load flow
@@ -139,12 +140,13 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                                                 }, computationManager.getExecutor());
                                     });
                         }
-                        future = CompletableFuture.allOf(futures).whenComplete((aVoid, throwable) ->
+                        future = CompletableFuture.allOf(futures).whenComplete((aVoid, throwable) -> {
                             //We clean up after the computation.
                             //Note that this is only executed when all the futures complete (normally or exceptionally),
                             //so it will fail if the exception is generated in the few lines outside of the future.
-                            variantIds.stream().forEach(network.getVariantManager()::removeVariant)
-                        );
+                            variantIds.stream().forEach(network.getVariantManager()::removeVariant);
+                            network.getVariantManager().allowVariantMultiThreadAccess(previousMultiThreadAcces);
+                        });
                     } else {
                         resultBuilder.preContingency()
                                 .setComputationOk(false)
