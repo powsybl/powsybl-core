@@ -22,6 +22,12 @@
     <name>Load-flow Scripting</name>
     <description>Use loadflow API in scripts</description>
 
+    <properties>
+        <groovydoc.classifier>javadoc</groovydoc.classifier>
+        <groovydoc.groovyDocJavaSources>true</groovydoc.groovyDocJavaSources>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
