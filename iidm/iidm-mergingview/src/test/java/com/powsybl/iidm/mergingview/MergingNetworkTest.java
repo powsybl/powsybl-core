@@ -195,9 +195,6 @@ public class MergingNetworkTest {
         // Not implemented yet !
         // Lines
         TestUtil.notImplemented(mergingView::newTieLine);
-        // Listeners
-        TestUtil.notImplemented(() -> mergingView.addListener(null));
-        TestUtil.notImplemented(() -> mergingView.removeListener(null));
     }
 
     @Test

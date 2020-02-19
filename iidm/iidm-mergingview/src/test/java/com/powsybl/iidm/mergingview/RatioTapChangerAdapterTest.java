@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
 
@@ -17,12 +18,14 @@ import static org.junit.Assert.*;
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class RatioTapChangerAdapterTest {
+    private Network network;
     private MergingView mergingView;
 
     @Before
     public void setup() {
         mergingView = MergingView.create("RatioTapChangerAdapterTest", "iidm");
-        mergingView.merge(NoEquipmentNetworkFactory.create());
+        network = NoEquipmentNetworkFactory.create();
+        mergingView.merge(network);
 
         final Substation substation = mergingView.getSubstation("sub");
         substation.newTwoWindingsTransformer()
@@ -43,7 +46,8 @@ public class RatioTapChangerAdapterTest {
 
     @Test
     public void testSetterGetter() {
-        final TwoWindingsTransformer twt = mergingView.getTwoWindingsTransformer("twt");
+        final String id = "twt";
+        final TwoWindingsTransformer twt = mergingView.getTwoWindingsTransformer(id);
 
         // adder
         final RatioTapChanger ratioTapChanger = twt.newRatioTapChanger()
@@ -125,7 +129,17 @@ public class RatioTapChangerAdapterTest {
         step.setRho(stepRho);
         assertEquals(stepRho, step.getRho(), 0.0);
 
+        // Install listener
+        final NetworkListener listener = Mockito.mock(MergingNetworkListener.class);
+        mergingView.addListener(listener);
+        // Remove
+        final TwoWindingsTransformer twtToRemove = network.getTwoWindingsTransformer(id);
+        final RatioTapChanger rtcToRemoved = twtToRemove.getRatioTapChanger();
         ratioTapChanger.remove();
         assertNull(twt.getRatioTapChanger());
+        Mockito.verify(listener, Mockito.times(1)).onUpdate(twtToRemove, "ratioTapChanger", rtcToRemoved, null);
+        Mockito.verify(listener, Mockito.never()).onRemoval(Mockito.any(Identifiable.class));
+        // Uninstall listener
+        mergingView.removeListener(listener);
     }
 }

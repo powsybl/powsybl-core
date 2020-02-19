@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
 
@@ -17,13 +18,15 @@ import static org.junit.Assert.*;
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class PhaseTapChangerAdapterTest {
+    private Network network;
     private MergingView mergingView;
     private Terminal terminal;
 
     @Before
     public void setup() {
         mergingView = MergingView.create("PhaseTapChangerAdapterTest", "iidm");
-        mergingView.merge(NoEquipmentNetworkFactory.create());
+        network = NoEquipmentNetworkFactory.create();
+        mergingView.merge(network);
 
         final Substation substation = mergingView.getSubstation("sub");
         final TwoWindingsTransformer twt = substation.newTwoWindingsTransformer()
@@ -45,7 +48,8 @@ public class PhaseTapChangerAdapterTest {
 
     @Test
     public void testSetterGetter() {
-        final TwoWindingsTransformer twt = mergingView.getTwoWindingsTransformer("twt");
+        final String id = "twt";
+        final TwoWindingsTransformer twt = mergingView.getTwoWindingsTransformer(id);
 
         // adder
         final PhaseTapChanger phaseTapChanger = twt.newPhaseTapChanger()
@@ -104,7 +108,17 @@ public class PhaseTapChangerAdapterTest {
         phaseTapChanger.setLowTapPosition(lowTapPosition);
         assertEquals(lowTapPosition, phaseTapChanger.getLowTapPosition());
 
+        // Install listener
+        final NetworkListener listener = Mockito.mock(MergingNetworkListener.class);
+        mergingView.addListener(listener);
+        // Remove
+        final TwoWindingsTransformer twtToRemove = network.getTwoWindingsTransformer(id);
+        final PhaseTapChanger ptcToRemoved = twtToRemove.getPhaseTapChanger();
         phaseTapChanger.remove();
         assertNull(twt.getPhaseTapChanger());
+        Mockito.verify(listener, Mockito.times(1)).onUpdate(twtToRemove, "phaseTapChanger", ptcToRemoved, null);
+        Mockito.verify(listener, Mockito.never()).onRemoval(Mockito.any(Identifiable.class));
+        // Uninstall listener
+        mergingView.removeListener(listener);
     }
 }

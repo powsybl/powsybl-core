@@ -37,10 +37,10 @@ public class MergingNetworkListener implements NetworkListener {
 
     @Override
     public void onUpdate(final Identifiable identifiable, final String attribute, final Object oldValue, final Object newValue) {
-        if (Objects.isNull(newValue)) {
-            if (attribute.contains("phaseTapChanger")) {
+        if (Objects.nonNull(oldValue) && Objects.isNull(newValue)) {
+            if (oldValue instanceof PhaseTapChanger) {
                 index.remove((PhaseTapChanger) oldValue);
-            } else if (attribute.contains("ratioTapChanger")) {
+            } else if (oldValue instanceof RatioTapChanger) {
                 index.remove((RatioTapChanger) oldValue);
             }
         }

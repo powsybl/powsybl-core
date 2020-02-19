@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
 
@@ -18,12 +19,15 @@ import static org.junit.Assert.*;
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class ThreeWindingsTransformerAdapterTest {
+
+    private Network network;
     private MergingView mergingView;
 
     @Before
     public void setup() {
         mergingView = MergingView.create("ThreeWindingsTransformerAdapterTest", "iidm");
-        mergingView.merge(ThreeWindingsTransformerNetworkFactory.create());
+        network = ThreeWindingsTransformerNetworkFactory.create();
+        mergingView.merge(network);
     }
 
     @Test
@@ -133,13 +137,28 @@ public class ThreeWindingsTransformerAdapterTest {
         assertNotNull(leg3);
         assertTrue(leg3 instanceof AbstractAdapter);
 
+        // Install listener
+        NetworkListener listener = Mockito.mock(MergingNetworkListener.class);
+        mergingView.addListener(listener);
+
         // Remove
+        ThreeWindingsTransformer twtToRemove = network.getThreeWindingsTransformer(id);
+        RatioTapChanger leg1RtcToRemove = twtToRemove.getLeg1().getRatioTapChanger();
+        PhaseTapChanger leg2PtcToRemove = twtToRemove.getLeg2().getPhaseTapChanger();
+
+        // Remove Leg1 - RatioTapChanger
         leg1.getRatioTapChanger().remove();
         assertNull(leg1.getRatioTapChanger());
+        Mockito.verify(listener, Mockito.times(1)).onUpdate(twtToRemove, "leg1.TapChanger1", leg1RtcToRemove, null);
+
+        // Remove Leg2 - PhaseTapChanger
         leg2.getPhaseTapChanger().remove();
         assertNull(leg2.getPhaseTapChanger());
+        Mockito.verify(listener, Mockito.times(1)).onUpdate(twtToRemove, "leg2.TapChanger2", leg2PtcToRemove, null);
 
+        // Remove ThreeWindingsTransformer
         twt.remove();
         assertNull(mergingView.getThreeWindingsTransformer(id));
+        Mockito.verify(listener, Mockito.times(1)).onRemoval(twtToRemove);
     }
 }

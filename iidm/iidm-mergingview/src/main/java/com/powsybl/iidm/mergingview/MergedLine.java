@@ -417,6 +417,8 @@ class MergedLine implements Line {
 
     @Override
     public void remove() {
+        // Remove this from MergingViewIndex
+        index.remove(dl1.getUcteXnodeCode());
         dl1.remove();
         dl2.remove();
     }

@@ -672,7 +672,7 @@ public final class MergingView implements Network {
     @Override
     public DanglingLine getDanglingLine(final String id) {
         final DanglingLine dl = index.get(n -> n.getDanglingLine(id), index::getDanglingLine);
-        return index.isMerged(dl) ? dl : null;
+        return index.isMerged(dl) ? null : dl;
     }
 
     // HvdcLines
@@ -741,21 +741,25 @@ public final class MergingView implements Network {
         return variantManager;
     }
 
+    @Override
+    public void addListener(final NetworkListener listener) {
+        Objects.requireNonNull(listener, "Listener is null");
+        workingNetwork.addListener(listener);
+        index.getNetworkStream().forEach(n -> n.addListener(listener));
+    }
+
+    @Override
+    public void removeListener(final NetworkListener listener) {
+        Objects.requireNonNull(listener, "Listener is null");
+        workingNetwork.removeListener(listener);
+        index.getNetworkStream().forEach(n -> n.removeListener(listener));
+    }
+
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
     @Override
     public TieLineAdder newTieLine() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void addListener(final NetworkListener listener) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
-    }
-
-    @Override
-    public void removeListener(final NetworkListener listener) {
         throw NOT_IMPLEMENTED_EXCEPTION;
     }
 }

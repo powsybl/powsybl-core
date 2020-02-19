@@ -272,18 +272,14 @@ class MergingViewIndex {
     }
 
     boolean isMerged(final DanglingLine dl) {
-        boolean isMerged = false;
-        if (dl != null) {
-            isMerged = !mergedLineCached.containsKey(dl.getUcteXnodeCode());
-        }
-        return isMerged;
+        return (dl != null) && mergedLineCached.containsKey(dl.getUcteXnodeCode());
     }
 
     Collection<DanglingLine> getDanglingLines() {
         // Search DanglingLine into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getDanglingLineStream)
-                .filter(this::isMerged)
+                .filter(dl -> !isMerged(dl))
                 .map(this::getDanglingLine)
                 .collect(Collectors.toList());
     }
@@ -480,6 +476,10 @@ class MergingViewIndex {
             mergedLineCached.remove(((DanglingLine) toRemove).getUcteXnodeCode());
         }
         identifiableCached.remove(toRemove);
+    }
+
+    void remove(final String ucteXnodeCode) {
+        mergedLineCached.remove(ucteXnodeCode);
     }
 
     void remove(final PhaseTapChanger toRemove) {
