@@ -146,8 +146,8 @@ public class XMLExporter implements Exporter {
                 if (options.getExtensions().map(extensions -> extensions.contains(extensionName)).orElse(true)) {
                     options.addExtensionVersion(extensionName, extensionVersion);
                 } else {
-                    LOGGER.warn("Version of " + extensionName + " is ignored since " + extensionName +
-                            " is not in the extensions list to export.");
+                    LOGGER.warn(String.format("Version of %s is ignored since %s is not in the extensions list to export.",
+                            extensionName, extensionName));
                 }
             }
         });

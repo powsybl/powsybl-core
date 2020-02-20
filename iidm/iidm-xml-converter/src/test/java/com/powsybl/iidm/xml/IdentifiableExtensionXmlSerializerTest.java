@@ -210,6 +210,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         properties.put("iidm.export.xml.version", "1.1");
         new XMLExporter().export(network, properties, dataSource);
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
+            assertNotNull(is);
             compareXml(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_1) + "eurostag-tutorial-example1-with-loadMockExt-1_1.xml"),
                     is);
         }
