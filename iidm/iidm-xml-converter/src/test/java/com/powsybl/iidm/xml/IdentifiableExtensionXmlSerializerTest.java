@@ -224,7 +224,15 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
     }
 
     @Test
-    public void testThrowErrorUnsupportedExtensionVersion() {
+    public void testThrowErrorUnsupportedExtensionVersion1() {
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("The version 1.1 of the loadBar extension's XML serializer is not supported.");
+        ExportOptions options = new ExportOptions().addExtensionVersion("loadBar", "1.1");
+        NetworkXml.write(MultipleExtensionsTestNetworkFactory.create(), options, tmpDir.resolve("throwError"));
+    }
+
+    @Test
+    public void testThrowErrorUnsupportedExtensionVersion2() {
         exception.expect(PowsyblException.class);
         exception.expectMessage("IIDM-XML version of network (1.1) is not supported by the loadQux extension's XML serializer.");
         NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_1) + "eurostag-tutorial-example1-with-bad-loadQuxExt.xml"));

@@ -76,7 +76,7 @@ public interface ExtensionXmlSerializer<T extends Extendable, E extends Extensio
      */
     default void checkExtensionVersionExists(String extensionVersion) {
         if (!"1.0".equals(extensionVersion)) {
-            throw new PowsyblException("The version " + extensionVersion + " of the " + getExtensionName() + " extension is not supported.");
+            throw new PowsyblException("The version " + extensionVersion + " of the " + getExtensionName() + " extension's XML serializer is not supported.");
         }
     }
 }
