@@ -11,7 +11,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
@@ -94,7 +93,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                         String hash = UUID.randomUUID().toString();
                         int workerCount = Math.min(computationManager.getResourcesStatus().getAvailableCores(), contingencies.size());
                         List<String> variantIds = IntStream.range(0, workerCount).mapToObj(i -> hash + "_" + i).collect(Collectors.toList());
-                        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantIds);
+                        network.getVariantManager().cloneVariant(workingStateId, variantIds);
 
                         BlockingQueue<String> queue = new ArrayBlockingQueue<>(variantIds.size(), false, variantIds);
                         // use completedFuture(null).thenCompose so that more of the
@@ -120,7 +119,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                                         .thenCompose(postContStateId -> {
                                             return CompletableFuture
                                                     .runAsync(() -> {
-                                                        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, postContStateId, true);
+                                                        network.getVariantManager().cloneVariant(workingStateId, postContStateId, true);
                                                         network.getVariantManager().setWorkingVariant(postContStateId);
 
                                                         // apply the contingency on the network
