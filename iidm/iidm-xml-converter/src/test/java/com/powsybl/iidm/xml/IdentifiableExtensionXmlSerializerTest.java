@@ -8,6 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
@@ -28,7 +29,8 @@ import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.*;
@@ -202,17 +204,15 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
 
     @Test
     public void testNotLatestVersionTerminalExtension() throws IOException {
-        ExportOptions options = new ExportOptions()
-                .setVersion(IidmXmlVersion.V_1_1.toString("."))
-                .addExtensionVersion("loadMock", "1.1");
         Network network = NetworkXml.read(getClass().getResourceAsStream("/V1_1/eurostag-tutorial-example1-with-loadMockExt-1_2.xml"));
-        roundTripXmlTest(network, (n, path) -> {
-            try {
-                NetworkXml.writeAndValidate(n, options, path);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }, NetworkXml::read, getVersionDir(IidmXmlVersion.V_1_1) + "eurostag-tutorial-example1-with-loadMockExt-1_1.xml");
+        MemDataSource dataSource = new MemDataSource();
+        Properties properties = new Properties();
+        properties.put("iidm.export.xml.version", "1.1");
+        new XMLExporter().export(network, properties, dataSource);
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
+            compareXml(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_1) + "eurostag-tutorial-example1-with-loadMockExt-1_1.xml"),
+                    is);
+        }
     }
 
     @Test
