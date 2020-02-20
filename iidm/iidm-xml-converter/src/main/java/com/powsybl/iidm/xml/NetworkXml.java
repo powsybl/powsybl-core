@@ -206,6 +206,7 @@ public final class NetworkXml {
         } else {
             writer.writeEmptyElement(namespaceUri, extension.getName());
         }
+        context.getExtensionVersion(extension.getName()).ifPresent(extensionXmlSerializer::checkExtensionVersionExists);
         extensionXmlSerializer.write(extension, context);
         if (extensionXmlSerializer.hasSubElements()) {
             writer.writeEndElement();

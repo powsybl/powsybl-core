@@ -93,9 +93,7 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
     }
 
     public void checkWritingCompatibility(String extensionVersion, IidmXmlVersion version) {
-        if (!namespaceUris.containsKey(extensionVersion)) {
-            throw new PowsyblException("The version " + extensionVersion + " of the " + extensionName + " extension is not supported.");
-        }
+        checkExtensionVersionExists(extensionVersion);
         checkCompatibilityNetworkVersion(version);
         if (!extensionVersions.get(version).contains(extensionVersion)) {
             throw new PowsyblException(INCOMPATIBILITY_NETWORK_VERSION_MESSAGE + version.toString(".")
@@ -113,5 +111,12 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
     @Override
     public String getNamespacePrefix() {
         return namespacePrefix;
+    }
+
+    @Override
+    public void checkExtensionVersionExists(String extensionVersion) {
+        if (!namespaceUris.containsKey(extensionVersion)) {
+            throw new PowsyblException("The version " + extensionVersion + " of the " + extensionName + " extension is not supported.");
+        }
     }
 }
