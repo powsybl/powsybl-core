@@ -97,6 +97,26 @@ class MergedLine implements Line {
         });
     }
 
+    void computeAndSetP0() {
+        double p1 = dl1.getTerminal().getP();
+        double p2 = dl2.getTerminal().getP();
+        if (!Double.isNaN(p1) && !Double.isNaN(p2)) {
+            double p0 = (p1 + p2) / 2.0d;
+            dl1.setP0(p0);
+            dl2.setP0(-p0); // sign depends of side
+        }
+    }
+
+    void computeAndSetQ0() {
+        double q1 = dl1.getTerminal().getQ();
+        double q2 = dl2.getTerminal().getQ();
+        if (!Double.isNaN(q1) && !Double.isNaN(q2)) {
+            double q0 = (q1 + q2) / 2.0d;
+            dl1.setQ0(q0);
+            dl2.setQ0(-q0); // sign depends of side
+        }
+    }
+
     @Override
     public ConnectableType getType() {
         return ConnectableType.LINE;

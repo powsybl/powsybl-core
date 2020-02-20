@@ -102,12 +102,13 @@ public class DanglingLineAdapterTest {
     @Test
     public void mergedDanglingLine() {
         mergingView.merge(noEquipNetwork);
-
-        final DanglingLine dl1 = createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", "busA");
+        double p0 = 1.0;
+        double q0 = 1.0;
+        final DanglingLine dl1 = createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busA");
         assertNotNull(mergingView.getDanglingLine("dl1"));
         assertEquals(1, mergingView.getDanglingLineCount());
         assertEquals(0, mergingView.getLineCount());
-        final DanglingLine dl2 = createDanglingLine(mergingView, "vl2", "dl2", "dl2", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", "busB");
+        final DanglingLine dl2 = createDanglingLine(mergingView, "vl2", "dl2", "dl2", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busB");
         // Check no access to Dl1 & Dl2
         assertEquals(0, mergingView.getDanglingLineCount());
         assertNull(mergingView.getDanglingLine("dl1"));
@@ -170,13 +171,31 @@ public class DanglingLineAdapterTest {
         assertEquals(dl1.getB(), mergedLine.getB1(), 0.0d);
         assertSame(mergedLine, mergedLine.setB2(6.0d));
         assertEquals(dl2.getB(), mergedLine.getB2(), 0.0d);
+        assertEquals(p0, dl1.getP0(), 0.0d);
+        assertEquals(q0, dl1.getQ0(), 0.0d);
+        assertEquals(p0, dl2.getP0(), 0.0d);
+        assertEquals(q0, dl2.getQ0(), 0.0d);
 
+        double p1 = 10.0;
+        double q1 = 20.0;
+        double p2 = 30.0;
+        double q2 = 40.0;
         final Terminal t1 = mergedLine.getTerminal("vl1");
         assertNotNull(t1);
         assertEquals(Branch.Side.ONE, mergedLine.getSide(t1));
         final Terminal t2 = mergedLine.getTerminal("vl2");
         assertNotNull(t2);
         assertEquals(Branch.Side.TWO, mergedLine.getSide(t2));
+        // Update P & Q
+        t1.setP(p1);
+        t1.setQ(q1);
+        t2.setP(p2);
+        t2.setQ(q2);
+        // Check P & Q are computed by Listener
+        assertEquals((p1 + p2) / 2.0, dl1.getP0(), 0.0d);
+        assertEquals((q1 + q2) / 2.0, dl1.getQ0(), 0.0d);
+        assertEquals(-(p1 + p2) / 2.0, dl2.getP0(), 0.0d);
+        assertEquals(-(q1 + q2) / 2.0, dl2.getQ0(), 0.0d);
 
         assertFalse(mergedLine.isOverloaded());
         assertEquals(Integer.MAX_VALUE, mergedLine.getOverloadDuration());

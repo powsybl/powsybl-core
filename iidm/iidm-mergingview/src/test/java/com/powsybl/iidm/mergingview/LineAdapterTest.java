@@ -8,6 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
@@ -131,7 +132,8 @@ public class LineAdapterTest {
 
     @Test
     public void adderFromBothNetworkTests() {
-        mergingView.merge(NoEquipmentNetworkFactory.create());
+        final Network noEquipNetwork = NoEquipmentNetworkFactory.create();
+        mergingView.merge(noEquipNetwork);
         // adder line with both voltage level in different network
         final Line lineOnBothNetwork = mergingView.newLine()
                                                       .setId("lineOnBothNetworkId")
@@ -152,6 +154,31 @@ public class LineAdapterTest {
                                                   .add();
         assertNotNull(lineOnBothNetwork);
         assertEquals(lineOnBothNetwork, mergingView.getLine("lineOnBothNetworkId"));
+
+        // Get both DanglingLine
+        final DanglingLine dl1 = noEquipNetwork.getDanglingLine("lineOnBothNetworkId_1");
+        final DanglingLine dl2 = networkRef.getDanglingLine("lineOnBothNetworkId_2");
+        assertNotNull(dl1);
+        assertNotNull(dl2);
+        // Check initial P & Q
+        assertEquals(Double.NaN, dl1.getTerminal().getP(), 0.0);
+        assertEquals(Double.NaN, dl1.getTerminal().getQ(), 0.0);
+        assertEquals(Double.NaN, dl2.getTerminal().getP(), 0.0);
+        assertEquals(Double.NaN, dl2.getTerminal().getQ(), 0.0);
+        double p1 = 10.0;
+        double q1 = 20.0;
+        double p2 = 30.0;
+        double q2 = 40.0;
+        // Update P & Q
+        dl1.getTerminal().setP(p1);
+        dl1.getTerminal().setQ(q1);
+        dl2.getTerminal().setP(p2);
+        dl2.getTerminal().setQ(q2);
+        // Check P & Q
+        assertEquals((p1 + p2) / 2.0, dl1.getP0(), 0.0d);
+        assertEquals((q1 + q2) / 2.0, dl1.getQ0(), 0.0d);
+        assertEquals(-(p1 + p2) / 2.0, dl2.getP0(), 0.0d);
+        assertEquals(-(q1 + q2) / 2.0, dl2.getQ0(), 0.0d);
 
         // Exception(s)
         thrown.expect(PowsyblException.class);

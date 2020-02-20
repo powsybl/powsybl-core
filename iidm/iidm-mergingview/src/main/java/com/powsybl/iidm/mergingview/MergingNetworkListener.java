@@ -39,4 +39,21 @@ public class MergingNetworkListener implements NetworkListener {
     public void onUpdate(final Identifiable identifiable, final String attribute, final Object oldValue, final Object newValue) {
         // Not implemented yet !
     }
+
+    @Override
+    public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+        Objects.requireNonNull(identifiable, "identifiable is null");
+        if (identifiable instanceof DanglingLine) {
+            final DanglingLine dl = ((DanglingLine) identifiable);
+            final String ucteCode = dl.getUcteXnodeCode();
+            final MergedLine mergedLine = index.getMergedLineByCode(ucteCode);
+            if (mergedLine != null) {
+                if (attribute.contains("p")) {
+                    mergedLine.computeAndSetP0();
+                } else if (attribute.contains("q")) {
+                    mergedLine.computeAndSetQ0();
+                }
+            }
+        }
+    }
 }

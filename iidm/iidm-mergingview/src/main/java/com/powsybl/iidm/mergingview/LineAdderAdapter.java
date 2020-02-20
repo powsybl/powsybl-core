@@ -75,8 +75,9 @@ class LineAdderAdapter implements LineAdder {
         if (n1 == n2) {
             newLine = index.getLine(addLine(n1));
         } else {
-            // FIXME : how to compute P0, Q0 & ucteXnodeCode ?
+            // FIXME : how to compute ucteXnodeCode ?
             ucteXnodeCode = "";
+            // P0 & Q0 are updated by MergingNetworkListener::onUpdate method
             p0 = 0.0;
             q0 = 0.0;
 
