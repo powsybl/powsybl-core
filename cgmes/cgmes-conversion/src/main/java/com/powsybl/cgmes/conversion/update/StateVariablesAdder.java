@@ -199,7 +199,6 @@ public class StateVariablesAdder {
                     tapSteps.add(p);
                 }
             });
-
         }
 
         cgmes.add(originalSVcontext, "SvTapStep", tapSteps);
@@ -252,6 +251,62 @@ public class StateVariablesAdder {
             is14 = ((CgmesModelTripleStore) cgmes).getCimNamespace().indexOf("cim14#") != -1;
         }
         return is14;
+    }
+
+    private static Map<String, String> boundaryNodesFromDanglingLines(CgmesModel cgmes, Network n) {
+        Map<String, String> nodesFromLines = new HashMap<>();
+        List<String> boundaryNodes = new ArrayList<>();
+        cgmes.boundaryNodes().forEach(node -> boundaryNodes.add(node.getId("Node")));
+
+        for (PropertyBag line : cgmes.acLineSegments()) {
+            String lineId = line.getId(CgmesNames.AC_LINE_SEGMENT);
+            // we need only acLinesSegments that were converted into DanglingLines
+            if (n.getDanglingLine(lineId) == null) {
+                continue;
+            }
+            String tpNode1 = cgmes.terminal(line.getId(CgmesNames.TERMINAL1)).topologicalNode();
+            String tpNode2 = cgmes.terminal(line.getId(CgmesNames.TERMINAL2)).topologicalNode();
+            // find not null boundary node for line
+            if (boundaryNodes.contains(tpNode1)) {
+                nodesFromLines.put(lineId, tpNode1);
+            } else if (boundaryNodes.contains(tpNode2)) {
+                nodesFromLines.put(lineId, tpNode2);
+            }
+        }
+        return nodesFromLines;
+    }
+
+    private static Complex complexVoltage(double r, double x, double g, double b,
+        double v, double angle, double p, double q) {
+        BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0,
+            new Complex(g * 0.5, b * 0.5), new Complex(g * 0.5, b * 0.5));
+        Complex v1 = ComplexUtils.polar2Complex(v, Math.toRadians(angle));
+        Complex s1 = new Complex(p, q);
+        return (s1.conjugate().divide(v1.conjugate()).subtract(adm.y11.multiply(v1))).divide(adm.y12);
+    }
+
+    private static String getTapChangerPositionName(CgmesModel cgmes) {
+        if (cgmes instanceof CgmesModelTripleStore) {
+            return (((CgmesModelTripleStore) cgmes).getCimNamespace().indexOf("cim14#") != -1)
+                ? CgmesNames.CONTINUOUS_POSITION
+                : CgmesNames.POSITION;
+        } else {
+            return CgmesNames.POSITION;
+        }
+    }
+
+    private static PropertyBag createPowerFlowProperties(CgmesModel cgmes, Terminal terminal) {
+        // TODO If we could store a terminal identifier in IIDM
+        // we would not need to obtain it querying CGMES for the related equipment
+        String cgmesTerminal = cgmes.terminalForEquipment(terminal.getConnectable().getId());
+        if (cgmesTerminal == null) {
+            return null;
+        }
+        PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
+        p.put("p", fs(terminal.getP()));
+        p.put("q", fs(terminal.getQ()));
+        p.put(CgmesNames.TERMINAL, cgmesTerminal);
+        return p;
     }
 
     // added TopologicalIsland as it was in cgmes : original topology is
@@ -332,68 +387,12 @@ public class StateVariablesAdder {
         return String.join(",", list);
     }
 
-    private static Complex complexVoltage(double r, double x, double g, double b,
-        double v, double angle, double p, double q) {
-        BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0,
-            new Complex(g * 0.5, b * 0.5), new Complex(g * 0.5, b * 0.5));
-        Complex v1 = ComplexUtils.polar2Complex(v, Math.toRadians(angle));
-        Complex s1 = new Complex(p, q);
-        return (s1.conjugate().divide(v1.conjugate()).subtract(adm.y11.multiply(v1))).divide(adm.y12);
-    }
-
-    private static Map<String, String> boundaryNodesFromDanglingLines(CgmesModel cgmes, Network n) {
-        Map<String, String> nodesFromLines = new HashMap<>();
-        List<String> boundaryNodes = new ArrayList<>();
-        cgmes.boundaryNodes().forEach(node -> boundaryNodes.add(node.getId("Node")));
-
-        for (PropertyBag line : cgmes.acLineSegments()) {
-            String lineId = line.getId(CgmesNames.AC_LINE_SEGMENT);
-            // we need only acLinesSegments that were converted into DanglingLines
-            if (n.getDanglingLine(lineId) == null) {
-                continue;
-            }
-            String tpNode1 = cgmes.terminal(line.getId(CgmesNames.TERMINAL1)).topologicalNode();
-            String tpNode2 = cgmes.terminal(line.getId(CgmesNames.TERMINAL2)).topologicalNode();
-            // find not null boundary node for line
-            if (boundaryNodes.contains(tpNode1)) {
-                nodesFromLines.put(lineId, tpNode1);
-            } else if (boundaryNodes.contains(tpNode2)) {
-                nodesFromLines.put(lineId, tpNode2);
-            }
-        }
-        return nodesFromLines;
-    }
-
-    private static String getTapChangerPositionName(CgmesModel cgmes) {
-        if (cgmes instanceof CgmesModelTripleStore) {
-            return (((CgmesModelTripleStore) cgmes).getCimNamespace().indexOf("cim14#") != -1)
-                ? CgmesNames.CONTINUOUS_POSITION
-                : CgmesNames.POSITION;
-        } else {
-            return CgmesNames.POSITION;
-        }
-    }
-
-    private static PropertyBag createPowerFlowProperties(CgmesModel cgmes, Terminal terminal) {
-        // TODO If we could store a terminal identifier in IIDM
-        // we would not need to obtain it querying CGMES for the related equipment
-        String cgmesTerminal = cgmes.terminalForEquipment(terminal.getConnectable().getId());
-        if (cgmesTerminal == null) {
-            return null;
-        }
-        PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
-        p.put("p", fs(terminal.getP()));
-        p.put("q", fs(terminal.getQ()));
-        p.put(CgmesNames.TERMINAL, cgmesTerminal);
-        return p;
-    }
-
     private static String fs(double value) {
-        return String.valueOf(value);
+        return "NaN".equals(String.valueOf(value)) ? String.valueOf(0.0) : String.valueOf(value);
     }
 
     private static String is(int value) {
-        return String.valueOf(value);
+        return "NaN".equals(String.valueOf(value)) ? String.valueOf(0) : String.valueOf(value);
     }
 
     private CgmesModel cgmes;

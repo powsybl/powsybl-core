@@ -568,8 +568,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     @Override
     public void add(String contextOrSubset, String type, PropertyBags objects) {
-        // contextName will be the string passed by caller. Caller method can pass just a subset,
-        // then we need to construct contextName from EQ
+        // contextName will be the string passed by caller. It can be full contextName or just a subset.
+        // If it's just a subset (e.g. "SV") then we need to construct contextName from EQ.
         String contextName = EnumUtils.isValidEnum(CgmesSubset.class, contextOrSubset)
             ? contextNameFor(CgmesSubset.valueOf(contextOrSubset))
             : contextOrSubset;
