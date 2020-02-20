@@ -26,7 +26,6 @@ import com.powsybl.triplestore.api.PropertyBag;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 class AcDcConverterNodes {
-
     Map<String, AcDcConverterNode> converterNodes;
 
     AcDcConverterNodes(CgmesModel cgmesModel) {

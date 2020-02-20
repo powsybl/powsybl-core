@@ -25,7 +25,7 @@ import com.powsybl.cgmes.conversion.elements.hvdc.TPnodeEquipments.TPnodeEquipme
 class IslandEndHvdc {
 
     enum HvdcEndType {
-        HVDC_NONE, HVDC_T1_C1_LS1, HVDC_Tn_Cn_LSn, HVDC_T1_C1_LS2, HVDC_T2_C2_LS1,
+        HVDC_NONE, HVDC_T1_C1_LS1, HVDC_TN_CN_LSN, HVDC_T1_C1_LS2, HVDC_T2_C2_LS1,
     }
 
     Set<HvdcEnd> hvdc;
@@ -38,9 +38,7 @@ class IslandEndHvdc {
         if (islandNodesEnd.isEmpty()) {
             return;
         }
-        //printAd(adjacency, islandNodesEnd);
-        //printEq(tpNodeEquipments, islandNodesEnd);
-        //printDcLs(tpNodeEquipments, islandNodesEnd);
+        // printAd(adjacency, islandNodesEnd); printEq(tpNodeEquipments, islandNodesEnd); printDcLs(tpNodeEquipments, islandNodesEnd);
         Set<String> visitedTopologicalNodes = new HashSet<>();
 
         // Take a non-visited node with transformers
@@ -71,7 +69,7 @@ class IslandEndHvdc {
         hvdc.add(hvdcEnd);
     }
 
-    private List<String> computeHvdcNodes(Adjacency adjacency, TPnodeEquipments tpNodeEquipments,
+    private static List<String> computeHvdcNodes(Adjacency adjacency, TPnodeEquipments tpNodeEquipments,
         Set<String> visitedTopologicalNodes,
         String topologicalNodeEnd, List<String> islandNodesEnd) {
         List<String> listTp = new ArrayList<>();
@@ -85,6 +83,9 @@ class IslandEndHvdc {
             if (adjacency.adjacency.containsKey(topologicalNode)) {
                 adjacency.adjacency.get(topologicalNode).forEach(adjacent -> {
                     if (Adjacency.isDcLineSegment(adjacent.type)) {
+                        return;
+                    }
+                    if (!islandNodesEnd.contains(adjacent.topologicalNode)) {
                         return;
                     }
                     if (visitedTopologicalNodes.contains(adjacent.topologicalNode)) {
@@ -102,7 +103,7 @@ class IslandEndHvdc {
         return listTp;
     }
 
-    private Set<String> computeEquipments(TPnodeEquipments tpNodeEquipments, List<String> hvdcNode,
+    private static Set<String> computeEquipments(TPnodeEquipments tpNodeEquipments, List<String> hvdcNode,
         TPnodeEquipments.EquipmentType type) {
         Set<String> listEq = new HashSet<>();
 
@@ -110,7 +111,7 @@ class IslandEndHvdc {
         return listEq;
     }
 
-    private void addEquipments(TPnodeEquipments tpNodeEquipments, String topologicalNode,
+    private static void addEquipments(TPnodeEquipments tpNodeEquipments, String topologicalNode,
         TPnodeEquipments.EquipmentType type, Set<String> listEq) {
         List<TPnodeEquipment> listEqNode = tpNodeEquipments.nodeEquipments.get(topologicalNode);
         if (listEqNode == null) {
@@ -125,7 +126,7 @@ class IslandEndHvdc {
         return hvdc.stream().filter(h -> isCompatible(hvdcEnd1, h)).findFirst().orElse(null);
     }
 
-    private boolean isCompatible(HvdcEnd hvdcEnd1, HvdcEnd hvdcEnd2) {
+    private static boolean isCompatible(HvdcEnd hvdcEnd1, HvdcEnd hvdcEnd2) {
         if (hvdcEnd1.transformersEnd.size() != hvdcEnd2.transformersEnd.size()) {
             return false;
         }
@@ -136,8 +137,8 @@ class IslandEndHvdc {
             return false;
         }
 
-        return !hvdcEnd1.dcLineSegmentsEnd.stream()
-            .anyMatch(ls -> !hvdcEnd2.dcLineSegmentsEnd.contains(ls));
+        return hvdcEnd1.dcLineSegmentsEnd.stream()
+            .allMatch(ls -> hvdcEnd2.dcLineSegmentsEnd.contains(ls));
     }
 
     private void printAd(Adjacency adjacency, List<String> lnodes) {
@@ -205,7 +206,7 @@ class IslandEndHvdc {
             } else if (t == 2 && c == 2 && ls == 1) {
                 return HvdcEndType.HVDC_T2_C2_LS1;
             } else if (t == c && c == ls && t > 1) {
-                return HvdcEndType.HVDC_Tn_Cn_LSn;
+                return HvdcEndType.HVDC_TN_CN_LSN;
             }
             return HvdcEndType.HVDC_NONE;
         }

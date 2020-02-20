@@ -5,25 +5,41 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.cgmes.conversion.elements;
+package com.powsybl.cgmes.conversion.elements.hvdc;
 
 import java.util.Objects;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
+import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.LccConverterStationAdder;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class AcDcConverterConversion extends AbstractConductingEquipmentConversion {
 
-    public AcDcConverterConversion(PropertyBag c, Context context) {
+    enum VscRegulation {
+        REACTIVE_POWER,
+        VOLTAGE
+    }
+
+    public AcDcConverterConversion(PropertyBag c, HvdcType converterType, double lossFactor, Context context) {
         super("ACDCConverter", c, context);
-        converterType = decodeType(p.getLocal("type"));
+        this.converterType = converterType;
+        this.lossFactor = lossFactor;
+    }
+
+    public AcDcConverterConversion(PropertyBag c, HvdcType converterType, double lossFactor, double powerFactor,
+        Context context) {
+        super("ACDCConverter", c, context);
+        this.converterType = converterType;
+        this.lossFactor = lossFactor;
     }
 
     @Override
@@ -36,11 +52,6 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
             return false;
         }
         return true;
-    }
-
-    enum VscRegulation {
-        REACTIVE_POWER,
-        VOLTAGE
     }
 
     @Override
@@ -59,10 +70,10 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
                 reactivePowerSetpoint = -p.asDouble("targetQpcc");
             }
             VscConverterStationAdder adder = voltageLevel().newVscConverterStation()
-                    .setLossFactor(0.0f) // this attribute will be updated when the HVDC line attached to this station is imported
-                    .setVoltageRegulatorOn(voltageRegulatorOn)
-                    .setVoltageSetpoint(voltageSetpoint)
-                    .setReactivePowerSetpoint(reactivePowerSetpoint);
+                .setLossFactor((float) this.lossFactor)
+                .setVoltageRegulatorOn(voltageRegulatorOn)
+                .setVoltageSetpoint(voltageSetpoint)
+                .setReactivePowerSetpoint(reactivePowerSetpoint);
             identify(adder);
             connect(adder);
             c = adder.add();
@@ -71,16 +82,20 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
             // TODO: There are two modes of control: dcVoltage and activePower
             // For dcVoltage, setpoint is targetUdc,
             // For activePower, setpoint is targetPpcc
+
             LccConverterStationAdder adder = voltageLevel().newLccConverterStation()
-                    .setLossFactor(0.0f)
-                    .setPowerFactor(0.8f);
+                .setLossFactor((float) this.lossFactor);
             identify(adder);
             connect(adder);
             c = adder.add();
         }
         Objects.requireNonNull(c);
-        context.dc().map(this.id, p, c);
         convertedTerminals(c.getTerminal());
+        this.iidmConverter = c;
+    }
+
+    public void setPowerFactor(double powerFactor) {
+        ((LccConverterStation) (this.iidmConverter)).setPowerFactor((float) powerFactor);
     }
 
     private static VscRegulation decodeVscRegulation(String qPccControl) {
@@ -92,14 +107,11 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
         return null;
     }
 
-    private static HvdcType decodeType(String stype) {
-        if (stype.equals("VsConverter")) {
-            return HvdcType.VSC;
-        } else if (stype.equals("CsConverter")) {
-            return HvdcType.LCC;
-        }
-        return null;
+    HvdcConverterStation<?> getIidmConverter() {
+        return this.iidmConverter;
     }
 
     private final HvdcType converterType;
+    private final double lossFactor;
+    private HvdcConverterStation<?> iidmConverter;
 }

@@ -23,8 +23,7 @@ import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEndType;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 class Hvdc {
-
-    private List<HvdcEquipment> hvdcData;
+    List<HvdcEquipment> hvdcData;
 
     // The island includes dcTopologicalNodes and first acTopologicalNode
     Hvdc() {
@@ -55,7 +54,7 @@ class Hvdc {
             case HVDC_T2_C2_LS1:
                 addT2C2LS1(tpNodeEquipments, hvdc1, hvdc2);
                 break;
-            case HVDC_Tn_Cn_LSn:
+            case HVDC_TN_CN_LSN:
                 addTnCnLSn(tpNodeEquipments, hvdc1, hvdc2);
                 break;
         }
@@ -101,7 +100,7 @@ class Hvdc {
         });
     }
 
-    private HvdcConverter computeConverter(TPnodeEquipments tpNodeEquipments, String dcLineSegment, HvdcEnd hvdc1,
+    private static HvdcConverter computeConverter(TPnodeEquipments tpNodeEquipments, String dcLineSegment, HvdcEnd hvdc1,
         HvdcEnd hvdc2) {
         String acDcConverter1 = computeEquipmentConnectedToEquipment(tpNodeEquipments, dcLineSegment, hvdc1.acDcConvertersEnd, hvdc1.topologicalNodesEnd);
         if (acDcConverter1 == null) {
@@ -122,7 +121,7 @@ class Hvdc {
         return new HvdcConverter(acDcConverter1, transformer1, acDcConverter2, transformer2);
     }
 
-    private HvdcConverter computeOtherConverter(HvdcConverter converter, HvdcEnd hvdc1, HvdcEnd hvdc2) {
+    private static HvdcConverter computeOtherConverter(HvdcConverter converter, HvdcEnd hvdc1, HvdcEnd hvdc2) {
         String acDcConverter1 = hvdc1.acDcConvertersEnd.stream().filter(c -> !converter.acDcConvertersEnd1.contentEquals(c)).findFirst().orElse(null);
         if (acDcConverter1 == null) {
             return null;
@@ -142,7 +141,7 @@ class Hvdc {
         return new HvdcConverter(acDcConverter1, transformer1, acDcConverter2, transformer2);
     }
 
-    private String computeEquipmentConnectedToEquipment(TPnodeEquipments tpNodeEquipments, String equipment,
+    private static String computeEquipmentConnectedToEquipment(TPnodeEquipments tpNodeEquipments, String equipment,
         Set<String> connectedEquipments, List<String> topologicalNodes) {
         return connectedEquipments.stream()
             .filter(eq -> tpNodeEquipments.connectedEquipments(equipment, eq, topologicalNodes))

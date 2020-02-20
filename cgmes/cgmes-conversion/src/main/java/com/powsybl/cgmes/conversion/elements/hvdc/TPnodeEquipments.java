@@ -41,7 +41,6 @@ class TPnodeEquipments {
         cgmesModel.dcLineSegments().forEach(dcls -> computeDcLineSegment(cgmesModel, adjacency, dcls));
 
         AcDcConverterNodes acDcConverterNodes = new AcDcConverterNodes(cgmesModel);
-        //acDcConverterNodes.print();
 
         acDcConverterNodes.converterNodes.entrySet()
             .forEach(entry -> addEquipment(adjacency, entry.getValue().id, entry.getValue().acTopologicalNode,

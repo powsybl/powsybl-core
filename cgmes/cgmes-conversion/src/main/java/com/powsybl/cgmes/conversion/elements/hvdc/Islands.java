@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 class Islands {
-
     Set<List<String>> islandsNodes;
 
     // The island includes dcTopologicalNodes and first acTopologicalNode
@@ -39,7 +38,7 @@ class Islands {
         });
     }
 
-    private List<String> computeAdjacentTopologicalNodes(String topologicalNodeId,
+    private static List<String> computeAdjacentTopologicalNodes(String topologicalNodeId,
         Adjacency adjacency, Set<String> visitedTopologicalNodes) {
 
         List<String> adjacentTopologicalNodes = new ArrayList<>();
