@@ -175,23 +175,13 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     }
 
-    private final class InternalConnectionAdderImpl extends AbstractIdentifiableAdder<InternalConnectionAdderImpl> implements NodeBreakerView.InternalConnectionAdder {
+    private final class InternalConnectionAdderImpl implements NodeBreakerView.InternalConnectionAdder {
 
         private Integer node1;
 
         private Integer node2;
 
         private InternalConnectionAdderImpl() {
-        }
-
-        @Override
-        protected NetworkImpl getNetwork() {
-            return NodeBreakerVoltageLevel.this.getNetwork();
-        }
-
-        @Override
-        protected String getTypeDescription() {
-            return "InternalConnection";
         }
 
         @Override
@@ -209,10 +199,10 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         @Override
         public void add() {
             if (node1 == null) {
-                throw new ValidationException(this, "first connection node is not set");
+                throw new ValidationException(NodeBreakerVoltageLevel.this, "first connection node is not set");
             }
             if (node2 == null) {
-                throw new ValidationException(this, "second connection node is not set");
+                throw new ValidationException(NodeBreakerVoltageLevel.this, "second connection node is not set");
             }
 
             graph.addEdge(node1, node2, null);
@@ -278,7 +268,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 }, encountered);
 
                 // check that the component is a bus
-                String busId = NAMING_STRATEGY.getName(NodeBreakerVoltageLevel.this, nodes);
+                String busId = NAMING_STRATEGY.getId(NodeBreakerVoltageLevel.this, nodes);
                 CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
                 for (int i = 0; i < nodes.size(); i++) {
                     int n2 = nodes.getQuick(i);
@@ -288,7 +278,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                     }
                 }
                 if (getBusChecker().isValid(graph, nodes, terminals)) {
-                    CalculatedBusImpl bus = new CalculatedBusImpl(busId, NodeBreakerVoltageLevel.this, nodes, terminals);
+                    String busName = NAMING_STRATEGY.getName(NodeBreakerVoltageLevel.this, nodes);
+                    CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, NodeBreakerVoltageLevel.this, nodes, terminals);
                     id2bus.put(busId, bus);
                     for (int i = 0; i < nodes.size(); i++) {
                         node2bus[nodes.getQuick(i)] = bus;
@@ -502,13 +493,21 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private interface BusNamingStrategy {
 
-        String getName(VoltageLevel voltageLevel, TIntArrayList nodes);
+        String getId(NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes);
+
+        String getName(NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes);
     }
 
     private static class LowestNodeNumberBusNamingStrategy implements BusNamingStrategy {
+
         @Override
-        public String getName(VoltageLevel voltageLevel, TIntArrayList nodes) {
+        public String getId(NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes) {
             return voltageLevel.getId() + "_" + nodes.min();
+        }
+
+        @Override
+        public String getName(NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes) {
+            return voltageLevel.name != null ? voltageLevel.name + "_" + nodes.min() : null;
         }
     }
 

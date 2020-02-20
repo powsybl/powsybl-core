@@ -226,6 +226,13 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             return Networks.isBusValid(branchCount);
         }
 
+        private MergedBus createMergedBus(int busNum, Set<ConfiguredBus> busSet) {
+            String suffix = "_" + busNum;
+            String mergedBusId = BusBreakerVoltageLevel.this.id + suffix;
+            String mergedBusName = BusBreakerVoltageLevel.this.name != null ? BusBreakerVoltageLevel.this.name + suffix : null;
+            return new MergedBus(mergedBusId, mergedBusName, busSet);
+        }
+
         private void updateCache() {
             if (variants.get().cache != null) {
                 return;
@@ -253,8 +260,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                         }
                     }, encountered);
                     if (isBusValid(busSet)) {
-                        String mergedBusId = BusBreakerVoltageLevel.this.id + "_" + busNum++;
-                        MergedBus mergedBus = new MergedBus(mergedBusId, busSet);
+                        MergedBus mergedBus = createMergedBus(busNum++, busSet);
                         mergedBuses.put(mergedBus.getId(), mergedBus);
                         busSet.forEach(bus -> mapping.put(bus, mergedBus));
                     }

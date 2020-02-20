@@ -562,12 +562,12 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public String substation(CgmesTerminal t) {
+    public String substation(CgmesTerminal t, boolean nodeBreaker) {
         return null;
     }
 
     @Override
-    public String voltageLevel(CgmesTerminal t) {
+    public String voltageLevel(CgmesTerminal t, boolean nodeBreaker) {
         return null;
     }
 
