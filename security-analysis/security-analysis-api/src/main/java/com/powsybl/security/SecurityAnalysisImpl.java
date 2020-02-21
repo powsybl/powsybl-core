@@ -83,6 +83,8 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
                     if (loadFlowResult.isOk()) {
 
+                        // TODO checking the violations of the initial loadflow can be
+                        // done in parallel with running more loadflows
                         resultBuilder.preContingency()
                                 .setComputationOk(true);
                         violationDetector.checkAll(network, resultBuilder::addViolation);
