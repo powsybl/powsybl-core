@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion.update;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,13 +48,14 @@ public class StateVariablesAdder {
 
     public StateVariablesAdder(CgmesModel cgmes) {
         this.cgmes = Objects.requireNonNull(cgmes);
+        this.cimVersion = ((CgmesModelTripleStore) cgmes).getCimVersion();
         this.originalSVdata = originalSVdata(cgmes);
         this.originalSVcontext = originalSVcontext(cgmes);
     }
 
     private Map<String, PropertyBags> originalSVdata(CgmesModel cgmes) {
         originalSVdata.put(TERMINALS_SV, cgmes.terminalsSV());
-        if (!isCimVersion14(cgmes)) {
+        if (cimVersion != 14) {
             originalSVdata.put("fullModelSV", cgmes.fullModelSV());
             originalSVdata.put("topologicalIslands", cgmes.topologicalIslands());
         }
@@ -62,7 +64,7 @@ public class StateVariablesAdder {
 
     private String originalSVcontext(CgmesModel cgmes) {
         // if grid has no FullModel, then we can return Subset
-        if (!isCimVersion14(cgmes)) {
+        if (cimVersion != 14) {
             PropertyBags pb = cgmes.fullModelSV();
             if (pb.get(0).containsKey("graph")) {
                 return pb.get(0).getId("graph");
@@ -73,14 +75,15 @@ public class StateVariablesAdder {
 
     public void add(Network n, CgmesModel cgmes) {
 
-        if (!isCimVersion14(cgmes)) {
+        if (cimVersion != 14) {
             addModelDescription();
             addTopologicalIslands();
         }
 
         PropertyBags voltages = new PropertyBags();
-        // Check for bus branch model
         if (cgmes.isNodeBreaker()) {
+            // TODO need to export SV file data for NodeBraker
+            LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
             return;
         }
         // add voltages for TpNodes existing in the Model
@@ -188,7 +191,7 @@ public class StateVariablesAdder {
 
         for (ThreeWindingsTransformer t : n.getThreeWindingsTransformers()) {
             PropertyBag p = new PropertyBag(svTapStepProperties);
-            Arrays.asList(t.getLeg1(), t.getLeg2(), t.getLeg3()).forEach(leg -> {
+            Collections.unmodifiableList(Arrays.asList(t.getLeg1(), t.getLeg2(), t.getLeg3())).forEach(leg -> {
                 if (leg.getPhaseTapChanger() != null) {
                     p.put(tapChangerPositionName, is(leg.getPhaseTapChanger().getTapPosition()));
                     p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerForPowerTransformer(t.getId()));
@@ -209,19 +212,19 @@ public class StateVariablesAdder {
         Map<String, Boolean> addedConnectables = new HashMap<>();
         for (VoltageLevel v : n.getVoltageLevels()) {
             for (Connectable<?> c : v.getConnectables()) {
-                for (Terminal t : c.getTerminals()) {
-                    if (t == null) {
-                        continue;
-                    }
-                    // need to check if connectable was already added
-                    if (addedConnectables.get(c.getId()) == null) {
-                        addedConnectables.put(c.getId(), true);
+                // need to check if connectable was already added
+                if (addedConnectables.get(c.getId()) == null) {
+                    addedConnectables.put(c.getId(), true);
+                    if (c.getId() != null) {
                         PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
-                        if (c.getId() != null) {
+                        for (Terminal t : c.getTerminals()) {
+                            if (t == null) {
+                                continue;
+                            }
                             p.put(IN_SERVICE, String.valueOf(t.isConnected()));
-                            p.put(CgmesNames.CONDUCTING_EQUIPMENT, c.getId());
-                            svStatus.add(p);
                         }
+                        p.put(CgmesNames.CONDUCTING_EQUIPMENT, c.getId());
+                        svStatus.add(p);
                     }
                 }
             }
@@ -243,14 +246,6 @@ public class StateVariablesAdder {
             });
         }
         cgmes.add(originalSVcontext, "SvStatus", svStatus);
-    }
-
-    private boolean isCimVersion14(CgmesModel cgmes) {
-        boolean is14 = false;
-        if (cgmes instanceof CgmesModelTripleStore) {
-            is14 = ((CgmesModelTripleStore) cgmes).getCimNamespace().indexOf("cim14#") != -1;
-        }
-        return is14;
     }
 
     private static Map<String, String> boundaryNodesFromDanglingLines(CgmesModel cgmes, Network n) {
@@ -314,10 +309,13 @@ public class StateVariablesAdder {
     private void addTopologicalIslands() {
         PropertyBags originalTpIslands = originalSVdata.get("topologicalIslands");
         if (!originalTpIslands.isEmpty()) {
-            // there can be > 1 TopologicalIsland, we need to re-group PropertyBags by
-            // TopologicalIsland ID. For each TopologicalIsland we will have multiple
-            // results from SPARQL query,
-            // due to Multivalued Property "TopologicalNodes"
+            // For properties such as "cim:TopologicalIsland.TopologicalNodes", which might
+            // have arbitrary number of values, SPARQL will return multiple result sets.
+            // All properties values will be equal, except the multiValued property
+            // TopologicalNodes.
+            // Also, there can be > 1 TopologicalIsland, so we need to re-group PropertyBags
+            // by
+            // TopologicalIsland ID.
             Map<String, PropertyBags> byTopologicalIslandId = new HashMap<>();
             originalTpIslands.forEach(pb -> {
                 String island = pb.getId(CgmesNames.TOPOLOGICAL_ISLAND);
@@ -388,14 +386,15 @@ public class StateVariablesAdder {
     }
 
     private static String fs(double value) {
-        return "NaN".equals(String.valueOf(value)) ? String.valueOf(0.0) : String.valueOf(value);
+        return Double.isNaN(value) ? String.valueOf(0.0) : String.valueOf(value);
     }
 
     private static String is(int value) {
-        return "NaN".equals(String.valueOf(value)) ? String.valueOf(0) : String.valueOf(value);
+        return String.valueOf(value);
     }
 
     private CgmesModel cgmes;
+    private int cimVersion;
     private Map<String, PropertyBags> originalSVdata = new HashMap<>();
     private String originalSVcontext;
     private static final String TERMINALS_SV = "terminalsSV";
