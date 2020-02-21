@@ -38,10 +38,11 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
     /**
      * This executor is used to create the variants of the network, submit the tasks
      * for computing contingency loadflows and submit the tasks for checking for the
-     * violations. Submitting tasks for loadflows is blocking because we can only
-     * run a limited number of loadflows in parallel because we need the memory for
-     * the variant, and we don't want to submit tasks that will immediately block
-     * (they hurt the performance of the executor who excutes them)
+     * violations. Submitting tasks itself is blocking because we can only run a
+     * limited number of loadflows in parallel because we need the memory for the
+     * variant, and we don't want to submit tasks that would immediately block to
+     * get an available variant (they hurt the performance of the executor who
+     * excutes them)
      */
     private static final ExecutorService SCHEDULER_EXECUTOR = Executors
             .newFixedThreadPool(Integer.parseInt(PlatformConfig.defaultConfig()
@@ -133,6 +134,8 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                                     Thread.currentThread().interrupt();
                                     throw new UncheckedInterruptedException(e);
                                 }
+                                // We got one available variant ID. Submit a task
+                                // that will compute the loadflow in this variant.
                                 // run one loadflow per contingency
                                 futures[i] = CompletableFuture
                                         .runAsync(() -> {
