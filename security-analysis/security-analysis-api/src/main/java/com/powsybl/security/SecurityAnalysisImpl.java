@@ -6,6 +6,7 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.exceptions.UncheckedInterruptedException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
@@ -23,6 +24,8 @@ import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -31,6 +34,20 @@ import java.util.stream.IntStream;
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
+
+    /**
+     * This executor is used to create the variants of the network, submit the tasks
+     * for computing contingency loadflows and submit the tasks for checking for the
+     * violations. Submitting tasks for loadflows is blocking because we can only
+     * run a limited number of loadflows in parallel because we need the memory for
+     * the variant, and we don't want to submit tasks that will immediately block
+     * (they hurt the performance of the executor who excutes them)
+     */
+    private static final ExecutorService SCHEDULER_EXECUTOR = Executors
+            .newFixedThreadPool(Integer.parseInt(PlatformConfig.defaultConfig()
+                    .getOptionalModuleConfig("security-analysis-impl")
+                    .flatMap(m -> m.getOptionalStringProperty("scheduler-pool-size"))
+                    .orElse("10")));
 
     private final ComputationManager computationManager;
 
@@ -108,40 +125,36 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                             for (int i = 0; i < contingencies.size(); i++) {
                                 Contingency contingency = contingencies.get(i);
 
+                                String postContStateId;
+                                try {
+                                    postContStateId = queue.take();
+                                } catch (InterruptedException e) {
+                                    Thread.currentThread().interrupt();
+                                    throw new UncheckedInterruptedException(e);
+                                }
                                 // run one loadflow per contingency
                                 futures[i] = CompletableFuture
-                                        .supplyAsync(() -> {
-                                            try {
-                                                return queue.take();
-                                            } catch (InterruptedException e) {
-                                                Thread.currentThread().interrupt();
-                                                throw new UncheckedInterruptedException(e);
-                                            }
-                                        }, computationManager.getExecutor())
-                                        .thenCompose(postContStateId -> {
-                                            return CompletableFuture
-                                                    .runAsync(() -> {
-                                                        network.getVariantManager().cloneVariant(workingStateId, postContStateId, true);
-                                                        network.getVariantManager().setWorkingVariant(postContStateId);
+                                        .runAsync(() -> {
+                                            network.getVariantManager().cloneVariant(workingStateId, postContStateId, true);
+                                            network.getVariantManager().setWorkingVariant(postContStateId);
 
-                                                        // apply the contingency on the network
-                                                        contingency.toTask().modify(network, computationManager);
-                                                    }, computationManager.getExecutor())
-                                                    .thenCompose(aVoid -> LoadFlow.runAsync(network, postContStateId, computationManager, postContParameters))
-                                                    .<Void>thenApplyAsync(lfResult -> { // not sure why Void is needed here to infer types..
-                                                        network.getVariantManager().setWorkingVariant(postContStateId);
-                                                        synchronized (resultBuilder) {
-                                                            resultBuilder.contingency(contingency)
-                                                                    .setComputationOk(lfResult.isOk());
-                                                            violationDetector.checkAll(contingency, network, resultBuilder::addViolation);
-                                                            resultBuilder.endContingency();
-                                                        }
-                                                        return null;
-                                                    }, computationManager.getExecutor())
-                                                    .whenComplete((aVoid, throwable) ->
-                                                        queue.add(postContStateId) //Will always work because we are putting back in the queue the id we took
-                                                    );
-                                        });
+                                            // apply the contingency on the network
+                                            contingency.toTask().modify(network, computationManager);
+                                        }, computationManager.getExecutor())
+                                        .thenCompose(aVoid -> LoadFlow.runAsync(network, postContStateId, computationManager, postContParameters))
+                                        .<Void>thenApplyAsync(lfResult -> { // not sure why Void is needed here to infer types..
+                                            network.getVariantManager().setWorkingVariant(postContStateId);
+                                            synchronized (resultBuilder) {
+                                                resultBuilder.contingency(contingency)
+                                                        .setComputationOk(lfResult.isOk());
+                                                violationDetector.checkAll(contingency, network, resultBuilder::addViolation);
+                                                resultBuilder.endContingency();
+                                            }
+                                            return null;
+                                        }, computationManager.getExecutor())
+                                        .whenComplete((aVoid, throwable) ->
+                                            queue.add(postContStateId) //Will always work because we are putting back in the queue the id we took
+                                        );
                             }
                             return CompletableFuture.allOf(futures).whenComplete((aVoid, throwable) ->
                                 network.getVariantManager().allowVariantMultiThreadAccess(previousMultiThreadAcces)
@@ -161,6 +174,6 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                             network.getVariantManager().setWorkingVariant(workingStateId);
                             return resultBuilder.build();
                         });
-                }, computationManager.getExecutor());
+                }, SCHEDULER_EXECUTOR);
     }
 }
