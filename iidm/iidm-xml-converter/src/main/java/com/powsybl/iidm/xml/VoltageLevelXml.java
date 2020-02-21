@@ -6,9 +6,11 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.stream.XMLStreamException;
@@ -88,14 +90,21 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             NodeBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
         }
         writeNodeBreakerTopologyInternalConnections(vl, context);
-        Map<String, Set<Integer>> nodesByBus = Networks.getNodesByBus(vl);
-        for (Bus bus : vl.getBusView().getBuses()) {
-            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "bus");
-            XmlUtil.writeDouble("v", bus.getV(), context.getWriter());
-            XmlUtil.writeDouble("angle", bus.getAngle(), context.getWriter());
-            Set<Integer> nodes = nodesByBus.get(bus.getId());
-            context.getWriter().writeAttribute("nodes", StringUtils.join(nodes.toArray(), ','));
-        }
+
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_1, context, () -> {
+            Map<String, Set<Integer>> nodesByBus = Networks.getNodesByBus(vl);
+            for (Bus bus : vl.getBusView().getBuses()) {
+                try {
+                    context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "bus");
+                    XmlUtil.writeDouble("v", bus.getV(), context.getWriter());
+                    XmlUtil.writeDouble("angle", bus.getAngle(), context.getWriter());
+                    Set<Integer> nodes = nodesByBus.get(bus.getId());
+                    context.getWriter().writeAttribute("nodes", StringUtils.join(nodes.toArray(), ','));
+                } catch (XMLStreamException e) {
+                    throw new UncheckedXmlStreamException(e);
+                }
+            }
+        });
         context.getWriter().writeEndElement();
     }
 
