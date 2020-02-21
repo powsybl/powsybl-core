@@ -92,22 +92,24 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
         return LoadFlow.runAsync(network, workingStateId, computationManager, loadFlowParameters) // run base load flow
                 .thenComposeAsync(loadFlowResult -> {
-                    network.getVariantManager().setWorkingVariant(workingStateId);
-
                     SecurityAnalysisResultBuilder resultBuilder = createResultBuilder(workingStateId);
 
                     CompletableFuture<Void> future;
 
                     if (loadFlowResult.isOk()) {
 
-                        // TODO checking the violations of the initial loadflow can be
-                        // done in parallel with running more loadflows
-                        resultBuilder.preContingency()
-                                .setComputationOk(true);
-                        violationDetector.checkAll(network, resultBuilder::addViolation);
-                        resultBuilder.endPreContingency();
-
                         List<Contingency> contingencies = contingenciesProvider.getContingencies(network);
+                        CompletableFuture<Void>[] futures = new CompletableFuture[contingencies.size() + 1];
+
+                        futures[futures.length - 1] = CompletableFuture.runAsync(() -> {
+                            network.getVariantManager().setWorkingVariant(workingStateId);
+                            synchronized (resultBuilder) {
+                                resultBuilder.preContingency()
+                                        .setComputationOk(true);
+                                violationDetector.checkAll(network, resultBuilder::addViolation);
+                                resultBuilder.endPreContingency();
+                            }
+                        }, computationManager.getExecutor());
 
                         String hash = UUID.randomUUID().toString();
                         int workerCount = Math.min(computationManager.getResourcesStatus().getAvailableCores(), contingencies.size());
@@ -121,7 +123,6 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                         future = CompletableFuture.completedFuture(null).thenCompose(aaVoid -> {
                             boolean previousMultiThreadAcces = network.getVariantManager().isVariantMultiThreadAccessAllowed();
                             network.getVariantManager().allowVariantMultiThreadAccess(true);
-                            CompletableFuture<Void>[] futures = new CompletableFuture[contingencies.size()];
                             for (int i = 0; i < contingencies.size(); i++) {
                                 Contingency contingency = contingencies.get(i);
 
