@@ -50,6 +50,10 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                     .flatMap(m -> m.getOptionalStringProperty("scheduler-pool-size"))
                     .orElse("10")));
 
+    private static final int MAX_VARIANTS_PER_ANALYSIS = Integer.parseInt(PlatformConfig
+            .defaultConfig().getOptionalModuleConfig("security-analysis-impl")
+            .flatMap(m -> m.getOptionalStringProperty("max-variants-per-analysis")).orElse("10"));
+
     private final ComputationManager computationManager;
 
     public SecurityAnalysisImpl(Network network, ComputationManager computationManager) {
@@ -113,7 +117,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                         }, computationManager.getExecutor());
 
                         String hash = UUID.randomUUID().toString();
-                        int workerCount = Math.min(computationManager.getResourcesStatus().getAvailableCores(), contingencies.size());
+                        int workerCount = Math.min(MAX_VARIANTS_PER_ANALYSIS, Math.min(computationManager.getResourcesStatus().getAvailableCores(), contingencies.size()));
                         List<String> variantIds = IntStream.range(0, workerCount).mapToObj(i -> hash + "_" + i).collect(Collectors.toList());
                         network.getVariantManager().cloneVariant(workingStateId, variantIds);
 
