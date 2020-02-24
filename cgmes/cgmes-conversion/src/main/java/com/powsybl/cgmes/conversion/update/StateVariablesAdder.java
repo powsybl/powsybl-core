@@ -50,11 +50,11 @@ public class StateVariablesAdder {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.n = Objects.requireNonNull(n);
         this.cimVersion = ((CgmesModelTripleStore) cgmes).getCimVersion();
-        this.originalSVdata = originalSVdata(cgmes);
-        this.originalSVcontext = originalSVcontext(cgmes);
+        this.originalSVdata = originalSVdata();
+        this.originalSVcontext = originalSVcontext();
     }
 
-    private Map<String, PropertyBags> originalSVdata(CgmesModel cgmes) {
+    private Map<String, PropertyBags> originalSVdata() {
         originalSVdata.put(TERMINALS_SV, cgmes.terminalsSV());
         if (cimVersion != 14) {
             originalSVdata.put("fullModelSV", cgmes.fullModelSV());
@@ -63,7 +63,7 @@ public class StateVariablesAdder {
         return originalSVdata;
     }
 
-    private String originalSVcontext(CgmesModel cgmes) {
+    private String originalSVcontext() {
         // if grid has no FullModel, then we can return Subset
         if (cimVersion != 14) {
             PropertyBags pb = cgmes.fullModelSV();
@@ -74,14 +74,19 @@ public class StateVariablesAdder {
         return CgmesSubset.STATE_VARIABLES.toString();
     }
 
-    public void add() {
+    public void addStateVariablesToCgmes() {
+        if (cgmes.isNodeBreaker()) {
+            // TODO we need to export SV file data for NodeBraker
+            LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
+            return;
+        }
         // Clear the previous SV data in CGMES model
         // and fill it with the Network current state values
         cgmes.clear(CgmesSubset.STATE_VARIABLES);
 
         if (cimVersion != 14) {
-            addModelDescription();
-            addTopologicalIslands();
+            addModelDescriptionToCgmes();
+            addTopologicalIslandsToCgmes();
         }
 
         Map<String, String> boundaryNodesFromDanglingLines = boundaryNodesFromDanglingLines();
@@ -99,11 +104,6 @@ public class StateVariablesAdder {
 
     private void addSvVoltageToCgmes(Map<String, String> boundaryNodesFromDanglingLines) {
         PropertyBags voltages = new PropertyBags();
-        if (cgmes.isNodeBreaker()) {
-            // TODO need to export SV file data for NodeBraker
-            LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
-            return;
-        }
         // add voltages for TpNodes existing in the Model
         for (PropertyBag tn : cgmes.topologicalNodes()) {
             Bus b = n.getBusBreakerView().getBus(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
@@ -328,7 +328,7 @@ public class StateVariablesAdder {
 
     // added TopologicalIsland as it was in cgmes : original topology is
     // preserved.
-    private void addTopologicalIslands() {
+    private void addTopologicalIslandsToCgmes() {
         PropertyBags originalTpIslands = originalSVdata.get("topologicalIslands");
         if (!originalTpIslands.isEmpty()) {
             // For properties such as "cim:TopologicalIsland.TopologicalNodes", which might
@@ -369,7 +369,7 @@ public class StateVariablesAdder {
     // Added full model data with proper profile (StateVariables)
     // FullModel is defined in ModelDescription:
     // http://iec.ch/TC57/61970-552/ModelDescription/1#
-    private void addModelDescription() {
+    private void addModelDescriptionToCgmes() {
         PropertyBags fullModelSV = new PropertyBags();
         PropertyBags originalModelDescription = originalSVdata.get("fullModelSV");
         // for properties such as "md:Model.DependentOn" which might have arbitrary
