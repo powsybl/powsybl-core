@@ -47,6 +47,9 @@ class LossFactor {
 
             computeLossFactor1FromPAC2(pAC2, poleLossP1, poleLossP2, mode);
             computeLossFactor2(pAC2, poleLossP2, mode);
+        } else {
+            this.lossFactor1 = 0.0;
+            this.lossFactor2 = 0.0;
         }
         // else (i.e. pAC1 == 0 && pAC2 == 0) do nothing: loss factors are null and
         // stations are probably disconnected

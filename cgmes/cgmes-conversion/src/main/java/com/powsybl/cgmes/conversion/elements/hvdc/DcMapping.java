@@ -29,7 +29,7 @@ public class DcMapping {
         context.cgmes().acDcConverters()
             .forEach(pb -> this.cgmesConverters.put(pb.getId("ACDCConverter"), new CgmesConverter(pb)));
         context.cgmes().dcLineSegments()
-        .forEach(pb -> this.cgmesDcLineSegments.put(pb.getId("DCLineSegment"), new CgmesDcLineSegment(pb)));
+            .forEach(pb -> this.cgmesDcLineSegments.put(pb.getId("DCLineSegment"), new CgmesDcLineSegment(pb)));
     }
 
     PropertyBag getCgmesConverterPropertyBag(String id) {

@@ -31,8 +31,6 @@ class Hvdc {
     }
 
     void add(TPnodeEquipments tpNodeEquipments, IslandEndHvdc islandEndHvdc1, IslandEndHvdc islandEndHvdc2) {
-        islandEndHvdc1.print();
-        islandEndHvdc2.print();
         islandEndHvdc1.hvdc.forEach(h -> add(tpNodeEquipments, h, islandEndHvdc2));
     }
 
@@ -118,7 +116,7 @@ class Hvdc {
         if (transformer2 == null) {
             return null;
         }
-        return new HvdcConverter(acDcConverter1, transformer1, acDcConverter2, transformer2);
+        return new HvdcConverter(transformer1, acDcConverter1, transformer2, acDcConverter2);
     }
 
     private static HvdcConverter computeOtherConverter(HvdcConverter converter, HvdcEnd hvdc1, HvdcEnd hvdc2) {
@@ -138,7 +136,7 @@ class Hvdc {
         if (transformer2 == null) {
             return null;
         }
-        return new HvdcConverter(acDcConverter1, transformer1, acDcConverter2, transformer2);
+        return new HvdcConverter(transformer1, acDcConverter1, transformer2, acDcConverter2);
     }
 
     private static String computeEquipmentConnectedToEquipment(TPnodeEquipments tpNodeEquipments, String equipment,

@@ -40,8 +40,10 @@ public class CgmesDcConversion {
         Adjacency adjacency = new Adjacency(cgmesModel);
         TPnodeEquipments tpNodeEquipments = new TPnodeEquipments(cgmesModel, adjacency);
         Islands islands = new Islands(adjacency);
+
         IslandsEnds islandsEnds = new IslandsEnds();
         islands.islandsNodes.forEach(listNodes -> islandsEnds.add(adjacency, listNodes));
+
         Hvdc hvdc = new Hvdc();
         islandsEnds.islandsEndsNodes.forEach(ien -> {
             IslandEndHvdc islandEndHvdc1 = new IslandEndHvdc();
@@ -52,7 +54,6 @@ public class CgmesDcConversion {
 
             hvdc.add(tpNodeEquipments, islandEndHvdc1, islandEndHvdc2);
         });
-        //hvdc.print();
 
         // Convert each converter - dcLineSegment configuration
         hvdc.hvdcData.forEach(h -> convert(h.converters, h.dcLineSegments));
@@ -72,7 +73,7 @@ public class CgmesDcConversion {
             convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0));
             convert(converters.get(1).acDcConvertersEnd1, converters.get(1).acDcConvertersEnd2, dcLineSegments.get(0));
         } else if (converterNum == 1 && dcLineSegmentNum == 2) {
-            convert(converters.get(1).acDcConvertersEnd1, converters.get(1).acDcConvertersEnd2, dcLineSegments.get(0), dcLineSegments.get(1));
+            convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0), dcLineSegments.get(1));
         } else {
             throw new PowsyblException(String.format("Unexpected HVDC configuration: Converters %d DcLineSegments %d",
                 converterNum, dcLineSegmentNum));
@@ -154,6 +155,9 @@ public class CgmesDcConversion {
                 return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             } else if (rectifier(mode1) && inverter(mode2)) {
                 return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
+            } else {
+                return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER; // TODO delete
+                // throw new PowsyblException("Unexpected HVDC type: " + converterType);
             }
         } else {
             if (cconverter1.asDouble(TARGET_PPCC) > 0 || cconverter2.asDouble(TARGET_PPCC) < 0) {
@@ -162,7 +166,6 @@ public class CgmesDcConversion {
                 return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             }
         }
-        throw new PowsyblException("Unexpected HVDC type: " + converterType);
     }
 
     private static boolean inverter(String operatingMode) {
