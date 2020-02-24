@@ -173,7 +173,10 @@ public final class StaticVarCompensatorsValidation {
         if (regulationMode == RegulationMode.REACTIVE_POWER
             && (ValidationUtils.areNaN(config, reactivePowerSetpoint, qMin, qMax)
                 || Math.abs(q - reactivePowerSetpoint) > config.getThreshold())) {
-            LOGGER.warn("{} {}: {}: regulator mode={} - Q={} bMin={} bMax={} V={} nominalV={} reactivePowerSetpoint={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, bMin, bMax, vController, nominalVcontroller, reactivePowerSetpoint);
+            LOGGER.warn(
+                "{} {}: {}: regulator mode={} - Q={} qMin={} qMax={} bMin={} bMax={} Vcontroller={} nominalV={} reactivePowerSetpoint={}",
+                ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, qMin, qMax, bMin, bMax,
+                vController, nominalVcontroller, reactivePowerSetpoint);
             validated = false;
         }
         // if regulationMode = VOLTAGE then
@@ -184,8 +187,11 @@ public final class StaticVarCompensatorsValidation {
             && (ValidationUtils.areNaN(config, qMin, qMax, vControlled, voltageSetpoint)
                 || (vControlled < voltageSetpoint - config.getThreshold() && Math.abs(q - qMax) > config.getThreshold())
                 || (vControlled > voltageSetpoint + config.getThreshold() && Math.abs(q - qMin) > config.getThreshold())
-                || (Math.abs(vControlled - voltageSetpoint) < config.getThreshold()) && !ValidationUtils.boundedWithin(qMin, qMax, q, config.getThreshold()))) {
-            LOGGER.warn("{} {}: {}: regulator mode={} - Q={} bMin={} bMax={} V={} targetV={}", ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, bMin, bMax, vControlled, voltageSetpoint);
+                || (Math.abs(vControlled - voltageSetpoint) < config.getThreshold())
+                    && !ValidationUtils.boundedWithin(qMin, qMax, q, config.getThreshold()))) {
+            LOGGER.warn("{} {}: {}: regulator mode={} - Q={} qMin={} qMax={} bMin={} bMax={} Vcontroller={} Vcontrolled={} targetV={}",
+                ValidationType.SVCS, ValidationUtils.VALIDATION_ERROR, id, regulationMode, q, qMin, qMax, bMin, bMax,
+                vController, vControlled, voltageSetpoint);
             validated = false;
         }
         // if regulationMode = OFF then reactive power should be equal to 0
