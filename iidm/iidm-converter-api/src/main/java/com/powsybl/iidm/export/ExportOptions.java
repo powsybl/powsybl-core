@@ -156,7 +156,9 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         if (extensions != null && !extensions.contains(extensionName)) {
             throw new PowsyblException(extensionName + " is not an extension you have passed in the extensions list to export.");
         }
-        extensionsVersions.put(extensionName, extensionVersion);
+        if (extensionsVersions.putIfAbsent(extensionName, extensionVersion) != null) {
+            throw new PowsyblException("The version of " + extensionName + "'s XML serializer has already been set.");
+        }
         return this;
     }
 

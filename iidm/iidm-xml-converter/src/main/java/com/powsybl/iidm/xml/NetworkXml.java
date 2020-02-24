@@ -206,7 +206,7 @@ public final class NetworkXml {
         } else {
             writer.writeEmptyElement(namespaceUri, extension.getName());
         }
-        context.getExtensionVersion(extension.getName()).ifPresent(extensionXmlSerializer::checkExtensionVersionExists);
+        context.getExtensionVersion(extension.getName()).ifPresent(extensionXmlSerializer::checkExtensionVersionSupported);
         extensionXmlSerializer.write(extension, context);
         if (extensionXmlSerializer.hasSubElements()) {
             writer.writeEndElement();
@@ -224,8 +224,8 @@ public final class NetworkXml {
     }
 
     private static String getNamespaceUri(ExtensionXmlSerializer extensionXmlSerializer, ExportOptions options) {
-        return getNamespaceUri(extensionXmlSerializer, options,
-                options.getVersion() == null ? IidmXmlConstants.CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), "."));
+        IidmXmlVersion networkVersion = options.getVersion() == null ? IidmXmlConstants.CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
+        return getNamespaceUri(extensionXmlSerializer, options, networkVersion);
     }
 
     private static String getNamespaceUri(ExtensionXmlSerializer extensionXmlSerializer, ExportOptions options, IidmXmlVersion networkVersion) {
