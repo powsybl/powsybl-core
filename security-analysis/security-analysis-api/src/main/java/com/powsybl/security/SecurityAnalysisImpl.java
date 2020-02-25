@@ -103,10 +103,10 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
         return LoadFlow.runAsync(network, workingStateId, computationManager, loadFlowParameters)
                 .thenCompose(loadFlowResult -> {
                     if (loadFlowResult.isOk()) {
-                        return CompletableFuture.allOf(
-                                setPreContigencyOkAndCheckViolationsAsync(workingStateId,
-                                        resultBuilder, computationManager.getExecutor()),
-                                runAllLoadFlowsAsync(workingStateId,
+                        return setPreContigencyOkAndCheckViolationsAsync(workingStateId,
+                                resultBuilder, computationManager.getExecutor())
+                               .thenCompose(aVoid ->
+                                   runAllLoadFlowsAsync(workingStateId,
                                         contingenciesProvider, postContParameters,
                                         resultBuilder, SCHEDULER_EXECUTOR));
                     } else {
