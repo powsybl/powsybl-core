@@ -7,8 +7,6 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Injection;
 
 /**
