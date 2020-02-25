@@ -24,8 +24,6 @@
 
     <properties>
         <groovydoc.classifier>javadoc</groovydoc.classifier>
-        <groovydoc.groovyDocJavaSources>true</groovydoc.groovyDocJavaSources>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
     <build>
