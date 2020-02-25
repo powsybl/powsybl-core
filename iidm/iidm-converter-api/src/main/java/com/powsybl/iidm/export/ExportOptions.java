@@ -152,6 +152,15 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         return this;
     }
 
+    /**
+     * Add a given version in which the extension with the given name will be exported if
+     * this version is supported by the extension's XML serializer and if it is compatible
+     * with the IIDM version in which the network will be exported.
+     * If the version is not added for an extension configured to be serialized, the extension will be serialized in the
+     * most recent version compatible with the IIDM version in which the network will be exported.
+     * If a version is added for an extension configured <b>not</b> to be serialized, the version will be ignored.
+     * If a version has already been added for the extension, throw an exception.
+     */
     public ExportOptions addExtensionVersion(String extensionName, String extensionVersion) {
         if (extensions != null && !extensions.contains(extensionName)) {
             throw new PowsyblException(extensionName + " is not an extension you have passed in the extensions list to export.");
@@ -162,6 +171,10 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         return this;
     }
 
+    /**
+     * Return an optional containing the version oin which the extension with the given name will be exported if it has previously been added.
+     * If it has never been added, return an empty optional.
+     */
     public Optional<String> getExtensionVersion(String extensionName) {
         return Optional.ofNullable(extensionsVersions.get(extensionName));
     }

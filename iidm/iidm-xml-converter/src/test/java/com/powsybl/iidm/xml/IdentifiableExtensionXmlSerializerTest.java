@@ -205,7 +205,8 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
     @Test
     public void testNotLatestVersionTerminalExtension() throws IOException {
         // import XIIDM file with loadMock v1.2
-        Network network = NetworkXml.read(getClass().getResourceAsStream("/V1_1/eurostag-tutorial-example1-with-loadMockExt-1_2.xml"));
+        Network network = NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_1) +
+                "eurostag-tutorial-example1-with-loadMockExt-1_2.xml"));
 
         MemDataSource dataSource = new MemDataSource();
 
