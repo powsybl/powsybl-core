@@ -73,7 +73,7 @@ public final class ExtensionAdderProviders {
                     "Multiple ExtensionAdderProviders found for ExtensionAdder {} for implementation {} : {}",
                     type.getSimpleName(), name, providers);
             throw new PowsyblException(
-                    "Multiple platform configuration providers found");
+                    "Multiple ExtensionAdderProviders configuration providers found");
         }
         return providers.get(0);
     }

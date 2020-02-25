@@ -21,7 +21,7 @@ import com.powsybl.commons.PowsyblException;
 
 public class ExtensionAdderProvidersTest {
 
-    private static interface SimpleExtendable extends Extendable<SimpleExtendable> {
+    private interface SimpleExtendable extends Extendable<SimpleExtendable> {
     }
 
     private static class SimpleExtendableImpl2
@@ -32,7 +32,7 @@ public class ExtensionAdderProvidersTest {
         }
     }
 
-    private static interface SimpleExtension extends Extension<SimpleExtendable> {
+    private interface SimpleExtension extends Extension<SimpleExtendable> {
         default String getName() {
             return "SimpleExtension";
         }
@@ -46,7 +46,7 @@ public class ExtensionAdderProvidersTest {
             implements SimpleExtension {
     }
 
-    private static interface SimpleExtensionAdder extends ExtensionAdder<SimpleExtendable, SimpleExtension> {
+    private interface SimpleExtensionAdder extends ExtensionAdder<SimpleExtendable, SimpleExtension> {
         default Class<SimpleExtension> getExtensionClass() {
             return SimpleExtension.class;
         }
@@ -116,7 +116,7 @@ public class ExtensionAdderProvidersTest {
         }
     }
 
-    private static interface GenericExtendable<G extends GenericExtendable<G>> extends Extendable<G> {
+    private interface GenericExtendable<G extends GenericExtendable<G>> extends Extendable<G> {
     }
 
     private static class GenericExtendableImpl2<G extends GenericExtendable<G>>
@@ -127,8 +127,7 @@ public class ExtensionAdderProvidersTest {
         }
     }
 
-    private static interface SpecificExtendable
-            extends GenericExtendable<SpecificExtendable> {
+    private interface SpecificExtendable extends GenericExtendable<SpecificExtendable> {
     }
 
     private static class SpecificExtendableImpl2
@@ -140,11 +139,7 @@ public class ExtensionAdderProvidersTest {
         }
     }
 
-    private static interface GenericExtension<G extends GenericExtendable<G>> extends Extension<G> {
-
-        static <G extends GenericExtendable<G>> Class<GenericExtension<G>> clazz() {
-            return (Class<GenericExtension<G>>) (Class) GenericExtension.class;
-        }
+    private interface GenericExtension<G extends GenericExtendable<G>> extends Extension<G> {
 
         default String getName() {
             return "SimpleExtension";
@@ -161,10 +156,7 @@ public class ExtensionAdderProvidersTest {
             implements GenericExtension<G> {
     }
 
-    private static interface GenericExtensionAdder<G extends GenericExtendable<G>> extends ExtensionAdder<G, GenericExtension<G>> {
-        static <G extends GenericExtendable<G>> Class<GenericExtensionAdder<G>> clazz() {
-            return (Class<GenericExtensionAdder<G>>) (Class) GenericExtensionAdder.class;
-        }
+    private interface GenericExtensionAdder<G extends GenericExtendable<G>> extends ExtensionAdder<G, GenericExtension<G>> {
 
         default Class<GenericExtension> getExtensionClass() {
             return GenericExtension.class;
@@ -280,10 +272,10 @@ public class ExtensionAdderProvidersTest {
     @Test
     public void testMissingAlternate() {
         try {
-            List<ExtensionAdderProvider> listProviders = Arrays
-                    .asList(new SimpleExtensionAdderImplProvider());
+            ConcurrentMap<String, List<ExtensionAdderProvider>> providersMap = ExtensionAdderProviders
+                    .groupProvidersByName(Arrays.asList(new SimpleExtensionAdderImplProvider()));
             ExtensionAdderProviders.findCachedProvider("Custom",
-                    SimpleExtensionAdder.class, new ConcurrentHashMap<>(),
+                    SimpleExtensionAdder.class, providersMap,
                     new ConcurrentHashMap<>());
             fail("Should throw Missing Provider exception");
         } catch (PowsyblException e) {
@@ -295,10 +287,10 @@ public class ExtensionAdderProvidersTest {
     @Test
     public void testMissingAlternate2() {
         try {
-            List<ExtensionAdderProvider> listProviders = Arrays
-                    .asList(new GenericExtensionAdderImpl2Provider());
+            ConcurrentMap<String, List<ExtensionAdderProvider>> providersMap = ExtensionAdderProviders
+                    .groupProvidersByName(Arrays.asList(new GenericExtensionAdderImpl2Provider()));
             ExtensionAdderProviders.findCachedProvider("Custom",
-                    SimpleExtensionAdder.class, new ConcurrentHashMap<>(),
+                    SimpleExtensionAdder.class, providersMap,
                     new ConcurrentHashMap<>());
             fail("Should throw Missing Provider exception");
         } catch (PowsyblException e) {
@@ -341,15 +333,22 @@ public class ExtensionAdderProvidersTest {
     @Test
     public void testAddingGeneric1() {
         SpecificExtendable b = new SpecificExtendableImpl2();
-        b.newExtension(GenericExtensionAdder.clazz()).add();
-        assertNotNull(b.getExtension(GenericExtension.clazz()));
+        b.newExtension(GenericExtensionAdder.class).add();
+        assertNotNull(b.getExtension(GenericExtension.class));
     }
 
     @Test
     public void testAddingGeneric2() {
         GenericExtendable<SpecificExtendable> b = new SpecificExtendableImpl2();
-        b.newExtension(GenericExtensionAdder.clazz()).add();
-        assertNotNull(b.getExtension(GenericExtension.clazz()));
+        b.newExtension(GenericExtensionAdder.class).add();
+        assertNotNull(b.getExtension(GenericExtension.class));
+    }
+
+    @Test
+    public void testAddingGeneric3() {
+        GenericExtendable<SpecificExtendable> b = new GenericExtendableImpl2();
+        b.newExtension(GenericExtensionAdder.class).add();
+        assertNotNull(b.getExtension(GenericExtension.class));
     }
 
 }

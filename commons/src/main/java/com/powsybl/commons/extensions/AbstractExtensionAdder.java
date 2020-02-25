@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * A base class for implementations of {@link ExtensionAdder} that holds the
  * extendable to be able build and then add the extension to the extendable.
- * This class calls {@link Extendable#createExtension} that must be overriden by
+ * This class calls {@link #createExtension} that must be overriden by
  * subclasses to create the extension.
  *
  * @author Jon Harper <jon.harper at rte-france.com>

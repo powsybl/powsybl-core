@@ -341,7 +341,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
         }
 
-        interface InternalConnectionAdder extends IdentifiableAdder<InternalConnectionAdder> {
+        interface InternalConnectionAdder {
 
             InternalConnectionAdder setNode1(int node1);
 

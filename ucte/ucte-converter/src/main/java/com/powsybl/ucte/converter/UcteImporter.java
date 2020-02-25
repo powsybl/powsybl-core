@@ -451,6 +451,7 @@ public class UcteImporter implements Importer {
         PhaseTapChangerAdder ptca = transformer.newPhaseTapChanger()
                 .setLowTapPosition(-ucteAngleRegulation.getN())
                 .setTapPosition(ucteAngleRegulation.getNp())
+                .setRegulationValue(ucteAngleRegulation.getP())
                 .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
 
         for (int i = -ucteAngleRegulation.getN(); i <= ucteAngleRegulation.getN(); i++) {
