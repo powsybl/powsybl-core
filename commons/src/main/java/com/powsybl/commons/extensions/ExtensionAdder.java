@@ -10,24 +10,6 @@ package com.powsybl.commons.extensions;
  * An ExtensionAdder is a builder for an extension that is built and then added
  * to an extendable.
  *
- * A generic ExtensionAdder interface should have a generic static method called
- * "clazz" returning its .class as a generic type with a wildcard bounded to the
- * expected extendables to allow clients to type check that they are using the
- * correct ExtensionAdder for an extendable. For example,
- *
- * <pre>
- * public interface ConnectablePositionAdder<C extends Connectable<C>
- *     extends ExtensionAdder<C, ConnectablePosition<C>> {
- *
- * //repeat the bounds "<C extends Connectable>" bounds here here
- * <C extends Connectable<C>> Class<ConnectablePositionAdder<C>> clazz() {
- *     return Class<ConnectablePositionAdder<C>> (Class) ConnectablePositionAdder.class;
- * }
- *
- * [...]
- * }
- * </pre>
- *
  * @author Jon Harper <jon.harper at rte-france.com>
  */
 // Can't use "T extends Extendable<T>" here because T is used in Extendable::newExtensionAdder

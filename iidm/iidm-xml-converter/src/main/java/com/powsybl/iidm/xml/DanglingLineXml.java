@@ -51,7 +51,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     @Override
     protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (dl.getCurrentLimits() != null) {
-            writeCurrentLimits(null, dl.getCurrentLimits(), context.getWriter());
+            writeCurrentLimits(null, dl.getCurrentLimits(), context.getWriter(), context.getVersion());
         }
     }
 

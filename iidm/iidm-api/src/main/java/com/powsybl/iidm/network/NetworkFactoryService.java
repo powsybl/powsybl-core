@@ -6,11 +6,13 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.config.PlatformConfigNamedProvider;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface NetworkFactoryService {
+public interface NetworkFactoryService extends PlatformConfigNamedProvider {
 
     /**
      * Get network factory name.

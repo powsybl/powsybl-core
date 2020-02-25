@@ -60,10 +60,7 @@ public class HvdcLineAdderAdapter implements HvdcLineAdder {
         if (Objects.isNull(converterStationId1)) {
             throw new PowsyblException("Side 1 converter station is not set");
         }
-        final Network network = index.getNetworkStream()
-                                     .filter(n -> n.getHvdcConverterStation(converterStationId1) != null)
-                                     .findFirst()
-                                     .orElse(null);
+        final Network network = index.getNetwork(n -> n.getHvdcConverterStation(converterStationId1) != null);
         if (Objects.isNull(network)) {
             throw new PowsyblException("Side 1 converter station '" + converterStationId1 + "' not found");
         }
@@ -74,10 +71,7 @@ public class HvdcLineAdderAdapter implements HvdcLineAdder {
         if (Objects.isNull(converterStationId2)) {
             throw new PowsyblException("Side 2 converter station is not set");
         }
-        final Network network = index.getNetworkStream()
-                                     .filter(n -> n.getHvdcConverterStation(converterStationId2) != null)
-                                     .findFirst()
-                                     .orElse(null);
+        final Network network = index.getNetwork(n -> n.getHvdcConverterStation(converterStationId2) != null);
         if (Objects.isNull(network)) {
             throw new PowsyblException("Side 2 converter station '" + converterStationId2 + "' not found");
         }

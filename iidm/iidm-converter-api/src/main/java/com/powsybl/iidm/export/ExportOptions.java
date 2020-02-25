@@ -14,10 +14,7 @@ import com.powsybl.iidm.network.TopologyLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -39,15 +36,24 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private boolean throwExceptionIfExtensionNotFound = false;
 
+    private String version;
+
+    private Map<String, String> extensionsVersions = new HashMap<>();
+
     public ExportOptions() {
     }
 
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound) {
+        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound, null);
+    }
+
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, String version) {
         this.withBranchSV = withBranchSV;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
         this.topologyLevel = Objects.requireNonNull(topologyLevel);
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
+        this.version = version;
     }
 
     @Override
@@ -135,6 +141,42 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     public ExportOptions setThrowExceptionIfExtensionNotFound(boolean throwException) {
         this.throwExceptionIfExtensionNotFound = throwException;
         return this;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public ExportOptions setVersion(String version) {
+        this.version = version;
+        return this;
+    }
+
+    /**
+     * Add a given version in which the extension with the given name will be exported if
+     * this version is supported by the extension's XML serializer and if it is compatible
+     * with the IIDM version in which the network will be exported.
+     * If the version is not added for an extension configured to be serialized, the extension will be serialized in the
+     * most recent version compatible with the IIDM version in which the network will be exported.
+     * If a version is added for an extension configured <b>not</b> to be serialized, the version will be ignored.
+     * If a version has already been added for the extension, throw an exception.
+     */
+    public ExportOptions addExtensionVersion(String extensionName, String extensionVersion) {
+        if (extensions != null && !extensions.contains(extensionName)) {
+            throw new PowsyblException(extensionName + " is not an extension you have passed in the extensions list to export.");
+        }
+        if (extensionsVersions.putIfAbsent(extensionName, extensionVersion) != null) {
+            throw new PowsyblException("The version of " + extensionName + "'s XML serializer has already been set.");
+        }
+        return this;
+    }
+
+    /**
+     * Return an optional containing the version oin which the extension with the given name will be exported if it has previously been added.
+     * If it has never been added, return an empty optional.
+     */
+    public Optional<String> getExtensionVersion(String extensionName) {
+        return Optional.ofNullable(extensionsVersions.get(extensionName));
     }
 
     /**

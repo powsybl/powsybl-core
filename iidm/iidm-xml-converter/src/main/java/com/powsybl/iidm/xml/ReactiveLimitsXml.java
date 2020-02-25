@@ -14,8 +14,6 @@ import com.powsybl.iidm.network.ReactiveLimitsHolder;
 
 import javax.xml.stream.XMLStreamException;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
-
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
@@ -32,9 +30,9 @@ public class ReactiveLimitsXml {
         switch (holder.getReactiveLimits().getKind()) {
             case CURVE:
                 ReactiveCapabilityCurve curve = holder.getReactiveLimits(ReactiveCapabilityCurve.class);
-                context.getWriter().writeStartElement(IIDM_URI, ELEM_REACTIVE_CAPABILITY_CURVE);
+                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), ELEM_REACTIVE_CAPABILITY_CURVE);
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
-                    context.getWriter().writeEmptyElement(IIDM_URI, "point");
+                    context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "point");
                     XmlUtil.writeDouble("p", point.getP(), context.getWriter());
                     XmlUtil.writeDouble(ATTR_MIN_Q, point.getMinQ(), context.getWriter());
                     XmlUtil.writeDouble(ATTR_MAX_Q, point.getMaxQ(), context.getWriter());
@@ -44,7 +42,7 @@ public class ReactiveLimitsXml {
 
             case MIN_MAX:
                 MinMaxReactiveLimits limits = holder.getReactiveLimits(MinMaxReactiveLimits.class);
-                context.getWriter().writeEmptyElement(IIDM_URI, ELEM_MIN_MAX_REACTIVE_LIMITS);
+                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), ELEM_MIN_MAX_REACTIVE_LIMITS);
                 XmlUtil.writeDouble(ATTR_MIN_Q, limits.getMinQ(), context.getWriter());
                 XmlUtil.writeDouble(ATTR_MAX_Q, limits.getMaxQ(), context.getWriter());
                 break;
