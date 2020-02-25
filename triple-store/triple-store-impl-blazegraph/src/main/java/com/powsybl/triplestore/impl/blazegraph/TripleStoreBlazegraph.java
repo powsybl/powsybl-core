@@ -121,8 +121,8 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
             cnx.begin();
             Resource context = context(cnx, name);
             read(is, base, name, cnx, context);
-            cnx.commit();
             addNamespaceForBase(cnx, base);
+            cnx.commit();
         } catch (RepositoryException x) {
             throw new TripleStoreException(String.format("Reading. Repo problem %s %s", name, base), x);
         } finally {
@@ -155,6 +155,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         RepositoryConnection conn = null;
         try {
             conn = repo.getConnection();
+            conn.begin();
             RepositoryResult<Resource> contexts = conn.getContextIDs();
             while (contexts.hasNext()) {
                 Resource context = contexts.next();
@@ -167,6 +168,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
 
                 String outname = context.toString();
                 write(model, outputStream(ds, outname));
+                conn.commit();
             }
         } catch (RepositoryException x) {
             throw new TripleStoreException(String.format("Writing on %s", ds), x);
@@ -182,6 +184,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         try {
             conn = repo.getConnection();
             try {
+                conn.begin();
                 RepositoryResult<Resource> ctxs = conn.getContextIDs();
                 while (ctxs.hasNext()) {
                     Resource ctx = ctxs.next();
@@ -196,6 +199,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                         }
                     }
                 }
+                conn.commit();
             } finally {
                 closeConnection(conn, "Printing");
             }
@@ -241,7 +245,11 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         RepositoryConnection cnx = null;
         try {
             cnx = repo.getConnection();
-            return query(cnx, adjustedQuery(query));
+            cnx.begin();
+            PropertyBags result = query(cnx, adjustedQuery(query));
+            cnx.commit();
+            return result;
+
         } catch (RepositoryException x) {
             LOG.error(x.getMessage());
             return null;

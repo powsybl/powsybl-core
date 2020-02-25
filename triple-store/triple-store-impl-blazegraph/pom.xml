@@ -42,7 +42,7 @@
         <!-- Compilation dependencies -->
         <dependency>
             <groupId>com.blazegraph</groupId>
-            <artifactId>bigdata-core</artifactId>
+            <artifactId>blazegraph-jar</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
