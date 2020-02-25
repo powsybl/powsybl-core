@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
@@ -68,5 +69,14 @@ public interface ExtensionXmlSerializer<T extends Extendable, E extends Extensio
      */
     default String getVersion() {
         return "1.0";
+    }
+
+    /**
+     * Check that a given extension version exists.
+     */
+    default void checkExtensionVersionSupported(String extensionVersion) {
+        if (!"1.0".equals(extensionVersion)) {
+            throw new PowsyblException("The version " + extensionVersion + " of the " + getExtensionName() + " extension's XML serializer is not supported.");
+        }
     }
 }
