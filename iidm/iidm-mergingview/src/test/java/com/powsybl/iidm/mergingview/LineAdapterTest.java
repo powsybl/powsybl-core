@@ -6,10 +6,16 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
+import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.*;
 
@@ -18,7 +24,11 @@ import static org.junit.Assert.*;
  */
 public class LineAdapterTest {
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     private MergingView mergingView;
+
     private Network networkRef;
 
     @Before
@@ -93,5 +103,55 @@ public class LineAdapterTest {
 
         // Not implemented yet !
         TestUtil.notImplemented(lineAdapted::remove);
+    }
+
+    @Test
+    public void adderFromSameNetworkTests() {
+        // adder line with both voltage level in same network
+        final Line okLine = mergingView.newLine()
+                                           .setId("okLine")
+                                           .setName("okLineName")
+                                           .setEnsureIdUnicity(true)
+                                           .setR(1.0)
+                                           .setX(2.0)
+                                           .setG1(3.0)
+                                           .setG2(3.5)
+                                           .setB1(4.0)
+                                           .setB2(4.5)
+                                           .setVoltageLevel1("VLGEN")
+                                           .setVoltageLevel2("VLBAT")
+                                           .setBus1("NGEN")
+                                           .setBus2("NBAT")
+                                           .setConnectableBus1("NGEN")
+                                           .setConnectableBus2("NBAT")
+                                       .add();
+
+        assertEquals(okLine, mergingView.getLine("okLine"));
+    }
+
+    @Test
+    public void adderFromBothNetworkTests() {
+        thrown.expect(PowsyblException.class);
+        thrown.expectMessage("Not implemented exception");
+
+        mergingView.merge(NoEquipmentNetworkFactory.create());
+        // adder line with both voltage level in different network
+        final Line lineOnBothNetwork = mergingView.newLine()
+                                                      .setId("lineOnBothNetworkId")
+                                                      .setName("lineOnBothNetworkName")
+                                                      .setEnsureIdUnicity(true)
+                                                      .setR(1.0)
+                                                      .setX(2.0)
+                                                      .setG1(3.0)
+                                                      .setG2(3.5)
+                                                      .setB1(4.0)
+                                                      .setB2(4.5)
+                                                      .setVoltageLevel1("vl1")
+                                                      .setVoltageLevel2("VLBAT")
+                                                      .setBus1("busA")
+                                                      .setBus2("NBAT")
+                                                      .setConnectableBus1("busA")
+                                                      .setConnectableBus2("NBAT")
+                                                  .add();
     }
 }

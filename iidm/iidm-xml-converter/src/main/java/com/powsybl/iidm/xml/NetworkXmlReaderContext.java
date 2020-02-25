@@ -8,7 +8,6 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.iidm.AbstractConverterContext;
 import com.powsybl.iidm.anonymizer.Anonymizer;
 import com.powsybl.iidm.import_.ImportOptions;
 
@@ -21,14 +20,13 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkXmlReaderContext extends AbstractConverterContext<ImportOptions> implements XmlReaderContext {
+public class NetworkXmlReaderContext extends AbstractNetworkXmlContext<ImportOptions> implements XmlReaderContext {
 
     private final XMLStreamReader reader;
 
     private final List<Runnable> endTasks = new ArrayList<>();
     private final ImportOptions options;
 
-    private final IidmXmlVersion version;
     private final Set<String> extensionsNamespaceUri = new HashSet<>();
 
     public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader) {
@@ -36,10 +34,9 @@ public class NetworkXmlReaderContext extends AbstractConverterContext<ImportOpti
     }
 
     public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader, ImportOptions options, IidmXmlVersion version) {
-        super(anonymizer);
+        super(anonymizer, version);
         this.reader = Objects.requireNonNull(reader);
         this.options = Objects.requireNonNull(options);
-        this.version = Objects.requireNonNull(version);
     }
 
     @Override
@@ -54,10 +51,6 @@ public class NetworkXmlReaderContext extends AbstractConverterContext<ImportOpti
     @Override
     public ImportOptions getOptions() {
         return options;
-    }
-
-    public IidmXmlVersion getVersion() {
-        return version;
     }
 
     public void buildExtensionNamespaceUriList(Stream<ExtensionXmlSerializer> providers) {
