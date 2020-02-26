@@ -15,6 +15,9 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
+
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -33,7 +36,7 @@ public abstract class AbstractXmlConverterTest extends AbstractConverterTest {
         return getClass().getResourceAsStream(getVersionedNetworkPath(fileName, version));
     }
 
-    protected void roundTripVersionnedXmlTest(String file, IidmXmlVersion... versions) throws IOException {
+    protected void roundTripVersionedXmlTest(String file, IidmXmlVersion... versions) throws IOException {
         for (IidmXmlVersion version : versions) {
             roundTripXmlTest(NetworkXml.read(getVersionedNetworkAsStream(file, version)),
                     writeAndValidate(version),
@@ -42,8 +45,30 @@ public abstract class AbstractXmlConverterTest extends AbstractConverterTest {
         }
     }
 
+    protected void roundTripAllPreviousVersionedXmlTest(String file) throws IOException {
+        roundTripVersionedXmlTest(file, Stream.of(IidmXmlVersion.values())
+                .filter(v -> v.compareTo(CURRENT_IIDM_XML_VERSION) < 0)
+                .toArray(IidmXmlVersion[]::new));
+    }
+
+    protected void roundTripAllVersionedXmlTest(String file) throws IOException {
+        roundTripVersionedXmlTest(file, IidmXmlVersion.values());
+    }
+
+    /**
+     * @deprecated Use {@link #roundTripVersionedXmlTest(String, IidmXmlVersion...)} instead.
+     */
+    @Deprecated
+    protected void roundTripVersionnedXmlTest(String file, IidmXmlVersion... versions) throws IOException {
+        roundTripVersionedXmlTest(file, versions);
+    }
+
+    /**
+     * @deprecated Use {@link #roundTripAllVersionedXmlTest(String)} instead.
+     */
+    @Deprecated
     protected void roundTripAllVersionnedXmlTest(String file) throws IOException {
-        roundTripVersionnedXmlTest(file, IidmXmlVersion.values());
+        roundTripAllVersionedXmlTest(file);
     }
 
     private static BiConsumer<Network, Path> writeAndValidate(IidmXmlVersion version) {

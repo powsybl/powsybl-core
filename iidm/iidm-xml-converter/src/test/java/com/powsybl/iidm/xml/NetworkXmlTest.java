@@ -48,8 +48,8 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
                 NetworkXml::read,
                 getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_XML_VERSION));
 
-        // backward compatibility 1.0
-        roundTripVersionnedXmlTest("eurostag-tutorial-example1.xml", IidmXmlVersion.V_1_0);
+        // backward compatibility
+        roundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
     }
 
     @Test
@@ -58,6 +58,8 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
         network.getGenerator("GEN").setProperty("test", "foo");
         Path xmlFile = tmpDir.resolve("n.xml");
         NetworkXml.writeAndValidate(network, xmlFile);
+        Network readNetwork = NetworkXml.read(xmlFile);
+        assertEquals("foo", readNetwork.getGenerator("GEN").getProperty("test"));
     }
 
     @Test
