@@ -111,20 +111,24 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                                     .handleAsync((lfResult, throwable) -> {
                                         network.getVariantManager().setWorkingVariant(postContStateId);
 
-                                        resultBuilder.contingency(contingency)
-                                                .setComputationOk(lfResult.isOk());
-                                        violationDetector.checkAll(contingency, network, resultBuilder::addViolation);
-                                        resultBuilder.endContingency();
+                                        synchronized (resultBuilder) {
+                                            resultBuilder.contingency(contingency)
+                                                    .setComputationOk(lfResult.isOk());
+                                            violationDetector.checkAll(contingency, network, resultBuilder::addViolation);
+                                            resultBuilder.endContingency();
+                                        }
                                         network.getVariantManager().removeVariant(postContStateId);
 
                                         return null;
                                     }, computationManager.getExecutor());
                         }
                     } else {
-                        resultBuilder.preContingency()
-                                .setComputationOk(false)
-                                .endPreContingency()
-                                .build();
+                        synchronized (resultBuilder) {
+                            resultBuilder.preContingency()
+                                    .setComputationOk(false)
+                                    .endPreContingency()
+                                    .build();
+                        }
                         futures = new CompletableFuture[0];
                     }
 
