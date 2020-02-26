@@ -166,8 +166,8 @@ public class LineAdapterTest {
         assertEquals(Double.NaN, dl2.getTerminal().getP(), 0.0);
         assertEquals(Double.NaN, dl2.getTerminal().getQ(), 0.0);
         double p1 = 10.0;
-        double q1 = 20.0;
-        double p2 = 30.0;
+        double q1 = -20.0;
+        double p2 = -30.0;
         double q2 = 40.0;
         // Update P & Q
         dl1.getTerminal().setP(p1);
@@ -175,9 +175,9 @@ public class LineAdapterTest {
         dl2.getTerminal().setP(p2);
         dl2.getTerminal().setQ(q2);
         // Check P & Q
-        assertEquals((p1 + p2) / 2.0, dl1.getP0(), 0.0d);
+        assertEquals(-(p1 + p2) / 2.0, dl1.getP0(), 0.0d);
         assertEquals((q1 + q2) / 2.0, dl1.getQ0(), 0.0d);
-        assertEquals(-(p1 + p2) / 2.0, dl2.getP0(), 0.0d);
+        assertEquals((p1 + p2) / 2.0, dl2.getP0(), 0.0d);
         assertEquals(-(q1 + q2) / 2.0, dl2.getQ0(), 0.0d);
 
         // Exception(s)

@@ -102,8 +102,8 @@ class MergedLine implements Line {
         double p2 = dl2.getTerminal().getP();
         if (!Double.isNaN(p1) && !Double.isNaN(p2)) {
             double p0 = (p1 + p2) / 2.0d;
-            dl1.setP0(p0);
-            dl2.setP0(-p0); // sign depends of side
+            dl1.setP0(getSign(p2) * p0);
+            dl2.setP0(getSign(p1) * p0);
         }
     }
 
@@ -112,9 +112,16 @@ class MergedLine implements Line {
         double q2 = dl2.getTerminal().getQ();
         if (!Double.isNaN(q1) && !Double.isNaN(q2)) {
             double q0 = (q1 + q2) / 2.0d;
-            dl1.setQ0(q0);
-            dl2.setQ0(-q0); // sign depends of side
+            dl1.setQ0(getSign(q2) * q0);
+            dl2.setQ0(getSign(q1) * q0);
         }
+    }
+
+    private static int getSign(double value) {
+        // Sign depends on the transit flow:
+        // P1 ---->-----DL1.P0 ---->----- DL2.P0 ---->---- P2
+        // The sign of DL1.P0 is the same as P2, and respectively the sign of DL2.P0 is the same than P1
+        return (value >= 0) ? 1 : -1;
     }
 
     @Override
@@ -191,8 +198,9 @@ class MergedLine implements Line {
         return id;
     }
 
-    public MergedLine setId(String id) {
-        this.id = id;
+    MergedLine setId(String id) {
+        Objects.requireNonNull(id, "id is null");
+        this.id = Identifiables.getUniqueId(id, index::contains);
         return this;
     }
 

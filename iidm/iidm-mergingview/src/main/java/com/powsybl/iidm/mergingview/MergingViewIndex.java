@@ -276,7 +276,6 @@ class MergingViewIndex {
     }
 
     boolean isMerged(final DanglingLine dl) {
-        Objects.requireNonNull(dl, "DanglingLine is null");
         return mergedLineCached.containsKey(dl.getUcteXnodeCode());
     }
 

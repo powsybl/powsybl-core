@@ -75,7 +75,7 @@ class LineAdderAdapter implements LineAdder {
         if (n1 == n2) {
             newLine = index.getLine(addLine(n1));
         } else {
-            // FIXME : how to compute ucteXnodeCode ?
+            // UcteXnodeCode is empty for MergedLine created here
             ucteXnodeCode = "";
             // P0 & Q0 are updated by MergingNetworkListener::onUpdate method
             p0 = 0.0;
