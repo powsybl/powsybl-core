@@ -43,13 +43,16 @@ public class TopologyLevelTest extends AbstractXmlConverterTest {
     }
 
     private void testConversion(Network network) throws IOException {
-        writeXmlTest(network, TopologyLevelTest::writeNodeBreaker, getVersionDir(CURRENT_IIDM_XML_VERSION) + "fictitiousSwitchRef.xml");
+        writeXmlTest(network, TopologyLevelTest::writeNodeBreaker,
+                getVersionedNetworkPath("fictitiousSwitchRef.xml", CURRENT_IIDM_XML_VERSION));
 
         network.getSwitchStream().forEach(sw -> sw.setRetained(false));
         network.getSwitch("BJ").setRetained(true);
 
-        writeXmlTest(network, TopologyLevelTest::writeBusBreaker, getVersionDir(CURRENT_IIDM_XML_VERSION) + "fictitiousSwitchRef-bbk.xml");
-        writeXmlTest(network, TopologyLevelTest::writeBusBranch, getVersionDir(CURRENT_IIDM_XML_VERSION) + "fictitiousSwitchRef-bbr.xml");
+        writeXmlTest(network, TopologyLevelTest::writeBusBreaker,
+                getVersionedNetworkPath("fictitiousSwitchRef-bbk.xml", CURRENT_IIDM_XML_VERSION));
+        writeXmlTest(network, TopologyLevelTest::writeBusBranch,
+                getVersionedNetworkPath("fictitiousSwitchRef-bbr.xml", CURRENT_IIDM_XML_VERSION));
     }
 
     private static void writeNodeBreaker(Network network, Path path) {

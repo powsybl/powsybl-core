@@ -25,8 +25,12 @@ public abstract class AbstractXmlConverterTest extends AbstractConverterTest {
         return "/V" + version.toString("_") + "/";
     }
 
+    public static String getVersionedNetworkPath(String fileName, IidmXmlVersion version) {
+        return getVersionDir(version) + fileName;
+    }
+
     protected InputStream getVersionedNetworkAsStream(String fileName, IidmXmlVersion version) {
-        return getClass().getResourceAsStream(getVersionDir(version) + fileName);
+        return getClass().getResourceAsStream(getVersionedNetworkPath(fileName, version));
     }
 
     protected void roundTripVersionnedXmlTest(String file, IidmXmlVersion... versions) throws IOException {
@@ -34,7 +38,7 @@ public abstract class AbstractXmlConverterTest extends AbstractConverterTest {
             roundTripXmlTest(NetworkXml.read(getVersionedNetworkAsStream(file, version)),
                     writeAndValidate(version),
                     NetworkXml::validateAndRead,
-                    getVersionDir(version) + file);
+                    getVersionedNetworkPath(file, version));
         }
     }
 
