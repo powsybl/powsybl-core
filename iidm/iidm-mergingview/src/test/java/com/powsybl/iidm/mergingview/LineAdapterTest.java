@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -109,24 +110,13 @@ public class LineAdapterTest {
     @Test
     public void adderFromSameNetworkTests() {
         // adder line with both voltage level in same network
-        final Line okLine = mergingView.newLine()
-                                           .setId("okLine")
-                                           .setName("okLineName")
-                                           .setEnsureIdUnicity(true)
-                                           .setR(1.0)
-                                           .setX(2.0)
-                                           .setG1(3.0)
-                                           .setG2(3.5)
-                                           .setB1(4.0)
-                                           .setB2(4.5)
-                                           .setVoltageLevel1("VLGEN")
-                                           .setVoltageLevel2("VLBAT")
-                                           .setBus1("NGEN")
-                                           .setBus2("NBAT")
-                                           .setConnectableBus1("NGEN")
-                                           .setConnectableBus2("NBAT")
-                                       .add();
-
+        final Line okLine = createLine(mergingView,
+                                       "okLine",
+                                       "okLineName",
+                                       "VLGEN",
+                                       "NGEN",
+                                       "NGEN");
+        assertNotNull(okLine);
         assertEquals(okLine, mergingView.getLine("okLine"));
     }
 
@@ -135,25 +125,37 @@ public class LineAdapterTest {
         final Network noEquipNetwork = NoEquipmentNetworkFactory.create();
         mergingView.merge(noEquipNetwork);
         // adder line with both voltage level in different network
-        final Line lineOnBothNetwork = mergingView.newLine()
-                                                      .setId("lineOnBothNetworkId")
-                                                      .setName("lineOnBothNetworkName")
-                                                      .setEnsureIdUnicity(true)
-                                                      .setR(1.0)
-                                                      .setX(2.0)
-                                                      .setG1(3.0)
-                                                      .setG2(3.5)
-                                                      .setB1(4.0)
-                                                      .setB2(4.5)
-                                                      .setVoltageLevel1("vl1")
-                                                      .setVoltageLevel2("VLBAT")
-                                                      .setBus1("busA")
-                                                      .setBus2("NBAT")
-                                                      .setConnectableBus1("busA")
-                                                      .setConnectableBus2("NBAT")
-                                                  .add();
+        final Line lineOnBothNetwork = createLine(mergingView,
+                                                  "lineOnBothNetworkId",
+                                                  "lineOnBothNetworkName",
+                                                  "vl1",
+                                                  "busA",
+                                                  "busA");
         assertNotNull(lineOnBothNetwork);
         assertEquals(lineOnBothNetwork, mergingView.getLine("lineOnBothNetworkId"));
+
+        // Exception(s)
+        thrown.expect(PowsyblException.class);
+        thrown.expectMessage("The network already contains an object with the id 'lineOnBothNetworkId'");
+        mergingView.newLine()
+                       .setId("lineOnBothNetworkId")
+                       .setVoltageLevel1("vl1")
+                       .setVoltageLevel2("VLBAT")
+                   .add();
+    }
+
+    @Test
+    public void checkP0AndQ0UpdateTests() {
+        final Network noEquipNetwork = NoEquipmentNetworkFactory.create();
+        mergingView.merge(noEquipNetwork);
+        // adder line with both voltage level in different network
+        final Line lineOnBothNetwork = createLine(mergingView,
+                "lineOnBothNetworkId",
+                "lineOnBothNetworkName",
+                "vl1",
+                "busA",
+                "busA");
+        assertTrue(lineOnBothNetwork instanceof MergedLine);
 
         // Get both DanglingLine
         final DanglingLine dl1 = noEquipNetwork.getDanglingLine("lineOnBothNetworkId_1");
@@ -174,20 +176,11 @@ public class LineAdapterTest {
         dl1.getTerminal().setQ(q1);
         dl2.getTerminal().setP(p2);
         dl2.getTerminal().setQ(q2);
-        // Check P & Q
+        // Check P & Q are updated
         assertEquals(-(p1 + p2) / 2.0, dl1.getP0(), 0.0d);
         assertEquals((q1 + q2) / 2.0, dl1.getQ0(), 0.0d);
         assertEquals((p1 + p2) / 2.0, dl2.getP0(), 0.0d);
         assertEquals(-(q1 + q2) / 2.0, dl2.getQ0(), 0.0d);
-
-        // Exception(s)
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("The network already contains an object with the id 'lineOnBothNetworkId'");
-        mergingView.newLine()
-                       .setId("lineOnBothNetworkId")
-                       .setVoltageLevel1("vl1")
-                       .setVoltageLevel2("VLBAT")
-                   .add();
     }
 
     @Test
@@ -201,5 +194,26 @@ public class LineAdapterTest {
                        .setVoltageLevel1("vl1")
                        .setVoltageLevel2("VLBAT")
                    .add();
+    }
+
+    private static Line createLine(Network network, String id, String name,
+                                   String voltageLevelId1, String busId1, String connectableBusId1) {
+        return network.newLine()
+                          .setId(id)
+                          .setName(name)
+                          .setEnsureIdUnicity(true)
+                          .setR(1.0)
+                          .setX(2.0)
+                          .setG1(3.0)
+                          .setG2(3.5)
+                          .setB1(4.0)
+                          .setB2(4.5)
+                          .setVoltageLevel1(voltageLevelId1)
+                          .setVoltageLevel2("VLBAT")
+                          .setBus1(busId1)
+                          .setBus2("NBAT")
+                          .setConnectableBus1(connectableBusId1)
+                          .setConnectableBus2("NBAT")
+                      .add();
     }
 }
