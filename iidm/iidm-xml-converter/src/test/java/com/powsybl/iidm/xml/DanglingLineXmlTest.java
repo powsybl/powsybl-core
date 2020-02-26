@@ -18,6 +18,6 @@ public class DanglingLineXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void test() throws IOException {
-        roundTripAllVersionnedXmlTest("danglingLine.xml");
+        roundTripAllVersionedXmlTest("danglingLine.xml");
     }
 }

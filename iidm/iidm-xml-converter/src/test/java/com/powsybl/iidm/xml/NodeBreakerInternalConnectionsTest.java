@@ -28,8 +28,8 @@ public class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest
                 NetworkXml::read,
                 getVersionedNetworkPath("internalConnections.xiidm", CURRENT_IIDM_XML_VERSION));
 
-        // backward compatibility 1.0
-        roundTripVersionnedXmlTest("internalConnections.xiidm", IidmXmlVersion.V_1_0);
+        // backward compatibility
+        roundTripAllPreviousVersionedXmlTest("internalConnections.xiidm");
     }
 
     private Network networkWithInternalConnections() {
