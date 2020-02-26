@@ -6,23 +6,20 @@
  */
 package com.powsybl.entsoe.util;
 
-import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.DanglingLine;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Jon Harper <jon.harper at rte-france.com>
  */
-public interface Xnode extends Extension<DanglingLine> {
+public interface XnodeAdder extends ExtensionAdder<DanglingLine, Xnode> {
 
     @Override
-    default String getName() {
-        return "xnode";
+    default Class<Xnode> getExtensionClass() {
+        return Xnode.class;
     }
-
-    public String getCode();
 
     // No need for CRTP style return type returning a more specific adder
     // because this interface is not meant to be extended.
-    public Xnode setCode(String code);
-
+    XnodeAdder withCode(String code);
 }
