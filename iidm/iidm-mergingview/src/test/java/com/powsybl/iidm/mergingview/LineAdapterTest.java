@@ -196,7 +196,7 @@ public class LineAdapterTest {
 
         // Exception(s)
         thrown.expect(PowsyblException.class);
-        thrown.expectMessage("LineAdderAdapter id is not set");
+        thrown.expectMessage("Line id is not set");
         mergingView.newLine()
                        .setVoltageLevel1("vl1")
                        .setVoltageLevel2("VLBAT")

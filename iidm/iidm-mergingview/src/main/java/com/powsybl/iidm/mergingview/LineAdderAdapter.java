@@ -101,7 +101,7 @@ class LineAdderAdapter implements LineAdder {
 
     private void checkAndSetUniqueId() {
         if (this.id == null) {
-            throw new PowsyblException(getClass().getSimpleName() + " id is not set");
+            throw new PowsyblException("Line id is not set");
         }
         if (ensureIdUnicity) {
             setId(Identifiables.getUniqueId(id, index::contains));
