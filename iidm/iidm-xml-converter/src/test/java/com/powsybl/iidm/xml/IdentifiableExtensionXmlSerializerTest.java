@@ -78,7 +78,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         roundTripXmlTest(MultipleExtensionsTestNetworkFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions.xml");
+                getVersionedNetworkPath("multiple-extensions.xml", CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility 1.0
         roundTripVersionnedXmlTest("multiple-extensions.xml", IidmXmlVersion.V_1_0);
@@ -187,7 +187,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         Network network2 = roundTripXmlTest(EurostagTutorialExample1Factory.createWithTerminalMockExt(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial-example1-with-terminalMock-ext.xml");
+                getVersionedNetworkPath("eurostag-tutorial-example1-with-terminalMock-ext.xml", CURRENT_IIDM_XML_VERSION));
         Load loadXml = network2.getLoad("LOAD");
         TerminalMockExt terminalMockExtXml = loadXml.getExtension(TerminalMockExt.class);
         assertNotNull(terminalMockExtXml);
@@ -199,7 +199,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
                 IidmXmlVersion.V_1_0)),
                 NetworkXml::writeAndValidate,
                 NetworkXml::validateAndRead,
-                getVersionDir(IidmXmlConstants.CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial-example1-with-terminalMock-ext.xml");
+                getVersionedNetworkPath("eurostag-tutorial-example1-with-terminalMock-ext.xml", CURRENT_IIDM_XML_VERSION));
     }
 
     @Test

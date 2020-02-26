@@ -37,7 +37,7 @@ public class StaticVarCompensatorXmlTest extends AbstractXmlConverterTest {
         roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "staticVarCompensatorRoundTripRef.xml");
+                getVersionedNetworkPath("staticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
     }
 
     @Test
@@ -47,7 +47,7 @@ public class StaticVarCompensatorXmlTest extends AbstractXmlConverterTest {
         roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "regulatingStaticVarCompensatorRoundTripRef.xml");
+                getVersionedNetworkPath("regulatingStaticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
     }
 
     @Test

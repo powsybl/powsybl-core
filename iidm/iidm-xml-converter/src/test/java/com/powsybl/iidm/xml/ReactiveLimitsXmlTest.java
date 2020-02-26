@@ -25,6 +25,6 @@ public class ReactiveLimitsXmlTest extends AbstractXmlConverterTest {
         roundTripXmlTest(ReactiveLimitsTestNetworkFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "reactiveLimitsRoundTripRef.xml");
+                getVersionedNetworkPath("reactiveLimitsRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
     }
 }
