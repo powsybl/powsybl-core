@@ -41,7 +41,7 @@ public class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
     public void faultyFileTest() {
         exception.expect(PowsyblException.class);
         exception.expectMessage("threeWindingsTransformer.ratedU0 is mandatory for IIDM-XML version 1.1. IIDM-XML version should be < 1.1");
-        NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_1) + "faultyThreeWindingsTransformerRoundTripRef.xml"));
+        NetworkXml.read(getVersionedNetworkAsStream("faultyThreeWindingsTransformerRoundTripRef.xml", IidmXmlVersion.V_1_1));
     }
 
     @Test

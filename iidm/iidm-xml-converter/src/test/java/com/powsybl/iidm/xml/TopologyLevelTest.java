@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
@@ -17,14 +16,13 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.assertEquals;
 
 /**
  * @author Teofil Calin Banc<teofil-calin.banc at rte-france.com>
  */
-public class TopologyLevelTest extends AbstractConverterTest {
+public class TopologyLevelTest extends AbstractXmlConverterTest {
 
     @Test
     public void testComparison() {
@@ -39,7 +37,7 @@ public class TopologyLevelTest extends AbstractConverterTest {
 
     @Test
     public void testConversion() throws IOException {
-        testConversion(NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_0) + "fictitiousSwitchRef.xml")));
+        testConversion(NetworkXml.read(getVersionedNetworkAsStream("fictitiousSwitchRef.xml", IidmXmlVersion.V_1_0)));
 
         testConversion(FictitiousSwitchFactory.create());
     }
