@@ -46,7 +46,7 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
         roundTripXmlTest(createEurostagTutorialExample1(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial-example1.xml");
+                getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility 1.0
         roundTripVersionnedXmlTest("eurostag-tutorial-example1.xml", IidmXmlVersion.V_1_0);

@@ -34,7 +34,7 @@ public class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
         roundTripXmlTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "threeWindingsTransformerRoundTripRef.xml");
+                getVersionedNetworkPath("threeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
     }
 
     @Test
@@ -70,7 +70,7 @@ public class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
         roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "completeThreeWindingsTransformerRoundTripRef.xml");
+                getVersionedNetworkPath("completeThreeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
     }
 
     private void createPtc(PhaseTapChangerAdder adder) {

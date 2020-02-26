@@ -50,7 +50,7 @@ public class SimpleAnonymizerTest extends AbstractXmlConverterTest {
         roundTripXmlTest(network2,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial-example1.xml");
+                getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_XML_VERSION));
     }
 
     @Test
