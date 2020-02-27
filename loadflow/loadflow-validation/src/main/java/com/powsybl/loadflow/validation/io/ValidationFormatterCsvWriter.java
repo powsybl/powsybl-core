@@ -258,7 +258,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             new Column("id"),
             new Column("p"),
             new Column("q"),
-            new Column("v"),
+            new Column("vControlled"),
+            new Column("vController"),
             new Column(NOMINAL_V),
             new Column("reactivePowerSetpoint"),
             new Column("voltageSetpoint")
@@ -276,7 +277,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             svcColumns = ArrayUtils.addAll(svcColumns,
                                            new Column("p" + POST_COMPUTATION_SUFFIX),
                                            new Column("q" + POST_COMPUTATION_SUFFIX),
-                                           new Column("v" + POST_COMPUTATION_SUFFIX),
+                                           new Column("vControlled" + POST_COMPUTATION_SUFFIX),
+                                           new Column("vController" + POST_COMPUTATION_SUFFIX),
                                            new Column(NOMINAL_V + POST_COMPUTATION_SUFFIX),
                                            new Column("reactivePowerSetpoint" + POST_COMPUTATION_SUFFIX),
                                            new Column("voltageSetpoint" + POST_COMPUTATION_SUFFIX));
@@ -646,29 +648,30 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     }
 
     @Override
-    protected void write(String svcId, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+    protected void write(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
                          boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated,
                          SvcData svcData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(svcId);
         if (compareResults) {
             formatter = found ?
-                        write(found, svcData.p, svcData.q, svcData.v, svcData.nominalV, svcData.reactivePowerSetpoint, svcData.voltageSetpoint,
+                        write(found, svcData.p, svcData.q, svcData.vControlled, svcData.vController, svcData.nominalVcontroller, svcData.reactivePowerSetpoint, svcData.voltageSetpoint,
                               svcData.connected, svcData.regulationMode, svcData.bMin, svcData.bMax, svcData.mainComponent, svcData.validated) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, null, Double.NaN, Double.NaN, false, false);
+                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, null, Double.NaN, Double.NaN, false, false);
         }
-        formatter = write(writeValues, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated);
+        formatter = write(writeValues, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated);
     }
 
-    private TableFormatter write(boolean writeValues, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+    private TableFormatter write(boolean writeValues, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
                                  boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(-p)
                              .writeCell(-q)
-                             .writeCell(v)
-                             .writeCell(nominalV)
+                             .writeCell(vControlled)
+                             .writeCell(vController)
+                             .writeCell(nominalVcontroller)
                              .writeCell(reactivePowerSetpoint)
                              .writeCell(voltageSetpoint) :
-                    formatter.writeEmptyCells(6);
+                    formatter.writeEmptyCells(7);
         if (verbose) {
             formatter = writeValues ?
                         formatter.writeCell(connected)

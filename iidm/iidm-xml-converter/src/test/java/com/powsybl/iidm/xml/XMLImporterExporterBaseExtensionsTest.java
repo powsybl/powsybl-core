@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
@@ -22,7 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.assertEquals;
 
@@ -30,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
-public class XMLImporterExporterBaseExtensionsTest extends AbstractConverterTest {
+public class XMLImporterExporterBaseExtensionsTest extends AbstractXmlConverterTest {
 
     private void importExport(String directory) throws IOException {
         Properties exportProperties = new Properties();
@@ -52,11 +50,11 @@ public class XMLImporterExporterBaseExtensionsTest extends AbstractConverterTest
         new XMLExporter().export(network, exportProperties, dataSource);
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
-            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions.xiidm"), is);
+            compareXml(getVersionedNetworkAsStream("multiple-extensions.xiidm", CURRENT_IIDM_XML_VERSION), is);
         }
         // check the exported extensions file and compare it to "multiple-extensions-ext.xiidm" reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("-ext", "xiidm"))) {
-            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions-ext.xiidm"), is);
+            compareXml(getVersionedNetworkAsStream("multiple-extensions-ext.xiidm", CURRENT_IIDM_XML_VERSION), is);
         }
     }
 

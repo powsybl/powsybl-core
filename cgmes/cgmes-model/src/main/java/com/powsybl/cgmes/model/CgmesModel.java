@@ -167,9 +167,21 @@ public interface CgmesModel {
 
     // TODO(Luma) refactoring node-breaker conversion temporal
 
-    String substation(CgmesTerminal t);
+    /**
+     * Obtain the substation of a given terminal.
+     *
+     * @param t the terminal
+     * @param nodeBreaker to determine the terminal container, use node-breaker connectivity information first
+     */
+    String substation(CgmesTerminal t, boolean nodeBreaker);
 
-    String voltageLevel(CgmesTerminal t);
+    /**
+     * Obtain the voltage level grouping in which a given terminal is contained.
+     *
+     * @param t the terminal
+     * @param nodeBreaker to determine the terminal container, use node-breaker connectivity information first
+     */
+    String voltageLevel(CgmesTerminal t, boolean nodeBreaker);
 
     CgmesContainer container(String containerId);
 

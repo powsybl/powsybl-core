@@ -34,14 +34,14 @@ public class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
         roundTripXmlTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "threeWindingsTransformerRoundTripRef.xml");
+                getVersionedNetworkPath("threeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
     }
 
     @Test
     public void faultyFileTest() {
         exception.expect(PowsyblException.class);
         exception.expectMessage("threeWindingsTransformer.ratedU0 is mandatory for IIDM-XML version 1.1. IIDM-XML version should be < 1.1");
-        NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_1) + "faultyThreeWindingsTransformerRoundTripRef.xml"));
+        NetworkXml.read(getVersionedNetworkAsStream("faultyThreeWindingsTransformerRoundTripRef.xml", IidmXmlVersion.V_1_1));
     }
 
     @Test
@@ -70,7 +70,7 @@ public class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
         roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "completeThreeWindingsTransformerRoundTripRef.xml");
+                getVersionedNetworkPath("completeThreeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
     }
 
     private void createPtc(PhaseTapChangerAdder adder) {
