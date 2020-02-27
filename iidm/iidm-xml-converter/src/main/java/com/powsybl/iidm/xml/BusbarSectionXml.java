@@ -61,8 +61,12 @@ class BusbarSectionXml extends AbstractIdentifiableXml<BusbarSection, BusbarSect
                 .add();
 
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_0, context, () -> {
-            double v = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "v");
-            double angle = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "angle");
+            // Read v or throw if attribute is not expected.
+            double v = IidmXmlUtil.readOptionalDoubleAttributeUntilMaximumVersion(ROOT_ELEMENT_NAME, "v",
+                    IidmXmlVersion.V_1_0, context);
+            // Read angle or throw if attribute is not expected.
+            double angle = IidmXmlUtil.readOptionalDoubleAttributeUntilMaximumVersion(ROOT_ELEMENT_NAME, "angle",
+                    IidmXmlVersion.V_1_0, context);
             context.getEndTasks().add(() -> {
                 Bus b = bbs.getTerminal().getBusView().getBus();
                 if (b != null) {

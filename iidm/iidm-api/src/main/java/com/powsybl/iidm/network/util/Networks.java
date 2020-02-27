@@ -343,6 +343,7 @@ public final class Networks {
 
     /**
      * Return the list of nodes (N/B topology) for each bus of a the Bus view
+     * If a node is not associated to a bus, it is not included in any list.
      * @param voltageLevel The voltage level to traverse
      * @return the list of nodes (N/B topology) for each bus of a Bus view
      */

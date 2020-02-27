@@ -93,19 +93,25 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_1, context, () -> {
             Map<String, Set<Integer>> nodesByBus = Networks.getNodesByBus(vl);
-            for (Bus bus : vl.getBusView().getBuses()) {
-                try {
-                    context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "bus");
-                    XmlUtil.writeDouble("v", bus.getV(), context.getWriter());
-                    XmlUtil.writeDouble("angle", bus.getAngle(), context.getWriter());
-                    Set<Integer> nodes = nodesByBus.get(bus.getId());
-                    context.getWriter().writeAttribute("nodes", StringUtils.join(nodes.toArray(), ','));
-                } catch (XMLStreamException e) {
-                    throw new UncheckedXmlStreamException(e);
-                }
-            }
+            vl.getBusView().getBusStream()
+                    .filter(bus -> !Double.isNaN(bus.getV()) || !Double.isNaN(bus.getAngle()))
+                    .forEach(bus -> {
+                        Set<Integer> nodes = nodesByBus.get(bus.getId());
+                        writeCalculatedBus(bus, nodes, context);
+                    });
         });
         context.getWriter().writeEndElement();
+    }
+
+    private static void writeCalculatedBus(Bus bus, Set<Integer> nodes, NetworkXmlWriterContext context) {
+        try {
+            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "bus");
+            XmlUtil.writeDouble("v", bus.getV(), context.getWriter());
+            XmlUtil.writeDouble("angle", bus.getAngle(), context.getWriter());
+            context.getWriter().writeAttribute("nodes", StringUtils.join(nodes.toArray(), ','));
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
     }
 
     private void writeNodeBreakerTopologyInternalConnections(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
@@ -257,6 +263,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                                 break;
 
                             case BusXml.ROOT_ELEMENT_NAME:
+                                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, BusXml.ROOT_ELEMENT_NAME, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
                                 double v = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "v");
                                 double angle = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "angle");
                                 String nodesString = context.getReader().getAttributeValue(null, "nodes");
