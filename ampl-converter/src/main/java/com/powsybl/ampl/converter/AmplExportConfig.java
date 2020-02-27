@@ -101,7 +101,7 @@ public class AmplExportConfig {
         return splitShuntAdmittanceXfmr2;
     }
 
-    public AmplExportConfig setSpecificCompatibility(boolean splitShuntAdmittanceXfmr2) {
+    public AmplExportConfig setSplitShuntAdmittanceXfmr2(boolean splitShuntAdmittanceXfmr2) {
         this.splitShuntAdmittanceXfmr2 = splitShuntAdmittanceXfmr2;
         return this;
     }

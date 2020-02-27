@@ -50,7 +50,7 @@ public class AmplExportConfigTest {
         assertTrue(config.isExportRatioTapChangerVoltageTarget());
 
         assertFalse(config.isSplitShuntAdmittanceXfmr2());
-        config.setSpecificCompatibility(true);
+        config.setSplitShuntAdmittanceXfmr2(true);
         assertTrue(config.isSplitShuntAdmittanceXfmr2());
     }
 }
