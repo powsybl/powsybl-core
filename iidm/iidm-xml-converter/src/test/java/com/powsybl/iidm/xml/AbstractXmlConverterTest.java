@@ -11,6 +11,7 @@ import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.Network;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
@@ -24,12 +25,20 @@ public abstract class AbstractXmlConverterTest extends AbstractConverterTest {
         return "/V" + version.toString("_") + "/";
     }
 
+    public static String getVersionedNetworkPath(String fileName, IidmXmlVersion version) {
+        return getVersionDir(version) + fileName;
+    }
+
+    protected InputStream getVersionedNetworkAsStream(String fileName, IidmXmlVersion version) {
+        return getClass().getResourceAsStream(getVersionedNetworkPath(fileName, version));
+    }
+
     protected void roundTripVersionnedXmlTest(String file, IidmXmlVersion... versions) throws IOException {
         for (IidmXmlVersion version : versions) {
-            roundTripXmlTest(NetworkXml.read(getClass().getResourceAsStream(getVersionDir(version) + file)),
+            roundTripXmlTest(NetworkXml.read(getVersionedNetworkAsStream(file, version)),
                     writeAndValidate(version),
                     NetworkXml::validateAndRead,
-                    getVersionDir(version) + file);
+                    getVersionedNetworkPath(file, version));
         }
     }
 

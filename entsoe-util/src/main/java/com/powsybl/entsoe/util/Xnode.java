@@ -1,39 +1,28 @@
 /**
- * Copyright (c) 2018, RTE (http://www.rte-france.com)
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.entsoe.util;
 
-import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.DanglingLine;
-
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class Xnode extends AbstractExtension<DanglingLine> {
-
-    private String code;
-
-    public Xnode(DanglingLine dl, String code) {
-        super(dl);
-        this.code = Objects.requireNonNull(code);
-    }
+public interface Xnode extends Extension<DanglingLine> {
 
     @Override
-    public String getName() {
+    default String getName() {
         return "xnode";
     }
 
-    public String getCode() {
-        return code;
-    }
+    public String getCode();
 
-    public Xnode setCode(String code) {
-        this.code = Objects.requireNonNull(code);
-        return this;
-    }
+    // No need for CRTP style return type returning a more specific adder
+    // because this interface is not meant to be extended.
+    public Xnode setCode(String code);
+
 }

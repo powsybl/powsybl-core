@@ -49,4 +49,30 @@ public interface Extendable<O> {
      * @return all extensions associated to this extendable object.
      */
     <E extends Extension<O>> Collection<E> getExtensions();
+
+    /**
+     * Returns a name that is used to find matching {@link ExtensionAdderProvider}s
+     * when selecting implementations of extensions in {@link #newExtension}. This
+     * is meant to be overriden by extendables when multiple implementations exist.
+     *
+     * @return the name
+     */
+    default String getImplementationName() {
+        return "Default";
+    }
+
+    /**
+     * Returns an extensionAdder to build and add an extension for this extendable.
+     *
+     * The extension implementation is selected at runtime based on matching the
+     * {@link #getImplementationName} of this extendable to the
+     * {@link ExtensionAdderProvider#getImplementationName} of a provider.
+     * Implementations are loaded with java's {@link java.util.ServiceLoader} using
+     * the ExtensionAdderProvider interface.
+     *
+     * @param type The interface of the ExtensionAdder
+     * @return the adder
+     */
+    <E extends Extension<O>, B extends ExtensionAdder<O, E>> B newExtension(Class<B> type);
+
 }
