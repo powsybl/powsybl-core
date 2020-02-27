@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.*;
+import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,6 +18,9 @@ import java.util.stream.Stream;
  * @author Thomas Adam <tadam at silicom.fr>
  */
 class MergingViewIndex {
+
+    /** Local storage for merged lines created */
+    private final Map<String, MergedLine> mergedLineCached = new WeakHashMap<>();
 
     /** Local storage for adapters created */
     private final Map<Identifiable, AbstractAdapter<? extends Identifiable>> identifiableCached = new WeakHashMap<>();
@@ -52,12 +56,7 @@ class MergingViewIndex {
     }
 
     boolean contains(String id) {
-        for (Network n : networks) {
-            if (Objects.nonNull(n.getIdentifiable(id))) {
-                return true;
-            }
-        }
-        return false;
+        return Objects.nonNull(this.currentView.getIdentifiable(id));
     }
 
     /** Validate all networks added into merging network list */
@@ -68,6 +67,29 @@ class MergingViewIndex {
         ValidationUtil.checkUniqueIds(other, this);
         // Local storage for mergeable network
         networks.add(other);
+        // Manage DanglingLines
+        other.getDanglingLineStream().forEach(this::checkNewDanglingLine);
+    }
+
+    void checkNewDanglingLine(final DanglingLine dll2) {
+        Objects.requireNonNull(dll2, "DanglingLine is null");
+        // Manage DanglingLines
+        final String code = dll2.getUcteXnodeCode();
+        // Find other DanglingLine if exist
+        final Set<DanglingLine> danglingLines = getNetworkStream().flatMap(Network::getDanglingLineStream).filter(d -> d.getUcteXnodeCode().equals(code)).collect(Collectors.toSet());
+        for (DanglingLine dll1 : danglingLines) {
+            if (dll1 != dll2) {
+                // Create MergedLine from 2 dangling lines
+                mergedLineCached.computeIfAbsent(code, key -> new MergedLine(this, dll1, dll2));
+            }
+        }
+    }
+
+    Line getMergedLine(final String id) {
+        return mergedLineCached.values().stream()
+                .filter(l -> l.getId().equals(id))
+                .findFirst()
+                .orElse(null);
     }
 
     /** @return adapter according to given parameter */
@@ -93,12 +115,11 @@ class MergingViewIndex {
 
     /** @return all adapters according to all Identifiables */
     Stream<Identifiable<?>> getIdentifiableStream() {
-        // Search Identifiables into merging & working networks
-        return getNetworkStream()
-                .map(Network::getIdentifiables)
-                .filter(n -> !(n instanceof Network))
-                .flatMap(Collection::stream)
-                .map(this::getIdentifiable);
+        // Search Identifiables into merging & working networks, and MergedLines
+        return Stream.concat(getNetworkStream().map(Network::getIdentifiables)
+                        .filter(n -> !(n instanceof Network))
+                        .flatMap(Collection::stream),
+                mergedLineCached.values().stream());
     }
 
     /** @return all adapters according to all Identifiables */
@@ -218,10 +239,10 @@ class MergingViewIndex {
     }
 
     Collection<Branch> getBranches() {
-        // Search Branch into merging & working networks
-        return getNetworkStream()
-                .flatMap(Network::getBranchStream)
-                .map(this::getBranch)
+        // Search Branch into merging & working networks, and MergedLines
+        return Stream.concat(getNetworkStream().flatMap(Network::getBranchStream)
+                        .map(this::getBranch),
+                mergedLineCached.values().stream())
                 .collect(Collectors.toList());
     }
 
@@ -243,17 +264,22 @@ class MergingViewIndex {
     }
 
     Collection<Line> getLines() {
-        // Search Line into merging & working networks
-        return getNetworkStream()
-                .flatMap(Network::getLineStream)
-                .map(this::getLine)
+        // Search Line into merging & working networks, and MergedLines
+        return Stream.concat(getNetworkStream().flatMap(Network::getLineStream)
+                        .map(this::getLine),
+                mergedLineCached.values().stream())
                 .collect(Collectors.toList());
+    }
+
+    boolean isMerged(final DanglingLine dl) {
+        return !mergedLineCached.containsKey(dl.getUcteXnodeCode());
     }
 
     Collection<DanglingLine> getDanglingLines() {
         // Search DanglingLine into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getDanglingLineStream)
+                .filter(this::isMerged)
                 .map(this::getDanglingLine)
                 .collect(Collectors.toList());
     }
@@ -397,7 +423,9 @@ class MergingViewIndex {
             case SHUNT_COMPENSATOR:
                 return getShuntCompensator((ShuntCompensator) connectable);
             case DANGLING_LINE:
-                return getDanglingLine((DanglingLine) connectable);
+                final DanglingLine danglingLine = (DanglingLine) connectable;
+                final Line mergedLine = mergedLineCached.get(danglingLine.getUcteXnodeCode());
+                return Objects.nonNull(mergedLine) ? mergedLine : getDanglingLine(danglingLine);
             case STATIC_VAR_COMPENSATOR:
                 return getStaticVarCompensator((StaticVarCompensator) connectable);
             case HVDC_CONVERTER_STATION:
@@ -419,5 +447,24 @@ class MergingViewIndex {
             default:
                 throw new AssertionError(b.getType().name() + " is not valid to be adapted to branch");
         }
+    }
+
+    <T> T get(final Function<? super Network, ? extends T> mapNetworkIndex, final UnaryOperator<T> mapToAdapter) {
+        Objects.requireNonNull(mapNetworkIndex, "mapNetworkIndex is null");
+        Objects.requireNonNull(mapToAdapter, "mapToAdapter is null");
+
+        return getNetworkStream()
+                .map(mapNetworkIndex)
+                .filter(Objects::nonNull)
+                .map(mapToAdapter)
+                .findFirst()
+                .orElse(null);
+    }
+
+    Network getNetwork(final Predicate<? super Network> filter) {
+        return getNetworkStream()
+                    .filter(filter)
+                    .findFirst()
+                    .orElse(null);
     }
 }

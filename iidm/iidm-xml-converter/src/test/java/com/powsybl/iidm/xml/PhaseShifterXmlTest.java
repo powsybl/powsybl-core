@@ -24,6 +24,6 @@ public class PhaseShifterXmlTest extends AbstractXmlConverterTest {
         roundTripXmlTest(PhaseShifterTestCaseFactory.createWithTargetDeadband(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "phaseShifterRoundTripRef.xml");
+                getVersionedNetworkPath("phaseShifterRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
     }
 }
