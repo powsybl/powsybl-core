@@ -8,19 +8,20 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.anonymizer.Anonymizer;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import javax.xml.stream.XMLStreamReader;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
 public class IidmXmlUtilTest {
+
+    private static final String ROOT = "root";
+    private static final String ELEMENT = "element";
 
     @Test
     public void testMaximumVersion() {
@@ -28,7 +29,7 @@ public class IidmXmlUtilTest {
             NetworkXmlReaderContext context = Mockito.mock(NetworkXmlReaderContext.class);
             Mockito.when(context.getVersion()).thenReturn(IidmXmlVersion.V_1_1);
 
-            IidmXmlUtil.assertMaximumVersion("root", "element", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_0, context);
+            IidmXmlUtil.assertMaximumVersion(ROOT, ELEMENT, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_0, context);
             fail();
         } catch (PowsyblException e) {
             assertEquals("root.element is not supported for IIDM-XML version 1.1. IIDM-XML version should be <= 1.0", e.getMessage());
@@ -41,7 +42,7 @@ public class IidmXmlUtilTest {
             NetworkXmlReaderContext context = Mockito.mock(NetworkXmlReaderContext.class);
             Mockito.when(context.getVersion()).thenReturn(IidmXmlVersion.V_1_0);
 
-            IidmXmlUtil.assertMinimumVersion("root", "element", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
+            IidmXmlUtil.assertMinimumVersion(ROOT, ELEMENT, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
             fail();
         } catch (PowsyblException e) {
             assertEquals("root.element is not supported for IIDM-XML version 1.0. IIDM-XML version should be >= 1.1", e.getMessage());
@@ -49,17 +50,14 @@ public class IidmXmlUtilTest {
     }
 
     @Test
-    public void testReadOptionalDoubleAttributeUntilMaximumVersion() {
+    public void testStrictMaximumVersion() {
         try {
-            XMLStreamReader reader = Mockito.mock(XMLStreamReader.class);
-            Mockito.when(reader.getAttributeValue(Mockito.any(), Mockito.any())).thenReturn("0.0");
+            NetworkXmlReaderContext context = Mockito.mock(NetworkXmlReaderContext.class);
+            Mockito.when(context.getVersion()).thenReturn(IidmXmlVersion.V_1_1);
 
-            NetworkXmlReaderContext context = new NetworkXmlReaderContext(Mockito.mock(Anonymizer.class), reader);
-            IidmXmlUtil.readOptionalDoubleAttributeUntilMaximumVersion("root", "attribute", IidmXmlVersion.V_1_0, context);
-
-            fail();
+            IidmXmlUtil.assertStrictMaximumVersion(ROOT, ELEMENT, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
         } catch (PowsyblException e) {
-            assertEquals("root.attribute is not supported for IIDM-XML version 1.1. IIDM-XML version should be <= 1.0", e.getMessage());
+            assertEquals("root.element is not supported for IIDM-XML version 1.1. IIDM-XML version should be < 1.1", e.getMessage());
         }
     }
 }
