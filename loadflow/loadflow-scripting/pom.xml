@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-loadflow</artifactId>
-        <version>3.2.0-SNAPSHOT</version>
+        <version>3.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-loadflow-scripting</artifactId>
@@ -24,8 +24,6 @@
 
     <properties>
         <groovydoc.classifier>javadoc</groovydoc.classifier>
-        <groovydoc.groovyDocJavaSources>true</groovydoc.groovyDocJavaSources>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
     <build>
@@ -44,6 +42,10 @@
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
