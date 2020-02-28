@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +32,7 @@ public class CsvSensitivityComputationResultExporterTest extends AbstractConvert
         try {
             factors = SensitivityFactorsJsonSerializer.read(new InputStreamReader(SensitivityComputationResultExportersTest.class.getResourceAsStream("/sensitivityFactorsExample.json")));
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new UncheckedIOException(e);
         }
         List<SensitivityValue> sensitivityValues = new ArrayList<>(Collections.emptyList());
         factors.forEach(factor -> {
