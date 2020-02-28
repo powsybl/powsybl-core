@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
@@ -35,13 +34,6 @@ public class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 getVersionedNetworkPath("threeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
-    }
-
-    @Test
-    public void faultyFileTest() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("threeWindingsTransformer.ratedU0 is mandatory for IIDM-XML version 1.1. IIDM-XML version should be < 1.1");
-        NetworkXml.read(getVersionedNetworkAsStream("faultyThreeWindingsTransformerRoundTripRef.xml", IidmXmlVersion.V_1_1));
     }
 
     @Test
