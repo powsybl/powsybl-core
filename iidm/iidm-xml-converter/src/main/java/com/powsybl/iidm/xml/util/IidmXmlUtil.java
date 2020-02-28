@@ -34,14 +34,27 @@ public final class IidmXmlUtil {
         }
     }
 
+    private static PowsyblException createException(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion version, IidmXmlVersion contextVersion, String reason) {
+        return new PowsyblException(rootElementName + "." + elementName + " is " + type.message + " for IIDM-XML version " + contextVersion.toString(".") + ". " + reason + version.toString("."));
+    }
+
+    /**
+     * Assert that the context's IIDM-XML version equals or is less recent than a given IIDM-XML version.
+     * If not, throw an exception with a given type of error message.
+     */
+    public static <C extends AbstractNetworkXmlContext> void assertMaximumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion maxVersion, C context) {
+        if (context.getVersion().compareTo(maxVersion) > 0) {
+            throw createException(rootElementName, elementName, type, maxVersion, context.getVersion(), "IIDM-XML version should be <= ");
+        }
+    }
+
     /**
      * Assert that the context's IIDM-XML version equals or is more recent than a given IIDM-XML version.
      * If not, throw an exception with a given type of error message.
      */
     public static <C extends AbstractNetworkXmlContext> void assertMinimumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion minVersion, C context) {
         if (context.getVersion().compareTo(minVersion) < 0) {
-            throw new PowsyblException(rootElementName + "." + elementName + " is " + type.message + " for IIDM-XML version " + context.getVersion().toString(".") + ". " +
-                    "IIDM-XML version should be >= " + minVersion.toString("."));
+            throw createException(rootElementName, elementName, type, minVersion, context.getVersion(), "IIDM-XML version should be >= ");
         }
     }
 
@@ -110,6 +123,51 @@ public final class IidmXmlUtil {
             assertStrictMaximumVersion(rootElementName, attributeName, ErrorMessage.MANDATORY, minVersion, context);
         }
         return attributeStr == null ? defaultValue : Double.valueOf(attributeStr);
+    }
+
+    /**
+     * Read a double attribute which is <b>optional</b> until a given maximum IIDM-XML version. <br>
+     * If the context's IIDM-XML version is strictly more recent thant the given maximum IIDM-XML version, the attribute <b>should not exist</b> (else an exception is thrown).
+     * In this case, return a given defaultValue. <br>
+     * If the context's IIDM-XML version equals or is older than the given maximum IIDM-XML version, the attribute <b>can exist</b>. If it exists, return the read double value.
+     * Else, return a given defaultValue.
+     */
+    public static double readOptionalDoubleAttributeUntilMaximumVersion(String rootElementName, String attributeName, double defaultValue, IidmXmlVersion maxVersion, NetworkXmlReaderContext context) {
+        String attributeStr = context.getReader().getAttributeValue(null, attributeName);
+        if (attributeStr != null) {
+            assertMaximumVersion(rootElementName, attributeName, ErrorMessage.NOT_SUPPORTED, maxVersion, context);
+            return Double.valueOf(attributeStr);
+        }
+        return defaultValue;
+    }
+
+    /**
+     * Read a double attribute which is <b>optional</b> until a given maximum IIDM-XML version. <br>
+     * If the context's IIDM-XML version is strictly more recent thant the given maximum IIDM-XML version, the attribute <b>should not exist</b> (else an exception is thrown).
+     * In this case, return a given Double.NaN <br>
+     * If the context's IIDM-XML version equals or is older than the given maximum IIDM-XML version, the attribute <b>can exist</b>. If it exists, return the read double value.
+     * Else, return Double.NaN
+     */
+    public static double readOptionalDoubleAttributeUntilMaximumVersion(String rootElementName, String attributeName, IidmXmlVersion maxVersion, NetworkXmlReaderContext context) {
+        return readOptionalDoubleAttributeUntilMaximumVersion(rootElementName, attributeName, Double.NaN, maxVersion, context);
+    }
+
+    /**
+     * Run a given runnable if the context's IIDM-XML version equals or is more recent than a given minimum IIDM-XML version.
+     */
+    public static <C extends AbstractNetworkXmlContext> void runFromMinimumVersion(IidmXmlVersion minVersion, C context, Runnable runnable) {
+        if (context.getVersion().compareTo(minVersion) >= 0) {
+            runnable.run();
+        }
+    }
+
+    /**
+     * Run a given runnable if the context's IIDM-XML version equals or is older than a given maximum IIDM-XML version.
+     */
+    public static <C extends AbstractNetworkXmlContext> void runUntilMaximumVersion(IidmXmlVersion maxVersion, C context, Runnable runnable) {
+        if (context.getVersion().compareTo(maxVersion) <= 0) {
+            runnable.run();
+        }
     }
 
     /**
