@@ -19,7 +19,7 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractExte
 
     private float droop;
 
-    ActivePowerControlImpl(T component, boolean participate, float droop) {
+    public ActivePowerControlImpl(T component, boolean participate, float droop) {
         super(component);
         this.participate = participate;
         this.droop = droop;
