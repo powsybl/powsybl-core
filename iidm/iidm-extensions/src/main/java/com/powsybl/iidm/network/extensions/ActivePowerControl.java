@@ -19,12 +19,12 @@ public interface ActivePowerControl<I extends Injection<I>> extends Extension<I>
         return "activePowerControl";
     }
 
-    public boolean isParticipate();
+    boolean isParticipate();
 
-    public void setParticipate(boolean participate);
+    void setParticipate(boolean participate);
 
-    public float getDroop();
+    float getDroop();
 
-    public void setDroop(float droop);
+    void setDroop(float droop);
 
 }

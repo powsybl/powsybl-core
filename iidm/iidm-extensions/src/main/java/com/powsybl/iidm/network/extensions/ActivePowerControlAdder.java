@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.extensions;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Injection;
 
-interface ActivePowerControlAdder<I extends Injection<I>>
+public interface ActivePowerControlAdder<I extends Injection<I>>
         extends ExtensionAdder<I, ActivePowerControl<I>> {
 
     @Override
