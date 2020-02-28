@@ -246,63 +246,11 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case NODE_BREAKER_TOPOLOGY_ELEMENT_NAME:
-                    int nodeCount = XmlUtil.readIntAttribute(context.getReader(), "nodeCount");
-                    vl.getNodeBreakerView().setNodeCount(nodeCount);
-                    XmlUtil.readUntilEndElement(NODE_BREAKER_TOPOLOGY_ELEMENT_NAME, context.getReader(), () -> {
-                        switch (context.getReader().getLocalName()) {
-                            case BusbarSectionXml.ROOT_ELEMENT_NAME:
-                                BusbarSectionXml.INSTANCE.read(vl, context);
-                                break;
-
-                            case NodeBreakerViewSwitchXml.ROOT_ELEMENT_NAME:
-                                NodeBreakerViewSwitchXml.INSTANCE.read(vl, context);
-                                break;
-
-                            case NodeBreakerViewInternalConnectionXml.ROOT_ELEMENT_NAME:
-                                NodeBreakerViewInternalConnectionXml.INSTANCE.read(vl, context);
-                                break;
-
-                            case BusXml.ROOT_ELEMENT_NAME:
-                                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, BusXml.ROOT_ELEMENT_NAME, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-                                double v = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "v");
-                                double angle = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "angle");
-                                String nodesString = context.getReader().getAttributeValue(null, "nodes");
-                                context.getEndTasks().add(() -> {
-                                    for (String str : nodesString.split(",")) {
-                                        int node = Integer.parseInt(str);
-                                        Terminal terminal = vl.getNodeBreakerView().getTerminal(node);
-                                        if (terminal != null) {
-                                            Bus b = terminal.getBusView().getBus();
-                                            if (b != null) {
-                                                b.setV(v).setAngle(angle);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                });
-                                break;
-
-                            default:
-                                throw new AssertionError();
-                        }
-                    });
+                    readNodeBreakerTopology(vl, context);
                     break;
 
                 case BUS_BREAKER_TOPOLOGY_ELEMENT_NAME:
-                    XmlUtil.readUntilEndElement(BUS_BREAKER_TOPOLOGY_ELEMENT_NAME, context.getReader(), () -> {
-                        switch (context.getReader().getLocalName()) {
-                            case BusXml.ROOT_ELEMENT_NAME:
-                                BusXml.INSTANCE.read(vl, context);
-                                break;
-
-                            case BusBreakerViewSwitchXml.ROOT_ELEMENT_NAME:
-                                BusBreakerViewSwitchXml.INSTANCE.read(vl, context);
-                                break;
-
-                            default:
-                                throw new AssertionError();
-                        }
-                    });
+                    readBusBreakerTopology(vl, context);
                     break;
 
                 case GeneratorXml.ROOT_ELEMENT_NAME:
@@ -339,6 +287,70 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
                 default:
                     super.readSubElements(vl, context);
+            }
+        });
+    }
+
+    private void readNodeBreakerTopology(VoltageLevel vl, NetworkXmlReaderContext context) throws XMLStreamException {
+        int nodeCount = XmlUtil.readIntAttribute(context.getReader(), "nodeCount");
+        vl.getNodeBreakerView().setNodeCount(nodeCount);
+        XmlUtil.readUntilEndElement(NODE_BREAKER_TOPOLOGY_ELEMENT_NAME, context.getReader(), () -> {
+            switch (context.getReader().getLocalName()) {
+                case BusbarSectionXml.ROOT_ELEMENT_NAME:
+                    BusbarSectionXml.INSTANCE.read(vl, context);
+                    break;
+
+                case NodeBreakerViewSwitchXml.ROOT_ELEMENT_NAME:
+                    NodeBreakerViewSwitchXml.INSTANCE.read(vl, context);
+                    break;
+
+                case NodeBreakerViewInternalConnectionXml.ROOT_ELEMENT_NAME:
+                    NodeBreakerViewInternalConnectionXml.INSTANCE.read(vl, context);
+                    break;
+
+                case BusXml.ROOT_ELEMENT_NAME:
+                    readCalculatedBus(vl, context);
+                    break;
+
+                default:
+                    throw new AssertionError("Unexpected element: " + context.getReader().getLocalName());
+            }
+        });
+    }
+
+    private void readCalculatedBus(VoltageLevel vl, NetworkXmlReaderContext context) {
+        IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, BusXml.ROOT_ELEMENT_NAME, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
+        double v = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "v");
+        double angle = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "angle");
+        String nodesString = context.getReader().getAttributeValue(null, "nodes");
+        context.getEndTasks().add(() -> {
+            for (String str : nodesString.split(",")) {
+                int node = Integer.parseInt(str);
+                Terminal terminal = vl.getNodeBreakerView().getTerminal(node);
+                if (terminal != null) {
+                    Bus b = terminal.getBusView().getBus();
+                    if (b != null) {
+                        b.setV(v).setAngle(angle);
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+    private void readBusBreakerTopology(VoltageLevel vl, NetworkXmlReaderContext context) throws XMLStreamException {
+        XmlUtil.readUntilEndElement(BUS_BREAKER_TOPOLOGY_ELEMENT_NAME, context.getReader(), () -> {
+            switch (context.getReader().getLocalName()) {
+                case BusXml.ROOT_ELEMENT_NAME:
+                    BusXml.INSTANCE.read(vl, context);
+                    break;
+
+                case BusBreakerViewSwitchXml.ROOT_ELEMENT_NAME:
+                    BusBreakerViewSwitchXml.INSTANCE.read(vl, context);
+                    break;
+
+                default:
+                    throw new AssertionError("Unexpected element: " + context.getReader().getLocalName());
             }
         });
     }
