@@ -63,6 +63,24 @@ public class CsvSensitivityComputationResultExporter implements SensitivityCompu
                     throw new UncheckedIOException(e);
                 }
             });
+            if (result.contingenciesArePresent()) {
+                result.getSensitivityValuesContingencies().forEach((contId, sensitivityValues) -> {
+                    sensitivityValues.forEach(sensitivityValue -> {
+                        try {
+                            formatter.writeCell("Contingency " + contId);
+                            formatter.writeCell(sensitivityValue.getFactor().getVariable().getId());
+                            formatter.writeCell(sensitivityValue.getFactor().getVariable().getName());
+                            formatter.writeCell(sensitivityValue.getFactor().getFunction().getId());
+                            formatter.writeCell(sensitivityValue.getFactor().getFunction().getName());
+                            formatter.writeCell(sensitivityValue.getVariableReference());
+                            formatter.writeCell(sensitivityValue.getFunctionReference());
+                            formatter.writeCell(sensitivityValue.getValue());
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    });
+                });
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

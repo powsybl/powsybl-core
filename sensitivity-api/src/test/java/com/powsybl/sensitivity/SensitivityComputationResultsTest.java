@@ -46,10 +46,10 @@ public class SensitivityComputationResultsTest {
 
     @Test
     public void isOk() {
-        SensitivityComputationResults resultsOk = new SensitivityComputationResults(true, Collections.emptyMap(), "", Collections.emptyList());
+        SensitivityComputationResults resultsOk = new SensitivityComputationResults(true, Collections.emptyMap(), "", Collections.emptyList(), false, Collections.emptyMap());
         assertTrue(resultsOk.isOk());
 
-        SensitivityComputationResults resultsNok = new SensitivityComputationResults(false, Collections.emptyMap(), "", Collections.emptyList());
+        SensitivityComputationResults resultsNok = new SensitivityComputationResults(false, Collections.emptyMap(), "", Collections.emptyList(), false, Collections.emptyMap());
         assertFalse(resultsNok.isOk());
     }
 
@@ -59,7 +59,7 @@ public class SensitivityComputationResultsTest {
         metrics.put("Key 1", "Val 1");
         metrics.put("Key 2", "Val 2");
         metrics.put("Key 3", "Val 3");
-        SensitivityComputationResults results = new SensitivityComputationResults(true, metrics, "", Collections.emptyList());
+        SensitivityComputationResults results = new SensitivityComputationResults(true, metrics, "", Collections.emptyList(), false, Collections.emptyMap());
         assertEquals(metrics.size(), results.getMetrics().size());
         assertEquals("Val 1", results.getMetrics().get("Key 1"));
         assertEquals("Val 2", results.getMetrics().get("Key 2"));
@@ -69,14 +69,14 @@ public class SensitivityComputationResultsTest {
     @Test
     public void getLogs() {
         String logs = "I don't know half of you half as well as I should like; and I like less than half of you half as well as you deserve.";
-        SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), logs, Collections.emptyList());
+        SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), logs, Collections.emptyList(), false, Collections.emptyMap());
         assertEquals(logs, results.getLogs());
     }
 
     @Test
     public void createResultsWithNullValues() {
         exception.expect(NullPointerException.class);
-        new SensitivityComputationResults(true, Collections.emptyMap(), "", null);
+        new SensitivityComputationResults(true, Collections.emptyMap(), "", null, false, Collections.emptyMap());
     }
 
     @Test
@@ -84,7 +84,7 @@ public class SensitivityComputationResultsTest {
         List<SensitivityValue> values = new ArrayList<>();
         values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
         values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
-        SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", values);
+        SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", values, false, Collections.emptyMap());
         assertEquals(values.size(), results.getSensitivityValues().size());
     }
 
@@ -93,7 +93,7 @@ public class SensitivityComputationResultsTest {
         List<SensitivityValue> values = new ArrayList<>();
         values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
         values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
-        SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", values);
+        SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", values, false, Collections.emptyMap());
         assertEquals(1, results.getSensitivityValuesByFunction(factorOk.getFunction()).size());
         assertEquals(1, results.getSensitivityValuesByFunction(factorNok.getFunction()).size());
     }
@@ -103,7 +103,7 @@ public class SensitivityComputationResultsTest {
         List<SensitivityValue> values = new ArrayList<>();
         values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
         values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
-        SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", values);
+        SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", values, false, Collections.emptyMap());
         assertEquals(2, results.getSensitivityValuesByVariable(factorOk.getVariable()).size());
         assertEquals(2, results.getSensitivityValuesByVariable(factorNok.getVariable()).size());
     }
@@ -113,7 +113,7 @@ public class SensitivityComputationResultsTest {
         List<SensitivityValue> values = new ArrayList<>();
         values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
         values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
-        SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", values);
+        SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", values, false, Collections.emptyMap());
 
         SensitivityFunction wrongFunction = Mockito.mock(SensitivityFunction.class);
         SensitivityVariable wrongVariable = Mockito.mock(SensitivityVariable.class);
@@ -126,7 +126,7 @@ public class SensitivityComputationResultsTest {
         List<SensitivityValue> values = new ArrayList<>();
         values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
         values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
-        SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", values);
+        SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", values, false, Collections.emptyMap());
 
         SensitivityFactor wrongFactor = Mockito.mock(SensitivityFactor.class);
         Mockito.when(wrongFactor.getFunction()).thenReturn(Mockito.mock(SensitivityFunction.class));
@@ -140,10 +140,12 @@ public class SensitivityComputationResultsTest {
         List<SensitivityValue> values = new ArrayList<>();
         values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
         values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
-        SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", values);
+        SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", values, false, Collections.emptyMap());
         assertSame(factorOk, results.getSensitivityValue(factorOk.getFunction(), factorOk.getVariable()).getFactor());
         assertSame(factorNok, results.getSensitivityValue(factorNok.getFunction(), factorNok.getVariable()).getFactor());
         assertSame(factorOk, results.getSensitivityValue(factorOk).getFactor());
         assertSame(factorNok, results.getSensitivityValue(factorNok).getFactor());
     }
+
+    //TODO: add more tests on the contingencies results
 }

@@ -8,14 +8,8 @@ package com.powsybl.sensitivity.mock;
 
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.SensitivityComputation;
-import com.powsybl.sensitivity.SensitivityComputationFactory;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
-import com.powsybl.sensitivity.SensitivityComputationResults;
-import com.powsybl.sensitivity.SensitivityFactorsProvider;
-import com.powsybl.sensitivity.SensitivityValue;
+import com.powsybl.sensitivity.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,21 +24,19 @@ public class SensitivityComputationFactoryMock implements SensitivityComputation
             @Override
             public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider factorsProvider, ContingenciesProvider contingenciesProvider, String workingStateId, SensitivityComputationParameters sensiParameters) {
                 List<SensitivityValue> sensitivityValuesN = factorsProvider.getFactors(network).stream().map(factor -> new SensitivityValue(factor, Math.random(), Math.random(), Math.random())).collect(Collectors.toList());
-                Map<String, List<SensitivityValue>> sensitivityValuesContingencies = Collections.emptyMap();
-                SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValuesN, false, sensitivityValuesContingencies);
+                List<SensitivityValue> sensitivityValuesContingency = factorsProvider.getFactors(network).stream().map(factor -> new SensitivityValue(factor, Math.random(), Math.random(), Math.random())).collect(Collectors.toList());
+
+                Map<String, List<SensitivityValue>> sensitivityValuesContingencies = Collections.singletonMap(contingenciesProvider.getContingencies(network).get(0).getId(), sensitivityValuesContingency);
+                SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValuesN, true, sensitivityValuesContingencies);
                 return CompletableFuture.completedFuture(results);
             }
 
             @Deprecated
             @Override
             public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider factorsProvider, String workingStateId, SensitivityComputationParameters sensiParameters) {
-                final ContingenciesProvider contingenciesProvider = new ContingenciesProvider() {
-                    @Override
-                    public List<Contingency> getContingencies(Network network) {
-                        return null;
-                    }
-                };
-                return run(factorsProvider, contingenciesProvider, workingStateId, sensiParameters);
+                List<SensitivityValue> sensitivityValuesN = factorsProvider.getFactors(network).stream().map(factor -> new SensitivityValue(factor, Math.random(), Math.random(), Math.random())).collect(Collectors.toList());
+                SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValuesN, false, Collections.emptyMap());
+                return CompletableFuture.completedFuture(results);
             }
 
             @Override
