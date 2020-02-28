@@ -106,6 +106,7 @@
             <xs:element name="busbarSection" minOccurs="0" maxOccurs="unbounded" type="iidm:BusbarSection"/>
             <xs:element name="switch" minOccurs="0" maxOccurs="unbounded" type="iidm:SwitchNode"/>
             <xs:element name="internalConnection" minOccurs="0" maxOccurs="unbounded" type="iidm:InternalConnection"/>
+            <xs:element name="bus" minOccurs="0" maxOccurs="unbounded" type="iidm:CalculatedBus"/>
         </xs:sequence>
         <xs:attribute name="nodeCount" use="required" type="xs:int"/>
     </xs:complexType>
@@ -127,10 +128,13 @@
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="node" use="required" type="xs:int"/>
-                <xs:attribute name="v" use="optional" type="xs:double"/>
-                <xs:attribute name="angle" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="CalculatedBus">
+        <xs:attribute name="nodes" use="required" type="xs:string"/>
+        <xs:attribute name="v" use="optional" type="xs:double"/>
+        <xs:attribute name="angle" use="optional" type="xs:double"/>
     </xs:complexType>
     <xs:simpleType name="SwitchKind">
         <xs:restriction base="xs:string">
