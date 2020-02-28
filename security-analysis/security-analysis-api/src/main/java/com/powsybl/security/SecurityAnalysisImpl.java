@@ -47,7 +47,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
      * get an available variant (they hurt the performance of the executor who
      * excutes them)
      */
-    public static final ExecutorService SCHEDULER_EXECUTOR = createThreadPool(getOptionalIntProperty("default-security-analysis", "scheduler-pool-size", 10));
+    private static final ExecutorService SCHEDULER_EXECUTOR = createThreadPool(getOptionalIntProperty("default-security-analysis", "scheduler-pool-size", 10));
 
     private static final int MAX_VARIANTS_PER_ANALYSIS = getOptionalIntProperty("default-security-analysis", "max-variants-per-analysis", 10);
 
