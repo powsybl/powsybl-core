@@ -29,7 +29,7 @@ public interface CgmesModel {
 
     Properties getProperties();
 
-    PropertyBags fullModelSV();
+    PropertyBags fullModel(String cgmesSubset);
 
     boolean hasEquipmentCore();
 
@@ -132,13 +132,15 @@ public interface CgmesModel {
 
     PropertyBags dcTerminalsTP();
 
-    PropertyBags terminalsSV();
-
     PropertyBags topologicalIslands();
+
+    PropertyBags graph();
 
     void clear(CgmesSubset subset);
 
-    void add(String contextOrSubset, String type, PropertyBags objects);
+    void add(CgmesSubset subset, String type, PropertyBags objects);
+
+    void add(String context, String type, PropertyBags objects);
 
     void print(PrintStream out);
 

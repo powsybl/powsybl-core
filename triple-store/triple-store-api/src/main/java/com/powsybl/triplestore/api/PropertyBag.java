@@ -205,10 +205,6 @@ public class PropertyBag extends HashMap<String, String> {
         return multiValuedPropertyNames.contains(name);
     }
 
-    public boolean isModelDescription(String objType) {
-        return objType.equals("FullModel");
-    }
-
     private final List<String> propertyNames;
     private final boolean removeInitialUnderscoreForIdentifiers;
     private List<String> resourceNames = new ArrayList<>();

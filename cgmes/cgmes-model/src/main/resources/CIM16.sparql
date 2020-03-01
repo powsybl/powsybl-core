@@ -5,11 +5,17 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-# query: fullModelSV
+# query: graph
+SELECT DISTINCT  ?graph
+ WHERE
+ { GRAPH ?graph
+       { ?s  ?p  ?o }
+}
+
+# query: fullModel
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *
-{ GRAPH ?graph { 
-	# We will return FullModel object of profile StateVariables
+{ GRAPH ?graph {
     ?FullModel
         a md:FullModel ;
         md:Model.scenarioTime ?scenarioTime ;
@@ -19,7 +25,7 @@ SELECT *
         md:Model.DependentOn ?DependentOn ;
         md:Model.modelingAuthoritySet ?modelingAuthoritySet ;
         md:Model.profile ?profile .
-    FILTER (regex(?profile, "StateVariables", "i"))
+    FILTER (regex(?profile, "{0}", "i"))
 }}
 
 # query: modelIds
@@ -161,38 +167,15 @@ OPTIONAL { GRAPH ?graphSV {
         cim:SvPowerFlow.Terminal ?Terminal ;
         cim:SvPowerFlow.p ?p ;
         cim:SvPowerFlow.q ?q
+}	OPTIONAL {?SvStatus
+		a cim:SvStatus ;
+		cim:SvStatus.ConductingEquipment ?ConductingEquipment ;
+		cim:SvStatus.inService ?inService . 
 }}
 OPTIONAL { GRAPH ?graphCN {
 		?Terminal cim:Terminal.ConnectivityNode ?ConnectivityNode .
 }}
 OPTIONAL { GRAPH ?graphTPT {
-		?Terminal cim:Terminal.TopologicalNode ?TopologicalNode .
-}}
-}
-
-# query: terminalsSV
-SELECT *
-WHERE {
-{ GRAPH ?graph {
-    ?Terminal
-        a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?ConductingEquipment .
-    ?ConductingEquipment a ?conductingEquipmentType .
-}}
-OPTIONAL { GRAPH ?graphSV {
-    OPTIONAL {?SvPowerFlow
-        a cim:SvPowerFlow ;
-        cim:SvPowerFlow.Terminal ?Terminal ;
-        cim:SvPowerFlow.p ?p ;
-        cim:SvPowerFlow.q ?q . 
-		}
-	OPTIONAL {?SvStatus
-		a cim:SvStatus ;
-		cim:SvStatus.ConductingEquipment ?ConductingEquipment ;
-		cim:SvStatus.inService ?inService . 
-		}
-}}
-{ GRAPH ?graphTPT {
 		?Terminal cim:Terminal.TopologicalNode ?TopologicalNode .
 }}
 }

@@ -261,7 +261,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         PropertyBag statement,
         Resource context) {
         IRI resource;
-        if (statement.isModelDescription(objType)) {
+        if (objType.equals(rdfDescriptionClass())) {
             resource = cnx.getValueFactory().createIRI("urn:uuid:" + UUID.randomUUID().toString());
         } else {
             resource = cnx.getValueFactory().createIRI(cnx.getNamespace("data"),

@@ -5,6 +5,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+# query: graph
+SELECT DISTINCT  ?graph
+ WHERE
+ { GRAPH ?graph
+       { ?s  ?p  ?o }
+}
+
 # query: version
 SELECT ?version
 { GRAPH ?graph {
@@ -74,39 +81,15 @@ OPTIONAL { GRAPH ?graphSV {
         cim:SvPowerFlow.Terminal ?Terminal ;
         cim:SvPowerFlow.p ?p ;
         cim:SvPowerFlow.q ?q
+}    OPTIONAL {?SvStatus
+		a cim:SvStatus ;
+		cim:SvStatus.ConductingEquipment ?ConductingEquipment ;
+		cim:SvStatus.inService ?inService . 
 }}
 OPTIONAL { GRAPH ?graphTP2 {
     ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode
 }}
 }
-
-# query: terminalsSV
-SELECT *
-WHERE {
-{ GRAPH ?graph {
-    ?Terminal
-        a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?ConductingEquipment .
-    ?ConductingEquipment a ?conductingEquipmentType .
-}}
-OPTIONAL { GRAPH ?graphSV {
-    OPTIONAL {?SvPowerFlow
-        a cim:SvPowerFlow ;
-        cim:SvPowerFlow.Terminal ?Terminal ;
-        cim:SvPowerFlow.p ?p ;
-        cim:SvPowerFlow.q ?q . 
-		}
-	OPTIONAL {?SvStatus
-		a cim:SvStatus ;
-		cim:SvStatus.ConductingEquipment ?ConductingEquipment ;
-		cim:SvStatus.inService ?inService . 
-		}
-}}
-{ GRAPH ?graphTPT {
-		?Terminal cim:Terminal.TopologicalNode ?TopologicalNode .
-}}
-}
-
 
 # query: topologicalNodes
 SELECT *

@@ -262,7 +262,7 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags fullModelSV() {
+    public PropertyBags fullModel(String cgmesSubset) {
         return null;
     }
 
@@ -501,12 +501,12 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags terminalsSV() {
+    public PropertyBags topologicalIslands() {
         return null;
     }
 
     @Override
-    public PropertyBags topologicalIslands() {
+    public PropertyBags graph() {
         return null;
     }
 
@@ -528,6 +528,11 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public void clear(CgmesSubset subset) {
         // FakeCgmesModel, no need to implement clear
+    }
+
+    @Override
+    public void add(CgmesSubset subset, String type, PropertyBags objects) {
+     // FakeCgmesModel, no need to implement storage of objects
     }
 
     @Override

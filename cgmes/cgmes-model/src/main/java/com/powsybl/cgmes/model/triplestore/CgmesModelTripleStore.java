@@ -17,7 +17,6 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.EnumUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -181,8 +180,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags fullModelSV() {
-        return namedQuery("fullModelSV");
+    public PropertyBags fullModel(String cgmesSubset) {
+        return namedQuery("fullModel", cgmesSubset);
     }
 
     @Override
@@ -456,13 +455,13 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags terminalsSV() {
-        return namedQuery("terminalsSV");
+    public PropertyBags topologicalIslands() {
+        return namedQuery("topologicalIslands");
     }
 
     @Override
-    public PropertyBags topologicalIslands() {
-        return namedQuery("topologicalIslands");
+    public PropertyBags graph() {
+        return namedQuery("graph");
     }
 
     @Override
@@ -567,20 +566,26 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public void add(String contextOrSubset, String type, PropertyBags objects) {
-        // contextName will be the string passed by caller. It can be full contextName or just a subset.
-        // If it's just a subset (e.g. "SV") then we need to construct contextName from EQ.
-        String contextName = EnumUtils.isValidEnum(CgmesSubset.class, contextOrSubset)
-            ? contextNameFor(CgmesSubset.valueOf(contextOrSubset))
-            : contextOrSubset;
+    public void add(CgmesSubset subset, String type, PropertyBags objects) {
+        String contextName = contextNameFor(subset);
+        try {
+            tripleStore.add(contextName, cimNamespace, type, objects);
+        } catch (TripleStoreException x) {
+            String msg = String.format("Adding objects of type %s to subset %s, context %s", type, subset, contextName);
+            throw new CgmesModelException(msg, x);
+        }
+    }
+
+    @Override
+    public void add(String context, String type, PropertyBags objects) {
         try {
             if (type.equals(CgmesNames.FULL_MODEL)) {
-                tripleStore.add(contextName, mdNamespace(), type, objects);
+                tripleStore.add(context, mdNamespace(), type, objects);
             } else {
-                tripleStore.add(contextName, cimNamespace, type, objects);
+                tripleStore.add(context, cimNamespace, type, objects);
             }
         } catch (TripleStoreException x) {
-            String msg = String.format("Adding objects of type %s to context %s", type, contextName);
+            String msg = String.format("Adding objects of type %s to context %s", type, context);
             throw new CgmesModelException(msg, x);
         }
     }
@@ -588,7 +593,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private String mdNamespace() {
         // Return the first namespace for the prefix md
         // If no namespace is found, return default
-        PrefixNamespace def = new PrefixNamespace("md", MD_NAMESPACE);
+        PrefixNamespace def = new PrefixNamespace("md", CgmesNamespace.MD_NAMESPACE);
         return tripleStore.getNamespaces().stream().filter(ns -> ns.getPrefix().equals("md"))
             .findFirst().orElse(def).getNamespace();
     }
@@ -662,5 +667,4 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private static final String PROFILE = "profile";
     private static final Logger LOG = LoggerFactory.getLogger(CgmesModelTripleStore.class);
     private static final String[] PARAMETER_REFERENCE = {"{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}", "{7}", "{8}", "{9}"};
-    private static final String MD_NAMESPACE = "http://iec.ch/TC57/61970-552/ModelDescription/1#";
 }

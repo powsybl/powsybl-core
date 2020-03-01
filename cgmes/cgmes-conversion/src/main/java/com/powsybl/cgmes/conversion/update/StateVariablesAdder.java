@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
@@ -50,28 +51,19 @@ public class StateVariablesAdder {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.n = Objects.requireNonNull(n);
         this.cimVersion = ((CgmesModelTripleStore) cgmes).getCimVersion();
-        this.originalSVdata = originalSVdata();
+        this.originalTerminalsSV = cgmes.terminals();
+        this.originalFullModelSV = cimVersion != 14 ? cgmes.fullModel(CgmesSubset.STATE_VARIABLES.getProfile())
+            : new PropertyBags();
+        this.originalTopologicalIslands = cimVersion != 14 ? cgmes.topologicalIslands() : new PropertyBags();
         this.originalSVcontext = originalSVcontext();
     }
 
-    private Map<String, PropertyBags> originalSVdata() {
-        originalSVdata.put(TERMINALS_SV, cgmes.terminalsSV());
-        if (cimVersion != 14) {
-            originalSVdata.put("fullModelSV", cgmes.fullModelSV());
-            originalSVdata.put("topologicalIslands", cgmes.topologicalIslands());
-        }
-        return originalSVdata;
-    }
-
     private String originalSVcontext() {
-        // if grid has no FullModel, then we can return Subset
-        if (cimVersion != 14) {
-            PropertyBags pb = cgmes.fullModelSV();
-            if (pb.get(0).containsKey("graph")) {
-                return pb.get(0).getId("graph");
-            }
-        }
-        return CgmesSubset.STATE_VARIABLES.toString();
+        PropertyBags pbs = cgmes.graph();
+        return pbs.stream()
+            .filter(graph -> graph.getId("graph").contains("SV"))
+            .collect(Collectors.toList()).get(0)
+            .getId("graph");
     }
 
     public void addStateVariablesToCgmes() {
@@ -163,7 +155,7 @@ public class StateVariablesAdder {
         }
 
         // PowerFlow at boundaries set as it was in original cgmes.
-        for (PropertyBag terminal : originalSVdata.get(TERMINALS_SV)) {
+        for (PropertyBag terminal : originalTerminalsSV) {
             Objects.requireNonNull(terminal);
             if (terminal.getId("SvPowerFlow") == null) {
                 continue;
@@ -255,7 +247,7 @@ public class StateVariablesAdder {
         }
 
         // SvStatus at boundaries set as it was in original cgmes.
-        for (PropertyBag terminal : originalSVdata.get(TERMINALS_SV)) {
+        for (PropertyBag terminal : originalTerminalsSV) {
             Objects.requireNonNull(terminal);
             if (terminal.getId("SvStatus") == null) {
                 continue;
@@ -329,7 +321,7 @@ public class StateVariablesAdder {
     // added TopologicalIsland as it was in cgmes : original topology is
     // preserved.
     private void addTopologicalIslandsToCgmes() {
-        PropertyBags originalTpIslands = originalSVdata.get("topologicalIslands");
+        PropertyBags originalTpIslands = originalTopologicalIslands;
         if (!originalTpIslands.isEmpty()) {
             // For properties such as "cim:TopologicalIsland.TopologicalNodes", which might
             // have arbitrary number of values, SPARQL will return multiple result sets.
@@ -371,7 +363,7 @@ public class StateVariablesAdder {
     // http://iec.ch/TC57/61970-552/ModelDescription/1#
     private void addModelDescriptionToCgmes() {
         PropertyBags fullModelSV = new PropertyBags();
-        PropertyBags originalModelDescription = originalSVdata.get("fullModelSV");
+        PropertyBags originalModelDescription = originalFullModelSV;
         // for properties such as "md:Model.DependentOn" which might have arbitrary
         // number of values, SPARQL will return multiple result sets.
         // All are equal, except the multiValued property value.
@@ -417,9 +409,10 @@ public class StateVariablesAdder {
     private CgmesModel cgmes;
     private Network n;
     private int cimVersion;
-    private Map<String, PropertyBags> originalSVdata = new HashMap<>();
+    private PropertyBags originalTerminalsSV;
+    private PropertyBags originalFullModelSV;
+    private PropertyBags originalTopologicalIslands;
     private String originalSVcontext;
-    private static final String TERMINALS_SV = "terminalsSV";
     private static final String IN_SERVICE = "inService";
 
     private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList(CgmesNames.ANGLE, CgmesNames.VOLTAGE,
