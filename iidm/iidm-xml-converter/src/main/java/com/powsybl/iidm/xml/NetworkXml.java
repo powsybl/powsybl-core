@@ -25,6 +25,7 @@ import com.powsybl.iidm.export.BusFilter;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.apache.commons.io.FilenameUtils;
 import org.joda.time.DateTime;
@@ -154,8 +155,10 @@ public final class NetworkXml {
             return;
         }
 
-        writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri());
-        writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri());
+        String namespaceUri = getNamespaceUri(extensionXmlSerializer, options);
+
+        writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), namespaceUri);
+        writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), namespaceUri);
     }
 
     private static void writeExtensionNamespaces(Network n, ExportOptions options, XMLStreamWriter writer) throws XMLStreamException {
@@ -167,18 +170,20 @@ public final class NetworkXml {
                 continue;
             }
 
-            if (extensionUris.contains(extensionXmlSerializer.getNamespaceUri())) {
+            String namespaceUri = getNamespaceUri(extensionXmlSerializer, options);
+
+            if (extensionUris.contains(namespaceUri)) {
                 throw new PowsyblException("Extension namespace URI collision");
             } else {
-                extensionUris.add(extensionXmlSerializer.getNamespaceUri());
+                extensionUris.add(namespaceUri);
             }
             if (extensionPrefixes.contains(extensionXmlSerializer.getNamespacePrefix())) {
                 throw new PowsyblException("Extension namespace prefix collision");
             } else {
                 extensionPrefixes.add(extensionXmlSerializer.getNamespacePrefix());
             }
-            writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri());
-            writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri());
+            writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), namespaceUri);
+            writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), namespaceUri);
         }
     }
 
@@ -194,11 +199,14 @@ public final class NetworkXml {
             return;
         }
 
+        String namespaceUri = getNamespaceUri(extensionXmlSerializer, context.getOptions(), context.getVersion());
+
         if (extensionXmlSerializer.hasSubElements()) {
-            writer.writeStartElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
+            writer.writeStartElement(namespaceUri, extension.getName());
         } else {
-            writer.writeEmptyElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
+            writer.writeEmptyElement(namespaceUri, extension.getName());
         }
+        context.getExtensionVersion(extension.getName()).ifPresent(extensionXmlSerializer::checkExtensionVersionSupported);
         extensionXmlSerializer.write(extension, context);
         if (extensionXmlSerializer.hasSubElements()) {
             writer.writeEndElement();
@@ -213,6 +221,27 @@ public final class NetworkXml {
             LOGGER.warn("No Extension XML Serializer for {}", extensionName);
         }
         return extensionXmlSerializer;
+    }
+
+    private static String getNamespaceUri(ExtensionXmlSerializer extensionXmlSerializer, ExportOptions options) {
+        IidmXmlVersion networkVersion = options.getVersion() == null ? IidmXmlConstants.CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
+        return getNamespaceUri(extensionXmlSerializer, options, networkVersion);
+    }
+
+    private static String getNamespaceUri(ExtensionXmlSerializer extensionXmlSerializer, ExportOptions options, IidmXmlVersion networkVersion) {
+        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer) {
+            AbstractVersionableNetworkExtensionXmlSerializer networkExtensionXmlSerializer = (AbstractVersionableNetworkExtensionXmlSerializer) extensionXmlSerializer;
+            return options.getExtensionVersion(networkExtensionXmlSerializer.getExtensionName())
+                    .map(extensionVersion -> {
+                        networkExtensionXmlSerializer.checkWritingCompatibility(extensionVersion, networkVersion);
+                        return networkExtensionXmlSerializer.getNamespaceUri(extensionVersion);
+                    })
+                    .orElseGet(() -> networkExtensionXmlSerializer.getNamespaceUri(networkExtensionXmlSerializer.getVersion(networkVersion)));
+
+        }
+        return options.getExtensionVersion(extensionXmlSerializer.getExtensionName())
+                .map(extensionXmlSerializer::getNamespaceUri)
+                .orElseGet(extensionXmlSerializer::getNamespaceUri);
     }
 
     static Map<String, Set<String>> getIdentifiablesPerExtensionType(Network n) {
