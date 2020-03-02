@@ -8,7 +8,8 @@ package com.powsybl.sensitivity.converter;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -16,10 +17,14 @@ import static org.junit.Assert.*;
 public class SensitivityComputationResultExportersTest {
 
     @Test
-    public void testExporterForFormat() {
-        SensitivityComputationResultExporter exporter = SensitivityComputationResultExporters.getExporter("JSON");
-        assertNotNull(exporter);
-        assertEquals(JsonSensitivityComputationResultExporter.class, exporter.getClass());
+    public void testGetFormats() {
+        assertEquals("[CSV, JSON]", SensitivityComputationResultExporters.getFormats().toString());
+    }
+
+    @Test
+    public void testGetExporter() {
+        assertEquals("CSV", SensitivityComputationResultExporters.getExporter("CSV").getFormat());
+        assertEquals("JSON", SensitivityComputationResultExporters.getExporter("JSON").getFormat());
     }
 
     @Test
