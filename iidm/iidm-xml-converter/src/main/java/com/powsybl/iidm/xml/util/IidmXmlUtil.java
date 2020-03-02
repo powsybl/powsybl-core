@@ -86,15 +86,6 @@ public final class IidmXmlUtil {
         }
     }
 
-    public static <C extends AbstractNetworkXmlContext> void assertMaximumVersionIfNotDefault(boolean valueIsNotDefault, String rootElementName,
-                                                                                              String elementName, ErrorMessage type, IidmXmlVersion maxVersion,
-                                                                                              C context, Runnable runnable) {
-        if (valueIsNotDefault) {
-            assertMaximumVersion(rootElementName, elementName, type, maxVersion, context);
-            runnable.run();
-        }
-    }
-
     /**
      * Assert that the context's IIDM-XML version is strictly older than a given IIDM-XML version.
      * If not, throw an exception with a given type of error message.
@@ -176,6 +167,10 @@ public final class IidmXmlUtil {
         }
     }
 
+    /**
+     * Write a <b>mandatory</b> int attribute until a given maximum IIDM-XML version. <br>
+     * If the context's IIDM-XML version is strictly more recent than the given maximum IIDM-XML version, do nothing.
+     */
     public static void writeIntAttributeUntilMaximumVersion(String attributeName, int value, IidmXmlVersion maxVersion, NetworkXmlWriterContext context) throws XMLStreamException {
         if (context.getVersion().compareTo(maxVersion) <= 0) {
             XmlUtil.writeInt(attributeName, value, context.getWriter());
