@@ -150,6 +150,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(true)
                 .setTargetV(33.0)
+                .setTargetDeadband(0)
                 .setRegulationTerminal(load33.getTerminal())
                 .add();
 

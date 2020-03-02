@@ -546,6 +546,7 @@ public abstract class AbstractTapChangerTest {
         ThreeWindingsTransformer.Leg leg3 = threeWindingsTransformer.getLeg3();
         leg2.newRatioTapChanger()
                 .setTargetV(10.0)
+                .setTargetDeadband(0)
                 .setLoadTapChangingCapabilities(false)
                 .setLowTapPosition(0)
                 .setTapPosition(1)
