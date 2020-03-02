@@ -23,7 +23,7 @@ public class ActivePowerControlTest {
         Network network = BatteryNetworkFactory.create();
         Battery bat = network.getBattery("BAT");
         assertNotNull(bat);
-        ActivePowerControl<Battery> activePowerControl = new ActivePowerControl<>(bat, true, 4f);
+        ActivePowerControl<Battery> activePowerControl = new ActivePowerControlImpl<>(bat, true, 4f);
         assertEquals("activePowerControl", activePowerControl.getName());
         assertEquals("BAT", activePowerControl.getExtendable().getId());
 

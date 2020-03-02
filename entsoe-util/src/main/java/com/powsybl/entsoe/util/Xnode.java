@@ -19,10 +19,10 @@ public interface Xnode extends Extension<DanglingLine> {
         return "xnode";
     }
 
-    public String getCode();
+    String getCode();
 
     // No need for CRTP style return type returning a more specific adder
     // because this interface is not meant to be extended.
-    public Xnode setCode(String code);
+    Xnode setCode(String code);
 
 }
