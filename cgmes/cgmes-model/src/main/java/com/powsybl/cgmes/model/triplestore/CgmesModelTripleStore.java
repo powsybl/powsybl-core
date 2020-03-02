@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -578,11 +579,14 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     @Override
     public void add(String context, String type, PropertyBags objects) {
+        String contextName = EnumUtils.isValidEnum(CgmesSubset.class, context)
+            ? contextNameFor(CgmesSubset.valueOf(context))
+            : context;
         try {
             if (type.equals(CgmesNames.FULL_MODEL)) {
-                tripleStore.add(context, mdNamespace(), type, objects);
+                tripleStore.add(contextName, mdNamespace(), type, objects);
             } else {
-                tripleStore.add(context, cimNamespace, type, objects);
+                tripleStore.add(contextName, cimNamespace, type, objects);
             }
         } catch (TripleStoreException x) {
             String msg = String.format("Adding objects of type %s to context %s", type, context);

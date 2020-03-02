@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
@@ -60,9 +59,12 @@ public class StateVariablesAdder {
 
     private String originalSVcontext() {
         PropertyBags pbs = cgmes.graph();
+        PropertyBag defaultContext = new PropertyBag(Arrays.asList("graph"));
+        defaultContext.put("graph", CgmesSubset.STATE_VARIABLES.toString());
         return pbs.stream()
-            .filter(graph -> graph.getId("graph").contains("SV"))
-            .collect(Collectors.toList()).get(0)
+            .filter(graph -> graph.getId("graph").contains(CgmesSubset.STATE_VARIABLES.getIdentifier()))
+            .findAny()
+            .orElse(defaultContext)
             .getId("graph");
     }
 
