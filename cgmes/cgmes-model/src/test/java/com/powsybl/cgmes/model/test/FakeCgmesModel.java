@@ -458,6 +458,12 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags phaseTapChangerTablesPoints() {
+        // FakeCgmesModel does not implement phase tap changer tables
+        return null;
+    }
+
+    @Override
     public PropertyBags ratioTapChangerTable(String tableId) {
         // FakeCgmesModel does not implement ratio tap changer tables
         return null;
@@ -541,12 +547,12 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public String substation(CgmesTerminal t) {
+    public String substation(CgmesTerminal t, boolean nodeBreaker) {
         return null;
     }
 
     @Override
-    public String voltageLevel(CgmesTerminal t) {
+    public String voltageLevel(CgmesTerminal t, boolean nodeBreaker) {
         return null;
     }
 

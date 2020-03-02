@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="ieee14cdf-solved" caseDate="1993-08-19T00:00:00.000Z" forecastDistance="0" sourceFormat="IEEE CDF">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_1" id="ieee14cdf-solved" caseDate="1993-08-19T00:00:00.000Z" forecastDistance="0" sourceFormat="IEEE-CDF">
     <iidm:substation id="S6">
         <iidm:voltageLevel id="VL1" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -51,7 +51,7 @@
             <iidm:load id="B9-L" loadType="UNDEFINED" p0="29.5" q0="16.6" bus="B9" connectableBus="B9" p="29.5" q="16.6"/>
             <iidm:shunt id="B9-SH" bPerSection="19.0" maximumSectionCount="1" currentSectionCount="1" bus="B9" connectableBus="B9" q="-21.187584"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T4-7-1" r="0.0" x="0.0020912" g="0.0" b="0.0" ratedU1="0.978" ratedU2="1.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B7" connectableBus2="B7" voltageLevelId2="VL7" p1="28.126127877318908" q1="-9.753887720619174" p2="-28.126127877318922" q2="11.464367695376083"/>
+        <iidm:twoWindingsTransformer id="T4-7-1" r="0.0" x="0.0020912" g="0.0" b="0.0" ratedU1="0.978" ratedU2="1.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B7" connectableBus2="B7" voltageLevelId2="VL7" p1="28.12612787731891" q1="-9.753887720619232" p2="-28.126127877318922" q2="11.464367695376083"/>
         <iidm:twoWindingsTransformer id="T4-9-1" r="0.0" x="0.0055618" g="0.0" b="0.0" ratedU1="0.969" ratedU2="1.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B9" connectableBus2="B9" voltageLevelId2="VL9" p1="16.10119634666402" q1="-0.37521312955084385" p2="-16.101196346664025" q2="1.6823451017767743"/>
     </iidm:substation>
     <iidm:substation id="S2">
@@ -70,7 +70,7 @@
             </iidm:generator>
             <iidm:load id="B6-L" loadType="UNDEFINED" p0="11.2" q0="7.5" bus="B6" connectableBus="B6" p="11.2" q="7.5"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T5-6-1" r="0.0" x="0.0025202000000000002" g="0.0" b="0.0" ratedU1="0.932" ratedU2="1.0" bus1="B5" connectableBus1="B5" voltageLevelId1="VL5" bus2="B6" connectableBus2="B6" voltageLevelId2="VL6" p1="44.131815445461385" q1="12.705379012683753" p2="-44.1318154454614" q2="-8.267738828437409"/>
+        <iidm:twoWindingsTransformer id="T5-6-1" r="0.0" x="0.0025202000000000002" g="0.0" b="0.0" ratedU1="0.932" ratedU2="1.0" bus1="B5" connectableBus1="B5" voltageLevelId1="VL5" bus2="B6" connectableBus2="B6" voltageLevelId2="VL6" p1="44.13181544546139" q1="12.70537901268381" p2="-44.1318154454614" q2="-8.267738828437409"/>
     </iidm:substation>
     <iidm:substation id="S3">
         <iidm:voltageLevel id="VL8" nominalV="1.0" topologyKind="BUS_BREAKER">

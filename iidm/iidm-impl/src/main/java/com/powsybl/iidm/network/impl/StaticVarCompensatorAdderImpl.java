@@ -8,6 +8,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.Objects;
 
@@ -27,6 +29,8 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
     private double reactivePowerSetPoint = Double.NaN;
 
     private StaticVarCompensator.RegulationMode regulationMode;
+
+    private TerminalExt regulatingTerminal;
 
     StaticVarCompensatorAdderImpl(VoltageLevelExt vl) {
         this.vl = Objects.requireNonNull(vl);
@@ -73,15 +77,23 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
     }
 
     @Override
+    public StaticVarCompensatorAdderImpl setRegulatingTerminal(Terminal regulatingTerminal) {
+        this.regulatingTerminal = (TerminalExt) regulatingTerminal;
+        return this;
+    }
+
+    @Override
     public StaticVarCompensatorImpl add() {
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkBmin(this, bMin);
         ValidationUtil.checkBmax(this, bMax);
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         ValidationUtil.checkSvcRegulator(this, voltageSetPoint, reactivePowerSetPoint, regulationMode);
         StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, bMin, bMax, voltageSetPoint, reactivePowerSetPoint,
-                                                                    regulationMode, getNetwork().getRef());
+                regulationMode, regulatingTerminal != null ? regulatingTerminal : terminal,
+                getNetwork().getRef());
         svc.addTerminal(terminal);
         vl.attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(svc);

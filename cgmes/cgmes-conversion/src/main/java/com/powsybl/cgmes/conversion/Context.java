@@ -17,10 +17,12 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.conversion.Conversion.Config;
 import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
@@ -48,8 +50,12 @@ public class Context {
         currentLimitsMapping = new CurrentLimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping();
+
         ratioTapChangerTables = new HashMap<>();
+        phaseTapChangerTables = new HashMap<>();
         reactiveCapabilityCurveData = new HashMap<>();
+        powerTransformerRatioTapChangers = new HashMap<>();
+        powerTransformerPhaseTapChangers = new HashMap<>();
     }
 
     public CgmesModel cgmes() {
@@ -143,6 +149,28 @@ public class Context {
         return reactiveCapabilityCurveData.get(curveId);
     }
 
+    public void loadRatioTapChangers() {
+        cgmes.ratioTapChangers().forEach(ratio -> {
+            String id = ratio.getId(CgmesNames.RATIO_TAP_CHANGER);
+            powerTransformerRatioTapChangers.put(id, ratio);
+        });
+    }
+
+    public PropertyBag ratioTapChanger(String id) {
+        return powerTransformerRatioTapChangers.get(id);
+    }
+
+    public void loadPhaseTapChangers() {
+        cgmes.phaseTapChangers().forEach(phase -> {
+            String id = phase.getId(CgmesNames.PHASE_TAP_CHANGER);
+            powerTransformerPhaseTapChangers.put(id, phase);
+        });
+    }
+
+    public PropertyBag phaseTapChanger(String id) {
+        return powerTransformerPhaseTapChangers.get(id);
+    }
+
     public void loadRatioTapChangerTables() {
         PropertyBags rtcpoints = cgmes.ratioTapChangerTablesPoints();
         if (rtcpoints == null) {
@@ -154,8 +182,23 @@ public class Context {
         });
     }
 
+    public void loadPhaseTapChangerTables() {
+        PropertyBags ptcpoints = cgmes.phaseTapChangerTablesPoints();
+        if (ptcpoints == null) {
+            return;
+        }
+        ptcpoints.forEach(p -> {
+            String tableId = p.getId("PhaseTapChangerTable");
+            phaseTapChangerTables.computeIfAbsent(tableId, tid -> new PropertyBags()).add(p);
+        });
+    }
+
     public PropertyBags ratioTapChangerTable(String tableId) {
         return ratioTapChangerTables.get(tableId);
+    }
+
+    public PropertyBags phaseTapChangerTable(String tableId) {
+        return phaseTapChangerTables.get(tableId);
     }
 
     public void startLinesConversion() {
@@ -222,7 +265,10 @@ public class Context {
     private final RegulatingControlMapping regulatingControlMapping;
 
     private final Map<String, PropertyBags> ratioTapChangerTables;
+    private final Map<String, PropertyBags> phaseTapChangerTables;
     private final Map<String, PropertyBags> reactiveCapabilityCurveData;
+    private final Map<String, PropertyBag> powerTransformerRatioTapChangers;
+    private final Map<String, PropertyBag> powerTransformerPhaseTapChangers;
 
     private int countLines;
     private int countLinesWithSvPowerFlowsAtEnds;

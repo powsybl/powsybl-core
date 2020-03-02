@@ -8,6 +8,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  *

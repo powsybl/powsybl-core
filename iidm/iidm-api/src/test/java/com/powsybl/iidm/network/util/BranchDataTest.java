@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
@@ -14,12 +15,152 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Branch.Side;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class BranchDataTest {
+
+    // Test BranchData
+
+    @Test
+    public void testBranchDataFlow() {
+        Line line = new BranchTestData().getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testBranchDataFlowStructuralRatio1() {
+        BranchTestData branchTestData = new BranchTestData();
+        branchTestData.setNominalV1(395.0);
+
+        Line line = branchTestData.getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -223.390802, 328.051088, 223.390802, -316.050498);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testBranchDataFlowStructuralRatio1Vnominal2Zero() {
+        BranchTestData branchTestData = new BranchTestData();
+        branchTestData.setNominalV1(395.0);
+        branchTestData.setNominalV2(0.0);
+
+        Line line = branchTestData.getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testBranchDataFlowStructuralRatio1Vnominal2NaN() {
+        BranchTestData branchTestData = new BranchTestData();
+        branchTestData.setNominalV1(395.0);
+        branchTestData.setNominalV2(Double.NaN);
+
+        Line line = branchTestData.getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testBranchDataFlowStructuralRatio1VoltageLevel2Null() {
+        BranchTestData branchTestData = new BranchTestData();
+        branchTestData.setNominalV1(395.0);
+        branchTestData.setVoltageLevel2Null();
+
+        Line line = branchTestData.getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testBranchDataFlowStructuralRatio2Vnominal1Zero() {
+        BranchTestData branchTestData = new BranchTestData();
+        branchTestData.setNominalV2(395.0);
+        branchTestData.setNominalV1(0.0);
+
+        Line line = branchTestData.getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testBranchDataFlowStructuralRatio2Vnominal1NaN() {
+        BranchTestData branchTestData = new BranchTestData();
+        branchTestData.setNominalV2(395.0);
+        branchTestData.setNominalV1(Double.NaN);
+
+        Line line = branchTestData.getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testBranchDataFlowStructuralRatio2VoltageLevel1Null() {
+        BranchTestData branchTestData = new BranchTestData();
+        branchTestData.setNominalV2(395.0);
+        branchTestData.setVoltageLevel1Null();
+
+        Line line = branchTestData.getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testBranchDataFlowStructuralRatio2() {
+        BranchTestData branchTestData = new BranchTestData();
+        branchTestData.setNominalV2(395.0);
+
+        Line line = branchTestData.getLine();
+        BranchData branchData = new BranchData(line, 0, false);
+        boolean ok = branchCompareFlow(branchData, -217.840937, 1.90106, 217.840937, 1.901069);
+        assertTrue(ok);
+    }
+
+    private boolean branchCompareFlow(BranchData branchData, double p1, double q1, double p2, double q2) {
+        BranchFlow actual = new BranchFlow();
+        actual.p1 = branchData.getComputedP1();
+        actual.q1 = branchData.getComputedQ1();
+        actual.p2 = branchData.getComputedP2();
+        actual.q2 = branchData.getComputedQ2();
+
+        BranchFlow expected = new BranchFlow();
+        expected.p1 = p1;
+        expected.q1 = q1;
+        expected.p2 = p2;
+        expected.q2 = q2;
+
+        return sameFlow(expected, actual);
+    }
+
+    private boolean sameFlow(BranchFlow expected, BranchFlow actual) {
+        double tol = 0.00001;
+        if (Math.abs(expected.p1 - actual.p1) > tol ||
+            Math.abs(expected.q1 - actual.q1) > tol ||
+            Math.abs(expected.p2 - actual.p2) > tol ||
+            Math.abs(expected.q2 - actual.q2) > tol) {
+            return false;
+        }
+        return true;
+    }
+
+    static class BranchFlow {
+        double p1 = Double.NaN;
+        double q1 = Double.NaN;
+        double p2 = Double.NaN;
+        double q2 = Double.NaN;
+    }
 
     // Some tests for a transmission line disconnected at one end
 
@@ -27,16 +168,8 @@ public class BranchDataTest {
     public void testDanglingLine() {
         BranchTestCase t = lineEnd2Disconnected();
 
-        // The expected values at the other end will be the same when we disconnect end
-        // 1 or end 2
-        // If we use the same voltage at the connected end
-        double expectedU = 381.9095;
-        double expectedTheta = -0.000503;
-
         // First obtain results when end 2 is disconnected
-        BranchData b2disconnected = checkTestCase("End 2 disconnected", t);
-        assertEquals(expectedU, b2disconnected.getComputedU2(), t.config.toleranceVoltage);
-        assertEquals(expectedTheta, b2disconnected.getComputedTheta2(), t.config.toleranceVoltage);
+        checkTestCase("End 2 disconnected", t);
 
         // Now change the disconnected end and check the same results are obtained
         t.bus2.u = t.bus1.u;
@@ -49,9 +182,7 @@ public class BranchDataTest {
         t.expectedFlow2.q = t.expectedFlow1.q;
         t.expectedFlow1.p = 0.0;
         t.expectedFlow1.q = 0.0;
-        BranchData b1disconnected = checkTestCase("End 1 disconnected", t);
-        assertEquals(expectedU, b1disconnected.getComputedU1(), t.config.toleranceVoltage);
-        assertEquals(expectedTheta, b1disconnected.getComputedTheta1(), t.config.toleranceVoltage);
+        checkTestCase("End 1 disconnected", t);
     }
 
     @Test
@@ -60,20 +191,11 @@ public class BranchDataTest {
         t.branch.id = "Dangling-Y1-Y2-different";
         // End 1 admittance to ground has different value of End 2
         t.branch.end1.b = t.branch.end2.b * 2;
-        double expectedU;
-        double expectedTheta;
 
-        // When end 2 is disconnected, the voltage at end 2
-        // should be the same that was obtained when Y1 = Y2
-        // because the voltage at end 2 depends only on Ytr and Y2
-        expectedU = 381.9095;
-        expectedTheta = -0.000503;
         // But the flow seen at end 1 will be different
         t.expectedFlow1.p = 0.0072927;
         t.expectedFlow1.q = -43.392559;
-        BranchData b2disconnected = checkTestCase("End 2 disconnected", t);
-        assertEquals(expectedU, b2disconnected.getComputedU2(), t.config.toleranceVoltage);
-        assertEquals(expectedTheta, b2disconnected.getComputedTheta2(), t.config.toleranceVoltage);
+        checkTestCase("End 2 disconnected", t);
 
         // Now when we disconnect end 1 both the voltage drop and
         // the expected values for flow are different
@@ -83,15 +205,12 @@ public class BranchDataTest {
         t.bus1.theta = Double.NaN;
         t.branch.end2.connected = true;
         t.branch.end1.connected = false;
-        expectedU = 383.838188;
-        expectedTheta = -0.001010;
+
         t.expectedFlow1.p = 0.0;
         t.expectedFlow1.q = 0.0;
         t.expectedFlow2.p = 0.02946635;
         t.expectedFlow2.q = -43.611687;
-        BranchData b1disconnected = checkTestCase("End 1 disconnected", t);
-        assertEquals(expectedU, b1disconnected.getComputedU1(), t.config.toleranceVoltage);
-        assertEquals(expectedTheta, b1disconnected.getComputedTheta1(), t.config.toleranceVoltage);
+        checkTestCase("End 1 disconnected", t);
     }
 
     private BranchTestCase lineEnd2Disconnected() {
@@ -780,9 +899,6 @@ public class BranchDataTest {
         LOG.debug("");
         LOG.debug("Results for " + title + " branch " + b.getId());
         LOG.debug("End1");
-        LOG.debug(String.format("    V          = %14.6f  %14.6f",
-                b.getComputedU1(),
-                Math.toDegrees(b.getComputedTheta1())));
         LOG.debug(String.format("    S expected = %14.6f  %14.6f",
                 t.expectedFlow1.p,
                 t.expectedFlow1.q));
@@ -796,9 +912,6 @@ public class BranchDataTest {
                 t.config.toleranceFlow,
                 t.config.toleranceFlow));
         LOG.debug("End2");
-        LOG.debug(String.format("    V          = %14.6f  %14.6f",
-                b.getComputedU2(),
-                Math.toDegrees(b.getComputedTheta2())));
         LOG.debug(String.format("    S expected = %14.6f  %14.6f",
                 t.expectedFlow2.p,
                 t.expectedFlow2.q));

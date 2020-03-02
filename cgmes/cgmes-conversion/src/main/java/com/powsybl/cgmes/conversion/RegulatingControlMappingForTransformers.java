@@ -27,10 +27,11 @@ import com.powsybl.triplestore.api.PropertyBag;
 public class RegulatingControlMappingForTransformers {
 
     private static final String TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
+    private static final String TAP_CHANGER_CONTROL = "TapChangerControl";
 
-    public RegulatingControlMappingForTransformers(RegulatingControlMapping parent) {
+    RegulatingControlMappingForTransformers(RegulatingControlMapping parent, Context context) {
         this.parent = parent;
-        this.context = parent.context();
+        this.context = context;
         t2xMapping = new HashMap<>();
         t3xMapping = new HashMap<>();
     }
@@ -47,9 +48,13 @@ public class RegulatingControlMappingForTransformers {
 
         CgmesRegulatingControlPhase rcPtc = null;
         if (ptc != null) {
-            rcPtc = context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(ptc);
+            rcPtc = buildRegulatingControlPhase(ptc);
         }
 
+        add(transformerId, rcRtc, rcPtc);
+    }
+
+    public void add(String transformerId, CgmesRegulatingControlRatio rcRtc, CgmesRegulatingControlPhase rcPtc) {
         CgmesRegulatingControlForTwoWindingsTransformer rc = new CgmesRegulatingControlForTwoWindingsTransformer();
         rc.ratioTapChanger = rcRtc;
         rc.phaseTapChanger = rcPtc;
@@ -71,9 +76,19 @@ public class RegulatingControlMappingForTransformers {
             rcRtc3 = buildRegulatingControlRatio(rtcId3, rtc3);
         }
 
+        add(transformerId, null, null, rcRtc2, null, rcRtc3, null);
+    }
+
+    public void add(String transformerId, CgmesRegulatingControlRatio rcRtc1, CgmesRegulatingControlPhase rcPtc1,
+                    CgmesRegulatingControlRatio rcRtc2, CgmesRegulatingControlPhase rcPtc2, CgmesRegulatingControlRatio rcRtc3,
+                    CgmesRegulatingControlPhase rcPtc3) {
         CgmesRegulatingControlForThreeWindingsTransformer rc = new CgmesRegulatingControlForThreeWindingsTransformer();
+        rc.ratioTapChanger1 = rcRtc1;
+        rc.phaseTapChanger1 = rcPtc1;
         rc.ratioTapChanger2 = rcRtc2;
+        rc.phaseTapChanger2 = rcPtc2;
         rc.ratioTapChanger3 = rcRtc3;
+        rc.phaseTapChanger3 = rcPtc3;
         t3xMapping.put(transformerId, rc);
     }
 
@@ -82,6 +97,11 @@ public class RegulatingControlMappingForTransformers {
         String tculControlMode = tc.get("tculControlMode");
         boolean tapChangerControlEnabled = tc.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false);
 
+        return buildRegulatingControlRatio(id, regulatingControlId, tculControlMode, tapChangerControlEnabled);
+    }
+
+    public CgmesRegulatingControlRatio buildRegulatingControlRatio(String id, String regulatingControlId,
+                                                                   String tculControlMode, boolean tapChangerControlEnabled) {
         CgmesRegulatingControlRatio rtc = new CgmesRegulatingControlRatio();
         rtc.id = id;
         rtc.regulatingControlId = regulatingControlId;
@@ -95,6 +115,11 @@ public class RegulatingControlMappingForTransformers {
         boolean tapChangerControlEnabled = tc.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false);
         boolean ltcFlag = tc.asBoolean("ltcFlag", false);
 
+        return buildRegulatingControlPhase(regulatingControlId, tapChangerControlEnabled, ltcFlag);
+    }
+
+    public CgmesRegulatingControlPhase buildRegulatingControlPhase(String regulatingControlId,
+                                                                   boolean tapChangerControlEnabled, boolean ltcFlag) {
         CgmesRegulatingControlPhase rtc = new CgmesRegulatingControlPhase();
         rtc.regulatingControlId = regulatingControlId;
         rtc.tapChangerControlEnabled = tapChangerControlEnabled;
@@ -112,29 +137,22 @@ public class RegulatingControlMappingForTransformers {
         applyTapChangersRegulatingControl(twt, rc);
     }
 
-    private void applyTapChangersRegulatingControl(TwoWindingsTransformer twt, CgmesRegulatingControlForTwoWindingsTransformer rc) {
+    private void applyTapChangersRegulatingControl(TwoWindingsTransformer twt,
+                                                   CgmesRegulatingControlForTwoWindingsTransformer rc) {
         if (rc == null) {
             return;
         }
 
         RegulatingControl rtcControl = getTapChangerControl(rc.ratioTapChanger);
         boolean rtcRegulating = rtcControl != null && (rtcControl.enabled || rc.ratioTapChanger.tapChangerControlEnabled);
-
         RegulatingControl ptcControl = getTapChangerControl(rc.phaseTapChanger);
+        boolean ptcRegulating = ptcControl != null && (ptcControl.enabled || rc.phaseTapChanger.tapChangerControlEnabled);
 
-        if (twt.getRatioTapChanger() != null && twt.getPhaseTapChanger() != null) {
-            setPhaseTapChangerControl(rc.phaseTapChanger, ptcControl, twt.getPhaseTapChanger());
-            // only one regulatingControl enabled
-            if (rc.ratioTapChanger != null && rtcRegulating && twt.getPhaseTapChanger().isRegulating()) {
-                context.fixed(twt.getId(), "Unsupported two regulating controls enabled. Disable ratioTapChanger");
-                rtcRegulating = false;
-            }
-            setRatioTapChangerControl(rtcRegulating, rc.ratioTapChanger, rtcControl, twt.getRatioTapChanger());
-        } else if (twt.getRatioTapChanger() != null) {
-            setRatioTapChangerControl(rtcRegulating, rc.ratioTapChanger, rtcControl, twt.getRatioTapChanger());
-        } else if (twt.getPhaseTapChanger() != null) {
-            setPhaseTapChangerControl(rc.phaseTapChanger, ptcControl, twt.getPhaseTapChanger());
-        }
+        setPhaseTapChangerControl(ptcRegulating, rc.phaseTapChanger, ptcControl, twt.getPhaseTapChanger());
+        boolean regulatingSet = twt.getPhaseTapChanger() != null && twt.getPhaseTapChanger().isRegulating();
+
+        rtcRegulating = checkOnlyOneEnabled(twt.getId(), rtcRegulating, regulatingSet, "ratioTapChanger");
+        setRatioTapChangerControl(rtcRegulating, rc.ratioTapChanger, rtcControl, twt.getRatioTapChanger());
     }
 
     private void applyTapChangersRegulatingControl(ThreeWindingsTransformer twt) {
@@ -142,34 +160,74 @@ public class RegulatingControlMappingForTransformers {
         applyTapChangersRegulatingControl(twt, rc);
     }
 
-    private void applyTapChangersRegulatingControl(ThreeWindingsTransformer twt, CgmesRegulatingControlForThreeWindingsTransformer rc) {
+    private void applyTapChangersRegulatingControl(ThreeWindingsTransformer twt,
+                                                   CgmesRegulatingControlForThreeWindingsTransformer rc) {
         if (rc == null) {
             return;
         }
 
+        RegulatingControl rtcControl1 = getTapChangerControl(rc.ratioTapChanger1);
+        boolean rtcRegulating1 = getRtcRegulating(rtcControl1, rc.ratioTapChanger1);
+        RegulatingControl ptcControl1 = getTapChangerControl(rc.phaseTapChanger1);
+        boolean ptcRegulating1 = getPtcRegulating(ptcControl1, rc.phaseTapChanger1);
+
         RegulatingControl rtcControl2 = getTapChangerControl(rc.ratioTapChanger2);
-        boolean rtcRegulating2 = rtcControl2 != null && (rtcControl2.enabled || rc.ratioTapChanger2.tapChangerControlEnabled);
+        boolean rtcRegulating2 = getRtcRegulating(rtcControl2, rc.ratioTapChanger2);
+        RegulatingControl ptcControl2 = getTapChangerControl(rc.phaseTapChanger2);
+        boolean ptcRegulating2 = getPtcRegulating(ptcControl2, rc.phaseTapChanger2);
 
         RegulatingControl rtcControl3 = getTapChangerControl(rc.ratioTapChanger3);
-        boolean rtcRegulating3 = rtcControl3 != null && (rtcControl3.enabled || rc.ratioTapChanger3.tapChangerControlEnabled);
+        boolean rtcRegulating3 = getRtcRegulating(rtcControl3, rc.ratioTapChanger3);
+        RegulatingControl ptcControl3 = getTapChangerControl(rc.phaseTapChanger3);
+        boolean ptcRegulating3 = getPtcRegulating(ptcControl3, rc.phaseTapChanger3);
 
-        if (twt.getLeg2().getRatioTapChanger() != null && twt.getLeg3().getRatioTapChanger() != null) {
-            setRatioTapChangerControl(rtcRegulating2, rc.ratioTapChanger2, rtcControl2, twt.getLeg2().getRatioTapChanger());
-            // only one regulatingControl enabled
-            if (rc.ratioTapChanger2 != null && rtcRegulating3 && twt.getLeg2().getRatioTapChanger().isRegulating()) {
-                context.fixed(twt.getId(), "Unsupported two regulating controls enabled. Disable ratioTapChanger at Leg3");
-                rtcRegulating3 = false;
-            }
-            setRatioTapChangerControl(rtcRegulating3, rc.ratioTapChanger3, rtcControl3, twt.getLeg3().getRatioTapChanger());
-        } else if (twt.getLeg2().getRatioTapChanger() != null) {
-            setRatioTapChangerControl(rtcRegulating2, rc.ratioTapChanger2, rtcControl2, twt.getLeg2().getRatioTapChanger());
-        } else if (twt.getLeg3().getRatioTapChanger() != null) {
-            setRatioTapChangerControl(rtcRegulating3, rc.ratioTapChanger3, rtcControl3, twt.getLeg3().getRatioTapChanger());
-        }
+        setPhaseTapChangerControl(ptcRegulating1, rc.phaseTapChanger1, ptcControl1, twt.getLeg1().getPhaseTapChanger());
+        boolean regulatingSet = twt.getLeg1().getPhaseTapChanger() != null && twt.getLeg1().getPhaseTapChanger().isRegulating();
+
+        rtcRegulating1 = checkOnlyOneEnabled(twt.getId(), rtcRegulating1, regulatingSet, "ratioTapChanger at Leg1");
+        setRatioTapChangerControl(rtcRegulating1, rc.ratioTapChanger1, rtcControl1, twt.getLeg1().getRatioTapChanger());
+        regulatingSet = regulatingSet || (twt.getLeg1().getRatioTapChanger() != null && twt.getLeg1().getRatioTapChanger().isRegulating());
+
+        ptcRegulating2 = checkOnlyOneEnabled(twt.getId(), ptcRegulating2, regulatingSet, "phaseTapChanger at Leg2");
+        setPhaseTapChangerControl(ptcRegulating2, rc.phaseTapChanger2, ptcControl2, twt.getLeg2().getPhaseTapChanger());
+        regulatingSet = regulatingSet || (twt.getLeg2().getPhaseTapChanger() != null && twt.getLeg2().getPhaseTapChanger().isRegulating());
+
+        rtcRegulating2 = checkOnlyOneEnabled(twt.getId(), rtcRegulating2, regulatingSet, "ratioTapChanger at Leg2");
+        setRatioTapChangerControl(rtcRegulating2, rc.ratioTapChanger2, rtcControl2, twt.getLeg2().getRatioTapChanger());
+        regulatingSet = regulatingSet || (twt.getLeg2().getRatioTapChanger() != null && twt.getLeg2().getRatioTapChanger().isRegulating());
+
+        ptcRegulating3 = checkOnlyOneEnabled(twt.getId(), ptcRegulating3, regulatingSet, "phaseTapChanger at Leg3");
+        setPhaseTapChangerControl(ptcRegulating3, rc.phaseTapChanger3, ptcControl3, twt.getLeg3().getPhaseTapChanger());
+        regulatingSet = regulatingSet || (twt.getLeg3().getPhaseTapChanger() != null && twt.getLeg3().getPhaseTapChanger().isRegulating());
+
+        rtcRegulating3 = checkOnlyOneEnabled(twt.getId(), rtcRegulating3, regulatingSet, "ratioTapChanger at Leg3");
+        setRatioTapChangerControl(rtcRegulating3, rc.ratioTapChanger3, rtcControl3, twt.getLeg3().getRatioTapChanger());
     }
 
-    private void setRatioTapChangerControl(boolean regulating, CgmesRegulatingControlRatio rc, RegulatingControl control, RatioTapChanger rtc) {
-        if (control == null) {
+    private static boolean getRtcRegulating(RegulatingControl rc, CgmesRegulatingControlRatio r) {
+        return rc != null && (rc.enabled || r.tapChangerControlEnabled);
+    }
+
+    private static boolean getPtcRegulating(RegulatingControl rc, CgmesRegulatingControlPhase r) {
+        return rc != null && (rc.enabled || r.tapChangerControlEnabled);
+    }
+
+    private boolean checkOnlyOneEnabled(String transformerId, boolean regulating, boolean setRegulating,
+                                        String disabledTapChanger) {
+        if (!regulating) {
+            return false;
+        }
+        if (setRegulating) {
+            context.fixed(transformerId,
+                    "Unsupported more than one regulating control enabled. Disable " + disabledTapChanger);
+            return false;
+        }
+        return true;
+    }
+
+    private void setRatioTapChangerControl(boolean regulating, CgmesRegulatingControlRatio rc,
+                                           RegulatingControl control, RatioTapChanger rtc) {
+        if (control == null || rtc == null) {
             return;
         }
 
@@ -178,12 +236,13 @@ public class RegulatingControlMappingForTransformers {
             okSet = setRtcRegulatingControlVoltage(rc.id, regulating, control, rtc, context);
         } else if (!isControlModeFixed(control.mode)) {
             context.fixed(control.mode,
-                "Unsupported regulation mode for Ratio tap changer. Considered as a fixed ratio tap changer.");
+                    "Unsupported regulation mode for Ratio tap changer. Considered as a fixed ratio tap changer.");
         }
         control.setCorrectlySet(okSet);
     }
 
-    private boolean setRtcRegulatingControlVoltage(String rtcId, boolean regulating, RegulatingControl control, RatioTapChanger rtc, Context context) {
+    private boolean setRtcRegulatingControlVoltage(String rtcId, boolean regulating, RegulatingControl control,
+                                                   RatioTapChanger rtc, Context context) {
         Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
         if (terminal == null) {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.topologicalNode));
@@ -193,46 +252,52 @@ public class RegulatingControlMappingForTransformers {
         // Even if regulating is false, we reset the target voltage if it is not valid
         if (control.targetValue <= 0) {
             context.ignored(rtcId,
-                String.format("Regulating control has a bad target voltage %f", control.targetValue));
+                    String.format("Regulating control has a bad target voltage %f", control.targetValue));
             return false;
         }
 
         // Order is important
         rtc.setRegulationTerminal(terminal)
-            .setTargetV(control.targetValue)
-            .setTargetDeadband(control.targetDeadband)
-            .setRegulating(regulating);
+                .setTargetV(control.targetValue)
+                .setTargetDeadband(control.targetDeadband)
+                .setRegulating(regulating);
 
         return true;
     }
 
-    private void setPhaseTapChangerControl(CgmesRegulatingControlPhase rc, RegulatingControl control, PhaseTapChanger ptc) {
-        if (control == null) {
+    private void setPhaseTapChangerControl(boolean regulating, CgmesRegulatingControlPhase rc,
+                                           RegulatingControl control, PhaseTapChanger ptc) {
+        if (control == null || ptc == null) {
             return;
         }
 
         boolean okSet = false;
         if (control.mode.endsWith("currentflow")) {
-            okSet = setPtcRegulatingControlCurrentFlow(rc.tapChangerControlEnabled, rc.ltcFlag, control, ptc, context);
+            okSet = setPtcRegulatingControlCurrentFlow(regulating, rc.ltcFlag, control, ptc, context);
         } else if (control.mode.endsWith("activepower")) {
-            okSet = setPtcRegulatingControlActivePower(rc.tapChangerControlEnabled, rc.ltcFlag, control, ptc, context);
+            okSet = setPtcRegulatingControlActivePower(regulating, rc.ltcFlag, control, ptc, context);
         } else if (!control.mode.endsWith("fixed")) {
             context.fixed(control.mode, "Unsupported regulating mode for Phase tap changer. Considered as FIXED_TAP");
         }
         control.setCorrectlySet(okSet);
     }
 
-    private boolean setPtcRegulatingControlCurrentFlow(boolean tapChangerControlEnabled, boolean ltcFlag, RegulatingControl control, PhaseTapChanger ptc, Context context) {
-        PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag, PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
-        return setPtcRegulatingControl(tapChangerControlEnabled, regulationMode, control, ptc, context);
+    private boolean setPtcRegulatingControlCurrentFlow(boolean regulating, boolean ltcFlag, RegulatingControl control,
+                                                       PhaseTapChanger ptc, Context context) {
+        PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag,
+                PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
+        return setPtcRegulatingControl(regulating, regulationMode, control, ptc, context);
     }
 
-    private boolean setPtcRegulatingControlActivePower(boolean tapChangerControlEnabled, boolean ltcFlag, RegulatingControl control, PhaseTapChanger ptc, Context context) {
-        PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag, PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
-        return setPtcRegulatingControl(tapChangerControlEnabled, regulationMode, control, ptc, context);
+    private boolean setPtcRegulatingControlActivePower(boolean regulating, boolean ltcFlag, RegulatingControl control,
+                                                       PhaseTapChanger ptc, Context context) {
+        PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag,
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
+        return setPtcRegulatingControl(regulating, regulationMode, control, ptc, context);
     }
 
-    private boolean setPtcRegulatingControl(boolean tapChangerControlEnabled, PhaseTapChanger.RegulationMode regulationMode, RegulatingControl control, PhaseTapChanger ptc, Context context) {
+    private boolean setPtcRegulatingControl(boolean regulating, PhaseTapChanger.RegulationMode regulationMode,
+                                            RegulatingControl control, PhaseTapChanger ptc, Context context) {
         Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
         if (terminal == null) {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.topologicalNode));
@@ -241,15 +306,16 @@ public class RegulatingControlMappingForTransformers {
 
         // Order is important
         ptc.setRegulationTerminal(terminal)
-            .setRegulationValue(control.targetValue)
-            .setTargetDeadband(control.targetDeadband)
-            .setRegulationMode(regulationMode)
-            .setRegulating(tapChangerControlEnabled || control.enabled);
+                .setRegulationValue(control.targetValue)
+                .setTargetDeadband(control.targetDeadband)
+                .setRegulationMode(regulationMode)
+                .setRegulating(regulating);
 
         return true;
     }
 
-    private PhaseTapChanger.RegulationMode getPtcRegulatingMode(boolean ltcFlag, PhaseTapChanger.RegulationMode regulationMode) {
+    private PhaseTapChanger.RegulationMode getPtcRegulatingMode(boolean ltcFlag,
+                                                                PhaseTapChanger.RegulationMode regulationMode) {
         // According to the following CGMES documentation:
         // IEC TS 61970-600-1, Edition 1.0, 2017-07.
         // "Energy management system application program interface (EMS-API)
@@ -305,18 +371,18 @@ public class RegulatingControlMappingForTransformers {
         return control;
     }
 
-    private String getRegulatingControlId(PropertyBag p) {
-        String regulatingControlId = null;
+    public static String getRegulatingControlId(PropertyBag p) {
+        return p.getId(TAP_CHANGER_CONTROL);
+    }
 
-        if (p.containsKey(RegulatingControlMapping.TAP_CHANGER_CONTROL)) {
-            String controlId = p.getId(RegulatingControlMapping.TAP_CHANGER_CONTROL);
+    public boolean getRegulating(String controlId) {
+        if (controlId != null) {
             RegulatingControl control = parent.cachedRegulatingControls().get(controlId);
             if (control != null) {
-                regulatingControlId = controlId;
+                return control.enabled;
             }
         }
-
-        return regulatingControlId;
+        return false;
     }
 
     private static boolean isControlModeVoltage(String controlMode, String tculControlMode) {
@@ -331,8 +397,12 @@ public class RegulatingControlMappingForTransformers {
     }
 
     private static class CgmesRegulatingControlForThreeWindingsTransformer {
+        CgmesRegulatingControlRatio ratioTapChanger1;
+        CgmesRegulatingControlPhase phaseTapChanger1;
         CgmesRegulatingControlRatio ratioTapChanger2;
+        CgmesRegulatingControlPhase phaseTapChanger2;
         CgmesRegulatingControlRatio ratioTapChanger3;
+        CgmesRegulatingControlPhase phaseTapChanger3;
     }
 
     private static class CgmesRegulatingControlForTwoWindingsTransformer {
@@ -340,11 +410,11 @@ public class RegulatingControlMappingForTransformers {
         CgmesRegulatingControlPhase phaseTapChanger;
     }
 
-    private static class CgmesRegulatingControlRatio extends CgmesRegulatingControl {
+    public static class CgmesRegulatingControlRatio extends CgmesRegulatingControl {
         String tculControlMode; // mode in SSH values of RTC
     }
 
-    private static class CgmesRegulatingControlPhase extends CgmesRegulatingControl {
+    public static class CgmesRegulatingControlPhase extends CgmesRegulatingControl {
         boolean ltcFlag;
     }
 

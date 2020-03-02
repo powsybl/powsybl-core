@@ -23,11 +23,19 @@ abstract class AbstractIdentifiableAdderAdapter<I extends IdentifiableAdder<I>> 
         super(delegate, index);
     }
 
+    protected String getId() {
+        return id;
+    }
+
     @Override
     public I setId(final String id) {
         this.id = id;
         getDelegate().setId(id);
         return (I) this;
+    }
+
+    protected boolean isEnsureIdUnicity() {
+        return ensureIdUnicity;
     }
 
     @Override

@@ -75,7 +75,7 @@ public final class CgmesModelFactory {
         for (PropertyBags tends : cgmes.groupedTransformerEnds().values()) {
             for (PropertyBag end : tends) {
                 CgmesTerminal t = cgmes.terminal(end.getId(CgmesNames.TERMINAL));
-                cgmes.substation(t);
+                cgmes.substation(t, isNodeBreaker);
                 if (isNodeBreaker) {
                     t.connectivityNode();
                 } else {

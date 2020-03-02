@@ -7,6 +7,25 @@
 package com.powsybl.commons.extensions;
 
 /**
+ * Extension data for extendables.
+ *
+ * A generic Extension interface should have a generic static method called
+ * "clazz" returning its .class as a generic type with a wildcard bounded to the
+ * expected extendables to allow clients to type check that they are using the
+ * correct Extension for an extendable. For example,
+ *
+ * <pre>
+ * public interface ConnectablePosition<C extends Connectable<C> extends Extension<C> {
+ *
+ * //repeat the bounds "<C extends Connectable>" bounds here here
+ * <C extends Connectable<C>> Class<ConnectablePosition<C>> clazz() {
+ *     return Class<ConnectablePosition<C>> (Class) ConnectablePosition.class;
+ * }
+ *
+ * [...]
+ * }
+ * </pre>
+ *
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public interface Extension<T> {

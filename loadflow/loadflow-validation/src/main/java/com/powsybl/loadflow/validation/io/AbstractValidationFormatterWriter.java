@@ -87,32 +87,32 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     @Override
     public void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
                       double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                      double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean connected1, boolean connected2,
+                      double u1, double u2, double theta1, double theta2, double z, double y, double ksi, int phaseAngleClock, boolean connected1, boolean connected2,
                       boolean mainComponent1, boolean mainComponent2, boolean validated) throws IOException {
         Objects.requireNonNull(branchId);
         FlowData emptyFlowData = new FlowData(branchId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                                               Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, false, false, false);
+                                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, 0, false, false, false, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = flowsData.containsKey(branchId);
                 FlowData flowData = found ? flowsData.get(branchId) : emptyFlowData;
                 write(branchId, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2, u1, u2,
-                      theta1, theta2, z, y, ksi, connected1, connected2, mainComponent1, mainComponent2, validated, flowData, found, true);
+                      theta1, theta2, z, y, ksi, phaseAngleClock, connected1, connected2, mainComponent1, mainComponent2, validated, flowData, found, true);
                 flowsData.remove(branchId);
             } else {
                 flowsData.put(branchId, new FlowData(branchId, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2,
-                                                     u1, u2, theta1, theta2, z, y, ksi, connected1, connected2, mainComponent1, mainComponent2, validated));
+                                                     u1, u2, theta1, theta2, z, y, ksi, phaseAngleClock, connected1, connected2, mainComponent1, mainComponent2, validated));
             }
         } else {
             write(branchId, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2, u1, u2,
-                  theta1, theta2, z, y, ksi, connected1, connected2, mainComponent1, mainComponent2, validated, emptyFlowData, false, true);
+                  theta1, theta2, z, y, ksi, phaseAngleClock, connected1, connected2, mainComponent1, mainComponent2, validated, emptyFlowData, false, true);
         }
     }
 
     protected abstract void write(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
                                   double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                                  double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean connected1, boolean connected2,
+                                  double u1, double u2, double theta1, double theta2, double z, double y, double ksi, int phaseAngleClock, boolean connected1, boolean connected2,
                                   boolean mainComponent1, boolean mainComponent2, boolean validated, FlowData flowData, boolean found, boolean writeValues) throws IOException;
 
     @Override
@@ -174,25 +174,25 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                                   boolean validated, BusData busData, boolean found, boolean writeValues) throws IOException;
 
     @Override
-    public void write(String svcId, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+    public void write(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
                       boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated) throws IOException {
         Objects.requireNonNull(svcId);
-        SvcData emptySvcData = new SvcData(svcId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, RegulationMode.OFF, Double.NaN, Double.NaN, false, false);
+        SvcData emptySvcData = new SvcData(svcId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, RegulationMode.OFF, Double.NaN, Double.NaN, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = svcsData.containsKey(svcId);
                 SvcData svcData = found ? svcsData.get(svcId) : emptySvcData;
-                write(svcId, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated, svcData, found, true);
+                write(svcId, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated, svcData, found, true);
                 svcsData.remove(svcId);
             } else {
-                svcsData.put(svcId, new SvcData(svcId, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated));
+                svcsData.put(svcId, new SvcData(svcId, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated));
             }
         } else {
-            write(svcId, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated, emptySvcData, false, true);
+            write(svcId, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated, emptySvcData, false, true);
         }
     }
 
-    protected abstract void write(String svcId, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+    protected abstract void write(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
                                   boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated,
                                   SvcData svcData, boolean found, boolean writeValues) throws IOException;
 
@@ -307,7 +307,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
             try {
                 write(flowData.branchId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                       Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                      Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, false, false, false, flowData, true, false);
+                      Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, 0, false, false, false, false, false, flowData, true, false);
             } catch (IOException e) {
                 LOGGER.error("Error writing data of branch {}: {}", flowData.branchId, e.getMessage());
             }
@@ -341,7 +341,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeSvcsData() {
         svcsData.values().forEach(svcData -> {
             try {
-                write(svcData.svcId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                write(svcData.svcId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                       false, RegulationMode.OFF, Double.NaN, Double.NaN, false, false, svcData, true, false);
             } catch (IOException e) {
                 LOGGER.error("Error writing data of svc {}: {}", svcData.svcId, e.getMessage());
@@ -414,6 +414,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         final double z;
         final double y;
         final double ksi;
+        final int phaseAngleClock;
         final boolean connected1;
         final boolean connected2;
         final boolean mainComponent1;
@@ -422,7 +423,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
 
         FlowData(String branchId, double p1, double p1Calc, double q1, double q1Calc, double p2, double p2Calc, double q2, double q2Calc,
                  double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
-                 double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean connected1, boolean connected2,
+                 double u1, double u2, double theta1, double theta2, double z, double y, double ksi, int phaseAngleClock, boolean connected1, boolean connected2,
                  boolean mainComponent1, boolean mainComponent2, boolean validated) {
             this.branchId = Objects.requireNonNull(branchId);
             this.p1 = p1;
@@ -450,6 +451,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
             this.z = z;
             this.y = y;
             this.ksi = ksi;
+            this.phaseAngleClock = phaseAngleClock;
             this.connected1 = connected1;
             this.connected2 = connected2;
             this.mainComponent1 = mainComponent1;
@@ -566,8 +568,9 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         final String svcId;
         final double p;
         final double q;
-        final double v;
-        final double nominalV;
+        final double vControlled;
+        final double vController;
+        final double nominalVcontroller;
         final double reactivePowerSetpoint;
         final double voltageSetpoint;
         final boolean connected;
@@ -577,13 +580,14 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         final boolean mainComponent;
         final boolean validated;
 
-        SvcData(String svcId, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+        SvcData(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
                 boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated) {
             this.svcId = Objects.requireNonNull(svcId);
             this.p = p;
             this.q = q;
-            this.v = v;
-            this.nominalV = nominalV;
+            this.vControlled = vControlled;
+            this.vController = vController;
+            this.nominalVcontroller = nominalVcontroller;
             this.reactivePowerSetpoint = reactivePowerSetpoint;
             this.voltageSetpoint = voltageSetpoint;
             this.connected = connected;

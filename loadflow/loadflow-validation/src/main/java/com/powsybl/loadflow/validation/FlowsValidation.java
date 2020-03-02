@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
@@ -77,7 +78,7 @@ public final class FlowsValidation {
                     branch.getG1(), branch.getG2(), branch.getB1(), branch.getB2(),
                     branch.getRho1(), branch.getRho2(), branch.getAlpha1(), branch.getAlpha2(),
                     branch.getU1(), branch.getU2(), branch.getTheta1(), branch.getTheta2(),
-                    branch.getZ(), branch.getY(), branch.getKsi(),
+                    branch.getZ(), branch.getY(), branch.getKsi(), branch.getPhaseAngleClock(),
                     branch.isConnected1(), branch.isConnected2(),
                     branch.isMainComponent1(), branch.isMainComponent2(),
                     validated);
@@ -150,8 +151,13 @@ public final class FlowsValidation {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);
+        int phaseAngleClock = 0;
+        TwoWindingsTransformerPhaseAngleClock phaseAngleClockExtension = twt.getExtension(TwoWindingsTransformerPhaseAngleClock.class);
+        if (phaseAngleClockExtension != null) {
+            phaseAngleClock = phaseAngleClockExtension.getPhaseAngleClock();
+        }
 
-        BranchData branch = new BranchData(twt, config.getEpsilonX(), config.applyReactanceCorrection(), config.getLoadFlowParameters().isSpecificCompatibility());
+        BranchData branch = new BranchData(twt, phaseAngleClock, config.getEpsilonX(), config.applyReactanceCorrection(), config.getLoadFlowParameters().isSpecificCompatibility());
         return checkFlows(branch, config, flowsWriter);
     }
 

@@ -2,7 +2,7 @@
 <xs:schema version="1.1"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:iidm="http://www.powsybl.org/schema/iidm/1_1"
-           targetNamespace="http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_1"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_1"
            elementFormDefault="qualified">
     <xs:import namespace="http://www.powsybl.org/schema/iidm/1_1" schemaLocation="iidm_V1_1.xsd"/>
     <xs:element name="terminalMock">

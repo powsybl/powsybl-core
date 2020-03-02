@@ -7,30 +7,53 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.iidm.export.ExportOptions;
+import com.powsybl.iidm.network.Network;
 
 import java.io.IOException;
-
-import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
+import java.util.function.BiConsumer;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-abstract class AbstractXmlConverterTest extends AbstractConverterTest {
+public abstract class AbstractXmlConverterTest extends AbstractConverterTest {
 
-    static String getVersionDir(IidmXmlVersion version) {
+    public static String getVersionDir(IidmXmlVersion version) {
         return "/V" + version.toString("_") + "/";
+    }
+
+    public static String getVersionedNetworkPath(String fileName, IidmXmlVersion version) {
+        return getVersionDir(version) + fileName;
+    }
+
+    protected InputStream getVersionedNetworkAsStream(String fileName, IidmXmlVersion version) {
+        return getClass().getResourceAsStream(getVersionedNetworkPath(fileName, version));
     }
 
     protected void roundTripVersionnedXmlTest(String file, IidmXmlVersion... versions) throws IOException {
         for (IidmXmlVersion version : versions) {
-            roundTripXmlTest(NetworkXml.read(getClass().getResourceAsStream(getVersionDir(version) + file)),
-                    NetworkXml::writeAndValidate,
+            roundTripXmlTest(NetworkXml.read(getVersionedNetworkAsStream(file, version)),
+                    writeAndValidate(version),
                     NetworkXml::validateAndRead,
-                    getVersionDir(CURRENT_IIDM_XML_VERSION) + file);
+                    getVersionedNetworkPath(file, version));
         }
     }
 
     protected void roundTripAllVersionnedXmlTest(String file) throws IOException {
         roundTripVersionnedXmlTest(file, IidmXmlVersion.values());
+    }
+
+    private static BiConsumer<Network, Path> writeAndValidate(IidmXmlVersion version) {
+        ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+        return (n, p) -> {
+            try {
+                NetworkXml.writeAndValidate(n, options, p);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        };
     }
 }
