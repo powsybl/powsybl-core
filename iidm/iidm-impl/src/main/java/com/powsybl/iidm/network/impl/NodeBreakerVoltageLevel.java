@@ -654,7 +654,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public void removeInternalConnection(int node1, int node2) {
+        public void removeInternalConnections(int node1, int node2) {
             int[] internalConnectionsToBeRemoved = Arrays.stream(graph.getEdges())
                     .filter(e -> graph.getEdgeObject(e) == null)
                     .filter(e -> graph.getEdgeVertex1(e) == node1 && graph.getEdgeVertex2(e) == node2)
