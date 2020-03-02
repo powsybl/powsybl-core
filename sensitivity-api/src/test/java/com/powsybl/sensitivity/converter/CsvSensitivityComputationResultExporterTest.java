@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static junit.framework.TestCase.assertEquals;
+
 /**
  * @author Agnes Leroy <agnes.leroy@rte-france.com>
  */
@@ -36,12 +38,10 @@ public class CsvSensitivityComputationResultExporterTest extends AbstractConvert
         }
         List<SensitivityValue> sensitivityValues = new ArrayList<>(Collections.emptyList());
         factors.forEach(factor -> {
-            SensitivityValue value = new SensitivityValue(factor, 0, 0, 0);
-            sensitivityValues.add(value);
+            sensitivityValues.add(new SensitivityValue(factor, 0, 0, 0));
         });
         // create result
-        SensitivityComputationResults results = new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValues);
-        return results;
+        return new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValues);
     }
 
     public void writeCsv(SensitivityComputationResults results, Path path) {
@@ -52,5 +52,10 @@ public class CsvSensitivityComputationResultExporterTest extends AbstractConvert
     public void testWriteCsv() throws IOException {
         SensitivityComputationResults result = createSensitivityResult();
         writeTest(result, this::writeCsv, AbstractConverterTest::compareTxt, "/sensitivity-results.csv");
+    }
+
+    @Test
+    public void testComment() {
+        assertEquals("Export a security analysis result in CSV format", SensitivityComputationResultExporters.getExporter("CSV").getComment());
     }
 }
