@@ -264,9 +264,15 @@
     <xs:complexType name="ShuntCompensator">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
+                <xs:sequence>
+                    <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
+                </xs:sequence>
                 <xs:attribute name="bPerSection" use="required" type="xs:double"/>
                 <xs:attribute name="maximumSectionCount" use="required" type="xs:int"/>
                 <xs:attribute name="currentSectionCount" use="required" type="xs:int"/>
+                <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
+                <xs:attribute name="targetV" use="optional" type="xs:double"/>
+                <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

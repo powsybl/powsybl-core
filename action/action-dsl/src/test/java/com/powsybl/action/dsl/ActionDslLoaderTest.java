@@ -193,6 +193,7 @@ public class ActionDslLoaderTest {
                 .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationTerminal(network.getTwoWindingsTransformer("NGEN_NHV1").getTerminal2())
                 .setRegulationValue(1.0)
+                .setTargetDeadband(0)
                 .beginStep()
                     .setR(1.0)
                     .setX(2.0)
