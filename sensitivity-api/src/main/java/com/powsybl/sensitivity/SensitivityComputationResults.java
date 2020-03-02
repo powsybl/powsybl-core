@@ -31,12 +31,13 @@ import java.util.stream.Collectors;
  *  - the list of sensitivity values in N
  *  - the lists of sensitivity values for each N-1 situation
  *  - some metadata (status, stats, logs)
- * TODO: provide a systematic sensitivity API on the basis of the security-analysis API
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @see SensitivityValue
  */
 public class SensitivityComputationResults {
+
+    private static final String VALUE_NOT_FOUND = "Sensitivity value not found for function %s and variable %s.";
 
     @JsonProperty("ok")
     private final boolean ok;
@@ -149,7 +150,7 @@ public class SensitivityComputationResults {
         Optional<SensitivityValue> returnValue = sensitivityValues.stream().filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().equals(function)
                 && sensitivityValue.getFactor().getVariable().equals(variable)).findAny();
         if (!returnValue.isPresent()) {
-            throw new NoSuchElementException(String.format("Sensitivity value not found for function %s and variable %s.", function.getId(), variable.getId()));
+            throw new NoSuchElementException(String.format(VALUE_NOT_FOUND, function.getId(), variable.getId()));
         }
         return returnValue.get();
     }
@@ -163,7 +164,7 @@ public class SensitivityComputationResults {
     public SensitivityValue getSensitivityValue(SensitivityFactor factor) {
         Optional<SensitivityValue> returnValue = sensitivityValues.stream().filter(sensitivityValue -> sensitivityValue.getFactor().equals(factor)).findAny();
         if (!returnValue.isPresent()) {
-            throw new NoSuchElementException(String.format("Sensitivity value not found for function %s and variable %s.", factor.getFunction().getId(), factor.getVariable().getId()));
+            throw new NoSuchElementException(String.format(VALUE_NOT_FOUND, factor.getFunction().getId(), factor.getVariable().getId()));
         }
         return returnValue.get();
     }
@@ -184,15 +185,6 @@ public class SensitivityComputationResults {
      */
     public Map<String, List<SensitivityValue>> getSensitivityValuesContingencies() {
         return sensitivityValuesContingencies;
-    }
-
-    /**
-     * Get a collection of all the sensitivity values for a contingency.
-     *
-     * @return a collection of all the sensitivity values for a given contingency.
-     */
-    public Collection<SensitivityValue> getSensitivityValuesContingency(String contingencyId) {
-        return Collections.unmodifiableCollection(sensitivityValuesContingencies.get(contingencyId));
     }
 
     /**
@@ -248,7 +240,7 @@ public class SensitivityComputationResults {
         Optional<SensitivityValue> returnValue;
         returnValue = sensitivityValuesContingencies.get(contingencyId).stream().filter(sensitivityValue -> sensitivityValue.getFactor().equals(factor)).findAny();
         if (!returnValue.isPresent()) {
-            throw new NoSuchElementException(String.format("Sensitivity value not found for function %s and variable %s.", factor.getFunction().getId(), factor.getVariable().getId()));
+            throw new NoSuchElementException(String.format(VALUE_NOT_FOUND, factor.getFunction().getId(), factor.getVariable().getId()));
         }
         return returnValue.get();
     }

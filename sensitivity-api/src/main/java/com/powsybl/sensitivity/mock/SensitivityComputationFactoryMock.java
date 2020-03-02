@@ -31,7 +31,6 @@ public class SensitivityComputationFactoryMock implements SensitivityComputation
                 return CompletableFuture.completedFuture(results);
             }
 
-            @Deprecated
             @Override
             public CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider factorsProvider, String workingStateId, SensitivityComputationParameters sensiParameters) {
                 List<SensitivityValue> sensitivityValuesN = factorsProvider.getFactors(network).stream().map(factor -> new SensitivityValue(factor, Math.random(), Math.random(), Math.random())).collect(Collectors.toList());

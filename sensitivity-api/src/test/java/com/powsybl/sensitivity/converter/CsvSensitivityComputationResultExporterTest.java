@@ -41,7 +41,7 @@ public class CsvSensitivityComputationResultExporterTest extends AbstractConvert
             sensitivityValues.add(new SensitivityValue(factor, 0, 0, 0));
         });
         // create result
-        return new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValues);
+        return new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValues, false, Collections.emptyMap());
     }
 
     public void writeCsv(SensitivityComputationResults results, Path path) {

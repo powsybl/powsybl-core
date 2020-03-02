@@ -142,11 +142,9 @@ public class SensitivityComputationTool implements Tool {
         SensitivityFactorsProvider factorsProvider = factorsProviderFactory.create(sensitivityFactorsFile);
 
         SensitivityComputationResults result;
-
         if (line.hasOption(CONTINGENCIES_FILE_OPTION)) {
             ContingenciesProviderFactory contingenciesProviderFactory = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class);
-            Path contingenciesFile = context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION));
-            ContingenciesProvider contingenciesProvider = contingenciesProviderFactory.create(contingenciesFile);
+            ContingenciesProvider contingenciesProvider = contingenciesProviderFactory.create(context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION)));
             result = sensitivityComputation.run(factorsProvider, contingenciesProvider, workingStateId, params).join();
         } else {
             result = sensitivityComputation.run(factorsProvider, workingStateId, params).join();
