@@ -6,8 +6,6 @@
  */
 package com.powsybl.dynamicsimulation.tools;
 
-import static com.powsybl.iidm.tools.ConversionToolUtils.createExportParameterOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.createExportParametersFileOption;
 import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParameterOption;
 import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParametersFileOption;
 import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
@@ -34,6 +32,7 @@ import com.powsybl.dynamicsimulation.DynamicSimulation;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
 import com.powsybl.dynamicsimulation.json.DynamicSimulationResultSerializer;
+import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -49,6 +48,7 @@ import com.powsybl.tools.ToolRunningContext;
 public class DynamicSimulationTool implements Tool {
 
     private static final String CASE_FILE = "case-file";
+    private static final String PARAMETERS_FILE = "parameters-file";
     private static final String SKIP_POSTPROC = "skip-postproc";
     private static final String OUTPUT_FILE = "output-file";
 
@@ -80,6 +80,11 @@ public class DynamicSimulationTool implements Tool {
                     .argName("FILE")
                     .required()
                     .build());
+                options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
+                    .desc("dynamic simulation parameters as JSON file")
+                    .hasArg()
+                    .argName("FILE")
+                    .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_FILE)
                     .desc("dynamic simulation results output path")
                     .hasArg()
@@ -90,8 +95,6 @@ public class DynamicSimulationTool implements Tool {
                     .build());
                 options.addOption(createImportParametersFileOption());
                 options.addOption(createImportParameterOption());
-                options.addOption(createExportParametersFileOption());
-                options.addOption(createExportParameterOption());
                 return options;
             }
 
@@ -124,6 +127,11 @@ public class DynamicSimulationTool implements Tool {
         }
 
         DynamicSimulationParameters params = DynamicSimulationParameters.load();
+        if (line.hasOption(PARAMETERS_FILE)) {
+            Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
+            JsonDynamicSimulationParameters.update(params, parametersFile);
+        }
+
         DynamicSimulationResult result = DynamicSimulation.run(network,
             context.getShortTimeExecutionComputationManager(), params);
 
