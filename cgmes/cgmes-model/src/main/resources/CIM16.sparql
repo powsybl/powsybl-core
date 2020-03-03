@@ -8,7 +8,7 @@
 # query: graph
 SELECT DISTINCT  ?graph
  WHERE
- { GRAPH ?graph
+{ GRAPH ?graph
        { ?s  ?p  ?o }
 }
 
@@ -167,7 +167,7 @@ OPTIONAL { GRAPH ?graphSV {
         cim:SvPowerFlow.Terminal ?Terminal ;
         cim:SvPowerFlow.p ?p ;
         cim:SvPowerFlow.q ?q
-}	OPTIONAL {?SvStatus
+} OPTIONAL {?SvStatus
 		a cim:SvStatus ;
 		cim:SvStatus.ConductingEquipment ?ConductingEquipment ;
 		cim:SvStatus.inService ?inService . 
