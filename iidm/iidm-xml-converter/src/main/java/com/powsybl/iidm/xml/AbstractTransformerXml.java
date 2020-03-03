@@ -21,6 +21,10 @@ import java.util.function.BiConsumer;
  */
 abstract class AbstractTransformerXml<T extends Connectable, A extends IdentifiableAdder<A>> extends AbstractConnectableXml<T, A, Substation> {
 
+    protected interface RatedSConsumer {
+        void accept(double ratedS);
+    }
+
     private interface StepConsumer {
         void accept(double r, double x, double g, double b, double rho);
     }
@@ -33,6 +37,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     private static final String TARGET_DEADBAND = "targetDeadband";
     private static final String RATIO_TAP_CHANGER = "ratioTapChanger";
     private static final String PHASE_TAP_CHANGER = "phaseTapChanger";
+    private static final String RATED_S = "ratedS";
 
     protected static void writeTapChangerStep(TapChangerStep<?> tcs, XMLStreamWriter writer) throws XMLStreamException {
         XmlUtil.writeDouble("r", tcs.getR(), writer);
@@ -245,5 +250,15 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
         double rho = XmlUtil.readDoubleAttribute(context.getReader(), "rho");
         consumer.accept(r, x, g, b, rho);
+    }
+
+    protected static void readRatedS(NetworkXmlReaderContext context, RatedSConsumer consumer) {
+        double ratedS = XmlUtil.readOptionalDoubleAttribute(context.getReader(), RATED_S);
+        consumer.accept(ratedS);
+    }
+
+    protected static void writeRatedS(String name, double ratedS, NetworkXmlWriterContext context) throws XMLStreamException {
+        IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(name, RATED_S, ratedS, Double.NaN,
+                IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
     }
 }
