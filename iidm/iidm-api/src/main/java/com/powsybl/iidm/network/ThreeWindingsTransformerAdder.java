@@ -32,6 +32,10 @@ public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWi
 
         LegAdder setRatedU(double ratedU);
 
+        default LegAdder setRatedS(double ratedS) {
+            throw new UnsupportedOperationException();
+        }
+
         ThreeWindingsTransformerAdder add();
     }
 
@@ -42,8 +46,6 @@ public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWi
     LegAdder newLeg3();
 
     ThreeWindingsTransformerAdder setRatedU0(double ratedU0);
-
-    ThreeWindingsTransformerAdder setRatedS(double ratedS);
 
     ThreeWindingsTransformer add();
 }

@@ -54,6 +54,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         XmlUtil.writeDouble("g1", twt.getLeg1().getG(), context.getWriter());
         XmlUtil.writeDouble("b1", twt.getLeg1().getB(), context.getWriter());
         XmlUtil.writeDouble("ratedU1", twt.getLeg1().getRatedU(), context.getWriter());
+        writeRatedS("ratedS1", twt.getLeg1().getRatedS(), context);
         XmlUtil.writeDouble("r2", twt.getLeg2().getR(), context.getWriter());
         XmlUtil.writeDouble("x2", twt.getLeg2().getX(), context.getWriter());
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "g2", twt.getLeg2().getG(), 0,
@@ -61,6 +62,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "b2", twt.getLeg2().getB(), 0,
                 IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
         XmlUtil.writeDouble("ratedU2", twt.getLeg2().getRatedU(), context.getWriter());
+        writeRatedS("ratedS2", twt.getLeg2().getRatedS(), context);
         XmlUtil.writeDouble("r3", twt.getLeg3().getR(), context.getWriter());
         XmlUtil.writeDouble("x3", twt.getLeg3().getX(), context.getWriter());
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "g3", twt.getLeg3().getG(), 0,
@@ -68,9 +70,9 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "b3", twt.getLeg3().getB(), 0,
                 IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
         XmlUtil.writeDouble("ratedU3", twt.getLeg3().getRatedU(), context.getWriter());
+        writeRatedS("ratedS3", twt.getLeg3().getRatedS(), context);
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "ratedU0", twt.getRatedU0(), twt.getLeg1().getRatedU(),
                 IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-        writeRatedS(ROOT_ELEMENT_NAME, twt.getRatedS(), context);
         writeNodeOrBus(1, twt.getLeg1().getTerminal(), context);
         writeNodeOrBus(2, twt.getLeg2().getTerminal(), context);
         writeNodeOrBus(3, twt.getLeg3().getTerminal(), context);
@@ -153,7 +155,11 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
             double b3 = XmlUtil.readDoubleAttribute(context.getReader(), "b3");
             legAdder3.setG(g3).setB(b3);
         });
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> readRatedS(context, adder::setRatedS));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
+            readRatedS("ratedS1", context, legAdder1::setRatedS);
+            readRatedS("ratedS2", context, legAdder2::setRatedS);
+            readRatedS("ratedS3", context, legAdder3::setRatedS);
+        });
         readNodeOrBus(1, legAdder1, context);
         readNodeOrBus(2, legAdder2, context);
         readNodeOrBus(3, legAdder3, context);

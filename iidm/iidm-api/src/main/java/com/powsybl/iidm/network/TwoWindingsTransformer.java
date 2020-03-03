@@ -123,10 +123,14 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
     /**
      * Get the apparent power in kVA
      */
-    double getRatedS();
+    default double getRatedS() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Set the apparent power in kVA.
      */
-    TwoWindingsTransformer setRatedS(double ratedS);
+    default TwoWindingsTransformer setRatedS(double ratedS) {
+        throw new UnsupportedOperationException();
+    }
 }

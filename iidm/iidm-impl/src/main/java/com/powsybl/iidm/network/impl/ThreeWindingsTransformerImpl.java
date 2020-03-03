@@ -44,13 +44,14 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private int legNumber = 0;
 
-        LegImpl(double r, double x, double g, double b, double ratedU, int legNumber) {
+        LegImpl(double r, double x, double g, double b, double ratedU, int legNumber, double ratedS) {
             this.r = r;
             this.x = x;
             this.g = g;
             this.b = b;
             this.ratedU = ratedU;
             this.legNumber = legNumber;
+            this.ratedS = ratedS;
         }
 
         void setTransformer(ThreeWindingsTransformerImpl transformer) {
@@ -240,6 +241,20 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         public boolean hasPhaseTapChanger() {
             return phaseTapChanger != null;
         }
+
+        @Override
+        public double getRatedS() {
+            return ratedS;
+        }
+
+        @Override
+        public LegImpl setRatedS(double ratedS) {
+            ValidationUtil.checkRatedS(this, ratedS);
+            double oldValue = this.ratedS;
+            this.ratedS = ratedS;
+            transformer.notifyUpdate(() -> getLegAttribute() + ".ratedS", oldValue, ratedS);
+            return this;
+        }
     }
 
     private final LegImpl leg1;
@@ -250,15 +265,12 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     private double ratedU0;
 
-    private double ratedS;
-
-    ThreeWindingsTransformerImpl(String id, String name, LegImpl leg1, LegImpl leg2, LegImpl leg3, double ratedU0, double ratedS) {
+    ThreeWindingsTransformerImpl(String id, String name, LegImpl leg1, LegImpl leg2, LegImpl leg3, double ratedU0) {
         super(id, name);
         this.leg1 = Objects.requireNonNull(leg1);
         this.leg2 = Objects.requireNonNull(leg2);
         this.leg3 = Objects.requireNonNull(leg3);
         this.ratedU0 = ratedU0;
-        this.ratedS = ratedS;
     }
 
     @Override
@@ -289,20 +301,6 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     @Override
     public double getRatedU0() {
         return ratedU0;
-    }
-
-    @Override
-    public double getRatedS() {
-        return ratedS;
-    }
-
-    @Override
-    public ThreeWindingsTransformer setRatedS(double ratedS) {
-        ValidationUtil.checkRatedS(this, ratedS);
-        double oldValue = this.ratedS;
-        this.ratedS = ratedS;
-        notifyUpdate("ratedS", oldValue, ratedS);
-        return this;
     }
 
     @Override

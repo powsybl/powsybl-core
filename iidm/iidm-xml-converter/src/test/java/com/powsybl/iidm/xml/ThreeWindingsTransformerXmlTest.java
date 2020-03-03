@@ -42,7 +42,7 @@ public class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
 
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
-        twt.setRatedS(1.0);
+        twt.getLeg1().setRatedS(1.0);
 
         twt.getLeg1().newRatioTapChanger()
                 .setRegulating(false)

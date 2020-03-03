@@ -381,7 +381,9 @@
                 <xs:attribute name="ratedU1" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU2" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU3" use="required" type="xs:double"/>
-                <xs:attribute name="ratedS" use="optional" type="xs:double"/>
+                <xs:attribute name="ratedS1" use="optional" type="xs:double"/>
+                <xs:attribute name="ratedS2" use="optional" type="xs:double"/>
+                <xs:attribute name="ratedS3" use="optional" type="xs:double"/>
                 <xs:attribute name="r1" use="required" type="xs:double"/>
                 <xs:attribute name="r2" use="required" type="xs:double"/>
                 <xs:attribute name="r3" use="required" type="xs:double"/>

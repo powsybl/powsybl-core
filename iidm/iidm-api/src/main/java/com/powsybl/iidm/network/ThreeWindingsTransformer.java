@@ -114,6 +114,19 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
 
         CurrentLimitsAdder newCurrentLimits();
 
+        /**
+         * Get the apparent power in kVA
+         */
+        default double getRatedS() {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Set the apparent power in kVA.
+         */
+        default Leg setRatedS(double ratedS) {
+            throw new UnsupportedOperationException();
+        }
     }
 
     Terminal getTerminal(Side side);
@@ -147,14 +160,4 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      * Get the ratedU at the fictitious bus in kV (also used as nominal voltage)
      */
     double getRatedU0();
-
-    /**
-     * Get the apparent power in kVA
-     */
-    double getRatedS();
-
-    /**
-     * Set the apparent power in VA.
-     */
-    ThreeWindingsTransformer setRatedS(double ratedS);
 }

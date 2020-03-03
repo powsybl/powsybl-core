@@ -62,6 +62,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(2.2, leg1.getG(), 0.0);
         leg1.setB(2.3);
         assertEquals(2.3, leg1.getB(), 0.0);
+        leg1.setRatedS(2.4);
+        assertEquals(2.4, leg1.getRatedS(), 0.0);
 
         // leg2/3 adder
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
@@ -69,9 +71,11 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(2.03, leg2.getR(), 0.0);
         assertEquals(2.04, leg2.getX(), 0.0);
         assertEquals(2.05, leg2.getRatedU(), 0.0);
+        assertEquals(2.06, leg2.getRatedS(), 0.0);
         assertEquals(3.3, leg3.getR(), 0.0);
         assertEquals(3.4, leg3.getX(), 0.0);
         assertEquals(3.5, leg3.getRatedU(), 0.0);
+        assertEquals(3.6, leg3.getRatedS(), 0.0);
         assertSame(transformer.getTerminal(ThreeWindingsTransformer.Side.TWO), leg2.getTerminal());
         assertSame(transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), leg3.getTerminal());
         // leg2/3 setter getter
@@ -81,12 +85,16 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(1.1, leg2.getX(), 0.0);
         leg2.setRatedU(1.2);
         assertEquals(1.2, leg2.getRatedU(), 0.0);
+        leg2.setRatedS(1.3);
+        assertEquals(1.3, leg2.getRatedS(), 0.0);
         leg3.setR(1.0);
         assertEquals(1.0, leg3.getR(), 0.0);
         leg3.setX(1.1);
         assertEquals(1.1, leg3.getX(), 0.0);
         leg3.setRatedU(1.2);
         assertEquals(1.2, leg3.getRatedU(), 0.0);
+        leg3.setRatedS(1.3);
+        assertEquals(1.3, leg3.getRatedS(), 0.0);
 
         RatioTapChanger ratioTapChangerInLeg1 = createRatioTapChanger(leg1,
             transformer.getTerminal(ThreeWindingsTransformer.Side.ONE));
@@ -141,10 +149,6 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         PhaseTapChanger phaseTapChangerInLeg3 = createPhaseTapChanger(leg3,
             transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
         assertSame(phaseTapChangerInLeg3, leg3.getPhaseTapChanger());
-
-        double ratedS = 41.0;
-        transformer.setRatedS(ratedS);
-        assertEquals(ratedS, transformer.getRatedS(), 0.0);
 
         int count = network.getThreeWindingsTransformerCount();
         transformer.remove();
@@ -415,10 +419,12 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     @Test
     public void invalidRatedS() {
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+        ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
+        leg1.setRatedS(Double.NaN);
 
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("Invalid value of rated S -1.0");
-        transformer.setRatedS(-1.0);
+        thrown.expectMessage("Invalid value of rated S 0.0");
+        leg1.setRatedS(0.0);
     }
 
     private ThreeWindingsTransformer createThreeWindingsTransformer() {
@@ -431,6 +437,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setG(1.6)
             .setB(1.7)
             .setRatedU(1.1)
+            .setRatedS(1.2)
             .setVoltageLevel("vl1")
             .setConnectableBus("busA")
             .setBus("busA")
@@ -441,6 +448,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setG(0.0)
             .setB(0.0)
             .setRatedU(2.05)
+            .setRatedS(2.06)
             .setVoltageLevel("vl2")
             .setConnectableBus("busB")
             .add()
@@ -450,6 +458,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setG(0.0)
             .setB(0.0)
             .setRatedU(3.5)
+            .setRatedS(3.6)
             .setVoltageLevel("vl2")
             .setConnectableBus("busB")
             .add()

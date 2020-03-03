@@ -81,6 +81,12 @@ public class ThreeWindingsTransformerAdderAdapter extends AbstractIdentifiableAd
             getDelegate().setB(b);
             return this;
         }
+
+        @Override
+        public ThreeWindingsTransformerAdder.LegAdder setRatedS(double ratedS) {
+            getDelegate().setRatedS(ratedS);
+            return this;
+        }
     }
 
     ThreeWindingsTransformerAdderAdapter(final ThreeWindingsTransformerAdder delegate, final MergingViewIndex index) {
@@ -114,12 +120,6 @@ public class ThreeWindingsTransformerAdderAdapter extends AbstractIdentifiableAd
     @Override
     public ThreeWindingsTransformerAdder setRatedU0(double ratedU0) {
         getDelegate().setRatedU0(ratedU0);
-        return this;
-    }
-
-    @Override
-    public ThreeWindingsTransformerAdder setRatedS(double ratedS) {
-        getDelegate().setRatedS(ratedS);
         return this;
     }
 }
