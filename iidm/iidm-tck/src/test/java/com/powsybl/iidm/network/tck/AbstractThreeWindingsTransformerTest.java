@@ -142,6 +142,10 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
         assertSame(phaseTapChangerInLeg3, leg3.getPhaseTapChanger());
 
+        double ratedS = 41.0;
+        transformer.setRatedS(ratedS);
+        assertEquals(ratedS, transformer.getRatedS(), 0.0);
+
         int count = network.getThreeWindingsTransformerCount();
         transformer.remove();
         assertNull(network.getThreeWindingsTransformer("twt"));
@@ -406,6 +410,15 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         thrown.expectMessage(ERROR_B_IS_NOT_SET);
         createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeWindingsTransformer.Side.THREE), 0.0, 0.0, 0.0,
             0.0, 0.0, Double.NaN);
+    }
+
+    @Test
+    public void invalidRatedS() {
+        ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("Invalid value of rated S -1.0");
+        transformer.setRatedS(-1.0);
     }
 
     private ThreeWindingsTransformer createThreeWindingsTransformer() {

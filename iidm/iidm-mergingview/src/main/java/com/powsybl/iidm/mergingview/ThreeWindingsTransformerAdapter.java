@@ -186,6 +186,17 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
         return getDelegate().getRatedU0();
     }
 
+    @Override
+    public double getRatedS() {
+        return getDelegate().getRatedS();
+    }
+
+    @Override
+    public ThreeWindingsTransformer setRatedS(double ratedS) {
+        getDelegate().setRatedS(ratedS);
+        return this;
+    }
+
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------

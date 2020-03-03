@@ -24,6 +24,8 @@ public interface TwoWindingsTransformerAdder extends BranchAdder<TwoWindingsTran
 
     TwoWindingsTransformerAdder setRatedU2(double ratedU2);
 
+    TwoWindingsTransformerAdder setRatedS(double ratedS);
+
     TwoWindingsTransformer add();
 
 }

@@ -34,6 +34,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private double ratedU;
 
+        private double ratedS;
+
         private CurrentLimits limits;
 
         private RatioTapChangerImpl ratioTapChanger;
@@ -248,12 +250,15 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     private double ratedU0;
 
-    ThreeWindingsTransformerImpl(String id, String name, LegImpl leg1, LegImpl leg2, LegImpl leg3, double ratedU0) {
+    private double ratedS;
+
+    ThreeWindingsTransformerImpl(String id, String name, LegImpl leg1, LegImpl leg2, LegImpl leg3, double ratedU0, double ratedS) {
         super(id, name);
         this.leg1 = Objects.requireNonNull(leg1);
         this.leg2 = Objects.requireNonNull(leg2);
         this.leg3 = Objects.requireNonNull(leg3);
         this.ratedU0 = ratedU0;
+        this.ratedS = ratedS;
     }
 
     @Override
@@ -284,6 +289,20 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     @Override
     public double getRatedU0() {
         return ratedU0;
+    }
+
+    @Override
+    public double getRatedS() {
+        return ratedS;
+    }
+
+    @Override
+    public ThreeWindingsTransformer setRatedS(double ratedS) {
+        ValidationUtil.checkRatedS(this, ratedS);
+        double oldValue = this.ratedS;
+        this.ratedS = ratedS;
+        notifyUpdate("ratedS", oldValue, ratedS);
+        return this;
     }
 
     @Override

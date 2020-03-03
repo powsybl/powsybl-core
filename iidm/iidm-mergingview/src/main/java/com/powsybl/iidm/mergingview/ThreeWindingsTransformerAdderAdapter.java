@@ -116,4 +116,10 @@ public class ThreeWindingsTransformerAdderAdapter extends AbstractIdentifiableAd
         getDelegate().setRatedU0(ratedU0);
         return this;
     }
+
+    @Override
+    public ThreeWindingsTransformerAdder setRatedS(double ratedS) {
+        getDelegate().setRatedS(ratedS);
+        return this;
+    }
 }

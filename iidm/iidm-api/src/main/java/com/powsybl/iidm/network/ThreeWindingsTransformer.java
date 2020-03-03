@@ -147,4 +147,14 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      * Get the ratedU at the fictitious bus in kV (also used as nominal voltage)
      */
     double getRatedU0();
+
+    /**
+     * Get the apparent power in kVA
+     */
+    double getRatedS();
+
+    /**
+     * Set the apparent power in VA.
+     */
+    ThreeWindingsTransformer setRatedS(double ratedS);
 }

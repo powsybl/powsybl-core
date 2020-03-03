@@ -178,6 +178,8 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     private double ratedU0 = Double.NaN;
 
+    private double ratedS = Double.NaN;
+
     ThreeWindingsTransformerAdderImpl(SubstationImpl substation) {
         this.substation = substation;
     }
@@ -224,6 +226,12 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     }
 
     @Override
+    public ThreeWindingsTransformerAdder setRatedS(double ratedS) {
+        this.ratedS = ratedS;
+        return this;
+    }
+
+    @Override
     public ThreeWindingsTransformerImpl add() {
         String id = checkAndGetUniqueId();
 
@@ -249,8 +257,10 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             LOGGER.info("RatedU0 is not set. Fixed to leg1 ratedU: {}", leg1.getRatedU());
         }
 
+        ValidationUtil.checkRatedS(this, ratedS);
+
         ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(id, getName(), leg1, leg2, leg3,
-            ratedU0);
+            ratedU0, ratedS);
         leg1.setTransformer(transformer);
         leg2.setTransformer(transformer);
         leg3.setTransformer(transformer);

@@ -43,5 +43,7 @@ public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWi
 
     ThreeWindingsTransformerAdder setRatedU0(double ratedU0);
 
+    ThreeWindingsTransformerAdder setRatedS(double ratedS);
+
     ThreeWindingsTransformer add();
 }
