@@ -262,7 +262,7 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags fullModel(String cgmesSubset) {
+    public PropertyBags fullModel(String cgmesProfile) {
         return null;
     }
 

@@ -29,7 +29,7 @@ public interface CgmesModel {
 
     Properties getProperties();
 
-    PropertyBags fullModel(String cgmesSubset);
+    PropertyBags fullModel(String cgmesProfile);
 
     boolean hasEquipmentCore();
 

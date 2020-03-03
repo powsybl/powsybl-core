@@ -118,10 +118,26 @@ public final class LinkData {
     }
 
     public static class BranchAdmittanceMatrix {
-        public Complex y11 = Complex.ZERO;
-        public Complex y12 = Complex.ZERO;
-        public Complex y21 = Complex.ZERO;
-        public Complex y22 = Complex.ZERO;
+        Complex y11 = Complex.ZERO;
+        Complex y12 = Complex.ZERO;
+        Complex y21 = Complex.ZERO;
+        Complex y22 = Complex.ZERO;
+
+        public Complex y11() {
+            return y11;
+        }
+
+        public Complex y12() {
+            return y11;
+        }
+
+        public Complex y21() {
+            return y11;
+        }
+
+        public Complex y22() {
+            return y11;
+        }
     }
 
     static class Flow {

@@ -301,7 +301,7 @@ public class StateVariablesAdder {
             new Complex(g * 0.5, b * 0.5), new Complex(g * 0.5, b * 0.5));
         Complex v1 = ComplexUtils.polar2Complex(v, Math.toRadians(angle));
         Complex s1 = new Complex(p, q);
-        return (s1.conjugate().divide(v1.conjugate()).subtract(adm.y11.multiply(v1))).divide(adm.y12);
+        return (s1.conjugate().divide(v1.conjugate()).subtract(adm.y11().multiply(v1))).divide(adm.y12());
     }
 
     private String getTapChangerPositionName() {

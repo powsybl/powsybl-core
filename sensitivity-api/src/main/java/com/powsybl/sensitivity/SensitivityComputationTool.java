@@ -9,34 +9,26 @@ package com.powsybl.sensitivity;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
-import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
-import com.powsybl.commons.io.table.Column;
-import com.powsybl.commons.io.table.TableFormatter;
-import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.sensitivity.converter.CsvSensitivityComputationResultExporter;
+import com.powsybl.sensitivity.converter.SensitivityComputationResultExporters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
-import com.powsybl.sensitivity.converter.SensitivityComputationResultExporters;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParameterOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParametersFileOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
+import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -151,38 +143,8 @@ public class SensitivityComputationTool implements Tool {
             } else {
                 // To avoid the closing of System.out
                 Writer writer = new OutputStreamWriter(context.getOutputStream());
-                printSensitivityComputationResult(result, writer, new AsciiTableFormatterFactory(), TableFormatterConfig.load());
+                new CsvSensitivityComputationResultExporter().export(result, writer);
             }
-        }
-    }
-
-    private void printSensitivityComputationResult(SensitivityComputationResults result, Writer writer, TableFormatterFactory formatterFactory,
-                                     TableFormatterConfig formatterConfig) {
-        try (TableFormatter formatter = formatterFactory.create(writer,
-                "sensitivity computation results",
-                formatterConfig,
-                new Column("VariableId"),
-                new Column("VariableName"),
-                new Column("FunctionId"),
-                new Column("FunctionName"),
-                new Column("VariableRefValue"),
-                new Column("FunctionRefValue"),
-                new Column("SensitivityValue"))) {
-            result.getSensitivityValues().forEach(sensitivityValue -> {
-                try {
-                    formatter.writeCell(sensitivityValue.getFactor().getVariable().getId());
-                    formatter.writeCell(sensitivityValue.getFactor().getVariable().getName());
-                    formatter.writeCell(sensitivityValue.getFactor().getFunction().getId());
-                    formatter.writeCell(sensitivityValue.getFactor().getFunction().getName());
-                    formatter.writeCell(sensitivityValue.getVariableReference());
-                    formatter.writeCell(sensitivityValue.getFunctionReference());
-                    formatter.writeCell(sensitivityValue.getValue());
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-            });
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 }
