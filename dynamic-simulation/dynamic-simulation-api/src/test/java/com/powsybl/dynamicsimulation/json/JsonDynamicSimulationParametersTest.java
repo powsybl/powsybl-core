@@ -96,7 +96,7 @@ public class JsonDynamicSimulationParametersTest extends AbstractConverterTest {
 
         @Override
         public String getCategoryName() {
-            return "DynamicSimulation-parameters";
+            return "dynamic-simulation-parameters";
         }
 
         @Override

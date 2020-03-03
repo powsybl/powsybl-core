@@ -20,7 +20,7 @@ import javax.xml.stream.XMLStreamException;
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class ActivePowerControlXmlSerializer<T extends Injection> extends AbstractExtensionXmlSerializer<T, ActivePowerControl<T>> {
+public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends AbstractExtensionXmlSerializer<T, ActivePowerControl<T>> {
 
     public ActivePowerControlXmlSerializer() {
         super("activePowerControl", "network", ActivePowerControl.class, false, "activePowerControl.xsd",
@@ -37,6 +37,8 @@ public class ActivePowerControlXmlSerializer<T extends Injection> extends Abstra
     public ActivePowerControl<T> read(T identifiable, XmlReaderContext context) {
         boolean participate = XmlUtil.readBoolAttribute(context.getReader(), "participate");
         float droop = XmlUtil.readFloatAttribute(context.getReader(), "droop");
-        return new ActivePowerControl<>(identifiable, participate, droop);
+        identifiable.newExtension(ActivePowerControlAdder.class)
+                .withParticipate(participate).withDroop(droop).add();
+        return identifiable.getExtension(ActivePowerControl.class);
     }
 }

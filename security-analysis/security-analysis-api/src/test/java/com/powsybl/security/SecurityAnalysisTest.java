@@ -11,6 +11,7 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.ComputationResourcesStatus;
 import com.powsybl.contingency.BranchContingency;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
@@ -77,6 +78,9 @@ public class SecurityAnalysisTest {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         Executor executor = Runnable::run;
         Mockito.when(computationManager.getExecutor()).thenReturn(executor);
+        ComputationResourcesStatus computationResourcesStatus = Mockito.mock(ComputationResourcesStatus.class);
+        Mockito.when(computationResourcesStatus.getAvailableCores()).thenReturn(4);
+        Mockito.when(computationManager.getResourcesStatus()).thenReturn(computationResourcesStatus);
 
         ContingenciesProvider contingenciesProvider = Mockito.mock(ContingenciesProvider.class);
         Contingency contingency = Mockito.mock(Contingency.class);
