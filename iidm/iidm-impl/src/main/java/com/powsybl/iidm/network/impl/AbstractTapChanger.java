@@ -31,7 +31,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected final List<S> steps;
 
-    private final String type;
+    protected final String type;
 
     protected TerminalExt regulationTerminal;
 
