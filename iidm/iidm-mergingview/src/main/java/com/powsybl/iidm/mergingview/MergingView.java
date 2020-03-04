@@ -38,6 +38,8 @@ public final class MergingView implements Network {
     /** To listen events from merging network */
     private final NetworkListener listener;
 
+    private boolean fictitious;
+
     private static class BusBreakerViewAdapter implements Network.BusBreakerView {
 
         private final MergingViewIndex index;
@@ -247,6 +249,20 @@ public final class MergingView implements Network {
                 .map(Network::getPropertyNames)
                 .flatMap(Set<String>::stream)
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean isFictitious() {
+        return fictitious;
+    }
+
+    @Override
+    public void setFictitious(boolean fictitious) {
+        boolean oldValue = this.fictitious;
+        if (oldValue != fictitious) {
+            this.fictitious = fictitious;
+            index.getNetworkStream().forEach(n -> n.setFictitious(fictitious));
+        }
     }
 
     @Override

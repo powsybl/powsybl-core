@@ -71,6 +71,16 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     }
 
     @Override
+    public boolean isFictitious() {
+        return getDelegate().isFictitious();
+    }
+
+    @Override
+    public void setFictitious(boolean fictitious) {
+        getDelegate().setFictitious(fictitious);
+    }
+
+    @Override
     public <E extends Extension<I>> void addExtension(final Class<? super E> type, final E extension) {
         getDelegate().addExtension(type, extension);
     }

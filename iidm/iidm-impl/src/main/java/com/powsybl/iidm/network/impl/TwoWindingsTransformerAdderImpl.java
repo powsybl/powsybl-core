@@ -112,7 +112,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         ValidationUtil.checkRatedS(this, ratedS);
 
         TwoWindingsTransformerImpl transformer
-                = new TwoWindingsTransformerImpl(id, getName(),
+                = new TwoWindingsTransformerImpl(id, getName(), isFictitious(),
                                                  voltageLevel1.getSubstation(),
                                                  r, x, g, b,
                                                  ratedU1, ratedU2, ratedS);

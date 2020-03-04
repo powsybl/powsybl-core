@@ -18,4 +18,5 @@ public interface IdentifiableAdder<T extends IdentifiableAdder> {
 
     T setName(String name);
 
+    T setFictitious(boolean fictitious);
 }

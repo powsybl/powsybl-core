@@ -36,8 +36,8 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
 
     private final TIntArrayList synchronousComponentNumber;
 
-    ConfiguredBusImpl(String id, String name, VoltageLevelExt voltageLevel) {
-        super(id, name, voltageLevel);
+    ConfiguredBusImpl(String id, String name, boolean fictitious, VoltageLevelExt voltageLevel) {
+        super(id, name, fictitious, voltageLevel);
         network = voltageLevel.getNetwork().getRef();
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         terminals = new ArrayList<>(variantArraySize);

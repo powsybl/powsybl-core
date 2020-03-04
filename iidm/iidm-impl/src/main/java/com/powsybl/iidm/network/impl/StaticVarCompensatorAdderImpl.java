@@ -91,7 +91,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         ValidationUtil.checkBmax(this, bMax);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         ValidationUtil.checkSvcRegulator(this, voltageSetPoint, reactivePowerSetPoint, regulationMode);
-        StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, bMin, bMax, voltageSetPoint, reactivePowerSetPoint,
+        StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, isFictitious(), bMin, bMax, voltageSetPoint, reactivePowerSetPoint,
                 regulationMode, regulatingTerminal != null ? regulatingTerminal : terminal,
                 getNetwork().getRef());
         svc.addTerminal(terminal);

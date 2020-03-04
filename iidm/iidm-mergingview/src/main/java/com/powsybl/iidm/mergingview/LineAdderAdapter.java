@@ -24,6 +24,8 @@ class LineAdderAdapter implements LineAdder {
 
     private boolean ensureIdUnicity;
 
+    private boolean fictitious;
+
     private Integer node1;
 
     private String bus1;
@@ -75,6 +77,7 @@ class LineAdderAdapter implements LineAdder {
                     .setId(id)
                     .setEnsureIdUnicity(ensureIdUnicity)
                     .setName(name)
+                    .setFictitious(fictitious)
                     .setR(r)
                     .setX(x)
                     .setG1(g1)
@@ -220,6 +223,12 @@ class LineAdderAdapter implements LineAdder {
     @Override
     public LineAdder setName(String name) {
         this.name = name;
+        return this;
+    }
+
+    @Override
+    public LineAdder setFictitious(boolean fictitious) {
+        this.fictitious = fictitious;
         return this;
     }
 }
