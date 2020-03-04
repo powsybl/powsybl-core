@@ -93,6 +93,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             return this;
         }
 
+        @Override
         public LegAdder setRatedS(double ratedS) {
             this.ratedS = ratedS;
             return this;
