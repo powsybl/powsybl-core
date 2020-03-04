@@ -7,10 +7,10 @@
 package com.powsybl.iidm.xml.util;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.xml.AbstractNetworkXmlContext;
 import com.powsybl.iidm.xml.IidmXmlVersion;
-import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
 import javax.xml.stream.XMLStreamException;
@@ -34,14 +34,27 @@ public final class IidmXmlUtil {
         }
     }
 
+    private static PowsyblException createException(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion version, IidmXmlVersion contextVersion, String reason) {
+        return new PowsyblException(rootElementName + "." + elementName + " is " + type.message + " for IIDM-XML version " + contextVersion.toString(".") + ". " + reason + version.toString("."));
+    }
+
+    /**
+     * Assert that the context's IIDM-XML version equals or is less recent than a given IIDM-XML version.
+     * If not, throw an exception with a given type of error message.
+     */
+    public static <C extends AbstractNetworkXmlContext> void assertMaximumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion maxVersion, C context) {
+        if (context.getVersion().compareTo(maxVersion) > 0) {
+            throw createException(rootElementName, elementName, type, maxVersion, context.getVersion(), "IIDM-XML version should be <= ");
+        }
+    }
+
     /**
      * Assert that the context's IIDM-XML version equals or is more recent than a given IIDM-XML version.
      * If not, throw an exception with a given type of error message.
      */
     public static <C extends AbstractNetworkXmlContext> void assertMinimumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion minVersion, C context) {
         if (context.getVersion().compareTo(minVersion) < 0) {
-            throw new PowsyblException(rootElementName + "." + elementName + " is " + type.message + " for IIDM-XML version " + context.getVersion().toString(".") + ". " +
-                    "IIDM-XML version should be >= " + minVersion.toString("."));
+            throw createException(rootElementName, elementName, type, minVersion, context.getVersion(), "IIDM-XML version should be >= ");
         }
     }
 
@@ -79,50 +92,78 @@ public final class IidmXmlUtil {
      */
     public static <C extends AbstractNetworkXmlContext> void assertStrictMaximumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion maxVersion, C context) {
         if (context.getVersion().compareTo(maxVersion) >= 0) {
-            throw new PowsyblException(rootElementName + "." + elementName + " is " + type.message + " for IIDM-XML version " + context.getVersion().toString(".") + ". " +
-                    "IIDM-XML version should be < " + maxVersion.toString("."));
+            throw createException(rootElementName, elementName, type, maxVersion, context.getVersion(), "IIDM-XML version should be < ");
         }
     }
 
     /**
-     * Read a double attribute which is <b>mandatory</b> from a given minimum IIDM-XML version. <br>
-     * If the context's IIDM-XML version is strictly older than the given minimum IIDM-XML version, the attribute <b>should not exist</b> (else an exception is thrown).
-     * In this case, return Double.NaN <br>
-     * If the context's IIDM-XML version equals or is more recent than the given minimum IIDM-XML version, the attribute <b>must exist</b> (else an exception is thrown).
-     * In this case, return the read double value.
+     * Run a given runnable if the context's IIDM-XML version equals or is more recent than a given minimum IIDM-XML version.
      */
-    public static double readDoubleAttributeFromMinimumVersion(String rootElementName, String attributeName, IidmXmlVersion minVersion, NetworkXmlReaderContext context) {
-        return readDoubleAttributeFromMinimumVersion(rootElementName, attributeName, Double.NaN, minVersion, context);
-    }
-
-    /**
-     * Read a double attribute which is <b>mandatory</b> from a given minimum IIDM-XML version. <br>
-     * If the context's IIDM-XML version is strictly older than the given minimum IIDM-XML version, the attribute <b>should not exist</b> (else an exception is thrown).
-     * In this case, return a given defaultValue. <br>
-     * If the context's IIDM-XML version equals or is more recent than the given minimum IIDM-XML version, the attribute <b>must exist</b> (else an exception is thrown).
-     * In this case, return the read double value.
-     */
-    public static double readDoubleAttributeFromMinimumVersion(String rootElementName, String attributeName, double defaultValue, IidmXmlVersion minVersion, NetworkXmlReaderContext context) {
-        String attributeStr = context.getReader().getAttributeValue(null, attributeName);
-        if (attributeStr != null) {
-            assertMinimumVersion(rootElementName, attributeName, ErrorMessage.NOT_SUPPORTED, minVersion, context);
-        } else {
-            assertStrictMaximumVersion(rootElementName, attributeName, ErrorMessage.MANDATORY, minVersion, context);
+    public static <C extends AbstractNetworkXmlContext> void runFromMinimumVersion(IidmXmlVersion minVersion, C context, Runnable runnable) {
+        if (context.getVersion().compareTo(minVersion) >= 0) {
+            runnable.run();
         }
-        return attributeStr == null ? defaultValue : Double.valueOf(attributeStr);
+
     }
 
     /**
-     * Write a <b>mandatory</b> double attribute from a given minimum IIDM-XML version.<br>
+     * Run a given runnable if the context's IIDM-XML version equals or is older than a given maximum IIDM-XML version.
+     */
+    public static <C extends AbstractNetworkXmlContext> void runUntilMaximumVersion(IidmXmlVersion maxVersion, C context, Runnable runnable) {
+        if (context.getVersion().compareTo(maxVersion) <= 0) {
+            runnable.run();
+        }
+    }
+
+    /**
+     * Write a <b>mandatory</b> boolean attribute from a given minimum IIDM-XML version.<br>
+     * If the context's IIDM-XML version is strictly older than the given minimum IIDM-XML version, the attribute's value <b>should be default</b>
+     * (else an exception is thrown).
+     */
+    public static void writeBooleanAttributeFromMinimumVersion(String rootElementName, String attributeName, boolean value, boolean defaultValue,
+                                                               ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context) {
+        writeAttributeFromMinimumVersion(rootElementName, attributeName, value != defaultValue, type, minVersion, context, () -> {
+            try {
+                context.getWriter().writeAttribute(attributeName, Boolean.toString(value));
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
+    }
+
+    /**
+     * Write a double attribute from a given minimum IIDM-XML version if its value is defined.<br>
+     * If the context's IIDM-XML version is strictly older than the given minimum IIDM-XML version, the attribute's value <b>should be undefined i.e. NaN</b>
+     * (else an exception is thrown).
+     */
+    public static void writeDoubleAttributeFromMinimumVersion(String rootElementName, String attributeName, double value,
+                                                              ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context) {
+        writeDoubleAttributeFromMinimumVersion(rootElementName, attributeName, value, Double.NaN, type, minVersion, context);
+    }
+
+    /**
+     * Write a double attribute from a given minimum IIDM-XML version if its value is defined.<br>
      * If the context's IIDM-XML version is strictly older than the given minimum IIDM-XML version, the attribute's value <b>should be default</b>
      * (else an exception is thrown).
      */
     public static void writeDoubleAttributeFromMinimumVersion(String rootElementName, String attributeName, double value, double defaultValue,
-                                                              ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context) throws XMLStreamException {
+                                                              ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context) {
+        writeAttributeFromMinimumVersion(rootElementName, attributeName, !Objects.equals(value, defaultValue), type, minVersion, context, () -> {
+            try {
+                XmlUtil.writeDouble(attributeName, value, context.getWriter());
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
+    }
+
+    private static void writeAttributeFromMinimumVersion(String rootElementName, String attributeName, boolean isNotDefaultValue,
+                                                         ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context,
+                                                         Runnable write) {
         if (context.getVersion().compareTo(minVersion) >= 0) {
-            XmlUtil.writeDouble(attributeName, value, context.getWriter());
+            write.run();
         } else {
-            assertMinimumVersionIfNotDefault(!Objects.equals(value, defaultValue), rootElementName, attributeName, type, minVersion, context);
+            assertMinimumVersionIfNotDefault(isNotDefaultValue, rootElementName, attributeName, type, minVersion, context);
         }
     }
 

@@ -17,6 +17,6 @@ public class PropertiesXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripAllVersionnedXmlTest("eurostag-tutorial-example1-properties.xml");
+        roundTripAllVersionedXmlTest("eurostag-tutorial-example1-properties.xml");
     }
 }

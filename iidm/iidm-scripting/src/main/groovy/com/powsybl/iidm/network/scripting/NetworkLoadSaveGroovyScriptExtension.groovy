@@ -11,6 +11,7 @@ import com.powsybl.computation.ComputationManager
 import com.powsybl.computation.local.LocalComputationManager
 import com.powsybl.iidm.export.Exporters
 import com.powsybl.iidm.export.ExportersLoader
+import com.powsybl.iidm.export.ExportersServiceLoader
 import com.powsybl.iidm.import_.ImportConfig
 import com.powsybl.iidm.import_.Importers
 import com.powsybl.iidm.import_.ImportersLoader
@@ -36,7 +37,7 @@ class NetworkLoadSaveGroovyScriptExtension implements GroovyScriptExtension {
     private final FileSystem fileSystem
 
     NetworkLoadSaveGroovyScriptExtension() {
-        this(ImportConfig.load(), new ImportersServiceLoader(), FileSystems.getDefault())
+        this(ImportConfig.load(), new ImportersServiceLoader(), new ExportersServiceLoader(), FileSystems.getDefault())
     }
 
     NetworkLoadSaveGroovyScriptExtension(ImportConfig importConfig, ImportersLoader importersLoader,

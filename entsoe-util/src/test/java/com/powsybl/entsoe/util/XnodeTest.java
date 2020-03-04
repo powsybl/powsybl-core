@@ -20,7 +20,7 @@ public class XnodeTest {
     @Test
     public void test() {
         DanglingLine dl = Mockito.mock(DanglingLine.class);
-        Xnode xnode = new Xnode(dl, "XXXXXX11");
+        Xnode xnode = new XnodeImpl(dl, "XXXXXX11");
 
         assertEquals("xnode", xnode.getName());
         assertSame(dl, xnode.getExtendable());

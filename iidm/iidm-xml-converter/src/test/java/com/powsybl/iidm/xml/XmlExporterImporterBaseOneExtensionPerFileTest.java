@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
@@ -27,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.*;
 
@@ -35,7 +33,7 @@ import static org.junit.Assert.*;
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
 
-public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractConverterTest {
+public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractXmlConverterTest {
 
     private static MemDataSource exportOneFilePerExtensionType(Network network, List<String> extensions) {
         Properties exportProperties = new Properties();
@@ -76,15 +74,15 @@ public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractConv
 
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
-            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions.xiidm"), is);
+            compareXml(getVersionedNetworkAsStream("multiple-extensions.xiidm", CURRENT_IIDM_XML_VERSION), is);
         }
 
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("-loadBar.xiidm"))) {
-            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions-loadBar.xiidm"), is);
+            compareXml(getVersionedNetworkAsStream("multiple-extensions-loadBar.xiidm", CURRENT_IIDM_XML_VERSION), is);
         }
 
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("-loadFoo.xiidm"))) {
-            compareXml(getClass().getResourceAsStream(getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions-loadFoo.xiidm"), is);
+            compareXml(getVersionedNetworkAsStream("multiple-extensions-loadFoo.xiidm", CURRENT_IIDM_XML_VERSION), is);
         }
 
         testImportMultipleExtensions(network, dataSource, extensions);

@@ -32,6 +32,22 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensatorAd
 
     ShuntCompensatorAdder setCurrentSectionCount(int currentSectionCount);
 
+    default ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ShuntCompensatorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ShuntCompensatorAdder setTargetV(double targetV) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
+        throw new UnsupportedOperationException();
+    }
+
     ShuntCompensator add();
 
 }

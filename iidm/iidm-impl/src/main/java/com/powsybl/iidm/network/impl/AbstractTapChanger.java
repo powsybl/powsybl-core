@@ -9,11 +9,13 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -29,6 +31,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected final List<S> steps;
 
+    private final String type;
+
     protected TerminalExt regulationTerminal;
 
     // attributes depending on the variant
@@ -41,12 +45,12 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected AbstractTapChanger(Ref<? extends VariantManagerHolder> network, H parent,
                                  int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
-                                 int tapPosition, boolean regulating, double targetDeadband) {
+                                 int tapPosition, boolean regulating, double targetDeadband, String type) {
         this.network = network;
         this.parent = parent;
         this.lowTapPosition = lowTapPosition;
         this.steps = steps;
-        steps.stream().forEach(s -> s.setParent(this));
+        steps.forEach(s -> s.setParent(this));
         this.regulationTerminal = regulationTerminal;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.tapPosition = new TIntArrayList(variantArraySize);
@@ -57,6 +61,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
             this.regulating.add(regulating);
             this.targetDeadband.add(targetDeadband);
         }
+        this.type = Objects.requireNonNull(type);
     }
 
     protected abstract NetworkImpl getNetwork();
@@ -146,10 +151,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public C setTargetDeadband(double targetDeadband) {
-        if (!Double.isNaN(targetDeadband) && targetDeadband < 0) {
-            throw new ValidationException(parent, "Unexpected value for target deadband of phase tap changer: " + targetDeadband);
-        }
         int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkTargetDeadband(parent, type, this.regulating.get(variantIndex), targetDeadband);
         double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".targetDeadband", variantId, oldValue, targetDeadband);
