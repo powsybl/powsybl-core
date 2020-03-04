@@ -57,7 +57,6 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public RatioTapChangerImpl setRegulating(boolean regulating) {
         ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, regulationTerminal, getTargetV(), getNetwork());
-        ValidationUtil.checkTargetDeadband(parent, type, regulating, getTargetDeadband());
 
         Set<TapChanger> tapChangers = new HashSet<TapChanger>();
         tapChangers.addAll(parent.getAllTapChangers());
