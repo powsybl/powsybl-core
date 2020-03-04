@@ -111,6 +111,10 @@ public class Conversion {
         this(cgmes, config, Collections.emptyList());
     }
 
+    public Conversion(CgmesModel cgmes, List<CgmesImportPostProcessor> postProcessors) {
+        this(cgmes, new Config(), postProcessors, NetworkFactory.findDefault());
+    }
+
     public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) {
         this(cgmes, config, postProcessors, NetworkFactory.findDefault());
     }
@@ -210,12 +214,6 @@ public class Conversion {
             debugTopology(context);
         }
 
-        // apply post-processors
-        for (CgmesImportPostProcessor postProcessor : postProcessors) {
-            // FIXME generic cgmes models may not have an underlying triplestore
-            postProcessor.process(network, cgmes.tripleStore());
-        }
-
         if (config.storeCgmesModelAsNetworkExtension()) {
             // Store a reference to the original CGMES model inside the IIDM network
             // CgmesUpdate will add a listener to Network changes
@@ -225,6 +223,12 @@ public class Conversion {
         if (config.storeCgmesConversionContextAsNetworkExtension()) {
             // Store the terminal mapping in an extension for external validation
             network.addExtension(CgmesConversionContextExtension.class, new CgmesConversionContextExtension(context));
+        }
+
+        // apply post-processors
+        for (CgmesImportPostProcessor postProcessor : postProcessors) {
+            // FIXME generic cgmes models may not have an underlying triplestore
+            postProcessor.process(network, cgmes.tripleStore());
         }
 
         return network;
