@@ -1,28 +1,42 @@
 /**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.iidm.network.scripting
 
-import com.powsybl.iidm.network.*
-import org.junit.Before
+import com.powsybl.iidm.network.Bus
+import com.powsybl.iidm.network.Country
+import com.powsybl.iidm.network.Network
+import com.powsybl.iidm.network.ShuntCompensator
+import com.powsybl.iidm.network.Substation
+import com.powsybl.iidm.network.TopologyKind
+import com.powsybl.iidm.network.VoltageLevel
 import org.junit.Test
 
 import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertNotNull
 
 /**
- * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
+ *
+ * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class NetworkExtensionTest {
+class ShuntCompensatorExtensionTest {
 
-    private Network network
+    @Test
+    void test() {
+        ShuntCompensator shunt = createShuntCompensator()
+        assertEquals(10, shunt.maximumSectionCount)
+        shunt.maximumSectionCount = 11
+        assertEquals(11, shunt.maximumSectionCount)
+        assertEquals(5.0, shunt.bPerSection, 0.0f)
+        shunt.bPerSection = 4.0
+        assertEquals(4.0, shunt.bPerSection, 0.0f)
+        assertEquals(44.0, shunt.maximumB, 0.0)
+    }
 
-    @Before
-    void prepareNetwork(){
-        network = Network.create("test", "test")
+    static ShuntCompensator createShuntCompensator() {
+        Network network = Network.create("test", "test")
         Substation substation = network.newSubstation()
                 .setCountry(Country.AF)
                 .setTso("tso")
@@ -49,22 +63,5 @@ class NetworkExtensionTest {
                     .setMaximumSectionCount(10)
                     .add()
                 .add()
-    }
-
-    @Test
-    void getShuntsTest() {
-        assertEquals(1, network.getShunts().size())
-        assertEquals(1, network.getShuntCount())
-    }
-
-    @Test
-    void getShuntStreamTest() {
-        assertEquals(1, network.getShuntStream().count())
-    }
-
-    @Test
-    void getShuntTest() {
-        assertNotNull(network.getShunt("SHUNT"))
-        assertEquals(6, network.getShunt("SHUNT").getCurrentSectionCount())
     }
 }

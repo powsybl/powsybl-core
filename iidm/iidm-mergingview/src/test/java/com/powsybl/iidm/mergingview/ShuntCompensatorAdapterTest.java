@@ -9,6 +9,7 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,24 +45,21 @@ public class ShuntCompensatorAdapterTest {
             assertNotNull(t);
         });
 
-        int maxCount = shuntCExpected.getMaximumSectionCount();
-        assertEquals(maxCount, shuntCActual.getMaximumSectionCount());
-        assertTrue(shuntCActual.setMaximumSectionCount(++maxCount) instanceof ShuntCompensatorAdapter);
-        assertEquals(maxCount, shuntCActual.getMaximumSectionCount());
-
+        int maxCount = shuntCExpected.getModel().getMaximumSectionCount();
+        shuntCActual.getModel(ShuntCompensatorLinearModel.class).setMaximumSectionCount(++maxCount);
         int currentCount = shuntCExpected.getCurrentSectionCount();
         assertEquals(currentCount, shuntCActual.getCurrentSectionCount());
         assertTrue(shuntCActual.setCurrentSectionCount(++currentCount) instanceof ShuntCompensatorAdapter);
         assertEquals(currentCount, shuntCActual.getCurrentSectionCount());
 
-        double b = shuntCExpected.getbPerSection();
-        assertEquals(b, shuntCActual.getbPerSection(), 0.0d);
-        assertTrue(shuntCActual.setbPerSection(++b) instanceof ShuntCompensatorAdapter);
-        assertEquals(shuntCExpected.getbPerSection(), shuntCActual.getbPerSection(), 0.0d);
+        double b = shuntCExpected.getModel(ShuntCompensatorLinearModel.class).getbPerSection();
+        assertEquals(b, shuntCActual.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), 0.0d);
+        assertTrue(shuntCActual.getModel(ShuntCompensatorLinearModel.class).setbPerSection(++b) instanceof ShuntCompensatorAdapter);
+        assertEquals(shuntCExpected.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), shuntCActual.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), 0.0d);
 
         double currentB = shuntCExpected.getCurrentB();
         assertEquals(currentB, shuntCActual.getCurrentB(), 0.0d);
-        assertTrue(shuntCActual.setbPerSection(++currentB) instanceof ShuntCompensatorAdapter);
+        assertTrue(shuntCActual.getModel(ShuntCompensatorLinearModel.class).setbPerSection(++currentB) instanceof ShuntCompensatorAdapter);
         assertEquals(shuntCExpected.getCurrentB(), shuntCActual.getCurrentB(), 0.0d);
 
         Terminal terminal = mergingView.getLccConverterStation("C1").getTerminal();

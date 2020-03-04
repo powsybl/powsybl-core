@@ -55,34 +55,37 @@ public abstract class AbstractShuntCompensatorTest {
                 .setId(SHUNT)
                 .setName("shuntName")
                 .setConnectableBus("busA")
-                .setbPerSection(5.0)
                 .setCurrentSectionCount(6)
-                .setMaximumSectionCount(10)
                 .setRegulatingTerminal(terminal)
                 .setVoltageRegulatorOn(true)
                 .setTargetV(200)
                 .setTargetDeadband(10)
+                .newLinearModel()
+                    .setbPerSection(5.0)
+                    .setMaximumSectionCount(10)
+                    .add()
                 .add();
         assertEquals(ConnectableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
         assertEquals("shuntName", shuntCompensator.getName());
         assertEquals(SHUNT, shuntCompensator.getId());
-        assertEquals(5.0, shuntCompensator.getbPerSection(), 0.0);
+        assertEquals(5.0, shuntCompensator.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), 0.0);
         assertEquals(6, shuntCompensator.getCurrentSectionCount());
-        assertEquals(10, shuntCompensator.getMaximumSectionCount());
+        assertEquals(10, shuntCompensator.getModel(ShuntCompensatorLinearModel.class).getMaximumSectionCount());
         assertSame(terminal, shuntCompensator.getRegulatingTerminal());
         assertTrue(shuntCompensator.isVoltageRegulatorOn());
         assertEquals(200, shuntCompensator.getTargetV(), 0.0);
         assertEquals(10, shuntCompensator.getTargetDeadband(), 0.0);
 
         // setter getter
+        ShuntCompensatorLinearModel shuntLinearModel = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
         try {
-            shuntCompensator.setbPerSection(0.0);
+            shuntLinearModel.setbPerSection(0.0);
             fail();
         } catch (ValidationException ignored) {
             // ignore
         }
-        shuntCompensator.setbPerSection(1.0);
-        assertEquals(1.0, shuntCompensator.getbPerSection(), 0.0);
+        shuntLinearModel.setbPerSection(1.0);
+        assertEquals(1.0, shuntLinearModel.getbPerSection(), 0.0);
 
         try {
             shuntCompensator.setCurrentSectionCount(-1);
@@ -101,13 +104,13 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(6, shuntCompensator.getCurrentSectionCount());
 
         try {
-            shuntCompensator.setMaximumSectionCount(1);
+            shuntLinearModel.setMaximumSectionCount(1);
             fail();
         } catch (ValidationException ignored) {
             // ignore
         }
-        shuntCompensator.setMaximumSectionCount(20);
-        assertEquals(20, shuntCompensator.getMaximumSectionCount());
+        shuntLinearModel.setMaximumSectionCount(20);
+        assertEquals(20, shuntLinearModel.getMaximumSectionCount());
 
         try {
             Network tmp = EurostagTutorialExample1Factory.create();
@@ -160,21 +163,21 @@ public abstract class AbstractShuntCompensatorTest {
     public void invalidbPerSection() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("susceptance per section is invalid");
-        createShunt(INVALID, INVALID, Double.NaN, 5, 10, null, false, Double.NaN, Double.NaN);
+        createLinearShunt(INVALID, INVALID, Double.NaN, 5, 10, null, false, Double.NaN, Double.NaN);
     }
 
     @Test
     public void invalidZerobPerSection() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("susceptance per section is equal to zero");
-        createShunt(INVALID, INVALID, 0.0, 5, 10, null, false, Double.NaN, Double.NaN);
+        createLinearShunt(INVALID, INVALID, 0.0, 5, 10, null, false, Double.NaN, Double.NaN);
     }
 
     @Test
     public void invalidNegativeMaxPerSection() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("should be greater than 0");
-        createShunt(INVALID, INVALID, 2.0, 0, -1, null, false, Double.NaN, Double.NaN);
+        createLinearShunt(INVALID, INVALID, 2.0, 0, -1, null, false, Double.NaN, Double.NaN);
     }
 
     @Test
@@ -183,27 +186,27 @@ public abstract class AbstractShuntCompensatorTest {
         thrown.expectMessage("regulating terminal is not part of the network");
         Network tmp = EurostagTutorialExample1Factory.create();
         Terminal tmpTerminal = tmp.getGenerator("GEN").getTerminal();
-        createShunt(INVALID, INVALID, 2.0, 0, 10, tmpTerminal, false, Double.NaN, Double.NaN);
+        createLinearShunt(INVALID, INVALID, 2.0, 0, 10, tmpTerminal, false, Double.NaN, Double.NaN);
     }
 
     @Test
     public void invalidTargetV() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("invalid value (-10.0) for voltage setpoint");
-        createShunt(INVALID, INVALID, 2.0, 0, 10, null, true, -10, Double.NaN);
+        createLinearShunt(INVALID, INVALID, 2.0, 0, 10, null, true, -10, Double.NaN);
     }
 
     @Test
     public void invalidTargetDeadband() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("Unexpected value for target deadband of shunt compensator: -10.0");
-        createShunt(INVALID, INVALID, 2.0, 0, 10, null, false, Double.NaN, -10);
+        createLinearShunt(INVALID, INVALID, 2.0, 0, 10, null, false, Double.NaN, -10);
     }
 
     @Test
     public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
-        createShunt(TEST_MULTI_VARIANT, TEST_MULTI_VARIANT, 2.0, 5, 10, terminal, true, 200, 10);
+        createLinearShunt(TEST_MULTI_VARIANT, TEST_MULTI_VARIANT, 2.0, 5, 10, terminal, true, 200, 10);
         ShuntCompensator shunt = network.getShuntCompensator(TEST_MULTI_VARIANT);
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
@@ -267,18 +270,20 @@ public abstract class AbstractShuntCompensatorTest {
         }
     }
 
-    private void createShunt(String id, String name, double bPerSection, int currentSectionCount, int maxSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
+    private void createLinearShunt(String id, String name, double bPerSection, int currentSectionCount, int maxSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
         voltageLevel.newShuntCompensator()
                 .setId(id)
                 .setName(name)
                 .setConnectableBus("busA")
-                .setbPerSection(bPerSection)
                 .setCurrentSectionCount(currentSectionCount)
-                .setMaximumSectionCount(maxSectionCount)
                 .setRegulatingTerminal(regulatingTerminal)
                 .setVoltageRegulatorOn(voltageRegulatorOn)
                 .setTargetV(targetV)
                 .setTargetDeadband(targetDeadband)
+                .newLinearModel()
+                    .setbPerSection(bPerSection)
+                    .setMaximumSectionCount(maxSectionCount)
+                    .add()
                 .add();
     }
 }
