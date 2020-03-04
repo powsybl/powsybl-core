@@ -12,7 +12,7 @@ import com.univocity.parsers.annotations.Parsed;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LoadData {
+public class PsseLoad {
 
     @Parsed
     private int i;

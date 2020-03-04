@@ -12,44 +12,56 @@ import com.univocity.parsers.annotations.Parsed;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class BusData {
+public class PsseWinding {
 
     @Parsed
-    private int i;
+    private double windv;
 
     @Parsed
-    private String name;
+    private double nomv;
 
     @Parsed
-    private double baskv;
+    private double ang;
 
     @Parsed
-    private int ide;
+    private double rata;
 
     @Parsed
-    private int area;
+    private double ratb;
 
     @Parsed
-    private int zone;
+    private double ratc;
 
     @Parsed
-    private int owner;
+    private int cod;
 
     @Parsed
-    private double vm;
+    private int cont;
 
     @Parsed
-    private double va;
+    private double rma;
 
     @Parsed
-    private double nvhi;
+    private double rmi;
 
     @Parsed
-    private double nvlo;
+    private double vma;
 
     @Parsed
-    private double evhi;
+    private double vmi;
 
     @Parsed
-    private double evlo;
+    private int ntp;
+
+    @Parsed
+    private int tab;
+
+    @Parsed
+    private double cr;
+
+    @Parsed
+    private double cx;
+
+    @Parsed
+    private double cnxa;
 }

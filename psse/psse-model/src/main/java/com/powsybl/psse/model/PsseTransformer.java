@@ -12,7 +12,7 @@ import com.univocity.parsers.annotations.Parsed;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TransformerData {
+public class PsseTransformer {
 
     @Parsed
     private int i;
@@ -110,9 +110,9 @@ public class TransformerData {
     @Parsed
     private double anstar;
 
-    private WindingData winding1;
+    private PsseWinding winding1;
 
-    private WindingData winding2;
+    private PsseWinding winding2;
 
-    private WindingData winding3;
+    private PsseWinding winding3;
 }

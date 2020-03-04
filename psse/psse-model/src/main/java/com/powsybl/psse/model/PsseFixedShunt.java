@@ -12,7 +12,7 @@ import com.univocity.parsers.annotations.Parsed;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class FixedShuntData {
+public class PsseFixedShunt {
 
     @Parsed
     private int i;
