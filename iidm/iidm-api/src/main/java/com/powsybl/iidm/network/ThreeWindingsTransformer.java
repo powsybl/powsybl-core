@@ -115,14 +115,14 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         CurrentLimitsAdder newCurrentLimits();
 
         /**
-         * Get the apparent power in kVA
+         * Get the apparent power in kVA (optional).
          */
         default double getRatedS() {
             throw new UnsupportedOperationException();
         }
 
         /**
-         * Set the apparent power in kVA.
+         * Set the apparent power in kVA (optional).
          */
         default Leg setRatedS(double ratedS) {
             throw new UnsupportedOperationException();

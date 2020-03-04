@@ -15,15 +15,12 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import java.util.function.BiConsumer;
+import java.util.function.DoubleConsumer;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 abstract class AbstractTransformerXml<T extends Connectable, A extends IdentifiableAdder<A>> extends AbstractConnectableXml<T, A, Substation> {
-
-    protected interface RatedSConsumer {
-        void accept(double ratedS);
-    }
 
     private interface StepConsumer {
         void accept(double r, double x, double g, double b, double rho);
@@ -251,11 +248,23 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         consumer.accept(r, x, g, b, rho);
     }
 
-    protected static void readRatedS(String name, NetworkXmlReaderContext context, RatedSConsumer consumer) {
+    /**
+     * Read the apparent power in kVA.
+     * @param name the field name to read
+     * @param context the XMLStreamReader accessor
+     * @param consumer the method will used apparent power value read
+     */
+    protected static void readRatedS(String name, NetworkXmlReaderContext context, DoubleConsumer consumer) {
         double ratedS = XmlUtil.readOptionalDoubleAttribute(context.getReader(), name);
         consumer.accept(ratedS);
     }
 
+    /**
+     * Write the apparent power in kVA.
+     * @param name the field name to write
+     * @param ratedS the apparent power value to serialize
+     * @param context the XMLStreamWriter accessor
+     */
     protected static void writeRatedS(String name, double ratedS, NetworkXmlWriterContext context) {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
             try {
