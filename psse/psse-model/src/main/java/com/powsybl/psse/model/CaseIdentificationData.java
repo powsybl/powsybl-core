@@ -15,26 +15,26 @@ import com.univocity.parsers.annotations.Parsed;
 public class CaseIdentificationData {
 
     @Parsed
-    int ic;
+    private int ic;
 
     @Parsed
-    double sbase;
+    private double sbase;
 
     @Parsed
-    int rev;
+    private int rev;
 
     @Parsed
-    double xfrrat;
+    private double xfrrat;
 
     @Parsed
-    double nxfrat;
+    private double nxfrat;
 
     @Parsed
-    double basfrq;
+    private double basfrq;
 
     @Parsed
-    String title1;
+    private String title1;
 
     @Parsed
-    String title2;
+    private String title2;
 }

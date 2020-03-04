@@ -15,41 +15,41 @@ import com.univocity.parsers.annotations.Parsed;
 public class BusData {
 
     @Parsed
-    int i;
+    private int i;
 
     @Parsed
-    String name;
+    private String name;
 
     @Parsed
-    double baskv;
+    private double baskv;
 
     @Parsed
-    int ide;
+    private int ide;
 
     @Parsed
-    int area;
+    private int area;
 
     @Parsed
-    int zone;
+    private int zone;
 
     @Parsed
-    int owner;
+    private int owner;
 
     @Parsed
-    double vm;
+    private double vm;
 
     @Parsed
-    double va;
+    private double va;
 
     @Parsed
-    double nvhi;
+    private double nvhi;
 
     @Parsed
-    double nvlo;
+    private double nvlo;
 
     @Parsed
-    double evhi;
+    private double evhi;
 
     @Parsed
-    double evlo;
+    private double evlo;
 }

@@ -12,47 +12,56 @@ import com.univocity.parsers.annotations.Parsed;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LoadData {
+public class WindingData {
 
     @Parsed
-    private int i;
+    private double windv;
 
     @Parsed
-    private String id;
+    private double nomv;
 
     @Parsed
-    private int status;
+    private double ang;
 
     @Parsed
-    private int area;
+    private double rata;
 
     @Parsed
-    private int zone;
+    private double ratb;
 
     @Parsed
-    private double pl;
+    private double ratc;
 
     @Parsed
-    private double ql;
+    private int cod;
 
     @Parsed
-    private double ip;
+    private int cont;
 
     @Parsed
-    private double iq;
+    private double rma;
 
     @Parsed
-    private double yp;
+    private double rmi;
 
     @Parsed
-    private double yq;
+    private double vma;
 
     @Parsed
-    private double owner;
+    private double vmi;
 
     @Parsed
-    private double scale;
+    private int ntp;
 
     @Parsed
-    private double intrpt;
+    private int tab;
+
+    @Parsed
+    private double cr;
+
+    @Parsed
+    private double cx;
+
+    @Parsed
+    private double cnxa;
 }

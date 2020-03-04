@@ -6,9 +6,26 @@
  */
 package com.powsybl.psse.model;
 
+import com.univocity.parsers.annotations.Parsed;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class FixedShuntData {
+
+    @Parsed
+    private int i;
+
+    @Parsed
+    private String id;
+
+    @Parsed
+    private int status;
+
+    @Parsed
+    private double gl;
+
+    @Parsed
+    private double bl;
 }

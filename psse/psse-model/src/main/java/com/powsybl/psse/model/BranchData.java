@@ -12,61 +12,55 @@ import com.univocity.parsers.annotations.Parsed;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class GeneratorData {
+public class BranchData {
 
     @Parsed
     private int i;
 
     @Parsed
-    private String id;
+    private int j;
 
     @Parsed
-    private double pg;
+    private String ckt;
 
     @Parsed
-    private double qg;
+    private double r;
 
     @Parsed
-    private double qt;
+    private double x;
 
     @Parsed
-    private double qb;
+    private double b;
 
     @Parsed
-    private double vs;
+    private double ratea;
 
     @Parsed
-    private int ireg;
+    private double rateb;
 
     @Parsed
-    private double mbase;
+    private double ratec;
 
     @Parsed
-    private double zr;
+    private double gi;
 
     @Parsed
-    private double zx;
+    private double bi;
 
     @Parsed
-    private double rt;
+    private double gj;
 
     @Parsed
-    private double xt;
+    private double bj;
 
     @Parsed
-    private int gtap;
+    private int st;
 
     @Parsed
-    private int stat;
+    private int met;
 
     @Parsed
-    private double rmpct;
-
-    @Parsed
-    private double pt;
-
-    @Parsed
-    private double pb;
+    private double len;
 
     @Parsed
     private int o1;
@@ -91,10 +85,4 @@ public class GeneratorData {
 
     @Parsed
     private double f4;
-
-    @Parsed
-    private int wmod;
-
-    @Parsed
-    private double wpf;
 }
