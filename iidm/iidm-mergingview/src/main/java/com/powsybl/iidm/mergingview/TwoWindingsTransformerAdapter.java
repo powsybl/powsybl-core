@@ -110,4 +110,15 @@ public class TwoWindingsTransformerAdapter extends AbstractBranchAdapter<TwoWind
         getDelegate().setRatedU2(ratedU2);
         return this;
     }
+
+    @Override
+    public double getRatedS() {
+        return getDelegate().getRatedS();
+    }
+
+    @Override
+    public TwoWindingsTransformer setRatedS(double ratedS) {
+        getDelegate().setRatedS(ratedS);
+        return this;
+    }
 }
