@@ -32,10 +32,8 @@ public class PsseCaseIdentification {
     @Parsed
     private double basfrq;
 
-    @Parsed
     private String title1;
 
-    @Parsed
     private String title2;
 
     public int getIc() {

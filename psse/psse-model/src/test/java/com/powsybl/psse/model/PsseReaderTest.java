@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.model;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -25,6 +26,7 @@ public class PsseReaderTest {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/IEEE_14_bus.raw")))) {
             PsseRawData rawData = new PsseReader().read(reader);
             assertNotNull(rawData);
+            new ObjectMapper().writerWithDefaultPrettyPrinter().writeValue(System.out, rawData);
         }
     }
 }
