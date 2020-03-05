@@ -247,11 +247,7 @@ public final class ValidationUtil {
                     "the current number of section (" + currentSectionCount
                             + ") should be greater than or equal to 0");
         }
-        if (maximumSectionCount <= 0) {
-            throw new ValidationException(validable,
-                    "the maximum number of section (" + maximumSectionCount
-                            + ")should be greater than 0");
-        }
+        checkMaximumSectionCount(validable, maximumSectionCount);
         if (currentSectionCount > maximumSectionCount) {
             throw new ValidationException(validable,
                     "the current number (" + currentSectionCount
