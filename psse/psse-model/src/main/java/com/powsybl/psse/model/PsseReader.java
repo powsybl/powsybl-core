@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -57,9 +56,13 @@ public class PsseReader {
         settings.setProcessor(processor);
         CsvParser parser = new CsvParser(settings);
         for (String line : lines) {
-            Arrays.toString(parser.parseLine(line));
+            parser.parseLine(line);
         }
-        return processor.getBeans();
+        List<T> beans = processor.getBeans();
+        if (beans.size() != lines.size()) {
+            throw new PsseException("Parsing error");
+        }
+        return beans;
     }
 
     private void parseLines(List<String> lines, PsseRawData rawData, PsseDataType dataType) {
