@@ -132,7 +132,7 @@ public class PsseRawReader {
         // non transformer data
         model.getNonTransformerBranches().addAll(parseRecords(readRecordBlock(reader), PsseNonTransformerBranch.class));
 
-        // transformer
+        // transformer data
         model.getTransformers().addAll(readTransformers(reader));
 
         return model;
