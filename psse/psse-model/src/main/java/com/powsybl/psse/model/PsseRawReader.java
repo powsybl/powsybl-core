@@ -99,10 +99,14 @@ public class PsseRawReader {
         List<String> records = readRecordBlock(reader);
         int i = 0;
         while (i < records.size()) {
-            PsseTransformer transformer = parseRecord(records.get(i++), PsseTransformer.class);
-            transformer.setStarModel(parseRecord(records.get(i++), PsseTransformer.StarModel.class));
-            transformer.setWinding1(parseRecord(records.get(i++), PsseTransformer.Winding.class));
-            transformer.setWinding2(parseRecord(records.get(i++), PsseTransformer.Winding.class));
+            PsseTransformer transformer = new PsseTransformer();
+            transformer.setFirstRecord(parseRecord(records.get(i++), PsseTransformer.FirstRecord.class));
+            transformer.setSecondRecord(parseRecord(records.get(i++), PsseTransformer.SecondRecord.class));
+            transformer.setThirdRecord1(parseRecord(records.get(i++), PsseTransformer.ThirdRecord.class));
+            transformer.setThirdRecord2(parseRecord(records.get(i++), PsseTransformer.ThirdRecord.class));
+            if (transformer.getFirstRecord().getK() != 0) {
+                transformer.setThirdRecord3(parseRecord(records.get(i++), PsseTransformer.ThirdRecord.class));
+            }
             transformers.add(transformer);
         }
 
