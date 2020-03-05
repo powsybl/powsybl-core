@@ -17,7 +17,7 @@ public class TerminalRefTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripAllVersionnedXmlTest("terminalRef.xiidm");
-        roundTripAllVersionnedXmlTest("regulatingTerminal.xml");
+        roundTripAllVersionedXmlTest("terminalRef.xiidm");
+        roundTripAllVersionedXmlTest("regulatingTerminal.xml");
     }
 }

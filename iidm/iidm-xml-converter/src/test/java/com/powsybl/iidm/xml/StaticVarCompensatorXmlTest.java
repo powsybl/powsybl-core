@@ -30,7 +30,7 @@ public class StaticVarCompensatorXmlTest extends AbstractXmlConverterTest {
     @Test
     public void roundTripTest() throws IOException {
         // backward compatibility
-        roundTripVersionnedXmlTest("staticVarCompensatorRoundTripRef.xml", IidmXmlVersion.V_1_0);
+        roundTripAllPreviousVersionedXmlTest("staticVarCompensatorRoundTripRef.xml");
 
         Network network = SvcTestCaseFactory.create();
         addProperties(network);

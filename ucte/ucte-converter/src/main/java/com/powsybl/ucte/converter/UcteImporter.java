@@ -429,6 +429,7 @@ public class UcteImporter implements Importer {
             rtca.setLoadTapChangingCapabilities(true)
                     .setRegulating(true)
                     .setTargetV(uctePhaseRegulation.getU())
+                    .setTargetDeadband(0.0)
                     .setRegulationTerminal(transformer.getTerminal1());
         }
         for (int i = -uctePhaseRegulation.getN(); i <= uctePhaseRegulation.getN(); i++) {
