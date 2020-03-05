@@ -126,6 +126,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     public C setRegulating(boolean regulating) {
         int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkTargetDeadband(parent, type, regulating, targetDeadband.get(variantIndex));
         boolean oldValue = this.regulating.set(variantIndex, regulating);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulating", variantId, oldValue, regulating);

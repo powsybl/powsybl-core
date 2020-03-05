@@ -110,18 +110,26 @@ public abstract class AbstractTapChangerTest {
         try {
             phaseTapChanger.setTapPosition(5);
             fail();
-        } catch (Exception ignored) {
+        } catch (ValidationException ignored) {
             // ignore
         }
         try {
             phaseTapChanger.getStep(5);
             fail();
-        } catch (Exception ignored) {
+        } catch (ValidationException ignored) {
             // ignore
         }
         try {
             phaseTapChanger.setTargetDeadband(-1);
-        } catch (Exception ignored) {
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+        try {
+            phaseTapChanger.setTargetDeadband(Double.NaN);
+            phaseTapChanger.setRegulating(true);
+            fail();
+        } catch (ValidationException ignored) {
             // ignore
         }
 
@@ -398,7 +406,14 @@ public abstract class AbstractTapChangerTest {
         try {
             ratioTapChanger.setTargetDeadband(-1);
             fail();
-        } catch (Exception ignored) {
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+        try {
+            ratioTapChanger.setTargetDeadband(Double.NaN);
+            ratioTapChanger.setRegulating(true);
+            fail();
+        } catch (ValidationException ignored) {
             // ignore
         }
 
