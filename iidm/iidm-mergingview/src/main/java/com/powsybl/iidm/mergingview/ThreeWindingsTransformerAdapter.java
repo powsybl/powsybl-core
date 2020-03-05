@@ -116,6 +116,17 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
             getDelegate().setB(b);
             return this;
         }
+
+        @Override
+        public double getRatedS() {
+            return getDelegate().getRatedS();
+        }
+
+        @Override
+        public ThreeWindingsTransformer.Leg setRatedS(double ratedS) {
+            getDelegate().setRatedS(ratedS);
+            return this;
+        }
     }
 
     private LegAdapter leg1;
