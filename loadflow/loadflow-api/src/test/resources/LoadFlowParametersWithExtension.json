@@ -4,7 +4,7 @@
   "transformerVoltageControlOn" : false,
   "phaseShifterRegulationOn" : false,
   "noGeneratorReactiveLimits" : false,
-  "splitShuntAdmittanceXfmr2" : false,
+  "t2wtSplitShuntAdmittance" : false,
   "extensions" : {
     "dummy-extension" : { }
   }

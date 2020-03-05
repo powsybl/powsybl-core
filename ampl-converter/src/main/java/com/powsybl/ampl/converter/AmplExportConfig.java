@@ -47,18 +47,18 @@ public class AmplExportConfig {
 
     private boolean exportRatioTapChangerVoltageTarget;
 
-    private boolean splitShuntAdmittanceXfmr2;
+    private boolean t2wtSplitShuntAdmittance;
 
     public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType) {
         this(exportScope, exportXNodes, actionType, false, false);
     }
 
-    public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType, boolean exportRatioTapChangerVoltageTarget, boolean splitShuntAdmittanceXfmr2) {
+    public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType, boolean exportRatioTapChangerVoltageTarget, boolean t2wtSplitShuntAdmittance) {
         this.exportScope = Objects.requireNonNull(exportScope);
         this.exportXNodes = exportXNodes;
         this.actionType = Objects.requireNonNull(actionType);
         this.exportRatioTapChangerVoltageTarget = exportRatioTapChangerVoltageTarget;
-        this.splitShuntAdmittanceXfmr2 = splitShuntAdmittanceXfmr2;
+        this.t2wtSplitShuntAdmittance = t2wtSplitShuntAdmittance;
     }
 
     public ExportScope getExportScope() {
@@ -97,12 +97,12 @@ public class AmplExportConfig {
         return this;
     }
 
-    public boolean isSplitShuntAdmittanceXfmr2() {
-        return splitShuntAdmittanceXfmr2;
+    public boolean isT2wtSplitShuntAdmittance() {
+        return t2wtSplitShuntAdmittance;
     }
 
-    public AmplExportConfig setSplitShuntAdmittanceXfmr2(boolean splitShuntAdmittanceXfmr2) {
-        this.splitShuntAdmittanceXfmr2 = splitShuntAdmittanceXfmr2;
+    public AmplExportConfig setT2wtSplitShuntAdmittance(boolean t2wtSplitShuntAdmittance) {
+        this.t2wtSplitShuntAdmittance = t2wtSplitShuntAdmittance;
         return this;
     }
 

@@ -42,12 +42,12 @@ public class LoadFlowParametersTest {
 
     private void checkValues(LoadFlowParameters parameters, LoadFlowParameters.VoltageInitMode voltageInitMode,
                              boolean transformerVoltageControlOn, boolean noGeneratorReactiveLimits,
-                             boolean phaseShifterRegulationOn, boolean splitShuntAdmittance) {
+                             boolean phaseShifterRegulationOn, boolean t2wtSplitShuntAdmittance) {
         assertEquals(parameters.getVoltageInitMode(), voltageInitMode);
         assertEquals(parameters.isTransformerVoltageControlOn(), transformerVoltageControlOn);
         assertEquals(parameters.isPhaseShifterRegulationOn(), phaseShifterRegulationOn);
         assertEquals(parameters.isNoGeneratorReactiveLimits(), noGeneratorReactiveLimits);
-        assertEquals(parameters.isSplitShuntAdmittanceXfmr2(), splitShuntAdmittance);
+        assertEquals(parameters.isT2wtSplitShuntAdmittance(), t2wtSplitShuntAdmittance);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
                 LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
-                LoadFlowParameters.DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR2);
+                LoadFlowParameters.DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class LoadFlowParametersTest {
         boolean transformerVoltageControlOn = true;
         boolean noGeneratorReactiveLimits = true;
         boolean phaseShifterRegulationOn = true;
-        boolean splitShuntAdmittanceXfmr2 = true;
+        boolean t2wtSplitShuntAdmittance = true;
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.UNIFORM_VALUES;
 
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-default-parameters");
@@ -74,11 +74,11 @@ public class LoadFlowParametersTest {
         moduleConfig.setStringProperty("transformerVoltageControlOn", Boolean.toString(transformerVoltageControlOn));
         moduleConfig.setStringProperty("noGeneratorReactiveLimits", Boolean.toString(noGeneratorReactiveLimits));
         moduleConfig.setStringProperty("phaseShifterRegulationOn", Boolean.toString(phaseShifterRegulationOn));
-        moduleConfig.setStringProperty("splitShuntAdmittanceXfmr2", Boolean.toString(splitShuntAdmittanceXfmr2));
+        moduleConfig.setStringProperty("t2wtSplitShuntAdmittance", Boolean.toString(t2wtSplitShuntAdmittance));
         LoadFlowParameters parameters = new LoadFlowParameters();
         LoadFlowParameters.load(parameters, platformConfig);
         checkValues(parameters, voltageInitMode, transformerVoltageControlOn,
-                noGeneratorReactiveLimits, phaseShifterRegulationOn, splitShuntAdmittanceXfmr2);
+                noGeneratorReactiveLimits, phaseShifterRegulationOn, t2wtSplitShuntAdmittance);
     }
 
     @Test
@@ -90,7 +90,7 @@ public class LoadFlowParametersTest {
         LoadFlowParameters.load(parameters, platformConfig);
         checkValues(parameters, LoadFlowParameters.DEFAULT_VOLTAGE_INIT_MODE,
                 transformerVoltageControlOn, LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
-                LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR2);
+                LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class LoadFlowParametersTest {
         LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode);
         checkValues(parameters, voltageInitMode, LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
                 LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
-                LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR2);
+                LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
     }
 
     @Test
@@ -107,7 +107,7 @@ public class LoadFlowParametersTest {
         boolean transformerVoltageControlOn = true;
         boolean noGeneratorReactiveLimits = true;
         boolean phaseShifterRegulationOn = true;
-        boolean splitShuntAdmittanceXfmr2 = true;
+        boolean t2wtSplitShuntAdmittance = true;
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
 
         LoadFlowParameters parameters = new LoadFlowParameters();
@@ -116,10 +116,10 @@ public class LoadFlowParametersTest {
         parameters.setPhaseShifterRegulationOn(phaseShifterRegulationOn);
         parameters.setTransformerVoltageControlOn(transformerVoltageControlOn);
         parameters.setVoltageInitMode(voltageInitMode);
-        parameters.setSplitShuntAdmittanceXfmr2(splitShuntAdmittanceXfmr2);
+        parameters.setT2wtSplitShuntAdmittance(t2wtSplitShuntAdmittance);
 
         checkValues(parameters, voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits,
-                phaseShifterRegulationOn, splitShuntAdmittanceXfmr2);
+                phaseShifterRegulationOn, t2wtSplitShuntAdmittance);
     }
 
     @Test
@@ -127,13 +127,13 @@ public class LoadFlowParametersTest {
         boolean transformerVoltageControlOn = true;
         boolean noGeneratorReactiveLimits = true;
         boolean phaseShifterRegulationOn = true;
-        boolean splitShuntAdmittanceXfmr2 = true;
+        boolean t2wtSplitShuntAdmittance = true;
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.UNIFORM_VALUES;
         LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode, transformerVoltageControlOn,
-                noGeneratorReactiveLimits, phaseShifterRegulationOn, splitShuntAdmittanceXfmr2);
+                noGeneratorReactiveLimits, phaseShifterRegulationOn, t2wtSplitShuntAdmittance);
         LoadFlowParameters parametersCloned = parameters.copy();
         checkValues(parametersCloned, parameters.getVoltageInitMode(), parameters.isTransformerVoltageControlOn(),
-                parameters.isNoGeneratorReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isSplitShuntAdmittanceXfmr2());
+                parameters.isNoGeneratorReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isT2wtSplitShuntAdmittance());
     }
 
     @Test

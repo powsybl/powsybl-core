@@ -49,8 +49,8 @@ public class AmplExportConfigTest {
         config.setExportRatioTapChangerVoltageTarget(true);
         assertTrue(config.isExportRatioTapChangerVoltageTarget());
 
-        assertFalse(config.isSplitShuntAdmittanceXfmr2());
-        config.setSplitShuntAdmittanceXfmr2(true);
-        assertTrue(config.isSplitShuntAdmittanceXfmr2());
+        assertFalse(config.isT2wtSplitShuntAdmittance());
+        config.setT2wtSplitShuntAdmittance(true);
+        assertTrue(config.isT2wtSplitShuntAdmittance());
     }
 }

@@ -64,9 +64,9 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     parameters.setPhaseShifterRegulationOn(parser.readValueAs(Boolean.class));
                     break;
 
-                case "splitShuntAdmittanceXfmr2":
+                case "t2wtSplitShuntAdmittance":
                     parser.nextToken();
-                    parameters.setSplitShuntAdmittanceXfmr2(parser.readValueAs(Boolean.class));
+                    parameters.setT2wtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
                     break;
 
                 case "extensions":
