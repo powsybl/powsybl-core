@@ -106,19 +106,6 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
     }
 
     @Override
-    public void checkCurrentSection(int currentSectionCount) {
-        checkCurrentSection(shuntCompensator, currentSectionCount);
-    }
-
-    @Override
-    public void checkCurrentSection(Validable validable, int currentSectionCount) {
-        ValidationUtil.checkSections(validable, currentSectionCount, getMaximumSectionCount());
-        if (!sections.containsKey(currentSectionCount)) {
-            throw new ValidationException(validable, invalidSectionNumberMessage(currentSectionCount, "susceptance nor conductance"));
-        }
-    }
-
-    @Override
     public int getMaximumSectionCount() {
         return sections.lastKey();
     }
@@ -135,6 +122,14 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
         return Optional.ofNullable(sections.get(sectionNum))
                 .map(SectionImpl::getG)
                 .orElseThrow(() -> new PowsyblException(invalidSectionNumberMessage(sectionNum, "conductance")));
+    }
+
+    @Override
+    void checkCurrentSection(Validable validable, int currentSectionCount) {
+        ValidationUtil.checkSections(validable, currentSectionCount, getMaximumSectionCount());
+        if (!sections.containsKey(currentSectionCount)) {
+            throw new ValidationException(validable, invalidSectionNumberMessage(currentSectionCount, "susceptance nor conductance"));
+        }
     }
 
     private static String invalidSectionNumberMessage(int sectionNum, String attributes) {

@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ShuntCompensatorModel;
+import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
 
 import java.util.Objects;
@@ -39,4 +40,10 @@ abstract class AbstractShuntCompensatorModel implements ShuntCompensatorModelHol
         throw new ValidationException(shuntCompensator, "incorrect shunt compensator model type " +
                 modelType.getName() + ", expected " + getClass());
     }
+
+    void checkCurrentSection(int currentSectionCount) {
+        checkCurrentSection(shuntCompensator, currentSectionCount);
+    }
+
+    abstract void checkCurrentSection(Validable validable, int currentSectionCount);
 }

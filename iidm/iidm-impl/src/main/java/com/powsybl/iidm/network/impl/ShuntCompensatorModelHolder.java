@@ -8,7 +8,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ShuntCompensatorModel;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
-import com.powsybl.iidm.network.Validable;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -20,10 +19,6 @@ interface ShuntCompensatorModelHolder extends ShuntCompensatorModel {
     ShuntCompensatorModel getModel();
 
     <M extends ShuntCompensatorModel> M getModel(Class<M> modelType);
-
-    void checkCurrentSection(int currentSectionCount);
-
-    void checkCurrentSection(Validable validable, int currentSectionCount);
 
     void setShuntCompensator(ShuntCompensatorImpl shuntCompensator);
 }

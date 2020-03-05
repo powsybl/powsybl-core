@@ -76,7 +76,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public ShuntCompensatorImpl setCurrentSectionCount(int currentSectionCount) {
-        model.checkCurrentSection(currentSectionCount);
+        model.getModel(AbstractShuntCompensatorModel.class).checkCurrentSection(currentSectionCount);
         int variantIndex = network.get().getVariantIndex();
         int oldValue = this.currentSectionCount.set(variantIndex, currentSectionCount);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);

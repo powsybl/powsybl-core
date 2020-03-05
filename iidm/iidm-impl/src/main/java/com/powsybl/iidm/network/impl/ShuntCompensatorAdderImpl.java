@@ -182,7 +182,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         if (model == null) {
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }
-        model.checkCurrentSection(this, currentSectionCount);
+        model.getModel(AbstractShuntCompensatorModel.class).checkCurrentSection(this, currentSectionCount);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV);
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband);
