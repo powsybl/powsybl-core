@@ -64,6 +64,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     parameters.setPhaseShifterRegulationOn(parser.readValueAs(Boolean.class));
                     break;
 
+                case "specificCompatibility":   // Keep the old tag name for compatibility
                 case "t2wtSplitShuntAdmittance":
                     parser.nextToken();
                     parameters.setT2wtSplitShuntAdmittance(parser.readValueAs(Boolean.class));

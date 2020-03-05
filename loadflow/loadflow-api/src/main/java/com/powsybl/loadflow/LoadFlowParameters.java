@@ -83,7 +83,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                     parameters.setTransformerVoltageControlOn(config.getBooleanProperty("transformerVoltageControlOn", DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON));
                     parameters.setNoGeneratorReactiveLimits(config.getBooleanProperty("noGeneratorReactiveLimits", DEFAULT_NO_GENERATOR_REACTIVE_LIMITS));
                     parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
-                    parameters.setT2wtSplitShuntAdmittance(config.getBooleanProperty("t2wtSplitShuntAdmittance", DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE));
+                    // keep old tag name "specificCompatibility" for compatibility
+                    parameters.setT2wtSplitShuntAdmittance(config.getBooleanProperty("t2wtSplitShuntAdmittance", config.getBooleanProperty("specificCompatibility", DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE)));
                 });
     }
 
@@ -163,8 +164,24 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
+    /**
+     * @deprecated Use {@link #isT2wtSplitShuntAdmittance} instead.
+     */
+    @Deprecated
+    public boolean isSpecificCompatibility() {
+        return isT2wtSplitShuntAdmittance();
+    }
+
     public boolean isT2wtSplitShuntAdmittance() {
         return t2wtSplitShuntAdmittance;
+    }
+
+    /**
+     * @deprecated Use {@link #setT2wtSplitShuntAdmittance} instead.
+     */
+    @Deprecated
+    public LoadFlowParameters setSpecificCompatibility(boolean t2wtSplitShuntAdmittance) {
+        return setT2wtSplitShuntAdmittance(t2wtSplitShuntAdmittance);
     }
 
     public LoadFlowParameters setT2wtSplitShuntAdmittance(boolean t2wtSplitShuntAdmittance) {
