@@ -37,7 +37,7 @@ public class PsseReader {
         return line.substring(0, slashIndex);
     }
 
-    private static String readLine(BufferedReader reader) throws IOException {
+    private static String readLineAndRemoveComment(BufferedReader reader) throws IOException {
         String line = reader.readLine();
         if (line == null) {
             return null;
@@ -45,7 +45,7 @@ public class PsseReader {
         return removeComment(line);
     }
 
-    private static <T> List<T> parseLines(List<String> lines, Class<T> aClass) {
+    private static <T> List<T> parseRecords(List<String> records, Class<T> aClass) {
         CsvParserSettings settings = new CsvParserSettings();
         settings.setHeaderExtractionEnabled(false);
         settings.setQuoteDetectionEnabled(true);
@@ -58,30 +58,31 @@ public class PsseReader {
         BeanListProcessor<T> processor = new BeanListProcessor<>(aClass);
         settings.setProcessor(processor);
         CsvParser parser = new CsvParser(settings);
-        for (String line : lines) {
-            parser.parseLine(line);
+        for (String record : records) {
+            parser.parseLine(record);
         }
         List<T> beans = processor.getBeans();
-        if (beans.size() != lines.size()) {
+        if (beans.size() != records.size()) {
             throw new PsseException("Parsing error");
         }
         return beans;
     }
 
-    private static List<String> readRecords(BufferedReader reader) throws IOException {
+    private static List<String> readRecordBlock(BufferedReader reader) throws IOException {
         String line;
-        List<String> lines = new ArrayList<>();
-        while ((line = readLine(reader)) != null) {
+        List<String> records = new ArrayList<>();
+        while ((line = readLineAndRemoveComment(reader)) != null) {
             if (line.startsWith("0")) {
                 break;
             }
-            lines.add(line);
+            records.add(line);
         }
-        return lines;
+        return records;
     }
 
-    private PsseCaseIdentification readCaseIdentification(BufferedReader reader, String line) throws IOException {
-        PsseCaseIdentification caseIdentification = parseLines(Collections.singletonList(line), PsseCaseIdentification.class).get(0);
+    private PsseCaseIdentification readCaseIdentification(BufferedReader reader) throws IOException {
+        String line = readLineAndRemoveComment(reader);
+        PsseCaseIdentification caseIdentification = parseRecords(Collections.singletonList(line), PsseCaseIdentification.class).get(0);
         caseIdentification.setTitle1(reader.readLine());
         caseIdentification.setTitle2(reader.readLine());
         return caseIdentification;
@@ -90,27 +91,25 @@ public class PsseReader {
     public PsseRawData read(BufferedReader reader) throws IOException {
         Objects.requireNonNull(reader);
 
-        String line = readLine(reader);
-
         // case identification
-        PsseCaseIdentification caseIdentification = readCaseIdentification(reader, line);
+        PsseCaseIdentification caseIdentification = readCaseIdentification(reader);
 
         PsseRawData rawData = new PsseRawData(caseIdentification);
 
         // bus data
-        rawData.getBuses().addAll(parseLines(readRecords(reader), PsseBus.class));
+        rawData.getBuses().addAll(parseRecords(readRecordBlock(reader), PsseBus.class));
 
         // load data
-        rawData.getLoads().addAll(parseLines(readRecords(reader), PsseLoad.class));
+        rawData.getLoads().addAll(parseRecords(readRecordBlock(reader), PsseLoad.class));
 
         // fixed shunt data
-        rawData.getFixedShunts().addAll(parseLines(readRecords(reader), PsseFixedShunt.class));
+        rawData.getFixedShunts().addAll(parseRecords(readRecordBlock(reader), PsseFixedShunt.class));
 
         // generator data
-        rawData.getGenerators().addAll(parseLines(readRecords(reader), PsseGenerator.class));
+        rawData.getGenerators().addAll(parseRecords(readRecordBlock(reader), PsseGenerator.class));
 
         // non transformer data
-        rawData.getNonTransformerBranches().addAll(parseLines(readRecords(reader), PsseNonTransformerBranch.class));
+        rawData.getNonTransformerBranches().addAll(parseRecords(readRecordBlock(reader), PsseNonTransformerBranch.class));
 
         return rawData;
     }
