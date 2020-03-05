@@ -14,54 +14,190 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseWinding {
 
-    @Parsed
+    @Parsed(index = 0)
     private double windv;
 
-    @Parsed
+    @Parsed(index = 1)
     private double nomv;
 
-    @Parsed
+    @Parsed(index = 2)
     private double ang;
 
-    @Parsed
+    @Parsed(index = 3)
     private double rata;
 
-    @Parsed
+    @Parsed(index = 4)
     private double ratb;
 
-    @Parsed
+    @Parsed(index = 5)
     private double ratc;
 
-    @Parsed
+    @Parsed(index = 6)
     private int cod;
 
-    @Parsed
+    @Parsed(index = 7)
     private int cont;
 
-    @Parsed
+    @Parsed(index = 8)
     private double rma;
 
-    @Parsed
+    @Parsed(index = 9)
     private double rmi;
 
-    @Parsed
+    @Parsed(index = 10)
     private double vma;
 
-    @Parsed
+    @Parsed(index = 11)
     private double vmi;
 
-    @Parsed
+    @Parsed(index = 12)
     private int ntp;
 
-    @Parsed
+    @Parsed(index = 13)
     private int tab;
 
-    @Parsed
+    @Parsed(index = 14)
     private double cr;
 
-    @Parsed
+    @Parsed(index = 15)
     private double cx;
 
-    @Parsed
+    @Parsed(index = 16)
     private double cnxa;
+
+    public double getWindv() {
+        return windv;
+    }
+
+    public void setWindv(double windv) {
+        this.windv = windv;
+    }
+
+    public double getNomv() {
+        return nomv;
+    }
+
+    public void setNomv(double nomv) {
+        this.nomv = nomv;
+    }
+
+    public double getAng() {
+        return ang;
+    }
+
+    public void setAng(double ang) {
+        this.ang = ang;
+    }
+
+    public double getRata() {
+        return rata;
+    }
+
+    public void setRata(double rata) {
+        this.rata = rata;
+    }
+
+    public double getRatb() {
+        return ratb;
+    }
+
+    public void setRatb(double ratb) {
+        this.ratb = ratb;
+    }
+
+    public double getRatc() {
+        return ratc;
+    }
+
+    public void setRatc(double ratc) {
+        this.ratc = ratc;
+    }
+
+    public int getCod() {
+        return cod;
+    }
+
+    public void setCod(int cod) {
+        this.cod = cod;
+    }
+
+    public int getCont() {
+        return cont;
+    }
+
+    public void setCont(int cont) {
+        this.cont = cont;
+    }
+
+    public double getRma() {
+        return rma;
+    }
+
+    public void setRma(double rma) {
+        this.rma = rma;
+    }
+
+    public double getRmi() {
+        return rmi;
+    }
+
+    public void setRmi(double rmi) {
+        this.rmi = rmi;
+    }
+
+    public double getVma() {
+        return vma;
+    }
+
+    public void setVma(double vma) {
+        this.vma = vma;
+    }
+
+    public double getVmi() {
+        return vmi;
+    }
+
+    public void setVmi(double vmi) {
+        this.vmi = vmi;
+    }
+
+    public int getNtp() {
+        return ntp;
+    }
+
+    public void setNtp(int ntp) {
+        this.ntp = ntp;
+    }
+
+    public int getTab() {
+        return tab;
+    }
+
+    public void setTab(int tab) {
+        this.tab = tab;
+    }
+
+    public double getCr() {
+        return cr;
+    }
+
+    public void setCr(double cr) {
+        this.cr = cr;
+    }
+
+    public double getCx() {
+        return cx;
+    }
+
+    public void setCx(double cx) {
+        this.cx = cx;
+    }
+
+    public double getCnxa() {
+        return cnxa;
+    }
+
+    public void setCnxa(double cnxa) {
+        this.cnxa = cnxa;
+    }
 }

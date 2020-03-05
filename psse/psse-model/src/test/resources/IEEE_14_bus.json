@@ -1,0 +1,18 @@
+{
+  "caseIdentification" : {
+    "ic" : 0,
+    "sbase" : 100.0,
+    "rev" : 33,
+    "xfrrat" : 0.0,
+    "nxfrat" : 0.0,
+    "basfrq" : 60.0,
+    "title1" : null,
+    "title2" : null
+  },
+  "buses" : [ ],
+  "loads" : [ ],
+  "fixedShunts" : [ ],
+  "generators" : [ ],
+  "nonTransformerBranches" : [ ],
+  "transformers" : [ ]
+}

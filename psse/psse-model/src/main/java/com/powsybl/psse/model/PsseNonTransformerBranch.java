@@ -14,75 +14,267 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseNonTransformerBranch {
 
-    @Parsed
+    @Parsed(index = 0)
     private int i;
 
-    @Parsed
+    @Parsed(index = 1)
     private int j;
 
-    @Parsed
+    @Parsed(index = 2)
     private String ckt;
 
-    @Parsed
+    @Parsed(index = 3)
     private double r;
 
-    @Parsed
+    @Parsed(index = 4)
     private double x;
 
-    @Parsed
+    @Parsed(index = 5)
     private double b;
 
-    @Parsed
+    @Parsed(index = 6)
     private double ratea;
 
-    @Parsed
+    @Parsed(index = 7)
     private double rateb;
 
-    @Parsed
+    @Parsed(index = 8)
     private double ratec;
 
-    @Parsed
+    @Parsed(index = 9)
     private double gi;
 
-    @Parsed
+    @Parsed(index = 10)
     private double bi;
 
-    @Parsed
+    @Parsed(index = 11)
     private double gj;
 
-    @Parsed
+    @Parsed(index = 12)
     private double bj;
 
-    @Parsed
+    @Parsed(index = 13)
     private int st;
 
-    @Parsed
+    @Parsed(index = 14)
     private int met;
 
-    @Parsed
+    @Parsed(index = 15)
     private double len;
 
-    @Parsed
+    @Parsed(index = 16)
     private int o1;
 
-    @Parsed
+    @Parsed(index = 17)
     private double f1;
 
-    @Parsed
+    @Parsed(index = 18)
     private int o2;
 
-    @Parsed
+    @Parsed(index = 19)
     private double f2;
 
-    @Parsed
+    @Parsed(index = 20)
     private int o3;
 
-    @Parsed
+    @Parsed(index = 21)
     private double f3;
 
-    @Parsed
+    @Parsed(index = 22)
     private int o4;
 
-    @Parsed
+    @Parsed(index = 23)
     private double f4;
+
+    public int getI() {
+        return i;
+    }
+
+    public void setI(int i) {
+        this.i = i;
+    }
+
+    public int getJ() {
+        return j;
+    }
+
+    public void setJ(int j) {
+        this.j = j;
+    }
+
+    public String getCkt() {
+        return ckt;
+    }
+
+    public void setCkt(String ckt) {
+        this.ckt = ckt;
+    }
+
+    public double getR() {
+        return r;
+    }
+
+    public void setR(double r) {
+        this.r = r;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public double getB() {
+        return b;
+    }
+
+    public void setB(double b) {
+        this.b = b;
+    }
+
+    public double getRatea() {
+        return ratea;
+    }
+
+    public void setRatea(double ratea) {
+        this.ratea = ratea;
+    }
+
+    public double getRateb() {
+        return rateb;
+    }
+
+    public void setRateb(double rateb) {
+        this.rateb = rateb;
+    }
+
+    public double getRatec() {
+        return ratec;
+    }
+
+    public void setRatec(double ratec) {
+        this.ratec = ratec;
+    }
+
+    public double getGi() {
+        return gi;
+    }
+
+    public void setGi(double gi) {
+        this.gi = gi;
+    }
+
+    public double getBi() {
+        return bi;
+    }
+
+    public void setBi(double bi) {
+        this.bi = bi;
+    }
+
+    public double getGj() {
+        return gj;
+    }
+
+    public void setGj(double gj) {
+        this.gj = gj;
+    }
+
+    public double getBj() {
+        return bj;
+    }
+
+    public void setBj(double bj) {
+        this.bj = bj;
+    }
+
+    public int getSt() {
+        return st;
+    }
+
+    public void setSt(int st) {
+        this.st = st;
+    }
+
+    public int getMet() {
+        return met;
+    }
+
+    public void setMet(int met) {
+        this.met = met;
+    }
+
+    public double getLen() {
+        return len;
+    }
+
+    public void setLen(double len) {
+        this.len = len;
+    }
+
+    public int getO1() {
+        return o1;
+    }
+
+    public void setO1(int o1) {
+        this.o1 = o1;
+    }
+
+    public double getF1() {
+        return f1;
+    }
+
+    public void setF1(double f1) {
+        this.f1 = f1;
+    }
+
+    public int getO2() {
+        return o2;
+    }
+
+    public void setO2(int o2) {
+        this.o2 = o2;
+    }
+
+    public double getF2() {
+        return f2;
+    }
+
+    public void setF2(double f2) {
+        this.f2 = f2;
+    }
+
+    public int getO3() {
+        return o3;
+    }
+
+    public void setO3(int o3) {
+        this.o3 = o3;
+    }
+
+    public double getF3() {
+        return f3;
+    }
+
+    public void setF3(double f3) {
+        this.f3 = f3;
+    }
+
+    public int getO4() {
+        return o4;
+    }
+
+    public void setO4(int o4) {
+        this.o4 = o4;
+    }
+
+    public double getF4() {
+        return f4;
+    }
+
+    public void setF4(double f4) {
+        this.f4 = f4;
+    }
 }

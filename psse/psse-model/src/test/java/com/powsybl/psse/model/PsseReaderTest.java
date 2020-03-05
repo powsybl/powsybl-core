@@ -7,11 +7,13 @@
 package com.powsybl.psse.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.ByteStreams;
 import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.*;
 
@@ -26,7 +28,9 @@ public class PsseReaderTest {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/IEEE_14_bus.raw")))) {
             PsseRawData rawData = new PsseReader().read(reader);
             assertNotNull(rawData);
-            new ObjectMapper().writerWithDefaultPrettyPrinter().writeValue(System.out, rawData);
+            String jsonRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus.json")), StandardCharsets.UTF_8);
+            String json = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(rawData);
+            assertEquals(jsonRef, json);
         }
     }
 }

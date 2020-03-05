@@ -14,18 +14,58 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseFixedShunt {
 
-    @Parsed
+    @Parsed(index = 0)
     private int i;
 
-    @Parsed
+    @Parsed(index = 1)
     private String id;
 
-    @Parsed
+    @Parsed(index = 2)
     private int status;
 
-    @Parsed
+    @Parsed(index = 3)
     private double gl;
 
-    @Parsed
+    @Parsed(index = 4)
     private double bl;
+
+    public int getI() {
+        return i;
+    }
+
+    public void setI(int i) {
+        this.i = i;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public double getGl() {
+        return gl;
+    }
+
+    public void setGl(double gl) {
+        this.gl = gl;
+    }
+
+    public double getBl() {
+        return bl;
+    }
+
+    public void setBl(double bl) {
+        this.bl = bl;
+    }
 }

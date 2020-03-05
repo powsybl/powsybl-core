@@ -28,14 +28,30 @@ public class PsseReader {
 
     private static final Logger LOGGGER = LoggerFactory.getLogger(PsseReader.class);
 
-    public PsseRawData read(BufferedReader reader) throws IOException {
+    private static String removeComment(String line) {
+        int slashIndex = line.lastIndexOf('/');
+        if (slashIndex == -1) {
+            return line;
+        }
+        return line.substring(0, slashIndex);
+    }
+
+    private static String readLine(BufferedReader reader) throws IOException {
         String line = reader.readLine();
+        if (line == null) {
+            return null;
+        }
+        return removeComment(line);
+    }
+
+    public PsseRawData read(BufferedReader reader) throws IOException {
+        String line = readLine(reader);
 
         PsseCaseIdentification caseIdentification = parseLines(Collections.singletonList(line), PsseCaseIdentification.class).get(0);
         PsseRawData rawData = new PsseRawData(caseIdentification);
 
         List<String> lines = new ArrayList<>();
-        while ((line = reader.readLine()) != null) {
+        while ((line = readLine(reader)) != null) {
 
         }
 

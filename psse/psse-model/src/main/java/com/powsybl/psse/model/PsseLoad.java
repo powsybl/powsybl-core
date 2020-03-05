@@ -14,45 +14,157 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseLoad {
 
-    @Parsed
+    @Parsed(index = 0)
     private int i;
 
-    @Parsed
+    @Parsed(index = 1)
     private String id;
 
-    @Parsed
+    @Parsed(index = 2)
     private int status;
 
-    @Parsed
+    @Parsed(index = 3)
     private int area;
 
-    @Parsed
+    @Parsed(index = 4)
     private int zone;
 
-    @Parsed
+    @Parsed(index = 5)
     private double pl;
 
-    @Parsed
+    @Parsed(index = 6)
     private double ql;
 
-    @Parsed
+    @Parsed(index = 7)
     private double ip;
 
-    @Parsed
+    @Parsed(index = 8)
     private double iq;
 
-    @Parsed
+    @Parsed(index = 9)
     private double yp;
 
-    @Parsed
+    @Parsed(index = 10)
     private double yq;
 
-    @Parsed
+    @Parsed(index = 11)
     private double owner;
 
-    @Parsed
+    @Parsed(index = 12)
     private double scale;
 
-    @Parsed
+    @Parsed(index = 13)
     private double intrpt;
+
+    public int getI() {
+        return i;
+    }
+
+    public void setI(int i) {
+        this.i = i;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public int getArea() {
+        return area;
+    }
+
+    public void setArea(int area) {
+        this.area = area;
+    }
+
+    public int getZone() {
+        return zone;
+    }
+
+    public void setZone(int zone) {
+        this.zone = zone;
+    }
+
+    public double getPl() {
+        return pl;
+    }
+
+    public void setPl(double pl) {
+        this.pl = pl;
+    }
+
+    public double getQl() {
+        return ql;
+    }
+
+    public void setQl(double ql) {
+        this.ql = ql;
+    }
+
+    public double getIp() {
+        return ip;
+    }
+
+    public void setIp(double ip) {
+        this.ip = ip;
+    }
+
+    public double getIq() {
+        return iq;
+    }
+
+    public void setIq(double iq) {
+        this.iq = iq;
+    }
+
+    public double getYp() {
+        return yp;
+    }
+
+    public void setYp(double yp) {
+        this.yp = yp;
+    }
+
+    public double getYq() {
+        return yq;
+    }
+
+    public void setYq(double yq) {
+        this.yq = yq;
+    }
+
+    public double getOwner() {
+        return owner;
+    }
+
+    public void setOwner(double owner) {
+        this.owner = owner;
+    }
+
+    public double getScale() {
+        return scale;
+    }
+
+    public void setScale(double scale) {
+        this.scale = scale;
+    }
+
+    public double getIntrpt() {
+        return intrpt;
+    }
+
+    public void setIntrpt(double intrpt) {
+        this.intrpt = intrpt;
+    }
 }
