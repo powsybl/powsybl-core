@@ -14,7 +14,7 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PsseRawData {
+public class PsseRawModel {
 
     private final PsseCaseIdentification caseIdentification;
 
@@ -30,7 +30,7 @@ public class PsseRawData {
 
     private final List<PsseTransformer> transformers = new ArrayList<>();
 
-    public PsseRawData(PsseCaseIdentification caseIdentification) {
+    public PsseRawModel(PsseCaseIdentification caseIdentification) {
         this.caseIdentification = Objects.requireNonNull(caseIdentification);
     }
 

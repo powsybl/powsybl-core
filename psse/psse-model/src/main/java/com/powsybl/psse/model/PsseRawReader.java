@@ -25,9 +25,9 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PsseReader {
+public class PsseRawReader {
 
-    private static final Logger LOGGGER = LoggerFactory.getLogger(PsseReader.class);
+    private static final Logger LOGGGER = LoggerFactory.getLogger(PsseRawReader.class);
 
     private static String removeComment(String line) {
         int slashIndex = line.lastIndexOf('/');
@@ -88,29 +88,29 @@ public class PsseReader {
         return caseIdentification;
     }
 
-    public PsseRawData read(BufferedReader reader) throws IOException {
+    public PsseRawModel read(BufferedReader reader) throws IOException {
         Objects.requireNonNull(reader);
 
         // case identification
         PsseCaseIdentification caseIdentification = readCaseIdentification(reader);
 
-        PsseRawData rawData = new PsseRawData(caseIdentification);
+        PsseRawModel model = new PsseRawModel(caseIdentification);
 
         // bus data
-        rawData.getBuses().addAll(parseRecords(readRecordBlock(reader), PsseBus.class));
+        model.getBuses().addAll(parseRecords(readRecordBlock(reader), PsseBus.class));
 
         // load data
-        rawData.getLoads().addAll(parseRecords(readRecordBlock(reader), PsseLoad.class));
+        model.getLoads().addAll(parseRecords(readRecordBlock(reader), PsseLoad.class));
 
         // fixed shunt data
-        rawData.getFixedShunts().addAll(parseRecords(readRecordBlock(reader), PsseFixedShunt.class));
+        model.getFixedShunts().addAll(parseRecords(readRecordBlock(reader), PsseFixedShunt.class));
 
         // generator data
-        rawData.getGenerators().addAll(parseRecords(readRecordBlock(reader), PsseGenerator.class));
+        model.getGenerators().addAll(parseRecords(readRecordBlock(reader), PsseGenerator.class));
 
         // non transformer data
-        rawData.getNonTransformerBranches().addAll(parseRecords(readRecordBlock(reader), PsseNonTransformerBranch.class));
+        model.getNonTransformerBranches().addAll(parseRecords(readRecordBlock(reader), PsseNonTransformerBranch.class));
 
-        return rawData;
+        return model;
     }
 }

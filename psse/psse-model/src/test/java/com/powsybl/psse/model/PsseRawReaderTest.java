@@ -21,12 +21,12 @@ import static org.junit.Assert.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PsseReaderTest {
+public class PsseRawReaderTest {
 
     @Test
     public void ieee14BusTest() throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/IEEE_14_bus.raw")))) {
-            PsseRawData rawData = new PsseReader().read(reader);
+            PsseRawModel rawData = new PsseRawReader().read(reader);
             assertNotNull(rawData);
             String jsonRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus.json")), StandardCharsets.UTF_8);
             String json = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(rawData);
