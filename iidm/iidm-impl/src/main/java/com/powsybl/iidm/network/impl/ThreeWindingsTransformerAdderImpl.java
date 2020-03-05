@@ -146,15 +146,15 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             if (legNumber == 1) {
                 voltageLevel1 = checkAndGetVoltageLevel();
                 terminal1 = checkAndGetTerminal();
-                leg1 = new LegImpl(r, x, g, b, ratedU, legNumber, ratedS);
+                leg1 = new LegImpl(r, x, g, b, ratedU, ratedS, legNumber);
             } else if (legNumber == 2) {
                 voltageLevel2 = checkAndGetVoltageLevel();
                 terminal2 = checkAndGetTerminal();
-                leg2 = new LegImpl(r, x, g, b, ratedU, legNumber, ratedS);
+                leg2 = new LegImpl(r, x, g, b, ratedU, ratedS, legNumber);
             } else {
                 voltageLevel3 = checkAndGetVoltageLevel();
                 terminal3 = checkAndGetTerminal();
-                leg3 = new LegImpl(r, x, g, b, ratedU, legNumber, ratedS);
+                leg3 = new LegImpl(r, x, g, b, ratedU, ratedS, legNumber);
             }
             return ThreeWindingsTransformerAdderImpl.this;
         }

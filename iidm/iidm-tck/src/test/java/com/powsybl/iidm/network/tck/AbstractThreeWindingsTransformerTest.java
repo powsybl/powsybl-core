@@ -420,7 +420,6 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     public void invalidRatedS() {
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
-        leg1.setRatedS(Double.NaN);
 
         thrown.expect(ValidationException.class);
         thrown.expectMessage("Invalid value of rated S 0.0");

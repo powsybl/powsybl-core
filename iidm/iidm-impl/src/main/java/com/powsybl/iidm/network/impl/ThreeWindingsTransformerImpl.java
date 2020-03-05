@@ -44,7 +44,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private int legNumber = 0;
 
-        LegImpl(double r, double x, double g, double b, double ratedU, int legNumber, double ratedS) {
+        LegImpl(double r, double x, double g, double b, double ratedU, double ratedS, int legNumber) {
             this.r = r;
             this.x = x;
             this.g = g;
