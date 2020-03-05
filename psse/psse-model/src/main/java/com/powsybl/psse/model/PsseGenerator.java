@@ -54,7 +54,7 @@ public class PsseGenerator {
     private double xt;
 
     @Parsed(index = 13)
-    private int gtap;
+    private double gtap;
 
     @Parsed(index = 14)
     private int stat;
@@ -202,11 +202,11 @@ public class PsseGenerator {
         this.xt = xt;
     }
 
-    public int getGtap() {
+    public double getGtap() {
         return gtap;
     }
 
-    public void setGtap(int gtap) {
+    public void setGtap(double gtap) {
         this.gtap = gtap;
     }
 

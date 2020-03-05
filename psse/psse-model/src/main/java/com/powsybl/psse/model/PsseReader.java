@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -42,20 +43,6 @@ public class PsseReader {
             return null;
         }
         return removeComment(line);
-    }
-
-    public PsseRawData read(BufferedReader reader) throws IOException {
-        String line = readLine(reader);
-
-        PsseCaseIdentification caseIdentification = parseLines(Collections.singletonList(line), PsseCaseIdentification.class).get(0);
-        PsseRawData rawData = new PsseRawData(caseIdentification);
-
-        List<String> lines = new ArrayList<>();
-        while ((line = readLine(reader)) != null) {
-
-        }
-
-        return rawData;
     }
 
     private static <T> List<T> parseLines(List<String> lines, Class<T> aClass) {
@@ -81,28 +68,50 @@ public class PsseReader {
         return beans;
     }
 
-    private void parseLines(List<String> lines, PsseRawData rawData, PsseDataType dataType) {
-        switch (dataType) {
-            case BUS:
-                rawData.getBuses().addAll(parseLines(lines, PsseBus.class));
+    private static List<String> readRecords(BufferedReader reader) throws IOException {
+        String line;
+        List<String> lines = new ArrayList<>();
+        while ((line = readLine(reader)) != null) {
+            if (line.startsWith("0")) {
                 break;
-            case LOAD:
-                rawData.getLoads().addAll(parseLines(lines, PsseLoad.class));
-                break;
-            case FIXED_SHUNT:
-                rawData.getFixedShunts().addAll(parseLines(lines, PsseFixedShunt.class));
-                break;
-            case GENERATOR:
-                rawData.getGenerators().addAll(parseLines(lines, PsseGenerator.class));
-                break;
-            case NON_TRANSFORMER_BRANCH:
-                rawData.getNonTransformerBranches().addAll(parseLines(lines, PsseNonTransformerBranch.class));
-                break;
-            case TRANSFORMER:
-                rawData.getTransformers().addAll(parseLines(lines, PsseTransformer.class));
-                break;
-            default:
-                throw new IllegalStateException("Data type unknown: " + dataType);
+            }
+            lines.add(line);
         }
+        return lines;
+    }
+
+    private PsseCaseIdentification readCaseIdentification(BufferedReader reader, String line) throws IOException {
+        PsseCaseIdentification caseIdentification = parseLines(Collections.singletonList(line), PsseCaseIdentification.class).get(0);
+        caseIdentification.setTitle1(reader.readLine());
+        caseIdentification.setTitle2(reader.readLine());
+        return caseIdentification;
+    }
+
+    public PsseRawData read(BufferedReader reader) throws IOException {
+        Objects.requireNonNull(reader);
+
+        String line = readLine(reader);
+
+        // case identification
+        PsseCaseIdentification caseIdentification = readCaseIdentification(reader, line);
+
+        PsseRawData rawData = new PsseRawData(caseIdentification);
+
+        // bus data
+        rawData.getBuses().addAll(parseLines(readRecords(reader), PsseBus.class));
+
+        // load data
+        rawData.getLoads().addAll(parseLines(readRecords(reader), PsseLoad.class));
+
+        // fixed shunt data
+        rawData.getFixedShunts().addAll(parseLines(readRecords(reader), PsseFixedShunt.class));
+
+        // generator data
+        rawData.getGenerators().addAll(parseLines(readRecords(reader), PsseGenerator.class));
+
+        // non transformer data
+        rawData.getNonTransformerBranches().addAll(parseLines(readRecords(reader), PsseNonTransformerBranch.class));
+
+        return rawData;
     }
 }

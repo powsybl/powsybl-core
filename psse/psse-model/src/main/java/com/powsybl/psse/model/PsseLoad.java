@@ -48,7 +48,7 @@ public class PsseLoad {
     private double yq;
 
     @Parsed(index = 11)
-    private double owner;
+    private int owner;
 
     @Parsed(index = 12)
     private double scale;
@@ -144,11 +144,11 @@ public class PsseLoad {
         this.yq = yq;
     }
 
-    public double getOwner() {
+    public int getOwner() {
         return owner;
     }
 
-    public void setOwner(double owner) {
+    public void setOwner(int owner) {
         this.owner = owner;
     }
 
