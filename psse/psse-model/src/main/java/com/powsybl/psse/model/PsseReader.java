@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,6 +46,7 @@ public class PsseReader {
     private static <T> List<T> parseLines(List<String> lines, Class<T> aClass) {
         CsvParserSettings settings = new CsvParserSettings();
         settings.setHeaderExtractionEnabled(false);
+        settings.getFormat().setLineSeparator("\n");
         settings.setProcessorErrorHandler(new RetryableErrorHandler<ParsingContext>() {
             @Override
             public void handleError(DataProcessingException error, Object[] inputRow, ParsingContext context) {
@@ -55,7 +57,7 @@ public class PsseReader {
         settings.setProcessor(processor);
         CsvParser parser = new CsvParser(settings);
         for (String line : lines) {
-            parser.parseLine(line);
+            Arrays.toString(parser.parseLine(line));
         }
         return processor.getBeans();
     }
