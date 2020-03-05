@@ -48,7 +48,7 @@ public class PsseReader {
     private static <T> List<T> parseLines(List<String> lines, Class<T> aClass) {
         CsvParserSettings settings = new CsvParserSettings();
         settings.setHeaderExtractionEnabled(false);
-        settings.getFormat().setLineSeparator("\n");
+        settings.setQuoteDetectionEnabled(true);
         settings.setProcessorErrorHandler(new RetryableErrorHandler<ParsingContext>() {
             @Override
             public void handleError(DataProcessingException error, Object[] inputRow, ParsingContext context) {
