@@ -7,6 +7,7 @@
 package com.powsybl.psse.model;
 
 import com.univocity.parsers.annotations.Parsed;
+import com.univocity.parsers.annotations.Validate;
 
 /**
  *
@@ -15,19 +16,20 @@ import com.univocity.parsers.annotations.Parsed;
 public class PsseFixedShunt {
 
     @Parsed(index = 0)
+    @Validate
     private int i;
 
     @Parsed(index = 1)
-    private String id;
+    private String id = "1";
 
     @Parsed(index = 2)
-    private int status;
+    private int status = 1;
 
     @Parsed(index = 3)
-    private double gl;
+    private double gl = 0;
 
     @Parsed(index = 4)
-    private double bl;
+    private double bl = 0;
 
     public int getI() {
         return i;

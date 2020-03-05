@@ -7,6 +7,7 @@
 package com.powsybl.psse.model;
 
 import com.univocity.parsers.annotations.Parsed;
+import com.univocity.parsers.annotations.Validate;
 
 /**
  *
@@ -15,102 +16,105 @@ import com.univocity.parsers.annotations.Parsed;
 public class PsseTransformer {
 
     @Parsed(index = 0)
+    @Validate
     private int i;
 
     @Parsed(index = 1)
+    @Validate
     private int j;
 
     @Parsed(index = 2)
-    private int k;
+    private int k = 0;
 
     @Parsed(index = 3)
-    private String ckt;
+    private String ckt = "1";
 
     @Parsed(index = 4)
-    private int cw;
+    private int cw = 1;
 
     @Parsed(index = 5)
-    private int cz;
+    private int cz = 1;
 
     @Parsed(index = 6)
-    private int cm;
+    private int cm = 1;
 
     @Parsed(index = 7)
-    private double mag1;
+    private double mag1 = 0;
 
     @Parsed(index = 8)
-    private double mag2;
+    private double mag2 = 0;
 
     @Parsed(index = 9)
-    private int nmetr;
+    private int nmetr = 2;
 
     @Parsed(index = 10)
-    private String name;
+    private String name = "            ";
 
     @Parsed(index = 11)
-    private int stat;
+    private int stat = 1;
 
     @Parsed(index = 12)
-    private int o1;
+    private int o1 = -1;
 
     @Parsed(index = 13)
-    private double f1;
+    private double f1 = 1;
 
     @Parsed(index = 14)
-    private int o2;
+    private int o2 = 0;
 
     @Parsed(index = 15)
-    private double f2;
+    private double f2 = 1;
 
     @Parsed(index = 16)
-    private int o3;
+    private int o3 = 0;
 
     @Parsed(index = 17)
-    private double f3;
+    private double f3 = 1;
 
     @Parsed(index = 18)
-    private int o4;
+    private int o4 = 0;
 
     @Parsed(index = 19)
-    private double f4;
+    private double f4 = 1;
 
     @Parsed(index = 20)
-    private String vecgrp;
+    private String vecgrp = "            ";
 
     public static class StarModel {
 
         @Parsed(index = 0)
-        private double r12;
+        private double r12 = 0;
 
         @Parsed(index = 1)
+        @Validate
         private double x12;
 
         @Parsed(index = 2)
-        private double sbase12;
+        private double sbase12 = Double.NaN;
 
         @Parsed(index = 3)
-        private double r23;
+        private double r23 = 0;
 
         @Parsed(index = 4)
-        private double x23;
+        private double x23 = Double.NaN;
 
         @Parsed(index = 5)
-        private double sbase23;
+        private double sbase23 = Double.NaN;
 
         @Parsed(index = 6)
-        private double r31;
+        private double r31 = 0;
 
         @Parsed(index = 7)
-        private double x31;
+        private double x31 = Double.NaN;
 
         @Parsed(index = 8)
-        private double sbase31;
+        private double sbase31 = Double.NaN;
 
         @Parsed(index = 9)
-        private double vmstar;
+        private double vmstar = 1;
 
         @Parsed(index = 10)
-        private double anstar;
+        private double anstar = 0;
 
         public double getR12() {
             return r12;
@@ -204,55 +208,55 @@ public class PsseTransformer {
     public static class Winding {
 
         @Parsed(index = 0)
-        private double windv;
+        private double windv = Double.NaN;
 
         @Parsed(index = 1)
-        private double nomv;
+        private double nomv = 0;
 
         @Parsed(index = 2)
-        private double ang;
+        private double ang = 0;
 
         @Parsed(index = 3)
-        private double rata;
+        private double rata = 0;
 
         @Parsed(index = 4)
-        private double ratb;
+        private double ratb = 0;
 
         @Parsed(index = 5)
-        private double ratc;
+        private double ratc = 0;
 
         @Parsed(index = 6)
-        private int cod;
+        private int cod = 0;
 
         @Parsed(index = 7)
-        private int cont;
+        private int cont = 0;
 
         @Parsed(index = 8)
-        private double rma;
+        private double rma = Double.NaN;
 
         @Parsed(index = 9)
-        private double rmi;
+        private double rmi = Double.NaN;
 
         @Parsed(index = 10)
-        private double vma;
+        private double vma = Double.NaN;
 
         @Parsed(index = 11)
-        private double vmi;
+        private double vmi = Double.NaN;
 
         @Parsed(index = 12)
-        private int ntp;
+        private int ntp = 33;
 
         @Parsed(index = 13)
-        private int tab;
+        private int tab = 0;
 
         @Parsed(index = 14)
-        private double cr;
+        private double cr = 0;
 
         @Parsed(index = 15)
-        private double cx;
+        private double cx = 0;
 
         @Parsed(index = 16)
-        private double cnxa;
+        private double cnxa = 0;
 
         public double getWindv() {
             return windv;

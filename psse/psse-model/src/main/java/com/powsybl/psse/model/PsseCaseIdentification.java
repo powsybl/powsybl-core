@@ -15,22 +15,22 @@ import com.univocity.parsers.annotations.Parsed;
 public class PsseCaseIdentification {
 
     @Parsed(index = 0)
-    private int ic;
+    private int ic = 0;
 
     @Parsed(index = 1)
-    private double sbase;
+    private double sbase = 100;
 
     @Parsed(index = 2)
-    private int rev;
+    private int rev = 33;
 
     @Parsed(index = 3)
-    private double xfrrat;
+    private double xfrrat = Double.NaN;
 
     @Parsed(index = 4)
-    private double nxfrat;
+    private double nxfrat = Double.NaN;
 
     @Parsed(index = 5)
-    private double basfrq;
+    private double basfrq = Double.NaN;
 
     private String title1;
 

@@ -7,6 +7,7 @@
 package com.powsybl.psse.model;
 
 import com.univocity.parsers.annotations.Parsed;
+import com.univocity.parsers.annotations.Validate;
 
 /**
  *
@@ -15,88 +16,89 @@ import com.univocity.parsers.annotations.Parsed;
 public class PsseGenerator {
 
     @Parsed(index = 0)
+    @Validate
     private int i;
 
     @Parsed(index = 1)
-    private String id;
+    private String id = "1";
 
     @Parsed(index = 2)
-    private double pg;
+    private double pg = 0;
 
     @Parsed(index = 3)
-    private double qg;
+    private double qg = 0;
 
     @Parsed(index = 4)
-    private double qt;
+    private double qt = 9999;
 
     @Parsed(index = 5)
-    private double qb;
+    private double qb = -9999;
 
     @Parsed(index = 6)
-    private double vs;
+    private double vs = 1;
 
     @Parsed(index = 7)
-    private int ireg;
+    private int ireg = 0;
 
     @Parsed(index = 8)
-    private double mbase;
+    private double mbase = Double.NaN;
 
     @Parsed(index = 9)
-    private double zr;
+    private double zr = 0;
 
     @Parsed(index = 10)
-    private double zx;
+    private double zx = 1;
 
     @Parsed(index = 11)
-    private double rt;
+    private double rt = 0;
 
     @Parsed(index = 12)
-    private double xt;
+    private double xt = 0;
 
     @Parsed(index = 13)
-    private double gtap;
+    private double gtap = 1;
 
     @Parsed(index = 14)
-    private int stat;
+    private int stat = 1;
 
     @Parsed(index = 15)
-    private double rmpct;
+    private double rmpct = 100;
 
     @Parsed(index = 16)
-    private double pt;
+    private double pt = 9999;
 
     @Parsed(index = 17)
-    private double pb;
+    private double pb = -9999;
 
     @Parsed(index = 18)
-    private int o1;
+    private int o1 = -1;
 
     @Parsed(index = 19)
-    private double f1;
+    private double f1 = 1;
 
     @Parsed(index = 20)
-    private int o2;
+    private int o2 = 0;
 
     @Parsed(index = 21)
-    private double f2;
+    private double f2 = 1;
 
     @Parsed(index = 22)
-    private int o3;
+    private int o3 = 0;
 
     @Parsed(index = 23)
-    private double f3;
+    private double f3 = 1;
 
     @Parsed(index = 24)
-    private int o4;
+    private int o4 = 0;
 
     @Parsed(index = 25)
-    private double f4;
+    private double f4 = 1;
 
     @Parsed(index = 26)
-    private int wmod;
+    private int wmod = 0;
 
     @Parsed(index = 27)
-    private double wpf;
+    private double wpf = 1;
 
     public int getI() {
         return i;

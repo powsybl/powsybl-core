@@ -7,6 +7,7 @@
 package com.powsybl.psse.model;
 
 import com.univocity.parsers.annotations.Parsed;
+import com.univocity.parsers.annotations.Validate;
 
 /**
  *
@@ -15,43 +16,44 @@ import com.univocity.parsers.annotations.Parsed;
 public class PsseBus {
 
     @Parsed(index = 0)
+    @Validate
     private int i;
 
     @Parsed(index = 1)
-    private String name;
+    private String name = "            ";
 
     @Parsed(index = 2)
-    private double baskv;
+    private double baskv = 0;
 
     @Parsed(index = 3)
-    private int ide;
+    private int ide = 1;
 
     @Parsed(index = 4)
-    private int area;
+    private int area = 1;
 
     @Parsed(index = 5)
-    private int zone;
+    private int zone = 1;
 
     @Parsed(index = 6)
-    private int owner;
+    private int owner = 1;
 
     @Parsed(index = 7)
-    private double vm;
+    private double vm = 1;
 
     @Parsed(index = 8)
-    private double va;
+    private double va = 0;
 
     @Parsed(index = 9)
-    private double nvhi;
+    private double nvhi = 1.1;
 
     @Parsed(index = 10)
-    private double nvlo;
+    private double nvlo = 0.9;
 
     @Parsed(index = 11)
-    private double evhi;
+    private double evhi = 1.1;
 
     @Parsed(index = 12)
-    private double evlo;
+    private double evlo = 0.9;
 
     public int getI() {
         return i;

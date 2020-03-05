@@ -7,6 +7,7 @@
 package com.powsybl.psse.model;
 
 import com.univocity.parsers.annotations.Parsed;
+import com.univocity.parsers.annotations.Validate;
 
 /**
  *
@@ -15,76 +16,80 @@ import com.univocity.parsers.annotations.Parsed;
 public class PsseNonTransformerBranch {
 
     @Parsed(index = 0)
+    @Validate
     private int i;
 
     @Parsed(index = 1)
+    @Validate
     private int j;
 
     @Parsed(index = 2)
-    private String ckt;
+    private String ckt = "1";
 
     @Parsed(index = 3)
+    @Validate
     private double r;
 
     @Parsed(index = 4)
+    @Validate
     private double x;
 
     @Parsed(index = 5)
-    private double b;
+    private double b = 0;
 
     @Parsed(index = 6)
-    private double ratea;
+    private double ratea = 0;
 
     @Parsed(index = 7)
-    private double rateb;
+    private double rateb = 0;
 
     @Parsed(index = 8)
-    private double ratec;
+    private double ratec = 0;
 
     @Parsed(index = 9)
-    private double gi;
+    private double gi = 0;
 
     @Parsed(index = 10)
-    private double bi;
+    private double bi = 0;
 
     @Parsed(index = 11)
-    private double gj;
+    private double gj = 0;
 
     @Parsed(index = 12)
-    private double bj;
+    private double bj = 0;
 
     @Parsed(index = 13)
-    private int st;
+    private int st = 1;
 
     @Parsed(index = 14)
-    private int met;
+    private int met = 0;
 
     @Parsed(index = 15)
-    private double len;
+    private double len = 0;
 
     @Parsed(index = 16)
-    private int o1;
+    private int o1 = -1;
 
     @Parsed(index = 17)
-    private double f1;
+    private double f1 = 1;
 
     @Parsed(index = 18)
-    private int o2;
+    private int o2 = 0;
 
     @Parsed(index = 19)
-    private double f2;
+    private double f2 = 1;
 
     @Parsed(index = 20)
-    private int o3;
+    private int o3 = 0;
 
     @Parsed(index = 21)
-    private double f3;
+    private double f3 = 1;
 
     @Parsed(index = 22)
-    private int o4;
+    private int o4 = 0;
 
     @Parsed(index = 23)
-    private double f4;
+    private double f4 = 1;
 
     public int getI() {
         return i;
