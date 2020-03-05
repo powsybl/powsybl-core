@@ -77,44 +77,327 @@ public class PsseTransformer {
     @Parsed(index = 20)
     private String vecgrp;
 
-    @Parsed(index = 21)
-    private double r12;
+    public static class StarModel {
 
-    @Parsed(index = 22)
-    private double x12;
+        @Parsed(index = 0)
+        private double r12;
 
-    @Parsed(index = 23)
-    private double sbase12;
+        @Parsed(index = 1)
+        private double x12;
 
-    @Parsed(index = 24)
-    private double r23;
+        @Parsed(index = 2)
+        private double sbase12;
 
-    @Parsed(index = 25)
-    private double x23;
+        @Parsed(index = 3)
+        private double r23;
 
-    @Parsed(index = 26)
-    private double sbase23;
+        @Parsed(index = 4)
+        private double x23;
 
-    @Parsed(index = 27)
-    private double r31;
+        @Parsed(index = 5)
+        private double sbase23;
 
-    @Parsed(index = 28)
-    private double x31;
+        @Parsed(index = 6)
+        private double r31;
 
-    @Parsed(index = 29)
-    private double sbase31;
+        @Parsed(index = 7)
+        private double x31;
 
-    @Parsed(index = 30)
-    private double vmstar;
+        @Parsed(index = 8)
+        private double sbase31;
 
-    @Parsed(index = 31)
-    private double anstar;
+        @Parsed(index = 9)
+        private double vmstar;
 
-    private PsseWinding winding1;
+        @Parsed(index = 10)
+        private double anstar;
 
-    private PsseWinding winding2;
+        public double getR12() {
+            return r12;
+        }
 
-    private PsseWinding winding3;
+        public void setR12(double r12) {
+            this.r12 = r12;
+        }
+
+        public double getX12() {
+            return x12;
+        }
+
+        public void setX12(double x12) {
+            this.x12 = x12;
+        }
+
+        public double getSbase12() {
+            return sbase12;
+        }
+
+        public void setSbase12(double sbase12) {
+            this.sbase12 = sbase12;
+        }
+
+        public double getR23() {
+            return r23;
+        }
+
+        public void setR23(double r23) {
+            this.r23 = r23;
+        }
+
+        public double getX23() {
+            return x23;
+        }
+
+        public void setX23(double x23) {
+            this.x23 = x23;
+        }
+
+        public double getSbase23() {
+            return sbase23;
+        }
+
+        public void setSbase23(double sbase23) {
+            this.sbase23 = sbase23;
+        }
+
+        public double getR31() {
+            return r31;
+        }
+
+        public void setR31(double r31) {
+            this.r31 = r31;
+        }
+
+        public double getX31() {
+            return x31;
+        }
+
+        public void setX31(double x31) {
+            this.x31 = x31;
+        }
+
+        public double getSbase31() {
+            return sbase31;
+        }
+
+        public void setSbase31(double sbase31) {
+            this.sbase31 = sbase31;
+        }
+
+        public double getVmstar() {
+            return vmstar;
+        }
+
+        public void setVmstar(double vmstar) {
+            this.vmstar = vmstar;
+        }
+
+        public double getAnstar() {
+            return anstar;
+        }
+
+        public void setAnstar(double anstar) {
+            this.anstar = anstar;
+        }
+    }
+
+    public static class Winding {
+
+        @Parsed(index = 0)
+        private double windv;
+
+        @Parsed(index = 1)
+        private double nomv;
+
+        @Parsed(index = 2)
+        private double ang;
+
+        @Parsed(index = 3)
+        private double rata;
+
+        @Parsed(index = 4)
+        private double ratb;
+
+        @Parsed(index = 5)
+        private double ratc;
+
+        @Parsed(index = 6)
+        private int cod;
+
+        @Parsed(index = 7)
+        private int cont;
+
+        @Parsed(index = 8)
+        private double rma;
+
+        @Parsed(index = 9)
+        private double rmi;
+
+        @Parsed(index = 10)
+        private double vma;
+
+        @Parsed(index = 11)
+        private double vmi;
+
+        @Parsed(index = 12)
+        private int ntp;
+
+        @Parsed(index = 13)
+        private int tab;
+
+        @Parsed(index = 14)
+        private double cr;
+
+        @Parsed(index = 15)
+        private double cx;
+
+        @Parsed(index = 16)
+        private double cnxa;
+
+        public double getWindv() {
+            return windv;
+        }
+
+        public void setWindv(double windv) {
+            this.windv = windv;
+        }
+
+        public double getNomv() {
+            return nomv;
+        }
+
+        public void setNomv(double nomv) {
+            this.nomv = nomv;
+        }
+
+        public double getAng() {
+            return ang;
+        }
+
+        public void setAng(double ang) {
+            this.ang = ang;
+        }
+
+        public double getRata() {
+            return rata;
+        }
+
+        public void setRata(double rata) {
+            this.rata = rata;
+        }
+
+        public double getRatb() {
+            return ratb;
+        }
+
+        public void setRatb(double ratb) {
+            this.ratb = ratb;
+        }
+
+        public double getRatc() {
+            return ratc;
+        }
+
+        public void setRatc(double ratc) {
+            this.ratc = ratc;
+        }
+
+        public int getCod() {
+            return cod;
+        }
+
+        public void setCod(int cod) {
+            this.cod = cod;
+        }
+
+        public int getCont() {
+            return cont;
+        }
+
+        public void setCont(int cont) {
+            this.cont = cont;
+        }
+
+        public double getRma() {
+            return rma;
+        }
+
+        public void setRma(double rma) {
+            this.rma = rma;
+        }
+
+        public double getRmi() {
+            return rmi;
+        }
+
+        public void setRmi(double rmi) {
+            this.rmi = rmi;
+        }
+
+        public double getVma() {
+            return vma;
+        }
+
+        public void setVma(double vma) {
+            this.vma = vma;
+        }
+
+        public double getVmi() {
+            return vmi;
+        }
+
+        public void setVmi(double vmi) {
+            this.vmi = vmi;
+        }
+
+        public int getNtp() {
+            return ntp;
+        }
+
+        public void setNtp(int ntp) {
+            this.ntp = ntp;
+        }
+
+        public int getTab() {
+            return tab;
+        }
+
+        public void setTab(int tab) {
+            this.tab = tab;
+        }
+
+        public double getCr() {
+            return cr;
+        }
+
+        public void setCr(double cr) {
+            this.cr = cr;
+        }
+
+        public double getCx() {
+            return cx;
+        }
+
+        public void setCx(double cx) {
+            this.cx = cx;
+        }
+
+        public double getCnxa() {
+            return cnxa;
+        }
+
+        public void setCnxa(double cnxa) {
+            this.cnxa = cnxa;
+        }
+    }
+
+    private StarModel starModel;
+
+    private Winding winding1;
+
+    private Winding winding2;
+
+    private Winding winding3;
 
     public int getI() {
         return i;
@@ -284,115 +567,35 @@ public class PsseTransformer {
         this.vecgrp = vecgrp;
     }
 
-    public double getR12() {
-        return r12;
+    public StarModel getStarModel() {
+        return starModel;
     }
 
-    public void setR12(double r12) {
-        this.r12 = r12;
+    public void setStarModel(StarModel starModel) {
+        this.starModel = starModel;
     }
 
-    public double getX12() {
-        return x12;
-    }
-
-    public void setX12(double x12) {
-        this.x12 = x12;
-    }
-
-    public double getSbase12() {
-        return sbase12;
-    }
-
-    public void setSbase12(double sbase12) {
-        this.sbase12 = sbase12;
-    }
-
-    public double getR23() {
-        return r23;
-    }
-
-    public void setR23(double r23) {
-        this.r23 = r23;
-    }
-
-    public double getX23() {
-        return x23;
-    }
-
-    public void setX23(double x23) {
-        this.x23 = x23;
-    }
-
-    public double getSbase23() {
-        return sbase23;
-    }
-
-    public void setSbase23(double sbase23) {
-        this.sbase23 = sbase23;
-    }
-
-    public double getR31() {
-        return r31;
-    }
-
-    public void setR31(double r31) {
-        this.r31 = r31;
-    }
-
-    public double getX31() {
-        return x31;
-    }
-
-    public void setX31(double x31) {
-        this.x31 = x31;
-    }
-
-    public double getSbase31() {
-        return sbase31;
-    }
-
-    public void setSbase31(double sbase31) {
-        this.sbase31 = sbase31;
-    }
-
-    public double getVmstar() {
-        return vmstar;
-    }
-
-    public void setVmstar(double vmstar) {
-        this.vmstar = vmstar;
-    }
-
-    public double getAnstar() {
-        return anstar;
-    }
-
-    public void setAnstar(double anstar) {
-        this.anstar = anstar;
-    }
-
-    public PsseWinding getWinding1() {
+    public Winding getWinding1() {
         return winding1;
     }
 
-    public void setWinding1(PsseWinding winding1) {
+    public void setWinding1(Winding winding1) {
         this.winding1 = winding1;
     }
 
-    public PsseWinding getWinding2() {
+    public Winding getWinding2() {
         return winding2;
     }
 
-    public void setWinding2(PsseWinding winding2) {
+    public void setWinding2(Winding winding2) {
         this.winding2 = winding2;
     }
 
-    public PsseWinding getWinding3() {
+    public Winding getWinding3() {
         return winding3;
     }
 
-    public void setWinding3(PsseWinding winding3) {
+    public void setWinding3(Winding winding3) {
         this.winding3 = winding3;
     }
 }

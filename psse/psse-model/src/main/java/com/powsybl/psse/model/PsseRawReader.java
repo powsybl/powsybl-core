@@ -45,6 +45,11 @@ public class PsseRawReader {
         return removeComment(line);
     }
 
+    private static <T> T parseRecord(String record, Class<T> aClass) {
+        List<T> beans = parseRecords(Collections.singletonList(record), aClass);
+        return beans.get(0);
+    }
+
     private static <T> List<T> parseRecords(List<String> records, Class<T> aClass) {
         CsvParserSettings settings = new CsvParserSettings();
         settings.setHeaderExtractionEnabled(false);
@@ -72,7 +77,7 @@ public class PsseRawReader {
         String line;
         List<String> records = new ArrayList<>();
         while ((line = readLineAndRemoveComment(reader)) != null) {
-            if (line.startsWith("0")) {
+            if (line.trim().equals("0")) {
                 break;
             }
             records.add(line);
@@ -82,10 +87,26 @@ public class PsseRawReader {
 
     private PsseCaseIdentification readCaseIdentification(BufferedReader reader) throws IOException {
         String line = readLineAndRemoveComment(reader);
-        PsseCaseIdentification caseIdentification = parseRecords(Collections.singletonList(line), PsseCaseIdentification.class).get(0);
+        PsseCaseIdentification caseIdentification = parseRecord(line, PsseCaseIdentification.class);
         caseIdentification.setTitle1(reader.readLine());
         caseIdentification.setTitle2(reader.readLine());
         return caseIdentification;
+    }
+
+    private List<PsseTransformer> readTransformers(BufferedReader reader) throws IOException {
+        List<PsseTransformer> transformers = new ArrayList<>();
+
+        List<String> records = readRecordBlock(reader);
+        int i = 0;
+        while (i < records.size()) {
+            PsseTransformer transformer = parseRecord(records.get(i++), PsseTransformer.class);
+            transformer.setStarModel(parseRecord(records.get(i++), PsseTransformer.StarModel.class));
+            transformer.setWinding1(parseRecord(records.get(i++), PsseTransformer.Winding.class));
+            transformer.setWinding2(parseRecord(records.get(i++), PsseTransformer.Winding.class));
+            transformers.add(transformer);
+        }
+
+        return transformers;
     }
 
     public PsseRawModel read(BufferedReader reader) throws IOException {
@@ -110,6 +131,9 @@ public class PsseRawReader {
 
         // non transformer data
         model.getNonTransformerBranches().addAll(parseRecords(readRecordBlock(reader), PsseNonTransformerBranch.class));
+
+        // transformer
+        model.getTransformers().addAll(readTransformers(reader));
 
         return model;
     }
