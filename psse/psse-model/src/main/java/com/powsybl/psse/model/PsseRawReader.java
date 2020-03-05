@@ -139,6 +139,45 @@ public class PsseRawReader {
         // transformer data
         model.getTransformers().addAll(readTransformers(reader));
 
+        // area data
+        model.getAreas().addAll(parseRecords(readRecordBlock(reader), PsseArea.class));
+
+        // 2-terminal DC data
+        readRecordBlock(reader); // TODO
+
+        // voltage source converter data
+        readRecordBlock(reader); // TODO
+
+        // impedance correction data
+        readRecordBlock(reader); // TODO
+
+        // multi-terminal DC data
+        readRecordBlock(reader); // TODO
+
+        // multi-section line data
+        readRecordBlock(reader); // TODO
+
+        // zone data
+        model.getZones().addAll(parseRecords(readRecordBlock(reader), PsseZone.class));
+
+        // inter-area transfer data
+        readRecordBlock(reader); // TODO
+
+        // owner data
+        model.getOwners().addAll(parseRecords(readRecordBlock(reader), PsseOwner.class));
+
+        // facts control device data
+        readRecordBlock(reader); // TODO
+
+        // switched shunt data
+        readRecordBlock(reader); // TODO
+
+        // gne device data
+        readRecordBlock(reader); // TODO
+
+        // q record (nothing to do)
+        readRecordBlock(reader);
+
         return model;
     }
 }

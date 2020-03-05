@@ -30,6 +30,12 @@ public class PsseRawModel {
 
     private final List<PsseTransformer> transformers = new ArrayList<>();
 
+    private final List<PsseArea> areas = new ArrayList<>();
+
+    private final List<PsseZone> zones = new ArrayList<>();
+
+    private final List<PsseOwner> owners = new ArrayList<>();
+
     public PsseRawModel(PsseCaseIdentification caseIdentification) {
         this.caseIdentification = Objects.requireNonNull(caseIdentification);
     }
@@ -60,5 +66,17 @@ public class PsseRawModel {
 
     public List<PsseTransformer> getTransformers() {
         return transformers;
+    }
+
+    public List<PsseArea> getAreas() {
+        return areas;
+    }
+
+    public List<PsseZone> getZones() {
+        return zones;
+    }
+
+    public List<PsseOwner> getOwners() {
+        return owners;
     }
 }

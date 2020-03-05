@@ -1179,5 +1179,20 @@
       "cnxa" : 0.0
     },
     "thirdRecord3" : null
+  } ],
+  "areas" : [ {
+    "i" : 1,
+    "isw" : 2,
+    "pdes" : 0.0,
+    "ptol" : 999.99,
+    "arname" : "IEEE14      "
+  } ],
+  "zones" : [ {
+    "i" : 1,
+    "zoname" : "IEEE 14 "
+  } ],
+  "owners" : [ {
+    "i" : 1,
+    "owname" : "1"
   } ]
 }
