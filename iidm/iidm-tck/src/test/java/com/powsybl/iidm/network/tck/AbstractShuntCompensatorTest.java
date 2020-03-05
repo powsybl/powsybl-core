@@ -387,6 +387,14 @@ public abstract class AbstractShuntCompensatorTest {
         } catch (ValidationException ignored) {
             // ignore
         }
+        try {
+            shuntCompensator.setVoltageRegulatorOn(false);
+            shuntCompensator.setTargetDeadband(Double.NaN);
+            shuntCompensator.setVoltageRegulatorOn(true);
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
         shuntCompensator.setTargetDeadband(5.0);
         assertEquals(5.0, shuntCompensator.getTargetDeadband(), 0.0);
     }
