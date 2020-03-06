@@ -49,16 +49,12 @@ public interface UndirectedGraph<V, E> {
     V removeVertex(int v);
 
     /**
-     * Return the number of vertices.
+     * Return the number of non-null vertices.
      * As the contiguity of vertices is not mandatory, the number of vertices can be less than the highest vertex index.
      *
      * @return the number of vertices.
      */
     int getVertexCount();
-
-    default int getMaximumVertexIndex() {
-        throw new UnsupportedOperationException();
-    }
 
     /**
      * Create an edge between the two specified vertices and notify the {@link UndirectedGraphListener}s.

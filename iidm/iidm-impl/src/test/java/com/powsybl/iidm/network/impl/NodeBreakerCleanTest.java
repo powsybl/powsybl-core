@@ -24,7 +24,6 @@ public class NodeBreakerCleanTest {
 
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
         assertEquals(6, topo.getMaximumNodeIndex());
-        assertEquals(7, topo.getNodeCapacity());
 
         assertNotNull(topo.getSwitch("load1Disconnector1"));
         assertNotNull(topo.getSwitch("load1Breaker1"));
@@ -37,7 +36,6 @@ public class NodeBreakerCleanTest {
         assertNull(topo.getSwitch("load1Disconnector1"));
         assertNull(topo.getSwitch("load1Breaker1"));
         assertEquals(6, topo.getMaximumNodeIndex());
-        assertEquals(7, topo.getNodeCapacity());
 
         assertNull(network.getSwitch("load1Disconnector1"));
         assertNull(network.getSwitch("load1Breaker1"));
@@ -52,7 +50,6 @@ public class NodeBreakerCleanTest {
         assertNull(topo.getSwitch("generator1Disconnector1"));
         assertNull(topo.getSwitch("generator1Breaker1"));
         assertEquals(5, topo.getMaximumNodeIndex());
-        assertEquals(6, topo.getNodeCapacity());
     }
 
 }

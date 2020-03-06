@@ -360,18 +360,17 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         /**
          * Get the count of used nodes (nodes attached to an equipment, a switch or an internal connection).
          *
-         * @deprecated Depending on your use case, use {@link #getMaximumNodeIndex()} or {@link #getNodeCapacity()}.
+         * @deprecated Use {@link #getMaximumNodeIndex()} instead.
          */
         @Deprecated
         default int getNodeCount() {
             throw new UnsupportedOperationException();
         }
 
+        /**
+         * Get the highest index of used nodes (i.e. attached to an equipment, a switch or an internal connection) in the voltage level.
+         */
         default int getMaximumNodeIndex() {
-            throw new UnsupportedOperationException();
-        }
-
-        default int getNodeCapacity() {
             throw new UnsupportedOperationException();
         }
 

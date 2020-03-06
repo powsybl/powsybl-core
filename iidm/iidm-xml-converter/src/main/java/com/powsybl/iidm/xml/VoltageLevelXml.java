@@ -86,7 +86,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
     private void writeNodeBreakerTopology(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), NODE_BREAKER_TOPOLOGY_ELEMENT_NAME);
-        IidmXmlUtil.writeIntAttributeUntilMaximumVersion(NODE_COUNT, vl.getNodeBreakerView().getNodeCapacity(), IidmXmlVersion.V_1_1, context);
+        IidmXmlUtil.writeIntAttributeUntilMaximumVersion(NODE_COUNT, vl.getNodeBreakerView().getMaximumNodeIndex() + 1, IidmXmlVersion.V_1_1, context);
         for (BusbarSection bs : vl.getNodeBreakerView().getBusbarSections()) {
             BusbarSectionXml.INSTANCE.write(bs, null, context);
         }

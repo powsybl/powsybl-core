@@ -292,12 +292,6 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         }
 
         @Override
-        public VoltageLevel.NodeBreakerView setNodeCount(final int count) {
-            getDelegate().setNodeCount(count);
-            return this;
-        }
-
-        @Override
         public int getInternalConnectionCount() {
             return getDelegate().getInternalConnectionCount();
         }

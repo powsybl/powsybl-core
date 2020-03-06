@@ -97,7 +97,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     private final Lock adjacencyListCacheLock = new ReentrantLock();
 
-    private final TIntLinkedList removedVertices = new TIntLinkedList();
+    private final TIntLinkedList availableVertices = new TIntLinkedList();
 
     private final TIntLinkedList removedEdges = new TIntLinkedList();
 
@@ -118,11 +118,11 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     @Override
     public int addVertex() {
         int v;
-        if (removedVertices.isEmpty()) {
+        if (availableVertices.isEmpty()) {
             v = vertices.size();
             vertices.add(new Vertex<V>());
         } else {
-            v = removedVertices.removeAt(0);
+            v = availableVertices.removeAt(0);
         }
         invalidateAdjacencyList();
         notifyListener();
@@ -132,14 +132,14 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     @Override
     public void addVertexIfNotPresent(int v) {
         if (v < vertices.size()) {
-            if (removedVertices.contains(v)) {
+            if (availableVertices.contains(v)) {
                 vertices.set(v, new Vertex<>());
-                removedVertices.remove(v);
+                availableVertices.remove(v);
             }
         } else {
             for (int i = vertices.size(); i < v; i++) {
                 vertices.add(null);
-                removedVertices.add(i);
+                availableVertices.add(i);
             }
             vertices.add(new Vertex<>());
         }
@@ -157,10 +157,11 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
         V obj = vertices.get(v).getObject();
         if (v == vertices.size() - 1) {
-            cleanVertices(v);
+            vertices.remove(v);
+            cleanVertices(v - 1);
         } else {
             vertices.set(v, null);
-            removedVertices.add(v);
+            availableVertices.add(v);
         }
         invalidateAdjacencyList();
         notifyListener();
@@ -168,26 +169,18 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     private void cleanVertices(int v) {
-        vertices.remove(v);
-        removedVertices.remove(v);
-        if (removedVertices.contains(v - 1)) {
-            cleanVertices(v - 1);
+        for (int i = v; i >= 0; i--) {
+            if (!availableVertices.contains(i)) {
+                return;
+            }
+            availableVertices.remove(i);
+            vertices.remove(i);
         }
     }
 
     @Override
     public int getVertexCount() {
-        return vertices.size() - removedVertices.size();
-    }
-
-    @Override
-    public int getMaximumVertexIndex() {
-        for (int i = vertices.size(); i > 0; i--) {
-            if (!removedVertices.contains(i - 1)) {
-                return i - 1;
-            }
-        }
-        return -1;
+        return vertices.size() - availableVertices.size();
     }
 
     @Override
@@ -196,7 +189,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             throw new PowsyblException("Cannot remove all vertices because there is still some edges in the graph");
         }
         vertices.clear();
-        removedVertices.clear();
+        availableVertices.clear();
         invalidateAdjacencyList();
         notifyListener();
     }

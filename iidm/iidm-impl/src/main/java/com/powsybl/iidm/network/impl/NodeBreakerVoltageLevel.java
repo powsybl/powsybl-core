@@ -566,7 +566,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     private final NodeBreakerViewExt nodeBreakerView = new NodeBreakerViewExt() {
 
         /**
-         * @deprecated Depending on your use case, use {@link #getMaximumNodeIndex()} or {@link #getNodeCapacity()}.
+         * @deprecated Use {@link #getMaximumNodeIndex()} instead.
          */
         @Override
         @Deprecated
@@ -576,12 +576,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public int getMaximumNodeIndex() {
-            return graph.getMaximumVertexIndex();
-        }
-
-        @Override
-        public int getNodeCapacity() {
-            return graph.getVertexCapacity();
+            return graph.getVertexCapacity() - 1;
         }
 
         @Override
@@ -666,6 +661,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 graph.removeEdge(ic);
             }
             clean();
+            invalidateCache();
         }
 
         @Override
