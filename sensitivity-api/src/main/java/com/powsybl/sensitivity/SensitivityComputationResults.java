@@ -51,10 +51,7 @@ public class SensitivityComputationResults {
     @JsonProperty("values")
     private final List<SensitivityValue> sensitivityValues;
 
-    @JsonProperty("contingencies present")
-    private final boolean contingenciesPresent;
-
-    @JsonProperty("contingencies values")
+    @JsonProperty("contingenciesValues")
     private final Map<String, List<SensitivityValue>> sensitivityValuesContingencies;
 
     /**
@@ -71,14 +68,12 @@ public class SensitivityComputationResults {
                                          @JsonProperty("metrics") Map<String, String> metrics,
                                          @JsonProperty("logs") String logs,
                                          @JsonProperty("values") List<SensitivityValue> sensitivityValues,
-                                         @JsonProperty("contingencies present") boolean contingenciesPresent,
-                                         @JsonProperty("contingencyId values") Map<String, List<SensitivityValue>> sensitivityValuesContingencies) {
+                                         @JsonProperty("contingenciesValues") Map<String, List<SensitivityValue>> sensitivityValuesContingencies) {
         this.ok = ok;
         this.metrics = Objects.requireNonNull(metrics);
         this.logs = Objects.requireNonNull(logs);
-        this.sensitivityValues = Objects.requireNonNull(sensitivityValues);
-        this.contingenciesPresent = contingenciesPresent;
-        this.sensitivityValuesContingencies = sensitivityValuesContingencies;
+        this.sensitivityValues = Collections.unmodifiableList(Objects.requireNonNull(sensitivityValues));
+        this.sensitivityValuesContingencies = Optional.ofNullable(sensitivityValuesContingencies).map(Collections::unmodifiableMap).orElse(Collections.emptyMap());
     }
 
     /**
@@ -126,7 +121,8 @@ public class SensitivityComputationResults {
      * @return a collection of all the sensitivity values associated with given function in state N.
      */
     public Collection<SensitivityValue> getSensitivityValuesByFunction(SensitivityFunction function) {
-        return sensitivityValues.stream().filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().equals(function)).collect(Collectors.toList());
+        return sensitivityValues.stream().filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().equals(function))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -136,7 +132,8 @@ public class SensitivityComputationResults {
      * @return a collection of all the sensitivity values associated with given variable in state N.
      */
     public Collection<SensitivityValue> getSensitivityValuesByVariable(SensitivityVariable variable) {
-        return sensitivityValues.stream().filter(sensitivityValue -> sensitivityValue.getFactor().getVariable().equals(variable)).collect(Collectors.toList());
+        return sensitivityValues.stream().filter(sensitivityValue -> sensitivityValue.getFactor().getVariable().equals(variable))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -175,7 +172,7 @@ public class SensitivityComputationResults {
      * @return true if the computation contains contingencies, false otherwise
      */
     public boolean contingenciesArePresent() {
-        return contingenciesPresent;
+        return !sensitivityValuesContingencies.isEmpty();
     }
 
     /**
@@ -184,7 +181,7 @@ public class SensitivityComputationResults {
      * @return a collection of all the sensitivity values for all contingencies.
      */
     public Map<String, List<SensitivityValue>> getSensitivityValuesContingencies() {
-        return sensitivityValuesContingencies;
+        return Collections.unmodifiableMap(sensitivityValuesContingencies);
     }
 
     /**
@@ -196,7 +193,9 @@ public class SensitivityComputationResults {
      * @return a collection of all the sensitivity values associated with given function for the given contingencyId
      */
     public Collection<SensitivityValue> getSensitivityValuesByFunction(SensitivityFunction function, String contingencyId) {
-        return sensitivityValuesContingencies.get(contingencyId).stream().filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().equals(function)).collect(Collectors.toList());
+        return sensitivityValuesContingencies.get(contingencyId).stream()
+                .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().equals(function))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -208,7 +207,9 @@ public class SensitivityComputationResults {
      * @return a collection of all the sensitivity values associated with given variable
      */
     public Collection<SensitivityValue> getSensitivityValuesByVariable(SensitivityVariable variable, String contingencyId) {
-        return sensitivityValuesContingencies.get(contingencyId).stream().filter(sensitivityValue -> sensitivityValue.getFactor().getVariable().equals(variable)).collect(Collectors.toList());
+        return sensitivityValuesContingencies.get(contingencyId).stream()
+                .filter(sensitivityValue -> sensitivityValue.getFactor().getVariable().equals(variable))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -220,13 +221,11 @@ public class SensitivityComputationResults {
      * @return the sensitivity value associated with given function and given variable
      */
     public SensitivityValue getSensitivityValue(SensitivityFunction function, SensitivityVariable variable, String contingencyId) {
-        Optional<SensitivityValue> returnValue;
-        returnValue = sensitivityValuesContingencies.get(contingencyId).stream().filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().equals(function)
-                && sensitivityValue.getFactor().getVariable().equals(variable)).findAny();
-        if (!returnValue.isPresent()) {
-            throw new NoSuchElementException(String.format("Sensitivity value not found for function %s and variable %s at contingencyId %s.", function.getId(), variable.getId(), contingencyId));
-        }
-        return returnValue.get();
+        return sensitivityValuesContingencies.get(contingencyId).stream()
+                .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().equals(function)
+                        && sensitivityValue.getFactor().getVariable().equals(variable))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException(String.format("Sensitivity value not found for function %s and variable %s at contingencyId %s.", function.getId(), variable.getId(), contingencyId)));
     }
 
     /**
@@ -237,15 +236,13 @@ public class SensitivityComputationResults {
      * @return the sensitivity value associated with given function and given variable
      */
     public SensitivityValue getSensitivityValue(SensitivityFactor factor, String contingencyId) {
-        Optional<SensitivityValue> returnValue;
-        returnValue = sensitivityValuesContingencies.get(contingencyId).stream().filter(sensitivityValue -> sensitivityValue.getFactor().equals(factor)).findAny();
-        if (!returnValue.isPresent()) {
-            throw new NoSuchElementException(String.format(VALUE_NOT_FOUND, factor.getFunction().getId(), factor.getVariable().getId()));
-        }
-        return returnValue.get();
+        return sensitivityValuesContingencies.get(contingencyId).stream()
+                .filter(sensitivityValue -> sensitivityValue.getFactor().equals(factor))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException(String.format(VALUE_NOT_FOUND, factor.getFunction().getId(), factor.getVariable().getId())));
     }
 
     public static SensitivityComputationResults empty() {
-        return new SensitivityComputationResults(false, Collections.emptyMap(), "", Collections.emptyList(), false, Collections.emptyMap());
+        return new SensitivityComputationResults(false, Collections.emptyMap(), "", Collections.emptyList(), Collections.emptyMap());
     }
 }

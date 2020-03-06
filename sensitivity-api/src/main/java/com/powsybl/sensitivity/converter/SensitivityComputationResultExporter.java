@@ -30,7 +30,7 @@ public interface SensitivityComputationResultExporter {
     String getComment();
 
     /**
-     * Export a result of a sensitivity computation without contingency
+     * Export a result of a sensitivity computation
      *
      * @param result The result of the sensitivity computation
      * @param writer The writer used for the export

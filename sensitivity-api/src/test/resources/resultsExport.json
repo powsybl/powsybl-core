@@ -99,6 +99,5 @@
     "functionReference" : 2.12,
     "variableReference" : 15.2
   } ],
-  "contingencies present" : false,
-  "contingencies values" : null
+  "contingenciesValues" : { }
 }

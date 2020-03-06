@@ -40,7 +40,7 @@ public class CsvSensitivityComputationResultExporterTest extends AbstractConvert
         });
         Map<String, List<SensitivityValue>> sensitivityValuesContingency = Collections.singletonMap("Contingency", sensitivityValues);
         // create result
-        return new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValues, true, sensitivityValuesContingency);
+        return new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValues, sensitivityValuesContingency);
     }
 
     public void writeCsv(SensitivityComputationResults results, Path path) {
