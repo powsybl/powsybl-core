@@ -18,7 +18,8 @@ import java.util.stream.Stream;
  */
 public enum IidmXmlVersion {
     V_1_0("itesla_project.eu", ImmutableList.of(1, 0)),
-    V_1_1("powsybl.org", ImmutableList.of(1, 1));
+    V_1_1("powsybl.org", ImmutableList.of(1, 1)),
+    V_1_2("powsybl.org", ImmutableList.of(1, 2));
 
     private final String domain;
     private final List<Integer> versionArray;
@@ -42,7 +43,7 @@ public enum IidmXmlVersion {
 
     public static IidmXmlVersion fromNamespaceURI(String namespaceURI) {
         String version = namespaceURI.substring(namespaceURI.lastIndexOf('/') + 1);
-        IidmXmlVersion v = of(version);
+        IidmXmlVersion v = of(version, "_");
         String namespaceUriV = v.getNamespaceURI();
         if (!namespaceURI.equals(namespaceUriV)) {
             throw new PowsyblException("Namespace " + namespaceURI + " is not supported. " +
@@ -51,9 +52,9 @@ public enum IidmXmlVersion {
         return v;
     }
 
-    public static IidmXmlVersion of(String version) {
+    public static IidmXmlVersion of(String version, String separator) {
         return Stream.of(IidmXmlVersion.values())
-                .filter(v -> version.equals(v.toString("_")))
+                .filter(v -> version.equals(v.toString(separator)))
                 .findFirst() // there can only be 0 or exactly 1 match
                 .orElseThrow(() -> new PowsyblException("Version " + version + " is not supported."));
     }

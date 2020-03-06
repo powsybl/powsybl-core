@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -28,53 +29,11 @@ public class TieLineAdapterTest {
     @Test
     public void testSetterGetter() {
         final TieLine tieLine = (TieLineAdapter) network.getLine("l1 + l2");
-
         assertTrue(tieLine.isTieLine());
 
-        // Not implemented yet !
-        TestUtil.notImplemented(tieLine::getTerminal1);
-        TestUtil.notImplemented(tieLine::getTerminal2);
-        TestUtil.notImplemented(() -> tieLine.getTerminal((Branch.Side) null));
-        TestUtil.notImplemented(() -> tieLine.getTerminal(""));
-        TestUtil.notImplemented(() -> tieLine.getSide((Terminal) null));
-        TestUtil.notImplemented(() -> tieLine.getCurrentLimits((Branch.Side) null));
-        TestUtil.notImplemented(tieLine::getCurrentLimits1);
-        TestUtil.notImplemented(tieLine::newCurrentLimits1);
-        TestUtil.notImplemented(tieLine::getCurrentLimits2);
-        TestUtil.notImplemented(tieLine::newCurrentLimits2);
-        TestUtil.notImplemented(tieLine::isOverloaded);
-        TestUtil.notImplemented(() -> tieLine.isOverloaded(0.0f));
-        TestUtil.notImplemented(tieLine::getOverloadDuration);
-        TestUtil.notImplemented(() -> tieLine.checkPermanentLimit((Branch.Side) null, 0.0f));
-        TestUtil.notImplemented(() -> tieLine.checkPermanentLimit((Branch.Side) null));
-        TestUtil.notImplemented(() -> tieLine.checkPermanentLimit1(0.0f));
-        TestUtil.notImplemented(tieLine::checkPermanentLimit1);
-        TestUtil.notImplemented(() -> tieLine.checkPermanentLimit2(0.0f));
-        TestUtil.notImplemented(tieLine::checkPermanentLimit2);
-        TestUtil.notImplemented(() -> tieLine.checkTemporaryLimits((Branch.Side) null, 0.0f));
-        TestUtil.notImplemented(() -> tieLine.checkTemporaryLimits((Branch.Side) null));
-        TestUtil.notImplemented(() -> tieLine.checkTemporaryLimits1(0.0f));
-        TestUtil.notImplemented(tieLine::checkTemporaryLimits1);
-        TestUtil.notImplemented(() -> tieLine.checkTemporaryLimits2(0.0f));
-        TestUtil.notImplemented(tieLine::checkTemporaryLimits2);
-        TestUtil.notImplemented(tieLine::getType);
-        TestUtil.notImplemented(tieLine::getTerminals);
-        TestUtil.notImplemented(tieLine::remove);
-        TestUtil.notImplemented(tieLine::getR);
-        TestUtil.notImplemented(() -> tieLine.setR(0.0d));
-        TestUtil.notImplemented(tieLine::getX);
-        TestUtil.notImplemented(() -> tieLine.setX(0.0d));
-        TestUtil.notImplemented(tieLine::getG1);
-        TestUtil.notImplemented(() -> tieLine.setG1(0.0d));
-        TestUtil.notImplemented(tieLine::getG2);
-        TestUtil.notImplemented(() -> tieLine.setG2(0.0d));
-        TestUtil.notImplemented(tieLine::getB1);
-        TestUtil.notImplemented(() -> tieLine.setB1(0.0d));
-        TestUtil.notImplemented(tieLine::getB2);
-        TestUtil.notImplemented(() -> tieLine.setB2(0.0d));
-        TestUtil.notImplemented(tieLine::getUcteXnodeCode);
-        TestUtil.notImplemented(tieLine::getHalf1);
-        TestUtil.notImplemented(tieLine::getHalf2);
+        assertEquals("XNODE", tieLine.getUcteXnodeCode());
+        assertNotNull(tieLine.getHalf1());
+        assertNotNull(tieLine.getHalf2());
     }
 
     private static Network createNetwork() {

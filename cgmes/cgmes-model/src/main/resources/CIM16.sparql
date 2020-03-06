@@ -542,6 +542,21 @@ WHERE {
     OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.b ?b }
 }
 
+# query: phaseTapChangerTablesPoints
+SELECT *
+WHERE {
+    ?PhaseTapChangerTablePoint
+        a cim:PhaseTapChangerTablePoint ;
+        cim:PhaseTapChangerTablePoint.PhaseTapChangerTable ?PhaseTapChangerTable ;
+        cim:PhaseTapChangerTablePoint.angle ?angle ;
+        cim:TapChangerTablePoint.step ?step .
+    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.ratio ?ratio }
+    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.r ?r }
+    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.x ?x }
+    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.g ?g }
+    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.b ?b }
+}
+
 # query: regulatingControls
 SELECT *
 WHERE {
@@ -901,3 +916,41 @@ WHERE {
 }}
 }
 
+# query: update
+DELETE { GRAPH <{0}>
+    { ?subject ?predicate ?value }
+    }
+INSERT { GRAPH <{0}>
+    { ?subjectIn {2} ?valueIn }
+    }
+WHERE {     
+{ GRAPH <{0}>
+    { ?subject  ?predicate  ?value .
+      FILTER ( (?subject = <{1}>) && (?predicate = IRI({2})) )
+    }
+}
+UNION
+{ GRAPH <{0}>
+    {     
+      BIND ( "{3}" AS ?object ) 
+      BIND ( IF ( "{4}"="true", IRI(?object), ?object) AS ?valueIn ) .
+      BIND ( IF ( BOUND (?subject), ?subject, IRI(<{1}>)) AS ?subjectIn ) .
+    }
+}
+}
+
+# query: create
+INSERT { GRAPH <{0}> 
+    { ?subject  {2} ?value .}
+    }
+WHERE {
+    SELECT ?subject ?value
+    WHERE { GRAPH <{0}> {
+      BIND ( "{3}" AS ?object) 
+      BIND ( IF ("{4}"="true", IRI(?object), ?object) AS ?value) .
+      BIND ( IRI(<{1}>) AS ?subject ).
+    }
+}
+}
+
+# query: remove

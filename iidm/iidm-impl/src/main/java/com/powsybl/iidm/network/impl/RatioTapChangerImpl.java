@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationUtil;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.HashSet;
@@ -31,7 +32,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     RatioTapChangerImpl(RatioTapChangerParent parent, int lowTapPosition,
                         List<RatioTapChangerStepImpl> steps, TerminalExt regulationTerminal, boolean loadTapChangingCapabilities,
                         int tapPosition, boolean regulating, double targetV, double targetDeadband) {
-        super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, targetDeadband);
+        super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, targetDeadband, "ratio tap changer");
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.targetV = new TDoubleArrayList(variantArraySize);

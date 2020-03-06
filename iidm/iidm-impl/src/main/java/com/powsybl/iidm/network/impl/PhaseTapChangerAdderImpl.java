@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -192,9 +194,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
                     + highTapPosition + "]");
         }
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, regulating, regulationTerminal, getNetwork());
-        if (!Double.isNaN(targetDeadband) && targetDeadband < 0) {
-            throw new ValidationException(parent, "Unexpected value for target deadband of phase tap changer: " + targetDeadband);
-        }
+        ValidationUtil.checkTargetDeadband(parent, "phase tap changer", regulating, targetDeadband);
         PhaseTapChangerImpl tapChanger
                 = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
 

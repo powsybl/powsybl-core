@@ -110,4 +110,10 @@ public class TwoWindingsTransformerAdderAdapter extends AbstractIdentifiableAdde
         getDelegate().setRatedU2(ratedU2);
         return this;
     }
+
+    @Override
+    public TwoWindingsTransformerAdder setRatedS(double ratedS) {
+        getDelegate().setRatedS(ratedS);
+        return this;
+    }
 }

@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationUtil;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.HashSet;
@@ -32,7 +33,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     PhaseTapChangerImpl(PhaseTapChangerParent parent, int lowTapPosition,
                         List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal,
                         int tapPosition, boolean regulating, RegulationMode regulationMode, double regulationValue, double targetDeadband) {
-        super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, targetDeadband);
+        super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, targetDeadband, "phase tap changer");
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.regulationMode = regulationMode;
         this.regulationValue = new TDoubleArrayList(variantArraySize);

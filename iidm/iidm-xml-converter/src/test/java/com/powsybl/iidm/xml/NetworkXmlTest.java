@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
@@ -45,10 +46,10 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
         roundTripXmlTest(createEurostagTutorialExample1(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial-example1.xml");
+                getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_XML_VERSION));
 
-        // backward compatibility 1.0
-        roundTripVersionnedXmlTest("eurostag-tutorial-example1.xml", IidmXmlVersion.V_1_0);
+        // backward compatibility
+        roundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
     }
 
     @Test
@@ -57,6 +58,8 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
         network.getGenerator("GEN").setProperty("test", "foo");
         Path xmlFile = tmpDir.resolve("n.xml");
         NetworkXml.writeAndValidate(network, xmlFile);
+        Network readNetwork = NetworkXml.read(xmlFile);
+        assertEquals("foo", readNetwork.getGenerator("GEN").getProperty("test"));
     }
 
     @Test
@@ -71,41 +74,11 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
     }
 
     @AutoService(ExtensionXmlSerializer.class)
-    public static class BusbarSectionExtXmlSerializer implements ExtensionXmlSerializer<BusbarSection, BusbarSectionExt> {
+    public static class BusbarSectionExtXmlSerializer extends AbstractExtensionXmlSerializer<BusbarSection, BusbarSectionExt> {
 
-        @Override
-        public String getExtensionName() {
-            return "busbarSectionExt";
-        }
-
-        @Override
-        public String getCategoryName() {
-            return "network";
-        }
-
-        @Override
-        public Class<? super BusbarSectionExt> getExtensionClass() {
-            return BusbarSectionExt.class;
-        }
-
-        @Override
-        public boolean hasSubElements() {
-            return false;
-        }
-
-        @Override
-        public InputStream getXsdAsStream() {
-            return getClass().getResourceAsStream("/xsd/busbarSectionExt.xsd");
-        }
-
-        @Override
-        public String getNamespaceUri() {
-            return "http://www.itesla_project.eu/schema/iidm/ext/busbarSectionExt/1_0";
-        }
-
-        @Override
-        public String getNamespacePrefix() {
-            return "bbse";
+        public BusbarSectionExtXmlSerializer() {
+            super("busbarSectionExt", "network", BusbarSectionExt.class, false, "busbarSectionExt.xsd",
+                    "http://www.itesla_project.eu/schema/iidm/ext/busbarSectionExt/1_0", "bbse");
         }
 
         @Override

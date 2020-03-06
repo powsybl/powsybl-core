@@ -72,7 +72,7 @@ public class Comparison {
                 expected.getVoltageLevelStream(),
                 actual.getVoltageLevelStream(),
                 this::compareVoltageLevels);
-        compare(
+        compareBuses(
                 expected.getBusBreakerView().getBusStream(),
                 actual.getBusBreakerView().getBusStream(),
                 this::compareBuses);
@@ -149,6 +149,42 @@ public class Comparison {
         });
     }
 
+    // Buses in bus breaker view are not inserted in the index for Network Identifiables
+    // We prepare an index external to the network for comparing the two lists
+    private void compareBuses(
+        Stream<Bus> expecteds,
+        Stream<Bus> actuals,
+        BiConsumer<Bus, Bus> testAttributes) {
+        Map<String, Bus> actualsById = new HashMap<>();
+        actuals.forEach(b -> actualsById.put(b.getId(), b));
+        Map<String, Bus> expectedsById = new HashMap<>();
+        expecteds.forEach(b -> expectedsById.put(b.getId(), b));
+
+        actualsById.values().forEach(actual -> {
+            Bus expected = expectedsById.get(actual.getId());
+            if (expected == null) {
+                diff.unexpected(actual);
+                return;
+            }
+            String context = className(actual);
+            compare(context, expected.getClass(), actual.getClass());
+        });
+        expectedsById.values().forEach(expected -> {
+            Bus actual = actualsById.get(expected.getId());
+            if (actual == null) {
+                diff.missing(expected);
+                return;
+            }
+            diff.match(expected);
+            diff.current(expected);
+            String context = className(actual);
+            compare(context, expected.getClass(), actual.getClass());
+            context = context + ".name";
+            compareNames(context, expected.getName(), actual.getName());
+            testAttributes.accept((Bus) expected, actual);
+        });
+    }
+
     private void compareSubstations(Substation expected, Substation actual) {
         compare("country", expected.getCountry(), actual.getCountry());
         Set<String> mappedActualGeoTags = actual.getGeographicalTags().stream()
@@ -222,13 +258,16 @@ public class Comparison {
         compare("regulationMode",
                 expected.getRegulationMode(),
                 actual.getRegulationMode());
+        sameIdentifier("regulationTerminal",
+                expected.getRegulatingTerminal().getBusBreakerView().getBus(),
+                actual.getRegulatingTerminal().getBusBreakerView().getBus());
     }
 
     private void compareGenerators(Generator expected, Generator actual) {
         equivalent("VoltageLevel",
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
-        equivalent("ConnectableBus",
+        sameIdentifier("ConnectableBus",
                 expected.getTerminal().getBusBreakerView().getConnectableBus(),
                 actual.getTerminal().getBusBreakerView().getConnectableBus());
         Bus be = expected.getTerminal().getBusBreakerView().getBus();
@@ -243,7 +282,7 @@ public class Comparison {
                 diff.missing(be);
                 return;
             }
-            equivalent("Bus", be, ba);
+            sameIdentifier("Bus", be, ba);
         }
         compare("minP", expected.getMinP(), actual.getMinP());
         compare("maxP", expected.getMaxP(), actual.getMaxP());
@@ -257,7 +296,7 @@ public class Comparison {
         if (config.checkGeneratorRegulatingTerminal
                 && (expected.getRegulatingTerminal() != null
                 || actual.getRegulatingTerminal() != null)) {
-            equivalent("RegulatingTerminalBus",
+            sameIdentifier("RegulatingTerminalBus",
                     expected.getRegulatingTerminal().getBusBreakerView().getBus(),
                     actual.getRegulatingTerminal().getBusBreakerView().getBus());
         }
@@ -561,7 +600,7 @@ public class Comparison {
                     diff.missing("TapChanger regulating terminal");
                     return;
                 }
-                equivalent("tapChanger.getRegulationTerminal",
+                sameIdentifier("tapChanger.getRegulationTerminal",
                         expected.getRegulationTerminal().getBusBreakerView().getBus(),
                         actual.getRegulationTerminal().getBusBreakerView().getBus());
             }
@@ -637,6 +676,23 @@ public class Comparison {
             Identifiable actual) {
         if (!networkMapping.equivalent(expected, actual)) {
             diff.notEquivalent(context, expected, actual);
+        }
+    }
+
+    private void sameIdentifier(
+        String context,
+        Identifiable expected,
+        Identifiable actual) {
+        boolean sameIdentifier;
+        if (expected == null) {
+            sameIdentifier = actual == null;
+        } else if (actual == null) {
+            sameIdentifier = false;
+        } else {
+            sameIdentifier = expected.getId().equals(actual.getId());
+        }
+        if (!sameIdentifier) {
+            diff.notSameIdentifier(context, expected, actual);
         }
     }
 

@@ -92,6 +92,12 @@ public class UcteExporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void shouldNotUseScientificalNotationForExport() throws IOException {
+        Network network = loadNetworkFromResourceFile("/testGridNoScientificNotation.uct");
+        testExporter(network, "/testGridNoScientificNotation.uct");
+    }
+
+    @Test
     public void testDefaultOneNamingStrategy() {
         NamingStrategy defaultNamingStrategy = UcteExporter.findNamingStrategy(null, ImmutableList.of(new DefaultNamingStrategy()));
         assertEquals("Default", defaultNamingStrategy.getName());
@@ -121,5 +127,11 @@ public class UcteExporterTest extends AbstractConverterTest {
         assertEquals("Default", namingStrategy.getName());
         namingStrategy = UcteExporter.findNamingStrategy("OtherNamingStrategy", ImmutableList.of(new DefaultNamingStrategy(), new OtherNamingStrategy()));
         assertEquals("OtherNamingStrategy", namingStrategy.getName());
+    }
+
+    @Test
+    public void testWithIdDuplicationBetweenLineAndTransformer() throws IOException {
+        Network network = loadNetworkFromResourceFile("/id_duplication_test.uct");
+        testExporter(network, "/id_duplication_test.uct");
     }
 }

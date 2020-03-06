@@ -7,6 +7,8 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
+import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.Terminal;
 
 /**
  *
@@ -21,6 +23,14 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     private int maximumSectionCount;
 
     private int currentSectionCount;
+
+    private double targetV = Double.NaN;
+
+    private double targetDeadband = Double.NaN;
+
+    private TerminalExt regulatingTerminal;
+
+    private boolean voltageRegulatorOn = false;
 
     ShuntCompensatorAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
@@ -55,15 +65,43 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     }
 
     @Override
+    public ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
+        this.regulatingTerminal = (TerminalExt) regulatingTerminal;
+        return this;
+    }
+
+    @Override
+    public ShuntCompensatorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        this.voltageRegulatorOn = voltageRegulatorOn;
+        return this;
+    }
+
+    @Override
+    public ShuntCompensatorAdder setTargetV(double targetV) {
+        this.targetV = targetV;
+        return this;
+    }
+
+    @Override
+    public ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
+        this.targetDeadband = targetDeadband;
+        return this;
+    }
+
+    @Override
     public ShuntCompensatorImpl add() {
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkbPerSection(this, bPerSection);
         ValidationUtil.checkSections(this, currentSectionCount, maximumSectionCount);
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV);
+        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband);
         ShuntCompensatorImpl shunt
                 = new ShuntCompensatorImpl(getNetwork().getRef(),
-                                           id, getName(), bPerSection, maximumSectionCount,
-                                           currentSectionCount);
+                id, getName(), bPerSection, maximumSectionCount,
+                currentSectionCount, regulatingTerminal == null ? terminal : regulatingTerminal,
+                voltageRegulatorOn, targetV, targetDeadband);
         shunt.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(shunt);

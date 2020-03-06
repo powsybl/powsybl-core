@@ -6,11 +6,7 @@
  */
 package com.powsybl.ucte.network;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  *
@@ -18,7 +14,8 @@ import java.util.Optional;
  */
 public class UcteElementId implements Comparable<UcteElementId> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UcteElementId.class);
+    private static final List<Character> ORDER_CODES = Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
+        'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', '-', '.', ' ');
 
     private final UcteNodeCode nodeCode1;
     private final UcteNodeCode nodeCode2;
@@ -105,7 +102,7 @@ public class UcteElementId implements Comparable<UcteElementId> {
 
     public static boolean isUcteElementId(String id) {
         return id != null &&
-                id.length() == 19 &&
+                id.length() >= 19 &&
                 UcteNodeCode.isUcteNodeId(id.substring(0, 8)) &&
                 id.charAt(8) == ' ' &&
                 UcteNodeCode.isUcteNodeId(id.substring(9, 17)) &&
@@ -114,9 +111,11 @@ public class UcteElementId implements Comparable<UcteElementId> {
     }
 
     private static boolean isOrderCode(char orderCode) {
-        if (orderCode == '0') {
-            LOGGER.warn("Invalid order code: {}", orderCode);
-        }
-        return (orderCode >= '0' && orderCode <= '9') || (orderCode >= 'A' && orderCode <= 'Z');
+        /*
+           Update to match modification on UCTE format
+           The new update is available on the ENTSO-E website:
+           https://docstore.entsoe.eu/Documents/Publications/SOC/Continental_Europe/150420_quality_of_datasets_and_calculations_3rd_edition.pdf
+         */
+        return ORDER_CODES.contains(orderCode);
     }
 }

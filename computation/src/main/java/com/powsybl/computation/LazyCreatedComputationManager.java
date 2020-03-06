@@ -51,6 +51,11 @@ public class LazyCreatedComputationManager implements ComputationManager {
     }
 
     @Override
+    public <R> CompletableFuture<R> execute(ExecutionEnvironment environment, ExecutionHandler<R> handler, ComputationParameters parameters) {
+        return getComputationManager().execute(environment, handler, parameters);
+    }
+
+    @Override
     public ComputationResourcesStatus getResourcesStatus() {
         return getComputationManager().getResourcesStatus();
     }

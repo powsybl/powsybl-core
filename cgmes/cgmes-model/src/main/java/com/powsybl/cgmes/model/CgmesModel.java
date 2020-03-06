@@ -24,6 +24,7 @@ import java.util.function.Consumer;
  */
 public interface CgmesModel {
 
+    // FIXME generic cgmes models may not have an underlying triplestore
     TripleStore tripleStore();
 
     Properties getProperties();
@@ -115,6 +116,8 @@ public interface CgmesModel {
 
     PropertyBags ratioTapChangerTablesPoints();
 
+    PropertyBags phaseTapChangerTablesPoints();
+
     PropertyBags ratioTapChangerTable(String tableId);
 
     PropertyBags phaseTapChangerTable(String tableId);
@@ -135,13 +138,13 @@ public interface CgmesModel {
 
     void print(Consumer<String> liner);
 
-    // read/write
-
     static String baseName(ReadOnlyDataSource ds) {
         return new CgmesOnDataSource(ds).baseName();
     }
 
     void setBasename(String baseName);
+
+    String getBasename();
 
     void write(DataSource ds);
 
@@ -164,9 +167,21 @@ public interface CgmesModel {
 
     // TODO(Luma) refactoring node-breaker conversion temporal
 
-    String substation(CgmesTerminal t);
+    /**
+     * Obtain the substation of a given terminal.
+     *
+     * @param t the terminal
+     * @param nodeBreaker to determine the terminal container, use node-breaker connectivity information first
+     */
+    String substation(CgmesTerminal t, boolean nodeBreaker);
 
-    String voltageLevel(CgmesTerminal t);
+    /**
+     * Obtain the voltage level grouping in which a given terminal is contained.
+     *
+     * @param t the terminal
+     * @param nodeBreaker to determine the terminal container, use node-breaker connectivity information first
+     */
+    String voltageLevel(CgmesTerminal t, boolean nodeBreaker);
 
     CgmesContainer container(String containerId);
 

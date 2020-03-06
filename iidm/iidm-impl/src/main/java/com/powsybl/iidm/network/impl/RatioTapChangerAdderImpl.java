@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -181,9 +183,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                     + highTapPosition + "]");
         }
         ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, regulationTerminal, targetV, getNetwork());
-        if (!Double.isNaN(targetDeadband) && targetDeadband < 0) {
-            throw new ValidationException(parent, "Unexpected value for target deadband of ratio tap changer: " + targetDeadband);
-        }
+        ValidationUtil.checkTargetDeadband(parent, "ratio tap changer", regulating, targetDeadband);
         RatioTapChangerImpl tapChanger
                 = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
                                           tapPosition, regulating, targetV, targetDeadband);

@@ -8,6 +8,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  *
@@ -28,6 +30,8 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     private double ratedU1 = Double.NaN;
 
     private double ratedU2 = Double.NaN;
+
+    private double ratedS = Double.NaN;
 
     TwoWindingsTransformerAdderImpl(SubstationImpl substation) {
         this.substation = substation;
@@ -80,6 +84,12 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     }
 
     @Override
+    public TwoWindingsTransformerAdder setRatedS(double ratedS) {
+        this.ratedS = ratedS;
+        return this;
+    }
+
+    @Override
     public TwoWindingsTransformer add() {
         String id = checkAndGetUniqueId();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
@@ -99,12 +109,13 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         ValidationUtil.checkB(this, b);
         ValidationUtil.checkRatedU1(this, ratedU1);
         ValidationUtil.checkRatedU2(this, ratedU2);
+        ValidationUtil.checkRatedS(this, ratedS);
 
         TwoWindingsTransformerImpl transformer
                 = new TwoWindingsTransformerImpl(id, getName(),
                                                  voltageLevel1.getSubstation(),
                                                  r, x, g, b,
-                                                 ratedU1, ratedU2);
+                                                 ratedU1, ratedU2, ratedS);
         terminal1.setNum(1);
         terminal2.setNum(2);
         transformer.addTerminal(terminal1);

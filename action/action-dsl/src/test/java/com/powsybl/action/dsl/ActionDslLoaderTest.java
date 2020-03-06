@@ -6,6 +6,8 @@
  */
 package com.powsybl.action.dsl;
 
+import com.powsybl.action.util.PhaseShifterTapTask;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.iidm.network.Network;
@@ -18,6 +20,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentMatcher;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
 
 import static org.junit.Assert.*;
@@ -78,7 +82,7 @@ public class ActionDslLoaderTest {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
         Action fixedTapAction = actionDb.getAction("fixedTap");
         assertNotNull(fixedTapAction);
-        addPhaseShifter();
+        addPhaseShifter(0);
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("NGEN_NHV1").getPhaseTapChanger();
         assertEquals(0, phaseTapChanger.getTapPosition());
         assertTrue(phaseTapChanger.isRegulating());
@@ -87,6 +91,60 @@ public class ActionDslLoaderTest {
         assertEquals(1, phaseTapChanger.getTapPosition());
         assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
         assertFalse(phaseTapChanger.isRegulating());
+    }
+
+    private static List<DeltaTapData> provideParams() {
+        return Arrays.asList(
+                new DeltaTapData(1, 1, 0, "deltaTap0"),
+                new DeltaTapData(1, 2, 1, "deltaTap1"),
+                new DeltaTapData(1, 3, 2, "deltaTap2"),
+                new DeltaTapData(1, 3, 3, "deltaTap3"),
+                new DeltaTapData(1, 3, 10, "deltaTap10"),
+                new DeltaTapData(1, 0, -1, "deltaTapMinus1"),
+                new DeltaTapData(1, 0, -2, "deltaTapMinus2"),
+                new DeltaTapData(1, 0, -10, "deltaTapMinus10")
+        );
+    }
+
+    @Test
+    public void testDeltaTapDslExtension() {
+        for (DeltaTapData data : provideParams()) {
+            ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
+            Action deltaTapAction = actionDb.getAction(data.getTestName());
+            assertNotNull(deltaTapAction);
+            assertEquals(data.getDeltaTap(), ((PhaseShifterTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
+            addPhaseShifter(data.getInitTapPosition());
+            PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("NGEN_NHV1").getPhaseTapChanger();
+            assertEquals(1, phaseTapChanger.getTapPosition());
+            assertTrue(phaseTapChanger.isRegulating());
+            assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
+            deltaTapAction.run(network, null);
+            assertEquals(data.getExpectedTapPosition(), phaseTapChanger.getTapPosition());
+            assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
+            assertFalse(phaseTapChanger.isRegulating());
+        }
+    }
+
+    @Test
+    public void testInvalidTransformerId() {
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
+        Action deltaTapAction = actionDb.getAction("InvalidTransformerId");
+        assertNotNull(deltaTapAction);
+        assertEquals(-10, ((PhaseShifterTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("Transformer 'NHV1_NHV2_1' not found");
+        deltaTapAction.run(network, null);
+    }
+
+    @Test
+    public void testTransformerWithoutPhaseShifter() {
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
+        Action deltaTapAction = actionDb.getAction("TransformerWithoutPhaseShifter");
+        assertNotNull(deltaTapAction);
+        assertEquals(-10, ((PhaseShifterTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("Transformer 'NGEN_NHV1' is not a phase shifter");
+        deltaTapAction.run(network, null);
     }
 
     @Test
@@ -127,14 +185,31 @@ public class ActionDslLoaderTest {
         verify(handler, times(1)).addRule(argThat(matches(c -> c.getId().equals("rule"))));
     }
 
-    private void addPhaseShifter() {
+    private void addPhaseShifter(int initTapPosition) {
         network.getTwoWindingsTransformer("NGEN_NHV1").newPhaseTapChanger()
-                .setTapPosition(0)
+                .setTapPosition(initTapPosition)
                 .setLowTapPosition(0)
                 .setRegulating(true)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationTerminal(network.getTwoWindingsTransformer("NGEN_NHV1").getTerminal2())
                 .setRegulationValue(1.0)
+                .setTargetDeadband(0)
+                .beginStep()
+                    .setR(1.0)
+                    .setX(2.0)
+                    .setG(3.0)
+                    .setB(4.0)
+                    .setAlpha(5.0)
+                    .setRho(6.0)
+                .endStep()
+                .beginStep()
+                    .setR(1.0)
+                    .setX(2.0)
+                    .setG(3.0)
+                    .setB(4.0)
+                    .setAlpha(5.0)
+                    .setRho(6.0)
+                .endStep()
                 .beginStep()
                     .setR(1.0)
                     .setX(2.0)
@@ -153,4 +228,36 @@ public class ActionDslLoaderTest {
                 .endStep()
                 .add();
     }
+
+    private static final class DeltaTapData {
+
+        private final int iniTapPosition;
+        private final int expectedTapPosition;
+        private final int deltaTap;
+        private final String testName;
+
+        private DeltaTapData(int iniTapPosition, int expectedTapPosition, int deltaTap, String testName) {
+            this.iniTapPosition = iniTapPosition;
+            this.expectedTapPosition = expectedTapPosition;
+            this.deltaTap = deltaTap;
+            this.testName = testName;
+        }
+
+        private int getInitTapPosition() {
+            return iniTapPosition;
+        }
+
+        private int getExpectedTapPosition() {
+            return expectedTapPosition;
+        }
+
+        private int getDeltaTap() {
+            return deltaTap;
+        }
+
+        private String getTestName() {
+            return testName;
+        }
+    }
+
 }
