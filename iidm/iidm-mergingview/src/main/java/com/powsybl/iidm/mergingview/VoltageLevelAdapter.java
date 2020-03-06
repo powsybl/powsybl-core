@@ -541,7 +541,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
         return getDelegate().getDanglingLineStream()
-                            .filter(getIndex()::isMerged)
+                            .filter(dl -> !getIndex().isMerged(dl))
                             .map(getIndex()::getDanglingLine);
     }
 
