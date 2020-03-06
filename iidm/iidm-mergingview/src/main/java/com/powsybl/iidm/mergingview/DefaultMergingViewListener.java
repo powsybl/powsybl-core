@@ -14,11 +14,11 @@ import java.util.Objects;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-abstract class AbstractListener implements NetworkListener {
+class DefaultMergingViewListener implements NetworkListener {
 
     protected final MergingViewIndex index;
 
-    AbstractListener(final MergingViewIndex index) {
+    DefaultMergingViewListener(final MergingViewIndex index) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
     }
 

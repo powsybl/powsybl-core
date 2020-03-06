@@ -81,10 +81,10 @@ class LineAdderAdapter implements LineAdder {
             // -- first dangling line
             final MergingView view = index.getView();
             final VoltageLevel vl1 = view.getVoltageLevel(voltageLevelId1);
-            addDanglingLine(vl1, id + DL1_SUFFIX, name, p0, q0, r, x, ucteXnodeCode, connectableBus1, bus1, node1, g1, b1);
+            addDanglingLine(vl1, id + DL1_SUFFIX, name, p0, q0, r, x, g1, b1, bus1, connectableBus1, node1, ucteXnodeCode);
             // -- second dangling line
             final VoltageLevel vl2 = view.getVoltageLevel(voltageLevelId2);
-            addDanglingLine(vl2, id + DL2_SUFFIX, name, p0, q0, r, x, ucteXnodeCode, connectableBus2, bus2, node2, g2, b2);
+            addDanglingLine(vl2, id + DL2_SUFFIX, name, p0, q0, r, x, g2, b2, bus2, connectableBus2, node2, ucteXnodeCode);
             // MergedLine.id is forced here
             // Return the merged line as the new line
             newLine = index.getMergedLineByCode(ucteXnodeCode)
@@ -110,8 +110,8 @@ class LineAdderAdapter implements LineAdder {
     }
 
     private static DanglingLine addDanglingLine(final VoltageLevel vl, final String id, final String name,
-                                                final double p0, final double q0, final double r, final double x, final String ucteXnodeCode,
-                                                final String connectableBus, final String bus, final Integer node, final double g, final double b) {
+                                                final double p0, final double q0, final double r, final double x, final double g, final double b,
+                                                final String bus, final String connectableBus, final Integer node, final String ucteXnodeCode) {
         DanglingLineAdder adder = vl.newDanglingLine()
                     .setId(id)
                     .setName(name)

@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Identifiable;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class MergingLineListener extends AbstractListener {
+public class MergingLineListener extends DefaultMergingViewListener {
 
     MergingLineListener(final MergingViewIndex index) {
         super(index);

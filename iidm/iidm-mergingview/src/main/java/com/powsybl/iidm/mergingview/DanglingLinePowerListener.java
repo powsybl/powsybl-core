@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class DanglingLinePowerListener extends AbstractListener {
+public class DanglingLinePowerListener extends DefaultMergingViewListener {
 
     DanglingLinePowerListener(final MergingViewIndex index) {
         super(index);
