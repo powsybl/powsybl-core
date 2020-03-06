@@ -48,7 +48,7 @@ public class XMLImporter implements Importer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XMLImporter.class);
 
-    private static final String[] EXTENSIONS = {"xiidm", "iidm", "xml"};
+    private static final String[] EXTENSIONS = {"xiidm", "iidm", "xml", "iidm.xml"};
 
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 

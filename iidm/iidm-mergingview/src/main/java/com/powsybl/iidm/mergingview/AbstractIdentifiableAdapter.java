@@ -7,6 +7,7 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Identifiable;
 
 import java.util.Collection;
@@ -92,5 +93,10 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     @Override
     public <E extends Extension<I>> Collection<E> getExtensions() {
         return getDelegate().getExtensions();
+    }
+
+    @Override
+    public <E extends Extension<I>, B extends ExtensionAdder<I, E>> B newExtension(Class<B> type) {
+        return getDelegate().newExtension(type);
     }
 }

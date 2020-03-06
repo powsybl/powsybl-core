@@ -9,6 +9,7 @@ package com.powsybl.iidm.mergingview;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
@@ -480,6 +481,11 @@ class MergedLine implements Line {
 
     @Override
     public <E extends Extension<Line>> Collection<E> getExtensions() {
+        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+    }
+
+    @Override
+    public <E extends Extension<Line>, B extends ExtensionAdder<Line, E>> B newExtension(Class<B> type) {
         throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
     }
 }

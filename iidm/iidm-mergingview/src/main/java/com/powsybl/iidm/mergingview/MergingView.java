@@ -8,6 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -738,6 +739,11 @@ public final class MergingView implements Network {
     @Override
     public <E extends Extension<Network>> Collection<E> getExtensions() {
         return workingNetwork.getExtensions();
+    }
+
+    @Override
+    public <E extends Extension<Network>, B extends ExtensionAdder<Network, E>> B newExtension(Class<B> type) {
+        return workingNetwork.newExtension(type);
     }
 
     @Override

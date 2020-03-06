@@ -15,12 +15,16 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-loadflow</artifactId>
-        <version>3.2.0-SNAPSHOT</version>
+        <version>3.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-loadflow-scripting</artifactId>
     <name>Load-flow Scripting</name>
     <description>Use loadflow API in scripts</description>
+
+    <properties>
+        <groovydoc.classifier>javadoc</groovydoc.classifier>
+    </properties>
 
     <build>
         <plugins>
@@ -38,6 +42,10 @@
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

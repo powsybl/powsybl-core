@@ -174,25 +174,25 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                                   boolean validated, BusData busData, boolean found, boolean writeValues) throws IOException;
 
     @Override
-    public void write(String svcId, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+    public void write(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
                       boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated) throws IOException {
         Objects.requireNonNull(svcId);
-        SvcData emptySvcData = new SvcData(svcId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, RegulationMode.OFF, Double.NaN, Double.NaN, false, false);
+        SvcData emptySvcData = new SvcData(svcId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, RegulationMode.OFF, Double.NaN, Double.NaN, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = svcsData.containsKey(svcId);
                 SvcData svcData = found ? svcsData.get(svcId) : emptySvcData;
-                write(svcId, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated, svcData, found, true);
+                write(svcId, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated, svcData, found, true);
                 svcsData.remove(svcId);
             } else {
-                svcsData.put(svcId, new SvcData(svcId, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated));
+                svcsData.put(svcId, new SvcData(svcId, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated));
             }
         } else {
-            write(svcId, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated, emptySvcData, false, true);
+            write(svcId, p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, connected, regulationMode, bMin, bMax, mainComponent, validated, emptySvcData, false, true);
         }
     }
 
-    protected abstract void write(String svcId, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+    protected abstract void write(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
                                   boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated,
                                   SvcData svcData, boolean found, boolean writeValues) throws IOException;
 
@@ -341,7 +341,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeSvcsData() {
         svcsData.values().forEach(svcData -> {
             try {
-                write(svcData.svcId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                write(svcData.svcId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                       false, RegulationMode.OFF, Double.NaN, Double.NaN, false, false, svcData, true, false);
             } catch (IOException e) {
                 LOGGER.error("Error writing data of svc {}: {}", svcData.svcId, e.getMessage());
@@ -568,8 +568,9 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         final String svcId;
         final double p;
         final double q;
-        final double v;
-        final double nominalV;
+        final double vControlled;
+        final double vController;
+        final double nominalVcontroller;
         final double reactivePowerSetpoint;
         final double voltageSetpoint;
         final boolean connected;
@@ -579,13 +580,14 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         final boolean mainComponent;
         final boolean validated;
 
-        SvcData(String svcId, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+        SvcData(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
                 boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated) {
             this.svcId = Objects.requireNonNull(svcId);
             this.p = p;
             this.q = q;
-            this.v = v;
-            this.nominalV = nominalV;
+            this.vControlled = vControlled;
+            this.vController = vController;
+            this.nominalVcontroller = nominalVcontroller;
             this.reactivePowerSetpoint = reactivePowerSetpoint;
             this.voltageSetpoint = voltageSetpoint;
             this.connected = connected;

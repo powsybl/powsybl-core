@@ -6,6 +6,10 @@
  */
 package com.powsybl.loadflow;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -13,10 +17,13 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.nio.file.FileSystem;
 
 import static org.junit.Assert.*;
@@ -149,6 +156,19 @@ public class LoadFlowParametersTest {
     }
 
     @Test
+    public void testCopyWithExtension() {
+        LoadFlowParameters parameters = new LoadFlowParameters();
+        DummyExtension dummyExtension = new DummyExtension();
+        parameters.addExtension(DummyExtension.class, dummyExtension);
+
+        LoadFlowParameters copy = parameters.copy();
+        assertEquals(1, copy.getExtensions().size());
+        Extension<LoadFlowParameters> copiedExt = copy.getExtensionByName("dummyExtension");
+        assertSame(parameters, dummyExtension.getExtendable());
+        assertSame(copy, copiedExt.getExtendable());
+    }
+
+    @Test
     public void testNoExtensions() {
         LoadFlowParameters parameters = new LoadFlowParameters();
 
@@ -180,6 +200,36 @@ public class LoadFlowParametersTest {
 
         @Override
         public DummyExtension load(PlatformConfig platformConfig) {
+            return new DummyExtension();
+        }
+
+        @Override
+        public String getExtensionName() {
+            return "dummyExtension";
+        }
+
+        @Override
+        public String getCategoryName() {
+            return "loadflow-parameters";
+        }
+
+        @Override
+        public Class<? super DummyExtension> getExtensionClass() {
+            return DummyExtension.class;
+        }
+    }
+
+    @AutoService(JsonLoadFlowParameters.ExtensionSerializer.class)
+    public static class DummySerializer implements JsonLoadFlowParameters.ExtensionSerializer<DummyExtension> {
+
+        @Override
+        public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeEndObject();
+        }
+
+        @Override
+        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
             return new DummyExtension();
         }
 

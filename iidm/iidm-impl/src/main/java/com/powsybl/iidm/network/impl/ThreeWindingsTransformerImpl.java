@@ -34,6 +34,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private double ratedU;
 
+        private double ratedS;
+
         private CurrentLimits limits;
 
         private RatioTapChangerImpl ratioTapChanger;
@@ -42,13 +44,14 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private int legNumber = 0;
 
-        LegImpl(double r, double x, double g, double b, double ratedU, int legNumber) {
+        LegImpl(double r, double x, double g, double b, double ratedU, double ratedS, int legNumber) {
             this.r = r;
             this.x = x;
             this.g = g;
             this.b = b;
             this.ratedU = ratedU;
             this.legNumber = legNumber;
+            this.ratedS = ratedS;
         }
 
         void setTransformer(ThreeWindingsTransformerImpl transformer) {
@@ -237,6 +240,20 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         @Override
         public boolean hasPhaseTapChanger() {
             return phaseTapChanger != null;
+        }
+
+        @Override
+        public double getRatedS() {
+            return ratedS;
+        }
+
+        @Override
+        public LegImpl setRatedS(double ratedS) {
+            ValidationUtil.checkRatedS(this, ratedS);
+            double oldValue = this.ratedS;
+            this.ratedS = ratedS;
+            transformer.notifyUpdate(() -> getLegAttribute() + ".ratedS", oldValue, ratedS);
+            return this;
         }
     }
 
