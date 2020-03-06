@@ -6,19 +6,16 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.*;
-
-import java.util.Objects;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Identifiable;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class MergingNetworkListener implements NetworkListener {
+public class MergingLineListener extends DefaultMergingViewListener {
 
-    private final MergingViewIndex index;
-
-    MergingNetworkListener(final MergingViewIndex index) {
-        this.index = Objects.requireNonNull(index, "merging view index is null");
+    MergingLineListener(final MergingViewIndex index) {
+        super(index);
     }
 
     @Override
@@ -28,15 +25,5 @@ public class MergingNetworkListener implements NetworkListener {
             // in order to create a new MergedLine if it's needed
             index.checkNewDanglingLine((DanglingLine) identifiable);
         }
-    }
-
-    @Override
-    public void onRemoval(final Identifiable identifiable) {
-        // Not implemented yet !
-    }
-
-    @Override
-    public void onUpdate(final Identifiable identifiable, final String attribute, final Object oldValue, final Object newValue) {
-        // Not implemented yet !
     }
 }
