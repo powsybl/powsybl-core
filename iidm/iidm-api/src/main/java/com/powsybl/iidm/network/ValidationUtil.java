@@ -50,7 +50,16 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint) {
+    public static void checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband) {
+        if (regulating && Double.isNaN(targetDeadband)) {
+            throw new ValidationException(validable, "Undefined value for target deadband of regulating " + validableType);
+        }
+        if (targetDeadband < 0) {
+            throw new ValidationException(validable, "Unexpected value for target deadband of " + validableType + ": " + targetDeadband + " < 0");
+        }
+    }
+
+    public static boolean checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint) {
         if (voltageRegulatorOn == null) {
             throw new ValidationException(validable, "voltage regulator status is not set");
         }
@@ -59,10 +68,14 @@ public final class ValidationUtil {
             if (Double.isNaN(voltageSetpoint) || voltageSetpoint <= 0) {
                 throw createInvalidValueException(validable, voltageSetpoint, "voltage setpoint", "voltage regulator is on");
             }
-        } else {
-            if (Double.isNaN(reactivePowerSetpoint)) {
-                throw createInvalidValueException(validable, reactivePowerSetpoint, "reactive power setpoint", "voltage regulator is off");
-            }
+            return false;
+        }
+        return true;
+    }
+
+    public static void checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint) {
+        if (checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint) && Double.isNaN(reactivePowerSetpoint)) {
+            throw createInvalidValueException(validable, reactivePowerSetpoint, "reactive power setpoint", "voltage regulator is off");
         }
     }
 

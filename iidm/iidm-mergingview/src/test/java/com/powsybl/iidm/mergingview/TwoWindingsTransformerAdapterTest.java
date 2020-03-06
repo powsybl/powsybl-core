@@ -40,6 +40,7 @@ public class TwoWindingsTransformerAdapterTest {
                     .setB(4.0)
                     .setRatedU1(5.0)
                     .setRatedU2(6.0)
+                    .setRatedS(7.0)
                     .setVoltageLevel1("vl1")
                     .setVoltageLevel2("vl2")
                     .setConnectableBus1("busA")
@@ -52,6 +53,7 @@ public class TwoWindingsTransformerAdapterTest {
 
         assertEquals(ConnectableType.TWO_WINDINGS_TRANSFORMER, twt.getType());
         assertSame(substation, twt.getSubstation());
+        assertEquals(7.0, twt.getRatedS(), 0.0);
 
         final RatioTapChanger ratioTapChanger = twt.newRatioTapChanger()
                     .setLowTapPosition(0)

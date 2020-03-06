@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Identifiable;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -73,5 +74,9 @@ public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOpt
 
     public boolean isExportedEquipment(Identifiable<?> equipment) {
         return exportedEquipments.contains(equipment);
+    }
+
+    public Optional<String> getExtensionVersion(String extensionName) {
+        return options.getExtensionVersion(extensionName);
     }
 }

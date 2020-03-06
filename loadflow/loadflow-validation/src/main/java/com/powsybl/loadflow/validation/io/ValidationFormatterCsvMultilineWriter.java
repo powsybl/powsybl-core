@@ -159,13 +159,14 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     }
 
     @Override
-    protected void write(String svcId, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+    protected void write(String svcId, double p, double q, double vControlled, double vController, double nominalVcontroller, double reactivePowerSetpoint, double voltageSetpoint,
                          boolean connected, RegulationMode regulationMode, double bMin, double bMax, boolean mainComponent, boolean validated,
                          SvcData svcData, boolean found, boolean writeValues) throws IOException {
         write(svcId, "p", found, -svcData.p, writeValues, -p);
         write(svcId, "q", found, -svcData.q, writeValues, -q);
-        write(svcId, "v", found, svcData.v, writeValues, v);
-        write(svcId, NOMINAL_V, found, svcData.nominalV, writeValues, nominalV);
+        write(svcId, "vControlled", found, svcData.vControlled, writeValues, vControlled);
+        write(svcId, "vController", found, svcData.vController, writeValues, vController);
+        write(svcId, NOMINAL_V, found, svcData.nominalVcontroller, writeValues, nominalVcontroller);
         write(svcId, "reactivePowerSetpoint", found, svcData.reactivePowerSetpoint, writeValues, reactivePowerSetpoint);
         write(svcId, "voltageSetpoint", found, svcData.voltageSetpoint, writeValues, voltageSetpoint);
         if (verbose) {

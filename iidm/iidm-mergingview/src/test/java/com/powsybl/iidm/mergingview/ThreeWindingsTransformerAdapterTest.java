@@ -56,6 +56,8 @@ public class ThreeWindingsTransformerAdapterTest {
         assertNotNull(leg1.setRatedU(1.1));
         assertEquals(1.1, leg1.getRatedU(), 0.0);
         assertSame(twt.getTerminal(ThreeWindingsTransformer.Side.ONE), leg1.getTerminal());
+        assertNotNull(leg1.setRatedS(1.0));
+        assertEquals(1.0, leg1.getRatedS(), 0.0);
 
         final CurrentLimits currentLimitsInLeg1 = leg1.newCurrentLimits()
                 .setPermanentLimit(100)

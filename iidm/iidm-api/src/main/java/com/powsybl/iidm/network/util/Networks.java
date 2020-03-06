@@ -18,10 +18,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
@@ -342,6 +339,73 @@ public final class Networks {
                         g.getTerminal().getP(), g.getTerminal().getQ(), g.getTerminal().getBusBreakerView().getConnectableBus().getV());
             }
         }
+    }
+
+    /**
+     * Return the list of nodes (N/B topology) for each bus of a the Bus view
+     * If a node is not associated to a bus, it is not included in any list.
+     * @param voltageLevel The voltage level to traverse
+     * @return the list of nodes (N/B topology) for each bus of a Bus view
+     */
+    public static Map<String, Set<Integer>> getNodesByBus(VoltageLevel voltageLevel) {
+        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+            throw new IllegalArgumentException("The voltage level " + voltageLevel.getId() + " is not described in Node/Breaker topology");
+        }
+
+        Map<String, Set<Integer>> nodesByBus = new TreeMap<>();
+        for (int i : voltageLevel.getNodeBreakerView().getNodes()) {
+            Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(i);
+            if (terminal != null) {
+                Bus bus = terminal.getBusView().getBus();
+                if (bus != null) {
+                    nodesByBus.computeIfAbsent(bus.getId(), k -> new TreeSet<>()).add(i);
+                }
+            } else {
+                // If there is no terminal for the current node, we try to find one traversing the topology
+                Terminal equivalentTerminal = getEquivalentTerminal(voltageLevel, i);
+
+                if (equivalentTerminal != null) {
+                    Bus bus = equivalentTerminal.getBusView().getBus();
+                    if (bus != null) {
+                        nodesByBus.computeIfAbsent(bus.getId(), k -> new TreeSet<>()).add(i);
+                    }
+                }
+            }
+        }
+
+        return nodesByBus;
+    }
+
+    /**
+     * Return a terminal for the specified node.
+     * If a terminal is attached to the node, return this terminal. Otherwise, this method traverses the topology and return
+     * the closest and equivalent terminal.
+     *
+     * @param voltageLevel The voltage level to traverse
+     * @param node The starting node
+     * @return A terminal for the specified node or null.
+     */
+    public static Terminal getEquivalentTerminal(VoltageLevel voltageLevel, int node) {
+        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+            throw new IllegalArgumentException("The voltage level " + voltageLevel.getId() + " is not described in Node/Breaker topology");
+        }
+
+        Terminal[] equivalentTerminal = new Terminal[1];
+
+        VoltageLevel.NodeBreakerView.Traverser traverser = (node1, sw, node2) -> {
+            if (sw != null && sw.isOpen()) {
+                return false;
+            }
+            Terminal t = voltageLevel.getNodeBreakerView().getTerminal(node2);
+            if (t != null) {
+                equivalentTerminal[0] = t;
+            }
+            return t == null;
+        };
+
+        voltageLevel.getNodeBreakerView().traverse(node, traverser);
+
+        return equivalentTerminal[0];
     }
 
 }

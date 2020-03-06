@@ -20,11 +20,12 @@ public class ReactiveLimitsXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripVersionnedXmlTest("reactiveLimitsRoundTripRef.xml", IidmXmlVersion.V_1_0);
+        // backward compatibility
+        roundTripAllPreviousVersionedXmlTest("reactiveLimitsRoundTripRef.xml");
 
         roundTripXmlTest(ReactiveLimitsTestNetworkFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "reactiveLimitsRoundTripRef.xml");
+                getVersionedNetworkPath("reactiveLimitsRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
     }
 }

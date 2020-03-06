@@ -38,7 +38,7 @@ public class IeeeCdfImporter implements Importer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IeeeCdfImporter.class);
 
-    private static final String FORMAT = "IEEE CDF";
+    private static final String FORMAT = "IEEE-CDF";
 
     private static final String EXT = "txt";
 
@@ -428,6 +428,7 @@ public class IeeeCdfImporter implements Importer {
                 .setRegulating(regulating)
                 .setRegulationTerminal(regulatingTerminal)
                 .setTargetV(targetV)
+                .setTargetDeadband(regulating ? 0.0 : Double.NaN)
                 .setTapPosition(0);
         for (double rho : rhos) {
             ratioTapChangerAdder.beginStep()
