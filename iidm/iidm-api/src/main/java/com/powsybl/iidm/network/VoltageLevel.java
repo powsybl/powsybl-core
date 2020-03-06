@@ -405,7 +405,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         Stream<InternalConnection> getInternalConnectionStream();
 
         /**
-         * Remove <b>all</b> the internal connections between node1 and node2 if they exist.
+         * Remove <b>all</b> the internal connections between node1 and node2 (not orientated) if they exist.
          */
         default void removeInternalConnections(int node1, int node2) {
             throw new UnsupportedOperationException();

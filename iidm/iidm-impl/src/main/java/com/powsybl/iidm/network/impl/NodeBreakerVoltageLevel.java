@@ -652,7 +652,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         public void removeInternalConnections(int node1, int node2) {
             int[] internalConnectionsToBeRemoved = Arrays.stream(graph.getEdges())
                     .filter(e -> graph.getEdgeObject(e) == null)
-                    .filter(e -> graph.getEdgeVertex1(e) == node1 && graph.getEdgeVertex2(e) == node2)
+                    .filter(e -> (graph.getEdgeVertex1(e) == node1 && graph.getEdgeVertex2(e) == node2) ||
+                            (graph.getEdgeVertex1(e) == node2 && graph.getEdgeVertex2(e) == node1))
                     .toArray();
             if (internalConnectionsToBeRemoved.length == 0) {
                 throw new PowsyblException("Internal connection not found between " + node1 + " and " + node2);
