@@ -47,6 +47,6 @@ abstract class AbstractInjectionAdapter<I extends Injection<I>> extends Abstract
     // -------------------------------
     @Override
     public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 }
