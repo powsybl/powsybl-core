@@ -29,18 +29,6 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface SensitivityComputation extends Versionable {
     /**
-     * Run an asynchronous systematic sensitivity computation job using given parameters and input provider
-     *
-     * @param factorsProvider sensitivity factors provider for the computation
-     * @param contingenciesProvider contingencies provider for the computation
-     * @param workingStateId id of the network base state for the computation
-     * @param sensiParameters sensitivity computation parameters
-     * @return the sensitivity computation results in N and N-1
-     */
-    CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider factorsProvider, ContingenciesProvider contingenciesProvider, String workingStateId, SensitivityComputationParameters sensiParameters);
-
-
-    /**
      * Run an asynchronous single sensitivity computation job using given parameters and input provider
      *
      * @param factorsProvider sensitivity factors provider for the computation
@@ -50,4 +38,16 @@ public interface SensitivityComputation extends Versionable {
      */
     CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider factorsProvider, String workingStateId, SensitivityComputationParameters sensiParameters);
 
+    /**
+     * Run an asynchronous systematic sensitivity computation job using given parameters and input provider
+     *
+     * @param factorsProvider sensitivity factors provider for the computation
+     * @param contingenciesProvider contingencies provider for the computation
+     * @param workingStateId id of the network base state for the computation
+     * @param sensiParameters sensitivity computation parameters
+     * @return the sensitivity computation results in N and N-1
+     */
+    default CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider factorsProvider, ContingenciesProvider contingenciesProvider, String workingStateId, SensitivityComputationParameters sensiParameters) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }
