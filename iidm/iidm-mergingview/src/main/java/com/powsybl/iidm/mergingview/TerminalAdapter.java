@@ -165,6 +165,6 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
     // -------------------------------
     @Override
     public void traverse(final TopologyTraverser traverser) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 }

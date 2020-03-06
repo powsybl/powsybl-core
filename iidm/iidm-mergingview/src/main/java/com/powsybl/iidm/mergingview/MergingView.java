@@ -25,8 +25,6 @@ import java.util.stream.StreamSupport;
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public final class MergingView implements Network {
-    static final PowsyblException NOT_IMPLEMENTED_EXCEPTION = new PowsyblException("Not implemented exception");
-
     private static final Logger LOGGER = LoggerFactory.getLogger(MergingView.class);
 
     /** Indexing of all Identifiable into current merging view */
@@ -37,6 +35,10 @@ public final class MergingView implements Network {
 
     /** To listen events from merging network */
     private final NetworkListener listener;
+
+    static PowsyblException createNotImplementedException() {
+        return new PowsyblException("Not implemented exception");
+    }
 
     private static class BusBreakerViewAdapter implements Network.BusBreakerView {
 
@@ -119,7 +121,7 @@ public final class MergingView implements Network {
         // -------------------------------
         @Override
         public Collection<Component> getConnectedComponents() {
-            throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+            throw createNotImplementedException();
         }
     }
 
@@ -752,16 +754,16 @@ public final class MergingView implements Network {
     // -------------------------------
     @Override
     public TieLineAdder newTieLine() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
+        throw createNotImplementedException();
     }
 
     @Override
     public void addListener(final NetworkListener listener) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
+        throw createNotImplementedException();
     }
 
     @Override
     public void removeListener(final NetworkListener listener) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
+        throw createNotImplementedException();
     }
 }

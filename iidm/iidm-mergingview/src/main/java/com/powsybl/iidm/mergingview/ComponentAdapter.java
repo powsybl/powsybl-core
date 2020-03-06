@@ -25,22 +25,22 @@ public class ComponentAdapter extends AbstractAdapter<Component> implements Comp
     // -------------------------------
     @Override
     public int getNum() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public int getSize() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public Iterable<Bus> getBuses() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public Stream<Bus> getBusStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
 }

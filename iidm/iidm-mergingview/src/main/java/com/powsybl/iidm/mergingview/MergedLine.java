@@ -421,36 +421,36 @@ class MergedLine implements Line {
     // -------------------------------
     @Override
     public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public <E extends Extension<Line>> void addExtension(final Class<? super E> type, final E extension) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public <E extends Extension<Line>> E getExtension(final Class<? super E> type) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public <E extends Extension<Line>> E getExtensionByName(final String name) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public <E extends Extension<Line>> boolean removeExtension(final Class<E> type) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public <E extends Extension<Line>> Collection<E> getExtensions() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public <E extends Extension<Line>, B extends ExtensionAdder<Line, E>> B newExtension(Class<B> type) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 }

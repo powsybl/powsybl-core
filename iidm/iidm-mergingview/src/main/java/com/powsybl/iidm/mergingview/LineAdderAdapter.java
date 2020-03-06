@@ -65,7 +65,7 @@ class LineAdderAdapter implements LineAdder {
             newLine = index.getLine(addLine(n1));
         } else {
             // Creation of 2 dangling lines
-            throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+            throw MergingView.createNotImplementedException();
         }
         return newLine;
     }
