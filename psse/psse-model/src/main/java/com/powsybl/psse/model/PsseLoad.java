@@ -53,10 +53,10 @@ public class PsseLoad {
     private int owner = -1;
 
     @Parsed(index = 12)
-    private double scale = 1;
+    private int scale = 1;
 
     @Parsed(index = 13)
-    private double intrpt = 0;
+    private int intrpt = 0;
 
     public int getI() {
         return i;
@@ -154,19 +154,19 @@ public class PsseLoad {
         this.owner = owner;
     }
 
-    public double getScale() {
+    public int getScale() {
         return scale;
     }
 
-    public void setScale(double scale) {
+    public void setScale(int scale) {
         this.scale = scale;
     }
 
-    public double getIntrpt() {
+    public int getIntrpt() {
         return intrpt;
     }
 
-    public void setIntrpt(double intrpt) {
+    public void setIntrpt(int intrpt) {
         this.intrpt = intrpt;
     }
 }
