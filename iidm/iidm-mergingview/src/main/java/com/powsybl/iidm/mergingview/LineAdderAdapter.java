@@ -57,12 +57,6 @@ class LineAdderAdapter implements LineAdder {
 
     private double b2 = Double.NaN;
 
-    private double p0 = Double.NaN;
-
-    private double q0 = Double.NaN;
-
-    private String ucteXnodeCode;
-
     LineAdderAdapter(final MergingViewIndex index) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
     }
@@ -76,10 +70,10 @@ class LineAdderAdapter implements LineAdder {
             newLine = index.getLine(addLine(n1));
         } else {
             // UcteXnodeCode is empty for MergedLine created here
-            ucteXnodeCode = "";
+            String ucteXnodeCode = "";
             // P0 & Q0 are updated by MergingNetworkListener::onUpdate method
-            p0 = 0.0;
-            q0 = 0.0;
+            double p0 = 0.0;
+            double q0 = 0.0;
 
             // Taking into account ensureIdUnicity
             checkAndSetUniqueId();
@@ -87,10 +81,10 @@ class LineAdderAdapter implements LineAdder {
             // -- first dangling line
             final MergingView view = index.getView();
             final VoltageLevel vl1 = view.getVoltageLevel(voltageLevelId1);
-            addDanglingLine(vl1, id + DL1_SUFFIX, connectableBus1, bus1, node1, g1, b1);
+            addDanglingLine(vl1, id + DL1_SUFFIX, name, p0, q0, r, x, ucteXnodeCode, connectableBus1, bus1, node1, g1, b1);
             // -- second dangling line
             final VoltageLevel vl2 = view.getVoltageLevel(voltageLevelId2);
-            addDanglingLine(vl2, id + DL2_SUFFIX, connectableBus2, bus2, node2, g2, b2);
+            addDanglingLine(vl2, id + DL2_SUFFIX, name, p0, q0, r, x, ucteXnodeCode, connectableBus2, bus2, node2, g2, b2);
             // MergedLine.id is forced here
             // Return the merged line as the new line
             newLine = index.getMergedLineByCode(ucteXnodeCode)
@@ -100,7 +94,7 @@ class LineAdderAdapter implements LineAdder {
     }
 
     private void checkAndSetUniqueId() {
-        if (this.id == null) {
+        if (id == null) {
             throw new PowsyblException("Line id is not set");
         }
         if (ensureIdUnicity) {
@@ -115,7 +109,9 @@ class LineAdderAdapter implements LineAdder {
         }
     }
 
-    private DanglingLine addDanglingLine(final VoltageLevel vl, final String id, final String connectableBus, final String bus, final Integer node, final double g, final double b) {
+    private static DanglingLine addDanglingLine(final VoltageLevel vl, final String id, final String name,
+                                                final double p0, final double q0, final double r, final double x, final String ucteXnodeCode,
+                                                final String connectableBus, final String bus, final Integer node, final double g, final double b) {
         DanglingLineAdder adder = vl.newDanglingLine()
                     .setId(id)
                     .setName(name)

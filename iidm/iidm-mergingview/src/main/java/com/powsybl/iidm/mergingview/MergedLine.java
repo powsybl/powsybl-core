@@ -101,9 +101,9 @@ class MergedLine implements Line {
         double p1 = dl1.getTerminal().getP();
         double p2 = dl2.getTerminal().getP();
         if (!Double.isNaN(p1) && !Double.isNaN(p2)) {
-            double p0 = (p1 + p2) / 2.0d;
-            dl1.setP0(getSign(p2) * p0);
-            dl2.setP0(getSign(p1) * p0);
+            double losses = p1 + p2;
+            dl1.setP0((p1 + losses / 2.0) * sign(p2));
+            dl2.setP0((p2 + losses / 2.0) * sign(p1));
         }
     }
 
@@ -111,13 +111,13 @@ class MergedLine implements Line {
         double q1 = dl1.getTerminal().getQ();
         double q2 = dl2.getTerminal().getQ();
         if (!Double.isNaN(q1) && !Double.isNaN(q2)) {
-            double q0 = (q1 + q2) / 2.0d;
-            dl1.setQ0(getSign(q2) * q0);
-            dl2.setQ0(getSign(q1) * q0);
+            double losses = q1 + q2;
+            dl1.setQ0((q1 + losses / 2.0) * sign(q2));
+            dl2.setQ0((q2 + losses / 2.0) * sign(q1));
         }
     }
 
-    private static int getSign(double value) {
+    private static int sign(double value) {
         // Sign depends on the transit flow:
         // P1 ---->-----DL1.P0 ---->----- DL2.P0 ---->---- P2
         // The sign of DL1.P0 is the same as P2, and respectively the sign of DL2.P0 is the same than P1

@@ -176,10 +176,12 @@ public class DanglingLineAdapterTest {
         assertEquals(p0, dl2.getP0(), 0.0d);
         assertEquals(q0, dl2.getQ0(), 0.0d);
 
-        double p1 = 10.0;
-        double q1 = -20.0;
-        double p2 = -30.0;
-        double q2 = 40.0;
+        double p1 = -605.0;
+        double q1 = -302.5;
+        double p2 = 600.0;
+        double q2 = 300.0;
+        double lossesP = p1 + p2;
+        double lossesQ = q1 + q2;
         final Terminal t1 = mergedLine.getTerminal("vl1");
         assertNotNull(t1);
         assertEquals(Branch.Side.ONE, mergedLine.getSide(t1));
@@ -192,10 +194,10 @@ public class DanglingLineAdapterTest {
         t2.setP(p2);
         t2.setQ(q2);
         // Check P & Q are computed by Listener
-        assertEquals(-(p1 + p2) / 2.0, dl1.getP0(), 0.0d);
-        assertEquals((q1 + q2) / 2.0, dl1.getQ0(), 0.0d);
-        assertEquals((p1 + p2) / 2.0, dl2.getP0(), 0.0d);
-        assertEquals(-(q1 + q2) / 2.0, dl2.getQ0(), 0.0d);
+        assertEquals(p1 + (lossesP / 2.0), dl1.getP0(), 0.0d);
+        assertEquals(q1 + (lossesQ / 2.0), dl1.getQ0(), 0.0d);
+        assertEquals((p2 + (lossesP / 2.0)) * -1, dl2.getP0(), 0.0d);
+        assertEquals((q2 + (lossesQ / 2.0)) * -1, dl2.getQ0(), 0.0d);
 
         assertFalse(mergedLine.isOverloaded());
         assertEquals(Integer.MAX_VALUE, mergedLine.getOverloadDuration());
