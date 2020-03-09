@@ -19,7 +19,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     private final Ref<? extends VariantManagerHolder> network;
 
-    private final ShuntCompensatorModelHolder model;
+    private final ShuntCompensatorModelWrapper model;
 
     /* the regulating terminal */
     private TerminalExt regulatingTerminal;
@@ -39,7 +39,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     private final TDoubleArrayList targetDeadband;
 
     ShuntCompensatorImpl(Ref<? extends VariantManagerHolder> network,
-                         String id, String name, boolean fictitious, ShuntCompensatorModelHolder model,
+                         String id, String name, boolean fictitious, ShuntCompensatorModelWrapper model,
                          int currentSectionCount, TerminalExt regulatingTerminal, boolean voltageRegulatorOn,
                          double targetV, double targetDeadband) {
         super(id, name, fictitious);
@@ -75,8 +75,16 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
+    public int getMaximumSectionCount() {
+        return model.getMaximumSectionCount();
+    }
+
+    @Override
     public ShuntCompensatorImpl setCurrentSectionCount(int currentSectionCount) {
-        model.getModel(AbstractShuntCompensatorModel.class).checkCurrentSection(currentSectionCount);
+        ValidationUtil.checkSections(this, currentSectionCount, model.getMaximumSectionCount());
+        if (!model.containsSection(currentSectionCount)) {
+            throw new ValidationException(this, "unexpected section number (" + currentSectionCount + "): no existing associated section");
+        }
         int variantIndex = network.get().getVariantIndex();
         int oldValue = this.currentSectionCount.set(variantIndex, currentSectionCount);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
@@ -101,12 +109,19 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public ShuntCompensatorModel getModel() {
-        return model.getModel();
+        return model;
     }
 
     @Override
     public <M extends ShuntCompensatorModel> M getModel(Class<M> modelType) {
-        return model.getModel(modelType);
+        if (modelType == null) {
+            throw new IllegalArgumentException("shunt compensator model type is null");
+        }
+        if (modelType.isInstance(model)) {
+            return modelType.cast(model);
+        }
+        throw new ValidationException(this, "incorrect shunt compensator model type " +
+                modelType.getName() + ", expected " + model.getClass());
     }
 
     @Override

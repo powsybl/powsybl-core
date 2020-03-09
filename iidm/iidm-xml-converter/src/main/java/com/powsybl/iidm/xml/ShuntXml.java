@@ -40,7 +40,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
             throw new PowsyblException("Non linear shunt not yet supported");
         }
         XmlUtil.writeDouble("bPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), context.getWriter());
-        context.getWriter().writeAttribute("maximumSectionCount", Integer.toString(sc.getModel(ShuntCompensatorLinearModel.class).getMaximumSectionCount()));
+        context.getWriter().writeAttribute("maximumSectionCount", Integer.toString(sc.getMaximumSectionCount()));
         context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getCurrentSectionCount()));
         IidmXmlUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", sc.isVoltageRegulatorOn(), false,
                 IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);

@@ -207,8 +207,8 @@ public class Comparison {
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
         compare("maximumSectionCount",
-                expected.getModel().getMaximumSectionCount(),
-                actual.getModel().getMaximumSectionCount());
+                expected.getMaximumSectionCount(),
+                actual.getMaximumSectionCount());
         compare("bPerSection",
                 expected.getModel(ShuntCompensatorLinearModel.class).getbPerSection(),
                 actual.getModel(ShuntCompensatorLinearModel.class).getbPerSection());

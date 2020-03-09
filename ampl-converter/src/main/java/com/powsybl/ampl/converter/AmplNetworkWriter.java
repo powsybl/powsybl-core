@@ -1340,11 +1340,11 @@ public class AmplNetworkWriter {
                 double vb = t.getVoltageLevel().getNominalV();
                 double zb = vb * vb / AmplConstants.SB;
                 double b1 = 0;
-                double b2 = sc.getModel(ShuntCompensatorLinearModel.class).getbPerSection() * sc.getModel().getMaximumSectionCount() * zb;
+                double b2 = sc.getModel(ShuntCompensatorLinearModel.class).getbPerSection() * sc.getMaximumSectionCount() * zb;
                 double minB = Math.min(b1, b2);
                 double maxB = Math.max(b1, b2);
                 double b = sc.getCurrentB() * zb;
-                int points = sc.getModel().getMaximumSectionCount() < 1 ? 0 : sc.getModel().getMaximumSectionCount() - 1;
+                int points = sc.getMaximumSectionCount() < 1 ? 0 : sc.getMaximumSectionCount() - 1;
                 formatter.writeCell(variantIndex)
                         .writeCell(num)
                         .writeCell(busNum)

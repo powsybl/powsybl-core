@@ -91,7 +91,7 @@ public final class ShuntCompensatorsValidation {
         double p = shunt.getTerminal().getP();
         double q = shunt.getTerminal().getQ();
         int currentSectionCount = shunt.getCurrentSectionCount();
-        int maximumSectionCount = shunt.getModel().getMaximumSectionCount();
+        int maximumSectionCount = shunt.getMaximumSectionCount();
         double bPerSection = shunt.getModel(ShuntCompensatorLinearModel.class).getbPerSection();
         double nominalV = shunt.getTerminal().getVoltageLevel().getNominalV();
         double qMax = bPerSection * maximumSectionCount * nominalV * nominalV;

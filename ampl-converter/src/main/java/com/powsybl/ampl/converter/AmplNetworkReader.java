@@ -281,7 +281,7 @@ public class AmplNetworkReader {
         if (ShuntCompensatorModelType.NON_LINEAR.equals(sc.getModelType())) {
             throw new PowsyblException("non linear shunt not supported yet");
         }
-        sc.setCurrentSectionCount(Math.max(0, Math.min(sc.getModel().getMaximumSectionCount(), sections)));
+        sc.setCurrentSectionCount(Math.max(0, Math.min(sc.getMaximumSectionCount(), sections)));
         Terminal t = sc.getTerminal();
         t.setQ(q);
 

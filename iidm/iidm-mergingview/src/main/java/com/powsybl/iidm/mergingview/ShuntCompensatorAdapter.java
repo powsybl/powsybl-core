@@ -29,6 +29,11 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     }
 
     @Override
+    public int getMaximumSectionCount() {
+        return getDelegate().getMaximumSectionCount();
+    }
+
+    @Override
     public ShuntCompensator setCurrentSectionCount(final int currentSectionCount) {
         getDelegate().setCurrentSectionCount(currentSectionCount);
         return this;

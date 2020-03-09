@@ -17,7 +17,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private final VoltageLevelExt voltageLevel;
 
-    private ShuntCompensatorModelHolder model;
+    private ShuntCompensatorModelWrapper model;
 
     private int currentSectionCount = -1;
 
@@ -182,7 +182,10 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         if (model == null) {
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }
-        model.getModel(AbstractShuntCompensatorModel.class).checkCurrentSection(this, currentSectionCount);
+        ValidationUtil.checkSections(this, currentSectionCount, model.getMaximumSectionCount());
+        if (!model.containsSection(currentSectionCount)) {
+            throw new ValidationException(this, "unexpected section number (" + currentSectionCount + "): no existing associated section");
+        }
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV);
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband);

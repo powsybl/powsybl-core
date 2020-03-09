@@ -6,44 +6,22 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ShuntCompensatorModel;
-import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.commons.PowsyblException;
 
 import java.util.Objects;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-abstract class AbstractShuntCompensatorModel implements ShuntCompensatorModelHolder {
+abstract class AbstractShuntCompensatorModel implements ShuntCompensatorModelWrapper {
 
     protected ShuntCompensatorImpl shuntCompensator;
 
     @Override
     public void setShuntCompensator(ShuntCompensatorImpl shuntCompensator) {
+        if (this.shuntCompensator != null) {
+            throw new PowsyblException("Owner (shunt compensator) already defined");
+        }
         this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
     }
-
-    @Override
-    public ShuntCompensatorModel getModel() {
-        return this;
-    }
-
-    @Override
-    public <M extends ShuntCompensatorModel> M getModel(Class<M> modelType) {
-        if (modelType == null) {
-            throw new IllegalArgumentException("shunt compensator model type is null");
-        }
-        if (modelType.isInstance(this)) {
-            return modelType.cast(this);
-        }
-        throw new ValidationException(shuntCompensator, "incorrect shunt compensator model type " +
-                modelType.getName() + ", expected " + getClass());
-    }
-
-    void checkCurrentSection(int currentSectionCount) {
-        checkCurrentSection(shuntCompensator, currentSectionCount);
-    }
-
-    abstract void checkCurrentSection(Validable validable, int currentSectionCount);
 }

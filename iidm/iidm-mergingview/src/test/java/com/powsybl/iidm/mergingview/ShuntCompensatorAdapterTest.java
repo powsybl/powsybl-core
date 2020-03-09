@@ -45,7 +45,7 @@ public class ShuntCompensatorAdapterTest {
             assertNotNull(t);
         });
 
-        int maxCount = shuntCExpected.getModel().getMaximumSectionCount();
+        int maxCount = shuntCExpected.getMaximumSectionCount();
         shuntCActual.getModel(ShuntCompensatorLinearModel.class).setMaximumSectionCount(++maxCount);
         int currentCount = shuntCExpected.getCurrentSectionCount();
         assertEquals(currentCount, shuntCActual.getCurrentSectionCount());

@@ -62,6 +62,7 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals("shuntName", shuntCompensator.getName());
         assertEquals(SHUNT, shuntCompensator.getId());
         assertEquals(6, shuntCompensator.getCurrentSectionCount());
+        assertEquals(10, shuntCompensator.getMaximumSectionCount());
         assertSame(terminal, shuntCompensator.getRegulatingTerminal());
         assertTrue(shuntCompensator.isVoltageRegulatorOn());
         assertEquals(200, shuntCompensator.getTargetV(), 0.0);
@@ -70,7 +71,6 @@ public abstract class AbstractShuntCompensatorTest {
         ShuntCompensatorLinearModel shuntLinearModel = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
         assertEquals(5.0, shuntLinearModel.getbPerSection(), 0.0);
         assertEquals(4.0, shuntLinearModel.getgPerSection(), 0.0);
-        assertEquals(10, shuntLinearModel.getMaximumSectionCount());
 
         // try get incorrect shunt model
         try {
@@ -121,7 +121,7 @@ public abstract class AbstractShuntCompensatorTest {
             // ignore
         }
         shuntLinearModel.setMaximumSectionCount(20);
-        assertEquals(20, shuntLinearModel.getMaximumSectionCount());
+        assertEquals(20, shuntCompensator.getMaximumSectionCount());
 
         // remove
         int count = network.getShuntCompensatorCount();
@@ -186,6 +186,7 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals("shuntName", shuntCompensator.getName());
         assertEquals(SHUNT, shuntCompensator.getId());
         assertEquals(1, shuntCompensator.getCurrentSectionCount());
+        assertEquals(2, shuntCompensator.getMaximumSectionCount());
         assertSame(terminal, shuntCompensator.getRegulatingTerminal());
         assertTrue(shuntCompensator.isVoltageRegulatorOn());
         assertEquals(200, shuntCompensator.getTargetV(), 0.0);
@@ -268,6 +269,7 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(4, shuntNonLinearModel.getSections().size());
         assertEquals(4.0, shuntNonLinearModel.getB(3), 0.0);
         assertEquals(1.0, shuntNonLinearModel.getG(3), 0.0);
+        assertEquals(3, shuntCompensator.getMaximumSectionCount());
         shuntNonLinearModel.addOrReplaceSection(3, 3.0, 1.5); // replace a section
         assertEquals(4, shuntNonLinearModel.getSections().size());
         assertEquals(3.0, shuntNonLinearModel.getB(3), 0.0);
@@ -298,6 +300,7 @@ public abstract class AbstractShuntCompensatorTest {
         shuntNonLinearModel.removeSection(3);
         assertEquals(3, shuntNonLinearModel.getSections().size());
         assertFalse(shuntNonLinearModel.getSection(3).isPresent());
+        assertEquals(2, shuntCompensator.getMaximumSectionCount());
     }
 
     @Test

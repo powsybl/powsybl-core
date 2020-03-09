@@ -28,6 +28,11 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     int getCurrentSectionCount();
 
     /**
+     * Get the maximum number of sections.
+     */
+    int getMaximumSectionCount();
+
+    /**
      * Change the number of section.
      *
      * <p>

@@ -8,7 +8,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
-import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
 
 /**
@@ -75,6 +74,11 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     }
 
     @Override
+    public boolean containsSection(int sectionNumber) {
+        return sectionNumber >= 0 && sectionNumber <= maximumSectionCount;
+    }
+
+    @Override
     public double getB(int sectionNum) {
         return bPerSection * sectionNum;
     }
@@ -82,10 +86,5 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     @Override
     public double getG(int sectionNum) {
         return gPerSection * sectionNum;
-    }
-
-    @Override
-    void checkCurrentSection(Validable validable, int currentSectionCount) {
-        ValidationUtil.checkSections(validable, currentSectionCount, maximumSectionCount);
     }
 }

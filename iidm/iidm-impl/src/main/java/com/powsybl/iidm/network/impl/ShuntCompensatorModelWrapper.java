@@ -12,13 +12,13 @@ import com.powsybl.iidm.network.ShuntCompensatorModelType;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-interface ShuntCompensatorModelHolder extends ShuntCompensatorModel {
+interface ShuntCompensatorModelWrapper extends ShuntCompensatorModel {
 
     ShuntCompensatorModelType getType();
 
-    ShuntCompensatorModel getModel();
+    void setShuntCompensator(ShuntCompensatorImpl owner);
 
-    <M extends ShuntCompensatorModel> M getModel(Class<M> modelType);
+    boolean containsSection(int sectionNumber);
 
-    void setShuntCompensator(ShuntCompensatorImpl shuntCompensator);
+    int getMaximumSectionCount();
 }
