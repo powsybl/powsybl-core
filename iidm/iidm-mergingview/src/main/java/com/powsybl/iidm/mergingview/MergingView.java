@@ -25,8 +25,6 @@ import java.util.stream.StreamSupport;
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public final class MergingView implements Network {
-    static final PowsyblException NOT_IMPLEMENTED_EXCEPTION = new PowsyblException("Not implemented exception");
-
     private static final Logger LOGGER = LoggerFactory.getLogger(MergingView.class);
 
     /** Indexing of all Identifiable into current merging view */
@@ -36,7 +34,12 @@ public final class MergingView implements Network {
     private final Network workingNetwork;
 
     /** To listen events from merging network */
-    private final NetworkListener listener;
+    private final NetworkListener mergeDanglingLineListener;
+    private final NetworkListener danglingLinePowerListener;
+
+    static PowsyblException createNotImplementedException() {
+        return new PowsyblException("Not implemented exception");
+    }
 
     private static class BusBreakerViewAdapter implements Network.BusBreakerView {
 
@@ -119,7 +122,7 @@ public final class MergingView implements Network {
         // -------------------------------
         @Override
         public Collection<Component> getConnectedComponents() {
-            throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+            throw createNotImplementedException();
         }
     }
 
@@ -134,14 +137,17 @@ public final class MergingView implements Network {
 
         index = new MergingViewIndex(this);
         variantManager = new MergingVariantManager(index);
-        listener = new MergingNetworkListener(index);
+        // Listeners creation
+        mergeDanglingLineListener = new MergingLineListener(index);
+        danglingLinePowerListener = new DanglingLinePowerListener(index);
         busBreakerView = new BusBreakerViewAdapter(index);
         busView = new BusViewAdapter(index);
         // Working network will store view informations
         workingNetwork = factory.createNetwork(id, format);
         // Add working network as merging network
         index.checkAndAdd(workingNetwork);
-        workingNetwork.addListener(listener);
+        // Attach listeners
+        addInternalListeners(workingNetwork);
     }
 
     /** Public constructor */
@@ -156,7 +162,7 @@ public final class MergingView implements Network {
         final long start = System.currentTimeMillis();
 
         index.checkAndAdd(other);
-        other.addListener(listener);
+        addInternalListeners(other);
 
         LOGGER.info("Merging of {} done in {} ms", other.getId(), System.currentTimeMillis() - start);
     }
@@ -673,7 +679,7 @@ public final class MergingView implements Network {
     @Override
     public DanglingLine getDanglingLine(final String id) {
         final DanglingLine dl = index.get(n -> n.getDanglingLine(id), index::getDanglingLine);
-        return index.isMerged(dl) ? dl : null;
+        return index.isMerged(dl) ? null : dl;
     }
 
     // HvdcLines
@@ -747,21 +753,27 @@ public final class MergingView implements Network {
         return variantManager;
     }
 
+    private void addInternalListeners(Network network) {
+        // Attach all custom listeners
+        network.addListener(mergeDanglingLineListener);
+        network.addListener(danglingLinePowerListener);
+    }
+
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
     @Override
     public TieLineAdder newTieLine() {
-        throw NOT_IMPLEMENTED_EXCEPTION;
+        throw createNotImplementedException();
     }
 
     @Override
     public void addListener(final NetworkListener listener) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
+        throw createNotImplementedException();
     }
 
     @Override
     public void removeListener(final NetworkListener listener) {
-        throw NOT_IMPLEMENTED_EXCEPTION;
+        throw createNotImplementedException();
     }
 }

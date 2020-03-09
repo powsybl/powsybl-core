@@ -91,6 +91,6 @@ public class HvdcLineAdapter extends AbstractIdentifiableAdapter<HvdcLine> imple
     // -------------------------------
     @Override
     public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 }
