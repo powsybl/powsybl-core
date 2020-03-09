@@ -99,8 +99,13 @@ public class SecurityAnalysisResultBuilder {
             return (B) this;
         }
 
+        public B addViolation(LimitViolation violation) {
+            violations.add(Objects.requireNonNull(violation));
+            return (B) this;
+        }
+
         public B addViolations(List<LimitViolation> violations) {
-            this.violations.addAll(violations);
+            violations.forEach(this::addViolation);
             return (B) this;
         }
 
@@ -116,7 +121,7 @@ public class SecurityAnalysisResultBuilder {
         public PreContingencyResultBuilder addViolations(LimitViolationDetector detector) {
             Objects.requireNonNull(detector);
 
-            detector.checkAll(context.getNetwork(), v -> violations.add(Objects.requireNonNull(v)));
+            detector.checkAll(context.getNetwork(), this::addViolation);
 
             return this;
         }
@@ -146,7 +151,7 @@ public class SecurityAnalysisResultBuilder {
         public PostContingencyResultBuilder addViolations(LimitViolationDetector detector) {
             Objects.requireNonNull(detector);
 
-            detector.checkAll(contingency, context.getNetwork(), v -> violations.add(Objects.requireNonNull(v)));
+            detector.checkAll(contingency, context.getNetwork(), this::addViolation);
 
             return this;
         }
