@@ -62,7 +62,7 @@ public class PsseNonTransformerBranch {
     private int st = 1;
 
     @Parsed(index = 14)
-    private int met = 0;
+    private int met = 1;
 
     @Parsed(index = 15)
     private double len = 0;

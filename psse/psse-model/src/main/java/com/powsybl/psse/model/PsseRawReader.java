@@ -27,7 +27,7 @@ import java.util.Objects;
  */
 public class PsseRawReader {
 
-    private static final Logger LOGGGER = LoggerFactory.getLogger(PsseRawReader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PsseRawReader.class);
 
     private static String removeComment(String line) {
         int slashIndex = line.lastIndexOf('/');
@@ -57,7 +57,7 @@ public class PsseRawReader {
         settings.setProcessorErrorHandler(new RetryableErrorHandler<ParsingContext>() {
             @Override
             public void handleError(DataProcessingException error, Object[] inputRow, ParsingContext context) {
-                LOGGGER.error(error.getMessage());
+                LOGGER.error(error.getMessage());
             }
         });
         BeanListProcessor<T> processor = new BeanListProcessor<>(aClass);
