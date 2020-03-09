@@ -281,9 +281,19 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         // -------------------------------
         // Simple delegated methods ------
         // -------------------------------
+
+        /**
+         * @deprecated Use {@link #getMaximumNodeIndex()} instead.
+         */
         @Override
+        @Deprecated
         public int getNodeCount() {
             return getDelegate().getNodeCount();
+        }
+
+        @Override
+        public int getMaximumNodeIndex() {
+            return getDelegate().getMaximumNodeIndex();
         }
 
         @Override
