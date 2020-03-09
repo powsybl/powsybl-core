@@ -77,7 +77,6 @@ public class XMLExporter implements Exporter {
     public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.export.xml.throw-exception-if-extension-not-found";
     public static final String EXPORT_MODE = "iidm.export.xml.export-mode";
     public static final String EXTENSIONS_LIST = "iidm.export.xml.extensions";
-    public static final String SKIP_EXTENSIONS = "iidm.export.xml.skip-extensions";
     public static final String VERSION = "iidm.export.xml.version";
 
     private static final Parameter INDENT_PARAMETER = new Parameter(INDENT, ParameterType.BOOLEAN, "Indent export output file", Boolean.TRUE);
@@ -88,7 +87,6 @@ public class XMLExporter implements Exporter {
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE);
     private static final Parameter EXPORT_MODE_PARAMETER = new Parameter(EXPORT_MODE, ParameterType.STRING, "export each extension in a separate file", String.valueOf(IidmImportExportMode.UNIQUE_FILE));
     private static final Parameter EXTENSIONS_LIST_PARAMETER = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of exported extensions", null);
-    private static final Parameter SKIP_EXTENSIONS_PARAMETER = new Parameter(SKIP_EXTENSIONS, ParameterType.BOOLEAN, "Skip exporting the extensions", Boolean.FALSE);
     private static final Parameter VERSION_PARAMETER = new Parameter(VERSION, ParameterType.STRING, "IIDM-XML version in which files will be generated", IidmXmlConstants.CURRENT_IIDM_XML_VERSION.toString("."));
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -123,7 +121,6 @@ public class XMLExporter implements Exporter {
                 .setTopologyLevel(TopologyLevel.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, TOPOLOGY_LEVEL_PARAMETER, defaultValueConfig)))
                 .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
                 .setMode(IidmImportExportMode.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, EXPORT_MODE_PARAMETER, defaultValueConfig)))
-                .setSkipExtensions(ConversionParameters.readBooleanParameter(getFormat(), parameters, SKIP_EXTENSIONS_PARAMETER, defaultValueConfig))
                 .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null)
                 .setVersion(ConversionParameters.readStringParameter(getFormat(), parameters, VERSION_PARAMETER, defaultValueConfig));
         addExtensionsVersions(parameters, options);
