@@ -11,6 +11,7 @@ import com.google.common.collect.FluentIterable;
 import com.powsybl.commons.PowsyblException;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.list.linked.TIntLinkedList;
+import gnu.trove.set.hash.TIntHashSet;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -97,7 +98,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     private final Lock adjacencyListCacheLock = new ReentrantLock();
 
-    private final TIntLinkedList availableVertices = new TIntLinkedList();
+    private final TIntHashSet availableVertices = new TIntHashSet();
 
     private final TIntLinkedList removedEdges = new TIntLinkedList();
 
@@ -120,9 +121,10 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         int v;
         if (availableVertices.isEmpty()) {
             v = vertices.size();
-            vertices.add(new Vertex<V>());
+            vertices.add(new Vertex<>());
         } else {
-            v = availableVertices.removeAt(0);
+            v = availableVertices.iterator().next();
+            availableVertices.remove(v);
         }
         invalidateAdjacencyList();
         notifyListener();
