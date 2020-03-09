@@ -12,7 +12,6 @@ import com.powsybl.security.interceptors.RunningContext;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  *
@@ -32,7 +31,7 @@ public class SecurityAnalysisResultBuilder {
 
     // Below are volatile objects used for building the actual complete result
     private LimitViolationsResult preContingencyResult;
-    private final List<PostContingencyResult> postContingencyResults = new CopyOnWriteArrayList<>();
+    private final List<PostContingencyResult> postContingencyResults = Collections.synchronizedList(new ArrayList<>());
 
     public SecurityAnalysisResultBuilder(LimitViolationFilter filter, RunningContext context,
                                          Collection<SecurityAnalysisInterceptor> interceptors) {
