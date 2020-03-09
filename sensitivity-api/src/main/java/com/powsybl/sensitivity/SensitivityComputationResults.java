@@ -22,12 +22,12 @@ import java.util.stream.Collectors;
  * A single sensitivity computation should return, besides its status and some stats on the
  * computation itself, all the sensitivity values for each factor (combination of a monitoredBranch and a specific
  * equipment or group of equipments). The HADES2 sensitivity provider used with Powsybl offers the
- * possibility to calculate the sensitivity on a set of contingencies besides the N state. It is a kind of
- * systematic sensitivity computation where the computation is launched only once, but the solver itself
+ * possibility to calculate the sensitivity on a set of contingencies besides the N state.
+ * The computation is launched only once, but the solver itself
  * modifies the matrix for each state of the network to output a full set of results.
- * In the sensitivity API, at the moment it has been allowed to provide a list of contingencies as an optional input,
- * which then triggers such a one-run systematic sensitivity computation.
- * The full set of results then consists of :
+ * In the sensitivity API, it has been allowed to provide a list of contingencies as an optional input,
+ * which then triggers such a sensitivity analysis.
+ * The full set of results consists of :
  *  - the list of sensitivity values in N
  *  - the lists of sensitivity values for each N-1 situation
  *  - some metadata (status, stats, logs)

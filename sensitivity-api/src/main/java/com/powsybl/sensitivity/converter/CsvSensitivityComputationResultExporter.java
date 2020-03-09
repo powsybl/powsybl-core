@@ -45,7 +45,7 @@ public class CsvSensitivityComputationResultExporter implements SensitivityCompu
 
     @Override
     public String getComment() {
-        return "Export a systematic sensitivity computation result in CSV format";
+        return "Export a sensitivity analysis result in CSV format";
     }
 
     @Override

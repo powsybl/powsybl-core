@@ -39,7 +39,7 @@ public interface SensitivityComputation extends Versionable {
     CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider factorsProvider, String workingStateId, SensitivityComputationParameters sensiParameters);
 
     /**
-     * Run an asynchronous systematic sensitivity computation job using given parameters and input provider
+     * Run an asynchronous sensitivity analysis job using given parameters and input provider
      *
      * @param factorsProvider sensitivity factors provider for the computation
      * @param contingenciesProvider contingencies provider for the computation

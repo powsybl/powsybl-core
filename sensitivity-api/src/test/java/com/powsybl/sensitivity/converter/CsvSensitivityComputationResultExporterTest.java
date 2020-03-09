@@ -55,6 +55,6 @@ public class CsvSensitivityComputationResultExporterTest extends AbstractConvert
 
     @Test
     public void testComment() {
-        assertEquals("Export a systematic sensitivity computation result in CSV format", SensitivityComputationResultExporters.getExporter("CSV").getComment());
+        assertEquals("Export a sensitivity analysis result in CSV format", SensitivityComputationResultExporters.getExporter("CSV").getComment());
     }
 }
