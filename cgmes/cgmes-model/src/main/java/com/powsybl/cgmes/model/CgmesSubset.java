@@ -62,7 +62,6 @@ public enum CgmesSubset {
         this.identifier = identifier;
         this.validName0 = "_" + identifier + "_";
         this.validName1 = "_" + identifier + ".";
-        this.profileName = profile.get(identifier);
     }
 
     /**
@@ -73,7 +72,7 @@ public enum CgmesSubset {
     }
 
     public String getProfile() {
-        return profileName;
+        return PROFILE.get(identifier);
     }
 
     public boolean isValidName(String contextName) {
@@ -87,8 +86,7 @@ public enum CgmesSubset {
     private final String identifier;
     private final String validName0;
     private final String validName1;
-    private String profileName;
-    private final Map<String, String> profile = ImmutableMap.of(
+    private static final Map<String, String> PROFILE = ImmutableMap.of(
         "SV", "StateVariables",
         "EQ", "EquipmentCore",
         "SSH", "SteadyStateHypothesis",

@@ -13,6 +13,7 @@ package com.powsybl.cgmes.model;
 public final class CgmesNames {
 
     public static final String NAME = "IdentifiedObject.name";
+    public static final String GRAPH = "graph";
 
     public static final String FULL_MODEL = "FullModel";
     public static final String SCENARIO_TIME = "Model.scenarioTime";

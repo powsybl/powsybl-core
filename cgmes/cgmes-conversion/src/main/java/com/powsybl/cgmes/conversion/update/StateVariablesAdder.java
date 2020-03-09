@@ -6,9 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -50,7 +48,7 @@ public class StateVariablesAdder {
 
     public StateVariablesAdder(CgmesModel cgmes, Network n) {
         this.cgmes = Objects.requireNonNull(cgmes);
-        this.n = Objects.requireNonNull(n);
+        this.network = Objects.requireNonNull(n);
         this.cimVersion = ((CgmesModelTripleStore) cgmes).getCimVersion();
         this.originalTerminals = cgmes.terminals();
         this.originalFullModel = cgmes.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
@@ -61,13 +59,13 @@ public class StateVariablesAdder {
 
     private String originalSVcontext() {
         PropertyBags pbs = cgmes.graph();
-        PropertyBag defaultSvContext = new PropertyBag(Arrays.asList("graph"));
-        defaultSvContext.put("graph", CgmesSubset.STATE_VARIABLES.toString());
+        PropertyBag defaultSvContext = new PropertyBag(Arrays.asList(CgmesNames.GRAPH));
+        defaultSvContext.put(CgmesNames.GRAPH, CgmesSubset.STATE_VARIABLES.toString());
         return pbs.stream()
-            .filter(graph -> graph.getId("graph").contains(CgmesSubset.STATE_VARIABLES.getIdentifier()))
+            .filter(graph -> graph.getId(CgmesNames.GRAPH).contains(CgmesSubset.STATE_VARIABLES.getIdentifier()))
             .findAny()
             .orElse(defaultSvContext)
-            .getId("graph");
+            .getId(CgmesNames.GRAPH);
     }
 
     public void addStateVariablesToCgmes() {
@@ -102,7 +100,7 @@ public class StateVariablesAdder {
         PropertyBags voltages = new PropertyBags();
         // add voltages for TpNodes existing in the Model
         for (PropertyBag tn : cgmes.topologicalNodes()) {
-            Bus b = n.getBusBreakerView().getBus(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
+            Bus b = network.getBusBreakerView().getBus(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
             PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
             if (b != null) {
                 p.put(CgmesNames.ANGLE, fs(b.getAngle()));
@@ -119,7 +117,7 @@ public class StateVariablesAdder {
         // add voltages for TpNodes existing in the Model's boundaries
         boundaryNodesFromDanglingLines.entrySet().forEach(entry -> {
             PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
-            DanglingLine dl = n.getDanglingLine(entry.getKey());
+            DanglingLine dl = network.getDanglingLine(entry.getKey());
             Bus b = dl.getTerminal().getBusBreakerView().getBus();
             if (b != null) {
                 // calculate complex voltage value: abs for VOLTAGE, degrees for ANGLE
@@ -140,7 +138,7 @@ public class StateVariablesAdder {
 
     private void addPowerFlowToCgmes() {
         PropertyBags powerFlows = new PropertyBags();
-        for (Load l : n.getLoads()) {
+        for (Load l : network.getLoads()) {
             PropertyBag p = createPowerFlowProperties(l.getTerminal());
             if (p != null) {
                 powerFlows.add(p);
@@ -149,13 +147,13 @@ public class StateVariablesAdder {
                 LOG.error("No SvPowerFlow created for load {}", l.getId());
             }
         }
-        for (Generator g : n.getGenerators()) {
+        for (Generator g : network.getGenerators()) {
             PropertyBag p = createPowerFlowProperties(g.getTerminal());
             if (p != null) {
                 powerFlows.add(p);
             }
         }
-        for (ShuntCompensator s : n.getShuntCompensators()) {
+        for (ShuntCompensator s : network.getShuntCompensators()) {
             PropertyBag p = createPowerFlowProperties(s.getTerminal());
             if (p != null) {
                 powerFlows.add(p);
@@ -164,7 +162,6 @@ public class StateVariablesAdder {
 
         // PowerFlow at boundaries set as it was in original cgmes.
         for (PropertyBag terminal : originalTerminals) {
-            Objects.requireNonNull(terminal);
             if (terminal.getId("SvPowerFlow") == null) {
                 continue;
             }
@@ -183,7 +180,7 @@ public class StateVariablesAdder {
 
     private void addShuntCompensatorSectionsToCgmes() {
         PropertyBags shuntCompensatorSections = new PropertyBags();
-        for (ShuntCompensator s : n.getShuntCompensators()) {
+        for (ShuntCompensator s : network.getShuntCompensators()) {
             PropertyBag p = new PropertyBag(SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES);
             p.put("continuousSections", is(s.getCurrentSectionCount()));
             p.put("ShuntCompensator", s.getId());
@@ -196,7 +193,7 @@ public class StateVariablesAdder {
         PropertyBags tapSteps = new PropertyBags();
         String tapChangerPositionName = getTapChangerPositionName();
         final List<String> svTapStepProperties = Arrays.asList(tapChangerPositionName, CgmesNames.TAP_CHANGER);
-        for (TwoWindingsTransformer t : n.getTwoWindingsTransformers()) {
+        for (TwoWindingsTransformer t : network.getTwoWindingsTransformers()) {
             PropertyBag p = new PropertyBag(svTapStepProperties);
             // TODO If we could store an identifier for the tap changer in IIDM
             // then we would not need to query the CGMES model
@@ -211,9 +208,9 @@ public class StateVariablesAdder {
             }
         }
 
-        for (ThreeWindingsTransformer t : n.getThreeWindingsTransformers()) {
+        for (ThreeWindingsTransformer t : network.getThreeWindingsTransformers()) {
             PropertyBag p = new PropertyBag(svTapStepProperties);
-            Collections.unmodifiableList(Arrays.asList(t.getLeg1(), t.getLeg2(), t.getLeg3())).forEach(leg -> {
+            Arrays.asList(t.getLeg1(), t.getLeg2(), t.getLeg3()).forEach(leg -> {
                 if (leg.getPhaseTapChanger() != null) {
                     p.put(tapChangerPositionName, is(leg.getPhaseTapChanger().getTapPosition()));
                     p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerForPowerTransformer(t.getId()));
@@ -234,22 +231,17 @@ public class StateVariablesAdder {
         // to SvStatus
         PropertyBags svStatus = new PropertyBags();
         Set<String> addedConnectables = new HashSet<>();
-        for (VoltageLevel v : n.getVoltageLevels()) {
+        for (VoltageLevel v : network.getVoltageLevels()) {
             for (Connectable<?> c : v.getConnectables()) {
                 // need to check if connectable was already added
                 if (!addedConnectables.contains(c.getId())) {
                     addedConnectables.add(c.getId());
-                    if (c.getId() != null) {
-                        PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
-                        for (Terminal t : c.getTerminals()) {
-                            if (t == null) {
-                                continue;
-                            }
-                            p.put(IN_SERVICE, String.valueOf(t.isConnected()));
-                        }
-                        p.put(CgmesNames.CONDUCTING_EQUIPMENT, c.getId());
-                        svStatus.add(p);
+                    PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
+                    for (Terminal t : c.getTerminals()) {
+                        p.put(IN_SERVICE, Boolean.toString(t.isConnected()));
                     }
+                    p.put(CgmesNames.CONDUCTING_EQUIPMENT, c.getId());
+                    svStatus.add(p);
                 }
             }
         }
@@ -274,13 +266,12 @@ public class StateVariablesAdder {
 
     private Map<String, String> boundaryNodesFromDanglingLines() {
         Map<String, String> nodesFromLines = new HashMap<>();
-        List<String> boundaryNodes = new ArrayList<>();
-        cgmes.boundaryNodes().forEach(node -> boundaryNodes.add(node.getId("Node")));
+        List<String> boundaryNodes = cgmes.boundaryNodes().pluckLocals("Node");
 
         for (PropertyBag line : cgmes.acLineSegments()) {
             String lineId = line.getId(CgmesNames.AC_LINE_SEGMENT);
             // we need only acLinesSegments that were converted into DanglingLines
-            if (n.getDanglingLine(lineId) == null) {
+            if (network.getDanglingLine(lineId) == null) {
                 continue;
             }
             String tpNode1 = cgmes.terminal(line.getId(CgmesNames.TERMINAL1)).topologicalNode();
@@ -350,15 +341,15 @@ public class StateVariablesAdder {
             // now we can process all TPNodes from each island, and put them in one
             // multivaluedProperty.
             PropertyBags topologicalIslands = new PropertyBags();
-            byTopologicalIslandId.values().forEach(value -> {
+            byTopologicalIslandId.values().forEach(island -> {
                 PropertyBag topologicalIsland = new PropertyBag(SV_TOPOLOGICALISLAND_PROPERTIES);
                 topologicalIsland.setClassPropertyNames(Arrays.asList(CgmesNames.NAME));
                 topologicalIsland.setMultivaluedProperty(Arrays.asList("TopologicalNodes"));
-                topologicalIsland.put(CgmesNames.NAME, value.get(0).getId("name"));
+                topologicalIsland.put(CgmesNames.NAME, island.get(0).getId("name"));
                 topologicalIsland.put(CgmesNames.ANGLEREF_TOPOLOGICALNODE,
-                    value.get(0).getId(CgmesNames.ANGLEREF_TOPOLOGICALNODE));
+                    island.get(0).getId(CgmesNames.ANGLEREF_TOPOLOGICALNODE));
                 topologicalIsland.put(CgmesNames.TOPOLOGICAL_NODES,
-                    getMultivaluedProperty(value, CgmesNames.TOPOLOGICAL_NODES));
+                    String.join(",", island.pluckLocals(CgmesNames.TOPOLOGICAL_NODES)));
                 topologicalIslands.add(topologicalIsland);
             });
             cgmes.add(originalSVcontext, CgmesNames.TOPOLOGICAL_ISLAND, topologicalIslands);
@@ -386,22 +377,13 @@ public class StateVariablesAdder {
             newModelDescription.put(CgmesNames.DESCRIPTION, originalFullModel.get(0).getId("description"));
             newModelDescription.put(CgmesNames.VERSION, originalFullModel.get(0).getId("version"));
             newModelDescription.put(CgmesNames.DEPENDENT_ON,
-                getMultivaluedProperty(originalFullModel, "DependentOn"));
+                String.join(",", originalFullModel.pluckLocals("DependentOn")));
             newModelDescription.put(CgmesNames.PROFILE, originalFullModel.get(0).getId("profile"));
             newModelDescription.put(CgmesNames.MODELING_AUTHORITY_SET,
                 originalFullModel.get(0).getId("modelingAuthoritySet"));
             fullModelSV.add(newModelDescription);
             cgmes.add(originalSVcontext, CgmesNames.FULL_MODEL, fullModelSV);
         }
-    }
-
-    private String getMultivaluedProperty(PropertyBags pb, String multivaluedPropertyName) {
-        // for properties such as "md:Model.DependentOn" which might have arbitrary
-        // number of values, SPARQL will return multiple result sets. We will loop
-        // through all and collect all values for multiValued property.
-        List<String> list = new ArrayList<>();
-        pb.forEach(m -> list.add(m.getId(multivaluedPropertyName)));
-        return String.join(",", list);
     }
 
     private static String fs(double value) {
@@ -413,13 +395,13 @@ public class StateVariablesAdder {
     }
 
     private CgmesModel cgmes;
-    private Network n;
+    private Network network;
     private int cimVersion;
     private PropertyBags originalTerminals;
     private PropertyBags originalFullModel;
     private PropertyBags originalTopologicalIslands;
     private String originalSVcontext;
-    private  Map<String, String> boundaryNodesFromDanglingLines;
+    private Map<String, String> boundaryNodesFromDanglingLines;
     private static final String IN_SERVICE = "inService";
 
     private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList(CgmesNames.ANGLE, CgmesNames.VOLTAGE,

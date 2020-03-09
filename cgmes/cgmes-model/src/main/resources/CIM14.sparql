@@ -82,9 +82,9 @@ OPTIONAL { GRAPH ?graphSV {
         cim:SvPowerFlow.p ?p ;
         cim:SvPowerFlow.q ?q
 } OPTIONAL {?SvStatus
-		a cim:SvStatus ;
-		cim:SvStatus.ConductingEquipment ?ConductingEquipment ;
-		cim:SvStatus.inService ?inService . 
+        a cim:SvStatus ;
+        cim:SvStatus.ConductingEquipment ?ConductingEquipment ;
+        cim:SvStatus.inService ?inService . 
 }}
 OPTIONAL { GRAPH ?graphTP2 {
     ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode
@@ -96,15 +96,15 @@ SELECT *
 WHERE {
 { GRAPH ?graphTP {
     ?TopologicalNode 
-    	cim:IdentifiedObject.name ?name ;
-    	cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
+        cim:IdentifiedObject.name ?name ;
+        cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
 }}
 OPTIONAL { GRAPH ?graphSV {
-	?SvVoltage 
-		a cim:SvVoltage ;
-    	cim:SvVoltage.TopologicalNode ?TopologicalNode ;
-		cim:SvVoltage.v ?v ;
-		cim:SvVoltage.angle ?angle 
+    ?SvVoltage 
+        a cim:SvVoltage ;
+        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+        cim:SvVoltage.v ?v ;
+        cim:SvVoltage.angle ?angle 
 }}
 }
 

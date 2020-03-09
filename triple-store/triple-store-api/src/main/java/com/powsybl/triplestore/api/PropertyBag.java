@@ -8,13 +8,13 @@
 package com.powsybl.triplestore.api;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,10 +174,7 @@ public class PropertyBag extends HashMap<String, String> {
 
     public boolean isResource(String name) {
         // TODO do not rely on property name, use metadata or answer based on value?
-        List<String> list = Stream.of("TopologicalNode", "Terminal", "ShuntCompensator",
-            "TapChanger", "ConductingEquipment", "Model.DependentOn", "TopologicalNodes",
-            "AngleRefTopologicalNode").collect(Collectors.toList());
-        return list.contains(name) || resourceNames.contains(name);
+        return RESOURCE_NAMES.contains(name) || resourceNames.contains(name);
     }
 
     public String namespacePrefix(String name) {
@@ -213,6 +210,9 @@ public class PropertyBag extends HashMap<String, String> {
 
     private static final String NAMESPACE_PREFIX = "data";
     private static final String INDENTATION = "    ";
+    private static final List<String> RESOURCE_NAMES = Arrays.asList("TopologicalNode", "Terminal", "ShuntCompensator",
+        "TapChanger", "ConductingEquipment", "Model.DependentOn", "TopologicalNodes",
+        "AngleRefTopologicalNode");
 
     private static final Logger LOG = LoggerFactory.getLogger(PropertyBag.class);
 }
