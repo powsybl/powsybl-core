@@ -9,6 +9,7 @@ package com.powsybl.loadflow;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
@@ -39,7 +40,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         DC_VALUES // preprocessing to compute DC angles
     }
 
-    public static final String VERSION = "1.0";
+    // VERSION = 1.0 specificCompatibility
+    public static final String VERSION = "1.1";
 
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
     public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
@@ -209,6 +211,24 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     private void loadExtensions(PlatformConfig platformConfig) {
         for (ExtensionConfigLoader provider : SUPPLIER.get().getProviders()) {
             addExtension(provider.getExtensionClass(), provider.load(platformConfig));
+        }
+    }
+
+    public static void assertLessThanOrEqualToReferenceVersion(String tag, String version, String referenceVersion) {
+        if (version.compareTo(referenceVersion) > 0) {
+            String exception = String.format(
+                "LoadflowParameters. Tag: %s is not only valid for LoadflowParameters version %s. LoadFlowParameters version should be <= %s %n",
+                tag, version, referenceVersion);
+            throw new PowsyblException(exception);
+        }
+    }
+
+    public static void assertGreaterThanReferenceVersion(String tag, String version, String referenceVersion) {
+        if (version.compareTo(referenceVersion) <= 0) {
+            String exception = String.format(
+                "LoadflowParameters. Tag: %s is not only valid for LoadflowParameters version %s. LoadFlowParameters version should be > %s %n",
+                tag, version, referenceVersion);
+            throw new PowsyblException(exception);
         }
     }
 }

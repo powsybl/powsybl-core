@@ -36,12 +36,14 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
     @Override
     public LoadFlowParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, LoadFlowParameters parameters) throws IOException {
 
+        String version = null;
         List<Extension<LoadFlowParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
 
                 case "version":
                     parser.nextToken();
+                    version = parser.getValueAsString();
                     break;
 
                 case "voltageInitMode":
@@ -64,8 +66,14 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     parameters.setPhaseShifterRegulationOn(parser.readValueAs(Boolean.class));
                     break;
 
-                case "specificCompatibility":   // Keep the old tag name for compatibility
+                case "specificCompatibility":
+                    LoadFlowParameters.assertLessThanOrEqualToReferenceVersion("specificCompatibility", version, "1.0");
+                    parser.nextToken();
+                    parameters.setT2wtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
+                    break;
+
                 case "t2wtSplitShuntAdmittance":
+                    LoadFlowParameters.assertGreaterThanReferenceVersion("t2wtSplitShuntAdmittance", version, "1.0");
                     parser.nextToken();
                     parameters.setT2wtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
                     break;
