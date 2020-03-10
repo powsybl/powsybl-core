@@ -95,7 +95,9 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
     }
 
     private static void assertLessThanOrEqualToReferenceVersion(String tag, String version, String referenceVersion) {
-        if (version.compareTo(referenceVersion) > 0) {
+        if (version == null) {
+            throw new PowsyblException("LoadflowParameters. Unexpected null pointer for version");
+        } else if (version.compareTo(referenceVersion) > 0) {
             String exception = String.format(
                 "LoadflowParameters. Tag: %s is not only valid for LoadflowParameters version %s. LoadFlowParameters version should be <= %s %n",
                 tag, version, referenceVersion);
@@ -104,7 +106,9 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
     }
 
     private static void assertGreaterThanReferenceVersion(String tag, String version, String referenceVersion) {
-        if (version.compareTo(referenceVersion) <= 0) {
+        if (version == null) {
+            throw new PowsyblException("LoadflowParameters. Unexpected null pointer for version");
+        } else if (version.compareTo(referenceVersion) <= 0) {
             String exception = String.format(
                 "LoadflowParameters. Tag: %s is not only valid for LoadflowParameters version %s. LoadFlowParameters version should be > %s %n",
                 tag, version, referenceVersion);
