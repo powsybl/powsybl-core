@@ -4,9 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.xml;
+package com.powsybl.iidm.multi.xml;
 
-/*import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
 import com.powsybl.iidm.network.test.TerminalMockExt;
+import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -27,7 +28,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.*;*/
+import static org.junit.Assert.*;
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
@@ -35,22 +36,22 @@ import static org.junit.Assert.*;*/
 
 public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractXmlConverterTest {
 
-    /*private static MemDataSource exportOneFilePerExtensionType(Network network, List<String> extensions) {
+    private static MemDataSource exportOneFilePerExtensionType(Network network, List<String> extensions) {
         Properties exportProperties = new Properties();
-        exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
-        exportProperties.put(XMLExporter.EXTENSIONS_LIST, extensions);
+        exportProperties.put(MultiXMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
+        exportProperties.put(MultiXMLExporter.EXTENSIONS_LIST, extensions);
 
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter().export(network, exportProperties, dataSource);
+        new MultiXMLExporter().export(network, exportProperties, dataSource);
 
         return dataSource;
     }
 
     private static Network importOneFilePerExtensionType(ReadOnlyDataSource dataSource, List<String> extensions) {
         Properties importProperties = new Properties();
-        importProperties.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
-        importProperties.put(XMLImporter.EXTENSIONS_LIST, extensions);
-        return new XMLImporter().importData(dataSource, importProperties);
+        importProperties.put(MultiXMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
+        importProperties.put(MultiXMLImporter.EXTENSIONS_LIST, extensions);
+        return new MultiXMLImporter().importData(dataSource, importProperties);
     }
 
     private static void testImportMultipleExtensions(Network network, ReadOnlyDataSource dataSource, List<String> extensions) {
@@ -87,11 +88,13 @@ public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractXmlC
 
         testImportMultipleExtensions(network, dataSource, extensions);
 
-        //backward compatibility 1.0
-        ResourceDataSource dataSource2 = new ResourceDataSource("multiple-extensions",
-                new ResourceSet(getVersionDir(IidmXmlVersion.V_1_0),
-                        "multiple-extensions.xiidm", "multiple-extensions-loadBar.xiidm", "multiple-extensions-loadFoo.xiidm"));
-        testImportMultipleExtensions(network, dataSource2, extensions);
+        //backward compatibility
+        testForAllPreviousVersions(CURRENT_IIDM_XML_VERSION, v -> {
+            ResourceDataSource dataSource2 = new ResourceDataSource("multiple-extensions",
+                    new ResourceSet(getVersionDir(v),
+                            "multiple-extensions.xiidm", "multiple-extensions-loadBar.xiidm", "multiple-extensions-loadFoo.xiidm"));
+            testImportMultipleExtensions(network, dataSource2, extensions);
+        });
     }
 
     @Test
@@ -103,5 +106,5 @@ public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractXmlC
         TerminalMockExt terminalMockExt2 = load2.getExtension(TerminalMockExt.class);
         assertNotNull(terminalMockExt2);
         assertSame(load2.getTerminal(), terminalMockExt2.getTerminal());
-    }*/
+    }
 }

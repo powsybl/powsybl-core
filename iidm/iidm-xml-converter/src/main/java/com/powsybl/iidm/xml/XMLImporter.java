@@ -151,7 +151,7 @@ public class XMLImporter implements Importer {
         }
         return EXTENSIONS_SUPPLIER.get().getProviders().stream().anyMatch(extensionXmlSerializer -> {
             try {
-                return dataSource.exists("-" + extensionXmlSerializer.getExtensionName(), ext);
+                return dataSource.exists(dataSource.getBaseName() + "-" + extensionXmlSerializer.getExtensionName() + ext);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

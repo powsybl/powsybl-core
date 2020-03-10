@@ -74,7 +74,6 @@ public class MultiXMLImporter extends XMLImporter {
     public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
         Objects.requireNonNull(dataSource);
         Network network;
-
         MultiXMLImportOptions options = new MultiXMLImportOptions();
         buildImportOptions(parameters, options);
         options.setMode(IidmImportExportMode.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, IMPORT_MODE_PARAMETER, defaultValueConfig)));
@@ -85,7 +84,6 @@ public class MultiXMLImporter extends XMLImporter {
                 throw new PowsyblException("File " + dataSource.getBaseName()
                         + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
             }
-
             network = NetworkMultiXml.read(dataSource, networkFactory, options, ext);
             LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {

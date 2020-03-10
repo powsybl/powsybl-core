@@ -4,14 +4,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.xml;
+package com.powsybl.iidm.multi.xml;
 
-/*import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.IidmImportExportMode;
-import com.powsybl.iidm.export.ExportOptions;
-import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
+import com.powsybl.iidm.xml.AbstractXmlConverterTest;
+import com.powsybl.iidm.xml.IidmXmlVersion;
+import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.xml.XMLExporter;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -22,7 +24,7 @@ import java.util.Properties;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;*/
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
@@ -30,13 +32,12 @@ import static org.junit.Assert.assertNotNull;*/
 
 public class XmlExporterBaseExtensionsTest extends AbstractXmlConverterTest {
 
-    /*private void exporterTestBaseExtensions(Network network) throws IOException {
+    private void exporterTestBaseExtensions(Network network) throws IOException {
         Properties exportProperties = new Properties();
         exportProperties.put(XMLExporter.ANONYMISED, "false");
-        exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));
 
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter().export(network, exportProperties, dataSource);
+        new MultiXMLExporter().export(network, exportProperties, dataSource);
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
             assertNotNull(is);
@@ -60,9 +61,9 @@ public class XmlExporterBaseExtensionsTest extends AbstractXmlConverterTest {
         Path path = tmpDir.resolve("base.xiidm");
         IidmImportExportMode mode = IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE;
         Network network = MultipleExtensionsTestNetworkFactory.create();
-        NetworkXml.writeAndValidate(network, new ExportOptions().setMode(mode), path);
-        Network network1 = NetworkXml.validateAndRead(path, new ImportOptions().setMode(mode));
+        NetworkMultiXml.writeAndValidate(network, new MultiXMLExportOptions().setMode(mode), path);
+        Network network1 = NetworkMultiXml.validateAndRead(path, new MultiXMLImportOptions().setMode(mode));
         assertEquals(network.getExtensions().size(), network1.getExtensions().size());
         assertEquals(network.getIdentifiables().size(), network1.getIdentifiables().size());
-    }*/
+    }
 }

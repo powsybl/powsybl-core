@@ -20,9 +20,13 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.anonymizer.Anonymizer;
 import com.powsybl.iidm.anonymizer.SimpleAnonymizer;
-import com.powsybl.iidm.export.BusFilter;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.xml.*;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.xml.IidmXmlVersion;
+import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.xml.NetworkXmlReaderContext;
+import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 import org.apache.commons.io.FilenameUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -38,7 +42,6 @@ import java.nio.file.Path;
 import java.util.*;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.*;
-
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -84,10 +87,12 @@ public final class NetworkMultiXml {
             switch (options.getMode()) {
                 case EXTENSIONS_IN_ONE_SEPARATED_FILE:
                     // in this case we have to read all extensions from one  file
-                    try (InputStream ise = dataSource.newInputStream("-ext", dataSourceExt)) {
-                        readExtensions(network, ise, anonymizer, options);
-                    } catch (IOException e) {
-                        LOGGER.warn(String.format("the extensions file wasn't found while importing, please ensure that the file name respect the naming convention baseFileName-ext.%s", dataSourceExt));
+                    if (dataSource.exists("-ext", dataSourceExt)) {
+                        try (InputStream ise = dataSource.newInputStream("-ext", dataSourceExt)) {
+                            readExtensions(network, ise, anonymizer, options);
+                        } catch (IOException e) {
+                            LOGGER.warn(String.format("the extensions file wasn't found while importing, please ensure that the file name respect the naming convention baseFileName-ext.%s", dataSourceExt));
+                        }
                     }
                     break;
                 case ONE_SEPARATED_FILE_PER_EXTENSION_TYPE:
@@ -126,7 +131,8 @@ public final class NetworkMultiXml {
     public static Anonymizer write(Network network, MultiXMLExportOptions options, DataSource dataSource, String dataSourceExt) throws IOException {
         try (OutputStream osb = dataSource.newOutputStream("", dataSourceExt, false);
              BufferedOutputStream bosb = new BufferedOutputStream(osb)) {
-            NetworkXmlWriterContext context = writeBaseNetwork(network, bosb, options);
+            XMLStreamWriter writer = initializeBaseNetworkWriter(network, bosb, options);
+            NetworkXmlWriterContext context = NetworkXml.writeBaseNetwork(network, writer, options);
             XmlUtil.writeEndElement(context.getWriter());
             // write extensions
             if (!options.withNoExtension() && !NetworkXml.getNetworkExtensions(network).isEmpty()) {
@@ -201,10 +207,14 @@ public final class NetworkMultiXml {
     private static void readExtensions(Network network, ReadOnlyDataSource dataSource, Anonymizer anonymizer, MultiXMLImportOptions options, String ext) throws IOException {
         options.getExtensions().ifPresent(extensions -> {
             for (String extension : extensions) {
-                try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() + "-" + extension + ext)) {
-                    readExtensions(network, ise, anonymizer, options);
+                try {
+                    if (dataSource.exists(dataSource.getBaseName() + "-" + extension + ext)) {
+                        try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() + "-" + extension + ext)) {
+                            readExtensions(network, ise, anonymizer, options);
+                        }
+                    }
                 } catch (IOException e) {
-                    LOGGER.warn(String.format("the %s extension file is not found despite it was declared in the extensions list", extension));
+                    throw new UncheckedIOException(e);
                 }
             }
         });
@@ -282,40 +292,6 @@ public final class NetworkMultiXml {
                 }
             }
         }
-    }
-
-    private static NetworkXmlWriterContext writeBaseNetwork(Network n, OutputStream os, MultiXMLExportOptions options) throws XMLStreamException {
-        // create the  writer of the base file
-        XMLStreamWriter writer = initializeBaseNetworkWriter(n, os, options);
-        BusFilter filter = BusFilter.create(n, options);
-        Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
-        IidmXmlVersion version = options.getVersion() == null ? IidmXmlConstants.CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
-        NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter, version);
-        // Consider the network has been exported so its extensions will be written also
-        context.addExportedEquipment(n);
-
-        PropertiesXml.write(n, context);
-
-        for (Substation s : n.getSubstations()) {
-            SubstationXml.INSTANCE.write(s, null, context);
-        }
-        for (Line l : n.getLines()) {
-            if (!filter.test(l)) {
-                continue;
-            }
-            if (l.isTieLine()) {
-                TieLineXml.INSTANCE.write((TieLine) l, n, context);
-            } else {
-                LineXml.INSTANCE.write(l, n, context);
-            }
-        }
-        for (HvdcLine l : n.getHvdcLines()) {
-            if (!filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
-                continue;
-            }
-            HvdcLineXml.INSTANCE.write(l, n, context);
-        }
-        return context;
     }
 
     private static void writeExtensionsInMultipleFile(Network n, NetworkXmlWriterContext context, DataSource dataSource, MultiXMLExportOptions options, String dataSourceExt) throws XMLStreamException, IOException {

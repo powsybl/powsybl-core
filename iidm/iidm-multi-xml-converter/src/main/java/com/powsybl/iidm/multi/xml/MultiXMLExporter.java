@@ -7,6 +7,7 @@
 package com.powsybl.iidm.multi.xml;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.IidmImportExportMode;
@@ -52,7 +53,12 @@ public class MultiXMLExporter extends XMLExporter {
         }
         MultiXMLExportOptions options = new MultiXMLExportOptions();
         buildExportOptions(parameters, options);
-        options.setMode(IidmImportExportMode.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, EXPORT_MODE_PARAMETER, defaultValueConfig)));
+        IidmImportExportMode mode = IidmImportExportMode.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, EXPORT_MODE_PARAMETER, defaultValueConfig));
+        if (!IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE.equals(mode)
+                && !IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE.equals(mode)) {
+            throw new PowsyblException("Unexpected mode for multi-files IIDM-XML export: " + mode);
+        }
+        options.setMode(mode);
         try {
             long startTime = System.currentTimeMillis();
             NetworkMultiXml.write(network, options, dataSource, "xiidm");

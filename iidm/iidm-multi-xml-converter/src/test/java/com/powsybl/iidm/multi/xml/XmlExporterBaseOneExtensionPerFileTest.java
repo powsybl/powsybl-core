@@ -4,23 +4,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.xml;
+package com.powsybl.iidm.multi.xml;
 
-/*import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
+import com.powsybl.iidm.xml.IidmXmlVersion;
+import com.powsybl.iidm.xml.NetworkXml;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.*;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;*/
+import static org.junit.Assert.assertNotNull;
+
+import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
@@ -28,13 +32,13 @@ import static org.junit.Assert.assertNotNull;*/
 
 public class XmlExporterBaseOneExtensionPerFileTest extends AbstractXmlConverterTest {
 
-    /*private MemDataSource export(Network network, List<String> extensionsList) {
+    private MemDataSource export(Network network, List<String> extensionsList) {
         Properties properties = new Properties();
-        properties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
-        properties.put(XMLExporter.EXTENSIONS_LIST, extensionsList);
+        properties.put(MultiXMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
+        properties.put(MultiXMLExporter.EXTENSIONS_LIST, extensionsList);
 
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter().export(network, properties, dataSource);
+        new MultiXMLExporter().export(network, properties, dataSource);
         return dataSource;
     }
 
@@ -65,17 +69,15 @@ public class XmlExporterBaseOneExtensionPerFileTest extends AbstractXmlConverter
     }
 
     @Test
-    public void getIdentifiablesPerExtensionTypeTest() {
-        Network n = MultipleExtensionsTestNetworkFactory.create();
-        Map<String, Set<String>> m = NetworkXml.getIdentifiablesPerExtensionType(n);
-        assertEquals(2, m.size());
-        assertEquals("[loadFoo=[LOAD, LOAD2], loadBar=[LOAD]]", m.entrySet().toString());
-    }
-
-    @Test
     public void exportAllExtensionsTest() throws IOException {
         List<String> extensionsList = Arrays.asList("loadFoo", "loadBar");
-        exporterOneFilePerExtensionType(NetworkXml.read(getVersionedNetworkAsStream("multiple-extensions.xml", IidmXmlVersion.V_1_0)), extensionsList);
+        testForAllPreviousVersions(CURRENT_IIDM_XML_VERSION, v -> {
+            try {
+                exporterOneFilePerExtensionType(NetworkXml.read(getVersionedNetworkAsStream("multiple-extensions.xml", v)), extensionsList);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
         exporterOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(), extensionsList);
     }
 
@@ -97,5 +99,5 @@ public class XmlExporterBaseOneExtensionPerFileTest extends AbstractXmlConverter
     public void exportTerminalExtTest() throws IOException {
         exportTerminalExtTest(NetworkXml.read(getVersionedNetworkAsStream("eurostag-tutorial-example1-with-terminalMock-ext.xml", IidmXmlVersion.V_1_0)));
         exportTerminalExtTest(EurostagTutorialExample1Factory.createWithTerminalMockExt());
-    }*/
+    }
 }

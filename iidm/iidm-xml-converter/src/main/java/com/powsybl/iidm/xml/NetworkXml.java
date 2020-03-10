@@ -262,10 +262,7 @@ public final class NetworkXml {
         return writer;
     }
 
-    private static NetworkXmlWriterContext writeBaseNetwork(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
-
-        // create the  writer of the base file
-        XMLStreamWriter writer = initializeWriter(n, os, options);
+    public static NetworkXmlWriterContext writeBaseNetwork(Network n, XMLStreamWriter writer, ExportOptions options) throws XMLStreamException {
         BusFilter filter = BusFilter.create(n, options);
         Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
         IidmXmlVersion version = options.getVersion() == null ? IidmXmlConstants.CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
@@ -299,7 +296,7 @@ public final class NetworkXml {
 
     public static Anonymizer write(Network n, ExportOptions options, OutputStream os) {
         try {
-            NetworkXmlWriterContext context = writeBaseNetwork(n, os, options);
+            NetworkXmlWriterContext context = writeBaseNetwork(n, initializeWriter(n, os, options), options);
             // write extensions
             writeExtensions(n, context, options);
             XmlUtil.writeEndElement(context.getWriter());
