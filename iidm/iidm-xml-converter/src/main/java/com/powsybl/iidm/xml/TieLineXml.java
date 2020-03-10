@@ -17,9 +17,9 @@ import javax.xml.stream.XMLStreamException;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> {
+class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> {
 
-    public static final TieLineXml INSTANCE = new TieLineXml();
+    static final TieLineXml INSTANCE = new TieLineXml();
 
     static final String ROOT_ELEMENT_NAME = "tieLine";
 

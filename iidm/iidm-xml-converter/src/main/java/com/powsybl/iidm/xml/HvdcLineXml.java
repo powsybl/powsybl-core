@@ -17,9 +17,9 @@ import javax.xml.stream.XMLStreamException;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Network> {
+class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Network> {
 
-    public static final HvdcLineXml INSTANCE = new HvdcLineXml();
+    static final HvdcLineXml INSTANCE = new HvdcLineXml();
 
     static final String ROOT_ELEMENT_NAME = "hvdcLine";
 

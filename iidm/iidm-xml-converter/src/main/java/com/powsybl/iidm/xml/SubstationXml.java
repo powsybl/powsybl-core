@@ -17,9 +17,9 @@ import java.util.stream.Collectors;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder, Network> {
+class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder, Network> {
 
-    public static final SubstationXml INSTANCE = new SubstationXml();
+    static final SubstationXml INSTANCE = new SubstationXml();
 
     static final String ROOT_ELEMENT_NAME = "substation";
 
