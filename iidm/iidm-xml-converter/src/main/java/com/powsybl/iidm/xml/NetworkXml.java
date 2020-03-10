@@ -75,7 +75,7 @@ public final class NetworkXml {
     private NetworkXml() {
     }
 
-    public static Set<String> getNetworkExtensions(Network n) {
+    private static Set<String> getNetworkExtensions(Network n) {
         Set<String> extensions = new TreeSet<>();
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
             for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
@@ -120,7 +120,7 @@ public final class NetworkXml {
         }
     }
 
-    public static void validateWithExtensions(InputStream is) {
+    static void validateWithExtensions(InputStream is) {
         List<Source> additionalSchemas = new ArrayList<>();
         for (ExtensionXmlSerializer<?, ?> e : EXTENSIONS_SUPPLIER.get().getProviders()) {
             e.getXsdAsStreamList().forEach(xsd -> additionalSchemas.add(new StreamSource(xsd)));
@@ -162,7 +162,7 @@ public final class NetworkXml {
         }
     }
 
-    public static void writeExtension(Extension<? extends Identifiable<?>> extension, NetworkXmlWriterContext context) throws XMLStreamException {
+    private static void writeExtension(Extension<? extends Identifiable<?>> extension, NetworkXmlWriterContext context) throws XMLStreamException {
         XMLStreamWriter writer = context.getExtensionsWriter();
         ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(context.getOptions(),
                 extension.getName());
@@ -188,7 +188,7 @@ public final class NetworkXml {
         }
     }
 
-    public static ExtensionXmlSerializer getExtensionXmlSerializer(ExportOptions options, String extensionName) {
+    private static ExtensionXmlSerializer getExtensionXmlSerializer(ExportOptions options, String extensionName) {
         ExtensionXmlSerializer extensionXmlSerializer = options.isThrowExceptionIfExtensionNotFound()
                 ? EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extensionName)
                 : EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
@@ -198,7 +198,7 @@ public final class NetworkXml {
         return extensionXmlSerializer;
     }
 
-    public static String getNamespaceUri(ExtensionXmlSerializer extensionXmlSerializer, ExportOptions options) {
+    private static String getNamespaceUri(ExtensionXmlSerializer extensionXmlSerializer, ExportOptions options) {
         IidmXmlVersion networkVersion = options.getVersion() == null ? IidmXmlConstants.CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
         return getNamespaceUri(extensionXmlSerializer, options, networkVersion);
     }
@@ -227,7 +227,7 @@ public final class NetworkXml {
         return extensionsSet;
     }
 
-    public static void writeExtensions(Network n, NetworkXmlWriterContext context, ExportOptions options) throws XMLStreamException {
+    private static void writeExtensions(Network n, NetworkXmlWriterContext context, ExportOptions options) throws XMLStreamException {
 
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions();
@@ -245,14 +245,14 @@ public final class NetworkXml {
         }
     }
 
-    public static void writeMainAttributes(Network n, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeMainAttributes(Network n, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeAttribute(ID, n.getId());
         writer.writeAttribute(CASE_DATE, n.getCaseDate().toString());
         writer.writeAttribute(FORECAST_DISTANCE, Integer.toString(n.getForecastDistance()));
         writer.writeAttribute(SOURCE_FORMAT, n.getSourceFormat());
     }
 
-    public static XMLStreamWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
+    private static XMLStreamWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
         IidmXmlVersion version = options.getVersion() == null ? CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
         XMLStreamWriter writer = XmlUtil.writeStartAttributes(os, IIDM_PREFIX, version.getNamespaceURI(), NETWORK_ROOT_ELEMENT_NAME, INDENT, options.isIndent());
         if (!options.withNoExtension()) {
@@ -262,7 +262,7 @@ public final class NetworkXml {
         return writer;
     }
 
-    public static NetworkXmlWriterContext writeBaseNetwork(Network n, XMLStreamWriter writer, ExportOptions options) throws XMLStreamException {
+    private static NetworkXmlWriterContext writeBaseNetwork(Network n, XMLStreamWriter writer, ExportOptions options) throws XMLStreamException {
         BusFilter filter = BusFilter.create(n, options);
         Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
         IidmXmlVersion version = options.getVersion() == null ? IidmXmlConstants.CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
@@ -337,14 +337,10 @@ public final class NetworkXml {
     }
 
     public static Anonymizer writeAndValidate(Network n, Path xmlFile) {
-        try {
-            return writeAndValidate(n, new ExportOptions(), xmlFile);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return writeAndValidate(n, new ExportOptions(), xmlFile);
     }
 
-    public static Anonymizer writeAndValidate(Network n, ExportOptions options, Path xmlFile) throws IOException {
+    public static Anonymizer writeAndValidate(Network n, ExportOptions options, Path xmlFile) {
         Anonymizer anonymizer = write(n, options, xmlFile);
         validateWithExtensions(xmlFile);
         return anonymizer;
@@ -437,7 +433,7 @@ public final class NetworkXml {
         }
     }
 
-    public static void checkExtensionsNotFound(NetworkXmlReaderContext context, Set<String> extensionNamesNotFound) {
+    private static void checkExtensionsNotFound(NetworkXmlReaderContext context, Set<String> extensionNamesNotFound) {
         if (!extensionNamesNotFound.isEmpty()) {
             if (context.getOptions().isThrowExceptionIfExtensionNotFound()) {
                 throw new PowsyblException("Extensions " + extensionNamesNotFound + " " +
@@ -495,7 +491,7 @@ public final class NetworkXml {
         return read(xmlFile);
     }
 
-    public static void readExtensions(Identifiable identifiable, NetworkXmlReaderContext context,
+    private static void readExtensions(Identifiable identifiable, NetworkXmlReaderContext context,
                                       Set<String> extensionNamesNotFound) throws XMLStreamException {
 
         XmlUtil.readUntilEndElementWithDepth(EXTENSION_ELEMENT_NAME, context.getReader(), elementDepth -> {

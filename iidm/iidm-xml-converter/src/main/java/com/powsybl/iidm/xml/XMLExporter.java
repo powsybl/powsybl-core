@@ -34,33 +34,32 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 /**
  * XML export of an IIDM model.<p>
  * <table border="1">
- * <tr>
- * <td><b>property name</b></td>
- * <td><b>comment</b></td>
- * <td><b>possible values</b></td>
- * </tr>
- * <tr>
- * <td>iidm.export.xml.indent</td>
- * <td>if true write indented xml (4 spaces)</td>
- * <td>true or false</td>
- * </tr>
- * <tr>
- * <td>iidm.export.xml.with-branch-state-variables</td>
- * <td>if true export branches state (active and reactive flow)</td>
- * <td>true or false</td>
- * </tr>
- * <tr>
- * <td>iidm.export.xml.only-main-cc</td>
- * <td>if true only export equipments of the main connected component</td>
- * <td>true or false</td>
- * </tr>
- * <tr>
- * <td>iidm.export.xml.topology-level</td>
- * <td>the detail level used in the export of voltage levels</td>
- * <td>NODE_BREAKER, BUS_BREAKER, BUS_BRANCH</td>
- * </tr>
+ *     <tr>
+ *         <td><b>property name</b></td>
+ *         <td><b>comment</b></td>
+ *         <td><b>possible values</b></td>
+ *     </tr>
+ *     <tr>
+ *         <td>iidm.export.xml.indent</td>
+ *         <td>if true write indented xml (4 spaces)</td>
+ *         <td>true or false</td>
+ *     </tr>
+ *     <tr>
+ *         <td>iidm.export.xml.with-branch-state-variables</td>
+ *         <td>if true export branches state (active and reactive flow)</td>
+ *         <td>true or false</td>
+ *     </tr>
+ *     <tr>
+ *         <td>iidm.export.xml.only-main-cc</td>
+ *         <td>if true only export equipments of the main connected component</td>
+ *         <td>true or false</td>
+ *     </tr>
+ *     <tr>
+ *         <td>iidm.export.xml.topology-level</td>
+ *         <td>the detail level used in the export of voltage levels</td>
+ *         <td>NODE_BREAKER, BUS_BREAKER, BUS_BRANCH</td>
+ *     </tr>
  * </table>
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(Exporter.class)
@@ -87,7 +86,7 @@ public class XMLExporter implements Exporter {
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE);
     private static final Parameter EXTENSIONS_LIST_PARAMETER = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of exported extensions", null);
     private static final Parameter VERSION_PARAMETER = new Parameter(VERSION, ParameterType.STRING, "IIDM-XML version in which files will be generated", IidmXmlConstants.CURRENT_IIDM_XML_VERSION.toString("."));
-    protected final ParameterDefaultValueConfig defaultValueConfig;
+    private final ParameterDefaultValueConfig defaultValueConfig;
 
     public XMLExporter() {
         this(PlatformConfig.defaultConfig());

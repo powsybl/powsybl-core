@@ -29,7 +29,7 @@ public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOpt
     private final BusFilter filter;
     private final Set<Identifiable> exportedEquipments;
 
-    public NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version) {
+    NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version) {
         super(anonymizer, version);
         this.writer = writer;
         this.options = options;

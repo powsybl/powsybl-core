@@ -17,6 +17,14 @@ public abstract class AbstractOptions<T> {
 
     public abstract T setExtensions(Set<String> extensions);
 
+    /**
+     * @deprecated Not used anymore
+     */
+    @Deprecated
+    public T setMode(IidmImportExportMode mode) {
+        throw new UnsupportedOperationException("Not supported anymore");
+    }
+
     public abstract T addExtension(String extension);
 
     public Optional<Set<String>> getExtensions() {
@@ -27,7 +35,7 @@ public abstract class AbstractOptions<T> {
         return extensions != null && extensions.isEmpty();
     }
 
-    public boolean withAllExtensions() {
+    public  boolean withAllExtensions() {
         return extensions == null;
     }
 
@@ -43,7 +51,16 @@ public abstract class AbstractOptions<T> {
         return false;
     }
 
-    public boolean withExtension(String extensionName) {
+    public  boolean withExtension(String extensionName) {
         return withAllExtensions() || extensions.contains(extensionName);
     }
+
+    /**
+     * @deprecated Not used anymore
+     */
+    @Deprecated
+    public IidmImportExportMode getMode() {
+        throw new UnsupportedOperationException("Not supported anymore");
+    }
+
 }
