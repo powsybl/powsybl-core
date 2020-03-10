@@ -195,7 +195,7 @@ public class PropertyBag extends HashMap<String, String> {
     }
 
     public void setMultivaluedProperty(List<String> multiValuedPropertyNames) {
-        this.multiValuedPropertyNames = Objects.requireNonNull(multiValuedPropertyNames);
+        this.multiValuedPropertyNames = new ArrayList<>(Objects.requireNonNull(multiValuedPropertyNames));
     }
 
     public boolean isMultivaluedProperty(String name) {
