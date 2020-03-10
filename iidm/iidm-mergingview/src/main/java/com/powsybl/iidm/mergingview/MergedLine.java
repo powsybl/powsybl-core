@@ -305,6 +305,11 @@ class MergedLine implements Line {
         }
     }
 
+    public Side getSide(final DanglingLine danglingLine) {
+        //FIXME(thomas)
+        return getSide(danglingLine.getTerminal());
+    }
+
     @Override
     public boolean isOverloaded() {
         return isOverloaded(1.0f);
@@ -481,7 +486,9 @@ class MergedLine implements Line {
 
     @Override
     public <E extends Extension<Line>> Collection<E> getExtensions() {
-        throw MergingView.createNotImplementedException();
+        //FIXME(thomas)
+        // throw MergingView.createNotImplementedException();
+        return Collections.emptyList();
     }
 
     @Override

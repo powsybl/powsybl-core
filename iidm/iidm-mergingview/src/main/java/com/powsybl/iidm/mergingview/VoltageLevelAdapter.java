@@ -369,7 +369,8 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         // -------------------------------
         @Override
         public Iterable<Bus> getBuses() {
-            throw MergingView.createNotImplementedException();
+            //FIXME(thomas)
+            return getDelegate().getBuses();
         }
 
         @Override

@@ -203,7 +203,8 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
     @Override
     public Component getConnectedComponent() {
-        throw MergingView.createNotImplementedException();
+        //FIXME(thomas)
+        return getDelegate().getConnectedComponent();
     }
 
     @Override
@@ -218,7 +219,62 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
     @Override
     public void visitConnectedEquipments(final TopologyVisitor visitor) {
-        throw MergingView.createNotImplementedException();
+        //FIXME(thomas)
+        TopologyVisitor visitorAdapter = new TopologyVisitor() {
+
+            @Override
+            public void visitBusbarSection(BusbarSection section) {
+                visitor.visitBusbarSection(section);
+            }
+
+            @Override
+            public void visitLine(Line line, Line.Side side) {
+                visitor.visitLine(line, side);
+            }
+
+            @Override
+            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoWindingsTransformer.Side side) {
+                visitor.visitTwoWindingsTransformer(transformer, side);
+            }
+
+            @Override
+            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+                visitor.visitThreeWindingsTransformer(transformer, side);
+            }
+
+            @Override
+            public void visitGenerator(Generator generator) {
+                visitor.visitGenerator(generator);
+            }
+
+            @Override
+            public void visitLoad(Load load) {
+                visitor.visitLoad(load);
+            }
+
+            @Override
+            public void visitShuntCompensator(ShuntCompensator sc) {
+                visitor.visitShuntCompensator(sc);
+            }
+
+            @Override
+            public void visitDanglingLine(DanglingLine danglingLine) {
+                if (getIndex().isMerged(danglingLine)) {
+                    MergedLine line = getIndex().getMergedLineByCode(danglingLine.getUcteXnodeCode());
+                    Branch.Side side = line.getSide(danglingLine);
+                    visitor.visitLine(line, side);
+                } else {
+                    visitor.visitDanglingLine(danglingLine);
+                }
+            }
+
+            @Override
+            public void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
+                visitor.visitStaticVarCompensator(staticVarCompensator);
+            }
+        };
+
+        getDelegate().visitConnectedEquipments(visitorAdapter);
     }
 
     @Override
