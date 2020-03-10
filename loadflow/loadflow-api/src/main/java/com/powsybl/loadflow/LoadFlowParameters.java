@@ -6,6 +6,7 @@
  */
 package com.powsybl.loadflow;
 
+import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
@@ -15,7 +16,11 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -199,8 +204,25 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 "t2wtSplitShuntAdmittance", t2wtSplitShuntAdmittance);
     }
 
+    /**
+     * This copy methods uses json serializer mechanism to rebuild all extensions in the this parameters.
+     * If an extension's serializer not found via {@code @AutoService}, the extension would be lost in copied.
+     * @return a new copied instance and with original's extensions found based-on json serializer.
+     */
     public LoadFlowParameters copy() {
-        return new LoadFlowParameters(this);
+        byte[] bytes = writeInMemory();
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes)) {
+            return JsonLoadFlowParameters.read(bais);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private byte[] writeInMemory() {
+        try (ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder()) {
+            JsonLoadFlowParameters.write(this, byteArrayBuilder);
+            return byteArrayBuilder.toByteArray();
+        }
     }
 
     @Override
