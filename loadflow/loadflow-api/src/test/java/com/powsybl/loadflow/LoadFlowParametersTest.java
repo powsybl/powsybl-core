@@ -101,12 +101,46 @@ public class LoadFlowParametersTest {
     }
 
     @Test
+    public void checkDefaultPlatformConfig() throws Exception {
+        LoadFlowParameters parameters = new LoadFlowParameters();
+        LoadFlowParameters.load(parameters);
+        checkValues(parameters, LoadFlowParameters.DEFAULT_VOLTAGE_INIT_MODE,
+            LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
+                LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
+    }
+
+    @Test
     public void checkConstructorByVoltageInitMode() throws Exception {
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
         LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode);
         checkValues(parameters, voltageInitMode, LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
-                LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
-                LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
+            LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
+            LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
+    }
+
+    @Test
+    public void checkConstructorByVoltageInitModeAndTransformerVoltageControlOn() throws Exception {
+        LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
+        boolean transformerVoltageControlOn = true;
+        LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode, transformerVoltageControlOn);
+        checkValues(parameters, voltageInitMode, true, LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
+            LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
+            LoadFlowParameters.DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
+    }
+
+    @Test
+    public void checkConstructorByLoadFlowParameters() throws Exception {
+        LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
+        LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode);
+        checkValues(parameters, voltageInitMode, LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
+            LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
+            LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
+            LoadFlowParameters.DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
+        LoadFlowParameters parameters1 = new LoadFlowParameters(parameters);
+        checkValues(parameters1, voltageInitMode, LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
+            LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
+            LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
+            LoadFlowParameters.DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
     }
 
     @Test
