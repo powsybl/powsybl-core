@@ -183,11 +183,11 @@ public class PropertyBag extends HashMap<String, String> {
     }
 
     public void setResourceNames(List<String> resourceNames) {
-        this.resourceNames = Objects.requireNonNull(resourceNames);
+        this.resourceNames.addAll(Objects.requireNonNull(resourceNames));
     }
 
     public void setClassPropertyNames(List<String> classPropertyNames) {
-        this.classPropertyNames = Objects.requireNonNull(classPropertyNames);
+        this.classPropertyNames.addAll(Objects.requireNonNull(classPropertyNames));
     }
 
     public boolean isClassProperty(String name) {
@@ -195,7 +195,7 @@ public class PropertyBag extends HashMap<String, String> {
     }
 
     public void setMultivaluedProperty(List<String> multiValuedPropertyNames) {
-        this.multiValuedPropertyNames = new ArrayList<>(Objects.requireNonNull(multiValuedPropertyNames));
+        this.multiValuedPropertyNames.addAll(Objects.requireNonNull(multiValuedPropertyNames));
     }
 
     public boolean isMultivaluedProperty(String name) {
@@ -204,9 +204,9 @@ public class PropertyBag extends HashMap<String, String> {
 
     private final List<String> propertyNames;
     private final boolean removeInitialUnderscoreForIdentifiers;
-    private List<String> resourceNames = new ArrayList<>();
-    private List<String> classPropertyNames = new ArrayList<>();
-    private List<String> multiValuedPropertyNames = new ArrayList<>();
+    private final List<String> resourceNames = new ArrayList<>();
+    private final List<String> classPropertyNames = new ArrayList<>();
+    private final List<String> multiValuedPropertyNames = new ArrayList<>();
 
     private static final String NAMESPACE_PREFIX = "data";
     private static final String INDENTATION = "    ";
