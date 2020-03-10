@@ -12,8 +12,13 @@ package com.powsybl.iidm;
 
 public enum IidmImportExportMode {
     ONE_SEPARATED_FILE_PER_EXTENSION_TYPE,
-    UNIQUE_FILE,
-    EXTENSIONS_IN_ONE_SEPARATED_FILE
+    EXTENSIONS_IN_ONE_SEPARATED_FILE,
+
+    /**
+     * @deprecated Not used anymore: this mode is only used for multi-files XML import/export
+     */
+    @Deprecated
+    UNIQUE_FILE
 }
 
 

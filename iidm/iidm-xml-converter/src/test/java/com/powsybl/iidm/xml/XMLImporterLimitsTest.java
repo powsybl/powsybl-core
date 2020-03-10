@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.datasource.MemDataSource;
+/*import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
@@ -19,14 +19,14 @@ import java.util.Collections;
 import java.util.Properties;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;*/
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
 public class XMLImporterLimitsTest extends AbstractXmlConverterTest {
 
-    private void importExport(Network network) throws IOException {
+    /*private void importExport(Network network) throws IOException {
 
         Properties exportProperties = new Properties();
         exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));
@@ -61,5 +61,5 @@ public class XMLImporterLimitsTest extends AbstractXmlConverterTest {
 
         //backward compatibility 1.0
         importExport(NetworkXml.read(getVersionedNetworkAsStream("multiple-extensions.xml", IidmXmlVersion.V_1_0)));
-    }
+    }*/
 }

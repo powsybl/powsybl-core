@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.datasource.MemDataSource;
+/*import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportOptions;
@@ -22,7 +22,7 @@ import java.util.Properties;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotNull;*/
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class XmlExporterBaseExtensionsTest extends AbstractXmlConverterTest {
 
-    private void exporterTestBaseExtensions(Network network) throws IOException {
+    /*private void exporterTestBaseExtensions(Network network) throws IOException {
         Properties exportProperties = new Properties();
         exportProperties.put(XMLExporter.ANONYMISED, "false");
         exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));
@@ -64,5 +64,5 @@ public class XmlExporterBaseExtensionsTest extends AbstractXmlConverterTest {
         Network network1 = NetworkXml.validateAndRead(path, new ImportOptions().setMode(mode));
         assertEquals(network.getExtensions().size(), network1.getExtensions().size());
         assertEquals(network.getIdentifiables().size(), network1.getIdentifiables().size());
-    }
+    }*/
 }

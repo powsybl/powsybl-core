@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.datasource.MemDataSource;
+/*import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -20,7 +20,7 @@ import java.util.*;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotNull;*/
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
@@ -28,7 +28,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class XmlExporterBaseOneExtensionPerFileTest extends AbstractXmlConverterTest {
 
-    private MemDataSource export(Network network, List<String> extensionsList) {
+    /*private MemDataSource export(Network network, List<String> extensionsList) {
         Properties properties = new Properties();
         properties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
         properties.put(XMLExporter.EXTENSIONS_LIST, extensionsList);
@@ -97,5 +97,5 @@ public class XmlExporterBaseOneExtensionPerFileTest extends AbstractXmlConverter
     public void exportTerminalExtTest() throws IOException {
         exportTerminalExtTest(NetworkXml.read(getVersionedNetworkAsStream("eurostag-tutorial-example1-with-terminalMock-ext.xml", IidmXmlVersion.V_1_0)));
         exportTerminalExtTest(EurostagTutorialExample1Factory.createWithTerminalMockExt());
-    }
+    }*/
 }

@@ -8,7 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.*;
-import com.powsybl.iidm.IidmImportExportMode;
+//import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,10 +18,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.List;
+//import java.util.List;
 import java.util.Properties;
 
-import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
+//import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.*;
 
@@ -195,7 +195,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         assertNotNull(network2.getSubstation("P1"));
     }
 
-    @Test
+    /*@Test
     public void importDataFromTwoFiles() {
         Properties parameters = new Properties();
         parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));
@@ -276,5 +276,5 @@ public class XMLImporterTest extends AbstractConverterTest {
         Network network2 = importFromSingleFile(extensionsList2);
         assertEquals(1, network2.getLoad("LOAD").getExtensions().size());
         assertEquals(1, network2.getLoad("LOAD2").getExtensions().size());
-    }
+    }*/
 }

@@ -15,11 +15,7 @@ import java.util.Set;
 public abstract class AbstractOptions<T> {
     protected Set<String> extensions = null;
 
-    protected IidmImportExportMode mode = IidmImportExportMode.UNIQUE_FILE;
-
     public abstract T setExtensions(Set<String> extensions);
-
-    public abstract T setMode(IidmImportExportMode mode);
 
     public abstract T addExtension(String extension);
 
@@ -31,7 +27,7 @@ public abstract class AbstractOptions<T> {
         return extensions != null && extensions.isEmpty();
     }
 
-    public  boolean withAllExtensions() {
+    public boolean withAllExtensions() {
         return extensions == null;
     }
 
@@ -47,12 +43,7 @@ public abstract class AbstractOptions<T> {
         return false;
     }
 
-    public  boolean withExtension(String extensionName) {
+    public boolean withExtension(String extensionName) {
         return withAllExtensions() || extensions.contains(extensionName);
     }
-
-    public IidmImportExportMode getMode() {
-        return this.mode;
-    }
-
 }

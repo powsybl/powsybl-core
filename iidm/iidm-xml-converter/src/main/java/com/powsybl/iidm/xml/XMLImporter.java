@@ -10,13 +10,15 @@ import com.google.auto.service.AutoService;
 import com.google.common.base.Joiner;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.iidm.ConversionParameters;
-import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
@@ -52,23 +54,20 @@ public class XMLImporter implements Importer {
 
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
-    public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.import.xml.throw-exception-if-extension-not-found";
+    private static final Supplier<ExtensionProviders<ExtensionXmlSerializer>> EXTENSIONS_SUPPLIER = Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionXmlSerializer.class, "network"));
 
-    public static final String IMPORT_MODE = "iidm.import.xml.import-mode";
+    public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.import.xml.throw-exception-if-extension-not-found";
 
     public static final String EXTENSIONS_LIST = "iidm.import.xml.extensions";
 
-    private static final Parameter IMPORT_MODE_PARAMETER
-            = new Parameter(IMPORT_MODE, ParameterType.STRING, "import mode", String.valueOf(IidmImportExportMode.UNIQUE_FILE));
-
-    private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER
+    protected static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER
             = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)
             .addAdditionalNames("throwExceptionIfExtensionNotFound");
 
-    private static final Parameter EXTENSIONS_LIST_PARAMETER
+    protected static final Parameter EXTENSIONS_LIST_PARAMETER
             = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of extension files ", null);
 
-    private final ParameterDefaultValueConfig defaultValueConfig;
+    protected final ParameterDefaultValueConfig defaultValueConfig;
 
     static final String SUFFIX_MAPPING = "_mapping";
 
@@ -87,7 +86,7 @@ public class XMLImporter implements Importer {
 
     @Override
     public List<Parameter> getParameters() {
-        return Collections.singletonList(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER);
+        return ImmutableList.of(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER);
     }
 
     @Override
@@ -95,7 +94,7 @@ public class XMLImporter implements Importer {
         return "IIDM XML v " + CURRENT_IIDM_XML_VERSION.toString(".") + " importer";
     }
 
-    private String findExtension(ReadOnlyDataSource dataSource) throws IOException {
+    protected String findExtension(ReadOnlyDataSource dataSource) throws IOException {
         for (String ext : EXTENSIONS) {
             if (dataSource.exists(null, ext)) {
                 return ext;
@@ -108,13 +107,13 @@ public class XMLImporter implements Importer {
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
             String ext = findExtension(dataSource);
-            return exists(dataSource, ext);
+            return exists(dataSource, ext) && !extensionsExist(dataSource, ext);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private boolean exists(ReadOnlyDataSource dataSource, String ext) throws IOException {
+    protected boolean exists(ReadOnlyDataSource dataSource, String ext) throws IOException {
         try {
             if (ext != null) {
                 try (InputStream is = dataSource.newInputStream(null, ext)) {
@@ -146,6 +145,19 @@ public class XMLImporter implements Importer {
         }
     }
 
+    protected boolean extensionsExist(ReadOnlyDataSource dataSource, String ext) throws IOException {
+        if (dataSource.exists("-ext", ext)) {
+            return true;
+        }
+        return EXTENSIONS_SUPPLIER.get().getProviders().stream().anyMatch(extensionXmlSerializer -> {
+            try {
+                return dataSource.exists("-" + extensionXmlSerializer.getExtensionName(), ext);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
+    }
+
     @Override
     public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
         try {
@@ -175,11 +187,8 @@ public class XMLImporter implements Importer {
         Objects.requireNonNull(dataSource);
         Network network;
 
-        ImportOptions options = new ImportOptions()
-                .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
-                .setMode(IidmImportExportMode.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, IMPORT_MODE_PARAMETER, defaultValueConfig)))
-                .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null);
-
+        ImportOptions options = new ImportOptions();
+        buildImportOptions(parameters, options);
         long startTime = System.currentTimeMillis();
         try {
             String ext = findExtension(dataSource);
@@ -194,6 +203,13 @@ public class XMLImporter implements Importer {
             throw new PowsyblException(e);
         }
         return network;
+    }
+
+    protected void buildImportOptions(Properties parameters, ImportOptions options) {
+        options
+                .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
+                .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null);
+
     }
 }
 

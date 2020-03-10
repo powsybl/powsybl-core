@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.datasource.MemDataSource;
+/*import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.*;
+import static org.junit.Assert.*;*/
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
@@ -35,7 +35,7 @@ import static org.junit.Assert.*;
 
 public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractXmlConverterTest {
 
-    private static MemDataSource exportOneFilePerExtensionType(Network network, List<String> extensions) {
+    /*private static MemDataSource exportOneFilePerExtensionType(Network network, List<String> extensions) {
         Properties exportProperties = new Properties();
         exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
         exportProperties.put(XMLExporter.EXTENSIONS_LIST, extensions);
@@ -103,5 +103,5 @@ public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractXmlC
         TerminalMockExt terminalMockExt2 = load2.getExtension(TerminalMockExt.class);
         assertNotNull(terminalMockExt2);
         assertSame(load2.getTerminal(), terminalMockExt2.getTerminal());
-    }
+    }*/
 }

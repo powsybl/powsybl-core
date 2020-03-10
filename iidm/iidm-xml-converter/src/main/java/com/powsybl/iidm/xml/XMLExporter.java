@@ -14,52 +14,53 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.iidm.ConversionParameters;
-import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyLevel;
-
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.HashSet;
+import java.util.Properties;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.*;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * XML export of an IIDM model.<p>
  * <table border="1">
- *     <tr>
- *         <td><b>property name</b></td>
- *         <td><b>comment</b></td>
- *         <td><b>possible values</b></td>
- *     </tr>
- *     <tr>
- *         <td>iidm.export.xml.indent</td>
- *         <td>if true write indented xml (4 spaces)</td>
- *         <td>true or false</td>
- *     </tr>
- *     <tr>
- *         <td>iidm.export.xml.with-branch-state-variables</td>
- *         <td>if true export branches state (active and reactive flow)</td>
- *         <td>true or false</td>
- *     </tr>
- *     <tr>
- *         <td>iidm.export.xml.only-main-cc</td>
- *         <td>if true only export equipments of the main connected component</td>
- *         <td>true or false</td>
- *     </tr>
- *     <tr>
- *         <td>iidm.export.xml.topology-level</td>
- *         <td>the detail level used in the export of voltage levels</td>
- *         <td>NODE_BREAKER, BUS_BREAKER, BUS_BRANCH</td>
- *     </tr>
+ * <tr>
+ * <td><b>property name</b></td>
+ * <td><b>comment</b></td>
+ * <td><b>possible values</b></td>
+ * </tr>
+ * <tr>
+ * <td>iidm.export.xml.indent</td>
+ * <td>if true write indented xml (4 spaces)</td>
+ * <td>true or false</td>
+ * </tr>
+ * <tr>
+ * <td>iidm.export.xml.with-branch-state-variables</td>
+ * <td>if true export branches state (active and reactive flow)</td>
+ * <td>true or false</td>
+ * </tr>
+ * <tr>
+ * <td>iidm.export.xml.only-main-cc</td>
+ * <td>if true only export equipments of the main connected component</td>
+ * <td>true or false</td>
+ * </tr>
+ * <tr>
+ * <td>iidm.export.xml.topology-level</td>
+ * <td>the detail level used in the export of voltage levels</td>
+ * <td>NODE_BREAKER, BUS_BREAKER, BUS_BRANCH</td>
+ * </tr>
  * </table>
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(Exporter.class)
@@ -75,7 +76,6 @@ public class XMLExporter implements Exporter {
     public static final String ANONYMISED = "iidm.export.xml.anonymised";
     public static final String TOPOLOGY_LEVEL = "iidm.export.xml.topology-level";
     public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.export.xml.throw-exception-if-extension-not-found";
-    public static final String EXPORT_MODE = "iidm.export.xml.export-mode";
     public static final String EXTENSIONS_LIST = "iidm.export.xml.extensions";
     public static final String VERSION = "iidm.export.xml.version";
 
@@ -85,10 +85,9 @@ public class XMLExporter implements Exporter {
     private static final Parameter ANONYMISED_PARAMETER = new Parameter(ANONYMISED, ParameterType.BOOLEAN, "Anonymise exported network", Boolean.FALSE);
     private static final Parameter TOPOLOGY_LEVEL_PARAMETER = new Parameter(TOPOLOGY_LEVEL, ParameterType.STRING, "Export network in this topology level", "NODE_BREAKER");
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE);
-    private static final Parameter EXPORT_MODE_PARAMETER = new Parameter(EXPORT_MODE, ParameterType.STRING, "export each extension in a separate file", String.valueOf(IidmImportExportMode.UNIQUE_FILE));
     private static final Parameter EXTENSIONS_LIST_PARAMETER = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of exported extensions", null);
     private static final Parameter VERSION_PARAMETER = new Parameter(VERSION, ParameterType.STRING, "IIDM-XML version in which files will be generated", IidmXmlConstants.CURRENT_IIDM_XML_VERSION.toString("."));
-    private final ParameterDefaultValueConfig defaultValueConfig;
+    protected final ParameterDefaultValueConfig defaultValueConfig;
 
     public XMLExporter() {
         this(PlatformConfig.defaultConfig());
@@ -113,17 +112,8 @@ public class XMLExporter implements Exporter {
         if (network == null) {
             throw new IllegalArgumentException("network is null");
         }
-        ExportOptions options = new ExportOptions()
-                .setIndent(ConversionParameters.readBooleanParameter(getFormat(), parameters, INDENT_PARAMETER, defaultValueConfig))
-                .setWithBranchSV(ConversionParameters.readBooleanParameter(getFormat(), parameters, WITH_BRANCH_STATE_VARIABLES_PARAMETER, defaultValueConfig))
-                .setOnlyMainCc(ConversionParameters.readBooleanParameter(getFormat(), parameters, ONLY_MAIN_CC_PARAMETER, defaultValueConfig))
-                .setAnonymized(ConversionParameters.readBooleanParameter(getFormat(), parameters, ANONYMISED_PARAMETER, defaultValueConfig))
-                .setTopologyLevel(TopologyLevel.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, TOPOLOGY_LEVEL_PARAMETER, defaultValueConfig)))
-                .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
-                .setMode(IidmImportExportMode.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, EXPORT_MODE_PARAMETER, defaultValueConfig)))
-                .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null)
-                .setVersion(ConversionParameters.readStringParameter(getFormat(), parameters, VERSION_PARAMETER, defaultValueConfig));
-        addExtensionsVersions(parameters, options);
+        ExportOptions options = new ExportOptions();
+        buildExportOptions(parameters, options);
         try {
             long startTime = System.currentTimeMillis();
             NetworkXml.write(network, options, dataSource, "xiidm");
@@ -148,5 +138,17 @@ public class XMLExporter implements Exporter {
                 }
             }
         });
+    }
+
+    protected void buildExportOptions(Properties parameters, ExportOptions options) {
+        options.setIndent(ConversionParameters.readBooleanParameter(getFormat(), parameters, INDENT_PARAMETER, defaultValueConfig))
+                .setWithBranchSV(ConversionParameters.readBooleanParameter(getFormat(), parameters, WITH_BRANCH_STATE_VARIABLES_PARAMETER, defaultValueConfig))
+                .setOnlyMainCc(ConversionParameters.readBooleanParameter(getFormat(), parameters, ONLY_MAIN_CC_PARAMETER, defaultValueConfig))
+                .setAnonymized(ConversionParameters.readBooleanParameter(getFormat(), parameters, ANONYMISED_PARAMETER, defaultValueConfig))
+                .setTopologyLevel(TopologyLevel.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, TOPOLOGY_LEVEL_PARAMETER, defaultValueConfig)))
+                .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
+                .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null)
+                .setVersion(ConversionParameters.readStringParameter(getFormat(), parameters, VERSION_PARAMETER, defaultValueConfig));
+        addExtensionsVersions(parameters, options);
     }
 }
