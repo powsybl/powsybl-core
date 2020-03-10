@@ -23,6 +23,7 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
+import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.DanglingLine;
@@ -30,6 +31,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -155,6 +157,18 @@ public class StateVariablesAdder {
         }
         for (ShuntCompensator s : network.getShuntCompensators()) {
             PropertyBag p = createPowerFlowProperties(s.getTerminal());
+            if (p != null) {
+                powerFlows.add(p);
+            }
+        }
+        for (StaticVarCompensator c : network.getStaticVarCompensators()) {
+            PropertyBag p = createPowerFlowProperties(c.getTerminal());
+            if (p != null) {
+                powerFlows.add(p);
+            }
+        }
+        for (Battery b : network.getBatteries()) {
+            PropertyBag p = createPowerFlowProperties(b.getTerminal());
             if (p != null) {
                 powerFlows.add(p);
             }
