@@ -27,6 +27,8 @@ class MergedLine implements Line {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MergedLine.class);
 
+    private static final String UNEXPECTED_SIDE_ERROR = "Unexpected side value: ";
+
     private final MergingViewIndex index;
 
     private final DanglingLine dl1;
@@ -119,7 +121,7 @@ class MergedLine implements Line {
             case TWO:
                 return getTerminal2();
             default:
-                throw new AssertionError("Unexpected side value: " + side);
+                throw new AssertionError(UNEXPECTED_SIDE_ERROR + side);
         }
     }
 
@@ -141,7 +143,7 @@ class MergedLine implements Line {
             case TWO:
                 return getCurrentLimits2();
             default:
-                throw new AssertionError("Unexpected side value: " + side);
+                throw new AssertionError(UNEXPECTED_SIDE_ERROR + side);
         }
     }
 
@@ -300,7 +302,7 @@ class MergedLine implements Line {
                 return checkPermanentLimit2(limitReduction);
 
             default:
-                throw new AssertionError("Unexpected side value: " + side);
+                throw new AssertionError(UNEXPECTED_SIDE_ERROR + side);
         }
     }
 
@@ -340,7 +342,7 @@ class MergedLine implements Line {
                 return checkTemporaryLimits2(limitReduction);
 
             default:
-                throw new AssertionError("Unexpected side value: " + side);
+                throw new AssertionError(UNEXPECTED_SIDE_ERROR + side);
         }
     }
 

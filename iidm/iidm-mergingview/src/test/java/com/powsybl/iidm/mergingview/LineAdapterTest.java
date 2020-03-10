@@ -111,6 +111,7 @@ public class LineAdapterTest {
         final Line okLine = mergingView.newLine()
                                            .setId("okLine")
                                            .setName("okLineName")
+                                           .setFictitious(true)
                                            .setEnsureIdUnicity(true)
                                            .setR(1.0)
                                            .setX(2.0)
