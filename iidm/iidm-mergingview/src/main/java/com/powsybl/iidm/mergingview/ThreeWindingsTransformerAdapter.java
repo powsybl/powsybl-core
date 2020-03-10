@@ -202,6 +202,6 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
     // -------------------------------
     @Override
     public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 }

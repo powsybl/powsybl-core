@@ -27,7 +27,7 @@ class MergedLine implements Line {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MergedLine.class);
 
-    private static final String UNEXPECTED_SIDE_ERROR = "Unexpected side value: ";
+    private static final String UNEXPECTED_SIDE_VALUE = "Unexpected side value: ";
 
     private final MergingViewIndex index;
 
@@ -35,7 +35,7 @@ class MergedLine implements Line {
 
     private final DanglingLine dl2;
 
-    private final String id;
+    private String id;
 
     private final String name;
 
@@ -98,6 +98,33 @@ class MergedLine implements Line {
         });
     }
 
+    void computeAndSetP0() {
+        double p1 = dl1.getTerminal().getP();
+        double p2 = dl2.getTerminal().getP();
+        if (!Double.isNaN(p1) && !Double.isNaN(p2)) {
+            double losses = p1 + p2;
+            dl1.setP0((p1 + losses / 2.0) * sign(p2));
+            dl2.setP0((p2 + losses / 2.0) * sign(p1));
+        }
+    }
+
+    void computeAndSetQ0() {
+        double q1 = dl1.getTerminal().getQ();
+        double q2 = dl2.getTerminal().getQ();
+        if (!Double.isNaN(q1) && !Double.isNaN(q2)) {
+            double losses = q1 + q2;
+            dl1.setQ0((q1 + losses / 2.0) * sign(q2));
+            dl2.setQ0((q2 + losses / 2.0) * sign(q1));
+        }
+    }
+
+    private static int sign(double value) {
+        // Sign depends on the transit flow:
+        // P1 ---->-----DL1.P0 ---->----- DL2.P0 ---->---- P2
+        // The sign of DL1.P0 is the same as P2, and respectively the sign of DL2.P0 is the same than P1
+        return (value >= 0) ? 1 : -1;
+    }
+
     @Override
     public ConnectableType getType() {
         return ConnectableType.LINE;
@@ -121,7 +148,7 @@ class MergedLine implements Line {
             case TWO:
                 return getTerminal2();
             default:
-                throw new AssertionError(UNEXPECTED_SIDE_ERROR + side);
+                throw new AssertionError(UNEXPECTED_SIDE_VALUE + side);
         }
     }
 
@@ -143,7 +170,7 @@ class MergedLine implements Line {
             case TWO:
                 return getCurrentLimits2();
             default:
-                throw new AssertionError(UNEXPECTED_SIDE_ERROR + side);
+                throw new AssertionError(UNEXPECTED_SIDE_VALUE + side);
         }
     }
 
@@ -170,6 +197,12 @@ class MergedLine implements Line {
     @Override
     public String getId() {
         return id;
+    }
+
+    MergedLine setId(String id) {
+        Objects.requireNonNull(id, "id is null");
+        this.id = Identifiables.getUniqueId(id, index::contains);
+        return this;
     }
 
     @Override
@@ -302,7 +335,7 @@ class MergedLine implements Line {
                 return checkPermanentLimit2(limitReduction);
 
             default:
-                throw new AssertionError(UNEXPECTED_SIDE_ERROR + side);
+                throw new AssertionError(UNEXPECTED_SIDE_VALUE + side);
         }
     }
 
@@ -342,7 +375,7 @@ class MergedLine implements Line {
                 return checkTemporaryLimits2(limitReduction);
 
             default:
-                throw new AssertionError(UNEXPECTED_SIDE_ERROR + side);
+                throw new AssertionError(UNEXPECTED_SIDE_VALUE + side);
         }
     }
 
@@ -438,36 +471,36 @@ class MergedLine implements Line {
     // -------------------------------
     @Override
     public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public <E extends Extension<Line>> void addExtension(final Class<? super E> type, final E extension) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public <E extends Extension<Line>> E getExtension(final Class<? super E> type) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public <E extends Extension<Line>> E getExtensionByName(final String name) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public <E extends Extension<Line>> boolean removeExtension(final Class<E> type) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public <E extends Extension<Line>> Collection<E> getExtensions() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public <E extends Extension<Line>, B extends ExtensionAdder<Line, E>> B newExtension(Class<B> type) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 }
