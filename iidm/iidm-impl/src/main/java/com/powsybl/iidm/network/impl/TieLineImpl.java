@@ -6,10 +6,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import java.util.Objects;
+
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.ValidationException;
-
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

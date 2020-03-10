@@ -6,10 +6,14 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.TapChanger;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  *
