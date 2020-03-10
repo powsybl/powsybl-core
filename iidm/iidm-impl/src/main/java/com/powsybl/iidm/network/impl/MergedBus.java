@@ -199,6 +199,22 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
+    public int getConnectedComponentNumber() {
+        for (ConfiguredBus bus : buses) {
+            return bus.getConnectedComponentNumber();
+        }
+        return -1;
+    }
+
+    @Override
+    public int getSynchronousComponentNumber() {
+        for (ConfiguredBus bus : buses) {
+            return bus.getSynchronousComponentNumber();
+        }
+        return -1;
+    }
+
+    @Override
     public Iterable<Line> getLines() {
         checkValidity();
         List<Iterable<Line>> iterables = new ArrayList<>(buses.size());

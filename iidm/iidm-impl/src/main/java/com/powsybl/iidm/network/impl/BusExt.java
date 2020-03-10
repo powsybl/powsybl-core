@@ -20,8 +20,4 @@ interface BusExt extends Bus {
 
     Stream<TerminalExt> getConnectedTerminalStream();
 
-    void setConnectedComponentNumber(int connectedComponentNumber);
-
-    void setSynchronousComponentNumber(int componentNumber);
-
 }

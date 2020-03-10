@@ -168,6 +168,52 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
         return getDelegate().getQ();
     }
 
+    @Override
+    public int getConnectedComponentNumber() {
+        return getDelegate().getConnectedComponentNumber();
+    }
+
+    @Override
+    public void setConnectedComponentNumber(int connectedComponentNumber) {
+        getDelegate().setConnectedComponentNumber(connectedComponentNumber);
+    }
+
+    @Override
+    public void setSynchronousComponentNumber(int synchronousComponentNumber) {
+        getDelegate().setSynchronousComponentNumber(synchronousComponentNumber);
+    }
+
+    @Override
+    public int getSynchronousComponentNumber() {
+        return getDelegate().getSynchronousComponentNumber();
+    }
+
+    @Override
+    public ComponentAdapter getSynchronousComponent() {
+        MergingView.SynchronousComponentsManager ccm = getIndex().getView().getSynchronousComponentsManager();
+        ccm.update();
+        return ccm.getComponent(getSynchronousComponentNumber());
+    }
+
+    @Override
+    public ComponentAdapter getConnectedComponent() {
+        MergingView.ConnectedComponentsManager ccm = getIndex().getView().getConnectedComponentsManager();
+        ccm.update();
+        return ccm.getComponent(getConnectedComponentNumber());
+    }
+
+    @Override
+    public boolean isInMainConnectedComponent() {
+        Component cc = getConnectedComponent();
+        return cc != null && cc.getNum() == ComponentConstants.MAIN_NUM;
+    }
+
+    @Override
+    public boolean isInMainSynchronousComponent() {
+        Component sc = getSynchronousComponent();
+        return sc != null && sc.getNum() == ComponentConstants.MAIN_NUM;
+    }
+
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
@@ -193,26 +239,6 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public Component getSynchronousComponent() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public Component getConnectedComponent() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public boolean isInMainConnectedComponent() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public boolean isInMainSynchronousComponent() {
         throw MergingView.createNotImplementedException();
     }
 

@@ -6,11 +6,12 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Network.BusBreakerView;
 import com.powsybl.iidm.network.Network.BusView;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -72,12 +73,53 @@ public class BusAdapterTest {
     }
 
     @Test
-    public void testComponentSetterGetter() {
+    public void testSynchronousComponentSetterGetter() {
+        MergingView view = MergingView.create("testSynchronousComponentSetterGetter", "iidm");
+        view.merge(HvdcTestNetwork.createVsc());
+        HvdcLine l = view.getHvdcLine("L");
+        assertNotNull(l);
+        VscConverterStation cs1 = view.getVscConverterStation("C1");
+        VscConverterStation cs2 = view.getVscConverterStation("C2");
+        cs1.setLossFactor(0.022f);
+        cs1.setVoltageSetpoint(406.0);
+        cs2.setReactivePowerSetpoint(124.0);
+        cs2.setVoltageSetpoint(405);
+        cs2.setVoltageRegulatorOn(true);
+        Bus bus1 = l.getConverterStation1().getTerminal().getBusView().getBus();
+        Bus bus2 = l.getConverterStation2().getTerminal().getBusView().getBus();
+        assertTrue(bus1.isInMainConnectedComponent());
+        assertTrue(bus2.isInMainConnectedComponent());
+        assertTrue(bus1.isInMainSynchronousComponent());
+        assertFalse(bus2.isInMainSynchronousComponent());
+        int num1 = bus1.getSynchronousComponent().getNum();
+        int num2 = bus2.getSynchronousComponent().getNum();
+        assertNotEquals(num1, num2);
+    }
+
+    @Test
+    public void testConnectedComponentSetterGetter() {
+        MergingView view = MergingView.create("testConnectedComponentSetterGetter", "iidm");
+        view.merge(NetworkTest1Factory.create());
+        VoltageLevel voltageLevel1 = view.getVoltageLevel("voltageLevel1");
+        VoltageLevel.NodeBreakerView topology1 = voltageLevel1.getNodeBreakerView();
+        BusbarSection voltageLevel1BusbarSection1 = topology1.getBusbarSection("voltageLevel1BusbarSection1");
+        BusbarSection voltageLevel1BusbarSection2 = topology1.getBusbarSection("voltageLevel1BusbarSection2");
+        Load load1 = view.getLoad("load1");
+        Generator generator1 = view.getGenerator("generator1");
+        Bus busCalc1 = voltageLevel1BusbarSection1.getTerminal().getBusBreakerView().getBus();
+        Bus busCalc2 = voltageLevel1BusbarSection2.getTerminal().getBusBreakerView().getBus();
+        assertSame(busCalc1, load1.getTerminal().getBusBreakerView().getBus());
+        assertSame(busCalc2, generator1.getTerminal().getBusBreakerView().getBus());
+
+        assertTrue(busCalc1.isInMainConnectedComponent());
+        assertTrue(busCalc2.isInMainConnectedComponent());
+        assertEquals(0, busCalc1.getConnectedComponent().getNum());
+        assertEquals(0, busCalc2.getConnectedComponent().getNum());
+    }
+
+    @Test
+    public void testComponentVisitor() {
         // Not implemented yet !
-        TestUtil.notImplemented(bus::getSynchronousComponent);
-        TestUtil.notImplemented(bus::getConnectedComponent);
-        TestUtil.notImplemented(bus::isInMainConnectedComponent);
-        TestUtil.notImplemented(bus::isInMainSynchronousComponent);
         TestUtil.notImplemented(() -> bus.visitConnectedEquipments(null));
         TestUtil.notImplemented(() -> bus.visitConnectedOrConnectableEquipments(null));
     }

@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Component;
 
@@ -14,33 +15,36 @@ import java.util.stream.Stream;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class ComponentAdapter extends AbstractAdapter<Component> implements Component {
+public class ComponentAdapter implements Component {
 
-    ComponentAdapter(final Component delegate, final MergingViewIndex index) {
-        super(delegate, index);
+    private final MergingViewIndex index;
+    private final int num;
+    private final int size;
+
+    ComponentAdapter(MergingViewIndex index, int num, int size) {
+        this.index = index;
+        this.num = num;
+        this.size = size;
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
     public int getNum() {
-        throw MergingView.createNotImplementedException();
+        return num;
     }
 
     @Override
     public int getSize() {
-        throw MergingView.createNotImplementedException();
+        return size;
     }
 
     @Override
     public Iterable<Bus> getBuses() {
-        throw MergingView.createNotImplementedException();
+        return Iterables.filter(index.getView().getBusView().getBuses(), bus -> bus.getConnectedComponent() == ComponentAdapter.this);
     }
 
     @Override
     public Stream<Bus> getBusStream() {
-        throw MergingView.createNotImplementedException();
+        return index.getView().getBusView().getBusStream().filter(bus -> bus.getConnectedComponent() == ComponentAdapter.this);
     }
 
 }

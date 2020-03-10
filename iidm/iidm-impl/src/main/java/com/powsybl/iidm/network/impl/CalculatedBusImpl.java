@@ -173,6 +173,16 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
+    public int getConnectedComponentNumber() {
+        return terminalRef == null ? -1 : terminalRef.getConnectedComponentNumber();
+    }
+
+    @Override
+    public int getSynchronousComponentNumber() {
+        return terminalRef == null ? -1 : terminalRef.getSynchronousComponentNumber();
+    }
+
+    @Override
     public void setSynchronousComponentNumber(int componentNumber) {
         checkValidity();
         for (NodeTerminal terminal : terminals) {

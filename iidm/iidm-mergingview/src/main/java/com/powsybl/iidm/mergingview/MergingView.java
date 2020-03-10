@@ -41,6 +41,48 @@ public final class MergingView implements Network {
         return new PowsyblException("Not implemented exception");
     }
 
+    class ConnectedComponentsManager extends AbstractConnectedComponentsManager<ComponentAdapter> {
+        ConnectedComponentsManager(Network network) {
+            super(network);
+        }
+
+        @Override
+        protected ComponentAdapter createComponent(int num, int size) {
+            return new ComponentAdapter(index, num, size);
+        }
+
+        @Override
+        protected void setComponentNumber(Bus bus, int num) {
+            Objects.requireNonNull(bus);
+            ((BusAdapter) bus).setConnectedComponentNumber(num);
+        }
+    }
+
+    public ConnectedComponentsManager getConnectedComponentsManager() {
+        return new ConnectedComponentsManager(this);
+    }
+
+    class SynchronousComponentsManager extends AbstractSynchronousComponentsManager<ComponentAdapter> {
+        SynchronousComponentsManager(Network network) {
+            super(network);
+        }
+
+        @Override
+        protected ComponentAdapter createComponent(int num, int size) {
+            return new ComponentAdapter(index, num, size);
+        }
+
+        @Override
+        protected void setComponentNumber(Bus bus, int num) {
+            Objects.requireNonNull(bus);
+            ((BusAdapter) bus).setSynchronousComponentNumber(num);
+        }
+    }
+
+    public SynchronousComponentsManager getSynchronousComponentsManager() {
+        return new SynchronousComponentsManager(this);
+    }
+
     private static class BusBreakerViewAdapter implements Network.BusBreakerView {
 
         private final MergingViewIndex index;

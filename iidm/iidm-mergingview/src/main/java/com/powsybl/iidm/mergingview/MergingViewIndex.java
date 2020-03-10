@@ -25,8 +25,6 @@ class MergingViewIndex {
     /** Local storage for adapters created */
     private final Map<Identifiable, AbstractAdapter<? extends Identifiable>> identifiableCached = new WeakHashMap<>();
 
-    private final Map<Component, AbstractAdapter<? extends Component>> componentCached = new WeakHashMap<>();
-
     private final Map<Terminal, AbstractAdapter<? extends Terminal>> terminalCached = new WeakHashMap<>();
 
     private final Map<PhaseTapChanger, AbstractAdapter<? extends PhaseTapChanger>> ptcCached = new WeakHashMap<>();
@@ -344,10 +342,6 @@ class MergingViewIndex {
 
     BatteryAdapter getBattery(final Battery battery) {
         return battery == null ? null : (BatteryAdapter) identifiableCached.computeIfAbsent(battery, key -> new BatteryAdapter(battery, this));
-    }
-
-    ComponentAdapter getComponent(final Component component) {
-        return component == null ? null : (ComponentAdapter) componentCached.computeIfAbsent(component, key -> new ComponentAdapter(component, this));
     }
 
     TerminalAdapter getTerminal(final Terminal terminal) {

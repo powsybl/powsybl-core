@@ -138,7 +138,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
     public Component getConnectedComponent() {
         NetworkImpl.ConnectedComponentsManager ccm = voltageLevel.getNetwork().getConnectedComponentsManager();
         ccm.update();
-        return ccm.getComponent(connectedComponentNumber.get(network.get().getVariantIndex()));
+        return ccm.getComponent(getConnectedComponentNumber());
     }
 
     @Override
@@ -153,7 +153,17 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
     public Component getSynchronousComponent() {
         NetworkImpl.SynchronousComponentsManager scm = voltageLevel.getNetwork().getSynchronousComponentsManager();
         scm.update();
-        return scm.getComponent(synchronousComponentNumber.get(network.get().getVariantIndex()));
+        return scm.getComponent(getSynchronousComponentNumber());
+    }
+
+    @Override
+    public int getConnectedComponentNumber() {
+        return connectedComponentNumber.get(network.get().getVariantIndex());
+    }
+
+    @Override
+    public int getSynchronousComponentNumber() {
+        return synchronousComponentNumber.get(network.get().getVariantIndex());
     }
 
     @Override
