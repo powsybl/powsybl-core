@@ -81,7 +81,8 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
 
     @Override
     public ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        return getDelegate().setVoltageRegulatorOn(voltageRegulatorOn);
+        getDelegate().setVoltageRegulatorOn(voltageRegulatorOn);
+        return this;
     }
 
     @Override
@@ -91,7 +92,8 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
 
     @Override
     public ShuntCompensator setTargetV(double targetV) {
-        return getDelegate().setTargetV(targetV);
+        getDelegate().setTargetV(targetV);
+        return this;
     }
 
     @Override
@@ -101,7 +103,8 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
 
     @Override
     public ShuntCompensator setTargetDeadband(double targetDeadband) {
-        return getDelegate().setTargetDeadband(targetDeadband);
+        getDelegate().setTargetDeadband(targetDeadband);
+        return this;
     }
 
 }
