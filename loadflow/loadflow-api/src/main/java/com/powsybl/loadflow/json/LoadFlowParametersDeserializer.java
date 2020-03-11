@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -68,13 +67,13 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     break;
 
                 case "specificCompatibility":
-                    assertLessThanOrEqualToReferenceVersion("specificCompatibility", version, "1.0");
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion("specificCompatibility", version, "1.0");
                     parser.nextToken();
                     parameters.setT2wtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
                     break;
 
                 case "t2wtSplitShuntAdmittance":
-                    assertGreaterThanReferenceVersion("t2wtSplitShuntAdmittance", version, "1.0");
+                    JsonUtil.assertGreaterThanReferenceVersion("t2wtSplitShuntAdmittance", version, "1.0");
                     parser.nextToken();
                     parameters.setT2wtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
                     break;
@@ -92,27 +91,5 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
         JsonLoadFlowParameters.getExtensionSerializers().addExtensions(parameters, extensions);
 
         return parameters;
-    }
-
-    private static void assertLessThanOrEqualToReferenceVersion(String tag, String version, String referenceVersion) {
-        if (version == null) {
-            throw new PowsyblException("LoadflowParameters. Unexpected null pointer for version");
-        } else if (version.compareTo(referenceVersion) > 0) {
-            String exception = String.format(
-                "LoadflowParameters. Tag: %s is not only valid for LoadflowParameters version %s. LoadFlowParameters version should be <= %s %n",
-                tag, version, referenceVersion);
-            throw new PowsyblException(exception);
-        }
-    }
-
-    private static void assertGreaterThanReferenceVersion(String tag, String version, String referenceVersion) {
-        if (version == null) {
-            throw new PowsyblException("LoadflowParameters. Unexpected null pointer for version");
-        } else if (version.compareTo(referenceVersion) <= 0) {
-            String exception = String.format(
-                "LoadflowParameters. Tag: %s is not only valid for LoadflowParameters version %s. LoadFlowParameters version should be > %s %n",
-                tag, version, referenceVersion);
-            throw new PowsyblException(exception);
-        }
     }
 }

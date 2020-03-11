@@ -35,7 +35,9 @@ public class AmplExporter implements Exporter {
     private static final Parameter EXPORT_RATIOTAPCHANGER_VT_PARAMETER = new Parameter(EXPORT_RATIOTAPCHANGER_VT, ParameterType.BOOLEAN, "Export ratio tap changer voltage target", Boolean.FALSE)
             .addAdditionalNames("iidm.export.ampl.exportRatioTapChangerVoltageTarget");
     private static final Parameter T2WT_SPLIT_SHUNT_ADMITTANCE_PARAMETER = new Parameter(T2WT_SPLIT_SHUNT_ADMITTANCE, ParameterType.BOOLEAN, "Export t2wt split shunt admittance", Boolean.FALSE)
-            .addAdditionalNames("iidm.export.ampl.t2wtSplitShuntAdmittance");
+        .addAdditionalNames("iidm.export.ampl.tw2tSplitShuntAdmittance")
+        .addAdditionalNames("iidm.export.ampl.specific-compatibility")
+        .addAdditionalNames("iidm.export.ampl.specificCompatibility");
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 

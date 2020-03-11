@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.*;
 
 import java.io.*;
@@ -272,5 +273,25 @@ public final class JsonUtil {
                 objectCount--;
             }
         } while (objectCount != 0);
+    }
+
+    public static void assertLessThanOrEqualToReferenceVersion(String tag, String version, String referenceVersion) {
+        Objects.requireNonNull(version);
+        if (version.compareTo(referenceVersion) > 0) {
+            String exception = String.format(
+                "LoadflowParameters. Tag: %s is not a valid property for LoadflowParameters version %s. LoadFlowParameters version should be <= %s %n",
+                tag, version, referenceVersion);
+            throw new PowsyblException(exception);
+        }
+    }
+
+    public static void assertGreaterThanReferenceVersion(String tag, String version, String referenceVersion) {
+        Objects.requireNonNull(version);
+        if (version.compareTo(referenceVersion) <= 0) {
+            String exception = String.format(
+                "LoadflowParameters. Tag: %s is not a valid property for LoadflowParameters version %s. LoadFlowParameters version should be > %s %n",
+                tag, version, referenceVersion);
+            throw new PowsyblException(exception);
+        }
     }
 }
