@@ -17,7 +17,7 @@ import java.io.IOException;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -40,39 +40,35 @@ public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void unsupportedReadTest() {
-        testForAllPreviousVersions(IidmXmlVersion.V_1_2, v -> assertTrue(read(v)));
+        testForAllPreviousVersions(IidmXmlVersion.V_1_2, this::read);
     }
 
     @Test
     public void unsupportedWriteTest() {
         Network network = ShuntTestCaseFactory.create();
-        testForAllPreviousVersions(IidmXmlVersion.V_1_2, v -> assertTrue(write(network, v.toString("."))));
+        testForAllPreviousVersions(IidmXmlVersion.V_1_2, v -> write(network, v.toString(".")));
     }
 
-    private boolean read(IidmXmlVersion version) {
-        boolean exceptionThrown = false;
+    private void read(IidmXmlVersion version) {
         try {
             NetworkXml.read(getVersionedNetworkAsStream("faultyShunt.xml", version));
+            fail();
         } catch (PowsyblException e) {
-            exceptionThrown = true;
             assertEquals("shunt.regulatingTerminal is not supported for IIDM-XML version " +
                             version.toString(".") + ". IIDM-XML version should be >= 1.2",
                     e.getMessage());
         }
-        return exceptionThrown;
     }
 
-    private boolean write(Network network, String version) {
-        boolean exceptionThrown = false;
+    private void write(Network network, String version) {
         try {
             ExportOptions options = new ExportOptions().setVersion(version);
             NetworkXml.write(network, options, tmpDir.resolve("/fail.xml"));
+            fail();
         } catch (PowsyblException e) {
-            exceptionThrown = true;
             assertEquals("shunt.voltageRegulatorOn is not defined as default and not supported for IIDM-XML version " +
                             version + ". IIDM-XML version should be >= 1.2",
                     e.getMessage());
         }
-        return exceptionThrown;
     }
 }

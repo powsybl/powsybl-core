@@ -2,7 +2,7 @@
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_2" id="internal-connections" caseDate="2018-11-08T12:33:26.208+01:00" forecastDistance="0" sourceFormat="test">
     <iidm:substation id="s1" country="ES">
         <iidm:voltageLevel id="vl1" nominalV="400.0" topologyKind="NODE_BREAKER">
-            <iidm:nodeBreakerTopology nodeCount="5">
+            <iidm:nodeBreakerTopology>
                 <iidm:busbarSection id="b1" node="2"/>
                 <iidm:switch id="br1" kind="BREAKER" retained="false" open="false" node1="1" node2="2"/>
                 <iidm:internalConnection node1="0" node2="1"/>
@@ -15,7 +15,7 @@
     </iidm:substation>
     <iidm:substation id="s2" country="ES">
         <iidm:voltageLevel id="vl2" nominalV="400.0" topologyKind="NODE_BREAKER">
-            <iidm:nodeBreakerTopology nodeCount="5">
+            <iidm:nodeBreakerTopology>
                 <iidm:busbarSection id="b2" node="2"/>
                 <iidm:switch id="br2" kind="BREAKER" retained="false" open="false" node1="1" node2="2"/>
                 <iidm:internalConnection node1="0" node2="1"/>
