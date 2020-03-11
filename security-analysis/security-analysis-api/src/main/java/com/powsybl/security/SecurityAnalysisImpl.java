@@ -136,10 +136,9 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
     }
 
     private void setPreContigencyOkAndCheckViolations(SecurityAnalysisResultBuilder resultBuilder) {
-        resultBuilder.preContingency()
-                .setComputationOk(true)
-                .addViolations(violationDetector)
-                .endPreContingency();
+        SecurityAnalysisResultBuilder.PreContingencyResultBuilder builder = resultBuilder.preContingency().setComputationOk(true);
+        violationDetector.checkAll(network, builder::addViolation);
+        builder.endPreContingency();
     }
 
     private CompletableFuture<Void> setPreContingencyKo(SecurityAnalysisResultBuilder resultBuilder) {
@@ -212,7 +211,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
         network.getVariantManager().setWorkingVariant(postContVariantId);
         SecurityAnalysisResultBuilder.PostContingencyResultBuilder builder = resultBuilder.contingency(contingency).setComputationOk(lfResult.isOk());
         if (lfResult.isOk()) {
-            builder.addViolations(violationDetector);
+            violationDetector.checkAll(contingency, network, builder::addViolation);
         }
         builder.endContingency();
     }

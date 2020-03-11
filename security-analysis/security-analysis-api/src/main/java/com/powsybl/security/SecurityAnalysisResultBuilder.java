@@ -108,23 +108,12 @@ public class SecurityAnalysisResultBuilder {
             violations.forEach(this::addViolation);
             return (B) this;
         }
-
-        public abstract B addViolations(LimitViolationDetector detector);
     }
 
     /**
      * Builder for the pre-contingency result
      */
     public class PreContingencyResultBuilder extends AbstractLimitViolationsResultBuilder<PreContingencyResultBuilder> {
-
-        @Override
-        public PreContingencyResultBuilder addViolations(LimitViolationDetector detector) {
-            Objects.requireNonNull(detector);
-
-            detector.checkAll(context.getNetwork(), this::addViolation);
-
-            return this;
-        }
 
         /**
          * Finalize the creation of the PreContingencyResult instance
@@ -146,14 +135,6 @@ public class SecurityAnalysisResultBuilder {
 
         PostContingencyResultBuilder(Contingency contingency) {
             this.contingency = Objects.requireNonNull(contingency);
-        }
-
-        public PostContingencyResultBuilder addViolations(LimitViolationDetector detector) {
-            Objects.requireNonNull(detector);
-
-            detector.checkAll(contingency, context.getNetwork(), this::addViolation);
-
-            return this;
         }
 
         /**
