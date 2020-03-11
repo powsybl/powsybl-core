@@ -167,6 +167,16 @@ public final class IidmXmlUtil {
         }
     }
 
+    /**
+     * Write a <b>mandatory</b> int attribute until a given maximum IIDM-XML version. <br>
+     * If the context's IIDM-XML version is strictly more recent than the given maximum IIDM-XML version, do nothing.
+     */
+    public static void writeIntAttributeUntilMaximumVersion(String attributeName, int value, IidmXmlVersion maxVersion, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (context.getVersion().compareTo(maxVersion) <= 0) {
+            XmlUtil.writeInt(attributeName, value, context.getWriter());
+        }
+    }
+
     private IidmXmlUtil() {
     }
 }
