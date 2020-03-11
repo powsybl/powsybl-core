@@ -64,7 +64,6 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         for (TerminalExt terminal : terminals) {
             VoltageLevelExt vl = terminal.getVoltageLevel();
             vl.detach(terminal);
-            vl.clean();
         }
         network.getListeners().notifyRemoval(this);
     }

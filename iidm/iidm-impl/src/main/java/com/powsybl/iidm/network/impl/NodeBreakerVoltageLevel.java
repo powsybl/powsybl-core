@@ -166,6 +166,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             }
             SwitchImpl aSwitch = new SwitchImpl(NodeBreakerVoltageLevel.this, id, getName(), kind, open, retained, fictitious);
             getNetwork().getIndex().checkAndAdd(aSwitch);
+            graph.addVertexIfNotPresent(node1);
+            graph.addVertexIfNotPresent(node2);
             int e = graph.addEdge(node1, node2, aSwitch);
             switches.put(id, e);
             invalidateCache();
@@ -204,7 +206,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             if (node2 == null) {
                 throw new ValidationException(NodeBreakerVoltageLevel.this, "second connection node is not set");
             }
-
+            graph.addVertexIfNotPresent(node1);
+            graph.addVertexIfNotPresent(node2);
             graph.addEdge(node1, node2, null);
             invalidateCache();
         }
@@ -562,25 +565,23 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private final NodeBreakerViewExt nodeBreakerView = new NodeBreakerViewExt() {
 
+        /**
+         * @deprecated Use {@link #getMaximumNodeIndex()} instead.
+         */
         @Override
+        @Deprecated
         public int getNodeCount() {
             return graph.getVertexCount();
         }
 
         @Override
-        public int[] getNodes() {
-            return graph.getVertices();
+        public int getMaximumNodeIndex() {
+            return graph.getVertexCapacity() - 1;
         }
 
         @Override
-        public NodeBreakerView setNodeCount(int count) {
-            int oldCount = graph.getVertexCount();
-            if (count > oldCount) {
-                for (int i = oldCount; i < count; i++) {
-                    graph.addVertex();
-                }
-            }
-            return this;
+        public int[] getNodes() {
+            return graph.getVertices();
         }
 
         @Override
@@ -645,6 +646,23 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                             return graph.getEdgeVertex2(e);
                         }
                     });
+        }
+
+        @Override
+        public void removeInternalConnections(int node1, int node2) {
+            int[] internalConnectionsToBeRemoved = Arrays.stream(graph.getEdges())
+                    .filter(e -> graph.getEdgeObject(e) == null)
+                    .filter(e -> (graph.getEdgeVertex1(e) == node1 && graph.getEdgeVertex2(e) == node2) ||
+                            (graph.getEdgeVertex1(e) == node2 && graph.getEdgeVertex2(e) == node1))
+                    .toArray();
+            if (internalConnectionsToBeRemoved.length == 0) {
+                throw new PowsyblException("Internal connection not found between " + node1 + " and " + node2);
+            }
+            for (int ic : internalConnectionsToBeRemoved) {
+                graph.removeEdge(ic);
+            }
+            clean();
+            invalidateCache();
         }
 
         @Override
@@ -879,6 +897,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return;
         }
         int node = ((NodeTerminal) terminal).getNode();
+        graph.addVertexIfNotPresent(node);
         if (graph.getVertexObject(node) != null) {
             throw new ValidationException(terminal.getConnectable(),
                     "an equipment (" + graph.getVertexObject(node).getConnectable().getId()
@@ -906,10 +925,10 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         // remove the link terminal -> voltage level
         terminal.setVoltageLevel(null);
+        clean();
     }
 
-    @Override
-    public void clean() {
+    private void clean() {
         GraphUtil.removeIsolatedVertices(graph);
     }
 
