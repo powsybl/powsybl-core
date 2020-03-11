@@ -2,7 +2,7 @@
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_2" id="fictitious" caseDate="2017-06-25T17:43:00.000+01:00" forecastDistance="0" sourceFormat="test">
     <iidm:substation id="A" country="FR">
         <iidm:voltageLevel id="C" nominalV="225.0" lowVoltageLimit="0.0" topologyKind="NODE_BREAKER">
-            <iidm:nodeBreakerTopology nodeCount="5">
+            <iidm:nodeBreakerTopology>
                 <iidm:busbarSection id="D" name="E" node="0"/>
                 <iidm:switch id="F" name="G" kind="DISCONNECTOR" retained="false" open="false" fictitious="true" node1="0" node2="1"/>
                 <iidm:switch id="H" name="I" kind="DISCONNECTOR" retained="false" open="false" fictitious="true" node1="0" node2="3"/>
@@ -12,7 +12,7 @@
             </iidm:nodeBreakerTopology>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="N" nominalV="225.0" lowVoltageLimit="220.0" highVoltageLimit="245.00002" topologyKind="NODE_BREAKER">
-            <iidm:nodeBreakerTopology nodeCount="23">
+            <iidm:nodeBreakerTopology>
                 <iidm:busbarSection id="O" name="E" node="0"/>
                 <iidm:busbarSection id="P" name="Q" node="1"/>
                 <iidm:switch id="R" name="S" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="19"/>
