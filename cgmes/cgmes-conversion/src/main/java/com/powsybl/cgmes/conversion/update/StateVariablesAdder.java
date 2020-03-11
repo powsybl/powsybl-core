@@ -8,11 +8,9 @@ package com.powsybl.cgmes.conversion.update;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
@@ -244,21 +242,17 @@ public class StateVariablesAdder {
         // create SvStatus, iterate on Connectables, check Terminal status, add
         // to SvStatus
         PropertyBags svStatus = new PropertyBags();
-        Set<String> addedConnectables = new HashSet<>();
-        for (VoltageLevel v : network.getVoltageLevels()) {
-            for (Connectable<?> c : v.getConnectables()) {
-                // need to check if connectable was already added
-                if (!addedConnectables.contains(c.getId())) {
-                    addedConnectables.add(c.getId());
-                    PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
-                    for (Terminal t : c.getTerminals()) {
-                        p.put(IN_SERVICE, Boolean.toString(t.isConnected()));
-                    }
-                    p.put(CgmesNames.CONDUCTING_EQUIPMENT, c.getId());
-                    svStatus.add(p);
+        network.getVoltageLevelStream()
+            .flatMap(VoltageLevel::getConnectableStream)
+            .distinct()
+            .forEach(c -> {
+                PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
+                for (Terminal t : ((Connectable<?>) c).getTerminals()) {
+                    p.put(IN_SERVICE, Boolean.toString(t.isConnected()));
                 }
-            }
-        }
+                p.put(CgmesNames.CONDUCTING_EQUIPMENT, c.getId());
+                svStatus.add(p);
+            });
 
         // SvStatus at boundaries set as it was in original cgmes.
         for (PropertyBag terminal : originalTerminals) {
