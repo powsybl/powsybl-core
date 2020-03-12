@@ -235,6 +235,18 @@ public class Comparison {
         compare("bPerSection",
                 expected.getbPerSection(),
                 actual.getbPerSection());
+        compare("voltageRegulationOn",
+                expected.isVoltageRegulatorOn(),
+                actual.isVoltageRegulatorOn());
+        compare("targetV",
+                expected.getTargetV(),
+                actual.getTargetV());
+        compare("targetDeadband",
+                expected.getTargetDeadband(),
+                actual.getTargetDeadband());
+        sameIdentifier("regulationTerminal",
+                expected.getRegulatingTerminal().getBusBreakerView().getBus(),
+                actual.getRegulatingTerminal().getBusBreakerView().getBus());
     }
 
     private void compareStaticVarCompensators(
