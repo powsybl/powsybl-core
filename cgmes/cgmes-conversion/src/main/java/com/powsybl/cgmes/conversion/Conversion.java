@@ -191,15 +191,15 @@ public class Conversion {
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.currentLimitsMapping().addAll();
 
-        // set all regulating controls
-        context.regulatingControlMapping().setAllRegulatingControls(network);
-
         if (config.convertSvInjections()) {
             convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
         }
 
         clearUnattachedHvdcConverterStations(network, context); // in case of faulty CGMES files, remove HVDC Converter Stations without HVDC lines
         voltageAngles(nodes, context);
+
+        // set all regulating controls
+        context.regulatingControlMapping().setAllRegulatingControls(network);
         if (context.config().debugTopology()) {
             debugTopology(context);
         }
