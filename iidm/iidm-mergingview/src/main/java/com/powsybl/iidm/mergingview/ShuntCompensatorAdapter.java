@@ -7,6 +7,7 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Terminal;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -57,4 +58,53 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     public double getCurrentB() {
         return getDelegate().getCurrentB();
     }
+
+    @Override
+    public Terminal getRegulatingTerminal() {
+        return getIndex().getTerminal(getDelegate().getRegulatingTerminal());
+    }
+
+    @Override
+    public ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
+        Terminal terminal = regulatingTerminal;
+        if (terminal instanceof TerminalAdapter) {
+            terminal = ((TerminalAdapter) terminal).getDelegate();
+        }
+        getDelegate().setRegulatingTerminal(terminal);
+        return this;
+    }
+
+    @Override
+    public boolean isVoltageRegulatorOn() {
+        return getDelegate().isVoltageRegulatorOn();
+    }
+
+    @Override
+    public ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        getDelegate().setVoltageRegulatorOn(voltageRegulatorOn);
+        return this;
+    }
+
+    @Override
+    public double getTargetV() {
+        return getDelegate().getTargetV();
+    }
+
+    @Override
+    public ShuntCompensator setTargetV(double targetV) {
+        getDelegate().setTargetV(targetV);
+        return this;
+    }
+
+    @Override
+    public double getTargetDeadband() {
+        return getDelegate().getTargetDeadband();
+    }
+
+    @Override
+    public ShuntCompensator setTargetDeadband(double targetDeadband) {
+        getDelegate().setTargetDeadband(targetDeadband);
+        return this;
+    }
+
 }

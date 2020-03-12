@@ -23,7 +23,6 @@ public class KComputation {
     private double sum = 0;
     private double cumSumVarK = 0;
 
-
     /**
      * Register values for a generator:
      * @param p       Computed power generation
