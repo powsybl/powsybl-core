@@ -14,7 +14,6 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */

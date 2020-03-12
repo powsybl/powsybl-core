@@ -24,7 +24,6 @@ import java.util.Properties;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.assertEquals;
 
-
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
