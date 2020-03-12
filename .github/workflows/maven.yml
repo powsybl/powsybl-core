@@ -21,11 +21,11 @@ jobs:
 
       - name: Build with Maven
         if: matrix.os == 'ubuntu-latest'
-        run: mvn -T 2.0C --batch-mode -Pjacoco install
+        run: mvn --batch-mode -Pjacoco install
 
       - name: Build with Maven
         if: matrix.os != 'ubuntu-latest'
-        run: mvn -T 2.0C --batch-mode install
+        run: mvn --batch-mode install
 
       - name: Run SonarCloud analysis
         if: matrix.os == 'ubuntu-latest'
