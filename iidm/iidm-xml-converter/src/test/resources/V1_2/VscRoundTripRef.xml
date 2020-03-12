@@ -15,7 +15,7 @@
     </iidm:substation>
     <iidm:substation id="S2" country="FR">
         <iidm:voltageLevel id="VL2" nominalV="400.0" topologyKind="NODE_BREAKER">
-            <iidm:nodeBreakerTopology nodeCount="3">
+            <iidm:nodeBreakerTopology>
                 <iidm:busbarSection id="BBS1" name="BusbarSection" node="0"/>
                 <iidm:switch id="DISC_BBS1_BK1" name="Disconnector" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="1"/>
                 <iidm:switch id="BK1" name="Breaker" kind="BREAKER" retained="true" open="false" node1="1" node2="2"/>

@@ -32,7 +32,6 @@ public abstract class AbstractTopologyTraverserTest {
                 .setNominalV(400.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl1.getNodeBreakerView().setNodeCount(5);
         vl1.getNodeBreakerView().newBusbarSection()
                 .setId("BBS1")
                 .setNode(0)
@@ -78,7 +77,6 @@ public abstract class AbstractTopologyTraverserTest {
                 .setNominalV(400.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl2.getNodeBreakerView().setNodeCount(5);
         vl2.getNodeBreakerView().newBusbarSection()
                 .setId("BBS2")
                 .setNode(0)

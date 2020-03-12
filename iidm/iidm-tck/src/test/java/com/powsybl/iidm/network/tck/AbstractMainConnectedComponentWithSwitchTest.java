@@ -33,7 +33,6 @@ public abstract class AbstractMainConnectedComponentWithSwitchTest {
                 .setLowVoltageLimit(0.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl1.getNodeBreakerView().setNodeCount(3);
         vl1.getNodeBreakerView().newBusbarSection()
                 .setId("C")
                 .setNode(0)
@@ -65,7 +64,6 @@ public abstract class AbstractMainConnectedComponentWithSwitchTest {
                 .setLowVoltageLimit(0.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl2.getNodeBreakerView().setNodeCount(5);
         vl2.getNodeBreakerView().newBusbarSection()
                 .setId("H")
                 .setNode(0)

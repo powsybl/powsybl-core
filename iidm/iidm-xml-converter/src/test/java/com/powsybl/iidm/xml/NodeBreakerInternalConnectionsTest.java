@@ -46,7 +46,6 @@ public class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         NodeBreakerView n1 = vl1.getNodeBreakerView();
-        n1.setNodeCount(5);
         vl1.newGenerator()
                 .setId("g1")
                 .setNode(0)
@@ -71,7 +70,6 @@ public class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         NodeBreakerView n2 = vl2.getNodeBreakerView();
-        n2.setNodeCount(5);
         vl2.newLoad()
                 .setId("l2")
                 .setNode(0)

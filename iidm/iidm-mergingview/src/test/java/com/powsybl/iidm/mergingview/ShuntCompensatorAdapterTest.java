@@ -8,6 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,9 +57,34 @@ public class ShuntCompensatorAdapterTest {
         double b = shuntCExpected.getbPerSection();
         assertEquals(b, shuntCActual.getbPerSection(), 0.0d);
         assertTrue(shuntCActual.setbPerSection(++b) instanceof ShuntCompensatorAdapter);
+        assertEquals(shuntCExpected.getbPerSection(), shuntCActual.getbPerSection(), 0.0d);
+
+        double currentB = shuntCExpected.getCurrentB();
+        assertEquals(currentB, shuntCActual.getCurrentB(), 0.0d);
+        assertTrue(shuntCActual.setbPerSection(++currentB) instanceof ShuntCompensatorAdapter);
         assertEquals(shuntCExpected.getCurrentB(), shuntCActual.getCurrentB(), 0.0d);
+
+        Terminal terminal = mergingView.getLccConverterStation("C1").getTerminal();
+        assertTrue(shuntCActual.setRegulatingTerminal(terminal) instanceof ShuntCompensatorAdapter);
+        assertSame(terminal, shuntCActual.getRegulatingTerminal());
+
+        double targetV = shuntCExpected.getTargetV();
+        assertEquals(targetV, shuntCActual.getTargetV(), 0.0d);
+        assertTrue(shuntCActual.setTargetV(400) instanceof ShuntCompensatorAdapter);
+        assertEquals(shuntCExpected.getTargetV(), shuntCActual.getTargetV(), 0.0d);
+
+        double targetDeadband = shuntCExpected.getTargetDeadband();
+        assertEquals(targetDeadband, shuntCActual.getTargetDeadband(), 0.0d);
+        assertTrue(shuntCActual.setTargetDeadband(20) instanceof ShuntCompensatorAdapter);
+        assertEquals(shuntCExpected.getTargetDeadband(), shuntCActual.getTargetDeadband(), 0.0d);
+
+        boolean voltageRegulatorOn = shuntCExpected.isVoltageRegulatorOn();
+        assertEquals(voltageRegulatorOn, shuntCActual.isVoltageRegulatorOn());
+        assertTrue(shuntCActual.setVoltageRegulatorOn(!voltageRegulatorOn) instanceof ShuntCompensatorAdapter);
+        assertEquals(shuntCExpected.isVoltageRegulatorOn(), shuntCActual.isVoltageRegulatorOn());
 
         // Not implemented yet !
         TestUtil.notImplemented(shuntCActual::remove);
     }
 }
+    //pour les méthodes setComponentNumber de BusExt je peux les remonter dans Bus
