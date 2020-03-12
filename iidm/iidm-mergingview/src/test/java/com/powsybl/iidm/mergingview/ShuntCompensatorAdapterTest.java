@@ -54,12 +54,12 @@ public class ShuntCompensatorAdapterTest {
 
         double b = shuntCExpected.getModel(ShuntCompensatorLinearModel.class).getbPerSection();
         assertEquals(b, shuntCActual.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), 0.0d);
-        assertTrue(shuntCActual.getModel(ShuntCompensatorLinearModel.class).setbPerSection(++b) instanceof ShuntCompensatorAdapter);
+        shuntCActual.getModel(ShuntCompensatorLinearModel.class).setbPerSection(++b);
         assertEquals(shuntCExpected.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), shuntCActual.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), 0.0d);
 
         double currentB = shuntCExpected.getCurrentB();
         assertEquals(currentB, shuntCActual.getCurrentB(), 0.0d);
-        assertTrue(shuntCActual.getModel(ShuntCompensatorLinearModel.class).setbPerSection(++currentB) instanceof ShuntCompensatorAdapter);
+        shuntCActual.getModel(ShuntCompensatorLinearModel.class).setbPerSection(++currentB);
         assertEquals(shuntCExpected.getCurrentB(), shuntCActual.getCurrentB(), 0.0d);
 
         Terminal terminal = mergingView.getLccConverterStation("C1").getTerminal();
