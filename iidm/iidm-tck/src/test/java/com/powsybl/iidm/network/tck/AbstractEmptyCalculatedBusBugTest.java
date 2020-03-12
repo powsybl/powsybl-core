@@ -29,7 +29,6 @@ public abstract class AbstractEmptyCalculatedBusBugTest {
                 .setNominalV(400.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl.getNodeBreakerView().setNodeCount(2);
         vl.getNodeBreakerView().newBreaker()
                 .setId("SW1")
                 .setNode1(0)
@@ -56,7 +55,6 @@ public abstract class AbstractEmptyCalculatedBusBugTest {
 
         VoltageLevel vl = network.getVoltageLevel("VL");
         vl.getNodeBreakerView()
-                .setNodeCount(3)
                 .newInternalConnection()
                 .setNode1(1)
                 .setNode2(2)

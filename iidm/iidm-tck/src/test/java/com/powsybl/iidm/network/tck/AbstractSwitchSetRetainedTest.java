@@ -28,7 +28,6 @@ public abstract class AbstractSwitchSetRetainedTest {
                 .setNominalV(400.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl.getNodeBreakerView().setNodeCount(10);
         vl.getNodeBreakerView().newBusbarSection()
                 .setId("BBS1")
                 .setNode(0)
