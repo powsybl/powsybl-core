@@ -38,7 +38,7 @@ public class RegulatingControlMappingForShuntCompensators {
 
         if (mapping.containsKey(iidmId)) {
             throw new CgmesModelException(
-                    "StaticVarCompensator already added, IIDM StaticVarCompensator Id: " + iidmId);
+                    "ShuntCompensator already added, IIDM ShuntCompensator Id: " + iidmId);
         }
 
         mapping.put(iidmId, new CgmesRegulatingControlForShuntCompensator(rcId, controlEnabled));
