@@ -157,7 +157,6 @@ public interface Scalable {
         return new GeneratorScalable(id);
     }
 
-
     /**
      * create GeneratorScalable with id
      */

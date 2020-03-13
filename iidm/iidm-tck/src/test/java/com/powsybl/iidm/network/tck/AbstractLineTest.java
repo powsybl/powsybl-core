@@ -340,10 +340,10 @@ public abstract class AbstractLineTest {
         assertEquals("hl2", tieLine.getHalf2().getId());
         assertEquals(r + r2, tieLine.getR(), 0.0);
         assertEquals(x + x2, tieLine.getX(), 0.0);
-        assertEquals(hl1g1 + hl2g1, tieLine.getG1(), 0.0);
-        assertEquals(hl1g2 + hl2g2, tieLine.getG2(), 0.0);
-        assertEquals(hl1b1 + hl2b1, tieLine.getB1(), 0.0);
-        assertEquals(hl1b2 + hl2b2, tieLine.getB2(), 0.0);
+        assertEquals(hl1g1 + hl1g2, tieLine.getG1(), 0.0);
+        assertEquals(hl2g1 + hl2g2, tieLine.getG2(), 0.0);
+        assertEquals(hl1b1 + hl1b2, tieLine.getB1(), 0.0);
+        assertEquals(hl2b1 + hl2b2, tieLine.getB2(), 0.0);
 
         // invalid set line characteristics on tieLine
         try {
