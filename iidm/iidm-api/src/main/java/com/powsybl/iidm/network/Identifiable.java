@@ -76,14 +76,14 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     Set<String> getPropertyNames();
 
     /**
-     * Get the fictitious status of the switch
+     * Get the fictitious status
      */
     default boolean isFictitious() {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     /**
-     * Set the fictitious status of the switch
+     * Set the fictitious status
      */
     default void setFictitious(boolean fictitious) {
         throw new UnsupportedOperationException();

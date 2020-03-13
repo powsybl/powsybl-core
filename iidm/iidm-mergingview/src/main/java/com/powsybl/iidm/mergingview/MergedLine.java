@@ -439,12 +439,8 @@ class MergedLine implements Line {
 
     @Override
     public void setFictitious(boolean fictitious) {
-        if (dl1.isFictitious() != fictitious) {
-            dl1.setFictitious(fictitious);
-        }
-        if (dl2.isFictitious() != fictitious) {
-            dl2.setFictitious(fictitious);
-        }
+        dl1.setFictitious(fictitious);
+        dl2.setFictitious(fictitious);
     }
 
     @Override
