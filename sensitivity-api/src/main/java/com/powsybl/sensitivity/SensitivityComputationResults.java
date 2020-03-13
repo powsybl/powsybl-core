@@ -69,7 +69,6 @@ public class SensitivityComputationResults {
         return ok;
     }
 
-
     /**
      * Get some metrics about computation execution.
      * Content may vary a lot depending of the implementation

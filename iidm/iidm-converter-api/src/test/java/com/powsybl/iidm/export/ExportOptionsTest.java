@@ -16,7 +16,6 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */

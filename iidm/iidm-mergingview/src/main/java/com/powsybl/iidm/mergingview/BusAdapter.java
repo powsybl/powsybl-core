@@ -173,56 +173,56 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     // -------------------------------
     @Override
     public int getConnectedTerminalCount() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public Iterable<Line> getLines() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public Stream<Line> getLineStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public Iterable<DanglingLine> getDanglingLines() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public Component getSynchronousComponent() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public Component getConnectedComponent() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public boolean isInMainConnectedComponent() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public boolean isInMainSynchronousComponent() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public void visitConnectedEquipments(final TopologyVisitor visitor) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public void visitConnectedOrConnectableEquipments(final TopologyVisitor visitor) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 }

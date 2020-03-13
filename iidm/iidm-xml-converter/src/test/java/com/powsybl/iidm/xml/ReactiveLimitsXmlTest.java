@@ -20,7 +20,8 @@ public class ReactiveLimitsXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripVersionnedXmlTest("reactiveLimitsRoundTripRef.xml", IidmXmlVersion.V_1_0);
+        // backward compatibility
+        roundTripAllPreviousVersionedXmlTest("reactiveLimitsRoundTripRef.xml");
 
         roundTripXmlTest(ReactiveLimitsTestNetworkFactory.create(),
                 NetworkXml::writeAndValidate,

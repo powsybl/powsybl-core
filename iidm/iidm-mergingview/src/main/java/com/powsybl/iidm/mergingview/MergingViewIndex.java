@@ -85,6 +85,10 @@ class MergingViewIndex {
         }
     }
 
+    MergedLine getMergedLineByCode(final String ucteXnodeCode) {
+        return mergedLineCached.get(ucteXnodeCode);
+    }
+
     Line getMergedLine(final String id) {
         return mergedLineCached.values().stream()
                 .filter(l -> l.getId().equals(id))
@@ -272,14 +276,14 @@ class MergingViewIndex {
     }
 
     boolean isMerged(final DanglingLine dl) {
-        return !mergedLineCached.containsKey(dl.getUcteXnodeCode());
+        return mergedLineCached.containsKey(dl.getUcteXnodeCode());
     }
 
     Collection<DanglingLine> getDanglingLines() {
         // Search DanglingLine into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getDanglingLineStream)
-                .filter(this::isMerged)
+                .filter(dl -> !isMerged(dl))
                 .map(this::getDanglingLine)
                 .collect(Collectors.toList());
     }
@@ -424,7 +428,7 @@ class MergingViewIndex {
                 return getShuntCompensator((ShuntCompensator) connectable);
             case DANGLING_LINE:
                 final DanglingLine danglingLine = (DanglingLine) connectable;
-                final Line mergedLine = mergedLineCached.get(danglingLine.getUcteXnodeCode());
+                final Line mergedLine = getMergedLineByCode(danglingLine.getUcteXnodeCode());
                 return Objects.nonNull(mergedLine) ? mergedLine : getDanglingLine(danglingLine);
             case STATIC_VAR_COMPENSATOR:
                 return getStaticVarCompensator((StaticVarCompensator) connectable);

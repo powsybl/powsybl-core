@@ -178,28 +178,4 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     public Optional<String> getExtensionVersion(String extensionName) {
         return Optional.ofNullable(extensionsVersions.get(extensionName));
     }
-
-    /**
-     * @deprecated Use {@link #withNoExtension()} instead.
-     */
-    @Deprecated
-    public boolean isSkipExtensions() {
-        return withNoExtension();
-    }
-
-    /**
-     * @deprecated Use {@link #setExtensions(Set<String>)} instead.
-     * Pass an empty Set as parameter
-     */
-    @Deprecated
-    public ExportOptions setSkipExtensions(boolean skipExtensions) {
-        if (extensions != null) {
-            throw new PowsyblException("Contradictory behavior: you have already passed an extensions list");
-        }
-        if (skipExtensions) {
-            this.extensions = new HashSet<>();
-        }
-        return this;
-    }
-
 }

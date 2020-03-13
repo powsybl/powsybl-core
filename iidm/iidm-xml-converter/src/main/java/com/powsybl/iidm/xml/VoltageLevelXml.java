@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Map;
@@ -26,9 +28,11 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
     static final String ROOT_ELEMENT_NAME = "voltageLevel";
 
-    static final String NODE_BREAKER_TOPOLOGY_ELEMENT_NAME = "nodeBreakerTopology";
+    private static final Logger LOGGER = LoggerFactory.getLogger(VoltageLevelXml.class);
 
-    static final String BUS_BREAKER_TOPOLOGY_ELEMENT_NAME = "busBreakerTopology";
+    private static final String NODE_BREAKER_TOPOLOGY_ELEMENT_NAME = "nodeBreakerTopology";
+    private static final String BUS_BREAKER_TOPOLOGY_ELEMENT_NAME = "busBreakerTopology";
+    private static final String NODE_COUNT = "nodeCount";
 
     @Override
     protected String getRootElementName() {
@@ -82,7 +86,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
     private void writeNodeBreakerTopology(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), NODE_BREAKER_TOPOLOGY_ELEMENT_NAME);
-        context.getWriter().writeAttribute("nodeCount", Integer.toString(vl.getNodeBreakerView().getNodeCount()));
+        IidmXmlUtil.writeIntAttributeUntilMaximumVersion(NODE_COUNT, vl.getNodeBreakerView().getMaximumNodeIndex() + 1, IidmXmlVersion.V_1_1, context);
         for (BusbarSection bs : vl.getNodeBreakerView().getBusbarSections()) {
             BusbarSectionXml.INSTANCE.write(bs, null, context);
         }
@@ -292,8 +296,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void readNodeBreakerTopology(VoltageLevel vl, NetworkXmlReaderContext context) throws XMLStreamException {
-        int nodeCount = XmlUtil.readIntAttribute(context.getReader(), "nodeCount");
-        vl.getNodeBreakerView().setNodeCount(nodeCount);
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> LOGGER.info("attribute " + NODE_BREAKER_TOPOLOGY_ELEMENT_NAME + ".nodeCount is ignored."));
         XmlUtil.readUntilEndElement(NODE_BREAKER_TOPOLOGY_ELEMENT_NAME, context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case BusbarSectionXml.ROOT_ELEMENT_NAME:

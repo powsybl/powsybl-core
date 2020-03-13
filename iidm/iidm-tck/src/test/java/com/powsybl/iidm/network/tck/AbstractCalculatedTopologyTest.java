@@ -122,7 +122,6 @@ public abstract class AbstractCalculatedTopologyTest {
                 .setNominalV(400f)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl1.getNodeBreakerView().setNodeCount(5);
         Substation s2 = network.newSubstation()
                 .setId("S2")
                 .setCountry(Country.FR)
