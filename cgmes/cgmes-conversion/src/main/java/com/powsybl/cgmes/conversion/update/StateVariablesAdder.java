@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.conversion.update;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,15 +22,13 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
-import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -59,7 +58,7 @@ public class StateVariablesAdder {
 
     private String originalSVcontext() {
         PropertyBags pbs = cgmes.graph();
-        PropertyBag defaultSvContext = new PropertyBag(Arrays.asList(CgmesNames.GRAPH));
+        PropertyBag defaultSvContext = new PropertyBag(Collections.singletonList(CgmesNames.GRAPH));
         defaultSvContext.put(CgmesNames.GRAPH, CgmesSubset.STATE_VARIABLES.toString());
         return pbs.stream()
             .filter(graph -> graph.getId(CgmesNames.GRAPH).contains(CgmesSubset.STATE_VARIABLES.getIdentifier()))
@@ -115,9 +114,9 @@ public class StateVariablesAdder {
     private void addVoltagesForBoundaryNodes() {
         PropertyBags voltages = new PropertyBags();
         // add voltages for TpNodes existing in the Model's boundaries
-        boundaryNodesFromDanglingLines.entrySet().forEach(entry -> {
+        boundaryNodesFromDanglingLines.forEach((line, bnode) -> {
             PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
-            DanglingLine dl = network.getDanglingLine(entry.getKey());
+            DanglingLine dl = network.getDanglingLine(line);
             Bus b = dl.getTerminal().getBusBreakerView().getBus();
             if (b != null) {
                 // calculate complex voltage value: abs for VOLTAGE, degrees for ANGLE
@@ -125,11 +124,11 @@ public class StateVariablesAdder {
                     dl.getP0(), dl.getQ0());
                 p.put(CgmesNames.ANGLE, fs(Math.toDegrees(v2.getArgument())));
                 p.put(CgmesNames.VOLTAGE, fs(v2.abs()));
-                p.put(CgmesNames.TOPOLOGICAL_NODE, entry.getValue());
+                p.put(CgmesNames.TOPOLOGICAL_NODE, bnode);
             } else {
                 p.put(CgmesNames.ANGLE, fs(0.0));
                 p.put(CgmesNames.VOLTAGE, fs(0.0));
-                p.put(CgmesNames.TOPOLOGICAL_NODE, entry.getValue());
+                p.put(CgmesNames.TOPOLOGICAL_NODE, bnode);
             }
             voltages.add(p);
         });
@@ -138,39 +137,11 @@ public class StateVariablesAdder {
 
     private void addPowerFlowToCgmes() {
         PropertyBags powerFlows = new PropertyBags();
-        for (Load l : network.getLoads()) {
-            PropertyBag p = createPowerFlowProperties(l.getTerminal());
-            if (p != null) {
-                powerFlows.add(p);
-            } else {
-                // FIXME CGMES SvInjection objects created as loads
-                LOG.error("No SvPowerFlow created for load {}", l.getId());
-            }
-        }
-        for (Generator g : network.getGenerators()) {
-            PropertyBag p = createPowerFlowProperties(g.getTerminal());
-            if (p != null) {
-                powerFlows.add(p);
-            }
-        }
-        for (ShuntCompensator s : network.getShuntCompensators()) {
-            PropertyBag p = createPowerFlowProperties(s.getTerminal());
-            if (p != null) {
-                powerFlows.add(p);
-            }
-        }
-        for (StaticVarCompensator c : network.getStaticVarCompensators()) {
-            PropertyBag p = createPowerFlowProperties(c.getTerminal());
-            if (p != null) {
-                powerFlows.add(p);
-            }
-        }
-        for (Battery b : network.getBatteries()) {
-            PropertyBag p = createPowerFlowProperties(b.getTerminal());
-            if (p != null) {
-                powerFlows.add(p);
-            }
-        }
+        addInjectionPowerFlowToCgmes(powerFlows, network.getLoads());
+        addInjectionPowerFlowToCgmes(powerFlows, network.getGenerators());
+        addInjectionPowerFlowToCgmes(powerFlows, network.getShuntCompensators());
+        addInjectionPowerFlowToCgmes(powerFlows, network.getStaticVarCompensators());
+        addInjectionPowerFlowToCgmes(powerFlows, network.getBatteries());
 
         // PowerFlow at boundaries set as it was in original cgmes.
         for (PropertyBag terminal : originalTerminals) {
@@ -188,6 +159,19 @@ public class StateVariablesAdder {
             });
         }
         cgmes.add(originalSVcontext, "SvPowerFlow", powerFlows);
+    }
+
+    private <I extends Injection> void addInjectionPowerFlowToCgmes(PropertyBags powerFlows,
+        Iterable<I> injectionStream) {
+        injectionStream.forEach(i -> {
+            PropertyBag p = createPowerFlowProperties(i.getTerminal());
+            if (p != null) {
+                powerFlows.add(p);
+            } else if (i instanceof Load) {
+                // FIXME CGMES SvInjection objects created as loads
+                LOG.error("No SvPowerFlow created for load {}", i.getId());
+            }
+        });
     }
 
     private void addShuntCompensatorSectionsToCgmes() {
@@ -351,8 +335,8 @@ public class StateVariablesAdder {
             PropertyBags topologicalIslands = new PropertyBags();
             byTopologicalIslandId.values().forEach(island -> {
                 PropertyBag topologicalIsland = new PropertyBag(SV_TOPOLOGICALISLAND_PROPERTIES);
-                topologicalIsland.setClassPropertyNames(Arrays.asList(CgmesNames.NAME));
-                topologicalIsland.setMultivaluedProperty(Arrays.asList("TopologicalNodes"));
+                topologicalIsland.setClassPropertyNames(Collections.singletonList(CgmesNames.NAME));
+                topologicalIsland.setMultivaluedProperty(Collections.singletonList("TopologicalNodes"));
                 topologicalIsland.put(CgmesNames.NAME, island.get(0).getId("name"));
                 topologicalIsland.put(CgmesNames.ANGLEREF_TOPOLOGICALNODE,
                     island.get(0).getId(CgmesNames.ANGLEREF_TOPOLOGICALNODE));
@@ -379,7 +363,7 @@ public class StateVariablesAdder {
                     Arrays.asList(CgmesNames.SCENARIO_TIME, CgmesNames.CREATED, CgmesNames.DESCRIPTION,
                         CgmesNames.VERSION, CgmesNames.DEPENDENT_ON, CgmesNames.PROFILE,
                         CgmesNames.MODELING_AUTHORITY_SET));
-            newModelDescription.setMultivaluedProperty(Arrays.asList(CgmesNames.DEPENDENT_ON));
+            newModelDescription.setMultivaluedProperty(Collections.singletonList(CgmesNames.DEPENDENT_ON));
             newModelDescription.put(CgmesNames.SCENARIO_TIME, originalFullModel.get(0).getId("scenarioTime"));
             newModelDescription.put(CgmesNames.CREATED, originalFullModel.get(0).getId("created"));
             newModelDescription.put(CgmesNames.DESCRIPTION, originalFullModel.get(0).getId("description"));
@@ -402,14 +386,14 @@ public class StateVariablesAdder {
         return String.valueOf(value);
     }
 
-    private CgmesModel cgmes;
-    private Network network;
-    private int cimVersion;
-    private PropertyBags originalTerminals;
-    private PropertyBags originalFullModel;
-    private PropertyBags originalTopologicalIslands;
-    private String originalSVcontext;
-    private Map<String, String> boundaryNodesFromDanglingLines;
+    private final CgmesModel cgmes;
+    private final Network network;
+    private final int cimVersion;
+    private final PropertyBags originalTerminals;
+    private final PropertyBags originalFullModel;
+    private final PropertyBags originalTopologicalIslands;
+    private final String originalSVcontext;
+    private final Map<String, String> boundaryNodesFromDanglingLines;
     private static final String IN_SERVICE = "inService";
 
     private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList(CgmesNames.ANGLE, CgmesNames.VOLTAGE,

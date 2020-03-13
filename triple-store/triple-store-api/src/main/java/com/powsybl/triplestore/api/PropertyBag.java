@@ -183,10 +183,12 @@ public class PropertyBag extends HashMap<String, String> {
     }
 
     public void setResourceNames(List<String> resourceNames) {
+        this.resourceNames.clear();
         this.resourceNames.addAll(Objects.requireNonNull(resourceNames));
     }
 
     public void setClassPropertyNames(List<String> classPropertyNames) {
+        this.classPropertyNames.clear();
         this.classPropertyNames.addAll(Objects.requireNonNull(classPropertyNames));
     }
 
@@ -195,6 +197,7 @@ public class PropertyBag extends HashMap<String, String> {
     }
 
     public void setMultivaluedProperty(List<String> multiValuedPropertyNames) {
+        this.multiValuedPropertyNames.clear();
         this.multiValuedPropertyNames.addAll(Objects.requireNonNull(multiValuedPropertyNames));
     }
 

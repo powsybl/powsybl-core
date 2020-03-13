@@ -29,7 +29,9 @@ public interface CgmesModel {
 
     Properties getProperties();
 
-    PropertyBags fullModel(String cgmesProfile);
+    default PropertyBags fullModel(String cgmesProfile) {
+        return new PropertyBags();
+    }
 
     boolean hasEquipmentCore();
 
@@ -132,15 +134,21 @@ public interface CgmesModel {
 
     PropertyBags dcTerminalsTP();
 
-    PropertyBags topologicalIslands();
+    default PropertyBags topologicalIslands() {
+        return new PropertyBags();
+    }
 
-    PropertyBags graph();
+    default PropertyBags graph() {
+        return new PropertyBags();
+    }
 
     void clear(CgmesSubset subset);
 
     void add(CgmesSubset subset, String type, PropertyBags objects);
 
-    void add(String context, String type, PropertyBags objects);
+    default void add(String context, String type, PropertyBags objects) {
+        throw new UnsupportedOperationException();
+    }
 
     void print(PrintStream out);
 
