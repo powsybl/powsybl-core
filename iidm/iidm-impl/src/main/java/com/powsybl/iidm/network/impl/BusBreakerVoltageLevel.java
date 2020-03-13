@@ -340,8 +340,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     @Override
     public Iterable<Terminal> getTerminals() {
         return FluentIterable.from(graph.getVerticesObj())
-                             .transformAndConcat(ConfiguredBus::getTerminals)
-                             .transform(Terminal.class::cast);
+                .transformAndConcat(ConfiguredBus::getTerminals)
+                .transform(Terminal.class::cast);
     }
 
     @Override
@@ -356,17 +356,12 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     private final NodeBreakerViewExt nodeBreakerView = new NodeBreakerViewExt() {
 
         @Override
-        public int getNodeCount() {
+        public int getMaximumNodeIndex() {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
         @Override
         public int[] getNodes() {
-            throw createNotSupportedBusBreakerTopologyException();
-        }
-
-        @Override
-        public NodeBreakerView setNodeCount(int count) {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
@@ -417,6 +412,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Stream<InternalConnection> getInternalConnectionStream() {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public void removeInternalConnections(int node1, int node2) {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
@@ -705,7 +705,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         if (!(terminal instanceof BusTerminal)) {
             throw new ValidationException(terminal.getConnectable(),
                     "voltage level " + BusBreakerVoltageLevel.this.id + " has a bus/breaker topology"
-                    + ", a bus connection should be specified instead of a node connection");
+                            + ", a bus connection should be specified instead of a node connection");
         }
 
         // check connectable buses exist
@@ -754,11 +754,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         });
         // remove the link terminal -> voltage level
         terminal.setVoltageLevel(null);
-    }
-
-    @Override
-    public void clean() {
-        // nothing to do
     }
 
     @Override

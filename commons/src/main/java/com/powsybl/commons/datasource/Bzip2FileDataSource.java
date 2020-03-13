@@ -12,7 +12,6 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
 import java.io.*;
 import java.nio.file.Path;
 
-
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
  */

@@ -69,6 +69,6 @@ abstract class AbstractHvdcConverterStationAdapter<I extends HvdcConverterStatio
     // -------------------------------
     @Override
     public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 }

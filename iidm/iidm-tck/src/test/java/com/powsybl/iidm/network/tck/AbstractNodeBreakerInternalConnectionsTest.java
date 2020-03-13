@@ -1,5 +1,12 @@
+/**
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.iidm.network.tck;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
@@ -12,7 +19,11 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ */
 public abstract class AbstractNodeBreakerInternalConnectionsTest {
 
     private static final String S5_10K_V = "S5 10kV";
@@ -26,8 +37,8 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
 
         assertEquals(6, vl.getNodeBreakerView().getInternalConnectionCount());
         List<InternalConnection> internalConnections = vl.getNodeBreakerView().getInternalConnectionStream().collect(Collectors.toList());
-        int[] expecteds1 = new int[] {7, 6, 4, 5, 9, 8 };
-        int[] expecteds2 = new int[] {0, 3, 3, 2, 2, 1 };
+        int[] expecteds1 = new int[]{7, 6, 4, 5, 9, 8};
+        int[] expecteds2 = new int[]{0, 3, 3, 2, 2, 1};
         assertEquals(expecteds1.length, expecteds2.length);
         for (int i = 0; i < expecteds1.length; i++) {
             assertEquals(expecteds1[i], internalConnections.get(i).getNode1());
@@ -51,6 +62,37 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         assertEquals(expected, actual);
     }
 
+    @Test
+    public void testRemoveInternalConnections() {
+        Network network = Network.create("testTraversalInternalConnections", "test");
+        createNetwork(network, new InternalConnections());
+        VoltageLevel vl = network.getVoltageLevel(S5_10K_V);
+
+        // remove an existing internal connection
+        assertTrue(vl.getNodeBreakerView().getInternalConnectionStream().anyMatch(ic -> ic.getNode1() == 7 && ic.getNode2() == 0));
+        vl.getNodeBreakerView().removeInternalConnections(7, 0);
+        assertTrue(vl.getNodeBreakerView().getInternalConnectionStream().noneMatch(ic -> ic.getNode1() == 7 && ic.getNode2() == 0));
+
+        // remove a non-existing internal connection
+        boolean thrownException = false;
+        try {
+            vl.getNodeBreakerView().removeInternalConnections(6, 0);
+        } catch (PowsyblException e) {
+            assertEquals("Internal connection not found between 6 and 0", e.getMessage());
+            thrownException = true;
+        }
+        assertTrue(thrownException);
+
+        // remove multiple internal connections
+        vl.getNodeBreakerView().newInternalConnection()
+                .setNode1(6)
+                .setNode2(3)
+                .add();
+        assertEquals(2, vl.getNodeBreakerView().getInternalConnectionStream().filter(ic -> ic.getNode1() == 6 && ic.getNode2() == 3).count());
+        vl.getNodeBreakerView().removeInternalConnections(6, 3);
+        assertTrue(vl.getNodeBreakerView().getInternalConnectionStream().noneMatch(ic -> ic.getNode1() == 6 && ic.getNode2() == 3));
+    }
+
     private void createNetwork(Network network, InternalConnections internalConnections) {
         Substation s = network.newSubstation()
                 .setId("S5")
@@ -61,7 +103,6 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
                 .setNominalV(10.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl.getNodeBreakerView().setNodeCount(14);
         vl.getNodeBreakerView().newBusbarSection()
                 .setId("NODE13")
                 .setNode(0)
@@ -125,12 +166,11 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
                 .setId("S4")
                 .setCountry(Country.FR)
                 .add();
-        VoltageLevel vl4 = s4.newVoltageLevel()
+        s4.newVoltageLevel()
                 .setId("S4 10kV")
                 .setNominalV(10.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl4.getNodeBreakerView().setNodeCount(1);
         network.newLine()
                 .setId("L6")
                 .setVoltageLevel1("S4 10kV")

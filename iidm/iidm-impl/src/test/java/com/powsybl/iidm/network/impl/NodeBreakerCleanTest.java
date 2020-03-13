@@ -6,7 +6,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.Test;
 
@@ -15,47 +16,40 @@ import static org.junit.Assert.*;
 public class NodeBreakerCleanTest {
 
     @Test
-    public void cleanTopology() {
+    public void removeSwitchAndCleanTopology() {
         Network network = NetworkTest1Factory.create();
 
-        VoltageLevelExt vl = (VoltageLevelExt) network.getVoltageLevel("voltageLevel1");
+        VoltageLevel vl = network.getVoltageLevel("voltageLevel1");
         assertNotNull(vl);
 
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
-        assertEquals(10, topo.getNodeCount());
-        vl.clean();
-
-        // Check useless nodes have been removed from the topology
-        assertEquals(6, topo.getNodeCount());
-    }
-
-    @Test
-    public void removeSwitch() {
-        Network network = NetworkTest1Factory.create();
-
-        VoltageLevelExt vl = (VoltageLevelExt) network.getVoltageLevel("voltageLevel1");
-        assertNotNull(vl);
-
-        VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
-        vl.clean();
-
-        // Check useless nodes have been removed from the topology
-        assertEquals(6, topo.getNodeCount());
+        assertEquals(6, topo.getMaximumNodeIndex());
 
         assertNotNull(topo.getSwitch("load1Disconnector1"));
         assertNotNull(topo.getSwitch("load1Breaker1"));
+
+        // Remove the switches linked to an intermediate node (3)
         topo.removeSwitch("load1Disconnector1");
         topo.removeSwitch("load1Breaker1");
 
-        // Check the 2 switches and the intermediate node have been removed from the topology.
+        // Check the 2 switches and that the node capacity and maximum node index have not changed
         assertNull(topo.getSwitch("load1Disconnector1"));
         assertNull(topo.getSwitch("load1Breaker1"));
-        assertEquals(5, topo.getNodeCount());
+        assertEquals(6, topo.getMaximumNodeIndex());
 
         assertNull(network.getSwitch("load1Disconnector1"));
         assertNull(network.getSwitch("load1Breaker1"));
         assertNull(network.getIdentifiable("load1Disconnector1"));
         assertNull(network.getIdentifiable("load1Breaker1"));
+
+        // Remove the switches linked to the maximum node (6)
+        topo.removeSwitch("generator1Disconnector1");
+        topo.removeSwitch("generator1Breaker1");
+
+        // Check the 2 switches and that the node capacity and maximum node index have changed
+        assertNull(topo.getSwitch("generator1Disconnector1"));
+        assertNull(topo.getSwitch("generator1Breaker1"));
+        assertEquals(5, topo.getMaximumNodeIndex());
     }
 
 }

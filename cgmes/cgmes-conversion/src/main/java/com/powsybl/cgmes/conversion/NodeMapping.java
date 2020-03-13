@@ -84,10 +84,6 @@ public class NodeMapping {
         // If a previous value was stored, new value is computed with "sum" 1
         // We want a zero-based index, so -1 + ...
         int numNodes = voltageLevelNumNodes.merge(vl, 1, Integer::sum);
-        if (vl.getNodeBreakerView().getNodeCount() < numNodes) {
-            // +10 to avoid calling setNodeCount too many times
-            vl.getNodeBreakerView().setNodeCount(numNodes + 10);
-        }
         return numNodes - 1;
     }
 
