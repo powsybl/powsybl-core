@@ -319,9 +319,6 @@ public class VoltageLevelAdapterTest {
 
         final VoltageLevel.NodeBreakerView nbv = voltageLevelNB.getNodeBreakerView();
         assertTrue(nbv instanceof VoltageLevelAdapter.NodeBreakerViewAdapter);
-        nbv.setNodeCount(2);
-        assertEquals(2, nbv.getNodeCount());
-        assertEquals(2, nbv.getNodes().length);
 
         nbv.newInternalConnection()
                .setNode1(0)

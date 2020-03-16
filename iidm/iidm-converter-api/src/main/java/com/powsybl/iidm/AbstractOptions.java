@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -29,7 +28,7 @@ public abstract class AbstractOptions<T> {
     }
 
     public boolean withNoExtension() {
-        return Optional.ofNullable(extensions).map(Set::isEmpty).orElse(false);
+        return extensions != null && extensions.isEmpty();
     }
 
     public  boolean withAllExtensions() {
@@ -49,7 +48,7 @@ public abstract class AbstractOptions<T> {
     }
 
     public  boolean withExtension(String extensionName) {
-        return withAllExtensions() || Optional.ofNullable(extensions).orElse(new HashSet<>()).contains(extensionName);
+        return withAllExtensions() || extensions.contains(extensionName);
     }
 
     public IidmImportExportMode getMode() {

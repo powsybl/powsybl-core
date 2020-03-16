@@ -169,6 +169,6 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractIdenti
     // -------------------------------
     @Override
     public void remove() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 }

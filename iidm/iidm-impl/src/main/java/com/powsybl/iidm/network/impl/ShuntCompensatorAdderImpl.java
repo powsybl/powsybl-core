@@ -99,7 +99,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband);
         ShuntCompensatorImpl shunt
                 = new ShuntCompensatorImpl(getNetwork().getRef(),
-                id, getName(), bPerSection, maximumSectionCount,
+                id, getName(), isFictitious(), bPerSection, maximumSectionCount,
                 currentSectionCount, regulatingTerminal == null ? terminal : regulatingTerminal,
                 voltageRegulatorOn, targetV, targetDeadband);
         shunt.addTerminal(terminal);

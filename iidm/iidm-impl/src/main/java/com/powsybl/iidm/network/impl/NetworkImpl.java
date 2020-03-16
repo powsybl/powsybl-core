@@ -956,10 +956,10 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half2.name = dl2.getName();
             l.half2.r = dl2.getR();
             l.half2.x = dl2.getX();
-            l.half2.g1 = dl2.getG();
-            l.half2.g2 = 0;
-            l.half2.b1 = dl2.getB();
-            l.half2.b2 = 0;
+            l.half2.g2 = dl2.getG();
+            l.half2.g1 = 0;
+            l.half2.b2 = dl2.getB();
+            l.half2.b1 = 0;
             l.half2.xnodeP = dl2.getP0();
             l.half2.xnodeQ = dl2.getQ0();
             l.limits1 = dl1.getCurrentLimits();
