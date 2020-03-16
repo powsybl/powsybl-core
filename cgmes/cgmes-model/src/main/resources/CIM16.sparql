@@ -644,7 +644,9 @@ OPTIONAL { GRAPH ?graphSV  {
         cim:SvShuntCompensatorSections.sections ?SVsections
 }}
 OPTIONAL { GRAPH ?graphSSH  {
-    ?ShuntCompensator cim:ShuntCompensator.sections ?SSHsections
+    ?ShuntCompensator
+        cim:ShuntCompensator.sections ?SSHsections ;
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled
 }}
 }
 

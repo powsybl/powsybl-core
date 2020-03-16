@@ -51,6 +51,12 @@ abstract class AbstractIdentifiableAdderAdapter<I extends IdentifiableAdder<I>> 
         return (I) this;
     }
 
+    @Override
+    public I setFictitious(boolean fictitious) {
+        getDelegate().setFictitious(fictitious);
+        return (I) this;
+    }
+
     protected void checkAndSetUniqueId() {
         if (this.id == null) {
             throw new PowsyblException(getClass().getSimpleName() + " id is not set");

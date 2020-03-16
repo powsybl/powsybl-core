@@ -68,6 +68,7 @@
         <module>itools-packager</module>
         <module>loadflow</module>
         <module>math</module>
+        <module>psse</module>
         <module>scripting</module>
         <module>security-analysis</module>
         <module>sensitivity-api</module>
