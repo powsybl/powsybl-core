@@ -23,6 +23,8 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
 
     private String name;
 
+    private boolean fictitious = false;
+
     AbstractIdentifiableAdder() {
     }
 
@@ -42,6 +44,11 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
 
     public T setName(String name) {
         this.name = name;
+        return (T) this;
+    }
+
+    public T setFictitious(boolean fictitious) {
+        this.fictitious = fictitious;
         return (T) this;
     }
 
@@ -68,9 +75,12 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
         return name;
     }
 
+    protected boolean isFictitious() {
+        return fictitious;
+    }
+
     @Override
     public String getMessageHeader() {
         return getTypeDescription() + " '" + id + "': ";
     }
-
 }

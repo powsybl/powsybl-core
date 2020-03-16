@@ -203,6 +203,7 @@ public class LineAdapterTest {
         return network.newLine()
                           .setId(id)
                           .setName(name)
+                          .setFictitious(false)
                           .setEnsureIdUnicity(true)
                           .setR(1.0)
                           .setX(2.0)

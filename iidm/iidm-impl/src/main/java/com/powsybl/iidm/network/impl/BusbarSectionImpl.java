@@ -15,8 +15,8 @@ import com.powsybl.iidm.network.ConnectableType;
  */
 class BusbarSectionImpl extends AbstractConnectable<BusbarSection> implements BusbarSection {
 
-    BusbarSectionImpl(String id, String name) {
-        super(id, name);
+    BusbarSectionImpl(String id, String name, boolean fictitious) {
+        super(id, name, fictitious);
     }
 
     @Override

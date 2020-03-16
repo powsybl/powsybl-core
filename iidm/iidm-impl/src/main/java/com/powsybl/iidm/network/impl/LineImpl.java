@@ -28,8 +28,8 @@ class LineImpl extends AbstractBranch<Line> implements Line {
 
     private double b2;
 
-    LineImpl(String id, String name, double r, double x, double g1, double b1, double g2, double b2) {
-        super(id, name);
+    LineImpl(String id, String name, boolean fictitious, double r, double x, double g1, double b1, double g2, double b2) {
+        super(id, name, fictitious);
         this.r = r;
         this.x = x;
         this.g1 = g1;

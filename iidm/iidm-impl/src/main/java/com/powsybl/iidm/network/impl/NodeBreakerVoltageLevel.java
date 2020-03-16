@@ -88,8 +88,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         private boolean retained = false;
 
-        private boolean fictitious = false;
-
         private SwitchAdderImpl() {
             this(null);
         }
@@ -147,12 +145,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public NodeBreakerView.SwitchAdder setFictitious(boolean fictitious) {
-            this.fictitious = fictitious;
-            return this;
-        }
-
-        @Override
         public Switch add() {
             String id = checkAndGetUniqueId();
             if (node1 == null) {
@@ -164,7 +156,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             if (kind == null) {
                 throw new ValidationException(this, "kind is not set");
             }
-            SwitchImpl aSwitch = new SwitchImpl(NodeBreakerVoltageLevel.this, id, getName(), kind, open, retained, fictitious);
+            SwitchImpl aSwitch = new SwitchImpl(NodeBreakerVoltageLevel.this, id, getName(), isFictitious(), kind, open, retained);
             getNetwork().getIndex().checkAndAdd(aSwitch);
             graph.addVertexIfNotPresent(node1);
             graph.addVertexIfNotPresent(node2);
@@ -282,7 +274,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 }
                 if (getBusChecker().isValid(graph, nodes, terminals)) {
                     String busName = NAMING_STRATEGY.getName(NodeBreakerVoltageLevel.this, nodes);
-                    CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, NodeBreakerVoltageLevel.this, nodes, terminals);
+                    CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, NodeBreakerVoltageLevel.this.fictitious, NodeBreakerVoltageLevel.this, nodes, terminals);
                     id2bus.put(busId, bus);
                     for (int i = 0; i < nodes.size(); i++) {
                         node2bus[nodes.getQuick(i)] = bus;
@@ -514,9 +506,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
     }
 
-    NodeBreakerVoltageLevel(String id, String name, SubstationImpl substation,
+    NodeBreakerVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation,
                             double nominalV, double lowVoltageLimit, double highVoltageLimit) {
-        super(id, name, substation, nominalV, lowVoltageLimit, highVoltageLimit);
+        super(id, name, fictitious, substation, nominalV, lowVoltageLimit, highVoltageLimit);
         variants = new VariantArray<>(substation.getNetwork().getRef(), VariantImpl::new);
     }
 

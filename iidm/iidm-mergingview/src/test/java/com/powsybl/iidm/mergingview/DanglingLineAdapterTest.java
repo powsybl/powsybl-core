@@ -216,6 +216,9 @@ public class DanglingLineAdapterTest {
             assertNotNull(t);
         });
 
+        mergedLine.setFictitious(true);
+        assertTrue(mergedLine.isFictitious());
+
         // Not implemented yet !
         TestUtil.notImplemented(mergedLine::remove);
         TestUtil.notImplemented(() -> mergedLine.addExtension(null, null));

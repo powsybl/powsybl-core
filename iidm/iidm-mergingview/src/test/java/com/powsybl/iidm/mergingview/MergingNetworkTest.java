@@ -61,6 +61,9 @@ public class MergingNetworkTest {
         mergingView.merge(n3);
         assertEquals("hybrid", mergingView.getSourceFormat());
 
+        mergingView.setFictitious(true);
+        assertTrue(mergingView.isFictitious());
+
         // Properties
         final String key = "keyTest";
         final String value = "ValueTest";

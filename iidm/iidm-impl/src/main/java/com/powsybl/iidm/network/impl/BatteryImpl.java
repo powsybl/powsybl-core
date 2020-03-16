@@ -27,8 +27,8 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     private double maxP;
 
-    BatteryImpl(Ref<? extends VariantManagerHolder> ref, String id, String name, double p0, double q0, double minP, double maxP) {
-        super(id, name);
+    BatteryImpl(Ref<? extends VariantManagerHolder> ref, String id, String name, boolean fictitious, double p0, double q0, double minP, double maxP) {
+        super(id, name, fictitious);
         this.minP = minP;
         this.maxP = maxP;
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
