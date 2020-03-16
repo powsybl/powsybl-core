@@ -63,7 +63,7 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
         ValidationUtil.checkLoadType(this, loadType);
         ValidationUtil.checkP0(this, p0);
         ValidationUtil.checkQ0(this, q0);
-        LoadImpl load = new LoadImpl(getNetwork().getRef(), id, getName(), loadType, p0, q0);
+        LoadImpl load = new LoadImpl(getNetwork().getRef(), id, getName(), isFictitious(), loadType, p0, q0);
         load.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(load);

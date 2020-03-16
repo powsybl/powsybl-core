@@ -74,4 +74,18 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
      * Get properties key values.
      */
     Set<String> getPropertyNames();
+
+    /**
+     * Get the fictitious status
+     */
+    default boolean isFictitious() {
+        return false;
+    }
+
+    /**
+     * Set the fictitious status
+     */
+    default void setFictitious(boolean fictitious) {
+        throw new UnsupportedOperationException();
+    }
 }

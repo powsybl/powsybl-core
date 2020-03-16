@@ -33,7 +33,7 @@ class BusAdderImpl extends AbstractIdentifiableAdder<BusAdderImpl> implements Bu
     @Override
     public ConfiguredBus add() {
         String id = checkAndGetUniqueId();
-        ConfiguredBusImpl bus = new ConfiguredBusImpl(id, getName(), voltageLevel);
+        ConfiguredBusImpl bus = new ConfiguredBusImpl(id, getName(), isFictitious(), voltageLevel);
         voltageLevel.addBus(bus);
         getNetwork().getListeners().notifyCreation(bus);
         return bus;

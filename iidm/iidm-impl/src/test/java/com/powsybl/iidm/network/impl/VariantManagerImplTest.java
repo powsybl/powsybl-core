@@ -88,6 +88,15 @@ public class VariantManagerImplTest {
         }
 
         @Override
+        public boolean isFictitious() {
+            return false;
+        }
+
+        @Override
+        public void setFictitious(boolean fictitious) {
+        }
+
+        @Override
         public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
             for (int i = 0; i < number; i++) {
                 extended.add(sourceIndex);

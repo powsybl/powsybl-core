@@ -47,10 +47,10 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     private final TDoubleArrayList targetDeadband;
 
     ShuntCompensatorImpl(Ref<? extends VariantManagerHolder> network,
-                         String id, String name, double bPerSection, int maximumSectionCount,
+                         String id, String name, boolean fictitious, double bPerSection, int maximumSectionCount,
                          int currentSectionCount, TerminalExt regulatingTerminal, boolean voltageRegulatorOn,
                          double targetV, double targetDeadband) {
-        super(id, name);
+        super(id, name, fictitious);
         this.network = network;
         this.bPerSection = bPerSection;
         this.maximumSectionCount = maximumSectionCount;

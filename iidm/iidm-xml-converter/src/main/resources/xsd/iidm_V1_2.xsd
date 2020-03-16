@@ -48,6 +48,7 @@
         </xs:sequence>
         <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
         <xs:attribute name="name" use="optional" type="xs:string"/>
+        <xs:attribute name="fictitious" use="optional" type="xs:boolean" default="false"/>
     </xs:complexType>
     <xs:complexType name="Property">
         <xs:attribute name="name" use="required" type="iidm:nonEmptyString"/>
@@ -148,7 +149,6 @@
                 <xs:attribute name="kind" use="required" type="iidm:SwitchKind"/>
                 <xs:attribute name="retained" use="required" type="xs:boolean"/>
                 <xs:attribute name="open" use="required" type="xs:boolean"/>
-                <xs:attribute name="fictitious" use="optional" type="xs:boolean"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

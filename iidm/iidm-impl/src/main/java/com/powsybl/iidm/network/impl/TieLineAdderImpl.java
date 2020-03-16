@@ -179,7 +179,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         voltageLevel1.attach(terminal1, true);
         voltageLevel2.attach(terminal2, true);
 
-        TieLineImpl line = new TieLineImpl(id, getName(), ucteXnodeCode, half1, half2);
+        TieLineImpl line = new TieLineImpl(id, getName(), isFictitious(), ucteXnodeCode, half1, half2);
         terminal1.setNum(1);
         terminal2.setNum(2);
         line.addTerminal(terminal1);

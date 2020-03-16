@@ -23,8 +23,8 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
 
     private CurrentLimits limits2;
 
-    AbstractBranch(String id, String name) {
-        super(id, name);
+    AbstractBranch(String id, String name, boolean fictitious) {
+        super(id, name, fictitious);
     }
 
     @Override

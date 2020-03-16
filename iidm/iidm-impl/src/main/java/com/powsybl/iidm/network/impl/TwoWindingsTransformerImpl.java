@@ -42,10 +42,10 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
 
     private PhaseTapChangerImpl phaseTapChanger;
 
-    TwoWindingsTransformerImpl(String id, String name,
+    TwoWindingsTransformerImpl(String id, String name, boolean fictitious,
             SubstationImpl substation,
             double r, double x, double g, double b, double ratedU1, double ratedU2, double ratedS) {
-        super(id, name);
+        super(id, name, fictitious);
         this.substation = substation;
         this.r = r;
         this.x = x;
