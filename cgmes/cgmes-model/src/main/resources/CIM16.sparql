@@ -495,7 +495,10 @@ WHERE {
         a cim:PowerTransformerEnd ;
         cim:PowerTransformerEnd.ratedU ?transformerWindingRatedU .
     OPTIONAL {
-        ?PhaseTapChanger cim:PhaseTapChangerLinear.stepPhaseShiftIncrement ?stepPhaseShiftIncrement
+        ?PhaseTapChanger
+            cim:PhaseTapChangerLinear.xMax ?xMax ;
+            cim:PhaseTapChangerLinear.xMin ?xMin ;
+        	cim:PhaseTapChangerLinear.stepPhaseShiftIncrement ?stepPhaseShiftIncrement
     }
     OPTIONAL {
         ?PhaseTapChanger cim:PhaseTapChangerAsymmetrical.windingConnectionAngle ?windingConnectionAngle
