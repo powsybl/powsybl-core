@@ -240,7 +240,6 @@ public class StateVariablesAdder {
 
         // SvStatus at boundaries set as it was in original cgmes.
         for (PropertyBag terminal : originalTerminals) {
-            Objects.requireNonNull(terminal);
             if (terminal.getId("SvStatus") == null) {
                 continue;
             }
@@ -312,40 +311,38 @@ public class StateVariablesAdder {
     // added TopologicalIsland as it was in cgmes : original topology is
     // preserved.
     private void addTopologicalIslandsToCgmes() {
-        if (!originalTopologicalIslands.isEmpty()) {
-            // For properties such as "cim:TopologicalIsland.TopologicalNodes", which might
-            // have arbitrary number of values, SPARQL will return multiple result sets.
-            // All properties values will be equal, except the multiValued property
-            // TopologicalNodes.
-            // Also, there can be > 1 TopologicalIsland, so we need to re-group PropertyBags
-            // by TopologicalIsland ID.
-            Map<String, PropertyBags> byTopologicalIslandId = new HashMap<>();
-            originalTopologicalIslands.forEach(pb -> {
-                String island = pb.getId(CgmesNames.TOPOLOGICAL_ISLAND);
-                if (byTopologicalIslandId.keySet().contains(island)) {
-                    byTopologicalIslandId.get(island).add(pb);
-                } else {
-                    PropertyBags pbs = new PropertyBags();
-                    pbs.add(pb);
-                    byTopologicalIslandId.put(island, pbs);
-                }
-            });
-            // now we can process all TPNodes from each island, and put them in one
-            // multivaluedProperty.
-            PropertyBags topologicalIslands = new PropertyBags();
-            byTopologicalIslandId.values().forEach(island -> {
-                PropertyBag topologicalIsland = new PropertyBag(SV_TOPOLOGICALISLAND_PROPERTIES);
-                topologicalIsland.setClassPropertyNames(Collections.singletonList(CgmesNames.NAME));
-                topologicalIsland.setMultivaluedProperty(Collections.singletonList("TopologicalNodes"));
-                topologicalIsland.put(CgmesNames.NAME, island.get(0).getId("name"));
-                topologicalIsland.put(CgmesNames.ANGLEREF_TOPOLOGICALNODE,
-                    island.get(0).getId(CgmesNames.ANGLEREF_TOPOLOGICALNODE));
-                topologicalIsland.put(CgmesNames.TOPOLOGICAL_NODES,
-                    String.join(",", island.pluckLocals(CgmesNames.TOPOLOGICAL_NODES)));
-                topologicalIslands.add(topologicalIsland);
-            });
-            cgmes.add(originalSVcontext, CgmesNames.TOPOLOGICAL_ISLAND, topologicalIslands);
-        }
+        // For properties such as "cim:TopologicalIsland.TopologicalNodes", which might
+        // have arbitrary number of values, SPARQL will return multiple result sets.
+        // All properties values will be equal, except the multiValued property
+        // TopologicalNodes.
+        // Also, there can be > 1 TopologicalIsland, so we need to re-group PropertyBags
+        // by TopologicalIsland ID.
+        Map<String, PropertyBags> byTopologicalIslandId = new HashMap<>();
+        originalTopologicalIslands.forEach(pb -> {
+            String island = pb.getId(CgmesNames.TOPOLOGICAL_ISLAND);
+            if (byTopologicalIslandId.keySet().contains(island)) {
+                byTopologicalIslandId.get(island).add(pb);
+            } else {
+                PropertyBags pbs = new PropertyBags();
+                pbs.add(pb);
+                byTopologicalIslandId.put(island, pbs);
+            }
+        });
+        // now we can process all TPNodes from each island, and put them in one
+        // multivaluedProperty.
+        PropertyBags topologicalIslands = new PropertyBags();
+        byTopologicalIslandId.values().forEach(island -> {
+            PropertyBag topologicalIsland = new PropertyBag(SV_TOPOLOGICALISLAND_PROPERTIES);
+            topologicalIsland.setClassPropertyNames(Collections.singletonList(CgmesNames.NAME));
+            topologicalIsland.setMultivaluedProperty(Collections.singletonList("TopologicalNodes"));
+            topologicalIsland.put(CgmesNames.NAME, island.get(0).getId("name"));
+            topologicalIsland.put(CgmesNames.ANGLEREF_TOPOLOGICALNODE,
+                island.get(0).getId(CgmesNames.ANGLEREF_TOPOLOGICALNODE));
+            topologicalIsland.put(CgmesNames.TOPOLOGICAL_NODES,
+                String.join(",", island.pluckLocals(CgmesNames.TOPOLOGICAL_NODES)));
+            topologicalIslands.add(topologicalIsland);
+        });
+        cgmes.add(originalSVcontext, CgmesNames.TOPOLOGICAL_ISLAND, topologicalIslands);
     }
 
     // Added full model data with proper profile (StateVariables)
