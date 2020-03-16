@@ -51,7 +51,7 @@ public abstract class AbstractObjectConversion {
 
     public static int fromContinuous(double value) {
         // ShuntCompensator sections and TapChanger step/position
-        // coming from SV or SSH may be continuous,
+        // coming from SV or REGULATING_CONTROL_ENABLED may be continuous,
         // we must read these values as floating point numbers
         // and convert them to integers for IIDM.
         // We should consider storing these attributes in IIDM also as real numbers.

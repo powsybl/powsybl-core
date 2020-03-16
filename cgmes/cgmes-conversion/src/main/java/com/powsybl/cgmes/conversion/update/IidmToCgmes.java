@@ -57,7 +57,7 @@ public class IidmToCgmes {
 
         // The reference to the context in which the change must be applied
         // is the identifier of the CGMES subset
-        // "EQ", "SSH", "SV", ...
+        // "EQ_CONTROL_ENABLED", "REGULATING_CONTROL_ENABLED", "SV", ...
         simpleUpdateReferences.put(attribute,
             new TripleStoreSimpleUpdateReference(predicate, subset.getIdentifier()));
     }

@@ -301,7 +301,7 @@
     <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
     <cim:RegulatingControl.targetDeadband>0.500000</cim:RegulatingControl.targetDeadband>
     <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.k"/>
-    <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+    <cim:RegulatingControl.enabled>false</cim:RegulatingControl.enabled>
     <cim:RegulatingControl.targetValue>229.500000</cim:RegulatingControl.targetValue>
   </cim:RegulatingControl>
 </rdf:RDF>

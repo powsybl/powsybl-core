@@ -88,7 +88,6 @@ public class RegulatingControlMappingForGenerators {
 
     private boolean setRegulatingControlVoltage(String controlId,
                                                 RegulatingControl control, double qPercent, Generator gen) {
-
         // Take default terminal if it has not been defined in CGMES file (it is never null)
         Terminal terminal = parent.getRegulatingTerminal(gen, control.cgmesTerminal, control.topologicalNode);
 
@@ -101,14 +100,9 @@ public class RegulatingControlMappingForGenerators {
             targetV = control.targetValue;
         }
 
-        boolean voltageRegulatorOn = false;
-        if (control.enabled) {
-            voltageRegulatorOn = true;
-        }
-
         gen.setRegulatingTerminal(terminal);
         gen.setTargetV(targetV);
-        gen.setVoltageRegulatorOn(voltageRegulatorOn);
+        gen.setVoltageRegulatorOn(control.enabled);
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {

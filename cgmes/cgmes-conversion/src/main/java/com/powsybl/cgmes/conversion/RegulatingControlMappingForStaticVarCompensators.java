@@ -69,9 +69,6 @@ public class RegulatingControlMappingForStaticVarCompensators {
         if (rc == null) {
             return;
         }
-        if (!rc.controlEnabledProperty) {
-            return;
-        }
 
         String controlId = rc.regulatingControlId;
         if (controlId == null) {
@@ -86,14 +83,11 @@ public class RegulatingControlMappingForStaticVarCompensators {
             setDefaultRegulatingControl(rc, svc);
             return;
         }
-        if (!control.enabled) {
-            return;
-        }
 
-        control.setCorrectlySet(setRegulatingControl(control, svc));
+        control.setCorrectlySet(setRegulatingControl(rc.controlEnabledProperty, controlId, control, svc));
     }
 
-    private boolean setRegulatingControl(RegulatingControl control, StaticVarCompensator svc) {
+    private boolean setRegulatingControl(boolean eqRegulating, String rcId, RegulatingControl control, StaticVarCompensator svc) {
 
         // Take default terminal if it has not been defined in CGMES files (it is never null)
         Terminal terminal = parent.getRegulatingTerminal(svc, control.cgmesTerminal, control.topologicalNode);
@@ -118,7 +112,9 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
         svc.setVoltageSetPoint(targetVoltage);
         svc.setReactivePowerSetPoint(targetReactivePower);
-        svc.setRegulationMode(regulationMode);
+        if (parent.getRegulatingStatus(eqRegulating, control, rcId, svc.getId())) {
+            svc.setRegulationMode(regulationMode);
+        }
         svc.setRegulatingTerminal(terminal);
 
         return okSet;

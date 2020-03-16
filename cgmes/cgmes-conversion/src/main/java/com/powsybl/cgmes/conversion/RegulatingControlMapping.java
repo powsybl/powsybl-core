@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
@@ -137,5 +138,27 @@ public class RegulatingControlMapping {
             // (no localization of regulating controls)
         }
         return terminal;
+    }
+
+    boolean getRegulatingStatus(boolean eqRegulating, RegulatingControl regulatingControl, String rcId, String eqId) {
+        if (eqRegulating != regulatingControl.enabled) {
+            switch (context.config().getRegulatingStatusBehavior()) {
+                case EQ_CONTROL_ENABLED:
+                    context.ignored("RegulatingControl.enabled", "RegulatingControl.enabled property of " + rcId + " is ignored (different of " + eqId + " controlEnabled property)");
+                    return eqRegulating;
+                case REGULATING_CONTROL_ENABLED:
+                    context.ignored("RegulatingCondEq.controlEnabled", "RegulatingCondEq.controlEnabled property of " + eqId + " is ignored (different of " + rcId + " enabled property)");
+                    return regulatingControl.enabled;
+                case UNION:
+                    context.fixed("Regulating status", rcId + " enabled property and " + eqId + " controlEnabled property are different. Regulating status is considered as true.");
+                    return true;
+                case INTERSECTION:
+                    context.fixed("Regulating status", rcId + " enabled property and " + eqId + " controlEnabled property are different. Regulating status is considered as false.");
+                    return false;
+                default:
+                    throw new CgmesModelException("Unexpected profile for regulating status: " + context.config().getRegulatingStatusBehavior());
+            }
+        }
+        return eqRegulating;
     }
 }

@@ -32,6 +32,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.Conversion.Config.RegulatingStatusBehavior.UNION;
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
 
 /**
@@ -419,6 +420,13 @@ public class Conversion {
             SV
         }
 
+        public enum RegulatingStatusBehavior {
+            EQ_CONTROL_ENABLED,
+            REGULATING_CONTROL_ENABLED,
+            UNION,
+            INTERSECTION
+        }
+
         // Temporal flag while we keep two versions of transformer conversion
         private boolean useNewTransformerConversion = true;
 
@@ -520,6 +528,24 @@ public class Conversion {
             return this;
         }
 
+        public RegulatingStatusBehavior getRegulatingStatusBehavior() {
+            return regulatingStatusBehavior;
+        }
+
+        public Config setRegulatingStatusBehavior(String regulatingStatusBehavior) {
+            switch (Objects.requireNonNull(regulatingStatusBehavior)) {
+                case "EQ_CONTROL_ENABLED":
+                case "REGULATING_CONTROL_ENABLED":
+                case "UNION":
+                case "INTERSECTION":
+                    this.regulatingStatusBehavior = RegulatingStatusBehavior.valueOf(regulatingStatusBehavior);
+                    break;
+                default:
+                    throw new CgmesModelException("Unexpected profile used for regulating status: " + regulatingStatusBehavior);
+            }
+            return this;
+        }
+
         public boolean storeCgmesModelAsNetworkExtension() {
             return storeCgmesModelAsNetworkExtension;
         }
@@ -595,6 +621,7 @@ public class Conversion {
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
         private StateProfile profileUsedForInitialStateValues = SSH;
+        private RegulatingStatusBehavior regulatingStatusBehavior = UNION;
         private boolean storeCgmesModelAsNetworkExtension = true;
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
 

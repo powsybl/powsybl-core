@@ -144,9 +144,9 @@ public class RegulatingControlMappingForTransformers {
         }
 
         RegulatingControl rtcControl = getTapChangerControl(rc.ratioTapChanger);
-        boolean rtcRegulating = rtcControl != null && (rtcControl.enabled || rc.ratioTapChanger.tapChangerControlEnabled);
+        boolean rtcRegulating = getTapChangerRegulatingStatus(rtcControl, rc.ratioTapChanger);
         RegulatingControl ptcControl = getTapChangerControl(rc.phaseTapChanger);
-        boolean ptcRegulating = ptcControl != null && (ptcControl.enabled || rc.phaseTapChanger.tapChangerControlEnabled);
+        boolean ptcRegulating = getTapChangerRegulatingStatus(ptcControl, rc.phaseTapChanger);
 
         setPhaseTapChangerControl(ptcRegulating, rc.phaseTapChanger, ptcControl, twt.getPhaseTapChanger());
         boolean regulatingSet = twt.getPhaseTapChanger() != null && twt.getPhaseTapChanger().isRegulating();
@@ -167,19 +167,19 @@ public class RegulatingControlMappingForTransformers {
         }
 
         RegulatingControl rtcControl1 = getTapChangerControl(rc.ratioTapChanger1);
-        boolean rtcRegulating1 = getRtcRegulating(rtcControl1, rc.ratioTapChanger1);
+        boolean rtcRegulating1 = getTapChangerRegulatingStatus(rtcControl1, rc.ratioTapChanger1);
         RegulatingControl ptcControl1 = getTapChangerControl(rc.phaseTapChanger1);
-        boolean ptcRegulating1 = getPtcRegulating(ptcControl1, rc.phaseTapChanger1);
+        boolean ptcRegulating1 = getTapChangerRegulatingStatus(ptcControl1, rc.phaseTapChanger1);
 
         RegulatingControl rtcControl2 = getTapChangerControl(rc.ratioTapChanger2);
-        boolean rtcRegulating2 = getRtcRegulating(rtcControl2, rc.ratioTapChanger2);
+        boolean rtcRegulating2 = getTapChangerRegulatingStatus(rtcControl2, rc.ratioTapChanger2);
         RegulatingControl ptcControl2 = getTapChangerControl(rc.phaseTapChanger2);
-        boolean ptcRegulating2 = getPtcRegulating(ptcControl2, rc.phaseTapChanger2);
+        boolean ptcRegulating2 = getTapChangerRegulatingStatus(ptcControl2, rc.phaseTapChanger2);
 
         RegulatingControl rtcControl3 = getTapChangerControl(rc.ratioTapChanger3);
-        boolean rtcRegulating3 = getRtcRegulating(rtcControl3, rc.ratioTapChanger3);
+        boolean rtcRegulating3 = getTapChangerRegulatingStatus(rtcControl3, rc.ratioTapChanger3);
         RegulatingControl ptcControl3 = getTapChangerControl(rc.phaseTapChanger3);
-        boolean ptcRegulating3 = getPtcRegulating(ptcControl3, rc.phaseTapChanger3);
+        boolean ptcRegulating3 = getTapChangerRegulatingStatus(ptcControl3, rc.phaseTapChanger3);
 
         setPhaseTapChangerControl(ptcRegulating1, rc.phaseTapChanger1, ptcControl1, twt.getLeg1().getPhaseTapChanger());
         boolean regulatingSet = twt.getLeg1().getPhaseTapChanger() != null && twt.getLeg1().getPhaseTapChanger().isRegulating();
@@ -204,12 +204,8 @@ public class RegulatingControlMappingForTransformers {
         setRatioTapChangerControl(rtcRegulating3, rc.ratioTapChanger3, rtcControl3, twt.getLeg3().getRatioTapChanger());
     }
 
-    private static boolean getRtcRegulating(RegulatingControl rc, CgmesRegulatingControlRatio r) {
-        return rc != null && (rc.enabled || r.tapChangerControlEnabled);
-    }
-
-    private static boolean getPtcRegulating(RegulatingControl rc, CgmesRegulatingControlPhase r) {
-        return rc != null && (rc.enabled || r.tapChangerControlEnabled);
+    private <R extends CgmesRegulatingControl> boolean getTapChangerRegulatingStatus(RegulatingControl rc, R r) {
+        return rc != null && parent.getRegulatingStatus(r.tapChangerControlEnabled, rc, r.regulatingControlId, r.id);
     }
 
     private boolean checkOnlyOneEnabled(String transformerId, boolean regulating, boolean setRegulating,
@@ -411,7 +407,7 @@ public class RegulatingControlMappingForTransformers {
     }
 
     public static class CgmesRegulatingControlRatio extends CgmesRegulatingControl {
-        String tculControlMode; // mode in SSH values of RTC
+        String tculControlMode; // mode in REGULATING_CONTROL_ENABLED values of RTC
     }
 
     public static class CgmesRegulatingControlPhase extends CgmesRegulatingControl {
@@ -421,7 +417,7 @@ public class RegulatingControlMappingForTransformers {
     private static class CgmesRegulatingControl {
         String id;
         String regulatingControlId;
-        boolean tapChangerControlEnabled; // enabled status in SSH values of PTC/RTC
+        boolean tapChangerControlEnabled; // enabled status in REGULATING_CONTROL_ENABLED values of PTC/RTC
     }
 
     private final RegulatingControlMapping parent;

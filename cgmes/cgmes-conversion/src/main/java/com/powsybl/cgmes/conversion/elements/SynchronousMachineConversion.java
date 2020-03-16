@@ -33,10 +33,10 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         String generatingUnitType = p.getLocal("generatingUnitType");
         PowerFlow f = powerFlow();
 
-        // Default targetP from initial P defined in EQ GeneratingUnit
+        // Default targetP from initial P defined in EQ_CONTROL_ENABLED GeneratingUnit
         double targetP = p.asDouble("initialP", 0);
         double targetQ = 0;
-        // Flow values may come from Terminal or Equipment (SSH RotatingMachine)
+        // Flow values may come from Terminal or Equipment (REGULATING_CONTROL_ENABLED RotatingMachine)
         if (f.defined()) {
             targetP = -f.p();
             targetQ = -f.q();
