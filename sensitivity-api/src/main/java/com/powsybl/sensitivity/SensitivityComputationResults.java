@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 public class SensitivityComputationResults {
 
     private static final String VALUE_NOT_FOUND = "Sensitivity value not found for function %s and variable %s.";
+    private static final String VALUE_NOT_FOUND_CONTINGENCY = "Sensitivity value not found for function %s and variable %s at contingencyId %s.";
 
     @JsonProperty("ok")
     private final boolean ok;
@@ -225,7 +226,7 @@ public class SensitivityComputationResults {
                 .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().equals(function)
                         && sensitivityValue.getFactor().getVariable().equals(variable))
                 .findFirst()
-                .orElseThrow(() -> new NoSuchElementException(String.format("Sensitivity value not found for function %s and variable %s at contingencyId %s.", function.getId(), variable.getId(), contingencyId)));
+                .orElseThrow(() -> new NoSuchElementException(String.format(VALUE_NOT_FOUND_CONTINGENCY, function.getId(), variable.getId(), contingencyId)));
     }
 
     /**
