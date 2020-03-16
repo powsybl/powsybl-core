@@ -433,6 +433,17 @@ class MergedLine implements Line {
     }
 
     @Override
+    public boolean isFictitious() {
+        return dl1.isFictitious() || dl2.isFictitious();
+    }
+
+    @Override
+    public void setFictitious(boolean fictitious) {
+        dl1.setFictitious(fictitious);
+        dl2.setFictitious(fictitious);
+    }
+
+    @Override
     public String getProperty(final String key) {
         Object val = properties.get(key);
         return val != null ? val.toString() : null;
