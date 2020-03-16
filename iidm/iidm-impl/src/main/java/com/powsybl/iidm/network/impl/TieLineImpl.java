@@ -235,7 +235,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getG1() {
-        return half1.getG1() + half2.getG1();
+        return half1.getG1() + half1.getG2();
     }
 
     @Override
@@ -245,7 +245,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getB1() {
-        return half1.getB1() + half2.getB1();
+        return half1.getB1() + half1.getB2();
     }
 
     @Override
@@ -255,7 +255,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getG2() {
-        return half1.getG2() + half2.getG2();
+        return half2.getG1() + half2.getG2();
     }
 
     @Override
@@ -265,7 +265,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getB2() {
-        return half1.getB2() + half2.getB2();
+        return half2.getB1() + half2.getB2();
     }
 
     @Override

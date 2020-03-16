@@ -356,19 +356,26 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         }
 
         /**
-         * Get the number of node.
+         * Get the count of used nodes (nodes attached to an equipment, a switch or an internal connection).
+         *
+         * @deprecated Use {@link #getMaximumNodeIndex()} instead.
          */
-        int getNodeCount();
+        @Deprecated
+        default int getNodeCount() {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Get the highest index of used nodes (i.e. attached to an equipment, a switch or an internal connection) in the voltage level.
+         */
+        default int getMaximumNodeIndex() {
+            throw new UnsupportedOperationException();
+        }
 
         /**
          * Get the list of nodes.
          */
         int[] getNodes();
-
-        /**
-         * Set the number of node.
-         */
-        NodeBreakerView setNodeCount(int count);
 
         /**
          * Get a builder to create a new switch.
@@ -394,6 +401,13 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get internal connection stream.
          */
         Stream<InternalConnection> getInternalConnectionStream();
+
+        /**
+         * Remove <b>all</b> the internal connections between node1 and node2 (not orientated) if they exist.
+         */
+        default void removeInternalConnections(int node1, int node2) {
+            throw new UnsupportedOperationException();
+        }
 
         /**
          * Get a builder to create a new breaker.
@@ -1031,5 +1045,4 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * @param writer a writer
      */
     void exportTopology(Writer writer) throws IOException;
-
 }

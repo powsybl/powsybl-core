@@ -9,7 +9,6 @@ package com.powsybl.contingency.tasks;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
-
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
