@@ -31,6 +31,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.LinkData;
@@ -193,11 +194,11 @@ public class StateVariablesAdder {
             PropertyBag p = new PropertyBag(svTapStepProperties);
             // TODO If we could store an identifier for the tap changer in IIDM
             // then we would not need to query the CGMES model
-            if (t.getPhaseTapChanger() != null) {
+            if (hasPhaseTapChanger(t)) {
                 p.put(tapChangerPositionName, is(t.getPhaseTapChanger().getTapPosition()));
                 p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerForPowerTransformer(t.getId()));
                 tapSteps.add(p);
-            } else if (t.getRatioTapChanger() != null) {
+            } else if (hasRatioTapChanger(t)) {
                 p.put(tapChangerPositionName, is(t.getRatioTapChanger().getTapPosition()));
                 p.put(CgmesNames.TAP_CHANGER, cgmes.ratioTapChangerForPowerTransformer(t.getId()));
                 tapSteps.add(p);
@@ -207,11 +208,11 @@ public class StateVariablesAdder {
         for (ThreeWindingsTransformer t : network.getThreeWindingsTransformers()) {
             PropertyBag p = new PropertyBag(svTapStepProperties);
             Arrays.asList(t.getLeg1(), t.getLeg2(), t.getLeg3()).forEach(leg -> {
-                if (leg.getPhaseTapChanger() != null) {
+                if (hasPhaseTapChanger(leg)) {
                     p.put(tapChangerPositionName, is(leg.getPhaseTapChanger().getTapPosition()));
                     p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerForPowerTransformer(t.getId()));
                     tapSteps.add(p);
-                } else if (leg.getRatioTapChanger() != null) {
+                } else if (hasRatioTapChanger(leg)) {
                     p.put(tapChangerPositionName, is(leg.getRatioTapChanger().getTapPosition()));
                     p.put(CgmesNames.TAP_CHANGER, cgmes.ratioTapChangerForPowerTransformer(t.getId()));
                     tapSteps.add(p);
@@ -220,6 +221,24 @@ public class StateVariablesAdder {
         }
 
         cgmes.add(originalSVcontext, "SvTapStep", tapSteps);
+    }
+
+    private boolean hasPhaseTapChanger(Object leg) {
+        if (leg instanceof Leg) {
+            return ((Leg) leg).getPhaseTapChanger() != null;
+        } else if (leg instanceof TwoWindingsTransformer) {
+            return ((TwoWindingsTransformer) leg).getPhaseTapChanger() != null;
+        }
+        return false;
+    }
+
+    private boolean hasRatioTapChanger(Object leg) {
+        if (leg instanceof Leg) {
+            return ((Leg) leg).getRatioTapChanger() != null;
+        } else if (leg instanceof TwoWindingsTransformer) {
+            return ((TwoWindingsTransformer) leg).getRatioTapChanger() != null;
+        }
+        return false;
     }
 
     private void addStatusToCgmes() {
@@ -231,9 +250,8 @@ public class StateVariablesAdder {
             .distinct()
             .forEach(c -> {
                 PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
-                for (Terminal t : ((Connectable<?>) c).getTerminals()) {
-                    p.put(IN_SERVICE, Boolean.toString(t.isConnected()));
-                }
+                p.put(IN_SERVICE,
+                    Boolean.toString(((Connectable<?>) c).getTerminals().stream().anyMatch(Terminal::isConnected)));
                 p.put(CgmesNames.CONDUCTING_EQUIPMENT, c.getId());
                 svStatus.add(p);
             });
