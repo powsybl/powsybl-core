@@ -42,7 +42,7 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
     private boolean validType() {
         String tableId = p.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
         String type = p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE).toLowerCase();
-        return isTabular(type, tableId) || isSymmetrical(type) || isAsymmetrical(type);
+        return isLinear(type) || isTabular(type, tableId) || isSymmetrical(type) || isAsymmetrical(type);
     }
 
     @Override
@@ -58,7 +58,9 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
     protected void addSteps() {
         String tableId = p.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
         String phaseTapChangerType = p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE).toLowerCase();
-        if (isTabular(phaseTapChangerType, tableId)) {
+        if (isLinear(phaseTapChangerType)) {
+            addStepsLinear();
+        } else if (isTabular(phaseTapChangerType, tableId)) {
             addStepsFromTable(tableId);
         } else if (isAsymmetrical(phaseTapChangerType)) {
             addStepsAsymmetrical();
@@ -67,6 +69,23 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         } else {
             // Add a single step with default values by default
             tapChanger.beginStep().endStep();
+        }
+    }
+
+    private void addStepsLinear() {
+        int lowStep = p.asInt(CgmesNames.LOW_STEP);
+        int highStep = p.asInt(CgmesNames.HIGH_STEP);
+        int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
+        double stepPhaseShiftIncrement = p.asDouble(CgmesNames.STEP_PHASE_SHIFT_INCREMENT);
+        for (int step = lowStep; step <= highStep; step++) {
+            double angle = 0.0;
+            if (!Double.isNaN(stepPhaseShiftIncrement) && stepPhaseShiftIncrement != 0.0) {
+                angle = (step - neutralStep) * stepPhaseShiftIncrement;
+            }
+            tapChanger.beginStep()
+                .setRatio(1.0)
+                .setAngle(angle)
+                .endStep();
         }
     }
 
@@ -179,6 +198,10 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         double alphaMax = Math.toRadians(alphaMaxDegrees);
         return xStepMin
                 + (xStepMax - xStepMin) * Math.pow(Math.sin(alpha / 2) / Math.sin(alphaMax / 2), 2);
+    }
+
+    private static boolean isLinear(String tapChangerType) {
+        return tapChangerType != null && !tapChangerType.endsWith(CgmesNames.LINEAR);
     }
 
     private static boolean isTabular(String tapChangerType, String tableId) {
