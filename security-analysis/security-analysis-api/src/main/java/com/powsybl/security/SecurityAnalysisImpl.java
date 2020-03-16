@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -117,7 +115,6 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                 .setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES);
 
         SecurityAnalysisResultBuilder resultBuilder = createResultBuilder(workingVariantId);
-        Lock resultBuilderLock = new ReentrantLock(true);
 
         return LoadFlow
                 .runAsync(network, workingVariantId, computationManager, loadFlowParameters)
@@ -129,7 +126,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                                     setPreContigencyOkAndCheckViolations(resultBuilder);
                                 }, computationManager.getExecutor())
                                 .thenComposeAsync(aVoid ->
-                                                submitAllLoadFlows(workingVariantId, contingenciesProvider, postContParameters, resultBuilder, resultBuilderLock),
+                                                submitAllLoadFlows(workingVariantId, contingenciesProvider, postContParameters, resultBuilder),
                                         SCHEDULER_EXECUTOR);
                     } else {
                         return setPreContingencyKo(resultBuilder);
@@ -139,9 +136,9 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
     }
 
     private void setPreContigencyOkAndCheckViolations(SecurityAnalysisResultBuilder resultBuilder) {
-        resultBuilder.preContingency().setComputationOk(true);
-        violationDetector.checkAll(network, resultBuilder::addViolation);
-        resultBuilder.endPreContingency();
+        SecurityAnalysisResultBuilder.PreContingencyResultBuilder builder = resultBuilder.preContingency().setComputationOk(true);
+        violationDetector.checkAll(network, builder::addViolation);
+        builder.endPreContingency();
     }
 
     private CompletableFuture<Void> setPreContingencyKo(SecurityAnalysisResultBuilder resultBuilder) {
@@ -151,7 +148,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
     private CompletableFuture<Void> submitAllLoadFlows(String workingVariantId,
                                                        ContingenciesProvider contingenciesProvider, LoadFlowParameters postContParameters,
-                                                       SecurityAnalysisResultBuilder resultBuilder, Lock resultBuilderLock) {
+                                                       SecurityAnalysisResultBuilder resultBuilder) {
 
         List<Contingency> contingencies = contingenciesProvider.getContingencies(network);
         int workerCount = Math.min(MAX_VARIANTS_PER_ANALYSIS, Math.min(computationManager.getResourcesStatus().getAvailableCores(), contingencies.size()));
@@ -163,7 +160,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
         return CompletableFuture
                 .allOf(contingencies.stream()
-                        .map(contingency -> submitOneLoadFlow(workingVariantId, contingency, postContParameters, resultBuilder, resultBuilderLock, queue))
+                        .map(contingency -> submitOneLoadFlow(workingVariantId, contingency, postContParameters, resultBuilder, queue))
                         .toArray(CompletableFuture[]::new))
                 .whenComplete((aVoid, throwable) -> variantIds.forEach(network.getVariantManager()::removeVariant));
     }
@@ -176,11 +173,10 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
     // Block for an available variant, then submit a loadflow on this variant, then
     // make the variant available again
     private CompletableFuture<Void> submitOneLoadFlow(String workingVariantId, Contingency contingency, LoadFlowParameters postContParameters,
-                                                      SecurityAnalysisResultBuilder resultBuilder, Lock resultBuilderLock,
-                                                      BlockingQueue<String> queue) {
+                                                      SecurityAnalysisResultBuilder resultBuilder, BlockingQueue<String> queue) {
         return CompletableFuture.completedFuture(null).thenCompose(aaVoid -> {
             String postContVariantId = getVariantId(queue);
-            return runOneLoadFlowAsync(workingVariantId, postContVariantId, postContParameters, resultBuilder, resultBuilderLock, contingency)
+            return runOneLoadFlowAsync(workingVariantId, postContVariantId, postContParameters, resultBuilder, contingency)
                     .whenComplete((aVoid, throwable) -> queue.add(postContVariantId));
         });
     }
@@ -195,8 +191,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
     }
 
     private CompletableFuture<Void> runOneLoadFlowAsync(String workingVariantId, String postContVariantId, LoadFlowParameters postContParameters,
-                                                        SecurityAnalysisResultBuilder resultBuilder, Lock resultBuilderLock,
-                                                        Contingency contingency) {
+                                                        SecurityAnalysisResultBuilder resultBuilder, Contingency contingency) {
         return CompletableFuture
                 .runAsync(() -> {
                     LOGGER.debug("Worker {} run loadflow for contingency '{}'.", postContVariantId, contingency.getId());
@@ -206,27 +201,19 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                     LoadFlow.runAsync(network, postContVariantId, computationManager, postContParameters)
                 )
                 .thenApplyAsync(lfResult -> {
-                    setContingencyOkAndCheckViolations(postContVariantId, resultBuilder, resultBuilderLock, contingency, lfResult);
+                    setContingencyOkAndCheckViolations(postContVariantId, resultBuilder, contingency, lfResult);
                     return null;
                 }, computationManager.getExecutor());
     }
 
     private void setContingencyOkAndCheckViolations(String postContVariantId, SecurityAnalysisResultBuilder resultBuilder,
-                                                    Lock resultBuilderLock, Contingency contingency, LoadFlowResult lfResult) {
+                                                    Contingency contingency, LoadFlowResult lfResult) {
         network.getVariantManager().setWorkingVariant(postContVariantId);
-        try {
-            resultBuilderLock.lockInterruptibly();
-            resultBuilder.contingency(contingency).setComputationOk(lfResult.isOk());
-            if (lfResult.isOk()) {
-                violationDetector.checkAll(contingency, network, resultBuilder::addViolation);
-            }
-            resultBuilder.endContingency();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new UncheckedInterruptedException(e);
-        } finally {
-            resultBuilderLock.unlock();
+        SecurityAnalysisResultBuilder.PostContingencyResultBuilder builder = resultBuilder.contingency(contingency).setComputationOk(lfResult.isOk());
+        if (lfResult.isOk()) {
+            violationDetector.checkAll(contingency, network, builder::addViolation);
         }
+        builder.endContingency();
     }
 
     private void applyContingency(String workingVariantId, String postContVariantId, Contingency contingency) {
