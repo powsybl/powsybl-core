@@ -15,6 +15,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.cgmes.conversion.elements.hvdc.Adjacency.AdjacentType;
 import com.powsybl.cgmes.conversion.elements.hvdc.TPnodeEquipments.TPnodeEquipment;
 
 /**
@@ -24,6 +25,9 @@ import com.powsybl.cgmes.conversion.elements.hvdc.TPnodeEquipments.TPnodeEquipme
  */
 class IslandEndHvdc {
 
+    // T1: one transformer, C1: one acDcConverter, LS1: one dcLineSegment
+    // T2: two transformers, C2: two acDcConverters, LS2: two dcLineSegments
+    // TN: n transformers (usually 2), CN: n acDcConverters (usually 2), LSN: n dcLineSegments (usually 2)
     enum HvdcEndType {
         HVDC_NONE, HVDC_T1_C1_LS1, HVDC_TN_CN_LSN, HVDC_T1_C1_LS2, HVDC_T2_C2_LS1,
     }
@@ -38,7 +42,6 @@ class IslandEndHvdc {
         if (islandNodesEnd.isEmpty()) {
             return;
         }
-        // printAd(adjacency, islandNodesEnd); printEq(tpNodeEquipments, islandNodesEnd); printDcLs(tpNodeEquipments, islandNodesEnd);
         Set<String> visitedTopologicalNodes = new HashSet<>();
 
         // Take a non-visited node with transformers
@@ -82,25 +85,30 @@ class IslandEndHvdc {
             String topologicalNode = listTp.get(k);
             if (adjacency.adjacency.containsKey(topologicalNode)) {
                 adjacency.adjacency.get(topologicalNode).forEach(adjacent -> {
-                    if (Adjacency.isDcLineSegment(adjacent.type)) {
-                        return;
+                    if (isAdjacentOk(tpNodeEquipments, visitedTopologicalNodes, islandNodesEnd,
+                        adjacent.type, adjacent.topologicalNode)) {
+                        listTp.add(adjacent.topologicalNode);
+                        visitedTopologicalNodes.add(adjacent.topologicalNode);
                     }
-                    if (!islandNodesEnd.contains(adjacent.topologicalNode)) {
-                        return;
-                    }
-                    if (visitedTopologicalNodes.contains(adjacent.topologicalNode)) {
-                        return;
-                    }
-                    if (tpNodeEquipments.multiAcDcConverter(adjacent.topologicalNode)) {
-                        return;
-                    }
-                    listTp.add(adjacent.topologicalNode);
-                    visitedTopologicalNodes.add(adjacent.topologicalNode);
                 });
             }
             k++;
         }
         return listTp;
+    }
+
+    private static boolean isAdjacentOk(TPnodeEquipments tpNodeEquipments, Set<String> visitedTopologicalNodes,
+        List<String> islandNodesEnd, AdjacentType adType, String adTopologicalNode) {
+        if (Adjacency.isDcLineSegment(adType)) {
+            return false;
+        }
+        if (!islandNodesEnd.contains(adTopologicalNode)) {
+            return false;
+        }
+        if (visitedTopologicalNodes.contains(adTopologicalNode)) {
+            return false;
+        }
+        return !tpNodeEquipments.multiAcDcConverter(adTopologicalNode);
     }
 
     private static Set<String> computeEquipments(TPnodeEquipments tpNodeEquipments, List<String> hvdcNode,
@@ -141,22 +149,22 @@ class IslandEndHvdc {
             .allMatch(ls -> hvdcEnd2.dcLineSegmentsEnd.contains(ls));
     }
 
-    private void printAd(Adjacency adjacency, List<String> lnodes) {
-        lnodes.forEach(n -> printAd(adjacency, n));
+    void printAd(Adjacency adjacency, List<String> lnodes) {
+        lnodes.forEach(n -> printTopologicalNodeAd(adjacency, n));
     }
 
-    private void printAd(Adjacency adjacency, String node) {
+    private void printTopologicalNodeAd(Adjacency adjacency, String node) {
         LOG.info("AD TopologicalNode {}", node);
         if (adjacency.adjacency.containsKey(node)) {
             adjacency.adjacency.get(node).forEach(ad -> LOG.info("    {} {}", ad.type, ad.topologicalNode));
         }
     }
 
-    private void printEq(TPnodeEquipments tpNodeEquipments, List<String> lnodes) {
-        lnodes.forEach(n -> printEq(tpNodeEquipments, n));
+    void printEq(TPnodeEquipments tpNodeEquipments, List<String> lnodes) {
+        lnodes.forEach(n -> printTopologicalNodeEq(tpNodeEquipments, n));
     }
 
-    private void printEq(TPnodeEquipments tpNodeEquipments, String node) {
+    private void printTopologicalNodeEq(TPnodeEquipments tpNodeEquipments, String node) {
         LOG.info("EQ. TopologicalNode {}", node);
         if (tpNodeEquipments.nodeEquipments.containsKey(node)) {
             tpNodeEquipments.nodeEquipments.get(node)
@@ -164,11 +172,11 @@ class IslandEndHvdc {
         }
     }
 
-    private void printDcLs(TPnodeEquipments tpNodeEquipments, List<String> lnodes) {
-        lnodes.forEach(n -> printDcLs(tpNodeEquipments, n));
+    void printDcLs(TPnodeEquipments tpNodeEquipments, List<String> lnodes) {
+        lnodes.forEach(n -> printTopologicalNodeDcLs(tpNodeEquipments, n));
     }
 
-    private void printDcLs(TPnodeEquipments tpNodeEquipments, String node) {
+    private void printTopologicalNodeDcLs(TPnodeEquipments tpNodeEquipments, String node) {
         if (tpNodeEquipments.nodeEquipments.containsKey(node)) {
             tpNodeEquipments.nodeEquipments.get(node).stream()
                 .filter(eq -> eq.type == TPnodeEquipments.EquipmentType.DC_LINE_SEGMENT)

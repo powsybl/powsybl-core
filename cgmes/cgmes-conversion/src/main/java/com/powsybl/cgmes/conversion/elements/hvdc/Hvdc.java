@@ -25,7 +25,6 @@ import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEndType;
 class Hvdc {
     List<HvdcEquipment> hvdcData;
 
-    // The island includes dcTopologicalNodes and first acTopologicalNode
     Hvdc() {
         this.hvdcData = new ArrayList<>();
     }

@@ -37,6 +37,8 @@ public class CgmesDcConversion {
     }
 
     public void convert() {
+
+        // Get hvdc configurations
         Adjacency adjacency = new Adjacency(cgmesModel);
         TPnodeEquipments tpNodeEquipments = new TPnodeEquipments(cgmesModel, adjacency);
         Islands islands = new Islands(adjacency);
@@ -55,7 +57,7 @@ public class CgmesDcConversion {
             hvdc.add(tpNodeEquipments, islandEndHvdc1, islandEndHvdc2);
         });
 
-        // Convert each converter - dcLineSegment configuration
+        // Convert to IIDM each converter - dcLineSegment configuration
         hvdc.hvdcData.forEach(h -> convert(h.converters, h.dcLineSegments));
 
         // warnings

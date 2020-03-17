@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 class Islands {
     Set<List<String>> islandsNodes;
 
-    // The island includes dcTopologicalNodes and first acTopologicalNode
+    // The island includes dcTopologicalNodes and the acTopologicalNodes at both ends of the transformer
     Islands(Adjacency adjacency) {
         islandsNodes = new HashSet<>();
 
