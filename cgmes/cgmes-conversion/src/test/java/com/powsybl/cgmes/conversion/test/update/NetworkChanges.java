@@ -164,5 +164,12 @@ public final class NetworkChanges {
         }
     }
 
+    public static void modifyStateVariables(Network network) {
+        network.getBusBreakerView().getBuses().forEach(b -> {
+            b.setAngle(b.getAngle() + 0.01);
+            b.setV(b.getV() + 0.01);
+        });
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(NetworkChanges.class);
 }
