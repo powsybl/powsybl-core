@@ -156,8 +156,8 @@ public class CgmesDcConversion {
             } else if (rectifier(mode1) && inverter(mode2)) {
                 return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
             } else {
-                return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER; // TODO delete
-                // throw new PowsyblException("Unexpected HVDC type: " + converterType);
+                // Default if both ends are rectifier or inverter
+                return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             }
         } else {
             if (cconverter1.asDouble(TARGET_PPCC) > 0 || cconverter2.asDouble(TARGET_PPCC) < 0) {

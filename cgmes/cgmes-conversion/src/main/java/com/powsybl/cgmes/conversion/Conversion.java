@@ -185,14 +185,8 @@ public class Conversion {
             convert(cgmes.phaseTapChangers(), ptc -> new PhaseTapChangerConversion(ptc, context));
         }
 
-        // newDC
         CgmesDcConversion cgmesDcConversion = new CgmesDcConversion(cgmes, context);
         cgmesDcConversion.convert();
-        // endDC
-
-        // DC Converters must be converted first
-        //convert(cgmes.acDcConverters(), c -> new AcDcConverterConversion(c, context));
-        //convert(cgmes.dcLineSegments(), l -> new DcLineSegmentConversion(l, context));
 
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.currentLimitsMapping().addAll();

@@ -885,25 +885,6 @@ OPTIONAL { GRAPH ?graphTPT {
 }}
 }
 
-# TODO DELETE (JAM)
-# query: dcTerminalsTP
-SELECT *
-WHERE {
-{ GRAPH ?graphTP {
-    ?DCTerminal cim:DCBaseTerminal.DCTopologicalNode ?DCTopologicalNode
-}}
-OPTIONAL {
-    { GRAPH ?graphTP2 {
-        ?DCTopologicalNode cim:DCTopologicalNode.DCEquipmentContainer ?EquipmentContainer
-    }}
-    OPTIONAL { GRAPH ?graph3 {
-        ?EquipmentContainer
-            a cim:DCConverterUnit ;
-            cim:DCConverterUnit.Substation ?Substation .
-    }}
-}
-}
-
 # query: dcLineSegments
 SELECT *
 WHERE {
