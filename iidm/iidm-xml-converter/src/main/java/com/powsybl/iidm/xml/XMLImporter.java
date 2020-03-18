@@ -170,8 +170,7 @@ public class XMLImporter implements Importer {
         Objects.requireNonNull(dataSource);
         Network network;
 
-        ImportOptions options = new ImportOptions();
-        buildImportOptions(parameters, options);
+        ImportOptions options = createImportOptions(parameters);
         long startTime = System.currentTimeMillis();
         try {
             String ext = findExtension(dataSource);
@@ -188,11 +187,10 @@ public class XMLImporter implements Importer {
         return network;
     }
 
-    protected void buildImportOptions(Properties parameters, ImportOptions options) {
-        options
+    private ImportOptions createImportOptions(Properties parameters) {
+        return new ImportOptions()
                 .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
                 .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null);
-
     }
 }
 

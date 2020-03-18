@@ -111,8 +111,7 @@ public class XMLExporter implements Exporter {
         if (network == null) {
             throw new IllegalArgumentException("network is null");
         }
-        ExportOptions options = new ExportOptions();
-        buildExportOptions(parameters, options);
+        ExportOptions options = createExportOptions(parameters);
         try {
             long startTime = System.currentTimeMillis();
             NetworkXml.write(network, options, dataSource, "xiidm");
@@ -139,8 +138,9 @@ public class XMLExporter implements Exporter {
         });
     }
 
-    protected void buildExportOptions(Properties parameters, ExportOptions options) {
-        options.setIndent(ConversionParameters.readBooleanParameter(getFormat(), parameters, INDENT_PARAMETER, defaultValueConfig))
+    private ExportOptions createExportOptions(Properties parameters) {
+        ExportOptions options = new ExportOptions()
+                .setIndent(ConversionParameters.readBooleanParameter(getFormat(), parameters, INDENT_PARAMETER, defaultValueConfig))
                 .setWithBranchSV(ConversionParameters.readBooleanParameter(getFormat(), parameters, WITH_BRANCH_STATE_VARIABLES_PARAMETER, defaultValueConfig))
                 .setOnlyMainCc(ConversionParameters.readBooleanParameter(getFormat(), parameters, ONLY_MAIN_CC_PARAMETER, defaultValueConfig))
                 .setAnonymized(ConversionParameters.readBooleanParameter(getFormat(), parameters, ANONYMISED_PARAMETER, defaultValueConfig))
@@ -149,5 +149,6 @@ public class XMLExporter implements Exporter {
                 .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null)
                 .setVersion(ConversionParameters.readStringParameter(getFormat(), parameters, VERSION_PARAMETER, defaultValueConfig));
         addExtensionsVersions(parameters, options);
+        return options;
     }
 }
