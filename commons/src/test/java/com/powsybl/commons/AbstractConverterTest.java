@@ -77,7 +77,7 @@ public abstract class AbstractConverterTest {
         BufferedReader actualReader = new BufferedReader(new InputStreamReader(actual));
         List<String> actualLines = actualReader.lines().collect(Collectors.toList());
 
-        for (int i = 0; i < excludedLines.size(); i++) {
+        for (int i = 0; i < expectedLines.size(); i++) {
             if (!excludedLines.contains(i)) {
                 assertEquals(expectedLines.get(i), actualLines.get(i));
             }
