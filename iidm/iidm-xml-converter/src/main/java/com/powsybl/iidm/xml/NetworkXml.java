@@ -24,16 +24,14 @@ import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
+import javanet.staxutils.IndentingXMLStreamWriter;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
+import javax.xml.stream.*;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -67,8 +65,9 @@ public final class NetworkXml {
     private static final String SOURCE_FORMAT = "sourceFormat";
     private static final String ID = "id";
 
-    // cache XMLOutputFactory to improve performance
+    // cache to improve performance
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
+    private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
 
     private static final Supplier<ExtensionProviders<ExtensionXmlSerializer>> EXTENSIONS_SUPPLIER = Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionXmlSerializer.class, EXTENSION_CATEGORY_NAME));
 
@@ -254,7 +253,17 @@ public final class NetworkXml {
 
     private static XMLStreamWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
         IidmXmlVersion version = options.getVersion() == null ? CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
-        XMLStreamWriter writer = XmlUtil.writeStartAttributes(os, IIDM_PREFIX, version.getNamespaceURI(), NETWORK_ROOT_ELEMENT_NAME, INDENT, options.isIndent());
+        XMLStreamWriter writer;
+        writer = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(os, StandardCharsets.UTF_8.toString());
+        if (options.isIndent()) {
+            IndentingXMLStreamWriter indentingWriter = new IndentingXMLStreamWriter(writer);
+            indentingWriter.setIndent(INDENT);
+            writer = indentingWriter;
+        }
+        writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
+        writer.setPrefix(IIDM_PREFIX, version.getNamespaceURI());
+        writer.writeStartElement(version.getNamespaceURI(), NETWORK_ROOT_ELEMENT_NAME);
+        writer.writeNamespace(IIDM_PREFIX, version.getNamespaceURI());
         if (!options.withNoExtension()) {
             writeExtensionNamespaces(n, options, writer);
         }
@@ -299,7 +308,8 @@ public final class NetworkXml {
             NetworkXmlWriterContext context = writeBaseNetwork(n, initializeWriter(n, os, options), options);
             // write extensions
             writeExtensions(n, context, options);
-            XmlUtil.writeEndElement(context.getWriter());
+            context.getWriter().writeEndElement();
+            context.getWriter().writeEndDocument();
             return context.getAnonymizer();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);

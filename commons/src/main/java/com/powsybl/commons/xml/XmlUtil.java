@@ -6,22 +6,16 @@
  */
 package com.powsybl.commons.xml;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
-import javanet.staxutils.IndentingXMLStreamWriter;
-
-import javax.xml.stream.*;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class XmlUtil {
-
-    // cache XMLOutputFactory to improve performance
-    private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
 
     private XmlUtil() {
     }
@@ -178,30 +172,5 @@ public final class XmlUtil {
     public static float readOptionalFloatAttribute(XMLStreamReader reader, String attributeName, float defaultValue) {
         String attributeValue = reader.getAttributeValue(null, attributeName);
         return attributeValue != null ? Float.valueOf(attributeValue) : defaultValue;
-    }
-
-    public static XMLStreamWriter writeStartAttributes(OutputStream os, String prefix, String namespaceUri, String rootName, String indentString, boolean indent) throws XMLStreamException {
-        XMLStreamWriter writer;
-        writer = createXmlStreamWriter(indentString, indent, os);
-        writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
-        writer.setPrefix(prefix, namespaceUri);
-        writer.writeStartElement(namespaceUri, rootName);
-        writer.writeNamespace(prefix, namespaceUri);
-        return writer;
-    }
-
-    private static XMLStreamWriter createXmlStreamWriter(String indentString, boolean indent, OutputStream os) throws XMLStreamException {
-        XMLStreamWriter writer = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(os, StandardCharsets.UTF_8.toString());
-        if (indent) {
-            IndentingXMLStreamWriter indentingWriter = new IndentingXMLStreamWriter(writer);
-            indentingWriter.setIndent(indentString);
-            writer = indentingWriter;
-        }
-        return writer;
-    }
-
-    public static void writeEndElement(XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeEndElement();
-        writer.writeEndDocument();
     }
 }
