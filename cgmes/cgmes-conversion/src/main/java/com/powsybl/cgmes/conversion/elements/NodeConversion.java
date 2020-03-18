@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -68,34 +69,34 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         String substationName = "boundary";
         String vlName = "boundary";
         return context.network()
-                .newSubstation()
-                .setId(context.namingStrategy().getId("Substation", substationId))
-                .setName(substationName)
-                // TODO(mathbagu): Country should be optional. This will be done in another PR.
-                // A non-null country code must be set
-                // This is an arbitrary country code, Bangladesh code BD also matches with
-                // BounDary
-                .setCountry(boundaryCountryCode())
-                .add()
-                .newVoltageLevel()
-                .setId(context.namingStrategy().getId("VoltageLevel", vlId))
-                .setName(vlName)
-                .setNominalV(nominalVoltage)
-                .setTopologyKind(context.nodeBreaker() ? TopologyKind.NODE_BREAKER : TopologyKind.BUS_BREAKER)
-                .add();
+            .newSubstation()
+            .setId(context.namingStrategy().getId("Substation", substationId))
+            .setName(substationName)
+            // TODO(mathbagu): Country should be optional. This will be done in another PR.
+            // A non-null country code must be set
+            // This is an arbitrary country code, Bangladesh code BD also matches with
+            // BounDary
+            .setCountry(boundaryCountryCode())
+            .add()
+            .newVoltageLevel()
+            .setId(context.namingStrategy().getId("VoltageLevel", vlId))
+            .setName(vlName)
+            .setNominalV(nominalVoltage)
+            .setTopologyKind(context.nodeBreaker() ? TopologyKind.NODE_BREAKER : TopologyKind.BUS_BREAKER)
+            .add();
     }
 
     private Country boundaryCountryCode() {
         // Selection of country code when ENTSO-E extensions are present
         return CountryConversion.fromIsoCode(p.getLocal("fromEndIsoCode"))
-                .orElseGet(() -> CountryConversion.fromIsoCode(p.getLocal("toEndIsoCode"))
-                        .orElseGet(() -> {
-                            String countryCodes = String.format("Country. ISO codes %s %s",
-                                    p.getLocal("fromEndIsoCode"),
-                                    p.getLocal("toEndIsoCode"));
-                            ignored(countryCodes);
-                            return null;
-                        }));
+            .orElseGet(() -> CountryConversion.fromIsoCode(p.getLocal("toEndIsoCode"))
+                .orElseGet(() -> {
+                    String countryCodes = String.format("Country. ISO codes %s %s",
+                        p.getLocal("fromEndIsoCode"),
+                        p.getLocal("toEndIsoCode"));
+                    ignored(countryCodes);
+                    return null;
+                }));
     }
 
     @Override
@@ -167,6 +168,10 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
         String connectivityNode = id;
         int iidmNode = context.nodeMapping().iidmNodeForConnectivityNode(connectivityNode, vl);
+        if (!iidmNodeIsValid(topo, iidmNode)) {
+            LOG.error("ConnectivityNode {} with voltage and angle is not valid in IIDM", connectivityNode);
+            return;
+        }
         // To obtain a bus for which we want to set voltage:
         // If there no Terminal at this IIDM node,
         // then find from it the first connected node with a Terminal
@@ -186,10 +191,17 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                 return;
             }
             LOG.warn(
-                    "Can't find a calculated Bus to set Voltage, Angle, but found a configured Bus {}. Connectivity node {}",
-                    bus, id);
+                "Can't find a calculated Bus to set Voltage, Angle, but found a configured Bus {}. Connectivity node {}",
+                bus, id);
         }
         setVoltageAngle(bus);
+    }
+
+    private boolean iidmNodeIsValid(VoltageLevel.NodeBreakerView topo, int iidmNode) {
+        // A node is valid only if it has some equipment attached
+        // The list of valid nodes is obtained from the node-breaker view
+        // We assume the returned list is sorted
+        return Arrays.binarySearch(topo.getNodes(), iidmNode) >= 0;
     }
 
     private VoltageLevel voltageLevel() {
@@ -214,19 +226,19 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         // against the topology present in the CGMES model
         if (context.config().createBusbarSectionForEveryConnectivityNode()) {
             BusbarSection bus = nbv.newBusbarSection()
-                    .setId(context.namingStrategy().getId("Bus", id))
-                    .setName(context.namingStrategy().getName("Bus", name))
-                    .setNode(iidmNode)
-                    .add();
+                .setId(context.namingStrategy().getId("Bus", id))
+                .setName(context.namingStrategy().getName("Bus", name))
+                .setNode(iidmNode)
+                .add();
             LOG.debug("    BusbarSection added at node {} : {} {} : {}", iidmNode, id, name, bus);
         }
     }
 
     private void newBus(VoltageLevel voltageLevel) {
         Bus bus = voltageLevel.getBusBreakerView().newBus()
-                .setId(context.namingStrategy().getId("Bus", id))
-                .setName(context.namingStrategy().getName("Bus", name))
-                .add();
+            .setId(context.namingStrategy().getId("Bus", id))
+            .setName(context.namingStrategy().getName("Bus", name))
+            .add();
         if (checkValidVoltageAngle(bus)) {
             setVoltageAngle(bus);
         }
@@ -238,13 +250,13 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         boolean valid = valid(v, angle);
         if (!valid) {
             String reason = String.format(
-                    "v = %f, angle = %f. Node %s",
-                    v,
-                    angle,
-                    id);
+                "v = %f, angle = %f. Node %s",
+                v,
+                angle,
+                id);
             String location = bus == null
-                    ? "No bus"
-                    : String.format("Bus %s, Substation %s, Voltage level %s",
+                ? "No bus"
+                : String.format("Bus %s, Substation %s, Voltage level %s",
                     bus.getId(),
                     bus.getVoltageLevel().getSubstation().getNameOrId(),
                     bus.getVoltageLevel().getNameOrId());
