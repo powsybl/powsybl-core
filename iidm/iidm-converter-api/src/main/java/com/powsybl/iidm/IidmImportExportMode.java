@@ -14,8 +14,8 @@ package com.powsybl.iidm;
 @Deprecated
 public enum IidmImportExportMode {
     ONE_SEPARATED_FILE_PER_EXTENSION_TYPE,
-    EXTENSIONS_IN_ONE_SEPARATED_FILE,
-    UNIQUE_FILE
+    UNIQUE_FILE,
+    EXTENSIONS_IN_ONE_SEPARATED_FILE
 }
 
 
