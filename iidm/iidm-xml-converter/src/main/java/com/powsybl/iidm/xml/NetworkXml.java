@@ -107,19 +107,7 @@ public final class NetworkXml {
         }
     }
 
-    static void validate(InputStream is) {
-        validate(new StreamSource(is), Collections.emptyList());
-    }
-
-    static void validate(Path file) {
-        try (InputStream is = Files.newInputStream(file)) {
-            validate(is);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    static void validateWithExtensions(InputStream is) {
+    public static void validate(InputStream is) {
         List<Source> additionalSchemas = new ArrayList<>();
         for (ExtensionXmlSerializer<?, ?> e : EXTENSIONS_SUPPLIER.get().getProviders()) {
             e.getXsdAsStreamList().forEach(xsd -> additionalSchemas.add(new StreamSource(xsd)));
@@ -127,9 +115,9 @@ public final class NetworkXml {
         validate(new StreamSource(is), additionalSchemas);
     }
 
-    static void validateWithExtensions(Path file) {
+    public static void validate(Path file) {
         try (InputStream is = Files.newInputStream(file)) {
-            validateWithExtensions(is);
+            validate(is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -352,7 +340,7 @@ public final class NetworkXml {
 
     public static Anonymizer writeAndValidate(Network n, ExportOptions options, Path xmlFile) {
         Anonymizer anonymizer = write(n, options, xmlFile);
-        validateWithExtensions(xmlFile);
+        validate(xmlFile);
         return anonymizer;
     }
 
@@ -485,7 +473,7 @@ public final class NetworkXml {
     }
 
     public static Network validateAndRead(Path xmlFile, ImportOptions options) {
-        validateWithExtensions(xmlFile);
+        validate(xmlFile);
         return read(xmlFile, options);
     }
 
