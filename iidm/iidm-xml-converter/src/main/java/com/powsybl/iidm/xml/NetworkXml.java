@@ -455,11 +455,7 @@ public final class NetworkXml {
     }
 
     public static Network read(Path xmlFile) {
-        try (InputStream is = Files.newInputStream(xmlFile)) {
-            return read(is);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return read(xmlFile, new ImportOptions());
     }
 
     public static Network read(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, ImportOptions options, String dataSourceExt) throws IOException {
@@ -480,25 +476,21 @@ public final class NetworkXml {
         return network;
     }
 
-    /**
-     * @deprecated Use {@link #read(Path)} instead.
-     */
-    @Deprecated
     public static Network read(Path xmlFile, ImportOptions options) {
-        return read(xmlFile);
+        try (InputStream is = Files.newInputStream(xmlFile)) {
+            return read(is, options, null);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
-    /**
-     * @deprecated Use {@link #validateAndRead(Path)} instead.
-     */
-    @Deprecated
     public static Network validateAndRead(Path xmlFile, ImportOptions options) {
-        return validateAndRead(xmlFile);
+        validateWithExtensions(xmlFile);
+        return read(xmlFile, options);
     }
 
     public static Network validateAndRead(Path xmlFile) {
-        validateWithExtensions(xmlFile);
-        return read(xmlFile);
+        return validateAndRead(xmlFile, new ImportOptions());
     }
 
     private static void readExtensions(Identifiable identifiable, NetworkXmlReaderContext context,
