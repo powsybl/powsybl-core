@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.*;
@@ -125,6 +126,11 @@ public class MergingNetworkTest {
         assertFalse(mergingView.getStaticVarCompensators().iterator().hasNext());
         assertEquals(0, mergingView.getStaticVarCompensatorStream().count());
         assertEquals(0, mergingView.getStaticVarCompensatorCount());
+        assertEquals(Iterables.toArray(mergingView.getStaticVarCompensators(), StaticVarCompensator.class),
+                Iterables.toArray(mergingView.getConnectables(StaticVarCompensator.class), StaticVarCompensator.class));
+        assertFalse(mergingView.getConnectables(StaticVarCompensator.class).iterator().hasNext());
+        assertEquals(0, mergingView.getConnectableStream(StaticVarCompensator.class).count());
+        assertEquals(0, mergingView.getConnectableCount(StaticVarCompensator.class));
 
         // ShuntCompensators
         assertFalse(mergingView.getShuntCompensators().iterator().hasNext());
@@ -170,11 +176,22 @@ public class MergingNetworkTest {
         assertFalse(mergingView.getLines().iterator().hasNext());
         assertEquals(0, mergingView.getLineStream().count());
         assertEquals(0, mergingView.getLineCount());
+        assertEquals(Iterables.toArray(mergingView.getLines(), Line.class), Iterables.toArray(mergingView.getConnectables(Line.class), Line.class));
+        assertEquals(0, mergingView.getConnectableStream(Line.class).count());
+        assertEquals(0, mergingView.getConnectableCount(Line.class));
 
         // DanglingLines
         assertFalse(mergingView.getDanglingLines().iterator().hasNext());
         assertEquals(0, mergingView.getDanglingLineStream().count());
         assertEquals(0, mergingView.getDanglingLineCount());
+        assertEquals(Iterables.toArray(mergingView.getDanglingLines(), DanglingLine.class), Iterables.toArray(mergingView.getConnectables(DanglingLine.class), DanglingLine.class));
+        assertEquals(0, mergingView.getConnectableStream(DanglingLine.class).count());
+        assertEquals(0, mergingView.getConnectableCount(DanglingLine.class));
+
+        // Connectables
+        assertFalse(mergingView.getConnectables().iterator().hasNext());
+        assertEquals(0, mergingView.getConnectableStream().count());
+        assertEquals(0, mergingView.getConnectableCount());
 
         // HvdcLines
         assertFalse(mergingView.getHvdcLines().iterator().hasNext());
