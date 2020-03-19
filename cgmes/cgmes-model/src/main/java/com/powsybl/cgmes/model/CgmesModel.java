@@ -208,15 +208,15 @@ public interface CgmesModel {
         throw new UnsupportedOperationException();
     }
 
-    default void iidmNode2ConnectivityNodeMapper(String voltageLevelId, int iidmNode, String connectivityNode) {
+    default void computeTopologicalNode2iidmNode(String voltageLevelId, int iidmNode, String connectivityNode) {
         throw new UnsupportedOperationException();
     }
 
-    default void copyIidmNode2cgmesConnectivityNode(Map<String, String> cgmes2iidmNodeMapper) {
+    default void copyTopologicalNode2iidmNode(Map<String, String> cgmes2iidmNodeMapper) {
         throw new UnsupportedOperationException();
     }
 
-    default Map<String, String> iidmNode2cgmesConnectivityNode() {
+    default Map<String, String> topologicalNode2iidmNode() {
         throw new UnsupportedOperationException();
     }
 

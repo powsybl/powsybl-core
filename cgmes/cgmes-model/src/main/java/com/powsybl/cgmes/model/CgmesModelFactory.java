@@ -63,7 +63,7 @@ public final class CgmesModelFactory {
             CgmesModel cgmesCopy = new CgmesModelTripleStore(cgmests.getCimNamespace(), tripleStore);
             cgmesCopy.setBasename(cgmes.getBasename());
             buildCaches(cgmesCopy);
-            cgmesCopy.copyIidmNode2cgmesConnectivityNode(cgmes.iidmNode2cgmesConnectivityNode());
+            cgmesCopy.copyTopologicalNode2iidmNode(cgmes.topologicalNode2iidmNode());
             cgmesCopy.copyTopologicalNode2iidmBusbasSection(cgmes.topologicalNode2iidmBusbasSection());
             return cgmesCopy;
         } else {

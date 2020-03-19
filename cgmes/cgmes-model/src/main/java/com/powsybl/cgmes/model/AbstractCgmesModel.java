@@ -234,22 +234,27 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public void copyIidmNode2cgmesConnectivityNode(Map<String, String> cgmes2iidmNodeMapper) {
-        this.iidmNode2cgmesConnectivityNode.clear();
-        this.iidmNode2cgmesConnectivityNode.putAll(Objects.requireNonNull(cgmes2iidmNodeMapper));
+    public void copyTopologicalNode2iidmNode(Map<String, String> cgmes2iidmNodeMapper) {
+        this.topologicalNode2iidmNode.clear();
+        this.topologicalNode2iidmNode.putAll(Objects.requireNonNull(cgmes2iidmNodeMapper));
     }
 
     @Override
-    public Map<String, String> iidmNode2cgmesConnectivityNode() {
-        return iidmNode2cgmesConnectivityNode;
+    public Map<String, String> topologicalNode2iidmNode() {
+        return topologicalNode2iidmNode;
     }
 
     @Override
-    public void iidmNode2ConnectivityNodeMapper(String voltageLevelId, int iidmNode, String connectivityNode) {
-        iidmNode2cgmesConnectivityNode.put(voltageLevelId + "_" + iidmNode, connectivityNode);
+    public void computeTopologicalNode2iidmNode(String voltageLevelId, int iidmNode, String connectivityNode) {
+        String topologicalNode = connectivityNodes().stream()
+            .filter(cn -> cn.getId(CgmesNames.CONNECTIVITY_NODE).equals(connectivityNode))
+            .collect(Collectors.toSet()).stream().map(cn -> cn.getId(CgmesNames.TOPOLOGICAL_NODE))
+            .findAny().orElse(null);
+        topologicalNode2iidmNode.computeIfAbsent(voltageLevelId + "_" + iidmNode, n -> topologicalNode);
     }
 
-    // methods related to busbarsection are tmp, will be removed if finally decide we dont need them
+    // methods related to busbarsection are tmp, will be removed if finally decide
+    // we dont need them
     @Override
     public void copyTopologicalNode2iidmBusbasSection(Map<String, String> topologicalNode2iidmBus) {
         this.topologicalNode2iidmBusbasSection.clear();
@@ -263,7 +268,8 @@ public abstract class AbstractCgmesModel implements CgmesModel {
 
     @Override
     public void computeTopologicalNode2BusbasSection(String busbasSection) {
-        String terminal = busBarSections().stream().filter(bs -> bs.getId(CgmesNames.BUSBAR_SECTION).equals(busbasSection))
+        String terminal = busBarSections().stream()
+            .filter(bs -> bs.getId(CgmesNames.BUSBAR_SECTION).equals(busbasSection))
             .findAny().orElse(new PropertyBag(new ArrayList<>())).getId(CgmesNames.TERMINAL);
         if (terminal != null) {
             topologicalNode2iidmBusbasSection.computeIfAbsent(terminal(terminal).topologicalNode(),
@@ -273,7 +279,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
 
     private final Properties properties;
     private String baseName;
-    private final Map<String, String> iidmNode2cgmesConnectivityNode = new HashMap<>();
+    private final Map<String, String> topologicalNode2iidmNode = new HashMap<>();
     private final Map<String, String> topologicalNode2iidmBusbasSection = new HashMap<>();
     // Caches
     private Map<String, PropertyBags> cachedGroupedTransformerEnds;

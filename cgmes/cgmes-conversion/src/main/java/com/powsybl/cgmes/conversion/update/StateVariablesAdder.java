@@ -99,46 +99,38 @@ public class StateVariablesAdder {
         boolean useBusbarSection = false;
         if (cgmes.isNodeBreaker()) {
             if (useBusbarSection) {
-                for (PropertyBag tn : cgmes.topologicalNodes()) {
+                // remove this if not used finally
+                cgmes.topologicalNodes().stream().forEach(tn -> {
                     String bbsId = cgmes.topologicalNode2iidmBusbasSection()
                         .get(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
                     if (bbsId != null) {
-                        BusbarSection bbs = network.getBusbarSection(bbsId);
                         PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
-                        p.put(CgmesNames.ANGLE, fs(bbs.getAngle()));
-                        p.put(CgmesNames.VOLTAGE, fs(bbs.getV()));
-                        p.put(CgmesNames.TOPOLOGICAL_NODE, tn.getId(CgmesNames.TOPOLOGICAL_NODE));
+                        BusbarSection bbs = network.getBusbarSection(bbsId);
+                        addVoltagesForTopologicalNodes(p, fs(bbs.getAngle()), fs(bbs.getV()),
+                            tn.getId(CgmesNames.TOPOLOGICAL_NODE));
                         voltages.add(p);
                     }
-                }
+                });
             } else {
-                // using iidmNodeMapper
-                cgmes.iidmNode2cgmesConnectivityNode().forEach((iidmBus, cnode) -> {
+                cgmes.topologicalNode2iidmNode().forEach((iidmBus, tnode) -> {
                     Bus b = network.getBusView().getBus(iidmBus);
                     if (b != null) {
                         PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
-                        String topologicalNode = cgmes.connectivityNodes().stream()
-                            .filter(cn -> cn.getId(CgmesNames.CONNECTIVITY_NODE).equals(cnode))
-                            .collect(Collectors.toSet()).stream().map(cn -> cn.getId(CgmesNames.TOPOLOGICAL_NODE))
-                            .findAny().orElse(null);
-                        p.put(CgmesNames.ANGLE, fs(b.getAngle()));
-                        p.put(CgmesNames.VOLTAGE, fs(b.getV()));
-                        p.put(CgmesNames.TOPOLOGICAL_NODE, topologicalNode);
+                        addVoltagesForTopologicalNodes(p, fs(b.getAngle()), fs(b.getV()), tnode);
                         voltages.add(p);
                     }
                 });
             }
-        }
-
-        for (PropertyBag tn : cgmes.topologicalNodes()) {
-            Bus b = network.getBusBreakerView().getBus(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
-            PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
-            if (b != null) {
-                p.put(CgmesNames.ANGLE, fs(b.getAngle()));
-                p.put(CgmesNames.VOLTAGE, fs(b.getV()));
-                p.put(CgmesNames.TOPOLOGICAL_NODE, tn.getId(CgmesNames.TOPOLOGICAL_NODE));
-                voltages.add(p);
-            }
+        } else {
+            cgmes.topologicalNodes().stream().forEach(tn -> {
+                Bus b = network.getBusBreakerView().getBus(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
+                if (b != null) {
+                    PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
+                    addVoltagesForTopologicalNodes(p, fs(b.getAngle()), fs(b.getV()),
+                        tn.getId(CgmesNames.TOPOLOGICAL_NODE));
+                    voltages.add(p);
+                }
+            });
         }
         cgmes.add(originalSVcontext, "SvVoltage", voltages);
     }
@@ -154,17 +146,19 @@ public class StateVariablesAdder {
                 // calculate complex voltage value: abs for VOLTAGE, degrees for ANGLE
                 Complex v2 = complexVoltage(dl.getR(), dl.getX(), dl.getG(), dl.getB(), b.getV(), b.getAngle(),
                     dl.getP0(), dl.getQ0());
-                p.put(CgmesNames.ANGLE, fs(Math.toDegrees(v2.getArgument())));
-                p.put(CgmesNames.VOLTAGE, fs(v2.abs()));
-                p.put(CgmesNames.TOPOLOGICAL_NODE, bnode);
+                addVoltagesForTopologicalNodes(p, fs(Math.toDegrees(v2.getArgument())), fs(v2.abs()), bnode);
             } else {
-                p.put(CgmesNames.ANGLE, fs(0.0));
-                p.put(CgmesNames.VOLTAGE, fs(0.0));
-                p.put(CgmesNames.TOPOLOGICAL_NODE, bnode);
+                addVoltagesForTopologicalNodes(p, fs(0.0), fs(0.0), bnode);
             }
             voltages.add(p);
         });
         cgmes.add(originalSVcontext, "SvVoltage", voltages);
+    }
+
+    private void addVoltagesForTopologicalNodes(PropertyBag p, String angle, String voltage, String tNode) {
+        p.put(CgmesNames.ANGLE, angle);
+        p.put(CgmesNames.VOLTAGE, voltage);
+        p.put(CgmesNames.TOPOLOGICAL_NODE, tNode);
     }
 
     private void addPowerFlowToCgmes() {

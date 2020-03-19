@@ -208,7 +208,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         VoltageLevel.NodeBreakerView nbv = vl.getNodeBreakerView();
         String connectivityNode = id;
         int iidmNode = context.nodeMapping().iidmNodeForConnectivityNode(connectivityNode, vl);
-        context.cgmes().iidmNode2ConnectivityNodeMapper(vl.getId(), iidmNode, connectivityNode);
+        context.cgmes().computeTopologicalNode2iidmNode(vl.getId(), iidmNode, connectivityNode);
 
         // Busbar sections are created for every connectivity node to be
         // able to easily check the topology calculated by IIDM
