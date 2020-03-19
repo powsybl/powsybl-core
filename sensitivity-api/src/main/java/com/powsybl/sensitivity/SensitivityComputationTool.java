@@ -9,6 +9,8 @@ package com.powsybl.sensitivity;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
+import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.ContingenciesProviderFactory;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -41,6 +43,7 @@ public class SensitivityComputationTool implements Tool {
     private static final String OUTPUT_FORMAT_OPTION = "output-format";
     private static final String SKIP_POSTPROC_OPTION = "skip-postproc";
     private static final String FACTORS_FILE_OPTION = "factors-file";
+    private static final String CONTINGENCIES_FILE_OPTION = "contingencies-file";
 
     @Override
     public Command getCommand() {
@@ -74,6 +77,11 @@ public class SensitivityComputationTool implements Tool {
                         .hasArg()
                         .argName("FILE")
                         .required()
+                        .build());
+                options.addOption(Option.builder().longOpt(CONTINGENCIES_FILE_OPTION)
+                        .desc("contingencies input file path")
+                        .hasArg()
+                        .argName("FILE")
                         .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_FILE_OPTION)
                         .desc("sensitivity computation results output path")
@@ -132,7 +140,15 @@ public class SensitivityComputationTool implements Tool {
         String workingStateId = network.getVariantManager().getWorkingVariantId();
         SensitivityFactorsProviderFactory factorsProviderFactory = defaultConfig.newFactoryImpl(SensitivityFactorsProviderFactory.class);
         SensitivityFactorsProvider factorsProvider = factorsProviderFactory.create(sensitivityFactorsFile);
-        SensitivityComputationResults result = sensitivityComputation.run(factorsProvider, workingStateId, params).join();
+
+        SensitivityComputationResults result;
+        if (line.hasOption(CONTINGENCIES_FILE_OPTION)) {
+            ContingenciesProviderFactory contingenciesProviderFactory = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class);
+            ContingenciesProvider contingenciesProvider = contingenciesProviderFactory.create(context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION)));
+            result = sensitivityComputation.run(factorsProvider, contingenciesProvider, workingStateId, params).join();
+        } else {
+            result = sensitivityComputation.run(factorsProvider, workingStateId, params).join();
+        }
 
         if (!result.isOk()) {
             context.getErrorStream().println("Initial state divergence");
