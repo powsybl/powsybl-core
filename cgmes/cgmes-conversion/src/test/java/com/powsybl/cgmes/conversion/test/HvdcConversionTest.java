@@ -175,6 +175,15 @@ public class HvdcConversionTest {
     }
 
     @Test
+    public void smallNodeBrokerHvdcMissingAcDcConverters() throws IOException {
+        Conversion.Config config = new Conversion.Config();
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcMissingAcDcConverters(), config);
+
+        assertTrue(n.getHvdcConverterStationCount() == 0);
+        assertTrue(n.getHvdcLineCount() == 0);
+    }
+
+    @Test
     public void smallNodeBrokerHvdcNanTargetPpcc() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcNanTargetPpcc(), config);
@@ -197,6 +206,59 @@ public class HvdcConversionTest {
         assertTrue(ok);
         ok = containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, "dcLine2",
             "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 0.0, 0.0);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void smallNodeBrokerHvdcTwoDcLineSegments() throws IOException {
+        Conversion.Config config = new Conversion.Config();
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcTwoDcLineSegments(), config);
+
+        assertTrue(n.getHvdcConverterStationCount() == 4);
+        assertTrue(n.getHvdcLineCount() == 2);
+
+        boolean ok;
+        ok = containsLccConverter(n, "_7393a68e-c4e6-48dd-9347-543858363fdb", "Conv1", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, 0.8);
+        assertTrue(ok);
+        ok = containsLccConverter(n, "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", "Conv2", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, -0.75741);
+        assertTrue(ok);
+        ok = containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine",
+            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 5.60575, 63.8, -76.55999999999999);
+        assertTrue(ok);
+
+        ok = containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 218.47, 0.0);
+        assertTrue(ok);
+        ok = containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 213.54, 0.0);
+        assertTrue(ok);
+        ok = containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 153.82467532467533, -184.2);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void smallNodeBreakerHvdcLogOn() throws IOException {
+        Conversion.Config config = new Conversion.Config();
+        config.setHvdcConversionLogOn(true);
+        Network n = networkModel(CgmesConformity1Catalog.smallNodeBreakerHvdc(), config);
+
+        assertTrue(n.getHvdcConverterStationCount() == 4);
+        assertTrue(n.getHvdcLineCount() == 2);
+
+        boolean ok;
+        ok = containsLccConverter(n, "_7393a68e-c4e6-48dd-9347-543858363fdb", "Conv1", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, 0.8);
+        assertTrue(ok);
+        ok = containsLccConverter(n, "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", "Conv2", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, -0.75741);
+        assertTrue(ok);
+        ok = containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine",
+            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, -76.55999999999999);
+        assertTrue(ok);
+
+        ok = containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 218.47, 0.0);
+        assertTrue(ok);
+        ok = containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 213.54, 0.0);
+        assertTrue(ok);
+        ok = containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 153.82467532467533, -184.2);
         assertTrue(ok);
     }
 
