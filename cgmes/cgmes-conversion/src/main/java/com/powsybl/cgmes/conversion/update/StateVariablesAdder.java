@@ -96,7 +96,7 @@ public class StateVariablesAdder {
     private void addVoltagesForTopologicalNodes() {
         PropertyBags voltages = new PropertyBags();
         // add voltages for TpNodes existing in the Model
-        boolean useBusbarSection = true;
+        boolean useBusbarSection = false;
         if (cgmes.isNodeBreaker()) {
             if (useBusbarSection) {
                 for (PropertyBag tn : cgmes.topologicalNodes()) {
