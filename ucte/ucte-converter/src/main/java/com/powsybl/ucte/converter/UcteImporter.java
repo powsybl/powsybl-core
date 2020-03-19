@@ -45,6 +45,12 @@ public class UcteImporter implements Importer {
 
     private static final String[] EXTENSIONS = {"uct", "UCT"};
 
+    /**
+     * Key to store ucte power plant type in properties
+     * Concat this key with generator id
+     */
+    public static final String UCTE_POWERPLANT_TYPE_KEY = "UctePowerPlantType_";
+
     private static float getConductance(UcteTransformer ucteTransfo) {
         float g = 0;
         if (!Float.isNaN(ucteTransfo.getConductance())) {
@@ -180,8 +186,14 @@ public class UcteImporter implements Importer {
         if (ucteNode.getPowerPlantType() != null) {
             switch (ucteNode.getPowerPlantType()) {
                 case C:
+                    voltageLevel.getNetwork().setProperty(UCTE_POWERPLANT_TYPE_KEY + generatorId, ucteNode.getPowerPlantType().toString());
+                    break;
                 case G:
+                    voltageLevel.getNetwork().setProperty(UCTE_POWERPLANT_TYPE_KEY + generatorId, ucteNode.getPowerPlantType().toString());
+                    break;
                 case L:
+                    voltageLevel.getNetwork().setProperty(UCTE_POWERPLANT_TYPE_KEY + generatorId, ucteNode.getPowerPlantType().toString());
+                    break;
                 case O:
                     energySource = EnergySource.THERMAL;
                     break;

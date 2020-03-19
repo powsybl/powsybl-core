@@ -243,7 +243,7 @@ public class UcteExporter implements Exporter {
             maxQ = (float) generator.getReactiveLimits().getMaxQ(activePowerGeneration);
 
             // FIXME(mathbagu): what if not all the generators have the same energy source?
-            powerPlantType = energySourceToUctePowerPlantType(generator.getEnergySource());
+            powerPlantType = energySourceToUctePowerPlantType(generator.getEnergySource(), generator.getNetwork().getProperty(UcteImporter.UCTE_POWERPLANT_TYPE_KEY + generator.getId()));
         }
         ucteNode.setActivePowerGeneration(-activePowerGeneration);
         ucteNode.setReactivePowerGeneration(-reactivePowerGeneration);
@@ -699,7 +699,7 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    private static UctePowerPlantType energySourceToUctePowerPlantType(EnergySource energySource) {
+    private static UctePowerPlantType energySourceToUctePowerPlantType(EnergySource energySource, String uctePowerPlantType) {
         switch (energySource) {
             case HYDRO:
                 return UctePowerPlantType.H;
@@ -710,6 +710,9 @@ public class UcteExporter implements Exporter {
             case WIND:
                 return UctePowerPlantType.W;
             default:
+                if (uctePowerPlantType != null) {
+                    return UctePowerPlantType.valueOf(uctePowerPlantType);
+                }
                 return UctePowerPlantType.F;
         }
     }
