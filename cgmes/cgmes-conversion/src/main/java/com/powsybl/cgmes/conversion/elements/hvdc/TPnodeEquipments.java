@@ -72,7 +72,9 @@ class TPnodeEquipments {
         List<String> topologicalNodes = new ArrayList<>();
         topologicalNodes.add(t1.topologicalNode());
         topologicalNodes.add(t2.topologicalNode());
-        addTransformer(adjacency, id, topologicalNodes, EquipmentType.TRANSFORMER);
+        if (isValidTransformer(adjacency, topologicalNodes)) {
+            addTransformer(adjacency, id, topologicalNodes, EquipmentType.TRANSFORMER);
+        }
     }
 
     private void computeThreeWindingsTransformer(CgmesModel cgmesModel, Adjacency adjacency, PropertyBags ends) {
@@ -88,7 +90,9 @@ class TPnodeEquipments {
         topologicalNodes.add(t1.topologicalNode());
         topologicalNodes.add(t2.topologicalNode());
         topologicalNodes.add(t3.topologicalNode());
-        addTransformer(adjacency, id, topologicalNodes, EquipmentType.TRANSFORMER);
+        if (isValidTransformer(adjacency, topologicalNodes)) {
+            addTransformer(adjacency, id, topologicalNodes, EquipmentType.TRANSFORMER);
+        }
     }
 
     private void addEquipment(Adjacency adjacency, String id, String topologicalNodeId1, String topologicalNodeId2,
@@ -115,6 +119,10 @@ class TPnodeEquipments {
         dcTopologicalNodeIds.forEach(n -> nodeEquipments.computeIfAbsent(n, k -> new ArrayList<>()).add(eq));
     }
 
+    private boolean isValidTransformer(Adjacency adjacency, List<String> topologicalNodes) {
+        return topologicalNodes.stream().anyMatch(n -> adjacency.containsAcDcConverter(n));
+    }
+
     private void addTransformer(Adjacency adjacency, String id, List<String> topologicalNodes, EquipmentType type) {
         TPnodeEquipment eq = new TPnodeEquipment(type, id);
         topologicalNodes.stream()
@@ -129,6 +137,15 @@ class TPnodeEquipments {
         }
         return listEquipment.stream()
             .anyMatch(eq -> eq.type == EquipmentType.TRANSFORMER);
+    }
+
+    boolean containsAnyAcDcConverter(String topologicalNode) {
+        List<TPnodeEquipment> listEquipment = nodeEquipments.get(topologicalNode);
+        if (listEquipment == null) {
+            return false;
+        }
+        return listEquipment.stream()
+            .anyMatch(eq -> eq.type == EquipmentType.AC_DC_CONVERTER);
     }
 
     boolean multiAcDcConverter(String topologicalNode) {

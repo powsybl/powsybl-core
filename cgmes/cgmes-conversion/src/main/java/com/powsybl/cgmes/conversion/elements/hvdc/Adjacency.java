@@ -116,6 +116,13 @@ class Adjacency {
         adjacency.computeIfAbsent(topologicalNodeId2, k -> new ArrayList<>()).add(ad1);
     }
 
+    boolean containsAcDcConverter(String topologicalNodeId) {
+        if (adjacency.containsKey(topologicalNodeId)) {
+            return adjacency.get(topologicalNodeId).stream().anyMatch(ad -> isAcDcConverter(ad.type));
+        }
+        return false;
+    }
+
     static boolean isDcLineSegment(AdjacentType type) {
         return type == AdjacentType.DC_LINE_SEGMENT;
     }

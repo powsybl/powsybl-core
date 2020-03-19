@@ -25,11 +25,12 @@ import com.powsybl.cgmes.conversion.elements.hvdc.TPnodeEquipments.TPnodeEquipme
  */
 class IslandEndHvdc {
 
+    // T1: no transformer, C1: one acDcConverter, LS1: one dcLineSegment
     // T1: one transformer, C1: one acDcConverter, LS1: one dcLineSegment
     // T2: two transformers, C2: two acDcConverters, LS2: two dcLineSegments
     // TN: n transformers (usually 2), CN: n acDcConverters (usually 2), LSN: n dcLineSegments (usually 2)
     enum HvdcEndType {
-        HVDC_NONE, HVDC_T1_C1_LS1, HVDC_TN_CN_LSN, HVDC_T1_C1_LS2, HVDC_T2_C2_LS1,
+        HVDC_NONE, HVDC_T0_C1_LS1, HVDC_T1_C1_LS1, HVDC_TN_CN_LSN, HVDC_T1_C1_LS2, HVDC_T2_C2_LS1,
     }
 
     Set<HvdcEnd> hvdc;
@@ -50,6 +51,18 @@ class IslandEndHvdc {
             String topologicalNodeEnd = islandNodesEnd.get(k);
             if (!visitedTopologicalNodes.contains(topologicalNodeEnd)
                 && tpNodeEquipments.containsAnyTransformer(topologicalNodeEnd)) {
+                add(adjacency, tpNodeEquipments, visitedTopologicalNodes, topologicalNodeEnd, islandNodesEnd);
+            }
+            k++;
+        }
+
+        // IslandsEnds without transformers
+        // Take a non-visited node with acDcConverters
+        k = 0;
+        while (k < islandNodesEnd.size()) {
+            String topologicalNodeEnd = islandNodesEnd.get(k);
+            if (!visitedTopologicalNodes.contains(topologicalNodeEnd)
+                && tpNodeEquipments.containsAnyAcDcConverter(topologicalNodeEnd)) {
                 add(adjacency, tpNodeEquipments, visitedTopologicalNodes, topologicalNodeEnd, islandNodesEnd);
             }
             k++;
@@ -207,7 +220,9 @@ class IslandEndHvdc {
             int c = this.acDcConvertersEnd.size();
             int ls = this.dcLineSegmentsEnd.size();
 
-            if (t == 1 && c == 1 && ls == 1) {
+            if (t == 0 && c == 1 && ls == 1) {
+                return HvdcEndType.HVDC_T0_C1_LS1;
+            } else if (t == 1 && c == 1 && ls == 1) {
                 return HvdcEndType.HVDC_T1_C1_LS1;
             } else if (t == 1 && c == 1 && ls == 2) {
                 return HvdcEndType.HVDC_T1_C1_LS2;
