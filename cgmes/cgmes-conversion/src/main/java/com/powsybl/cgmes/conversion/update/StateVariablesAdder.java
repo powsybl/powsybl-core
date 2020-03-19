@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
@@ -23,6 +24,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Injection;
@@ -69,11 +71,6 @@ public class StateVariablesAdder {
     }
 
     public void addStateVariablesToCgmes() {
-        if (cgmes.isNodeBreaker()) {
-            // TODO we need to export SV file data for NodeBraker
-            LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
-            return;
-        }
         // Clear the previous SV data in CGMES model
         // and fill it with the Network current state values
         cgmes.clear(CgmesSubset.STATE_VARIABLES);
@@ -99,6 +96,40 @@ public class StateVariablesAdder {
     private void addVoltagesForTopologicalNodes() {
         PropertyBags voltages = new PropertyBags();
         // add voltages for TpNodes existing in the Model
+        boolean useBusbarSection = true;
+        if (cgmes.isNodeBreaker()) {
+            if (useBusbarSection) {
+                for (PropertyBag tn : cgmes.topologicalNodes()) {
+                    String bbsId = cgmes.topologicalNode2iidmBusbasSection()
+                        .get(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
+                    if (bbsId != null) {
+                        BusbarSection bbs = network.getBusbarSection(bbsId);
+                        PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
+                        p.put(CgmesNames.ANGLE, fs(bbs.getAngle()));
+                        p.put(CgmesNames.VOLTAGE, fs(bbs.getV()));
+                        p.put(CgmesNames.TOPOLOGICAL_NODE, tn.getId(CgmesNames.TOPOLOGICAL_NODE));
+                        voltages.add(p);
+                    }
+                }
+            } else {
+                // using iidmNodeMapper
+                cgmes.iidmNode2cgmesConnectivityNode().forEach((iidmBus, cnode) -> {
+                    Bus b = network.getBusView().getBus(iidmBus);
+                    if (b != null) {
+                        PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
+                        String topologicalNode = cgmes.connectivityNodes().stream()
+                            .filter(cn -> cn.getId(CgmesNames.CONNECTIVITY_NODE).equals(cnode))
+                            .collect(Collectors.toSet()).stream().map(cn -> cn.getId(CgmesNames.TOPOLOGICAL_NODE))
+                            .findAny().orElse(null);
+                        p.put(CgmesNames.ANGLE, fs(b.getAngle()));
+                        p.put(CgmesNames.VOLTAGE, fs(b.getV()));
+                        p.put(CgmesNames.TOPOLOGICAL_NODE, topologicalNode);
+                        voltages.add(p);
+                    }
+                });
+            }
+        }
+
         for (PropertyBag tn : cgmes.topologicalNodes()) {
             Bus b = network.getBusBreakerView().getBus(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
             PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
