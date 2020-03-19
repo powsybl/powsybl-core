@@ -17,9 +17,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -40,8 +38,9 @@ public class CsvSensitivityComputationResultExporterTest extends AbstractConvert
         factors.forEach(factor -> {
             sensitivityValues.add(new SensitivityValue(factor, 0, 0, 0));
         });
+        Map<String, List<SensitivityValue>> sensitivityValuesContingency = Collections.singletonMap("Contingency", sensitivityValues);
         // create result
-        return new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValues);
+        return new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValues, sensitivityValuesContingency);
     }
 
     public void writeCsv(SensitivityComputationResults results, Path path) {
@@ -56,6 +55,6 @@ public class CsvSensitivityComputationResultExporterTest extends AbstractConvert
 
     @Test
     public void testComment() {
-        assertEquals("Export a security analysis result in CSV format", SensitivityComputationResultExporters.getExporter("CSV").getComment());
+        assertEquals("Export a sensitivity analysis result in CSV format", SensitivityComputationResultExporters.getExporter("CSV").getComment());
     }
 }
