@@ -141,6 +141,17 @@ class Adjacency {
         adjacent.forEach(ad -> ad.print());
     }
 
+    void print(List<String> lnodes) {
+        lnodes.forEach(n -> print(n));
+    }
+
+    private void print(String node) {
+        LOG.info("AD TopologicalNode {}", node);
+        if (adjacency.containsKey(node)) {
+            adjacency.get(node).forEach(ad -> LOG.info("    {} {}", ad.type, ad.topologicalNode));
+        }
+    }
+
     static class Adjacent {
         AdjacentType type;
         String topologicalNode;

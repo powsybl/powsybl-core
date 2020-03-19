@@ -162,41 +162,6 @@ class IslandEndHvdc {
             .allMatch(ls -> hvdcEnd2.dcLineSegmentsEnd.contains(ls));
     }
 
-    void printAd(Adjacency adjacency, List<String> lnodes) {
-        lnodes.forEach(n -> printTopologicalNodeAd(adjacency, n));
-    }
-
-    private void printTopologicalNodeAd(Adjacency adjacency, String node) {
-        LOG.info("AD TopologicalNode {}", node);
-        if (adjacency.adjacency.containsKey(node)) {
-            adjacency.adjacency.get(node).forEach(ad -> LOG.info("    {} {}", ad.type, ad.topologicalNode));
-        }
-    }
-
-    void printEq(TPnodeEquipments tpNodeEquipments, List<String> lnodes) {
-        lnodes.forEach(n -> printTopologicalNodeEq(tpNodeEquipments, n));
-    }
-
-    private void printTopologicalNodeEq(TPnodeEquipments tpNodeEquipments, String node) {
-        LOG.info("EQ. TopologicalNode {}", node);
-        if (tpNodeEquipments.nodeEquipments.containsKey(node)) {
-            tpNodeEquipments.nodeEquipments.get(node)
-                .forEach(eq -> LOG.info("    {} {}", eq.type, eq.equipmentId));
-        }
-    }
-
-    void printDcLs(TPnodeEquipments tpNodeEquipments, List<String> lnodes) {
-        lnodes.forEach(n -> printTopologicalNodeDcLs(tpNodeEquipments, n));
-    }
-
-    private void printTopologicalNodeDcLs(TPnodeEquipments tpNodeEquipments, String node) {
-        if (tpNodeEquipments.nodeEquipments.containsKey(node)) {
-            tpNodeEquipments.nodeEquipments.get(node).stream()
-                .filter(eq -> eq.type == TPnodeEquipments.EquipmentType.DC_LINE_SEGMENT)
-                .forEach(eq -> LOG.info("DcLineSegment {}", eq.equipmentId));
-        }
-    }
-
     void print() {
         LOG.info("IslandEndHvdc");
         hvdc.forEach(h -> h.print());

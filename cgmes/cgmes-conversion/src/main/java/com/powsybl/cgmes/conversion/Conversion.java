@@ -185,7 +185,7 @@ public class Conversion {
             convert(cgmes.phaseTapChangers(), ptc -> new PhaseTapChangerConversion(ptc, context));
         }
 
-        CgmesDcConversion cgmesDcConversion = new CgmesDcConversion(cgmes, context);
+        CgmesDcConversion cgmesDcConversion = new CgmesDcConversion(cgmes, context, config);
         cgmesDcConversion.convert();
 
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
@@ -586,6 +586,16 @@ public class Conversion {
             xfmr3StructuralRatio = alternative;
         }
 
+        // Hvdc conversion
+
+        public boolean isHvdcConversionLogOn() {
+            return hvdcConversionLogOn;
+        }
+
+        public void setHvdcConversionLogOn(boolean hvdcConversionLogOn) {
+            this.hvdcConversionLogOn = hvdcConversionLogOn;
+        }
+
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
@@ -606,6 +616,9 @@ public class Conversion {
         private Xfmr3RatioPhaseInterpretationAlternative xfmr3RatioPhase = Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3ShuntInterpretationAlternative xfmr3Shunt = Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
+
+        // Hvdc conversion
+        private boolean hvdcConversionLogOn = false;
     }
 
     private final CgmesModel cgmes;

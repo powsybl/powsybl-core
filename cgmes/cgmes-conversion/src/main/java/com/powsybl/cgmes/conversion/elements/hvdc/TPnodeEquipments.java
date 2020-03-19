@@ -182,6 +182,30 @@ class TPnodeEquipments {
         listTPnodeEquipment.forEach(tpne -> tpne.print());
     }
 
+    void print(List<String> lnodes) {
+        lnodes.forEach(n -> print(n));
+    }
+
+    private void print(String node) {
+        LOG.info("EQ. TopologicalNode {}", node);
+        if (nodeEquipments.containsKey(node)) {
+            nodeEquipments.get(node)
+                .forEach(eq -> LOG.info("    {} {}", eq.type, eq.equipmentId));
+        }
+    }
+
+    void printDcLs(List<String> lnodes) {
+        lnodes.forEach(n -> printDcLs(n));
+    }
+
+    private void printDcLs(String node) {
+        if (nodeEquipments.containsKey(node)) {
+            nodeEquipments.get(node).stream()
+                .filter(eq -> eq.type == TPnodeEquipments.EquipmentType.DC_LINE_SEGMENT)
+                .forEach(eq -> LOG.info("DcLineSegment {}", eq.equipmentId));
+        }
+    }
+
     static class TPnodeEquipment {
         EquipmentType type;
         String equipmentId;
