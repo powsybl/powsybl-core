@@ -42,10 +42,10 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
 
     private AbstractHvdcConverterStation<?> converterStation2;
 
-    HvdcLineImpl(String id, String name, double r, double nominalV, double maxP, ConvertersMode convertersMode, double activePowerSetpoint,
+    HvdcLineImpl(String id, String name, boolean fictitious, double r, double nominalV, double maxP, ConvertersMode convertersMode, double activePowerSetpoint,
                  AbstractHvdcConverterStation<?> converterStation1, AbstractHvdcConverterStation<?> converterStation2,
                  Ref<NetworkImpl> networkRef) {
-        super(id, name);
+        super(id, name, fictitious);
         this.r = r;
         this.nominalV = nominalV;
         this.maxP = maxP;

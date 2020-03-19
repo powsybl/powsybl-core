@@ -109,7 +109,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         if (converterStation2 == null) {
             throw new PowsyblException("Side 2 converter station " + converterStationId2 + " not found");
         }
-        HvdcLineImpl hvdcLine = new HvdcLineImpl(id, name, r, nominalV, maxP, convertersMode, activePowerSetpoint,
+        HvdcLineImpl hvdcLine = new HvdcLineImpl(id, name, isFictitious(), r, nominalV, maxP, convertersMode, activePowerSetpoint,
                                                  converterStation1, converterStation2, networkRef);
         getNetwork().getIndex().checkAndAdd(hvdcLine);
         getNetwork().getListeners().notifyCreation(hvdcLine);

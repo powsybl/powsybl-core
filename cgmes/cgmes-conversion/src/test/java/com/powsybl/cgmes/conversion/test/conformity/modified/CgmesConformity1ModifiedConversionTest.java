@@ -223,6 +223,17 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBEMissingShuntRegulatingControlId() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog
+                        .microGridBaseCaseBEMissingShuntRegulatingControlId().dataSource(), NetworkFactory.findDefault(), null);
+        ShuntCompensator shunt = network.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da");
+        assertTrue(shunt.isVoltageRegulatorOn());
+        assertEquals(shunt.getTerminal().getBusView().getBus().getV(), shunt.getTargetV(), 0.0d);
+        assertEquals(0.0d, shunt.getTargetDeadband(), 0.0d);
+        assertEquals(shunt.getTerminal(), shunt.getRegulatingTerminal());
+    }
+
+    @Test
     public void microT4InvalidSvcMode() {
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator svc = network.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");

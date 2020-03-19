@@ -25,8 +25,8 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
 
     private boolean valid = true;
 
-    MergedBus(String id, String name, Set<ConfiguredBus> buses) {
-        super(id, name);
+    MergedBus(String id, String name, boolean fictitious, Set<ConfiguredBus> buses) {
+        super(id, name, fictitious);
         if (buses.size() < 1) {
             throw new IllegalArgumentException("buses.size() < 1");
         }

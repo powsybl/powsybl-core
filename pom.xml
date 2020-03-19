@@ -68,6 +68,7 @@
         <module>itools-packager</module>
         <module>loadflow</module>
         <module>math</module>
+        <module>psse</module>
         <module>scripting</module>
         <module>security-analysis</module>
         <module>sensitivity-api</module>
@@ -162,6 +163,16 @@
                 <groupId>com.blazegraph</groupId>
                 <artifactId>bigdata-core</artifactId>
                 <version>${blazegraph.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>

@@ -15,7 +15,6 @@ import com.powsybl.cgmes.conversion.update.StateVariablesAdder;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
@@ -45,10 +44,9 @@ public class CgmesExport implements Exporter {
         String variantId = network.getVariantManager().getWorkingVariantId();
 
         cgmesUpdate.update(cgmes, variantId);
-        // Clear the previous SV data in CGMES model
-        // and fill it with the Network current state values
-        cgmes.clear(CgmesSubset.STATE_VARIABLES);
-        StateVariablesAdder.add(network, cgmes);
+        // Fill the State Variables data with the Network current state values
+        StateVariablesAdder adder = new StateVariablesAdder(cgmes, network);
+        adder.addStateVariablesToCgmes();
         cgmes.write(ds);
     }
 

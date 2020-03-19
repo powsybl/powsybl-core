@@ -19,7 +19,8 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 public class PhaseShifterXmlTest extends AbstractXmlConverterTest {
     @Test
     public void roundTripTest() throws IOException {
-        roundTripVersionnedXmlTest("phaseShifterRoundTripRef.xml", IidmXmlVersion.V_1_0);
+        // backward compatibility
+        roundTripAllPreviousVersionedXmlTest("phaseShifterRoundTripRef.xml");
 
         roundTripXmlTest(PhaseShifterTestCaseFactory.createWithTargetDeadband(),
                 NetworkXml::writeAndValidate,

@@ -25,8 +25,8 @@ public class FictitiousSwitchTest extends AbstractXmlConverterTest {
                 NetworkXml::read,
                 getVersionedNetworkPath("fictitiousSwitchRef.xml", CURRENT_IIDM_XML_VERSION));
 
-        //backward compatibility 1.0
-        roundTripVersionnedXmlTest("fictitiousSwitchRef.xml", IidmXmlVersion.V_1_0);
+        //backward compatibility
+        roundTripAllPreviousVersionedXmlTest("fictitiousSwitchRef.xml");
     }
 
 }

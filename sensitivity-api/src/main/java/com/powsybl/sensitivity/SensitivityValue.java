@@ -51,7 +51,6 @@ public class SensitivityValue {
         this.variableReference = variableReference;
     }
 
-
     /**
      * Get the sensitivity factor
      *
