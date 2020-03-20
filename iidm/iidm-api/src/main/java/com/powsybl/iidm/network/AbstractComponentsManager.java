@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.iidm.network;
 
 import com.powsybl.math.graph.GraphUtil;
@@ -7,6 +13,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * @author Thomas ADAM <tadam at silicom.fr>
+ */
 public abstract class AbstractComponentsManager<C extends Component> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractComponentsManager.class);
@@ -70,7 +79,6 @@ public abstract class AbstractComponentsManager<C extends Component> {
         for (Bus b : network.getBusBreakerView().getBuses()) {
             setComponentNumber(b, -1);
         }
-
         int num = 0;
         Map<String, Integer> id2num = new HashMap<>();
         List<Bus> num2bus = new ArrayList<>();

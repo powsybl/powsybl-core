@@ -167,19 +167,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public Component getConnectedComponent() {
         checkValidity();
-        NetworkImpl.ConnectedComponentsManager ccm = voltageLevel.getNetwork().getConnectedComponentsManager();
+        ConnectedComponentsManager ccm = voltageLevel.getNetwork().getConnectedComponentsManager();
         ccm.update();
         return terminalRef == null ? null : ccm.getComponent(terminalRef.getConnectedComponentNumber());
-    }
-
-    @Override
-    public int getConnectedComponentNumber() {
-        return terminalRef == null ? -1 : terminalRef.getConnectedComponentNumber();
-    }
-
-    @Override
-    public int getSynchronousComponentNumber() {
-        return terminalRef == null ? -1 : terminalRef.getSynchronousComponentNumber();
     }
 
     @Override
@@ -193,7 +183,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public Component getSynchronousComponent() {
         checkValidity();
-        NetworkImpl.SynchronousComponentsManager scm = voltageLevel.getNetwork().getSynchronousComponentsManager();
+        SynchronousComponentsManager scm = voltageLevel.getNetwork().getSynchronousComponentsManager();
         scm.update();
         return terminalRef == null ? null : scm.getComponent(terminalRef.getSynchronousComponentNumber());
     }

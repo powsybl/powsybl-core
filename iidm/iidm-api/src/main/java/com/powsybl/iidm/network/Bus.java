@@ -244,15 +244,7 @@ public interface Bus extends Identifiable<Bus> {
         throw new UnsupportedOperationException();
     }
 
-    default void setSynchronousComponentNumber(int componentNumber) {
-        throw new UnsupportedOperationException();
-    }
-
-    default int getConnectedComponentNumber() {
-        throw new UnsupportedOperationException();
-    }
-
-    default int getSynchronousComponentNumber() {
+    default void setSynchronousComponentNumber(int synchronousComponentNumber) {
         throw new UnsupportedOperationException();
     }
 }

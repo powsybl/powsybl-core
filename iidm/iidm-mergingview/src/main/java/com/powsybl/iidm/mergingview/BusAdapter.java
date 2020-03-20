@@ -16,6 +16,10 @@ import java.util.stream.Stream;
  */
 class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
+    private int connectedComponentNumber;
+
+    private int synchronousComponentNumber;
+
     BusAdapter(final Bus delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
@@ -169,37 +173,27 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     }
 
     @Override
-    public int getConnectedComponentNumber() {
-        return getDelegate().getConnectedComponentNumber();
-    }
-
-    @Override
     public void setConnectedComponentNumber(int connectedComponentNumber) {
-        getDelegate().setConnectedComponentNumber(connectedComponentNumber);
+        this.connectedComponentNumber = connectedComponentNumber;
     }
 
     @Override
     public void setSynchronousComponentNumber(int synchronousComponentNumber) {
-        getDelegate().setSynchronousComponentNumber(synchronousComponentNumber);
+        this.synchronousComponentNumber = synchronousComponentNumber;
     }
 
     @Override
-    public int getSynchronousComponentNumber() {
-        return getDelegate().getSynchronousComponentNumber();
-    }
-
-    @Override
-    public ComponentAdapter getSynchronousComponent() {
-        MergingView.SynchronousComponentsManager ccm = getIndex().getView().getSynchronousComponentsManager();
+    public Component getSynchronousComponent() {
+        SynchronousComponentsManager ccm = getIndex().getView().getSynchronousComponentsManager();
         ccm.update();
-        return ccm.getComponent(getSynchronousComponentNumber());
+        return ccm.getComponent(synchronousComponentNumber);
     }
 
     @Override
-    public ComponentAdapter getConnectedComponent() {
-        MergingView.ConnectedComponentsManager ccm = getIndex().getView().getConnectedComponentsManager();
+    public Component getConnectedComponent() {
+        ConnectedComponentsManager ccm = getIndex().getView().getConnectedComponentsManager();
         ccm.update();
-        return ccm.getComponent(getConnectedComponentNumber());
+        return ccm.getComponent(connectedComponentNumber);
     }
 
     @Override

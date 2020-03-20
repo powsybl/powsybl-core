@@ -37,50 +37,19 @@ public final class MergingView implements Network {
     private final NetworkListener mergeDanglingLineListener;
     private final NetworkListener danglingLinePowerListener;
 
+    private final ConnectedComponentsManager connectedComponentsManager;
+    private final SynchronousComponentsManager synchronousComponentsManager;
+
     static PowsyblException createNotImplementedException() {
         return new PowsyblException("Not implemented exception");
     }
 
-    class ConnectedComponentsManager extends AbstractConnectedComponentsManager<ComponentAdapter> {
-        ConnectedComponentsManager(Network network) {
-            super(network);
-        }
-
-        @Override
-        protected ComponentAdapter createComponent(int num, int size) {
-            return new ComponentAdapter(index, num, size);
-        }
-
-        @Override
-        protected void setComponentNumber(Bus bus, int num) {
-            Objects.requireNonNull(bus);
-            ((BusAdapter) bus).setConnectedComponentNumber(num);
-        }
-    }
-
     public ConnectedComponentsManager getConnectedComponentsManager() {
-        return new ConnectedComponentsManager(this);
-    }
-
-    class SynchronousComponentsManager extends AbstractSynchronousComponentsManager<ComponentAdapter> {
-        SynchronousComponentsManager(Network network) {
-            super(network);
-        }
-
-        @Override
-        protected ComponentAdapter createComponent(int num, int size) {
-            return new ComponentAdapter(index, num, size);
-        }
-
-        @Override
-        protected void setComponentNumber(Bus bus, int num) {
-            Objects.requireNonNull(bus);
-            ((BusAdapter) bus).setSynchronousComponentNumber(num);
-        }
+        return connectedComponentsManager;
     }
 
     public SynchronousComponentsManager getSynchronousComponentsManager() {
-        return new SynchronousComponentsManager(this);
+        return synchronousComponentsManager;
     }
 
     private static class BusBreakerViewAdapter implements Network.BusBreakerView {
@@ -132,7 +101,7 @@ public final class MergingView implements Network {
 
     private final BusBreakerViewAdapter busBreakerView;
 
-    private static class BusViewAdapter implements Network.BusView {
+    private class BusViewAdapter implements Network.BusView {
 
         private final MergingViewIndex index;
 
@@ -159,12 +128,9 @@ public final class MergingView implements Network {
             return index.get(n -> n.getBusView().getBus(id), index::getBus);
         }
 
-        // -------------------------------
-        // Not implemented methods -------
-        // -------------------------------
         @Override
         public Collection<Component> getConnectedComponents() {
-            throw createNotImplementedException();
+            return Collections.unmodifiableList(MergingView.this.getConnectedComponentsManager().getConnectedComponents());
         }
     }
 
@@ -179,6 +145,8 @@ public final class MergingView implements Network {
 
         index = new MergingViewIndex(this);
         variantManager = new MergingVariantManager(index);
+        connectedComponentsManager = new ConnectedComponentsManager(this);
+        synchronousComponentsManager = new SynchronousComponentsManager(this);
         // Listeners creation
         mergeDanglingLineListener = new MergingLineListener(index);
         danglingLinePowerListener = new DanglingLinePowerListener(index);

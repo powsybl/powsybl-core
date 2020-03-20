@@ -633,42 +633,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         return busView;
     }
 
-    static final class ConnectedComponentsManager extends AbstractConnectedComponentsManager<ConnectedComponentImpl> {
-
-        private ConnectedComponentsManager(Network network) {
-            super(network);
-        }
-
-        @Override
-        protected ConnectedComponentImpl createComponent(int num, int size) {
-            return new ConnectedComponentImpl(num, size, ((NetworkImpl) network).ref);
-        }
-
-        @Override
-        protected void setComponentNumber(Bus bus, int num) {
-            Objects.requireNonNull(bus);
-            ((BusExt) bus).setConnectedComponentNumber(num);
-        }
-    }
-
-    static final class SynchronousComponentsManager extends AbstractSynchronousComponentsManager<ComponentImpl> {
-
-        private SynchronousComponentsManager(Network network) {
-            super(network);
-        }
-
-        @Override
-        protected ComponentImpl createComponent(int num, int size) {
-            return new ComponentImpl(num, size, ((NetworkImpl) network).ref);
-        }
-
-        @Override
-        protected void setComponentNumber(Bus bus, int num) {
-            Objects.requireNonNull(bus);
-            ((BusExt) bus).setSynchronousComponentNumber(num);
-        }
-    }
-
     private class VariantImpl implements Variant {
 
         private final ConnectedComponentsManager connectedComponentsManager

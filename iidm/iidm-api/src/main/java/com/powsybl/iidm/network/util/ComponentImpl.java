@@ -4,13 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.impl;
+package com.powsybl.iidm.network.util;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Component;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.Network;
 
+import java.lang.ref.WeakReference;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -18,15 +19,15 @@ import java.util.stream.Stream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ComponentImpl implements Component {
+public class ComponentImpl implements Component {
 
     private final int num;
 
     private final int size;
 
-    private final Ref<NetworkImpl> networkRef;
+    private final WeakReference<Network> networkRef;
 
-    ComponentImpl(int num, int size, Ref<NetworkImpl> networkRef) {
+    public ComponentImpl(int num, int size, WeakReference<Network> networkRef) {
         this.num = num;
         this.size = size;
         this.networkRef = Objects.requireNonNull(networkRef);
