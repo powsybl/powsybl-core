@@ -168,6 +168,16 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
         return getDelegate().getQ();
     }
 
+    @Override
+    public void visitConnectedEquipments(final TopologyVisitor visitor) {
+        getDelegate().visitConnectedEquipments(new TopologyVisitorAdapter(visitor, getIndex()));
+    }
+
+    @Override
+    public void visitConnectedOrConnectableEquipments(final TopologyVisitor visitor) {
+        getDelegate().visitConnectedOrConnectableEquipments(new TopologyVisitorAdapter(visitor, getIndex()));
+    }
+
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
@@ -213,16 +223,6 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
     @Override
     public boolean isInMainSynchronousComponent() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public void visitConnectedEquipments(final TopologyVisitor visitor) {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public void visitConnectedOrConnectableEquipments(final TopologyVisitor visitor) {
         throw MergingView.createNotImplementedException();
     }
 }

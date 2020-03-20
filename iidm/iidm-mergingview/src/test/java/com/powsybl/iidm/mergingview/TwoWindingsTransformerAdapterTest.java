@@ -13,6 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -184,6 +186,11 @@ public class TwoWindingsTransformerAdapterTest {
         assertNull(twt.checkTemporaryLimits(Branch.Side.TWO));
         assertNull(twt.checkTemporaryLimits2());
         assertNull(twt.checkTemporaryLimits2(0.9f));
+
+        // Topology
+        TopologyVisitor visitor = mock(TopologyVisitor.class);
+        mergingView.getVoltageLevel("vl1").visitEquipments(visitor);
+        verify(visitor, times(1)).visitTwoWindingsTransformer(any(TwoWindingsTransformer.class), any(Branch.Side.class));
 
         // Not implemented yet !
         TestUtil.notImplemented(twt::remove);

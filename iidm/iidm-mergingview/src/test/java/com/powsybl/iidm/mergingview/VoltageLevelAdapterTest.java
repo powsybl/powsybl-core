@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.util.ShortIdDictionary;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -22,6 +23,8 @@ import java.util.Random;
 import java.util.Objects;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -60,30 +63,18 @@ public class VoltageLevelAdapterTest {
         assertEquals(vlExpected.getShuntCompensatorCount(), vlActual.getShuntCompensatorCount());
         assertEquals(vlExpected.getLccConverterStationCount(), vlActual.getLccConverterStationCount());
 
-        // Topology
-        assertEquals(vlExpected.getTopologyKind(), vlActual.getTopologyKind());
-        vlActual.visitEquipments(Mockito.mock(TopologyVisitor.class));
-        vlActual.printTopology();
-        vlActual.printTopology(System.out, Mockito.mock(ShortIdDictionary.class));
-        try {
-            vlActual.exportTopology(Mockito.mock(Writer.class), Mockito.mock(Random.class));
-            vlActual.exportTopology(Mockito.mock(Writer.class));
-        } catch (IOException e) {
-            // Ignored
-        }
-
         // VscConverterStation
         vlActual.newVscConverterStation()
-                    .setId("C1")
-                    .setName("Converter1")
-                    .setConnectableBus("busA")
-                    .setBus("busA")
-                    .setLossFactor(0.011f)
-                    .setVoltageSetpoint(405.0)
-                    .setVoltageRegulatorOn(true)
-                    .setReactivePowerSetpoint(123)
-                    .setEnsureIdUnicity(false)
-                 .add();
+                .setId("C1")
+                .setName("Converter1")
+                .setConnectableBus("busA")
+                .setBus("busA")
+                .setLossFactor(0.011f)
+                .setVoltageSetpoint(405.0)
+                .setVoltageRegulatorOn(true)
+                .setReactivePowerSetpoint(123)
+                .setEnsureIdUnicity(false)
+                .add();
         vlActual.getVscConverterStations().forEach(b -> {
             assertTrue(b instanceof VscConverterStationAdapter);
             assertNotNull(b);
@@ -183,13 +174,13 @@ public class VoltageLevelAdapterTest {
 
         // LccConverterStation
         vlActual.newLccConverterStation()
-                    .setId("C2")
-                    .setName("Converter2")
-                    .setConnectableBus("busA")
-                    .setBus("busA")
-                    .setLossFactor(0.011f)
-                    .setPowerFactor(0.5f)
-                    .setEnsureIdUnicity(false)
+                .setId("C2")
+                .setName("Converter2")
+                .setConnectableBus("busA")
+                .setBus("busA")
+                .setLossFactor(0.011f)
+                .setPowerFactor(0.5f)
+                .setEnsureIdUnicity(false)
                 .add();
         vlActual.getLccConverterStations().forEach(b -> {
             assertTrue(b instanceof LccConverterStationAdapter);
@@ -206,7 +197,7 @@ public class VoltageLevelAdapterTest {
         assertEquals(vlExpected.getSwitchCount(), vlActual.getSwitchCount());
 
         // DanglingLine
-        vlActual.newDanglingLine().setId("DLL1")
+        vlActual.newDanglingLine()
                 .setId("DLL1")
                 .setName("DLL1")
                 .setR(1)
@@ -218,13 +209,34 @@ public class VoltageLevelAdapterTest {
                 .setUcteXnodeCode("code")
                 .setBus("busA")
                 .setConnectableBus("busA")
-            .add();
+                .add();
         vlActual.getDanglingLines().forEach(s -> {
             assertTrue(s instanceof DanglingLineAdapter);
             assertNotNull(s);
         });
         assertEquals(vlExpected.getDanglingLineCount(), vlActual.getDanglingLineCount());
         assertEquals(vlExpected.getDanglingLineStream().count(), vlActual.getDanglingLineStream().count());
+
+        // Topology : Bus kind
+        assertEquals(vlExpected.getTopologyKind(), vlActual.getTopologyKind());
+        TopologyVisitor visitor = mock(TopologyVisitor.class);
+        vlActual.visitEquipments(visitor);
+        verify(visitor, times(1)).visitBattery(any(Battery.class));
+        verify(visitor, times(1)).visitGenerator(any(Generator.class));
+        verify(visitor, times(1)).visitLoad(any(Load.class));
+        verify(visitor, times(1)).visitShuntCompensator(any(ShuntCompensator.class));
+        verify(visitor, times(1)).visitStaticVarCompensator(any(StaticVarCompensator.class));
+        verify(visitor, times(2)).visitHvdcConverterStation(any(HvdcConverterStation.class));
+        verify(visitor, times(1)).visitDanglingLine(any(DanglingLine.class));
+
+        vlActual.printTopology();
+        vlActual.printTopology(System.out, mock(ShortIdDictionary.class));
+        try {
+            vlActual.exportTopology(mock(Writer.class), mock(Random.class));
+            vlActual.exportTopology(mock(Writer.class));
+        } catch (IOException e) {
+            // Ignored
+        }
 
         // Not implemented yet !
         // Connectables
