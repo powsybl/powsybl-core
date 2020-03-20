@@ -13,8 +13,6 @@ import com.powsybl.iidm.network.util.ShortIdDictionary;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -65,16 +63,16 @@ public class VoltageLevelAdapterTest {
 
         // VscConverterStation
         vlActual.newVscConverterStation()
-                .setId("C1")
-                .setName("Converter1")
-                .setConnectableBus("busA")
-                .setBus("busA")
-                .setLossFactor(0.011f)
-                .setVoltageSetpoint(405.0)
-                .setVoltageRegulatorOn(true)
-                .setReactivePowerSetpoint(123)
-                .setEnsureIdUnicity(false)
-                .add();
+                    .setId("C1")
+                    .setName("Converter1")
+                    .setConnectableBus("busA")
+                    .setBus("busA")
+                    .setLossFactor(0.011f)
+                    .setVoltageSetpoint(405.0)
+                    .setVoltageRegulatorOn(true)
+                    .setReactivePowerSetpoint(123)
+                    .setEnsureIdUnicity(false)
+                 .add();
         vlActual.getVscConverterStations().forEach(b -> {
             assertTrue(b instanceof VscConverterStationAdapter);
             assertNotNull(b);
@@ -174,13 +172,13 @@ public class VoltageLevelAdapterTest {
 
         // LccConverterStation
         vlActual.newLccConverterStation()
-                .setId("C2")
-                .setName("Converter2")
-                .setConnectableBus("busA")
-                .setBus("busA")
-                .setLossFactor(0.011f)
-                .setPowerFactor(0.5f)
-                .setEnsureIdUnicity(false)
+                    .setId("C2")
+                    .setName("Converter2")
+                    .setConnectableBus("busA")
+                    .setBus("busA")
+                    .setLossFactor(0.011f)
+                    .setPowerFactor(0.5f)
+                    .setEnsureIdUnicity(false)
                 .add();
         vlActual.getLccConverterStations().forEach(b -> {
             assertTrue(b instanceof LccConverterStationAdapter);
@@ -209,7 +207,7 @@ public class VoltageLevelAdapterTest {
                 .setUcteXnodeCode("code")
                 .setBus("busA")
                 .setConnectableBus("busA")
-                .add();
+            .add();
         vlActual.getDanglingLines().forEach(s -> {
             assertTrue(s instanceof DanglingLineAdapter);
             assertNotNull(s);
