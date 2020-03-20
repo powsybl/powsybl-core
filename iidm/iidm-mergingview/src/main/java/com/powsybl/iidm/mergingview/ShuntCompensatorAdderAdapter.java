@@ -33,19 +33,19 @@ public class ShuntCompensatorAdderAdapter extends AbstractInjectionAdderAdapter<
         return this;
     }
 
-    // -------------------------------
-    // Simple delegated methods ------
-    // -------------------------------
     @Override
     public ShuntCompensatorLinearModelAdder newLinearModel() {
-        return getDelegate().newLinearModel();
+        return new ShuntCompensatorLinearModelAdderAdapter(getDelegate().newLinearModel(), this);
     }
 
     @Override
     public ShuntCompensatorNonLinearModelAdder newNonLinearModel() {
-        return getDelegate().newNonLinearModel();
+        return new ShuntCompensatorNonLinearModelAdderAdapter(getDelegate().newNonLinearModel(), this);
     }
 
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
     @Override
     public ShuntCompensatorAdder setCurrentSectionCount(final int currentSectionCount) {
         getDelegate().setCurrentSectionCount(currentSectionCount);
