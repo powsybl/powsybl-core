@@ -99,7 +99,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         boolean okSet = false;
         if (!control.enabled && rc.controlEnabledProperty) {
             context.fixed("SVCControlEnabledStatus", String.format("Regulating control of %s is disabled but controlEnabled property is set to true." +
-                    "Local regulation is used.", svc.getId()));
+                    "Equipment properties are used to set local default regulation.", svc.getId()));
             setDefaultRegulatingControl(rc, svc);
             return false;
         }
