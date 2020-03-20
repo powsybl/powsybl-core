@@ -138,7 +138,7 @@ public class IeeeCdfImporter implements Importer {
     }
 
     private static boolean isTransformer(IeeeCdfBranch ieeeCdfBranch) {
-        return ieeeCdfBranch.getType() != IeeeCdfBranch.Type.TRANSMISSION_LINE || ieeeCdfBranch.getFinalTurnsRatio() != 0;
+        return ieeeCdfBranch.getType() != null && (ieeeCdfBranch.getType() != IeeeCdfBranch.Type.TRANSMISSION_LINE || ieeeCdfBranch.getFinalTurnsRatio() != 0);
     }
 
     private static void createSubstationMapping(IeeeCdfModel ieeeCdfModel, ContainersMapping containersMapping) {

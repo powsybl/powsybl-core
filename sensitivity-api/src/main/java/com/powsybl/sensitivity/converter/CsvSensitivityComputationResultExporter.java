@@ -9,6 +9,7 @@ package com.powsybl.sensitivity.converter;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.io.table.*;
 import com.powsybl.sensitivity.SensitivityComputationResults;
+import com.powsybl.sensitivity.SensitivityValue;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -26,6 +27,17 @@ public class CsvSensitivityComputationResultExporter implements SensitivityCompu
 
     private static final char CSV_SEPARATOR = ',';
 
+    private void writeCells(TableFormatter formatter, SensitivityValue sensitivityValue, String state) throws IOException {
+        formatter.writeCell(state);
+        formatter.writeCell(sensitivityValue.getFactor().getVariable().getId());
+        formatter.writeCell(sensitivityValue.getFactor().getVariable().getName());
+        formatter.writeCell(sensitivityValue.getFactor().getFunction().getId());
+        formatter.writeCell(sensitivityValue.getFactor().getFunction().getName());
+        formatter.writeCell(sensitivityValue.getVariableReference());
+        formatter.writeCell(sensitivityValue.getFunctionReference());
+        formatter.writeCell(sensitivityValue.getValue());
+    }
+
     @Override
     public String getFormat() {
         return "CSV";
@@ -33,7 +45,7 @@ public class CsvSensitivityComputationResultExporter implements SensitivityCompu
 
     @Override
     public String getComment() {
-        return "Export a security analysis result in CSV format";
+        return "Export a sensitivity analysis result in CSV format";
     }
 
     @Override
@@ -51,18 +63,20 @@ public class CsvSensitivityComputationResultExporter implements SensitivityCompu
                 new Column("SensitivityValue"))) {
             result.getSensitivityValues().forEach(sensitivityValue -> {
                 try {
-                    formatter.writeCell("State N");
-                    formatter.writeCell(sensitivityValue.getFactor().getVariable().getId());
-                    formatter.writeCell(sensitivityValue.getFactor().getVariable().getName());
-                    formatter.writeCell(sensitivityValue.getFactor().getFunction().getId());
-                    formatter.writeCell(sensitivityValue.getFactor().getFunction().getName());
-                    formatter.writeCell(sensitivityValue.getVariableReference());
-                    formatter.writeCell(sensitivityValue.getFunctionReference());
-                    formatter.writeCell(sensitivityValue.getValue());
+                    writeCells(formatter, sensitivityValue, "State N");
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }
             });
+            if (result.contingenciesArePresent()) {
+                result.getSensitivityValuesContingencies().forEach((contId, sensitivityValues) -> sensitivityValues.forEach(sensitivityValue -> {
+                    try {
+                        writeCells(formatter, sensitivityValue, "Contingency " + contId);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                }));
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

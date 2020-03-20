@@ -71,7 +71,9 @@ public class RegulatingControlMapping {
             this.topologicalNode = p.getId("topologicalNode");
             this.enabled = p.asBoolean("enabled", true);
             this.targetValue = p.asDouble("targetValue");
-            this.targetDeadband = p.asDouble("targetDeadband", Double.NaN);
+            // targetDeadband is optional in CGMES,
+            // If not explicitly given it should be interpreted as zero
+            this.targetDeadband = p.asDouble("targetDeadband", 0);
         }
 
         void setCorrectlySet(boolean okSet) {
