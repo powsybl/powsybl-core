@@ -99,7 +99,7 @@ class Adjacency {
     }
 
     private void addTransformerAdjacency(List<String> topologicalNodes) {
-        if (topologicalNodes.stream().anyMatch(n -> adjacency.containsKey(n))) {
+        if (topologicalNodes.stream().anyMatch(n -> containsAcDcConverter(n))) {
             for (int k = 0; k < topologicalNodes.size() - 1; k++) {
                 String topologicalNode = topologicalNodes.get(k);
                 for (int l = k + 1; l < topologicalNodes.size(); l++) {

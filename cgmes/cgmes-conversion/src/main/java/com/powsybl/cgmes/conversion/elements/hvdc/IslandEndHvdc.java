@@ -56,6 +56,9 @@ class IslandEndHvdc {
             k++;
         }
 
+        if (!visitedTopologicalNodes.isEmpty()) {
+            return;
+        }
         // IslandsEnds without transformers
         // Take a non-visited node with acDcConverters
         k = 0;
