@@ -247,7 +247,6 @@ public class StateVariablesAdder {
         PropertyBags svStatus = new PropertyBags();
         network.getVoltageLevelStream()
             .flatMap(VoltageLevel::getConnectableStream)
-            .distinct()
             .forEach(c -> {
                 PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
                 p.put(IN_SERVICE,
