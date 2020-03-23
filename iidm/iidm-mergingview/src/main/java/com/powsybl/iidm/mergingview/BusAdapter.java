@@ -175,6 +175,7 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     @Override
     public void setConnectedComponentNumber(int connectedComponentNumber) {
         this.connectedComponentNumber = connectedComponentNumber;
+        System.out.println("BusAdapter[" + getDelegate().getClass().getSimpleName() + "]::setConnectedComponentNumber(" + connectedComponentNumber + ")");
     }
 
     @Override

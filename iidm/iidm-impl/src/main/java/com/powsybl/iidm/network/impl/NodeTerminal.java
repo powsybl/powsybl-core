@@ -134,6 +134,8 @@ class NodeTerminal extends AbstractTerminal {
         int oldValue = this.connectedComponentNumber.set(variantIndex, connectedComponentNumber);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("connectedComponentNumber", variantId, oldValue, connectedComponentNumber);
+
+        System.out.println("NodeTermial::setConnectedComponentNumber(" + connectedComponentNumber + ")");
     }
 
     int getSynchronousComponentNumber() {

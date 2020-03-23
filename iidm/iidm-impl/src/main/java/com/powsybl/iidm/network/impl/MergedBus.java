@@ -161,7 +161,10 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     @Override
     public void setConnectedComponentNumber(int connectedComponentNumber) {
         checkValidity();
+        System.out.println("MergedBus::setConnectedComponentNumber(" + connectedComponentNumber + ")");
+
         for (ConfiguredBus bus : buses) {
+            System.out.print("   -> ");
             bus.setConnectedComponentNumber(connectedComponentNumber);
         }
     }

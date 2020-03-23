@@ -11,9 +11,10 @@ import com.powsybl.iidm.network.Network.BusBreakerView;
 import com.powsybl.iidm.network.Network.BusView;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Collection;
 
 import static org.junit.Assert.*;
 
@@ -98,30 +99,130 @@ public class BusAdapterTest {
 
     @Test
     public void testConnectedComponentSetterGetter() {
-        MergingView view = MergingView.create("testConnectedComponentSetterGetter", "iidm");
-        view.merge(NetworkTest1Factory.create());
-        VoltageLevel voltageLevel1 = view.getVoltageLevel("voltageLevel1");
-        VoltageLevel.NodeBreakerView topology1 = voltageLevel1.getNodeBreakerView();
-        BusbarSection voltageLevel1BusbarSection1 = topology1.getBusbarSection("voltageLevel1BusbarSection1");
-        BusbarSection voltageLevel1BusbarSection2 = topology1.getBusbarSection("voltageLevel1BusbarSection2");
-        Load load1 = view.getLoad("load1");
-        Generator generator1 = view.getGenerator("generator1");
-        Bus busCalc1 = voltageLevel1BusbarSection1.getTerminal().getBusBreakerView().getBus();
-        Bus busCalc2 = voltageLevel1BusbarSection2.getTerminal().getBusBreakerView().getBus();
-        assertSame(busCalc1, load1.getTerminal().getBusBreakerView().getBus());
-        assertSame(busCalc2, generator1.getTerminal().getBusBreakerView().getBus());
+        Network network1 = createGeneratorNetwork();
+        Network network2 = createLoadNetwork();
 
-        assertTrue(busCalc1.isInMainConnectedComponent());
-        assertTrue(busCalc2.isInMainConnectedComponent());
-        assertEquals(0, busCalc1.getConnectedComponent().getNum());
-        assertEquals(0, busCalc2.getConnectedComponent().getNum());
+        Generator generator = network1.getGenerator("GEN");
+        Load load = network2.getLoad("LOAD");
+
+        VoltageLevel vl1 = network1.getVoltageLevel("S1_VL");
+        Bus b1 = vl1.getBusBreakerView().getBus("B1");
+        Bus b2 = vl1.getBusBreakerView().getBus("B2");
+
+        VoltageLevel vl2 = network2.getVoltageLevel("S2_VL");
+        Bus b3 = vl2.getBusBreakerView().getBus("B3");
+
+        assertTrue(b1.isInMainConnectedComponent());
+        assertTrue(b2.isInMainConnectedComponent());
+        assertFalse(b3.isInMainConnectedComponent());
+        assertEquals(0, b1.getConnectedComponent().getNum());
+        assertEquals(0, b2.getConnectedComponent().getNum());
+
+        // Merge
+        MergingView view = MergingView.create("MergingView", "test");
+        // + Network1
+        view.merge(network1);
+        vl1 = view.getVoltageLevel("S1_VL");
+        b1 = vl1.getBusBreakerView().getBus("B1");
+        b2 = vl1.getBusBreakerView().getBus("B2");
+
+        assertTrue(b1.isInMainConnectedComponent());
+        assertTrue(b2.isInMainConnectedComponent());
     }
 
-    @Test
-    public void testComponentVisitor() {
-        // Not implemented yet !
-        TestUtil.notImplemented(() -> bus.visitConnectedEquipments(null));
-        TestUtil.notImplemented(() -> bus.visitConnectedOrConnectableEquipments(null));
+    private static Network createGeneratorNetwork() {
+        Network network = NetworkFactory.findDefault().createNetwork("WithGen", "test");
+
+        Substation substation = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl = substation.newVoltageLevel()
+                .setId("S1_VL")
+                .setNominalV(100.0)
+                .setLowVoltageLimit(80.0)
+                .setHighVoltageLimit(120.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        vl.getBusBreakerView().newBus()
+                .setId("B1")
+                .add();
+        vl.newGenerator()
+                .setId("GEN")
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(100.0)
+                .setTargetP(50.0)
+                .setTargetQ(30.0)
+                .setBus("B1")
+                .add();
+        vl.getBusBreakerView().newBus()
+                .setId("B2")
+                .add();
+        network.newLine()
+                .setId("L")
+                .setVoltageLevel1("S1_VL")
+                .setBus1("B1")
+                .setVoltageLevel2("S1_VL")
+                .setBus2("B2")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
+                .add();
+        vl.newDanglingLine()
+                .setId("S2_DL")
+                .setBus("B2")
+                .setUcteXnodeCode("XNode")
+                .setR(10.0)
+                .setX(1.0)
+                .setB(10e-6)
+                .setG(10e-5)
+                .setP0(50.0)
+                .setQ0(30.0)
+                .add();
+        return network;
+    }
+
+    private static Network createLoadNetwork() {
+        Network network = NetworkFactory.findDefault().createNetwork("WithLoad", "test");
+
+        Substation substation = network.newSubstation()
+                .setId("S2")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl = substation.newVoltageLevel()
+                .setId("S2_VL")
+                .setNominalV(100.0)
+                .setLowVoltageLimit(80.0)
+                .setHighVoltageLimit(120.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        vl.getBusBreakerView().newBus()
+                .setId("B3")
+                .add();
+        vl.newLoad()
+                .setId("LOAD")
+                .setConnectableBus("B3")
+                .setBus("B3")
+                .setP0(100.0)
+                .setQ0(1.0)
+                .add();
+        vl.newDanglingLine()
+                .setId("S2_DL")
+                .setBus("B3")
+                .setUcteXnodeCode("XNode")
+                .setR(10.0)
+                .setX(1.0)
+                .setB(10e-6)
+                .setG(10e-5)
+                .setP0(50.0)
+                .setQ0(30.0)
+                .add();
+        return network;
     }
 
     @Test
@@ -135,8 +236,8 @@ public class BusAdapterTest {
         assertNotNull(bus);
         assertSame(mergingView, bus.getNetwork());
 
-        // Not implemented yet !
-        TestUtil.notImplemented(busView::getConnectedComponents);
+        Collection<Component> components = busView.getConnectedComponents();
+        assertTrue(components.iterator().hasNext());
     }
 
     @Test

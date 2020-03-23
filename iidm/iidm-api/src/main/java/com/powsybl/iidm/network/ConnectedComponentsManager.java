@@ -40,6 +40,8 @@ public class ConnectedComponentsManager extends AbstractComponentsManager<Connec
     @Override
     public void setComponentNumber(Bus bus, int num) {
         Objects.requireNonNull(bus);
+        System.out.println("ConnectedComponentsManager::setComponentNumber(" + bus.getId() + ", " + num + ")");
+        System.out.print("   -> ");
         bus.setConnectedComponentNumber(num);
     }
 

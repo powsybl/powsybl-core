@@ -159,7 +159,10 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public void setConnectedComponentNumber(int connectedComponentNumber) {
         checkValidity();
+
+        System.out.println("CalculatedBusImpl::setConnectedComponentNumber(" + connectedComponentNumber + ")");
         for (NodeTerminal terminal : terminals) {
+            System.out.print("   -> ");
             terminal.setConnectedComponentNumber(connectedComponentNumber);
         }
     }
