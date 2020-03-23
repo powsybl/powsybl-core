@@ -26,17 +26,20 @@ public class ShuntCompensatorLinearModelAdderAdapter implements ShuntCompensator
 
     @Override
     public ShuntCompensatorLinearModelAdder setbPerSection(double bPerSection) {
-        return delegate.setbPerSection(bPerSection);
+        delegate.setbPerSection(bPerSection);
+        return this;
     }
 
     @Override
     public ShuntCompensatorLinearModelAdder setgPerSection(double gPerSection) {
-        return delegate.setgPerSection(gPerSection);
+        delegate.setgPerSection(gPerSection);
+        return this;
     }
 
     @Override
     public ShuntCompensatorLinearModelAdder setMaximumSectionCount(int maximumSectionCount) {
-        return delegate.setMaximumSectionCount(maximumSectionCount);
+        delegate.setMaximumSectionCount(maximumSectionCount);
+        return this;
     }
 
     @Override
