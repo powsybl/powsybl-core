@@ -49,7 +49,7 @@ public class MergedXnode extends AbstractExtension<Line> {
     }
 
     private static float checkDividerPosition(float dp) {
-        if (dp < 0f || dp > 1f) {
+        if (dp < 0f || dp > 1f || Double.isNaN(dp)) {
             throw new IllegalArgumentException("Invalid divider postion: " + dp);
         }
         return dp;
