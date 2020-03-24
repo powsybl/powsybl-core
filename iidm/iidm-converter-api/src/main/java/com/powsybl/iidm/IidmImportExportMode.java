@@ -8,8 +8,10 @@ package com.powsybl.iidm;
 
 /***
  * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
+ *
+ * @deprecated Not used anymore
  */
-
+@Deprecated
 public enum IidmImportExportMode {
     ONE_SEPARATED_FILE_PER_EXTENSION_TYPE,
     UNIQUE_FILE,

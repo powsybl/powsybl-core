@@ -288,6 +288,11 @@ class MergedLine implements Line {
         }
     }
 
+    Side getSide(final DanglingLine dl) {
+        Objects.requireNonNull(dl);
+        return getSide(dl.getTerminal());
+    }
+
     @Override
     public Side getSide(final Terminal terminal) {
         Objects.requireNonNull(terminal);
