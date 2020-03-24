@@ -44,7 +44,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
                          double targetV, double targetDeadband) {
         super(id, name, fictitious);
         this.network = network;
-        this.model = model;
+        this.model = attach(model);
         this.regulatingTerminal = regulatingTerminal;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.currentSectionCount = new TIntArrayList(variantArraySize);
@@ -57,6 +57,11 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
             this.targetV.add(targetV);
             this.targetDeadband.add(targetDeadband);
         }
+    }
+
+    private ShuntCompensatorModelWrapper attach(ShuntCompensatorModelWrapper model) {
+        model.setShuntCompensator(this);
+        return model;
     }
 
     @Override
