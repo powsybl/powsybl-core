@@ -4,6 +4,5 @@
   "transformerVoltageControlOn" : true,
   "phaseShifterRegulationOn" : false,
   "noGeneratorReactiveLimits" : true,
-  "t2wtSplitShuntAdmittance" : false,
-  "unknownParameter": ""
+  "specificCompatibility" : true
 }

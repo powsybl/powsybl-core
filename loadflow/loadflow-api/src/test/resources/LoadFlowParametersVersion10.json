@@ -1,9 +1,8 @@
 {
-  "version" : "1.1",
+  "version" : "1.0",
   "voltageInitMode" : "PREVIOUS_VALUES",
   "transformerVoltageControlOn" : true,
   "phaseShifterRegulationOn" : false,
   "noGeneratorReactiveLimits" : true,
-  "t2wtSplitShuntAdmittance" : false,
-  "unknownParameter": ""
+  "specificCompatibility" : true
 }
