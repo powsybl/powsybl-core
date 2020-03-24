@@ -54,6 +54,12 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
+    public Map<String, CgmesTerminal> cachedTerminals() {
+        Objects.requireNonNull(cachedTerminals);
+        return cachedTerminals;
+    }
+
+    @Override
     public String terminalForEquipment(String conduntingEquipmentId) {
         // TODO Not all conducting equipment have a single terminal
         // For the current purposes of this mapping (export State Variables)

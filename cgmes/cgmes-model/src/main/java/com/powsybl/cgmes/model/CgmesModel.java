@@ -15,6 +15,7 @@ import org.joda.time.DateTime;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -205,5 +206,9 @@ public interface CgmesModel {
 
     default PropertyBags modelProfiles() {
         throw new UnsupportedOperationException();
+    }
+
+    default Map<String, CgmesTerminal> cachedTerminals() {
+        return new HashMap<>();
     }
 }
