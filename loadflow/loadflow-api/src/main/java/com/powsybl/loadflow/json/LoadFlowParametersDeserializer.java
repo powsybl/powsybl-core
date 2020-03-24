@@ -24,6 +24,9 @@ import java.util.List;
  */
 public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowParameters> {
 
+    static final String CONTEXT_NAME = "LoadFlowParameters";
+    static final String REFERENCE_VERSION = "1.0";
+
     LoadFlowParametersDeserializer() {
         super(LoadFlowParameters.class);
     }
@@ -67,13 +70,13 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     break;
 
                 case "specificCompatibility":
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion("specificCompatibility", version, "1.0");
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", version, REFERENCE_VERSION);
                     parser.nextToken();
                     parameters.setT2wtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
                     break;
 
                 case "t2wtSplitShuntAdmittance":
-                    JsonUtil.assertGreaterThanReferenceVersion("t2wtSplitShuntAdmittance", version, "1.0");
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: t2wtSplitShuntAdmittance", version, REFERENCE_VERSION);
                     parser.nextToken();
                     parameters.setT2wtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
                     break;

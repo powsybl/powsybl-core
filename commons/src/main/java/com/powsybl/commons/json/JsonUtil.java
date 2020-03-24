@@ -275,22 +275,22 @@ public final class JsonUtil {
         } while (objectCount != 0);
     }
 
-    public static void assertLessThanOrEqualToReferenceVersion(String tag, String version, String referenceVersion) {
+    public static void assertLessThanOrEqualToReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
         Objects.requireNonNull(version);
         if (version.compareTo(referenceVersion) > 0) {
             String exception = String.format(
-                "LoadflowParameters. Tag: %s is not a valid property for LoadflowParameters version %s. LoadFlowParameters version should be <= %s %n",
-                tag, version, referenceVersion);
+                "%s. %s is not valid for version %s. Version should be <= %s %n",
+                contextName, elementName, version, referenceVersion);
             throw new PowsyblException(exception);
         }
     }
 
-    public static void assertGreaterThanReferenceVersion(String tag, String version, String referenceVersion) {
+    public static void assertGreaterThanReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
         Objects.requireNonNull(version);
         if (version.compareTo(referenceVersion) <= 0) {
             String exception = String.format(
-                "LoadflowParameters. Tag: %s is not a valid property for LoadflowParameters version %s. LoadFlowParameters version should be > %s %n",
-                tag, version, referenceVersion);
+                "%s. %s is not valid for version %s. Version should be > %s %n",
+                contextName, elementName, version, referenceVersion);
             throw new PowsyblException(exception);
         }
     }
