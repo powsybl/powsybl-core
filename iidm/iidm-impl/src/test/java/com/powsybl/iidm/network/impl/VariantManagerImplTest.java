@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
@@ -48,7 +49,12 @@ public class VariantManagerImplTest {
         }
 
         @Override
-        public String getName() {
+        public Optional<String> getOptionalName() {
+            return Optional.empty();
+        }
+
+        @Override
+        public String getNameOrId() {
             return id;
         }
 

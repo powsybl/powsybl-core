@@ -58,7 +58,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             boolean r = Math.abs(b1.getV() - b2.getV()) < threshold
                     && Math.abs(b1.getAngle() - b2.getAngle()) < threshold;
             if (r) {
-                LOGGER.debug("Line Z0 {} ({}) dV = {}, dA = {}", l.getName(), l.getId(), Math.abs(b1.getV() - b2.getV()), Math.abs(b1.getAngle() - b2.getAngle()));
+                LOGGER.debug("Line Z0 {} ({}) dV = {}, dA = {}", l.getNameOrId(), l.getId(), Math.abs(b1.getV() - b2.getV()), Math.abs(b1.getAngle() - b2.getAngle()));
             }
             return r;
         };
