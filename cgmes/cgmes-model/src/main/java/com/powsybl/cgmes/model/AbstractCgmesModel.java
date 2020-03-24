@@ -9,7 +9,6 @@ package com.powsybl.cgmes.model;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -246,41 +245,13 @@ public abstract class AbstractCgmesModel implements CgmesModel {
 
     @Override
     public void computeTopologicalNode2iidmNode(String voltageLevelId, int iidmNode, String connectivityNode) {
-        String topologicalNode = connectivityNodes().stream()
-            .filter(cn -> cn.getId(CgmesNames.CONNECTIVITY_NODE).equals(connectivityNode))
-            .collect(Collectors.toSet()).stream().map(cn -> cn.getId(CgmesNames.TOPOLOGICAL_NODE))
-            .findAny().orElse(null);
+        String topologicalNode = cachedNodes.getOrDefault(connectivityNode, null).getId(CgmesNames.TOPOLOGICAL_NODE);
         topologicalNode2iidmNode.computeIfAbsent(voltageLevelId + "_" + iidmNode, n -> topologicalNode);
-    }
-
-    // methods related to busbarsection are tmp, will be removed if finally decide
-    // we dont need them
-    @Override
-    public void copyTopologicalNode2iidmBusbasSection(Map<String, String> topologicalNode2iidmBus) {
-        this.topologicalNode2iidmBusbasSection.clear();
-        this.topologicalNode2iidmBusbasSection.putAll(Objects.requireNonNull(topologicalNode2iidmBus));
-    }
-
-    @Override
-    public Map<String, String> topologicalNode2iidmBusbasSection() {
-        return topologicalNode2iidmBusbasSection;
-    }
-
-    @Override
-    public void computeTopologicalNode2BusbasSection(String busbasSection) {
-        String terminal = busBarSections().stream()
-            .filter(bs -> bs.getId(CgmesNames.BUSBAR_SECTION).equals(busbasSection))
-            .findAny().orElse(new PropertyBag(new ArrayList<>())).getId(CgmesNames.TERMINAL);
-        if (terminal != null) {
-            topologicalNode2iidmBusbasSection.computeIfAbsent(terminal(terminal).topologicalNode(),
-                k -> busbasSection);
-        }
     }
 
     private final Properties properties;
     private String baseName;
     private final Map<String, String> topologicalNode2iidmNode = new HashMap<>();
-    private final Map<String, String> topologicalNode2iidmBusbasSection = new HashMap<>();
     // Caches
     private Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private Map<String, CgmesTerminal> cachedTerminals;

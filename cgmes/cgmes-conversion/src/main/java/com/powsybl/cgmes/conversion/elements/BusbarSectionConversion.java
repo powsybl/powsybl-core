@@ -36,6 +36,5 @@ public class BusbarSectionConversion extends AbstractConductingEquipmentConversi
         bbsAdder.setNode(iidmNode());
         BusbarSection bbs = bbsAdder.add();
         convertedTerminals(bbs.getTerminal());
-        context.cgmes().computeTopologicalNode2BusbasSection(iidmId());
     }
 }

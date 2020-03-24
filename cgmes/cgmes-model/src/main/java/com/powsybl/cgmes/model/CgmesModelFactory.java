@@ -64,7 +64,6 @@ public final class CgmesModelFactory {
             cgmesCopy.setBasename(cgmes.getBasename());
             buildCaches(cgmesCopy);
             cgmesCopy.copyTopologicalNode2iidmNode(cgmes.topologicalNode2iidmNode());
-            cgmesCopy.copyTopologicalNode2iidmBusbasSection(cgmes.topologicalNode2iidmBusbasSection());
             return cgmesCopy;
         } else {
             throw new PowsyblException("CGMES model copy not supported, soource is " + cgmes.getClass().getSimpleName());

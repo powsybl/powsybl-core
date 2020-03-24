@@ -31,7 +31,6 @@ public final class CgmesNames {
     public static final String SERIES_COMPENSATOR = "SeriesCompensator";
     public static final String TOPOLOGICAL_NODE = "TopologicalNode";
     public static final String CONDUCTING_EQUIPMENT = "ConductingEquipment";
-    public static final String BUSBAR_SECTION = "BusbarSection";
     public static final String CONNECTIVITY_NODE = "ConnectivityNode";
 
     public static final String TRANSFORMER_WINDING_RATED_U = "transformerWindingRatedU";

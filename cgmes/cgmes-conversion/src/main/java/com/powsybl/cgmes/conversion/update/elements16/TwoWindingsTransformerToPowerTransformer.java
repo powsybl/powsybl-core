@@ -19,6 +19,8 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
         ignore("q1");
         ignore("p2");
         ignore("q2");
+        ignore("v");
+        ignore("angle");
 
         // These are examples of not-so-simple updates where
         // we have to find a CGMES sub-object related to IIDM main object

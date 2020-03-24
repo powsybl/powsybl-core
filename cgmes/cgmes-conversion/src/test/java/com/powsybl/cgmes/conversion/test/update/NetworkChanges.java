@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.update.elements16.GeneratorToSynchronousMachine;
 import com.powsybl.cgmes.conversion.update.elements16.TwoWindingsTransformerToPowerTransformer;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Load;
@@ -164,11 +166,21 @@ public final class NetworkChanges {
         }
     }
 
-    public static void modifyStateVariables(Network network) {
-        network.getBusBreakerView().getBuses().forEach(b -> {
-            b.setAngle(b.getAngle() + 0.01);
-            b.setV(b.getV() + 0.01);
-        });
+    public static void modifyStateVariables(Network network, CgmesModel cgmes) {
+        if (cgmes.isNodeBreaker()) {
+            cgmes.topologicalNode2iidmNode().forEach((iidmBus, tnode) -> {
+                Bus b = network.getBusView().getBus(iidmBus);
+                if (b != null) {
+                    b.setAngle(b.getAngle() + 0.01);
+                    b.setV(b.getV() + 0.01);
+                }
+            });
+        } else {
+            network.getBusBreakerView().getBuses().forEach(b -> {
+                b.setAngle(b.getAngle() + 0.01);
+                b.setV(b.getV() + 0.01);
+            });
+        }
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(NetworkChanges.class);

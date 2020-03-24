@@ -19,6 +19,8 @@ public class LoadToEnergyConsumer extends IidmToCgmes {
         // They will be added directly as new objects in SV subset
         ignore("p");
         ignore("q");
+        ignore("v");
+        ignore("angle");
 
         simpleUpdate("p0", "cim:EnergyConsumer.p", CgmesSubset.STEADY_STATE_HYPOTHESIS);
         simpleUpdate("q0", "cim:EnergyConsumer.q", CgmesSubset.STEADY_STATE_HYPOTHESIS);

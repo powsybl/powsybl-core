@@ -15,7 +15,6 @@ import org.joda.time.DateTime;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -220,15 +219,4 @@ public interface CgmesModel {
         throw new UnsupportedOperationException();
     }
 
-    default void computeTopologicalNode2BusbasSection(String busbasSection) {
-        throw new UnsupportedOperationException();
-    }
-
-    default void copyTopologicalNode2iidmBusbasSection(Map<String, String> topologicalNode2iidmBus) {
-        throw new UnsupportedOperationException();
-    }
-
-    default Map<String, String> topologicalNode2iidmBusbasSection() {
-        return new HashMap<>();
-    }
 }

@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
@@ -24,7 +23,6 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Injection;
@@ -96,31 +94,15 @@ public class StateVariablesAdder {
     private void addVoltagesForTopologicalNodes() {
         PropertyBags voltages = new PropertyBags();
         // add voltages for TpNodes existing in the Model
-        boolean useBusbarSection = false;
         if (cgmes.isNodeBreaker()) {
-            if (useBusbarSection) {
-                // remove this if not used finally
-                cgmes.topologicalNodes().stream().forEach(tn -> {
-                    String bbsId = cgmes.topologicalNode2iidmBusbasSection()
-                        .get(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
-                    if (bbsId != null) {
-                        PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
-                        BusbarSection bbs = network.getBusbarSection(bbsId);
-                        addVoltagesForTopologicalNodes(p, fs(bbs.getAngle()), fs(bbs.getV()),
-                            tn.getId(CgmesNames.TOPOLOGICAL_NODE));
-                        voltages.add(p);
-                    }
-                });
-            } else {
-                cgmes.topologicalNode2iidmNode().forEach((iidmBus, tnode) -> {
-                    Bus b = network.getBusView().getBus(iidmBus);
-                    if (b != null) {
-                        PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
-                        addVoltagesForTopologicalNodes(p, fs(b.getAngle()), fs(b.getV()), tnode);
-                        voltages.add(p);
-                    }
-                });
-            }
+            cgmes.topologicalNode2iidmNode().forEach((iidmBus, tnode) -> {
+                Bus b = network.getBusView().getBus(iidmBus);
+                if (b != null) {
+                    PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
+                    addVoltagesForTopologicalNodes(p, fs(b.getAngle()), fs(b.getV()), tnode);
+                    voltages.add(p);
+                }
+            });
         } else {
             cgmes.topologicalNodes().stream().forEach(tn -> {
                 Bus b = network.getBusBreakerView().getBus(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
