@@ -67,8 +67,8 @@ class IslandsEnds {
         int k = 0;
         while (k < adjacentTopologicalNodes.size()) {
             String topologicalNode = adjacentTopologicalNodes.get(k);
-            if (adjacency.adjacency.containsKey(topologicalNode)) {
-                adjacency.adjacency.get(topologicalNode).forEach(adjacent -> {
+            if (adjacency.getAdjacency().containsKey(topologicalNode)) {
+                adjacency.getAdjacency().get(topologicalNode).forEach(adjacent -> {
                     if (Adjacency.isDcLineSegment(adjacent.type)) {
                         return;
                     }

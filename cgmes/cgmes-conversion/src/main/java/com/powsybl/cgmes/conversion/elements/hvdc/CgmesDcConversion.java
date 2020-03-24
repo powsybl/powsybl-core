@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
 import java.util.List;
+import java.util.Objects;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion.Config;
@@ -33,6 +34,9 @@ public class CgmesDcConversion {
     private static final String OPERATING_MODE = "operatingMode";
 
     public CgmesDcConversion(CgmesModel cgmes, Context context, Config config) {
+        Objects.requireNonNull(cgmes);
+        Objects.requireNonNull(context);
+        Objects.requireNonNull(config);
         this.cgmesModel = cgmes;
         this.context = context;
         this.config = config;
@@ -42,7 +46,7 @@ public class CgmesDcConversion {
 
         // Get hvdc configurations
         Adjacency adjacency = new Adjacency(cgmesModel);
-        if (adjacency.adjacency.isEmpty()) {
+        if (adjacency.getAdjacency().isEmpty()) {
             return;
         }
         TPnodeEquipments tpNodeEquipments = new TPnodeEquipments(cgmesModel, adjacency);
@@ -87,7 +91,7 @@ public class CgmesDcConversion {
         }
 
         // Convert to IIDM each converter - dcLineSegment configuration
-        hvdc.hvdcData.forEach(h -> convert(h.converters, h.dcLineSegments));
+        hvdc.getHvdcData().forEach(h -> convert(h.converters, h.dcLineSegments));
 
         // warnings
         context.dc().reportCgmesConvertersNotUsed();

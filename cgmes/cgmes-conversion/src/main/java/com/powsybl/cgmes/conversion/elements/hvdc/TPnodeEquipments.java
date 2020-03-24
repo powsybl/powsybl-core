@@ -97,8 +97,8 @@ class TPnodeEquipments {
 
     private void addEquipment(Adjacency adjacency, String id, String topologicalNodeId1, String topologicalNodeId2,
         EquipmentType type) {
-        if (!adjacency.adjacency.containsKey(topologicalNodeId1)
-            || !adjacency.adjacency.containsKey(topologicalNodeId2)) {
+        if (!adjacency.getAdjacency().containsKey(topologicalNodeId1)
+            || !adjacency.getAdjacency().containsKey(topologicalNodeId2)) {
             return;
         }
         TPnodeEquipment eq = new TPnodeEquipment(type, id);
@@ -108,10 +108,10 @@ class TPnodeEquipments {
 
     private void addEquipment(Adjacency adjacency, String id, String acTopologicalNodeId,
         List<String> dcTopologicalNodeIds, EquipmentType type) {
-        if (!adjacency.adjacency.containsKey(acTopologicalNodeId)) {
+        if (!adjacency.getAdjacency().containsKey(acTopologicalNodeId)) {
             return;
         }
-        if (dcTopologicalNodeIds.stream().anyMatch(n -> !adjacency.adjacency.containsKey(n))) {
+        if (dcTopologicalNodeIds.stream().anyMatch(n -> !adjacency.getAdjacency().containsKey(n))) {
             return;
         }
         TPnodeEquipment eq = new TPnodeEquipment(type, id);
@@ -126,7 +126,7 @@ class TPnodeEquipments {
     private void addTransformer(Adjacency adjacency, String id, List<String> topologicalNodes, EquipmentType type) {
         TPnodeEquipment eq = new TPnodeEquipment(type, id);
         topologicalNodes.stream()
-            .filter(n -> adjacency.adjacency.containsKey(n))
+            .filter(n -> adjacency.getAdjacency().containsKey(n))
             .forEach(n -> nodeEquipments.computeIfAbsent(n, k -> new ArrayList<>()).add(eq));
     }
 

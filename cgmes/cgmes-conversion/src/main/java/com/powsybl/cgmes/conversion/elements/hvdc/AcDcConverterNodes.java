@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,11 +67,13 @@ class AcDcConverterNodes {
     }
 
     static class AcDcConverterNode {
-        String id;
-        String acTopologicalNode;
-        List<String> dcTopologicalNode;
+        final String id;
+        final String acTopologicalNode;
+        final List<String> dcTopologicalNode;
 
         AcDcConverterNode(String id, String acTopologicalNode) {
+            Objects.requireNonNull(id);
+            Objects.requireNonNull(acTopologicalNode);
             this.id = id;
             this.acTopologicalNode = acTopologicalNode;
             this.dcTopologicalNode = new ArrayList<>();

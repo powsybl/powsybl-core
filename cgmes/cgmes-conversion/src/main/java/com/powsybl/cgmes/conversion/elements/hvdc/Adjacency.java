@@ -8,9 +8,11 @@
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,16 +35,16 @@ class Adjacency {
         DC_LINE_SEGMENT, AC_DC_CONVERTER, AC_TRANSFORMER
     }
 
-    Map<String, List<Adjacent>> adjacency;
+    private final Map<String, List<Adjacent>> adjacency;
 
     Adjacency(CgmesModel cgmesModel) {
         adjacency = new HashMap<>();
         cgmesModel.dcLineSegments().forEach(dcls -> computeDcLineSegmentAdjacency(cgmesModel, dcls));
 
         AcDcConverterNodes acDcConverterNodes = new AcDcConverterNodes(cgmesModel);
-        acDcConverterNodes.getConverterNodes().entrySet()
-            .forEach(entry -> computeAcDcConverterAdjacency(entry.getValue().acTopologicalNode,
-                entry.getValue().dcTopologicalNode));
+        acDcConverterNodes.getConverterNodes()
+            .forEach((key, value) -> computeAcDcConverterAdjacency(value.acTopologicalNode,
+                value.dcTopologicalNode));
 
         cgmesModel.groupedTransformerEnds().forEach((t, ends) -> {
             if (ends.size() == 2) {
@@ -77,10 +79,7 @@ class Adjacency {
         PropertyBag end2 = ends.get(1);
         CgmesTerminal t2 = cgmesModel.terminal(end2.getId(CgmesNames.TERMINAL));
 
-        List<String> topologicalNodes = new ArrayList<>();
-        topologicalNodes.add(t1.topologicalNode());
-        topologicalNodes.add(t2.topologicalNode());
-        addTransformerAdjacency(topologicalNodes);
+        addTransformerAdjacency(Arrays.asList(t1.topologicalNode(), t2.topologicalNode()));
     }
 
     private void computeThreeWindingsTransformerAdjacency(CgmesModel cgmesModel, PropertyBags ends) {
@@ -91,15 +90,11 @@ class Adjacency {
         PropertyBag end3 = ends.get(2);
         CgmesTerminal t3 = cgmesModel.terminal(end3.getId(CgmesNames.TERMINAL));
 
-        List<String> topologicalNodes = new ArrayList<>();
-        topologicalNodes.add(t1.topologicalNode());
-        topologicalNodes.add(t2.topologicalNode());
-        topologicalNodes.add(t3.topologicalNode());
-        addTransformerAdjacency(topologicalNodes);
+        addTransformerAdjacency(Arrays.asList(t1.topologicalNode(), t2.topologicalNode(), t3.topologicalNode()));
     }
 
     private void addTransformerAdjacency(List<String> topologicalNodes) {
-        if (topologicalNodes.stream().anyMatch(n -> containsAcDcConverter(n))) {
+        if (topologicalNodes.stream().anyMatch(this::containsAcDcConverter)) {
             for (int k = 0; k < topologicalNodes.size() - 1; k++) {
                 String topologicalNode = topologicalNodes.get(k);
                 for (int l = k + 1; l < topologicalNodes.size(); l++) {
@@ -131,9 +126,13 @@ class Adjacency {
         return type == AdjacentType.AC_DC_CONVERTER;
     }
 
+    Map<String, List<Adjacent>> getAdjacency() {
+        return adjacency;
+    }
+
     void print() {
         LOG.info("Adjacency");
-        adjacency.entrySet().forEach(k -> print(k.getKey(), k.getValue()));
+        adjacency.forEach((key, value) -> print(key, value));
     }
 
     private void print(String topologicalNodeId, List<Adjacent> adjacent) {
@@ -142,7 +141,7 @@ class Adjacency {
     }
 
     void print(List<String> lnodes) {
-        lnodes.forEach(n -> print(n));
+        lnodes.forEach(this::print);
     }
 
     private void print(String node) {
@@ -157,6 +156,8 @@ class Adjacency {
         String topologicalNode;
 
         Adjacent(AdjacentType type, String topologicalNode) {
+            Objects.requireNonNull(type);
+            Objects.requireNonNull(topologicalNode);
             this.type = type;
             this.topologicalNode = topologicalNode;
         }

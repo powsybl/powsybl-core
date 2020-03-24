@@ -31,6 +31,8 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
 
     public AcDcConverterConversion(PropertyBag c, HvdcType converterType, double lossFactor, Context context) {
         super("ACDCConverter", c, context);
+
+        Objects.requireNonNull(converterType);
         this.converterType = converterType;
         this.lossFactor = lossFactor;
     }

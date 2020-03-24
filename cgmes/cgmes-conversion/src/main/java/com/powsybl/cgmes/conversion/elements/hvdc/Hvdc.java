@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.elements.hvdc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -23,14 +24,14 @@ import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEndType;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 class Hvdc {
-    List<HvdcEquipment> hvdcData;
+    private final List<HvdcEquipment> hvdcData;
 
     Hvdc() {
         this.hvdcData = new ArrayList<>();
     }
 
     void add(TPnodeEquipments tpNodeEquipments, IslandEndHvdc islandEndHvdc1, IslandEndHvdc islandEndHvdc2) {
-        islandEndHvdc1.hvdc.forEach(h -> add(tpNodeEquipments, h, islandEndHvdc2));
+        islandEndHvdc1.getHvdc().forEach(h -> add(tpNodeEquipments, h, islandEndHvdc2));
     }
 
     private void add(TPnodeEquipments tpNodeEquipments, HvdcEnd hvdc1, IslandEndHvdc islandEndHvdc2) {
@@ -128,14 +129,18 @@ class Hvdc {
             .orElse(null);
     }
 
+    List<HvdcEquipment> getHvdcData() {
+        return hvdcData;
+    }
+
     void print() {
         LOG.info("Hvdc");
         hvdcData.forEach(h -> h.print());
     }
 
     static class HvdcEquipment {
-        List<HvdcConverter> converters;
-        List<String> dcLineSegments;
+        final List<HvdcConverter> converters;
+        final List<String> dcLineSegments;
 
         HvdcEquipment() {
             this.converters = new ArrayList<>();
@@ -169,6 +174,8 @@ class Hvdc {
         String acDcConvertersEnd2;
 
         HvdcConverter(String acDcConvertersEnd1, String acDcConvertersEnd2) {
+            Objects.requireNonNull(acDcConvertersEnd1);
+            Objects.requireNonNull(acDcConvertersEnd2);
             this.acDcConvertersEnd1 = acDcConvertersEnd1;
             this.acDcConvertersEnd2 = acDcConvertersEnd2;
         }

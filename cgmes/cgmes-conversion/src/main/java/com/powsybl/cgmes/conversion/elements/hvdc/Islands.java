@@ -28,7 +28,7 @@ class Islands {
         islandsNodes = new HashSet<>();
 
         Set<String> visitedTopologicalNodes = new HashSet<>();
-        adjacency.adjacency.keySet().forEach(topologicalNodeId -> {
+        adjacency.getAdjacency().keySet().forEach(topologicalNodeId -> {
             if (visitedTopologicalNodes.contains(topologicalNodeId)) {
                 return;
             }
@@ -48,8 +48,8 @@ class Islands {
         int k = 0;
         while (k < adjacentTopologicalNodes.size()) {
             String topologicalNode = adjacentTopologicalNodes.get(k);
-            if (adjacency.adjacency.containsKey(topologicalNode)) {
-                adjacency.adjacency.get(topologicalNode).forEach(adjacent -> {
+            if (adjacency.getAdjacency().containsKey(topologicalNode)) {
+                adjacency.getAdjacency().get(topologicalNode).forEach(adjacent -> {
                     if (visitedTopologicalNodes.contains(adjacent.topologicalNode)) {
                         return;
                     }

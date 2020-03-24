@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements.hvdc;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -33,7 +34,7 @@ class IslandEndHvdc {
         HVDC_NONE, HVDC_T0_C1_LS1, HVDC_T1_C1_LS1, HVDC_TN_CN_LSN, HVDC_T1_C1_LS2, HVDC_T2_C2_LS1,
     }
 
-    Set<HvdcEnd> hvdc;
+    private final Set<HvdcEnd> hvdc;
 
     IslandEndHvdc() {
         hvdc = new HashSet<>();
@@ -99,8 +100,8 @@ class IslandEndHvdc {
         int k = 0;
         while (k < listTp.size()) {
             String topologicalNode = listTp.get(k);
-            if (adjacency.adjacency.containsKey(topologicalNode)) {
-                adjacency.adjacency.get(topologicalNode).forEach(adjacent -> {
+            if (adjacency.getAdjacency().containsKey(topologicalNode)) {
+                adjacency.getAdjacency().get(topologicalNode).forEach(adjacent -> {
                     if (isAdjacentOk(tpNodeEquipments, visitedTopologicalNodes, islandNodesEnd,
                         adjacent.type, adjacent.topologicalNode)) {
                         listTp.add(adjacent.topologicalNode);
@@ -165,18 +166,26 @@ class IslandEndHvdc {
             .allMatch(ls -> hvdcEnd2.dcLineSegmentsEnd.contains(ls));
     }
 
+    Set<HvdcEnd> getHvdc() {
+        return hvdc;
+    }
+
     void print() {
         LOG.info("IslandEndHvdc");
         hvdc.forEach(h -> h.print());
     }
 
     static class HvdcEnd {
-        List<String> topologicalNodesEnd;
-        Set<String> transformersEnd;
-        Set<String> acDcConvertersEnd;
-        Set<String> dcLineSegmentsEnd;
+        final List<String> topologicalNodesEnd;
+        final Set<String> transformersEnd;
+        final Set<String> acDcConvertersEnd;
+        final Set<String> dcLineSegmentsEnd;
 
         HvdcEnd(List<String> topologicalNodesEnd, Set<String> transformersEnd, Set<String> acDcConvertersEnd, Set<String> dcLineSegmentsEnd) {
+            Objects.requireNonNull(topologicalNodesEnd);
+            Objects.requireNonNull(transformersEnd);
+            Objects.requireNonNull(acDcConvertersEnd);
+            Objects.requireNonNull(dcLineSegmentsEnd);
             this.topologicalNodesEnd = topologicalNodesEnd;
             this.transformersEnd = transformersEnd;
             this.acDcConvertersEnd = acDcConvertersEnd;
