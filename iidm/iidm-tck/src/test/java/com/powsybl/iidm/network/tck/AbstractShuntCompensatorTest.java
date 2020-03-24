@@ -59,7 +59,7 @@ public abstract class AbstractShuntCompensatorTest {
                 6, 10, terminal, true, 200, 10);
 
         assertEquals(ConnectableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
-        assertEquals("shuntName", shuntCompensator.getName());
+        assertEquals("shuntName", shuntCompensator.getOptionalName().orElse(null));
         assertEquals(SHUNT, shuntCompensator.getId());
         assertEquals(6, shuntCompensator.getCurrentSectionCount());
         assertEquals(10, shuntCompensator.getMaximumSectionCount());
