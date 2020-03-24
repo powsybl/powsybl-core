@@ -40,7 +40,7 @@ class Adjacency {
         cgmesModel.dcLineSegments().forEach(dcls -> computeDcLineSegmentAdjacency(cgmesModel, dcls));
 
         AcDcConverterNodes acDcConverterNodes = new AcDcConverterNodes(cgmesModel);
-        acDcConverterNodes.converterNodes.entrySet()
+        acDcConverterNodes.getConverterNodes().entrySet()
             .forEach(entry -> computeAcDcConverterAdjacency(entry.getValue().acTopologicalNode,
                 entry.getValue().dcTopologicalNode));
 

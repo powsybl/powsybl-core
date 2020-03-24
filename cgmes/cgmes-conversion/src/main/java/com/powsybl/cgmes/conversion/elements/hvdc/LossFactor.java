@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
+import java.util.Objects;
+
 import com.powsybl.iidm.network.HvdcLine;
 
 /**
@@ -17,6 +19,7 @@ import com.powsybl.iidm.network.HvdcLine;
 class LossFactor {
 
     LossFactor(HvdcLine.ConvertersMode mode, double pAC1, double pAC2, double poleLossP1, double poleLossP2) {
+        Objects.requireNonNull(mode);
         this.mode = mode;
         this.pAC1 = pAC1;
         this.pAC2 = pAC2;

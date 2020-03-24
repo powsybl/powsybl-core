@@ -33,7 +33,7 @@ class TPnodeEquipments {
         TRANSFORMER, AC_DC_CONVERTER, DC_LINE_SEGMENT
     }
 
-    Map<String, List<TPnodeEquipment>> nodeEquipments;
+    private final Map<String, List<TPnodeEquipment>> nodeEquipments;
 
     TPnodeEquipments(CgmesModel cgmesModel, Adjacency adjacency) {
         nodeEquipments = new HashMap<>();
@@ -42,7 +42,7 @@ class TPnodeEquipments {
 
         AcDcConverterNodes acDcConverterNodes = new AcDcConverterNodes(cgmesModel);
 
-        acDcConverterNodes.converterNodes.entrySet()
+        acDcConverterNodes.getConverterNodes().entrySet()
             .forEach(entry -> addEquipment(adjacency, entry.getValue().id, entry.getValue().acTopologicalNode,
                 entry.getValue().dcTopologicalNode, EquipmentType.AC_DC_CONVERTER));
 
@@ -170,6 +170,10 @@ class TPnodeEquipments {
         return listEquipment.stream()
             .filter(eq -> eq.equipmentId.equals(equipment1) || eq.equipmentId.equals(equipment2))
             .count() == 2;
+    }
+
+    Map<String, List<TPnodeEquipment>> getNodeEquipments() {
+        return nodeEquipments;
     }
 
     void print() {

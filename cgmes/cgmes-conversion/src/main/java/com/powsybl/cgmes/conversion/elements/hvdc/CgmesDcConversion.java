@@ -49,7 +49,7 @@ public class CgmesDcConversion {
         Islands islands = new Islands(adjacency);
 
         IslandsEnds islandsEnds = new IslandsEnds();
-        islands.islandsNodes.forEach(listNodes -> islandsEnds.add(adjacency, listNodes));
+        islands.getIslandsNodes().forEach(listNodes -> islandsEnds.add(adjacency, listNodes));
 
         if (config.isHvdcConversionLogOn()) {
             adjacency.print();
@@ -59,21 +59,21 @@ public class CgmesDcConversion {
         }
 
         Hvdc hvdc = new Hvdc();
-        islandsEnds.islandsEndsNodes.forEach(ien -> {
+        islandsEnds.getIslandsEndsNodes().forEach(ien -> {
             IslandEndHvdc islandEndHvdc1 = new IslandEndHvdc();
-            islandEndHvdc1.add(adjacency, tpNodeEquipments, ien.topologicalNodes1);
+            islandEndHvdc1.add(adjacency, tpNodeEquipments, ien.getTopologicalNodes1());
 
             IslandEndHvdc islandEndHvdc2 = new IslandEndHvdc();
-            islandEndHvdc2.add(adjacency, tpNodeEquipments, ien.topologicalNodes2);
+            islandEndHvdc2.add(adjacency, tpNodeEquipments, ien.getTopologicalNodes2());
 
             if (config.isHvdcConversionLogOn()) {
-                adjacency.print(ien.topologicalNodes1);
-                tpNodeEquipments.print(ien.topologicalNodes1);
-                tpNodeEquipments.printDcLs(ien.topologicalNodes1);
+                adjacency.print(ien.getTopologicalNodes1());
+                tpNodeEquipments.print(ien.getTopologicalNodes1());
+                tpNodeEquipments.printDcLs(ien.getTopologicalNodes1());
 
-                adjacency.print(ien.topologicalNodes2);
-                tpNodeEquipments.print(ien.topologicalNodes2);
-                tpNodeEquipments.printDcLs(ien.topologicalNodes2);
+                adjacency.print(ien.getTopologicalNodes2());
+                tpNodeEquipments.print(ien.getTopologicalNodes2());
+                tpNodeEquipments.printDcLs(ien.getTopologicalNodes2());
 
                 islandEndHvdc1.print();
                 islandEndHvdc2.print();

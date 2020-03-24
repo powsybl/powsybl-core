@@ -26,13 +26,13 @@ import com.powsybl.triplestore.api.PropertyBag;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 class AcDcConverterNodes {
-    Map<String, AcDcConverterNode> converterNodes;
+    private final Map<String, AcDcConverterNode> converterNodes;
 
     AcDcConverterNodes(CgmesModel cgmesModel) {
         this.converterNodes = new HashMap<>();
 
         cgmesModel.acDcConverters().forEach(c -> computeAcDcConverter(cgmesModel, c));
-        cgmesModel.dcTerminals().forEach(t -> computeDcTerminalToAcDcConverter(t));
+        cgmesModel.dcTerminals().forEach(this::computeDcTerminalToAcDcConverter);
     }
 
     private void computeAcDcConverter(CgmesModel cgmesModel, PropertyBag c) {
@@ -55,12 +55,14 @@ class AcDcConverterNodes {
         }
     }
 
+    Map<String, AcDcConverterNode> getConverterNodes() {
+        return converterNodes;
+    }
+
     void print() {
         LOG.info("AcDcConverterNodes");
-        converterNodes.entrySet()
-            .forEach(entry -> LOG.info(" {} {} {} {}", entry.getKey(), entry.getValue().id,
-                entry.getValue().acTopologicalNode,
-                entry.getValue().dcTopologicalNode));
+        converterNodes.forEach((key, value) -> LOG.info(" {} {} {} {}", key, value.id,
+                value.acTopologicalNode, value.dcTopologicalNode));
     }
 
     static class AcDcConverterNode {

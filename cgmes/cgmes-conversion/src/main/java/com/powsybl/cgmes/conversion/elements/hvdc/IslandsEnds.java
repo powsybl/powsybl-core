@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 class IslandsEnds {
-    Set<IslandEnd> islandsEndsNodes;
+    private final Set<IslandEnd> islandsEndsNodes;
 
     // The island includes dcTopologicalNodes and first acTopologicalNode
     IslandsEnds() {
@@ -84,18 +84,30 @@ class IslandsEnds {
         return adjacentTopologicalNodes;
     }
 
+    Set<IslandEnd> getIslandsEndsNodes() {
+        return islandsEndsNodes;
+    }
+
     void print() {
         LOG.info("IslandsEnds");
         islandsEndsNodes.forEach(islandEnd -> islandEnd.print());
     }
 
     static class IslandEnd {
-        List<String> topologicalNodes1;
-        List<String> topologicalNodes2;
+        private final List<String> topologicalNodes1;
+        private final List<String> topologicalNodes2;
 
         IslandEnd(List<String> topologicalNodes1, List<String> topologicalNodes2) {
             this.topologicalNodes1 = topologicalNodes1;
             this.topologicalNodes2 = topologicalNodes2;
+        }
+
+        List<String> getTopologicalNodes1() {
+            return topologicalNodes1;
+        }
+
+        List<String> getTopologicalNodes2() {
+            return topologicalNodes2;
         }
 
         void print() {

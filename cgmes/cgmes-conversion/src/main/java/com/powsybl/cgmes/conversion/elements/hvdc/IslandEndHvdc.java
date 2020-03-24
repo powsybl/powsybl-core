@@ -137,7 +137,7 @@ class IslandEndHvdc {
 
     private static void addEquipments(TPnodeEquipments tpNodeEquipments, String topologicalNode,
         TPnodeEquipments.EquipmentType type, Set<String> listEq) {
-        List<TPnodeEquipment> listEqNode = tpNodeEquipments.nodeEquipments.get(topologicalNode);
+        List<TPnodeEquipment> listEqNode = tpNodeEquipments.getNodeEquipments().get(topologicalNode);
         if (listEqNode == null) {
             return;
         }
