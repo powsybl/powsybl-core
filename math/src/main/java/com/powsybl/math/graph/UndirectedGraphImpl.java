@@ -150,6 +150,14 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
+    public boolean vertexExists(int v) {
+        if (v < 0) {
+            throw new PowsyblException("Invalid vertex " + v);
+        }
+        return v < vertices.size() && vertices.get(v) != null;
+    }
+
+    @Override
     public V removeVertex(int v) {
         checkVertex(v);
         for (Edge<E> e : edges) {

@@ -10,9 +10,6 @@ import com.powsybl.commons.PowsyblException;
 import gnu.trove.list.array.TIntArrayList;
 import org.junit.After;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,6 +21,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  *
@@ -435,5 +434,18 @@ public class UndirectedGraphImplTest {
         graph.addEdge(0, 1, "Edge 1");
         graph.addEdge(1, 2, "Edge 2");
         assertArrayEquals(new String[] {"Edge 1", "Edge 2"}, graph.getEdgeObjectStream().toArray());
+    }
+
+    @Test
+    public void testVertexExists() {
+        try {
+            graph.vertexExists(-1);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Invalid vertex -1", e.getMessage());
+        }
+        assertFalse(graph.vertexExists(0));
+        graph.addVertex();
+        assertTrue(graph.vertexExists(0));
     }
 }
