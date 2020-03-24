@@ -8,11 +8,14 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyVisitor;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -45,6 +48,11 @@ public class BusbarSectionAdapterTest {
 
         assertEquals(expectedSJB.getV(), actualSJB.getV(), 0.0d);
         assertEquals(expectedSJB.getAngle(), actualSJB.getAngle(), 0.0d);
+
+        // Topology
+        TopologyVisitor visitor = mock(TopologyVisitor.class);
+        mergingView.getVoltageLevel("voltageLevel1").visitEquipments(visitor);
+        verify(visitor, times(2)).visitBusbarSection(any(BusbarSection.class));
 
         // Not implemented yet !
         TestUtil.notImplemented(actualSJB::remove);
