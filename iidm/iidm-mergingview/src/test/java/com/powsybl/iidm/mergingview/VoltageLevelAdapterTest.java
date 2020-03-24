@@ -138,9 +138,11 @@ public class VoltageLevelAdapterTest {
                     .setId("SHUNT")
                     .setConnectableBus("busA")
                     .setBus("busA")
-                    .setbPerSection(1e-5)
                     .setCurrentSectionCount(1)
-                    .setMaximumSectionCount(1)
+                    .newLinearModel()
+                        .setbPerSection(1e-5)
+                        .setMaximumSectionCount(1)
+                    .add()
                 .add();
         vlActual.getShuntCompensators().forEach(s -> {
             assertTrue(s instanceof ShuntCompensatorAdapter);
