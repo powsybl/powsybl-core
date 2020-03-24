@@ -240,4 +240,11 @@ public interface Bus extends Identifiable<Bus> {
      */
     void visitConnectedOrConnectableEquipments(TopologyVisitor visitor);
 
+    default void setConnectedComponentNumber(int connectedComponentNumber) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void setSynchronousComponentNumber(int synchronousComponentNumber) {
+        throw new UnsupportedOperationException();
+    }
 }

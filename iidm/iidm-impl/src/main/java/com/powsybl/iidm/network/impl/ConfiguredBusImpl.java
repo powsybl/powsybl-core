@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.Component;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ConnectedComponentsManager;
+import com.powsybl.iidm.network.SynchronousComponentsManager;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
@@ -136,7 +138,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
 
     @Override
     public Component getConnectedComponent() {
-        NetworkImpl.ConnectedComponentsManager ccm = voltageLevel.getNetwork().getConnectedComponentsManager();
+        ConnectedComponentsManager ccm = voltageLevel.getNetwork().getConnectedComponentsManager();
         ccm.update();
         return ccm.getComponent(connectedComponentNumber.get(network.get().getVariantIndex()));
     }
@@ -151,7 +153,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
 
     @Override
     public Component getSynchronousComponent() {
-        NetworkImpl.SynchronousComponentsManager scm = voltageLevel.getNetwork().getSynchronousComponentsManager();
+        SynchronousComponentsManager scm = voltageLevel.getNetwork().getSynchronousComponentsManager();
         scm.update();
         return scm.getComponent(synchronousComponentNumber.get(network.get().getVariantIndex()));
     }

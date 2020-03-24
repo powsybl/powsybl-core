@@ -4,18 +4,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.impl;
+package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.Component;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.Network;
+
+import java.lang.ref.WeakReference;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ConnectedComponentImpl extends ComponentImpl implements Component {
+public class ConnectedComponentImpl extends ComponentImpl implements Component {
 
-    ConnectedComponentImpl(int num, int size, Ref<NetworkImpl> networkRef) {
+    public ConnectedComponentImpl(int num, int size, WeakReference<Network> networkRef) {
         super(num, size, networkRef);
     }
 }

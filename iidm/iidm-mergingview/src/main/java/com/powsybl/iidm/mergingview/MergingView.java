@@ -37,11 +37,22 @@ public final class MergingView implements Network {
     private final NetworkListener mergeDanglingLineListener;
     private final NetworkListener danglingLinePowerListener;
 
+    private final ConnectedComponentsManager connectedComponentsManager;
+    private final SynchronousComponentsManager synchronousComponentsManager;
+
     static PowsyblException createNotImplementedException() {
         return new PowsyblException("Not implemented exception");
     }
 
     private boolean fictitious;
+
+    public ConnectedComponentsManager getConnectedComponentsManager() {
+        return connectedComponentsManager;
+    }
+
+    public SynchronousComponentsManager getSynchronousComponentsManager() {
+        return synchronousComponentsManager;
+    }
 
     private static class BusBreakerViewAdapter implements Network.BusBreakerView {
 
@@ -139,6 +150,8 @@ public final class MergingView implements Network {
 
         index = new MergingViewIndex(this);
         variantManager = new MergingVariantManager(index);
+        connectedComponentsManager = new ConnectedComponentsManager(this);
+        synchronousComponentsManager = new SynchronousComponentsManager(this);
         // Listeners creation
         mergeDanglingLineListener = new MergingLineListener(index);
         danglingLinePowerListener = new DanglingLinePowerListener(index);

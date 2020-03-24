@@ -16,6 +16,10 @@ import java.util.stream.Stream;
  */
 class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
+    private int connectedComponentNumber;
+
+    private int synchronousComponentNumber;
+
     BusAdapter(final Bus delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
@@ -176,6 +180,16 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     @Override
     public void visitConnectedOrConnectableEquipments(final TopologyVisitor visitor) {
         getDelegate().visitConnectedOrConnectableEquipments(new TopologyVisitorAdapter(visitor, getIndex()));
+    }
+
+    @Override
+    public void setConnectedComponentNumber(int connectedComponentNumber) {
+        this.connectedComponentNumber = connectedComponentNumber;
+    }
+
+    @Override
+    public void setSynchronousComponentNumber(int synchronousComponentNumber) {
+        this.synchronousComponentNumber = synchronousComponentNumber;
     }
 
     // -------------------------------
