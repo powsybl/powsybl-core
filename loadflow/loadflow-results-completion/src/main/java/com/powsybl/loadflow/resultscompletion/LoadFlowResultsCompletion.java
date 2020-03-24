@@ -106,7 +106,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
                                                 phaseAngleClock,
                                                 parameters.getEpsilonX(),
                                                 parameters.isApplyReactanceCorrection(),
-                                                lfParameters.isSpecificCompatibility());
+                                                lfParameters.isT2wtSplitShuntAdmittance());
             completeTerminalData(twt.getTerminal(Side.ONE), Side.ONE, twtData);
             completeTerminalData(twt.getTerminal(Side.TWO), Side.TWO, twtData);
         });
