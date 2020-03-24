@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.junit.Assert.*;
 
 /**
@@ -33,29 +32,6 @@ public class SecurityAnalysisResultBuilderTest {
     }
 
     @Test
-    public void exceptions() {
-
-        SecurityAnalysisResultBuilder builder = new SecurityAnalysisResultBuilder(new LimitViolationFilter(),
-                new RunningContext(network, network.getVariantManager().getWorkingVariantId()));
-
-        assertThatIllegalStateException().isThrownBy(() -> builder.build());
-
-        List<LimitViolation> violations = Security.checkLimits(network);
-
-        assertThatIllegalStateException().isThrownBy(() -> builder.addViolation(violations.get(0)));
-
-        builder.preContingency()
-                .endPreContingency();
-
-        assertThatIllegalStateException().isThrownBy(() -> builder.addViolation(violations.get(0)));
-
-        builder.contingency(new Contingency("contingency"))
-                .endContingency();
-
-        assertThatIllegalStateException().isThrownBy(() -> builder.addViolation(violations.get(0)));
-    }
-
-    @Test
     public void completeResult() {
 
         SecurityAnalysisResultBuilder builder = new SecurityAnalysisResultBuilder(new LimitViolationFilter(),
@@ -65,20 +41,22 @@ public class SecurityAnalysisResultBuilderTest {
         vl.getBusView().getBusStream().forEach(b -> b.setV(410));
 
         builder.preContingency()
-                .setComputationOk(true);
-        Security.checkLimits(network).forEach(builder::addViolation);
-        builder.endPreContingency();
+                .setComputationOk(true)
+                .addViolations(Security.checkLimits(network))
+                .endPreContingency();
 
         vl.getBusView().getBusStream().forEach(b -> b.setV(380));
 
-        builder.contingency(new Contingency("contingency1")).setComputationOk(true);
-        Security.checkLimits(network).forEach(builder::addViolation);
-        builder.endContingency();
+        builder.contingency(new Contingency("contingency1"))
+                .setComputationOk(true)
+                .addViolations(Security.checkLimits(network))
+                .endContingency();
 
         vl.getBusView().getBusStream().forEach(b -> b.setV(520));
-        builder.contingency(new Contingency("contingency2")).setComputationOk(true);
-        Security.checkLimits(network).forEach(builder::addViolation);
-        builder.endContingency();
+        builder.contingency(new Contingency("contingency2"))
+                .setComputationOk(true)
+                .addViolations(Security.checkLimits(network))
+                .endContingency();
 
         SecurityAnalysisResult res = builder.build();
 

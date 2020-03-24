@@ -177,8 +177,8 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     private final HalfLineImpl half2;
 
-    TieLineImpl(String id, String name, String ucteXnodeCode, HalfLineImpl half1, HalfLineImpl half2) {
-        super(id, name, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+    TieLineImpl(String id, String name, boolean fictitious, String ucteXnodeCode, HalfLineImpl half1, HalfLineImpl half2) {
+        super(id, name, fictitious, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
         this.ucteXnodeCode = ucteXnodeCode;
         this.half1 = attach(half1);
         this.half2 = attach(half2);

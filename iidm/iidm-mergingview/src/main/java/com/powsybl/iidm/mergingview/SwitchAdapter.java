@@ -51,14 +51,4 @@ public class SwitchAdapter extends AbstractIdentifiableAdapter<Switch> implement
     public void setRetained(final boolean retained) {
         getDelegate().setRetained(retained);
     }
-
-    @Override
-    public boolean isFictitious() {
-        return getDelegate().isFictitious();
-    }
-
-    @Override
-    public void setFictitious(final boolean fictitious) {
-        getDelegate().setFictitious(fictitious);
-    }
 }

@@ -7,9 +7,11 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableAdder;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -40,6 +42,15 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         if (!identifiable.getId().equals(identifiable.getName())) {
             context.getWriter().writeAttribute("name", context.getAnonymizer().anonymizeString(identifiable.getName()));
         }
+
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
+            try {
+                XmlUtil.writeOptionalBoolean("fictitious", identifiable.isFictitious(), false, context.getWriter());
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
+
         writeRootElementAttributes(identifiable, parent, context);
 
         PropertiesXml.write(identifiable, context);
@@ -73,7 +84,11 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name"));
         adder.setId(id)
-                .setName(name);
+             .setName(name);
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
+            boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious", false);
+            adder.setFictitious(fictitious);
+        });
         T identifiable = readRootElementAttributes(adder, context);
         readSubElements(identifiable, context);
     }

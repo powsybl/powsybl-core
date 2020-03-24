@@ -99,7 +99,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         ValidationUtil.checkG(this, g);
         ValidationUtil.checkB(this, b);
 
-        DanglingLineImpl danglingLine = new DanglingLineImpl(getNetwork().getRef(), id, getName(), p0, q0, r, x, g, b, ucteXnodeCode);
+        DanglingLineImpl danglingLine = new DanglingLineImpl(getNetwork().getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode);
         danglingLine.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(danglingLine);

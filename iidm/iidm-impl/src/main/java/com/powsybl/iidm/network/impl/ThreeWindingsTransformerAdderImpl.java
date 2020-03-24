@@ -258,7 +258,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             LOGGER.info("RatedU0 is not set. Fixed to leg1 ratedU: {}", leg1.getRatedU());
         }
 
-        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(id, getName(), leg1, leg2, leg3,
+        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(id, getName(), isFictitious(), leg1, leg2, leg3,
             ratedU0);
         leg1.setTransformer(transformer);
         leg2.setTransformer(transformer);

@@ -29,9 +29,9 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     private double highVoltageLimit;
 
-    AbstractVoltageLevel(String id, String name, SubstationImpl substation,
+    AbstractVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation,
                          double nominalV, double lowVoltageLimit, double highVoltageLimit) {
-        super(id, name);
+        super(id, name, fictitious);
         this.substation = substation;
         this.nominalV = nominalV;
         this.lowVoltageLimit = lowVoltageLimit;

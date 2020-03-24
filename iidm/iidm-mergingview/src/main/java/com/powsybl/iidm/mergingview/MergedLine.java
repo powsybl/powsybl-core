@@ -288,6 +288,11 @@ class MergedLine implements Line {
         }
     }
 
+    Side getSide(final DanglingLine dl) {
+        Objects.requireNonNull(dl);
+        return getSide(dl.getTerminal());
+    }
+
     @Override
     public Side getSide(final Terminal terminal) {
         Objects.requireNonNull(terminal);
@@ -430,6 +435,17 @@ class MergedLine implements Line {
     @Override
     public Set<String> getPropertyNames() {
         return properties.keySet().stream().map(Object::toString).collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean isFictitious() {
+        return dl1.isFictitious() || dl2.isFictitious();
+    }
+
+    @Override
+    public void setFictitious(boolean fictitious) {
+        dl1.setFictitious(fictitious);
+        dl2.setFictitious(fictitious);
     }
 
     @Override

@@ -5,6 +5,29 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+# query: graph
+SELECT DISTINCT  ?graph
+ WHERE
+{ GRAPH ?graph
+       { ?s  ?p  ?o }
+}
+
+# query: fullModel
+prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{ GRAPH ?graph {
+    ?FullModel
+        a md:FullModel ;
+        md:Model.scenarioTime ?scenarioTime ;
+        md:Model.created ?created ;
+        md:Model.description ?description ;
+        md:Model.version ?version ;
+        md:Model.DependentOn ?DependentOn ;
+        md:Model.modelingAuthoritySet ?modelingAuthoritySet ;
+        md:Model.profile ?profile .
+    FILTER (regex(?profile, "{0}", "i"))
+}}
+
 # query: modelIds
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *
@@ -144,12 +167,16 @@ OPTIONAL { GRAPH ?graphSV {
         cim:SvPowerFlow.Terminal ?Terminal ;
         cim:SvPowerFlow.p ?p ;
         cim:SvPowerFlow.q ?q
+} OPTIONAL {?SvStatus
+        a cim:SvStatus ;
+        cim:SvStatus.ConductingEquipment ?ConductingEquipment ;
+        cim:SvStatus.inService ?inService . 
 }}
 OPTIONAL { GRAPH ?graphCN {
-		?Terminal cim:Terminal.ConnectivityNode ?ConnectivityNode .
+        ?Terminal cim:Terminal.ConnectivityNode ?ConnectivityNode .
 }}
 OPTIONAL { GRAPH ?graphTPT {
-		?Terminal cim:Terminal.TopologicalNode ?TopologicalNode .
+        ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode .
 }}
 }
 
@@ -157,25 +184,25 @@ OPTIONAL { GRAPH ?graphTPT {
 SELECT *
 WHERE {
 { GRAPH ?graphCN2 {
-	?ConnectivityNode cim:ConnectivityNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
-	OPTIONAL {
-		?ConnectivityNode cim:IdentifiedObject.name ?name
-	}
-	OPTIONAL { ?ConnectivityNode entsoe:ConnectivityNode.fromEndIsoCode ?fromEndIsoCode }
-	OPTIONAL { ?ConnectivityNode entsoe:ConnectivityNode.toEndIsoCode ?toEndIsoCode }
+    ?ConnectivityNode cim:ConnectivityNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
+    OPTIONAL {
+        ?ConnectivityNode cim:IdentifiedObject.name ?name
+    }
+    OPTIONAL { ?ConnectivityNode entsoe:ConnectivityNode.fromEndIsoCode ?fromEndIsoCode }
+    OPTIONAL { ?ConnectivityNode entsoe:ConnectivityNode.toEndIsoCode ?toEndIsoCode }
 }}
 OPTIONAL { GRAPH ?graphTPCN {
-	?ConnectivityNode
-	    cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
-	?TopologicalNode
-	    cim:TopologicalNode.BaseVoltage ?BaseVoltage
-	OPTIONAL { GRAPH ?graphSVT {
-		?SvVoltageT 
-			a cim:SvVoltage ;
-	    	cim:SvVoltage.TopologicalNode ?TopologicalNode ;
-			cim:SvVoltage.v ?v ;
-			cim:SvVoltage.angle ?angle 
-	}}
+    ?ConnectivityNode
+        cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
+    ?TopologicalNode
+        cim:TopologicalNode.BaseVoltage ?BaseVoltage
+    OPTIONAL { GRAPH ?graphSVT {
+        ?SvVoltageT 
+            a cim:SvVoltage ;
+            cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+            cim:SvVoltage.v ?v ;
+            cim:SvVoltage.angle ?angle 
+    }}
 }}
 }
 
@@ -183,21 +210,31 @@ OPTIONAL { GRAPH ?graphTPCN {
 SELECT *
 WHERE {
 { GRAPH ?graphTP {
-	?TopologicalNode 
-		cim:IdentifiedObject.name ?name ;
-		cim:TopologicalNode.BaseVoltage ?BaseVoltage ;
-		cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
-	OPTIONAL { ?TopologicalNode entsoe:TopologicalNode.fromEndIsoCode ?fromEndIsoCode }
-	OPTIONAL { ?TopologicalNode entsoe:TopologicalNode.toEndIsoCode ?toEndIsoCode }
+    ?TopologicalNode 
+        cim:IdentifiedObject.name ?name ;
+        cim:TopologicalNode.BaseVoltage ?BaseVoltage ;
+        cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
+    OPTIONAL { ?TopologicalNode entsoe:TopologicalNode.fromEndIsoCode ?fromEndIsoCode }
+    OPTIONAL { ?TopologicalNode entsoe:TopologicalNode.toEndIsoCode ?toEndIsoCode }
 }}
 OPTIONAL { GRAPH ?graphSVT {
-	?SvVoltageT 
-		a cim:SvVoltage ;
-    	cim:SvVoltage.TopologicalNode ?TopologicalNode ;
-		cim:SvVoltage.v ?v ;
-		cim:SvVoltage.angle ?angle 
+    ?SvVoltageT 
+        a cim:SvVoltage ;
+        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+        cim:SvVoltage.v ?v ;
+        cim:SvVoltage.angle ?angle 
 }}
 }
+
+# query: topologicalIslands
+SELECT *
+{ GRAPH ?graph { 
+    ?TopologicalIsland
+        a cim:TopologicalIsland ;
+        cim:IdentifiedObject.name ?name ;
+        cim:TopologicalIsland.AngleRefTopologicalNode ?AngleRefTopologicalNode ;
+        cim:TopologicalIsland.TopologicalNodes ?TopologicalNodes .
+}}
 
 # query: connectivityNodeContainers
 SELECT *
@@ -223,10 +260,10 @@ WHERE {
 SELECT * 
 { GRAPH ?graphSV {
     ?SvVoltage 
-    	a cim:SvVoltage ;
-    	cim:SvVoltage.TopologicalNode ?TopologicalNode ;
-    	cim:SvVoltage.v ?v ;
-    	cim:SvVoltage.angle ?angle 
+        a cim:SvVoltage ;
+        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+        cim:SvVoltage.v ?v ;
+        cim:SvVoltage.angle ?angle 
 }}
 
 # query: operationalLimits
@@ -430,7 +467,7 @@ WHERE {
              cim:RatioTapChanger.tculControlMode ?tculControlMode
     }
     OPTIONAL {
-    	?RatioTapChanger cim:RatioTapChanger.RatioTapChangerTable ?RatioTapChangerTable 
+        ?RatioTapChanger cim:RatioTapChanger.RatioTapChangerTable ?RatioTapChangerTable 
     }
 }}
 OPTIONAL { GRAPH ?graphSSH {
@@ -644,7 +681,9 @@ OPTIONAL { GRAPH ?graphSV  {
         cim:SvShuntCompensatorSections.sections ?SVsections
 }}
 OPTIONAL { GRAPH ?graphSSH  {
-    ?ShuntCompensator cim:ShuntCompensator.sections ?SSHsections
+    ?ShuntCompensator
+        cim:ShuntCompensator.sections ?SSHsections ;
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled
 }}
 }
 
@@ -668,7 +707,7 @@ WHERE {
         a cim:SynchronousMachine ;
         cim:RotatingMachine.GeneratingUnit ?GeneratingUnit .
     OPTIONAL {
-    	?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
+        ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
    	}
     ?GeneratingUnit
         a ?generatingUnitType ;
@@ -683,9 +722,9 @@ WHERE {
     OPTIONAL { ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.qPercent ?qPercent }
     OPTIONAL { GRAPH ?graphSSH3 {
-    	?SynchronousMachine 
-    		cim:RotatingMachine.p ?p ;
-    		cim:RotatingMachine.q ?q 
+        ?SynchronousMachine 
+            cim:RotatingMachine.p ?p ;
+            cim:RotatingMachine.q ?q 
     }}
 }}
 }
@@ -836,20 +875,20 @@ WHERE {
 }}
 # For Current Source Converter
 OPTIONAL {
-	?ACDCConverter a cim:CsConverter .
-   	?ACDCConverter
-       	cim:CsConverter.operatingMode ?operatingMode ;
-       	cim:CsConverter.pPccControl ?controlMode .
+    ?ACDCConverter a cim:CsConverter .
+    ?ACDCConverter
+        cim:CsConverter.operatingMode ?operatingMode ;
+        cim:CsConverter.pPccControl ?controlMode .
    	OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetUdc ?targetUdc }
 }
 # For Voltage Source Converter
 OPTIONAL {
-	?ACDCConverter a cim:VsConverter .
-   	?ACDCConverter
-       	cim:VsConverter.qPccControl ?qPccControl ;
-       	cim:VsConverter.pPccControl ?pPccControl .
-   	OPTIONAL { ?ACDCConverter cim:VsConverter.targetQpcc ?targetQpcc }
-   	OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
+    ?ACDCConverter a cim:VsConverter .
+    ?ACDCConverter
+       cim:VsConverter.qPccControl ?qPccControl ;
+       cim:VsConverter.pPccControl ?pPccControl .
+    OPTIONAL { ?ACDCConverter cim:VsConverter.targetQpcc ?targetQpcc }
+    OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
 }
 }
 

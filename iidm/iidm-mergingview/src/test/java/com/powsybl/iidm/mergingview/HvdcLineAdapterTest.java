@@ -154,6 +154,7 @@ public class HvdcLineAdapterTest {
                        .setId("NotAllowed")
                        .setName("NotAllowed")
                        .setEnsureIdUnicity(false)
+                       .setFictitious(false)
                        .setR(5.0)
                        .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
                        .setNominalV(440.0)

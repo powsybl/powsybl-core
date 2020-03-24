@@ -29,6 +29,7 @@ public class RegulatingControlMapping {
     private final Context context;
     private final RegulatingControlMappingForGenerators regulatingControlMappingForGenerators;
     private final RegulatingControlMappingForTransformers regulatingControlMappingForTransformers;
+    private final RegulatingControlMappingForShuntCompensators regulatingControlMappingForShuntCompensators;
     private final RegulatingControlMappingForStaticVarCompensators regulatingControlMappingForStaticVarCompensators;
 
     RegulatingControlMapping(Context context) {
@@ -36,6 +37,7 @@ public class RegulatingControlMapping {
         regulatingControlMappingForGenerators = new RegulatingControlMappingForGenerators(this, context);
         regulatingControlMappingForTransformers = new RegulatingControlMappingForTransformers(this, context);
         regulatingControlMappingForStaticVarCompensators = new RegulatingControlMappingForStaticVarCompensators(this, context);
+        regulatingControlMappingForShuntCompensators = new RegulatingControlMappingForShuntCompensators(this, context);
     }
 
     public RegulatingControlMappingForGenerators forGenerators() {
@@ -44,6 +46,10 @@ public class RegulatingControlMapping {
 
     public RegulatingControlMappingForTransformers forTransformers() {
         return regulatingControlMappingForTransformers;
+    }
+
+    public RegulatingControlMappingForShuntCompensators forShuntCompensators() {
+        return regulatingControlMappingForShuntCompensators;
     }
 
     public RegulatingControlMappingForStaticVarCompensators forStaticVarCompensators() {
@@ -65,7 +71,9 @@ public class RegulatingControlMapping {
             this.topologicalNode = p.getId("topologicalNode");
             this.enabled = p.asBoolean("enabled", true);
             this.targetValue = p.asDouble("targetValue");
-            this.targetDeadband = p.asDouble("targetDeadband", Double.NaN);
+            // targetDeadband is optional in CGMES,
+            // If not explicitly given it should be interpreted as zero
+            this.targetDeadband = p.asDouble("targetDeadband", 0);
         }
 
         void setCorrectlySet(boolean okSet) {
@@ -94,6 +102,7 @@ public class RegulatingControlMapping {
     void setAllRegulatingControls(Network network) {
         regulatingControlMappingForGenerators.applyRegulatingControls(network);
         regulatingControlMappingForTransformers.applyTapChangersRegulatingControl(network);
+        regulatingControlMappingForShuntCompensators.applyRegulatingControls(network);
         regulatingControlMappingForStaticVarCompensators.applyRegulatingControls(network);
 
         cachedRegulatingControls.forEach((key, value) -> {

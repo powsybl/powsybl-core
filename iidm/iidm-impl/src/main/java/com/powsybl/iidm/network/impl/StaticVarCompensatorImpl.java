@@ -35,9 +35,9 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     private final TIntArrayList regulationMode;
 
-    StaticVarCompensatorImpl(String id, String name, double bMin, double bMax, double voltageSetPoint, double reactivePowerSetPoint,
+    StaticVarCompensatorImpl(String id, String name, boolean fictitious, double bMin, double bMax, double voltageSetPoint, double reactivePowerSetPoint,
                              RegulationMode regulationMode, TerminalExt regulatingTerminal, Ref<? extends VariantManagerHolder> ref) {
-        super(id, name);
+        super(id, name, fictitious);
         this.bMin = bMin;
         this.bMax = bMax;
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();

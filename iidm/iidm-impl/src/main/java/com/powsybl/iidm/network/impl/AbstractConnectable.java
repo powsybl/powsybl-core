@@ -22,8 +22,8 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     protected final List<TerminalExt> terminals = new ArrayList<>();
 
-    AbstractConnectable(String id, String name) {
-        super(id, name);
+    AbstractConnectable(String id, String name, boolean fictitious) {
+        super(id, name, fictitious);
     }
 
     public I setName(String name) {
