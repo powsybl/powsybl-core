@@ -55,7 +55,9 @@ public abstract class AbstractCgmesModel implements CgmesModel {
 
     @Override
     public Map<String, CgmesTerminal> cachedTerminals() {
-        Objects.requireNonNull(cachedTerminals);
+        if (cachedTerminals == null) {
+            cachedTerminals = computeTerminals();
+        }
         return cachedTerminals;
     }
 
