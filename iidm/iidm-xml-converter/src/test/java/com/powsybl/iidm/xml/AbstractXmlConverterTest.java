@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.Network;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -112,12 +111,6 @@ public abstract class AbstractXmlConverterTest extends AbstractConverterTest {
 
     private static BiConsumer<Network, Path> writeAndValidate(IidmXmlVersion version) {
         ExportOptions options = new ExportOptions().setVersion(version.toString("."));
-        return (n, p) -> {
-            try {
-                NetworkXml.writeAndValidate(n, options, p);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        };
+        return (n, p) -> NetworkXml.writeAndValidate(n, options, p);
     }
 }
