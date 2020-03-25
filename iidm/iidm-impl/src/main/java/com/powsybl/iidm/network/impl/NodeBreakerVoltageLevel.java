@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
@@ -556,7 +555,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private final NodeBreakerViewExt nodeBreakerView = new NodeBreakerViewExt() {
-
         /**
          * @deprecated Use {@link #getMaximumNodeIndex()} instead.
          */

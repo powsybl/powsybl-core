@@ -7,7 +7,6 @@
 
 sourceDir=$(dirname $(readlink -f $0))
 
-
 ## install default settings
 ###############################################################################
 powsybl_prefix=$HOME/powsybl

@@ -79,7 +79,11 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
     }
 
     public String getVersion(IidmXmlVersion networkVersion) {
-        return extensionVersions.get(networkVersion).last();
+        if (extensionVersions.get(networkVersion) != null) {
+            return extensionVersions.get(networkVersion).last();
+        } else {
+            return " ";
+        }
     }
 
     protected void checkReadingCompatibility(NetworkXmlReaderContext networkContext) {

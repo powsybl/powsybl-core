@@ -23,4 +23,8 @@ public interface ExtensionJsonSerializer<T extends Extendable, E extends Extensi
     void serialize(E extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException;
 
     E deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException;
+
+    default E deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, E parameters) throws IOException {
+        return deserialize(jsonParser, deserializationContext);
+    }
 }

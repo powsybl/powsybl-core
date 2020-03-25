@@ -174,19 +174,19 @@ public final class JsonUtil {
     }
 
     public static <T> Set<String> writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
-                                           SerializerProvider serializerProvider) throws IOException {
+                                                  SerializerProvider serializerProvider) throws IOException {
         return writeExtensions(extendable, jsonGenerator, serializerProvider, SUPPLIER.get());
     }
 
     public static <T> Set<String> writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
-                                           SerializerProvider serializerProvider,
-                                           ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
+                                                  SerializerProvider serializerProvider,
+                                                  ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
         return writeExtensions(extendable, jsonGenerator, true, serializerProvider, supplier);
     }
 
     public static <T> Set<String> writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
-                                           boolean headerWanted, SerializerProvider serializerProvider,
-                                           ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
+                                                  boolean headerWanted, SerializerProvider serializerProvider,
+                                                  ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
         Objects.requireNonNull(extendable);
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(serializerProvider);
@@ -217,40 +217,42 @@ public final class JsonUtil {
         return notFound;
     }
 
-    public static <T> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context) throws IOException {
-        return readExtensions(parser, context, SUPPLIER.get());
+    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context, T toUpdatedParameters) throws IOException {
+        return updateExtensions(parser, context, SUPPLIER.get(), null, toUpdatedParameters);
     }
 
-    public static <T> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context,
-                                                        ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
-        return readExtensions(parser, context, supplier, null);
+    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context,
+                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier, T toUpdatedParameters) throws IOException {
+        return updateExtensions(parser, context, supplier, null, toUpdatedParameters);
     }
 
-    public static <T> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context,
-                                                        ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound) throws IOException {
+    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context,
+                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound, T toUpdatedParameters) throws IOException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
 
         List<Extension<T>> extensions = new ArrayList<>();
-
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            Extension<T> extension = readExtension(parser, context, supplier, extensionsNotFound);
+            Extension<T> extension = updateExtension(parser, context, supplier, extensionsNotFound, toUpdatedParameters);
             if (extension != null) {
                 extensions.add(extension);
             }
         }
-
         return extensions;
     }
 
-    public static <T> Extension<T> readExtension(JsonParser parser, DeserializationContext context,
-                                                 ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound) throws IOException {
+    private static <T extends Extendable, E extends Extension<T>> E updateExtension(JsonParser parser, DeserializationContext context,
+                                                                                    ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound, T toUpdateParameters) throws IOException {
         String extensionName = parser.getCurrentName();
-        ExtensionJsonSerializer extensionJsonSerializer = supplier.findProvider(extensionName);
+        ExtensionJsonSerializer<T, E> extensionJsonSerializer = supplier.findProvider(extensionName);
         if (extensionJsonSerializer != null) {
             parser.nextToken();
-            return extensionJsonSerializer.deserialize(parser, context);
+            if (toUpdateParameters != null && toUpdateParameters.getExtensionByName(extensionName) != null) {
+                return extensionJsonSerializer.deserializeAndUpdate(parser, context, (E) toUpdateParameters.getExtensionByName(extensionName));
+            } else {
+                return extensionJsonSerializer.deserialize(parser, context);
+            }
         } else {
             if (extensionsNotFound != null) {
                 extensionsNotFound.add(extensionName);
@@ -258,6 +260,38 @@ public final class JsonUtil {
             skip(parser);
             return null;
         }
+    }
+
+    public static <T extends Extendable> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context) throws IOException {
+        return readExtensions(parser, context, SUPPLIER.get());
+    }
+
+    public static <T extends Extendable> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context,
+                                                                           ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
+        return readExtensions(parser, context, supplier, null);
+    }
+
+    public static <T extends Extendable> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context,
+                                                                           ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound) throws IOException {
+        Objects.requireNonNull(parser);
+        Objects.requireNonNull(context);
+        Objects.requireNonNull(supplier);
+        List<Extension<T>> extensions = new ArrayList<>();
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            Extension<T> extension = readExtension(parser, context, supplier, extensionsNotFound);
+            if (extension != null) {
+                extensions.add(extension);
+            }
+        }
+        return extensions;
+    }
+
+    public static <T extends Extendable> Extension<T> readExtension(JsonParser parser, DeserializationContext context,
+                                                                    ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound) throws IOException {
+        Objects.requireNonNull(parser);
+        Objects.requireNonNull(context);
+        Objects.requireNonNull(supplier);
+        return updateExtension(parser, context, supplier, extensionsNotFound, null);
     }
 
     /**
@@ -279,8 +313,8 @@ public final class JsonUtil {
         Objects.requireNonNull(version);
         if (version.compareTo(referenceVersion) > 0) {
             String exception = String.format(
-                "%s. %s is not valid for version %s. Version should be <= %s %n",
-                contextName, elementName, version, referenceVersion);
+                    "%s. %s is not valid for version %s. Version should be <= %s %n",
+                    contextName, elementName, version, referenceVersion);
             throw new PowsyblException(exception);
         }
     }
@@ -289,8 +323,8 @@ public final class JsonUtil {
         Objects.requireNonNull(version);
         if (version.compareTo(referenceVersion) <= 0) {
             String exception = String.format(
-                "%s. %s is not valid for version %s. Version should be > %s %n",
-                contextName, elementName, version, referenceVersion);
+                    "%s. %s is not valid for version %s. Version should be > %s %n",
+                    contextName, elementName, version, referenceVersion);
             throw new PowsyblException(exception);
         }
     }
