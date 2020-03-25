@@ -32,6 +32,16 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     String getId();
 
     /**
+     * Get the name of the object if it exists. If not, get the unique identifier of the object.
+     *
+     * @deprecated Use {@link #getNameOrId()} or {@link #getOptionalName()} instead.
+     */
+    @Deprecated
+    default String getName() {
+        return getNameOrId();
+    }
+
+    /**
      * Return an optional containing the name  of the object if it exists. If not, return an empty optional.
      */
     default Optional<String> getOptionalName() {
