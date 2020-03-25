@@ -15,11 +15,11 @@ import static org.junit.Assert.*;
  */
 public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInterceptor {
 
-    private boolean onPrecontingencyResultCount = false;
+    private int onPreContingencyResultCount = 0;
 
-    private boolean onPostContingencyResultCount = false;
+    private int onPostContingencyResultCount = 0;
 
-    private boolean onSecurityAnalysisResultCount = false;
+    private int onSecurityAnalysisResultCount = 0;
 
     @Override
     public void onPreContingencyResult(RunningContext context, LimitViolationsResult preContingencyResult) {
@@ -27,14 +27,16 @@ public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInte
 
         assertRunningContext(context);
         assertPreContingencyResult(preContingencyResult);
+        onPreContingencyResultCount++;
     }
 
     @Override
-    public void onPostContingencyResult(RunningContext context, PostContingencyResult postContingencyResult) {
+    public void onPostContingencyResult(ContingencyContext context, PostContingencyResult postContingencyResult) {
         super.onPostContingencyResult(context, postContingencyResult);
 
-        assertRunningContext(context);
+        assertRunningContext(context.getRunningContext());
         assertPostContingencyResult(postContingencyResult);
+        onPostContingencyResultCount++;
     }
 
     @Override
@@ -45,6 +47,19 @@ public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInte
         assertNotNull(result);
         assertPreContingencyResult(result.getPreContingencyResult());
         result.getPostContingencyResults().forEach(SecurityAnalysisInterceptorMock::assertPostContingencyResult);
+        onSecurityAnalysisResultCount++;
+    }
+
+    public int getOnPreContingencyResultCount() {
+        return onPreContingencyResultCount;
+    }
+
+    public int getOnPostContingencyResultCount() {
+        return onPostContingencyResultCount;
+    }
+
+    public int getOnSecurityAnalysisResultCount() {
+        return onSecurityAnalysisResultCount;
     }
 
     private static void assertRunningContext(RunningContext context) {

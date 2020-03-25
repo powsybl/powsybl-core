@@ -15,9 +15,49 @@ import com.powsybl.security.SecurityAnalysisResult;
  */
 public interface SecurityAnalysisInterceptor {
 
+    /**
+     * Callback after the pre-contingency analysis result is created
+     * @param context The running context
+     * @param preContingencyResult
+     */
     void onPreContingencyResult(RunningContext context, LimitViolationsResult preContingencyResult);
 
+    /**
+     * Deprecated. Use {@link #onPostContingencyResult(ContingencyContext context, PostContingencyResult postContingencyResult)}
+     * @param context
+     * @param postContingencyResult
+     */
     void onPostContingencyResult(RunningContext context, PostContingencyResult postContingencyResult);
 
+    /**
+     * Callback after the post-contingency result is created
+     * @param context
+     * @param postContingencyResult
+     */
+    default void onPostContingencyResult(ContingencyContext context, PostContingencyResult postContingencyResult) {
+        onPostContingencyResult(context.getRunningContext(), postContingencyResult);
+    }
+
+    /**
+     * Callback after the result is created
+     * @param context
+     * @param result
+     */
     void onSecurityAnalysisResult(RunningContext context, SecurityAnalysisResult result);
+
+    /**
+     * Callback after a limit violation detected
+     * @param context a violation context
+     */
+    default void onLimitViolation(ViolationContext context) {
+
+    }
+
+    /**
+     * Callback after a contingency detected
+     * @param context a contingency context
+     */
+    default void onContingency(ContingencyContext context) {
+
+    }
 }

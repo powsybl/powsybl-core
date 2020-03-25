@@ -31,4 +31,14 @@ public class DefaultSecurityAnalysisInterceptor implements SecurityAnalysisInter
     public void onSecurityAnalysisResult(RunningContext context, SecurityAnalysisResult result) {
         // Nothing to do
     }
+
+    @Override
+    public void onLimitViolation(ViolationContext context) {
+        // Nothing to do
+    }
+
+    @Override
+    public void onContingency(ContingencyContext context) {
+        // Nothing to do
+    }
 }

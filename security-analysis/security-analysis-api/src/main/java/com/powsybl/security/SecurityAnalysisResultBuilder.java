@@ -8,6 +8,7 @@ package com.powsybl.security;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.security.interceptors.ContingencyContext;
 import com.powsybl.security.interceptors.RunningContext;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
@@ -26,8 +27,8 @@ import java.util.*;
 public class SecurityAnalysisResultBuilder {
 
     private final LimitViolationFilter filter;
-    private final RunningContext context;
-    private final List<SecurityAnalysisInterceptor> interceptors;
+    protected final RunningContext context;
+    protected final List<SecurityAnalysisInterceptor> interceptors;
 
     // Below are volatile objects used for building the actual complete result
     private LimitViolationsResult preContingencyResult;
@@ -144,7 +145,8 @@ public class SecurityAnalysisResultBuilder {
         public SecurityAnalysisResultBuilder endContingency() {
             List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
             PostContingencyResult res = new PostContingencyResult(contingency, computationOk, filteredViolations);
-            interceptors.forEach(i -> i.onPostContingencyResult(context, res));
+            ContingencyContext contingencyContext = new ContingencyContext(context, contingency);
+            interceptors.forEach(i -> i.onPostContingencyResult(contingencyContext, res));
             addPostContingencyResult(res);
 
             return SecurityAnalysisResultBuilder.this;
