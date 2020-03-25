@@ -264,16 +264,34 @@
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
+                    <xs:choice>
+                        <xs:element name="linearModel" type="iidm:ShuntCompensatorLinearModel"/>
+                        <xs:element name="nonLinearModel" type="iidm:ShuntCompensatorNonLinearModel"/>
+                    </xs:choice>
                     <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
                 </xs:sequence>
-                <xs:attribute name="bPerSection" use="required" type="xs:double"/>
-                <xs:attribute name="maximumSectionCount" use="required" type="xs:int"/>
+                <xs:attribute name="model" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="currentSectionCount" use="required" type="xs:int"/>
                 <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
                 <xs:attribute name="targetV" use="optional" type="xs:double"/>
                 <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="ShuntCompensatorLinearModel">
+        <xs:attribute name="bPerSection" use="required" type="xs:double"/>
+        <xs:attribute name="gPerSection" use="optional" type="xs:double"/>
+        <xs:attribute name="maximumSectionCount" use="required" type="xs:int"/>
+    </xs:complexType>
+    <xs:complexType name="ShuntCompensatorNonLinearModel">
+        <xs:sequence>
+            <xs:element name="section" maxOccurs="unbounded" type="iidm:ShuntCompensatorSection"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ShuntCompensatorSection">
+        <xs:attribute name="num" use="required" type="xs:int"/>
+        <xs:attribute name="b" use="required" type="xs:double"/>
+        <xs:attribute name="g" use="optional" type="xs:double"/>
     </xs:complexType>
     <xs:complexType name="CurrentLimit">
         <xs:sequence>
