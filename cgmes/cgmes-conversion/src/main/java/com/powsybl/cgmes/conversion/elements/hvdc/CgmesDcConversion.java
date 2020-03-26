@@ -46,7 +46,7 @@ public class CgmesDcConversion {
 
         // Get hvdc configurations
         Adjacency adjacency = new Adjacency(cgmesModel);
-        if (adjacency.getAdjacency().isEmpty()) {
+        if (adjacency.isEmpty()) {
             return;
         }
         TPnodeEquipments tpNodeEquipments = new TPnodeEquipments(cgmesModel, adjacency);
@@ -190,8 +190,8 @@ public class CgmesDcConversion {
                 return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             } else if (rectifier(mode1) && inverter(mode2)) {
                 return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
-            } else {
-                // Default if both ends are rectifier or inverter
+            } else if (cconverter1.asDouble(TARGET_PPCC) == 0 && cconverter2.asDouble(TARGET_PPCC) == 0) {
+                // Both ends are rectifier or inverter
                 return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             }
         } else {
@@ -201,6 +201,7 @@ public class CgmesDcConversion {
                 return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             }
         }
+        throw new PowsyblException("Unexpected HVDC type: " + converterType);
     }
 
     private static boolean inverter(String operatingMode) {

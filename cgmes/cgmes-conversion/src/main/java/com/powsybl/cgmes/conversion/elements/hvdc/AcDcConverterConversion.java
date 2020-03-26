@@ -24,6 +24,8 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class AcDcConverterConversion extends AbstractConductingEquipmentConversion {
 
+    private static final double DEFAULT_POWER_FACTOR = 0.8;
+    
     enum VscRegulation {
         REACTIVE_POWER,
         VOLTAGE
@@ -80,7 +82,7 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
 
             LccConverterStationAdder adder = voltageLevel().newLccConverterStation()
                 .setLossFactor((float) this.lossFactor)
-                .setPowerFactor(0.8f);
+                .setPowerFactor((float) DEFAULT_POWER_FACTOR);
             identify(adder);
             connect(adder);
             c = adder.add();

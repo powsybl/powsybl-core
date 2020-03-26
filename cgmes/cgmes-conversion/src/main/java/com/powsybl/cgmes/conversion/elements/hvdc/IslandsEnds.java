@@ -21,11 +21,11 @@ import org.slf4j.LoggerFactory;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 class IslandsEnds {
-    private final Set<IslandEnd> islandsEndsNodes;
+    private final List<IslandEnd> islandsEndsNodes;
 
     // The island includes dcTopologicalNodes and first acTopologicalNode
     IslandsEnds() {
-        islandsEndsNodes = new HashSet<>();
+        islandsEndsNodes = new ArrayList<>();
     }
 
     void add(Adjacency adjacency, List<String> islandNodes) {
@@ -67,8 +67,8 @@ class IslandsEnds {
         int k = 0;
         while (k < adjacentTopologicalNodes.size()) {
             String topologicalNode = adjacentTopologicalNodes.get(k);
-            if (adjacency.getAdjacency().containsKey(topologicalNode)) {
-                adjacency.getAdjacency().get(topologicalNode).forEach(adjacent -> {
+            if (adjacency.get().containsKey(topologicalNode)) {
+                adjacency.get().get(topologicalNode).forEach(adjacent -> {
                     if (Adjacency.isDcLineSegment(adjacent.type)) {
                         return;
                     }
@@ -84,7 +84,7 @@ class IslandsEnds {
         return adjacentTopologicalNodes;
     }
 
-    Set<IslandEnd> getIslandsEndsNodes() {
+    List<IslandEnd> getIslandsEndsNodes() {
         return islandsEndsNodes;
     }
 

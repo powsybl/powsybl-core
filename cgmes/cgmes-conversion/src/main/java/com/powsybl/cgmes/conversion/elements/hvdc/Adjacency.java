@@ -21,6 +21,7 @@ import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -51,6 +52,8 @@ class Adjacency {
                 computeTwoWindingsTransformerAdjacency(cgmesModel, ends);
             } else if (ends.size() == 3) {
                 computeThreeWindingsTransformerAdjacency(cgmesModel, ends);
+            } else {
+                throw new PowsyblException(String.format("Unexpected TransformerEnds: ends %d", ends.size()));
             }
         });
     }
@@ -126,8 +129,12 @@ class Adjacency {
         return type == AdjacentType.AC_DC_CONVERTER;
     }
 
-    Map<String, List<Adjacent>> getAdjacency() {
+    Map<String, List<Adjacent>> get() {
         return adjacency;
+    }
+
+    boolean isEmpty() {
+        return adjacency.isEmpty();
     }
 
     void print() {

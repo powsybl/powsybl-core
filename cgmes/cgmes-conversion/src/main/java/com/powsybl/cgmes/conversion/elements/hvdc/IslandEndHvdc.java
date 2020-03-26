@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.elements.hvdc.Adjacency.AdjacentType;
 import com.powsybl.cgmes.conversion.elements.hvdc.TPnodeEquipments.TPnodeEquipment;
+import com.powsybl.commons.PowsyblException;
 
 /**
  *
@@ -31,13 +32,13 @@ class IslandEndHvdc {
     // T2: two transformers, C2: two acDcConverters, LS2: two dcLineSegments
     // TN: n transformers (usually 2), CN: n acDcConverters (usually 2), LSN: n dcLineSegments (usually 2)
     enum HvdcEndType {
-        HVDC_NONE, HVDC_T0_C1_LS1, HVDC_T1_C1_LS1, HVDC_TN_CN_LSN, HVDC_T1_C1_LS2, HVDC_T2_C2_LS1,
+        HVDC_T0_C1_LS1, HVDC_T1_C1_LS1, HVDC_TN_CN_LSN, HVDC_T1_C1_LS2, HVDC_T2_C2_LS1,
     }
 
-    private final Set<HvdcEnd> hvdc;
+    private final List<HvdcEnd> hvdc;
 
     IslandEndHvdc() {
-        hvdc = new HashSet<>();
+        hvdc = new ArrayList<>();
     }
 
     void add(Adjacency adjacency, TPnodeEquipments tpNodeEquipments, List<String> islandNodesEnd) {
@@ -100,8 +101,8 @@ class IslandEndHvdc {
         int k = 0;
         while (k < listTp.size()) {
             String topologicalNode = listTp.get(k);
-            if (adjacency.getAdjacency().containsKey(topologicalNode)) {
-                adjacency.getAdjacency().get(topologicalNode).forEach(adjacent -> {
+            if (adjacency.get().containsKey(topologicalNode)) {
+                adjacency.get().get(topologicalNode).forEach(adjacent -> {
                     if (isAdjacentOk(tpNodeEquipments, visitedTopologicalNodes, islandNodesEnd,
                         adjacent.type, adjacent.topologicalNode)) {
                         listTp.add(adjacent.topologicalNode);
@@ -147,7 +148,7 @@ class IslandEndHvdc {
             .forEachOrdered(eq -> listEq.add(eq.equipmentId));
     }
 
-    HvdcEnd selectSimetricHvdcEnd(HvdcEnd hvdcEnd1) {
+    HvdcEnd selectSymmetricHvdcEnd(HvdcEnd hvdcEnd1) {
         return hvdc.stream().filter(h -> isCompatible(hvdcEnd1, h)).findFirst().orElse(null);
     }
 
@@ -166,7 +167,7 @@ class IslandEndHvdc {
             .allMatch(ls -> hvdcEnd2.dcLineSegmentsEnd.contains(ls));
     }
 
-    Set<HvdcEnd> getHvdc() {
+    List<HvdcEnd> getHvdc() {
         return hvdc;
     }
 
@@ -208,7 +209,8 @@ class IslandEndHvdc {
             } else if (t == c && c == ls && t > 1) {
                 return HvdcEndType.HVDC_TN_CN_LSN;
             }
-            return HvdcEndType.HVDC_NONE;
+
+            throw new PowsyblException(String.format("Unexpected HVDC configuration: Transformers %d Converters %d DcLineSegments %d", t, c, ls));
         }
 
         void print() {

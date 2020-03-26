@@ -35,14 +35,12 @@ class Hvdc {
     }
 
     private void add(TPnodeEquipments tpNodeEquipments, HvdcEnd hvdc1, IslandEndHvdc islandEndHvdc2) {
-        HvdcEnd hvdc2 = islandEndHvdc2.selectSimetricHvdcEnd(hvdc1);
+        HvdcEnd hvdc2 = islandEndHvdc2.selectSymmetricHvdcEnd(hvdc1);
         if (hvdc2 == null) {
             return;
         }
         HvdcEndType type = hvdc1.computeType();
         switch (type) {
-            case HVDC_NONE:
-                break;
             case HVDC_T0_C1_LS1:
             case HVDC_T1_C1_LS1:
             case HVDC_T1_C1_LS2:
