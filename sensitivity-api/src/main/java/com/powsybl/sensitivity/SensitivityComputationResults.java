@@ -81,11 +81,7 @@ public class SensitivityComputationResults {
                                          Map<String, String> metrics,
                                          String logs,
                                          List<SensitivityValue> sensitivityValues) {
-        this.ok = ok;
-        this.metrics = Objects.requireNonNull(metrics);
-        this.logs = Objects.requireNonNull(logs);
-        this.sensitivityValues = Collections.unmodifiableList(Objects.requireNonNull(sensitivityValues));
-        this.sensitivityValuesContingencies = Collections.emptyMap();
+        this(ok, metrics, logs, sensitivityValues, Collections.emptyMap());
     }
 
     /**
