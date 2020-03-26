@@ -11,7 +11,9 @@ import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.test.ShuntTestCaseFactory;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 
@@ -23,6 +25,9 @@ import static org.junit.Assert.fail;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
+
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
 
     @Test
     public void linearShuntTest() throws IOException {
@@ -62,6 +67,20 @@ public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
                         e.getMessage());
             }
         });
+    }
+
+    @Test
+    public void missingCurrentSectionShuntTest() {
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("Missing section for current section of SHUNT");
+        NetworkXml.read(getVersionedNetworkAsStream("missingCurrentSectionShunt.xml", IidmXmlVersion.V_1_2));
+    }
+
+    @Test
+    public void noModelShuntTest() {
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("shunt.model is mandatory for IIDM-XML version 1.2. IIDM-XML version should be <= 1.1");
+        NetworkXml.read(getVersionedNetworkAsStream("noModelShunt.xml", IidmXmlVersion.V_1_2));
     }
 
     @Test
