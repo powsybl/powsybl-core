@@ -25,7 +25,7 @@ import static org.junit.Assert.fail;
 public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
 
     @Test
-    public void test() throws IOException {
+    public void linearShuntTest() throws IOException {
         Network network = ShuntTestCaseFactory.create();
         ShuntCompensator sc = network.getShuntCompensator("SHUNT");
         sc.setProperty("test", "test");
@@ -36,6 +36,32 @@ public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
 
         // backward compatibility
         roundTripVersionedXmlFromMinToCurrentVersionTest("shuntRoundTripRef.xml", IidmXmlVersion.V_1_2);
+    }
+
+    @Test
+    public void nonLinearShuntTest() throws IOException {
+        Network network = ShuntTestCaseFactory.createNonLinear();
+        ShuntCompensator sc = network.getShuntCompensator("SHUNT");
+        sc.setProperty("test", "test");
+        roundTripXmlTest(network,
+                NetworkXml::writeAndValidate,
+                NetworkXml::read,
+                getVersionedNetworkPath("nonLinearShuntRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+
+        // backward compatibility from version 1.2
+        roundTripVersionedXmlFromMinToCurrentVersionTest("nonLinearShuntRoundTripRef.xml", IidmXmlVersion.V_1_2);
+
+        // check that it fails for versions previous to 1.2
+        testForAllPreviousVersions(IidmXmlVersion.V_1_2, version -> {
+            try {
+                ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+                NetworkXml.write(network, options, tmpDir.resolve("fail"));
+                fail();
+            } catch (PowsyblException e) {
+                assertEquals("shunt.nonLinearModel is not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.2",
+                        e.getMessage());
+            }
+        });
     }
 
     @Test
