@@ -12,18 +12,14 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.stream.Stream;
 
+import com.powsybl.iidm.network.*;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
-import com.powsybl.iidm.network.VoltageLevel;
 
 /**
  *
@@ -67,13 +63,18 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
         Mockito.when(shuntTerminal.getBusView()).thenReturn(shuntBusView);
         Mockito.when(shuntTerminal.getVoltageLevel()).thenReturn(shuntVoltageLevel);
 
+        ShuntCompensatorLinearModel shuntModel = Mockito.mock(ShuntCompensatorLinearModel.class);
+        Mockito.when(shuntModel.getbPerSection()).thenReturn(bPerSection);
+
         shunt = Mockito.mock(ShuntCompensator.class);
         Mockito.when(shunt.getId()).thenReturn("shunt");
         Mockito.when(shunt.getTerminal()).thenReturn(shuntTerminal);
         Mockito.when(shunt.getCurrentSectionCount()).thenReturn(currentSectionCount);
         Mockito.when(shunt.getMaximumSectionCount()).thenReturn(maximumSectionCount);
-        Mockito.when(shunt.getbPerSection()).thenReturn(bPerSection);
         Mockito.when(shunt.getProperty("qMax")).thenReturn(Double.toString(qMax));
+        Mockito.when(shunt.getModelType()).thenReturn(ShuntCompensatorModelType.LINEAR);
+        Mockito.when(shunt.getModel()).thenReturn(shuntModel);
+        Mockito.when(shunt.getModel(ShuntCompensatorLinearModel.class)).thenReturn(shuntModel);
     }
 
     @Test

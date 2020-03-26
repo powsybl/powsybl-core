@@ -17,19 +17,6 @@ package com.powsybl.iidm.network;
 public interface ShuntCompensator extends Injection<ShuntCompensator> {
 
     /**
-     * Get the maximum section count.
-     */
-    int getMaximumSectionCount();
-
-    /**
-     * Set the maximum number of section.
-     *
-     * @param maximumSectionCount the maximum number of section
-     * @return the shunt compensator to chain method calls.
-     */
-    ShuntCompensator setMaximumSectionCount(int maximumSectionCount);
-
-    /**
      * Get the current section count.
      * <p>
      * It is expected to be greater than one and lesser than or equal to the
@@ -39,6 +26,11 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * @see VariantManager
      */
     int getCurrentSectionCount();
+
+    /**
+     * Get the maximum number of sections.
+     */
+    int getMaximumSectionCount();
 
     /**
      * Change the number of section.
@@ -53,35 +45,32 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     ShuntCompensator setCurrentSectionCount(int currentSectionCount);
 
     /**
-     * Get the susceptance per section in S.
-     */
-    double getbPerSection();
-
-    /**
-     * Set the susceptance per section in S.
-     *
-     * @param bPerSection the susceptance per section
-     * @return the shunt compensator to chain method calls.
-     */
-    ShuntCompensator setbPerSection(double bPerSection);
-
-    /**
-     * Get the susceptance for the maximum section count.
-     *
-     * @deprecated Use {@link #getbPerSection()} * {@link #getMaximumSectionCount()} instead.
-     */
-    @Deprecated
-    default double getMaximumB() {
-        return getbPerSection() * getMaximumSectionCount();
-    }
-
-    /**
-     * Get the susceptance for the current section counts.
+     * Get the susceptance for the current section count.
      * <p>
      * Depends on the working variant.
      * @see VariantManager
      */
     double getCurrentB();
+
+    /**
+     * Get the conductance for the current section count.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    double getCurrentG();
+
+    /**
+     * Get the model type of the shunt compensator (linear or non-linear)
+     */
+    ShuntCompensatorModelType getModelType();
+
+    /**
+     * Get the shunt model.
+     */
+    ShuntCompensatorModel getModel();
+
+    <M extends ShuntCompensatorModel> M getModel(Class<M> modelType);
 
     /**
      * Get the terminal used for regulation.

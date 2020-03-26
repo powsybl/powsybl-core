@@ -76,7 +76,7 @@ public class SensitivityComputationResultsTest {
     @Test
     public void createResultsWithNullValues() {
         exception.expect(NullPointerException.class);
-        new SensitivityComputationResults(true, Collections.emptyMap(), "", null, Collections.emptyMap());
+        new SensitivityComputationResults(true, Collections.emptyMap(), "", null);
     }
 
     @Test

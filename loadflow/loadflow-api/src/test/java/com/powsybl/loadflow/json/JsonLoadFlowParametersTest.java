@@ -6,10 +6,13 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 
@@ -21,6 +24,9 @@ import static org.junit.Assert.assertNotNull;
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
 public class JsonLoadFlowParametersTest extends AbstractConverterTest {
+
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
 
     @Test
     public void roundTrip() throws IOException {
@@ -53,6 +59,34 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
             Assert.fail();
         } catch (AssertionError ignored) {
         }
+    }
+
+    @Test
+    public void readJsonVersion10() throws IOException {
+        LoadFlowParameters parameters = JsonLoadFlowParameters
+            .read(getClass().getResourceAsStream("/LoadFlowParametersVersion10.json"));
+        assertEquals(true, parameters.isT2wtSplitShuntAdmittance());
+    }
+
+    @Test
+    public void readJsonVersion11() throws IOException {
+        LoadFlowParameters parameters = JsonLoadFlowParameters
+            .read(getClass().getResourceAsStream("/LoadFlowParametersVersion11.json"));
+        assertEquals(true, parameters.isT2wtSplitShuntAdmittance());
+    }
+
+    @Test
+    public void readJsonVersion10Exception() throws IOException {
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.0. Version should be > 1.0");
+        JsonLoadFlowParameters.read(getClass().getResourceAsStream("/LoadFlowParametersVersion10Exception.json"));
+    }
+
+    @Test
+    public void readJsonVersion11Exception() throws IOException {
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("LoadFlowParameters. Tag: specificCompatibility is not valid for version 1.1. Version should be <= 1.0");
+        JsonLoadFlowParameters.read(getClass().getResourceAsStream("/LoadFlowParametersVersion11Exception.json"));
     }
 
     static class DummyExtension extends AbstractExtension<LoadFlowParameters> {
