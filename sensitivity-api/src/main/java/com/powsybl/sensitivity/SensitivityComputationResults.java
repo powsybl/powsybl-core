@@ -77,6 +77,17 @@ public class SensitivityComputationResults {
         this.sensitivityValuesContingencies = Optional.ofNullable(sensitivityValuesContingencies).map(Collections::unmodifiableMap).orElse(Collections.emptyMap());
     }
 
+    public SensitivityComputationResults(boolean ok,
+                                         Map<String, String> metrics,
+                                         String logs,
+                                         List<SensitivityValue> sensitivityValues) {
+        this.ok = ok;
+        this.metrics = Objects.requireNonNull(metrics);
+        this.logs = Objects.requireNonNull(logs);
+        this.sensitivityValues = Collections.unmodifiableList(Objects.requireNonNull(sensitivityValues));
+        this.sensitivityValuesContingencies = Collections.emptyMap();
+    }
+
     /**
      * Get the status of the sensitivity computation
      *
