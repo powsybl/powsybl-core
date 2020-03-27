@@ -37,8 +37,4 @@ public class DefaultSecurityAnalysisInterceptor implements SecurityAnalysisInter
         // Nothing to do
     }
 
-    @Override
-    public void onContingency(ContingencyContext context) {
-        // Nothing to do
-    }
 }

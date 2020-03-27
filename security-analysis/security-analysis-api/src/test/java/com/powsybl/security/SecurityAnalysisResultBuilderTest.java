@@ -1,15 +1,22 @@
 package com.powsybl.security;
 
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.security.interceptors.ContingencyContext;
+import com.powsybl.security.interceptors.DefaultSecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.RunningContext;
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
@@ -33,9 +40,10 @@ public class SecurityAnalysisResultBuilderTest {
 
     @Test
     public void completeResult() {
+        SecurityAnalysisInterceptor securityAnalysisInterceptorMock = new MockInterceptor();
 
         SecurityAnalysisResultBuilder builder = new SecurityAnalysisResultBuilder(new LimitViolationFilter(),
-                new RunningContext(network, network.getVariantManager().getWorkingVariantId()));
+                new RunningContext(network, network.getVariantManager().getWorkingVariantId()), Collections.singleton(securityAnalysisInterceptorMock));
 
         VoltageLevel vl = network.getVoltageLevel("VLHV1");
         vl.getBusView().getBusStream().forEach(b -> b.setV(410));
@@ -47,10 +55,13 @@ public class SecurityAnalysisResultBuilderTest {
 
         vl.getBusView().getBusStream().forEach(b -> b.setV(380));
 
-        builder.contingency(new Contingency("contingency1"))
+        MockContingencyContextExt contingencyContextExtMock = new MockContingencyContextExt();
+
+        builder.contingency(new Contingency("contingency1"), Collections.singleton(contingencyContextExtMock))
                 .setComputationOk(true)
                 .addViolations(Security.checkLimits(network))
                 .endContingency();
+        assertTrue(contingencyContextExtMock.foo);
 
         vl.getBusView().getBusStream().forEach(b -> b.setV(520));
         builder.contingency(new Contingency("contingency2"))
@@ -81,6 +92,32 @@ public class SecurityAnalysisResultBuilderTest {
         assertEquals(3, violations2.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
         assertEquals(0, violations2.stream().filter(l -> l.getLimitType() == LimitViolationType.LOW_VOLTAGE).count());
         assertEquals(1, violations2.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE).count());
+    }
+
+    static class MockContingencyContextExt extends AbstractExtension<ContingencyContext> {
+
+        boolean foo = false;
+
+        @Override
+        public String getName() {
+            return "mock";
+        }
+
+        public void foo() {
+            foo = true;
+        }
+    }
+
+    static class MockInterceptor extends DefaultSecurityAnalysisInterceptor {
+
+        @Override
+        public void onPostContingencyResult(ContingencyContext context, PostContingencyResult postContingencyResult) {
+            MockContingencyContextExt extension = context.getExtension(MockContingencyContextExt.class);
+            if (extension != null) {
+                assertEquals("contingency1", extension.getExtendable().getContingency().getId());
+                extension.foo();
+            }
+        }
     }
 
 }

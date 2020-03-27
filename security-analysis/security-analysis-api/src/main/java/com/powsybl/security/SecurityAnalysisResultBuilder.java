@@ -7,6 +7,7 @@
 package com.powsybl.security;
 
 import com.google.common.collect.ImmutableList;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.interceptors.ContingencyContext;
 import com.powsybl.security.interceptors.RunningContext;
@@ -63,11 +64,21 @@ public class SecurityAnalysisResultBuilder {
 
     /**
      * Initiates the creation of the result for one {@link Contingency}.
-     * @param contingency  the contingency for which a result should be created
+     * @param contingency the contingency for which a result should be created
      * @return a {@link PostContingencyResultBuilder} instance.
      */
     public PostContingencyResultBuilder contingency(Contingency contingency) {
         return new PostContingencyResultBuilder(contingency);
+    }
+
+    /**
+     * Initiates the creation of a post-contingency result
+     * @param contingency the contingency for which a result should be created
+     * @param contingencyContextExtensions extensions for {@link com.powsybl.security.interceptors.ContingencyContext}
+     * @return a {@link PostContingencyResultBuilder} instance
+     */
+    public PostContingencyResultBuilder contingency(Contingency contingency, Collection<Extension<ContingencyContext>> contingencyContextExtensions) {
+        return new PostContingencyResultBuilder(contingency, contingencyContextExtensions);
     }
 
     /**
@@ -133,9 +144,16 @@ public class SecurityAnalysisResultBuilder {
     public class PostContingencyResultBuilder extends AbstractLimitViolationsResultBuilder<PostContingencyResultBuilder> {
 
         private final Contingency contingency;
+        private final List<Extension<ContingencyContext>> extensions;
 
         PostContingencyResultBuilder(Contingency contingency) {
             this.contingency = Objects.requireNonNull(contingency);
+            this.extensions = Collections.emptyList();
+        }
+
+        PostContingencyResultBuilder(Contingency contingency, Collection<Extension<ContingencyContext>> contingencyContextExtensions) {
+            this.contingency = Objects.requireNonNull(contingency);
+            this.extensions = new ArrayList<>(Objects.requireNonNull(contingencyContextExtensions));
         }
 
         /**
@@ -146,6 +164,7 @@ public class SecurityAnalysisResultBuilder {
             List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
             PostContingencyResult res = new PostContingencyResult(contingency, computationOk, filteredViolations);
             ContingencyContext contingencyContext = new ContingencyContext(context, contingency);
+            extensions.forEach(ext -> contingencyContext.addExtension((Class<? super Extension<ContingencyContext>>) ext.getClass(), ext));
             interceptors.forEach(i -> i.onPostContingencyResult(contingencyContext, res));
             addPostContingencyResult(res);
 

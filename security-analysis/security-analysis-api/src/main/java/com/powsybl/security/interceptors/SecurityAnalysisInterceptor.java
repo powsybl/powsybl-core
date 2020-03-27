@@ -53,11 +53,4 @@ public interface SecurityAnalysisInterceptor {
 
     }
 
-    /**
-     * Callback after a contingency detected
-     * @param context a contingency context
-     */
-    default void onContingency(ContingencyContext context) {
-
-    }
 }
