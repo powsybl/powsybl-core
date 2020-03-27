@@ -157,7 +157,7 @@ public final class FlowsValidation {
             phaseAngleClock = phaseAngleClockExtension.getPhaseAngleClock();
         }
 
-        BranchData branch = new BranchData(twt, phaseAngleClock, config.getEpsilonX(), config.applyReactanceCorrection(), config.getLoadFlowParameters().isSpecificCompatibility());
+        BranchData branch = new BranchData(twt, phaseAngleClock, config.getEpsilonX(), config.applyReactanceCorrection(), config.getLoadFlowParameters().isT2wtSplitShuntAdmittance());
         return checkFlows(branch, config, flowsWriter);
     }
 
