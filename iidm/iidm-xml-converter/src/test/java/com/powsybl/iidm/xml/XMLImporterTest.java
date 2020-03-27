@@ -8,7 +8,6 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.*;
-import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,10 +17,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
-import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.*;
 
@@ -115,7 +112,7 @@ public class XMLImporterTest extends AbstractConverterTest {
 
     @Test
     public void getParameters() {
-        assertEquals(1, importer.getParameters().size());
+        assertEquals(2, importer.getParameters().size());
         assertEquals("iidm.import.xml.throw-exception-if-extension-not-found", importer.getParameters().get(0).getName());
         assertEquals(Arrays.asList("iidm.import.xml.throw-exception-if-extension-not-found", "throwExceptionIfExtensionNotFound"), importer.getParameters().get(0).getNames());
     }
@@ -193,88 +190,5 @@ public class XMLImporterTest extends AbstractConverterTest {
 
         Network network2 = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test7"), null);
         assertNotNull(network2.getSubstation("P1"));
-    }
-
-    @Test
-    public void importDataFromTwoFiles() {
-        Properties parameters = new Properties();
-        parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));
-
-        ReadOnlyDataSource dataSource = new ResourceDataSource("multiple-extensions", new ResourceSet(getVersionDir(CURRENT_IIDM_XML_VERSION), "multiple-extensions.xiidm", "multiple-extensions-ext.xiidm"));
-        Network network = importer.importData(dataSource, parameters);
-        assertNotNull(network);
-        assertEquals(2, network.getLoad("LOAD").getExtensions().size());
-        assertEquals(1, network.getLoad("LOAD2").getExtensions().size());
-    }
-
-    @Test
-    public void importDataFromMultipleFilesTest1() {
-        List<String> extensionsList = Arrays.asList("loadFoo", "loadBar");
-
-        Properties parameters = new Properties();
-
-        parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
-        parameters.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
-
-        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet(getVersionDir(CURRENT_IIDM_XML_VERSION), "multiple-extensions.xiidm", "multiple-extensions-loadFoo.xiidm", "multiple-extensions-loadBar.xiidm"));
-        Network network = importer.importData(dataSourceBase, parameters);
-        assertNotNull(network);
-        assertEquals(2, network.getLoad("LOAD").getExtensions().size());
-        assertEquals(1, network.getLoad("LOAD2").getExtensions().size());
-    }
-
-    @Test
-    public void importDataFromMultipleFilesTest2() {
-        List<String> extensionsList = Arrays.asList("loadFoo");
-
-        Properties parameters = new Properties();
-        parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
-        parameters.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
-
-        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet(getVersionDir(CURRENT_IIDM_XML_VERSION), "multiple-extensions.xiidm", "multiple-extensions-loadFoo.xiidm"));
-        Network network = importer.importData(dataSourceBase, parameters);
-        assertNotNull(network);
-        assertEquals(1, network.getLoad("LOAD").getExtensions().size());
-        assertEquals(1, network.getLoad("LOAD2").getExtensions().size());
-    }
-
-    @Test
-    public void importDataFromMultipleFilesTest3() {
-        Properties parameters = new Properties();
-        parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
-
-        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet(getVersionDir(CURRENT_IIDM_XML_VERSION), "multiple-extensions.xiidm", "multiple-extensions-loadFoo.xiidm"));
-        Network network = importer.importData(dataSourceBase, parameters);
-        assertNotNull(network);
-        assertEquals(1, network.getLoad("LOAD").getExtensions().size());
-        assertEquals(1, network.getLoad("LOAD2").getExtensions().size());
-    }
-
-    public Network importFromSingleFile(List<String> extensionsList) {
-        Properties parameters = new Properties();
-        parameters.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
-
-        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet(getVersionDir(CURRENT_IIDM_XML_VERSION), "multiple-extensions.xml"));
-        Network network = importer.importData(dataSourceBase, parameters);
-        assertNotNull(network);
-        return network;
-    }
-
-    @Test
-    public void importFromSingleFileTest() {
-        List<String> extensionsList = Arrays.asList();
-        Network network = importFromSingleFile(extensionsList);
-        assertEquals(0, network.getLoad("LOAD").getExtensions().size());
-        assertEquals(0, network.getLoad("LOAD2").getExtensions().size());
-
-        List<String> extensionsList1 = Arrays.asList("loadBar");
-        Network network1 = importFromSingleFile(extensionsList1);
-        assertEquals(1, network1.getLoad("LOAD").getExtensions().size());
-        assertEquals(0, network1.getLoad("LOAD2").getExtensions().size());
-
-        List<String> extensionsList2 = Arrays.asList("loadFoo");
-        Network network2 = importFromSingleFile(extensionsList2);
-        assertEquals(1, network2.getLoad("LOAD").getExtensions().size());
-        assertEquals(1, network2.getLoad("LOAD2").getExtensions().size());
     }
 }

@@ -815,8 +815,13 @@ public class UcteImporter implements Importer {
         String mergeLineId = dlAtSideOne.getId() + " + " + dlAtSideTwo.getId();
 
         // create XNODE merge extension
-        float rdp = (float) (dlAtSideOne.getR() / (dlAtSideOne.getR() + dlAtSideTwo.getR()));
-        float xdp = (float) (dlAtSideOne.getX() / (dlAtSideOne.getX() + dlAtSideTwo.getX()));
+        // In case R1 and R2 (resp. X1 and X2) are zero, rdp (resp. xdp) is set to 0.5:
+        // by default the line is split in the middle.
+        // R1 = 0 and R2 = 0 (resp. X1 = 0 and X2 = 0) are recovered when splitting the mergedXnode anyway.
+        double sumR = dlAtSideOne.getR() + dlAtSideTwo.getR();
+        double sumX = dlAtSideOne.getX() + dlAtSideTwo.getX();
+        float rdp = (sumR == 0.) ? (float) 0.5 : (float) (dlAtSideOne.getR() / sumR);
+        float xdp = (sumX == 0.) ? (float) 0.5 : (float) (dlAtSideOne.getX() / sumX);
         double xnodeP1 = dlAtSideOne.getP0();
         double xnodeQ1 = dlAtSideOne.getQ0();
         double xnodeP2 = dlAtSideTwo.getP0();

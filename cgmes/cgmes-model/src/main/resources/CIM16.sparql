@@ -166,8 +166,10 @@ OPTIONAL { GRAPH ?graphSV {
         a cim:SvPowerFlow ;
         cim:SvPowerFlow.Terminal ?Terminal ;
         cim:SvPowerFlow.p ?p ;
-        cim:SvPowerFlow.q ?q
-} OPTIONAL {?SvStatus
+        cim:SvPowerFlow.q ?q .
+}}
+OPTIONAL { GRAPH ?graphSV2 {
+    ?SvStatus
         a cim:SvStatus ;
         cim:SvStatus.ConductingEquipment ?ConductingEquipment ;
         cim:SvStatus.inService ?inService . 

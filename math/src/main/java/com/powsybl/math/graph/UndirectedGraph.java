@@ -40,6 +40,14 @@ public interface UndirectedGraph<V, E> {
     }
 
     /**
+     * Check if a specified vertex exists.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex index is invalid (negative).
+     */
+    default boolean vertexExists(int v) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Remove the specified vertex and notify the {@link UndirectedGraphListener}s.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist or if an edge is connected to this vertex.
      *

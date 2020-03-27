@@ -56,7 +56,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         }
         // try to validate the schema with extensions
         try (ByteArrayInputStream is = new ByteArrayInputStream(buffer)) {
-            NetworkXml.validateWithExtensions(is);
+            NetworkXml.validate(is);
         }
         try (ByteArrayInputStream is = new ByteArrayInputStream(buffer)) {
             Network network2 = NetworkXml.read(is);
@@ -172,7 +172,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         }
         // try to validate the schema with extensions
         try (ByteArrayInputStream is = new ByteArrayInputStream(buffer)) {
-            NetworkXml.validateWithExtensions(is);
+            NetworkXml.validate(is);
         }
         try (ByteArrayInputStream is = new ByteArrayInputStream(buffer)) {
             Network network2 = NetworkXml.read(is);
