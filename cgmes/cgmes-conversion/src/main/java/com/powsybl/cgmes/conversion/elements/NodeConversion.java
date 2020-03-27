@@ -7,7 +7,6 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -72,10 +71,6 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
             .newSubstation()
             .setId(context.namingStrategy().getId("Substation", substationId))
             .setName(substationName)
-            // TODO(mathbagu): Country should be optional. This will be done in another PR.
-            // A non-null country code must be set
-            // This is an arbitrary country code, Bangladesh code BD also matches with
-            // BounDary
             .setCountry(boundaryCountryCode())
             .add()
             .newVoltageLevel()
@@ -168,17 +163,15 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
         String connectivityNode = id;
         int iidmNode = context.nodeMapping().iidmNodeForConnectivityNode(connectivityNode, vl);
-        if (!iidmNodeIsValid(topo, iidmNode)) {
+        if (!topo.hasAttachedEquipment(iidmNode)) {
             LOG.error("ConnectivityNode {} with voltage and angle is not valid in IIDM", connectivityNode);
             return;
         }
         // To obtain a bus for which we want to set voltage:
         // If there no Terminal at this IIDM node,
         // then find from it the first connected node with a Terminal
-        Terminal t = topo.getTerminal(iidmNode);
-        if (t == null) {
-            t = new FirstTerminalTraverser(topo, iidmNode).firstTerminal();
-        }
+        Terminal t = topo.getOptionalTerminal(iidmNode)
+                .orElseGet(() -> new FirstTerminalTraverser(topo, iidmNode).firstTerminal());
         if (t == null) {
             LOG.error("Can't find a Terminal to obtain a Bus to set Voltage, Angle. ConnectivityNode {}", id);
             return;
@@ -195,13 +188,6 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                 bus, id);
         }
         setVoltageAngle(bus);
-    }
-
-    private boolean iidmNodeIsValid(VoltageLevel.NodeBreakerView topo, int iidmNode) {
-        // A node is valid only if it has some equipment attached
-        // The list of valid nodes is obtained from the node-breaker view
-        // We assume the returned list is sorted
-        return Arrays.binarySearch(topo.getNodes(), iidmNode) >= 0;
     }
 
     private VoltageLevel voltageLevel() {
