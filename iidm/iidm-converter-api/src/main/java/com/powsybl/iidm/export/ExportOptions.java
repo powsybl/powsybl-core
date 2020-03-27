@@ -9,7 +9,6 @@ package com.powsybl.iidm.export;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.AbstractOptions;
-import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.TopologyLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,17 +53,6 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         this.topologyLevel = Objects.requireNonNull(topologyLevel);
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
         this.version = version;
-    }
-
-    @Override
-    public IidmImportExportMode getMode() {
-        return mode;
-    }
-
-    @Override
-    public ExportOptions setMode(IidmImportExportMode mode) {
-        this.mode = mode;
-        return this;
     }
 
     @Override

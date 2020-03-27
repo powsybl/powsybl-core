@@ -1,12 +1,12 @@
 {
   "version" : "1.0",
   "load-flow-parameters" : {
-    "version" : "1.0",
+    "version" : "1.1",
     "voltageInitMode" : "UNIFORM_VALUES",
     "transformerVoltageControlOn" : false,
     "phaseShifterRegulationOn" : false,
     "noGeneratorReactiveLimits" : false,
-    "specificCompatibility" : false
+    "t2wtSplitShuntAdmittance" : false
   },
   "extensions" : {
     "dummy-extension" : { }
