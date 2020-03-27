@@ -27,6 +27,7 @@ public interface SecurityAnalysisInterceptor {
      * @param context
      * @param postContingencyResult
      */
+    @Deprecated
     void onPostContingencyResult(RunningContext context, PostContingencyResult postContingencyResult);
 
     /**

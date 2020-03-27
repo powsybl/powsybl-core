@@ -23,6 +23,7 @@ public class DefaultSecurityAnalysisInterceptor implements SecurityAnalysisInter
     }
 
     @Override
+    @Deprecated
     public void onPostContingencyResult(RunningContext context, PostContingencyResult postContingencyResult) {
         // Nothing to do
     }
