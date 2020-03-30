@@ -77,40 +77,38 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     @Override
     protected void writeSubElements(ShuntCompensator sc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
-            try {
-                writeModel(sc, context);
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> writeModel(sc, context));
         if (sc != sc.getRegulatingTerminal().getConnectable()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
             TerminalRefXml.writeTerminalRef(sc.getRegulatingTerminal(), context, REGULATING_TERMINAL);
         }
     }
 
-    private static void writeModel(ShuntCompensator sc, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (ShuntCompensatorModelType.LINEAR.equals(sc.getModelType())) {
-            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), LINEAR_MODEL);
-            XmlUtil.writeDouble(B_PER_SECTION, sc.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), context.getWriter());
-            XmlUtil.writeDouble("gPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getgPerSection(), context.getWriter());
-            context.getWriter().writeAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(sc.getMaximumSectionCount()));
-        } else if (ShuntCompensatorModelType.NON_LINEAR.equals(sc.getModelType())) {
-            context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), NON_LINEAR_MODEL);
-            sc.getModel(ShuntCompensatorNonLinearModel.class).getSections().forEach((sectionNum, section) -> {
-                try {
-                    context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "section");
-                    context.getWriter().writeAttribute("num", Integer.toString(sectionNum));
-                    XmlUtil.writeDouble("b", section.getB(), context.getWriter());
-                    XmlUtil.writeDouble("g", section.getG(), context.getWriter());
-                } catch (XMLStreamException e) {
-                    throw new UncheckedXmlStreamException(e);
-                }
-            });
-            context.getWriter().writeEndElement();
-        } else {
-            throw new PowsyblException(String.format("Unexpected shunt model type for %s: %s", sc.getId(), sc.getModelType().name()));
+    private static void writeModel(ShuntCompensator sc, NetworkXmlWriterContext context) {
+        try {
+            if (ShuntCompensatorModelType.LINEAR.equals(sc.getModelType())) {
+                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), LINEAR_MODEL);
+                XmlUtil.writeDouble(B_PER_SECTION, sc.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), context.getWriter());
+                XmlUtil.writeDouble("gPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getgPerSection(), context.getWriter());
+                context.getWriter().writeAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(sc.getMaximumSectionCount()));
+            } else if (ShuntCompensatorModelType.NON_LINEAR.equals(sc.getModelType())) {
+                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), NON_LINEAR_MODEL);
+                sc.getModel(ShuntCompensatorNonLinearModel.class).getSections().forEach((sectionNum, section) -> {
+                    try {
+                        context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "section");
+                        context.getWriter().writeAttribute("num", Integer.toString(sectionNum));
+                        XmlUtil.writeDouble("b", section.getB(), context.getWriter());
+                        XmlUtil.writeDouble("g", section.getG(), context.getWriter());
+                    } catch (XMLStreamException e) {
+                        throw new UncheckedXmlStreamException(e);
+                    }
+                });
+                context.getWriter().writeEndElement();
+            } else {
+                throw new PowsyblException(String.format("Unexpected shunt model type for %s: %s", sc.getId(), sc.getModelType().name()));
+            }
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
     }
 
