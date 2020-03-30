@@ -6,7 +6,7 @@
  */
 package com.powsybl.security.interceptors;
 
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.Contingency;
 import org.junit.Test;
 
 import static org.junit.Assert.assertSame;
@@ -20,9 +20,10 @@ public class ViolationContextTest {
     @Test
     public void test() {
         RunningContext runningContext = mock(RunningContext.class);
-        LimitViolation limitViolation = mock(LimitViolation.class);
-        ViolationContext sut = new ViolationContext(runningContext, limitViolation);
+        Contingency contingency = mock(Contingency.class);
+        ViolationContext sut = new ViolationContext(runningContext, contingency);
         assertSame(runningContext, sut.getRunningContext());
-        assertSame(limitViolation, sut.getLimitViolation());
+        assertSame(contingency, sut.getContingency().orElseGet(() -> mock(Contingency.class)));
+
     }
 }

@@ -6,6 +6,7 @@
  */
 package com.powsybl.security.interceptors;
 
+import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyResult;
 import com.powsybl.security.SecurityAnalysisResult;
@@ -49,8 +50,9 @@ public interface SecurityAnalysisInterceptor {
     /**
      * Callback after a limit violation detected
      * @param context a violation context
+     * @param limitViolation the limit violation; never {@literal null}
      */
-    default void onLimitViolation(ViolationContext context) {
+    default void onLimitViolation(ViolationContext context, LimitViolation limitViolation) {
 
     }
 

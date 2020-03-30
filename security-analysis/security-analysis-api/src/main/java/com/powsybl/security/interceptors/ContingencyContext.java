@@ -7,7 +7,6 @@
 package com.powsybl.security.interceptors;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.contingency.Contingency;
 
 import java.util.Objects;
 
@@ -17,18 +16,13 @@ import java.util.Objects;
 public class ContingencyContext extends AbstractExtendable<ContingencyContext> {
 
     private final RunningContext runningContext;
-    private final Contingency contingency;
 
-    public ContingencyContext(RunningContext runningContext, Contingency contingency) {
+    public ContingencyContext(RunningContext runningContext) {
         this.runningContext = Objects.requireNonNull(runningContext);
-        this.contingency = Objects.requireNonNull(contingency);
     }
 
     public RunningContext getRunningContext() {
         return runningContext;
     }
 
-    public Contingency getContingency() {
-        return contingency;
-    }
 }

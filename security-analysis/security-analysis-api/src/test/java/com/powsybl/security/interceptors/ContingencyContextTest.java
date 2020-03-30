@@ -6,7 +6,6 @@
  */
 package com.powsybl.security.interceptors;
 
-import com.powsybl.contingency.Contingency;
 import org.junit.Test;
 
 import static org.junit.Assert.assertSame;
@@ -20,9 +19,7 @@ public class ContingencyContextTest {
     @Test
     public void test() {
         RunningContext runningContext = mock(RunningContext.class);
-        Contingency contingency = mock(Contingency.class);
-        ContingencyContext sut = new ContingencyContext(runningContext, contingency);
+        ContingencyContext sut = new ContingencyContext(runningContext);
         assertSame(runningContext, sut.getRunningContext());
-        assertSame(contingency, sut.getContingency());
     }
 }

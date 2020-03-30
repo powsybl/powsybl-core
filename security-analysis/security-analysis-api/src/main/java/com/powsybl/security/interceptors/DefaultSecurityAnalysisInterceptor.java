@@ -6,6 +6,7 @@
  */
 package com.powsybl.security.interceptors;
 
+import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyResult;
 import com.powsybl.security.SecurityAnalysisResult;
@@ -34,7 +35,7 @@ public class DefaultSecurityAnalysisInterceptor implements SecurityAnalysisInter
     }
 
     @Override
-    public void onLimitViolation(ViolationContext context) {
+    public void onLimitViolation(ViolationContext context, LimitViolation limitViolation) {
         // Nothing to do
     }
 

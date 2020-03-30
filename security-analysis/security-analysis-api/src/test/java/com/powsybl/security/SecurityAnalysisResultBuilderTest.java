@@ -114,7 +114,7 @@ public class SecurityAnalysisResultBuilderTest {
         public void onPostContingencyResult(ContingencyContext context, PostContingencyResult postContingencyResult) {
             MockContingencyContextExt extension = context.getExtension(MockContingencyContextExt.class);
             if (extension != null) {
-                assertEquals("contingency1", extension.getExtendable().getContingency().getId());
+                assertEquals("contingency1", postContingencyResult.getContingency().getId());
                 extension.foo();
             }
         }

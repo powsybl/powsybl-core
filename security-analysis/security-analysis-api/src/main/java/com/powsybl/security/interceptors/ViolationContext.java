@@ -7,9 +7,11 @@
 package com.powsybl.security.interceptors;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.Contingency;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
@@ -17,18 +19,22 @@ import java.util.Objects;
 public class ViolationContext extends AbstractExtendable<ViolationContext> {
 
     private final RunningContext runningContext;
-    private final LimitViolation limitViolation;
+    private final Contingency contingency;
 
-    public ViolationContext(RunningContext runningContext, LimitViolation limitViolation) {
+    public ViolationContext(RunningContext runningContext) {
+        this(runningContext, null);
+    }
+
+    public ViolationContext(RunningContext runningContext, @Nullable Contingency contingency) {
         this.runningContext = Objects.requireNonNull(runningContext);
-        this.limitViolation = Objects.requireNonNull(limitViolation);
+        this.contingency = contingency;
     }
 
     public RunningContext getRunningContext() {
         return runningContext;
     }
 
-    public LimitViolation getLimitViolation() {
-        return limitViolation;
+    public Optional<Contingency> getContingency() {
+        return Optional.ofNullable(contingency);
     }
 }
