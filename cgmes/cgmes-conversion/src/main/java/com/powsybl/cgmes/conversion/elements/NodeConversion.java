@@ -246,8 +246,8 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                     ? "No bus"
                     : String.format("Bus %s, Substation %s, Voltage level %s",
                     bus.getId(),
-                    bus.getVoltageLevel().getSubstation().getName(),
-                    bus.getVoltageLevel().getName());
+                    bus.getVoltageLevel().getSubstation().getNameOrId(),
+                    bus.getVoltageLevel().getNameOrId());
             String message = String.format("%s. %s", reason, location);
             context.invalid("SvVoltage", message);
         }

@@ -70,7 +70,7 @@ public class UcteImporter implements Importer {
         if (substation.getCountry().map(country -> country != Country.DE).orElse(true)) {
             return null;
         }
-        EntsoeGeographicalCode res = Enums.getIfPresent(EntsoeGeographicalCode.class, substation.getName().substring(0, 2)).orNull();
+        EntsoeGeographicalCode res = Enums.getIfPresent(EntsoeGeographicalCode.class, substation.getNameOrId().substring(0, 2)).orNull();
         //handle case where a D-node would start with DE ...
         return res == EntsoeGeographicalCode.DE ? null : res;
     }
@@ -545,11 +545,11 @@ public class UcteImporter implements Importer {
         String busId2;
         if (ucteXnode.getCode().equals(ucteTransfo.getId().getNodeCode1())) {
             voltageLevelId1 = ucteOtherVoltageLevel.getName();
-            voltageLevelId2 = yVoltageLevel.getName();
+            voltageLevelId2 = yVoltageLevel.getId();
             busId1 = ucteOtherNodeCode.toString();
             busId2 = yNodeName;
         } else {
-            voltageLevelId1 = yVoltageLevel.getName();
+            voltageLevelId1 = yVoltageLevel.getId();
             voltageLevelId2 = ucteOtherVoltageLevel.getName();
             busId1 = yNodeName;
             busId2 = ucteOtherNodeCode.toString();
@@ -675,7 +675,7 @@ public class UcteImporter implements Importer {
         DanglingLine dl2 = null;
         Xnode xnodExtension = dl1.getExtension(Xnode.class);
         if (xnodExtension == null) {
-            throw new UcteException("Dangling line " + dl1.getName() + " doesn't have the Xnode extension");
+            throw new UcteException("Dangling line " + dl1.getNameOrId() + " doesn't have the Xnode extension");
         }
         String otherXnodeCode = xnodExtension.getCode();
         Iterator<DanglingLine> it = danglingLinesByXnodeCode.get(otherXnodeCode).iterator();
