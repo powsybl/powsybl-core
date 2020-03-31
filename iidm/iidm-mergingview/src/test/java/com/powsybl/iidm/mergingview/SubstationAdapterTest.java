@@ -41,7 +41,8 @@ public class SubstationAdapterTest {
                 .add();
         assertNotNull(substation);
         assertEquals("subAdapted", substation.getId());
-        assertEquals("subAdapted_name", substation.getName());
+        assertEquals("subAdapted_name", substation.getOptionalName().orElse(null));
+        assertEquals("subAdapted_name", substation.getNameOrId());
         assertEquals(Country.AD, substation.getCountry().orElse(null));
         assertEquals("TSO", substation.getTso());
         assertEquals(ContainerType.SUBSTATION, substation.getContainerType());

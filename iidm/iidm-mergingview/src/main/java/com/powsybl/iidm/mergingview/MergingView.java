@@ -187,8 +187,13 @@ public final class MergingView implements Network {
     }
 
     @Override
-    public String getName() {
-        return workingNetwork.getName();
+    public Optional<String> getOptionalName() {
+        return workingNetwork.getOptionalName();
+    }
+
+    @Override
+    public String getNameOrId() {
+        return workingNetwork.getNameOrId();
     }
 
     @Override

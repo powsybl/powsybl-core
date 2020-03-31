@@ -92,7 +92,8 @@ public abstract class AbstractDanglingLineTest {
         assertEquals(p0, danglingLine.getP0(), 0.0);
         assertEquals(q0, danglingLine.getQ0(), 0.0);
         assertEquals(id, danglingLine.getId());
-        assertEquals(name, danglingLine.getName());
+        assertEquals(name, danglingLine.getOptionalName().orElse(null));
+        assertEquals(name, danglingLine.getNameOrId());
         assertEquals(ucteXnodeCode, danglingLine.getUcteXnodeCode());
 
         // setter getter

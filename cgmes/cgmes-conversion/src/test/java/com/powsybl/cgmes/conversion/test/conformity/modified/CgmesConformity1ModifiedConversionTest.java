@@ -278,7 +278,8 @@ public class CgmesConformity1ModifiedConversionTest {
         Network modified2 = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControl().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator off2 = modified2.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(off2);
-        assertEquals(OFF, off2.getRegulationMode());
+        assertEquals(REACTIVE_POWER, off2.getRegulationMode());
+        assertEquals(0.0d, off2.getReactivePowerSetPoint(), 0.0d);
     }
 
     @Test

@@ -413,7 +413,7 @@ public class NetworkStateComparator {
         createTitleCell(sheetContext.getRowHeader2(), 1, titleCellStyle).setCellValue("name");
         for (int i = 0; i < sheetContext.getObjs().size(); i++) {
             sheetContext.getRows().get(i).createCell(0).setCellValue(sheetContext.getObjs().get(i).getId());
-            sheetContext.getRows().get(i).createCell(1).setCellValue(sheetContext.getObjs().get(i).getName());
+            sheetContext.getRows().get(i).createCell(1).setCellValue(sheetContext.getObjs().get(i).getNameOrId());
         }
     }
 

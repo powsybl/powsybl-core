@@ -51,7 +51,8 @@ public class LineAdapterTest {
         assertTrue(lineAdapted instanceof LineAdapter);
         assertSame(lineAdapted, mergingView.getBranch(lineRef.getId()));
         assertEquals(lineRef.getId(), lineAdapted.getId());
-        assertEquals(lineRef.getName(), lineAdapted.getName());
+        assertEquals(lineRef.getOptionalName().orElse(null), lineAdapted.getOptionalName().orElse(null));
+        assertEquals(lineRef.getNameOrId(), lineAdapted.getNameOrId());
         assertEquals(lineRef.isTieLine(), lineAdapted.isTieLine());
         assertTrue(lineAdapted.getTerminal1() instanceof TerminalAdapter);
         assertTrue(lineAdapted.getTerminal2() instanceof TerminalAdapter);
