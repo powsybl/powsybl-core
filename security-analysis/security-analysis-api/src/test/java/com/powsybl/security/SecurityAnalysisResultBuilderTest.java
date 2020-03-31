@@ -65,7 +65,7 @@ public class SecurityAnalysisResultBuilderTest {
         MockContingencyContextExt contingencyContextExtMock = new MockContingencyContextExt();
 
         builder.contingency(new Contingency("contingency1"))
-                .addContingencyContextExtension(contingencyContextExtMock)
+                .addContingencyContextExtensions(Collections.singletonList(contingencyContextExtMock))
                 .setComputationOk(true)
                 .addViolations(Security.checkLimits(network))
                 .endContingency();

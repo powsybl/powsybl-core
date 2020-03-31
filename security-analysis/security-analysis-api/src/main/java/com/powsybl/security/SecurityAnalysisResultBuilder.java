@@ -111,7 +111,7 @@ public class SecurityAnalysisResultBuilder {
         }
 
         public B addViolations(List<LimitViolation> violations) {
-            violations.forEach(this::addViolation);
+            Objects.requireNonNull(violations).forEach(this::addViolation);
             return (B) this;
         }
 
@@ -186,7 +186,7 @@ public class SecurityAnalysisResultBuilder {
         }
 
         public PostContingencyResultBuilder addContingencyContextExtensions(List<Extension<ContingencyContext>> extensions) {
-            extensions.forEach(this::addContingencyContextExtension);
+            Objects.requireNonNull(extensions).forEach(this::addContingencyContextExtension);
             return this;
         }
 

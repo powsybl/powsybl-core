@@ -24,7 +24,7 @@ public interface SecurityAnalysisInterceptor {
     void onPreContingencyResult(RunningContext context, LimitViolationsResult preContingencyResult);
 
     /**
-     * Deprecated. Use {@link #onPostContingencyResult(ContingencyContext context, PostContingencyResult postContingencyResult)}
+     * @Deprecated. Use {@link #onPostContingencyResult(ContingencyContext context, PostContingencyResult postContingencyResult)}
      * @param context
      * @param postContingencyResult
      */
