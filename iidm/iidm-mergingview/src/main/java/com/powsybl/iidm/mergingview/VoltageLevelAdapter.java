@@ -675,7 +675,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
 
     @Override
     public void visitEquipments(final TopologyVisitor visitor) {
-        getDelegate().visitEquipments(visitor);
+        getDelegate().visitEquipments(new TopologyVisitorAdapter(visitor, getIndex()));
     }
 
     @Override

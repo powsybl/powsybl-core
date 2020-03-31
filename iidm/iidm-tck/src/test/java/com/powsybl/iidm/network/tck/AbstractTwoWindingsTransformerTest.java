@@ -37,7 +37,8 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                                                                     .setConnectableBus2("busB")
                                                                 .add();
         assertEquals("twt", twoWindingsTransformer.getId());
-        assertEquals(TWT_NAME, twoWindingsTransformer.getName());
+        assertEquals(TWT_NAME, twoWindingsTransformer.getOptionalName().orElse(null));
+        assertEquals(TWT_NAME, twoWindingsTransformer.getNameOrId());
         assertEquals(1.0, twoWindingsTransformer.getR(), 0.0);
         assertEquals(2.0, twoWindingsTransformer.getX(), 0.0);
         assertEquals(3.0, twoWindingsTransformer.getG(), 0.0);

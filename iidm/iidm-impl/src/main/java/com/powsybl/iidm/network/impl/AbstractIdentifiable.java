@@ -42,7 +42,12 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     }
 
     @Override
-    public String getName() {
+    public Optional<String> getOptionalName() {
+        return Optional.ofNullable(name);
+    }
+
+    @Override
+    public String getNameOrId() {
         return name != null ? name : id;
     }
 

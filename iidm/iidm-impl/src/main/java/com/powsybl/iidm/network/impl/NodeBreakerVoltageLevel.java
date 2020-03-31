@@ -594,6 +594,14 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public Optional<Terminal> getOptionalTerminal(int node) {
+            if (graph.vertexExists(node)) {
+                return Optional.ofNullable(graph.getVertexObject(node));
+            }
+            return Optional.empty();
+        }
+
+        @Override
         public Terminal getTerminal1(String switchId) {
             return getTerminal(getNode1(switchId));
         }

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_2" xmlns:bar="http://www.itesla_project.eu/schema/iidm/ext/loadbar/1_0" id="test" caseDate="2017-11-17T12:00:00.000+01:00" forecastDistance="0" sourceFormat="test">
-    <iidm:extension id="LOAD">
-        <bar:loadBar/>
-    </iidm:extension>
-</iidm:network>

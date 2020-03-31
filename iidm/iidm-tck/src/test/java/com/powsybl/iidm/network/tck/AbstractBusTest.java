@@ -38,7 +38,8 @@ public abstract class AbstractBusTest {
         assertNotNull(network.getBusBreakerView().getBus("bus1"));
         assertEquals("bus1", network.getBusBreakerView().getBus("bus1").getId());
         assertEquals("bus1", bus.getId());
-        assertEquals("bus1Name", bus.getName());
+        assertEquals("bus1Name", bus.getOptionalName().orElse(null));
+        assertEquals("bus1Name", bus.getNameOrId());
 
         LccConverterStation lccConverterStation = voltageLevel.newLccConverterStation()
                                                     .setId("lcc")

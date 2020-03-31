@@ -48,7 +48,8 @@ public class MergingNetworkTest {
         assertSame(mergingView, mergingView.getIdentifiable("n1").getNetwork());
         assertSame(mergingView, mergingView.getIdentifiable("n2").getNetwork());
         assertEquals("MergingNetworkTest", mergingView.getId());
-        assertEquals("MergingNetworkTest", mergingView.getName());
+        assertEquals("MergingNetworkTest", mergingView.getOptionalName().orElse(null));
+        assertEquals("MergingNetworkTest", mergingView.getNameOrId());
 
         final DateTime caseDate = new DateTime();
         mergingView.setCaseDate(caseDate);
