@@ -48,7 +48,7 @@ public interface SecurityAnalysisInterceptor {
     void onSecurityAnalysisResult(RunningContext context, SecurityAnalysisResult result);
 
     /**
-     * Callback after a limit violation detected
+     * Callback after a limit violation accepted by {@link com.powsybl.security.LimitViolationFilter}
      * @param context a violation context
      * @param limitViolation the limit violation; never {@literal null}
      */

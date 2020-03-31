@@ -12,6 +12,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.security.interceptors.ContingencyContext;
 import com.powsybl.security.interceptors.RunningContext;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.interceptors.ViolationContext;
 
 import java.util.*;
 
@@ -28,8 +29,8 @@ import java.util.*;
 public class SecurityAnalysisResultBuilder {
 
     private final LimitViolationFilter filter;
-    protected final RunningContext context;
-    protected final List<SecurityAnalysisInterceptor> interceptors;
+    private final RunningContext context;
+    private final List<SecurityAnalysisInterceptor> interceptors;
 
     // Below are volatile objects used for building the actual complete result
     private LimitViolationsResult preContingencyResult;
@@ -72,16 +73,6 @@ public class SecurityAnalysisResultBuilder {
     }
 
     /**
-     * Initiates the creation of a post-contingency result
-     * @param contingency the contingency for which a result should be created
-     * @param contingencyContextExtensions extensions for {@link com.powsybl.security.interceptors.ContingencyContext}
-     * @return a {@link PostContingencyResultBuilder} instance
-     */
-    public PostContingencyResultBuilder contingency(Contingency contingency, Collection<Extension<ContingencyContext>> contingencyContextExtensions) {
-        return new PostContingencyResultBuilder(contingency, contingencyContextExtensions);
-    }
-
-    /**
      * Finalizes the result.
      * @return the N situation result builder
      */
@@ -106,6 +97,8 @@ public class SecurityAnalysisResultBuilder {
 
         protected final List<LimitViolation> violations = new ArrayList<>();
 
+        protected final Map<LimitViolation, List<Extension<ViolationContext>>> extensionsByViolation = new HashMap<>();
+
         public B setComputationOk(boolean computationOk) {
             this.computationOk = computationOk;
             return (B) this;
@@ -113,12 +106,48 @@ public class SecurityAnalysisResultBuilder {
 
         public B addViolation(LimitViolation violation) {
             violations.add(Objects.requireNonNull(violation));
+            extensionsByViolation.put(violation, new ArrayList<>());
             return (B) this;
         }
 
         public B addViolations(List<LimitViolation> violations) {
             violations.forEach(this::addViolation);
             return (B) this;
+        }
+
+        /**
+         * @param limitViolation if it exists already, binding extension to it. Otherwise, it would be added first.
+         * @param extension
+         * @return
+         */
+        public B addViolationContextExtension(LimitViolation limitViolation, Extension<ViolationContext> extension) {
+            Objects.requireNonNull(limitViolation);
+            Objects.requireNonNull(extension);
+            if (!violations.contains(limitViolation)) {
+                this.addViolation(limitViolation);
+            }
+            extensionsByViolation.computeIfAbsent(limitViolation, lv -> new ArrayList<>());
+            extensionsByViolation.computeIfPresent(limitViolation, (lv, list) -> {
+                list.add(extension);
+                return list;
+            });
+            return (B) this;
+        }
+
+        private ViolationContext createViolationContextWithExtensions(RunningContext context, LimitViolation limitViolation) {
+            ViolationContext violationContext = new ViolationContext(context);
+            List<Extension<ViolationContext>> extensions = extensionsByViolation.get(limitViolation);
+            extensions.forEach(extension -> violationContext.addExtension((Class<? super Extension<ViolationContext>>) extension.getClass(), extension));
+            return violationContext;
+        }
+
+        protected List<LimitViolation> filterViolations(RunningContext context, LimitViolationFilter filter, List<SecurityAnalysisInterceptor> interceptors) {
+            List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
+            for (LimitViolation lv : filteredViolations) {
+                ViolationContext violationContextWithExtensions = createViolationContextWithExtensions(context, lv);
+                interceptors.forEach(i -> i.onLimitViolation(violationContextWithExtensions, lv));
+            }
+            return filteredViolations;
         }
     }
 
@@ -132,7 +161,7 @@ public class SecurityAnalysisResultBuilder {
          * @return the parent {@link SecurityAnalysisResultBuilder} instance.
          */
         public SecurityAnalysisResultBuilder endPreContingency() {
-            List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
+            List<LimitViolation> filteredViolations = filterViolations(context, filter, interceptors);
             LimitViolationsResult res = new LimitViolationsResult(computationOk, filteredViolations);
             interceptors.forEach(i -> i.onPreContingencyResult(context, res));
             setPreContingencyResult(res);
@@ -144,16 +173,21 @@ public class SecurityAnalysisResultBuilder {
     public class PostContingencyResultBuilder extends AbstractLimitViolationsResultBuilder<PostContingencyResultBuilder> {
 
         private final Contingency contingency;
-        private final List<Extension<ContingencyContext>> extensions;
+        private final List<Extension<ContingencyContext>> contingencyContextExtensions;
 
         PostContingencyResultBuilder(Contingency contingency) {
             this.contingency = Objects.requireNonNull(contingency);
-            this.extensions = Collections.emptyList();
+            this.contingencyContextExtensions = new ArrayList<>();
         }
 
-        PostContingencyResultBuilder(Contingency contingency, Collection<Extension<ContingencyContext>> contingencyContextExtensions) {
-            this.contingency = Objects.requireNonNull(contingency);
-            this.extensions = new ArrayList<>(Objects.requireNonNull(contingencyContextExtensions));
+        public PostContingencyResultBuilder addContingencyContextExtension(Extension<ContingencyContext> extension) {
+            contingencyContextExtensions.add(Objects.requireNonNull(extension));
+            return this;
+        }
+
+        public PostContingencyResultBuilder addContingencyContextExtensions(List<Extension<ContingencyContext>> extensions) {
+            extensions.forEach(this::addContingencyContextExtension);
+            return this;
         }
 
         /**
@@ -161,10 +195,10 @@ public class SecurityAnalysisResultBuilder {
          * @return the parent {@link SecurityAnalysisResultBuilder} instance.
          */
         public SecurityAnalysisResultBuilder endContingency() {
-            List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
+            List<LimitViolation> filteredViolations = filterViolations(context, filter, interceptors);
             PostContingencyResult res = new PostContingencyResult(contingency, computationOk, filteredViolations);
             ContingencyContext contingencyContext = new ContingencyContext(context);
-            extensions.forEach(ext -> contingencyContext.addExtension((Class<? super Extension<ContingencyContext>>) ext.getClass(), ext));
+            contingencyContextExtensions.forEach(ext -> contingencyContext.addExtension((Class<? super Extension<ContingencyContext>>) ext.getClass(), ext));
             interceptors.forEach(i -> i.onPostContingencyResult(contingencyContext, res));
             addPostContingencyResult(res);
 
