@@ -184,7 +184,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                 return;
             }
             LOG.warn(
-                "Can't find a calculated Bus to set Voltage, Angle, but found a configured Bus {}. Connectivity node {}",
+                "Can't find a bus from the Bus View to set Voltage and Angle, we use the bus {} from the Bus/Breaker view. Connectivity node {}",
                 bus, id);
         }
         setVoltageAngle(bus);
