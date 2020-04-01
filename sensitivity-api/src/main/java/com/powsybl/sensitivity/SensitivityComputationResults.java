@@ -121,7 +121,6 @@ public class SensitivityComputationResults {
         return Collections.unmodifiableCollection(sensitivityValues);
     }
 
-
     /**
      * Get a collection of all the sensitivity values associated with given function in state N.
      *
