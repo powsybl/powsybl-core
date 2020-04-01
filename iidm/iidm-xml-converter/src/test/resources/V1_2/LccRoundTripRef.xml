@@ -5,12 +5,8 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="C1_Filter1" name="Filter 1" model="LINEAR" currentSectionCount="1" voltageRegulatorOn="false" bus="B1" connectableBus="B1" q="25.0">
-                <iidm:linearModel bPerSection="1.0E-5" maximumSectionCount="1"/>
-            </iidm:shunt>
-            <iidm:shunt id="C1_Filter2" name="Filter 2" model="LINEAR" currentSectionCount="0" voltageRegulatorOn="false" connectableBus="B1" q="25.0">
-                <iidm:linearModel bPerSection="2.0E-5" maximumSectionCount="1"/>
-            </iidm:shunt>
+            <iidm:shunt id="C1_Filter1" name="Filter 1" model="LINEAR" bPerSection="1.0E-5" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B1" connectableBus="B1" q="25.0"/>
+            <iidm:shunt id="C1_Filter2" name="Filter 2" model="LINEAR" bPerSection="2.0E-5" maximumSectionCount="1" currentSectionCount="0" voltageRegulatorOn="false" connectableBus="B1" q="25.0"/>
             <iidm:lccConverterStation id="C1" name="Converter1" lossFactor="0.011" powerFactor="0.5" bus="B1" connectableBus="B1" p="100.0" q="50.0"/>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -25,12 +21,8 @@
                 <iidm:switch id="DISC_BBS1_BK3" name="Disconnector" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="5"/>
                 <iidm:switch id="BK3" name="Breaker" kind="BREAKER" retained="true" open="false" node1="5" node2="6"/>
             </iidm:nodeBreakerTopology>
-            <iidm:shunt id="C2_Filter1" name="Filter 3" model="LINEAR" currentSectionCount="1" voltageRegulatorOn="false" node="4" q="12.5">
-                <iidm:linearModel bPerSection="3.0E-5" maximumSectionCount="1"/>
-            </iidm:shunt>
-            <iidm:shunt id="C2_Filter2" name="Filter 4" model="LINEAR" currentSectionCount="1" voltageRegulatorOn="false" node="6" q="12.5">
-                <iidm:linearModel bPerSection="4.0E-5" maximumSectionCount="1"/>
-            </iidm:shunt>
+            <iidm:shunt id="C2_Filter1" name="Filter 3" model="LINEAR" bPerSection="3.0E-5" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" node="4" q="12.5"/>
+            <iidm:shunt id="C2_Filter2" name="Filter 4" model="LINEAR" bPerSection="4.0E-5" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" node="6" q="12.5"/>
             <iidm:lccConverterStation id="C2" name="Converter2" lossFactor="0.011" powerFactor="0.6" node="2" p="75.0" q="25.0"/>
         </iidm:voltageLevel>
     </iidm:substation>

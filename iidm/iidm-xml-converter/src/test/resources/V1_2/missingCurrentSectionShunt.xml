@@ -7,9 +7,7 @@
             </iidm:busBreakerTopology>
             <iidm:shunt id="SHUNT" model="NON_LINEAR" currentSectionCount="1" voltageRegulatorOn="true" targetV="200.0" targetDeadband="5.0" bus="B1" connectableBus="B1">
                 <iidm:property name="test" value="test"/>
-                <iidm:nonLinearModel>
-                    <iidm:section num="0" b="1.0E-5"/>
-                </iidm:nonLinearModel>
+                <iidm:section num="0" b="1.0E-5"/>
                 <iidm:regulatingTerminal id="LOAD"/>
             </iidm:shunt>
         </iidm:voltageLevel>

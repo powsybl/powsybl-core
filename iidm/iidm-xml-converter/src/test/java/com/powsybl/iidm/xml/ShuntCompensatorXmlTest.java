@@ -63,7 +63,7 @@ public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
                 NetworkXml.write(network, options, tmpDir.resolve("fail"));
                 fail();
             } catch (PowsyblException e) {
-                assertEquals("shunt.nonLinearModel is not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.2",
+                assertEquals("shunt.section is not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.2",
                         e.getMessage());
             }
         });
@@ -74,13 +74,6 @@ public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
         exception.expect(PowsyblException.class);
         exception.expectMessage("Missing section for current section of SHUNT");
         NetworkXml.read(getVersionedNetworkAsStream("missingCurrentSectionShunt.xml", IidmXmlVersion.V_1_2));
-    }
-
-    @Test
-    public void noModelShuntTest() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("shunt.model is mandatory for IIDM-XML version 1.2. IIDM-XML version should be <= 1.1");
-        NetworkXml.read(getVersionedNetworkAsStream("noModelShunt.xml", IidmXmlVersion.V_1_2));
     }
 
     @Test
