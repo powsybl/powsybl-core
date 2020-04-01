@@ -26,17 +26,13 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
 
     protected abstract boolean hasSubElements(T identifiable);
 
-    protected boolean hasSubElements(T identifiable, NetworkXmlWriterContext context) {
-        return hasSubElements(identifiable);
-    }
-
     protected abstract void writeRootElementAttributes(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException;
 
     protected void writeSubElements(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException {
     }
 
     public final void write(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException {
-        boolean hasSubElements = hasSubElements(identifiable, context);
+        boolean hasSubElements = hasSubElements(identifiable);
         if (hasSubElements || identifiable.hasProperty()) {
             context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), getRootElementName());
         } else {
