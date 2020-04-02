@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
+import java.util.Set;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -22,6 +24,11 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     private final Ref<? extends VariantManagerHolder> network;
 
     private double r;
+
+    @Override
+    public Set<String> getPropertyNames() {
+        return super.getPropertyNames();
+    }
 
     private double x;
 

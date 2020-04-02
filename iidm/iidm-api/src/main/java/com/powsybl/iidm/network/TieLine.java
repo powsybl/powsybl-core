@@ -37,6 +37,16 @@ public interface TieLine extends Line {
          */
         HalfLine setXnodeQ(double q);
 
+        /**
+         * get halfLine element name property.
+         */
+        String getElementNameProperty();
+
+        /**
+         * Set halfLine element name property.
+         */
+        HalfLine setElementNameProperty(String elementNameProperty);
+
     }
 
     /**

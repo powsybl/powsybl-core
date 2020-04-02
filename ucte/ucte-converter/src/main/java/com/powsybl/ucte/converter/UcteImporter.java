@@ -45,6 +45,8 @@ public class UcteImporter implements Importer {
 
     private static final String[] EXTENSIONS = {"uct", "UCT"};
 
+    public static final String ELEMENT_NAME_PROPERTY_KEY = "elementName";
+
     private static float getConductance(UcteTransformer ucteTransfo) {
         float g = 0;
         if (!Float.isNaN(ucteTransfo.getConductance())) {
@@ -820,6 +822,7 @@ public class UcteImporter implements Importer {
         double xnodeQ1 = dlAtSideOne.getQ0();
         double xnodeP2 = dlAtSideTwo.getP0();
         double xnodeQ2 = dlAtSideTwo.getQ0();
+
         String xnodeCode = dlAtSideOne.getExtension(Xnode.class).getCode();
 
         TieLine mergeLine = network.newTieLine()
@@ -840,6 +843,7 @@ public class UcteImporter implements Importer {
                 .setB2(0.0)
                 .setXnodeP(xnodeP1)
                 .setXnodeQ(xnodeQ1)
+                .setElementNameProperty(dlAtSideOne.getProperty(ELEMENT_NAME_PROPERTY_KEY))
                 .line2()
                 .setId(dlAtSideTwo.getId())
                 .setR(dlAtSideTwo.getR())
@@ -850,6 +854,7 @@ public class UcteImporter implements Importer {
                 .setB2(dlAtSideTwo.getB())
                 .setXnodeP(xnodeP2)
                 .setXnodeQ(xnodeQ2)
+                .setElementNameProperty(dlAtSideTwo.getProperty(ELEMENT_NAME_PROPERTY_KEY))
                 .setUcteXnodeCode(xnodeCode)
                 .add();
 

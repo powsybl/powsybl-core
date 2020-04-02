@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class NetworkImpl extends AbstractIdentifiable<Network> implements Network, VariantManagerHolder, MultiVariantObject {
@@ -46,12 +45,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private final NetworkListenerList listeners = new NetworkListenerList();
 
+    public static final String ELEMENT_NAME_PROPERTY_KEY = "elementName";
+
     class BusBreakerViewImpl implements BusBreakerView {
 
         @Override
         public Iterable<Bus> getBuses() {
             return FluentIterable.from(getVoltageLevels())
-                                 .transformAndConcat(vl -> vl.getBusBreakerView().getBuses());
+                    .transformAndConcat(vl -> vl.getBusBreakerView().getBuses());
         }
 
         @Override
@@ -62,7 +63,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         @Override
         public Iterable<Switch> getSwitches() {
             return FluentIterable.from(getVoltageLevels())
-                                 .transformAndConcat(vl -> vl.getBusBreakerView().getSwitches());
+                    .transformAndConcat(vl -> vl.getBusBreakerView().getSwitches());
         }
 
         @Override
@@ -91,7 +92,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         @Override
         public Iterable<Bus> getBuses() {
             return FluentIterable.from(getVoltageLevels())
-                                 .transformAndConcat(vl -> vl.getBusView().getBuses());
+                    .transformAndConcat(vl -> vl.getBusView().getBuses());
         }
 
         @Override
@@ -240,7 +241,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
         return Iterables.concat(index.getAll(BusBreakerVoltageLevel.class),
-                                index.getAll(NodeBreakerVoltageLevel.class));
+                index.getAll(NodeBreakerVoltageLevel.class));
     }
 
     @Override
@@ -952,6 +953,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half1.b2 = 0;
             l.half1.xnodeP = dl1.getP0();
             l.half1.xnodeQ = dl1.getQ0();
+            l.half1.elementName = dl1.getProperty(ELEMENT_NAME_PROPERTY_KEY);
             l.half2.id = dl2.getId();
             l.half2.name = dl2.getName();
             l.half2.r = dl2.getR();
@@ -962,6 +964,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half2.b2 = 0;
             l.half2.xnodeP = dl2.getP0();
             l.half2.xnodeQ = dl2.getQ0();
+            l.half2.elementName = dl2.getProperty(ELEMENT_NAME_PROPERTY_KEY);
             l.limits1 = dl1.getCurrentLimits();
             l.limits2 = dl2.getCurrentLimits();
             if (t1.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
@@ -1028,25 +1031,27 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                     .setVoltageLevel1(mergedLine.voltageLevel1)
                     .setVoltageLevel2(mergedLine.voltageLevel2)
                     .line1().setId(mergedLine.half1.id)
-                            .setName(mergedLine.half1.name)
-                            .setR(mergedLine.half1.r)
-                            .setX(mergedLine.half1.x)
-                            .setG1(mergedLine.half1.g1)
-                            .setG2(mergedLine.half1.g2)
-                            .setB1(mergedLine.half1.b1)
-                            .setB2(mergedLine.half1.b2)
-                            .setXnodeP(mergedLine.half1.xnodeP)
-                            .setXnodeQ(mergedLine.half1.xnodeQ)
+                    .setName(mergedLine.half1.name)
+                    .setR(mergedLine.half1.r)
+                    .setX(mergedLine.half1.x)
+                    .setG1(mergedLine.half1.g1)
+                    .setG2(mergedLine.half1.g2)
+                    .setB1(mergedLine.half1.b1)
+                    .setB2(mergedLine.half1.b2)
+                    .setXnodeP(mergedLine.half1.xnodeP)
+                    .setXnodeQ(mergedLine.half1.xnodeQ)
+                    .setElementNameProperty(mergedLine.half1.elementName)
                     .line2().setId(mergedLine.half2.id)
-                            .setName(mergedLine.half2.name)
-                            .setR(mergedLine.half2.r)
-                            .setX(mergedLine.half2.x)
-                            .setG1(mergedLine.half2.g1)
-                            .setG2(mergedLine.half2.g2)
-                            .setB1(mergedLine.half2.b1)
-                            .setB2(mergedLine.half2.b2)
-                            .setXnodeP(mergedLine.half2.xnodeP)
-                            .setXnodeQ(mergedLine.half2.xnodeQ)
+                    .setName(mergedLine.half2.name)
+                    .setR(mergedLine.half2.r)
+                    .setX(mergedLine.half2.x)
+                    .setG1(mergedLine.half2.g1)
+                    .setG2(mergedLine.half2.g2)
+                    .setB1(mergedLine.half2.b1)
+                    .setB2(mergedLine.half2.b2)
+                    .setXnodeP(mergedLine.half2.xnodeP)
+                    .setXnodeQ(mergedLine.half2.xnodeQ)
+                    .setElementNameProperty(mergedLine.half2.elementName)
                     .setUcteXnodeCode(mergedLine.xnode);
             if (mergedLine.bus1 != null) {
                 la.setBus1(mergedLine.bus1);
@@ -1097,6 +1102,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             double b2;
             double xnodeP;
             double xnodeQ;
+            String elementName;
         }
 
         final HalfMergedLine half1 = new HalfMergedLine();

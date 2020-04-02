@@ -29,6 +29,7 @@ class TieLineImpl extends LineImpl implements TieLine {
         double g2 = Double.NaN;
         double b1 = Double.NaN;
         double b2 = Double.NaN;
+        String elementNameProperty;
 
         private void setParent(TieLineImpl parent) {
             this.parent = parent;
@@ -85,6 +86,19 @@ class TieLineImpl extends LineImpl implements TieLine {
             double oldValue = this.xnodeQ;
             this.xnodeQ = xnodeQ;
             notifyUpdate("xnodeQ", oldValue, xnodeQ);
+            return this;
+        }
+
+        @Override
+        public String getElementNameProperty() {
+            return elementNameProperty;
+        }
+
+        @Override
+        public HalfLineImpl setElementNameProperty(String elementNameProperty) {
+            String oldValue = this.elementNameProperty;
+            this.elementNameProperty = elementNameProperty;
+            notifyUpdate("elementNameProperty", oldValue, elementNameProperty);
             return this;
         }
 
@@ -169,6 +183,7 @@ class TieLineImpl extends LineImpl implements TieLine {
         private String getHalfLineAttribute() {
             return this == parent.half1 ? "half1" : "half2";
         }
+
     }
 
     private final String ucteXnodeCode;

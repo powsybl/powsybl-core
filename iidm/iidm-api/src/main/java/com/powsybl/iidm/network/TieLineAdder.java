@@ -27,6 +27,8 @@ public interface TieLineAdder extends BranchAdder<TieLineAdder> {
 
     TieLineAdder setXnodeQ(double xnodeQ);
 
+    TieLineAdder setElementNameProperty(String elementNameProperty);
+
     TieLineAdder setUcteXnodeCode(String ucteXnodeCode);
 
     TieLineAdder line1();

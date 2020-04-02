@@ -131,6 +131,12 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         return this;
     }
 
+    @Override
+    public TieLineAdderImpl setElementNameProperty(String elementName) {
+        getActiveHalf().setElementNameProperty(elementName);
+        return this;
+    }
+
     private void checkHalf(TieLineImpl.HalfLineImpl half, int num) {
         if (half.id == null) {
             throw new ValidationException(this, "id is not set for half line " + num);

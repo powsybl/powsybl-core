@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  *</pre>
  *
  * <p>The network is initially created with one variant identified by
- * <code>VariantManagerConstants.INITIAL_VARIANT_ID</code>. {@link VariantManager} is
+ * <code>VariantManageronstants.INITIAL_VARIANT_ID</code>. {@link VariantManager} is
  * responsible for variant management and is accessible from the network thanks
  * to {@link #getVariantManager()}.
  *

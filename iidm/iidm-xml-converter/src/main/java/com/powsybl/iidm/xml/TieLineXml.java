@@ -46,6 +46,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         XmlUtil.writeDouble("b2_" + side, halfLine.getB2(), context.getWriter());
         XmlUtil.writeDouble("xnodeP_" + side, halfLine.getXnodeP(), context.getWriter());
         XmlUtil.writeDouble("xnodeQ_" + side, halfLine.getXnodeQ(), context.getWriter());
+        XmlUtil.writeOptionalString("elementName_" + side, halfLine.getElementNameProperty(), context.getWriter());
     }
 
     @Override
@@ -87,6 +88,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2_" + side);
         double xnodeP = XmlUtil.readDoubleAttribute(context.getReader(), "xnodeP_" + side);
         double xnodeQ = XmlUtil.readDoubleAttribute(context.getReader(), "xnodeQ_" + side);
+        String elementName = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "elementName_" + side));
         adder.setId(id)
                 .setName(name)
                 .setR(r)
@@ -96,7 +98,8 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
                 .setG2(g2)
                 .setB2(b2)
                 .setXnodeP(xnodeP)
-                .setXnodeQ(xnodeQ);
+                .setXnodeQ(xnodeQ)
+                .setElementNameProperty(elementName);
     }
 
     @Override
