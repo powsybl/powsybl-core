@@ -13,11 +13,11 @@ public class ReductionOptions {
 
     private boolean withDanglingLines = false;
 
-    boolean isWithDanglingLines() {
+    public boolean isWithDanglingLines() {
         return withDanglingLines;
     }
 
-    ReductionOptions withDanglingLlines(boolean withDanglingLines) {
+    public ReductionOptions withDanglingLlines(boolean withDanglingLines) {
         this.withDanglingLines = withDanglingLines;
         return this;
     }
