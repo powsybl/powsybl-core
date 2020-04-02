@@ -15,6 +15,7 @@ import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -221,6 +222,16 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         @Override
         public Terminal getTerminal(final int node) {
             return getIndex().getTerminal(getDelegate().getTerminal(node));
+        }
+
+        @Override
+        public Optional<Terminal> getOptionalTerminal(final int node) {
+            return getDelegate().getOptionalTerminal(node).map(t -> getIndex().getTerminal(t));
+        }
+
+        @Override
+        public boolean hasAttachedEquipment(final  int node) {
+            return getDelegate().hasAttachedEquipment(node);
         }
 
         @Override

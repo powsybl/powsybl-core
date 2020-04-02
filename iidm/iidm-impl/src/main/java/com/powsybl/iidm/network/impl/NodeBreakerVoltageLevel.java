@@ -602,6 +602,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public boolean hasAttachedEquipment(int node) {
+            return graph.vertexExists(node);
+        }
+
+        @Override
         public Terminal getTerminal1(String switchId) {
             return getTerminal(getNode1(switchId));
         }
