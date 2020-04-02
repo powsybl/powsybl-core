@@ -37,6 +37,8 @@ public class CoordinatedReactiveControlTest {
     public void test() {
         CoordinatedReactiveControlImpl control = new CoordinatedReactiveControlImpl(generator, 100.0);
         assertEquals(100.0, control.getQPercent(), 0.0);
+        control.setQPercent(99.0);
+        assertEquals(99.0, control.getQPercent(), 0.0);
         assertEquals("GEN", control.getExtendable().getId());
     }
 
@@ -48,9 +50,16 @@ public class CoordinatedReactiveControlTest {
     }
 
     @Test
-    public void testError() {
+    public void testUpperBoundError() {
         exception.expect(PowsyblException.class);
         exception.expectMessage("Unexpected value for qPercent: 101.0");
         new CoordinatedReactiveControlImpl(generator, 101.0);
+    }
+
+    @Test
+    public void testLowerBoundError() {
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("Unexpected value for qPercent: -1.0");
+        new CoordinatedReactiveControlImpl(generator, -1.0);
     }
 }
