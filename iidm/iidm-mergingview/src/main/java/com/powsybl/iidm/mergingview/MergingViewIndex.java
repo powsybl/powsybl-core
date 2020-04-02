@@ -303,7 +303,13 @@ class MergingViewIndex {
 
     /** @return adapter according to given VoltageLevel */
     VoltageLevelAdapter getVoltageLevel(final VoltageLevel vl) {
-        return vl == null ? null : (VoltageLevelAdapter) identifiableCached.computeIfAbsent(vl, key -> new VoltageLevelAdapter(vl, this));
+        return vl == null ? null : (VoltageLevelAdapter) identifiableCached.computeIfAbsent(vl, key -> {
+            if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
+                return new BusBreakerVoltageLevelAdapter(vl, this);
+            } else {
+                return new VoltageLevelAdapter(vl, this);
+            }
+        });
     }
 
     /** @return adapter according to given Switch */
