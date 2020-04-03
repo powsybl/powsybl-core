@@ -77,7 +77,8 @@ public abstract class AbstractHvdcLineTest {
                                     .add();
         assertNotNull(hvdcLine);
         assertEquals("hvdc_line", hvdcLine.getId());
-        assertEquals("hvdcLine", hvdcLine.getName());
+        assertEquals("hvdcLine", hvdcLine.getOptionalName().orElse(null));
+        assertEquals("hvdcLine", hvdcLine.getNameOrId());
         assertEquals(5.0, hvdcLine.getR(), 0.0);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, hvdcLine.getConvertersMode());
         assertEquals(440.0, hvdcLine.getNominalV(), 0.0);
