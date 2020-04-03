@@ -79,6 +79,9 @@ public abstract class AbstractVscTest {
         assertSame(cs1, hvdcLine.getConverterStation(HvdcLine.Side.ONE));
         assertSame(cs2, hvdcLine.getConverterStation2());
         assertSame(cs2, hvdcLine.getConverterStation(HvdcLine.Side.TWO));
+
+        assertEquals(2, hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getConnectedComponent().getBusStream().count());
+        assertEquals(1, hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getSynchronousComponent().getBusStream().count());
     }
 
     @Test

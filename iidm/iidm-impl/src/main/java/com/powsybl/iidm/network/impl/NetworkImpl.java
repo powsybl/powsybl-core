@@ -773,14 +773,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
     }
 
-    static final class SynchronousComponentsManager extends AbstractComponentsManager<ComponentImpl> {
+    static final class SynchronousComponentsManager extends AbstractComponentsManager<SynchronousComponentImpl> {
 
         private SynchronousComponentsManager(NetworkImpl network) {
             super(network);
         }
 
-        protected ComponentImpl createComponent(int num, int size) {
-            return new ComponentImpl(num, size, network.ref);
+        protected SynchronousComponentImpl createComponent(int num, int size) {
+            return new SynchronousComponentImpl(num, size, network.ref);
         }
 
         @Override
