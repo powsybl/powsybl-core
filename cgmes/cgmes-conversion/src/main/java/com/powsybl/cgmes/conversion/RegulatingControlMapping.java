@@ -23,6 +23,7 @@ public class RegulatingControlMapping {
 
     static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES terminal: %s";
 
+    private static final String REGULATING_TERMINAL = "Regulating Terminal";
     private static final String REGULATING_CONTROL = "RegulatingControl";
     private static final String TERMINAL = "Terminal";
     private static final String VOLTAGE = "voltage";
@@ -106,7 +107,7 @@ public class RegulatingControlMapping {
 
         cachedRegulatingControls.forEach((key, value) -> {
             if (value.correctlySet == null || !value.correctlySet) {
-                context.pending("Regulating terminal",
+                context.pending(REGULATING_TERMINAL,
                         String.format("The setting of the regulating control %s is not entirely handled.", key));
             }
         });
@@ -121,12 +122,12 @@ public class RegulatingControlMapping {
                     if (cgmesTerminal != null) {
                         // Try to obtain Terminal from TopologicalNode
                         String topologicalNode = cgmesTerminal.topologicalNode();
-                        context.invalid("Regulating terminal", String.format("No connected IIDM terminal has been found for CGMES terminal %s. " +
+                        context.invalid(REGULATING_TERMINAL, String.format("No connected IIDM terminal has been found for CGMES terminal %s. " +
                             "A connected terminal linked to the topological node %s is searched.",
                             cgmesTerminalId, topologicalNode));
                         return context.terminalMapping().findFromTopologicalNode(topologicalNode);
                     } else {
-                        context.invalid("Regulating terminal", String.format("No CGMES terminal found with identifier %s. ", cgmesTerminalId));
+                        context.invalid(REGULATING_TERMINAL, String.format("No CGMES terminal found with identifier %s. ", cgmesTerminalId));
                         return null;
                     }
                 });
