@@ -204,11 +204,6 @@ public class MergingNetworkTest {
         assertEquals(0, mergingView.getHvdcLineStream().count());
         assertEquals(0, mergingView.getHvdcLineCount());
 
-        // MergedLines
-        assertFalse(mergingView.getConnectables(MergedLine.class).iterator().hasNext());
-        assertEquals(0, mergingView.getConnectableStream(MergedLine.class).count());
-        assertEquals(0, mergingView.getConnectableCount(MergedLine.class));
-
         // Others
         assertNotNull(mergingView.getBusBreakerView());
         assertNotNull(mergingView.getBusView());
@@ -314,11 +309,6 @@ public class MergingNetworkTest {
         assertEquals(Iterables.toArray(mergingView.getConnectables(), Connectable.class),
                 mergingView.getConnectableStream().toArray());
         assertEquals(8, mergingView.getConnectableCount());
-
-        //MergedLines
-        assertEquals(Collections.singletonList("DL1 + DL2"), mergingView.getConnectableStream(MergedLine.class).map(MergedLine::getId).collect(Collectors.toList()));
-        assertEquals(Iterables.toArray(mergingView.getConnectables(MergedLine.class), MergedLine.class), mergingView.getConnectableStream(MergedLine.class).toArray());
-        assertEquals(1, mergingView.getConnectableCount(MergedLine.class));
     }
 
     @Test

@@ -135,9 +135,9 @@ class MergingViewIndex {
     /** @return all Adapters according to all Connectables of a given type */
     <C extends Connectable> Collection<C> getConnectables(Class<C> clazz) {
         // Search Connectables of a given type into merging & working networks
-        if (Line.class.isAssignableFrom(clazz)) {
+        if (clazz == Line.class) {
             return getLines().stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
-        } else if (DanglingLine.class.isAssignableFrom(clazz)) {
+        } else if (clazz == DanglingLine.class) {
             return getDanglingLines().stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
         } else {
             return getNetworkStream()
