@@ -162,7 +162,7 @@ public class MatpowerImporter implements Importer {
             Generator generator = voltageLevel.newGenerator()
                     .setId(genId)
                     .setConnectableBus(busId)
-                    .setBus(busId)
+                    .setBus(isInService(mGen) ? busId : null)
                     .setTargetV(mGen.getVoltageMagnitudeSetpoint() * voltageLevel.getNominalV())
                     .setTargetP(mGen.getRealPowerOutput())
                     .setTargetQ(mGen.getReactivePowerOutput())
@@ -283,6 +283,14 @@ public class MatpowerImporter implements Importer {
         return id;
     }
 
+    private static boolean isInService(MBranch branch) {
+        return Math.abs(branch.getStatus()) > 0;
+    }
+
+    private static boolean isInService(MGen generator) {
+        return generator.getStatus() > 0;
+    }
+
     private static void createLine(MBranch branch, ContainersMapping containerMapping, Network network, PerUnitContext perUnitContext) {
         String lineId = getBranchId('L', branch.getFrom(), branch.getTo(), network);
         LOGGER.debug("Creating line {}", lineId);
@@ -292,12 +300,13 @@ public class MatpowerImporter implements Importer {
         String voltageLevel2Id = containerMapping.busNumToVoltageLevelId.get(branch.getTo());
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
+        boolean isInService = isInService(branch);
         network.newLine()
                 .setId(lineId)
-                .setBus1(bus1Id)
+                .setBus1(isInService ? bus1Id : null)
                 .setConnectableBus1(bus1Id)
                 .setVoltageLevel1(voltageLevel1Id)
-                .setBus2(bus2Id)
+                .setBus2(isInService ? bus2Id : null)
                 .setConnectableBus2(bus2Id)
                 .setVoltageLevel2(voltageLevel2Id)
                 .setR(branch.getR() * zb)
@@ -323,12 +332,13 @@ public class MatpowerImporter implements Importer {
         VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
+        boolean isInService = isInService(mBranch);
         return voltageLevel2.getSubstation().newTwoWindingsTransformer()
                 .setId(id)
-                .setBus1(bus1Id)
+                .setBus1(isInService ? bus1Id : null)
                 .setConnectableBus1(bus1Id)
                 .setVoltageLevel1(voltageLevel1Id)
-                .setBus2(bus2Id)
+                .setBus2(isInService ? bus2Id : null)
                 .setConnectableBus2(bus2Id)
                 .setVoltageLevel2(voltageLevel2Id)
                 .setRatedU1(voltageLevel1.getNominalV() * mBranch.getRatio())
