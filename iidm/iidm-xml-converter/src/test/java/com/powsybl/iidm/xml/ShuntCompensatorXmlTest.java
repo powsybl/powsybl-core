@@ -63,39 +63,16 @@ public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
                 NetworkXml.write(network, options, tmpDir.resolve("fail"));
                 fail();
             } catch (PowsyblException e) {
-                assertEquals("shunt.section is not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.2",
+                assertEquals("Non linear shunts are not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.2",
                         e.getMessage());
             }
         });
     }
 
     @Test
-    public void missingCurrentSectionShuntTest() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("Missing section for current section of SHUNT");
-        NetworkXml.read(getVersionedNetworkAsStream("missingCurrentSectionShunt.xml", IidmXmlVersion.V_1_2));
-    }
-
-    @Test
-    public void unsupportedReadTest() {
-        testForAllPreviousVersions(IidmXmlVersion.V_1_2, this::read);
-    }
-
-    @Test
     public void unsupportedWriteTest() {
         Network network = ShuntTestCaseFactory.create();
         testForAllPreviousVersions(IidmXmlVersion.V_1_2, v -> write(network, v.toString(".")));
-    }
-
-    private void read(IidmXmlVersion version) {
-        try {
-            NetworkXml.read(getVersionedNetworkAsStream("faultyShunt.xml", version));
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("shunt.regulatingTerminal is not supported for IIDM-XML version " +
-                            version.toString(".") + ". IIDM-XML version should be >= 1.2",
-                    e.getMessage());
-        }
     }
 
     private void write(Network network, String version) {
