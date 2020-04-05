@@ -77,7 +77,6 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
             replaceTransformerByLoad(transformer, vl2, terminal2);
         } else {
             transformer.remove();
-
         }
 
         observers.forEach(o -> o.transformerRemoved(transformer));
@@ -85,11 +84,19 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
     @Override
     protected void reduce(ThreeWindingsTransformer transformer) {
-        VoltageLevel vl1 = transformer.getLeg1().getTerminal().getVoltageLevel();
-        VoltageLevel vl2 = transformer.getLeg2().getTerminal().getVoltageLevel();
-        VoltageLevel vl3 = transformer.getLeg3().getTerminal().getVoltageLevel();
-        if (getPredicate().test(vl1) || getPredicate().test(vl2) || getPredicate().test(vl3)) {
-            throw new UnsupportedOperationException("Reduction of three-windings transformers is not supported");
+        Terminal terminal1 = transformer.getLeg1().getTerminal();
+        Terminal terminal2 = transformer.getLeg2().getTerminal();
+        Terminal terminal3 = transformer.getLeg3().getTerminal();
+        VoltageLevel vl1 = terminal1.getVoltageLevel();
+        VoltageLevel vl2 = terminal2.getVoltageLevel();
+        VoltageLevel vl3 = terminal3.getVoltageLevel();
+
+        if (getPredicate().test(vl1)) {
+            replaceTransformerByLoad(transformer, vl1, ThreeWindingsTransformer.Side.ONE, terminal1);
+        } else if (getPredicate().test(vl2)) {
+            replaceTransformerByLoad(transformer, vl2, ThreeWindingsTransformer.Side.TWO, terminal2);
+        } else if (getPredicate().test(vl3)) {
+            replaceTransformerByLoad(transformer, vl3, ThreeWindingsTransformer.Side.THREE, terminal3);
         } else {
             transformer.remove();
         }
@@ -152,6 +159,11 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         observers.forEach(o -> o.transformerReplaced(transformer, load));
     }
 
+    private void replaceTransformerByLoad(ThreeWindingsTransformer transformer, VoltageLevel vl, ThreeWindingsTransformer.Side side, Terminal terminal) {
+        Load load = replaceBranchByLoad(transformer, vl, side, terminal);
+        observers.forEach(o -> o.transformerReplaced(transformer, load));
+    }
+
     private Load replaceBranchByLoad(Branch<?> branch, VoltageLevel vl, Terminal terminal) {
         LoadAdder loadAdder = vl.newLoad()
                 .setId(branch.getId())
@@ -162,6 +174,25 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         fillNodeOrBus(loadAdder, terminal);
 
         branch.remove();
+
+        Load load = loadAdder.add();
+        load.getTerminal()
+                .setP(terminal.getP())
+                .setQ(terminal.getQ());
+
+        return load;
+    }
+
+    private Load replaceBranchByLoad(ThreeWindingsTransformer transformer, VoltageLevel vl, ThreeWindingsTransformer.Side side, Terminal terminal) {
+        LoadAdder loadAdder = vl.newLoad()
+                .setId(transformer.getId() + "_" + side.name()) // to ensure load id unicity
+                .setName(transformer.getOptionalName().orElse(null))
+                .setLoadType(LoadType.FICTITIOUS)
+                .setP0(checkP(terminal))
+                .setQ0(checkQ(terminal));
+        fillNodeOrBus(loadAdder, terminal);
+
+        transformer.remove();
 
         Load load = loadAdder.add();
         load.getTerminal()
