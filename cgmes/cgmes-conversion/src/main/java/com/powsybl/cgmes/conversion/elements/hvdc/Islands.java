@@ -66,9 +66,9 @@ class Islands {
         return islandsNodes;
     }
 
-    void print() {
-        LOG.info("Islands");
-        islandsNodes.forEach(island -> LOG.info(" {} ", island));
+    void debug() {
+        LOG.debug("Islands");
+        islandsNodes.forEach(island -> LOG.debug(" {} ", island));
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(Islands.class);

@@ -176,37 +176,37 @@ class TPnodeEquipments {
         return nodeEquipments;
     }
 
-    void print() {
-        LOG.info("TPnodeEquipments");
-        nodeEquipments.entrySet().forEach(k -> print(k.getKey(), k.getValue()));
+    void debug() {
+        LOG.debug("TPnodeEquipments");
+        nodeEquipments.entrySet().forEach(k -> debug(k.getKey(), k.getValue()));
     }
 
-    private void print(String tpNodeId, List<TPnodeEquipment> listTPnodeEquipment) {
-        LOG.info("TopologicalNodeId: {}", tpNodeId);
-        listTPnodeEquipment.forEach(tpne -> tpne.print());
+    private void debug(String tpNodeId, List<TPnodeEquipment> listTPnodeEquipment) {
+        LOG.debug("TopologicalNodeId: {}", tpNodeId);
+        listTPnodeEquipment.forEach(tpne -> tpne.debug());
     }
 
-    void print(List<String> lnodes) {
-        lnodes.forEach(n -> print(n));
+    void debugEq(List<String> lnodes) {
+        lnodes.forEach(n -> debugEq(n));
     }
 
-    private void print(String node) {
-        LOG.info("EQ. TopologicalNode {}", node);
+    private void debugEq(String node) {
+        LOG.debug("EQ. TopologicalNode {}", node);
         if (nodeEquipments.containsKey(node)) {
             nodeEquipments.get(node)
-                .forEach(eq -> LOG.info("    {} {}", eq.type, eq.equipmentId));
+                .forEach(eq -> LOG.debug("    {} {}", eq.type, eq.equipmentId));
         }
     }
 
-    void printDcLs(List<String> lnodes) {
-        lnodes.forEach(n -> printDcLs(n));
+    void debugDcLs(List<String> lnodes) {
+        lnodes.forEach(n -> debugDcLs(n));
     }
 
-    private void printDcLs(String node) {
+    private void debugDcLs(String node) {
         if (nodeEquipments.containsKey(node)) {
             nodeEquipments.get(node).stream()
                 .filter(eq -> eq.type == TPnodeEquipments.EquipmentType.DC_LINE_SEGMENT)
-                .forEach(eq -> LOG.info("DcLineSegment {}", eq.equipmentId));
+                .forEach(eq -> LOG.debug("DcLineSegment {}", eq.equipmentId));
         }
     }
 
@@ -219,8 +219,8 @@ class TPnodeEquipments {
             this.equipmentId = equipmentId;
         }
 
-        void print() {
-            LOG.info("    {} {}", this.type, this.equipmentId);
+        void debug() {
+            LOG.debug("    {} {}", this.type, this.equipmentId);
         }
     }
 

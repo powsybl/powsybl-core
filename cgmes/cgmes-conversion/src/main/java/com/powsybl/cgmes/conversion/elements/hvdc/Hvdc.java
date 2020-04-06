@@ -131,9 +131,9 @@ class Hvdc {
         return hvdcData;
     }
 
-    void print() {
-        LOG.info("Hvdc");
-        hvdcData.forEach(h -> h.print());
+    void debug() {
+        LOG.debug("Hvdc");
+        hvdcData.forEach(h -> h.debug());
     }
 
     static class HvdcEquipment {
@@ -158,12 +158,12 @@ class Hvdc {
             this.dcLineSegments.add(dcLineSegment);
         }
 
-        void print() {
-            LOG.info("    Converters:");
-            this.converters.forEach(c -> c.print());
-            LOG.info("    dcLineSegments");
-            this.dcLineSegments.forEach(ls -> LOG.info("    {} ", ls));
-            LOG.info("---");
+        void debug() {
+            LOG.debug("    Converters:");
+            this.converters.forEach(c -> c.debug());
+            LOG.debug("    dcLineSegments");
+            this.dcLineSegments.forEach(ls -> LOG.debug("    {} ", ls));
+            LOG.debug("---");
         }
     }
 
@@ -178,8 +178,8 @@ class Hvdc {
             this.acDcConvertersEnd2 = acDcConvertersEnd2;
         }
 
-        void print() {
-            LOG.info("    End1: {} End2: {}", this.acDcConvertersEnd1, this.acDcConvertersEnd2);
+        void debug() {
+            LOG.debug("    End1: {} End2: {}", this.acDcConvertersEnd1, this.acDcConvertersEnd2);
         }
     }
 

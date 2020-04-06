@@ -10,8 +10,10 @@ package com.powsybl.cgmes.conversion.elements.hvdc;
 import java.util.List;
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion.Config;
 import com.powsybl.cgmes.conversion.elements.hvdc.DcLineSegmentConversion.DcLineSegmentConverter;
 import com.powsybl.cgmes.conversion.elements.hvdc.Hvdc.HvdcConverter;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -33,13 +35,11 @@ public class CgmesDcConversion {
     private static final String POLE_LOSS_P = "poleLossP";
     private static final String OPERATING_MODE = "operatingMode";
 
-    public CgmesDcConversion(CgmesModel cgmes, Context context, Config config) {
+    public CgmesDcConversion(CgmesModel cgmes, Context context) {
         Objects.requireNonNull(cgmes);
         Objects.requireNonNull(context);
-        Objects.requireNonNull(config);
         this.cgmesModel = cgmes;
         this.context = context;
-        this.config = config;
     }
 
     public void convert() {
@@ -55,13 +55,6 @@ public class CgmesDcConversion {
         IslandsEnds islandsEnds = new IslandsEnds();
         islands.getIslandsNodes().forEach(listNodes -> islandsEnds.add(adjacency, listNodes));
 
-        if (config.isHvdcConversionLogOn()) {
-            adjacency.print();
-            tpNodeEquipments.print();
-            islands.print();
-            islandsEnds.print();
-        }
-
         Hvdc hvdc = new Hvdc();
         islandsEnds.getIslandsEndsNodes().forEach(ien -> {
             IslandEndHvdc islandEndHvdc1 = new IslandEndHvdc();
@@ -70,25 +63,8 @@ public class CgmesDcConversion {
             IslandEndHvdc islandEndHvdc2 = new IslandEndHvdc();
             islandEndHvdc2.add(adjacency, tpNodeEquipments, ien.getTopologicalNodes2());
 
-            if (config.isHvdcConversionLogOn()) {
-                adjacency.print(ien.getTopologicalNodes1());
-                tpNodeEquipments.print(ien.getTopologicalNodes1());
-                tpNodeEquipments.printDcLs(ien.getTopologicalNodes1());
-
-                adjacency.print(ien.getTopologicalNodes2());
-                tpNodeEquipments.print(ien.getTopologicalNodes2());
-                tpNodeEquipments.printDcLs(ien.getTopologicalNodes2());
-
-                islandEndHvdc1.print();
-                islandEndHvdc2.print();
-            }
-
             hvdc.add(tpNodeEquipments, islandEndHvdc1, islandEndHvdc2);
         });
-
-        if (config.isHvdcConversionLogOn()) {
-            hvdc.print();
-        }
 
         // Convert to IIDM each converter - dcLineSegment configuration
         hvdc.getHvdcData().forEach(h -> convert(h.converters, h.dcLineSegments));
@@ -96,6 +72,10 @@ public class CgmesDcConversion {
         // warnings
         context.dc().reportCgmesConvertersNotUsed();
         context.dc().reportCgmesDcLineSegmentNotUsed();
+
+        if (LOG.isDebugEnabled()) {
+            debugHvdc(adjacency, tpNodeEquipments, islands, islandsEnds, hvdc);
+        }
     }
 
     private void convert(List<HvdcConverter> converters, List<String> dcLineSegments) {
@@ -305,9 +285,37 @@ public class CgmesDcConversion {
             / Math.hypot(iconverter.getTerminal().getP(), iconverter.getTerminal().getQ());
     }
 
+    private void debugHvdc(Adjacency adjacency, TPnodeEquipments tpNodeEquipments, Islands islands,
+        IslandsEnds islandsEnds, Hvdc hvdc) {
+
+        hvdc.debug();
+
+        islandsEnds.getIslandsEndsNodes().forEach(ien -> {
+            IslandEndHvdc islandEndHvdc1 = new IslandEndHvdc();
+            islandEndHvdc1.add(adjacency, tpNodeEquipments, ien.getTopologicalNodes1());
+            IslandEndHvdc islandEndHvdc2 = new IslandEndHvdc();
+            islandEndHvdc2.add(adjacency, tpNodeEquipments, ien.getTopologicalNodes2());
+
+            islandEndHvdc1.debug();
+            islandEndHvdc2.debug();
+
+            adjacency.debug(ien.getTopologicalNodes1());
+            tpNodeEquipments.debugEq(ien.getTopologicalNodes1());
+            tpNodeEquipments.debugDcLs(ien.getTopologicalNodes1());
+
+            adjacency.debug(ien.getTopologicalNodes2());
+            tpNodeEquipments.debugEq(ien.getTopologicalNodes2());
+            tpNodeEquipments.debugDcLs(ien.getTopologicalNodes2());
+        });
+
+        islands.debug();
+        islandsEnds.debug();
+        adjacency.debug();
+        tpNodeEquipments.debug();
+    }
+
     private final CgmesModel cgmesModel;
     private final Context context;
-    private final Config config;
 
     private HvdcType converterType;
     private HvdcLine.ConvertersMode operatingMode;
@@ -319,4 +327,6 @@ public class CgmesDcConversion {
     private PropertyBag dcLineSegment;
     private double r;
     private double ratedUdc;
+
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesDcConversion.class);
 }

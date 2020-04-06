@@ -88,9 +88,9 @@ class IslandsEnds {
         return islandsEndsNodes;
     }
 
-    void print() {
-        LOG.info("IslandsEnds");
-        islandsEndsNodes.forEach(islandEnd -> islandEnd.print());
+    void debug() {
+        LOG.debug("IslandsEnds");
+        islandsEndsNodes.forEach(islandEnd -> islandEnd.debug());
     }
 
     static class IslandEnd {
@@ -110,10 +110,10 @@ class IslandsEnds {
             return topologicalNodes2;
         }
 
-        void print() {
-            LOG.info("    topologicalNodes1: {}", this.topologicalNodes1);
-            LOG.info("    topologicalNodes2: {}", this.topologicalNodes2);
-            LOG.info("---");
+        void debug() {
+            LOG.debug("    topologicalNodes1: {}", this.topologicalNodes1);
+            LOG.debug("    topologicalNodes2: {}", this.topologicalNodes2);
+            LOG.debug("---");
         }
     }
 

@@ -171,9 +171,9 @@ class IslandEndHvdc {
         return hvdc;
     }
 
-    void print() {
-        LOG.info("IslandEndHvdc");
-        hvdc.forEach(h -> h.print());
+    void debug() {
+        LOG.debug("IslandEndHvdc");
+        hvdc.forEach(h -> h.debug());
     }
 
     static class HvdcEnd {
@@ -213,12 +213,12 @@ class IslandEndHvdc {
             throw new PowsyblException(String.format("Unexpected HVDC configuration: Transformers %d Converters %d DcLineSegments %d", t, c, ls));
         }
 
-        void print() {
-            LOG.info("    topologicalNodesEnd: {}", this.topologicalNodesEnd);
-            LOG.info("    transformersEnd: {}", this.transformersEnd);
-            LOG.info("    acDcConvertersEnd: {}", this.acDcConvertersEnd);
-            LOG.info("    dcLineSegmentsEnd: {}", this.dcLineSegmentsEnd);
-            LOG.info("---");
+        void debug() {
+            LOG.debug("    topologicalNodesEnd: {}", this.topologicalNodesEnd);
+            LOG.debug("    transformersEnd: {}", this.transformersEnd);
+            LOG.debug("    acDcConvertersEnd: {}", this.acDcConvertersEnd);
+            LOG.debug("    dcLineSegmentsEnd: {}", this.dcLineSegmentsEnd);
+            LOG.debug("---");
         }
     }
 

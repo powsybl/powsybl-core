@@ -137,24 +137,24 @@ class Adjacency {
         return adjacency.isEmpty();
     }
 
-    void print() {
-        LOG.info("Adjacency");
-        adjacency.forEach((key, value) -> print(key, value));
+    void debug() {
+        LOG.debug("Adjacency");
+        adjacency.forEach((key, value) -> debug(key, value));
     }
 
-    private void print(String topologicalNodeId, List<Adjacent> adjacent) {
-        LOG.info("TopologicalNodeId {}", topologicalNodeId);
-        adjacent.forEach(ad -> ad.print());
+    private void debug(String topologicalNodeId, List<Adjacent> adjacent) {
+        LOG.debug("TopologicalNodeId {}", topologicalNodeId);
+        adjacent.forEach(ad -> ad.debug());
     }
 
-    void print(List<String> lnodes) {
-        lnodes.forEach(this::print);
+    void debug(List<String> lnodes) {
+        lnodes.forEach(this::debug);
     }
 
-    private void print(String node) {
-        LOG.info("AD TopologicalNode {}", node);
+    private void debug(String node) {
+        LOG.debug("AD TopologicalNode {}", node);
         if (adjacency.containsKey(node)) {
-            adjacency.get(node).forEach(ad -> LOG.info("    {} {}", ad.type, ad.topologicalNode));
+            adjacency.get(node).forEach(ad -> LOG.debug("    {} {}", ad.type, ad.topologicalNode));
         }
     }
 
@@ -169,8 +169,8 @@ class Adjacency {
             this.topologicalNode = topologicalNode;
         }
 
-        void print() {
-            LOG.info("    {}  {}", this.type, this.topologicalNode);
+        void debug() {
+            LOG.debug("    {}  {}", this.type, this.topologicalNode);
         }
     }
 
