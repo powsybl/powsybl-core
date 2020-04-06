@@ -63,7 +63,8 @@ public class DanglingLineAdapterTest {
         assertEquals(p0, danglingLine.getP0(), 0.0);
         assertEquals(q0, danglingLine.getQ0(), 0.0);
         assertEquals(id, danglingLine.getId());
-        assertEquals(name, danglingLine.getName());
+        assertEquals(name, danglingLine.getOptionalName().orElse(null));
+        assertEquals(name, danglingLine.getNameOrId());
         assertEquals(ucteXnodeCode, danglingLine.getUcteXnodeCode());
 
         // setter getter
@@ -158,7 +159,8 @@ public class DanglingLineAdapterTest {
         assertSame(currentLimits1, mergedLine.getCurrentLimits(Branch.Side.ONE));
         assertSame(currentLimits2, mergedLine.getCurrentLimits(Branch.Side.TWO));
         assertEquals("dl1 + dl2", mergedLine.getId());
-        assertEquals("dl1 + dl2", mergedLine.getName());
+        assertEquals("dl1 + dl2", mergedLine.getOptionalName().orElse(null));
+        assertEquals("dl1 + dl2", mergedLine.getNameOrId());
         assertSame(mergedLine, mergedLine.setR(1.0d));
         assertEquals(dl1.getR() + dl2.getR(), mergedLine.getR(), 0.0d);
         assertSame(mergedLine, mergedLine.setX(2.0d));
@@ -250,7 +252,8 @@ public class DanglingLineAdapterTest {
         mergingView.merge(noEquipNetwork);
         final Line line = mergingView.getLine("dl1 + dl2");
         final MergedLine mergedLine = (MergedLine) line;
-        assertEquals("dl", mergedLine.getName());
+        assertEquals("dl", mergedLine.getOptionalName().orElse(null));
+        assertEquals("dl", mergedLine.getNameOrId());
 
         assertTrue(mergedLine.hasProperty());
         assertTrue(mergedLine.hasProperty("ucteCode"));
@@ -274,7 +277,8 @@ public class DanglingLineAdapterTest {
         assertEquals(1, mergingView.getLineCount());
         final Line line = mergingView.getLine("testListener1 + testListener2");
         final MergedLine mergedLine = (MergedLine) line;
-        assertEquals("testListener1 + testListener2", mergedLine.getName());
+        assertEquals("testListener1 + testListener2", mergedLine.getOptionalName().orElse(null));
+        assertEquals("testListener1 + testListener2", mergedLine.getNameOrId());
 
     }
 

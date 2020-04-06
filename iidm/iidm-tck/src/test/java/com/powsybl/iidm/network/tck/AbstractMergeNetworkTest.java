@@ -68,7 +68,8 @@ public abstract class AbstractMergeNetworkTest {
         addDanglingLine("dl1", "code", "dl2", "code");
         merge.merge(n1, n2);
         assertNotNull(merge.getLine("dl1 + dl2"));
-        assertEquals("dl1_name + dl2_name", merge.getLine("dl1 + dl2").getName());
+        assertEquals("dl1_name + dl2_name", merge.getLine("dl1 + dl2").getOptionalName().orElse(null));
+        assertEquals("dl1_name + dl2_name", merge.getLine("dl1 + dl2").getNameOrId());
     }
 
     private void addSubstation(Network network, String substationId) {

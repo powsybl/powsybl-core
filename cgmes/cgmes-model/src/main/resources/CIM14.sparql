@@ -87,7 +87,7 @@ OPTIONAL { GRAPH ?graphSV {
         cim:SvStatus.inService ?inService . 
 }}
 OPTIONAL { GRAPH ?graphTP2 {
-    ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode
+    ?Terminal cim:Terminal.TopologicalNode ?TopologicalNodeTerminal
 }}
 }
 

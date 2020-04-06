@@ -108,7 +108,7 @@ public class Comparison {
             compare(context, expected.getClass(), actual.getClass());
         });
         expecteds.forEach(expected -> {
-            Identifiable actual = networkMapping.findActual(expected);
+            Identifiable<?> actual = networkMapping.findActual(expected);
             if (actual == null) {
                 diff.missing(expected);
                 return;
@@ -118,7 +118,7 @@ public class Comparison {
             String context = className(actual);
             compare(context, expected.getClass(), actual.getClass());
             context = context + ".name";
-            compareNames(context, expected.getName(), actual.getName());
+            compareNames(context, expected.getOptionalName().orElse(""), actual.getOptionalName().orElse(""));
             // Obtained identifiable in actual must be of type T
             @SuppressWarnings("unchecked")
             T tactual = (T) actual;
@@ -157,7 +157,7 @@ public class Comparison {
             String context = className(actual);
             compare(context, expected.getClass(), actual.getClass());
             context = context + ".name";
-            compareNames(context, expected.getName(), actual.getName());
+            compareNames(context, expected.getOptionalName().orElse(""), actual.getOptionalName().orElse(""));
             testAttributes.accept((Bus) expected, actual);
         });
     }
