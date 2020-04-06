@@ -150,7 +150,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
 
     @Override
     public HvdcLineImpl setActivePowerSetpoint(double activePowerSetpoint) {
-        ValidationUtil.checkActivePowerSetpoint(this, activePowerSetpoint);
+        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint);
         int variantIndex = getNetwork().getVariantIndex();
         double oldValue = this.activePowerSetpoint.set(variantIndex, activePowerSetpoint);
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
