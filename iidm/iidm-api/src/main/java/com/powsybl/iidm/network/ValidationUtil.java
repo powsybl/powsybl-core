@@ -111,6 +111,14 @@ public final class ValidationUtil {
         }
     }
 
+    public static void checkHvdcMaxP(Validable validable, double maxP) {
+        if (Double.isNaN(maxP)) {
+            throw createInvalidValueException(validable, maxP, "maximum P");
+        } else if (maxP < 0) {
+            throw createInvalidValueException(validable, maxP, "maximum P");
+        }
+    }
+
     public static void checkRegulatingTerminal(Validable validable, Terminal regulatingTerminal, Network network) {
         if (regulatingTerminal != null && regulatingTerminal.getVoltageLevel().getNetwork() != network) {
             throw new ValidationException(validable, "regulating terminal is not part of the network");

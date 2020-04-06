@@ -136,7 +136,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
 
     @Override
     public HvdcLineImpl setMaxP(double maxP) {
-        ValidationUtil.checkMaxP(this, maxP);
+        ValidationUtil.checkHvdcMaxP(this, maxP);
         double oldValue = this.maxP;
         this.maxP = maxP;
         notifyUpdate("maxP", oldValue, maxP);

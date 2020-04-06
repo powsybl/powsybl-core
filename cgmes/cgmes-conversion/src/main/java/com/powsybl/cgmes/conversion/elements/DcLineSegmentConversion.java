@@ -137,12 +137,12 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
             if (pAC1 != 0) {
                 return 1.2 * pAC1;
             }
-            return 1.2 * pAC2;
+            return 1.2 * Math.abs(pAC2);
         }
         if (pAC2 != 0) {
             return 1.2 * pAC2;
         }
-        return 1.2 * pAC1;
+        return 1.2 * Math.abs(pAC1);
     }
 
     @Override

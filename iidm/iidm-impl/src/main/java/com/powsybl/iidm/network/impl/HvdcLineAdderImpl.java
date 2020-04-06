@@ -100,7 +100,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         ValidationUtil.checkConvertersMode(this, convertersMode);
         ValidationUtil.checkNominalV(this, nominalV);
         ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint);
-        ValidationUtil.checkMaxP(this, maxP);
+        ValidationUtil.checkHvdcMaxP(this, maxP);
         AbstractHvdcConverterStation<?> converterStation1 = getNetwork().getHvdcConverterStation(converterStationId1);
         if (converterStation1 == null) {
             throw new PowsyblException("Side 1 converter station " + converterStationId1 + " not found");
