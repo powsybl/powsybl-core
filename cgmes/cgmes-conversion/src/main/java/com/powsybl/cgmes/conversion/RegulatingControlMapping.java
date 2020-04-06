@@ -108,7 +108,7 @@ public class RegulatingControlMapping {
         cachedRegulatingControls.forEach((key, value) -> {
             if (value.correctlySet == null || !value.correctlySet) {
                 context.pending(REGULATING_TERMINAL,
-                        String.format("The setting of the regulating control %s is not entirely handled.", key));
+                    () -> String.format("The setting of the regulating control %s is not entirely handled.", key));
             }
         });
 
@@ -122,12 +122,12 @@ public class RegulatingControlMapping {
                     if (cgmesTerminal != null) {
                         // Try to obtain Terminal from TopologicalNode
                         String topologicalNode = cgmesTerminal.topologicalNode();
-                        context.invalid(REGULATING_TERMINAL, String.format("No connected IIDM terminal has been found for CGMES terminal %s. " +
+                        context.invalid(REGULATING_TERMINAL, () -> String.format("No connected IIDM terminal has been found for CGMES terminal %s. " +
                             "A connected terminal linked to the topological node %s is searched.",
                             cgmesTerminalId, topologicalNode));
                         return context.terminalMapping().findFromTopologicalNode(topologicalNode);
                     } else {
-                        context.invalid(REGULATING_TERMINAL, String.format("No CGMES terminal found with identifier %s. ", cgmesTerminalId));
+                        context.invalid(REGULATING_TERMINAL, "No CGMES terminal found with identifier " + cgmesTerminalId);
                         return null;
                     }
                 });

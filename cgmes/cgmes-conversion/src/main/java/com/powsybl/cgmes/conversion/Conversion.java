@@ -31,6 +31,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
@@ -336,8 +337,8 @@ public class Conversion {
             } else if (ends.size() == 3) {
                 c = new NewThreeWindingsTransformerConversion(ends, context);
             } else {
-                String what = String.format("PowerTransformer %s", t);
-                String reason = String.format("Has %d ends. Only 2 or 3 ends are supported", ends.size());
+                String what = "PowerTransformer " + t;
+                Supplier<String> reason = () -> String.format("Has %d ends. Only 2 or 3 ends are supported", ends.size());
                 context.invalid(what, reason);
             }
             if (c != null && c.valid()) {
@@ -365,8 +366,8 @@ public class Conversion {
                     } else if (ends.size() == 3) {
                         c = new ThreeWindingsTransformerConversion(ends, context);
                     } else {
-                        String what = String.format("PowerTransformer %s", t);
-                        String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",
+                        String what = "PowerTransformer " + t;
+                        Supplier<String> reason = () -> String.format("Has %d ends. Only 2 or 3 ends are supported",
                                 ends.size());
                         context.invalid(what, reason);
                     }
@@ -393,8 +394,7 @@ public class Conversion {
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
         network.getHvdcConverterStationStream()
                 .filter(converter -> converter.getHvdcLine() == null)
-                .peek(converter -> context.ignored(String.format("HVDC Converter Station %s",
-                        converter.getId()), "No correct linked HVDC line found."))
+                .peek(converter -> context.ignored("HVDC Converter Station " + converter.getId(), "No correct linked HVDC line found."))
                 .collect(Collectors.toList())
                 .forEach(Connectable::remove);
     }

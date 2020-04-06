@@ -135,7 +135,7 @@ public class TapChangerConversion {
     */
     private TapChanger tapChangerFixPosition(TapChanger tc) {
         if (tc.getLowTapPosition() != tc.getHighTapPosition()) {
-            context.fixed(String.format("TapChanger Id %s fixed tap at position %d ", tc.getId(), tc.getTapPosition()), "");
+            context.fixed(() -> String.format("TapChanger Id %s fixed tap at position %d ", tc.getId(), tc.getTapPosition()), "");
         }
         TapChanger tapChanger = baseCloneTapChanger(tc);
         tapChanger.setLowTapPosition(tapChanger.getTapPosition());
