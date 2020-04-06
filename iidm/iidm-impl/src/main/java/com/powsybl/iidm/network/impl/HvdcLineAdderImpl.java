@@ -99,7 +99,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         ValidationUtil.checkR(this, r);
         ValidationUtil.checkConvertersMode(this, convertersMode);
         ValidationUtil.checkNominalV(this, nominalV);
-        ValidationUtil.checkActivePowerSetpoint(this, activePowerSetpoint);
+        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint);
         ValidationUtil.checkMaxP(this, maxP);
         AbstractHvdcConverterStation<?> converterStation1 = getNetwork().getHvdcConverterStation(converterStationId1);
         if (converterStation1 == null) {

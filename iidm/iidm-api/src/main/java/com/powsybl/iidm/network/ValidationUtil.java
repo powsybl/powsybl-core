@@ -33,6 +33,14 @@ public final class ValidationUtil {
         }
     }
 
+    public static void checkHvdcActivePowerSetpoint(Validable validable, double activePowerSetpoint) {
+        if (Double.isNaN(activePowerSetpoint)) {
+            throw createInvalidValueException(validable, activePowerSetpoint, "active power setpoint");
+        } else if (activePowerSetpoint < 0) {
+            throw createInvalidValueException(validable, activePowerSetpoint, "active power setpoint should not be negative");
+        }
+    }
+
     public static void checkActivePowerLimits(Validable validable, double minP, double maxP) {
         if (minP > maxP) {
             throw new ValidationException(validable, "invalid active limits [" + minP + ", " + maxP + "]");
@@ -365,6 +373,8 @@ public final class ValidationUtil {
     public static void checkPowerFactor(Validable validable, double powerFactor) {
         if (Double.isNaN(powerFactor)) {
             throw new ValidationException(validable, "power factor is invalid");
+        } else if (Math.abs(powerFactor) > 3) {
+            throw new ValidationException(validable, "power factor is invalid, it should be a ratio");
         }
     }
 
@@ -385,6 +395,8 @@ public final class ValidationUtil {
             throw new ValidationException(validable, "loss factor is invalid");
         } else if (lossFactor < 0) {
             throw new ValidationException(validable, "loss factor must be >= 0");
+        } else if (lossFactor > 3) {
+            throw new ValidationException(validable, "loss factor must be a ratio");
         }
     }
 }
