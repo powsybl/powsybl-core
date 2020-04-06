@@ -232,11 +232,8 @@ public class CgmesDcConversion {
         double pAC1 = getPAc(cconverter1);
         double pAC2 = getPAc(cconverter2);
 
-        LossFactor lossFactor = new LossFactor(operatingMode, pAC1, pAC2, poleLossP1, poleLossP2);
+        LossFactor lossFactor = new LossFactor(context, operatingMode, pAC1, pAC2, poleLossP1, poleLossP2);
         lossFactor.compute();
-        if (!lossFactor.isOk()) {
-            return false;
-        }
 
         AcDcConverterConversion acDcConverterConversion1 = new AcDcConverterConversion(cconverter1, converterType, lossFactor.getLossFactor1(), context);
         AcDcConverterConversion acDcConverterConversion2 = new AcDcConverterConversion(cconverter2, converterType, lossFactor.getLossFactor2(), context);

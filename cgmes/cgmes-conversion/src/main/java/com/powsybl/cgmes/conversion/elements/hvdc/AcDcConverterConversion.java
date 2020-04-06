@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
+ * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */

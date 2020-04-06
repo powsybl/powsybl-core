@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.HvdcLineAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
+ * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
@@ -66,12 +67,12 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
             if (pAC1 != 0) {
                 return DEFAULT_MAXP_FACTOR * pAC1;
             }
-            return DEFAULT_MAXP_FACTOR * pAC2;
+            return DEFAULT_MAXP_FACTOR * Math.abs(pAC2);
         }
         if (pAC2 != 0) {
             return DEFAULT_MAXP_FACTOR * pAC2;
         }
-        return DEFAULT_MAXP_FACTOR * pAC1;
+        return DEFAULT_MAXP_FACTOR * Math.abs(pAC1);
     }
 
     private static double getPDc(double pAC1, double pAC2, double poleLossP1, double poleLossP2,
@@ -84,9 +85,9 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
             }
         } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) {
             if (pAC2 != 0) {
-                return Math.abs(pAC2) - poleLossP2;
+                return pAC2 - poleLossP2;
             } else if (pAC1 != 0) {
-                return pAC1 + poleLossP1;
+                return Math.abs(pAC1) + poleLossP1;
             }
         }
         return 0;

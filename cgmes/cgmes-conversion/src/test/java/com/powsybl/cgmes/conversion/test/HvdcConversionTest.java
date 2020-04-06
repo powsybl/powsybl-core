@@ -47,12 +47,12 @@ public class HvdcConversionTest {
         assertTrue(containsLccConverter(n, "_7393a68e-c4e6-48dd-9347-543858363fdb", "Conv1", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, 0.8));
         assertTrue(containsLccConverter(n, "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", "Conv2", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, -0.75741));
         assertTrue(containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine",
-            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, -76.55999999999999));
+            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, 76.55999999999999));
 
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 153.82467532467533, -184.2));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 153.82467532467533, 184.2));
     }
 
     @Test
@@ -66,7 +66,7 @@ public class HvdcConversionTest {
         assertTrue(containsLccConverter(n, "_7393a68e-c4e6-48dd-9347-543858363fdb", "Conv1", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, 0.8));
         assertTrue(containsLccConverter(n, "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", "Conv2", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, -0.75741));
         assertTrue(containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine",
-            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, -76.55999999999999));
+            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, 76.55999999999999));
 
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.49261084, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.49019608, 213.54, 0.0));
@@ -85,7 +85,7 @@ public class HvdcConversionTest {
         assertTrue(containsLccConverter(n, "_7393a68e-c4e6-48dd-9347-543858363fdb", "Conv1", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, 0.8));
         assertTrue(containsLccConverter(n, "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", "Conv2", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, -0.75741));
         assertTrue(containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine",
-            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, -76.55999999999999));
+            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, 76.55999999999999));
 
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.5, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.5025126, 213.54, 0.0));
@@ -104,12 +104,12 @@ public class HvdcConversionTest {
         assertTrue(containsLccConverter(n, "_7393a68e-c4e6-48dd-9347-543858363fdb", "Conv1", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, 0.8));
         assertTrue(containsLccConverter(n, "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", "Conv2", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, -0.75741));
         assertTrue(containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine",
-            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, -76.55999999999999));
+            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, 76.55999999999999));
 
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.49751243, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.4950495, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, -99.50248756218906, -120.0));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 100.49751243781094, 120.0));
     }
 
     @Test
@@ -123,12 +123,12 @@ public class HvdcConversionTest {
         assertTrue(containsLccConverter(n, "_7393a68e-c4e6-48dd-9347-543858363fdb", "Conv1", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, 0.8));
         assertTrue(containsLccConverter(n, "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", "Conv2", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, -0.75741));
         assertTrue(containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine",
-            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, -76.55999999999999));
+            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, 76.55999999999999));
 
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 0.0, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 0.0, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 153.82467532467533, -184.2));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 153.82467532467533, 184.2));
     }
 
     @Test
@@ -179,12 +179,12 @@ public class HvdcConversionTest {
         assertTrue(containsLccConverter(n, "_7393a68e-c4e6-48dd-9347-543858363fdb", "Conv1", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, 0.8));
         assertTrue(containsLccConverter(n, "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", "Conv2", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, -0.75741));
         assertTrue(containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine",
-            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 5.60575, 63.8, -76.55999999999999));
+            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 5.60575, 63.8, 76.55999999999999));
 
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 153.82467532467533, -184.2));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 153.82467532467533, 184.2));
     }
 
     @Test
@@ -202,14 +202,14 @@ public class HvdcConversionTest {
         assertTrue(containsLccConverter(n, "_9793118e-5ba1-4a9c-b2e0-db1d15be5913", "Conv2b", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0#0", 0.0, -0.75741));
 
         assertTrue(containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine",
-            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, -76.55999999999999));
+            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, 76.55999999999999));
         assertTrue(containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0#0", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine",
-            "_7393a68f-c4e6-48dd-9347-543858363fdb", "_9793118e-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, -76.55999999999999));
+            "_7393a68f-c4e6-48dd-9347-543858363fdb", "_9793118e-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, 76.55999999999999));
 
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 153.82467532467533, -184.2));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 153.82467532467533, 184.2));
     }
 
     private Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
@@ -244,8 +244,8 @@ public class HvdcConversionTest {
             LOG.info("Different hvdcType {} reference {}", lccConverter.getHvdcType(), referenceConverter.hvdcType);
             return false;
         }
-        if (referenceConverter.name.compareTo(lccConverter.getName()) != 0) {
-            LOG.info("Different name {} reference {}", lccConverter.getName(), referenceConverter.name);
+        if (referenceConverter.name.compareTo(lccConverter.getNameOrId()) != 0) {
+            LOG.info("Different name {} reference {}", lccConverter.getNameOrId(), referenceConverter.name);
             return false;
         }
         if (referenceConverter.hvdcLineId.compareTo(lccConverter.getHvdcLine().getId()) != 0) {
@@ -281,8 +281,8 @@ public class HvdcConversionTest {
             LOG.info("Different hvdcType {} reference {}", vscConverter.getHvdcType(), referenceConverter.hvdcType);
             return false;
         }
-        if (referenceConverter.name.compareTo(vscConverter.getName()) != 0) {
-            LOG.info("Different name {} reference {}", vscConverter.getName(), referenceConverter.name);
+        if (referenceConverter.name.compareTo(vscConverter.getNameOrId()) != 0) {
+            LOG.info("Different name {} reference {}", vscConverter.getNameOrId(), referenceConverter.name);
             return false;
         }
         if (referenceConverter.hvdcLineId.compareTo(vscConverter.getHvdcLine().getId()) != 0) {
@@ -322,8 +322,8 @@ public class HvdcConversionTest {
             LOG.info("Different hvdcType {} reference {}", hvdcLine.getConvertersMode(), referenceHvdcLine.convertersMode);
             return false;
         }
-        if (referenceHvdcLine.name.compareTo(hvdcLine.getName()) != 0) {
-            LOG.info("Different name {} reference {}", hvdcLine.getName(), referenceHvdcLine.name);
+        if (referenceHvdcLine.name.compareTo(hvdcLine.getNameOrId()) != 0) {
+            LOG.info("Different name {} reference {}", hvdcLine.getNameOrId(), referenceHvdcLine.name);
             return false;
         }
         if (referenceHvdcLine.converterStation1.compareTo(hvdcLine.getConverterStation1().getId()) != 0) {
@@ -358,7 +358,7 @@ public class HvdcConversionTest {
         LOG.info("HvdcConverterStation");
         LOG.info("Id: {}", hvdcConverterStation.getId());
         LOG.info("HvdcType: {}", hvdcConverterStation.getHvdcType());
-        LOG.info("Name: {}", hvdcConverterStation.getName());
+        LOG.info("Name: {}", hvdcConverterStation.getNameOrId());
         LOG.info("HvdcLine Id: {}", hvdcConverterStation.getHvdcLine().getId());
         LOG.info("LossFactor: {}", hvdcConverterStation.getLossFactor());
         if (hvdcConverterStation.getHvdcType() == HvdcConverterStation.HvdcType.LCC) {
@@ -379,7 +379,7 @@ public class HvdcConversionTest {
         LOG.info("HvdcLine");
         LOG.info("Id: {}", hvdcLine.getId());
         LOG.info("convertersMode: {}", hvdcLine.getConvertersMode());
-        LOG.info("Name: {}", hvdcLine.getName());
+        LOG.info("Name: {}", hvdcLine.getNameOrId());
         LOG.info("converterStationId1: {}", hvdcLine.getConverterStation1().getId());
         LOG.info("converterStationId2: {}", hvdcLine.getConverterStation2().getId());
         LOG.info("R: {}", hvdcLine.getR());

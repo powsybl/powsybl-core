@@ -33,5 +33,6 @@
     <logger name="com.powsybl.cgmes.conversion.elements.hvdc.TPnodeEquipments" level="info" />
     <logger name="com.powsybl.cgmes.conversion.elements.hvdc.Islands" level="info" />
     <logger name="com.powsybl.cgmes.conversion.elements.hvdc.IslandsEnds" level="info" />
+    <logger name="com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc" level="info" />
     <logger name="com.powsybl.cgmes.conversion.elements.hvdc.Hvdc" level="info" />
 </configuration>

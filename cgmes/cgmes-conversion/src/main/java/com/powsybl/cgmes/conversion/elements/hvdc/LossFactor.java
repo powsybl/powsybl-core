@@ -9,17 +9,22 @@ package com.powsybl.cgmes.conversion.elements.hvdc;
 
 import java.util.Objects;
 
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.HvdcLine;
 
 /**
+ * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 
 class LossFactor {
 
-    LossFactor(HvdcLine.ConvertersMode mode, double pAC1, double pAC2, double poleLossP1, double poleLossP2) {
+    LossFactor(Context context, HvdcLine.ConvertersMode mode, double pAC1, double pAC2, double poleLossP1,
+        double poleLossP2) {
+        Objects.requireNonNull(context);
         Objects.requireNonNull(mode);
+        this.context = context;
         this.mode = mode;
         this.pAC1 = pAC1;
         this.pAC2 = pAC2;
@@ -54,6 +59,16 @@ class LossFactor {
             this.lossFactor1 = 0.0;
             this.lossFactor2 = 0.0;
         }
+
+        if (Double.isNaN(this.lossFactor1)) {
+            this.lossFactor1 = 0.0;
+            context.fixed("lossFactor1", "was NaN", Double.NaN, this.lossFactor1);
+        }
+        if (Double.isNaN(this.lossFactor2)) {
+            this.lossFactor2 = 0.0;
+            context.fixed("lossFactor2", "was NaN", Double.NaN, this.lossFactor2);
+        }
+
         // else (i.e. pAC1 == 0 && pAC2 == 0) do nothing: loss factors are null and
         // stations are probably disconnected
     }
@@ -98,10 +113,6 @@ class LossFactor {
         }
     }
 
-    boolean isOk() {
-        return !Double.isNaN(this.lossFactor1) && !Double.isNaN(this.lossFactor2);
-    }
-
     double getLossFactor1() {
         return this.lossFactor1;
     }
@@ -110,6 +121,7 @@ class LossFactor {
         return this.lossFactor2;
     }
 
+    private final Context context;
     private final HvdcLine.ConvertersMode mode;
     private final double pAC1;
     private final double pAC2;
