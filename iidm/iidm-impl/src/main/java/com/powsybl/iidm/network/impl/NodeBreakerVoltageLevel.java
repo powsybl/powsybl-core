@@ -594,6 +594,19 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public Optional<Terminal> getOptionalTerminal(int node) {
+            if (graph.vertexExists(node)) {
+                return Optional.ofNullable(graph.getVertexObject(node));
+            }
+            return Optional.empty();
+        }
+
+        @Override
+        public boolean hasAttachedEquipment(int node) {
+            return graph.vertexExists(node);
+        }
+
+        @Override
         public Terminal getTerminal1(String switchId) {
             return getTerminal(getNode1(switchId));
         }
@@ -1062,13 +1075,15 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     protected void removeTopology() {
-        removeAllSwitches();
+        removeAllEdges();
     }
 
-    private void removeAllSwitches() {
+    private void removeAllEdges() {
         for (SwitchImpl s : graph.getEdgesObject()) {
-            getNetwork().getIndex().remove(s);
-            getNetwork().getListeners().notifyRemoval(s);
+            if (s != null) {
+                getNetwork().getIndex().remove(s);
+                getNetwork().getListeners().notifyRemoval(s);
+            }
         }
         graph.removeAllEdges();
         switches.clear();

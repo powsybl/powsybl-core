@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Optional;
 import java.util.Set;
 
 import com.powsybl.commons.extensions.Extendable;
@@ -31,9 +32,28 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     String getId();
 
     /**
-     * Get an the (optional) name  of the object.
+     * Get the name of the object if it exists. If not, get the unique identifier of the object.
+     *
+     * @deprecated Use {@link #getNameOrId()} or {@link #getOptionalName()} instead.
      */
-    String getName();
+    @Deprecated
+    default String getName() {
+        return getNameOrId();
+    }
+
+    /**
+     * Return an optional containing the name  of the object if it exists. If not, return an empty optional.
+     */
+    default Optional<String> getOptionalName() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get the name of the object if it exists. If not, get the unique identifier of the object.
+     */
+    default String getNameOrId() {
+        return getOptionalName().orElseGet(this::getId);
+    }
 
     /**
      * Check that this object has some properties.

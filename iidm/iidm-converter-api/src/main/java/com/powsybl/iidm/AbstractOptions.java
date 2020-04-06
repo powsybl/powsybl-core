@@ -15,11 +15,15 @@ import java.util.Set;
 public abstract class AbstractOptions<T> {
     protected Set<String> extensions = null;
 
-    protected IidmImportExportMode mode = IidmImportExportMode.UNIQUE_FILE;
-
     public abstract T setExtensions(Set<String> extensions);
 
-    public abstract T setMode(IidmImportExportMode mode);
+    /**
+     * @deprecated Not used anymore
+     */
+    @Deprecated
+    public T setMode(IidmImportExportMode mode) {
+        throw new UnsupportedOperationException("Not supported anymore");
+    }
 
     public abstract T addExtension(String extension);
 
@@ -51,8 +55,12 @@ public abstract class AbstractOptions<T> {
         return withAllExtensions() || extensions.contains(extensionName);
     }
 
+    /**
+     * @deprecated Not used anymore
+     */
+    @Deprecated
     public IidmImportExportMode getMode() {
-        return this.mode;
+        throw new UnsupportedOperationException("Not supported anymore");
     }
 
 }

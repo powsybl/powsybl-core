@@ -39,9 +39,13 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
             context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), getRootElementName());
         }
         context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
-        if (!identifiable.getId().equals(identifiable.getName())) {
-            context.getWriter().writeAttribute("name", context.getAnonymizer().anonymizeString(identifiable.getName()));
-        }
+        ((Identifiable<?>) identifiable).getOptionalName().ifPresent(name -> {
+            try {
+                context.getWriter().writeAttribute("name", context.getAnonymizer().anonymizeString(name));
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
             try {

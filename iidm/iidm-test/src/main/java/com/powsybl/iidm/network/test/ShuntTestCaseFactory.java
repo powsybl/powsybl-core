@@ -67,13 +67,15 @@ public final class ShuntTestCaseFactory {
                 .setId("SHUNT")
                 .setBus("B1")
                 .setConnectableBus("B1")
-                .setMaximumSectionCount(1)
                 .setCurrentSectionCount(1)
-                .setbPerSection(1e-5)
                 .setVoltageRegulatorOn(true)
                 .setRegulatingTerminal(load.getTerminal())
                 .setTargetV(200)
                 .setTargetDeadband(5.0)
+                .newLinearModel()
+                    .setMaximumSectionCount(1)
+                    .setbPerSection(1e-5)
+                    .add()
                 .add();
 
         return network;

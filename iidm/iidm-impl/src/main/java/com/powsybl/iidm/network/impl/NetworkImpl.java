@@ -974,7 +974,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.voltageLevel2 = vl2.getId();
             l.xnode = dl1.getUcteXnodeCode();
             l.half1.id = dl1.getId();
-            l.half1.name = dl1.getName();
+            l.half1.name = dl1.getNameOrId();
             l.half1.r = dl1.getR();
             l.half1.x = dl1.getX();
             l.half1.g1 = dl1.getG();
@@ -984,7 +984,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half1.xnodeP = dl1.getP0();
             l.half1.xnodeQ = dl1.getQ0();
             l.half2.id = dl2.getId();
-            l.half2.name = dl2.getName();
+            l.half2.name = dl2.getNameOrId();
             l.half2.r = dl2.getR();
             l.half2.x = dl2.getX();
             l.half2.g2 = dl2.getG();

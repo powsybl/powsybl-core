@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Connectable;
@@ -149,7 +150,7 @@ public class StateVariablesAdder {
                 continue;
             }
             boundaryNodesFromDanglingLines.values().forEach(value -> {
-                if (terminal.getId(CgmesNames.TOPOLOGICAL_NODE).equals(value)) {
+                if (CgmesTerminal.topologicalNode(terminal).equals(value)) {
                     PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
                     p.put("p", terminal.getId("p"));
                     p.put("q", terminal.getId("q"));

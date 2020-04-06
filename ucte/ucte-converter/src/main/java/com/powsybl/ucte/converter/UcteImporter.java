@@ -70,7 +70,7 @@ public class UcteImporter implements Importer {
         if (substation.getCountry().map(country -> country != Country.DE).orElse(true)) {
             return null;
         }
-        EntsoeGeographicalCode res = Enums.getIfPresent(EntsoeGeographicalCode.class, substation.getName().substring(0, 2)).orNull();
+        EntsoeGeographicalCode res = Enums.getIfPresent(EntsoeGeographicalCode.class, substation.getNameOrId().substring(0, 2)).orNull();
         //handle case where a D-node would start with DE ...
         return res == EntsoeGeographicalCode.DE ? null : res;
     }
@@ -93,6 +93,7 @@ public class UcteImporter implements Importer {
                     .add();
 
             addGeographicalNameProperty(ucteNode, bus);
+            bus.setFictitious(UcteNodeStatus.EQUIVALENT == ucteNode.getStatus());
 
             if (isValueValid(ucteNode.getActiveLoad()) || isValueValid(ucteNode.getReactiveLoad())) {
                 createLoad(ucteNode, voltageLevel, bus);
@@ -545,11 +546,11 @@ public class UcteImporter implements Importer {
         String busId2;
         if (ucteXnode.getCode().equals(ucteTransfo.getId().getNodeCode1())) {
             voltageLevelId1 = ucteOtherVoltageLevel.getName();
-            voltageLevelId2 = yVoltageLevel.getName();
+            voltageLevelId2 = yVoltageLevel.getId();
             busId1 = ucteOtherNodeCode.toString();
             busId2 = yNodeName;
         } else {
-            voltageLevelId1 = yVoltageLevel.getName();
+            voltageLevelId1 = yVoltageLevel.getId();
             voltageLevelId2 = ucteOtherVoltageLevel.getName();
             busId1 = yNodeName;
             busId2 = ucteOtherNodeCode.toString();
@@ -675,7 +676,7 @@ public class UcteImporter implements Importer {
         DanglingLine dl2 = null;
         Xnode xnodExtension = dl1.getExtension(Xnode.class);
         if (xnodExtension == null) {
-            throw new UcteException("Dangling line " + dl1.getName() + " doesn't have the Xnode extension");
+            throw new UcteException("Dangling line " + dl1.getNameOrId() + " doesn't have the Xnode extension");
         }
         String otherXnodeCode = xnodExtension.getCode();
         Iterator<DanglingLine> it = danglingLinesByXnodeCode.get(otherXnodeCode).iterator();
@@ -815,12 +816,13 @@ public class UcteImporter implements Importer {
         String mergeLineId = dlAtSideOne.getId() + " + " + dlAtSideTwo.getId();
 
         // create XNODE merge extension
-        // In case R1 and R2 (resp. X1 and X2) are zero, rdp (resp. xdp) should be set to zero to recover
-        // R1 = 0 and R2 = 0 (resp. X1 = 0 and X2 = 0) when splitting the mergedXnode
+        // In case R1 and R2 (resp. X1 and X2) are zero, rdp (resp. xdp) is set to 0.5:
+        // by default the line is split in the middle.
+        // R1 = 0 and R2 = 0 (resp. X1 = 0 and X2 = 0) are recovered when splitting the mergedXnode anyway.
         double sumR = dlAtSideOne.getR() + dlAtSideTwo.getR();
         double sumX = dlAtSideOne.getX() + dlAtSideTwo.getX();
-        float rdp = (sumR == 0.) ? (float) 0. : (float) (dlAtSideOne.getR() / sumR);
-        float xdp = (sumX == 0.) ? (float) 0. : (float) (dlAtSideOne.getX() / sumX);
+        float rdp = (sumR == 0.) ? (float) 0.5 : (float) (dlAtSideOne.getR() / sumR);
+        float xdp = (sumX == 0.) ? (float) 0.5 : (float) (dlAtSideOne.getX() / sumX);
         double xnodeP1 = dlAtSideOne.getP0();
         double xnodeQ1 = dlAtSideOne.getQ0();
         double xnodeP2 = dlAtSideTwo.getP0();

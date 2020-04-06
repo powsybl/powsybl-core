@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Stream;
 
@@ -437,11 +438,29 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
         /**
          * Get the terminal corresponding to the {@param node}.
-         * May return null.
          *
          * @throws com.powsybl.commons.PowsyblException if node is not found.
          */
         Terminal getTerminal(int node);
+
+        /**
+         * Get the terminal corresponding to the {@param node} if the {@param node} is valid.
+         * Return an empty optional if no existing terminal corresponds to {@param node}.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not valid.
+         */
+        default Optional<Terminal> getOptionalTerminal(int node) {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Check if a {@link Connectable}, a {@link Switch} or an {@link InternalConnection} is attached to the given node.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not valid
+         */
+        default boolean hasAttachedEquipment(int node) {
+            throw new UnsupportedOperationException();
+        }
 
         /**
          * Get the first terminal corresponding to the {@param switchId}.

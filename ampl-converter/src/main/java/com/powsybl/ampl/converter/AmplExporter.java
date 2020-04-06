@@ -30,12 +30,13 @@ import java.util.Properties;
 public class AmplExporter implements Exporter {
 
     public static final String EXPORT_RATIOTAPCHANGER_VT = "iidm.export.ampl.export-ratio-tap-changer-voltage-target";
-    public static final String SPECIFIC_COMPATIBILITY = "iidm.export.ampl.specific-compatibility";
+    public static final String T2WT_SPLIT_SHUNT_ADMITTANCE = "iidm.export.ampl.t2wt-split-shunt-admittance";
 
     private static final Parameter EXPORT_RATIOTAPCHANGER_VT_PARAMETER = new Parameter(EXPORT_RATIOTAPCHANGER_VT, ParameterType.BOOLEAN, "Export ratio tap changer voltage target", Boolean.FALSE)
             .addAdditionalNames("iidm.export.ampl.exportRatioTapChangerVoltageTarget");
-    private static final Parameter SPECIFIC_COMPATIBILITY_PARAMETER = new Parameter(SPECIFIC_COMPATIBILITY, ParameterType.BOOLEAN, "Export specific compatibility", Boolean.FALSE)
-            .addAdditionalNames("iidm.export.ampl.specificCompatibility");
+    private static final Parameter T2WT_SPLIT_SHUNT_ADMITTANCE_PARAMETER = new Parameter(T2WT_SPLIT_SHUNT_ADMITTANCE, ParameterType.BOOLEAN, "Export t2wt split shunt admittance", Boolean.FALSE)
+        .addAdditionalNames("iidm.export.ampl.specific-compatibility")
+        .addAdditionalNames("iidm.export.ampl.specificCompatibility");
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -63,8 +64,8 @@ public class AmplExporter implements Exporter {
         Objects.requireNonNull(dataSource);
         try {
             boolean exportRatioTapChangerVoltageTarget = ConversionParameters.readBooleanParameter(getFormat(), parameters, EXPORT_RATIOTAPCHANGER_VT_PARAMETER, defaultValueConfig);
-            boolean specificCompatibility = ConversionParameters.readBooleanParameter(getFormat(), parameters, SPECIFIC_COMPATIBILITY_PARAMETER, defaultValueConfig);
-            new AmplNetworkWriter(network, dataSource, new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false, AmplExportConfig.ExportActionType.CURATIVE, exportRatioTapChangerVoltageTarget, specificCompatibility))
+            boolean t2wtSplitShuntAdmittance = ConversionParameters.readBooleanParameter(getFormat(), parameters, T2WT_SPLIT_SHUNT_ADMITTANCE_PARAMETER, defaultValueConfig);
+            new AmplNetworkWriter(network, dataSource, new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false, AmplExportConfig.ExportActionType.CURATIVE, exportRatioTapChangerVoltageTarget, t2wtSplitShuntAdmittance))
                     .write();
         } catch (IOException e) {
             throw new UncheckedIOException(e);

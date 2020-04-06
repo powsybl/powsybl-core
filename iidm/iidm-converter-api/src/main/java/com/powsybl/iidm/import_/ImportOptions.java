@@ -8,7 +8,6 @@ package com.powsybl.iidm.import_;
 
 import com.google.common.collect.Sets;
 import com.powsybl.iidm.AbstractOptions;
-import com.powsybl.iidm.IidmImportExportMode;
 
 import java.util.Set;
 
@@ -35,12 +34,6 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
 
     public ImportOptions setThrowExceptionIfExtensionNotFound(boolean throwExceptionIfExtensionNotFound) {
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
-        return this;
-    }
-
-    @Override
-    public ImportOptions setMode(IidmImportExportMode mode) {
-        this.mode = mode;
         return this;
     }
 
