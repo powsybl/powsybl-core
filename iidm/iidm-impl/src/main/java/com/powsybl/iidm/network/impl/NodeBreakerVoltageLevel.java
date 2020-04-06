@@ -1075,10 +1075,10 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     protected void removeTopology() {
-        removeAllSwitches();
+        removeAllEdges();
     }
 
-    private void removeAllSwitches() {
+    private void removeAllEdges() {
         for (SwitchImpl s : graph.getEdgesObject()) {
             if (s != null) {
                 getNetwork().getIndex().remove(s);
