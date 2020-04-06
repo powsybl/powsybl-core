@@ -22,8 +22,8 @@ public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInte
     private int onSecurityAnalysisResultCount = 0;
 
     @Override
-    public void onPreContingencyResult(RunningContext context, LimitViolationsResult preContingencyResult) {
-        super.onPreContingencyResult(context, preContingencyResult);
+    public void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context) {
+        super.onPreContingencyResult(preContingencyResult, context);
 
         assertRunningContext(context);
         assertPreContingencyResult(preContingencyResult);
@@ -31,17 +31,17 @@ public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInte
     }
 
     @Override
-    public void onPostContingencyResult(ContingencyContext context, PostContingencyResult postContingencyResult) {
-        super.onPostContingencyResult(context, postContingencyResult);
+    public void onPostContingencyResult(PostContingencyResult postContingencyResult, SecurityAnalysisResultContext context) {
+        super.onPostContingencyResult(postContingencyResult, context);
 
-        assertRunningContext(context.getRunningContext());
+        assertRunningContext(context);
         assertPostContingencyResult(postContingencyResult);
         onPostContingencyResultCount++;
     }
 
     @Override
-    public void onSecurityAnalysisResult(RunningContext context, SecurityAnalysisResult result) {
-        super.onSecurityAnalysisResult(context, result);
+    public void onSecurityAnalysisResult(SecurityAnalysisResult result, SecurityAnalysisResultContext context) {
+        super.onSecurityAnalysisResult(result, context);
 
         assertRunningContext(context);
         assertNotNull(result);
@@ -62,7 +62,7 @@ public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInte
         return onSecurityAnalysisResultCount;
     }
 
-    private static void assertRunningContext(RunningContext context) {
+    private static void assertRunningContext(SecurityAnalysisResultContext context) {
         assertNotNull(context);
         assertNotNull(context.getNetwork());
         assertEquals("sim1", context.getNetwork().getId());

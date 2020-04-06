@@ -6,6 +6,7 @@
  */
 package com.powsybl.security.interceptors;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyResult;
@@ -17,27 +18,31 @@ import com.powsybl.security.SecurityAnalysisResult;
 public interface SecurityAnalysisInterceptor {
 
     /**
+     * @Deprected.
      * Callback after the pre-contingency analysis result is created
      * @param context The running context
      * @param preContingencyResult
      */
+    @Deprecated
     void onPreContingencyResult(RunningContext context, LimitViolationsResult preContingencyResult);
 
     /**
-     * @Deprecated. Use {@link #onPostContingencyResult(ContingencyContext context, PostContingencyResult postContingencyResult)}
+     * @Deprecated. Use {@link #onPostContingencyResult(PostContingencyResult, SecurityAnalysisResultContext)}
      * @param context
      * @param postContingencyResult
      */
     @Deprecated
-    void onPostContingencyResult(RunningContext context, PostContingencyResult postContingencyResult);
+    default void onPostContingencyResult(RunningContext context, PostContingencyResult postContingencyResult) {
+        onPostContingencyResult(postContingencyResult, context);
+    }
 
     /**
      * Callback after the post-contingency result is created
      * @param context
      * @param postContingencyResult
      */
-    default void onPostContingencyResult(ContingencyContext context, PostContingencyResult postContingencyResult) {
-        onPostContingencyResult(context.getRunningContext(), postContingencyResult);
+    default void onPostContingencyResult(PostContingencyResult postContingencyResult, SecurityAnalysisResultContext context) {
+        onPostContingencyResult(new RunningContext(context.getNetwork(), context.getInitialStateId()), postContingencyResult);
     }
 
     /**
@@ -55,5 +60,13 @@ public interface SecurityAnalysisInterceptor {
     default void onLimitViolation(ViolationContext context, LimitViolation limitViolation) {
 
     }
+
+    void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context);
+
+    void onSecurityAnalysisResult(SecurityAnalysisResult result, SecurityAnalysisResultContext context);
+
+    void onLimitViolation(LimitViolation limitViolation, SecurityAnalysisResultContext context);
+
+    void onLimitViolation(Contingency contingency, LimitViolation limitViolation, SecurityAnalysisResultContext context);
 
 }

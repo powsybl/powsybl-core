@@ -1,19 +1,20 @@
 package com.powsybl.security;
 
-import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.security.interceptors.*;
+import com.powsybl.security.interceptors.DefaultSecurityAnalysisInterceptor;
+import com.powsybl.security.interceptors.RunningContext;
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.interceptors.SecurityAnalysisResultContext;
 import org.junit.Test;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
@@ -36,9 +37,10 @@ public class SecurityAnalysisResultBuilderTest {
     }
 
     @Test
-    public void completeResult() {
+    public void completeResultWithCustomContext() {
         SecurityAnalysisInterceptor securityAnalysisInterceptorMock = new MockInterceptor();
-        MockViolationContextExt preVioContextExt = new MockViolationContextExt();
+        CustomResultContext preContext = new CustomResultContext(network, network.getVariantManager().getWorkingVariantId(), "pre");
+        CustomLimitViolationContext preVioContext = new CustomLimitViolationContext(network, network.getVariantManager().getWorkingVariantId(), null);
 
         SecurityAnalysisResultBuilder builder = new SecurityAnalysisResultBuilder(new LimitViolationFilter(),
                 new RunningContext(network, network.getVariantManager().getWorkingVariantId()), Collections.singleton(securityAnalysisInterceptorMock));
@@ -46,14 +48,31 @@ public class SecurityAnalysisResultBuilderTest {
         VoltageLevel vl = network.getVoltageLevel("VLHV1");
         vl.getBusView().getBusStream().forEach(b -> b.setV(410));
 
-        SecurityAnalysisResultBuilder.PreContingencyResultBuilder preContingencyResultBuilder = builder.preContingency();
-        SecurityAnalysisResultBuilder securityAnalysisResultBuilder = preContingencyResultBuilder.setComputationOk(true)
-                .addViolationContextExtension(Security.checkLimits(network).get(0), preVioContextExt)
-                .endPreContingency();
-        SecurityAnalysisResult build = securityAnalysisResultBuilder.build();
-        LimitViolationsResult preContingencyResult = build.getPreContingencyResult();
-        assertEquals(1, preContingencyResult.getLimitViolations().size());
-        assertEquals(1, preVioContextExt.calledCount);
+        SecurityAnalysisResultBuilder.PreContingencyResultBuilder preContingencyResultBuilder = builder.preContingency(preContext);
+        LimitViolationsResult preContingencyResult = preContingencyResultBuilder
+                .addViolations(Security.checkLimits(network), preVioContext)
+                .endPreContingency().build().getPreContingencyResult();
+        assertEquals(4, preContingencyResult.getLimitViolations().size());
+        assertEquals(1, preContext.calledCount);
+
+        vl.getBusView().getBusStream().forEach(b -> b.setV(380));
+
+        CustomResultContext postResultContext = new CustomResultContext(network, network.getVariantManager().getWorkingVariantId(), "post");
+        CustomLimitViolationContext postViolationContext = new CustomLimitViolationContext(network, network.getVariantManager().getWorkingVariantId(), "ids");
+        SecurityAnalysisResult postResult = builder.contingency(new Contingency("contingency1"), postResultContext)
+                .setComputationOk(true)
+                .addViolations(Security.checkLimits(network), postViolationContext)
+                .endContingency().build();
+        assertEquals(1, postResultContext.calledCount);
+    }
+
+    @Test
+    public void completeResult() {
+        SecurityAnalysisResultBuilder builder = new SecurityAnalysisResultBuilder(new LimitViolationFilter(),
+                new RunningContext(network, network.getVariantManager().getWorkingVariantId()));
+
+        VoltageLevel vl = network.getVoltageLevel("VLHV1");
+        vl.getBusView().getBusStream().forEach(b -> b.setV(410));
 
         builder.preContingency()
                 .setComputationOk(true)
@@ -62,21 +81,13 @@ public class SecurityAnalysisResultBuilderTest {
 
         vl.getBusView().getBusStream().forEach(b -> b.setV(380));
 
-        MockContingencyContextExt contingencyContextExtMock = new MockContingencyContextExt();
-
-        builder.contingency(new Contingency("contingency1"))
-                .addContingencyContextExtensions(Collections.singletonList(contingencyContextExtMock))
-                .setComputationOk(true)
+        builder.contingency(new Contingency("contingency1")).setComputationOk(true)
                 .addViolations(Security.checkLimits(network))
                 .endContingency();
-        assertEquals(1, contingencyContextExtMock.calledCount);
+
         vl.getBusView().getBusStream().forEach(b -> b.setV(520));
-        List<LimitViolation> limitViolations = Security.checkLimits(network);
-        MockViolationContextExt violationContextExt = new MockViolationContextExt();
-        builder.contingency(new Contingency("contingency2"))
-                .setComputationOk(true)
-                .addViolations(limitViolations)
-                .addViolationContextExtension(limitViolations.get(0), violationContextExt)
+        builder.contingency(new Contingency("contingency2")).setComputationOk(true)
+                .addViolations(Security.checkLimits(network))
                 .endContingency();
 
         SecurityAnalysisResult res = builder.build();
@@ -102,54 +113,83 @@ public class SecurityAnalysisResultBuilderTest {
         assertEquals(3, violations2.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
         assertEquals(0, violations2.stream().filter(l -> l.getLimitType() == LimitViolationType.LOW_VOLTAGE).count());
         assertEquals(1, violations2.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE).count());
-        assertEquals(1, violationContextExt.calledCount);
     }
 
-    static class MockContingencyContextExt extends AbstractExtension<ContingencyContext> {
+    static class CustomResultContext extends RunningContext {
 
+        private final String name;
         private int calledCount = 0;
 
-        @Override
-        public String getName() {
-            return "mock";
+        public CustomResultContext(Network network, String stateId, String name) {
+            super(network, stateId);
+            this.name = Objects.requireNonNull(name);
         }
 
-        public void foo() {
-            calledCount++;
-        }
-    }
-
-    static class MockViolationContextExt extends AbstractExtension<ViolationContext> {
-
-        private int calledCount = 0;
-
-        @Override
-        public String getName() {
-            return "mockViolationContextExt";
-        }
-
-        public void bar() {
+        void foo() {
             calledCount++;
         }
 
+        public String getName() {
+            return name;
+        }
+    }
+
+    static class CustomLimitViolationContext extends RunningContext {
+
+        private final String subjectId;
+
+        public CustomLimitViolationContext(Network network, String stateId, String subjectId) {
+            super(network, stateId);
+            this.subjectId = subjectId;
+        }
+
+        public String getSubjectId() {
+            return subjectId;
+        }
     }
 
     static class MockInterceptor extends DefaultSecurityAnalysisInterceptor {
 
         @Override
-        public void onPostContingencyResult(ContingencyContext context, PostContingencyResult postContingencyResult) {
-            MockContingencyContextExt extension = context.getExtension(MockContingencyContextExt.class);
-            if (extension != null) {
-                assertEquals("contingency1", postContingencyResult.getContingency().getId());
-                extension.foo();
+        public void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context) {
+            if (context instanceof CustomResultContext) {
+                CustomResultContext customContext = (CustomResultContext) context;
+                customContext.foo();
+                assertEquals("pre", customContext.getName());
             }
         }
 
         @Override
-        public void onLimitViolation(ViolationContext context, LimitViolation limitViolation) {
-            MockViolationContextExt ext = context.getExtension(MockViolationContextExt.class);
-            if (ext != null) {
-                ext.bar();
+        public void onPostContingencyResult(PostContingencyResult postContingencyResult, SecurityAnalysisResultContext context) {
+            if (context instanceof CustomResultContext) {
+                CustomResultContext customContext = (CustomResultContext) context;
+                customContext.foo();
+                assertEquals("post", customContext.getName());
+            }
+        }
+
+        @Override
+        public void onLimitViolation(LimitViolation limitViolation, SecurityAnalysisResultContext context) {
+            if (context instanceof CustomLimitViolationContext) {
+                CustomLimitViolationContext customContext = (CustomLimitViolationContext) context;
+                assertNull(customContext.getSubjectId());
+            }
+        }
+
+        @Override
+        public void onLimitViolation(Contingency contingency, LimitViolation limitViolation, SecurityAnalysisResultContext context) {
+            if (context instanceof CustomLimitViolationContext) {
+                CustomLimitViolationContext customContext = (CustomLimitViolationContext) context;
+                assertNotNull(customContext.getSubjectId());
+            }
+        }
+
+        @Override
+        public void onSecurityAnalysisResult(SecurityAnalysisResult result, SecurityAnalysisResultContext context) {
+            if (context instanceof CustomResultContext) {
+                CustomResultContext customContext = (CustomResultContext) context;
+                customContext.foo();
+                assertEquals("all", customContext.getName());
             }
         }
     }
