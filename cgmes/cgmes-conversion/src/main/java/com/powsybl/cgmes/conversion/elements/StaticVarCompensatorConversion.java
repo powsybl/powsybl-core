@@ -25,7 +25,7 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
     @Override
     public void convert() {
         double slope = p.asDouble("slope", 0.0);
-        ignored(String.format("Slope %f", slope));
+        ignored("Slope " + slope);
 
         double capacitiveRating = p.asDouble("capacitiveRating", 0.0);
         double inductiveRating = p.asDouble("inductiveRating", 0.0);
