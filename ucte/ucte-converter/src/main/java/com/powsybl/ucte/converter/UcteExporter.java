@@ -475,10 +475,17 @@ public class UcteExporter implements Exporter {
         // FIXME(mathbagu) REAL or EQUIVALENT ?
         UcteElementStatus status = tieLine.getTerminal1().isConnected() && tieLine.getTerminal2().isConnected() ? EQUIVALENT_ELEMENT_IN_OPERATION : EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
 
+        String elementName = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
+        String elementName1 = elementName;
+        String elementName2 = elementName;
+        if (elementName != null && elementName.contains(",")) {
+            elementName1 = elementName.split(",")[0];
+            elementName2 = elementName.split(",")[1];
+        }
+
         // Create half line 1
         TieLine.HalfLine half1 = tieLine.getHalf1();
         UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(half1.getId());
-        String elementName1 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", null);
         UcteLine ucteLine1 = new UcteLine(
                 ucteElementId1,
                 status,
@@ -492,7 +499,6 @@ public class UcteExporter implements Exporter {
         // Create half line2
         TieLine.HalfLine half2 = tieLine.getHalf2();
         UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(half2.getId());
-        String elementName2 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", null);
         UcteLine ucteLine2 = new UcteLine(
                 ucteElementId2,
                 status,

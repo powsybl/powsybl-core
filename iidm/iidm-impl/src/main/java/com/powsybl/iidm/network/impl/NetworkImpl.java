@@ -46,12 +46,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private final NetworkListenerList listeners = new NetworkListenerList();
 
+    private static final String ELEMENT_NAME_PROPERTY = "elementName";
+
     class BusBreakerViewImpl implements BusBreakerView {
 
         @Override
         public Iterable<Bus> getBuses() {
             return FluentIterable.from(getVoltageLevels())
-                                 .transformAndConcat(vl -> vl.getBusBreakerView().getBuses());
+                    .transformAndConcat(vl -> vl.getBusBreakerView().getBuses());
         }
 
         @Override
@@ -62,7 +64,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         @Override
         public Iterable<Switch> getSwitches() {
             return FluentIterable.from(getVoltageLevels())
-                                 .transformAndConcat(vl -> vl.getBusBreakerView().getSwitches());
+                    .transformAndConcat(vl -> vl.getBusBreakerView().getSwitches());
         }
 
         @Override
@@ -91,7 +93,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         @Override
         public Iterable<Bus> getBuses() {
             return FluentIterable.from(getVoltageLevels())
-                                 .transformAndConcat(vl -> vl.getBusView().getBuses());
+                    .transformAndConcat(vl -> vl.getBusView().getBuses());
         }
 
         @Override
@@ -240,7 +242,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
         return Iterables.concat(index.getAll(BusBreakerVoltageLevel.class),
-                                index.getAll(NodeBreakerVoltageLevel.class));
+                index.getAll(NodeBreakerVoltageLevel.class));
     }
 
     @Override
@@ -1013,7 +1015,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                 LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
                 properties.setProperty(prop, dl1.getProperty(prop));
             } else {
-                LOGGER.error("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
+                if (!prop.equals(ELEMENT_NAME_PROPERTY)) {
+                    LOGGER.error("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
+                } else {
+                    properties.setProperty(prop, String.format("%s,%s", dl1.getProperty(prop), dl2.getProperty(prop)));
+                }
             }
         });
     }
@@ -1028,25 +1034,25 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                     .setVoltageLevel1(mergedLine.voltageLevel1)
                     .setVoltageLevel2(mergedLine.voltageLevel2)
                     .line1().setId(mergedLine.half1.id)
-                            .setName(mergedLine.half1.name)
-                            .setR(mergedLine.half1.r)
-                            .setX(mergedLine.half1.x)
-                            .setG1(mergedLine.half1.g1)
-                            .setG2(mergedLine.half1.g2)
-                            .setB1(mergedLine.half1.b1)
-                            .setB2(mergedLine.half1.b2)
-                            .setXnodeP(mergedLine.half1.xnodeP)
-                            .setXnodeQ(mergedLine.half1.xnodeQ)
+                    .setName(mergedLine.half1.name)
+                    .setR(mergedLine.half1.r)
+                    .setX(mergedLine.half1.x)
+                    .setG1(mergedLine.half1.g1)
+                    .setG2(mergedLine.half1.g2)
+                    .setB1(mergedLine.half1.b1)
+                    .setB2(mergedLine.half1.b2)
+                    .setXnodeP(mergedLine.half1.xnodeP)
+                    .setXnodeQ(mergedLine.half1.xnodeQ)
                     .line2().setId(mergedLine.half2.id)
-                            .setName(mergedLine.half2.name)
-                            .setR(mergedLine.half2.r)
-                            .setX(mergedLine.half2.x)
-                            .setG1(mergedLine.half2.g1)
-                            .setG2(mergedLine.half2.g2)
-                            .setB1(mergedLine.half2.b1)
-                            .setB2(mergedLine.half2.b2)
-                            .setXnodeP(mergedLine.half2.xnodeP)
-                            .setXnodeQ(mergedLine.half2.xnodeQ)
+                    .setName(mergedLine.half2.name)
+                    .setR(mergedLine.half2.r)
+                    .setX(mergedLine.half2.x)
+                    .setG1(mergedLine.half2.g1)
+                    .setG2(mergedLine.half2.g2)
+                    .setB1(mergedLine.half2.b1)
+                    .setB2(mergedLine.half2.b2)
+                    .setXnodeP(mergedLine.half2.xnodeP)
+                    .setXnodeQ(mergedLine.half2.xnodeQ)
                     .setUcteXnodeCode(mergedLine.xnode);
             if (mergedLine.bus1 != null) {
                 la.setBus1(mergedLine.bus1);
