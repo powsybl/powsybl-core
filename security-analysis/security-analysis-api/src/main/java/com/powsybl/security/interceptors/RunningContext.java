@@ -43,7 +43,6 @@ public class RunningContext implements SecurityAnalysisResultContext {
      *       the corresponding state will be filled with N results
      * @return the state ID corresponding to the N situation computation
      */
-    @Override
     public String getInitialStateId() {
         return initialStateId;
     }

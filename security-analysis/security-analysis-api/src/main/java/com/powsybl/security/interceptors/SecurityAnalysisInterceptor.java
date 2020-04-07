@@ -7,6 +7,7 @@
 package com.powsybl.security.interceptors;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyResult;
@@ -53,7 +54,7 @@ public interface SecurityAnalysisInterceptor {
      * @param context
      */
     default void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context) {
-        onPreContingencyResult(new RunningContext(context.getNetwork(), context.getInitialStateId()), preContingencyResult);
+        onPreContingencyResult(new RunningContext(context.getNetwork(), VariantManagerConstants.INITIAL_VARIANT_ID), preContingencyResult);
     }
 
     /**
@@ -62,7 +63,7 @@ public interface SecurityAnalysisInterceptor {
      * @param postContingencyResult
      */
     default void onPostContingencyResult(PostContingencyResult postContingencyResult, SecurityAnalysisResultContext context) {
-        onPostContingencyResult(new RunningContext(context.getNetwork(), context.getInitialStateId()), postContingencyResult);
+        onPostContingencyResult(new RunningContext(context.getNetwork(), VariantManagerConstants.INITIAL_VARIANT_ID), postContingencyResult);
     }
 
     /**
@@ -71,7 +72,7 @@ public interface SecurityAnalysisInterceptor {
      * @param context
      */
     default void onSecurityAnalysisResult(SecurityAnalysisResult result, SecurityAnalysisResultContext context) {
-        onSecurityAnalysisResult(new RunningContext(context.getNetwork(), context.getInitialStateId()), result);
+        onSecurityAnalysisResult(new RunningContext(context.getNetwork(), VariantManagerConstants.INITIAL_VARIANT_ID), result);
     }
 
     /**

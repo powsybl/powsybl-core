@@ -8,11 +8,21 @@ package com.powsybl.security.interceptors;
 
 import com.powsybl.iidm.network.Network;
 
+import java.util.Objects;
+
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public interface SecurityAnalysisResultContext {
+public class SecurityAnalysisResultContextImpl implements SecurityAnalysisResultContext {
 
-    Network getNetwork();
+    private final Network network;
 
+    public SecurityAnalysisResultContextImpl(Network network) {
+        this.network = Objects.requireNonNull(network);
+    }
+
+    @Override
+    public Network getNetwork() {
+        return network;
+    }
 }
