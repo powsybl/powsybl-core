@@ -64,7 +64,8 @@ public abstract class AbstractLineTest {
             .setConnectableBus2("busB")
             .add();
         assertEquals("line", acLine.getId());
-        assertEquals(LINE_NAME, acLine.getName());
+        assertEquals(LINE_NAME, acLine.getOptionalName().orElse(null));
+        assertEquals(LINE_NAME, acLine.getNameOrId());
         assertEquals(1.0, acLine.getR(), 0.0);
         assertEquals(2.0, acLine.getX(), 0.0);
         assertEquals(3.0, acLine.getG1(), 0.0);

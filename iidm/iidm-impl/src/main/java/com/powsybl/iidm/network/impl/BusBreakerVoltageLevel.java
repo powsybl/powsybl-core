@@ -373,6 +373,16 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public Optional<Terminal> getOptionalTerminal(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public boolean hasAttachedEquipment(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
         public Terminal getTerminal1(String switchId) {
             throw createNotSupportedBusBreakerTopologyException();
         }

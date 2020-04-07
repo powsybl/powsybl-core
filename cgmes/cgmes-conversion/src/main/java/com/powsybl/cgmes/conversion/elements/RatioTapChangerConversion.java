@@ -54,8 +54,8 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
                 String reason0 = String.format(
                         "Not supported at end 1 of 3wtx. txId 'name' 'substation': %s '%s' '%s'",
                         tx3.getId(),
-                        tx3.getName(),
-                        tx3.getSubstation().getName());
+                        tx3.getNameOrId(),
+                        tx3.getSubstation().getNameOrId());
                 // Check if the step is at neutral and regulating control is disabled
                 boolean regulating = p.asBoolean("regulatingControlEnabled", false);
                 if (position == neutralStep && !regulating) {

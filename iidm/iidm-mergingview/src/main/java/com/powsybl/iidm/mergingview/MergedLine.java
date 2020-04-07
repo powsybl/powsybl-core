@@ -65,16 +65,22 @@ class MergedLine implements Line {
     }
 
     private static String buildName(final DanglingLine dl1, final DanglingLine dl2) {
-        String name;
-        int compareResult = dl1.getName().compareTo(dl2.getName());
+        return dl1.getOptionalName()
+                .map(name1 -> dl2.getOptionalName()
+                        .map(name2 -> buildName(name1, name2))
+                        .orElse(name1))
+                .orElseGet(() -> dl2.getOptionalName().orElse(null));
+    }
+
+    private static String buildName(String name1, String name2) {
+        int compareResult = name1.compareTo(name2);
         if (compareResult == 0) {
-            name = dl1.getName();
+            return name1;
         } else if (compareResult < 0) {
-            name = dl1.getName() + " + " + dl2.getName();
+            return name1 + " + " + name2;
         } else {
-            name = dl2.getName() + " + " + dl1.getName();
+            return name2 + " + " + name1;
         }
-        return name;
     }
 
     private void mergeProperties(DanglingLine dl1, DanglingLine dl2) {
@@ -418,8 +424,13 @@ class MergedLine implements Line {
     }
 
     @Override
-    public String getName() {
-        return name;
+    public Optional<String> getOptionalName() {
+        return Optional.ofNullable(name);
+    }
+
+    @Override
+    public String getNameOrId() {
+        return getOptionalName().orElse(id);
     }
 
     @Override
