@@ -134,10 +134,6 @@ public class SecurityAnalysisResultBuilder {
             return addViolations(violations, resultContext);
         }
 
-        protected List<LimitViolation> filterViolations(SecurityAnalysisResultContext context, LimitViolationFilter filter, List<SecurityAnalysisInterceptor> interceptors) {
-            List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
-            return filteredViolations;
-        }
     }
 
     /**
@@ -154,9 +150,8 @@ public class SecurityAnalysisResultBuilder {
          * @return the parent {@link SecurityAnalysisResultBuilder} instance.
          */
         public SecurityAnalysisResultBuilder endPreContingency() {
-            List<LimitViolation> filteredViolations = filterViolations(resultContext, filter, interceptors);
+            List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
             LimitViolationsResult res = new LimitViolationsResult(computationOk, filteredViolations);
-//            interceptors.forEach(i -> i.onPreContingencyResult(context, res));
             interceptors.forEach(i -> i.onPreContingencyResult(res, resultContext));
             setPreContingencyResult(res);
 
@@ -191,7 +186,7 @@ public class SecurityAnalysisResultBuilder {
          * @return the parent {@link SecurityAnalysisResultBuilder} instance.
          */
         public SecurityAnalysisResultBuilder endContingency() {
-            List<LimitViolation> filteredViolations = filterViolations(context, filter, interceptors);
+            List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
             PostContingencyResult res = new PostContingencyResult(contingency, computationOk, filteredViolations);
             interceptors.forEach(i -> i.onPostContingencyResult(res, resultContext));
             addPostContingencyResult(res);
