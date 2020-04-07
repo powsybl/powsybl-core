@@ -35,13 +35,13 @@ public class CurrentLimitViolationInterceptor extends DefaultSecurityAnalysisInt
     public void onPostContingencyResult(PostContingencyResult postContingencyResult, SecurityAnalysisResultContext context) {
         String workingStateId = context.getNetwork().getVariantManager().getWorkingVariantId();
 
-        if (context instanceof NSituationHolderContext) {
-            NSituationHolderContext nSituationHolderContext = (NSituationHolderContext) context;
+        if (context instanceof RunningContext) {
+            RunningContext runningContext = (RunningContext) context;
             for (LimitViolation limitViolation : postContingencyResult.getLimitViolationsResult().getLimitViolations()) {
                 if (limitViolation.getLimitType() == LimitViolationType.CURRENT) {
                     Branch branch = context.getNetwork().getBranch(limitViolation.getSubjectId());
 
-                    context.getNetwork().getVariantManager().setWorkingVariant(nSituationHolderContext.getNSituationId());
+                    context.getNetwork().getVariantManager().setWorkingVariant(runningContext.getInitialStateId());
                     limitViolation.addExtension(CurrentExtension.class, new CurrentExtension(branch.getTerminal(limitViolation.getSide()).getI()));
                     double preContingencyValue = branch.getTerminal(limitViolation.getSide()).getP();
 
