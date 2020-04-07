@@ -13,11 +13,11 @@ import java.util.Objects;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class SecurityAnalysisResultContextImpl implements SecurityAnalysisResultContext {
+public class DefaultSecurityAnalysisResultContext implements SecurityAnalysisResultContext {
 
     private final Network network;
 
-    public SecurityAnalysisResultContextImpl(Network network) {
+    public DefaultSecurityAnalysisResultContext(Network network) {
         this.network = Objects.requireNonNull(network);
     }
 

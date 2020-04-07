@@ -20,16 +20,6 @@ import com.powsybl.security.SecurityAnalysisResult;
 public class DefaultSecurityAnalysisInterceptor implements SecurityAnalysisInterceptor {
 
     @Override
-    public void onPreContingencyResult(RunningContext context, LimitViolationsResult preContingencyResult) {
-        // Nothing to do
-    }
-
-    @Override
-    public void onSecurityAnalysisResult(RunningContext context, SecurityAnalysisResult result) {
-        // Nothing to do
-    }
-
-    @Override
     public void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context) {
 
     }

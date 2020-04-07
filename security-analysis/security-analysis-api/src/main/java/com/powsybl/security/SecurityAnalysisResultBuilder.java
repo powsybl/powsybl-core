@@ -60,8 +60,13 @@ public class SecurityAnalysisResultBuilder {
         return new PreContingencyResultBuilder(context);
     }
 
-    public PreContingencyResultBuilder preContingency(SecurityAnalysisResultContext context) {
-        return new PreContingencyResultBuilder(context);
+    /**
+     * Initiates the creation of the result for N situation
+     * @param preContingencyResultContext the context used when create the result
+     * @return a {@link PreContingencyResultBuilder} instance.
+     */
+    public PreContingencyResultBuilder preContingency(SecurityAnalysisResultContext preContingencyResultContext) {
+        return new PreContingencyResultBuilder(preContingencyResultContext);
     }
 
     /**
@@ -73,8 +78,14 @@ public class SecurityAnalysisResultBuilder {
         return new PostContingencyResultBuilder(contingency);
     }
 
-    public PostContingencyResultBuilder contingency(Contingency contingency, SecurityAnalysisResultContext resultContext) {
-        return new PostContingencyResultBuilder(contingency, resultContext);
+    /**
+     * Initiates the creation of the result for one {@link Contingency}
+     * @param contingency the contingency for which a result should be created
+     * @param postContingencyResultContext the context used when create the result
+     * @return a {@link PostContingencyResultBuilder} instance.
+     */
+    public PostContingencyResultBuilder contingency(Contingency contingency, SecurityAnalysisResultContext postContingencyResultContext) {
+        return new PostContingencyResultBuilder(contingency, postContingencyResultContext);
     }
 
     /**
@@ -109,24 +120,39 @@ public class SecurityAnalysisResultBuilder {
             return (B) this;
         }
 
+        /**
+         * Initiates a result builder with a {@link SecurityAnalysisResultContext}.
+         * @param resultContext The context would be used when creation result or as default context when a limit violation added.
+         */
         public AbstractLimitViolationsResultBuilder(SecurityAnalysisResultContext resultContext) {
             this.resultContext = resultContext;
         }
 
+        /**
+         * Adds a {@link LimitViolation} to the builder.
+         * The default result context would be supplied to interceptors.
+         * @param violation
+         * @return
+         */
         public B addViolation(LimitViolation violation) {
             addViolation(violation, resultContext);
             return (B) this;
         }
 
-        public B addViolation(LimitViolation violation, SecurityAnalysisResultContext context) {
-            Objects.requireNonNull(context);
-            interceptors.forEach(i -> i.onLimitViolation(violation, context));
+        /**
+         * Adds a {@link LimitViolation} to the builder with a context.
+         * @param violation the context would be supplied to interceptors.
+         * @return
+         */
+        public B addViolation(LimitViolation violation, SecurityAnalysisResultContext limitViolationContext) {
+            Objects.requireNonNull(limitViolationContext);
             violations.add(Objects.requireNonNull(violation));
+            interceptors.forEach(i -> i.onLimitViolation(violation, limitViolationContext));
             return (B) this;
         }
 
-        public B addViolations(List<LimitViolation> violations, SecurityAnalysisResultContext context) {
-            Objects.requireNonNull(violations).forEach(limitViolation -> addViolation(limitViolation, context));
+        public B addViolations(List<LimitViolation> violations, SecurityAnalysisResultContext limitViolationContext) {
+            Objects.requireNonNull(violations).forEach(limitViolation -> addViolation(limitViolation, limitViolationContext));
             return (B) this;
         }
 
@@ -174,10 +200,10 @@ public class SecurityAnalysisResultBuilder {
         }
 
         @Override
-        public PostContingencyResultBuilder addViolation(LimitViolation violation, SecurityAnalysisResultContext context) {
-            Objects.requireNonNull(context);
-            interceptors.forEach(i -> i.onLimitViolation(contingency, violation, context));
+        public PostContingencyResultBuilder addViolation(LimitViolation violation, SecurityAnalysisResultContext limitViolationContext) {
+            Objects.requireNonNull(limitViolationContext);
             violations.add(Objects.requireNonNull(violation));
+            interceptors.forEach(i -> i.onLimitViolation(contingency, violation, limitViolationContext));
             return this;
         }
 

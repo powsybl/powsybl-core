@@ -120,7 +120,7 @@ public class SecurityAnalysisResultBuilderTest {
         assertEquals(1, violations2.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE).count());
     }
 
-    static class MockContext extends SecurityAnalysisResultContextImpl {
+    static class MockContext extends DefaultSecurityAnalysisResultContext {
 
         private int calledCount = 0;
 

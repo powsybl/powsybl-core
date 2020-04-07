@@ -7,7 +7,6 @@
 package com.powsybl.security.interceptors;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyResult;
@@ -19,16 +18,18 @@ import com.powsybl.security.SecurityAnalysisResult;
 public interface SecurityAnalysisInterceptor {
 
     /**
-     * @Deprected. Use {@link #onPreContingencyResult(LimitViolationsResult, SecurityAnalysisResultContext)}
+     * @deprecated Use {@link #onPreContingencyResult(LimitViolationsResult, SecurityAnalysisResultContext)}
      * Callback after the pre-contingency analysis result is created
      * @param context The running context
      * @param preContingencyResult
      */
     @Deprecated
-    void onPreContingencyResult(RunningContext context, LimitViolationsResult preContingencyResult);
+    default void onPreContingencyResult(RunningContext context, LimitViolationsResult preContingencyResult) {
+        onPreContingencyResult(preContingencyResult, context);
+    }
 
     /**
-     * @Deprecated. Use {@link #onPostContingencyResult(PostContingencyResult, SecurityAnalysisResultContext)}
+     * @deprecated Use {@link #onPostContingencyResult(PostContingencyResult, SecurityAnalysisResultContext)}
      * @param context
      * @param postContingencyResult
      */
@@ -38,7 +39,7 @@ public interface SecurityAnalysisInterceptor {
     }
 
     /**
-     * @Deprecated. Use {@link #onSecurityAnalysisResult(SecurityAnalysisResult, SecurityAnalysisResultContext)}
+     * @deprecated Use {@link #onSecurityAnalysisResult(SecurityAnalysisResult, SecurityAnalysisResultContext)}
      * Callback after the result is created
      * @param context
      * @param result
@@ -54,7 +55,7 @@ public interface SecurityAnalysisInterceptor {
      * @param context
      */
     default void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context) {
-        onPreContingencyResult(new RunningContext(context.getNetwork(), VariantManagerConstants.INITIAL_VARIANT_ID), preContingencyResult);
+
     }
 
     /**
@@ -63,7 +64,7 @@ public interface SecurityAnalysisInterceptor {
      * @param postContingencyResult
      */
     default void onPostContingencyResult(PostContingencyResult postContingencyResult, SecurityAnalysisResultContext context) {
-        onPostContingencyResult(new RunningContext(context.getNetwork(), VariantManagerConstants.INITIAL_VARIANT_ID), postContingencyResult);
+
     }
 
     /**
@@ -72,7 +73,7 @@ public interface SecurityAnalysisInterceptor {
      * @param context
      */
     default void onSecurityAnalysisResult(SecurityAnalysisResult result, SecurityAnalysisResultContext context) {
-        onSecurityAnalysisResult(new RunningContext(context.getNetwork(), VariantManagerConstants.INITIAL_VARIANT_ID), result);
+
     }
 
     /**
