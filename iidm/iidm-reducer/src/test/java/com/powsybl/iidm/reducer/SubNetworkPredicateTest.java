@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.reducer;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -31,16 +30,16 @@ public class SubNetworkPredicateTest {
 
     @Test
     public void testEsgTuto() {
-        NetworkPredicate predicate = new SubNetworkPredicate("VLHV1", 1);
         Network network = EurostagTutorialExample1Factory.create();
+        NetworkPredicate predicate = new SubNetworkPredicate(network.getVoltageLevel("VLHV1"), 1);
         assertEquals(Arrays.asList("P1", "P2"), network.getSubstationStream().filter(predicate::test).map(Identifiable::getId).collect(Collectors.toList()));
         assertEquals(Arrays.asList("VLGEN", "VLHV1", "VLHV2"), network.getVoltageLevelStream().filter(predicate::test).map(Identifiable::getId).collect(Collectors.toList()));
     }
 
     @Test
     public void test3wt() {
-        NetworkPredicate predicate = new SubNetworkPredicate("VL_132", 1);
         Network network = ThreeWindingsTransformerNetworkFactory.create();
+        NetworkPredicate predicate = new SubNetworkPredicate(network.getVoltageLevel("VL_132"), 1);
         assertEquals(Collections.singletonList("SUBSTATION"), network.getSubstationStream().filter(predicate::test).map(Identifiable::getId).collect(Collectors.toList()));
         assertEquals(Arrays.asList("VL_132", "VL_33", "VL_11"), network.getVoltageLevelStream().filter(predicate::test).map(Identifiable::getId).collect(Collectors.toList()));
     }
@@ -49,15 +48,7 @@ public class SubNetworkPredicateTest {
     public void shouldThrowInvalidMaxDepth() {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Invalid max depth value: -2");
-        new SubNetworkPredicate("AA", -2);
-    }
-
-    @Test
-    public void shouldThrowVoltageLevelNotFound() {
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Voltage level 'AA' not found");
         Network network = EurostagTutorialExample1Factory.create();
-        NetworkPredicate predicate = new SubNetworkPredicate("AA", 1);
-        network.getVoltageLevelStream().forEach(predicate::test);
+        new SubNetworkPredicate(network.getVoltageLevel("VLHV1"), -2);
     }
 }

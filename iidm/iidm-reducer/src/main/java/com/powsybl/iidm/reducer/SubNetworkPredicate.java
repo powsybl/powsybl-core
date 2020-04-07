@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.reducer;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.LinkedHashSet;
@@ -21,31 +20,20 @@ import java.util.Set;
  */
 public class SubNetworkPredicate implements NetworkPredicate {
 
-    private String voltageLevelId;
+    private final IdentifierNetworkPredicate delegate;
 
-    private int maxDepth;
+    public SubNetworkPredicate(VoltageLevel vl, int maxDepth) {
+        delegate = init(vl, maxDepth);
+    }
 
-    private IdentifierNetworkPredicate delegate;
-
-    public SubNetworkPredicate(String voltageLevelId, int maxDepth) {
-        this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
+    private static IdentifierNetworkPredicate init(VoltageLevel vl, int maxDepth) {
+        Objects.requireNonNull(vl);
         if (maxDepth < 0) {
             throw new IllegalArgumentException("Invalid max depth value: " + maxDepth);
         }
-        this.maxDepth = maxDepth;
-    }
-
-    private void init(Network network) {
-        if (delegate != null) {
-            return;
-        }
-        VoltageLevel vl = network.getVoltageLevel(voltageLevelId);
-        if (vl == null) {
-            throw new PowsyblException("Voltage level '" + voltageLevelId + "' not found");
-        }
         Set<String> voltageLevelIds = new LinkedHashSet<>();
         traverse(vl, 0, maxDepth, voltageLevelIds);
-        delegate = new IdentifierNetworkPredicate(voltageLevelIds);
+        return new IdentifierNetworkPredicate(voltageLevelIds);
     }
 
     private static void traverse(VoltageLevel vl, int depth, int maxDepth, Set<String> voltageLevelIds) {
@@ -103,13 +91,11 @@ public class SubNetworkPredicate implements NetworkPredicate {
 
     @Override
     public boolean test(Substation substation) {
-        init(substation.getNetwork());
         return delegate.test(substation);
     }
 
     @Override
     public boolean test(VoltageLevel voltageLevel) {
-        init(voltageLevel.getNetwork());
         return delegate.test(voltageLevel);
     }
 }
