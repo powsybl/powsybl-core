@@ -19,7 +19,15 @@ public interface CoordinatedReactiveControl extends Extension<Generator> {
         return "coordinatedReactiveControl";
     }
 
+    /**
+     * Get the percent of the coordinated reactive control that comes
+     * from the generator to which this extension is linked.
+     */
     double getQPercent();
 
+    /**
+     * Set the percent of the coordinated reactive control that comes
+     * from the generator to which this extension is linked.
+     */
     void setQPercent(double qPercent);
 }
