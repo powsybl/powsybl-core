@@ -56,6 +56,8 @@ public class UcteExporter implements Exporter {
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
+    private static final String PROPERTY_SEPARATOR = ",";
+
     public UcteExporter() {
         this(PlatformConfig.defaultConfig());
     }
@@ -479,8 +481,8 @@ public class UcteExporter implements Exporter {
         String elementName1 = elementName;
         String elementName2 = elementName;
         if (elementName != null && elementName.contains(",")) {
-            elementName1 = elementName.split(",")[0];
-            elementName2 = elementName.split(",")[1];
+            elementName1 = elementName.split(PROPERTY_SEPARATOR)[0];
+            elementName2 = elementName.split(PROPERTY_SEPARATOR)[1];
         }
 
         // Create half line 1

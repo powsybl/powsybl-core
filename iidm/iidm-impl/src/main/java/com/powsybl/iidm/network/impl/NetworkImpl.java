@@ -47,6 +47,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     private final NetworkListenerList listeners = new NetworkListenerList();
 
     private static final String ELEMENT_NAME_PROPERTY = "elementName";
+    private static final String PROPERTY_SEPARATOR = ",";
 
     class BusBreakerViewImpl implements BusBreakerView {
 
@@ -1018,7 +1019,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                 if (!prop.equals(ELEMENT_NAME_PROPERTY)) {
                     LOGGER.error("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
                 } else {
-                    properties.setProperty(prop, String.format("%s,%s", dl1.getProperty(prop), dl2.getProperty(prop)));
+                    properties.setProperty(prop, dl1.getProperty(prop) + PROPERTY_SEPARATOR + dl2.getProperty(prop));
                 }
             }
         });
