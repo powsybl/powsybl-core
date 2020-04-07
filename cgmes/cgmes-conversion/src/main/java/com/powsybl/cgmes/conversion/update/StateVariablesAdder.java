@@ -267,7 +267,7 @@ public class StateVariablesAdder {
                 continue;
             }
             boundaryNodesFromDanglingLines.values().forEach(value -> {
-                if (terminal.getId(CgmesNames.TOPOLOGICAL_NODE).equals(value)) {
+                if (CgmesTerminal.topologicalNode(terminal).equals(value)) {
                     PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
                     p.put(IN_SERVICE, terminal.getId(IN_SERVICE));
                     p.put(CgmesNames.CONDUCTING_EQUIPMENT, terminal.getId(CgmesNames.CONDUCTING_EQUIPMENT));

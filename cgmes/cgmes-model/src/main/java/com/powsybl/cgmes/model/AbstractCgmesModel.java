@@ -233,9 +233,9 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public void copyTopologicalNode2iidmNode(Map<String, String> cgmes2iidmNodeMapper) {
+    public void copyTopologicalNode2iidmNode(Map<String, String> tnode2iidmNode) {
         this.topologicalNode2iidmNode.clear();
-        this.topologicalNode2iidmNode.putAll(Objects.requireNonNull(cgmes2iidmNodeMapper));
+        this.topologicalNode2iidmNode.putAll(Objects.requireNonNull(tnode2iidmNode));
     }
 
     @Override
@@ -245,8 +245,12 @@ public abstract class AbstractCgmesModel implements CgmesModel {
 
     @Override
     public void computeTopologicalNode2iidmNode(String voltageLevelId, int iidmNode, String connectivityNode) {
-        String topologicalNode = cachedNodes.getOrDefault(connectivityNode, null).getId(CgmesNames.TOPOLOGICAL_NODE);
+        // For now we assume the topology is not changed. The topology might change, if
+        // switches are opened in iidm. Then we'd need to create new TNs.
+        String topologicalNode = cachedNodes.get(connectivityNode).getId(CgmesNames.TOPOLOGICAL_NODE);
+        // We're storing all possible iidm node IDs for given TN.
         topologicalNode2iidmNode.computeIfAbsent(voltageLevelId + "_" + iidmNode, n -> topologicalNode);
+
     }
 
     private final Properties properties;
