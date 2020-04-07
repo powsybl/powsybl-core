@@ -11,10 +11,10 @@ import java.util.Objects;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
-import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.LccConverterStationAdder;
+import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -55,7 +55,6 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
     @Override
     public void convert() {
         Objects.requireNonNull(converterType);
-        HvdcConverterStation<?> c = null;
         if (converterType.equals(HvdcType.VSC)) {
             VscRegulation vscRegulation = decodeVscRegulation(p.getLocal("qPccControl"));
             boolean voltageRegulatorOn = false;
@@ -74,7 +73,9 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
                 .setReactivePowerSetpoint(reactivePowerSetpoint);
             identify(adder);
             connect(adder);
-            c = adder.add();
+            VscConverterStation c = adder.add();
+
+            convertedTerminals(c.getTerminal());
         } else if (converterType.equals(HvdcType.LCC)) {
 
             // TODO: There are two modes of control: dcVoltage and activePower
@@ -86,15 +87,15 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
                 .setPowerFactor((float) DEFAULT_POWER_FACTOR);
             identify(adder);
             connect(adder);
-            c = adder.add();
+            LccConverterStation c = adder.add();
+
+            this.lccConverter = c;
+            convertedTerminals(c.getTerminal());
         }
-        Objects.requireNonNull(c);
-        convertedTerminals(c.getTerminal());
-        this.iidmConverter = c;
     }
 
-    public void setPowerFactor(double powerFactor) {
-        ((LccConverterStation) (this.iidmConverter)).setPowerFactor((float) powerFactor);
+    public void setLccPowerFactor(double powerFactor) {
+        this.lccConverter.setPowerFactor((float) powerFactor);
     }
 
     private static VscRegulation decodeVscRegulation(String qPccControl) {
@@ -106,11 +107,11 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
         return null;
     }
 
-    HvdcConverterStation<?> getIidmConverter() {
-        return this.iidmConverter;
+    LccConverterStation getLccConverter() {
+        return this.lccConverter;
     }
 
     private final HvdcType converterType;
     private final double lossFactor;
-    private HvdcConverterStation<?> iidmConverter;
+    private LccConverterStation lccConverter = null;
 }

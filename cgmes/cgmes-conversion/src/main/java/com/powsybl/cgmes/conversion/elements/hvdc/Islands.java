@@ -25,7 +25,7 @@ class Islands {
 
     // The island includes dcTopologicalNodes and the acTopologicalNodes at both ends of the transformer
     Islands(Adjacency adjacency) {
-        islandsNodes = new ArrayList<ArrayList<String>>();
+        islandsNodes = new ArrayList<>();
 
         Set<String> visitedTopologicalNodes = new HashSet<>();
         adjacency.get().keySet().forEach(topologicalNodeId -> {
@@ -41,7 +41,7 @@ class Islands {
     private static ArrayList<String> computeAdjacentTopologicalNodes(String topologicalNodeId,
         Adjacency adjacency, Set<String> visitedTopologicalNodes) {
 
-        ArrayList<String> adjacentTopologicalNodes = new ArrayList<String>();
+        ArrayList<String> adjacentTopologicalNodes = new ArrayList<>();
         adjacentTopologicalNodes.add(topologicalNodeId);
         visitedTopologicalNodes.add(topologicalNodeId);
 

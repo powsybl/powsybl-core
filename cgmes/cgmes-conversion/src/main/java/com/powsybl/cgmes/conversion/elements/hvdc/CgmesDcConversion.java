@@ -21,6 +21,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -270,14 +271,14 @@ public class CgmesDcConversion {
         if (acDcConverterConversion == null) {
             return;
         }
-        HvdcConverterStation<?> iconverter = acDcConverterConversion.getIidmConverter();
+        LccConverterStation iconverter = acDcConverterConversion.getLccConverter();
         double powerFactor = getPowerFactor(iconverter);
         if (!Double.isNaN(powerFactor)) {
-            acDcConverterConversion.setPowerFactor(powerFactor);
+            acDcConverterConversion.setLccPowerFactor(powerFactor);
         }
     }
 
-    private static double getPowerFactor(HvdcConverterStation<?> iconverter) {
+    private static double getPowerFactor(LccConverterStation iconverter) {
         return iconverter.getTerminal().getP()
             / Math.hypot(iconverter.getTerminal().getP(), iconverter.getTerminal().getQ());
     }

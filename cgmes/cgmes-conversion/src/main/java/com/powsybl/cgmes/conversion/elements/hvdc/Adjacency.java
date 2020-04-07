@@ -139,12 +139,12 @@ class Adjacency {
 
     void debug() {
         LOG.debug("Adjacency");
-        adjacency.forEach((key, value) -> debug(key, value));
+        adjacency.forEach(this::debug);
     }
 
     private void debug(String topologicalNodeId, List<Adjacent> adjacent) {
         LOG.debug("TopologicalNodeId {}", topologicalNodeId);
-        adjacent.forEach(ad -> ad.debug());
+        adjacent.forEach(Adjacent::debug);
     }
 
     void debug(List<String> lnodes) {

@@ -164,7 +164,7 @@ class IslandEndHvdc {
         }
 
         return hvdcEnd1.dcLineSegmentsEnd.stream()
-            .allMatch(ls -> hvdcEnd2.dcLineSegmentsEnd.contains(ls));
+            .allMatch(hvdcEnd2.dcLineSegmentsEnd::contains);
     }
 
     List<HvdcEnd> getHvdc() {
@@ -173,7 +173,7 @@ class IslandEndHvdc {
 
     void debug() {
         LOG.debug("IslandEndHvdc");
-        hvdc.forEach(h -> h.debug());
+        hvdc.forEach(HvdcEnd::debug);
     }
 
     static class HvdcEnd {

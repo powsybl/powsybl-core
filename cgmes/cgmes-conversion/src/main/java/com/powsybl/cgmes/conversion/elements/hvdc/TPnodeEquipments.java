@@ -120,7 +120,7 @@ class TPnodeEquipments {
     }
 
     private boolean isValidTransformer(Adjacency adjacency, List<String> topologicalNodes) {
-        return topologicalNodes.stream().anyMatch(n -> adjacency.containsAcDcConverter(n));
+        return topologicalNodes.stream().anyMatch(adjacency::containsAcDcConverter);
     }
 
     private void addTransformer(Adjacency adjacency, String id, List<String> topologicalNodes, EquipmentType type) {
@@ -178,16 +178,16 @@ class TPnodeEquipments {
 
     void debug() {
         LOG.debug("TPnodeEquipments");
-        nodeEquipments.entrySet().forEach(k -> debug(k.getKey(), k.getValue()));
+        nodeEquipments.forEach(this::debug);
     }
 
     private void debug(String tpNodeId, List<TPnodeEquipment> listTPnodeEquipment) {
         LOG.debug("TopologicalNodeId: {}", tpNodeId);
-        listTPnodeEquipment.forEach(tpne -> tpne.debug());
+        listTPnodeEquipment.forEach(TPnodeEquipment::debug);
     }
 
     void debugEq(List<String> lnodes) {
-        lnodes.forEach(n -> debugEq(n));
+        lnodes.forEach(this::debugEq);
     }
 
     private void debugEq(String node) {
@@ -199,7 +199,7 @@ class TPnodeEquipments {
     }
 
     void debugDcLs(List<String> lnodes) {
-        lnodes.forEach(n -> debugDcLs(n));
+        lnodes.forEach(this::debugDcLs);
     }
 
     private void debugDcLs(String node) {

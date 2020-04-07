@@ -90,7 +90,7 @@ class IslandsEnds {
 
     void debug() {
         LOG.debug("IslandsEnds");
-        islandsEndsNodes.forEach(islandEnd -> islandEnd.debug());
+        islandsEndsNodes.forEach(IslandEnd::debug);
     }
 
     static class IslandEnd {

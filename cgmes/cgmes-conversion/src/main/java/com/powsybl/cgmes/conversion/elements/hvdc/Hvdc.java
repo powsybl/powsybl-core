@@ -60,7 +60,7 @@ class Hvdc {
         HvdcConverter converter = new HvdcConverter(hvdc1.acDcConvertersEnd.iterator().next(),
             hvdc2.acDcConvertersEnd.iterator().next());
         hvdcEq.add(converter);
-        hvdc1.dcLineSegmentsEnd.forEach(ls -> hvdcEq.add(ls));
+        hvdc1.dcLineSegmentsEnd.forEach(hvdcEq::add);
         this.hvdcData.add(hvdcEq);
     }
 
@@ -133,7 +133,7 @@ class Hvdc {
 
     void debug() {
         LOG.debug("Hvdc");
-        hvdcData.forEach(h -> h.debug());
+        hvdcData.forEach(HvdcEquipment::debug);
     }
 
     static class HvdcEquipment {
@@ -160,7 +160,7 @@ class Hvdc {
 
         void debug() {
             LOG.debug("    Converters:");
-            this.converters.forEach(c -> c.debug());
+            this.converters.forEach(HvdcConverter::debug);
             LOG.debug("    dcLineSegments");
             this.dcLineSegments.forEach(ls -> LOG.debug("    {} ", ls));
             LOG.debug("---");
