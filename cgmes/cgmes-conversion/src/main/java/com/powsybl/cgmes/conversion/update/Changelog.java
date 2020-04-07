@@ -18,7 +18,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkListener;
@@ -53,18 +56,29 @@ public class Changelog implements NetworkListener {
 
     @Override
     public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
-        if (!IGNORED_ATTRIBUTES.contains(attribute)) {
+        if (!ignoredAttribute(identifiable, attribute)) {
             baseChanges.add(new IidmChangeUpdate(identifiable, attribute, oldValue, newValue));
         }
     }
 
     @Override
-    public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
-        if (!IGNORED_ATTRIBUTES.contains(attribute)) {
-            // Create a new list of changes if no changelog is found for the variant
-            // or if the previous changelog was null
-            changesByVariant.computeIfAbsent(variantId, k -> new ArrayList<>()).add(new IidmChangeUpdate(identifiable, attribute, oldValue, newValue));
+    public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue,
+        Object newValue) {
+        // Create a new list of changes if no changelog is found for the variant
+        // or if the previous changelog was null
+        if (!ignoredAttribute(identifiable, attribute)) {
+            changesByVariant.computeIfAbsent(variantId, k -> new ArrayList<>())
+                .add(new IidmChangeUpdate(identifiable, attribute, oldValue, newValue));
         }
+    }
+
+    private boolean ignoredAttribute(Identifiable identifiable, String attribute) {
+        String name = identifiable.getClass().getSimpleName();
+        if (IGNORED_ATTRIBUTES.contains(attribute)) {
+            return true;
+        }
+        return IGNORED_ATTRIBUTES_PER_CLASS.containsKey(name)
+            && (IGNORED_ATTRIBUTES_PER_CLASS.get(name).contains(attribute));
     }
 
     @Override
@@ -100,5 +114,31 @@ public class Changelog implements NetworkListener {
     private static final String CONNECTED_COMPONENT_NUMBER = "connectedComponentNumber";
     private static final Set<String> IGNORED_ATTRIBUTES = new HashSet<>(Arrays.asList(
         CONNECTED_COMPONENT_NUMBER));
+    private static final Map<String, Set<String>> IGNORED_ATTRIBUTES_PER_CLASS = new HashMap<>();
+
+    static {
+        Set<String> load = Stream.of(CgmesNames.VOLTAGE, CgmesNames.ANGLE, CgmesNames.P, CgmesNames.Q)
+            .collect(Collectors.toCollection(HashSet::new));
+        IGNORED_ATTRIBUTES_PER_CLASS.put("LoadImpl", load);
+
+        Set<String> line = Stream
+            .of(CgmesNames.VOLTAGE, CgmesNames.ANGLE, CgmesNames.P1, CgmesNames.Q1, CgmesNames.P2, CgmesNames.Q2)
+            .collect(Collectors.toCollection(HashSet::new));
+        IGNORED_ATTRIBUTES_PER_CLASS.put("LineImpl", line);
+
+        Set<String> generator = Stream.of(CgmesNames.VOLTAGE, CgmesNames.ANGLE, CgmesNames.P, CgmesNames.Q)
+            .collect(Collectors.toCollection(HashSet::new));
+        IGNORED_ATTRIBUTES_PER_CLASS.put("GeneratorImpl", generator);
+
+        Set<String> shuntCompensator = Stream.of(CgmesNames.VOLTAGE, CgmesNames.ANGLE, CgmesNames.Q)
+            .collect(Collectors.toCollection(HashSet::new));
+        IGNORED_ATTRIBUTES_PER_CLASS.put("ShuntCompensatorImpl", shuntCompensator);
+
+        Set<String> twoWindingsTransformer = Stream
+            .of(CgmesNames.VOLTAGE, CgmesNames.ANGLE, CgmesNames.P1, CgmesNames.Q1, CgmesNames.P2, CgmesNames.Q2)
+            .collect(Collectors.toCollection(HashSet::new));
+        IGNORED_ATTRIBUTES_PER_CLASS.put("TwoWindingsTransformerImpl", twoWindingsTransformer);
+
+    }
 
 }

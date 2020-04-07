@@ -48,6 +48,12 @@ public final class CgmesNames {
 
     public static final String VOLTAGE = "v";
     public static final String ANGLE = "angle";
+    public static final String P = "p";
+    public static final String Q = "q";
+    public static final String P1 = "p1";
+    public static final String Q1 = "q1";
+    public static final String P2 = "p2";
+    public static final String Q2 = "q2";
 
     public static final String RATIO_TAP_CHANGER_TABLE = "RatioTapChangerTable";
     public static final String PHASE_TAP_CHANGER_TABLE = "PhaseTapChangerTable";

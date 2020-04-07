@@ -17,12 +17,6 @@ import com.powsybl.iidm.network.Line;
 public class LineToACLineSegment extends IidmToCgmes {
 
     LineToACLineSegment() {
-        ignore("p1");
-        ignore("q1");
-        ignore("p2");
-        ignore("q2");
-        ignore("v");
-        ignore("angle");
 
         simpleUpdate("r", "cim:ACLineSegment.r", CgmesSubset.EQUIPMENT);
         simpleUpdate("x", "cim:ACLineSegment.x", CgmesSubset.EQUIPMENT);
