@@ -44,7 +44,7 @@ public class SubNetworkPredicate implements NetworkPredicate {
         voltageLevelIds.add(vl.getId());
 
         vl.visitEquipments(new DefaultTopologyVisitor() {
-            public void visitBranch(Branch branch, Branch.Side side) {
+            private void visitBranch(Branch branch, Branch.Side side) {
                 switch (side) {
                     case ONE:
                         traverse(branch.getTerminal2().getVoltageLevel(), depth + 1, maxDepth, voltageLevelIds);
