@@ -216,11 +216,11 @@ public class CgmesDcConversion {
         // poleLossP is the active power loss at a DC Pole
         // for lossless operation: P(DC) = P(AC) => lossFactor = 0
         // for rectifier operation (conversion from AC to DC) with losses: P(DC) = P(AC) - poleLossP
-        // In IIDM, for rectifier operation P(DC) / P(AC) = 1 - lossFactor / 100
-        // => P(DC) / P(AC) = 1 - poleLossP / P(AC) = 1 - lossFactor / 100
+        // In IIDM, for rectifier operation P(DC) / P(AC) = 1 - lossFactor
+        // => P(DC) / P(AC) = 1 - poleLossP / P(AC) = 1 - lossFactor
         // for inverter operation (conversion from DC to AC) with losses: P(DC) = P(AC) + poleLossP
-        // In IIDM, for inverter operation P(AC) / P(DC) = 1 - lossFactor / 100
-        // => P(AC) / P(DC) = 1 - poleLossP / P(DC) = 1 - poleLossP / (P(AC) + poleLossP) = 1 - lossFactor / 100
+        // In IIDM, for inverter operation P(AC) / P(DC) = 1 - lossFactor
+        // => P(AC) / P(DC) = 1 - poleLossP / P(DC) = 1 - poleLossP / (P(AC) + poleLossP) = 1 - lossFactor
 
         double poleLossP1 = cconverter1.asDouble(POLE_LOSS_P);
         double poleLossP2 = cconverter2.asDouble(POLE_LOSS_P);
@@ -237,8 +237,8 @@ public class CgmesDcConversion {
 
         AcDcConverterConversion acDcConverterConversion1 = new AcDcConverterConversion(cconverter1, converterType, lossFactor.getLossFactor1(), context);
         AcDcConverterConversion acDcConverterConversion2 = new AcDcConverterConversion(cconverter2, converterType, lossFactor.getLossFactor2(), context);
-        DcLineSegmentConverter converter1 = new DcLineSegmentConverter(converter1Id, lossFactor.getLossFactor1(), pAC1);
-        DcLineSegmentConverter converter2 = new DcLineSegmentConverter(converter2Id, lossFactor.getLossFactor2(), pAC2);
+        DcLineSegmentConverter converter1 = new DcLineSegmentConverter(converter1Id, poleLossP1, pAC1);
+        DcLineSegmentConverter converter2 = new DcLineSegmentConverter(converter2Id, poleLossP2, pAC2);
         DcLineSegmentConversion dcLineSegmentConversion = new DcLineSegmentConversion(dcLineSegment, operatingMode, r, ratedUdc, converter1, converter2, context);
 
         if (!acDcConverterConversion1.valid() || !acDcConverterConversion2.valid() || !dcLineSegmentConversion.valid()) {
