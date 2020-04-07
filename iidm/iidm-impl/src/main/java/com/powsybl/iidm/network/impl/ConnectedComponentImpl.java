@@ -23,7 +23,7 @@ class ConnectedComponentImpl extends AbstractComponentImpl implements Component 
     }
 
     @Override
-    protected Predicate<Bus> filterOnThis() {
+    protected Predicate<Bus> getBusPredicate() {
         return bus -> bus.getConnectedComponent() == ConnectedComponentImpl.this;
     }
 }

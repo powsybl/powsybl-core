@@ -47,14 +47,14 @@ abstract class AbstractComponentImpl implements Component {
     @Override
     public Iterable<Bus> getBuses() {
         return StreamSupport.stream(networkRef.get().getBusView().getBuses().spliterator(), false)
-                            .filter(filterOnThis())
+                            .filter(getBusPredicate())
                             .collect(Collectors.toList());
     }
 
     @Override
     public Stream<Bus> getBusStream() {
-        return networkRef.get().getBusView().getBusStream().filter(filterOnThis());
+        return networkRef.get().getBusView().getBusStream().filter(getBusPredicate());
     }
 
-    protected abstract Predicate<Bus> filterOnThis();
+    protected abstract Predicate<Bus> getBusPredicate();
 }

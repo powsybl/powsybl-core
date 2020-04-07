@@ -22,7 +22,7 @@ class SynchronousComponentImpl extends AbstractComponentImpl implements Componen
     }
 
     @Override
-    protected Predicate<Bus> filterOnThis() {
+    protected Predicate<Bus> getBusPredicate() {
         return bus -> bus.getSynchronousComponent() == SynchronousComponentImpl.this;
     }
 }
