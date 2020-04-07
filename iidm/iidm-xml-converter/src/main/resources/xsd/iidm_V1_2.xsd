@@ -261,7 +261,7 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:complexType name="AbstractShuntCompensator">
+    <xs:complexType name="ShuntCompensator">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
                 <xs:attribute name="currentSectionCount" use="required" type="xs:int"/>
@@ -273,7 +273,7 @@
     </xs:complexType>
     <xs:complexType name="LinearShuntCompensator">
         <xs:complexContent>
-            <xs:extension base="iidm:AbstractShuntCompensator">
+            <xs:extension base="iidm:ShuntCompensator">
                 <xs:sequence>
                     <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
                 </xs:sequence>
@@ -285,7 +285,7 @@
     </xs:complexType>
     <xs:complexType name="NonLinearShuntCompensator">
         <xs:complexContent>
-            <xs:extension base="iidm:AbstractShuntCompensator">
+            <xs:extension base="iidm:ShuntCompensator">
                 <xs:sequence>
                     <xs:element name="section" maxOccurs="unbounded" type="iidm:ShuntNonLinearSection"/>
                     <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>

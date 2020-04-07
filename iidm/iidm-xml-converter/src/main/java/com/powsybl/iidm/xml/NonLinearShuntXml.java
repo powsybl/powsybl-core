@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
@@ -52,17 +51,13 @@ public class NonLinearShuntXml extends AbstractConnectableXml<ShuntCompensator, 
         }
     }
 
-    private static void writeSections(ShuntCompensator sc, NetworkXmlWriterContext context) {
-        sc.getModel(ShuntCompensatorNonLinearModel.class).getSections().forEach((sectionNum, section) -> {
-            try {
-                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "section");
-                context.getWriter().writeAttribute("num", Integer.toString(sectionNum));
-                XmlUtil.writeDouble("b", section.getB(), context.getWriter());
-                XmlUtil.writeDouble("g", section.getG(), context.getWriter());
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+    private static void writeSections(ShuntCompensator sc, NetworkXmlWriterContext context) throws XMLStreamException {
+        for (Map.Entry<Integer, ShuntCompensatorNonLinearModel.Section> section : sc.getModel(ShuntCompensatorNonLinearModel.class).getSections().entrySet()) {
+            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "section");
+            context.getWriter().writeAttribute("num", Integer.toString(section.getKey()));
+            XmlUtil.writeDouble("b", section.getValue().getB(), context.getWriter());
+            XmlUtil.writeDouble("g", section.getValue().getG(), context.getWriter());
+        }
     }
 
     @Override
