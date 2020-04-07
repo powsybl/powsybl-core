@@ -69,12 +69,6 @@ class SparseLUDecomposition implements LUDecomposition {
     @Override
     public void update() {
         checkMatrixStructure();
-/*        Integer i = 1;
-        for (double d : matrix.getValues()) {
-            System.out.println(i + " " + d);
-            i++;
-        }
-        System.out.println("end");*/
         update(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues());
     }
 
