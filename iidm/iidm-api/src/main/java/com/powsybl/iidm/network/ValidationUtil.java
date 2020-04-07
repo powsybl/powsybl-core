@@ -381,8 +381,8 @@ public final class ValidationUtil {
     public static void checkPowerFactor(Validable validable, double powerFactor) {
         if (Double.isNaN(powerFactor)) {
             throw new ValidationException(validable, "power factor is invalid");
-        } else if (Math.abs(powerFactor) > 3) {
-            throw new ValidationException(validable, "power factor is invalid, it should be a ratio");
+        } else if (Math.abs(powerFactor) > 1) {
+            throw new ValidationException(validable, "power factor is invalid, it should be between -1 and 1");
         }
     }
 
@@ -401,10 +401,8 @@ public final class ValidationUtil {
     public static void checkLossFactor(Validable validable, float lossFactor) {
         if (Double.isNaN(lossFactor)) {
             throw new ValidationException(validable, "loss factor is invalid");
-        } else if (lossFactor < 0) {
-            throw new ValidationException(validable, "loss factor must be >= 0");
-        } else if (lossFactor > 3) {
-            throw new ValidationException(validable, "loss factor must be a ratio");
+        } else if (lossFactor < 0 || lossFactor > 1) {
+            throw new ValidationException(validable, "loss factor must be >= 0 and <= 1");
         }
     }
 }
