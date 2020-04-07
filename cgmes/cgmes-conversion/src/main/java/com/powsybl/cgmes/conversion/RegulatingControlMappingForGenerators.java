@@ -15,8 +15,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
-import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlImpl;
+import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -113,8 +112,9 @@ public class RegulatingControlMappingForGenerators {
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {
-            CoordinatedReactiveControl coordinatedReactiveControl = new CoordinatedReactiveControlImpl(gen, qPercent);
-            gen.addExtension(CoordinatedReactiveControl.class, coordinatedReactiveControl);
+            gen.newExtension(CoordinatedReactiveControlAdder.class)
+                    .withQPercent(qPercent)
+                    .add();
         }
 
         return true;

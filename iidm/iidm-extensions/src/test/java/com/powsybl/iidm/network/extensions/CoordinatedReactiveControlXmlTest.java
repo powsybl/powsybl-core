@@ -31,8 +31,7 @@ public class CoordinatedReactiveControlXmlTest extends AbstractConverterTest {
         Generator gen = network.getGenerator("GEN");
         assertNotNull(gen);
 
-        CoordinatedReactiveControl coordinatedReactiveControl = new CoordinatedReactiveControlImpl(gen, 100.0);
-        gen.addExtension(CoordinatedReactiveControl.class, coordinatedReactiveControl);
+        gen.newExtension(CoordinatedReactiveControlAdder.class).withQPercent(100.0).add();
 
         Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
@@ -44,8 +43,8 @@ public class CoordinatedReactiveControlXmlTest extends AbstractConverterTest {
         CoordinatedReactiveControl coordinatedReactiveControl2 = gen2.getExtension(CoordinatedReactiveControl.class);
         assertNotNull(coordinatedReactiveControl2);
 
-        assertEquals(coordinatedReactiveControl.getQPercent(), coordinatedReactiveControl2.getQPercent(), 0.0);
-        assertEquals(coordinatedReactiveControl.getName(), coordinatedReactiveControl2.getName());
+        assertEquals(100.0, coordinatedReactiveControl2.getQPercent(), 0.0);
+        assertEquals("coordinatedReactiveControl", coordinatedReactiveControl2.getName());
     }
 
 }
