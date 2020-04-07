@@ -6,8 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
-
 import javax.xml.stream.XMLStreamException;
 
 import com.powsybl.commons.xml.XmlUtil;
@@ -26,7 +24,7 @@ public class NodeBreakerViewInternalConnectionXml {
     }
 
     protected void write(int node1, int node2, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeEmptyElement(IIDM_URI, getRootElementName());
+        context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), getRootElementName());
         context.getWriter().writeAttribute("node1", Integer.toString(node1));
         context.getWriter().writeAttribute("node2", Integer.toString(node2));
     }

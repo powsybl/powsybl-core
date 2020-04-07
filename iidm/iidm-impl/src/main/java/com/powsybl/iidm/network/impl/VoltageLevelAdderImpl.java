@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevelAdder;
+import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  *
@@ -82,10 +83,10 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         VoltageLevelExt voltageLevel;
         switch (topologyKind) {
             case NODE_BREAKER:
-                voltageLevel = new NodeBreakerVoltageLevel(id, getName(), substation, nominalV, lowVoltageLimit, highVoltageLimit);
+                voltageLevel = new NodeBreakerVoltageLevel(id, getName(), isFictitious(), substation, nominalV, lowVoltageLimit, highVoltageLimit);
                 break;
             case BUS_BREAKER:
-                voltageLevel = new BusBreakerVoltageLevel(id, getName(), substation, nominalV, lowVoltageLimit, highVoltageLimit);
+                voltageLevel = new BusBreakerVoltageLevel(id, getName(), isFictitious(), substation, nominalV, lowVoltageLimit, highVoltageLimit);
                 break;
             default:
                 throw new AssertionError();

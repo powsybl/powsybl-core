@@ -39,7 +39,7 @@ public class IeeeCdfImporterTest extends AbstractConverterTest {
     @Test
     public void baseTest() {
         Importer importer = new IeeeCdfImporter();
-        assertEquals("IEEE CDF", importer.getFormat());
+        assertEquals("IEEE-CDF", importer.getFormat());
         assertEquals("IEEE Common Data Format to IIDM converter", importer.getComment());
         assertEquals(1, importer.getParameters().size());
         assertEquals("ignore-base-voltage", importer.getParameters().get(0).getName());
@@ -80,7 +80,7 @@ public class IeeeCdfImporterTest extends AbstractConverterTest {
         config.setThreshold(threshold);
         config.setOkMissingValues(false);
         LoadFlowParameters lf = new LoadFlowParameters();
-        lf.setSplitShuntAdmittanceXfmr2(true);
+        lf.setT2wtSplitShuntAdmittance(true);
         config.setLoadFlowParameters(lf);
         return config;
     }

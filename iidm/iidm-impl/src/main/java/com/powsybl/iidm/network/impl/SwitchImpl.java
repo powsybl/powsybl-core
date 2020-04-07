@@ -10,6 +10,7 @@ import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.ValidationException;
 
 /**
  *
@@ -21,18 +22,15 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     private final SwitchKind kind;
 
-    private boolean fictitious;
-
     private final TBooleanArrayList open;
 
     private final TBooleanArrayList retained;
 
     SwitchImpl(VoltageLevelExt voltageLevel,
-               String id, String name, SwitchKind kind, final boolean open, boolean retained, boolean fictitious) {
-        super(id, name);
+               String id, String name, boolean fictitious, SwitchKind kind, final boolean open, boolean retained) {
+        super(id, name, fictitious);
         this.voltageLevel = voltageLevel;
         this.kind = kind;
-        this.fictitious = fictitious;
         int variantArraySize = voltageLevel.getNetwork().getVariantManager().getVariantArraySize();
         this.open = new TBooleanArrayList(variantArraySize);
         this.retained = new TBooleanArrayList(variantArraySize);
@@ -94,11 +92,6 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
             network.getListeners().notifyUpdate(this, "retained", variantId, oldValue, retained);
             voltageLevel.invalidateCache();
         }
-    }
-
-    @Override
-    public boolean isFictitious() {
-        return fictitious;
     }
 
     @Override

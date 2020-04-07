@@ -27,10 +27,11 @@ import com.powsybl.triplestore.api.PropertyBag;
 public class RegulatingControlMappingForTransformers {
 
     private static final String TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
+    private static final String TAP_CHANGER_CONTROL = "TapChangerControl";
 
-    public RegulatingControlMappingForTransformers(RegulatingControlMapping parent) {
+    RegulatingControlMappingForTransformers(RegulatingControlMapping parent, Context context) {
         this.parent = parent;
-        this.context = parent.context();
+        this.context = context;
         t2xMapping = new HashMap<>();
         t3xMapping = new HashMap<>();
     }
@@ -242,9 +243,9 @@ public class RegulatingControlMappingForTransformers {
 
     private boolean setRtcRegulatingControlVoltage(String rtcId, boolean regulating, RegulatingControl control,
                                                    RatioTapChanger rtc, Context context) {
-        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
+        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
         if (terminal == null) {
-            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.topologicalNode));
+            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
             return false;
         }
 
@@ -297,9 +298,9 @@ public class RegulatingControlMappingForTransformers {
 
     private boolean setPtcRegulatingControl(boolean regulating, PhaseTapChanger.RegulationMode regulationMode,
                                             RegulatingControl control, PhaseTapChanger ptc, Context context) {
-        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
+        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
         if (terminal == null) {
-            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.topologicalNode));
+            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
             return false;
         }
 
@@ -370,18 +371,8 @@ public class RegulatingControlMappingForTransformers {
         return control;
     }
 
-    public String getRegulatingControlId(PropertyBag p) {
-        String regulatingControlId = null;
-
-        if (p.containsKey(RegulatingControlMapping.TAP_CHANGER_CONTROL)) {
-            String controlId = p.getId(RegulatingControlMapping.TAP_CHANGER_CONTROL);
-            RegulatingControl control = parent.cachedRegulatingControls().get(controlId);
-            if (control != null) {
-                regulatingControlId = controlId;
-            }
-        }
-
-        return regulatingControlId;
+    public static String getRegulatingControlId(PropertyBag p) {
+        return p.getId(TAP_CHANGER_CONTROL);
     }
 
     public boolean getRegulating(String controlId) {

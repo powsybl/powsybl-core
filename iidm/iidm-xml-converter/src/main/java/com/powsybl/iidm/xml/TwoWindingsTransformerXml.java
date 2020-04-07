@@ -42,6 +42,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
         XmlUtil.writeDouble("b", twt.getB(), context.getWriter());
         XmlUtil.writeDouble("ratedU1", twt.getRatedU1(), context.getWriter());
         XmlUtil.writeDouble("ratedU2", twt.getRatedU2(), context.getWriter());
+        writeRatedS("ratedS", twt.getRatedS(), context);
         writeNodeOrBus(1, twt.getTerminal1(), context);
         writeNodeOrBus(2, twt.getTerminal2(), context);
         if (context.getOptions().isWithBranchSV()) {
@@ -61,10 +62,10 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
             writePhaseTapChanger("phaseTapChanger", ptc, context);
         }
         if (twt.getCurrentLimits1() != null) {
-            writeCurrentLimits(1, twt.getCurrentLimits1(), context.getWriter());
+            writeCurrentLimits(1, twt.getCurrentLimits1(), context.getWriter(), context.getVersion());
         }
         if (twt.getCurrentLimits2() != null) {
-            writeCurrentLimits(2, twt.getCurrentLimits2(), context.getWriter());
+            writeCurrentLimits(2, twt.getCurrentLimits2(), context.getWriter(), context.getVersion());
         }
     }
 
@@ -87,6 +88,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
                 .setB(b)
                 .setRatedU1(ratedU1)
                 .setRatedU2(ratedU2);
+        readRatedS("ratedS", context, adder::setRatedS);
         readNodeOrBus(adder, context);
         TwoWindingsTransformer twt = adder.add();
         readPQ(1, twt.getTerminal1(), context.getReader());

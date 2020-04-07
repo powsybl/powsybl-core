@@ -15,9 +15,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.function.Supplier;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public abstract class AbstractConnectableXml<T extends Connectable, A extends IdentifiableAdder<A>, P extends Container> extends AbstractIdentifiableXml<T, A, P> {
@@ -55,7 +53,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
 
     private static void writeNode(Integer index, Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute(NODE + indexToString(index),
-            Integer.toString(t.getNodeBreakerView().getNode()));
+                Integer.toString(t.getNodeBreakerView().getNode()));
     }
 
     private static void writeBus(Integer index, Bus bus, Bus connectableBus, NetworkXmlWriterContext context) throws XMLStreamException {
@@ -139,7 +137,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         double p = XmlUtil.readOptionalDoubleAttribute(reader, "p" + indexToString(index));
         double q = XmlUtil.readOptionalDoubleAttribute(reader, "q" + indexToString(index));
         t.setP(p)
-            .setQ(q);
+                .setQ(q);
     }
 
     public static void readCurrentLimits(Integer index, Supplier<CurrentLimitsAdder> currentLimitOwner, XMLStreamReader reader) throws XMLStreamException {
@@ -153,23 +151,39 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
                 double value = XmlUtil.readOptionalDoubleAttribute(reader, "value", Double.MAX_VALUE);
                 boolean fictitious = XmlUtil.readOptionalBoolAttribute(reader, "fictitious", false);
                 adder.beginTemporaryLimit()
-                    .setName(name)
-                    .setAcceptableDuration(acceptableDuration)
-                    .setValue(value)
-                    .setFictitious(fictitious)
-                    .endTemporaryLimit();
+                        .setName(name)
+                        .setAcceptableDuration(acceptableDuration)
+                        .setValue(value)
+                        .setFictitious(fictitious)
+                        .endTemporaryLimit();
             }
         });
         adder.add();
     }
 
+    /**
+     * @deprecated Use {@link #writeCurrentLimits(Integer, CurrentLimits, XMLStreamWriter, IidmXmlVersion)} instead.
+     */
+    @Deprecated
     public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer) throws XMLStreamException {
-        writeCurrentLimits(index, limits, writer, IIDM_URI);
+        writeCurrentLimits(index, limits, writer, IidmXmlConstants.CURRENT_IIDM_XML_VERSION);
     }
 
+    /**
+     * @deprecated Use {@link #writeCurrentLimits(Integer, CurrentLimits, XMLStreamWriter, String, IidmXmlVersion)} instead.
+     */
+    @Deprecated
     public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri) throws XMLStreamException {
+        writeCurrentLimits(index, limits, writer, nsUri, IidmXmlConstants.CURRENT_IIDM_XML_VERSION);
+    }
+
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, IidmXmlVersion version) throws XMLStreamException {
+        writeCurrentLimits(index, limits, writer, version.getNamespaceURI(), version);
+    }
+
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri, IidmXmlVersion version) throws XMLStreamException {
         if (!Double.isNaN(limits.getPermanentLimit())
-            || !limits.getTemporaryLimits().isEmpty()) {
+                || !limits.getTemporaryLimits().isEmpty()) {
             if (limits.getTemporaryLimits().isEmpty()) {
                 writer.writeEmptyElement(nsUri, CURRENT_LIMITS + indexToString(index));
             } else {
@@ -177,7 +191,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
             }
             XmlUtil.writeDouble("permanentLimit", limits.getPermanentLimit(), writer);
             for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) {
-                writer.writeEmptyElement(IIDM_URI, "temporaryLimit");
+                writer.writeEmptyElement(version.getNamespaceURI(), "temporaryLimit");
                 writer.writeAttribute("name", tl.getName());
                 XmlUtil.writeOptionalInt("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE, writer);
                 XmlUtil.writeOptionalDouble("value", tl.getValue(), Double.MAX_VALUE, writer);

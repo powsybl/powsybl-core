@@ -197,7 +197,6 @@ public class PowsyblWriter extends RDFXMLWriter {
         if (lastWrittenSubject != null) {
             // The last statement still has to be closed:
             writeEndTag(lastObjNamespace, lastObjLocalName);
-            writeNewLine();
 
             lastWrittenSubject = null;
             lastObjNamespace = null;

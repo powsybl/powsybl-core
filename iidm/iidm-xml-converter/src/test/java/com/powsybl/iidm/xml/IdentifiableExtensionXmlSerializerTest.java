@@ -8,6 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
@@ -28,6 +29,8 @@ import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.*;
@@ -53,7 +56,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         }
         // try to validate the schema with extensions
         try (ByteArrayInputStream is = new ByteArrayInputStream(buffer)) {
-            NetworkXml.validateWithExtensions(is);
+            NetworkXml.validate(is);
         }
         try (ByteArrayInputStream is = new ByteArrayInputStream(buffer)) {
             Network network2 = NetworkXml.read(is);
@@ -75,10 +78,10 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         roundTripXmlTest(MultipleExtensionsTestNetworkFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "multiple-extensions.xml");
+                getVersionedNetworkPath("multiple-extensions.xml", CURRENT_IIDM_XML_VERSION));
 
-        // backward compatibility 1.0
-        roundTripVersionnedXmlTest("multiple-extensions.xml", IidmXmlVersion.V_1_0);
+        // backward compatibility
+        roundTripAllPreviousVersionedXmlTest("multiple-extensions.xml");
     }
 
     // Define a network extension without XML serializer
@@ -169,7 +172,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         }
         // try to validate the schema with extensions
         try (ByteArrayInputStream is = new ByteArrayInputStream(buffer)) {
-            NetworkXml.validateWithExtensions(is);
+            NetworkXml.validate(is);
         }
         try (ByteArrayInputStream is = new ByteArrayInputStream(buffer)) {
             Network network2 = NetworkXml.read(is);
@@ -184,28 +187,62 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         Network network2 = roundTripXmlTest(EurostagTutorialExample1Factory.createWithTerminalMockExt(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "eurostag-tutorial-example1-with-terminalMock-ext.xml");
+                getVersionedNetworkPath("eurostag-tutorial-example1-with-terminalMock-ext.xml", CURRENT_IIDM_XML_VERSION));
         Load loadXml = network2.getLoad("LOAD");
         TerminalMockExt terminalMockExtXml = loadXml.getExtension(TerminalMockExt.class);
         assertNotNull(terminalMockExtXml);
         assertSame(loadXml.getTerminal(), terminalMockExtXml.getTerminal());
 
-        // backward compatibility 1.0
-        roundTripVersionnedXmlTest("eurostag-tutorial-example1-with-terminalMock-ext.xml", IidmXmlVersion.V_1_0);
+        // backward compatibility
+        roundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1-with-terminalMock-ext.xml");
     }
 
     @Test
-    public void testThrowErrorUncompatibleExtensionVersion() {
+    public void testNotLatestVersionTerminalExtension() throws IOException {
+        // import XIIDM file with loadMock v1.2
+        Network network = NetworkXml.read(getVersionedNetworkAsStream("eurostag-tutorial-example1-with-loadMockExt-1_2.xml", IidmXmlVersion.V_1_1));
+
+        MemDataSource dataSource = new MemDataSource();
+
+        // properties specify that IIDM-XML network version to export is 1.1
+        Properties properties = new Properties();
+        properties.put("iidm.export.xml.version", "1.1");
+
+        // XMLExporter here take default test configuration (cf. /resources/com/powsybl/config/test/config.yml)
+        // this default test configuration asserts that loadMock should be exported in v1.1
+        new XMLExporter().export(network, properties, dataSource);
+
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
+            assertNotNull(is);
+            // check that loadMock has been serialized in v1.1
+            compareXml(getVersionedNetworkAsStream("eurostag-tutorial-example1-with-loadMockExt-1_1.xml", IidmXmlVersion.V_1_1),
+                    is);
+        }
+    }
+
+    @Test
+    public void testThrowErrorIncompatibleExtensionVersion() {
         exception.expect(PowsyblException.class);
         exception.expectMessage("IIDM-XML version of network (1.1)"
                 + " is not compatible with the loadMock extension's namespace URI.");
-        NetworkXml.read(getClass().getResourceAsStream("/V1_1/eurostag-tutorial-example1-with-bad-loadMockExt.xml"));
+        // should fail while trying to import a file in IIDM-XML network version 1.1 and loadMock in v1.0 (not compatible)
+        NetworkXml.read(getVersionedNetworkAsStream("eurostag-tutorial-example1-with-bad-loadMockExt.xml", IidmXmlVersion.V_1_1));
     }
 
     @Test
-    public void testThrowErrorUnsupportedExtensionVersion() {
+    public void testThrowErrorUnsupportedExtensionVersion1() {
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("The version 1.1 of the loadBar extension's XML serializer is not supported.");
+        // should fail while trying to import a file with loadBar in v1.1 (does not exist, considered as not supported)
+        ExportOptions options = new ExportOptions().addExtensionVersion("loadBar", "1.1");
+        NetworkXml.write(MultipleExtensionsTestNetworkFactory.create(), options, tmpDir.resolve("throwError"));
+    }
+
+    @Test
+    public void testThrowErrorUnsupportedExtensionVersion2() {
         exception.expect(PowsyblException.class);
         exception.expectMessage("IIDM-XML version of network (1.1) is not supported by the loadQux extension's XML serializer.");
-        NetworkXml.read(getClass().getResourceAsStream("/V1_1/eurostag-tutorial-example1-with-bad-loadQuxExt.xml"));
+        // should fail while trying to import a file in IIDM-XML network version 1.1 (not supported by loadQux extension)
+        NetworkXml.read(getVersionedNetworkAsStream("eurostag-tutorial-example1-with-bad-loadQuxExt.xml", IidmXmlVersion.V_1_1));
     }
 }

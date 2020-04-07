@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.util.Identifiables;
+import com.powsybl.iidm.network.Validable;
 
 /**
  *
@@ -21,6 +22,8 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
     private boolean ensureIdUnicity = false;
 
     private String name;
+
+    private boolean fictitious = false;
 
     AbstractIdentifiableAdder() {
     }
@@ -41,6 +44,11 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
 
     public T setName(String name) {
         this.name = name;
+        return (T) this;
+    }
+
+    public T setFictitious(boolean fictitious) {
+        this.fictitious = fictitious;
         return (T) this;
     }
 
@@ -67,9 +75,12 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
         return name;
     }
 
+    protected boolean isFictitious() {
+        return fictitious;
+    }
+
     @Override
     public String getMessageHeader() {
         return getTypeDescription() + " '" + id + "': ";
     }
-
 }

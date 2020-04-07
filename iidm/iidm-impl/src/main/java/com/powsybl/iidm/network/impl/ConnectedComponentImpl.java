@@ -6,16 +6,24 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Component;
 import com.powsybl.iidm.network.impl.util.Ref;
+
+import java.util.function.Predicate;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ConnectedComponentImpl extends ComponentImpl implements Component {
+class ConnectedComponentImpl extends AbstractComponentImpl implements Component {
 
     ConnectedComponentImpl(int num, int size, Ref<NetworkImpl> networkRef) {
         super(num, size, networkRef);
+    }
+
+    @Override
+    protected Predicate<Bus> getBusPredicate() {
+        return bus -> bus.getConnectedComponent() == ConnectedComponentImpl.this;
     }
 }

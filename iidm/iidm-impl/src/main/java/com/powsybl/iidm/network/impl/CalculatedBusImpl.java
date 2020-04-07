@@ -26,8 +26,8 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     private NodeTerminal terminalRef;
 
-    CalculatedBusImpl(String id, NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
-        super(id, voltageLevel);
+    CalculatedBusImpl(String id, String name, boolean fictitious, NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
+        super(id, name, fictitious, voltageLevel);
         this.terminals = Objects.requireNonNull(terminals);
         this.terminalRef = findTerminal(voltageLevel, nodes, terminals);
     }
@@ -52,6 +52,9 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
         // Traverse the graph until a valid NodeTerminal is found
         VoltageLevel.NodeBreakerView.Traverser traverser = (node1, sw, node2) -> {
+            if (terminal[0] != null) {
+                return false;
+            }
             if (sw != null && sw.isOpen()) {
                 return false;
             }

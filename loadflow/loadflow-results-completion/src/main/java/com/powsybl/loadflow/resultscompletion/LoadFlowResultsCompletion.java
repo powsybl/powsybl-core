@@ -47,10 +47,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
         // A line is considered Z0 (null impedance) if and only if
         // it is connected at both ends and the voltage at end buses are the same
         this.z0checker = (Line l) -> {
-            if (!l.getTerminal1().isConnected()) {
-                return false;
-            }
-            if (!l.getTerminal2().isConnected()) {
+            if (!l.getTerminal1().isConnected() || !l.getTerminal2().isConnected()) {
                 return false;
             }
             Bus b1 = l.getTerminal1().getBusView().getBus();
@@ -61,7 +58,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             boolean r = Math.abs(b1.getV() - b2.getV()) < threshold
                     && Math.abs(b1.getAngle() - b2.getAngle()) < threshold;
             if (r) {
-                LOGGER.debug("Line Z0 {} ({}) dV = {}, dA = {}", l.getName(), l.getId(), Math.abs(b1.getV() - b2.getV()), Math.abs(b1.getAngle() - b2.getAngle()));
+                LOGGER.debug("Line Z0 {} ({}) dV = {}, dA = {}", l.getNameOrId(), l.getId(), Math.abs(b1.getV() - b2.getV()), Math.abs(b1.getAngle() - b2.getAngle()));
             }
             return r;
         };
@@ -109,7 +106,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
                                                 phaseAngleClock,
                                                 parameters.getEpsilonX(),
                                                 parameters.isApplyReactanceCorrection(),
-                                                lfParameters.isSplitShuntAdmittanceXfmr2());
+                                                lfParameters.isT2wtSplitShuntAdmittance());
             completeTerminalData(twt.getTerminal(Side.ONE), Side.ONE, twtData);
             completeTerminalData(twt.getTerminal(Side.TWO), Side.TWO, twtData);
         });
@@ -140,8 +137,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
                                           phaseAngleClock2,
                                           phaseAngleClock3,
                                           parameters.getEpsilonX(),
-                                          parameters.isApplyReactanceCorrection(),
-                                          lfParameters.isSplitShuntAdmittanceXfmr3());
+                                          parameters.isApplyReactanceCorrection(), false);
             completeTerminalData(twt.getLeg1().getTerminal(), ThreeWindingsTransformer.Side.ONE, twtData);
             completeTerminalData(twt.getLeg2().getTerminal(), ThreeWindingsTransformer.Side.TWO, twtData);
             completeTerminalData(twt.getLeg3().getTerminal(), ThreeWindingsTransformer.Side.THREE, twtData);

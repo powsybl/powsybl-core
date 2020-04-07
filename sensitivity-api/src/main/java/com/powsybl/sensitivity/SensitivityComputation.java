@@ -7,6 +7,7 @@
 package com.powsybl.sensitivity;
 
 import com.powsybl.commons.Versionable;
+import com.powsybl.contingency.ContingenciesProvider;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -17,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
  *     Sensitivity computation is used to assess the impact of a small modification
  *     of a network variables on the value of network functions.
  *     This computation can be assimilated to a partial derivative computed on a given
- *     network state.
+ *     network state and on that state modified based on a list of contingencies, if specified.
  * </p>
  * <p>
  *     PTDFs used in Flowbased methodology for example are sensitivity computation
@@ -28,13 +29,25 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface SensitivityComputation extends Versionable {
     /**
-     * Run an asynchronous sensitivity computation job using given parameters and input provider
+     * Run an asynchronous single sensitivity computation job using given parameters and input provider
      *
      * @param factorsProvider sensitivity factors provider for the computation
      * @param workingStateId id of the network base state for the computation
      * @param sensiParameters sensitivity computation parameters
-     * @return the sensitivity computation results
+     * @return the sensitivity computation results on the given situation
      */
     CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider factorsProvider, String workingStateId, SensitivityComputationParameters sensiParameters);
 
+    /**
+     * Run an asynchronous sensitivity analysis job using given parameters and input provider
+     *
+     * @param factorsProvider sensitivity factors provider for the computation
+     * @param contingenciesProvider contingencies provider for the computation
+     * @param workingStateId id of the network base state for the computation
+     * @param sensiParameters sensitivity computation parameters
+     * @return the sensitivity computation results in N and N-1
+     */
+    default CompletableFuture<SensitivityComputationResults> run(SensitivityFactorsProvider factorsProvider, ContingenciesProvider contingenciesProvider, String workingStateId, SensitivityComputationParameters sensiParameters) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }

@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
@@ -29,19 +28,13 @@ public class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripVersionnedXmlTest("threeWindingsTransformerRoundTripRef.xml", IidmXmlVersion.V_1_0);
+        // backward compatibility
+        roundTripAllPreviousVersionedXmlTest("threeWindingsTransformerRoundTripRef.xml");
 
         roundTripXmlTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "threeWindingsTransformerRoundTripRef.xml");
-    }
-
-    @Test
-    public void faultyFileTest() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("threeWindingsTransformer.ratedU0 is mandatory for IIDM-XML version 1.1. IIDM-XML version should be < 1.1");
-        NetworkXml.read(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_1) + "faultyThreeWindingsTransformerRoundTripRef.xml"));
+                getVersionedNetworkPath("threeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
     }
 
     @Test
@@ -49,6 +42,7 @@ public class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
 
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
+        twt.getLeg1().setRatedS(1.0);
 
         twt.getLeg1().newRatioTapChanger()
                 .setRegulating(false)
@@ -70,7 +64,7 @@ public class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
         roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "completeThreeWindingsTransformerRoundTripRef.xml");
+                getVersionedNetworkPath("completeThreeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
     }
 
     private void createPtc(PhaseTapChangerAdder adder) {

@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
@@ -29,8 +30,8 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
     private final TDoubleArrayList q0;
 
     LoadImpl(Ref<? extends VariantManagerHolder> network,
-             String id, String name, LoadType loadType, double p0, double q0) {
-        super(id, name);
+             String id, String name, boolean fictitious, LoadType loadType, double p0, double q0) {
+        super(id, name, fictitious);
         this.network = network;
         this.loadType = loadType;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();

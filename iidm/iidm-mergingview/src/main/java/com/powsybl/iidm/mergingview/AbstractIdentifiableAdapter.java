@@ -7,9 +7,11 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Identifiable;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -35,8 +37,13 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     }
 
     @Override
-    public String getName() {
-        return getDelegate().getName();
+    public Optional<String> getOptionalName() {
+        return getDelegate().getOptionalName();
+    }
+
+    @Override
+    public String getNameOrId() {
+        return getDelegate().getNameOrId();
     }
 
     @Override
@@ -70,6 +77,16 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     }
 
     @Override
+    public boolean isFictitious() {
+        return getDelegate().isFictitious();
+    }
+
+    @Override
+    public void setFictitious(boolean fictitious) {
+        getDelegate().setFictitious(fictitious);
+    }
+
+    @Override
     public <E extends Extension<I>> void addExtension(final Class<? super E> type, final E extension) {
         getDelegate().addExtension(type, extension);
     }
@@ -92,5 +109,10 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     @Override
     public <E extends Extension<I>> Collection<E> getExtensions() {
         return getDelegate().getExtensions();
+    }
+
+    @Override
+    public <E extends Extension<I>, B extends ExtensionAdder<I, E>> B newExtension(Class<B> type) {
+        return getDelegate().newExtension(type);
     }
 }

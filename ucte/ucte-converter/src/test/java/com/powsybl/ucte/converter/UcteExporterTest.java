@@ -19,6 +19,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
@@ -48,7 +49,7 @@ public class UcteExporterTest extends AbstractConverterTest {
 
         try (InputStream actual = dataSource.newInputStream(null, "uct");
              InputStream expected = UcteExporterTest.class.getResourceAsStream(reference)) {
-            compareTxt(expected, actual);
+            compareTxt(expected, actual, Arrays.asList(1, 2));
         }
     }
 
@@ -127,5 +128,11 @@ public class UcteExporterTest extends AbstractConverterTest {
         assertEquals("Default", namingStrategy.getName());
         namingStrategy = UcteExporter.findNamingStrategy("OtherNamingStrategy", ImmutableList.of(new DefaultNamingStrategy(), new OtherNamingStrategy()));
         assertEquals("OtherNamingStrategy", namingStrategy.getName());
+    }
+
+    @Test
+    public void testWithIdDuplicationBetweenLineAndTransformer() throws IOException {
+        Network network = loadNetworkFromResourceFile("/id_duplication_test.uct");
+        testExporter(network, "/id_duplication_test.uct");
     }
 }

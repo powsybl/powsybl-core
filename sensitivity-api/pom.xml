@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>3.2.0-SNAPSHOT</version>
+        <version>3.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-sensitivity-api</artifactId>
@@ -43,6 +43,11 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-loadflow-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-contingency-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 

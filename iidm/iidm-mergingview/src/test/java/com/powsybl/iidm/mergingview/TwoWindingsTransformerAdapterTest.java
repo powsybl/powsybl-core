@@ -13,6 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -40,6 +42,7 @@ public class TwoWindingsTransformerAdapterTest {
                     .setB(4.0)
                     .setRatedU1(5.0)
                     .setRatedU2(6.0)
+                    .setRatedS(7.0)
                     .setVoltageLevel1("vl1")
                     .setVoltageLevel2("vl2")
                     .setConnectableBus1("busA")
@@ -52,6 +55,7 @@ public class TwoWindingsTransformerAdapterTest {
 
         assertEquals(ConnectableType.TWO_WINDINGS_TRANSFORMER, twt.getType());
         assertSame(substation, twt.getSubstation());
+        assertEquals(7.0, twt.getRatedS(), 0.0);
 
         final RatioTapChanger ratioTapChanger = twt.newRatioTapChanger()
                     .setLowTapPosition(0)
@@ -182,6 +186,11 @@ public class TwoWindingsTransformerAdapterTest {
         assertNull(twt.checkTemporaryLimits(Branch.Side.TWO));
         assertNull(twt.checkTemporaryLimits2());
         assertNull(twt.checkTemporaryLimits2(0.9f));
+
+        // Topology
+        TopologyVisitor visitor = mock(TopologyVisitor.class);
+        mergingView.getVoltageLevel("vl1").visitEquipments(visitor);
+        verify(visitor, times(1)).visitTwoWindingsTransformer(any(TwoWindingsTransformer.class), any(Branch.Side.class));
 
         // Not implemented yet !
         TestUtil.notImplemented(twt::remove);

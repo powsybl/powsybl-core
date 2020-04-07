@@ -26,11 +26,27 @@ package com.powsybl.iidm.network;
  */
 public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensatorAdder> {
 
-    ShuntCompensatorAdder setbPerSection(double bPerSection);
+    ShuntCompensatorLinearModelAdder newLinearModel();
 
-    ShuntCompensatorAdder setMaximumSectionCount(int maximumSectionCount);
+    ShuntCompensatorNonLinearModelAdder newNonLinearModel();
 
     ShuntCompensatorAdder setCurrentSectionCount(int currentSectionCount);
+
+    default ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ShuntCompensatorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ShuntCompensatorAdder setTargetV(double targetV) {
+        throw new UnsupportedOperationException();
+    }
+
+    default ShuntCompensatorAdder setTargetDeadband(double targetDeadband) {
+        throw new UnsupportedOperationException();
+    }
 
     ShuntCompensator add();
 

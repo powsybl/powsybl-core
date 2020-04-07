@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.*;
 
 import java.io.*;
@@ -272,5 +273,25 @@ public final class JsonUtil {
                 objectCount--;
             }
         } while (objectCount != 0);
+    }
+
+    public static void assertLessThanOrEqualToReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
+        Objects.requireNonNull(version);
+        if (version.compareTo(referenceVersion) > 0) {
+            String exception = String.format(
+                "%s. %s is not valid for version %s. Version should be <= %s %n",
+                contextName, elementName, version, referenceVersion);
+            throw new PowsyblException(exception);
+        }
+    }
+
+    public static void assertGreaterThanReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
+        Objects.requireNonNull(version);
+        if (version.compareTo(referenceVersion) <= 0) {
+            String exception = String.format(
+                "%s. %s is not valid for version %s. Version should be > %s %n",
+                contextName, elementName, version, referenceVersion);
+            throw new PowsyblException(exception);
+        }
     }
 }

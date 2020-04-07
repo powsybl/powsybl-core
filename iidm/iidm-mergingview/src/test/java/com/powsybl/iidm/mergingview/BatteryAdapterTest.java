@@ -32,6 +32,7 @@ public class BatteryAdapterTest {
         final Battery battery = vlbat.newBattery()
                                          .setId("BATEST")
                                          .setName("BATEST")
+                                         .setFictitious(true)
                                          .setBus("busA")
                                          .setMaxP(9999.99d)
                                          .setMinP(-9999.99d)
@@ -45,6 +46,7 @@ public class BatteryAdapterTest {
         assertTrue(battery instanceof BatteryAdapter);
         assertSame(mergingView, battery.getNetwork());
         assertEquals("BATEST", battery.getId());
+        assertTrue(battery.isFictitious());
         assertEquals(15.0d, battery.getP0(), delta);
         assertNotNull(battery.setP0(0.0d));
         assertEquals(0.0d, battery.getP0(), delta);

@@ -24,6 +24,9 @@ import java.util.List;
  */
 public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowParameters> {
 
+    static final String CONTEXT_NAME = "LoadFlowParameters";
+    static final String REFERENCE_VERSION = "1.0";
+
     LoadFlowParametersDeserializer() {
         super(LoadFlowParameters.class);
     }
@@ -36,12 +39,14 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
     @Override
     public LoadFlowParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, LoadFlowParameters parameters) throws IOException {
 
+        String version = null;
         List<Extension<LoadFlowParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
 
                 case "version":
                     parser.nextToken();
+                    version = parser.getValueAsString();
                     break;
 
                 case "voltageInitMode":
@@ -64,9 +69,16 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     parameters.setPhaseShifterRegulationOn(parser.readValueAs(Boolean.class));
                     break;
 
-                case "splitShuntAdmittanceXfmr2":
+                case "specificCompatibility":
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", version, REFERENCE_VERSION);
                     parser.nextToken();
-                    parameters.setSplitShuntAdmittanceXfmr2(parser.readValueAs(Boolean.class));
+                    parameters.setT2wtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
+                    break;
+
+                case "t2wtSplitShuntAdmittance":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: t2wtSplitShuntAdmittance", version, REFERENCE_VERSION);
+                    parser.nextToken();
+                    parameters.setT2wtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
                     break;
 
                 case "extensions":
@@ -83,5 +95,4 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
 
         return parameters;
     }
-
 }

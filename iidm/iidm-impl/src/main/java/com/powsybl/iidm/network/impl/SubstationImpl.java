@@ -32,8 +32,8 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     private final Set<VoltageLevelExt> voltageLevels = new LinkedHashSet<>();
 
-    SubstationImpl(String id, String name, Country country, String tso, Ref<NetworkImpl> networkRef) {
-        super(id, name);
+    SubstationImpl(String id, String name, boolean fictitious, Country country, String tso, Ref<NetworkImpl> networkRef) {
+        super(id, name, fictitious);
         this.country = country;
         this.tso = tso;
         this.networkRef = networkRef;

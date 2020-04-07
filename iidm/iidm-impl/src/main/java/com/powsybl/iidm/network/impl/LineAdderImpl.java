@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LineAdder;
+import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  *
@@ -97,7 +98,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         voltageLevel1.attach(terminal1, true);
         voltageLevel2.attach(terminal2, true);
 
-        LineImpl line = new LineImpl(id, getName(), r, x, g1, b1, g2, b2);
+        LineImpl line = new LineImpl(id, getName(), isFictitious(), r, x, g1, b1, g2, b2);
         terminal1.setNum(1);
         terminal2.setNum(2);
         line.addTerminal(terminal1);

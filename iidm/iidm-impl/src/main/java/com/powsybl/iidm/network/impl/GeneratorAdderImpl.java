@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  *
@@ -118,7 +119,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkRatedS(this, ratedS);
         GeneratorImpl generator
                 = new GeneratorImpl(getNetwork().getRef(),
-                                    id, getName(), energySource,
+                                    id, getName(), isFictitious(), energySource,
                                     minP, maxP,
                                     voltageRegulatorOn, regulatingTerminal != null ? regulatingTerminal : terminal,
                                     targetP, targetQ, targetV,

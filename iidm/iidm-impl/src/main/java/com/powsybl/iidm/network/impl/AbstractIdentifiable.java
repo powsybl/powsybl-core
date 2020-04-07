@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Validable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,11 +22,18 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     protected String name;
 
+    protected boolean fictitious = false;
+
     protected final Properties properties = new Properties();
 
     AbstractIdentifiable(String id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    AbstractIdentifiable(String id, String name, boolean fictitious) {
+        this(id, name);
+        this.fictitious = fictitious;
     }
 
     @Override
@@ -34,8 +42,25 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     }
 
     @Override
-    public String getName() {
+    public Optional<String> getOptionalName() {
+        return Optional.ofNullable(name);
+    }
+
+    @Override
+    public String getNameOrId() {
         return name != null ? name : id;
+    }
+
+    @Override
+    public boolean isFictitious() {
+        return fictitious;
+    }
+
+    @Override
+    public void setFictitious(boolean fictitious) {
+        boolean oldValue = this.fictitious;
+        this.fictitious = fictitious;
+        getNetwork().getListeners().notifyUpdate(this, "fictitious", oldValue, fictitious);
     }
 
     @Override

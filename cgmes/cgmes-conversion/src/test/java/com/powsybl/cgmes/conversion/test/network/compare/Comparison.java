@@ -13,31 +13,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.MinMaxReactiveLimits;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChangerStep;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.iidm.network.ReactiveCapabilityCurve;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
-import com.powsybl.iidm.network.ReactiveLimits;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.TapChanger;
-import com.powsybl.iidm.network.TapChangerStep;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
@@ -131,7 +108,7 @@ public class Comparison {
             compare(context, expected.getClass(), actual.getClass());
         });
         expecteds.forEach(expected -> {
-            Identifiable actual = networkMapping.findActual(expected);
+            Identifiable<?> actual = networkMapping.findActual(expected);
             if (actual == null) {
                 diff.missing(expected);
                 return;
@@ -141,7 +118,7 @@ public class Comparison {
             String context = className(actual);
             compare(context, expected.getClass(), actual.getClass());
             context = context + ".name";
-            compareNames(context, expected.getName(), actual.getName());
+            compareNames(context, expected.getOptionalName().orElse(""), actual.getOptionalName().orElse(""));
             // Obtained identifiable in actual must be of type T
             @SuppressWarnings("unchecked")
             T tactual = (T) actual;
@@ -180,7 +157,7 @@ public class Comparison {
             String context = className(actual);
             compare(context, expected.getClass(), actual.getClass());
             context = context + ".name";
-            compareNames(context, expected.getName(), actual.getName());
+            compareNames(context, expected.getOptionalName().orElse(""), actual.getOptionalName().orElse(""));
             testAttributes.accept((Bus) expected, actual);
         });
     }
@@ -233,8 +210,20 @@ public class Comparison {
                 expected.getMaximumSectionCount(),
                 actual.getMaximumSectionCount());
         compare("bPerSection",
-                expected.getbPerSection(),
-                actual.getbPerSection());
+                expected.getModel(ShuntCompensatorLinearModel.class).getbPerSection(),
+                actual.getModel(ShuntCompensatorLinearModel.class).getbPerSection());
+        compare("voltageRegulationOn",
+                expected.isVoltageRegulatorOn(),
+                actual.isVoltageRegulatorOn());
+        compare("targetV",
+                expected.getTargetV(),
+                actual.getTargetV());
+        compare("targetDeadband",
+                expected.getTargetDeadband(),
+                actual.getTargetDeadband());
+        sameIdentifier("regulationTerminal",
+                expected.getRegulatingTerminal().getBusBreakerView().getBus(),
+                actual.getRegulatingTerminal().getBusBreakerView().getBus());
     }
 
     private void compareStaticVarCompensators(
@@ -258,6 +247,9 @@ public class Comparison {
         compare("regulationMode",
                 expected.getRegulationMode(),
                 actual.getRegulationMode());
+        sameIdentifier("regulationTerminal",
+                expected.getRegulatingTerminal().getBusBreakerView().getBus(),
+                actual.getRegulatingTerminal().getBusBreakerView().getBus());
     }
 
     private void compareGenerators(Generator expected, Generator actual) {
@@ -680,7 +672,7 @@ public class Comparison {
         String context,
         Identifiable expected,
         Identifiable actual) {
-        boolean sameIdentifier = true;
+        boolean sameIdentifier;
         if (expected == null) {
             sameIdentifier = actual == null;
         } else if (actual == null) {

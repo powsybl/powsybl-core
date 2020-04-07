@@ -34,6 +34,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private double ratedU;
 
+        private double ratedS;
+
         private CurrentLimits limits;
 
         private RatioTapChangerImpl ratioTapChanger;
@@ -42,13 +44,14 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private int legNumber = 0;
 
-        LegImpl(double r, double x, double g, double b, double ratedU, int legNumber) {
+        LegImpl(double r, double x, double g, double b, double ratedU, double ratedS, int legNumber) {
             this.r = r;
             this.x = x;
             this.g = g;
             this.b = b;
             this.ratedU = ratedU;
             this.legNumber = legNumber;
+            this.ratedS = ratedS;
         }
 
         void setTransformer(ThreeWindingsTransformerImpl transformer) {
@@ -238,6 +241,20 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         public boolean hasPhaseTapChanger() {
             return phaseTapChanger != null;
         }
+
+        @Override
+        public double getRatedS() {
+            return ratedS;
+        }
+
+        @Override
+        public LegImpl setRatedS(double ratedS) {
+            ValidationUtil.checkRatedS(this, ratedS);
+            double oldValue = this.ratedS;
+            this.ratedS = ratedS;
+            transformer.notifyUpdate(() -> getLegAttribute() + ".ratedS", oldValue, ratedS);
+            return this;
+        }
     }
 
     private final LegImpl leg1;
@@ -248,8 +265,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     private double ratedU0;
 
-    ThreeWindingsTransformerImpl(String id, String name, LegImpl leg1, LegImpl leg2, LegImpl leg3, double ratedU0) {
-        super(id, name);
+    ThreeWindingsTransformerImpl(String id, String name, boolean fictitious, LegImpl leg1, LegImpl leg2, LegImpl leg3, double ratedU0) {
+        super(id, name, fictitious);
         this.leg1 = Objects.requireNonNull(leg1);
         this.leg2 = Objects.requireNonNull(leg2);
         this.leg3 = Objects.requireNonNull(leg3);

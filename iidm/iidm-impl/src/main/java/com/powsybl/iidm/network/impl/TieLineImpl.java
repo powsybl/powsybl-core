@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import java.util.Objects;
 
 import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.ValidationException;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -176,8 +177,8 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     private final HalfLineImpl half2;
 
-    TieLineImpl(String id, String name, String ucteXnodeCode, HalfLineImpl half1, HalfLineImpl half2) {
-        super(id, name, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+    TieLineImpl(String id, String name, boolean fictitious, String ucteXnodeCode, HalfLineImpl half1, HalfLineImpl half2) {
+        super(id, name, fictitious, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
         this.ucteXnodeCode = ucteXnodeCode;
         this.half1 = attach(half1);
         this.half2 = attach(half2);
@@ -234,7 +235,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getG1() {
-        return half1.getG1() + half2.getG1();
+        return half1.getG1() + half1.getG2();
     }
 
     @Override
@@ -244,7 +245,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getB1() {
-        return half1.getB1() + half2.getB1();
+        return half1.getB1() + half1.getB2();
     }
 
     @Override
@@ -254,7 +255,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getG2() {
-        return half1.getG2() + half2.getG2();
+        return half2.getG1() + half2.getG2();
     }
 
     @Override
@@ -264,7 +265,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getB2() {
-        return half1.getB2() + half2.getB2();
+        return half2.getB1() + half2.getB2();
     }
 
     @Override

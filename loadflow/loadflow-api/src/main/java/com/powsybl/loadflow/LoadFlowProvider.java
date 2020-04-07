@@ -7,6 +7,7 @@
 package com.powsybl.loadflow;
 
 import com.powsybl.commons.Versionable;
+import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
@@ -17,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface LoadFlowProvider extends Versionable {
+public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvider {
 
     /**
      * Run a loadflow on variant {@code workingVariantId} of {@code network} delegating external program execution to

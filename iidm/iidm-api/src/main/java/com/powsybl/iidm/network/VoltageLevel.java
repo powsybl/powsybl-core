@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Stream;
 
@@ -335,13 +336,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
             SwitchAdder setRetained(boolean retained);
 
-            SwitchAdder setFictitious(boolean fictitious);
-
             Switch add();
 
         }
 
-        interface InternalConnectionAdder extends IdentifiableAdder<InternalConnectionAdder> {
+        interface InternalConnectionAdder {
 
             InternalConnectionAdder setNode1(int node1);
 
@@ -358,19 +357,26 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         }
 
         /**
-         * Get the number of node.
+         * Get the count of used nodes (nodes attached to an equipment, a switch or an internal connection).
+         *
+         * @deprecated Use {@link #getMaximumNodeIndex()} instead.
          */
-        int getNodeCount();
+        @Deprecated
+        default int getNodeCount() {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Get the highest index of used nodes (i.e. attached to an equipment, a switch or an internal connection) in the voltage level.
+         */
+        default int getMaximumNodeIndex() {
+            throw new UnsupportedOperationException();
+        }
 
         /**
          * Get the list of nodes.
          */
         int[] getNodes();
-
-        /**
-         * Set the number of node.
-         */
-        NodeBreakerView setNodeCount(int count);
 
         /**
          * Get a builder to create a new switch.
@@ -396,6 +402,13 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get internal connection stream.
          */
         Stream<InternalConnection> getInternalConnectionStream();
+
+        /**
+         * Remove <b>all</b> the internal connections between node1 and node2 (not orientated) if they exist.
+         */
+        default void removeInternalConnections(int node1, int node2) {
+            throw new UnsupportedOperationException();
+        }
 
         /**
          * Get a builder to create a new breaker.
@@ -425,11 +438,29 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
         /**
          * Get the terminal corresponding to the {@param node}.
-         * May return null.
          *
          * @throws com.powsybl.commons.PowsyblException if node is not found.
          */
         Terminal getTerminal(int node);
+
+        /**
+         * Get the terminal corresponding to the {@param node} if the {@param node} is valid.
+         * Return an empty optional if no existing terminal corresponds to {@param node}.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not valid.
+         */
+        default Optional<Terminal> getOptionalTerminal(int node) {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Check if a {@link Connectable}, a {@link Switch} or an {@link InternalConnection} is attached to the given node.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not valid
+         */
+        default boolean hasAttachedEquipment(int node) {
+            throw new UnsupportedOperationException();
+        }
 
         /**
          * Get the first terminal corresponding to the {@param switchId}.
@@ -527,8 +558,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
             SwitchAdder setBus2(String bus2);
 
             SwitchAdder setOpen(boolean open);
-
-            SwitchAdder setFictitious(boolean fictitious);
 
             Switch add();
 
@@ -1035,5 +1064,4 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * @param writer a writer
      */
     void exportTopology(Writer writer) throws IOException;
-
 }

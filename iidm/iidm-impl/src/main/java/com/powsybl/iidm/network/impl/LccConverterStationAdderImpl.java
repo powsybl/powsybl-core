@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.LccConverterStationAdder;
+import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -39,7 +40,7 @@ class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Lcc
         TerminalExt terminal = checkAndGetTerminal();
         validate();
         LccConverterStationImpl converterStation
-                = new LccConverterStationImpl(id, name, getLossFactor(), powerFactor);
+                = new LccConverterStationImpl(id, name, isFictitious(), getLossFactor(), powerFactor);
         converterStation.addTerminal(terminal);
         getVoltageLevel().attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(converterStation);
