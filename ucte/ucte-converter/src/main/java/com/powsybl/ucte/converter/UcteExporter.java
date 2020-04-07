@@ -86,6 +86,13 @@ public class UcteExporter implements Exporter {
 
         UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy);
 
+        UcteExportPostProcessor processor = new UcteExportScriptPostProcessor();
+        try {
+            processor.process(network, ucteNetwork);
+        } catch (Exception e) {
+            throw new PowsyblException("Error during post processing");
+        }
+
         try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
             new UcteWriter(ucteNetwork).write(writer);

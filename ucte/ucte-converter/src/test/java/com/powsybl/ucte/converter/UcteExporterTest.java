@@ -9,16 +9,20 @@ package com.powsybl.ucte.converter;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.io.FilenameUtils;
+import org.junit.ComparisonFailure;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -36,12 +40,12 @@ public class UcteExporterTest extends AbstractConverterTest {
      * @param filePath path of the file relative to resources directory
      * @return imported network
      */
-    private static Network loadNetworkFromResourceFile(String filePath) {
+    public static Network loadNetworkFromResourceFile(String filePath) {
         ReadOnlyDataSource dataSource = new ResourceDataSource(FilenameUtils.getBaseName(filePath), new ResourceSet(FilenameUtils.getPath(filePath), FilenameUtils.getName(filePath)));
         return new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
     }
 
-    private static void testExporter(Network network, String reference) throws IOException {
+    public static void testExporter(Network network, String reference) throws IOException {
         MemDataSource dataSource = new MemDataSource();
 
         UcteExporter exporter = new UcteExporter();
@@ -83,6 +87,24 @@ public class UcteExporterTest extends AbstractConverterTest {
     public void testExport() throws IOException {
         Network network = loadNetworkFromResourceFile("/expectedExport.uct");
         testExporter(network, "/expectedExport.uct");
+    }
+
+    @Test
+    public void testExportPostProcessing() throws IOException {
+        PlatformConfig platformConfig = PlatformConfig.defaultConfig();
+        Path script = platformConfig.getConfigDir().resolve(UcteExportScriptPostProcessor.DEFAULT_SCRIPT_NAME);
+        Files.copy(UcteExporterTest.class.getResourceAsStream("/ucte-export-post-processor-test-fail.groovy"), script);
+
+        Network network = loadNetworkFromResourceFile("/expectedExport.uct");
+        try {
+            testExporter(network, "/expectedExport.uct");
+            fail();
+        } catch (ComparisonFailure ignored) {
+        }
+
+        // reset default script
+        Files.delete(script);
+        Files.copy(UcteExporterTest.class.getResourceAsStream("/ucte-export-post-processor.groovy"), script);
     }
 
     @Test
