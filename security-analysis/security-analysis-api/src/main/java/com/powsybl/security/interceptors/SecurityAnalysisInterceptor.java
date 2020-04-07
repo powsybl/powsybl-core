@@ -18,7 +18,7 @@ import com.powsybl.security.SecurityAnalysisResult;
 public interface SecurityAnalysisInterceptor {
 
     /**
-     * @Deprected.
+     * @Deprected. Use {@link #onPreContingencyResult(LimitViolationsResult, SecurityAnalysisResultContext)}
      * Callback after the pre-contingency analysis result is created
      * @param context The running context
      * @param preContingencyResult
@@ -37,7 +37,27 @@ public interface SecurityAnalysisInterceptor {
     }
 
     /**
-     * Callback after the post-contingency result is created
+     * @Deprecated. Use {@link #onSecurityAnalysisResult(SecurityAnalysisResult, SecurityAnalysisResultContext)}
+     * Callback after the result is created
+     * @param context
+     * @param result
+     */
+    @Deprecated
+    default void onSecurityAnalysisResult(RunningContext context, SecurityAnalysisResult result) {
+        onSecurityAnalysisResult(result, context);
+    }
+
+    /**
+     * Callback after the pre-contingency result is built.
+     * @param preContingencyResult
+     * @param context
+     */
+    default void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context) {
+        onPreContingencyResult(new RunningContext(context.getNetwork(), context.getInitialStateId()), preContingencyResult);
+    }
+
+    /**
+     * Callback after the post-contingency result is built.
      * @param context
      * @param postContingencyResult
      */
@@ -46,27 +66,31 @@ public interface SecurityAnalysisInterceptor {
     }
 
     /**
-     * Callback after the result is created
-     * @param context
+     * Callback after the security-analysis result is built.
      * @param result
+     * @param context
      */
-    void onSecurityAnalysisResult(RunningContext context, SecurityAnalysisResult result);
+    default void onSecurityAnalysisResult(SecurityAnalysisResult result, SecurityAnalysisResultContext context) {
+        onSecurityAnalysisResult(new RunningContext(context.getNetwork(), context.getInitialStateId()), result);
+    }
 
     /**
-     * Callback after a limit violation accepted by {@link com.powsybl.security.LimitViolationFilter}
-     * @param context a violation context
-     * @param limitViolation the limit violation; never {@literal null}
+     * Callback when a violation is detected on N situation.
+     * @param limitViolation
+     * @param context
      */
-    default void onLimitViolation(ViolationContext context, LimitViolation limitViolation) {
+    default void onLimitViolation(LimitViolation limitViolation, SecurityAnalysisResultContext context) {
 
     }
 
-    void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context);
+    /**
+     * Callback when a violation is detected on N-1 situation.
+     * @param contingency
+     * @param limitViolation
+     * @param context
+     */
+    default void onLimitViolation(Contingency contingency, LimitViolation limitViolation, SecurityAnalysisResultContext context) {
 
-    void onSecurityAnalysisResult(SecurityAnalysisResult result, SecurityAnalysisResultContext context);
-
-    void onLimitViolation(LimitViolation limitViolation, SecurityAnalysisResultContext context);
-
-    void onLimitViolation(Contingency contingency, LimitViolation limitViolation, SecurityAnalysisResultContext context);
+    }
 
 }

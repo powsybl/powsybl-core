@@ -30,11 +30,6 @@ public class DefaultSecurityAnalysisInterceptor implements SecurityAnalysisInter
     }
 
     @Override
-    public void onLimitViolation(ViolationContext context, LimitViolation limitViolation) {
-        // Nothing to do
-    }
-
-    @Override
     public void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context) {
 
     }

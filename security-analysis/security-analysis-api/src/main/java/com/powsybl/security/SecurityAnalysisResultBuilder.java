@@ -8,7 +8,6 @@ package com.powsybl.security;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.security.interceptors.RunningContext;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisResultContext;
 
@@ -41,7 +40,7 @@ public class SecurityAnalysisResultBuilder {
         this.interceptors = ImmutableList.copyOf(interceptors);
     }
 
-    public SecurityAnalysisResultBuilder(LimitViolationFilter filter, RunningContext context) {
+    public SecurityAnalysisResultBuilder(LimitViolationFilter filter, SecurityAnalysisResultContext context) {
         this(filter, context, Collections.emptyList());
     }
 
