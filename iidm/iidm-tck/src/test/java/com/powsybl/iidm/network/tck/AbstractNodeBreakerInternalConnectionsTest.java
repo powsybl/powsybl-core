@@ -18,8 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -91,6 +90,17 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         assertEquals(2, vl.getNodeBreakerView().getInternalConnectionStream().filter(ic -> ic.getNode1() == 6 && ic.getNode2() == 3).count());
         vl.getNodeBreakerView().removeInternalConnections(6, 3);
         assertTrue(vl.getNodeBreakerView().getInternalConnectionStream().noneMatch(ic -> ic.getNode1() == 6 && ic.getNode2() == 3));
+    }
+
+    @Test
+    public void testRemoveVoltageLevelWithInternalConnectionsIssue() {
+        Network network = Network.create("testRemoveVoltageLevelWithInternalConnectionsIssue", "test");
+        InternalConnections all = new InternalConnections();
+        createNetwork(network, all);
+        network.getLine("L6").remove(); // needed to be allowed to remove the voltage level
+        // should not throw a null pointer exception anymore
+        network.getVoltageLevel(S5_10K_V).remove();
+        assertNull(network.getVoltageLevel(S5_10K_V));
     }
 
     private void createNetwork(Network network, InternalConnections internalConnections) {
