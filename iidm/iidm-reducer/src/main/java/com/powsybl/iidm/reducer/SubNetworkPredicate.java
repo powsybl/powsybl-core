@@ -58,12 +58,12 @@ public class SubNetworkPredicate implements NetworkPredicate {
             }
 
             @Override
-            public void visitLine(Line line, Line.Side side) {
+            public void visitLine(Line line, Branch.Side side) {
                 visitBranch(line, side);
             }
 
             @Override
-            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoWindingsTransformer.Side side) {
+            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
                 visitBranch(transformer, side);
             }
 
