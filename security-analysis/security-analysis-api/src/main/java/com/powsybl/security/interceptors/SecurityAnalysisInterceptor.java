@@ -55,7 +55,9 @@ public interface SecurityAnalysisInterceptor {
      * @param context
      */
     default void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context) {
-
+        if (context instanceof RunningContext) {
+            onPreContingencyResult((RunningContext) context, preContingencyResult);
+        }
     }
 
     /**
@@ -64,7 +66,9 @@ public interface SecurityAnalysisInterceptor {
      * @param postContingencyResult
      */
     default void onPostContingencyResult(PostContingencyResult postContingencyResult, SecurityAnalysisResultContext context) {
-
+        if (context instanceof RunningContext) {
+            onPostContingencyResult((RunningContext) context, postContingencyResult);
+        }
     }
 
     /**
@@ -73,7 +77,9 @@ public interface SecurityAnalysisInterceptor {
      * @param context
      */
     default void onSecurityAnalysisResult(SecurityAnalysisResult result, SecurityAnalysisResultContext context) {
-
+        if (context instanceof RunningContext) {
+            onSecurityAnalysisResult((RunningContext) context, result);
+        }
     }
 
     /**
