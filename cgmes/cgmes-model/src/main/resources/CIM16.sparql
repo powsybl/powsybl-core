@@ -176,9 +176,12 @@ OPTIONAL { GRAPH ?graphSV2 {
 }}
 OPTIONAL { GRAPH ?graphCN {
         ?Terminal cim:Terminal.ConnectivityNode ?ConnectivityNode .
+		OPTIONAL { GRAPH ?graphTPCN {
+			?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNodeConnectivityNode .
+		}}
 }}
 OPTIONAL { GRAPH ?graphTPT {
-        ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode .
+		?Terminal cim:Terminal.TopologicalNode ?TopologicalNodeTerminal .
 }}
 }
 
@@ -626,10 +629,6 @@ WHERE {
     ?RegulatingControl
         cim:RegulatingControl.mode ?mode ;
         cim:RegulatingControl.Terminal ?Terminal .
-        { GRAPH ?graphTP {
-            ?Terminal
-                cim:Terminal.TopologicalNode ?topologicalNode
-        }}
 }}
 { GRAPH ?graphSSH {
     ?RegulatingControl

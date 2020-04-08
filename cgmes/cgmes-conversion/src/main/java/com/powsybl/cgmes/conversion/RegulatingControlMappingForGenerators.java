@@ -90,7 +90,7 @@ public class RegulatingControlMappingForGenerators {
                                                 RegulatingControl control, double qPercent, Generator gen) {
 
         // Take default terminal if it has not been defined in CGMES file (it is never null)
-        Terminal terminal = parent.getRegulatingTerminal(gen, control.cgmesTerminal, control.topologicalNode);
+        Terminal terminal = parent.getRegulatingTerminal(gen, control.cgmesTerminal);
 
         double targetV;
         if (control.targetValue <= 0.0 || Double.isNaN(control.targetValue)) {
