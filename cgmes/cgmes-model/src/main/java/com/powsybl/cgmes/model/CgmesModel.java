@@ -11,6 +11,8 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
 
 import java.io.InputStream;
@@ -211,11 +213,11 @@ public interface CgmesModel {
         throw new UnsupportedOperationException();
     }
 
-    default void copyTopologicalNode2iidmNode(Map<String, String> cgmes2iidmNodeMapper) {
+    default void copyTopologicalNode2iidmNode(Map<Pair<String, Integer>, String> cgmes2iidmNodeMapper) {
         throw new UnsupportedOperationException();
     }
 
-    default Map<String, String> topologicalNode2iidmNode() {
+    default Map<Pair<String, Integer>, String> topologicalNode2iidmNode() {
         throw new UnsupportedOperationException();
     }
 

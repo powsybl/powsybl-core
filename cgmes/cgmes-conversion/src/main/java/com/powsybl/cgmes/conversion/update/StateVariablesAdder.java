@@ -9,9 +9,11 @@ package com.powsybl.cgmes.conversion.update;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
@@ -34,6 +36,7 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.LinkData;
 import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -55,6 +58,7 @@ public class StateVariablesAdder {
         this.originalTopologicalIslands = cgmes.topologicalIslands();
         this.originalSVcontext = originalSVcontext();
         this.boundaryNodesFromDanglingLines = boundaryNodesFromDanglingLines();
+        this.originalTopologicalNodes = cgmes.topologicalNodes();
     }
 
     private String originalSVcontext() {
@@ -95,14 +99,32 @@ public class StateVariablesAdder {
         PropertyBags voltages = new PropertyBags();
         // add voltages for TpNodes existing in the Model
         if (cgmes.isNodeBreaker()) {
-            cgmes.topologicalNode2iidmNode().forEach((iidmBus, tnode) -> {
-                Bus b = network.getBusView().getBus(iidmBus);
+            Set<String> foundTn = new HashSet<>();
+            cgmes.topologicalNode2iidmNode().forEach((pair, tnode) -> {
+                if (foundTn.contains(tnode)) {
+                    return;
+                }
+                VoltageLevel vl = network.getVoltageLevel(pair.getLeft());
+                int iidmNode = pair.getRight().intValue();
+                Bus b = getBusViewBus(vl, iidmNode);
                 if (b != null) {
                     PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
                     addVoltagesForTopologicalNodes(p, fs(b.getAngle()), fs(b.getV()), tnode);
                     voltages.add(p);
+                    foundTn.add(tnode);
                 }
             });
+            originalTopologicalNodes.stream()
+                .filter(tn -> tn.get(CgmesNames.ANGLE) != null)
+                .filter(tn -> !foundTn.contains(tn.getId(CgmesNames.TOPOLOGICAL_NODE)))
+                .filter(tn -> !boundaryNodesFromDanglingLines.values().contains(tn.getId(CgmesNames.TOPOLOGICAL_NODE)))
+                .forEach(pb -> {
+                    PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
+                    addVoltagesForTopologicalNodes(p, pb.get(CgmesNames.ANGLE), pb.getId(CgmesNames.VOLTAGE),
+                        pb.getId(CgmesNames.TOPOLOGICAL_NODE));
+                    voltages.add(p);
+                });
+
         } else {
             cgmes.topologicalNodes().stream().forEach(tn -> {
                 Bus b = network.getBusBreakerView().getBus(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
@@ -115,6 +137,56 @@ public class StateVariablesAdder {
             });
         }
         cgmes.add(originalSVcontext, "SvVoltage", voltages);
+    }
+
+    public static Bus getBusViewBus(VoltageLevel vl, int iidmNode) {
+        VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
+        if (!topo.hasAttachedEquipment(iidmNode)) {
+            LOG.error("IIDM node {} not valid", iidmNode);
+            return null;
+        }
+        // If there is no Terminal at this IIDM node,
+        // then find from it the first connected node with a Terminal
+        Terminal t = topo.getOptionalTerminal(iidmNode)
+            .orElseGet(() -> new FirstTerminalTraverser(topo, iidmNode).firstTerminal());
+        if (t == null) {
+            LOG.error("Can't find a Terminal for IIDM node {}", iidmNode);
+            return null;
+        }
+        return t.getBusView().getBus();
+    }
+
+    private static class FirstTerminalTraverser implements VoltageLevel.NodeBreakerView.Traverser {
+        FirstTerminalTraverser(VoltageLevel.NodeBreakerView topology, int node) {
+            this.topology = topology;
+            this.node = node;
+        }
+
+        Terminal firstTerminal() {
+            topology.traverse(node, this);
+            return terminal;
+        }
+
+        @Override
+        public boolean traverse(int node1, Switch sw, int node2) {
+            // If the first terminal has already been found,
+            // do not continue traversal
+            if (terminal != null) {
+                return false;
+            }
+            // Proceed only to new nodes that can be reached
+            // through internal connections or closed switches
+            if (sw != null && sw.isOpen()) {
+                return false;
+            }
+            terminal = topology.getTerminal(node2);
+            // Continue traversal if no terminal at node2
+            return terminal == null;
+        }
+
+        private final VoltageLevel.NodeBreakerView topology;
+        private final int node;
+        private Terminal terminal;
     }
 
     private void addVoltagesForBoundaryNodes() {
@@ -412,6 +484,7 @@ public class StateVariablesAdder {
     private final PropertyBags originalTerminals;
     private final PropertyBags originalFullModel;
     private final PropertyBags originalTopologicalIslands;
+    private final PropertyBags originalTopologicalNodes;
     private final String originalSVcontext;
     private final Map<String, String> boundaryNodesFromDanglingLines;
     private static final String IN_SERVICE = "inService";
