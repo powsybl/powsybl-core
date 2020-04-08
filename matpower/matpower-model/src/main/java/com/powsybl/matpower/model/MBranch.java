@@ -135,12 +135,12 @@ public class MBranch {
         this.to = to;
     }
 
-    public double getR() {
-        return r;
+    public double getB() {
+        return b;
     }
 
-    public void setR(double r) {
-        this.r = r;
+    public void setB(double b) {
+        this.b = b;
     }
 
     public double getX() {
@@ -151,12 +151,12 @@ public class MBranch {
         this.x = x;
     }
 
-    public double getB() {
-        return b;
+    public double getR() {
+        return r;
     }
 
-    public void setB(double b) {
-        this.b = b;
+    public void setR(double r) {
+        this.r = r;
     }
 
     public double getRateA() {
