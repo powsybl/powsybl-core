@@ -217,24 +217,39 @@ public final class JsonUtil {
         return notFound;
     }
 
-    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context, T toUpdatedParameters) throws IOException {
-        return updateExtensions(parser, context, SUPPLIER.get(), null, toUpdatedParameters);
+    /**
+     * Updates the extensions of the provided extendable with possibly partial definition read from JSON.
+     *
+     * <p>Note that in order for this to work correctly, extension providers need to implement {@link ExtensionJsonSerializer#deserializeAndUpdate}.
+     */
+    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context, T extendable) throws IOException {
+        return updateExtensions(parser, context, SUPPLIER.get(), null, extendable);
     }
 
+    /**
+     * Updates the extensions of the provided extendable with possibly partial definition read from JSON.
+     *
+     * <p>Note that in order for this to work correctly, extension providers need to implement {@link ExtensionJsonSerializer#deserializeAndUpdate}.
+     */
     public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context,
-                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier, T toUpdatedParameters) throws IOException {
-        return updateExtensions(parser, context, supplier, null, toUpdatedParameters);
+                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier, T extendable) throws IOException {
+        return updateExtensions(parser, context, supplier, null, extendable);
     }
 
+    /**
+     * Updates the extensions of the provided extendable with possibly partial definition read from JSON.
+     *
+     * <p>Note that in order for this to work correctly, extension providers need to implement {@link ExtensionJsonSerializer#deserializeAndUpdate}.
+     */
     public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context,
-                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound, T toUpdatedParameters) throws IOException {
+                                                                             ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
 
         List<Extension<T>> extensions = new ArrayList<>();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            Extension<T> extension = updateExtension(parser, context, supplier, extensionsNotFound, toUpdatedParameters);
+            Extension<T> extension = updateExtension(parser, context, supplier, extensionsNotFound, extendable);
             if (extension != null) {
                 extensions.add(extension);
             }
@@ -243,13 +258,13 @@ public final class JsonUtil {
     }
 
     private static <T extends Extendable, E extends Extension<T>> E updateExtension(JsonParser parser, DeserializationContext context,
-                                                                                    ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound, T toUpdateParameters) throws IOException {
+                                                                                    ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
         String extensionName = parser.getCurrentName();
         ExtensionJsonSerializer<T, E> extensionJsonSerializer = supplier.findProvider(extensionName);
         if (extensionJsonSerializer != null) {
             parser.nextToken();
-            if (toUpdateParameters != null && toUpdateParameters.getExtensionByName(extensionName) != null) {
-                return extensionJsonSerializer.deserializeAndUpdate(parser, context, (E) toUpdateParameters.getExtensionByName(extensionName));
+            if (extendable != null && extendable.getExtensionByName(extensionName) != null) {
+                return extensionJsonSerializer.deserializeAndUpdate(parser, context, (E) extendable.getExtensionByName(extensionName));
             } else {
                 return extensionJsonSerializer.deserialize(parser, context);
             }
