@@ -21,27 +21,27 @@ public class DefaultSecurityAnalysisInterceptor implements SecurityAnalysisInter
 
     @Override
     public void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context) {
-
+        // nothing to do
     }
 
     @Override
     public void onPostContingencyResult(PostContingencyResult postContingencyResult, SecurityAnalysisResultContext context) {
-
+        // nothing to do
     }
 
     @Override
     public void onSecurityAnalysisResult(SecurityAnalysisResult result, SecurityAnalysisResultContext context) {
-
+        // nothing to do
     }
 
     @Override
     public void onLimitViolation(LimitViolation limitViolation, SecurityAnalysisResultContext context) {
-
+        // nothing to do
     }
 
     @Override
     public void onLimitViolation(Contingency contingency, LimitViolation limitViolation, SecurityAnalysisResultContext context) {
-
+        // nothing to do
     }
 
 }

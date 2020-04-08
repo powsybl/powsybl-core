@@ -75,7 +75,7 @@ public class SecurityAnalysisResultBuilder {
      * @return a {@link PostContingencyResultBuilder} instance.
      */
     public PostContingencyResultBuilder contingency(Contingency contingency) {
-        return new PostContingencyResultBuilder(contingency);
+        return new PostContingencyResultBuilder(contingency, context);
     }
 
     /**
@@ -85,6 +85,8 @@ public class SecurityAnalysisResultBuilder {
      * @return a {@link PostContingencyResultBuilder} instance.
      */
     public PostContingencyResultBuilder contingency(Contingency contingency, SecurityAnalysisResultContext postContingencyResultContext) {
+        Objects.requireNonNull(contingency);
+        Objects.requireNonNull(postContingencyResultContext);
         return new PostContingencyResultBuilder(contingency, postContingencyResultContext);
     }
 
@@ -124,7 +126,7 @@ public class SecurityAnalysisResultBuilder {
          * Initiates a result builder with a {@link SecurityAnalysisResultContext}.
          * @param resultContext The context would be used when creation result or as default context when a limit violation added.
          */
-        public AbstractLimitViolationsResultBuilder(SecurityAnalysisResultContext resultContext) {
+        private AbstractLimitViolationsResultBuilder(SecurityAnalysisResultContext resultContext) {
             this.resultContext = resultContext;
         }
 
@@ -167,8 +169,8 @@ public class SecurityAnalysisResultBuilder {
      */
     public class PreContingencyResultBuilder extends AbstractLimitViolationsResultBuilder<PreContingencyResultBuilder> {
 
-        public PreContingencyResultBuilder(SecurityAnalysisResultContext resultContext) {
-            super(resultContext);
+        PreContingencyResultBuilder(SecurityAnalysisResultContext resultContext) {
+            super(Objects.requireNonNull(resultContext));
         }
 
         /**
@@ -189,13 +191,8 @@ public class SecurityAnalysisResultBuilder {
 
         private final Contingency contingency;
 
-        PostContingencyResultBuilder(Contingency contingency) {
-            super(context);
-            this.contingency = Objects.requireNonNull(contingency);
-        }
-
         PostContingencyResultBuilder(Contingency contingency, SecurityAnalysisResultContext resultContext) {
-            super(resultContext);
+            super(Objects.requireNonNull(resultContext));
             this.contingency = Objects.requireNonNull(contingency);
         }
 
