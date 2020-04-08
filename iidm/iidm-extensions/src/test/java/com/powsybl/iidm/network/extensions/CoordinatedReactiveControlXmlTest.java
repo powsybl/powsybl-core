@@ -22,25 +22,29 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class CoordinatedReactiveControlXmlSerializerTest extends AbstractConverterTest {
+public class CoordinatedReactiveControlXmlTest extends AbstractConverterTest {
 
     @Test
     public void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
         Generator gen = network.getGenerator("GEN");
+        assertNotNull(gen);
 
-        CoordinatedReactiveControl control = new CoordinatedReactiveControl(gen, 100.0);
-        gen.addExtension(CoordinatedReactiveControl.class, control);
+        gen.newExtension(CoordinatedReactiveControlAdder.class).withQPercent(100.0).add();
 
         Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 "/coordinatedReactiveControl.xml");
 
-        CoordinatedReactiveControl controlXml = network2.getGenerator("GEN").getExtension(CoordinatedReactiveControl.class);
-        assertNotNull(controlXml);
-        assertEquals(100.0, controlXml.getQPercent(), 0.0);
+        Generator gen2 = network2.getGenerator("GEN");
+        assertNotNull(gen2);
+        CoordinatedReactiveControl coordinatedReactiveControl2 = gen2.getExtension(CoordinatedReactiveControl.class);
+        assertNotNull(coordinatedReactiveControl2);
+
+        assertEquals(100.0, coordinatedReactiveControl2.getQPercent(), 0.0);
+        assertEquals("coordinatedReactiveControl", coordinatedReactiveControl2.getName());
     }
 
 }
