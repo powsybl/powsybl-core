@@ -12,13 +12,11 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.jimfs.Configuration;
@@ -27,18 +25,19 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
+import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
+import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Bus;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
@@ -83,7 +82,7 @@ public class StateVariablesAdderTest {
 
         PropertyBags topologicalIslands0 = cgmes0.topologicalIslands();
         PropertyBags fullModel0 = cgmes0.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
-        NetworkChanges.modifyStateVariables(network0, cgmes0);
+        NetworkChanges.modifyStateVariables(network0);
 
         // Export modified network to new cgmes
         DataSource tmp = tmpDataSource(impl);
@@ -103,7 +102,7 @@ public class StateVariablesAdderTest {
         // Compare
         assertTrue(topologicalIslands0.equals(topologicalIslands1));
         assertTrue(fullModel0.equals(fullModel1));
-        assertTrue(networkVoltagesChangesInCgmes(network0, cgmes1));
+        compareSvVoltages(network0, network1);
     }
 
     private Properties importParameters(String convertBoundary) {
@@ -112,30 +111,8 @@ public class StateVariablesAdderTest {
         return importParameters;
     }
 
-    private boolean networkVoltagesChangesInCgmes(Network network0, CgmesModel cgmes1) {
-        if (cgmes1.isNodeBreaker()) {
-            cgmes1.topologicalNode2iidmNode().forEach((iidmBus, tnode) -> {
-                Bus b = network0.getBusView().getBus(iidmBus);
-                if (b != null) {
-                    PropertyBag tn = cgmes1.topologicalNodes().stream()
-                        .filter(pb -> pb.getId(CgmesNames.TOPOLOGICAL_NODE).equals(tnode))
-                        .findAny().orElse(new PropertyBag(new ArrayList<>()));
-                    assertTrue(String.valueOf(b.getV()).equals(tn.getId(CgmesNames.VOLTAGE)));
-                    assertTrue(String.valueOf(b.getAngle()).equals(tn.getId(CgmesNames.ANGLE)));
-                    return;
-                }
-            });
-        } else {
-            for (PropertyBag tn : cgmes1.topologicalNodes()) {
-                Bus b = network0.getBusBreakerView().getBus(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
-                if (b != null) {
-                    String.valueOf(b.getV()).equals(tn.getId(CgmesNames.VOLTAGE));
-                    String.valueOf(b.getAngle()).equals(tn.getId(CgmesNames.ANGLE));
-                    return true;
-                }
-            }
-        }
-        return true;
+    private void compareSvVoltages(Network network0, Network network1) {
+        new Comparison(network0, network1, new ComparisonConfig()).compareBuses();
     }
 
     private DataSource tmpDataSource(String impl) throws IOException {

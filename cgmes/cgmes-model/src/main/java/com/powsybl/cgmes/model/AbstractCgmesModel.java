@@ -250,7 +250,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         // switches are opened in iidm. Then we'd need to create new TNs.
         String topologicalNode = cachedNodes.get(connectivityNode).getId(CgmesNames.TOPOLOGICAL_NODE);
         // We're storing all possible iidm node IDs for given TN.
-        topologicalNode2iidmNode.computeIfAbsent(Pair.of(voltageLevelId, iidmNode) , n -> topologicalNode);
+        topologicalNode2iidmNode.computeIfAbsent(Pair.of(voltageLevelId, iidmNode), n -> topologicalNode);
 
     }
 

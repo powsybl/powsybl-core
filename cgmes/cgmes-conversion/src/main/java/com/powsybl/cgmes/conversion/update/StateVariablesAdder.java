@@ -114,8 +114,9 @@ public class StateVariablesAdder {
                     foundTn.add(tnode);
                 }
             });
+            //Some Buses are not identified in node-breaker, they are kept as in the original CGMES model.
             originalTopologicalNodes.stream()
-                .filter(tn -> tn.get(CgmesNames.ANGLE) != null)
+                .filter(tn -> tn.get(CgmesNames.ANGLE) != null && tn.get(CgmesNames.VOLTAGE) != null)
                 .filter(tn -> !foundTn.contains(tn.getId(CgmesNames.TOPOLOGICAL_NODE)))
                 .filter(tn -> !boundaryNodesFromDanglingLines.values().contains(tn.getId(CgmesNames.TOPOLOGICAL_NODE)))
                 .forEach(pb -> {
@@ -139,7 +140,8 @@ public class StateVariablesAdder {
         cgmes.add(originalSVcontext, "SvVoltage", voltages);
     }
 
-    public static Bus getBusViewBus(VoltageLevel vl, int iidmNode) {
+    private static Bus getBusViewBus(VoltageLevel vl, int iidmNode) {
+        // We use IIDM API to locate node-breaker buses
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
         if (!topo.hasAttachedEquipment(iidmNode)) {
             LOG.error("IIDM node {} not valid", iidmNode);
