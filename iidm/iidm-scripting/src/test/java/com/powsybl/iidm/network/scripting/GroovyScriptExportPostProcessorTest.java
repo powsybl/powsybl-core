@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.ucte.converter;
+package com.powsybl.iidm.network.scripting;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -23,7 +23,7 @@ import java.nio.file.Path;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class UcteExportScriptPostProcessorTest {
+public class GroovyScriptExportPostProcessorTest {
 
     private FileSystem fileSystem;
 
@@ -40,24 +40,23 @@ public class UcteExportScriptPostProcessorTest {
     @Test
     public void test() throws IOException {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-        Path script = platformConfig.getConfigDir().resolve(UcteExportScriptPostProcessor.DEFAULT_SCRIPT_NAME);
-        Files.copy(getClass().getResourceAsStream("/ucte-export-post-processor.groovy"), script);
+        Path script = platformConfig.getConfigDir().resolve(GroovyScriptExportPostProcessor.DEFAULT_SCRIPT_NAME);
+        Files.copy(getClass().getResourceAsStream("/export-post-processor.groovy"), script);
         test(platformConfig);
 
         // Test with a custom script name
         script = platformConfig.getConfigDir().resolve("custom-script.groovy");
-        Files.copy(getClass().getResourceAsStream("/ucte-export-post-processor.groovy"), script);
-        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("ucte-export-post-processor");
+        Files.copy(getClass().getResourceAsStream("/export-post-processor.groovy"), script);
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("export-post-processor");
         moduleConfig.setStringProperty("script", script.toAbsolutePath().toString());
         test(platformConfig);
     }
 
     private void test(PlatformConfig platformConfig) {
-        UcteExportScriptPostProcessor processor = new UcteExportScriptPostProcessor(platformConfig);
-        assertEquals("ucteExportScript", processor.getName());
-
+        GroovyScriptExportPostProcessor processor = new GroovyScriptExportPostProcessor(platformConfig);
+        assertEquals("exportScript", processor.getName());
         try {
-            processor.process(null, null);
+            processor.process(null, null, null, null);
             fail();
         } catch (NullPointerException ignored) {
         } catch (Exception e) {

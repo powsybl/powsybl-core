@@ -40,16 +40,20 @@ public class UcteExporterTest extends AbstractConverterTest {
      * @param filePath path of the file relative to resources directory
      * @return imported network
      */
-    public static Network loadNetworkFromResourceFile(String filePath) {
+    private static Network loadNetworkFromResourceFile(String filePath) {
         ReadOnlyDataSource dataSource = new ResourceDataSource(FilenameUtils.getBaseName(filePath), new ResourceSet(FilenameUtils.getPath(filePath), FilenameUtils.getName(filePath)));
         return new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
     }
 
-    public static void testExporter(Network network, String reference) throws IOException {
+    private static void testExporter(Network network, String reference) throws IOException {
+        testExporter(network, reference, new Properties());
+    }
+
+    private static void testExporter(Network network, String reference, Properties parameters) throws IOException {
         MemDataSource dataSource = new MemDataSource();
 
         UcteExporter exporter = new UcteExporter();
-        exporter.export(network, new Properties(), dataSource);
+        exporter.export(network, parameters, dataSource);
 
         try (InputStream actual = dataSource.newInputStream(null, "uct");
              InputStream expected = UcteExporterTest.class.getResourceAsStream(reference)) {
@@ -92,19 +96,19 @@ public class UcteExporterTest extends AbstractConverterTest {
     @Test
     public void testExportPostProcessing() throws IOException {
         PlatformConfig platformConfig = PlatformConfig.defaultConfig();
-        Path script = platformConfig.getConfigDir().resolve(UcteExportScriptPostProcessor.DEFAULT_SCRIPT_NAME);
+
+        Path script = platformConfig.getConfigDir().resolve("/ucte-export-post-processor-test-fail.groovy");
         Files.copy(UcteExporterTest.class.getResourceAsStream("/ucte-export-post-processor-test-fail.groovy"), script);
+
+        Properties parameters = new Properties();
+        parameters.setProperty(UcteExporter.POST_PROCESSOR, "/ucte-export-post-processor-test-fail.groovy");
 
         Network network = loadNetworkFromResourceFile("/expectedExport.uct");
         try {
-            testExporter(network, "/expectedExport.uct");
+            testExporter(network, "/expectedExport.uct", parameters);
             fail();
         } catch (ComparisonFailure ignored) {
         }
-
-        // reset default script
-        Files.delete(script);
-        Files.copy(UcteExporterTest.class.getResourceAsStream("/ucte-export-post-processor.groovy"), script);
     }
 
     @Test

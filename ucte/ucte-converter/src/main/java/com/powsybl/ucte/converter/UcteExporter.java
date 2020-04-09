@@ -14,8 +14,10 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.ConversionParameters;
+import com.powsybl.iidm.export.ExportPostProcessor;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.scripting.GroovyScriptExportPostProcessor;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
@@ -28,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -50,18 +53,25 @@ public class UcteExporter implements Exporter {
 
     public static final String NAMING_STRATEGY = "ucte.export.naming-strategy";
 
+    public static final String POST_PROCESSOR = "ucte.post-processor.script";
+
     private static final Parameter NAMING_STRATEGY_PARAMETER = new Parameter(NAMING_STRATEGY, ParameterType.STRING, "Default naming strategy for UCTE codes conversion", "Default");
+
+    private static final Parameter POST_PROCESSOR_PARAMETER = new Parameter(POST_PROCESSOR, ParameterType.STRING, "Post processor script for ucte export", null);
 
     private static final Supplier<List<NamingStrategy>> NAMING_STRATEGY_SUPPLIERS
             = Suppliers.memoize(() -> new ServiceLoaderCache<>(NamingStrategy.class).getServices())::get;
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
+    private final PlatformConfig config;
+
     public UcteExporter() {
         this(PlatformConfig.defaultConfig());
     }
 
     public UcteExporter(PlatformConfig platformConfig) {
+        config = platformConfig;
         defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
     }
 
@@ -86,13 +96,13 @@ public class UcteExporter implements Exporter {
 
         UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy);
 
-        UcteExportPostProcessor processor = new UcteExportScriptPostProcessor();
-        try {
-            processor.process(network, ucteNetwork);
-        } catch (Exception e) {
-            throw new PowsyblException("Error during post processing");
-        }
+        String postProcessorScript = ConversionParameters.readStringParameter(getFormat(), parameters, POST_PROCESSOR_PARAMETER, defaultValueConfig);
+        if (postProcessorScript != null) {
+            Path script = config.getConfigDir().resolve(postProcessorScript);
+            ExportPostProcessor processor = new GroovyScriptExportPostProcessor(script);
 
+            processor.process(network, null, ucteNetwork, null);
+        }
         try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
             new UcteWriter(ucteNetwork).write(writer);

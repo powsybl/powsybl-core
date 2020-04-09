@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-if (network == null || ucteNetwork == null) {
+if (network == null || nativeModel == null) {
     throw new NullPointerException()
 }
 
