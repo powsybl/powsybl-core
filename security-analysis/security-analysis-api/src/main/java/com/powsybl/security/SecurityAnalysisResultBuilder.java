@@ -85,8 +85,6 @@ public class SecurityAnalysisResultBuilder {
      * @return a {@link PostContingencyResultBuilder} instance.
      */
     public PostContingencyResultBuilder contingency(Contingency contingency, SecurityAnalysisResultContext postContingencyResultContext) {
-        Objects.requireNonNull(contingency);
-        Objects.requireNonNull(postContingencyResultContext);
         return new PostContingencyResultBuilder(contingency, postContingencyResultContext);
     }
 
@@ -127,7 +125,7 @@ public class SecurityAnalysisResultBuilder {
          * @param resultContext The context would be used when creation result or as default context when a limit violation added.
          */
         private AbstractLimitViolationsResultBuilder(SecurityAnalysisResultContext resultContext) {
-            this.resultContext = resultContext;
+            this.resultContext = Objects.requireNonNull(resultContext);
         }
 
         /**
@@ -170,7 +168,7 @@ public class SecurityAnalysisResultBuilder {
     public class PreContingencyResultBuilder extends AbstractLimitViolationsResultBuilder<PreContingencyResultBuilder> {
 
         PreContingencyResultBuilder(SecurityAnalysisResultContext resultContext) {
-            super(Objects.requireNonNull(resultContext));
+            super(resultContext);
         }
 
         /**
