@@ -53,21 +53,21 @@ public class MatpowerImporter implements Importer {
 
     private static final class PerUnitContext {
 
-        private final double sb; // base apparent power
+        private final double baseMva; // base apparent power
 
-        private final boolean ignoreBaseVoltage;
+        private final boolean ignoreBaseMva;
 
-        private PerUnitContext(double sb, boolean ignoreBaseVoltage) {
-            this.sb = sb;
-            this.ignoreBaseVoltage = ignoreBaseVoltage;
+        private PerUnitContext(double baseMva, boolean ignoreBaseMva) {
+            this.baseMva = baseMva;
+            this.ignoreBaseMva = ignoreBaseMva;
         }
 
-        private double getSb() {
-            return sb;
+        public boolean isIgnoreBaseMva() {
+            return ignoreBaseMva;
         }
 
-        public boolean isIgnoreBaseVoltage() {
-            return ignoreBaseVoltage;
+        private double getBaseMva() {
+            return baseMva;
         }
     }
 
@@ -217,7 +217,7 @@ public class MatpowerImporter implements Importer {
     }
 
     private static VoltageLevel createVoltageLevel(MBus mBus, String voltageLevelId, Substation substation, Network network, PerUnitContext perUnitContext) {
-        double nominalV = perUnitContext.isIgnoreBaseVoltage() || mBus.getBaseVoltage() == 0 ? 1 : mBus.getBaseVoltage();
+        double nominalV = perUnitContext.isIgnoreBaseMva() || mBus.getBaseVoltage() == 0 ? 1 : mBus.getBaseVoltage();
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             LOGGER.debug("Creating voltagelevel {}", voltageLevelId);
@@ -260,7 +260,7 @@ public class MatpowerImporter implements Importer {
             String busId = getBusId(mBus.getNumber());
             String shuntId = busId + "-SH";
             LOGGER.debug("Creating shunt {}", shuntId);
-            double zb = Math.pow(voltageLevel.getNominalV(), 2) / perUnitContext.getSb();
+            double zb = Math.pow(voltageLevel.getNominalV(), 2) / perUnitContext.getBaseMva();
             voltageLevel.newShuntCompensator()
                     .setId(shuntId)
                     .setConnectableBus(busId)
@@ -268,7 +268,7 @@ public class MatpowerImporter implements Importer {
                     .setCurrentSectionCount(1)
                     .newLinearModel()
                         .setMaximumSectionCount(1)
-                        .setbPerSection(mBus.getShuntSusceptance() / perUnitContext.getSb() / zb)
+                        .setbPerSection(mBus.getShuntSusceptance() / perUnitContext.getBaseMva() / zb)
                         .add()
                     .add();
         }
@@ -299,7 +299,7 @@ public class MatpowerImporter implements Importer {
         String voltageLevel1Id = containerMapping.busNumToVoltageLevelId.get(branch.getFrom());
         String voltageLevel2Id = containerMapping.busNumToVoltageLevelId.get(branch.getTo());
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
-        double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
+        double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getBaseMva();
         boolean isInService = isInService(branch);
         network.newLine()
                 .setId(lineId)
@@ -331,7 +331,7 @@ public class MatpowerImporter implements Importer {
         String voltageLevel2Id = containerMapping.busNumToVoltageLevelId.get(mBranch.getTo());
         VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
-        double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
+        double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getBaseMva();
         boolean isInService = isInService(mBranch);
         return voltageLevel2.getSubstation().newTwoWindingsTransformer()
                 .setId(id)
