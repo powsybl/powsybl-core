@@ -34,7 +34,6 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.LinkData;
 import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -246,9 +245,7 @@ public class StateVariablesAdder {
         // create SvStatus, iterate on Connectables, check Terminal status, add
         // to SvStatus
         PropertyBags svStatus = new PropertyBags();
-        network.getVoltageLevelStream()
-            .flatMap(VoltageLevel::getConnectableStream)
-            .distinct()
+        network.getConnectableStream()
             .forEach(c -> {
                 PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
                 p.put(IN_SERVICE,
