@@ -22,8 +22,6 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     static final String ROOT_ELEMENT_NAME = "shunt";
 
-    private static final String REGULATING_TERMINAL = "regulatingTerminal";
-
     @Override
     protected String getRootElementName() {
         return ROOT_ELEMENT_NAME;
@@ -31,33 +29,28 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     @Override
     protected boolean hasSubElements(ShuntCompensator sc) {
-        return sc != sc.getRegulatingTerminal().getConnectable();
+        return false;
     }
 
     @Override
     protected void writeRootElementAttributes(ShuntCompensator sc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (ShuntCompensatorModelType.NON_LINEAR.equals(sc.getModelType())) {
-            throw new PowsyblException("Non linear shunt not yet supported");
+            throw new PowsyblException("Non linear shunts are not supported for IIDM-XML version " + context.getVersion().toString(".")
+                    + ". IIDM-XML version should be >= 1.2");
         }
+        IidmXmlUtil.assertMinimumVersionIfNotDefault(sc.isVoltageRegulatorOn(), ROOT_ELEMENT_NAME, "voltageRegulatorOn",
+                IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
+        IidmXmlUtil.assertMinimumVersionIfNotDefault(!Double.isNaN(sc.getTargetV()), ROOT_ELEMENT_NAME, "targetV",
+                IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
+        IidmXmlUtil.assertMinimumVersionIfNotDefault(!Double.isNaN(sc.getTargetDeadband()), ROOT_ELEMENT_NAME, "targetDeadband",
+                IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
+        IidmXmlUtil.assertMinimumVersionIfNotDefault(sc.getRegulatingTerminal().getConnectable() != sc, ROOT_ELEMENT_NAME, "regulatingTerminal",
+                IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
         XmlUtil.writeDouble("bPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), context.getWriter());
         context.getWriter().writeAttribute("maximumSectionCount", Integer.toString(sc.getMaximumSectionCount()));
         context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getCurrentSectionCount()));
-        IidmXmlUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", sc.isVoltageRegulatorOn(), false,
-                IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
-        IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "targetV", sc.getTargetV(),
-                IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
-        IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "targetDeadband",
-                sc.getTargetDeadband(), IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
         writeNodeOrBus(null, sc.getTerminal(), context);
         writePQ(null, sc.getTerminal(), context.getWriter());
-    }
-
-    @Override
-    protected void writeSubElements(ShuntCompensator sc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (sc != sc.getRegulatingTerminal().getConnectable()) {
-            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
-            TerminalRefXml.writeTerminalRef(sc.getRegulatingTerminal(), context, REGULATING_TERMINAL);
-        }
     }
 
     @Override
@@ -67,22 +60,15 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     @Override
     protected ShuntCompensator readRootElementAttributes(ShuntCompensatorAdder adder, NetworkXmlReaderContext context) {
+        IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
         double bPerSection = XmlUtil.readDoubleAttribute(context.getReader(), "bPerSection");
         int maximumSectionCount = XmlUtil.readIntAttribute(context.getReader(), "maximumSectionCount");
         int currentSectionCount = XmlUtil.readIntAttribute(context.getReader(), "currentSectionCount");
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
-            boolean voltageRegulatorOn = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
-            double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
-            double targetDeadband = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetDeadband");
-            adder.setVoltageRegulatorOn(voltageRegulatorOn)
-                    .setTargetV(targetV)
-                    .setTargetDeadband(targetDeadband);
-        });
         adder.setCurrentSectionCount(currentSectionCount)
                 .newLinearModel()
-                    .setMaximumSectionCount(maximumSectionCount)
-                    .setbPerSection(bPerSection)
-                    .add();
+                .setMaximumSectionCount(maximumSectionCount)
+                .setbPerSection(bPerSection)
+                .add();
         readNodeOrBus(adder, context);
         ShuntCompensator sc = adder.add();
         readPQ(null, sc.getTerminal(), context.getReader());
@@ -91,15 +77,6 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     @Override
     protected void readSubElements(ShuntCompensator sc, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            if (context.getReader().getLocalName().equals(REGULATING_TERMINAL)) {
-                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
-                String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
-                String side = context.getReader().getAttributeValue(null, "side");
-                context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefXml.readTerminalRef(sc.getTerminal().getVoltageLevel().getSubstation().getNetwork(), id, side)));
-            } else {
-                super.readSubElements(sc, context);
-            }
-        });
+        readUntilEndRootElement(context.getReader(), () -> ShuntXml.super.readSubElements(sc, context));
     }
 }
