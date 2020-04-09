@@ -16,6 +16,14 @@ import java.util.Objects;
  */
 public class CgmesTerminal {
 
+    public static String topologicalNode(PropertyBag t) {
+        String tp = t.getId("TopologicalNodeTerminal");
+        if (tp == null) {
+            tp = t.getId("TopologicalNodeConnectivityNode");
+        }
+        return tp;
+    }
+
     public CgmesTerminal(PropertyBag t) {
         Objects.requireNonNull(t);
 
@@ -23,9 +31,8 @@ public class CgmesTerminal {
         this.name = t.get("name");
         this.conductingEquipment = t.getId("ConductingEquipment");
         this.conductingEquipmentType = t.getLocal("conductingEquipmentType");
-
         this.connectivityNode = t.getId("ConnectivityNode");
-        this.topologicalNode = t.getId("TopologicalNode");
+        this.topologicalNode = topologicalNode(t);
 
         // A TopologicalNode can be obtained from a Terminal using
         // relationship Terminal.TopologicalNode or

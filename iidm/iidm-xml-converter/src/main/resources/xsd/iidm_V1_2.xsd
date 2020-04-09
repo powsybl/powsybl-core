@@ -88,7 +88,8 @@
                         <xs:element name="generator" type="iidm:Generator"/>
                         <xs:element name="battery" type="iidm:Battery"/>
                         <xs:element name="load" type="iidm:Load"/>
-                        <xs:element name="shunt" type="iidm:ShuntCompensator"/>
+                        <xs:element name="linearShunt" type="iidm:LinearShuntCompensator"/>
+                        <xs:element name="nonLinearShunt" type="iidm:NonLinearShuntCompensator"/>
                         <xs:element name="danglingLine" type="iidm:DanglingLine"/>
                         <xs:element name="staticVarCompensator" type="iidm:StaticVarCompensator"/>
                         <xs:element name="vscConverterStation" type="iidm:VscConverterStation"/>
@@ -263,17 +264,39 @@
     <xs:complexType name="ShuntCompensator">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
-                <xs:sequence>
-                    <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
-                </xs:sequence>
-                <xs:attribute name="bPerSection" use="required" type="xs:double"/>
-                <xs:attribute name="maximumSectionCount" use="required" type="xs:int"/>
                 <xs:attribute name="currentSectionCount" use="required" type="xs:int"/>
                 <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
                 <xs:attribute name="targetV" use="optional" type="xs:double"/>
                 <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="LinearShuntCompensator">
+        <xs:complexContent>
+            <xs:extension base="iidm:ShuntCompensator">
+                <xs:sequence>
+                    <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
+                </xs:sequence>
+                <xs:attribute name="bPerSection" use="required" type="xs:double"/>
+                <xs:attribute name="gPerSection" use="optional" type="xs:double"/>
+                <xs:attribute name="maximumSectionCount" use="required" type="xs:int"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="NonLinearShuntCompensator">
+        <xs:complexContent>
+            <xs:extension base="iidm:ShuntCompensator">
+                <xs:sequence>
+                    <xs:element name="section" maxOccurs="unbounded" type="iidm:ShuntNonLinearSection"/>
+                    <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="ShuntNonLinearSection">
+        <xs:attribute name="num" use="required" type="xs:int"/>
+        <xs:attribute name="b" use="required" type="xs:double"/>
+        <xs:attribute name="g" use="optional" type="xs:double"/>
     </xs:complexType>
     <xs:complexType name="CurrentLimit">
         <xs:sequence>

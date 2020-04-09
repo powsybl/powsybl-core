@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Connectable;
@@ -33,7 +34,6 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.LinkData;
 import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -150,7 +150,7 @@ public class StateVariablesAdder {
                 continue;
             }
             boundaryNodesFromDanglingLines.values().forEach(value -> {
-                if (terminal.getId(CgmesNames.TOPOLOGICAL_NODE).equals(value)) {
+                if (CgmesTerminal.topologicalNode(terminal).equals(value)) {
                     PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
                     p.put("p", terminal.getId("p"));
                     p.put("q", terminal.getId("q"));
@@ -245,9 +245,7 @@ public class StateVariablesAdder {
         // create SvStatus, iterate on Connectables, check Terminal status, add
         // to SvStatus
         PropertyBags svStatus = new PropertyBags();
-        network.getVoltageLevelStream()
-            .flatMap(VoltageLevel::getConnectableStream)
-            .distinct()
+        network.getConnectableStream()
             .forEach(c -> {
                 PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
                 p.put(IN_SERVICE,

@@ -6,19 +6,21 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Component;
 import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ComponentImpl implements Component {
+abstract class AbstractComponentImpl implements Component {
 
     private final int num;
 
@@ -26,7 +28,7 @@ class ComponentImpl implements Component {
 
     private final Ref<NetworkImpl> networkRef;
 
-    ComponentImpl(int num, int size, Ref<NetworkImpl> networkRef) {
+    AbstractComponentImpl(int num, int size, Ref<NetworkImpl> networkRef) {
         this.num = num;
         this.size = size;
         this.networkRef = Objects.requireNonNull(networkRef);
@@ -44,11 +46,15 @@ class ComponentImpl implements Component {
 
     @Override
     public Iterable<Bus> getBuses() {
-        return Iterables.filter(networkRef.get().getBusView().getBuses(), bus -> bus.getConnectedComponent() == ComponentImpl.this);
+        return StreamSupport.stream(networkRef.get().getBusView().getBuses().spliterator(), false)
+                            .filter(getBusPredicate())
+                            .collect(Collectors.toList());
     }
 
     @Override
     public Stream<Bus> getBusStream() {
-        return networkRef.get().getBusView().getBusStream().filter(bus -> bus.getConnectedComponent() == ComponentImpl.this);
+        return networkRef.get().getBusView().getBusStream().filter(getBusPredicate());
     }
+
+    protected abstract Predicate<Bus> getBusPredicate();
 }

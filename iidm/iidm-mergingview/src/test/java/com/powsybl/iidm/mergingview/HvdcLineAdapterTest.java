@@ -86,7 +86,7 @@ public class HvdcLineAdapterTest {
                                                 .setR(5.0)
                                                 .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
                                                 .setNominalV(440.0)
-                                                .setMaxP(-50.0)
+                                                .setMaxP(50.0)
                                                 .setActivePowerSetpoint(20.0)
                                                 .setConverterStationId1("C1")
                                                 .setConverterStationId2("C2")

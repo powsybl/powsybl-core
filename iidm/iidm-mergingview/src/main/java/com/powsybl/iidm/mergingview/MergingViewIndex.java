@@ -132,6 +132,30 @@ class MergingViewIndex {
         return getIdentifiableStream().collect(Collectors.toList());
     }
 
+    /** @return all Adapters according to all Connectables of a given type */
+    <C extends Connectable> Collection<C> getConnectables(Class<C> clazz) {
+        // Search Connectables of a given type into merging & working networks
+        if (clazz == Line.class) {
+            return getLines().stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
+        } else if (clazz == DanglingLine.class) {
+            return getDanglingLines().stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
+        } else {
+            return getNetworkStream()
+                    .flatMap(n -> n.getConnectableStream(clazz))
+                    .map(c -> clazz.cast(getConnectable(c)))
+                    .collect(Collectors.toList());
+        }
+    }
+
+    /** @return all Adapters according to all Connectables */
+    Collection<Connectable> getConnectables() {
+        return getNetworkStream()
+                .flatMap(Network::getConnectableStream)
+                .map(this::getConnectable)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
     /** @return all Adapters according to all Substations into merging view */
     Collection<Substation> getSubstations() {
         // Search Substations into merging & working networks

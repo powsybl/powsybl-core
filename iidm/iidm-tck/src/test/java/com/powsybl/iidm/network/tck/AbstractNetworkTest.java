@@ -407,6 +407,11 @@ public abstract class AbstractNetworkTest {
         bus = network.getVoltageLevel(VLLOAD).getBusView().getBus("VLLOAD_0");
         assertEquals(Collections.singletonList("LOAD"), mapper.apply(bus.getLoadStream()));
 
+        // Connectables
+        assertEquals(Arrays.asList("LOAD", NHV1_NHV2_2, NGEN_NHV1, NHV1_NHV2_1, NHV2_NLOAD, "GEN", "NHV1_NHV1"), mapper.apply(network.getConnectableStream()));
+        assertEquals(Iterables.toArray(network.getConnectables(), Connectable.class), network.getConnectableStream().toArray());
+        assertEquals(network.getConnectableCount(), network.getConnectableStream().count());
+
         // SVC
         network = SvcTestCaseFactory.create();
         assertEquals(Collections.singletonList("SVC2"), mapper.apply(network.getStaticVarCompensatorStream()));
@@ -414,6 +419,10 @@ public abstract class AbstractNetworkTest {
         assertEquals(Collections.singletonList("SVC2"), mapper.apply(network.getVoltageLevel("VL2").getStaticVarCompensatorStream()));
         bus = network.getVoltageLevel("VL2").getBusView().getBus(VL2_0);
         assertEquals(Collections.singletonList("SVC2"), mapper.apply(bus.getStaticVarCompensatorStream()));
+        assertEquals(Collections.singletonList("SVC2"), mapper.apply(network.getConnectableStream(StaticVarCompensator.class)));
+        assertEquals(Iterables.toArray(network.getConnectables(StaticVarCompensator.class), StaticVarCompensator.class),
+                network.getConnectableStream(StaticVarCompensator.class).toArray());
+        assertEquals(network.getConnectableCount(StaticVarCompensator.class), network.getConnectableStream(StaticVarCompensator.class).count());
 
         // HVDC
         network = HvdcTestNetwork.createLcc();

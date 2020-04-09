@@ -93,6 +93,7 @@ public class UcteImporter implements Importer {
                     .add();
 
             addGeographicalNameProperty(ucteNode, bus);
+            bus.setFictitious(UcteNodeStatus.EQUIVALENT == ucteNode.getStatus());
 
             if (isValueValid(ucteNode.getActiveLoad()) || isValueValid(ucteNode.getReactiveLoad())) {
                 createLoad(ucteNode, voltageLevel, bus);
