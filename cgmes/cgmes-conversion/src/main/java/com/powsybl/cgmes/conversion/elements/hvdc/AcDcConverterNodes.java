@@ -13,9 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesTerminal;
@@ -60,12 +57,6 @@ class AcDcConverterNodes {
         return converterNodes;
     }
 
-    void print() {
-        LOG.info("AcDcConverterNodes");
-        converterNodes.forEach((key, value) -> LOG.info(" {} {} {} {}", key, value.id,
-                value.acTopologicalNode, value.dcTopologicalNode));
-    }
-
     static class AcDcConverterNode {
         final String id;
         final String acTopologicalNode;
@@ -83,6 +74,4 @@ class AcDcConverterNodes {
             this.dcTopologicalNode.add(dcTopologicalNode);
         }
     }
-
-    private static final Logger LOG = LoggerFactory.getLogger(AcDcConverterNodes.class);
 }

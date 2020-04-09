@@ -42,9 +42,9 @@ class TPnodeEquipments {
 
         AcDcConverterNodes acDcConverterNodes = new AcDcConverterNodes(cgmesModel);
 
-        acDcConverterNodes.getConverterNodes().entrySet()
-            .forEach(entry -> addEquipment(adjacency, entry.getValue().id, entry.getValue().acTopologicalNode,
-                entry.getValue().dcTopologicalNode, EquipmentType.AC_DC_CONVERTER));
+        acDcConverterNodes.getConverterNodes().values()
+            .forEach(value -> addEquipment(adjacency, value.id, value.acTopologicalNode,
+                value.dcTopologicalNode, EquipmentType.AC_DC_CONVERTER));
 
         cgmesModel.groupedTransformerEnds().forEach((t, ends) -> {
             if (ends.size() == 2) {
