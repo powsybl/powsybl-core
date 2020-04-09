@@ -50,7 +50,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_N4012____TN" v="389.052001953125" angle="-3.1062989234924316"/>
             </iidm:busBreakerTopology>
-            <iidm:linearShunt id="_N4012____SC" name="N4012   " bPerSection="-6.249999860301614E-4" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N4012____TN" connectableBus="_N4012____TN"/>
+            <iidm:linearShunt id="_N4012____SC" name="N4012   " bPerSection="-6.249999860301614E-4" gPerSection="0.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N4012____TN" connectableBus="_N4012____TN"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="_N1012____VL" name="N1012   _VL" nominalV="130.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -90,7 +90,7 @@
                 <iidm:bus id="_N1022____TN" v="110.60600280761719" angle="-17.621028900146484"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N1022____EC" name="N1022   " loadType="UNDEFINED" p0="280.0" q0="95.0" bus="_N1022____TN" connectableBus="_N1022____TN" p="280.0" q="95.0"/>
-            <iidm:linearShunt id="_N1022____SC" name="N1022   " bPerSection="0.002958579920232296" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N1022____TN" connectableBus="_N1022____TN"/>
+            <iidm:linearShunt id="_N1022____SC" name="N1022   " bPerSection="0.002958579920232296" gPerSection="0.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N1022____TN" connectableBus="_N1022____TN"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="_NG5_____-N1022___-1_PT" name="NG5     -N1022   -1" r="0.0" x="10.140029907226562" g="0.0" b="0.0" ratedU1="15.0" ratedU2="123.81199645996094" bus1="_NG5______TN" connectableBus1="_NG5______TN" voltageLevelId1="_NG5______VL" bus2="_N1022____TN" connectableBus2="_N1022____TN" voltageLevelId2="_N1022____VL">
             <iidm:currentLimits1 permanentLimit="38490.0"/>
@@ -107,7 +107,7 @@
                 <iidm:bus id="_N1041____TN" v="110.677001953125" angle="-94.36389923095703"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N1041____EC" name="N1041   " loadType="UNDEFINED" p0="400.0" q0="180.0" bus="_N1041____TN" connectableBus="_N1041____TN" p="400.0" q="180.0"/>
-            <iidm:linearShunt id="_N1041____SC" name="N1041   " bPerSection="0.011834300123155117" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N1041____TN" connectableBus="_N1041____TN"/>
+            <iidm:linearShunt id="_N1041____SC" name="N1041   " bPerSection="0.011834300123155117" gPerSection="0.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N1041____TN" connectableBus="_N1041____TN"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="_N1044____SS" name="N1044   _SS" country="NO" geographicalTags="_SGR_13">
@@ -121,7 +121,7 @@
                 <iidm:bus id="_N1044____TN" v="112.66100311279297" angle="-80.51592254638672"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N1044____EC" name="N1044   " loadType="UNDEFINED" p0="840.0" q0="300.0" bus="_N1044____TN" connectableBus="_N1044____TN" p="840.0" q="300.0"/>
-            <iidm:linearShunt id="_N1044____SC" name="N1044   " bPerSection="0.011834300123155117" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N1044____TN" connectableBus="_N1044____TN"/>
+            <iidm:linearShunt id="_N1044____SC" name="N1044   " bPerSection="0.011834300123155117" gPerSection="0.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N1044____TN" connectableBus="_N1044____TN"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="_N1044___-N4044___-1_PT" name="N1044   -N4044   -1" r="0.0" x="15.999960899353027" g="0.0" b="0.0" ratedU1="130.0" ratedU2="388.3599853515625" bus1="_N1044____TN" connectableBus1="_N1044____TN" voltageLevelId1="_N1044____VL" bus2="_N4044____TN" connectableBus2="_N4044____TN" voltageLevelId2="_N4044____VL">
             <iidm:currentLimits1 permanentLimit="4441.16015625"/>
@@ -143,7 +143,7 @@
                 <iidm:bus id="_N1045____TN" v="115.51200103759766" angle="-85.65843200683594"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N1045____EC" name="N1045   " loadType="UNDEFINED" p0="720.0" q0="230.0" bus="_N1045____TN" connectableBus="_N1045____TN" p="720.0" q="230.0"/>
-            <iidm:linearShunt id="_N1045____SC" name="N1045   " bPerSection="0.011834300123155117" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N1045____TN" connectableBus="_N1045____TN"/>
+            <iidm:linearShunt id="_N1045____SC" name="N1045   " bPerSection="0.011834300123155117" gPerSection="0.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N1045____TN" connectableBus="_N1045____TN"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="_N1045___-N4045___-1_PT" name="N1045   -N4045   -1" r="0.0" x="15.999998092651367" g="0.0" b="0.0" ratedU1="130.0" ratedU2="384.6000061035156" bus1="_N1045____TN" connectableBus1="_N1045____TN" voltageLevelId1="_N1045____VL" bus2="_N4045____TN" connectableBus2="_N4045____TN" voltageLevelId2="_N4045____VL">
             <iidm:currentLimits1 permanentLimit="4441.16015625"/>
@@ -196,7 +196,7 @@
                 <iidm:bus id="_N4043____TN" v="343.68499755859375" angle="-75.2749252319336"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N4043____EC" name="N4043   " loadType="UNDEFINED" p0="900.0" q0="303.20001220703125" bus="_N4043____TN" connectableBus="_N4043____TN" p="900.0" q="303.20001220703125"/>
-            <iidm:linearShunt id="_N4043____SC" name="N4043   " bPerSection="0.0012499999720603228" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N4043____TN" connectableBus="_N4043____TN"/>
+            <iidm:linearShunt id="_N4043____SC" name="N4043   " bPerSection="0.0012499999720603228" gPerSection="0.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N4043____TN" connectableBus="_N4043____TN"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="_N4046____SS" name="N4046   _SS" country="DK" geographicalTags="_SGR_40">
@@ -205,7 +205,7 @@
                 <iidm:bus id="_N4046____TN" v="346.0889892578125" angle="-76.19192504882812"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N4046____EC" name="N4046   " loadType="UNDEFINED" p0="700.0" q0="250.0" bus="_N4046____TN" connectableBus="_N4046____TN" p="700.0" q="250.0"/>
-            <iidm:linearShunt id="_N4046____SC" name="N4046   " bPerSection="6.249999860301614E-4" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N4046____TN" connectableBus="_N4046____TN"/>
+            <iidm:linearShunt id="_N4046____SC" name="N4046   " bPerSection="6.249999860301614E-4" gPerSection="0.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N4046____TN" connectableBus="_N4046____TN"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="_N4061____SS" name="N4061   _SS" country="DK" geographicalTags="_SGR_40">
@@ -249,7 +249,7 @@
                 <iidm:bus id="_N4041____TN" v="353.125" angle="-62.66741180419922"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N4041____EC" name="N4041   " loadType="UNDEFINED" p0="540.0" q0="160.0" bus="_N4041____TN" connectableBus="_N4041____TN" p="540.0" q="160.0"/>
-            <iidm:linearShunt id="_N4041____SC" name="N4041   " bPerSection="0.0012499999720603228" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N4041____TN" connectableBus="_N4041____TN"/>
+            <iidm:linearShunt id="_N4041____SC" name="N4041   " bPerSection="0.0012499999720603228" gPerSection="0.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N4041____TN" connectableBus="_N4041____TN"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="_NG13____-N4041___-1_PT" name="NG13    -N4041   -1" r="0.0" x="53.327980041503906" g="0.0" b="0.0" ratedU1="15.0" ratedU2="380.9599914550781" bus1="_NG13_____TN" connectableBus1="_NG13_____TN" voltageLevelId1="_NG13_____VL" bus2="_N4041____TN" connectableBus2="_N4041____TN" voltageLevelId2="_N4041____VL">
             <iidm:currentLimits1 permanentLimit="38490.0"/>
@@ -310,7 +310,7 @@
                 <iidm:bus id="_N4051____TN" v="363.5039978027344" angle="-85.46057891845703"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N4051____EC" name="N4051   " loadType="UNDEFINED" p0="800.0" q0="302.3999938964844" bus="_N4051____TN" connectableBus="_N4051____TN" p="800.0" q="302.3999938964844"/>
-            <iidm:linearShunt id="_N4051____SC" name="N4051   " bPerSection="6.249999860301614E-4" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N4051____TN" connectableBus="_N4051____TN"/>
+            <iidm:linearShunt id="_N4051____SC" name="N4051   " bPerSection="6.249999860301614E-4" gPerSection="0.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N4051____TN" connectableBus="_N4051____TN"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="_NG16____-N4051___-1_PT" name="NG16    -N4051   -1" r="0.0" x="34.288021087646484" g="0.0" b="0.0" ratedU1="15.0" ratedU2="380.9599914550781" bus1="_NG16_____TN" connectableBus1="_NG16_____TN" voltageLevelId1="_NG16_____VL" bus2="_N4051____TN" connectableBus2="_N4051____TN" voltageLevelId2="_N4051____VL">
             <iidm:currentLimits1 permanentLimit="38490.0"/>
@@ -371,7 +371,7 @@
                 <iidm:bus id="_N4071____TN" v="384.0769958496094" angle="-2.306674003601074"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N4071____EC" name="N4071   " loadType="UNDEFINED" p0="300.0" q0="100.0" bus="_N4071____TN" connectableBus="_N4071____TN" p="300.0" q="100.0"/>
-            <iidm:linearShunt id="_N4071____SC" name="N4071   " bPerSection="-0.0024999999441206455" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N4071____TN" connectableBus="_N4071____TN"/>
+            <iidm:linearShunt id="_N4071____SC" name="N4071   " bPerSection="-0.0024999999441206455" gPerSection="0.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N4071____TN" connectableBus="_N4071____TN"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="_NG19____-N4071___-1_PT" name="NG19    -N4071   -1" r="0.0" x="48.00001907348633" g="0.0" b="0.0" ratedU1="15.0" ratedU2="380.9599914550781" bus1="_NG19_____TN" connectableBus1="_NG19_____TN" voltageLevelId1="_NG19_____VL" bus2="_N4071____TN" connectableBus2="_N4071____TN" voltageLevelId2="_N4071____VL">
             <iidm:currentLimits1 permanentLimit="38490.0"/>
@@ -490,7 +490,7 @@
                 <iidm:bus id="_N1043____TN" v="113.4800033569336" angle="-89.6317367553711"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N1043____EC" name="N1043   " loadType="UNDEFINED" p0="260.0" q0="100.0" bus="_N1043____TN" connectableBus="_N1043____TN" p="260.0" q="100.0"/>
-            <iidm:linearShunt id="_N1043____SC" name="N1043   " bPerSection="0.008875739760696888" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N1043____TN" connectableBus="_N1043____TN"/>
+            <iidm:linearShunt id="_N1043____SC" name="N1043   " bPerSection="0.008875739760696888" gPerSection="0.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="_N1043____TN" connectableBus="_N1043____TN"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="_NG7_____-N1043___-1_PT" name="NG7     -N1043   -1" r="0.0" x="12.674969673156738" g="0.0" b="0.0" ratedU1="15.0" ratedU2="123.81199645996094" bus1="_NG7______TN" connectableBus1="_NG7______TN" voltageLevelId1="_NG7______VL" bus2="_N1043____TN" connectableBus2="_N1043____TN" voltageLevelId2="_N1043____VL">
             <iidm:currentLimits1 permanentLimit="38490.0"/>

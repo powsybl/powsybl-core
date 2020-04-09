@@ -183,6 +183,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setCurrentSectionCount(1)
                 .newLinearModel()
                     .setbPerSection(3.46e-4)
+                    .setgPerSection(7.0e-6)
                     .setMaximumSectionCount(1)
                     .add()
                 .add();
@@ -273,6 +274,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setCurrentSectionCount(1)
                 .newLinearModel()
                     .setbPerSection(0.024793)
+                    .setgPerSection(0.0)
                     .setMaximumSectionCount(1)
                     .add()
                 .add();
@@ -1032,6 +1034,42 @@ public final class CgmesConformity1NetworkCatalog {
                 .setP0(-11.518776)
                 .setQ0(67.377544);
 
+        network.getShuntCompensator("_002b0a40-3957-46db-b84a-30420083558f").remove();
+        network.getVoltageLevel("_469df5f7-058f-4451-a998-57a48e8a56fe")
+                .newShuntCompensator()
+                    .setId("_002b0a40-3957-46db-b84a-30420083558f")
+                    .setName("BE_S2")
+                    .setConnectableBus(busBrussels380.getId())
+                    .setBus(busBrussels380.getId())
+                    .setCurrentSectionCount(1)
+                    .newNonLinearModel()
+                        .beginSection()
+                            .setSectionNum(1)
+                            .setB(3.46e-4)
+                            .setG(7.0e-6)
+                        .endSection()
+                        .beginSection()
+                            .setSectionNum(2)
+                            .setB(1.73e-4)
+                            .setG(2.0e-6)
+                        .endSection()
+                        .beginSection()
+                            .setSectionNum(3)
+                            .setB(1.39e-4)
+                            .setG(1.0e-6)
+                        .endSection()
+                        .beginSection()
+                            .setSectionNum(4)
+                            .setB(6.9e-5)
+                            .setG(6.0e-7)
+                        .endSection()
+                        .beginSection()
+                            .setSectionNum(5)
+                            .setB(3.5e-5)
+                            .setG(3.0e-7)
+                        .endSection()
+                    .add()
+                .add();
         return network;
     }
 

@@ -129,9 +129,9 @@ public class Comparison {
     // Buses in bus breaker view are not inserted in the index for Network Identifiables
     // We prepare an index external to the network for comparing the two lists
     private void compareBuses(
-        Stream<Bus> expecteds,
-        Stream<Bus> actuals,
-        BiConsumer<Bus, Bus> testAttributes) {
+            Stream<Bus> expecteds,
+            Stream<Bus> actuals,
+            BiConsumer<Bus, Bus> testAttributes) {
         Map<String, Bus> actualsById = new HashMap<>();
         actuals.forEach(b -> actualsById.put(b.getId(), b));
         Map<String, Bus> expectedsById = new HashMap<>();
@@ -206,12 +206,9 @@ public class Comparison {
         equivalent("VoltageLevel",
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
-        compare("maximumSectionCount",
-                expected.getMaximumSectionCount(),
-                actual.getMaximumSectionCount());
-        compare("bPerSection",
-                expected.getModel(ShuntCompensatorLinearModel.class).getbPerSection(),
-                actual.getModel(ShuntCompensatorLinearModel.class).getbPerSection());
+        compare("currentSectionCount",
+                expected.getCurrentSectionCount(),
+                actual.getCurrentSectionCount());
         compare("voltageRegulationOn",
                 expected.isVoltageRegulatorOn(),
                 actual.isVoltageRegulatorOn());
@@ -224,6 +221,43 @@ public class Comparison {
         sameIdentifier("regulationTerminal",
                 expected.getRegulatingTerminal().getBusBreakerView().getBus(),
                 actual.getRegulatingTerminal().getBusBreakerView().getBus());
+        compareShuntModels(expected, actual);
+    }
+
+    private void compareShuntModels(ShuntCompensator expected, ShuntCompensator actual) {
+        switch (expected.getModelType()) {
+            case LINEAR:
+                compare("maximumSectionCount",
+                        expected.getMaximumSectionCount(),
+                        actual.getMaximumSectionCount());
+                compare("bPerSection",
+                        expected.getModel(ShuntCompensatorLinearModel.class).getbPerSection(),
+                        actual.getModel(ShuntCompensatorLinearModel.class).getbPerSection());
+                compare("gPerSection",
+                        expected.getModel(ShuntCompensatorLinearModel.class).getgPerSection(),
+                        actual.getModel(ShuntCompensatorLinearModel.class).getgPerSection());
+                break;
+            case NON_LINEAR:
+                ShuntCompensatorNonLinearModel expectedModel = expected.getModel(ShuntCompensatorNonLinearModel.class);
+                ShuntCompensatorNonLinearModel actualModel = actual.getModel(ShuntCompensatorNonLinearModel.class);
+                for (Map.Entry<Integer, ShuntCompensatorNonLinearModel.Section> section : expectedModel.getSections().entrySet()) {
+                    Optional<ShuntCompensatorNonLinearModel.Section> actualSection = actualModel.getSection(section.getKey());
+                    if (!actualSection.isPresent()) {
+                        diff.missing("section" + section.getKey());
+                    } else {
+                        compare("section" + section.getKey() + ".b", section.getValue().getB(), actualSection.get().getB());
+                        compare("section" + section.getKey() + ".g", section.getValue().getG(), actualSection.get().getG());
+                    }
+                }
+                for (Map.Entry<Integer, ShuntCompensatorNonLinearModel.Section> section : actualModel.getSections().entrySet()) {
+                    if (!expectedModel.getSection(section.getKey()).isPresent()) {
+                        diff.unexpected("section" + section.getKey());
+                    }
+                }
+                break;
+            default:
+                throw new AssertionError("Unexpected shunt model type: " + expected.getModelType());
+        }
     }
 
     private void compareStaticVarCompensators(
@@ -466,7 +500,7 @@ public class Comparison {
     }
 
     private void compareThreeWindingsTransformers(ThreeWindingsTransformer expected,
-        ThreeWindingsTransformer actual) {
+                                                  ThreeWindingsTransformer actual) {
         compareLeg(expected.getLeg1(), actual.getLeg1(), expected, actual);
         compareLeg(expected.getLeg2(), actual.getLeg2(), expected, actual);
         compareLeg(expected.getLeg3(), actual.getLeg3(), expected, actual);
@@ -489,10 +523,10 @@ public class Comparison {
     }
 
     private void compareLeg(ThreeWindingsTransformer.Leg expected, ThreeWindingsTransformer.Leg actual,
-        ThreeWindingsTransformer expectedt, ThreeWindingsTransformer actualt) {
+                            ThreeWindingsTransformer expectedt, ThreeWindingsTransformer actualt) {
         equivalent("VoltageLevel",
-            expected.getTerminal().getVoltageLevel(),
-            actual.getTerminal().getVoltageLevel());
+                expected.getTerminal().getVoltageLevel(),
+                actual.getTerminal().getVoltageLevel());
         compare("r", expected.getR(), actual.getR());
         compare("x", expected.getX(), actual.getX());
         compare("g", expected.getG(), actual.getG());
@@ -500,8 +534,8 @@ public class Comparison {
 
         compare("ratedU", expected.getRatedU(), actual.getRatedU());
         compareCurrentLimits(expectedt, actualt,
-            expected.getCurrentLimits(),
-            actual.getCurrentLimits());
+                expected.getCurrentLimits(),
+                actual.getCurrentLimits());
         compareRatioTapChanger(expected.getRatioTapChanger(), actual.getRatioTapChanger());
         comparePhaseTapChanger(expected.getPhaseTapChanger(), actual.getPhaseTapChanger());
     }
@@ -669,9 +703,9 @@ public class Comparison {
     }
 
     private void sameIdentifier(
-        String context,
-        Identifiable expected,
-        Identifiable actual) {
+            String context,
+            Identifiable expected,
+            Identifiable actual) {
         boolean sameIdentifier;
         if (expected == null) {
             sameIdentifier = actual == null;

@@ -13,6 +13,7 @@ import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
+import com.powsybl.iidm.network.ShuntCompensatorNonLinearModelAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -43,33 +44,30 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         int sections = getSections(p, normalSections);
         sections = Math.abs(sections);
         maximumSections = Math.max(maximumSections, sections);
-        double bPerSection = 0;
-        if (p.containsKey(CgmesNames.B_PER_SECTION)) {
-            bPerSection = p.asDouble(CgmesNames.B_PER_SECTION, 0.0);
-        } else {
-            PropertyBags ss = context.cgmes().nonlinearShuntCompensatorPoints(id);
-            final int nlsections = sections;
-            double sumSections = ss.stream()
-                    .filter(s -> s.asInt("sectionNumber") <= nlsections)
-                    .map(s -> s.asDouble("b"))
-                    .reduce(0.0, Double::sum);
-            // Convert to a shunt compensator with a single section
-            maximumSections = 1;
-            sections = 1;
-            bPerSection = sumSections;
-        }
-        if (bPerSection == 0) {
-            float bPerSectionFixed = Float.MIN_VALUE;
-            fixed(CgmesNames.B_PER_SECTION, "Can not be zero", bPerSection, bPerSectionFixed);
-            bPerSection = bPerSectionFixed;
-        }
-
-        ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator()
-                .setCurrentSectionCount(sections)
-                .newLinearModel()
+        ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator().setCurrentSectionCount(sections);
+        String shuntType = p.getId("type");
+        if ("LinearShuntCompensator".equals(shuntType)) {
+            double bPerSection = p.asDouble(CgmesNames.B_PER_SECTION, Float.MIN_VALUE);
+            double gPerSection = p.asDouble("gPerSection", Double.NaN);
+            adder.newLinearModel()
                     .setbPerSection(bPerSection)
+                    .setgPerSection(gPerSection)
                     .setMaximumSectionCount(maximumSections)
                     .add();
+        } else if ("NonlinearShuntCompensator".equals(shuntType)) {
+            ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
+            PropertyBags ss = context.cgmes().nonlinearShuntCompensatorPoints(id);
+            for (PropertyBag sp : ss) {
+                modelAdder.beginSection()
+                        .setB(sp.asDouble("b"))
+                        .setG(sp.asDouble("g"))
+                        .setSectionNum(sp.asInt("sectionNumber"))
+                        .endSection();
+            }
+            modelAdder.add();
+        } else {
+            throw new AssertionError("Unexpected shunt type: " + shuntType);
+        }
         identify(adder);
         connect(adder);
         ShuntCompensator shunt = adder.add();
