@@ -8,6 +8,7 @@ package com.powsybl.commons.datastore;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Properties;
 
 import javax.annotation.Nullable;
 
@@ -16,7 +17,7 @@ import javax.annotation.Nullable;
  */
 public interface DataResolver {
 
-    public Optional<DataPackage> resolve(ReadOnlyDataStore store, @Nullable String mainFileName) throws IOException, NonUniqueResultException;
+    public Optional<DataPack> resolve(ReadOnlyDataStore store, @Nullable String mainFileName, Properties parameters) throws IOException, NonUniqueResultException;
 
-    public boolean validate(DataPackage pack);
+    public boolean validate(DataPack pack);
 }

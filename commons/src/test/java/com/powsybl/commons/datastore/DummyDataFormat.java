@@ -26,24 +26,23 @@ public class DummyDataFormat implements DataFormat {
     }
 
     @Override
-    public DataResolver getDataResolver(Properties parameters) {
+    public DataResolver getDataResolver() {
         return new DataResolver() {
 
             @Override
-            public Optional<DataPackage> resolve(ReadOnlyDataStore store, String mainFileName)
+            public Optional<DataPack> resolve(ReadOnlyDataStore store, String mainFileName, Properties parameters)
                     throws IOException, NonUniqueResultException {
-                DataPackage dp = null;
+                DataPack dp = null;
                 if (store.exists(mainFileName)) {
-                    dp = new DataPackage(store, getId());
-                    DataEntry d = new DataEntry(mainFileName);
-                    d.addTag(DataPackage.MAIN_ENTRY_TAG);
+                    dp = new DataPack(store, getId());
+                    DataEntry d = new DataEntry(mainFileName, DataPack.MAIN_ENTRY_TAG);
                     dp.addEntry(d);
                 }
                 return Optional.ofNullable(dp);
             }
 
             @Override
-            public boolean validate(DataPackage pack) {
+            public boolean validate(DataPack pack) {
                 return pack.getMainEntry().isPresent();
             }
         };

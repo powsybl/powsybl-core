@@ -57,19 +57,20 @@ public class DataFormatTest {
 
         DataStore ds = new PathDataStore(Paths.get(testDir1.toUri()));
         DataFormat df = new DummyDataFormat();
-        DataResolver dr = df.getDataResolver(new Properties());
+        DataResolver dr = df.getDataResolver();
+        Properties props = new Properties();
         String mainFileName = "dummy.txt";
 
         try {
-            Optional<DataPackage> dp = dr.resolve(ds, mainFileName);
+            Optional<DataPack> dp = dr.resolve(ds, mainFileName, props);
             assertFalse(dp.isPresent());
 
             ds.newOutputStream(mainFileName);
 
-            dp = dr.resolve(ds, mainFileName);
+            dp = dr.resolve(ds, mainFileName, props);
             assertTrue(dp.isPresent());
 
-            DataPackage pack = dp.get();
+            DataPack pack = dp.get();
 
             Optional<DataEntry> main = pack.getEntry(mainFileName);
             assertTrue(main.isPresent());
@@ -81,7 +82,7 @@ public class DataFormatTest {
             DataStore ds2 = new PathDataStore(Paths.get(testDir2.toUri()));
             pack.copyTo(ds2);
 
-            Optional<DataPackage> dp2 = dr.resolve(ds2, mainFileName);
+            Optional<DataPack> dp2 = dr.resolve(ds2, mainFileName, props);
 
             assertTrue(dr.validate(dp2.get()));
 

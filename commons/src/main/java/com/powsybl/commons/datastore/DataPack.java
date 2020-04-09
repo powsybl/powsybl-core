@@ -19,7 +19,7 @@ import com.google.common.io.ByteStreams;
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
  */
-public class DataPackage {
+public class DataPack {
 
     public static String MAIN_ENTRY_TAG = "MAIN_ENTRY";
 
@@ -29,7 +29,7 @@ public class DataPackage {
 
     private final List<DataEntry> entries;
 
-    public DataPackage(ReadOnlyDataStore source, String formatId) {
+    public DataPack(ReadOnlyDataStore source, String formatId) {
         this.source = Objects.requireNonNull(source);
         this.dataFormatId = Objects.requireNonNull(formatId);
         this.entries = new ArrayList<>();
@@ -56,9 +56,9 @@ public class DataPackage {
         return source;
     }
 
-    public DataPackage copyTo(DataStore target) throws IOException {
+    public DataPack copyTo(DataStore target) throws IOException {
         Objects.requireNonNull(target);
-        DataPackage copy = new DataPackage(target, dataFormatId);
+        DataPack copy = new DataPack(target, dataFormatId);
         for (DataEntry e : entries) {
             try (InputStream in = source.newInputStream(e.getName()); OutputStream out = target.newOutputStream(e.getName())) {
                 ByteStreams.copy(in, out);

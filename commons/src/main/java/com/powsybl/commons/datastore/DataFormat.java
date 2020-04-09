@@ -6,8 +6,6 @@
  */
 package com.powsybl.commons.datastore;
 
-import java.util.Properties;
-
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
  */
@@ -17,5 +15,6 @@ public interface DataFormat {
 
     public String getDescription();
 
-    public DataResolver getDataResolver(Properties parameters);
+    public DataResolver getDataResolver();
+
 }

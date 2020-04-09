@@ -7,6 +7,7 @@
 package com.powsybl.commons.datastore;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,11 +18,13 @@ public class DataEntry {
 
     private String name;
 
-    private final List<String> tags;
+    private final List<String> tags = new ArrayList<>();
 
-    public DataEntry(String name) {
+    public DataEntry(String name, String... tags) {
         this.name = Objects.requireNonNull(name);
-        tags = new ArrayList<>();
+        if (tags != null)  {
+            this.tags.addAll(Arrays.asList(tags));
+        }
     }
 
     public String getName() {
@@ -32,7 +35,4 @@ public class DataEntry {
         return tags;
     }
 
-    public void addTag(String tag) {
-        tags.add(tag);
-    }
 }
