@@ -179,4 +179,22 @@ public class GroovyDslContingenciesProviderTest {
                 .getContingencies(network);
         assertTrue(contingencies.isEmpty());
     }
+
+    @Test
+    public void testExtension() throws IOException {
+        writeToDslFile("contingency('test') {",
+                "        equipments 'NHV1_NHV2_1'",
+                "        ext {",
+                "           probability {",
+                "              base 0.1",
+                "              tsName 'myTs'",
+                "           }",
+                "        }",
+                "    }");
+        List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
+                .getContingencies(network);
+        assertEquals(1, contingencies.size());
+        assertEquals(1, contingencies.get(0).getExtensions().size());
+        assertEquals("myTs", contingencies.get(0).getExtension(ProbabilityContingencyExtension.class).getProbabilityTimeSeriesRef());
+    }
 }

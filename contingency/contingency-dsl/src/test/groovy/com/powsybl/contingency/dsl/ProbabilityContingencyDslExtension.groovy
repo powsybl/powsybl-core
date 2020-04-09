@@ -1,0 +1,51 @@
+/*
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ *
+ */
+package com.powsybl.contingency.dsl
+
+import com.google.auto.service.AutoService
+import com.powsybl.commons.extensions.Extension
+import com.powsybl.contingency.Contingency
+
+/**
+ * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
+ */
+@AutoService(ExtendableDslExtension.class)
+class ProbabilityContingencyDslExtension implements ExtendableDslExtension<Contingency>{
+    @Override
+    Class<Contingency> getExtendableClass() {
+        return Contingency.class;
+    }
+
+    @Override
+    void addToSpec(MetaClass extSpecMetaClass, List<Extension<Contingency>> contingencyExtensions, Binding binding) {
+        ProbabilityContingencyExtension ext = new ProbabilityContingencyExtension();
+        extSpecMetaClass.probability = { Closure<Void> closure ->
+            def cloned = closure.clone()
+            ProbabilitySpec spec = new ProbabilitySpec()
+            cloned.delegate = spec
+            cloned()
+
+            ext.probabilityBase = spec.base
+            ext.probabilityTimeSeriesRef = spec.tsName
+            contingencyExtensions.add(ext);
+        }
+    }
+
+    static class ProbabilitySpec {
+        Double base;
+        String tsName;
+
+        void base(Double base) {
+            this.base = base
+        }
+
+        void tsName(String tsName) {
+            this.tsName = tsName
+        }
+    }
+}

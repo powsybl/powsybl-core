@@ -6,6 +6,7 @@
  */
 package com.powsybl.contingency.dsl
 
+import com.powsybl.commons.extensions.Extension
 import com.powsybl.contingency.*
 import com.powsybl.dsl.DslException
 import com.powsybl.dsl.DslLoader
@@ -22,12 +23,24 @@ class ContingencyDslLoader extends DslLoader {
 
     static LOGGER = LoggerFactory.getLogger(ContingencyDslLoader.class)
 
+    static class ExtensionSpec {
+
+    }
+
     static class ContingencySpec {
 
         String[] equipments
 
+        final ExtensionSpec extSpec = new ExtensionSpec();
+
         void equipments(String[] equipments) {
             this.equipments = equipments
+        }
+
+        void ext(Closure<Void> closure) {
+            def cloned = closure.clone()
+            cloned.delegate = extSpec
+            cloned()
         }
     }
 
@@ -44,11 +57,18 @@ class ContingencyDslLoader extends DslLoader {
     }
 
     static void loadDsl(Binding binding, Network network, Consumer<Contingency> consumer, ContingencyDslObserver observer) {
-
         // contingencies
         binding.contingency = { String id, Closure<Void> closure ->
             def cloned = closure.clone()
             ContingencySpec contingencySpec = new ContingencySpec()
+
+            List<Extension<Contingency>> extensionList = new ArrayList<>();
+            for (ExtendableDslExtension dslContingencyExtension : ServiceLoader.load(ExtendableDslExtension.class)) {
+                if (dslContingencyExtension.getExtendableClass().equals(Contingency.class)) {
+                    dslContingencyExtension.addToSpec(contingencySpec.extSpec.metaClass, extensionList, binding)
+                }
+            }
+
             cloned.delegate = contingencySpec
             cloned()
             if (!contingencySpec.equipments) {
@@ -57,6 +77,8 @@ class ContingencyDslLoader extends DslLoader {
             if (contingencySpec.equipments.length == 0) {
                 throw new DslException("'equipments' field is empty")
             }
+
+
             def elements = []
             def valid = true
             for (String equipment : contingencySpec.equipments) {
@@ -85,6 +107,9 @@ class ContingencyDslLoader extends DslLoader {
                 LOGGER.debug("Found contingency '{}'", id)
                 observer?.contingencyFound(id)
                 Contingency contingency = new Contingency(id, elements)
+                extensionList.forEach({ ext ->
+                    contingency.addExtension(ext.getClass(), ext);
+                })
                 consumer.accept(contingency)
             } else {
                 LOGGER.warn("Contingency '{}' is invalid", id)
