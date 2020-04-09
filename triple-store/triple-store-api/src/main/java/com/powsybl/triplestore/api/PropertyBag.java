@@ -139,10 +139,12 @@ public class PropertyBag extends HashMap<String, String> {
                 .max(Integer::compare);
         if (maxLenName.isPresent()) {
             int lenPad = maxLenName.get();
-            return title.concat(lineSeparator).concat(propertyNames.stream()
-                    .map(n -> INDENTATION.concat(padr(n, lenPad)).concat(" : ")
-                            + getValue.apply(this, n))
-                    .collect(Collectors.joining(lineSeparator)));
+            String format = String.format("%%-%ds", lenPad);
+
+            // Performance : avoid using concat() -> use a StringBuilder instead.
+            return new StringBuilder(title).append(lineSeparator).append(propertyNames.stream()
+                    .map(n -> new StringBuilder(INDENTATION).append(String.format(format, n)).append(" : ").append(getValue.apply(this, n)).toString())
+                    .collect(Collectors.joining(lineSeparator))).toString();
         }
         return "";
     }
