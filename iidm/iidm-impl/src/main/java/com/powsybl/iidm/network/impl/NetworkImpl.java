@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.*;
+import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Branch.Side;
@@ -51,7 +52,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         @Override
         public Iterable<Bus> getBuses() {
             return FluentIterable.from(getVoltageLevels())
-                                 .transformAndConcat(vl -> vl.getBusBreakerView().getBuses());
+                    .transformAndConcat(vl -> vl.getBusBreakerView().getBuses());
         }
 
         @Override
@@ -62,7 +63,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         @Override
         public Iterable<Switch> getSwitches() {
             return FluentIterable.from(getVoltageLevels())
-                                 .transformAndConcat(vl -> vl.getBusBreakerView().getSwitches());
+                    .transformAndConcat(vl -> vl.getBusBreakerView().getSwitches());
         }
 
         @Override
@@ -91,7 +92,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         @Override
         public Iterable<Bus> getBuses() {
             return FluentIterable.from(getVoltageLevels())
-                                 .transformAndConcat(vl -> vl.getBusView().getBuses());
+                    .transformAndConcat(vl -> vl.getBusView().getBuses());
         }
 
         @Override
@@ -240,7 +241,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
         return Iterables.concat(index.getAll(BusBreakerVoltageLevel.class),
-                                index.getAll(NodeBreakerVoltageLevel.class));
+                index.getAll(NodeBreakerVoltageLevel.class));
     }
 
     @Override
@@ -627,6 +628,36 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public <C extends Connectable> Iterable<C> getConnectables(Class<C> clazz) {
+        return getConnectableStream(clazz).collect(Collectors.toList());
+    }
+
+    @Override
+    public <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
+        return index.getAll().stream().filter(clazz::isInstance).map(clazz::cast);
+    }
+
+    @Override
+    public <C extends Connectable> int getConnectableCount(Class<C> clazz) {
+        return Ints.checkedCast(getConnectableStream(clazz).count());
+    }
+
+    @Override
+    public Iterable<Connectable> getConnectables() {
+        return getConnectables(Connectable.class);
+    }
+
+    @Override
+    public Stream<Connectable> getConnectableStream() {
+        return getConnectableStream(Connectable.class);
+    }
+
+    @Override
+    public int getConnectableCount() {
+        return Ints.checkedCast(getConnectableStream().count());
+    }
+
+    @Override
     public BusBreakerViewImpl getBusBreakerView() {
         return busBreakerView;
     }
@@ -773,14 +804,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
     }
 
-    static final class SynchronousComponentsManager extends AbstractComponentsManager<ComponentImpl> {
+    static final class SynchronousComponentsManager extends AbstractComponentsManager<SynchronousComponentImpl> {
 
         private SynchronousComponentsManager(NetworkImpl network) {
             super(network);
         }
 
-        protected ComponentImpl createComponent(int num, int size) {
-            return new ComponentImpl(num, size, network.ref);
+        protected SynchronousComponentImpl createComponent(int num, int size) {
+            return new SynchronousComponentImpl(num, size, network.ref);
         }
 
         @Override
@@ -1028,25 +1059,25 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                     .setVoltageLevel1(mergedLine.voltageLevel1)
                     .setVoltageLevel2(mergedLine.voltageLevel2)
                     .line1().setId(mergedLine.half1.id)
-                            .setName(mergedLine.half1.name)
-                            .setR(mergedLine.half1.r)
-                            .setX(mergedLine.half1.x)
-                            .setG1(mergedLine.half1.g1)
-                            .setG2(mergedLine.half1.g2)
-                            .setB1(mergedLine.half1.b1)
-                            .setB2(mergedLine.half1.b2)
-                            .setXnodeP(mergedLine.half1.xnodeP)
-                            .setXnodeQ(mergedLine.half1.xnodeQ)
+                        .setName(mergedLine.half1.name)
+                        .setR(mergedLine.half1.r)
+                        .setX(mergedLine.half1.x)
+                        .setG1(mergedLine.half1.g1)
+                        .setG2(mergedLine.half1.g2)
+                        .setB1(mergedLine.half1.b1)
+                        .setB2(mergedLine.half1.b2)
+                        .setXnodeP(mergedLine.half1.xnodeP)
+                        .setXnodeQ(mergedLine.half1.xnodeQ)
                     .line2().setId(mergedLine.half2.id)
-                            .setName(mergedLine.half2.name)
-                            .setR(mergedLine.half2.r)
-                            .setX(mergedLine.half2.x)
-                            .setG1(mergedLine.half2.g1)
-                            .setG2(mergedLine.half2.g2)
-                            .setB1(mergedLine.half2.b1)
-                            .setB2(mergedLine.half2.b2)
-                            .setXnodeP(mergedLine.half2.xnodeP)
-                            .setXnodeQ(mergedLine.half2.xnodeQ)
+                        .setName(mergedLine.half2.name)
+                        .setR(mergedLine.half2.r)
+                        .setX(mergedLine.half2.x)
+                        .setG1(mergedLine.half2.g1)
+                        .setG2(mergedLine.half2.g2)
+                        .setB1(mergedLine.half2.b1)
+                        .setB2(mergedLine.half2.b2)
+                        .setXnodeP(mergedLine.half2.xnodeP)
+                        .setXnodeQ(mergedLine.half2.xnodeQ)
                     .setUcteXnodeCode(mergedLine.xnode);
             if (mergedLine.bus1 != null) {
                 la.setBus1(mergedLine.bus1);

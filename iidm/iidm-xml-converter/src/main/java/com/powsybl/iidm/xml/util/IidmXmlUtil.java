@@ -35,7 +35,11 @@ public final class IidmXmlUtil {
     }
 
     private static PowsyblException createException(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion version, IidmXmlVersion contextVersion, String reason) {
-        return new PowsyblException(rootElementName + "." + elementName + " is " + type.message + " for IIDM-XML version " + contextVersion.toString(".") + ". " + reason + version.toString("."));
+        return createException(rootElementName + "." + elementName, type, version, contextVersion, reason);
+    }
+
+    private static PowsyblException createException(String elementName, ErrorMessage type, IidmXmlVersion version, IidmXmlVersion contextVersion, String reason) {
+        return new PowsyblException(elementName + " is " + type.message + " for IIDM-XML version " + contextVersion.toString(".") + ". " + reason + version.toString("."));
     }
 
     /**
@@ -49,12 +53,32 @@ public final class IidmXmlUtil {
     }
 
     /**
+     * Assert that the context's IIDM-XML version equals or is less recent than a given IIDM-XML version.
+     * If not, throw an exception with a given type of error message.
+     */
+    public static <C extends AbstractNetworkXmlContext> void assertMaximumVersion(String elementName, ErrorMessage type, IidmXmlVersion maxVersion, C context) {
+        if (context.getVersion().compareTo(maxVersion) > 0) {
+            throw createException(elementName, type, maxVersion, context.getVersion(), "IIDM-XML version should be <= ");
+        }
+    }
+
+    /**
      * Assert that the context's IIDM-XML version equals or is more recent than a given IIDM-XML version.
      * If not, throw an exception with a given type of error message.
      */
     public static <C extends AbstractNetworkXmlContext> void assertMinimumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion minVersion, C context) {
         if (context.getVersion().compareTo(minVersion) < 0) {
             throw createException(rootElementName, elementName, type, minVersion, context.getVersion(), "IIDM-XML version should be >= ");
+        }
+    }
+
+    /**
+     * Assert that the context's IIDM-XML version equals or is more recent than a given IIDM-XML version.
+     * If not, throw an exception with a given type of error message.
+     */
+    public static <C extends AbstractNetworkXmlContext> void assertMinimumVersion(String elementName, ErrorMessage type, IidmXmlVersion minVersion, C context) {
+        if (context.getVersion().compareTo(minVersion) < 0) {
+            throw createException(elementName, type, minVersion, context.getVersion(), "IIDM-XML version should be >= ");
         }
     }
 

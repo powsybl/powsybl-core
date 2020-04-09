@@ -1070,7 +1070,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B117" name="2" v="0.9348" angle="-4.72"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="B117-SH" bPerSection="325.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B117" connectableBus="B117"/>
+            <iidm:linearShunt id="B117-SH" bPerSection="325.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B117" connectableBus="B117"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL159" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -1121,7 +1121,7 @@
                 <iidm:bus id="B120" name="2" v="0.9584" angle="-8.77"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B120-L" loadType="UNDEFINED" p0="777.0" q0="215.0" bus="B120" connectableBus="B120"/>
-            <iidm:shunt id="B120-SH" bPerSection="55.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B120" connectableBus="B120"/>
+            <iidm:linearShunt id="B120-SH" bPerSection="55.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B120" connectableBus="B120"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL1200" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -1529,7 +1529,7 @@
                 <iidm:bus id="B154" name="2" v="0.9663" angle="-1.8"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B154-L" loadType="UNDEFINED" p0="70.0" q0="5.0" bus="B154" connectableBus="B154"/>
-            <iidm:shunt id="B154-SH" bPerSection="34.5" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B154" connectableBus="B154"/>
+            <iidm:linearShunt id="B154-SH" bPerSection="34.5" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B154" connectableBus="B154"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S75">
@@ -1552,7 +1552,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B164" name="2" v="0.9839" angle="9.66"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="B164-SH" bPerSection="-212.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B164" connectableBus="B164"/>
+            <iidm:linearShunt id="B164-SH" bPerSection="-212.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B164" connectableBus="B164"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T155-156-1" r="8.000000000000001E-6" x="2.5600000000000004E-4" g="0.0" b="0.0" ratedU1="1.05" ratedU2="1.0" bus1="B155" connectableBus1="B155" voltageLevelId1="VL155" bus2="B156" connectableBus2="B156" voltageLevelId2="VL156"/>
         <iidm:twoWindingsTransformer id="T164-155-1" r="9.0E-6" x="2.31E-4" g="0.0" b="-3.3000000000000003" ratedU1="0.956" ratedU2="1.0" bus1="B164" connectableBus1="B164" voltageLevelId1="VL164" bus2="B155" connectableBus2="B155" voltageLevelId2="VL155">
@@ -1597,7 +1597,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B166" name="2" v="0.9973" angle="30.22"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="B166-SH" bPerSection="-103.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B166" connectableBus="B166"/>
+            <iidm:linearShunt id="B166-SH" bPerSection="-103.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B166" connectableBus="B166"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL7166" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -1656,7 +1656,7 @@
                 <iidm:bus id="B173" name="2" v="0.9837" angle="-12.75"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B173-L" loadType="UNDEFINED" p0="163.5" q0="43.0" bus="B173" connectableBus="B173"/>
-            <iidm:shunt id="B173-SH" bPerSection="53.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B173" connectableBus="B173"/>
+            <iidm:linearShunt id="B173-SH" bPerSection="53.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B173" connectableBus="B173"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S51">
@@ -1695,7 +1695,7 @@
                 <iidm:bus id="B179" name="2" v="0.9699" angle="-9.37"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B179-L" loadType="UNDEFINED" p0="74.0" q0="29.0" bus="B179" connectableBus="B179"/>
-            <iidm:shunt id="B179-SH" bPerSection="45.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B179" connectableBus="B179"/>
+            <iidm:linearShunt id="B179-SH" bPerSection="45.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B179" connectableBus="B179"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S70">
@@ -1781,7 +1781,7 @@
             <iidm:generator id="B190-G" energySource="OTHER" minP="-1.7976931348623157E308" maxP="1.7976931348623157E308" voltageRegulatorOn="true" targetP="475.0" targetV="1.0551" targetQ="0.0" bus="B190" connectableBus="B190">
                 <iidm:minMaxReactiveLimits minQ="-300.0" maxQ="300.0"/>
             </iidm:generator>
-            <iidm:shunt id="B190-SH" bPerSection="-150.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B190" connectableBus="B190"/>
+            <iidm:linearShunt id="B190-SH" bPerSection="-150.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B190" connectableBus="B190"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S41">
@@ -1938,7 +1938,7 @@
                 <iidm:bus id="B248" name="3" v="0.976" angle="-25.23"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B248-L" loadType="UNDEFINED" p0="29.0" q0="14.0" bus="B248" connectableBus="B248"/>
-            <iidm:shunt id="B248-SH" bPerSection="45.6" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B248" connectableBus="B248"/>
+            <iidm:linearShunt id="B248-SH" bPerSection="45.6" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B248" connectableBus="B248"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T200-248-1" r="0.0" x="0.0022" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" bus1="B200" connectableBus1="B200" voltageLevelId1="VL200" bus2="B248" connectableBus2="B248" voltageLevelId2="VL248">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" targetDeadband="0.0" loadTapChangingCapabilities="true" regulating="true" targetV="0.976">
@@ -2137,7 +2137,7 @@
                 <iidm:bus id="B231" name="3" v="1.0535" angle="-21.22"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B231-L" loadType="UNDEFINED" p0="159.0" q0="107.0" bus="B231" connectableBus="B231"/>
-            <iidm:shunt id="B231-SH" bPerSection="-300.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B231" connectableBus="B231"/>
+            <iidm:linearShunt id="B231-SH" bPerSection="-300.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B231" connectableBus="B231"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T227-231-1" r="9.0E-6" x="4.72E-4" g="0.0" b="18.599999999999998" ratedU1="1.0" ratedU2="1.0" bus1="B227" connectableBus1="B227" voltageLevelId1="VL227" bus2="B231" connectableBus2="B231" voltageLevelId2="VL231"/>
     </iidm:substation>
@@ -2219,7 +2219,7 @@
                 <iidm:minMaxReactiveLimits minQ="-200.0" maxQ="200.0"/>
             </iidm:generator>
             <iidm:load id="B238-L" loadType="UNDEFINED" p0="255.0" q0="149.0" bus="B238" connectableBus="B238"/>
-            <iidm:shunt id="B238-SH" bPerSection="-150.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B238" connectableBus="B238"/>
+            <iidm:linearShunt id="B238-SH" bPerSection="-150.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B238" connectableBus="B238"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL239" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -2236,7 +2236,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B240" name="3" v="1.0237" angle="-20.14"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="B240-SH" bPerSection="-140.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B240" connectableBus="B240"/>
+            <iidm:linearShunt id="B240-SH" bPerSection="-140.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B240" connectableBus="B240"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S136">
@@ -2441,7 +2441,7 @@
                 <iidm:bus id="B9003" name="1" v="0.9833" angle="-19.68"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B9003-L" loadType="UNDEFINED" p0="2.71" q0="0.94" bus="B9003" connectableBus="B9003"/>
-            <iidm:shunt id="B9003-SH" bPerSection="2.4" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B9003" connectableBus="B9003"/>
+            <iidm:linearShunt id="B9003-SH" bPerSection="2.4" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B9003" connectableBus="B9003"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL9031" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -2466,7 +2466,7 @@
                 <iidm:bus id="B9034" name="1" v="0.9973" angle="-21.1"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B9034-L" loadType="UNDEFINED" p0="1.55" q0="0.54" bus="B9034" connectableBus="B9034"/>
-            <iidm:shunt id="B9034-SH" bPerSection="1.72" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B9034" connectableBus="B9034"/>
+            <iidm:linearShunt id="B9034-SH" bPerSection="1.72" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B9034" connectableBus="B9034"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL9035" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>

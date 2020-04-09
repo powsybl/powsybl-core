@@ -454,6 +454,15 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         }
 
         /**
+         * Check if a {@link Connectable}, a {@link Switch} or an {@link InternalConnection} is attached to the given node.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not valid
+         */
+        default boolean hasAttachedEquipment(int node) {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
          * Get the first terminal corresponding to the {@param switchId}.
          * May return null.
          *

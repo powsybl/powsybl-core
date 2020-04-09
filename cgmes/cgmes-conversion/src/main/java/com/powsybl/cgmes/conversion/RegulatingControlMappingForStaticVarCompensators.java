@@ -90,7 +90,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
     private boolean setRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, RegulatingControl control, StaticVarCompensator svc) {
 
         // Take default terminal if it has not been defined in CGMES files (it is never null)
-        Terminal terminal = parent.getRegulatingTerminal(svc, control.cgmesTerminal, control.topologicalNode);
+        Terminal terminal = parent.getRegulatingTerminal(svc, control.cgmesTerminal);
 
         double targetVoltage = Double.NaN;
         double targetReactivePower = Double.NaN;

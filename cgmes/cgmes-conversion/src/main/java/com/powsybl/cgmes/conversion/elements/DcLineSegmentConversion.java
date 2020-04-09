@@ -124,9 +124,9 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
             }
         } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) {
             if (pAC2 != 0) {
-                return Math.abs(pAC2) - poleLossP2;
+                return pAC2 - poleLossP2;
             } else if (pAC1 != 0) {
-                return pAC1 + poleLossP1;
+                return Math.abs(pAC1) + poleLossP1;
             }
         }
         return 0;
@@ -137,12 +137,12 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
             if (pAC1 != 0) {
                 return 1.2 * pAC1;
             }
-            return 1.2 * pAC2;
+            return 1.2 * Math.abs(pAC2);
         }
         if (pAC2 != 0) {
             return 1.2 * pAC2;
         }
-        return 1.2 * pAC1;
+        return 1.2 * Math.abs(pAC1);
     }
 
     @Override

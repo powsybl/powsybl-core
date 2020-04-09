@@ -168,7 +168,7 @@ public class UcteExporter implements Exporter {
         UcteNode ucteNode = new UcteNode(
                 ucteNodeCode,
                 geographicalName,
-                UcteNodeStatus.REAL,
+                bus.isFictitious() ? UcteNodeStatus.EQUIVALENT : UcteNodeStatus.REAL,
                 UcteNodeTypeCode.PQ,
                 Float.NaN,
                 0.0f,
