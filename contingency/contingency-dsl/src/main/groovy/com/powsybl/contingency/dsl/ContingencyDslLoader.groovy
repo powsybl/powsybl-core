@@ -23,25 +23,14 @@ class ContingencyDslLoader extends DslLoader {
 
     static LOGGER = LoggerFactory.getLogger(ContingencyDslLoader.class)
 
-    static class ExtensionSpec {
-
-    }
-
     static class ContingencySpec {
 
         String[] equipments
-
-        final ExtensionSpec extSpec = new ExtensionSpec();
 
         void equipments(String[] equipments) {
             this.equipments = equipments
         }
 
-        void ext(Closure<Void> closure) {
-            def cloned = closure.clone()
-            cloned.delegate = extSpec
-            cloned()
-        }
     }
 
     ContingencyDslLoader(GroovyCodeSource dslSrc) {
@@ -65,7 +54,7 @@ class ContingencyDslLoader extends DslLoader {
             List<Extension<Contingency>> extensionList = new ArrayList<>();
             for (ExtendableDslExtension dslContingencyExtension : ServiceLoader.load(ExtendableDslExtension.class)) {
                 if (dslContingencyExtension.getExtendableClass().equals(Contingency.class)) {
-                    dslContingencyExtension.addToSpec(contingencySpec.extSpec.metaClass, extensionList, binding)
+                    dslContingencyExtension.addToSpec(contingencySpec.metaClass, extensionList, binding)
                 }
             }
 

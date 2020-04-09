@@ -184,12 +184,10 @@ public class GroovyDslContingenciesProviderTest {
     public void testExtension() throws IOException {
         writeToDslFile("contingency('test') {",
                 "        equipments 'NHV1_NHV2_1'",
-                "        ext {",
                 "           probability {",
                 "              base 0.1",
                 "              tsName 'myTs'",
                 "           }",
-                "        }",
                 "    }");
         List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
                 .getContingencies(network);
