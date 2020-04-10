@@ -232,14 +232,14 @@ public class UcteImporter implements Importer {
             p0 += xnode.getActiveLoad();
         }
         if (isValueValid(xnode.getActivePowerGeneration())) {
-            p0 += xnode.getActivePowerGeneration();
+            p0 -= xnode.getActivePowerGeneration();
         }
         float q0 = 0;
         if (isValueValid(xnode.getReactiveLoad())) {
             q0 += xnode.getReactiveLoad();
         }
         if (isValueValid(xnode.getReactivePowerGeneration())) {
-            q0 += xnode.getReactivePowerGeneration();
+            q0 -= xnode.getReactivePowerGeneration();
         }
 
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel.getName());
