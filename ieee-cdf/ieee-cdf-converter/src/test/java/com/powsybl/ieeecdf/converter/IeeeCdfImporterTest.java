@@ -80,7 +80,7 @@ public class IeeeCdfImporterTest extends AbstractConverterTest {
         config.setThreshold(threshold);
         config.setOkMissingValues(false);
         LoadFlowParameters lf = new LoadFlowParameters();
-        lf.setSpecificCompatibility(true);
+        lf.setT2wtSplitShuntAdmittance(true);
         config.setLoadFlowParameters(lf);
         return config;
     }

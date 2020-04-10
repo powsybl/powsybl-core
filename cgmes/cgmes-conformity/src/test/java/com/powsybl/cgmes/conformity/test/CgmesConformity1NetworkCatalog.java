@@ -180,9 +180,11 @@ public final class CgmesConformity1NetworkCatalog {
                 .setName("BE_S2")
                 .setConnectableBus(busBrussels380.getId())
                 .setBus(busBrussels380.getId())
-                .setbPerSection(3.46e-4)
-                .setMaximumSectionCount(1)
                 .setCurrentSectionCount(1)
+                .newLinearModel()
+                    .setbPerSection(3.46e-4)
+                    .setMaximumSectionCount(1)
+                    .add()
                 .add();
         shBrussels380.getTerminal().setQ(-59.058144);
         DanglingLine be3 = vlBrussels380.newDanglingLine()
@@ -268,9 +270,11 @@ public final class CgmesConformity1NetworkCatalog {
                 .setName("BE_S1")
                 .setConnectableBus(busBrussels110.getId())
                 .setBus(busBrussels110.getId())
-                .setbPerSection(0.024793)
-                .setMaximumSectionCount(1)
                 .setCurrentSectionCount(1)
+                .newLinearModel()
+                    .setbPerSection(0.024793)
+                    .setMaximumSectionCount(1)
+                    .add()
                 .add();
         shBrussels110.getTerminal().setQ(-330.75);
         Bus busBrussels21 = vlBrussels21.getBusBreakerView().newBus()

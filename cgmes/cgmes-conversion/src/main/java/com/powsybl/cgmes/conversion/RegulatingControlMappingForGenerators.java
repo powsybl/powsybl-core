@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
+import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -90,7 +90,7 @@ public class RegulatingControlMappingForGenerators {
                                                 RegulatingControl control, double qPercent, Generator gen) {
 
         // Take default terminal if it has not been defined in CGMES file (it is never null)
-        Terminal terminal = parent.getRegulatingTerminal(gen, control.cgmesTerminal, control.topologicalNode);
+        Terminal terminal = parent.getRegulatingTerminal(gen, control.cgmesTerminal);
 
         double targetV;
         if (control.targetValue <= 0.0 || Double.isNaN(control.targetValue)) {
@@ -112,8 +112,9 @@ public class RegulatingControlMappingForGenerators {
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {
-            CoordinatedReactiveControl coordinatedReactiveControl = new CoordinatedReactiveControl(gen, qPercent);
-            gen.addExtension(CoordinatedReactiveControl.class, coordinatedReactiveControl);
+            gen.newExtension(CoordinatedReactiveControlAdder.class)
+                    .withQPercent(qPercent)
+                    .add();
         }
 
         return true;

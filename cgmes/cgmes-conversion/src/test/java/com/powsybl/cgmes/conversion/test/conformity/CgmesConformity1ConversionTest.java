@@ -216,10 +216,10 @@ public class CgmesConformity1ConversionTest {
         t.testConversion(expected, CgmesConformity1Catalog.miniNodeBreaker());
         Substation substation = t.lastConvertedNetwork().getSubstation("_183d126d-2522-4ff2-a8cd-c5016cf09c1b_S");
         assertNotNull(substation);
-        assertEquals("boundary", substation.getName());
+        assertEquals("boundary", substation.getOptionalName().orElse(null));
         VoltageLevel voltageLevel = t.lastConvertedNetwork().getVoltageLevel("_183d126d-2522-4ff2-a8cd-c5016cf09c1b_VL");
         assertNotNull(voltageLevel);
-        assertEquals("boundary", voltageLevel.getName());
+        assertEquals("boundary", voltageLevel.getOptionalName().orElse(null));
     }
 
     @Test

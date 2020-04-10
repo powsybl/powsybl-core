@@ -243,9 +243,9 @@ public class RegulatingControlMappingForTransformers {
 
     private boolean setRtcRegulatingControlVoltage(String rtcId, boolean regulating, RegulatingControl control,
                                                    RatioTapChanger rtc, Context context) {
-        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
+        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
         if (terminal == null) {
-            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.topologicalNode));
+            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
             return false;
         }
 
@@ -298,9 +298,9 @@ public class RegulatingControlMappingForTransformers {
 
     private boolean setPtcRegulatingControl(boolean regulating, PhaseTapChanger.RegulationMode regulationMode,
                                             RegulatingControl control, PhaseTapChanger ptc, Context context) {
-        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
+        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
         if (terminal == null) {
-            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.topologicalNode));
+            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
             return false;
         }
 

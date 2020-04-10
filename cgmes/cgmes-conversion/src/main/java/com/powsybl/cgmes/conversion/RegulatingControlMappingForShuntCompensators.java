@@ -90,7 +90,7 @@ public class RegulatingControlMappingForShuntCompensators {
                 .setTargetDeadband(rc.targetDeadband)
                 .setVoltageRegulatorOn(rc.enabled);
         // Take default terminal if it has not been defined in CGMES files (it is never null)
-        shuntCompensator.setRegulatingTerminal(parent.getRegulatingTerminal(shuntCompensator, rc.cgmesTerminal, rc.topologicalNode));
+        shuntCompensator.setRegulatingTerminal(parent.getRegulatingTerminal(shuntCompensator, rc.cgmesTerminal));
     }
 
     private static class CgmesRegulatingControlForShuntCompensator {
