@@ -28,7 +28,6 @@ public abstract class AbstractNodeBreakerTest {
                 .setNominalV(400.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl.getNodeBreakerView().setNodeCount(10);
         vl.getNodeBreakerView().newBusbarSection()
                 .setId("BBS")
                 .setNode(0)
@@ -80,7 +79,6 @@ public abstract class AbstractNodeBreakerTest {
                 .add();
 
         vl1.getNodeBreakerView()
-                .setNodeCount(11)
                 .newBusbarSection()
                 .setId("B0")
                 .setNode(0)
@@ -154,8 +152,6 @@ public abstract class AbstractNodeBreakerTest {
                 .setRetained(true)
                 .add();
 
-        vl2.getNodeBreakerView()
-                .setNodeCount(1);
         vl2.newLoad()
                 .setId("L4")
                 .setNode(0)
@@ -166,12 +162,15 @@ public abstract class AbstractNodeBreakerTest {
     }
 
     @Test
-    public void connectDisconnect() {
+    public void connectDisconnectRemove() {
         Network network = createNetwork();
+        VoltageLevel.NodeBreakerView topo = network.getVoltageLevel("VL").getNodeBreakerView();
         Load l = network.getLoad("L");
         Generator g = network.getGenerator("G");
 
         // generator is connected, load is disconnected
+        assertTrue(topo.getOptionalTerminal(2).isPresent());
+        assertTrue(topo.getOptionalTerminal(3).isPresent());
         assertNotNull(g.getTerminal().getBusView().getBus());
         assertNull(l.getTerminal().getBusView().getBus());
         assertTrue(g.getTerminal().isConnected());
@@ -181,6 +180,7 @@ public abstract class AbstractNodeBreakerTest {
         assertTrue(l.getTerminal().connect());
 
         // check load is connected
+        assertTrue(topo.getOptionalTerminal(2).isPresent());
         assertNotNull(l.getTerminal().getBusView().getBus());
         assertTrue(l.getTerminal().isConnected());
 
@@ -188,8 +188,16 @@ public abstract class AbstractNodeBreakerTest {
         g.getTerminal().disconnect();
 
         // check generator is disconnected
+        assertTrue(topo.getOptionalTerminal(3).isPresent());
         assertNull(g.getTerminal().getBusView().getBus());
         assertFalse(g.getTerminal().isConnected());
+
+        // remove generator
+        g.remove();
+        topo.removeSwitch("B2");
+
+        // check generator is removed
+        assertFalse(topo.getOptionalTerminal(3).isPresent());
     }
 
     private static Bus getBus(Injection i) {

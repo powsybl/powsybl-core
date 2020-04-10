@@ -63,7 +63,8 @@ public class DanglingLineAdapterTest {
         assertEquals(p0, danglingLine.getP0(), 0.0);
         assertEquals(q0, danglingLine.getQ0(), 0.0);
         assertEquals(id, danglingLine.getId());
-        assertEquals(name, danglingLine.getName());
+        assertEquals(name, danglingLine.getOptionalName().orElse(null));
+        assertEquals(name, danglingLine.getNameOrId());
         assertEquals(ucteXnodeCode, danglingLine.getUcteXnodeCode());
 
         // setter getter
@@ -102,12 +103,13 @@ public class DanglingLineAdapterTest {
     @Test
     public void mergedDanglingLine() {
         mergingView.merge(noEquipNetwork);
-
-        final DanglingLine dl1 = createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", "busA");
+        double p0 = 1.0;
+        double q0 = 1.0;
+        final DanglingLine dl1 = createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busA");
         assertNotNull(mergingView.getDanglingLine("dl1"));
         assertEquals(1, mergingView.getDanglingLineCount());
         assertEquals(0, mergingView.getLineCount());
-        final DanglingLine dl2 = createDanglingLine(mergingView, "vl2", "dl2", "dl2", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", "busB");
+        final DanglingLine dl2 = createDanglingLine(mergingView, "vl2", "dl2", "dl2", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busB");
         // Check no access to Dl1 & Dl2
         assertEquals(0, mergingView.getDanglingLineCount());
         assertNull(mergingView.getDanglingLine("dl1"));
@@ -157,7 +159,8 @@ public class DanglingLineAdapterTest {
         assertSame(currentLimits1, mergedLine.getCurrentLimits(Branch.Side.ONE));
         assertSame(currentLimits2, mergedLine.getCurrentLimits(Branch.Side.TWO));
         assertEquals("dl1 + dl2", mergedLine.getId());
-        assertEquals("dl1 + dl2", mergedLine.getName());
+        assertEquals("dl1 + dl2", mergedLine.getOptionalName().orElse(null));
+        assertEquals("dl1 + dl2", mergedLine.getNameOrId());
         assertSame(mergedLine, mergedLine.setR(1.0d));
         assertEquals(dl1.getR() + dl2.getR(), mergedLine.getR(), 0.0d);
         assertSame(mergedLine, mergedLine.setX(2.0d));
@@ -170,13 +173,33 @@ public class DanglingLineAdapterTest {
         assertEquals(dl1.getB(), mergedLine.getB1(), 0.0d);
         assertSame(mergedLine, mergedLine.setB2(6.0d));
         assertEquals(dl2.getB(), mergedLine.getB2(), 0.0d);
+        assertEquals(p0, dl1.getP0(), 0.0d);
+        assertEquals(q0, dl1.getQ0(), 0.0d);
+        assertEquals(p0, dl2.getP0(), 0.0d);
+        assertEquals(q0, dl2.getQ0(), 0.0d);
 
+        double p1 = -605.0;
+        double q1 = -302.5;
+        double p2 = 600.0;
+        double q2 = 300.0;
+        double lossesP = p1 + p2;
+        double lossesQ = q1 + q2;
         final Terminal t1 = mergedLine.getTerminal("vl1");
         assertNotNull(t1);
         assertEquals(Branch.Side.ONE, mergedLine.getSide(t1));
         final Terminal t2 = mergedLine.getTerminal("vl2");
         assertNotNull(t2);
         assertEquals(Branch.Side.TWO, mergedLine.getSide(t2));
+        // Update P & Q
+        t1.setP(p1);
+        t1.setQ(q1);
+        t2.setP(p2);
+        t2.setQ(q2);
+        // Check P & Q are computed by Listener
+        assertEquals(p1 + (lossesP / 2.0), dl1.getP0(), 0.0d);
+        assertEquals(q1 + (lossesQ / 2.0), dl1.getQ0(), 0.0d);
+        assertEquals((p2 + (lossesP / 2.0)) * -1, dl2.getP0(), 0.0d);
+        assertEquals((q2 + (lossesQ / 2.0)) * -1, dl2.getQ0(), 0.0d);
 
         assertFalse(mergedLine.isOverloaded());
         assertEquals(Integer.MAX_VALUE, mergedLine.getOverloadDuration());
@@ -194,6 +217,9 @@ public class DanglingLineAdapterTest {
             assertTrue(t instanceof TerminalAdapter);
             assertNotNull(t);
         });
+
+        mergedLine.setFictitious(true);
+        assertTrue(mergedLine.isFictitious());
 
         // Not implemented yet !
         TestUtil.notImplemented(mergedLine::remove);
@@ -226,7 +252,8 @@ public class DanglingLineAdapterTest {
         mergingView.merge(noEquipNetwork);
         final Line line = mergingView.getLine("dl1 + dl2");
         final MergedLine mergedLine = (MergedLine) line;
-        assertEquals("dl", mergedLine.getName());
+        assertEquals("dl", mergedLine.getOptionalName().orElse(null));
+        assertEquals("dl", mergedLine.getNameOrId());
 
         assertTrue(mergedLine.hasProperty());
         assertTrue(mergedLine.hasProperty("ucteCode"));
@@ -250,7 +277,8 @@ public class DanglingLineAdapterTest {
         assertEquals(1, mergingView.getLineCount());
         final Line line = mergingView.getLine("testListener1 + testListener2");
         final MergedLine mergedLine = (MergedLine) line;
-        assertEquals("testListener1 + testListener2", mergedLine.getName());
+        assertEquals("testListener1 + testListener2", mergedLine.getOptionalName().orElse(null));
+        assertEquals("testListener1 + testListener2", mergedLine.getNameOrId());
 
     }
 

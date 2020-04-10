@@ -128,7 +128,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
         DanglingLineAdder dlAdder = vl.newDanglingLine()
                 .setId(line.getId())
-                .setName(line.getName())
+                .setName(line.getOptionalName().orElse(null))
                 .setR(line.getR() / 2)
                 .setX(line.getX() / 2)
                 .setB(side == Branch.Side.ONE ? line.getB1() : line.getB2())
@@ -155,7 +155,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     private Load replaceBranchByLoad(Branch<?> branch, VoltageLevel vl, Terminal terminal) {
         LoadAdder loadAdder = vl.newLoad()
                 .setId(branch.getId())
-                .setName(branch.getName())
+                .setName(branch.getOptionalName().orElse(null))
                 .setLoadType(LoadType.FICTITIOUS)
                 .setP0(checkP(terminal))
                 .setQ0(checkQ(terminal));

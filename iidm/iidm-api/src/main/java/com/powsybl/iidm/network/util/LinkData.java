@@ -23,7 +23,7 @@ public final class LinkData {
         return Math.abs(x) < epsilonX && applyReactanceCorrection ? epsilonX : x;
     }
 
-    static BranchAdmittanceMatrix calculateBranchAdmittance(double r, double x, double ratio1, double alpha1,
+    public static BranchAdmittanceMatrix calculateBranchAdmittance(double r, double x, double ratio1, double alpha1,
         double ratio2, double alpha2, Complex ysh1, Complex ysh2) {
 
         Complex a1 = ComplexUtils.polar2Complex(ratio1, alpha1);
@@ -117,11 +117,27 @@ public final class LinkData {
         return phaseAngleClockDegree;
     }
 
-    static class BranchAdmittanceMatrix {
+    public static class BranchAdmittanceMatrix {
         Complex y11 = Complex.ZERO;
         Complex y12 = Complex.ZERO;
         Complex y21 = Complex.ZERO;
         Complex y22 = Complex.ZERO;
+
+        public Complex y11() {
+            return y11;
+        }
+
+        public Complex y12() {
+            return y11;
+        }
+
+        public Complex y21() {
+            return y11;
+        }
+
+        public Complex y22() {
+            return y11;
+        }
     }
 
     static class Flow {

@@ -9,7 +9,6 @@ package com.powsybl.iidm.export;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.AbstractOptions;
-import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.TopologyLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,17 +53,6 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         this.topologyLevel = Objects.requireNonNull(topologyLevel);
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
         this.version = version;
-    }
-
-    @Override
-    public IidmImportExportMode getMode() {
-        return mode;
-    }
-
-    @Override
-    public ExportOptions setMode(IidmImportExportMode mode) {
-        this.mode = mode;
-        return this;
     }
 
     @Override
@@ -178,28 +166,4 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     public Optional<String> getExtensionVersion(String extensionName) {
         return Optional.ofNullable(extensionsVersions.get(extensionName));
     }
-
-    /**
-     * @deprecated Use {@link #withNoExtension()} instead.
-     */
-    @Deprecated
-    public boolean isSkipExtensions() {
-        return withNoExtension();
-    }
-
-    /**
-     * @deprecated Use {@link #setExtensions(Set<String>)} instead.
-     * Pass an empty Set as parameter
-     */
-    @Deprecated
-    public ExportOptions setSkipExtensions(boolean skipExtensions) {
-        if (extensions != null) {
-            throw new PowsyblException("Contradictory behavior: you have already passed an extensions list");
-        }
-        if (skipExtensions) {
-            this.extensions = new HashSet<>();
-        }
-        return this;
-    }
-
 }

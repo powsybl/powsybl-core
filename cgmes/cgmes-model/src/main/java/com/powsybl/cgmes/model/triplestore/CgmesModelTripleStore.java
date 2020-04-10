@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
@@ -176,6 +178,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             });
         }
         return isNodeBreaker;
+    }
+
+    @Override
+    public PropertyBags fullModel(String cgmesProfile) {
+        return namedQuery("fullModel", cgmesProfile);
     }
 
     @Override
@@ -449,6 +456,16 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags topologicalIslands() {
+        return namedQuery("topologicalIslands");
+    }
+
+    @Override
+    public PropertyBags graph() {
+        return namedQuery("graph");
+    }
+
+    @Override
     public PropertyBags modelProfiles() {
         return namedQuery(MODEL_PROFILES);
     }
@@ -558,6 +575,31 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             String msg = String.format("Adding objects of type %s to subset %s, context %s", type, subset, contextName);
             throw new CgmesModelException(msg, x);
         }
+    }
+
+    @Override
+    public void add(String context, String type, PropertyBags objects) {
+        String contextName = EnumUtils.isValidEnum(CgmesSubset.class, context)
+            ? contextNameFor(CgmesSubset.valueOf(context))
+            : context;
+        try {
+            if (type.equals(CgmesNames.FULL_MODEL)) {
+                tripleStore.add(contextName, mdNamespace(), type, objects);
+            } else {
+                tripleStore.add(contextName, cimNamespace, type, objects);
+            }
+        } catch (TripleStoreException x) {
+            String msg = String.format("Adding objects of type %s to context %s", type, context);
+            throw new CgmesModelException(msg, x);
+        }
+    }
+
+    private String mdNamespace() {
+        // Return the first namespace for the prefix md
+        // If no namespace is found, return default
+        PrefixNamespace def = new PrefixNamespace("md", CgmesNamespace.MD_NAMESPACE);
+        return tripleStore.getNamespaces().stream().filter(ns -> ns.getPrefix().equals("md"))
+            .findFirst().orElse(def).getNamespace();
     }
 
     private static final Pattern CIM_NAMESPACE_VERSION_PATTERN = Pattern.compile("^.*CIM-schema-cim([0-9]*)#$");

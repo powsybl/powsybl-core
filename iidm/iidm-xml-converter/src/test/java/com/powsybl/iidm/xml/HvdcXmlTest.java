@@ -25,8 +25,8 @@ public class HvdcXmlTest extends AbstractXmlConverterTest {
                 NetworkXml::read,
                 getVersionedNetworkPath("LccRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
 
-        // backward compatibility 1.0
-        roundTripVersionnedXmlTest("LccRoundTripRef.xml", IidmXmlVersion.V_1_0);
+        // backward compatibility
+        roundTripAllPreviousVersionedXmlTest("LccRoundTripRef.xml");
     }
 
     @Test
@@ -36,7 +36,7 @@ public class HvdcXmlTest extends AbstractXmlConverterTest {
                 NetworkXml::read,
                 getVersionedNetworkPath("VscRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
 
-        // backward compatibility 1.0
-        roundTripVersionnedXmlTest("VscRoundTripRef.xml", IidmXmlVersion.V_1_0);
+        // backward compatibility
+        roundTripAllPreviousVersionedXmlTest("VscRoundTripRef.xml");
     }
 }

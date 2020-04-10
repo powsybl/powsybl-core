@@ -33,7 +33,6 @@ public class SecurityAnalysisExecutionBuilder {
     private Integer taskCount = null;
     private Partition subPart = null;
 
-
     /**
      * Create a new builder.
      *

@@ -39,7 +39,6 @@ public final class NetworkTest1Factory {
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         VoltageLevel.NodeBreakerView topology1 = voltageLevel1.getNodeBreakerView();
-        topology1.setNodeCount(10);
         BusbarSection voltageLevel1BusbarSection1 = topology1.newBusbarSection()
                 .setId("voltageLevel1BusbarSection1")
                 .setNode(0)

@@ -11,6 +11,7 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Identifiable;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -36,8 +37,13 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     }
 
     @Override
-    public String getName() {
-        return getDelegate().getName();
+    public Optional<String> getOptionalName() {
+        return getDelegate().getOptionalName();
+    }
+
+    @Override
+    public String getNameOrId() {
+        return getDelegate().getNameOrId();
     }
 
     @Override
@@ -68,6 +74,16 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     @Override
     public Set<String> getPropertyNames() {
         return getDelegate().getPropertyNames();
+    }
+
+    @Override
+    public boolean isFictitious() {
+        return getDelegate().isFictitious();
+    }
+
+    @Override
+    public void setFictitious(boolean fictitious) {
+        getDelegate().setFictitious(fictitious);
     }
 
     @Override

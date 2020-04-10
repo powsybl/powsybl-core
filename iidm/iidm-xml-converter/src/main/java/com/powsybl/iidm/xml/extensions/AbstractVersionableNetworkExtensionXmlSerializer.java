@@ -15,10 +15,7 @@ import com.powsybl.iidm.xml.IidmXmlConstants;
 import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -71,7 +68,9 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
 
     @Override
     public String getNamespaceUri(String extensionVersion) {
-        return namespaceUris.get(extensionVersion);
+        return Optional.ofNullable(namespaceUris.get(extensionVersion))
+                .orElseThrow(() -> new PowsyblException("Namespace URI null for " + getExtensionName() +
+                        " extension's version " + extensionVersion));
     }
 
     @Override
