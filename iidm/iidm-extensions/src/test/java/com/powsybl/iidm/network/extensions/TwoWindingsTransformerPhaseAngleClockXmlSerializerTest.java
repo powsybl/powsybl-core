@@ -30,7 +30,7 @@ public class TwoWindingsTransformerPhaseAngleClockXmlSerializerTest extends Abst
         network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("NHV2_NLOAD");
 
-        TwoWindingsTransformerPhaseAngleClock pac = new TwoWindingsTransformerPhaseAngleClock(transformer, 3);
+        TwoWindingsTransformerPhaseAngleClock pac = new TwoWindingsTransformerPhaseAngleClockImpl(transformer, 3);
         transformer.addExtension(TwoWindingsTransformerPhaseAngleClock.class, pac);
 
         Network network2 = roundTripXmlTest(network,
