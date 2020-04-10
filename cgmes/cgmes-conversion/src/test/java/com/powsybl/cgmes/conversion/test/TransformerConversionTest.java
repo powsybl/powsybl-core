@@ -497,17 +497,17 @@ public class TransformerConversionTest {
                 break;
         }
 
-        boolean splitShuntAdmittanceXfmr3 = false;
+        boolean t3wtSplitShuntAdmittance = false;
         switch (config.getXfmr3Shunt()) {
             case NETWORK_SIDE:
             case STAR_BUS_SIDE:
                 break;
             case SPLIT:
-                splitShuntAdmittanceXfmr3 = true;
+                t3wtSplitShuntAdmittance = true;
         }
 
         copyLoadFlowParameters.setT2wtSplitShuntAdmittance(t2wtSplitShuntAdmittance);
-        copyLoadFlowParameters.setSplitShuntAdmittanceXfmr3(splitShuntAdmittanceXfmr3);
+        copyLoadFlowParameters.setT3wtSplitShuntAdmittance(t3wtSplitShuntAdmittance);
 
         return copyLoadFlowParameters;
     }

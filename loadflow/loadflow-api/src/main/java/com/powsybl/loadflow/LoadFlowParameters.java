@@ -52,7 +52,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_NO_GENERATOR_REACTIVE_LIMITS = false;
     public static final boolean DEFAULT_PHASE_SHIFTER_REGULATION_ON = false;
     public static final boolean DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE = false;
-    public static final boolean DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR3 = false;
+    public static final boolean DEFAULT_T3WT_SPLIT_SHUNT_ADMITTANCE = false;
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "loadflow-parameters"));
@@ -92,7 +92,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
                 // keep old tag name "specificCompatibility" for compatibility
                 parameters.setT2wtSplitShuntAdmittance(config.getBooleanProperty("t2wtSplitShuntAdmittance", config.getBooleanProperty("specificCompatibility", DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE)));
-                parameters.setSplitShuntAdmittanceXfmr3(config.getBooleanProperty("splitShuntAdmittanceXfmr3", DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR3));
+                parameters.setT3wtSplitShuntAdmittance(config.getBooleanProperty("t3wtSplitShuntAdmittance", DEFAULT_T3WT_SPLIT_SHUNT_ADMITTANCE));
             });
     }
 
@@ -105,25 +105,27 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     private boolean phaseShifterRegulationOn;
 
     private boolean t2wtSplitShuntAdmittance;
-    private boolean splitShuntAdmittanceXfmr3;
+    private boolean t3wtSplitShuntAdmittance;
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
-                              boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn, boolean t2wtSplitShuntAdmittance, boolean splitShuntAdmittanceXfmr3) {
+        boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
+        boolean t2wtSplitShuntAdmittance, boolean t3wtSplitShuntAdmittance) {
+
         this.voltageInitMode = voltageInitMode;
         this.transformerVoltageControlOn = transformerVoltageControlOn;
         this.noGeneratorReactiveLimits = noGeneratorReactiveLimits;
         this.phaseShifterRegulationOn = phaseShifterRegulationOn;
         this.t2wtSplitShuntAdmittance = t2wtSplitShuntAdmittance;
-        this.splitShuntAdmittanceXfmr3 = splitShuntAdmittanceXfmr3;
+        this.t3wtSplitShuntAdmittance = t3wtSplitShuntAdmittance;
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
         boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn, boolean t2wtSplitShuntAdmittance) {
-        this(voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits, phaseShifterRegulationOn, t2wtSplitShuntAdmittance, DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR3);
+        this(voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits, phaseShifterRegulationOn, t2wtSplitShuntAdmittance, DEFAULT_T3WT_SPLIT_SHUNT_ADMITTANCE);
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn) {
-        this(voltageInitMode, transformerVoltageControlOn, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE, DEFAULT_SPLIT_SHUNT_ADMITTANCE_XFMR3);
+        this(voltageInitMode, transformerVoltageControlOn, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE, DEFAULT_T3WT_SPLIT_SHUNT_ADMITTANCE);
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode) {
@@ -141,7 +143,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         noGeneratorReactiveLimits = other.noGeneratorReactiveLimits;
         phaseShifterRegulationOn = other.phaseShifterRegulationOn;
         t2wtSplitShuntAdmittance = other.t2wtSplitShuntAdmittance;
-        splitShuntAdmittanceXfmr3 = other.splitShuntAdmittanceXfmr3;
+        t3wtSplitShuntAdmittance = other.t3wtSplitShuntAdmittance;
     }
 
     public VoltageInitMode getVoltageInitMode() {
@@ -205,12 +207,12 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
-    public boolean isSplitShuntAdmittanceXfmr3() {
-        return splitShuntAdmittanceXfmr3;
+    public boolean isT3wtSplitShuntAdmittance() {
+        return t3wtSplitShuntAdmittance;
     }
 
-    public LoadFlowParameters setSplitShuntAdmittanceXfmr3(boolean splitShuntAdmittanceXfmr3) {
-        this.splitShuntAdmittanceXfmr3 = splitShuntAdmittanceXfmr3;
+    public LoadFlowParameters setT3wtSplitShuntAdmittance(boolean t3wtSplitShuntAdmittance) {
+        this.t3wtSplitShuntAdmittance = t3wtSplitShuntAdmittance;
         return this;
     }
 
