@@ -32,6 +32,7 @@ import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
@@ -158,39 +159,6 @@ public class StateVariablesAdder {
         return t.getBusView().getBus();
     }
 
-    private static class FirstTerminalTraverser implements VoltageLevel.NodeBreakerView.Traverser {
-        FirstTerminalTraverser(VoltageLevel.NodeBreakerView topology, int node) {
-            this.topology = topology;
-            this.node = node;
-        }
-
-        Terminal firstTerminal() {
-            topology.traverse(node, this);
-            return terminal;
-        }
-
-        @Override
-        public boolean traverse(int node1, Switch sw, int node2) {
-            // If the first terminal has already been found,
-            // do not continue traversal
-            if (terminal != null) {
-                return false;
-            }
-            // Proceed only to new nodes that can be reached
-            // through internal connections or closed switches
-            if (sw != null && sw.isOpen()) {
-                return false;
-            }
-            terminal = topology.getTerminal(node2);
-            // Continue traversal if no terminal at node2
-            return terminal == null;
-        }
-
-        private final VoltageLevel.NodeBreakerView topology;
-        private final int node;
-        private Terminal terminal;
-    }
-
     private void addVoltagesForBoundaryNodes() {
         PropertyBags voltages = new PropertyBags();
         // add voltages for TpNodes existing in the Model's boundaries
@@ -209,12 +177,6 @@ public class StateVariablesAdder {
             voltages.add(p);
         });
         cgmes.add(originalSVcontext, "SvVoltage", voltages);
-    }
-
-    private void addVoltagesForTopologicalNodes(PropertyBag p, String angle, String voltage, String tNode) {
-        p.put(CgmesNames.ANGLE, angle);
-        p.put(CgmesNames.VOLTAGE, voltage);
-        p.put(CgmesNames.TOPOLOGICAL_NODE, tNode);
     }
 
     private void addPowerFlowToCgmes() {
@@ -472,12 +434,51 @@ public class StateVariablesAdder {
         }
     }
 
+    private static void addVoltagesForTopologicalNodes(PropertyBag p, String angle, String voltage, String tNode) {
+        p.put(CgmesNames.ANGLE, angle);
+        p.put(CgmesNames.VOLTAGE, voltage);
+        p.put(CgmesNames.TOPOLOGICAL_NODE, tNode);
+    }
+
     private static String fs(double value) {
         return Double.isNaN(value) ? String.valueOf(0.0) : String.valueOf(value);
     }
 
     private static String is(int value) {
         return String.valueOf(value);
+    }
+
+    private static class FirstTerminalTraverser implements VoltageLevel.NodeBreakerView.Traverser {
+        FirstTerminalTraverser(VoltageLevel.NodeBreakerView topology, int node) {
+            this.topology = topology;
+            this.node = node;
+        }
+
+        Terminal firstTerminal() {
+            topology.traverse(node, this);
+            return terminal;
+        }
+
+        @Override
+        public boolean traverse(int node1, Switch sw, int node2) {
+            // If the first terminal has already been found,
+            // do not continue traversal
+            if (terminal != null) {
+                return false;
+            }
+            // Proceed only to new nodes that can be reached
+            // through internal connections or closed switches
+            if (sw != null && sw.isOpen()) {
+                return false;
+            }
+            terminal = topology.getTerminal(node2);
+            // Continue traversal if no terminal at node2
+            return terminal == null;
+        }
+
+        private final VoltageLevel.NodeBreakerView topology;
+        private final int node;
+        private Terminal terminal;
     }
 
     private final CgmesModel cgmes;

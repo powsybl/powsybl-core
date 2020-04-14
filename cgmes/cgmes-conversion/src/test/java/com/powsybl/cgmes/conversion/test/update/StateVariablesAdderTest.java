@@ -34,8 +34,6 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -57,15 +55,14 @@ public class StateVariablesAdderTest {
         fileSystem.close();
     }
 
-    @Ignore("miniNodeBreaker")
     @Test
     public void conformityMicroGridBaseCase() throws IOException {
         importExportTest(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource());
     }
 
     @Test
-    public void miniGrigNodeBreaker() throws IOException {
-        importExportTest(CgmesConformity1Catalog.miniNodeBreaker().dataSource());
+    public void smallGrigNodeBreaker() throws IOException {
+        importExportTest(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
     }
 
     void importExportTest(ReadOnlyDataSource ds) throws IOException {
