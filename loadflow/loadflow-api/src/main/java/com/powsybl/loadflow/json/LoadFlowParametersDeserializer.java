@@ -81,6 +81,12 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     parameters.setT2wtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
                     break;
 
+                case "t3wtSplitShuntAdmittance":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: t3wtSplitShuntAdmittance", version, REFERENCE_VERSION);
+                    parser.nextToken();
+                    parameters.setT3wtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
+                    break;
+
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonLoadFlowParameters.getExtensionSerializers());

@@ -73,6 +73,7 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
         LoadFlowParameters parameters = JsonLoadFlowParameters
             .read(getClass().getResourceAsStream("/LoadFlowParametersVersion11.json"));
         assertEquals(true, parameters.isT2wtSplitShuntAdmittance());
+        assertEquals(true, parameters.isT3wtSplitShuntAdmittance());
     }
 
     @Test
