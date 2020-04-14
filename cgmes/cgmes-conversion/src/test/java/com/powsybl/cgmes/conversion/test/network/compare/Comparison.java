@@ -448,7 +448,7 @@ public class Comparison {
 
         compareRatioTapChanger(expected.getRatioTapChanger(), actual.getRatioTapChanger());
         comparePhaseTapChanger(expected.getPhaseTapChanger(), actual.getPhaseTapChanger());
-        comparePhaseAngleClock(expected.getExtension(TwoWindingsTransformerPhaseAngleClock.class), actual.getExtension(TwoWindingsTransformerPhaseAngleClock.class));
+        comparePhaseAngleClock(expected.<TwoWindingsTransformerPhaseAngleClock>getExtension(TwoWindingsTransformerPhaseAngleClock.class), actual.<TwoWindingsTransformerPhaseAngleClock>getExtension(TwoWindingsTransformerPhaseAngleClock.class));
     }
 
     private void comparePhaseAngleClock(TwoWindingsTransformerPhaseAngleClock expected, TwoWindingsTransformerPhaseAngleClock actual) {
@@ -470,7 +470,7 @@ public class Comparison {
         compareLeg(expected.getLeg1(), actual.getLeg1(), expected, actual);
         compareLeg(expected.getLeg2(), actual.getLeg2(), expected, actual);
         compareLeg(expected.getLeg3(), actual.getLeg3(), expected, actual);
-        comparePhaseAngleClock(expected.getExtension(ThreeWindingsTransformerPhaseAngleClock.class), actual.getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
+        comparePhaseAngleClock(expected.<ThreeWindingsTransformerPhaseAngleClock>getExtension(ThreeWindingsTransformerPhaseAngleClock.class), actual.<ThreeWindingsTransformerPhaseAngleClock>getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
     }
 
     private void comparePhaseAngleClock(ThreeWindingsTransformerPhaseAngleClock expected, ThreeWindingsTransformerPhaseAngleClock actual) {
