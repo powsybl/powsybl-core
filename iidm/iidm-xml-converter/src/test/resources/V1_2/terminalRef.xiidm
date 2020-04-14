@@ -5,9 +5,9 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="VL41" v="91.1261139" angle="-11.1787205"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="SHUNT_VL4.11" bPerSection="0.0035802468191832304" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" connectableBus="VL41" q="9999.0"/>
-            <iidm:shunt id="SHUNT_VL4.21" bPerSection="0.003703703638166189" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" connectableBus="VL41" q="9999.0"/>
-            <iidm:shunt id="SHUNT_VL4.31" bPerSection="0.003703703638166189" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" connectableBus="VL41" q="9999.0"/>
+            <iidm:linearShunt id="SHUNT_VL4.11" bPerSection="0.0035802468191832304" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" connectableBus="VL41" q="9999.0"/>
+            <iidm:linearShunt id="SHUNT_VL4.21" bPerSection="0.003703703638166189" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" connectableBus="VL41" q="9999.0"/>
+            <iidm:linearShunt id="SHUNT_VL4.31" bPerSection="0.003703703638166189" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" connectableBus="VL41" q="9999.0"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL6" nominalV="225.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>

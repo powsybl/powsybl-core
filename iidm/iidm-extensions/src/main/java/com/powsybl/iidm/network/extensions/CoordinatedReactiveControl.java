@@ -6,42 +6,28 @@
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Generator;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Thomas ADAM <tadam at silicom.fr>
  */
-public class CoordinatedReactiveControl extends AbstractExtension<Generator> {
-
-    private double qPercent;
-
-    public CoordinatedReactiveControl(Generator generator, double qPercent) {
-        super(generator);
-        this.qPercent = checkQPercent(qPercent);
-    }
+public interface CoordinatedReactiveControl extends Extension<Generator> {
 
     @Override
-    public String getName() {
+    default String getName() {
         return "coordinatedReactiveControl";
     }
 
-    public double getQPercent() {
-        return qPercent;
-    }
+    /**
+     * Get the percent of the coordinated reactive control that comes
+     * from the generator to which this extension is linked.
+     */
+    double getQPercent();
 
-    public void setQPercent(double qPercent) {
-        this.qPercent = checkQPercent(qPercent);
-    }
-
-    private static double checkQPercent(double qPercent) {
-        if (Double.isNaN(qPercent)) {
-            throw new PowsyblException("Undefined value for qPercent");
-        }
-        if (qPercent < 0.0 || qPercent > 100.0) {
-            throw new PowsyblException("Unexpected value for qPercent: " + qPercent);
-        }
-        return qPercent;
-    }
+    /**
+     * Set the percent of the coordinated reactive control that comes
+     * from the generator to which this extension is linked.
+     */
+    void setQPercent(double qPercent);
 }
