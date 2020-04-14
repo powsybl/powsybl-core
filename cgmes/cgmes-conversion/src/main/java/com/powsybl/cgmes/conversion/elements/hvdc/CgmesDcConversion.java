@@ -37,10 +37,9 @@ public class CgmesDcConversion {
     private static final String OPERATING_MODE = "operatingMode";
 
     public CgmesDcConversion(CgmesModel cgmes, Context context) {
-        Objects.requireNonNull(cgmes);
-        Objects.requireNonNull(context);
-        this.cgmesModel = cgmes;
-        this.context = context;
+
+        this.cgmesModel = Objects.requireNonNull(cgmes);
+        this.context = Objects.requireNonNull(context);
     }
 
     public void convert() {
@@ -97,21 +96,18 @@ public class CgmesDcConversion {
     }
 
     private void convert(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId) {
-        boolean ok = convertCommonData(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId);
-        if (!ok) {
+        if (!convertCommonData(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId)) {
             return;
         }
         this.r = computeR(this.dcLineSegment);
 
-        ok = createHvdc();
-        if (ok) {
+        if (createHvdc()) {
             setCommonDataUsed();
         }
     }
 
     private void convert(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId1, String dcLineSegmentId2) {
-        boolean ok = convertCommonData(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId1);
-        if (!ok) {
+        if (!convertCommonData(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId1)) {
             return;
         }
         PropertyBag dcLineSegment2 = context.dc().getCgmesDcLineSegmentPropertyBag(dcLineSegmentId2);
@@ -120,8 +116,7 @@ public class CgmesDcConversion {
         }
         this.r = 1.0 / (1.0 / computeR(this.dcLineSegment) + 1.0 / computeR(dcLineSegment2));
 
-        ok = createHvdc();
-        if (ok) {
+        if (createHvdc()) {
             setCommonDataUsed();
             context.dc().setCgmesDcLineSegmentUsed(dcLineSegmentId2);
         }
@@ -159,7 +154,7 @@ public class CgmesDcConversion {
         } else if (stype.equals("CsConverter")) {
             return HvdcType.LCC;
         }
-        return null;
+        throw new PowsyblException("Unexpected HVDC type: " + stype);
     }
 
     private static HvdcLine.ConvertersMode decodeMode(HvdcType converterType, PropertyBag cconverter1, PropertyBag cconverter2) {

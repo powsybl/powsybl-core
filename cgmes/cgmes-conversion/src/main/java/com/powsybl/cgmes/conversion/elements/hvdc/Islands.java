@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 class Islands {
-    private final  List<ArrayList<String>> islandsNodes;
+    private final List<ArrayList<String>> islandsNodes;
 
     // The island includes dcTopologicalNodes and the acTopologicalNodes at both ends of the transformer
     Islands(Adjacency adjacency) {
