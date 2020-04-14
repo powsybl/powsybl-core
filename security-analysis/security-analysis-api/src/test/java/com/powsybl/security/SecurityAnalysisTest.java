@@ -99,7 +99,8 @@ public class SecurityAnalysisTest {
         LimitViolationFilter filter = new LimitViolationFilter();
 
         SecurityAnalysis securityAnalysis = new SecurityAnalysisImpl(network, filter, computationManager);
-        securityAnalysis.addInterceptor(new SecurityAnalysisInterceptorMock());
+        SecurityAnalysisInterceptorMock interceptorMock = new SecurityAnalysisInterceptorMock();
+        securityAnalysis.addInterceptor(interceptorMock);
         securityAnalysis.addInterceptor(new CurrentLimitViolationInterceptor());
 
         SecurityAnalysisResult result = securityAnalysis.run(VariantManagerConstants.INITIAL_VARIANT_ID, SecurityAnalysisParameters.load(platformConfig), contingenciesProvider).join();
@@ -121,5 +122,9 @@ public class SecurityAnalysisTest {
         CurrentExtension extension2 = violation.getExtension(CurrentExtension.class);
         assertNotNull(extension2);
         assertEquals(1192.5631358010583, extension2.getPreContingencyValue(), 0.0);
+
+        assertEquals(1, interceptorMock.getOnPostContingencyResultCount());
+        assertEquals(1, interceptorMock.getOnPreContingencyResultCount());
+        assertEquals(1, interceptorMock.getOnSecurityAnalysisResultCount());
     }
 }
