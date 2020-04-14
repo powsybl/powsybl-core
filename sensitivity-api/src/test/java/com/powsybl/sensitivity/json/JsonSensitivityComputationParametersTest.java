@@ -45,9 +45,11 @@ public class JsonSensitivityComputationParametersTest extends AbstractConverterT
     public void updateLoadFlowParameters() {
         SensitivityComputationParameters parameters = new SensitivityComputationParameters();
         parameters.getLoadFlowParameters().setT2wtSplitShuntAdmittance(true);
+        parameters.getLoadFlowParameters().setT3wtSplitShuntAdmittance(true);
         JsonSensitivityComputationParameters.update(parameters, getClass().getResourceAsStream("/SensitivityComputationParametersIncomplete.json"));
 
         assertTrue(parameters.getLoadFlowParameters().isT2wtSplitShuntAdmittance());
+        assertTrue(parameters.getLoadFlowParameters().isT3wtSplitShuntAdmittance());
     }
 
     @Test

@@ -84,6 +84,13 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
     }
 
     @Test
+    public void readJsonT3wtVersion10Exception() throws IOException {
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("LoadFlowParameters. Tag: t3wtSplitShuntAdmittance is not valid for version 1.0. Version should be > 1.0");
+        JsonLoadFlowParameters.read(getClass().getResourceAsStream("/LoadFlowParametersT3wtVersion10Exception.json"));
+    }
+
+    @Test
     public void readJsonVersion11Exception() throws IOException {
         exception.expect(PowsyblException.class);
         exception.expectMessage("LoadFlowParameters. Tag: specificCompatibility is not valid for version 1.1. Version should be <= 1.0");

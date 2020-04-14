@@ -137,7 +137,8 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
                                           phaseAngleClock2,
                                           phaseAngleClock3,
                                           parameters.getEpsilonX(),
-                                          parameters.isApplyReactanceCorrection(), false);
+                                          parameters.isApplyReactanceCorrection(),
+                                          lfParameters.isT3wtSplitShuntAdmittance());
             completeTerminalData(twt.getLeg1().getTerminal(), ThreeWindingsTransformer.Side.ONE, twtData);
             completeTerminalData(twt.getLeg2().getTerminal(), ThreeWindingsTransformer.Side.TWO, twtData);
             completeTerminalData(twt.getLeg3().getTerminal(), ThreeWindingsTransformer.Side.THREE, twtData);

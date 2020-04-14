@@ -36,6 +36,14 @@ public class TwtDataTest {
     }
 
     @Test
+    public void testSplitShuntAdmittance() {
+        ThreeWindingsTransformer twt = new TwtTestData().get3WTransformer();
+        TwtData twtData = new TwtData(twt, 0, false, true);
+        boolean ok = t3xCompareFlow(twtData, 99.231950, 2.876479, -216.194348, -85.558437, 117.981856, 92.439531);
+        assertTrue(ok);
+    }
+
+    @Test
     public void testEnd1End2End3Connected() {
         ThreeWindingsTransformer twt = new TwtTestData().get3WTransformer();
         TwtData twtData = new TwtData(twt, 0, false);

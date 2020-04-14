@@ -39,9 +39,11 @@ public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
     public void updateLoadFlowParameters() {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
         parameters.getLoadFlowParameters().setT2wtSplitShuntAdmittance(true);
+        parameters.getLoadFlowParameters().setT3wtSplitShuntAdmittance(true);
         JsonSecurityAnalysisParameters.update(parameters, getClass().getResourceAsStream("/SecurityAnalysisParametersIncomplete.json"));
 
         assertTrue(parameters.getLoadFlowParameters().isT2wtSplitShuntAdmittance());
+        assertTrue(parameters.getLoadFlowParameters().isT3wtSplitShuntAdmittance());
     }
 
     @Test
