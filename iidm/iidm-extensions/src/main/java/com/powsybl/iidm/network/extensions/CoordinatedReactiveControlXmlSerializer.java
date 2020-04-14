@@ -23,19 +23,20 @@ import javax.xml.stream.XMLStreamException;
 public class CoordinatedReactiveControlXmlSerializer extends AbstractExtensionXmlSerializer<Generator, CoordinatedReactiveControl> {
 
     public CoordinatedReactiveControlXmlSerializer() {
-        super("coordinatedReactiveControl", "network", CoordinatedReactiveControl.class,
-                false, "coordinatedReactiveControl.xsd",
+        super("coordinatedReactiveControl", "network", CoordinatedReactiveControl.class, false, "coordinatedReactiveControl.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/coordinated_reactive_control/1_0", "crc");
     }
 
     @Override
-    public void write(CoordinatedReactiveControl extension, XmlWriterContext context) throws XMLStreamException {
-        context.getExtensionsWriter().writeAttribute("qPercent", Double.toString(extension.getQPercent()));
+    public void write(CoordinatedReactiveControl coordinatedReactiveControl, XmlWriterContext context) throws XMLStreamException {
+        XmlUtil.writeDouble("qPercent", coordinatedReactiveControl.getQPercent(), context.getExtensionsWriter());
     }
 
     @Override
     public CoordinatedReactiveControl read(Generator extendable, XmlReaderContext context) {
         double qPercent = XmlUtil.readDoubleAttribute(context.getReader(), "qPercent");
-        return new CoordinatedReactiveControl(extendable, qPercent);
+        extendable.newExtension(CoordinatedReactiveControlAdder.class)
+                .withQPercent(qPercent).add();
+        return extendable.getExtension(CoordinatedReactiveControl.class);
     }
 }

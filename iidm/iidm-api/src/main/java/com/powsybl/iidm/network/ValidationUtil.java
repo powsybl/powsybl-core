@@ -33,6 +33,14 @@ public final class ValidationUtil {
         }
     }
 
+    public static void checkHvdcActivePowerSetpoint(Validable validable, double activePowerSetpoint) {
+        if (Double.isNaN(activePowerSetpoint)) {
+            throw createInvalidValueException(validable, activePowerSetpoint, "active power setpoint");
+        } else if (activePowerSetpoint < 0) {
+            throw createInvalidValueException(validable, activePowerSetpoint, "active power setpoint should not be negative");
+        }
+    }
+
     public static void checkActivePowerLimits(Validable validable, double minP, double maxP) {
         if (minP > maxP) {
             throw new ValidationException(validable, "invalid active limits [" + minP + ", " + maxP + "]");
@@ -99,6 +107,14 @@ public final class ValidationUtil {
 
     public static void checkMaxP(Validable validable, double maxP) {
         if (Double.isNaN(maxP)) {
+            throw createInvalidValueException(validable, maxP, "maximum P");
+        }
+    }
+
+    public static void checkHvdcMaxP(Validable validable, double maxP) {
+        if (Double.isNaN(maxP)) {
+            throw createInvalidValueException(validable, maxP, "maximum P");
+        } else if (maxP < 0) {
             throw createInvalidValueException(validable, maxP, "maximum P");
         }
     }
@@ -365,6 +381,8 @@ public final class ValidationUtil {
     public static void checkPowerFactor(Validable validable, double powerFactor) {
         if (Double.isNaN(powerFactor)) {
             throw new ValidationException(validable, "power factor is invalid");
+        } else if (Math.abs(powerFactor) > 1) {
+            throw new ValidationException(validable, "power factor is invalid, it should be between -1 and 1");
         }
     }
 
