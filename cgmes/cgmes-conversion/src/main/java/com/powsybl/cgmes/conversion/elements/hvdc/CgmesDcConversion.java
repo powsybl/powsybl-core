@@ -212,11 +212,11 @@ public class CgmesDcConversion {
         // poleLossP is the active power loss at a DC Pole
         // for lossless operation: P(DC) = P(AC) => lossFactor = 0
         // for rectifier operation (conversion from AC to DC) with losses: P(DC) = P(AC) - poleLossP
-        // In IIDM, for rectifier operation P(DC) / P(AC) = 1 - lossFactor
-        // => P(DC) / P(AC) = 1 - poleLossP / P(AC) = 1 - lossFactor
+        // In IIDM, for rectifier operation P(DC) / P(AC) = 1 - lossFactor / 100
+        // => P(DC) / P(AC) = 1 - poleLossP / P(AC) = 1 - lossFactor / 100
         // for inverter operation (conversion from DC to AC) with losses: P(DC) = P(AC) + poleLossP
-        // In IIDM, for inverter operation P(AC) / P(DC) = 1 - lossFactor
-        // => P(AC) / P(DC) = 1 - poleLossP / P(DC) = 1 - poleLossP / (P(AC) + poleLossP) = 1 - lossFactor
+        // In IIDM, for inverter operation P(AC) / P(DC) = 1 - lossFactor / 100
+        // => P(AC) / P(DC) = 1 - poleLossP / P(DC) = 1 - poleLossP / (P(AC) + poleLossP) = 1 - lossFactor / 100
 
         double poleLossP1 = cconverter1.asDouble(POLE_LOSS_P);
         double poleLossP2 = cconverter2.asDouble(POLE_LOSS_P);
