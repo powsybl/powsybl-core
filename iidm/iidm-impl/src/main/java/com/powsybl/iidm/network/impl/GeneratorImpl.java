@@ -39,12 +39,12 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     private final TDoubleArrayList targetV;
 
     GeneratorImpl(Ref<? extends VariantManagerHolder> ref,
-                  String id, String name, EnergySource energySource,
+                  String id, String name, boolean fictitious, EnergySource energySource,
                   double minP, double maxP,
                   boolean voltageRegulatorOn, TerminalExt regulatingTerminal,
                   double targetP, double targetQ, double targetV,
                   double ratedS) {
-        super(id, name);
+        super(id, name, fictitious);
         this.energySource = energySource;
         this.minP = minP;
         this.maxP = maxP;
@@ -140,7 +140,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public GeneratorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, (TerminalExt) regulatingTerminal, getNetwork());
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         Terminal oldValue = this.regulatingTerminal;
         this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
         notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);

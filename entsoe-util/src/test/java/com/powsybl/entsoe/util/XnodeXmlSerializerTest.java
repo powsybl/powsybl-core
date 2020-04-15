@@ -50,9 +50,9 @@ public class XnodeXmlSerializerTest extends AbstractConverterTest {
 
         // extends dangling line
         DanglingLine dl = network.getDanglingLine("DL");
-        Xnode xnode = new Xnode(dl, "XXXXXX11");
-        dl.addExtension(Xnode.class, xnode);
 
+        Xnode xnode = new XnodeImpl(dl, "XXXXXX11");
+        dl.addExtension(Xnode.class, xnode);
         Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,

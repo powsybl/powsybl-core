@@ -13,6 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -56,6 +58,8 @@ public class ThreeWindingsTransformerAdapterTest {
         assertNotNull(leg1.setRatedU(1.1));
         assertEquals(1.1, leg1.getRatedU(), 0.0);
         assertSame(twt.getTerminal(ThreeWindingsTransformer.Side.ONE), leg1.getTerminal());
+        assertNotNull(leg1.setRatedS(1.0));
+        assertEquals(1.0, leg1.getRatedS(), 0.0);
 
         final CurrentLimits currentLimitsInLeg1 = leg1.newCurrentLimits()
                 .setPermanentLimit(100)
@@ -131,6 +135,11 @@ public class ThreeWindingsTransformerAdapterTest {
         final ThreeWindingsTransformer.Leg leg3 = twt.getLeg3();
         assertNotNull(leg3);
         assertTrue(leg3 instanceof AbstractAdapter);
+
+        // Topology
+        TopologyVisitor visitor = mock(TopologyVisitor.class);
+        mergingView.getVoltageLevel("VL_132").visitEquipments(visitor);
+        verify(visitor, times(1)).visitThreeWindingsTransformer(any(ThreeWindingsTransformer.class), any(ThreeWindingsTransformer.Side.class));
 
         // Not implemented yet !
         TestUtil.notImplemented(twt::remove);

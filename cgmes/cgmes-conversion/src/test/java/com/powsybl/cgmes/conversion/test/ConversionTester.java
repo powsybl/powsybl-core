@@ -234,7 +234,7 @@ public class ConversionTester {
         config.setThreshold(threshold);
         config.setOkMissingValues(false);
         config.setLoadFlowParameters(new LoadFlowParameters());
-        LOG.info("specificCompatibility is {}", config.getLoadFlowParameters().isSpecificCompatibility());
+        LOG.info("t2wtSplitShuntAdmittance is {}", config.getLoadFlowParameters().isT2wtSplitShuntAdmittance());
         return config;
     }
 

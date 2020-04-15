@@ -50,8 +50,6 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
      */
     void detach(TerminalExt terminal);
 
-    void clean();
-
     boolean connect(TerminalExt terminal);
 
     boolean disconnect(TerminalExt terminal);

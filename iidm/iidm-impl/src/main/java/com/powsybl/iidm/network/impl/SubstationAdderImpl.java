@@ -60,7 +60,7 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
     @Override
     public Substation add() {
         String id = checkAndGetUniqueId();
-        SubstationImpl substation = new SubstationImpl(id, getName(), country, tso, networkRef);
+        SubstationImpl substation = new SubstationImpl(id, getName(), isFictitious(), country, tso, networkRef);
         if (tags != null) {
             for (String tag : tags) {
                 substation.addGeographicalTag(tag);

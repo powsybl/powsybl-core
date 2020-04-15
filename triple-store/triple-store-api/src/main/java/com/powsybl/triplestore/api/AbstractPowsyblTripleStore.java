@@ -46,6 +46,10 @@ public abstract class AbstractPowsyblTripleStore implements TripleStore {
         return NAMESPACE_FOR_CONTEXTS;
     }
 
+    protected static String rdfDescriptionClass() {
+        return RDF_DESCRIPTION_CLASS;
+    }
+
     protected OutputStream outputStream(DataSource ds, String cname) {
         try {
             boolean append = false;
@@ -122,4 +126,5 @@ public abstract class AbstractPowsyblTripleStore implements TripleStore {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPowsyblTripleStore.class);
 
     private static final String RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+    private static final String RDF_DESCRIPTION_CLASS = "FullModel";
 }

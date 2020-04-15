@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
+import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.NewThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.NewTwoWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
@@ -184,15 +185,11 @@ public class Conversion {
             convert(cgmes.phaseTapChangers(), ptc -> new PhaseTapChangerConversion(ptc, context));
         }
 
-        // DC Converters must be converted first
-        convert(cgmes.acDcConverters(), c -> new AcDcConverterConversion(c, context));
-        convert(cgmes.dcLineSegments(), l -> new DcLineSegmentConversion(l, context));
+        CgmesDcConversion cgmesDcConversion = new CgmesDcConversion(cgmes, context);
+        cgmesDcConversion.convert();
 
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.currentLimitsMapping().addAll();
-
-        // set all regulating controls
-        context.regulatingControlMapping().setAllRegulatingControls(network);
 
         if (config.convertSvInjections()) {
             convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
@@ -200,6 +197,9 @@ public class Conversion {
 
         clearUnattachedHvdcConverterStations(network, context); // in case of faulty CGMES files, remove HVDC Converter Stations without HVDC lines
         voltageAngles(nodes, context);
+
+        // set all regulating controls
+        context.regulatingControlMapping().setAllRegulatingControls(network);
         if (context.config().debugTopology()) {
             debugTopology(context);
         }
@@ -401,7 +401,7 @@ public class Conversion {
 
     private void debugTopology(Context context) {
         context.network().getVoltageLevels().forEach(vl -> {
-            String name = vl.getSubstation().getName() + "-" + vl.getName();
+            String name = vl.getSubstation().getNameOrId() + "-" + vl.getNameOrId();
             name = name.replace('/', '-');
             Path file = Paths.get(System.getProperty("java.io.tmpdir"), "temp-cgmes-" + name + ".dot");
             try {
@@ -606,6 +606,7 @@ public class Conversion {
         private Xfmr3RatioPhaseInterpretationAlternative xfmr3RatioPhase = Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3ShuntInterpretationAlternative xfmr3Shunt = Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
+
     }
 
     private final CgmesModel cgmes;

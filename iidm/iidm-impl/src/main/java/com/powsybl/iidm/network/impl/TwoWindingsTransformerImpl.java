@@ -36,14 +36,16 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
 
     private double ratedU2;
 
+    private double ratedS;
+
     private RatioTapChangerImpl ratioTapChanger;
 
     private PhaseTapChangerImpl phaseTapChanger;
 
-    TwoWindingsTransformerImpl(String id, String name,
+    TwoWindingsTransformerImpl(String id, String name, boolean fictitious,
             SubstationImpl substation,
-            double r, double x, double g, double b, double ratedU1, double ratedU2) {
-        super(id, name);
+            double r, double x, double g, double b, double ratedU1, double ratedU2, double ratedS) {
+        super(id, name, fictitious);
         this.substation = substation;
         this.r = r;
         this.x = x;
@@ -51,6 +53,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
         this.b = b;
         this.ratedU1 = ratedU1;
         this.ratedU2 = ratedU2;
+        this.ratedS = ratedS;
     }
 
     @Override
@@ -144,6 +147,20 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
         double oldValue = this.ratedU2;
         this.ratedU2 = ratedU2;
         notifyUpdate("ratedU2", oldValue, ratedU2);
+        return this;
+    }
+
+    @Override
+    public double getRatedS() {
+        return ratedS;
+    }
+
+    @Override
+    public TwoWindingsTransformer setRatedS(double ratedS) {
+        ValidationUtil.checkRatedS(this, ratedS);
+        double oldValue = this.ratedS;
+        this.ratedS = ratedS;
+        notifyUpdate("ratedS", oldValue, ratedS);
         return this;
     }
 

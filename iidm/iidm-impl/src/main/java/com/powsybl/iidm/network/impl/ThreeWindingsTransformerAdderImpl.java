@@ -44,6 +44,8 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected double ratedU = Double.NaN;
 
+        protected double ratedS = Double.NaN;
+
         protected int legNumber = 0;
 
         public LegAdder setVoltageLevel(String voltageLevelId) {
@@ -91,6 +93,12 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             return this;
         }
 
+        @Override
+        public LegAdder setRatedS(double ratedS) {
+            this.ratedS = ratedS;
+            return this;
+        }
+
         protected void checkParams() {
             if (Double.isNaN(r)) {
                 throw new ValidationException(this, "r is not set");
@@ -105,6 +113,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
                 throw new ValidationException(this, "b is not set");
             }
             ValidationUtil.checkRatedU(this, ratedU, "");
+            ValidationUtil.checkRatedS(this, ratedS);
         }
 
         protected TerminalExt checkAndGetTerminal() {
@@ -137,15 +146,15 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             if (legNumber == 1) {
                 voltageLevel1 = checkAndGetVoltageLevel();
                 terminal1 = checkAndGetTerminal();
-                leg1 = new LegImpl(r, x, g, b, ratedU, legNumber);
+                leg1 = new LegImpl(r, x, g, b, ratedU, ratedS, legNumber);
             } else if (legNumber == 2) {
                 voltageLevel2 = checkAndGetVoltageLevel();
                 terminal2 = checkAndGetTerminal();
-                leg2 = new LegImpl(r, x, g, b, ratedU, legNumber);
+                leg2 = new LegImpl(r, x, g, b, ratedU, ratedS, legNumber);
             } else {
                 voltageLevel3 = checkAndGetVoltageLevel();
                 terminal3 = checkAndGetTerminal();
-                leg3 = new LegImpl(r, x, g, b, ratedU, legNumber);
+                leg3 = new LegImpl(r, x, g, b, ratedU, ratedS, legNumber);
             }
             return ThreeWindingsTransformerAdderImpl.this;
         }
@@ -249,7 +258,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             LOGGER.info("RatedU0 is not set. Fixed to leg1 ratedU: {}", leg1.getRatedU());
         }
 
-        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(id, getName(), leg1, leg2, leg3,
+        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(id, getName(), isFictitious(), leg1, leg2, leg3,
             ratedU0);
         leg1.setTransformer(transformer);
         leg2.setTransformer(transformer);

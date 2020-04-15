@@ -6,9 +6,12 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -16,6 +19,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -48,7 +55,8 @@ public class MergingNetworkTest {
         assertSame(mergingView, mergingView.getIdentifiable("n1").getNetwork());
         assertSame(mergingView, mergingView.getIdentifiable("n2").getNetwork());
         assertEquals("MergingNetworkTest", mergingView.getId());
-        assertEquals("MergingNetworkTest", mergingView.getName());
+        assertEquals("MergingNetworkTest", mergingView.getOptionalName().orElse(null));
+        assertEquals("MergingNetworkTest", mergingView.getNameOrId());
 
         final DateTime caseDate = new DateTime();
         mergingView.setCaseDate(caseDate);
@@ -60,6 +68,9 @@ public class MergingNetworkTest {
         assertEquals("iidm", mergingView.getSourceFormat());
         mergingView.merge(n3);
         assertEquals("hybrid", mergingView.getSourceFormat());
+
+        mergingView.setFictitious(true);
+        assertTrue(mergingView.isFictitious());
 
         // Properties
         final String key = "keyTest";
@@ -122,6 +133,11 @@ public class MergingNetworkTest {
         assertFalse(mergingView.getStaticVarCompensators().iterator().hasNext());
         assertEquals(0, mergingView.getStaticVarCompensatorStream().count());
         assertEquals(0, mergingView.getStaticVarCompensatorCount());
+        assertEquals(Iterables.toArray(mergingView.getStaticVarCompensators(), StaticVarCompensator.class),
+                Iterables.toArray(mergingView.getConnectables(StaticVarCompensator.class), StaticVarCompensator.class));
+        assertFalse(mergingView.getConnectables(StaticVarCompensator.class).iterator().hasNext());
+        assertEquals(0, mergingView.getConnectableStream(StaticVarCompensator.class).count());
+        assertEquals(0, mergingView.getConnectableCount(StaticVarCompensator.class));
 
         // ShuntCompensators
         assertFalse(mergingView.getShuntCompensators().iterator().hasNext());
@@ -167,11 +183,22 @@ public class MergingNetworkTest {
         assertFalse(mergingView.getLines().iterator().hasNext());
         assertEquals(0, mergingView.getLineStream().count());
         assertEquals(0, mergingView.getLineCount());
+        assertEquals(Iterables.toArray(mergingView.getLines(), Line.class), Iterables.toArray(mergingView.getConnectables(Line.class), Line.class));
+        assertEquals(0, mergingView.getConnectableStream(Line.class).count());
+        assertEquals(0, mergingView.getConnectableCount(Line.class));
 
         // DanglingLines
         assertFalse(mergingView.getDanglingLines().iterator().hasNext());
         assertEquals(0, mergingView.getDanglingLineStream().count());
         assertEquals(0, mergingView.getDanglingLineCount());
+        assertEquals(Iterables.toArray(mergingView.getDanglingLines(), DanglingLine.class), Iterables.toArray(mergingView.getConnectables(DanglingLine.class), DanglingLine.class));
+        assertEquals(0, mergingView.getConnectableStream(DanglingLine.class).count());
+        assertEquals(0, mergingView.getConnectableCount(DanglingLine.class));
+
+        // Connectables
+        assertFalse(mergingView.getConnectables().iterator().hasNext());
+        assertEquals(0, mergingView.getConnectableStream().count());
+        assertEquals(0, mergingView.getConnectableCount());
 
         // HvdcLines
         assertFalse(mergingView.getHvdcLines().iterator().hasNext());
@@ -194,11 +221,95 @@ public class MergingNetworkTest {
 
         // Not implemented yet !
         // Lines
-        TestUtil.notImplemented(mergingView::newLine);
         TestUtil.notImplemented(mergingView::newTieLine);
         // Listeners
         TestUtil.notImplemented(() -> mergingView.addListener(null));
         TestUtil.notImplemented(() -> mergingView.removeListener(null));
+    }
+
+    @Test
+    public void testNonEmptyConnectableGetters() {
+        // Init networks
+        n1 = EurostagTutorialExample1Factory.create();
+        n1.getLine("NHV1_NHV2_1").remove();
+        n1.getVoltageLevel("VLHV1").newDanglingLine()
+                .setId("DL1")
+                .setConnectableBus("NHV1")
+                .setBus("NHV1")
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setR(1.0)
+                .setX(2.0)
+                .setG(4.0)
+                .setB(5.0)
+                .setUcteXnodeCode("code")
+                .add();
+        n2 = DanglingLineNetworkFactory.create();
+        n2.getDanglingLine("DL").remove();
+        VoltageLevel vl = n2.getVoltageLevel("VL");
+        vl.newDanglingLine()
+                .setId("DL")
+                .setBus("BUS")
+                .setR(10.0)
+                .setX(1.0)
+                .setB(10e-6)
+                .setG(10e-5)
+                .setP0(50.0)
+                .setQ0(30.0)
+                .setUcteXnodeCode("code2")
+                .add();
+        vl.getBusBreakerView().newBus().setId("BUS1").add();
+        vl.newDanglingLine()
+                .setId("DL2")
+                .setConnectableBus("BUS1")
+                .setBus("BUS1")
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setR(1.0)
+                .setX(2.0)
+                .setG(4.0)
+                .setB(5.0)
+                .setUcteXnodeCode("code")
+                .add();
+        mergingView.merge(n1, n2);
+
+        // test non empty connectable getters
+
+        // TwoWindingsTransformers
+        assertEquals(Arrays.asList("NGEN_NHV1", "NHV2_NLOAD"), mergingView.getConnectableStream(TwoWindingsTransformer.class).map(TwoWindingsTransformer::getId).collect(Collectors.toList()));
+        assertEquals(Iterables.toArray(mergingView.getConnectables(TwoWindingsTransformer.class), TwoWindingsTransformer.class),
+                mergingView.getConnectableStream(TwoWindingsTransformer.class).toArray());
+        assertEquals(2, mergingView.getConnectableCount(TwoWindingsTransformer.class));
+
+        // Loads
+        assertEquals(Collections.singletonList("LOAD"), mergingView.getConnectableStream(Load.class).map(Load::getId).collect(Collectors.toList()));
+        assertEquals(Iterables.toArray(mergingView.getConnectables(Load.class), Load.class), mergingView.getConnectableStream(Load.class).toArray());
+        assertEquals(1, mergingView.getConnectableCount(Load.class));
+
+        // Generator
+        assertEquals(Arrays.asList("GEN", "G"), mergingView.getConnectableStream(Generator.class).map(Generator::getId).collect(Collectors.toList()));
+        assertEquals(Iterables.toArray(mergingView.getConnectables(Generator.class), Generator.class),
+                mergingView.getConnectableStream(Generator.class).toArray());
+        assertEquals(2, mergingView.getConnectableCount(Generator.class));
+
+        // Lines
+        assertEquals(Arrays.asList("NHV1_NHV2_2", "DL1 + DL2"), mergingView.getConnectableStream(Line.class).map(Line::getId).collect(Collectors.toList()));
+        assertEquals(Iterables.toArray(mergingView.getConnectables(Line.class), Line.class),
+                mergingView.getConnectableStream(Line.class).toArray());
+        assertEquals(2, mergingView.getConnectableCount(Line.class));
+
+        // DanglingLines
+        assertEquals(Collections.singletonList("DL"), mergingView.getConnectableStream(DanglingLine.class).map(DanglingLine::getId).collect(Collectors.toList()));
+        assertEquals(Iterables.toArray(mergingView.getConnectables(DanglingLine.class), DanglingLine.class),
+                mergingView.getConnectableStream(DanglingLine.class).toArray());
+        assertEquals(1, mergingView.getConnectableCount(DanglingLine.class));
+
+        // Connectables
+        assertEquals(Arrays.asList("LOAD", "NHV1_NHV2_2", "NGEN_NHV1", "DL1 + DL2", "NHV2_NLOAD", "GEN", "G", "DL"),
+                mergingView.getConnectableStream().map(Connectable::getId).collect(Collectors.toList()));
+        assertEquals(Iterables.toArray(mergingView.getConnectables(), Connectable.class),
+                mergingView.getConnectableStream().toArray());
+        assertEquals(8, mergingView.getConnectableCount());
     }
 
     @Test

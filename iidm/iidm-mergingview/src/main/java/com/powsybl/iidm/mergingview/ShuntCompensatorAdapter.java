@@ -7,6 +7,9 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.ShuntCompensatorModel;
+import com.powsybl.iidm.network.ShuntCompensatorModelType;
+import com.powsybl.iidm.network.Terminal;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -21,19 +24,13 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     // Simple delegated methods ------
     // -------------------------------
     @Override
-    public int getMaximumSectionCount() {
-        return getDelegate().getMaximumSectionCount();
-    }
-
-    @Override
-    public ShuntCompensator setMaximumSectionCount(final int maximumSectionCount) {
-        getDelegate().setMaximumSectionCount(maximumSectionCount);
-        return this;
-    }
-
-    @Override
     public int getCurrentSectionCount() {
         return getDelegate().getCurrentSectionCount();
+    }
+
+    @Override
+    public int getMaximumSectionCount() {
+        return getDelegate().getMaximumSectionCount();
     }
 
     @Override
@@ -43,18 +40,76 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     }
 
     @Override
-    public double getbPerSection() {
-        return getDelegate().getbPerSection();
+    public double getCurrentB() {
+        return getDelegate().getCurrentB();
     }
 
     @Override
-    public ShuntCompensator setbPerSection(final double bPerSection) {
-        getDelegate().setbPerSection(bPerSection);
+    public double getCurrentG() {
+        return getDelegate().getCurrentG();
+    }
+
+    @Override
+    public ShuntCompensatorModelType getModelType() {
+        return getDelegate().getModelType();
+    }
+
+    @Override
+    public ShuntCompensatorModel getModel() {
+        return getDelegate().getModel();
+    }
+
+    @Override
+    public <M extends ShuntCompensatorModel> M getModel(Class<M> modelType) {
+        return getDelegate().getModel(modelType);
+    }
+
+    @Override
+    public Terminal getRegulatingTerminal() {
+        return getIndex().getTerminal(getDelegate().getRegulatingTerminal());
+    }
+
+    @Override
+    public ShuntCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
+        Terminal terminal = regulatingTerminal;
+        if (terminal instanceof TerminalAdapter) {
+            terminal = ((TerminalAdapter) terminal).getDelegate();
+        }
+        getDelegate().setRegulatingTerminal(terminal);
         return this;
     }
 
     @Override
-    public double getCurrentB() {
-        return getDelegate().getCurrentB();
+    public boolean isVoltageRegulatorOn() {
+        return getDelegate().isVoltageRegulatorOn();
     }
+
+    @Override
+    public ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        getDelegate().setVoltageRegulatorOn(voltageRegulatorOn);
+        return this;
+    }
+
+    @Override
+    public double getTargetV() {
+        return getDelegate().getTargetV();
+    }
+
+    @Override
+    public ShuntCompensator setTargetV(double targetV) {
+        getDelegate().setTargetV(targetV);
+        return this;
+    }
+
+    @Override
+    public double getTargetDeadband() {
+        return getDelegate().getTargetDeadband();
+    }
+
+    @Override
+    public ShuntCompensator setTargetDeadband(double targetDeadband) {
+        getDelegate().setTargetDeadband(targetDeadband);
+        return this;
+    }
+
 }

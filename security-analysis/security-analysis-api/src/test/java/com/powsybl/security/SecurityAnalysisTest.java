@@ -11,6 +11,7 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.ComputationResourcesStatus;
 import com.powsybl.contingency.BranchContingency;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
@@ -77,6 +78,9 @@ public class SecurityAnalysisTest {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         Executor executor = Runnable::run;
         Mockito.when(computationManager.getExecutor()).thenReturn(executor);
+        ComputationResourcesStatus computationResourcesStatus = Mockito.mock(ComputationResourcesStatus.class);
+        Mockito.when(computationResourcesStatus.getAvailableCores()).thenReturn(4);
+        Mockito.when(computationManager.getResourcesStatus()).thenReturn(computationResourcesStatus);
 
         ContingenciesProvider contingenciesProvider = Mockito.mock(ContingenciesProvider.class);
         Contingency contingency = Mockito.mock(Contingency.class);
@@ -95,7 +99,8 @@ public class SecurityAnalysisTest {
         LimitViolationFilter filter = new LimitViolationFilter();
 
         SecurityAnalysis securityAnalysis = new SecurityAnalysisImpl(network, filter, computationManager);
-        securityAnalysis.addInterceptor(new SecurityAnalysisInterceptorMock());
+        SecurityAnalysisInterceptorMock interceptorMock = new SecurityAnalysisInterceptorMock();
+        securityAnalysis.addInterceptor(interceptorMock);
         securityAnalysis.addInterceptor(new CurrentLimitViolationInterceptor());
 
         SecurityAnalysisResult result = securityAnalysis.run(VariantManagerConstants.INITIAL_VARIANT_ID, SecurityAnalysisParameters.load(platformConfig), contingenciesProvider).join();
@@ -117,5 +122,9 @@ public class SecurityAnalysisTest {
         CurrentExtension extension2 = violation.getExtension(CurrentExtension.class);
         assertNotNull(extension2);
         assertEquals(1192.5631358010583, extension2.getPreContingencyValue(), 0.0);
+
+        assertEquals(1, interceptorMock.getOnPostContingencyResultCount());
+        assertEquals(1, interceptorMock.getOnPreContingencyResultCount());
+        assertEquals(1, interceptorMock.getOnSecurityAnalysisResultCount());
     }
 }

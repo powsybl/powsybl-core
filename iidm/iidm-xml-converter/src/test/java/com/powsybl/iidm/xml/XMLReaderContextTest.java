@@ -7,10 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.iidm.IidmImportExportMode;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -19,7 +16,6 @@ public class XMLReaderContextTest extends AbstractConverterTest {
 
     @Test(expected = NullPointerException.class)
     public void xmlReaderContextExceptionTest() {
-        NetworkXmlReaderContext reader = new NetworkXmlReaderContext(null, null);
-        assertEquals(IidmImportExportMode.UNIQUE_FILE, reader.getOptions().getMode());
+        new NetworkXmlReaderContext(null, null);
     }
 }

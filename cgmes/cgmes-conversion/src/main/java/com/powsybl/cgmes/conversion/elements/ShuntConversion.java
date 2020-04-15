@@ -66,8 +66,10 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
 
         ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator()
                 .setCurrentSectionCount(sections)
-                .setbPerSection(bPerSection)
-                .setMaximumSectionCount(maximumSections);
+                .newLinearModel()
+                    .setbPerSection(bPerSection)
+                    .setMaximumSectionCount(maximumSections)
+                    .add();
         identify(adder);
         connect(adder);
         ShuntCompensator shunt = adder.add();
@@ -82,5 +84,6 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
             f = new PowerFlow(Double.NaN, q);
         }
         context.convertedTerminal(terminalId(), shunt.getTerminal(), 1, f);
+        context.regulatingControlMapping().forShuntCompensators().add(shunt.getId(), p);
     }
 }

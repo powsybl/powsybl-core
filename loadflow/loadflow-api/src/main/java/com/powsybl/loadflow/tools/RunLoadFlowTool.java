@@ -136,6 +136,7 @@ public class RunLoadFlowTool implements Tool {
         Path outputCaseFile = null;
 
         ImportConfig importConfig = (!skipPostProc) ? ImportConfig.load() : new ImportConfig();
+
         // process a single network: output-file/output-format options available
         if (line.hasOption(OUTPUT_FILE)) {
             outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE));

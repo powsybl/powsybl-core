@@ -49,7 +49,7 @@ public class Z0FlowFromBusBalance implements TopologyVisitor {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("Z0 flow    P,Q %10.4f %10.4f %s %s",
                         t.getP(), t.getQ(),
-                        t.getConnectable().getName(),
+                        t.getConnectable().getNameOrId(),
                         t.getConnectable().getId()));
             }
         }
@@ -65,7 +65,7 @@ public class Z0FlowFromBusBalance implements TopologyVisitor {
                 LOG.debug(String.format("Z0 flow    Q   %10s %10.4f %s %s",
                         "-",
                         t.getQ(),
-                        t.getConnectable().getName(),
+                        t.getConnectable().getNameOrId(),
                         t.getConnectable().getId()));
             }
         }

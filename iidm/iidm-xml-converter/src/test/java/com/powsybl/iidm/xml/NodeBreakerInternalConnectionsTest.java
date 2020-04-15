@@ -26,10 +26,10 @@ public class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest
                 networkWithInternalConnections(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                getVersionDir(CURRENT_IIDM_XML_VERSION) + "internalConnections.xiidm");
+                getVersionedNetworkPath("internalConnections.xiidm", CURRENT_IIDM_XML_VERSION));
 
-        // backward compatibility 1.0
-        roundTripVersionnedXmlTest("internalConnections.xiidm", IidmXmlVersion.V_1_0);
+        // backward compatibility
+        roundTripAllPreviousVersionedXmlTest("internalConnections.xiidm");
     }
 
     private Network networkWithInternalConnections() {
@@ -46,7 +46,6 @@ public class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         NodeBreakerView n1 = vl1.getNodeBreakerView();
-        n1.setNodeCount(5);
         vl1.newGenerator()
                 .setId("g1")
                 .setNode(0)
@@ -71,7 +70,6 @@ public class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         NodeBreakerView n2 = vl2.getNodeBreakerView();
-        n2.setNodeCount(5);
         vl2.newLoad()
                 .setId("l2")
                 .setNode(0)

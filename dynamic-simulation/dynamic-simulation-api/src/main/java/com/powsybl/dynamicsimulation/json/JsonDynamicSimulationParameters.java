@@ -46,7 +46,7 @@ public final class JsonDynamicSimulationParameters {
      *  Lazily initialized list of extension serializers.
      */
     private static final Supplier<ExtensionProviders<ExtensionSerializer>> SUPPLIER =
-            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class, "DynamicSimulation-parameters"));
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class, "dynamic-simulation-parameters"));
 
     /**
      *  Gets the known extension serializers.

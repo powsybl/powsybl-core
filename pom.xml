@@ -15,12 +15,12 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>1</version>
+        <version>3</version>
         <relativePath/>
     </parent>
-    <groupId>com.powsybl</groupId>
+
     <artifactId>powsybl-core</artifactId>
-    <version>3.2.0-SNAPSHOT</version>
+    <version>3.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>powsybl</name>
@@ -68,6 +68,7 @@
         <module>itools-packager</module>
         <module>loadflow</module>
         <module>math</module>
+        <module>psse</module>
         <module>scripting</module>
         <module>security-analysis</module>
         <module>sensitivity-api</module>
@@ -128,6 +129,33 @@
         <powsyblmathnative.version>1.0.1</powsyblmathnative.version>
     </properties>
 
+    <profiles>
+        <profile>
+            <id>release</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>javadoc-aggregate-jar</id>
+                                <phase>package</phase>
+                                <inherited>false</inherited>
+                                <goals>
+                                    <goal>aggregate-jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
     <dependencyManagement>
         <dependencies>
             <!-- Compile dependencies -->
@@ -135,6 +163,16 @@
                 <groupId>com.blazegraph</groupId>
                 <artifactId>bigdata-core</artifactId>
                 <version>${blazegraph.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>

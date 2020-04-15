@@ -7,12 +7,20 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.TopologyVisitor;
 import com.powsybl.iidm.network.Network.BusBreakerView;
 import com.powsybl.iidm.network.Network.BusView;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
 
@@ -78,8 +86,61 @@ public class BusAdapterTest {
         TestUtil.notImplemented(bus::getConnectedComponent);
         TestUtil.notImplemented(bus::isInMainConnectedComponent);
         TestUtil.notImplemented(bus::isInMainSynchronousComponent);
-        TestUtil.notImplemented(() -> bus.visitConnectedEquipments(null));
-        TestUtil.notImplemented(() -> bus.visitConnectedOrConnectableEquipments(null));
+    }
+
+    @Test
+    public void testComponentVisitor() {
+        final Network noEquipNetwork = NoEquipmentNetworkFactory.create();
+        final String vlId1 = "vl1";
+        final String vlId2 = "vl2";
+        VoltageLevel vl1 = noEquipNetwork.getVoltageLevel(vlId1);
+        VoltageLevel vl2 = noEquipNetwork.getVoltageLevel(vlId2);
+        final String busId1 = "busA";
+        final String busId2 = "busB";
+
+        double r = 10.0;
+        double x = 20.0;
+        double g = 30.0;
+        double b = 40.0;
+        double p0 = 50.0;
+        double q0 = 60.0;
+        String baseId = "DL";
+        String baseName = "DanglingLine";
+        String ucteXnodeCode = "code";
+        DanglingLine dl1 = createDangingLine(vl1, baseId + "1", baseName + "1", r, x, g, b, p0, q0, ucteXnodeCode, busId1);
+
+        // Create MergingView with Network with one DanglingLine
+        MergingView view = MergingView.create("testComponentVisitor", "test");
+        view.merge(noEquipNetwork);
+        // Get BusAdapter from BusA
+        Bus busA = view.getVoltageLevel(vlId1).getBusBreakerView().getBus(busId1);
+        // Mock TopologyVisitorAdapter
+        TopologyVisitor visitor1 = Mockito.mock(TopologyVisitor.class);
+        // Visit
+        busA.visitConnectedEquipments(visitor1);
+        // Check DanglingLine is visited
+        Mockito.verify(visitor1, Mockito.times(1)).visitDanglingLine(dl1);
+        busA.visitConnectedOrConnectableEquipments(visitor1);
+        // Check DanglingLine is visited
+        Mockito.verify(visitor1, Mockito.times(2)).visitDanglingLine(dl1);
+        // Check no line is visited
+        Mockito.verify(visitor1, Mockito.never()).visitLine(Mockito.any(Line.class), Mockito.any(Branch.Side.class));
+
+        // Add second DanglingLine -> Creation of MergedLine
+        DanglingLine dl2 = createDangingLine(vl2, baseId + "2", baseName + "2", r, x, g, b, p0, q0, ucteXnodeCode, busId2);
+
+        // Mock TopologyVisitor
+        TopologyVisitor visitor2 = Mockito.mock(TopologyVisitor.class);
+        // Visit
+        busA.visitConnectedEquipments(visitor2);
+        // Check MergedLine is visited
+        Mockito.verify(visitor2, Mockito.times(1)).visitLine(Mockito.any(Line.class), Mockito.any(Branch.Side.class));
+        busA.visitConnectedOrConnectableEquipments(visitor2);
+        // Check MergedLine is visited
+        Mockito.verify(visitor2, Mockito.times(2)).visitLine(Mockito.any(Line.class), Mockito.any(Branch.Side.class));
+        // Check no DanglingLine is visited
+        Mockito.verify(visitor2, Mockito.never()).visitDanglingLine(dl1);
+        Mockito.verify(visitor2, Mockito.never()).visitDanglingLine(dl2);
     }
 
     @Test
@@ -107,5 +168,23 @@ public class BusAdapterTest {
         assertTrue(busBreakerView.getSwitches().iterator().hasNext());
         busBreakerView.getSwitches().forEach(b -> assertTrue(b instanceof AbstractAdapter));
         assertEquals(1, busBreakerView.getSwitchCount());
+    }
+
+    private DanglingLine createDangingLine(VoltageLevel vl, String id, String name,
+                                           double r, double x, double g, double b, double p0, double q0,
+                                           String ucteXnodeCode, String busId)  {
+        return vl.newDanglingLine()
+                .setId(id)
+                .setName(name)
+                .setR(r)
+                .setX(x)
+                .setG(g)
+                .setB(b)
+                .setP0(p0)
+                .setQ0(q0)
+                .setUcteXnodeCode(ucteXnodeCode)
+                .setBus(busId)
+                .setConnectableBus(busId)
+                .add();
     }
 }

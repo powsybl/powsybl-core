@@ -7,7 +7,6 @@
 package com.powsybl.iidm.export;
 
 import com.google.common.collect.Sets;
-import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.TopologyLevel;
 import org.junit.Test;
 
@@ -15,7 +14,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.*;
-
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -25,8 +23,6 @@ public class ExportOptionsTest {
     @Test
     public void exportOptionsTest() {
         ExportOptions options = new ExportOptions();
-        options.setMode(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE);
-        assertEquals(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE, options.getMode());
 
         Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
         options.setExtensions(extensionsList);
@@ -45,7 +41,6 @@ public class ExportOptionsTest {
     public void exportOptionsTest2() {
         Set<String> extensionsList = new HashSet<>();
         ExportOptions options = new ExportOptions();
-        options.setMode(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE);
         options.setExtensions(extensionsList);
         assertEquals(0, (int) options.getExtensions().map(Set::size).orElse(-1));
 

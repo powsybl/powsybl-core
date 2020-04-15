@@ -6,15 +6,14 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorAdder;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensatorAdder, VoltageLevel> {
@@ -35,7 +34,19 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     @Override
     protected void writeRootElementAttributes(ShuntCompensator sc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("bPerSection", sc.getbPerSection(), context.getWriter());
+        if (ShuntCompensatorModelType.NON_LINEAR.equals(sc.getModelType())) {
+            throw new PowsyblException("Non linear shunts are not supported for IIDM-XML version " + context.getVersion().toString(".")
+                    + ". IIDM-XML version should be >= 1.2");
+        }
+        IidmXmlUtil.assertMinimumVersionIfNotDefault(sc.isVoltageRegulatorOn(), ROOT_ELEMENT_NAME, "voltageRegulatorOn",
+                IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
+        IidmXmlUtil.assertMinimumVersionIfNotDefault(!Double.isNaN(sc.getTargetV()), ROOT_ELEMENT_NAME, "targetV",
+                IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
+        IidmXmlUtil.assertMinimumVersionIfNotDefault(!Double.isNaN(sc.getTargetDeadband()), ROOT_ELEMENT_NAME, "targetDeadband",
+                IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
+        IidmXmlUtil.assertMinimumVersionIfNotDefault(sc.getRegulatingTerminal().getConnectable() != sc, ROOT_ELEMENT_NAME, "regulatingTerminal",
+                IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
+        XmlUtil.writeDouble("bPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), context.getWriter());
         context.getWriter().writeAttribute("maximumSectionCount", Integer.toString(sc.getMaximumSectionCount()));
         context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getCurrentSectionCount()));
         writeNodeOrBus(null, sc.getTerminal(), context);
@@ -49,12 +60,15 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     @Override
     protected ShuntCompensator readRootElementAttributes(ShuntCompensatorAdder adder, NetworkXmlReaderContext context) {
+        IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
         double bPerSection = XmlUtil.readDoubleAttribute(context.getReader(), "bPerSection");
         int maximumSectionCount = XmlUtil.readIntAttribute(context.getReader(), "maximumSectionCount");
         int currentSectionCount = XmlUtil.readIntAttribute(context.getReader(), "currentSectionCount");
-        adder.setbPerSection(bPerSection)
+        adder.setCurrentSectionCount(currentSectionCount)
+                .newLinearModel()
                 .setMaximumSectionCount(maximumSectionCount)
-                .setCurrentSectionCount(currentSectionCount);
+                .setbPerSection(bPerSection)
+                .add();
         readNodeOrBus(adder, context);
         ShuntCompensator sc = adder.add();
         readPQ(null, sc.getTerminal(), context.getReader());

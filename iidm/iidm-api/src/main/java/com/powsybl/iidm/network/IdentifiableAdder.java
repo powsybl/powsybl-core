@@ -18,4 +18,7 @@ public interface IdentifiableAdder<T extends IdentifiableAdder> {
 
     T setName(String name);
 
+    default T setFictitious(boolean fictitious) {
+        throw new UnsupportedOperationException();
+    }
 }
