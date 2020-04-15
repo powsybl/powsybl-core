@@ -6,7 +6,7 @@
  *
  */
 
-package com.powsybl.contingency.dsl;
+package com.powsybl.dsl;
 
 import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.extensions.Extension;
@@ -22,5 +22,5 @@ public interface ExtendableDslExtension<E extends Extendable<E>> {
 
     Class<E> getExtendableClass();
 
-    void addToSpec(MetaClass extSpecMetaClass, List<Extension<E>> contingencyExtensions, Binding binding);
+    void addToSpec(MetaClass extSpecMetaClass, List<Extension<E>> enxtensions, Binding binding);
 }

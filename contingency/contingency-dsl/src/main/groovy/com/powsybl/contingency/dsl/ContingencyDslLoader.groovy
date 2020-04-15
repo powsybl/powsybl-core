@@ -10,6 +10,7 @@ import com.powsybl.commons.extensions.Extension
 import com.powsybl.contingency.*
 import com.powsybl.dsl.DslException
 import com.powsybl.dsl.DslLoader
+import com.powsybl.dsl.ExtendableDslExtension
 import com.powsybl.iidm.network.*
 import org.codehaus.groovy.control.CompilationFailedException
 import org.slf4j.LoggerFactory
@@ -52,10 +53,8 @@ class ContingencyDslLoader extends DslLoader {
             ContingencySpec contingencySpec = new ContingencySpec()
 
             List<Extension<Contingency>> extensionList = new ArrayList<>();
-            for (ExtendableDslExtension dslContingencyExtension : ServiceLoader.load(ExtendableDslExtension.class)) {
-                if (dslContingencyExtension.getExtendableClass().equals(Contingency.class)) {
-                    dslContingencyExtension.addToSpec(contingencySpec.metaClass, extensionList, binding)
-                }
+            for (ExtendableDslExtension dslContingencyExtension : ServiceLoader.load(ContingencyDslExtension.class)) {
+                dslContingencyExtension.addToSpec(contingencySpec.metaClass, extensionList, binding)
             }
 
             cloned.delegate = contingencySpec
@@ -66,8 +65,6 @@ class ContingencyDslLoader extends DslLoader {
             if (contingencySpec.equipments.length == 0) {
                 throw new DslException("'equipments' field is empty")
             }
-
-
             def elements = []
             def valid = true
             for (String equipment : contingencySpec.equipments) {
@@ -97,7 +94,7 @@ class ContingencyDslLoader extends DslLoader {
                 observer?.contingencyFound(id)
                 Contingency contingency = new Contingency(id, elements)
                 extensionList.forEach({ ext ->
-                    contingency.addExtension(ext.getClass(), ext);
+                    contingency.addExtension(ext.getClass(), ext)
                 })
                 consumer.accept(contingency)
             } else {

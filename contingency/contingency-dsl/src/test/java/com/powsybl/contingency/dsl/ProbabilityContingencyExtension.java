@@ -8,31 +8,19 @@
 
 package com.powsybl.contingency.dsl;
 
-import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.contingency.Contingency;
 
 /**
  * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
  */
-public class ProbabilityContingencyExtension implements Extension<Contingency> {
-    private Contingency contingency;
-
+public class ProbabilityContingencyExtension extends AbstractExtension<Contingency> {
     private Double probabilityBase = 1.0;
     private String probabilityTimeSeriesRef;
 
     @Override
     public String getName() {
         return "probability";
-    }
-
-    @Override
-    public Contingency getExtendable() {
-        return contingency;
-    }
-
-    @Override
-    public void setExtendable(Contingency extendable) {
-        this.contingency = extendable;
     }
 
     public double getProbabilityBase() {

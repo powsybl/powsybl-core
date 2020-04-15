@@ -10,15 +10,16 @@ package com.powsybl.contingency.dsl
 import com.google.auto.service.AutoService
 import com.powsybl.commons.extensions.Extension
 import com.powsybl.contingency.Contingency
+import com.powsybl.dsl.ExtendableDslExtension
 
 /**
  * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
  */
-@AutoService(ExtendableDslExtension.class)
-class ProbabilityContingencyDslExtension implements ExtendableDslExtension<Contingency>{
+@AutoService(ContingencyDslExtension.class)
+class ProbabilityContingencyDslExtension implements ContingencyDslExtension {
     @Override
     Class<Contingency> getExtendableClass() {
-        return Contingency.class;
+        return Contingency.class
     }
 
     @Override
@@ -32,13 +33,13 @@ class ProbabilityContingencyDslExtension implements ExtendableDslExtension<Conti
 
             ext.probabilityBase = spec.base
             ext.probabilityTimeSeriesRef = spec.tsName
-            contingencyExtensions.add(ext);
+            contingencyExtensions.add(ext)
         }
     }
 
     static class ProbabilitySpec {
-        Double base;
-        String tsName;
+        Double base
+        String tsName
 
         void base(Double base) {
             this.base = base
