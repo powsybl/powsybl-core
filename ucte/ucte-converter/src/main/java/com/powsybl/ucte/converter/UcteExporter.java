@@ -465,10 +465,10 @@ public class UcteExporter implements Exporter {
     }
 
     private static void mergeGeographicalNameProperties(TieLine tieLine) {
-        String geographicalName = tieLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
+        String geographicalName = tieLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY);
         String geographicalName1 = geographicalName;
         String geographicalName2 = geographicalName;
-        if (geographicalName != null && geographicalName.contains(PROPERTY_SEPARATOR)) {
+        if (geographicalName.contains(PROPERTY_SEPARATOR)) {
             geographicalName1 = geographicalName.split(PROPERTY_SEPARATOR, -1)[0];
             geographicalName2 = geographicalName.split(PROPERTY_SEPARATOR, -1)[1];
         }
