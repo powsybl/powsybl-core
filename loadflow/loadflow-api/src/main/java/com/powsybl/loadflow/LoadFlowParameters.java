@@ -217,12 +217,14 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     }
 
     protected Map<String, Object> toMap() {
-        return ImmutableMap.of("voltageInitMode", voltageInitMode,
-            "transformerVoltageControlOn", transformerVoltageControlOn,
-            "noGeneratorReactiveLimits", noGeneratorReactiveLimits,
-            "phaseShifterRegulationOn", phaseShifterRegulationOn,
-            "t2wtSplitShuntAdmittance", t2wtSplitShuntAdmittance);
-            //"splitShuntAdmittanceXfmr3", splitShuntAdmittanceXfmr3);
+        return new ImmutableMap.Builder<String, Object>()
+            .put("voltageInitMode", voltageInitMode)
+            .put("transformerVoltageControlOn", transformerVoltageControlOn)
+            .put("noGeneratorReactiveLimits", noGeneratorReactiveLimits)
+            .put("phaseShifterRegulationOn", phaseShifterRegulationOn)
+            .put("t2wtSplitShuntAdmittance", t2wtSplitShuntAdmittance)
+            .put("t3wtSplitShuntAdmittance", t3wtSplitShuntAdmittance)
+            .build();
     }
 
     /**
