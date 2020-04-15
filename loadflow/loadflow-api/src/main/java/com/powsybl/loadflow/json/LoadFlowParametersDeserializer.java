@@ -38,12 +38,10 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
 
     @Override
     public LoadFlowParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, LoadFlowParameters parameters) throws IOException {
-
         String version = null;
         List<Extension<LoadFlowParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-
                 case "version":
                     parser.nextToken();
                     version = parser.getValueAsString();
@@ -83,16 +81,14 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
 
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonLoadFlowParameters.getExtensionSerializers());
+                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonLoadFlowParameters.getExtensionSerializers(), parameters);
                     break;
 
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-
         JsonLoadFlowParameters.getExtensionSerializers().addExtensions(parameters, extensions);
-
         return parameters;
     }
 }

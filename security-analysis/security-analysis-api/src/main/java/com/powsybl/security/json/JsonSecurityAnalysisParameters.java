@@ -77,7 +77,6 @@ public final class JsonSecurityAnalysisParameters {
      */
     public static SecurityAnalysisParameters update(SecurityAnalysisParameters parameters, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
-
         try (InputStream is = Files.newInputStream(jsonFile)) {
             return update(parameters, is);
         } catch (IOException e) {
