@@ -109,6 +109,11 @@ public class CgmesUpdateTest {
         NetworkChanges.modifyTwoWindingsTransformerTapPosition(network0);
 
         if (!isBigNetwork) {
+            // Make small changes to voltages
+            network0.getBusView().getBuses().forEach(b -> {
+                b.setV(b.getV() + 0.001);
+                b.setAngle(b.getAngle() + 0.001);
+            });
             // Compute all flows only for small networks
             // as this will introduce a lot of changes
             runLoadFlowResultsCompletion(network0, invalidateFlows);

@@ -17,6 +17,7 @@ public final class CgmesNames {
     public static final String AC_LINE_SEGMENT = "ACLineSegment";
     public static final String ASYNCHRONOUS_MACHINE = "AsynchronousMachine";
     public static final String ENERGY_CONSUMER = "EnergyConsumer";
+    public static final String CONFORM_LOAD = "ConformLoad";
     public static final String ENERGY_SOURCE = "EnergySource";
     public static final String EXTERNAL_NETWORK_INJECTION = "ExternalNetworkInjection";
     public static final String SERIES_COMPENSATOR = "SeriesCompensator";

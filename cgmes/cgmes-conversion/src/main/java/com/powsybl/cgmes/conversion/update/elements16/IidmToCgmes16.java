@@ -40,7 +40,8 @@ public class IidmToCgmes16 {
             LOG.warn("Currently not supported conversion for type {}", type);
             return null;
         } else if (o instanceof Load) {
-            if (type.equals(CgmesNames.ENERGY_CONSUMER)) {
+            if (type.equals(CgmesNames.ENERGY_CONSUMER) ||
+                type.equals(CgmesNames.CONFORM_LOAD)) {
                 return loadEc;
             }
             if (type.equals(CgmesNames.ASYNCHRONOUS_MACHINE)) {
