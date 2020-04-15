@@ -37,7 +37,7 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
     private ExtensionProviders(Class<T> clazz) {
         Objects.requireNonNull(clazz);
         providers = new ServiceLoaderCache<>(clazz).getServices().stream()
-            .collect(Collectors.toMap(T::getExtensionName, e -> e));
+                .collect(Collectors.toMap(T::getExtensionName, e -> e));
     }
 
     private ExtensionProviders(Class<T> clazz, String categoryName) {
@@ -73,7 +73,6 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
     public <T> void addExtensions(Extendable<T> extendable, Collection<Extension<T>> extensions) {
         Objects.requireNonNull(extendable);
         Objects.requireNonNull(extensions);
-
         extensions.forEach(e -> extendable.addExtension(findProvider(e.getName()).getExtensionClass(), e));
     }
 }
