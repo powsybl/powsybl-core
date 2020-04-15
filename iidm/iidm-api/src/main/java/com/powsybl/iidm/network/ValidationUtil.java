@@ -401,8 +401,8 @@ public final class ValidationUtil {
     public static void checkLossFactor(Validable validable, float lossFactor) {
         if (Double.isNaN(lossFactor)) {
             throw new ValidationException(validable, "loss factor is invalid");
-        } else if (lossFactor < 0) {
-            throw new ValidationException(validable, "loss factor must be >= 0");
+        } else if (lossFactor < 0 || lossFactor > 100) {
+            throw new ValidationException(validable, "loss factor must be >= 0 and <= 100");
         }
     }
 }
