@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Conversion.Config;
 import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
+import com.powsybl.cgmes.conversion.elements.hvdc.DcMapping;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;

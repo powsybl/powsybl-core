@@ -104,5 +104,4 @@ public class JsonSensitivityComputationParametersTest extends AbstractConverterT
             return DummyExtension.class;
         }
     }
-
 }

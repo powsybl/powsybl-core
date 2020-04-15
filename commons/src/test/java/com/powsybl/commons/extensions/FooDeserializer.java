@@ -27,7 +27,7 @@ import java.util.List;
 public class FooDeserializer extends StdDeserializer<Foo> {
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
-        Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "test"));
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "test"));
 
     public FooDeserializer() {
         super(Foo.class);
@@ -43,21 +43,38 @@ public class FooDeserializer extends StdDeserializer<Foo> {
                 extensions = JsonUtil.readExtensions(parser, context);
             }
         }
-
         Foo foo = new Foo();
         SUPPLIER.get().addExtensions(foo, extensions);
-
         return foo;
     }
 
     static Foo read(InputStream stream) throws IOException {
         ObjectMapper mapper = JsonUtil.createObjectMapper();
-
         SimpleModule module = new SimpleModule();
         module.addDeserializer(Foo.class, new FooDeserializer());
         mapper.registerModule(module);
-
         return mapper.readValue(stream, Foo.class);
     }
 
+    @Override
+    public Foo deserialize(JsonParser parser, DeserializationContext context, Foo initFoo) throws IOException {
+        List<Extension<Foo>> extensions = Collections.emptyList();
+
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            if (parser.getCurrentName().equals("extensions")) {
+                parser.nextToken();
+                extensions = JsonUtil.updateExtensions(parser, context, initFoo);
+            }
+        }
+        SUPPLIER.get().addExtensions(initFoo, extensions);
+        return initFoo;
+    }
+
+    static Foo update(InputStream stream, Foo foo) throws IOException {
+        ObjectMapper mapper = JsonUtil.createObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(Foo.class, new FooDeserializer());
+        mapper.registerModule(module);
+        return mapper.readerForUpdating(foo).readValue(stream);
+    }
 }
