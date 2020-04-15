@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
 public class ExtensionTest extends AbstractConverterTest {
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
-        Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "test"));
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "test"));
 
     @Test
     public void testExtendable() {
@@ -83,7 +83,6 @@ public class ExtensionTest extends AbstractConverterTest {
     @Test
     public void testReadJson() throws IOException {
         Foo foo = FooDeserializer.read(getClass().getResourceAsStream("/extensions.json"));
-
         assertEquals(1, foo.getExtensions().size());
         assertNotNull(foo.getExtension(FooExt.class));
         assertNull(foo.getExtension(BarExt.class));
@@ -108,5 +107,28 @@ public class ExtensionTest extends AbstractConverterTest {
             assertEquals(1, notFound.size());
             assertTrue(notFound.contains("BarExt"));
         }
+    }
+
+    @Test
+    public void testUpdateAndDeserialize() throws IOException {
+        Foo foo = new Foo();
+        FooExt fooExt = new FooExt(false, "Hello");
+        foo.addExtension(FooExt.class, fooExt);
+        FooDeserializer.update(getClass().getResourceAsStream("/extensionsUpdate.json"), foo);
+        assertTrue(foo.getExtension(FooExt.class).getValue());
+        assertEquals("Hello", foo.getExtension(FooExt.class).getValue2());
+    }
+
+    @Test
+    public void testUpdateWith2Extensions() throws IOException {
+        Foo foo = new Foo();
+        FooExt fooExt = new FooExt(false, "Hello");
+        BarExt barExt = new BarExt(true);
+        foo.addExtension(FooExt.class, fooExt);
+        foo.addExtension(BarExt.class, barExt);
+        FooDeserializer.update(getClass().getResourceAsStream("/extensions.json"), foo);
+        assertTrue(foo.getExtension(FooExt.class).getValue());
+        assertEquals("Hello", foo.getExtension(FooExt.class).getValue2());
+        assertFalse(foo.getExtension(BarExt.class).getValue());
     }
 }
