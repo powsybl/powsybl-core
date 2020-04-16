@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import com.powsybl.iidm.network.ValidationUtil;
@@ -90,11 +91,17 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
 
     @Override
     public double getB(int sectionIndex) {
+        if (sectionIndex < 0 || sectionIndex > maximumSectionCount) {
+            throw new PowsyblException("the given number of section (" + sectionIndex + ") is not associated with any susceptance");
+        }
         return sectionIndex == 0 ? 0 : bPerSection;
     }
 
     @Override
     public double getG(int sectionIndex) {
+        if (sectionIndex < 0 || sectionIndex > maximumSectionCount) {
+            throw new PowsyblException("the given number of section (" + sectionIndex + ") is not associated with any conductance");
+        }
         return Double.isNaN(gPerSection) || sectionIndex == 0 ? 0 : gPerSection;
     }
 

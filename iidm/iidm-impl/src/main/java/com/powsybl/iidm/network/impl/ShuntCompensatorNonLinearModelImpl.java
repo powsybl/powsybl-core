@@ -152,15 +152,11 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
 
     @Override
     public double getG(int sectionIndex) {
-        return Optional.ofNullable(sections.get(sectionIndex))
-                .map(section -> {
-                    double g = section.getG();
-                    if (!Double.isNaN(g)) {
-                        return g;
-                    }
-                    return 0.0;
-                })
-                .orElseThrow(() -> new PowsyblException(invalidSectionNumberMessage(sectionIndex, "conductance")));
+        if (sections.get(sectionIndex) == null) {
+            throw new PowsyblException(invalidSectionNumberMessage(sectionIndex, "conductance"));
+        }
+        double g = sections.get(sectionIndex).getG();
+        return Double.isNaN(g) ? 0 : g;
     }
 
     private static String invalidSectionNumberMessage(int sectionNum, String attributes) {
