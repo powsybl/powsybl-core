@@ -60,6 +60,16 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     }
 
     @Override
+    public double getCurrentB(int currentSectionIndex) {
+        return bPerSection * currentSectionIndex;
+    }
+
+    @Override
+    public double getCurrentG(int currentSectionIndex) {
+        return gPerSection * currentSectionIndex;
+    }
+
+    @Override
     public ShuntCompensatorLinearModel setMaximumSectionCount(int maximumSectionCount) {
         ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getCurrentSectionCount(), maximumSectionCount);
         int oldValue = this.maximumSectionCount;
@@ -80,11 +90,37 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
 
     @Override
     public double getB(int sectionNum) {
-        return bPerSection * sectionNum;
+        return bPerSection;
     }
 
     @Override
     public double getG(int sectionNum) {
-        return gPerSection * sectionNum;
+        return gPerSection;
+    }
+
+    @Override
+    public double getMaximumB() {
+        return (bPerSection > 0) ? bPerSection * maximumSectionCount : 0;
+    }
+
+    @Override
+    public double getMaximumG() {
+        if (Double.isNaN(gPerSection)) {
+            return Double.NaN;
+        }
+        return (gPerSection > 0) ? gPerSection * maximumSectionCount : 0;
+    }
+
+    @Override
+    public double getMinimumB() {
+        return (bPerSection < 0) ? bPerSection * maximumSectionCount : 0;
+    }
+
+    @Override
+    public double getMinimumG() {
+        if (Double.isNaN(gPerSection)) {
+            return Double.NaN;
+        }
+        return (gPerSection < 0) ? gPerSection * maximumSectionCount : 0;
     }
 }

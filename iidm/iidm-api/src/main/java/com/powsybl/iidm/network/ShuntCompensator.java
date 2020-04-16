@@ -33,7 +33,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     int getMaximumSectionCount();
 
     /**
-     * Change the number of section.
+     * Change the current section count.
      *
      * <p>
      * Depends on the working variant.
@@ -45,7 +45,8 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     ShuntCompensator setCurrentSectionCount(int currentSectionCount);
 
     /**
-     * Get the susceptance for the current section count.
+     * Get the susceptance (in S) for the current section count i.e. the sum of the sections' susceptances for all sections in service.
+     * @see #getCurrentSectionCount()
      * <p>
      * Depends on the working variant.
      * @see VariantManager
@@ -53,12 +54,42 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     double getCurrentB();
 
     /**
-     * Get the conductance for the current section count.
+     * Get the conductance (in S) for the current section count i.e. the sum of the sections' conductances for all sections in service.
+     * If a conductance of a section in service is undefined, the current conductance is undefined.
+     * @see #getCurrentSectionCount()
      * <p>
      * Depends on the working variant.
      * @see VariantManager
      */
     double getCurrentG();
+
+    /**
+     * Get the maximum susceptance (in S) i.e. the maximum of all the possible current susceptances.
+     * <p>
+     * @see #getCurrentB()
+     */
+    double getMaximumB();
+
+    /**
+     * Get the maximum conductance (in S) i.e. the maximum of all the possible current conductances.
+     * If all the sections' conductances are undefined, the maximum conductance is undefined.
+     * <p>
+     * @see #getCurrentG()
+     */
+    double getMaximumG();
+
+    /**
+     * Get the minimum susceptance (in S) i.e. the minimum of all possible current susceptances.
+     * @see #getCurrentB()
+     */
+    double getMinimumB();
+
+    /**
+     * Get the minimum conductance (in S) i.e. the minimum of all the possible current conductances.
+     * If all the sections' conductances are undefined, the minimum conductance is undefined.
+     * @see #getCurrentG()
+     */
+    double getMinimumG();
 
     /**
      * Get the model type of the shunt compensator (linear or non-linear)

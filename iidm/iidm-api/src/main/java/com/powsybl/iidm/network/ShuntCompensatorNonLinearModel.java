@@ -28,16 +28,6 @@ public interface ShuntCompensatorNonLinearModel extends ShuntCompensatorModel {
     }
 
     /**
-     * Get the maximum susceptance for a section in S.
-     */
-    double getMaximumB();
-
-    /**
-     * Get the maximum conductance for a section in S.
-     */
-    double getMaximumG();
-
-    /**
      * Get an optional of the section associated with a given section number if it exists.
      * If such a section does not exist, return an empty optional.
      *

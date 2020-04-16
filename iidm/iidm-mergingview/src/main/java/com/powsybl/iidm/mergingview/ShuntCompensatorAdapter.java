@@ -50,6 +50,26 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     }
 
     @Override
+    public double getMaximumB() {
+        return getDelegate().getMaximumB();
+    }
+
+    @Override
+    public double getMaximumG() {
+        return getDelegate().getMaximumG();
+    }
+
+    @Override
+    public double getMinimumB() {
+        return getDelegate().getMinimumB();
+    }
+
+    @Override
+    public double getMinimumG() {
+        return getDelegate().getMinimumG();
+    }
+
+    @Override
     public ShuntCompensatorModelType getModelType() {
         return getDelegate().getModelType();
     }

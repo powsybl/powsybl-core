@@ -188,6 +188,12 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(SHUNT, shuntCompensator.getId());
         assertEquals(1, shuntCompensator.getCurrentSectionCount());
         assertEquals(2, shuntCompensator.getMaximumSectionCount());
+        assertEquals(5.0, shuntCompensator.getCurrentB(), 0.0);
+        assertEquals(2.0, shuntCompensator.getCurrentG(), 0.0);
+        assertEquals(11.0, shuntCompensator.getMaximumB(), 0.0);
+        assertEquals(2.0, shuntCompensator.getMaximumG(), 0.0);
+        assertEquals(0.0, shuntCompensator.getMinimumB(), 0.0);
+        assertEquals(0.0, shuntCompensator.getMinimumG(), 0.0);
         assertSame(terminal, shuntCompensator.getRegulatingTerminal());
         assertTrue(shuntCompensator.isVoltageRegulatorOn());
         assertEquals(200, shuntCompensator.getTargetV(), 0.0);
@@ -202,8 +208,6 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(2.0, shuntNonLinearModel.getG(1), 0.0);
         assertEquals(6.0, shuntNonLinearModel.getB(2), 0.0);
         assertTrue(Double.isNaN(shuntNonLinearModel.getG(2)));
-        assertEquals(6.0, shuntNonLinearModel.getMaximumB(), 0.0);
-        assertEquals(2.0, shuntNonLinearModel.getMaximumG(), 0.0);
         assertFalse(shuntNonLinearModel.getSection(3).isPresent());
 
         // try get incorrect shunt model

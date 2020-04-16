@@ -21,4 +21,16 @@ interface ShuntCompensatorModelWrapper extends ShuntCompensatorModel {
     boolean containsSection(int sectionNumber);
 
     int getMaximumSectionCount();
+
+    double getCurrentB(int currentSectionIndex);
+
+    double getCurrentG(int currentSectionIndex);
+
+    double getMaximumB();
+
+    double getMaximumG();
+
+    double getMinimumB();
+
+    double getMinimumG();
 }

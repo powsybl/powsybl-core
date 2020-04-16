@@ -49,19 +49,46 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
 
     @Override
     public double getMaximumB() {
-        return sections.values().stream()
-                .map(SectionImpl::getB)
-                .max(Double::compare)
-                .orElseThrow(() -> new PowsyblException("a shunt compensator must have at least one section"));
+        if (sections.values().stream().allMatch(section -> section.getB() >= 0)) {
+            return sections.values().stream().mapToDouble(SectionImpl::getB).sum();
+        } else if (sections.values().stream().allMatch(section -> section.getB() <= 0)) {
+            return 0;
+        }
+        return sections.keySet().stream().mapToDouble(this::getCurrentB).max().orElseThrow(() -> new PowsyblException("a shunt compensator must have at least one section"));
     }
 
     @Override
     public double getMaximumG() {
-        return sections.values().stream()
-                .map(SectionImpl::getG)
+        double maxG = sections.keySet().stream()
+                .mapToDouble(this::getCurrentG)
                 .filter(g -> !Double.isNaN(g))
-                .max(Double::compare)
+                .max()
                 .orElse(Double.NaN);
+        if (!Double.isNaN(maxG)) {
+            return Math.max(0, maxG);
+        }
+        return maxG;
+    }
+
+    @Override
+    public double getMinimumB() {
+        return sections.values().stream()
+                .mapToDouble(SectionImpl::getB)
+                .filter(b -> b <= 0)
+                .sum();
+    }
+
+    @Override
+    public double getMinimumG() {
+        double minG = sections.keySet().stream()
+                .mapToDouble(this::getCurrentG)
+                .filter(g -> !Double.isNaN(g))
+                .min()
+                .orElse(Double.NaN);
+        if (!Double.isNaN(minG)) {
+            return Math.min(0, minG);
+        }
+        return minG;
     }
 
     @Override
@@ -97,7 +124,7 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
         SectionImpl oldValue = sections.remove(sectionNum);
         shuntCompensator.notifyUpdate(notifyUpdateSection(sectionNum, "b"), oldValue.getB(), Double.NaN);
         shuntCompensator.notifyUpdate(notifyUpdateSection(sectionNum, "g"), oldValue.getG(), Double.NaN);
-        return null;
+        return this;
     }
 
     @Override
@@ -113,6 +140,22 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
     @Override
     public int getMaximumSectionCount() {
         return sections.lastKey();
+    }
+
+    @Override
+    public double getCurrentB(int currentSectionIndex) {
+        return sections.entrySet().stream()
+                .filter(e -> e.getKey() <= currentSectionIndex)
+                .mapToDouble(e -> e.getValue().getB())
+                .sum();
+    }
+
+    @Override
+    public double getCurrentG(int currentSectionIndex) {
+        return sections.entrySet().stream()
+                .filter(e -> e.getKey() <= currentSectionIndex)
+                .mapToDouble(e -> e.getValue().getG())
+                .sum();
     }
 
     @Override
