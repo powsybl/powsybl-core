@@ -112,12 +112,18 @@ public abstract class AbstractShuntCompensatorTest {
         } catch (ValidationException ignored) {
             // ignore
         }
-        shuntLinearModel.setbPerSection(1.0);
-        assertEquals(1.0, shuntLinearModel.getbPerSection(), 0.0);
+        shuntLinearModel.setbPerSection(-1.0);
+        assertEquals(-1.0, shuntLinearModel.getbPerSection(), 0.0);
+        assertEquals(-6.0, shuntCompensator.getCurrentB(), 0.0);
+        assertEquals(0.0, shuntCompensator.getMaximumB(), 0.0);
+        assertEquals(-10.0, shuntCompensator.getMinimumB(), 0.0);
 
         // gPerSection
-        shuntLinearModel.setgPerSection(2.0);
-        assertEquals(2.0, shuntLinearModel.getgPerSection(), 0.0);
+        shuntLinearModel.setgPerSection(-2.0);
+        assertEquals(-2.0, shuntLinearModel.getgPerSection(), 0.0);
+        assertEquals(-12.0, shuntCompensator.getCurrentG(), 0.0);
+        assertEquals(0.0, shuntCompensator.getMaximumG(), 0.0);
+        assertEquals(-20.0, shuntCompensator.getMinimumG(), 0.0);
 
         // maximumSectionCount
         try {
@@ -281,10 +287,18 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(4.0, shuntNonLinearModel.getB(3), 0.0);
         assertEquals(1.0, shuntNonLinearModel.getG(3), 0.0);
         assertEquals(3, shuntCompensator.getMaximumSectionCount());
-        shuntNonLinearModel.addOrReplaceSection(3, 3.0, 1.5); // replace a section
+        assertEquals(15.0, shuntCompensator.getMaximumB(), 0.0);
+        assertEquals(0.0, shuntCompensator.getMinimumB(), 0.0);
+        assertEquals(2.0, shuntCompensator.getMaximumG(), 0.0);
+        assertEquals(0.0, shuntCompensator.getMinimumG(), 0.0);
+        shuntNonLinearModel.addOrReplaceSection(0, -3.0, -1.5); // replace a section
         assertEquals(4, shuntNonLinearModel.getSections().size());
-        assertEquals(3.0, shuntNonLinearModel.getB(3), 0.0);
-        assertEquals(1.5, shuntNonLinearModel.getG(3), 0.0);
+        assertEquals(-3.0, shuntNonLinearModel.getB(0), 0.0);
+        assertEquals(-1.5, shuntNonLinearModel.getG(0), 0.0);
+        assertEquals(12.0, shuntCompensator.getMaximumB(), 0.0);
+        assertEquals(-3.0, shuntCompensator.getMinimumB(), 0.0);
+        assertEquals(0.5, shuntCompensator.getMaximumG(), 0.0);
+        assertEquals(-1.5, shuntCompensator.getMinimumG(), 0.0);
 
         // remove a section
         try {
