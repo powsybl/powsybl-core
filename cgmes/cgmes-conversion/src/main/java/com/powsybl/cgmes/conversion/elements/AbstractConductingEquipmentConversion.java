@@ -197,7 +197,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminals[n - 1].iidmVoltageLevelId;
     }
 
-    VoltageLevel voltageLevel() {
+    protected VoltageLevel voltageLevel() {
         return terminals[0].voltageLevel;
     }
 

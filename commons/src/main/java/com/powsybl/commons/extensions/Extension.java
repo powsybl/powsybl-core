@@ -8,7 +8,7 @@ package com.powsybl.commons.extensions;
 
 /**
  * Extension data for extendables.
- *
+ * <p>
  * A generic Extension interface should have a generic static method called
  * "clazz" returning its .class as a generic type with a wildcard bounded to the
  * expected extendables to allow clients to type check that they are using the
@@ -37,12 +37,14 @@ public interface Extension<T> {
 
     /**
      * Return the holder of this extension
+     *
      * @return the holder of this extension or null if this extension is not holded
      */
     T getExtendable();
 
     /**
      * Set the holder of this extension.
+     *
      * @param extendable The new holder of this extension, could be null
      * @throws a PowsyblException if this extension is already holded.
      */

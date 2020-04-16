@@ -6,9 +6,12 @@
  */
 package com.powsybl.loadflow;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.google.common.jimfs.Configuration;
@@ -18,7 +21,9 @@ import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
+import com.powsybl.loadflow.json.JsonLoadFlowParametersTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -256,6 +261,19 @@ public class LoadFlowParametersTest {
     @AutoService(JsonLoadFlowParameters.ExtensionSerializer.class)
     public static class DummySerializer implements JsonLoadFlowParameters.ExtensionSerializer<DummyExtension> {
 
+        private interface SerializationSpec {
+            @JsonIgnore
+            String getName();
+
+            @JsonIgnore
+            LoadFlowParameters getExtendable();
+        }
+
+        private static ObjectMapper createMapper() {
+            return JsonUtil.createObjectMapper()
+                    .addMixIn(JsonLoadFlowParametersTest.DummyExtension.class, JsonLoadFlowParametersTest.DummySerializer.SerializationSpec.class);
+        }
+
         @Override
         public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
             jsonGenerator.writeStartObject();
@@ -265,6 +283,14 @@ public class LoadFlowParametersTest {
         @Override
         public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
             return new DummyExtension();
+        }
+
+        @Override
+        public DummyExtension deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, DummyExtension parameters) throws IOException {
+            ObjectMapper objectMapper = createMapper();
+            ObjectReader objectReader = objectMapper.readerForUpdating(parameters);
+            DummyExtension updatedParameters = objectReader.readValue(jsonParser, DummyExtension.class);
+            return updatedParameters;
         }
 
         @Override

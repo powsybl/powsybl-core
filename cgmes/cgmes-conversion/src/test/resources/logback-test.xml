@@ -27,4 +27,12 @@
         level="info" />
     <!-- To watch the properties of every object converted, level to debug -->
     <logger name="com.powsybl.cgmes.conversion.Conversion" level="info" />
+        <!-- To watch always the test Hvdc configurations after the topological analysis -->
+    <logger name="com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion" level="debug" />
+    <logger name="com.powsybl.cgmes.conversion.elements.hvdc.Adjacency" level="debug" />
+    <logger name="com.powsybl.cgmes.conversion.elements.hvdc.TPnodeEquipments" level="debug" />
+    <logger name="com.powsybl.cgmes.conversion.elements.hvdc.Islands" level="debug" />
+    <logger name="com.powsybl.cgmes.conversion.elements.hvdc.IslandsEnds" level="debug" />
+    <logger name="com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc" level="debug" />
+    <logger name="com.powsybl.cgmes.conversion.elements.hvdc.Hvdc" level="debug" />
 </configuration>
