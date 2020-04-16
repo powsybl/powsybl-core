@@ -15,11 +15,11 @@ public interface ShuntCompensatorModel {
      * Get the section susceptance in S of the section with a given section number if it exists.
      * Throw an exception if such a section does not exist.
      */
-    double getB(int sectionNum);
+    double getB(int sectionIndex);
 
     /**
      * Get the section conductance in S of the section with a given section number if it exists.
      * Throw an exception if such a section does not exist.
      */
-    double getG(int sectionNum);
+    double getG(int sectionIndex);
 }

@@ -60,13 +60,13 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     }
 
     @Override
-    public double getCurrentB(int currentSectionIndex) {
-        return bPerSection * currentSectionIndex;
+    public double getCurrentB(int currentSectionCount) {
+        return bPerSection * currentSectionCount;
     }
 
     @Override
-    public double getCurrentG(int currentSectionIndex) {
-        return gPerSection * currentSectionIndex;
+    public double getCurrentG(int currentSectionCount) {
+        return gPerSection * currentSectionCount;
     }
 
     @Override
@@ -89,13 +89,13 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     }
 
     @Override
-    public double getB(int sectionNum) {
-        return sectionNum == 0 ? 0 : bPerSection;
+    public double getB(int sectionIndex) {
+        return sectionIndex == 0 ? 0 : bPerSection;
     }
 
     @Override
-    public double getG(int sectionNum) {
-        return !Double.isNaN(gPerSection) && sectionNum == 0 ? 0 : gPerSection;
+    public double getG(int sectionIndex) {
+        return !Double.isNaN(gPerSection) && sectionIndex == 0 ? 0 : gPerSection;
     }
 
     @Override

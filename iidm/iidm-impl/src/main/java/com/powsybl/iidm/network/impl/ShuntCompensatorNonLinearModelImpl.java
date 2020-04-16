@@ -143,33 +143,33 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
     }
 
     @Override
-    public double getCurrentB(int currentSectionIndex) {
+    public double getCurrentB(int currentSectionCount) {
         return sections.entrySet().stream()
-                .filter(e -> e.getKey() <= currentSectionIndex)
+                .filter(e -> e.getKey() <= currentSectionCount)
                 .mapToDouble(e -> e.getValue().getB())
                 .sum();
     }
 
     @Override
-    public double getCurrentG(int currentSectionIndex) {
+    public double getCurrentG(int currentSectionCount) {
         return sections.entrySet().stream()
-                .filter(e -> e.getKey() <= currentSectionIndex)
+                .filter(e -> e.getKey() <= currentSectionCount)
                 .mapToDouble(e -> e.getValue().getG())
                 .sum();
     }
 
     @Override
-    public double getB(int sectionNum) {
-        return Optional.ofNullable(sections.get(sectionNum))
+    public double getB(int sectionIndex) {
+        return Optional.ofNullable(sections.get(sectionIndex))
                 .map(SectionImpl::getB)
-                .orElseThrow(() -> new PowsyblException(invalidSectionNumberMessage(sectionNum, "susceptance")));
+                .orElseThrow(() -> new PowsyblException(invalidSectionNumberMessage(sectionIndex, "susceptance")));
     }
 
     @Override
-    public double getG(int sectionNum) {
-        return Optional.ofNullable(sections.get(sectionNum))
+    public double getG(int sectionIndex) {
+        return Optional.ofNullable(sections.get(sectionIndex))
                 .map(SectionImpl::getG)
-                .orElseThrow(() -> new PowsyblException(invalidSectionNumberMessage(sectionNum, "conductance")));
+                .orElseThrow(() -> new PowsyblException(invalidSectionNumberMessage(sectionIndex, "conductance")));
     }
 
     private static String invalidSectionNumberMessage(int sectionNum, String attributes) {
