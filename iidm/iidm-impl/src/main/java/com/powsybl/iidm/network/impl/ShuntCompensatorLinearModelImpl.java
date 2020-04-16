@@ -66,7 +66,7 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
 
     @Override
     public double getCurrentG(int currentSectionCount) {
-        return gPerSection * currentSectionCount;
+        return Double.isNaN(gPerSection) ? 0 : gPerSection * currentSectionCount;
     }
 
     @Override
@@ -95,7 +95,7 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
 
     @Override
     public double getG(int sectionIndex) {
-        return !Double.isNaN(gPerSection) && sectionIndex == 0 ? 0 : gPerSection;
+        return Double.isNaN(gPerSection) || sectionIndex == 0 ? 0 : gPerSection;
     }
 
     @Override
@@ -105,10 +105,7 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
 
     @Override
     public double getMaximumG() {
-        if (Double.isNaN(gPerSection)) {
-            return Double.NaN;
-        }
-        return (gPerSection > 0) ? gPerSection * maximumSectionCount : 0;
+        return (!Double.isNaN(gPerSection) && gPerSection > 0) ? gPerSection * maximumSectionCount : 0;
     }
 
     @Override
@@ -118,9 +115,6 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
 
     @Override
     public double getMinimumG() {
-        if (Double.isNaN(gPerSection)) {
-            return Double.NaN;
-        }
-        return (gPerSection < 0) ? gPerSection * maximumSectionCount : 0;
+        return (!Double.isNaN(gPerSection) && gPerSection < 0) ? gPerSection * maximumSectionCount : 0;
     }
 }

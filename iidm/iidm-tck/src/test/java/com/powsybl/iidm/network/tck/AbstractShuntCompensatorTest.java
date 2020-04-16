@@ -219,7 +219,7 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(5.0, shuntNonLinearModel.getB(1), 0.0);
         assertEquals(2.0, shuntNonLinearModel.getG(1), 0.0);
         assertEquals(6.0, shuntNonLinearModel.getB(2), 0.0);
-        assertTrue(Double.isNaN(shuntNonLinearModel.getG(2)));
+        assertEquals(0.0, shuntNonLinearModel.getG(0), 0.0);
         assertFalse(shuntNonLinearModel.getSection(3).isPresent());
 
         // try get incorrect shunt model
@@ -289,7 +289,7 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(3, shuntCompensator.getMaximumSectionCount());
         assertEquals(15.0, shuntCompensator.getMaximumB(), 0.0);
         assertEquals(0.0, shuntCompensator.getMinimumB(), 0.0);
-        assertEquals(2.0, shuntCompensator.getMaximumG(), 0.0);
+        assertEquals(3.0, shuntCompensator.getMaximumG(), 0.0);
         assertEquals(0.0, shuntCompensator.getMinimumG(), 0.0);
         shuntNonLinearModel.addOrReplaceSection(0, -3.0, -1.5); // replace a section
         assertEquals(4, shuntNonLinearModel.getSections().size());
@@ -297,7 +297,7 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(-1.5, shuntNonLinearModel.getG(0), 0.0);
         assertEquals(12.0, shuntCompensator.getMaximumB(), 0.0);
         assertEquals(-3.0, shuntCompensator.getMinimumB(), 0.0);
-        assertEquals(0.5, shuntCompensator.getMaximumG(), 0.0);
+        assertEquals(1.5, shuntCompensator.getMaximumG(), 0.0);
         assertEquals(-1.5, shuntCompensator.getMinimumG(), 0.0);
 
         // remove a section

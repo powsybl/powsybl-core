@@ -49,25 +49,14 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
 
     @Override
     public double getMaximumB() {
-        if (sections.values().stream().allMatch(section -> section.getB() >= 0)) {
-            return sections.values().stream().mapToDouble(SectionImpl::getB).sum();
-        } else if (sections.values().stream().allMatch(section -> section.getB() <= 0)) {
-            return 0;
-        }
-        return sections.keySet().stream().mapToDouble(this::getCurrentB).max().orElseThrow(() -> new PowsyblException("a shunt compensator must have at least one section"));
+        double sumB = sections.values().stream().mapToDouble(SectionImpl::getB).sum();
+        return Math.max(0, sumB);
     }
 
     @Override
     public double getMaximumG() {
-        double maxG = sections.keySet().stream()
-                .mapToDouble(this::getCurrentG)
-                .filter(g -> !Double.isNaN(g))
-                .max()
-                .orElse(Double.NaN);
-        if (!Double.isNaN(maxG)) {
-            return Math.max(0, maxG);
-        }
-        return maxG;
+        double sumG = sections.values().stream().mapToDouble(SectionImpl::getG).filter(g -> !Double.isNaN(g)).sum();
+        return Math.max(0, sumG);
     }
 
     @Override
@@ -80,15 +69,10 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
 
     @Override
     public double getMinimumG() {
-        double minG = sections.keySet().stream()
-                .mapToDouble(this::getCurrentG)
-                .filter(g -> !Double.isNaN(g))
-                .min()
-                .orElse(Double.NaN);
-        if (!Double.isNaN(minG)) {
-            return Math.min(0, minG);
-        }
-        return minG;
+        return sections.values().stream()
+                .mapToDouble(SectionImpl::getG)
+                .filter(g -> !Double.isNaN(g) && g <= 0)
+                .sum();
     }
 
     @Override
@@ -155,6 +139,7 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
         return sections.entrySet().stream()
                 .filter(e -> e.getKey() <= currentSectionCount)
                 .mapToDouble(e -> e.getValue().getG())
+                .filter(g -> !Double.isNaN(g))
                 .sum();
     }
 
@@ -168,7 +153,13 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
     @Override
     public double getG(int sectionIndex) {
         return Optional.ofNullable(sections.get(sectionIndex))
-                .map(SectionImpl::getG)
+                .map(section -> {
+                    double g = section.getG();
+                    if (!Double.isNaN(g)) {
+                        return g;
+                    }
+                    return 0.0;
+                })
                 .orElseThrow(() -> new PowsyblException(invalidSectionNumberMessage(sectionIndex, "conductance")));
     }
 
