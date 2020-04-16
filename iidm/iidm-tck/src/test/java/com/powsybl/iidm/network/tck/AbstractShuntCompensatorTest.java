@@ -63,6 +63,12 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(SHUNT, shuntCompensator.getId());
         assertEquals(6, shuntCompensator.getCurrentSectionCount());
         assertEquals(10, shuntCompensator.getMaximumSectionCount());
+        assertEquals(30.0, shuntCompensator.getCurrentB(), 0.0);
+        assertEquals(50.0, shuntCompensator.getMaximumB(), 0.0);
+        assertEquals(0.0, shuntCompensator.getMinimumB(), 0.0);
+        assertEquals(24.0, shuntCompensator.getCurrentG(), 0.0);
+        assertEquals(40.0, shuntCompensator.getMaximumG(), 0.0);
+        assertEquals(0.0, shuntCompensator.getMinimumG(), 0.0);
         assertSame(terminal, shuntCompensator.getRegulatingTerminal());
         assertTrue(shuntCompensator.isVoltageRegulatorOn());
         assertEquals(200, shuntCompensator.getTargetV(), 0.0);
