@@ -48,10 +48,10 @@ public abstract class AbstractLccTest {
         assertNotNull(cs2);
         assertEquals(1, network.getVoltageLevel("VL1").getLccConverterStationCount());
         assertEquals(1, network.getVoltageLevel("VL2").getLccConverterStationCount());
-        assertEquals(0.011f, cs1.getLossFactor(), 0.0f);
-        assertEquals(0.011f, cs2.getLossFactor(), 0.0f);
-        cs1.setLossFactor(0.022f);
-        assertEquals(0.022f, cs1.getLossFactor(), 0.0f);
+        assertEquals(1.1f, cs1.getLossFactor(), 0.0f);
+        assertEquals(1.1f, cs2.getLossFactor(), 0.0f);
+        cs1.setLossFactor(2.2f);
+        assertEquals(2.2f, cs1.getLossFactor(), 0.0f);
         assertEquals(0.5f, cs1.getPowerFactor(), 0.0f);
         assertEquals(0.6f, cs2.getPowerFactor(), 0.0f);
         cs1.setPowerFactor(0.6f);
