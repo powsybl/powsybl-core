@@ -6,9 +6,11 @@
  */
 package com.powsybl.contingency.dsl
 
+import com.powsybl.commons.extensions.Extension
 import com.powsybl.contingency.*
 import com.powsybl.dsl.DslException
 import com.powsybl.dsl.DslLoader
+import com.powsybl.dsl.ExtendableDslExtension
 import com.powsybl.iidm.network.*
 import org.codehaus.groovy.control.CompilationFailedException
 import org.slf4j.LoggerFactory
@@ -29,6 +31,7 @@ class ContingencyDslLoader extends DslLoader {
         void equipments(String[] equipments) {
             this.equipments = equipments
         }
+
     }
 
     ContingencyDslLoader(GroovyCodeSource dslSrc) {
@@ -44,11 +47,16 @@ class ContingencyDslLoader extends DslLoader {
     }
 
     static void loadDsl(Binding binding, Network network, Consumer<Contingency> consumer, ContingencyDslObserver observer) {
-
         // contingencies
         binding.contingency = { String id, Closure<Void> closure ->
             def cloned = closure.clone()
             ContingencySpec contingencySpec = new ContingencySpec()
+
+            List<Extension<Contingency>> extensionList = new ArrayList<>();
+            for (ExtendableDslExtension dslContingencyExtension : ServiceLoader.load(ContingencyDslExtension.class)) {
+                dslContingencyExtension.addToSpec(contingencySpec.metaClass, extensionList, binding)
+            }
+
             cloned.delegate = contingencySpec
             cloned()
             if (!contingencySpec.equipments) {
@@ -85,6 +93,9 @@ class ContingencyDslLoader extends DslLoader {
                 LOGGER.debug("Found contingency '{}'", id)
                 observer?.contingencyFound(id)
                 Contingency contingency = new Contingency(id, elements)
+                extensionList.forEach({ ext ->
+                    contingency.addExtension(ext.getClass(), ext)
+                })
                 consumer.accept(contingency)
             } else {
                 LOGGER.warn("Contingency '{}' is invalid", id)
