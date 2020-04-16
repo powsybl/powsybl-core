@@ -15,15 +15,20 @@ import com.powsybl.contingency.Contingency;
  * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
  */
 public class ProbabilityContingencyExtension extends AbstractExtension<Contingency> {
-    private Double probabilityBase = 1.0;
-    private String probabilityTimeSeriesRef;
+    private final Double probabilityBase;
+    private final String probabilityTimeSeriesRef;
+
+    public ProbabilityContingencyExtension(Double probabilityBase, String probabilityTimeSeriesRef) {
+        this.probabilityBase = probabilityBase;
+        this.probabilityTimeSeriesRef = probabilityTimeSeriesRef;
+    }
 
     @Override
     public String getName() {
         return "probability";
     }
 
-    public double getProbabilityBase() {
+    public Double getProbabilityBase() {
         return probabilityBase;
     }
 

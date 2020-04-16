@@ -24,16 +24,13 @@ class ProbabilityContingencyDslExtension implements ContingencyDslExtension {
 
     @Override
     void addToSpec(MetaClass extSpecMetaClass, List<Extension<Contingency>> contingencyExtensions, Binding binding) {
-        ProbabilityContingencyExtension ext = new ProbabilityContingencyExtension();
         extSpecMetaClass.probability = { Closure<Void> closure ->
             def cloned = closure.clone()
             ProbabilitySpec spec = new ProbabilitySpec()
             cloned.delegate = spec
             cloned()
 
-            ext.probabilityBase = spec.base
-            ext.probabilityTimeSeriesRef = spec.tsName
-            contingencyExtensions.add(ext)
+            contingencyExtensions.add(new ProbabilityContingencyExtension(spec.base, spec.tsName))
         }
     }
 
