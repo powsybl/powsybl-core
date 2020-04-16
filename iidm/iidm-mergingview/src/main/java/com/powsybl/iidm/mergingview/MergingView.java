@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.google.common.collect.FluentIterable;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
@@ -53,21 +54,22 @@ public final class MergingView implements Network {
 
         @Override
         public Bus getBus(final String id) {
-            return index.get(n -> n.getBusBreakerView().getBus(id), index::getBus);
+            return index.getVoltageLevelStream()
+                    .map(vl -> vl.getBusBreakerView().getBus(id))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
         }
 
         @Override
         public Iterable<Bus> getBuses() {
-            return Collections.unmodifiableList(getBusStream().collect(Collectors.toList()));
+            return FluentIterable.from(index.getVoltageLevels())
+                    .transformAndConcat(vl -> vl.getBusBreakerView().getBuses());
         }
 
         @Override
         public Stream<Bus> getBusStream() {
-            return index.getNetworkStream()
-                    .map(Network::getBusBreakerView)
-                    .map(Network.BusBreakerView::getBusStream)
-                    .flatMap(stream -> stream)
-                    .map(index::getBus);
+            return index.getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getBusStream());
         }
 
         @Override
@@ -102,21 +104,22 @@ public final class MergingView implements Network {
 
         @Override
         public Iterable<Bus> getBuses() {
-            return Collections.unmodifiableList(getBusStream().collect(Collectors.toList()));
+            return FluentIterable.from(index.getVoltageLevels())
+                    .transformAndConcat(vl -> vl.getBusView().getBuses());
         }
 
         @Override
         public Stream<Bus> getBusStream() {
-            return index.getNetworkStream()
-                    .map(Network::getBusView)
-                    .map(Network.BusView::getBusStream)
-                    .flatMap(stream -> stream)
-                    .map(index::getBus);
+            return index.getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream());
         }
 
         @Override
         public Bus getBus(final String id) {
-            return index.get(n -> n.getBusView().getBus(id), index::getBus);
+            return index.getVoltageLevelStream()
+                    .map(vl -> vl.getBusView().getBus(id))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
         }
 
         // -------------------------------

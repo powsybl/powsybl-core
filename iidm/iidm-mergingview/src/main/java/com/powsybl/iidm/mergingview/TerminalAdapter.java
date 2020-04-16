@@ -9,7 +9,6 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevel.TopologyTraverser;
 
 /**
@@ -17,50 +16,52 @@ import com.powsybl.iidm.network.VoltageLevel.TopologyTraverser;
  */
 public class TerminalAdapter extends AbstractAdapter<Terminal> implements Terminal {
 
-    static class BusBreakerViewAdapter extends AbstractAdapter<Terminal.BusBreakerView> implements Terminal.BusBreakerView {
+    class BusBreakerViewAdapter extends AbstractAdapter<Terminal.BusBreakerView> implements Terminal.BusBreakerView {
 
         BusBreakerViewAdapter(final BusBreakerView delegate, final MergingViewIndex index) {
             super(delegate, index);
         }
 
-        // -------------------------------
-        // Simple delegated methods ------
-        // -------------------------------
         @Override
         public Bus getBus() {
-            return getIndex().getBus(getDelegate().getBus());
+            return getBus(getDelegate().getBus());
         }
 
         @Override
         public Bus getConnectableBus() {
-            return getIndex().getBus(getDelegate().getConnectableBus());
+            return getBus(getDelegate().getConnectableBus());
         }
 
         @Override
         public void setConnectableBus(final String busId) {
             getDelegate().setConnectableBus(busId);
         }
+
+        private Bus getBus(Bus bus) {
+            return getVoltageLevel().getBusBreakerView().getBus(bus);
+        }
     }
 
     private BusBreakerViewAdapter busBreakerView;
 
-    static class BusViewAdapter extends AbstractAdapter<Terminal.BusView> implements Terminal.BusView {
+    class BusViewAdapter extends AbstractAdapter<Terminal.BusView> implements Terminal.BusView {
 
         BusViewAdapter(final BusView delegate, final MergingViewIndex index) {
             super(delegate, index);
         }
 
-        // -------------------------------
-        // Simple delegated methods ------
-        // -------------------------------
         @Override
         public Bus getBus() {
-            return getIndex().getBus(getDelegate().getBus());
+            return getBus(getDelegate().getBus());
         }
 
         @Override
         public Bus getConnectableBus() {
-            return getIndex().getBus(getDelegate().getConnectableBus());
+            return getBus(getDelegate().getConnectableBus());
+        }
+
+        private Bus getBus(Bus bus) {
+            return getVoltageLevel().getBusView().getBus(bus);
         }
     }
 
@@ -91,7 +92,7 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
     }
 
     @Override
-    public VoltageLevel getVoltageLevel() {
+    public AbstractVoltageLevelAdapter getVoltageLevel() {
         return getIndex().getVoltageLevel(getDelegate().getVoltageLevel());
     }
 

@@ -220,10 +220,14 @@ class MergingViewIndex {
 
     Collection<VoltageLevel> getVoltageLevels() {
         // Search VoltageLevel into merging & working networks
+        return getVoltageLevelStream().collect(Collectors.toList());
+    }
+
+    Stream<VoltageLevel> getVoltageLevelStream() {
+        // Search VoltageLevel into merging & working networks
         return getNetworkStream()
                 .flatMap(Network::getVoltageLevelStream)
-                .map(this::getVoltageLevel)
-                .collect(Collectors.toList());
+                .map(this::getVoltageLevel);
     }
 
     Collection<Load> getLoads() {
@@ -326,8 +330,13 @@ class MergingViewIndex {
     }
 
     /** @return adapter according to given VoltageLevel */
-    VoltageLevelAdapter getVoltageLevel(final VoltageLevel vl) {
-        return vl == null ? null : (VoltageLevelAdapter) identifiableCached.computeIfAbsent(vl, key -> new VoltageLevelAdapter(vl, this));
+    AbstractVoltageLevelAdapter getVoltageLevel(final VoltageLevel vl) {
+        Function<Identifiable, AbstractVoltageLevelAdapter> factory = v -> {
+            VoltageLevel voltageLevel = (VoltageLevel) v;
+            return vl.getTopologyKind() == TopologyKind.NODE_BREAKER ? new NodeBreakerVoltageLevelAdapter(voltageLevel, this) : new BusBreakerVoltageLevelAdapter(voltageLevel, this);
+        };
+
+        return vl == null ? null : (AbstractVoltageLevelAdapter) identifiableCached.computeIfAbsent(vl, factory);
     }
 
     /** @return adapter according to given Switch */
