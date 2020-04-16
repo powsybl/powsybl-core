@@ -55,7 +55,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
 
     /**
      * Get the conductance (in S) for the current section count i.e. the sum of the sections' conductances for all sections in service.
-     * If a conductance of a section in service is undefined, the current conductance is undefined.
+     * If a conductance of a section in service is undefined, it is considered equal to 0.
      * @see #getCurrentSectionCount()
      * <p>
      * Depends on the working variant.
@@ -64,30 +64,24 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     double getCurrentG();
 
     /**
-     * Get the maximum susceptance (in S) i.e. the maximum of all the possible current susceptances.
-     * <p>
-     * @see #getCurrentB()
+     * Get the maximum susceptance (in S) i.e. the sum of all sections' susceptances if it is strictly superior to 0, else 0.
      */
     double getMaximumB();
 
     /**
-     * Get the maximum conductance (in S) i.e. the maximum of all the possible current conductances.
-     * If all the sections' conductances are undefined, the maximum conductance is undefined.
-     * <p>
-     * @see #getCurrentG()
+     * Get the maximum conductance (in S) i.e. the sum of all sections' conductances if it is strictly superior to 0, else 0.
+     * If a section conductance is undefined, it is considered equal to 0.
      */
     double getMaximumG();
 
     /**
-     * Get the minimum susceptance (in S) i.e. the minimum of all possible current susceptances.
-     * @see #getCurrentB()
+     * Get the minimum susceptance (in S) i.e. the sum of all sections' negative susceptances if they exist, else 0.
      */
     double getMinimumB();
 
     /**
-     * Get the minimum conductance (in S) i.e. the minimum of all the possible current conductances.
-     * If all the sections' conductances are undefined, the minimum conductance is undefined.
-     * @see #getCurrentG()
+     * Get the minimum conductance (in S) i.e. the sum of all sections' negative conductances if they exist, else 0.
+     * If a section conductance is undefined, it is considered equal to 0.
      */
     double getMinimumG();
 
