@@ -103,10 +103,19 @@ public class ShuntCompensatorAdapterTest {
         ShuntCompensator shunt = mergingView.getShuntCompensator("linear");
         assertEquals(0, shunt.getCurrentSectionCount());
         assertEquals(2, shunt.getMaximumSectionCount());
+        assertEquals(0, shunt.getCurrentB(), 0.0);
+        assertTrue(Double.isNaN(shunt.getCurrentG()));
+        assertEquals(2.0, shunt.getMaximumB(), 0.0);
+        assertEquals(0.0, shunt.getMinimumB(), 0.0);
+        assertTrue(Double.isNaN(shunt.getMaximumG()));
+        assertTrue(Double.isNaN(shunt.getMinimumG()));
 
         ShuntCompensatorLinearModel model = shunt.getModel(ShuntCompensatorLinearModel.class);
         assertEquals(1.0, model.getbPerSection(), 0.0);
         assertTrue(Double.isNaN(model.getgPerSection()));
+        assertEquals(0.0, model.getB(0), 0.0);
+        assertEquals(1.0, model.getB(2), 0.0);
+        assertTrue(Double.isNaN(model.getG(2)));
     }
 
     @Test
