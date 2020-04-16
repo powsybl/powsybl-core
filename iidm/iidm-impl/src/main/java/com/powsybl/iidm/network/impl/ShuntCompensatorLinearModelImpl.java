@@ -90,12 +90,12 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
 
     @Override
     public double getB(int sectionNum) {
-        return bPerSection;
+        return sectionNum == 0 ? 0 : bPerSection;
     }
 
     @Override
     public double getG(int sectionNum) {
-        return gPerSection;
+        return !Double.isNaN(gPerSection) && sectionNum == 0 ? 0 : gPerSection;
     }
 
     @Override
