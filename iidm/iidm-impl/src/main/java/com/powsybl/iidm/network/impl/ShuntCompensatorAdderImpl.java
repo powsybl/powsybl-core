@@ -84,15 +84,15 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
         class SectionAdderImpl implements SectionAdder {
 
-            private int sectionNum = -1;
+            private int sectionIndex = -1;
 
             private double b = Double.NaN;
 
             private double g = Double.NaN;
 
             @Override
-            public SectionAdder setSectionNum(int sectionNum) {
-                this.sectionNum = sectionNum;
+            public SectionAdder setSectionIndex(int sectionIndex) {
+                this.sectionIndex = sectionIndex;
                 return this;
             }
 
@@ -110,12 +110,15 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
             @Override
             public ShuntCompensatorNonLinearModelAdder endSection() {
-                ValidationUtil.checkSectionNumber(ShuntCompensatorAdderImpl.this, sectionNum);
-                if (sections.containsKey(sectionNum)) {
+                if (sectionIndex == 0) {
+                    throw new ValidationException(ShuntCompensatorAdderImpl.this, "section 0 (b = 0.0, g = 0.0) should not be written, it corresponds to disconnected state");
+                }
+                ValidationUtil.checkSectionNumber(ShuntCompensatorAdderImpl.this, sectionIndex);
+                if (sections.containsKey(sectionIndex)) {
                     throw new ValidationException(ShuntCompensatorAdderImpl.this, "a section is already defined at this number");
                 }
                 ValidationUtil.checkSectionB(ShuntCompensatorAdderImpl.this, b);
-                sections.put(sectionNum, new ShuntCompensatorNonLinearModelImpl.SectionImpl(b, g));
+                sections.put(sectionIndex, new ShuntCompensatorNonLinearModelImpl.SectionImpl(b, g));
                 return ShuntCompensatorNonLinearModelAdderImpl.this;
             }
         }

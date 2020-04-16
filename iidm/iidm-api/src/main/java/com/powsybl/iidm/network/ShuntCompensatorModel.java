@@ -12,14 +12,17 @@ package com.powsybl.iidm.network;
 public interface ShuntCompensatorModel {
 
     /**
-     * Get the susceptance in S of the section with a given section number if it exists.
+     * Get the section susceptance in S of the section with a given section number if it exists.
+     * Return 0 if sectionIndex is equal to 0 (disconnected state).
      * Throw an exception if such a section does not exist.
      */
-    double getB(int sectionNum);
+    double getBSection(int sectionIndex);
 
     /**
-     * Get the conductance in S of the section with a given section number if it exists.
+     * Get the section conductance in S of the section with a given section number if it exists.
+     * Return 0 if sectionIndex is equal to 0 (disconnected state).
+     * If the section conductance has not been defined, return 0.
      * Throw an exception if such a section does not exist.
      */
-    double getG(int sectionNum);
+    double getGSection(int sectionIndex);
 }

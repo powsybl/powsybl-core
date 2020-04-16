@@ -124,7 +124,7 @@ public class NonLinearShuntXml extends AbstractConnectableXml<ShuntCompensator, 
         double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
         double g = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g");
         adder.beginSection()
-                .setSectionNum(sectionNum)
+                .setSectionIndex(sectionNum)
                 .setB(b)
                 .setG(g)
                 .endSection();

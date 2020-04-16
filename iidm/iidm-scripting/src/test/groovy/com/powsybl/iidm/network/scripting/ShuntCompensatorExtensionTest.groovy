@@ -45,7 +45,6 @@ class ShuntCompensatorExtensionTest {
     void nonLinearShuntTest() {
         ShuntCompensator shunt = createNonLinearShuntCompensator()
         assertEquals(2, shunt.maximumSectionCount)
-        assertEquals(6.0, shunt.maximumB, 0.0f)
     }
 
     @Test
@@ -128,17 +127,12 @@ class ShuntCompensatorExtensionTest {
                 .setCurrentSectionCount(1)
         adder.newNonLinearModel()
                 .beginSection()
-                    .setSectionNum(0)
-                    .setB(0.0)
-                    .setG(0.0)
-                .endSection()
-                .beginSection()
-                    .setSectionNum(1)
+                    .setSectionIndex(1)
                     .setB(5.0)
                     .setG(2.0)
                 .endSection()
                 .beginSection()
-                    .setSectionNum(2)
+                    .setSectionIndex(2)
                     .setB(6.0)
                 .endSection()
                 .add()

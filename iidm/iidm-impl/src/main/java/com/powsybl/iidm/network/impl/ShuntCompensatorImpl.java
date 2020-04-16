@@ -108,6 +108,16 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
+    public double getB(int sectionCount) {
+        return model.getB(sectionCount);
+    }
+
+    @Override
+    public double getG(int sectionCount) {
+        return model.getG(sectionCount);
+    }
+
+    @Override
     public ShuntCompensatorModelType getModelType() {
         return model.getType();
     }

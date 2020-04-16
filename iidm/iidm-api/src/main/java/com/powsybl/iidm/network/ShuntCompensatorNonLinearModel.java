@@ -28,21 +28,11 @@ public interface ShuntCompensatorNonLinearModel extends ShuntCompensatorModel {
     }
 
     /**
-     * Get the maximum susceptance for a section in S.
-     */
-    double getMaximumB();
-
-    /**
-     * Get the maximum conductance for a section in S.
-     */
-    double getMaximumG();
-
-    /**
      * Get an optional of the section associated with a given section number if it exists.
      * If such a section does not exist, return an empty optional.
      *
      */
-    Optional<Section> getSection(int sectionNum);
+    Optional<Section> getSection(int sectionIndex);
 
     /**
      * Get all the sections associated with their section number.
@@ -52,12 +42,13 @@ public interface ShuntCompensatorNonLinearModel extends ShuntCompensatorModel {
     /**
      * For a given section number, add a section with a given susceptance and conductance in S to the model.
      * If a section already exists for this section number, respectively replace its susceptance and conductance with the given susceptance and conductance.
+     * Throw an exception if the section index equals to 0 (corresponds to disconnected state).
      */
-    ShuntCompensatorNonLinearModel addOrReplaceSection(int sectionNum, double b, double g);
+    ShuntCompensatorNonLinearModel addOrReplaceSection(int sectionIndex, double b, double g);
 
     /**
      * Remove the section associated with a given section number if it exists <b>and</b> the current section count is different of the given section number.
      * Else, throw an exception.
      */
-    ShuntCompensatorNonLinearModel removeSection(int sectionNum);
+    ShuntCompensatorNonLinearModel removeSection(int sectionIndex);
 }

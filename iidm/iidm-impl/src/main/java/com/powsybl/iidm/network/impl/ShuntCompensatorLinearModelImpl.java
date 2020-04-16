@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import com.powsybl.iidm.network.ValidationUtil;
@@ -60,6 +61,22 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     }
 
     @Override
+    public double getB(int sectionCount) {
+        if (sectionCount < 0 || sectionCount > maximumSectionCount) {
+            throw new PowsyblException("the given count of sections in service (" + sectionCount + ") is invalid (negative or strictly greater than the maximum sections count");
+        }
+        return bPerSection * sectionCount;
+    }
+
+    @Override
+    public double getG(int sectionCount) {
+        if (sectionCount < 0 || sectionCount > maximumSectionCount) {
+            throw new PowsyblException("the given count of sections in service (" + sectionCount + ") is invalid (negative or strictly greater than the maximum sections count");
+        }
+        return Double.isNaN(gPerSection) ? 0 : gPerSection * sectionCount;
+    }
+
+    @Override
     public ShuntCompensatorLinearModel setMaximumSectionCount(int maximumSectionCount) {
         ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getCurrentSectionCount(), maximumSectionCount);
         int oldValue = this.maximumSectionCount;
@@ -79,12 +96,18 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     }
 
     @Override
-    public double getB(int sectionNum) {
-        return bPerSection * sectionNum;
+    public double getBSection(int sectionIndex) {
+        if (sectionIndex < 0 || sectionIndex > maximumSectionCount) {
+            throw new PowsyblException("the given index of section (" + sectionIndex + ") is not associated with any susceptance");
+        }
+        return sectionIndex == 0 ? 0 : bPerSection;
     }
 
     @Override
-    public double getG(int sectionNum) {
-        return gPerSection * sectionNum;
+    public double getGSection(int sectionIndex) {
+        if (sectionIndex < 0 || sectionIndex > maximumSectionCount) {
+            throw new PowsyblException("the given index of section (" + sectionIndex + ") is not associated with any conductance");
+        }
+        return Double.isNaN(gPerSection) || sectionIndex == 0 ? 0 : gPerSection;
     }
 }
