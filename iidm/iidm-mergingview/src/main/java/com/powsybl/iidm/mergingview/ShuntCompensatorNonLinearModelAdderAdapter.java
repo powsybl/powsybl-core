@@ -35,8 +35,8 @@ public class ShuntCompensatorNonLinearModelAdderAdapter implements ShuntCompensa
         }
 
         @Override
-        public SectionAdder setSectionNum(int sectionNum) {
-            delegate.setSectionNum(sectionNum);
+        public SectionAdder setSectionIndex(int sectionIndex) {
+            delegate.setSectionIndex(sectionIndex);
             return this;
         }
 

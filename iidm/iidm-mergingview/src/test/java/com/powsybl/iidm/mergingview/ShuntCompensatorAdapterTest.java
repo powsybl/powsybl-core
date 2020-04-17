@@ -105,6 +105,12 @@ public class ShuntCompensatorAdapterTest {
         assertEquals(2, shunt.getMaximumSectionCount());
         assertEquals(0, shunt.getCurrentB(), 0.0);
         assertEquals(0.0, shunt.getCurrentG(), 0.0);
+        assertEquals(0, shunt.getB(0), 0.0);
+        assertEquals(1.0, shunt.getB(1), 0.0);
+        assertEquals(2.0, shunt.getB(2), 0.0);
+        assertEquals(0.0, shunt.getG(0), 0.0);
+        assertEquals(0.0, shunt.getG(1), 0.0);
+        assertEquals(0.0, shunt.getG(2), 0.0);
 
         ShuntCompensatorLinearModel model = shunt.getModel(ShuntCompensatorLinearModel.class);
         assertEquals(1.0, model.getbPerSection(), 0.0);
@@ -123,14 +129,14 @@ public class ShuntCompensatorAdapterTest {
                 .newShuntCompensator()
                 .setId("nonLinear")
                 .setConnectableBus("NLOAD")
-                .setCurrentSectionCount(0)
+                .setCurrentSectionCount(1)
                 .newNonLinearModel()
                     .beginSection()
-                        .setSectionNum(0)
+                        .setSectionIndex(1)
                         .setB(1.0)
                     .endSection()
                     .beginSection()
-                        .setSectionNum(1)
+                        .setSectionIndex(2)
                         .setB(2.0)
                     .endSection()
                 .add();
@@ -138,15 +144,15 @@ public class ShuntCompensatorAdapterTest {
         assertTrue(adder.add() instanceof ShuntCompensatorAdapter);
 
         ShuntCompensator shunt = mergingView.getShuntCompensator("nonLinear");
-        assertEquals(0, shunt.getCurrentSectionCount());
-        assertEquals(1, shunt.getMaximumSectionCount());
+        assertEquals(1, shunt.getCurrentSectionCount());
+        assertEquals(2, shunt.getMaximumSectionCount());
 
         ShuntCompensatorNonLinearModel model = shunt.getModel(ShuntCompensatorNonLinearModel.class);
         assertEquals(2, model.getSections().size());
-        assertEquals(1.0, model.getBSection(0), 0.0);
-        assertEquals(0.0, model.getGSection(0), 0.0);
-        assertEquals(2.0, model.getBSection(1), 0.0);
+        assertEquals(1.0, model.getBSection(1), 0.0);
         assertEquals(0.0, model.getGSection(1), 0.0);
+        assertEquals(2.0, model.getBSection(2), 0.0);
+        assertEquals(0.0, model.getGSection(2), 0.0);
     }
 
     private void createNetwork() {
