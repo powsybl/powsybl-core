@@ -61,13 +61,13 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     }
 
     @Override
-    public double getCurrentB(int currentSectionCount) {
-        return bPerSection * currentSectionCount;
+    public double getB(int sectionCount) {
+        return bPerSection * sectionCount;
     }
 
     @Override
-    public double getCurrentG(int currentSectionCount) {
-        return Double.isNaN(gPerSection) ? 0 : gPerSection * currentSectionCount;
+    public double getG(int sectionCount) {
+        return Double.isNaN(gPerSection) ? 0 : gPerSection * sectionCount;
     }
 
     @Override
@@ -90,7 +90,7 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     }
 
     @Override
-    public double getB(int sectionIndex) {
+    public double getBSection(int sectionIndex) {
         if (sectionIndex < 0 || sectionIndex > maximumSectionCount) {
             throw new PowsyblException("the given number of section (" + sectionIndex + ") is not associated with any susceptance");
         }
@@ -98,30 +98,10 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     }
 
     @Override
-    public double getG(int sectionIndex) {
+    public double getGSection(int sectionIndex) {
         if (sectionIndex < 0 || sectionIndex > maximumSectionCount) {
             throw new PowsyblException("the given number of section (" + sectionIndex + ") is not associated with any conductance");
         }
         return Double.isNaN(gPerSection) || sectionIndex == 0 ? 0 : gPerSection;
-    }
-
-    @Override
-    public double getMaximumB() {
-        return (bPerSection > 0) ? bPerSection * maximumSectionCount : 0;
-    }
-
-    @Override
-    public double getMaximumG() {
-        return (!Double.isNaN(gPerSection) && gPerSection > 0) ? gPerSection * maximumSectionCount : 0;
-    }
-
-    @Override
-    public double getMinimumB() {
-        return (bPerSection < 0) ? bPerSection * maximumSectionCount : 0;
-    }
-
-    @Override
-    public double getMinimumG() {
-        return (!Double.isNaN(gPerSection) && gPerSection < 0) ? gPerSection * maximumSectionCount : 0;
     }
 }

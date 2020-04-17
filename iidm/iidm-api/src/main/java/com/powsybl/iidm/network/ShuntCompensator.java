@@ -64,31 +64,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      */
     double getCurrentG();
 
-    /**
-     * Get the maximum susceptance (in S) i.e. the sum of all sections' susceptances if it is strictly superior to 0, else 0.
-     * Please note this method is independent from {@link #getMaximumG()}.
-     */
-    double getMaximumB();
+    double getB(int sectionCount);
 
-    /**
-     * Get the maximum conductance (in S) i.e. the sum of all sections' conductances if it is strictly superior to 0, else 0.
-     * If a section conductance is undefined, it is considered equal to 0.
-     * Please note this method is independent from {@link #getMaximumB()}.
-     */
-    double getMaximumG();
-
-    /**
-     * Get the minimum susceptance (in S) i.e. the sum of all sections' negative susceptances if they exist, else 0.
-     * Please note this method is independent from {@link #getMinimumG()}.
-     */
-    double getMinimumB();
-
-    /**
-     * Get the minimum conductance (in S) i.e. the sum of all sections' negative conductances if they exist, else 0.
-     * If a section conductance is undefined, it is considered equal to 0.
-     * Please note this method is independent from {@link #getMinimumB()}.
-     */
-    double getMinimumG();
+    double getG(int sectionCount);
 
     /**
      * Get the model type of the shunt compensator (linear or non-linear)

@@ -45,7 +45,6 @@ class ShuntCompensatorExtensionTest {
     void nonLinearShuntTest() {
         ShuntCompensator shunt = createNonLinearShuntCompensator()
         assertEquals(2, shunt.maximumSectionCount)
-        assertEquals(11.0, shunt.maximumB, 0.0f)
     }
 
     @Test

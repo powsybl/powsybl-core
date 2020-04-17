@@ -48,34 +48,6 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
     }
 
     @Override
-    public double getMaximumB() {
-        double sumB = sections.values().stream().mapToDouble(SectionImpl::getB).sum();
-        return Math.max(0, sumB);
-    }
-
-    @Override
-    public double getMaximumG() {
-        double sumG = sections.values().stream().mapToDouble(SectionImpl::getG).filter(g -> !Double.isNaN(g)).sum();
-        return Math.max(0, sumG);
-    }
-
-    @Override
-    public double getMinimumB() {
-        return sections.values().stream()
-                .mapToDouble(SectionImpl::getB)
-                .filter(b -> b <= 0)
-                .sum();
-    }
-
-    @Override
-    public double getMinimumG() {
-        return sections.values().stream()
-                .mapToDouble(SectionImpl::getG)
-                .filter(g -> !Double.isNaN(g) && g <= 0)
-                .sum();
-    }
-
-    @Override
     public Optional<Section> getSection(int sectionNum) {
         ValidationUtil.checkSectionNumber(shuntCompensator, sectionNum);
         return Optional.ofNullable(sections.get(sectionNum));
@@ -127,31 +99,31 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
     }
 
     @Override
-    public double getCurrentB(int currentSectionCount) {
+    public double getB(int sectionCount) {
         return sections.entrySet().stream()
-                .filter(e -> e.getKey() <= currentSectionCount)
+                .filter(e -> e.getKey() <= sectionCount)
                 .mapToDouble(e -> e.getValue().getB())
                 .sum();
     }
 
     @Override
-    public double getCurrentG(int currentSectionCount) {
+    public double getG(int sectionCount) {
         return sections.entrySet().stream()
-                .filter(e -> e.getKey() <= currentSectionCount)
+                .filter(e -> e.getKey() <= sectionCount)
                 .mapToDouble(e -> e.getValue().getG())
                 .filter(g -> !Double.isNaN(g))
                 .sum();
     }
 
     @Override
-    public double getB(int sectionIndex) {
+    public double getBSection(int sectionIndex) {
         return Optional.ofNullable(sections.get(sectionIndex))
                 .map(SectionImpl::getB)
                 .orElseThrow(() -> new PowsyblException(invalidSectionNumberMessage(sectionIndex, "susceptance")));
     }
 
     @Override
-    public double getG(int sectionIndex) {
+    public double getGSection(int sectionIndex) {
         if (sections.get(sectionIndex) == null) {
             throw new PowsyblException(invalidSectionNumberMessage(sectionIndex, "conductance"));
         }

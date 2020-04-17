@@ -105,17 +105,13 @@ public class ShuntCompensatorAdapterTest {
         assertEquals(2, shunt.getMaximumSectionCount());
         assertEquals(0, shunt.getCurrentB(), 0.0);
         assertEquals(0.0, shunt.getCurrentG(), 0.0);
-        assertEquals(2.0, shunt.getMaximumB(), 0.0);
-        assertEquals(0.0, shunt.getMinimumB(), 0.0);
-        assertEquals(0.0, shunt.getMaximumG(), 0.0);
-        assertEquals(0.0, shunt.getMinimumG(), 0.0);
 
         ShuntCompensatorLinearModel model = shunt.getModel(ShuntCompensatorLinearModel.class);
         assertEquals(1.0, model.getbPerSection(), 0.0);
         assertTrue(Double.isNaN(model.getgPerSection()));
-        assertEquals(0.0, model.getB(0), 0.0);
-        assertEquals(1.0, model.getB(2), 0.0);
-        assertEquals(0.0, model.getG(2), 0.0);
+        assertEquals(0.0, model.getBSection(0), 0.0);
+        assertEquals(1.0, model.getBSection(2), 0.0);
+        assertEquals(0.0, model.getGSection(2), 0.0);
     }
 
     @Test
@@ -147,10 +143,10 @@ public class ShuntCompensatorAdapterTest {
 
         ShuntCompensatorNonLinearModel model = shunt.getModel(ShuntCompensatorNonLinearModel.class);
         assertEquals(2, model.getSections().size());
-        assertEquals(1.0, model.getB(0), 0.0);
-        assertEquals(0.0, model.getG(0), 0.0);
-        assertEquals(2.0, model.getB(1), 0.0);
-        assertEquals(0.0, model.getG(1), 0.0);
+        assertEquals(1.0, model.getBSection(0), 0.0);
+        assertEquals(0.0, model.getGSection(0), 0.0);
+        assertEquals(2.0, model.getBSection(1), 0.0);
+        assertEquals(0.0, model.getGSection(1), 0.0);
     }
 
     private void createNetwork() {

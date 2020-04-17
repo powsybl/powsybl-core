@@ -99,32 +99,22 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public double getCurrentB() {
-        return model.getCurrentB(currentSectionCount.get(network.get().getVariantIndex()));
+        return model.getB(currentSectionCount.get(network.get().getVariantIndex()));
     }
 
     @Override
     public double getCurrentG() {
-        return model.getCurrentG(currentSectionCount.get(network.get().getVariantIndex()));
+        return model.getG(currentSectionCount.get(network.get().getVariantIndex()));
     }
 
     @Override
-    public double getMaximumB() {
-        return model.getMaximumB();
+    public double getB(int sectionCount) {
+        return model.getB(sectionCount);
     }
 
     @Override
-    public double getMaximumG() {
-        return model.getMaximumG();
-    }
-
-    @Override
-    public double getMinimumB() {
-        return model.getMinimumB();
-    }
-
-    @Override
-    public double getMinimumG() {
-        return model.getMinimumG();
+    public double getG(int sectionCount) {
+        return model.getG(sectionCount);
     }
 
     @Override
