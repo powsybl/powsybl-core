@@ -17,7 +17,8 @@ package com.powsybl.iidm.network;
 public interface ShuntCompensator extends Injection<ShuntCompensator> {
 
     /**
-     * Get the current section count.
+     * Get the current count of sections in service.
+     * Please note sections can only be sequentially in service i.e. all sections from section 1 to section currentSectionCount are in service.
      * <p>
      * It is expected to be greater than one and lesser than or equal to the
      * maximum section count.
@@ -65,23 +66,27 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
 
     /**
      * Get the maximum susceptance (in S) i.e. the sum of all sections' susceptances if it is strictly superior to 0, else 0.
+     * Please note this method is independent from {@link #getMaximumG()}.
      */
     double getMaximumB();
 
     /**
      * Get the maximum conductance (in S) i.e. the sum of all sections' conductances if it is strictly superior to 0, else 0.
      * If a section conductance is undefined, it is considered equal to 0.
+     * Please note this method is independent from {@link #getMaximumB()}.
      */
     double getMaximumG();
 
     /**
      * Get the minimum susceptance (in S) i.e. the sum of all sections' negative susceptances if they exist, else 0.
+     * Please note this method is independent from {@link #getMinimumG()}.
      */
     double getMinimumB();
 
     /**
      * Get the minimum conductance (in S) i.e. the sum of all sections' negative conductances if they exist, else 0.
      * If a section conductance is undefined, it is considered equal to 0.
+     * Please note this method is independent from {@link #getMinimumB()}.
      */
     double getMinimumG();
 
