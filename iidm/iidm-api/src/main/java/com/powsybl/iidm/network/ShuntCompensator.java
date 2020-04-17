@@ -34,8 +34,8 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     int getMaximumSectionCount();
 
     /**
-     * Change the current section count.
-     *
+     * Change the current count of sections in service.
+     * Please note sections can only be sequentially in service i.e. all section from section 1 to section currentSectionCount are in service.
      * <p>
      * Depends on the working variant.
      *
@@ -47,6 +47,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
 
     /**
      * Get the susceptance (in S) for the current section count i.e. the sum of the sections' susceptances for all sections in service.
+     * Return 0 if no section is in service (disconnected state).
      * @see #getCurrentSectionCount()
      * <p>
      * Depends on the working variant.
@@ -56,7 +57,8 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
 
     /**
      * Get the conductance (in S) for the current section count i.e. the sum of the sections' conductances for all sections in service.
-     * If a conductance of a section in service is undefined, it is considered equal to 0.
+     * If the conductance of a section in service is undefined, it is considered equal to 0.
+     * Return 0 if no section is in service (disconnected state).
      * @see #getCurrentSectionCount()
      * <p>
      * Depends on the working variant.
@@ -64,8 +66,17 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      */
     double getCurrentG();
 
+    /**
+     * Get the susceptance (in S) for a given section count i.e. the sum of the sections' susceptances from 1 to sectionCount.
+     * Return O if sectionCount is equal to 0 (disconnected state).
+     */
     double getB(int sectionCount);
 
+    /**
+     * Get the conductance (in S) for a given section count i.e. the sum of the sections' conductances from 1 to sectionCount.
+     * If the conductance of a section is undefined, it is considered equal to 0.
+     * Return 0 if sectionCount is equal to 0 (disconnected state).
+     */
     double getG(int sectionCount);
 
     /**

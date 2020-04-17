@@ -42,6 +42,7 @@ public interface ShuntCompensatorNonLinearModel extends ShuntCompensatorModel {
     /**
      * For a given section number, add a section with a given susceptance and conductance in S to the model.
      * If a section already exists for this section number, respectively replace its susceptance and conductance with the given susceptance and conductance.
+     * Throw an exception if the section index equals to 0 (corresponds to disconnected state).
      */
     ShuntCompensatorNonLinearModel addOrReplaceSection(int sectionIndex, double b, double g);
 
