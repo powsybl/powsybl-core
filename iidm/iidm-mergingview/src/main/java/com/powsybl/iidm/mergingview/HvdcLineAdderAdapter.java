@@ -25,6 +25,8 @@ public class HvdcLineAdderAdapter implements HvdcLineAdder {
 
     private String name;
 
+    private boolean fictitious;
+
     private double r;
 
     private HvdcLine.ConvertersMode convertersMode;
@@ -99,6 +101,7 @@ public class HvdcLineAdderAdapter implements HvdcLineAdder {
                           .setId(id)
                           .setName(name)
                           .setEnsureIdUnicity(ensureIdUnicity)
+                          .setFictitious(fictitious)
                           .setR(r)
                           .setConvertersMode(convertersMode)
                           .setNominalV(nominalV)
@@ -127,6 +130,12 @@ public class HvdcLineAdderAdapter implements HvdcLineAdder {
     @Override
     public HvdcLineAdder setEnsureIdUnicity(final boolean ensureIdUnicity) {
         this.ensureIdUnicity = ensureIdUnicity;
+        return this;
+    }
+
+    @Override
+    public HvdcLineAdder setFictitious(final boolean fictitious) {
+        this.fictitious = fictitious;
         return this;
     }
 

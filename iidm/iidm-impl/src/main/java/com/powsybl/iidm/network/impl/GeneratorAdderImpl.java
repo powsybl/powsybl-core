@@ -119,7 +119,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkRatedS(this, ratedS);
         GeneratorImpl generator
                 = new GeneratorImpl(getNetwork().getRef(),
-                                    id, getName(), energySource,
+                                    id, getName(), isFictitious(), energySource,
                                     minP, maxP,
                                     voltageRegulatorOn, regulatingTerminal != null ? regulatingTerminal : terminal,
                                     targetP, targetQ, targetV,

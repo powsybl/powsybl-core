@@ -6,9 +6,12 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
+import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -35,9 +38,14 @@ abstract class AbstractSwitchXml<A extends IdentifiableAdder<A>> extends Abstrac
         context.getWriter().writeAttribute("kind", s.getKind().name());
         context.getWriter().writeAttribute("retained", Boolean.toString(s.isRetained()));
         context.getWriter().writeAttribute("open", Boolean.toString(s.isOpen()));
-        if (s.isFictitious()) {
-            context.getWriter().writeAttribute("fictitious", Boolean.toString(s.isFictitious()));
-        }
+
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> {
+            try {
+                XmlUtil.writeOptionalBoolean("fictitious", s.isFictitious(), false, context.getWriter());
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
     }
 
     @Override

@@ -10,12 +10,14 @@ package com.powsybl.cgmes.conversion;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Conversion.Config;
 import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
+import com.powsybl.cgmes.conversion.elements.hvdc.DcMapping;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
@@ -29,6 +31,12 @@ import com.powsybl.triplestore.api.PropertyBags;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class Context {
+
+    // Log messages
+    private static final String FIXED_REASON = "Fixed {}. Reason: {}";
+    private static final String INVALID_REASON = "Invalid {}. Reason: {}";
+    private static final String IGNORED_REASON = "Ignored {}. Reason: {}";
+
     public Context(CgmesModel cgmes, Config config, Network network) {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
@@ -223,19 +231,51 @@ public class Context {
     }
 
     public void invalid(String what, String reason) {
-        LOG.warn("Invalid {}. Reason: {}", what, reason);
+        LOG.warn(INVALID_REASON, what, reason);
+    }
+
+    public void invalid(String what, Supplier<String> reason) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn(INVALID_REASON, what, reason.get());
+        }
+    }
+
+    public void invalid(Supplier<String> what, Supplier<String> reason) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn(INVALID_REASON, what.get(), reason.get());
+        }
     }
 
     public void ignored(String what, String reason) {
-        LOG.warn("Ignored {}. Reason: {}", what, reason);
+        LOG.warn(IGNORED_REASON, what, reason);
     }
 
-    public void pending(String what, String reason) {
-        LOG.info("PENDING {}. Reason: {}", what, reason);
+    public void ignored(String what, Supplier<String> reason) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn(IGNORED_REASON, what, reason.get());
+        }
+    }
+
+    public void pending(String what, Supplier<String> reason) {
+        if (LOG.isInfoEnabled()) {
+            LOG.info("PENDING {}. Reason: {}", what, reason.get());
+        }
     }
 
     public void fixed(String what, String reason) {
-        LOG.warn("Fixed {}. Reason: {}", what, reason);
+        LOG.warn(FIXED_REASON, what, reason);
+    }
+
+    public void fixed(Supplier<String> what, String reason) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn(FIXED_REASON, what.get(), reason);
+        }
+    }
+
+    public void fixed(String what, Supplier<String> reason) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn(FIXED_REASON, what, reason.get());
+        }
     }
 
     public void fixed(String what, String reason, double wrong, double fixed) {

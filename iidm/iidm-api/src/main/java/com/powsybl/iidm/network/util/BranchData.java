@@ -167,11 +167,11 @@ public class BranchData {
         computeValues();
     }
 
-    public BranchData(TwoWindingsTransformer twt, double epsilonX, boolean applyReactanceCorrection, boolean specificCompatibility) {
-        this(twt, 0, epsilonX, applyReactanceCorrection, specificCompatibility);
+    public BranchData(TwoWindingsTransformer twt, double epsilonX, boolean applyReactanceCorrection, boolean t2wtSplitShuntAdmittance) {
+        this(twt, 0, epsilonX, applyReactanceCorrection, t2wtSplitShuntAdmittance);
     }
 
-    public BranchData(TwoWindingsTransformer twt, int phaseAngleClock, double epsilonX, boolean applyReactanceCorrection, boolean specificCompatibility) {
+    public BranchData(TwoWindingsTransformer twt, int phaseAngleClock, double epsilonX, boolean applyReactanceCorrection, boolean t2wtSplitShuntAdmittance) {
         Objects.requireNonNull(twt);
 
         id = twt.getId();
@@ -195,10 +195,10 @@ public class BranchData {
         theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
         alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
         alpha2 = 0f;
-        g1 = getG1(twt, specificCompatibility);
-        g2 = getG2(twt, specificCompatibility);
-        b1 = getB1(twt, specificCompatibility);
-        b2 = getB2(twt, specificCompatibility);
+        g1 = getG1(twt, t2wtSplitShuntAdmittance);
+        g2 = getG2(twt, t2wtSplitShuntAdmittance);
+        b1 = getB1(twt, t2wtSplitShuntAdmittance);
+        b2 = getB2(twt, t2wtSplitShuntAdmittance);
         p1 = twt.getTerminal1().getP();
         q1 = twt.getTerminal1().getQ();
         p2 = twt.getTerminal2().getP();
@@ -254,26 +254,26 @@ public class BranchData {
                         twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getX() : 0);
     }
 
-    private double getG1(TwoWindingsTransformer twt, boolean specificCompatibility) {
-        return getValue(specificCompatibility ? twt.getG() / 2 : twt.getG(),
+    private double getG1(TwoWindingsTransformer twt, boolean t2wtSplitShuntAdmittance) {
+        return getValue(t2wtSplitShuntAdmittance ? twt.getG() / 2 : twt.getG(),
                         twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getG() : 0,
                         twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getG() : 0);
     }
 
-    private double getB1(TwoWindingsTransformer twt, boolean specificCompatibility) {
-        return getValue(specificCompatibility ? twt.getB() / 2 : twt.getB(),
+    private double getB1(TwoWindingsTransformer twt, boolean t2wtSplitShuntAdmittance) {
+        return getValue(t2wtSplitShuntAdmittance ? twt.getB() / 2 : twt.getB(),
                         twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
                         twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }
 
-    private double getG2(TwoWindingsTransformer twt, boolean specificCompatibility) {
-        return getValue(specificCompatibility ? twt.getG() / 2 : 0,
+    private double getG2(TwoWindingsTransformer twt, boolean t2wtSplitShuntAdmittance) {
+        return getValue(t2wtSplitShuntAdmittance ? twt.getG() / 2 : 0,
                         twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getG() : 0,
                         twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getG() : 0);
     }
 
-    private double getB2(TwoWindingsTransformer twt, boolean specificCompatibility) {
-        return getValue(specificCompatibility ? twt.getB() / 2 : 0,
+    private double getB2(TwoWindingsTransformer twt, boolean t2wtSplitShuntAdmittance) {
+        return getValue(t2wtSplitShuntAdmittance ? twt.getB() / 2 : 0,
                         twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
                         twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }

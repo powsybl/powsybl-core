@@ -41,6 +41,8 @@ public final class MergingView implements Network {
         return new PowsyblException("Not implemented exception");
     }
 
+    private boolean fictitious;
+
     private static class BusBreakerViewAdapter implements Network.BusBreakerView {
 
         private final MergingViewIndex index;
@@ -185,8 +187,13 @@ public final class MergingView implements Network {
     }
 
     @Override
-    public String getName() {
-        return workingNetwork.getName();
+    public Optional<String> getOptionalName() {
+        return workingNetwork.getOptionalName();
+    }
+
+    @Override
+    public String getNameOrId() {
+        return workingNetwork.getNameOrId();
     }
 
     @Override
@@ -256,6 +263,20 @@ public final class MergingView implements Network {
     }
 
     @Override
+    public boolean isFictitious() {
+        return fictitious;
+    }
+
+    @Override
+    public void setFictitious(boolean fictitious) {
+        boolean oldValue = this.fictitious;
+        if (oldValue != fictitious) {
+            this.fictitious = fictitious;
+            index.getNetworkStream().forEach(n -> n.setFictitious(fictitious));
+        }
+    }
+
+    @Override
     public String getSourceFormat() {
         String format = "hybrid";
         // If all Merging Network has same format
@@ -294,6 +315,36 @@ public final class MergingView implements Network {
     }
 
     @Override
+    public <C extends Connectable> Iterable<C> getConnectables(Class<C> clazz) {
+        return Collections.unmodifiableCollection(index.getConnectables(clazz));
+    }
+
+    @Override
+    public <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
+        return index.getConnectables(clazz).stream();
+    }
+
+    @Override
+    public <C extends Connectable> int getConnectableCount(Class<C> clazz) {
+        return index.getConnectables(clazz).size();
+    }
+
+    @Override
+    public Iterable<Connectable> getConnectables() {
+        return Collections.unmodifiableCollection(index.getConnectables());
+    }
+
+    @Override
+    public Stream<Connectable> getConnectableStream() {
+        return index.getConnectables().stream();
+    }
+
+    @Override
+    public int getConnectableCount() {
+        return index.getConnectables().size();
+    }
+
+    @Override
     public SubstationAdderAdapter newSubstation() {
         return new SubstationAdderAdapter(workingNetwork.newSubstation(), index);
     }
@@ -322,11 +373,11 @@ public final class MergingView implements Network {
     @Override
     public Iterable<Substation> getSubstations(final String country, final String tsoId, final String... geographicalTags) {
         return index.getNetworkStream()
-                    .map(n -> n.getSubstations(country, tsoId, geographicalTags))
-                    .flatMap(x -> StreamSupport.stream(x.spliterator(), false))
-                    .filter(Objects::nonNull)
-                    .map(index::getSubstation)
-                    .collect(Collectors.toList());
+                .map(n -> n.getSubstations(country, tsoId, geographicalTags))
+                .flatMap(x -> StreamSupport.stream(x.spliterator(), false))
+                .filter(Objects::nonNull)
+                .map(index::getSubstation)
+                .collect(Collectors.toList());
     }
 
     @Override

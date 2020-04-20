@@ -15,22 +15,25 @@ public interface Extendable<O> {
 
     /**
      * Add en extension to this extendable object.
-     * @param type the extension class type
+     *
+     * @param type      the extension class type
      * @param extension the extension
-     * @param <E> the extension type
+     * @param <E>       the extension type
      */
     <E extends Extension<O>> void addExtension(Class<? super E> type, E extension);
 
     /**
      * Get an extension based on its class type.
+     *
      * @param type the extension class type
-     * @param <E> the extension type
+     * @param <E>  the extension type
      * @return the extension mapped to the class type or null if not found
      */
     <E extends Extension<O>> E getExtension(Class<? super E> type);
 
     /**
      * Get an extension based on its name.
+     *
      * @param name the extension name
      * @return the extension mapped to the name or null if not found
      */
@@ -38,14 +41,16 @@ public interface Extendable<O> {
 
     /**
      * Remove an extension based on its class type.
+     *
      * @param type the extension class type
-     * @param <E> the extension type
+     * @param <E>  the extension type
      * @return true if the extension has been removed false if extension has not been found
      */
     <E extends Extension<O>> boolean removeExtension(Class<E> type);
 
     /**
      * Get all extensions associated with this extendable object..
+     *
      * @return all extensions associated to this extendable object.
      */
     <E extends Extension<O>> Collection<E> getExtensions();
@@ -63,7 +68,7 @@ public interface Extendable<O> {
 
     /**
      * Returns an extensionAdder to build and add an extension for this extendable.
-     *
+     * <p>
      * The extension implementation is selected at runtime based on matching the
      * {@link #getImplementationName} of this extendable to the
      * {@link ExtensionAdderProvider#getImplementationName} of a provider.
@@ -74,5 +79,4 @@ public interface Extendable<O> {
      * @return the adder
      */
     <E extends Extension<O>, B extends ExtensionAdder<O, E>> B newExtension(Class<B> type);
-
 }

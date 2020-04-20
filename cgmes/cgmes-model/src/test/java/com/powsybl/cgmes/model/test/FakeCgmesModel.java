@@ -1,6 +1,7 @@
 package com.powsybl.cgmes.model.test;
 
 import com.powsybl.cgmes.model.CgmesContainer;
+import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.CgmesTerminal;
@@ -262,6 +263,11 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags fullModel(String cgmesProfile) {
+        return null;
+    }
+
+    @Override
     public String modelId() {
         return modelId;
     }
@@ -496,6 +502,16 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags topologicalIslands() {
+        return null;
+    }
+
+    @Override
+    public PropertyBags graph() {
+        return null;
+    }
+
+    @Override
     public void print(PrintStream out) {
         // FakeCgmesModel, no need to implement dump
     }
@@ -517,7 +533,12 @@ public final class FakeCgmesModel implements CgmesModel {
 
     @Override
     public void add(CgmesSubset subset, String type, PropertyBags objects) {
-        // FakeCgmesModel, no need to implement storage of objects
+     // FakeCgmesModel, no need to implement storage of objects
+    }
+
+    @Override
+    public void add(String contextOrSubset, String type, PropertyBags objects) {
+     // FakeCgmesModel, no need to implement storage of objects
     }
 
     @Override
@@ -528,6 +549,12 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public CgmesTerminal terminal(String terminalId) {
         // FakeCgmesModel does not provide info on terminals
+        return null;
+    }
+
+    @Override
+    public CgmesDcTerminal dcTerminal(String dcTerminalId) {
+        // FakeCgmesModel does not provide info on dcTerminals
         return null;
     }
 

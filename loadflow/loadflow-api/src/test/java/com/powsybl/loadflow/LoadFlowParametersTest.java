@@ -6,9 +6,12 @@
  */
 package com.powsybl.loadflow;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.google.common.jimfs.Configuration;
@@ -18,7 +21,9 @@ import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
+import com.powsybl.loadflow.json.JsonLoadFlowParametersTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,12 +54,12 @@ public class LoadFlowParametersTest {
 
     private void checkValues(LoadFlowParameters parameters, LoadFlowParameters.VoltageInitMode voltageInitMode,
                              boolean transformerVoltageControlOn, boolean noGeneratorReactiveLimits,
-                             boolean phaseShifterRegulationOn, boolean specificCompatibility) {
+                             boolean phaseShifterRegulationOn, boolean t2wtSplitShuntAdmittance) {
         assertEquals(parameters.getVoltageInitMode(), voltageInitMode);
         assertEquals(parameters.isTransformerVoltageControlOn(), transformerVoltageControlOn);
         assertEquals(parameters.isPhaseShifterRegulationOn(), phaseShifterRegulationOn);
         assertEquals(parameters.isNoGeneratorReactiveLimits(), noGeneratorReactiveLimits);
-        assertEquals(parameters.isSpecificCompatibility(), specificCompatibility);
+        assertEquals(parameters.isT2wtSplitShuntAdmittance(), t2wtSplitShuntAdmittance);
     }
 
     @Test
@@ -65,7 +70,7 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
                 LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
-                LoadFlowParameters.DEFAULT_SPECIFIC_COMPATIBILITY);
+                LoadFlowParameters.DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
     }
 
     @Test
@@ -73,7 +78,7 @@ public class LoadFlowParametersTest {
         boolean transformerVoltageControlOn = true;
         boolean noGeneratorReactiveLimits = true;
         boolean phaseShifterRegulationOn = true;
-        boolean specificCompatibility = true;
+        boolean t2wtSplitShuntAdmittance = true;
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.UNIFORM_VALUES;
 
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-default-parameters");
@@ -81,11 +86,11 @@ public class LoadFlowParametersTest {
         moduleConfig.setStringProperty("transformerVoltageControlOn", Boolean.toString(transformerVoltageControlOn));
         moduleConfig.setStringProperty("noGeneratorReactiveLimits", Boolean.toString(noGeneratorReactiveLimits));
         moduleConfig.setStringProperty("phaseShifterRegulationOn", Boolean.toString(phaseShifterRegulationOn));
-        moduleConfig.setStringProperty("specificCompatibility", Boolean.toString(specificCompatibility));
+        moduleConfig.setStringProperty("t2wtSplitShuntAdmittance", Boolean.toString(t2wtSplitShuntAdmittance));
         LoadFlowParameters parameters = new LoadFlowParameters();
         LoadFlowParameters.load(parameters, platformConfig);
         checkValues(parameters, voltageInitMode, transformerVoltageControlOn,
-                noGeneratorReactiveLimits, phaseShifterRegulationOn, specificCompatibility);
+                noGeneratorReactiveLimits, phaseShifterRegulationOn, t2wtSplitShuntAdmittance);
     }
 
     @Test
@@ -97,7 +102,16 @@ public class LoadFlowParametersTest {
         LoadFlowParameters.load(parameters, platformConfig);
         checkValues(parameters, LoadFlowParameters.DEFAULT_VOLTAGE_INIT_MODE,
                 transformerVoltageControlOn, LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
-                LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_SPECIFIC_COMPATIBILITY);
+                LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
+    }
+
+    @Test
+    public void checkDefaultPlatformConfig() throws Exception {
+        LoadFlowParameters parameters = new LoadFlowParameters();
+        LoadFlowParameters.load(parameters);
+        checkValues(parameters, LoadFlowParameters.DEFAULT_VOLTAGE_INIT_MODE,
+            LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
+                LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
     }
 
     @Test
@@ -105,8 +119,33 @@ public class LoadFlowParametersTest {
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
         LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode);
         checkValues(parameters, voltageInitMode, LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
-                LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
-                LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_SPECIFIC_COMPATIBILITY);
+            LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
+            LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
+    }
+
+    @Test
+    public void checkConstructorByVoltageInitModeAndTransformerVoltageControlOn() throws Exception {
+        LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
+        boolean transformerVoltageControlOn = true;
+        LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode, transformerVoltageControlOn);
+        checkValues(parameters, voltageInitMode, true, LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
+            LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
+            LoadFlowParameters.DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
+    }
+
+    @Test
+    public void checkConstructorByLoadFlowParameters() throws Exception {
+        LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
+        LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode);
+        checkValues(parameters, voltageInitMode, LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
+            LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
+            LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
+            LoadFlowParameters.DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
+        LoadFlowParameters parameters1 = new LoadFlowParameters(parameters);
+        checkValues(parameters1, voltageInitMode, LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
+            LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
+            LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
+            LoadFlowParameters.DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
     }
 
     @Test
@@ -114,7 +153,7 @@ public class LoadFlowParametersTest {
         boolean transformerVoltageControlOn = true;
         boolean noGeneratorReactiveLimits = true;
         boolean phaseShifterRegulationOn = true;
-        boolean specificCompatibility = true;
+        boolean t2wtSplitShuntAdmittance = true;
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
 
         LoadFlowParameters parameters = new LoadFlowParameters();
@@ -123,10 +162,10 @@ public class LoadFlowParametersTest {
         parameters.setPhaseShifterRegulationOn(phaseShifterRegulationOn);
         parameters.setTransformerVoltageControlOn(transformerVoltageControlOn);
         parameters.setVoltageInitMode(voltageInitMode);
-        parameters.setSpecificCompatibility(specificCompatibility);
+        parameters.setT2wtSplitShuntAdmittance(t2wtSplitShuntAdmittance);
 
         checkValues(parameters, voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits,
-                phaseShifterRegulationOn, specificCompatibility);
+                phaseShifterRegulationOn, t2wtSplitShuntAdmittance);
     }
 
     @Test
@@ -134,13 +173,13 @@ public class LoadFlowParametersTest {
         boolean transformerVoltageControlOn = true;
         boolean noGeneratorReactiveLimits = true;
         boolean phaseShifterRegulationOn = true;
-        boolean specificCompatibility = true;
+        boolean t2wtSplitShuntAdmittance = true;
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.UNIFORM_VALUES;
         LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode, transformerVoltageControlOn,
-                noGeneratorReactiveLimits, phaseShifterRegulationOn, specificCompatibility);
+                noGeneratorReactiveLimits, phaseShifterRegulationOn, t2wtSplitShuntAdmittance);
         LoadFlowParameters parametersCloned = parameters.copy();
         checkValues(parametersCloned, parameters.getVoltageInitMode(), parameters.isTransformerVoltageControlOn(),
-                parameters.isNoGeneratorReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isSpecificCompatibility());
+                parameters.isNoGeneratorReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isT2wtSplitShuntAdmittance());
     }
 
     @Test
@@ -222,6 +261,19 @@ public class LoadFlowParametersTest {
     @AutoService(JsonLoadFlowParameters.ExtensionSerializer.class)
     public static class DummySerializer implements JsonLoadFlowParameters.ExtensionSerializer<DummyExtension> {
 
+        private interface SerializationSpec {
+            @JsonIgnore
+            String getName();
+
+            @JsonIgnore
+            LoadFlowParameters getExtendable();
+        }
+
+        private static ObjectMapper createMapper() {
+            return JsonUtil.createObjectMapper()
+                    .addMixIn(JsonLoadFlowParametersTest.DummyExtension.class, JsonLoadFlowParametersTest.DummySerializer.SerializationSpec.class);
+        }
+
         @Override
         public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
             jsonGenerator.writeStartObject();
@@ -231,6 +283,14 @@ public class LoadFlowParametersTest {
         @Override
         public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
             return new DummyExtension();
+        }
+
+        @Override
+        public DummyExtension deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, DummyExtension parameters) throws IOException {
+            ObjectMapper objectMapper = createMapper();
+            ObjectReader objectReader = objectMapper.readerForUpdating(parameters);
+            DummyExtension updatedParameters = objectReader.readValue(jsonParser, DummyExtension.class);
+            return updatedParameters;
         }
 
         @Override

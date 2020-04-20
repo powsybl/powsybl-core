@@ -1,0 +1,9 @@
+{
+  "extensions": {
+    "dummy-extension": {
+      "parameterDouble": 5,
+      "parameterBoolean" : false,
+      "parameterString" : "Hello"
+    }
+  }
+}

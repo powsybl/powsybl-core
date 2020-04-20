@@ -7,9 +7,11 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableAdder;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -37,9 +39,22 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
             context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), getRootElementName());
         }
         context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
-        if (!identifiable.getId().equals(identifiable.getName())) {
-            context.getWriter().writeAttribute("name", context.getAnonymizer().anonymizeString(identifiable.getName()));
-        }
+        ((Identifiable<?>) identifiable).getOptionalName().ifPresent(name -> {
+            try {
+                context.getWriter().writeAttribute("name", context.getAnonymizer().anonymizeString(name));
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
+
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
+            try {
+                XmlUtil.writeOptionalBoolean("fictitious", identifiable.isFictitious(), false, context.getWriter());
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
+
         writeRootElementAttributes(identifiable, parent, context);
 
         PropertiesXml.write(identifiable, context);
@@ -68,13 +83,21 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         }
     }
 
+    protected void readElement(String id, A adder, NetworkXmlReaderContext context) throws XMLStreamException {
+        T identifiable = readRootElementAttributes(adder, context);
+        readSubElements(identifiable, context);
+    }
+
     public final void read(P parent, NetworkXmlReaderContext context) throws XMLStreamException {
         A adder = createAdder(parent);
         String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name"));
         adder.setId(id)
                 .setName(name);
-        T identifiable = readRootElementAttributes(adder, context);
-        readSubElements(identifiable, context);
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
+            boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious", false);
+            adder.setFictitious(fictitious);
+        });
+        readElement(id, adder, context);
     }
 }

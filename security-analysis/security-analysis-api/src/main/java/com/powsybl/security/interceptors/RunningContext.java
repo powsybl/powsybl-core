@@ -17,7 +17,7 @@ import java.util.Objects;
  *
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class RunningContext {
+public class RunningContext implements SecurityAnalysisResultContext {
 
     private final Network network;
 
@@ -32,6 +32,7 @@ public class RunningContext {
      * Get the network on which computation is carried out.
      * @return the network on which computation is carried out
      */
+    @Override
     public Network getNetwork() {
         return network;
     }

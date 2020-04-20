@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyVisitor;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Before;
@@ -20,6 +21,8 @@ import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -48,7 +51,8 @@ public class LineAdapterTest {
         assertTrue(lineAdapted instanceof LineAdapter);
         assertSame(lineAdapted, mergingView.getBranch(lineRef.getId()));
         assertEquals(lineRef.getId(), lineAdapted.getId());
-        assertEquals(lineRef.getName(), lineAdapted.getName());
+        assertEquals(lineRef.getOptionalName().orElse(null), lineAdapted.getOptionalName().orElse(null));
+        assertEquals(lineRef.getNameOrId(), lineAdapted.getNameOrId());
         assertEquals(lineRef.isTieLine(), lineAdapted.isTieLine());
         assertTrue(lineAdapted.getTerminal1() instanceof TerminalAdapter);
         assertTrue(lineAdapted.getTerminal2() instanceof TerminalAdapter);
@@ -102,6 +106,11 @@ public class LineAdapterTest {
         assertEquals(lineRef.checkTemporaryLimits2(), lineAdapted.checkTemporaryLimits2());
         assertEquals(lineRef.getType(), lineAdapted.getType());
         assertEquals(lineRef.getTerminals().size(), lineAdapted.getTerminals().size());
+
+        // Topology
+        TopologyVisitor visitor = mock(TopologyVisitor.class);
+        mergingView.getVoltageLevel("VLGEN").visitEquipments(visitor);
+        verify(visitor, times(2)).visitLine(any(Line.class), any(Branch.Side.class));
 
         // Not implemented yet !
         TestUtil.notImplemented(lineAdapted::remove);
@@ -203,6 +212,7 @@ public class LineAdapterTest {
         return network.newLine()
                           .setId(id)
                           .setName(name)
+                          .setFictitious(false)
                           .setEnsureIdUnicity(true)
                           .setR(1.0)
                           .setX(2.0)

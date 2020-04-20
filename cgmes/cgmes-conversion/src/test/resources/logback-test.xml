@@ -14,17 +14,22 @@
             <pattern>%-5p %-20C{1} | %m%n</pattern>
         </encoder>
     </appender>
-    <root level="info">
-        <appender-ref ref="STDOUT" />
+    <root level="error">
+        <appender-ref ref="STDOUT"/>
     </root>
-    <logger name="com.bigdata" level="warn" additivity="false">
-        <appender-ref ref="STDOUT" />
-    </logger>
+    <logger name="com.bigdata" level="error"/>
     <!-- To see the query text in the log, set level to debug -->
-    <logger name="com.powsybl.triplestore.TripleStore" level="info" />
+    <logger name="com.powsybl.triplestore.TripleStore" level="error"/>
     <!-- To see how much time each query costs, set level to debug -->
-    <logger name="com.powsybl.cgmes.triplestore.CgmesModelTripleStore"
-        level="info" />
+    <logger name="com.powsybl.cgmes.triplestore.CgmesModelTripleStore" level="error"/>
     <!-- To watch the properties of every object converted, level to debug -->
-    <logger name="com.powsybl.cgmes.conversion.Conversion" level="info" />
+    <logger name="com.powsybl.cgmes.conversion.Conversion" level="error"/>
+    <!-- To watch always the test Hvdc configurations after the topological analysis -->
+    <logger name="com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion" level="error"/>
+    <logger name="com.powsybl.cgmes.conversion.elements.hvdc.Adjacency" level="error"/>
+    <logger name="com.powsybl.cgmes.conversion.elements.hvdc.TPnodeEquipments" level="error"/>
+    <logger name="com.powsybl.cgmes.conversion.elements.hvdc.Islands" level="error"/>
+    <logger name="com.powsybl.cgmes.conversion.elements.hvdc.IslandsEnds" level="error"/>
+    <logger name="com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc" level="error"/>
+    <logger name="com.powsybl.cgmes.conversion.elements.hvdc.Hvdc" level="error"/>
 </configuration>

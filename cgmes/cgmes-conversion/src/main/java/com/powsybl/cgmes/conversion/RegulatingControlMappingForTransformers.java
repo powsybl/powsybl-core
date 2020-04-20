@@ -219,7 +219,7 @@ public class RegulatingControlMappingForTransformers {
         }
         if (setRegulating) {
             context.fixed(transformerId,
-                    "Unsupported more than one regulating control enabled. Disable " + disabledTapChanger);
+                "Unsupported more than one regulating control enabled. Disable " + disabledTapChanger);
             return false;
         }
         return true;
@@ -236,23 +236,23 @@ public class RegulatingControlMappingForTransformers {
             okSet = setRtcRegulatingControlVoltage(rc.id, regulating, control, rtc, context);
         } else if (!isControlModeFixed(control.mode)) {
             context.fixed(control.mode,
-                    "Unsupported regulation mode for Ratio tap changer. Considered as a fixed ratio tap changer.");
+                "Unsupported regulation mode for Ratio tap changer. Considered as a fixed ratio tap changer.");
         }
         control.setCorrectlySet(okSet);
     }
 
     private boolean setRtcRegulatingControlVoltage(String rtcId, boolean regulating, RegulatingControl control,
                                                    RatioTapChanger rtc, Context context) {
-        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
+        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
         if (terminal == null) {
-            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.topologicalNode));
+            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
             return false;
         }
 
         // Even if regulating is false, we reset the target voltage if it is not valid
         if (control.targetValue <= 0) {
             context.ignored(rtcId,
-                    String.format("Regulating control has a bad target voltage %f", control.targetValue));
+                "Regulating control has a bad target voltage " + control.targetValue);
             return false;
         }
 
@@ -298,9 +298,9 @@ public class RegulatingControlMappingForTransformers {
 
     private boolean setPtcRegulatingControl(boolean regulating, PhaseTapChanger.RegulationMode regulationMode,
                                             RegulatingControl control, PhaseTapChanger ptc, Context context) {
-        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
+        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
         if (terminal == null) {
-            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.topologicalNode));
+            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
             return false;
         }
 

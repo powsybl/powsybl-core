@@ -34,7 +34,6 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class BusBreakerVoltageLevel extends AbstractVoltageLevel {
@@ -48,8 +47,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         private String busId2;
 
         private boolean open = false;
-
-        private boolean fictitious = false;
 
         private SwitchAdderImpl() {
         }
@@ -83,12 +80,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public BusBreakerView.SwitchAdder setFictitious(boolean fictitious) {
-            this.fictitious = fictitious;
-            return this;
-        }
-
-        @Override
         public Switch add() {
             String id = checkAndGetUniqueId();
             if (busId1 == null) {
@@ -98,7 +89,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                 throw new ValidationException(this, "second connection bus is not set");
             }
 
-            SwitchImpl aSwitch = new SwitchImpl(BusBreakerVoltageLevel.this, id, getName(), SwitchKind.BREAKER, open, true, fictitious);
+            SwitchImpl aSwitch = new SwitchImpl(BusBreakerVoltageLevel.this, id, getName(), isFictitious(), SwitchKind.BREAKER, open, true);
             addSwitch(aSwitch, busId1, busId2);
             getNetwork().getListeners().notifyCreation(aSwitch);
             return aSwitch;
@@ -230,7 +221,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             String suffix = "_" + busNum;
             String mergedBusId = BusBreakerVoltageLevel.this.id + suffix;
             String mergedBusName = BusBreakerVoltageLevel.this.name != null ? BusBreakerVoltageLevel.this.name + suffix : null;
-            return new MergedBus(mergedBusId, mergedBusName, busSet);
+            return new MergedBus(mergedBusId, mergedBusName, BusBreakerVoltageLevel.this.fictitious, busSet);
         }
 
         private void updateCache() {
@@ -322,9 +313,9 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     protected final VariantArray<VariantImpl> variants;
 
-    BusBreakerVoltageLevel(String id, String name, SubstationImpl substation,
+    BusBreakerVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation,
                            double nominalV, double lowVoltageLimit, double highVoltageLimit) {
-        super(id, name, substation, nominalV, lowVoltageLimit, highVoltageLimit);
+        super(id, name, fictitious, substation, nominalV, lowVoltageLimit, highVoltageLimit);
         variants = new VariantArray<>(substation.getNetwork().getRef(), VariantImpl::new);
         // invalidate topology and connected components
         graph.addListener(this::invalidateCache);
@@ -354,7 +345,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private final NodeBreakerViewExt nodeBreakerView = new NodeBreakerViewExt() {
-
         @Override
         public int getMaximumNodeIndex() {
             throw createNotSupportedBusBreakerTopologyException();
@@ -377,6 +367,16 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Terminal getTerminal(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public Optional<Terminal> getOptionalTerminal(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public boolean hasAttachedEquipment(int node) {
             throw createNotSupportedBusBreakerTopologyException();
         }
 

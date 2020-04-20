@@ -260,33 +260,61 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     private static String createStatements(RepositoryConnection cnx, String objNs, String objType,
         PropertyBag statement,
         Resource context) {
-        IRI resource = cnx.getValueFactory().createIRI(cnx.getNamespace("data"), "_" + UUID.randomUUID().toString());
+        IRI resource;
+        if (objType.equals(rdfDescriptionClass())) {
+            resource = cnx.getValueFactory().createIRI("urn:uuid:" + UUID.randomUUID().toString());
+        } else {
+            resource = cnx.getValueFactory().createIRI(cnx.getNamespace("data"),
+                "_" + UUID.randomUUID().toString());
+        }
         IRI parentPredicate = RDF.TYPE;
         IRI parentObject = cnx.getValueFactory().createIRI(objNs + objType);
         Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
         cnx.add(parentSt, context);
+        // add rest of statements for subject
+        createStatements(cnx, objNs, objType, statement, context,  resource);
+        return resource.getLocalName();
+    }
 
+    private static void createStatements(RepositoryConnection cnx, String objNs, String objType,
+        PropertyBag statement, Resource context, IRI resource) {
         List<String> names = statement.propertyNames();
         names.forEach(name -> {
             String property = statement.isClassProperty(name) ? name : objType + "." + name;
+            String value = statement.get(name);
             IRI predicate = cnx.getValueFactory().createIRI(objNs + property);
-            Statement st;
             if (statement.isResource(name)) {
                 IRI object;
-                if (URIUtil.isValidURIReference(statement.get(name))) { // the value already contains the namespace
-                    object = cnx.getValueFactory().createIRI(statement.get(name));
-                } else { // the value is an id, add the base namespace
-                    String namespace = cnx.getNamespace(statement.namespacePrefix(name));
-                    object = cnx.getValueFactory().createIRI(namespace, statement.get(name));
+                if (statement.isMultivaluedProperty(name)) {
+                    addMultivaluedProperty(cnx, value, resource, predicate, context);
+                } else {
+                    if (URIUtil.isValidURIReference(value)) { // the value already contains the namespace
+                        object = cnx.getValueFactory().createIRI(value);
+                    } else { // the value is an id, add the base namespace
+                        String namespace = cnx.getNamespace(statement.namespacePrefix(name));
+                        object = cnx.getValueFactory().createIRI(namespace, value);
+                    }
+                    Statement st = cnx.getValueFactory().createStatement(resource, predicate, object);
+                    cnx.add(st, context);
                 }
-                st = cnx.getValueFactory().createStatement(resource, predicate, object);
             } else {
-                Literal object = cnx.getValueFactory().createLiteral(statement.get(name));
-                st = cnx.getValueFactory().createStatement(resource, predicate, object);
+                Literal object = cnx.getValueFactory().createLiteral(value);
+                Statement st = cnx.getValueFactory().createStatement(resource, predicate, object);
+                cnx.add(st, context);
             }
-            cnx.add(st, context);
         });
-        return resource.getLocalName();
+    }
+
+    private static void addMultivaluedProperty(RepositoryConnection cnx, String value, IRI resource, IRI predicate, Resource context) {
+        String[] objs = value.split(",");
+        for (String o : objs) {
+            if (!o.startsWith("urn:uuid:")) {
+                o = cnx.getNamespace("data") + o;
+            }
+            IRI object = cnx.getValueFactory().createIRI(o);
+            Statement st = cnx.getValueFactory().createStatement(resource, predicate, object);
+            cnx.add(st, context);
+        }
     }
 
     private void write(Model model, OutputStream out) {

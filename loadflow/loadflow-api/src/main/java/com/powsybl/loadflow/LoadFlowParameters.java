@@ -44,13 +44,14 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         DC_VALUES // preprocessing to compute DC angles
     }
 
-    public static final String VERSION = "1.0";
+    // VERSION = 1.0 specificCompatibility
+    public static final String VERSION = "1.1";
 
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
     public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
     public static final boolean DEFAULT_NO_GENERATOR_REACTIVE_LIMITS = false;
     public static final boolean DEFAULT_PHASE_SHIFTER_REGULATION_ON = false;
-    public static final boolean DEFAULT_SPECIFIC_COMPATIBILITY = false;
+    public static final boolean DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE = false;
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "loadflow-parameters"));
@@ -88,7 +89,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                     parameters.setTransformerVoltageControlOn(config.getBooleanProperty("transformerVoltageControlOn", DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON));
                     parameters.setNoGeneratorReactiveLimits(config.getBooleanProperty("noGeneratorReactiveLimits", DEFAULT_NO_GENERATOR_REACTIVE_LIMITS));
                     parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
-                    parameters.setSpecificCompatibility(config.getBooleanProperty("specificCompatibility", DEFAULT_SPECIFIC_COMPATIBILITY));
+                    // keep old tag name "specificCompatibility" for compatibility
+                    parameters.setT2wtSplitShuntAdmittance(config.getBooleanProperty("t2wtSplitShuntAdmittance", config.getBooleanProperty("specificCompatibility", DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE)));
                 });
     }
 
@@ -100,27 +102,36 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     private boolean phaseShifterRegulationOn;
 
-    private boolean specificCompatibility;
+    private boolean t2wtSplitShuntAdmittance;
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
-                              boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn, boolean specificCompatibility) {
+                              boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn, boolean t2wtSplitShuntAdmittance) {
         this.voltageInitMode = voltageInitMode;
         this.transformerVoltageControlOn = transformerVoltageControlOn;
         this.noGeneratorReactiveLimits = noGeneratorReactiveLimits;
         this.phaseShifterRegulationOn = phaseShifterRegulationOn;
-        this.specificCompatibility = specificCompatibility;
+        this.t2wtSplitShuntAdmittance = t2wtSplitShuntAdmittance;
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn) {
-        this(voltageInitMode, transformerVoltageControlOn, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPECIFIC_COMPATIBILITY);
+        this(voltageInitMode, transformerVoltageControlOn, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode) {
-        this(voltageInitMode, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPECIFIC_COMPATIBILITY);
+        this(voltageInitMode, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
     }
 
     public LoadFlowParameters() {
-        this(DEFAULT_VOLTAGE_INIT_MODE, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPECIFIC_COMPATIBILITY);
+        this(DEFAULT_VOLTAGE_INIT_MODE, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_T2WT_SPLIT_SHUNT_ADMITTANCE);
+    }
+
+    protected LoadFlowParameters(LoadFlowParameters other) {
+        Objects.requireNonNull(other);
+        voltageInitMode = other.voltageInitMode;
+        transformerVoltageControlOn = other.transformerVoltageControlOn;
+        noGeneratorReactiveLimits = other.noGeneratorReactiveLimits;
+        phaseShifterRegulationOn = other.phaseShifterRegulationOn;
+        t2wtSplitShuntAdmittance = other.t2wtSplitShuntAdmittance;
     }
 
     public VoltageInitMode getVoltageInitMode() {
@@ -159,12 +170,28 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
+    /**
+     * @deprecated Use {@link #isT2wtSplitShuntAdmittance} instead.
+     */
+    @Deprecated
     public boolean isSpecificCompatibility() {
-        return specificCompatibility;
+        return isT2wtSplitShuntAdmittance();
     }
 
-    public LoadFlowParameters setSpecificCompatibility(boolean specificCompatibility) {
-        this.specificCompatibility = specificCompatibility;
+    public boolean isT2wtSplitShuntAdmittance() {
+        return t2wtSplitShuntAdmittance;
+    }
+
+    /**
+     * @deprecated Use {@link #setT2wtSplitShuntAdmittance} instead.
+     */
+    @Deprecated
+    public LoadFlowParameters setSpecificCompatibility(boolean t2wtSplitShuntAdmittance) {
+        return setT2wtSplitShuntAdmittance(t2wtSplitShuntAdmittance);
+    }
+
+    public LoadFlowParameters setT2wtSplitShuntAdmittance(boolean t2wtSplitShuntAdmittance) {
+        this.t2wtSplitShuntAdmittance = t2wtSplitShuntAdmittance;
         return this;
     }
 
@@ -173,7 +200,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 "transformerVoltageControlOn", transformerVoltageControlOn,
                 "noGeneratorReactiveLimits", noGeneratorReactiveLimits,
                 "phaseShifterRegulationOn", phaseShifterRegulationOn,
-                "specificCompatibility", specificCompatibility);
+                "t2wtSplitShuntAdmittance", t2wtSplitShuntAdmittance);
     }
 
     /**

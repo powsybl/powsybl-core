@@ -16,15 +16,15 @@ import org.xmlunit.builder.Input;
 import org.xmlunit.diff.Diff;
 
 import javax.xml.transform.Source;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -68,6 +68,19 @@ public abstract class AbstractConverterTest {
             compareTxt(expected, new String(ByteStreams.toByteArray(actual), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    protected static void compareTxt(InputStream expected, InputStream actual, List<Integer> excludedLines) {
+        BufferedReader expectedReader = new BufferedReader(new InputStreamReader(expected));
+        List<String> expectedLines = expectedReader.lines().collect(Collectors.toList());
+        BufferedReader actualReader = new BufferedReader(new InputStreamReader(actual));
+        List<String> actualLines = actualReader.lines().collect(Collectors.toList());
+
+        for (int i = 0; i < expectedLines.size(); i++) {
+            if (!excludedLines.contains(i)) {
+                assertEquals(expectedLines.get(i), actualLines.get(i));
+            }
         }
     }
 

@@ -99,8 +99,8 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         ValidationUtil.checkR(this, r);
         ValidationUtil.checkConvertersMode(this, convertersMode);
         ValidationUtil.checkNominalV(this, nominalV);
-        ValidationUtil.checkActivePowerSetpoint(this, activePowerSetpoint);
-        ValidationUtil.checkMaxP(this, maxP);
+        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint);
+        ValidationUtil.checkHvdcMaxP(this, maxP);
         AbstractHvdcConverterStation<?> converterStation1 = getNetwork().getHvdcConverterStation(converterStationId1);
         if (converterStation1 == null) {
             throw new PowsyblException("Side 1 converter station " + converterStationId1 + " not found");
@@ -109,7 +109,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         if (converterStation2 == null) {
             throw new PowsyblException("Side 2 converter station " + converterStationId2 + " not found");
         }
-        HvdcLineImpl hvdcLine = new HvdcLineImpl(id, name, r, nominalV, maxP, convertersMode, activePowerSetpoint,
+        HvdcLineImpl hvdcLine = new HvdcLineImpl(id, name, isFictitious(), r, nominalV, maxP, convertersMode, activePowerSetpoint,
                                                  converterStation1, converterStation2, networkRef);
         getNetwork().getIndex().checkAndAdd(hvdcLine);
         getNetwork().getListeners().notifyCreation(hvdcLine);

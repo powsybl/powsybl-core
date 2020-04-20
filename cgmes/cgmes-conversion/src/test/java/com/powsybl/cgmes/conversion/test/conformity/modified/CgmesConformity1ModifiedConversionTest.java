@@ -218,8 +218,19 @@ public class CgmesConformity1ModifiedConversionTest {
         ShuntCompensator shunt = network.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da");
         assertNotNull(shunt);
         assertEquals(1, shunt.getMaximumSectionCount());
-        assertEquals(0.0012, shunt.getbPerSection(), 0.0);
+        assertEquals(0.0012, shunt.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), 0.0);
         assertEquals(1, shunt.getCurrentSectionCount());
+    }
+
+    @Test
+    public void microBEMissingShuntRegulatingControlId() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog
+                        .microGridBaseCaseBEMissingShuntRegulatingControlId().dataSource(), NetworkFactory.findDefault(), null);
+        ShuntCompensator shunt = network.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da");
+        assertTrue(shunt.isVoltageRegulatorOn());
+        assertEquals(shunt.getTerminal().getBusView().getBus().getV(), shunt.getTargetV(), 0.0d);
+        assertEquals(0.0d, shunt.getTargetDeadband(), 0.0d);
+        assertEquals(shunt.getTerminal(), shunt.getRegulatingTerminal());
     }
 
     @Test
@@ -267,7 +278,8 @@ public class CgmesConformity1ModifiedConversionTest {
         Network modified2 = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControl().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator off2 = modified2.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(off2);
-        assertEquals(OFF, off2.getRegulationMode());
+        assertEquals(REACTIVE_POWER, off2.getRegulationMode());
+        assertEquals(0.0d, off2.getReactivePowerSetPoint(), 0.0d);
     }
 
     @Test
