@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.powsybl.cgmes.conversion.elements.transformers.NewThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.model.CgmesModelException;
@@ -68,17 +69,16 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 String reason0 = String.format(
                         "Not supported for 3wtx. txId 'name' 'substation': %s '%s' '%s'",
                         tx3.getId(),
-                        tx3.getName(),
-                        tx3.getSubstation().getName());
+                        tx3.getNameOrId(),
+                        tx3.getSubstation().getNameOrId());
                 // Check if the step is at neutral and regulating control is disabled
                 int position = fromContinuous(p.asDouble("SVtapStep", neutralStep));
                 boolean regulating = p.asBoolean(REGULATING_CONTROL_ENABLED, false);
                 if (position == neutralStep && !regulating) {
-                    String reason = String.format(
-                            "%s, but is at neutralStep and regulating control disabled", reason0);
+                    Supplier<String> reason = () -> reason0 + ", but is at neutralStep and regulating control disabled";
                     ignored(reason);
                 } else {
-                    String reason = String.format(
+                    Supplier<String> reason = () -> String.format(
                             "%s, tap step: %d, neutral [low, high]: %d [%d, %d], regulating control enabled: %b",
                             reason0,
                             position,
@@ -98,7 +98,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             return false;
         }
         if (!validType()) {
-            invalid(String.format("Unexpected phaseTapChangerType %s", ptcType));
+            invalid("Unexpected phaseTapChangerType " + ptcType);
             return false;
         }
         return true;
@@ -192,8 +192,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         double value = point.asDouble(attr, defaultValue);
         if (Double.isNaN(value)) {
             fixed(
-                    "PhaseTapChangerTablePoint " + attr + " for step " + step + " in table " + tableId,
-                    "invalid value " + point.get(attr));
+                "PhaseTapChangerTablePoint " + attr + " for step " + step + " in table " + tableId,
+                "invalid value " + point.get(attr));
             return defaultValue;
         }
         return value;
@@ -425,9 +425,11 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         boolean xStepRangeIsConsistent = true;
         if (xStepMin < 0 || xStepMax <= 0 || xStepMin > xStepMax) {
             xStepRangeIsConsistent = false;
-            String reason = String.format("Inconsistent xStepMin, xStepMax [%f, %f]",
-                    xStepMin,
-                    xStepMax);
+            final double xStepMinParam = xStepMin;
+            final double xStepMaxParam = xStepMax;
+            Supplier<String> reason = () -> String.format("Inconsistent xStepMin, xStepMax [%f, %f]",
+                    xStepMinParam,
+                    xStepMaxParam);
             ignored("xStep range", reason);
         }
 

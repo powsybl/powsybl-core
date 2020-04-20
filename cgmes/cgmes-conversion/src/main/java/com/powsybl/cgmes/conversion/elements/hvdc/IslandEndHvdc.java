@@ -10,12 +10,15 @@ package com.powsybl.cgmes.conversion.elements.hvdc;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.cgmes.conversion.elements.hvdc.Adjacency.AdjacentType;
 import com.powsybl.cgmes.conversion.elements.hvdc.TPnodeEquipments.TPnodeEquipment;
+import com.powsybl.commons.PowsyblException;
 
 /**
  *
@@ -24,21 +27,24 @@ import com.powsybl.cgmes.conversion.elements.hvdc.TPnodeEquipments.TPnodeEquipme
  */
 class IslandEndHvdc {
 
+    // T1: no transformer, C1: one acDcConverter, LS1: one dcLineSegment
+    // T1: one transformer, C1: one acDcConverter, LS1: one dcLineSegment
+    // T2: two transformers, C2: two acDcConverters, LS2: two dcLineSegments
+    // TN: n transformers (usually 2), CN: n acDcConverters (usually 2), LSN: n dcLineSegments (usually 2)
     enum HvdcEndType {
-        HVDC_NONE, HVDC_T1_C1_LS1, HVDC_TN_CN_LSN, HVDC_T1_C1_LS2, HVDC_T2_C2_LS1,
+        HVDC_T0_C1_LS1, HVDC_T1_C1_LS1, HVDC_TN_CN_LSN, HVDC_T1_C1_LS2, HVDC_T2_C2_LS1,
     }
 
-    Set<HvdcEnd> hvdc;
+    private final List<HvdcEnd> hvdc;
 
     IslandEndHvdc() {
-        hvdc = new HashSet<>();
+        hvdc = new ArrayList<>();
     }
 
     void add(Adjacency adjacency, TPnodeEquipments tpNodeEquipments, List<String> islandNodesEnd) {
         if (islandNodesEnd.isEmpty()) {
             return;
         }
-        // printAd(adjacency, islandNodesEnd); printEq(tpNodeEquipments, islandNodesEnd); printDcLs(tpNodeEquipments, islandNodesEnd);
         Set<String> visitedTopologicalNodes = new HashSet<>();
 
         // Take a non-visited node with transformers
@@ -47,6 +53,21 @@ class IslandEndHvdc {
             String topologicalNodeEnd = islandNodesEnd.get(k);
             if (!visitedTopologicalNodes.contains(topologicalNodeEnd)
                 && tpNodeEquipments.containsAnyTransformer(topologicalNodeEnd)) {
+                add(adjacency, tpNodeEquipments, visitedTopologicalNodes, topologicalNodeEnd, islandNodesEnd);
+            }
+            k++;
+        }
+
+        if (!visitedTopologicalNodes.isEmpty()) {
+            return;
+        }
+        // IslandsEnds without transformers
+        // Take a non-visited node with acDcConverters
+        k = 0;
+        while (k < islandNodesEnd.size()) {
+            String topologicalNodeEnd = islandNodesEnd.get(k);
+            if (!visitedTopologicalNodes.contains(topologicalNodeEnd)
+                && tpNodeEquipments.containsAnyAcDcConverter(topologicalNodeEnd)) {
                 add(adjacency, tpNodeEquipments, visitedTopologicalNodes, topologicalNodeEnd, islandNodesEnd);
             }
             k++;
@@ -80,27 +101,32 @@ class IslandEndHvdc {
         int k = 0;
         while (k < listTp.size()) {
             String topologicalNode = listTp.get(k);
-            if (adjacency.adjacency.containsKey(topologicalNode)) {
-                adjacency.adjacency.get(topologicalNode).forEach(adjacent -> {
-                    if (Adjacency.isDcLineSegment(adjacent.type)) {
-                        return;
+            if (adjacency.get().containsKey(topologicalNode)) {
+                adjacency.get().get(topologicalNode).forEach(adjacent -> {
+                    if (isAdjacentOk(tpNodeEquipments, visitedTopologicalNodes, islandNodesEnd,
+                        adjacent.type, adjacent.topologicalNode)) {
+                        listTp.add(adjacent.topologicalNode);
+                        visitedTopologicalNodes.add(adjacent.topologicalNode);
                     }
-                    if (!islandNodesEnd.contains(adjacent.topologicalNode)) {
-                        return;
-                    }
-                    if (visitedTopologicalNodes.contains(adjacent.topologicalNode)) {
-                        return;
-                    }
-                    if (tpNodeEquipments.multiAcDcConverter(adjacent.topologicalNode)) {
-                        return;
-                    }
-                    listTp.add(adjacent.topologicalNode);
-                    visitedTopologicalNodes.add(adjacent.topologicalNode);
                 });
             }
             k++;
         }
         return listTp;
+    }
+
+    private static boolean isAdjacentOk(TPnodeEquipments tpNodeEquipments, Set<String> visitedTopologicalNodes,
+        List<String> islandNodesEnd, AdjacentType adType, String adTopologicalNode) {
+        if (Adjacency.isDcLineSegment(adType)) {
+            return false;
+        }
+        if (!islandNodesEnd.contains(adTopologicalNode)) {
+            return false;
+        }
+        if (visitedTopologicalNodes.contains(adTopologicalNode)) {
+            return false;
+        }
+        return !tpNodeEquipments.multiAcDcConverter(adTopologicalNode);
     }
 
     private static Set<String> computeEquipments(TPnodeEquipments tpNodeEquipments, List<String> hvdcNode,
@@ -113,7 +139,7 @@ class IslandEndHvdc {
 
     private static void addEquipments(TPnodeEquipments tpNodeEquipments, String topologicalNode,
         TPnodeEquipments.EquipmentType type, Set<String> listEq) {
-        List<TPnodeEquipment> listEqNode = tpNodeEquipments.nodeEquipments.get(topologicalNode);
+        List<TPnodeEquipment> listEqNode = tpNodeEquipments.getNodeEquipments().get(topologicalNode);
         if (listEqNode == null) {
             return;
         }
@@ -122,7 +148,7 @@ class IslandEndHvdc {
             .forEachOrdered(eq -> listEq.add(eq.equipmentId));
     }
 
-    HvdcEnd selectSimetricHvdcEnd(HvdcEnd hvdcEnd1) {
+    HvdcEnd selectSymmetricHvdcEnd(HvdcEnd hvdcEnd1) {
         return hvdc.stream().filter(h -> isCompatible(hvdcEnd1, h)).findFirst().orElse(null);
     }
 
@@ -138,56 +164,29 @@ class IslandEndHvdc {
         }
 
         return hvdcEnd1.dcLineSegmentsEnd.stream()
-            .allMatch(ls -> hvdcEnd2.dcLineSegmentsEnd.contains(ls));
+            .allMatch(hvdcEnd2.dcLineSegmentsEnd::contains);
     }
 
-    private void printAd(Adjacency adjacency, List<String> lnodes) {
-        lnodes.forEach(n -> printAd(adjacency, n));
+    List<HvdcEnd> getHvdc() {
+        return hvdc;
     }
 
-    private void printAd(Adjacency adjacency, String node) {
-        LOG.info("AD TopologicalNode {}", node);
-        if (adjacency.adjacency.containsKey(node)) {
-            adjacency.adjacency.get(node).forEach(ad -> LOG.info("    {} {}", ad.type, ad.topologicalNode));
-        }
-    }
-
-    private void printEq(TPnodeEquipments tpNodeEquipments, List<String> lnodes) {
-        lnodes.forEach(n -> printEq(tpNodeEquipments, n));
-    }
-
-    private void printEq(TPnodeEquipments tpNodeEquipments, String node) {
-        LOG.info("EQ. TopologicalNode {}", node);
-        if (tpNodeEquipments.nodeEquipments.containsKey(node)) {
-            tpNodeEquipments.nodeEquipments.get(node)
-                .forEach(eq -> LOG.info("    {} {}", eq.type, eq.equipmentId));
-        }
-    }
-
-    private void printDcLs(TPnodeEquipments tpNodeEquipments, List<String> lnodes) {
-        lnodes.forEach(n -> printDcLs(tpNodeEquipments, n));
-    }
-
-    private void printDcLs(TPnodeEquipments tpNodeEquipments, String node) {
-        if (tpNodeEquipments.nodeEquipments.containsKey(node)) {
-            tpNodeEquipments.nodeEquipments.get(node).stream()
-                .filter(eq -> eq.type == TPnodeEquipments.EquipmentType.DC_LINE_SEGMENT)
-                .forEach(eq -> LOG.info("DcLineSegment {}", eq.equipmentId));
-        }
-    }
-
-    void print() {
-        LOG.info("IslandEndHvdc");
-        hvdc.forEach(h -> h.print());
+    void debug() {
+        LOG.debug("IslandEndHvdc");
+        hvdc.forEach(HvdcEnd::debug);
     }
 
     static class HvdcEnd {
-        List<String> topologicalNodesEnd;
-        Set<String> transformersEnd;
-        Set<String> acDcConvertersEnd;
-        Set<String> dcLineSegmentsEnd;
+        final List<String> topologicalNodesEnd;
+        final Set<String> transformersEnd;
+        final Set<String> acDcConvertersEnd;
+        final Set<String> dcLineSegmentsEnd;
 
         HvdcEnd(List<String> topologicalNodesEnd, Set<String> transformersEnd, Set<String> acDcConvertersEnd, Set<String> dcLineSegmentsEnd) {
+            Objects.requireNonNull(topologicalNodesEnd);
+            Objects.requireNonNull(transformersEnd);
+            Objects.requireNonNull(acDcConvertersEnd);
+            Objects.requireNonNull(dcLineSegmentsEnd);
             this.topologicalNodesEnd = topologicalNodesEnd;
             this.transformersEnd = transformersEnd;
             this.acDcConvertersEnd = acDcConvertersEnd;
@@ -199,7 +198,9 @@ class IslandEndHvdc {
             int c = this.acDcConvertersEnd.size();
             int ls = this.dcLineSegmentsEnd.size();
 
-            if (t == 1 && c == 1 && ls == 1) {
+            if (t == 0 && c == 1 && ls == 1) {
+                return HvdcEndType.HVDC_T0_C1_LS1;
+            } else if (t == 1 && c == 1 && ls == 1) {
                 return HvdcEndType.HVDC_T1_C1_LS1;
             } else if (t == 1 && c == 1 && ls == 2) {
                 return HvdcEndType.HVDC_T1_C1_LS2;
@@ -208,15 +209,16 @@ class IslandEndHvdc {
             } else if (t == c && c == ls && t > 1) {
                 return HvdcEndType.HVDC_TN_CN_LSN;
             }
-            return HvdcEndType.HVDC_NONE;
+
+            throw new PowsyblException(String.format("Unexpected HVDC configuration: Transformers %d Converters %d DcLineSegments %d", t, c, ls));
         }
 
-        void print() {
-            LOG.info("    topologicalNodesEnd: {}", this.topologicalNodesEnd);
-            LOG.info("    transformersEnd: {}", this.transformersEnd);
-            LOG.info("    acDcConvertersEnd: {}", this.acDcConvertersEnd);
-            LOG.info("    dcLineSegmentsEnd: {}", this.dcLineSegmentsEnd);
-            LOG.info("---");
+        void debug() {
+            LOG.debug("    topologicalNodesEnd: {}", this.topologicalNodesEnd);
+            LOG.debug("    transformersEnd: {}", this.transformersEnd);
+            LOG.debug("    acDcConvertersEnd: {}", this.acDcConvertersEnd);
+            LOG.debug("    dcLineSegmentsEnd: {}", this.dcLineSegmentsEnd);
+            LOG.debug("---");
         }
     }
 

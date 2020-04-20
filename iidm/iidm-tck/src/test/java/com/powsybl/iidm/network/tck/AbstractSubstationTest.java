@@ -49,7 +49,8 @@ public abstract class AbstractSubstationTest {
                                     .setGeographicalTags("geoTag1", "geoTag2")
                                 .add();
         assertEquals("sub", substation.getId());
-        assertEquals(SUB_NAME, substation.getName());
+        assertEquals(SUB_NAME, substation.getOptionalName().orElse(null));
+        assertEquals(SUB_NAME, substation.getNameOrId());
         assertEquals(Country.AD, substation.getCountry().orElse(null));
         assertEquals("TSO", substation.getTso());
         assertEquals(ContainerType.SUBSTATION, substation.getContainerType());

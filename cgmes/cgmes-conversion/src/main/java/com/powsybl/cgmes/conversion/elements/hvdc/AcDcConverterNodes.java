@@ -11,9 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Objects;
 
 import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -26,13 +24,13 @@ import com.powsybl.triplestore.api.PropertyBag;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 class AcDcConverterNodes {
-    Map<String, AcDcConverterNode> converterNodes;
+    private final Map<String, AcDcConverterNode> converterNodes;
 
     AcDcConverterNodes(CgmesModel cgmesModel) {
         this.converterNodes = new HashMap<>();
 
         cgmesModel.acDcConverters().forEach(c -> computeAcDcConverter(cgmesModel, c));
-        cgmesModel.dcTerminals().forEach(t -> computeDcTerminalToAcDcConverter(t));
+        cgmesModel.dcTerminals().forEach(this::computeDcTerminalToAcDcConverter);
     }
 
     private void computeAcDcConverter(CgmesModel cgmesModel, PropertyBag c) {
@@ -55,20 +53,18 @@ class AcDcConverterNodes {
         }
     }
 
-    void print() {
-        LOG.info("AcDcConverterNodes");
-        converterNodes.entrySet()
-            .forEach(entry -> LOG.info(" {} {} {} {}", entry.getKey(), entry.getValue().id,
-                entry.getValue().acTopologicalNode,
-                entry.getValue().dcTopologicalNode));
+    Map<String, AcDcConverterNode> getConverterNodes() {
+        return converterNodes;
     }
 
     static class AcDcConverterNode {
-        String id;
-        String acTopologicalNode;
-        List<String> dcTopologicalNode;
+        final String id;
+        final String acTopologicalNode;
+        final List<String> dcTopologicalNode;
 
         AcDcConverterNode(String id, String acTopologicalNode) {
+            Objects.requireNonNull(id);
+            Objects.requireNonNull(acTopologicalNode);
             this.id = id;
             this.acTopologicalNode = acTopologicalNode;
             this.dcTopologicalNode = new ArrayList<>();
@@ -78,6 +74,4 @@ class AcDcConverterNodes {
             this.dcTopologicalNode.add(dcTopologicalNode);
         }
     }
-
-    private static final Logger LOG = LoggerFactory.getLogger(AcDcConverterNodes.class);
 }

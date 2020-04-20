@@ -28,7 +28,8 @@ public class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripVersionnedXmlTest("threeWindingsTransformerRoundTripRef.xml", IidmXmlVersion.V_1_0);
+        // backward compatibility
+        roundTripAllPreviousVersionedXmlTest("threeWindingsTransformerRoundTripRef.xml");
 
         roundTripXmlTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(),
                 NetworkXml::writeAndValidate,
@@ -41,6 +42,7 @@ public class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
 
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
+        twt.getLeg1().setRatedS(1.0);
 
         twt.getLeg1().newRatioTapChanger()
                 .setRegulating(false)

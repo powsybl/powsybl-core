@@ -15,6 +15,7 @@ import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -133,22 +134,22 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         // -------------------------------
         @Override
         public void removeBus(final String busId) {
-            throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+            throw MergingView.createNotImplementedException();
         }
 
         @Override
         public void removeAllBuses() {
-            throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+            throw MergingView.createNotImplementedException();
         }
 
         @Override
         public void removeSwitch(final String switchId) {
-            throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+            throw MergingView.createNotImplementedException();
         }
 
         @Override
         public void removeAllSwitches() {
-            throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+            throw MergingView.createNotImplementedException();
         }
     }
 
@@ -224,6 +225,16 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         }
 
         @Override
+        public Optional<Terminal> getOptionalTerminal(final int node) {
+            return getDelegate().getOptionalTerminal(node).map(t -> getIndex().getTerminal(t));
+        }
+
+        @Override
+        public boolean hasAttachedEquipment(final int node) {
+            return getDelegate().hasAttachedEquipment(node);
+        }
+
+        @Override
         public Terminal getTerminal1(final String switchId) {
             return getIndex().getTerminal(getDelegate().getTerminal1(switchId));
         }
@@ -281,20 +292,24 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         // -------------------------------
         // Simple delegated methods ------
         // -------------------------------
+
+        /**
+         * @deprecated Use {@link #getMaximumNodeIndex()} instead.
+         */
         @Override
+        @Deprecated
         public int getNodeCount() {
             return getDelegate().getNodeCount();
         }
 
         @Override
-        public int[] getNodes() {
-            return getDelegate().getNodes();
+        public int getMaximumNodeIndex() {
+            return getDelegate().getMaximumNodeIndex();
         }
 
         @Override
-        public VoltageLevel.NodeBreakerView setNodeCount(final int count) {
-            getDelegate().setNodeCount(count);
-            return this;
+        public int[] getNodes() {
+            return getDelegate().getNodes();
         }
 
         @Override
@@ -324,7 +339,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
 
         @Override
         public int getSwitchCount() {
-            return  getDelegate().getSwitchCount();
+            return getDelegate().getSwitchCount();
         }
 
         @Override
@@ -347,12 +362,12 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         // ------------------------------
         @Override
         public void removeSwitch(final String switchId) {
-            throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+            throw MergingView.createNotImplementedException();
         }
 
         @Override
         public void traverse(final int node, final Traverser traverser) {
-            throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+            throw MergingView.createNotImplementedException();
         }
     }
 
@@ -369,22 +384,22 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         // -------------------------------
         @Override
         public Iterable<Bus> getBuses() {
-            throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+            throw MergingView.createNotImplementedException();
         }
 
         @Override
         public Stream<Bus> getBusStream() {
-            throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+            throw MergingView.createNotImplementedException();
         }
 
         @Override
         public Bus getBus(final String id) {
-            throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+            throw MergingView.createNotImplementedException();
         }
 
         @Override
         public Bus getMergedBus(final String configuredBusId) {
-            throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+            throw MergingView.createNotImplementedException();
         }
     }
 
@@ -425,7 +440,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public Iterable<VscConverterStation> getVscConverterStations() {
         return Iterables.transform(getDelegate().getVscConverterStations(),
-                                   getIndex()::getVscConverterStation);
+                getIndex()::getVscConverterStation);
     }
 
     @Override
@@ -436,7 +451,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public Iterable<Battery> getBatteries() {
         return Iterables.transform(getDelegate().getBatteries(),
-                                   getIndex()::getBattery);
+                getIndex()::getBattery);
     }
 
     @Override
@@ -452,7 +467,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public Iterable<Generator> getGenerators() {
         return Iterables.transform(getDelegate().getGenerators(),
-                                   getIndex()::getGenerator);
+                getIndex()::getGenerator);
     }
 
     @Override
@@ -468,7 +483,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public Iterable<Load> getLoads() {
         return Iterables.transform(getDelegate().getLoads(),
-                                   getIndex()::getLoad);
+                getIndex()::getLoad);
     }
 
     @Override
@@ -484,7 +499,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public Iterable<ShuntCompensator> getShuntCompensators() {
         return Iterables.transform(getDelegate().getShuntCompensators(),
-                                   getIndex()::getShuntCompensator);
+                getIndex()::getShuntCompensator);
     }
 
     @Override
@@ -500,7 +515,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
         return Iterables.transform(getDelegate().getStaticVarCompensators(),
-                                   getIndex()::getStaticVarCompensator);
+                getIndex()::getStaticVarCompensator);
     }
 
     @Override
@@ -541,8 +556,8 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
         return getDelegate().getDanglingLineStream()
-                            .filter(getIndex()::isMerged)
-                            .map(getIndex()::getDanglingLine);
+                .filter(dl -> !getIndex().isMerged(dl))
+                .map(getIndex()::getDanglingLine);
     }
 
     @Override
@@ -555,37 +570,37 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     // -------------------------------
     @Override
     public <T extends Connectable> T getConnectable(final String id, final Class<T> aClass) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public <T extends Connectable> Iterable<T> getConnectables(final Class<T> clazz) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public <T extends Connectable> Stream<T> getConnectableStream(final Class<T> clazz) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public <T extends Connectable> int getConnectableCount(final Class<T> clazz) {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public Iterable<Connectable> getConnectables() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public Stream<Connectable> getConnectableStream() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     @Override
     public int getConnectableCount() {
-        throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+        throw MergingView.createNotImplementedException();
     }
 
     // -------------------------------
@@ -671,7 +686,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
 
     @Override
     public void visitEquipments(final TopologyVisitor visitor) {
-        getDelegate().visitEquipments(visitor);
+        getDelegate().visitEquipments(new TopologyVisitorAdapter(visitor, getIndex()));
     }
 
     @Override

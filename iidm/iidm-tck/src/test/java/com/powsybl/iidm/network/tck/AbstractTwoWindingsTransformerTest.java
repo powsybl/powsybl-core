@@ -30,19 +30,22 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                                                                     .setB(4.0)
                                                                     .setRatedU1(5.0)
                                                                     .setRatedU2(6.0)
+                                                                    .setRatedS(7.0)
                                                                     .setVoltageLevel1("vl1")
                                                                     .setVoltageLevel2("vl2")
                                                                     .setConnectableBus1("busA")
                                                                     .setConnectableBus2("busB")
                                                                 .add();
         assertEquals("twt", twoWindingsTransformer.getId());
-        assertEquals(TWT_NAME, twoWindingsTransformer.getName());
+        assertEquals(TWT_NAME, twoWindingsTransformer.getOptionalName().orElse(null));
+        assertEquals(TWT_NAME, twoWindingsTransformer.getNameOrId());
         assertEquals(1.0, twoWindingsTransformer.getR(), 0.0);
         assertEquals(2.0, twoWindingsTransformer.getX(), 0.0);
         assertEquals(3.0, twoWindingsTransformer.getG(), 0.0);
         assertEquals(4.0, twoWindingsTransformer.getB(), 0.0);
         assertEquals(5.0, twoWindingsTransformer.getRatedU1(), 0.0);
         assertEquals(6.0, twoWindingsTransformer.getRatedU2(), 0.0);
+        assertEquals(7.0, twoWindingsTransformer.getRatedS(), 0.0);
         assertEquals(ConnectableType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformer.getType());
         assertSame(substation, twoWindingsTransformer.getSubstation());
 
@@ -65,6 +68,9 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         double ratedU2 = 16.0;
         twoWindingsTransformer.setRatedU2(ratedU2);
         assertEquals(ratedU2, twoWindingsTransformer.getRatedU2(), 0.0);
+        double ratedS = 32.0;
+        twoWindingsTransformer.setRatedS(ratedS);
+        assertEquals(ratedS, twoWindingsTransformer.getRatedS(), 0.0);
 
         assertEquals(substation.getTwoWindingsTransformerStream().count(), substation.getTwoWindingsTransformerCount());
     }
@@ -73,42 +79,49 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
     public void testInvalidR() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("r is invalid");
-        createTwoWindingTransformer(INVALID, INVALID, Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0);
+        createTwoWindingTransformer(INVALID, INVALID, Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0);
     }
 
     @Test
     public void testInvalidX() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("x is invalid");
-        createTwoWindingTransformer(INVALID, INVALID, 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0);
+        createTwoWindingTransformer(INVALID, INVALID, 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0);
     }
 
     @Test
     public void testInvalidG() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("g is invalid");
-        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0);
+        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0);
     }
 
     @Test
     public void testInvalidB() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("b is invalid");
-        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0);
+        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0);
     }
 
     @Test
     public void testInvalidRatedU1() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("rated U1 is invalid");
-        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0);
+        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0);
     }
 
     @Test
     public void testInvalidRatedU2() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("rated U2 is invalid");
-        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN);
+        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0);
+    }
+
+    @Test
+    public void testInvalidRatedS() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("Invalid value of rated S 0.0");
+        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0);
     }
 
     @Test
@@ -149,7 +162,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
     }
 
     private void createTwoWindingTransformer(String id, String name, double r, double x, double g, double b,
-                                             double ratedU1, double ratedU2) {
+                                             double ratedU1, double ratedU2, double ratedS) {
         substation.newTwoWindingsTransformer()
                     .setId(id)
                     .setName(name)
@@ -159,6 +172,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                     .setB(b)
                     .setRatedU1(ratedU1)
                     .setRatedU2(ratedU2)
+                    .setRatedS(ratedS)
                     .setVoltageLevel1("vl1")
                     .setVoltageLevel2("vl2")
                     .setConnectableBus1("busA")

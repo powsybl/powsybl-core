@@ -42,16 +42,16 @@ public abstract class AbstractVscTest {
         assertEquals(HvdcConverterStation.HvdcType.VSC, cs1.getHvdcType());
         assertEquals(1, network.getVoltageLevel("VL1").getVscConverterStationCount());
         assertEquals(1, network.getVoltageLevel("VL2").getVscConverterStationCount());
-        assertEquals(0.011f, cs1.getLossFactor(), 0.0f);
-        assertEquals(0.011f, cs2.getLossFactor(), 0.0f);
-        cs1.setLossFactor(0.022f);
-        assertEquals(0.022f, cs1.getLossFactor(), 0.0f);
+        assertEquals(1.1f, cs1.getLossFactor(), 0.0f);
+        assertEquals(1.1f, cs2.getLossFactor(), 0.0f);
+        cs1.setLossFactor(2.2f);
+        assertEquals(2.2f, cs1.getLossFactor(), 0.0f);
         assertTrue(cs1.isVoltageRegulatorOn());
         assertEquals(405.0, cs1.getVoltageSetpoint(), 0.0);
         cs1.setVoltageSetpoint(406.0);
         assertEquals(406.0, cs1.getVoltageSetpoint(), 0.0);
         assertTrue(Double.isNaN(cs1.getReactivePowerSetpoint()));
-        assertEquals(0.011f, cs2.getLossFactor(), 0.0f);
+        assertEquals(1.1f, cs2.getLossFactor(), 0.0f);
         assertFalse(cs2.isVoltageRegulatorOn());
         assertEquals(123.0, cs2.getReactivePowerSetpoint(), 0.0);
         cs2.setReactivePowerSetpoint(124.0);
@@ -79,6 +79,13 @@ public abstract class AbstractVscTest {
         assertSame(cs1, hvdcLine.getConverterStation(HvdcLine.Side.ONE));
         assertSame(cs2, hvdcLine.getConverterStation2());
         assertSame(cs2, hvdcLine.getConverterStation(HvdcLine.Side.TWO));
+
+        assertEquals(2, hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getConnectedComponent().getBusStream().count());
+        assertEquals(2, hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getConnectedComponent().getSize());
+        assertTrue(hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getConnectedComponent().getBuses().iterator().hasNext());
+        assertEquals(1, hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getSynchronousComponent().getBusStream().count());
+        assertEquals(1, hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getSynchronousComponent().getSize());
+        assertTrue(hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getSynchronousComponent().getBuses().iterator().hasNext());
     }
 
     @Test

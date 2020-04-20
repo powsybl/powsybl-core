@@ -15,39 +15,54 @@ import static org.junit.Assert.*;
  */
 public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInterceptor {
 
-    private boolean onPrecontingencyResultCount = false;
+    private int onPreContingencyResultCount = 0;
 
-    private boolean onPostContingencyResultCount = false;
+    private int onPostContingencyResultCount = 0;
 
-    private boolean onSecurityAnalysisResultCount = false;
+    private int onSecurityAnalysisResultCount = 0;
 
     @Override
-    public void onPreContingencyResult(RunningContext context, LimitViolationsResult preContingencyResult) {
-        super.onPreContingencyResult(context, preContingencyResult);
+    public void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context) {
+        super.onPreContingencyResult(preContingencyResult, context);
 
         assertRunningContext(context);
         assertPreContingencyResult(preContingencyResult);
+        onPreContingencyResultCount++;
     }
 
     @Override
-    public void onPostContingencyResult(RunningContext context, PostContingencyResult postContingencyResult) {
-        super.onPostContingencyResult(context, postContingencyResult);
+    public void onPostContingencyResult(PostContingencyResult postContingencyResult, SecurityAnalysisResultContext context) {
+        super.onPostContingencyResult(postContingencyResult, context);
 
         assertRunningContext(context);
         assertPostContingencyResult(postContingencyResult);
+        onPostContingencyResultCount++;
     }
 
     @Override
-    public void onSecurityAnalysisResult(RunningContext context, SecurityAnalysisResult result) {
-        super.onSecurityAnalysisResult(context, result);
+    public void onSecurityAnalysisResult(SecurityAnalysisResult result, SecurityAnalysisResultContext context) {
+        super.onSecurityAnalysisResult(result, context);
 
         assertRunningContext(context);
         assertNotNull(result);
         assertPreContingencyResult(result.getPreContingencyResult());
         result.getPostContingencyResults().forEach(SecurityAnalysisInterceptorMock::assertPostContingencyResult);
+        onSecurityAnalysisResultCount++;
     }
 
-    private static void assertRunningContext(RunningContext context) {
+    public int getOnPreContingencyResultCount() {
+        return onPreContingencyResultCount;
+    }
+
+    public int getOnPostContingencyResultCount() {
+        return onPostContingencyResultCount;
+    }
+
+    public int getOnSecurityAnalysisResultCount() {
+        return onSecurityAnalysisResultCount;
+    }
+
+    private static void assertRunningContext(SecurityAnalysisResultContext context) {
         assertNotNull(context);
         assertNotNull(context.getNetwork());
         assertEquals("sim1", context.getNetwork().getId());

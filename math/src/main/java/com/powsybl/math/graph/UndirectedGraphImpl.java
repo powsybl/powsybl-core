@@ -11,6 +11,7 @@ import com.google.common.collect.FluentIterable;
 import com.powsybl.commons.PowsyblException;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.list.linked.TIntLinkedList;
+import gnu.trove.set.hash.TIntHashSet;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -97,7 +98,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     private final Lock adjacencyListCacheLock = new ReentrantLock();
 
-    private final TIntLinkedList removedVertices = new TIntLinkedList();
+    private final TIntHashSet availableVertices = new TIntHashSet();
 
     private final TIntLinkedList removedEdges = new TIntLinkedList();
 
@@ -118,15 +119,42 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     @Override
     public int addVertex() {
         int v;
-        if (removedVertices.isEmpty()) {
+        if (availableVertices.isEmpty()) {
             v = vertices.size();
-            vertices.add(new Vertex<V>());
+            vertices.add(new Vertex<>());
         } else {
-            v = removedVertices.removeAt(0);
+            v = availableVertices.iterator().next();
+            availableVertices.remove(v);
         }
         invalidateAdjacencyList();
         notifyListener();
         return v;
+    }
+
+    @Override
+    public void addVertexIfNotPresent(int v) {
+        if (v < vertices.size()) {
+            if (availableVertices.contains(v)) {
+                vertices.set(v, new Vertex<>());
+                availableVertices.remove(v);
+            }
+        } else {
+            for (int i = vertices.size(); i < v; i++) {
+                vertices.add(null);
+                availableVertices.add(i);
+            }
+            vertices.add(new Vertex<>());
+        }
+        invalidateAdjacencyList();
+        notifyListener();
+    }
+
+    @Override
+    public boolean vertexExists(int v) {
+        if (v < 0) {
+            throw new PowsyblException("Invalid vertex " + v);
+        }
+        return v < vertices.size() && vertices.get(v) != null;
     }
 
     @Override
@@ -140,18 +168,29 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         V obj = vertices.get(v).getObject();
         if (v == vertices.size() - 1) {
             vertices.remove(v);
+            cleanVertices(v - 1);
         } else {
             vertices.set(v, null);
-            removedVertices.add(v);
+            availableVertices.add(v);
         }
         invalidateAdjacencyList();
         notifyListener();
         return obj;
     }
 
+    private void cleanVertices(int v) {
+        for (int i = v; i >= 0; i--) {
+            if (!availableVertices.contains(i)) {
+                return;
+            }
+            availableVertices.remove(i);
+            vertices.remove(i);
+        }
+    }
+
     @Override
     public int getVertexCount() {
-        return vertices.size() - removedVertices.size();
+        return vertices.size() - availableVertices.size();
     }
 
     @Override
@@ -160,7 +199,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             throw new PowsyblException("Cannot remove all vertices because there is still some edges in the graph");
         }
         vertices.clear();
-        removedVertices.clear();
+        availableVertices.clear();
         invalidateAdjacencyList();
         notifyListener();
     }
@@ -241,8 +280,8 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     @Override
     public Iterable<V> getVerticesObj() {
         return FluentIterable.from(vertices)
-                             .filter(Predicates.notNull())
-                             .transform(Vertex::getObject);
+                .filter(Predicates.notNull())
+                .transform(Vertex::getObject);
     }
 
     @Override
@@ -277,8 +316,8 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     @Override
     public Iterable<E> getEdgesObject() {
         return FluentIterable.from(edges)
-                             .filter(Predicates.notNull())
-                             .transform(Edge::getObject);
+                .filter(Predicates.notNull())
+                .transform(Edge::getObject);
     }
 
     @Override
@@ -303,7 +342,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             int e = adjacentEdges.getQuick(i);
             Edge<E> edge = edges.get(e);
             if ((edge.getV1() == v1 && edge.getV2() == v2)
-                || (edge.getV1() == v2 && edge.getV2() == v1)) {
+                    || (edge.getV1() == v2 && edge.getV2() == v1)) {
                 edgeObjects.add(edge.getObject());
             }
         }

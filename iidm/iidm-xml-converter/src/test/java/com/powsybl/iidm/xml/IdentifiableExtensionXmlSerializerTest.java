@@ -56,7 +56,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         }
         // try to validate the schema with extensions
         try (ByteArrayInputStream is = new ByteArrayInputStream(buffer)) {
-            NetworkXml.validateWithExtensions(is);
+            NetworkXml.validate(is);
         }
         try (ByteArrayInputStream is = new ByteArrayInputStream(buffer)) {
             Network network2 = NetworkXml.read(is);
@@ -80,8 +80,8 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
                 NetworkXml::read,
                 getVersionedNetworkPath("multiple-extensions.xml", CURRENT_IIDM_XML_VERSION));
 
-        // backward compatibility 1.0
-        roundTripVersionnedXmlTest("multiple-extensions.xml", IidmXmlVersion.V_1_0);
+        // backward compatibility
+        roundTripAllPreviousVersionedXmlTest("multiple-extensions.xml");
     }
 
     // Define a network extension without XML serializer
@@ -172,7 +172,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         }
         // try to validate the schema with extensions
         try (ByteArrayInputStream is = new ByteArrayInputStream(buffer)) {
-            NetworkXml.validateWithExtensions(is);
+            NetworkXml.validate(is);
         }
         try (ByteArrayInputStream is = new ByteArrayInputStream(buffer)) {
             Network network2 = NetworkXml.read(is);
@@ -193,13 +193,8 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         assertNotNull(terminalMockExtXml);
         assertSame(loadXml.getTerminal(), terminalMockExtXml.getTerminal());
 
-        // backward compatibility 1.0
-        roundTripVersionnedXmlTest("eurostag-tutorial-example1-with-terminalMock-ext.xml", IidmXmlVersion.V_1_0);
-        roundTripXmlTest(NetworkXml.read(getVersionedNetworkAsStream("eurostag-tutorial-example1-with-terminalMock-ext.xml",
-                IidmXmlVersion.V_1_0)),
-                NetworkXml::writeAndValidate,
-                NetworkXml::validateAndRead,
-                getVersionedNetworkPath("eurostag-tutorial-example1-with-terminalMock-ext.xml", CURRENT_IIDM_XML_VERSION));
+        // backward compatibility
+        roundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1-with-terminalMock-ext.xml");
     }
 
     @Test

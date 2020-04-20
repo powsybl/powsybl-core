@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.util.ShortIdDictionary;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -22,6 +21,8 @@ import java.util.Random;
 import java.util.Objects;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -59,18 +60,6 @@ public class VoltageLevelAdapterTest {
         assertEquals(500.0, vlActual.getNominalV(), 0.0);
         assertEquals(vlExpected.getShuntCompensatorCount(), vlActual.getShuntCompensatorCount());
         assertEquals(vlExpected.getLccConverterStationCount(), vlActual.getLccConverterStationCount());
-
-        // Topology
-        assertEquals(vlExpected.getTopologyKind(), vlActual.getTopologyKind());
-        vlActual.visitEquipments(Mockito.mock(TopologyVisitor.class));
-        vlActual.printTopology();
-        vlActual.printTopology(System.out, Mockito.mock(ShortIdDictionary.class));
-        try {
-            vlActual.exportTopology(Mockito.mock(Writer.class), Mockito.mock(Random.class));
-            vlActual.exportTopology(Mockito.mock(Writer.class));
-        } catch (IOException e) {
-            // Ignored
-        }
 
         // VscConverterStation
         vlActual.newVscConverterStation()
@@ -149,9 +138,11 @@ public class VoltageLevelAdapterTest {
                     .setId("SHUNT")
                     .setConnectableBus("busA")
                     .setBus("busA")
-                    .setbPerSection(1e-5)
                     .setCurrentSectionCount(1)
-                    .setMaximumSectionCount(1)
+                    .newLinearModel()
+                        .setbPerSection(1e-5)
+                        .setMaximumSectionCount(1)
+                    .add()
                 .add();
         vlActual.getShuntCompensators().forEach(s -> {
             assertTrue(s instanceof ShuntCompensatorAdapter);
@@ -206,7 +197,7 @@ public class VoltageLevelAdapterTest {
         assertEquals(vlExpected.getSwitchCount(), vlActual.getSwitchCount());
 
         // DanglingLine
-        vlActual.newDanglingLine().setId("DLL1")
+        vlActual.newDanglingLine()
                 .setId("DLL1")
                 .setName("DLL1")
                 .setR(1)
@@ -225,6 +216,27 @@ public class VoltageLevelAdapterTest {
         });
         assertEquals(vlExpected.getDanglingLineCount(), vlActual.getDanglingLineCount());
         assertEquals(vlExpected.getDanglingLineStream().count(), vlActual.getDanglingLineStream().count());
+
+        // Topology : Bus kind
+        assertEquals(vlExpected.getTopologyKind(), vlActual.getTopologyKind());
+        TopologyVisitor visitor = mock(TopologyVisitor.class);
+        vlActual.visitEquipments(visitor);
+        verify(visitor, times(1)).visitBattery(any(Battery.class));
+        verify(visitor, times(1)).visitGenerator(any(Generator.class));
+        verify(visitor, times(1)).visitLoad(any(Load.class));
+        verify(visitor, times(1)).visitShuntCompensator(any(ShuntCompensator.class));
+        verify(visitor, times(1)).visitStaticVarCompensator(any(StaticVarCompensator.class));
+        verify(visitor, times(2)).visitHvdcConverterStation(any(HvdcConverterStation.class));
+        verify(visitor, times(1)).visitDanglingLine(any(DanglingLine.class));
+
+        vlActual.printTopology();
+        vlActual.printTopology(System.out, mock(ShortIdDictionary.class));
+        try {
+            vlActual.exportTopology(mock(Writer.class), mock(Random.class));
+            vlActual.exportTopology(mock(Writer.class));
+        } catch (IOException e) {
+            // Ignored
+        }
 
         // Not implemented yet !
         // Connectables
@@ -319,9 +331,6 @@ public class VoltageLevelAdapterTest {
 
         final VoltageLevel.NodeBreakerView nbv = voltageLevelNB.getNodeBreakerView();
         assertTrue(nbv instanceof VoltageLevelAdapter.NodeBreakerViewAdapter);
-        nbv.setNodeCount(2);
-        assertEquals(2, nbv.getNodeCount());
-        assertEquals(2, nbv.getNodes().length);
 
         nbv.newInternalConnection()
                .setNode1(0)

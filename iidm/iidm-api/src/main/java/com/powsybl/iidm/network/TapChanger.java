@@ -94,10 +94,24 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      */
     C setRegulationTerminal(Terminal regulationTerminal);
 
+    /**
+     * Get the tap changer's deadband (in kV) used to avoid excessive update of discrete control while regulating.
+     * This attribute is necessary only if the tap changer is regulating.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
     default double getTargetDeadband() {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Set the tap changer's deadband (in kV) used to avoid excessive update of discrete control while regulating.
+     * This attribute is necessary only if the tap changer is regulating. It must be positive.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
     default C setTargetDeadband(double targetDeadband) {
         throw new UnsupportedOperationException();
     }

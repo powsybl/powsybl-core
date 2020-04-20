@@ -8,6 +8,10 @@
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
 import java.util.List;
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.hvdc.DcLineSegmentConversion.DcLineSegmentConverter;
@@ -17,6 +21,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -32,35 +37,45 @@ public class CgmesDcConversion {
     private static final String OPERATING_MODE = "operatingMode";
 
     public CgmesDcConversion(CgmesModel cgmes, Context context) {
-        this.cgmesModel = cgmes;
-        this.context = context;
+
+        this.cgmesModel = Objects.requireNonNull(cgmes);
+        this.context = Objects.requireNonNull(context);
     }
 
     public void convert() {
+
+        // Get hvdc configurations
         Adjacency adjacency = new Adjacency(cgmesModel);
+        if (adjacency.isEmpty()) {
+            return;
+        }
         TPnodeEquipments tpNodeEquipments = new TPnodeEquipments(cgmesModel, adjacency);
         Islands islands = new Islands(adjacency);
 
         IslandsEnds islandsEnds = new IslandsEnds();
-        islands.islandsNodes.forEach(listNodes -> islandsEnds.add(adjacency, listNodes));
+        islands.getIslandsNodes().forEach(listNodes -> islandsEnds.add(adjacency, listNodes));
 
         Hvdc hvdc = new Hvdc();
-        islandsEnds.islandsEndsNodes.forEach(ien -> {
+        islandsEnds.getIslandsEndsNodes().forEach(ien -> {
             IslandEndHvdc islandEndHvdc1 = new IslandEndHvdc();
-            islandEndHvdc1.add(adjacency, tpNodeEquipments, ien.topologicalNodes1);
+            islandEndHvdc1.add(adjacency, tpNodeEquipments, ien.getTopologicalNodes1());
 
             IslandEndHvdc islandEndHvdc2 = new IslandEndHvdc();
-            islandEndHvdc2.add(adjacency, tpNodeEquipments, ien.topologicalNodes2);
+            islandEndHvdc2.add(adjacency, tpNodeEquipments, ien.getTopologicalNodes2());
 
             hvdc.add(tpNodeEquipments, islandEndHvdc1, islandEndHvdc2);
         });
 
-        // Convert each converter - dcLineSegment configuration
-        hvdc.hvdcData.forEach(h -> convert(h.converters, h.dcLineSegments));
+        // Convert to IIDM each converter - dcLineSegment configuration
+        hvdc.getHvdcData().forEach(h -> convert(h.converters, h.dcLineSegments));
 
         // warnings
         context.dc().reportCgmesConvertersNotUsed();
         context.dc().reportCgmesDcLineSegmentNotUsed();
+
+        if (LOG.isDebugEnabled()) {
+            debugHvdc(adjacency, tpNodeEquipments, islands, islandsEnds, hvdc);
+        }
     }
 
     private void convert(List<HvdcConverter> converters, List<String> dcLineSegments) {
@@ -81,21 +96,18 @@ public class CgmesDcConversion {
     }
 
     private void convert(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId) {
-        boolean ok = convertCommonData(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId);
-        if (!ok) {
+        if (!convertCommonData(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId)) {
             return;
         }
         this.r = computeR(this.dcLineSegment);
 
-        ok = createHvdc();
-        if (ok) {
+        if (createHvdc()) {
             setCommonDataUsed();
         }
     }
 
     private void convert(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId1, String dcLineSegmentId2) {
-        boolean ok = convertCommonData(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId1);
-        if (!ok) {
+        if (!convertCommonData(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId1)) {
             return;
         }
         PropertyBag dcLineSegment2 = context.dc().getCgmesDcLineSegmentPropertyBag(dcLineSegmentId2);
@@ -104,8 +116,7 @@ public class CgmesDcConversion {
         }
         this.r = 1.0 / (1.0 / computeR(this.dcLineSegment) + 1.0 / computeR(dcLineSegment2));
 
-        ok = createHvdc();
-        if (ok) {
+        if (createHvdc()) {
             setCommonDataUsed();
             context.dc().setCgmesDcLineSegmentUsed(dcLineSegmentId2);
         }
@@ -143,7 +154,7 @@ public class CgmesDcConversion {
         } else if (stype.equals("CsConverter")) {
             return HvdcType.LCC;
         }
-        return null;
+        throw new PowsyblException("Unexpected HVDC type: " + stype);
     }
 
     private static HvdcLine.ConvertersMode decodeMode(HvdcType converterType, PropertyBag cconverter1, PropertyBag cconverter2) {
@@ -155,9 +166,9 @@ public class CgmesDcConversion {
                 return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             } else if (rectifier(mode1) && inverter(mode2)) {
                 return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
-            } else {
-                return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER; // TODO delete
-                // throw new PowsyblException("Unexpected HVDC type: " + converterType);
+            } else if (cconverter1.asDouble(TARGET_PPCC) == 0 && cconverter2.asDouble(TARGET_PPCC) == 0) {
+                // Both ends are rectifier or inverter
+                return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             }
         } else {
             if (cconverter1.asDouble(TARGET_PPCC) > 0 || cconverter2.asDouble(TARGET_PPCC) < 0) {
@@ -166,6 +177,7 @@ public class CgmesDcConversion {
                 return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             }
         }
+        throw new PowsyblException("Unexpected HVDC type: " + converterType);
     }
 
     private static boolean inverter(String operatingMode) {
@@ -216,16 +228,13 @@ public class CgmesDcConversion {
         double pAC1 = getPAc(cconverter1);
         double pAC2 = getPAc(cconverter2);
 
-        LossFactor lossFactor = new LossFactor(operatingMode, pAC1, pAC2, poleLossP1, poleLossP2);
+        LossFactor lossFactor = new LossFactor(context, operatingMode, pAC1, pAC2, poleLossP1, poleLossP2);
         lossFactor.compute();
-        if (!lossFactor.isOk()) {
-            return false;
-        }
 
         AcDcConverterConversion acDcConverterConversion1 = new AcDcConverterConversion(cconverter1, converterType, lossFactor.getLossFactor1(), context);
         AcDcConverterConversion acDcConverterConversion2 = new AcDcConverterConversion(cconverter2, converterType, lossFactor.getLossFactor2(), context);
-        DcLineSegmentConverter converter1 = new DcLineSegmentConverter(converter1Id, lossFactor.getLossFactor1(), pAC1);
-        DcLineSegmentConverter converter2 = new DcLineSegmentConverter(converter2Id, lossFactor.getLossFactor2(), pAC2);
+        DcLineSegmentConverter converter1 = new DcLineSegmentConverter(converter1Id, poleLossP1, pAC1);
+        DcLineSegmentConverter converter2 = new DcLineSegmentConverter(converter2Id, poleLossP2, pAC2);
         DcLineSegmentConversion dcLineSegmentConversion = new DcLineSegmentConversion(dcLineSegment, operatingMode, r, ratedUdc, converter1, converter2, context);
 
         if (!acDcConverterConversion1.valid() || !acDcConverterConversion2.valid() || !dcLineSegmentConversion.valid()) {
@@ -257,20 +266,50 @@ public class CgmesDcConversion {
         if (acDcConverterConversion == null) {
             return;
         }
-        HvdcConverterStation<?> iconverter = acDcConverterConversion.getIidmConverter();
+        LccConverterStation iconverter = acDcConverterConversion.getLccConverter();
         double powerFactor = getPowerFactor(iconverter);
         if (!Double.isNaN(powerFactor)) {
-            acDcConverterConversion.setPowerFactor(powerFactor);
+            acDcConverterConversion.setLccPowerFactor(powerFactor);
         }
     }
 
-    private static double getPowerFactor(HvdcConverterStation<?> iconverter) {
+    private static double getPowerFactor(LccConverterStation iconverter) {
         return iconverter.getTerminal().getP()
             / Math.hypot(iconverter.getTerminal().getP(), iconverter.getTerminal().getQ());
     }
 
+    private void debugHvdc(Adjacency adjacency, TPnodeEquipments tpNodeEquipments, Islands islands,
+        IslandsEnds islandsEnds, Hvdc hvdc) {
+
+        hvdc.debug();
+
+        islandsEnds.getIslandsEndsNodes().forEach(ien -> {
+            IslandEndHvdc islandEndHvdc1 = new IslandEndHvdc();
+            islandEndHvdc1.add(adjacency, tpNodeEquipments, ien.getTopologicalNodes1());
+            IslandEndHvdc islandEndHvdc2 = new IslandEndHvdc();
+            islandEndHvdc2.add(adjacency, tpNodeEquipments, ien.getTopologicalNodes2());
+
+            islandEndHvdc1.debug();
+            islandEndHvdc2.debug();
+
+            adjacency.debug(ien.getTopologicalNodes1());
+            tpNodeEquipments.debugEq(ien.getTopologicalNodes1());
+            tpNodeEquipments.debugDcLs(ien.getTopologicalNodes1());
+
+            adjacency.debug(ien.getTopologicalNodes2());
+            tpNodeEquipments.debugEq(ien.getTopologicalNodes2());
+            tpNodeEquipments.debugDcLs(ien.getTopologicalNodes2());
+        });
+
+        islands.debug();
+        islandsEnds.debug();
+        adjacency.debug();
+        tpNodeEquipments.debug();
+    }
+
     private final CgmesModel cgmesModel;
     private final Context context;
+
     private HvdcType converterType;
     private HvdcLine.ConvertersMode operatingMode;
     private String converter1Id;
@@ -281,4 +320,6 @@ public class CgmesDcConversion {
     private PropertyBag dcLineSegment;
     private double r;
     private double ratedUdc;
+
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesDcConversion.class);
 }

@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Ints;
 import com.powsybl.iidm.network.*;
 
 import java.util.List;
@@ -28,9 +29,9 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     private double highVoltageLimit;
 
-    AbstractVoltageLevel(String id, String name, SubstationImpl substation,
+    AbstractVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation,
                          double nominalV, double lowVoltageLimit, double highVoltageLimit) {
-        super(id, name);
+        super(id, name, fictitious);
         this.substation = substation;
         this.nominalV = nominalV;
         this.lowVoltageLimit = lowVoltageLimit;
@@ -123,11 +124,12 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
-    public <T extends Connectable> FluentIterable<T> getConnectables(Class<T> clazz) {
+    public <T extends Connectable> Iterable<T> getConnectables(Class<T> clazz) {
         Iterable<Terminal> terminals = getTerminals();
         return FluentIterable.from(terminals)
                 .transform(Terminal::getConnectable)
-                .filter(clazz);
+                .filter(clazz)
+                .toSet();
     }
 
     @Override
@@ -135,29 +137,32 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         return getTerminalStream()
                 .map(Terminal::getConnectable)
                 .filter(clazz::isInstance)
-                .map(clazz::cast);
+                .map(clazz::cast)
+                .distinct();
     }
 
     @Override
     public <T extends Connectable> int getConnectableCount(Class<T> clazz) {
-        return getConnectables(clazz).size();
+        return Ints.checkedCast(getConnectableStream(clazz).count());
     }
 
     @Override
-    public FluentIterable<Connectable> getConnectables() {
+    public Iterable<Connectable> getConnectables() {
         return FluentIterable.from(getTerminals())
-                .transform(Terminal::getConnectable);
+                .transform(Terminal::getConnectable)
+                .toSet();
     }
 
     @Override
     public Stream<Connectable> getConnectableStream() {
         return getTerminalStream()
-                .map(Terminal::getConnectable);
+                .map(Terminal::getConnectable)
+                .distinct();
     }
 
     @Override
     public int getConnectableCount() {
-        return getConnectables().size();
+        return Ints.checkedCast(getConnectableStream().count());
     }
 
     @Override

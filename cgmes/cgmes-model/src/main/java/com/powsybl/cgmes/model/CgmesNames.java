@@ -12,13 +12,25 @@ package com.powsybl.cgmes.model;
  */
 public final class CgmesNames {
 
+    public static final String NAME = "IdentifiedObject.name";
+    public static final String GRAPH = "graph";
+
     public static final String FULL_MODEL = "FullModel";
+    public static final String SCENARIO_TIME = "Model.scenarioTime";
+    public static final String CREATED = "Model.created";
+    public static final String DESCRIPTION = "Model.description";
+    public static final String VERSION = "Model.version";
+    public static final String DEPENDENT_ON = "Model.DependentOn";
+    public static final String PROFILE = "Model.profile";
+    public static final String MODELING_AUTHORITY_SET = "Model.modelingAuthoritySet";
 
     public static final String SUBSTATION = "Substation";
     public static final String VOLTAGE_LEVEL = "VoltageLevel";
     public static final String TERMINAL = "Terminal";
     public static final String AC_LINE_SEGMENT = "ACLineSegment";
     public static final String SERIES_COMPENSATOR = "SeriesCompensator";
+    public static final String TOPOLOGICAL_NODE = "TopologicalNode";
+    public static final String CONDUCTING_EQUIPMENT = "ConductingEquipment";
 
     public static final String TRANSFORMER_WINDING_RATED_U = "transformerWindingRatedU";
     public static final String TRANSFORMER_END = "TransformerEnd";
@@ -38,6 +50,13 @@ public final class CgmesNames {
 
     public static final String RATIO_TAP_CHANGER_TABLE = "RatioTapChangerTable";
     public static final String PHASE_TAP_CHANGER_TABLE = "PhaseTapChangerTable";
+
+    public static final String TERMINAL1 = "Terminal1";
+    public static final String TERMINAL2 = "Terminal2";
+
+    public static final String TOPOLOGICAL_ISLAND = "TopologicalIsland";
+    public static final String ANGLEREF_TOPOLOGICALNODE = "AngleRefTopologicalNode";
+    public static final String TOPOLOGICAL_NODES = "TopologicalNodes";
 
     public static final String POWER_TRANSFORMER = "PowerTransformer";
     public static final String R = "r";

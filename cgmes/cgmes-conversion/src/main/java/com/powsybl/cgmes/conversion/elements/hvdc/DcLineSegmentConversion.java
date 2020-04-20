@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
+import java.util.Objects;
+
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.AbstractIdentifiedObjectConversion;
 import com.powsybl.iidm.network.HvdcLine;
@@ -14,15 +16,20 @@ import com.powsybl.iidm.network.HvdcLineAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
+ * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion {
 
+    private static final double DEFAULT_MAXP_FACTOR = 1.2;
+
     DcLineSegmentConversion(PropertyBag l, HvdcLine.ConvertersMode mode, double r, double ratedUdc,
         DcLineSegmentConverter converter1, DcLineSegmentConverter converter2, Context context) {
         super("DCLineSegment", l, context);
 
+        Objects.requireNonNull(converter1);
+        Objects.requireNonNull(converter2);
         this.mode = mode;
         this.r = r;
         this.ratedUdc = ratedUdc;
@@ -58,14 +65,14 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
     private static double getMaxP(double pAC1, double pAC2, HvdcLine.ConvertersMode mode) {
         if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
             if (pAC1 != 0) {
-                return 1.2 * pAC1;
+                return DEFAULT_MAXP_FACTOR * pAC1;
             }
-            return 1.2 * pAC2;
+            return DEFAULT_MAXP_FACTOR * Math.abs(pAC2);
         }
         if (pAC2 != 0) {
-            return 1.2 * pAC2;
+            return DEFAULT_MAXP_FACTOR * pAC2;
         }
-        return 1.2 * pAC1;
+        return DEFAULT_MAXP_FACTOR * Math.abs(pAC1);
     }
 
     private static double getPDc(double pAC1, double pAC2, double poleLossP1, double poleLossP2,
@@ -78,9 +85,9 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
             }
         } else if (mode.equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) {
             if (pAC2 != 0) {
-                return Math.abs(pAC2) - poleLossP2;
+                return pAC2 - poleLossP2;
             } else if (pAC1 != 0) {
-                return pAC1 + poleLossP1;
+                return Math.abs(pAC1) + poleLossP1;
             }
         }
         return 0;

@@ -21,35 +21,35 @@ import org.slf4j.LoggerFactory;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 class Islands {
-    Set<List<String>> islandsNodes;
+    private final List<ArrayList<String>> islandsNodes;
 
-    // The island includes dcTopologicalNodes and first acTopologicalNode
+    // The island includes dcTopologicalNodes and the acTopologicalNodes at both ends of the transformer
     Islands(Adjacency adjacency) {
-        islandsNodes = new HashSet<>();
+        islandsNodes = new ArrayList<>();
 
         Set<String> visitedTopologicalNodes = new HashSet<>();
-        adjacency.adjacency.keySet().forEach(topologicalNodeId -> {
+        adjacency.get().keySet().forEach(topologicalNodeId -> {
             if (visitedTopologicalNodes.contains(topologicalNodeId)) {
                 return;
             }
-            List<String> adjacentTopologicalNodes = computeAdjacentTopologicalNodes(topologicalNodeId,
+            ArrayList<String> adjacentTopologicalNodes = computeAdjacentTopologicalNodes(topologicalNodeId,
                 adjacency, visitedTopologicalNodes);
             islandsNodes.add(adjacentTopologicalNodes);
         });
     }
 
-    private static List<String> computeAdjacentTopologicalNodes(String topologicalNodeId,
+    private static ArrayList<String> computeAdjacentTopologicalNodes(String topologicalNodeId,
         Adjacency adjacency, Set<String> visitedTopologicalNodes) {
 
-        List<String> adjacentTopologicalNodes = new ArrayList<>();
+        ArrayList<String> adjacentTopologicalNodes = new ArrayList<>();
         adjacentTopologicalNodes.add(topologicalNodeId);
         visitedTopologicalNodes.add(topologicalNodeId);
 
         int k = 0;
         while (k < adjacentTopologicalNodes.size()) {
             String topologicalNode = adjacentTopologicalNodes.get(k);
-            if (adjacency.adjacency.containsKey(topologicalNode)) {
-                adjacency.adjacency.get(topologicalNode).forEach(adjacent -> {
+            if (adjacency.get().containsKey(topologicalNode)) {
+                adjacency.get().get(topologicalNode).forEach(adjacent -> {
                     if (visitedTopologicalNodes.contains(adjacent.topologicalNode)) {
                         return;
                     }
@@ -62,9 +62,13 @@ class Islands {
         return adjacentTopologicalNodes;
     }
 
-    void print() {
-        LOG.info("Islands");
-        islandsNodes.forEach(island -> LOG.info(" {} ", island));
+    List<ArrayList<String>> getIslandsNodes() {
+        return islandsNodes;
+    }
+
+    void debug() {
+        LOG.debug("Islands");
+        islandsNodes.forEach(island -> LOG.debug(" {} ", island));
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(Islands.class);

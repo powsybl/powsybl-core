@@ -18,6 +18,6 @@ public class TieLineXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void test() throws IOException {
-        roundTripAllVersionnedXmlTest("tieline.xml");
+        roundTripAllVersionedXmlTest("tieline.xml");
     }
 }

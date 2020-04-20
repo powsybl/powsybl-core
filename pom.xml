@@ -68,6 +68,7 @@
         <module>itools-packager</module>
         <module>loadflow</module>
         <module>math</module>
+        <module>psse</module>
         <module>scripting</module>
         <module>security-analysis</module>
         <module>sensitivity-api</module>
@@ -125,7 +126,7 @@
         <univocity-parsers.version>2.8.3</univocity-parsers.version>
         <xmlunit.version>2.3.0</xmlunit.version>
 
-        <powsyblmathnative.version>1.0.1</powsyblmathnative.version>
+        <powsyblmathnative.version>1.0.2</powsyblmathnative.version>
     </properties>
 
     <profiles>
@@ -162,6 +163,16 @@
                 <groupId>com.blazegraph</groupId>
                 <artifactId>bigdata-core</artifactId>
                 <version>${blazegraph.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>

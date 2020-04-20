@@ -8,6 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Identifiables;
 
 import java.util.Objects;
 
@@ -16,6 +17,10 @@ import java.util.Objects;
  */
 class LineAdderAdapter implements LineAdder {
 
+    private static final String DL1_SUFFIX = "_1";
+
+    private static final String DL2_SUFFIX = "_2";
+
     private final MergingViewIndex index;
 
     private String id;
@@ -23,6 +28,8 @@ class LineAdderAdapter implements LineAdder {
     private String name;
 
     private boolean ensureIdUnicity;
+
+    private boolean fictitious;
 
     private Integer node1;
 
@@ -58,16 +65,72 @@ class LineAdderAdapter implements LineAdder {
 
     @Override
     public Line add() {
-        Line newLine = null;
+        Line newLine;
         final Network n1 = checkAndGetNetwork1();
         final Network n2 = checkAndGetNetwork2();
         if (n1 == n2) {
             newLine = index.getLine(addLine(n1));
         } else {
+            // UcteXnodeCode is empty for MergedLine created here
+            String ucteXnodeCode = "";
+            // P0 & Q0 are updated by MergingNetworkListener::onUpdate method
+            double p0 = 0.0;
+            double q0 = 0.0;
+
+            // Taking into account ensureIdUnicity
+            checkAndSetUniqueId();
             // Creation of 2 dangling lines
-            throw MergingView.NOT_IMPLEMENTED_EXCEPTION;
+            // -- first dangling line
+            final MergingView view = index.getView();
+            final VoltageLevel vl1 = view.getVoltageLevel(voltageLevelId1);
+            addDanglingLine(vl1, id + DL1_SUFFIX, name, p0, q0, r, x, g1, b1, bus1, connectableBus1, node1, ucteXnodeCode);
+            // -- second dangling line
+            final VoltageLevel vl2 = view.getVoltageLevel(voltageLevelId2);
+            addDanglingLine(vl2, id + DL2_SUFFIX, name, p0, q0, r, x, g2, b2, bus2, connectableBus2, node2, ucteXnodeCode);
+            // MergedLine.id is forced here
+            // Return the merged line as the new line
+            newLine = index.getMergedLineByCode(ucteXnodeCode)
+                           .setId(id);
         }
         return newLine;
+    }
+
+    private void checkAndSetUniqueId() {
+        if (id == null) {
+            throw new PowsyblException("Line id is not set");
+        }
+        if (ensureIdUnicity) {
+            setId(Identifiables.getUniqueId(id, index::contains));
+        } else {
+            // Check Id is unique in all merging view
+            if (index.contains(id)) {
+                throw new PowsyblException("The network already contains an object with the id '"
+                        + id
+                        + "'");
+            }
+        }
+    }
+
+    private static DanglingLine addDanglingLine(final VoltageLevel vl, final String id, final String name,
+                                                final double p0, final double q0, final double r, final double x, final double g, final double b,
+                                                final String bus, final String connectableBus, final Integer node, final String ucteXnodeCode) {
+        DanglingLineAdder adder = vl.newDanglingLine()
+                    .setId(id)
+                    .setName(name)
+                    .setP0(p0)
+                    .setQ0(q0)
+                    .setR(r)
+                    .setX(x)
+                    .setG(g)
+                    .setB(b)
+                    .setUcteXnodeCode(ucteXnodeCode)
+                    .setBus(bus)
+                    .setConnectableBus(connectableBus);
+        if (node != null) {
+            adder.setNode(node);
+        }
+
+        return adder.add();
     }
 
     private Line addLine(final Network network) {
@@ -75,6 +138,7 @@ class LineAdderAdapter implements LineAdder {
                     .setId(id)
                     .setEnsureIdUnicity(ensureIdUnicity)
                     .setName(name)
+                    .setFictitious(fictitious)
                     .setR(r)
                     .setX(x)
                     .setG1(g1)
@@ -220,6 +284,12 @@ class LineAdderAdapter implements LineAdder {
     @Override
     public LineAdder setName(String name) {
         this.name = name;
+        return this;
+    }
+
+    @Override
+    public LineAdder setFictitious(boolean fictitious) {
+        this.fictitious = fictitious;
         return this;
     }
 }

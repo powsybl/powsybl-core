@@ -53,7 +53,6 @@ public final class HvdcTestNetwork {
                 .setNominalV(400)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl2.getNodeBreakerView().setNodeCount(3);
         vl2.getNodeBreakerView().newBusbarSection()
                 .setId("BBS1")
                 .setName("BusbarSection")
@@ -104,7 +103,7 @@ public final class HvdcTestNetwork {
                 .setName("Converter1")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .setLossFactor(0.011f)
+                .setLossFactor(1.1f)
                 .setVoltageSetpoint(405.0)
                 .setVoltageRegulatorOn(true)
                 .add();
@@ -113,14 +112,14 @@ public final class HvdcTestNetwork {
                 .setQ(50.0);
         cs1.newReactiveCapabilityCurve()
                 .beginPoint()
-                    .setP(5.0)
-                    .setMinQ(0.0)
-                    .setMaxQ(10.0)
+                .setP(5.0)
+                .setMinQ(0.0)
+                .setMaxQ(10.0)
                 .endPoint()
                 .beginPoint()
-                    .setP(10.0)
-                    .setMinQ(0.0)
-                    .setMaxQ(10.0)
+                .setP(10.0)
+                .setMinQ(0.0)
+                .setMaxQ(10.0)
                 .endPoint()
                 .add();
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
@@ -128,7 +127,7 @@ public final class HvdcTestNetwork {
                 .setId("C2")
                 .setName("Converter2")
                 .setNode(2)
-                .setLossFactor(0.011f)
+                .setLossFactor(1.1f)
                 .setReactivePowerSetpoint(123)
                 .setVoltageRegulatorOn(false)
                 .add();
@@ -152,9 +151,11 @@ public final class HvdcTestNetwork {
                 .setName("Filter 1")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .setbPerSection(1e-5)
                 .setCurrentSectionCount(1)
-                .setMaximumSectionCount(1)
+                .newLinearModel()
+                    .setbPerSection(1e-5)
+                    .setMaximumSectionCount(1)
+                    .add()
                 .add();
         shunt1.getTerminal()
                 .setQ(25.0);
@@ -162,9 +163,11 @@ public final class HvdcTestNetwork {
                 .setId("C1_Filter2")
                 .setName("Filter 2")
                 .setConnectableBus("B1")
-                .setbPerSection(2e-5)
                 .setCurrentSectionCount(0)
-                .setMaximumSectionCount(1)
+                .newLinearModel()
+                    .setbPerSection(2e-5)
+                    .setMaximumSectionCount(1)
+                    .add()
                 .add();
         shunt2.getTerminal()
                 .setQ(25.0);
@@ -173,14 +176,13 @@ public final class HvdcTestNetwork {
                 .setName("Converter1")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .setLossFactor(0.011f)
+                .setLossFactor(1.1f)
                 .setPowerFactor(0.5f)
                 .add();
         cs1.getTerminal()
                 .setP(100.0)
                 .setQ(50.0);
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
-        vl2.getNodeBreakerView().setNodeCount(7);
         vl2.getNodeBreakerView().newDisconnector()
                 .setId("DISC_BBS1_BK2")
                 .setName(DISCONNECTOR_NAME)
@@ -217,9 +219,11 @@ public final class HvdcTestNetwork {
                 .setId("C2_Filter1")
                 .setName("Filter 3")
                 .setNode(4)
-                .setbPerSection(3e-5)
                 .setCurrentSectionCount(1)
-                .setMaximumSectionCount(1)
+                .newLinearModel()
+                    .setbPerSection(3e-5)
+                    .setMaximumSectionCount(1)
+                    .add()
                 .add();
         shunt3.getTerminal()
                 .setQ(12.5);
@@ -227,9 +231,11 @@ public final class HvdcTestNetwork {
                 .setId("C2_Filter2")
                 .setName("Filter 4")
                 .setNode(6)
-                .setbPerSection(4e-5)
                 .setCurrentSectionCount(1)
-                .setMaximumSectionCount(1)
+                .newLinearModel()
+                    .setbPerSection(4e-5)
+                    .setMaximumSectionCount(1)
+                    .add()
                 .add();
         shunt4.getTerminal()
                 .setQ(12.5);
@@ -237,7 +243,7 @@ public final class HvdcTestNetwork {
                 .setId("C2")
                 .setName("Converter2")
                 .setNode(2)
-                .setLossFactor(0.011f)
+                .setLossFactor(1.1f)
                 .setPowerFactor(0.6f)
                 .add();
         cs2.getTerminal()

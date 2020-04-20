@@ -6,11 +6,15 @@
  */
 package com.powsybl.commons.extensions;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 
@@ -31,6 +35,28 @@ public class BarExtSerializer implements ExtensionJsonSerializer<Foo, BarExt> {
     public BarExt deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         // does nothing
         return null;
+    }
+
+    private interface SerializationSpec {
+
+        @JsonIgnore
+        String getName();
+
+        @JsonIgnore
+        Foo getExtendable();
+    }
+
+    private static ObjectMapper createMapper() {
+        return JsonUtil.createObjectMapper()
+                .addMixIn(BarExt.class, SerializationSpec.class);
+    }
+
+    @Override
+    public BarExt deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, BarExt parameters) throws IOException {
+        ObjectMapper objectMapper = createMapper();
+        ObjectReader objectReader = objectMapper.readerForUpdating(parameters);
+        BarExt updatedParameters = objectReader.readValue(jsonParser, BarExt.class);
+        return updatedParameters;
     }
 
     @Override

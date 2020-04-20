@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -44,8 +45,9 @@ public class TerminalMapping {
     }
 
     public void buildTopologicalNodesMapping(PropertyBag p) {
-        if (p.containsKey("TopologicalNode")) {
-            topologicalNodesMapping.computeIfAbsent(p.getId("TopologicalNode"), t -> new ArrayList<>()).add(p.getId("Terminal"));
+        String tp = CgmesTerminal.topologicalNode(p);
+        if (tp != null) {
+            topologicalNodesMapping.computeIfAbsent(tp, t -> new ArrayList<>()).add(p.getId("Terminal"));
         }
     }
 

@@ -8,6 +8,7 @@
 package com.powsybl.triplestore.api;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -138,10 +139,12 @@ public class PropertyBag extends HashMap<String, String> {
                 .max(Integer::compare);
         if (maxLenName.isPresent()) {
             int lenPad = maxLenName.get();
-            return title.concat(lineSeparator).concat(propertyNames.stream()
-                    .map(n -> INDENTATION.concat(padr(n, lenPad)).concat(" : ")
-                            + getValue.apply(this, n))
-                    .collect(Collectors.joining(lineSeparator)));
+            String format = String.format("%%-%ds", lenPad);
+
+            // Performance : avoid using concat() -> use a StringBuilder instead.
+            return new StringBuilder(title).append(lineSeparator).append(propertyNames.stream()
+                    .map(n -> new StringBuilder(INDENTATION).append(String.format(format, n)).append(" : ").append(getValue.apply(this, n)).toString())
+                    .collect(Collectors.joining(lineSeparator))).toString();
         }
         return "";
     }
@@ -173,9 +176,7 @@ public class PropertyBag extends HashMap<String, String> {
 
     public boolean isResource(String name) {
         // TODO do not rely on property name, use metadata or answer based on value?
-        return name.equals("TopologicalNode") || name.equals("Terminal")
-                || name.equals("ShuntCompensator") || name.equals("TapChanger")
-                || resourceNames.contains(name);
+        return RESOURCE_NAMES.contains(name) || resourceNames.contains(name);
     }
 
     public String namespacePrefix(String name) {
@@ -184,24 +185,39 @@ public class PropertyBag extends HashMap<String, String> {
     }
 
     public void setResourceNames(List<String> resourceNames) {
-        this.resourceNames = Objects.requireNonNull(resourceNames);
+        this.resourceNames.clear();
+        this.resourceNames.addAll(Objects.requireNonNull(resourceNames));
     }
 
     public void setClassPropertyNames(List<String> classPropertyNames) {
-        this.classPropertyNames = Objects.requireNonNull(classPropertyNames);
+        this.classPropertyNames.clear();
+        this.classPropertyNames.addAll(Objects.requireNonNull(classPropertyNames));
     }
 
     public boolean isClassProperty(String name) {
         return classPropertyNames.contains(name);
     }
 
+    public void setMultivaluedProperty(List<String> multiValuedPropertyNames) {
+        this.multiValuedPropertyNames.clear();
+        this.multiValuedPropertyNames.addAll(Objects.requireNonNull(multiValuedPropertyNames));
+    }
+
+    public boolean isMultivaluedProperty(String name) {
+        return multiValuedPropertyNames.contains(name);
+    }
+
     private final List<String> propertyNames;
     private final boolean removeInitialUnderscoreForIdentifiers;
-    private List<String> resourceNames = new ArrayList<>();
-    private List<String> classPropertyNames = new ArrayList<>();
+    private final List<String> resourceNames = new ArrayList<>();
+    private final List<String> classPropertyNames = new ArrayList<>();
+    private final List<String> multiValuedPropertyNames = new ArrayList<>();
 
     private static final String NAMESPACE_PREFIX = "data";
     private static final String INDENTATION = "    ";
+    private static final List<String> RESOURCE_NAMES = Arrays.asList("TopologicalNode", "Terminal", "ShuntCompensator",
+        "TapChanger", "ConductingEquipment", "Model.DependentOn", "TopologicalNodes",
+        "AngleRefTopologicalNode");
 
     private static final Logger LOG = LoggerFactory.getLogger(PropertyBag.class);
 }

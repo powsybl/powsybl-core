@@ -8,9 +8,11 @@
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -33,22 +36,24 @@ class Adjacency {
         DC_LINE_SEGMENT, AC_DC_CONVERTER, AC_TRANSFORMER
     }
 
-    Map<String, List<Adjacent>> adjacency;
+    private final Map<String, List<Adjacent>> adjacency;
 
     Adjacency(CgmesModel cgmesModel) {
         adjacency = new HashMap<>();
         cgmesModel.dcLineSegments().forEach(dcls -> computeDcLineSegmentAdjacency(cgmesModel, dcls));
 
         AcDcConverterNodes acDcConverterNodes = new AcDcConverterNodes(cgmesModel);
-        acDcConverterNodes.converterNodes.entrySet()
-            .forEach(entry -> computeAcDcConverterAdjacency(entry.getValue().acTopologicalNode,
-                entry.getValue().dcTopologicalNode));
+        acDcConverterNodes.getConverterNodes()
+            .forEach((key, value) -> computeAcDcConverterAdjacency(value.acTopologicalNode,
+                value.dcTopologicalNode));
 
         cgmesModel.groupedTransformerEnds().forEach((t, ends) -> {
             if (ends.size() == 2) {
                 computeTwoWindingsTransformerAdjacency(cgmesModel, ends);
             } else if (ends.size() == 3) {
                 computeThreeWindingsTransformerAdjacency(cgmesModel, ends);
+            } else {
+                throw new PowsyblException(String.format("Unexpected TransformerEnds: ends %d", ends.size()));
             }
         });
     }
@@ -77,10 +82,7 @@ class Adjacency {
         PropertyBag end2 = ends.get(1);
         CgmesTerminal t2 = cgmesModel.terminal(end2.getId(CgmesNames.TERMINAL));
 
-        List<String> topologicalNodes = new ArrayList<>();
-        topologicalNodes.add(t1.topologicalNode());
-        topologicalNodes.add(t2.topologicalNode());
-        addTransformerAdjacency(topologicalNodes);
+        addTransformerAdjacency(Arrays.asList(t1.topologicalNode(), t2.topologicalNode()));
     }
 
     private void computeThreeWindingsTransformerAdjacency(CgmesModel cgmesModel, PropertyBags ends) {
@@ -91,15 +93,11 @@ class Adjacency {
         PropertyBag end3 = ends.get(2);
         CgmesTerminal t3 = cgmesModel.terminal(end3.getId(CgmesNames.TERMINAL));
 
-        List<String> topologicalNodes = new ArrayList<>();
-        topologicalNodes.add(t1.topologicalNode());
-        topologicalNodes.add(t2.topologicalNode());
-        topologicalNodes.add(t3.topologicalNode());
-        addTransformerAdjacency(topologicalNodes);
+        addTransformerAdjacency(Arrays.asList(t1.topologicalNode(), t2.topologicalNode(), t3.topologicalNode()));
     }
 
     private void addTransformerAdjacency(List<String> topologicalNodes) {
-        if (topologicalNodes.stream().anyMatch(n -> adjacency.containsKey(n))) {
+        if (topologicalNodes.stream().anyMatch(this::containsAcDcConverter)) {
             for (int k = 0; k < topologicalNodes.size() - 1; k++) {
                 String topologicalNode = topologicalNodes.get(k);
                 for (int l = k + 1; l < topologicalNodes.size(); l++) {
@@ -116,6 +114,13 @@ class Adjacency {
         adjacency.computeIfAbsent(topologicalNodeId2, k -> new ArrayList<>()).add(ad1);
     }
 
+    boolean containsAcDcConverter(String topologicalNodeId) {
+        if (adjacency.containsKey(topologicalNodeId)) {
+            return adjacency.get(topologicalNodeId).stream().anyMatch(ad -> isAcDcConverter(ad.type));
+        }
+        return false;
+    }
+
     static boolean isDcLineSegment(AdjacentType type) {
         return type == AdjacentType.DC_LINE_SEGMENT;
     }
@@ -124,14 +129,33 @@ class Adjacency {
         return type == AdjacentType.AC_DC_CONVERTER;
     }
 
-    void print() {
-        LOG.info("Adjacency");
-        adjacency.entrySet().forEach(k -> print(k.getKey(), k.getValue()));
+    Map<String, List<Adjacent>> get() {
+        return adjacency;
     }
 
-    private void print(String topologicalNodeId, List<Adjacent> adjacent) {
-        LOG.info("TopologicalNodeId {}", topologicalNodeId);
-        adjacent.forEach(ad -> ad.print());
+    boolean isEmpty() {
+        return adjacency.isEmpty();
+    }
+
+    void debug() {
+        LOG.debug("Adjacency");
+        adjacency.forEach(this::debug);
+    }
+
+    private void debug(String topologicalNodeId, List<Adjacent> adjacent) {
+        LOG.debug("TopologicalNodeId {}", topologicalNodeId);
+        adjacent.forEach(Adjacent::debug);
+    }
+
+    void debug(List<String> lnodes) {
+        lnodes.forEach(this::debug);
+    }
+
+    private void debug(String node) {
+        LOG.debug("AD TopologicalNode {}", node);
+        if (adjacency.containsKey(node)) {
+            adjacency.get(node).forEach(ad -> LOG.debug("    {} {}", ad.type, ad.topologicalNode));
+        }
     }
 
     static class Adjacent {
@@ -139,12 +163,14 @@ class Adjacency {
         String topologicalNode;
 
         Adjacent(AdjacentType type, String topologicalNode) {
+            Objects.requireNonNull(type);
+            Objects.requireNonNull(topologicalNode);
             this.type = type;
             this.topologicalNode = topologicalNode;
         }
 
-        void print() {
-            LOG.info("    {}  {}", this.type, this.topologicalNode);
+        void debug() {
+            LOG.debug("    {}  {}", this.type, this.topologicalNode);
         }
     }
 

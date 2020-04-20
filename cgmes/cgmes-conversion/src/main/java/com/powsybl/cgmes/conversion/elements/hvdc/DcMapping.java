@@ -20,7 +20,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 public class DcMapping {
 
     public DcMapping(Context context) {
-        this.context = context;
+        this.context = Objects.requireNonNull(context);
         this.cgmesConverters = new HashMap<>();
         this.cgmesDcLineSegments = new HashMap<>();
     }
@@ -43,7 +43,7 @@ public class DcMapping {
     void setCgmesConverterUsed(String id) {
         CgmesConverter cgmesConverter = this.cgmesConverters.get(id);
         if (cgmesConverter != null) {
-            cgmesConverter.setUsed();
+            cgmesConverter.used();
         }
     }
 
@@ -51,7 +51,7 @@ public class DcMapping {
         this.cgmesConverters.entrySet().stream()
             .filter(c -> !c.getValue().used)
             .forEach(c -> {
-                String what = String.format("AcDcConverter Id: %s", c.getKey());
+                String what = "AcDcConverter Id: " + c.getKey();
                 context.ignored(what, "Dc configuration not supported");
             });
     }
@@ -75,7 +75,7 @@ public class DcMapping {
         this.cgmesDcLineSegments.entrySet().stream()
             .filter(c -> !c.getValue().used)
             .forEach(c -> {
-                String what = String.format("DcLineSegment Id: %s", c.getKey());
+                String what = "DcLineSegment Id: " + c.getKey();
                 context.ignored(what, "Ground DcLineSegment or Dc configuration not supported");
             });
     }
@@ -89,7 +89,7 @@ public class DcMapping {
             this.used = false;
         }
 
-        void setUsed() {
+        void used() {
             this.used = true;
         }
     }

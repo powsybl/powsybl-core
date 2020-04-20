@@ -28,7 +28,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
-
 /**
  * Provides methods to read and write SecurityAnalysisParameters from and to JSON.
  *
@@ -78,7 +77,6 @@ public final class JsonSecurityAnalysisParameters {
      */
     public static SecurityAnalysisParameters update(SecurityAnalysisParameters parameters, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
-
         try (InputStream is = Files.newInputStream(jsonFile)) {
             return update(parameters, is);
         } catch (IOException e) {

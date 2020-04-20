@@ -47,18 +47,18 @@ public class AmplExportConfig {
 
     private boolean exportRatioTapChangerVoltageTarget;
 
-    private boolean specificCompatibility;
+    private boolean t2wtSplitShuntAdmittance;
 
     public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType) {
         this(exportScope, exportXNodes, actionType, false, false);
     }
 
-    public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType, boolean exportRatioTapChangerVoltageTarget, boolean specificCompatibility) {
+    public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType, boolean exportRatioTapChangerVoltageTarget, boolean t2wtSplitShuntAdmittance) {
         this.exportScope = Objects.requireNonNull(exportScope);
         this.exportXNodes = exportXNodes;
         this.actionType = Objects.requireNonNull(actionType);
         this.exportRatioTapChangerVoltageTarget = exportRatioTapChangerVoltageTarget;
-        this.specificCompatibility = specificCompatibility;
+        this.t2wtSplitShuntAdmittance = t2wtSplitShuntAdmittance;
     }
 
     public ExportScope getExportScope() {
@@ -97,12 +97,12 @@ public class AmplExportConfig {
         return this;
     }
 
-    public boolean isSpecificCompatibility() {
-        return specificCompatibility;
+    public boolean isT2wtSplitShuntAdmittance() {
+        return t2wtSplitShuntAdmittance;
     }
 
-    public AmplExportConfig setSpecificCompatibility(boolean specificCompatibility) {
-        this.specificCompatibility = specificCompatibility;
+    public AmplExportConfig setT2wtSplitShuntAdmittance(boolean t2wtSplitShuntAdmittance) {
+        this.t2wtSplitShuntAdmittance = t2wtSplitShuntAdmittance;
         return this;
     }
 

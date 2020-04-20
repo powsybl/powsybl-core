@@ -46,10 +46,10 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         // are in the same IIDM substation
         if (voltageLevel(1).getSubstation() != voltageLevel(2).getSubstation() ||
             voltageLevel(1).getSubstation() != voltageLevel(3).getSubstation()) {
-            String name1 = voltageLevel(1).getSubstation().getName();
-            String name2 = voltageLevel(2).getSubstation().getName();
-            String name3 = voltageLevel(3).getSubstation().getName();
-            invalid(String.format("different substations at ends %s %s %s", name1, name2, name3));
+            String name1 = voltageLevel(1).getSubstation().getNameOrId();
+            String name2 = voltageLevel(2).getSubstation().getNameOrId();
+            String name3 = voltageLevel(3).getSubstation().getNameOrId();
+            invalid(() -> String.format("different substations at ends %s %s %s", name1, name2, name3));
             return false;
         }
         return true;

@@ -486,14 +486,14 @@ public class TransformerConversionTest {
     private LoadFlowParameters defineLoadflowParameters(LoadFlowParameters loadFlowParameters, Conversion.Config config) {
         LoadFlowParameters copyLoadFlowParameters = loadFlowParameters.copy();
 
-        boolean splitShuntAdmittanceXfmr2 = false;
+        boolean t2wtSplitShuntAdmittance = false;
         switch (config.getXfmr2Shunt()) {
             case END1:
             case END2:
             case END1_END2:
                 break;
             case SPLIT:
-                splitShuntAdmittanceXfmr2 = true;
+                t2wtSplitShuntAdmittance = true;
                 break;
         }
 
@@ -506,8 +506,7 @@ public class TransformerConversionTest {
                 splitShuntAdmittanceXfmr3 = true;
         }
 
-        copyLoadFlowParameters.setSpecificCompatibility(splitShuntAdmittanceXfmr2);
-        //copyLoadFlowParameters.setSplitShuntAdmittanceXfmr2(splitShuntAdmittanceXfmr2);
+        copyLoadFlowParameters.setT2wtSplitShuntAdmittance(t2wtSplitShuntAdmittance);
         // copyLoadFlowParameters.setSplitShuntAdmittanceXfmr3(splitShuntAdmittanceXfmr3);
 
         return copyLoadFlowParameters;
