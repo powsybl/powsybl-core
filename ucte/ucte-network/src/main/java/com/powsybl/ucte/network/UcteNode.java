@@ -437,7 +437,8 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         }
         // inverted active power limits
         if (minimumPermissibleActivePowerGeneration < maximumPermissibleActivePowerGeneration) {
-            LOGGER.warn("Node {}: active power limits are inverted ({}, {}), swap values",
+            report.addNodeWithInvertedActivePowerLimits();
+            LOGGER.debug("Node {}: active power limits are inverted ({}, {}), swap values",
                     code, minimumPermissibleActivePowerGeneration, maximumPermissibleActivePowerGeneration);
             float tmp = minimumPermissibleActivePowerGeneration;
             minimumPermissibleActivePowerGeneration = maximumPermissibleActivePowerGeneration;
@@ -445,12 +446,14 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         }
         // active power is out of limits
         if (activePowerGeneration < maximumPermissibleActivePowerGeneration) {
-            LOGGER.warn("Node {}: active power {} under maximum permissible value {}, shift maximum permissible value",
+            report.addNodeWithActivePowerUnderMaximumPermissibleValue();
+            LOGGER.debug("Node {}: active power {} under maximum permissible value {}, shift maximum permissible value",
                     code, activePowerGeneration, maximumPermissibleActivePowerGeneration);
             maximumPermissibleActivePowerGeneration = activePowerGeneration;
         }
         if (activePowerGeneration != 0 && activePowerGeneration > minimumPermissibleActivePowerGeneration) {
-            LOGGER.warn("Node {}: active power {} above minimum permissible value {}, shift minimum permissible value",
+            report.addNodeWithActivePowerAboveMinimumPermissibleValue();
+            LOGGER.debug("Node {}: active power {} above minimum permissible value {}, shift minimum permissible value",
                     code, activePowerGeneration, minimumPermissibleActivePowerGeneration);
             minimumPermissibleActivePowerGeneration = activePowerGeneration;
         }
@@ -470,7 +473,8 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
 
         // PV and undefined voltage, switch to PQ
         if (isRegulatingVoltage() && (Float.isNaN(voltageReference) || voltageReference < 0.0001)) {
-            LOGGER.warn("Node {}: voltage is regulated, but voltage setpoint is null ({}), switch type code to {}",
+            report.addNodeRegulatingVoltageWithNullSetpoint();
+            LOGGER.debug("Node {}: voltage is regulated, but voltage setpoint is null ({}), switch type code to {}",
                     code, voltageReference, UcteNodeTypeCode.PQ);
             typeCode = UcteNodeTypeCode.PQ;
         }
@@ -523,11 +527,13 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         }
         // reactive power limits are beyond DEFAULT_POWER_LIMIT
         if (minimumPermissibleReactivePowerGeneration > DEFAULT_POWER_LIMIT) {
-            LOGGER.warn("Node {}: minimum reactive power is to high {}, set value to {}",
+            report.addNodeWithTooHighMinimumReactivePower();
+            LOGGER.debug("Node {}: minimum reactive power is too high {}, set value to {}",
                     code, minimumPermissibleReactivePowerGeneration, DEFAULT_POWER_LIMIT);
         }
         if (maximumPermissibleReactivePowerGeneration < -DEFAULT_POWER_LIMIT) {
-            LOGGER.warn("Node {}: maximum reactive power is to high {}, set value to {}",
+            report.addNodeWithTooHighMaximumReactivePower();
+            LOGGER.debug("Node {}: maximum reactive power is too high {}, set value to {}",
                     code, maximumPermissibleReactivePowerGeneration, -DEFAULT_POWER_LIMIT);
         }
         // flat reactive power limits
