@@ -160,7 +160,7 @@ public class UcteReport {
         angleRegulationWithNoTypeCount++;
     }
 
-    public void log() {
+    private void logNodeActivePower() {
         if (nodeWithUndefinedActivePowerCount > 0) {
             LOGGER.warn("{} nodes have an undefined active power", nodeWithUndefinedActivePowerCount);
         }
@@ -188,11 +188,15 @@ public class UcteReport {
         if (nodeWithFlatActiveLimitsCount > 0) {
             LOGGER.warn("{} nodes have flat active limits", nodeWithFlatActiveLimitsCount);
         }
+    }
 
+    private void logNodeVoltage() {
         if (nodeRegulatingVoltageWithNullSetpointCount > 0) {
             LOGGER.warn("{} nodes have voltage regulation with a null setpoint", nodeRegulatingVoltageWithNullSetpointCount);
         }
+    }
 
+    private void logNodeReactivePower() {
         if (nodeNotRegulatingVoltageWithUndefinedReactivePowerCount > 0) {
             LOGGER.warn("{} nodes not regulating voltage with an undefined reactive power", nodeNotRegulatingVoltageWithUndefinedReactivePowerCount);
         }
@@ -228,7 +232,9 @@ public class UcteReport {
         if (nodeWithFlatReactiveLimitsCount > 0) {
             LOGGER.warn("{} nodes have flat reactive limits", nodeWithFlatReactiveLimitsCount);
         }
+    }
 
+    private void logElement() {
         if (elementWithSmallReactanceCount > 0) {
             LOGGER.warn("{} elements have a small reactance", elementWithSmallReactanceCount);
         }
@@ -240,7 +246,9 @@ public class UcteReport {
         if (elementWithInvalidCurrentLimitCount > 0) {
             LOGGER.warn("{} elements have an invalid current limit", elementWithInvalidCurrentLimitCount);
         }
+    }
 
+    private void logRegulation() {
         if (phaseRegulationWithBadTargetVoltageCount > 0) {
             LOGGER.warn("{} phase regulations have a bad target voltage", phaseRegulationWithBadTargetVoltageCount);
         }
@@ -256,5 +264,13 @@ public class UcteReport {
         if (angleRegulationWithNoTypeCount > 0) {
             LOGGER.warn("{} angle regulations do not have a type", angleRegulationWithNoTypeCount);
         }
+    }
+
+    public void log() {
+        logNodeActivePower();
+        logNodeVoltage();
+        logNodeReactivePower();
+        logElement();
+        logRegulation();
     }
 }
