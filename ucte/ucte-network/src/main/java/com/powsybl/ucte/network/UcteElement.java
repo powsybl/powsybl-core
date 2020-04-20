@@ -148,7 +148,7 @@ public class UcteElement implements UcteRecord {
     private static final float MIN_X = 0.05f;
 
     @Override
-    public void fix() {
+    public void fix(UcteReport report) {
         switch (status) {
             case EQUIVALENT_ELEMENT_IN_OPERATION:
             case EQUIVALENT_ELEMENT_OUT_OF_OPERATION:

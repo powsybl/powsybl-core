@@ -74,7 +74,7 @@ public class UcteRegulation implements UcteRecord {
     }
 
     @Override
-    public void fix() {
+    public void fix(UcteReport report) {
         if (phaseRegulation != null) {
             if (phaseRegulation.getU() <= 0) {
                 LOGGER.warn("Phase regulation of transformer '{}' has a bad target voltage {}, set to undefined",

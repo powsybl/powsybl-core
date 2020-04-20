@@ -45,11 +45,11 @@ public class UcteLineTest extends AbstractUcteElementTest {
     public void testFix() {
         UcteElementId id = createElementId();
         UcteLine invalidLine1 = new UcteLine(id, REAL_ELEMENT_IN_OPERATION, 0.0f, 0.0f, 0.0f, -1, null);
-        invalidLine1.fix();
+        invalidLine1.fix(new UcteReport());
         Assert.assertEquals(0.05f, invalidLine1.getReactance(), 0.0f);
 
         UcteLine invalidLine2 = new UcteLine(id, REAL_ELEMENT_IN_OPERATION, 0.0f, -0.01f, 0.0f, null, null);
-        invalidLine2.fix();
+        invalidLine2.fix(new UcteReport());
         Assert.assertEquals(-0.05f, invalidLine2.getReactance(), 0.0f);
     }
 }

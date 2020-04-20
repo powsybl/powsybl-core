@@ -112,18 +112,22 @@ public class UcteNetworkImpl implements UcteNetwork {
 
     @Override
     public void fix() {
+        UcteReport report = new UcteReport();
+
         for (UcteNode node : nodes.values()) {
-            node.fix();
+            node.fix(report);
         }
         for (UcteLine line : lines.values()) {
-            line.fix();
+            line.fix(report);
         }
         for (UcteTransformer transfo : transformers.values()) {
-            transfo.fix();
+            transfo.fix(report);
         }
         for (UcteRegulation regulation : regulations.values()) {
-            regulation.fix();
+            regulation.fix(report);
         }
+
+        report.log();
     }
 
 }
