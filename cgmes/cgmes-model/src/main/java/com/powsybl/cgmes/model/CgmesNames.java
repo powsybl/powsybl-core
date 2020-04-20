@@ -24,6 +24,10 @@ public final class CgmesNames {
     public static final String PROFILE = "Model.profile";
     public static final String MODELING_AUTHORITY_SET = "Model.modelingAuthoritySet";
 
+    public static final String ASYNCHRONOUS_MACHINE = "AsynchronousMachine";
+    public static final String ENERGY_CONSUMER = "EnergyConsumer";
+    public static final String CONFORM_LOAD = "ConformLoad";
+    public static final String ENERGY_SOURCE = "EnergySource";
     public static final String SUBSTATION = "Substation";
     public static final String VOLTAGE_LEVEL = "VoltageLevel";
     public static final String TERMINAL = "Terminal";

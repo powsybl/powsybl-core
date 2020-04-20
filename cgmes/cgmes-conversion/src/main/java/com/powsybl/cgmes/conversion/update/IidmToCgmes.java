@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Identifiable;
 
 /**
@@ -26,16 +27,16 @@ import com.powsybl.iidm.network.Identifiable;
  */
 public class IidmToCgmes {
 
-    public List<TripleStoreChange> convert(IidmChange change) {
+    public List<TripleStoreChange> convert(IidmChange change, CgmesModelTripleStore cgmests) {
         if (change instanceof IidmChangeUpdate) {
-            return convertUpdate((IidmChangeUpdate) change);
+            return convertUpdate((IidmChangeUpdate) change, cgmests);
         } else {
             LOG.warn("Changes of type {} are not yet supported", change.getClass().getSimpleName());
             return Collections.emptyList();
         }
     }
 
-    public List<TripleStoreChange> convertUpdate(IidmChangeUpdate change) {
+    public List<TripleStoreChange> convertUpdate(IidmChangeUpdate change, CgmesModelTripleStore cgmests) {
         TripleStoreSimpleUpdateReference simpleUpdateReference = simpleUpdateReference(change);
         if (simpleUpdateReference != null) {
             String subject = change.getIdentifiable().getId();

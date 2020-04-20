@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.update.IidmChange;
 import com.powsybl.cgmes.conversion.update.IidmToCgmes;
+import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Line;
@@ -24,12 +26,24 @@ import com.powsybl.iidm.network.VoltageLevel;
  */
 public class IidmToCgmes16 {
 
-    public IidmToCgmes findConversion(IidmChange change) {
+    public IidmToCgmes findConversion(IidmChange change, CgmesModelTripleStore cgmests) {
         Identifiable o = change.getIdentifiable();
+        String type = cgmesType(o, cgmests);
         if (o instanceof Generator) {
             return generator;
         } else if (o instanceof Load) {
-            return load;
+            if (type.equals(CgmesNames.ENERGY_CONSUMER) ||
+                type.equals(CgmesNames.CONFORM_LOAD)) {
+                return loadEc;
+            }
+            if (type.equals(CgmesNames.ASYNCHRONOUS_MACHINE)) {
+                return loadAm;
+            }
+            if (type.equals(CgmesNames.ENERGY_SOURCE)) {
+                return loadEs;
+            }
+            LOG.warn("Currently not supported conversion for type {}", type);
+            return null;
         } else if (o instanceof Line) {
             return line;
         } else if (o instanceof TwoWindingsTransformer) {
@@ -44,8 +58,15 @@ public class IidmToCgmes16 {
         }
     }
 
+    private String cgmesType(Identifiable id, CgmesModelTripleStore cgmes) {
+        String baseUri = cgmes.getBaseUri(cgmes.getBasename());
+        return cgmes.typeBySubject(baseUri.concat(id.getId())).getId("type");
+    }
+
     private final IidmToCgmes generator = new GeneratorToSynchronousMachine();
-    private final IidmToCgmes load = new LoadToEnergyConsumer();
+    private final IidmToCgmes loadEc = new LoadToEnergyConsumer();
+    private final IidmToCgmes loadEs = new LoadToEnergySource();
+    private final IidmToCgmes loadAm = new LoadToAsynchronousMachine();
     private final IidmToCgmes line = new LineToACLineSegment();
     private final IidmToCgmes t2 = new TwoWindingsTransformerToPowerTransformer();
     private final IidmToCgmes shunt = new ShuntCompensatorToShuntCompensator();
