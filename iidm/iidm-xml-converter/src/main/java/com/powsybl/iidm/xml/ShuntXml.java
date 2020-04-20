@@ -6,9 +6,10 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.ShuntCompensatorAdder;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
@@ -36,10 +37,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     @Override
     protected void writeRootElementAttributes(ShuntCompensator sc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (ShuntCompensatorModelType.NON_LINEAR.equals(sc.getModelType())) {
-            throw new PowsyblException("Non linear shunt not yet supported");
-        }
-        XmlUtil.writeDouble("bPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), context.getWriter());
+        XmlUtil.writeDouble("bPerSection", sc.getbPerSection(), context.getWriter());
         context.getWriter().writeAttribute("maximumSectionCount", Integer.toString(sc.getMaximumSectionCount()));
         context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getCurrentSectionCount()));
         IidmXmlUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", sc.isVoltageRegulatorOn(), false,
@@ -78,11 +76,9 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
                     .setTargetV(targetV)
                     .setTargetDeadband(targetDeadband);
         });
-        adder.setCurrentSectionCount(currentSectionCount)
-                .newLinearModel()
-                    .setMaximumSectionCount(maximumSectionCount)
-                    .setbPerSection(bPerSection)
-                    .add();
+        adder.setbPerSection(bPerSection)
+                .setMaximumSectionCount(maximumSectionCount)
+                .setCurrentSectionCount(currentSectionCount);
         readNodeOrBus(adder, context);
         ShuntCompensator sc = adder.add();
         readPQ(null, sc.getTerminal(), context.getReader());

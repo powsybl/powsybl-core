@@ -228,32 +228,12 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkSectionNumber(Validable validable, int sectionNum) {
-        if (sectionNum < 0) {
-            throw new ValidationException(validable,
-                    "this number of section (" + sectionNum
-                            + ") should be greater than or equal to 0");
-        }
-    }
-
     public static void checkbPerSection(Validable validable, double bPerSection) {
-        checkSectionB(validable, bPerSection);
+        if (Double.isNaN(bPerSection)) {
+            throw new ValidationException(validable, "susceptance per section is invalid");
+        }
         if (bPerSection == 0) {
             throw new ValidationException(validable, "susceptance per section is equal to zero");
-        }
-    }
-
-    public static void checkSectionB(Validable validable, double sectionB) {
-        if (Double.isNaN(sectionB)) {
-            throw new ValidationException(validable, "section susceptance is invalid");
-        }
-    }
-
-    public static void checkMaximumSectionCount(Validable validable, int maximumSectionCount) {
-        if (maximumSectionCount <= 0) {
-            throw new ValidationException(validable,
-                    "the maximum number of section (" + maximumSectionCount
-                            + ") should be greater than 0");
         }
     }
 
@@ -263,7 +243,11 @@ public final class ValidationUtil {
                     "the current number of section (" + currentSectionCount
                             + ") should be greater than or equal to 0");
         }
-        checkMaximumSectionCount(validable, maximumSectionCount);
+        if (maximumSectionCount <= 0) {
+            throw new ValidationException(validable,
+                    "the maximum number of section (" + maximumSectionCount
+                            + ")should be greater than 0");
+        }
         if (currentSectionCount > maximumSectionCount) {
             throw new ValidationException(validable,
                     "the current number (" + currentSectionCount
@@ -326,7 +310,7 @@ public final class ValidationUtil {
     }
 
     public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating,
-                                                      Terminal regulationTerminal, double targetV, Network network) {
+                                               Terminal regulationTerminal, double targetV, Network network) {
         if (regulating) {
             if (Double.isNaN(targetV)) {
                 throw new ValidationException(validable,
@@ -346,8 +330,8 @@ public final class ValidationUtil {
     }
 
     public static void checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,
-                                                      double regulationValue, boolean regulating, Terminal regulationTerminal,
-                                                      Network network) {
+                                               double regulationValue, boolean regulating, Terminal regulationTerminal,
+                                               Network network) {
         if (regulationMode == null) {
             throw new ValidationException(validable, "phase regulation mode is not set");
         }
@@ -366,7 +350,7 @@ public final class ValidationUtil {
     }
 
     public static void checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
-                                                               Set<TapChanger> tapChangersNotIncludingTheModified, boolean regulating) {
+                                                        Set<TapChanger> tapChangersNotIncludingTheModified, boolean regulating) {
         if (regulating && tapChangersNotIncludingTheModified.stream().anyMatch(TapChanger::isRegulating)) {
             throw new ValidationException(validable, "Only one regulating control enabled is allowed");
         }
