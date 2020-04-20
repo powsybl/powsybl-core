@@ -37,19 +37,20 @@ public final class JsonLoadFlowParameters {
 
     /**
      * A configuration loader interface for the LoadFlowParameters extensions loaded from the platform configuration
+     *
      * @param <E> The extension class
      */
     public interface ExtensionSerializer<E extends Extension<LoadFlowParameters>> extends ExtensionJsonSerializer<LoadFlowParameters, E> {
     }
 
     /**
-     *  Lazily initialized list of extension serializers.
+     * Lazily initialized list of extension serializers.
      */
     private static final Supplier<ExtensionProviders<ExtensionSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class, "loadflow-parameters"));
 
     /**
-     *  Gets the known extension serializers.
+     * Gets the known extension serializers.
      */
     public static ExtensionProviders<ExtensionSerializer> getExtensionSerializers() {
         return SUPPLIER.get();
@@ -77,7 +78,6 @@ public final class JsonLoadFlowParameters {
      */
     public static LoadFlowParameters update(LoadFlowParameters parameters, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
-
         try (InputStream is = Files.newInputStream(jsonFile)) {
             return update(parameters, is);
         } catch (IOException e) {
@@ -129,23 +129,23 @@ public final class JsonLoadFlowParameters {
     }
 
     /**
-     *  Low level deserialization method, to be used for instance for reading load flow parameters nested in another object.
+     * Low level deserialization method, to be used for instance for reading load flow parameters nested in another object.
      */
     public static LoadFlowParameters deserialize(JsonParser parser, DeserializationContext context, LoadFlowParameters parameters) throws IOException {
         return new LoadFlowParametersDeserializer().deserialize(parser, context, parameters);
     }
 
     /**
-     *  Low level deserialization method, to be used for instance for updating load flow parameters nested in another object.
+     * Low level deserialization method, to be used for instance for updating load flow parameters nested in another object.
      */
     public static LoadFlowParameters deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         return new LoadFlowParametersDeserializer().deserialize(parser, context);
     }
 
     /**
-     *  Low level serialization method, to be used for instance for writing load flow parameters nested in another object.
+     * Low level serialization method, to be used for instance for writing load flow parameters nested in another object.
      */
-    public static void serialize(LoadFlowParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException  {
+    public static void serialize(LoadFlowParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         new LoadFlowParametersSerializer().serialize(parameters, jsonGenerator, serializerProvider);
     }
 }

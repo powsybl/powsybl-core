@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
+import java.util.function.Supplier;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  *
@@ -154,10 +156,12 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
             context.tapChangerTransformers().add(ptc, tx, "ptc", ptcSide);
         }
         if (rtcSide > 0 && ptcSide > 0 && rtcSide != ptcSide) {
-            String reason = String.format(
+            final String rtcParam = rtc;
+            final String ptcParam = ptc;
+            Supplier<String> reason = () -> String.format(
                     "Unsupported modelling: transformer with ratio and tap changer not on the same winding, rtc: %s, ptc: %s",
-                    rtc,
-                    ptc);
+                    rtcParam,
+                    ptcParam);
             invalid(reason);
         }
 

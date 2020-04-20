@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +87,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         return CountryConversion.fromIsoCode(p.getLocal("fromEndIsoCode"))
             .orElseGet(() -> CountryConversion.fromIsoCode(p.getLocal("toEndIsoCode"))
                 .orElseGet(() -> {
-                    String countryCodes = String.format("Country. ISO codes %s %s",
+                    Supplier<String> countryCodes = () -> String.format("Country. ISO codes %s %s",
                         p.getLocal("fromEndIsoCode"),
                         p.getLocal("toEndIsoCode"));
                     ignored(countryCodes);
@@ -184,8 +185,8 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                 return;
             }
             LOG.warn(
-                "Can't find a bus from the Bus View to set Voltage and Angle, we use the bus {} from the Bus/Breaker view. Connectivity node {}",
-                bus, id);
+                    "Can't find a bus from the Bus View to set Voltage and Angle, we use the bus {} from the Bus/Breaker view. Connectivity node {}",
+                    bus, id);
         }
         setVoltageAngle(bus);
     }
@@ -236,18 +237,18 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         double angle = p.asDouble(CgmesNames.ANGLE);
         boolean valid = valid(v, angle);
         if (!valid) {
-            String reason = String.format(
+            Supplier<String> reason = () -> String.format(
                 "v = %f, angle = %f. Node %s",
                 v,
                 angle,
                 id);
-            String location = bus == null
+            Supplier<String> location = () -> bus == null
                 ? "No bus"
                 : String.format("Bus %s, Substation %s, Voltage level %s",
                     bus.getId(),
                     bus.getVoltageLevel().getSubstation().getNameOrId(),
                     bus.getVoltageLevel().getNameOrId());
-            String message = String.format("%s. %s", reason, location);
+            Supplier<String> message = () -> reason.get() + ". " + location.get();
             context.invalid("SvVoltage", message);
         }
         return valid;

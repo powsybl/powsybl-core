@@ -112,8 +112,10 @@ public class Changelog implements NetworkListener {
     private final Map<String, List<IidmChange>> changesByVariant;
 
     private static final String CONNECTED_COMPONENT_NUMBER = "connectedComponentNumber";
+    private static final String SYNCHRONOUS_COMPONENT_NUMBER = "synchronousComponentNumber";
     private static final Set<String> IGNORED_ATTRIBUTES = new HashSet<>(Arrays.asList(
-        CONNECTED_COMPONENT_NUMBER));
+        CONNECTED_COMPONENT_NUMBER,
+        SYNCHRONOUS_COMPONENT_NUMBER));
     private static final Map<String, Set<String>> IGNORED_ATTRIBUTES_PER_CLASS = new HashMap<>();
 
     static {
@@ -138,7 +140,6 @@ public class Changelog implements NetworkListener {
             .of(CgmesNames.VOLTAGE, CgmesNames.ANGLE, CgmesNames.P1, CgmesNames.Q1, CgmesNames.P2, CgmesNames.Q2)
             .collect(Collectors.toCollection(HashSet::new));
         IGNORED_ATTRIBUTES_PER_CLASS.put("TwoWindingsTransformerImpl", twoWindingsTransformer);
-
     }
 
 }
