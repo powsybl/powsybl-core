@@ -55,13 +55,13 @@ public class DataFormatTest {
     @Test
     public void testDataFormat() {
 
-        DataStore ds = new PathDataStore(Paths.get(testDir1.toUri()));
-        DataFormat df = new DummyDataFormat();
-        DataResolver dr = df.getDataResolver();
-        Properties props = new Properties();
-        String mainFileName = "dummy.txt";
-
         try {
+            DataStore ds = new PathDataStore(Paths.get(testDir1.toUri()));
+            DataFormat df = new DummyDataFormat();
+            DataResolver dr = df.getDataResolver();
+            Properties props = new Properties();
+            String mainFileName = "dummy.txt";
+
             Optional<DataPack> dp = dr.resolve(ds, mainFileName, props);
             assertFalse(dp.isPresent());
 
@@ -84,7 +84,7 @@ public class DataFormatTest {
 
             Optional<DataPack> dp2 = dr.resolve(ds2, mainFileName, props);
 
-            assertTrue(dr.validate(dp2.get()));
+            assertTrue(dr.validate(dp2.get(), null));
 
         } catch (IOException | NonUniqueResultException e) {
             fail();

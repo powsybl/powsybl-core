@@ -55,7 +55,7 @@ public abstract class AbstractDataStoreTest {
         return true;
     }
 
-    protected abstract DataStore createDataStore();
+    protected abstract DataStore createDataStore() throws IOException;
 
     private void writeThenReadTest(String entry) throws IOException {
 

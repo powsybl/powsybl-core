@@ -23,6 +23,8 @@ public class DataPack {
 
     public static String MAIN_ENTRY_TAG = "MAIN_ENTRY";
 
+    public static String EXTENSION_TAG = "EXTENSION";
+
     private final String dataFormatId;
 
     private final ReadOnlyDataStore source;

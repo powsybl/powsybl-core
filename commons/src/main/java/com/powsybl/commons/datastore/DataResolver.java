@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
  */
 public interface DataResolver {
 
-    public Optional<DataPack> resolve(ReadOnlyDataStore store, @Nullable String mainFileName, Properties parameters) throws IOException, NonUniqueResultException;
+    public Optional<DataPack> resolve(ReadOnlyDataStore store, @Nullable String mainFileName, @Nullable Properties parameters) throws IOException, NonUniqueResultException;
 
-    public boolean validate(DataPack pack);
+    public boolean validate(DataPack pack, @Nullable Properties parameters);
 }

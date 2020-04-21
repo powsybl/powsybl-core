@@ -42,7 +42,7 @@ public class DummyDataFormat implements DataFormat {
             }
 
             @Override
-            public boolean validate(DataPack pack) {
+            public boolean validate(DataPack pack, Properties parameters) {
                 return pack.getMainEntry().isPresent();
             }
         };

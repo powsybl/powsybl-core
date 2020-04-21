@@ -21,7 +21,7 @@ import java.util.stream.Stream;
  */
 public class PathDataStore implements DataStore {
 
-    private Path path;
+    private final Path path;
 
     public PathDataStore(Path path) {
         this.path = Objects.requireNonNull(path);
@@ -29,7 +29,7 @@ public class PathDataStore implements DataStore {
 
     @Override
     public List<String> getEntryNames() throws IOException {
-        try (Stream<Path> files = Files.walk(path)) {
+        try (Stream<Path> files = Files.list(path)) {
             return files.filter(Files::isRegularFile)
                     .map(Path::getFileName)
                     .map(Path::toString)
