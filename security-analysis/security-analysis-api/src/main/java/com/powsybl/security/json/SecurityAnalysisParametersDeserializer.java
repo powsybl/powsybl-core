@@ -35,11 +35,9 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
 
     @Override
     public SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, SecurityAnalysisParameters parameters) throws IOException {
-
         List<Extension<SecurityAnalysisParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-
                 case "version":
                     parser.nextToken();
                     break;
@@ -51,17 +49,13 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
 
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonSecurityAnalysisParameters.getExtensionSerializers());
+                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonSecurityAnalysisParameters.getExtensionSerializers(), parameters);
                     break;
-
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-
         JsonSecurityAnalysisParameters.getExtensionSerializers().addExtensions(parameters, extensions);
-
         return parameters;
     }
-
 }

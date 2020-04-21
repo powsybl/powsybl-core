@@ -103,7 +103,7 @@ import java.util.stream.Stream;
  * Green edges will disappear during the bus/breaker topology computation
  * whereas pink edges (like in this case 3<->4) will be retained whatever their
  * position are (see {@link Switch#isRetained()}).
- *<p>The following code shows how to create the substation with a node/breaker
+ * <p>The following code shows how to create the substation with a node/breaker
  *   topology model.
  * <pre>
  *    Network n = ...
@@ -337,7 +337,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
             SwitchAdder setRetained(boolean retained);
 
             Switch add();
-
         }
 
         interface InternalConnectionAdder {
@@ -503,6 +502,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
         /**
          * Remove a switch.
+         *
          * @param switchId the switch id
          */
         void removeSwitch(String switchId);
@@ -567,6 +567,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get buses.
          * <p>
          * Depends on the working variant if topology kind is NODE_BREAKER.
+         *
          * @see VariantManager
          */
         Iterable<Bus> getBuses();
@@ -575,6 +576,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get buses.
          * <p>
          * Depends on the working variant if topology kind is NODE_BREAKER.
+         *
          * @see VariantManager
          */
         Stream<Bus> getBusStream();
@@ -583,6 +585,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get a bus.
          * <p>
          * Depends on the working variant if topology kind is NODE_BREAKER.
+         *
          * @param id the id of the bus.
          * @return the bus or <code>null</code> if not found
          * @see VariantManager
@@ -591,12 +594,14 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
         /**
          * Get a builder to create a new bus.
+         *
          * @throws com.powsybl.commons.PowsyblException if the topology kind is NODE_BREAKER
          */
         BusAdder newBus();
 
         /**
          * Remove a bus.
+         *
          * @param busId the bus id
          */
         void removeBus(String busId);
@@ -623,6 +628,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
         /**
          * Remove a switch.
+         *
          * @param switchId the switch id
          */
         void removeSwitch(String switchId);
@@ -636,6 +642,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get the first bus to which the switch is connected.
          * <p>
          * Depends on the working variant if topology kind is NODE_BREAKER.
+         *
          * @param switchId the id of the switch
          * @throws com.powsybl.commons.PowsyblException if switch is not found
          * @see VariantManager
@@ -646,6 +653,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get the second bus to which the switch is connected.
          * <p>
          * Depends on the working variant if topology kind is NODE_BREAKER.
+         *
          * @param switchId the id of the switch
          * @throws com.powsybl.commons.PowsyblException if switch is not found
          * @see VariantManager
@@ -662,6 +670,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
         /**
          * Get a builer to create a new switch.
+         *
          * @throws com.powsybl.commons.PowsyblException if the topology kind is NODE_BREAKER
          */
         SwitchAdder newSwitch();
@@ -677,6 +686,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get buses.
          * <p>
          * Depends on the working variant.
+         *
          * @see VariantManager
          */
         Iterable<Bus> getBuses();
@@ -685,14 +695,16 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get buses.
          * <p>
          * Depends on the working variant.
+         *
          * @see VariantManager
          */
         Stream<Bus> getBusStream();
 
         /**
          * Get a bus.
-         *<p>
+         * <p>
          * Depends on the working variant.
+         *
          * @param id the id of the bus.
          * @return the bus or <code>null</code> if not found
          * @see VariantManager
@@ -701,8 +713,9 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
         /**
          * Get the merged bus that includes the given configured bus or Busbar section.
-         *<p>
+         * <p>
          * Depends on the working variant.
+         *
          * @param configuredBusId The id of the configured bus or busbar section.
          * @return the merged bus or <code>null</code> if not found
          * @see VariantManager
@@ -718,7 +731,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         /**
          * Called when a terminal in encountered.
          *
-         * @param terminal the encountered terminal
+         * @param terminal  the encountered terminal
          * @param connected in bus/breaker topology, give the terminal connection status
          * @return true to continue the graph traversal, false otherwise
          */
@@ -748,31 +761,36 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
     /**
      * Get the low voltage limit in KV.
+     *
      * @return the low voltage limit or NaN if undefined
      */
     double getLowVoltageLimit();
 
     /**
      * Set the low voltage limit in KV.
+     *
      * @param lowVoltageLimit the low voltage limit in KV
      */
     VoltageLevel setLowVoltageLimit(double lowVoltageLimit);
 
     /**
      * Get the high voltage limit in KV.
+     *
      * @return the high voltage limit or NaN if undefined
      */
     double getHighVoltageLimit();
 
     /**
      * Set the high voltage limit in KV.
+     *
      * @param highVoltageLimit the high voltage limit in KV
      */
     VoltageLevel setHighVoltageLimit(double highVoltageLimit);
 
     /**
      * Get an equipment connected to this substation voltage level.
-     * @param id the equipment id
+     *
+     * @param id     the equipment id
      * @param aClass
      * @return the equipment
      */
@@ -780,6 +798,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
     /**
      * Get an Iterable on all the equipments connected to this substation voltage level for a given type.
+     *
      * @param clazz equipments type
      * @return all the equipments of the given type
      */
@@ -787,6 +806,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
     /**
      * Get a Stream on all the equipments connected to this substation voltage level for a given type.
+     *
      * @param clazz equipments type
      * @return all the equipments of the given type
      */
@@ -794,6 +814,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
     /**
      * Count the equipments connected to this substation voltage level for a given type.
+     *
      * @param clazz equipments type
      * @return all the equipment of the given type
      */
@@ -801,18 +822,21 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
     /**
      * Get an Iterable on all the equipments connected to this substation voltage level.
+     *
      * @return all the equipments
      */
     Iterable<Connectable> getConnectables();
 
     /**
      * Get a Stream on all the equipments connected to this substation voltage level.
+     *
      * @return all the equipments
      */
     Stream<Connectable> getConnectableStream();
 
     /**
      * Count the equipments connected to this substation voltage level.
+     *
      * @return all the equipments
      */
     int getConnectableCount();
@@ -946,48 +970,56 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
     /**
      * Get a builder to create a new VSC converter station connected to this voltage level.
+     *
      * @return a builder to create a new VSC converter
      */
     VscConverterStationAdder newVscConverterStation();
 
     /**
      * Get all VSC converter stations connected to this voltage level.
+     *
      * @return all VSC converter stations connected to this voltage level
      */
     Iterable<VscConverterStation> getVscConverterStations();
 
     /**
      * Get all VSC converter stations connected to this voltage level.
+     *
      * @return all VSC converter stations connected to this voltage level
      */
     Stream<VscConverterStation> getVscConverterStationStream();
 
     /**
      * Get VSC converter stations count connected to this voltage level.
+     *
      * @return VSC converter stations count connected to this voltage level
      */
     int getVscConverterStationCount();
 
     /**
      * Get a builder to create a new LCC converter station connected to this voltage level.
+     *
      * @return a builder to create a new LCC converter
      */
     LccConverterStationAdder newLccConverterStation();
 
     /**
      * Get all LCC converter stations connected to this voltage level.
+     *
      * @return all LCC converter stations connected to this voltage level
      */
     Iterable<LccConverterStation> getLccConverterStations();
 
     /**
      * Get all LCC converter stations connected to this voltage level.
+     *
      * @return all LCC converter stations connected to this voltage level
      */
     Stream<LccConverterStation> getLccConverterStationStream();
 
     /**
      * Get LCC converter stations count connected to this voltage level.
+     *
      * @return LCC converter stations count connected to this voltage level
      */
     int getLccConverterStationCount();
@@ -1001,6 +1033,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
     /**
      * Visit equipments of the voltage level.
+     *
      * @param visitor
      */
     void visitEquipments(TopologyVisitor visitor);

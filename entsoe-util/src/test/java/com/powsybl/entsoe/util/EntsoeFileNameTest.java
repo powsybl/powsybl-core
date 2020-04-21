@@ -40,4 +40,11 @@ public class EntsoeFileNameTest {
         assertEquals(0, ucteFileName.getForecastDistance());
         assertNull(ucteFileName.getCountry());
     }
+
+    @Test
+    public void testIdcf() {
+        String fileName = "20200314_0030_026_FR0.uct";
+        EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);
+        assertTrue(ucteFileName.getDate().isEqual(DateTime.parse("2020-03-14T00:30:00.000+01:00")));
+    }
 }
