@@ -112,9 +112,13 @@ public class RegulatingControlMappingForGenerators {
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {
-            gen.newExtension(CoordinatedReactiveControlAdder.class)
-                    .withQPercent(qPercent)
-                    .add();
+            if (qPercent < 0.0 || qPercent > 100) {
+                context.ignored(QPERCENT, () -> String.format("Unexpected value for qPercent of generator %s: %s", gen.getId(), String.valueOf(qPercent)));
+            } else {
+                gen.newExtension(CoordinatedReactiveControlAdder.class)
+                        .withQPercent(qPercent)
+                        .add();
+            }
         }
 
         return true;
