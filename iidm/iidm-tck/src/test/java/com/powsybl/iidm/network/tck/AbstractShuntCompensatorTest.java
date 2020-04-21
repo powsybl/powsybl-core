@@ -64,7 +64,6 @@ public abstract class AbstractShuntCompensatorTest {
                 .setTargetDeadband(10)
                 .add();
         assertEquals(ConnectableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
-        assertEquals("shuntName", shuntCompensator.getOptionalName().orElse(null));
         assertEquals("shuntName", shuntCompensator.getName());
         assertEquals(SHUNT, shuntCompensator.getId());
         assertEquals(5.0, shuntCompensator.getbPerSection(), 0.0);
