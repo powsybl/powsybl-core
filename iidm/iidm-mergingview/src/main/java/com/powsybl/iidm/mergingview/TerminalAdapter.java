@@ -148,12 +148,20 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
 
     @Override
     public boolean connect() {
-        return getDelegate().connect();
+        boolean connected = getDelegate().connect();
+        if (connected) {
+            getVoltageLevel().invalidateCache();
+        }
+        return connected;
     }
 
     @Override
     public boolean disconnect() {
-        return getDelegate().disconnect();
+        boolean disconnected = getDelegate().disconnect();
+        if (disconnected) {
+            getVoltageLevel().invalidateCache();
+        }
+        return disconnected;
     }
 
     @Override

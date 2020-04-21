@@ -11,8 +11,6 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -22,7 +20,7 @@ import java.util.stream.Stream;
  */
 class NodeBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
 
-    static class NodeBreakerViewAdapter extends AbstractAdapter<NodeBreakerView> implements NodeBreakerView {
+    class NodeBreakerViewAdapter extends AbstractAdapter<NodeBreakerView> implements NodeBreakerView {
 
         final class SwitchAdderAdapter extends AbstractIdentifiableAdderAdapter<SwitchAdder> implements SwitchAdder {
 
@@ -401,7 +399,9 @@ class NodeBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
     }
 
     @Override
-    void invalidate() {
-        busView.invalidate();
+    public void invalidateCache() {
+        busBreakerView.invalidateCache();
+        busView.invalidateCache();
+        System.out.println("INVALIDATE");
     }
 }
