@@ -1,3 +1,3 @@
 moduleName = powsybl-iidm-scripting-module
 moduleVersion = 1.0
-extensionClasses = com.powsybl.iidm.network.scripting.IdentifiableExtension  com.powsybl.iidm.network.scripting.NetworkExtension com.powsybl.iidm.network.scripting.SubstationExtension
+extensionClasses = com.powsybl.iidm.network.scripting.IdentifiableExtension  com.powsybl.iidm.network.scripting.NetworkExtension com.powsybl.iidm.network.scripting.SubstationExtension com.powsybl.iidm.network.scripting.ShuntCompensatorExtension

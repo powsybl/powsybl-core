@@ -62,9 +62,6 @@ public abstract class AbstractLccTest {
         assertTrue(network.getShuntCompensator("C1_Filter1").getTerminal().isConnected());
         assertEquals(0.0, network.getShuntCompensator(C1_FILTER2).getCurrentB(), 0.0);
 
-        // TODO: delete this line when getMaximumB() is deleted
-        assertEquals(2e-5, network.getShuntCompensator(C1_FILTER2).getMaximumB(), 0.0);
-
         assertFalse(network.getShuntCompensator(C1_FILTER2).getTerminal().isConnected());
         assertEquals(1, network.getHvdcLineCount());
         HvdcLine l = network.getHvdcLine("L");
