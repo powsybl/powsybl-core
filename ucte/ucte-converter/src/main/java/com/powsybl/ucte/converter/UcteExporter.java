@@ -57,8 +57,6 @@ public class UcteExporter implements Exporter {
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
-    private static final String PROPERTY_SEPARATOR = ",";
-
     public UcteExporter() {
         this(PlatformConfig.defaultConfig());
     }
@@ -309,8 +307,8 @@ public class UcteExporter implements Exporter {
      */
     private static void convertXNode(UcteNetwork ucteNetwork, TieLine tieLine, UcteExporterContext context) {
         UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(tieLine.getUcteXnodeCode());
-        mergeGeographicalNameProperties(tieLine);
         String geographicalName = tieLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, "");
+
         convertXNode(ucteNetwork, xnodeCode, geographicalName);
     }
 
@@ -464,28 +462,6 @@ public class UcteExporter implements Exporter {
         ucteNetwork.addLine(ucteLine2);
     }
 
-    private static void mergeGeographicalNameProperties(TieLine tieLine) {
-        String geographicalName = tieLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY);
-        String geographicalName1 = geographicalName;
-        String geographicalName2 = geographicalName;
-        if (geographicalName.contains(PROPERTY_SEPARATOR)) {
-            geographicalName1 = geographicalName.split(PROPERTY_SEPARATOR, -1)[0];
-            geographicalName2 = geographicalName.split(PROPERTY_SEPARATOR, -1)[1];
-        }
-
-        if (geographicalName1.equals(geographicalName2)) {
-            tieLine.setProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, geographicalName1);
-        } else if (geographicalName1.isEmpty()) {
-            LOGGER.warn("Inconsistencies of property 'geographicalName' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", geographicalName2);
-            tieLine.setProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, geographicalName2);
-        } else if (geographicalName2.isEmpty()) {
-            LOGGER.warn("Inconsistencies of property 'geographicalName' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", geographicalName1);
-            tieLine.setProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, geographicalName1);
-        } else {
-            LOGGER.error("Inconsistencies of property 'geographicalName' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", geographicalName1, geographicalName2);
-        }
-    }
-
     /**
      * Convert a {@link TieLine} to two {@link UcteLine} connected by a Xnode. Add the two {@link UcteLine} and the {@link UcteNode} to the network.
      *
@@ -502,23 +478,10 @@ public class UcteExporter implements Exporter {
         // FIXME(mathbagu) REAL or EQUIVALENT ?
         UcteElementStatus status = tieLine.getTerminal1().isConnected() && tieLine.getTerminal2().isConnected() ? EQUIVALENT_ELEMENT_IN_OPERATION : EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
 
-        String elementName = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-        String elementName1 = elementName;
-        String elementName2 = elementName;
-        if (elementName != null && elementName.contains(PROPERTY_SEPARATOR)) {
-            elementName1 = elementName.split(PROPERTY_SEPARATOR, -1)[0];
-            if (elementName1.isEmpty()) {
-                elementName1 = null;
-            }
-            elementName2 = elementName.split(PROPERTY_SEPARATOR, -1)[1];
-            if (elementName2.isEmpty()) {
-                elementName2 = null;
-            }
-        }
-
         // Create half line 1
         TieLine.HalfLine half1 = tieLine.getHalf1();
         UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(half1.getId());
+        String elementName1 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", null);
         UcteLine ucteLine1 = new UcteLine(
                 ucteElementId1,
                 status,
@@ -532,6 +495,7 @@ public class UcteExporter implements Exporter {
         // Create half line2
         TieLine.HalfLine half2 = tieLine.getHalf2();
         UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(half2.getId());
+        String elementName2 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", null);
         UcteLine ucteLine2 = new UcteLine(
                 ucteElementId2,
                 status,

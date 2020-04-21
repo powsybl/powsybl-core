@@ -47,8 +47,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private final NetworkListenerList listeners = new NetworkListenerList();
 
-    private static final String PROPERTY_SEPARATOR = ",";
-
     class BusBreakerViewImpl implements BusBreakerView {
 
         @Override
@@ -1033,8 +1031,24 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     private void mergeProperties(DanglingLine dl1, DanglingLine dl2, Properties properties) {
         Set<String> dl1Properties = dl1.getPropertyNames();
         Set<String> dl2Properties = dl2.getPropertyNames();
-        Set<String> unionProperties = Sets.union(dl1Properties, dl2Properties);
-        unionProperties.forEach(prop -> properties.setProperty(prop, dl1.getProperty(prop) + PROPERTY_SEPARATOR + dl2.getProperty(prop, "")));
+        Set<String> commonProperties = Sets.intersection(dl1Properties, dl2Properties);
+        Sets.difference(dl1Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl1.getProperty(prop)));
+        Sets.difference(dl2Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl2.getProperty(prop)));
+        commonProperties.forEach(prop -> {
+            if (dl1.getProperty(prop).equals(dl2.getProperty(prop))) {
+                properties.setProperty(prop, dl1.getProperty(prop));
+            } else if (dl1.getProperty(prop).isEmpty()) {
+                LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
+                properties.setProperty(prop, dl2.getProperty(prop));
+            } else if (dl2.getProperty(prop).isEmpty()) {
+                LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
+                properties.setProperty(prop, dl1.getProperty(prop));
+            } else {
+                LOGGER.error("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
+            }
+        });
+        dl1Properties.forEach(prop -> properties.setProperty(prop + "_1", dl1.getProperty(prop)));
+        dl2Properties.forEach(prop -> properties.setProperty(prop + "_2", dl2.getProperty(prop)));
     }
 
     private void replaceDanglingLineByLine(List<MergedLine> lines, Multimap<Boundary, MergedLine> mergedLineByBoundary) {
