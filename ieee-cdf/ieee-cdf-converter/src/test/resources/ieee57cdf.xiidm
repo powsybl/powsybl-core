@@ -44,7 +44,7 @@
                 <iidm:bus id="B18" name="Sprigg    V2" v="1.001" angle="-11.71"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B18-L" loadType="UNDEFINED" p0="27.2" q0="9.8" bus="B18" connectableBus="B18"/>
-            <iidm:shunt id="B18-SH" bPerSection="10.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B18" connectableBus="B18"/>
+            <iidm:linearShunt id="B18-SH" bPerSection="10.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B18" connectableBus="B18"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T4-18-1" r="0.0" x="0.00555" g="0.0" b="0.0" ratedU1="0.97" ratedU2="1.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B18" connectableBus2="B18" voltageLevelId2="VL18"/>
         <iidm:twoWindingsTransformer id="T4-18-2" r="0.0" x="0.0043" g="0.0" b="0.0" ratedU1="0.978" ratedU2="1.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B18" connectableBus2="B18" voltageLevelId2="VL18"/>
@@ -265,7 +265,7 @@
                 <iidm:bus id="B25" name="Bus 25    V4" v="0.982" angle="-18.13"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B25-L" loadType="UNDEFINED" p0="6.3" q0="3.2" bus="B25" connectableBus="B25"/>
-            <iidm:shunt id="B25-SH" bPerSection="5.8999999999999995" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B25" connectableBus="B25"/>
+            <iidm:linearShunt id="B25-SH" bPerSection="5.8999999999999995" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B25" connectableBus="B25"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL26" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -441,7 +441,7 @@
                 <iidm:bus id="B53" name="Bus 53    V5" v="0.971" angle="-12.23"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B53-L" loadType="UNDEFINED" p0="20.0" q0="10.0" bus="B53" connectableBus="B53"/>
-            <iidm:shunt id="B53-SH" bPerSection="6.3" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B53" connectableBus="B53"/>
+            <iidm:linearShunt id="B53-SH" bPerSection="6.3" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B53" connectableBus="B53"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S41">

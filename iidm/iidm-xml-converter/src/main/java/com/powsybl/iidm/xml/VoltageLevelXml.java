@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
@@ -181,12 +182,31 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         }
     }
 
-    private void writeShuntCompensators(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    private void writeShuntCompensators(VoltageLevel vl, NetworkXmlWriterContext context) {
         for (ShuntCompensator sc : vl.getShuntCompensators()) {
             if (!context.getFilter().test(sc)) {
                 continue;
             }
-            ShuntXml.INSTANCE.write(sc, vl, context);
+            IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> {
+                try {
+                    ShuntXml.INSTANCE.write(sc, vl, context);
+                } catch (XMLStreamException e) {
+                    throw new UncheckedXmlStreamException(e);
+                }
+            });
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
+                try {
+                    if (ShuntCompensatorModelType.LINEAR == sc.getModelType()) {
+                        LinearShuntXml.INSTANCE.write(sc, vl, context);
+                    } else if (ShuntCompensatorModelType.NON_LINEAR == sc.getModelType()) {
+                        NonLinearShuntXml.INSTANCE.write(sc, vl, context);
+                    } else {
+                        throw new PowsyblException(String.format("Unexpected model type: %s", sc.getModelType()));
+                    }
+                } catch (XMLStreamException e) {
+                    throw new UncheckedXmlStreamException(e);
+                }
+            });
         }
     }
 
@@ -271,6 +291,14 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
                 case ShuntXml.ROOT_ELEMENT_NAME:
                     ShuntXml.INSTANCE.read(vl, context);
+                    break;
+
+                case LinearShuntXml.ROOT_ELEMENT_NAME:
+                    LinearShuntXml.INSTANCE.read(vl, context);
+                    break;
+
+                case NonLinearShuntXml.ROOT_ELEMENT_NAME:
+                    NonLinearShuntXml.INSTANCE.read(vl, context);
                     break;
 
                 case DanglingLineXml.ROOT_ELEMENT_NAME:

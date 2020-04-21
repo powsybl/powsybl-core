@@ -43,7 +43,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B5" name="Olive     V2" v="1.002" angle="15.73"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="B5-SH" bPerSection="-40.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B5" connectableBus="B5"/>
+            <iidm:linearShunt id="B5-SH" bPerSection="-40.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B5" connectableBus="B5"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL8" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -308,7 +308,7 @@
                 <iidm:minMaxReactiveLimits minQ="-8.0" maxQ="24.0"/>
             </iidm:generator>
             <iidm:load id="B34-L" loadType="UNDEFINED" p0="59.0" q0="26.0" bus="B34" connectableBus="B34"/>
-            <iidm:shunt id="B34-SH" bPerSection="14.000000000000002" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B34" connectableBus="B34"/>
+            <iidm:linearShunt id="B34-SH" bPerSection="14.000000000000002" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B34" connectableBus="B34"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S86">
@@ -335,7 +335,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B37" name="EastLima  V2" v="0.992" angle="11.77"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="B37-SH" bPerSection="-25.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B37" connectableBus="B37"/>
+            <iidm:linearShunt id="B37-SH" bPerSection="-25.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B37" connectableBus="B37"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL38" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -396,7 +396,7 @@
                 <iidm:bus id="B44" name="WMVernon  V2" v="0.985" angle="13.82"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B44-L" loadType="UNDEFINED" p0="16.0" q0="8.0" bus="B44" connectableBus="B44"/>
-            <iidm:shunt id="B44-SH" bPerSection="10.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B44" connectableBus="B44"/>
+            <iidm:linearShunt id="B44-SH" bPerSection="10.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B44" connectableBus="B44"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S80">
@@ -405,7 +405,7 @@
                 <iidm:bus id="B45" name="N.Newark  V2" v="0.987" angle="15.67"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B45-L" loadType="UNDEFINED" p0="53.0" q0="22.0" bus="B45" connectableBus="B45"/>
-            <iidm:shunt id="B45-SH" bPerSection="10.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B45" connectableBus="B45"/>
+            <iidm:linearShunt id="B45-SH" bPerSection="10.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B45" connectableBus="B45"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S71">
@@ -417,7 +417,7 @@
                 <iidm:minMaxReactiveLimits minQ="-100.0" maxQ="100.0"/>
             </iidm:generator>
             <iidm:load id="B46-L" loadType="UNDEFINED" p0="28.0" q0="10.0" bus="B46" connectableBus="B46"/>
-            <iidm:shunt id="B46-SH" bPerSection="10.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B46" connectableBus="B46"/>
+            <iidm:linearShunt id="B46-SH" bPerSection="10.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B46" connectableBus="B46"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S72">
@@ -434,7 +434,7 @@
                 <iidm:bus id="B48" name="Zanesvll  V2" v="1.021" angle="19.93"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B48-L" loadType="UNDEFINED" p0="20.0" q0="11.0" bus="B48" connectableBus="B48"/>
-            <iidm:shunt id="B48-SH" bPerSection="15.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B48" connectableBus="B48"/>
+            <iidm:linearShunt id="B48-SH" bPerSection="15.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B48" connectableBus="B48"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S74">
@@ -672,7 +672,7 @@
                 <iidm:minMaxReactiveLimits minQ="-6.0" maxQ="9.0"/>
             </iidm:generator>
             <iidm:load id="B74-L" loadType="UNDEFINED" p0="68.0" q0="27.0" bus="B74" connectableBus="B74"/>
-            <iidm:shunt id="B74-SH" bPerSection="12.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B74" connectableBus="B74"/>
+            <iidm:linearShunt id="B74-SH" bPerSection="12.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B74" connectableBus="B74"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S18">
@@ -719,7 +719,7 @@
                 <iidm:bus id="B79" name="CapitlHl  V2" v="1.009" angle="26.72"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B79-L" loadType="UNDEFINED" p0="39.0" q0="32.0" bus="B79" connectableBus="B79"/>
-            <iidm:shunt id="B79-SH" bPerSection="20.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B79" connectableBus="B79"/>
+            <iidm:linearShunt id="B79-SH" bPerSection="20.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B79" connectableBus="B79"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S1">
@@ -745,7 +745,7 @@
                 <iidm:bus id="B82" name="Logan     V2" v="0.989" angle="27.24"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B82-L" loadType="UNDEFINED" p0="54.0" q0="27.0" bus="B82" connectableBus="B82"/>
-            <iidm:shunt id="B82-SH" bPerSection="20.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B82" connectableBus="B82"/>
+            <iidm:linearShunt id="B82-SH" bPerSection="20.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B82" connectableBus="B82"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S3">
@@ -754,7 +754,7 @@
                 <iidm:bus id="B83" name="Sprigg    V2" v="0.985" angle="28.42"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B83-L" loadType="UNDEFINED" p0="20.0" q0="10.0" bus="B83" connectableBus="B83"/>
-            <iidm:shunt id="B83-SH" bPerSection="10.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B83" connectableBus="B83"/>
+            <iidm:linearShunt id="B83-SH" bPerSection="10.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B83" connectableBus="B83"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S4">
@@ -960,7 +960,7 @@
                 <iidm:minMaxReactiveLimits minQ="-8.0" maxQ="23.0"/>
             </iidm:generator>
             <iidm:load id="B105-L" loadType="UNDEFINED" p0="31.0" q0="26.0" bus="B105" connectableBus="B105"/>
-            <iidm:shunt id="B105-SH" bPerSection="20.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B105" connectableBus="B105"/>
+            <iidm:linearShunt id="B105-SH" bPerSection="20.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B105" connectableBus="B105"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S45">
@@ -980,7 +980,7 @@
                 <iidm:minMaxReactiveLimits minQ="-200.0" maxQ="200.0"/>
             </iidm:generator>
             <iidm:load id="B107-L" loadType="UNDEFINED" p0="28.0" q0="12.0" bus="B107" connectableBus="B107"/>
-            <iidm:shunt id="B107-SH" bPerSection="6.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B107" connectableBus="B107"/>
+            <iidm:linearShunt id="B107-SH" bPerSection="6.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B107" connectableBus="B107"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S41">
@@ -1008,7 +1008,7 @@
                 <iidm:minMaxReactiveLimits minQ="-8.0" maxQ="23.0"/>
             </iidm:generator>
             <iidm:load id="B110-L" loadType="UNDEFINED" p0="39.0" q0="30.0" bus="B110" connectableBus="B110"/>
-            <iidm:shunt id="B110-SH" bPerSection="6.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B110" connectableBus="B110"/>
+            <iidm:linearShunt id="B110-SH" bPerSection="6.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B110" connectableBus="B110"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S32">
