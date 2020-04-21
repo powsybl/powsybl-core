@@ -10,21 +10,17 @@ import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
-
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Random;
-
 import java.util.Objects;
+import java.util.Random;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>

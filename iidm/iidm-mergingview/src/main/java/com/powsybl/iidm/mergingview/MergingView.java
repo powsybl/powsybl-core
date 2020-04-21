@@ -37,6 +37,7 @@ public final class MergingView implements Network {
     /** To listen events from merging network */
     private final NetworkListener mergeDanglingLineListener;
     private final NetworkListener danglingLinePowerListener;
+    private final TopologyListener topologyListener;
 
     static PowsyblException createNotImplementedException() {
         return new PowsyblException("Not implemented exception");
@@ -145,6 +146,7 @@ public final class MergingView implements Network {
         // Listeners creation
         mergeDanglingLineListener = new MergingLineListener(index);
         danglingLinePowerListener = new DanglingLinePowerListener(index);
+        topologyListener = new TopologyListener(index);
         busBreakerView = new BusBreakerViewAdapter(index);
         busView = new BusViewAdapter(index);
         // Working network will store view informations
@@ -219,6 +221,15 @@ public final class MergingView implements Network {
     public Network setForecastDistance(final int forecastDistance) {
         workingNetwork.setForecastDistance(forecastDistance);
         return this;
+    }
+
+    @Override
+    public Network getNetwork() {
+        return this;
+    }
+
+    public Network getNetwork(String id) {
+        return index.getNetwork(n -> n.getId().equals(id));
     }
 
     @Override
@@ -389,11 +400,6 @@ public final class MergingView implements Network {
     }
 
     // VoltageLevel
-    @Override
-    public Network getNetwork() {
-        return this;
-    }
-
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
         return Collections.unmodifiableCollection(index.getVoltageLevels());
@@ -816,6 +822,7 @@ public final class MergingView implements Network {
         // Attach all custom listeners
         network.addListener(mergeDanglingLineListener);
         network.addListener(danglingLinePowerListener);
+        network.addListener(topologyListener);
     }
 
     // -------------------------------

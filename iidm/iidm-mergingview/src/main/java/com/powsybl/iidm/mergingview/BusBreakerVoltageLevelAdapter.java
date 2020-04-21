@@ -20,7 +20,7 @@ import java.util.stream.Stream;
  */
 class BusBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
 
-    static class BusBreakerViewAdapter extends AbstractAdapter<BusBreakerView> implements BusBreakerViewExt {
+    class BusBreakerViewAdapter extends AbstractAdapter<BusBreakerView> implements BusBreakerViewExt {
 
         final class SwitchAdderAdapter extends AbstractIdentifiableAdderAdapter<SwitchAdder> implements SwitchAdder {
 
@@ -204,7 +204,8 @@ class BusBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
     }
 
     @Override
-    void invalidate() {
-        busView.invalidate();
+    public void invalidateCache() {
+        busView.invalidateCache();
+        System.out.println("BBKVLA::invalidate");
     }
 }

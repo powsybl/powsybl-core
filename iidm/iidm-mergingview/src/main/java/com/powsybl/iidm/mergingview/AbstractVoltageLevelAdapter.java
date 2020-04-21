@@ -35,12 +35,16 @@ abstract class AbstractVoltageLevelAdapter extends AbstractIdentifiableAdapter<V
             super(delegate, index);
         }
 
-        void invalidate() {
+        void invalidateCache() {
             busCache.clear();
         }
 
         public Bus getBus(Bus bus) {
             return bus == null ? null : busCache.computeIfAbsent(bus, key -> new BusAdapter(key, getIndex()));
+        }
+
+        public int size() {
+            return busCache.size();
         }
     }
 
@@ -383,6 +387,4 @@ abstract class AbstractVoltageLevelAdapter extends AbstractIdentifiableAdapter<V
         // TODO(mathbagu)
         throw MergingView.createNotImplementedException();
     }
-
-    abstract void invalidate();
 }

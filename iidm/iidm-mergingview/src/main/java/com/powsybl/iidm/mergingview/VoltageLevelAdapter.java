@@ -31,4 +31,5 @@ public interface VoltageLevelAdapter extends VoltageLevel {
 
     @Override BusViewExt getBusView();
 
+    void invalidateCache();
 }
