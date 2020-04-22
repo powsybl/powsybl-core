@@ -36,9 +36,6 @@ public class CoordinatedReactiveControlImpl extends AbstractExtension<Generator>
         if (Double.isNaN(qPercent)) {
             throw new PowsyblException("Undefined value for qPercent");
         }
-        if (qPercent < 0.0 || qPercent > 100.0) {
-            throw new PowsyblException("Unexpected value for qPercent: " + qPercent);
-        }
         return qPercent;
     }
 }
