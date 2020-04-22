@@ -21,15 +21,10 @@ import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
@@ -44,9 +39,7 @@ public class MatpowerImporter implements Importer {
 
     private static final String[] EXTENSIONS = {"m", "mat"};
 
-    public static final LocalDate DEFAULTDATE = LocalDate.of(2020, Month.JANUARY, 1);
-
-    private static final Parameter IGNORE_BASE_VOLTAGE_PARAMETER = new Parameter("ignore-base-voltage",
+    private static final Parameter IGNORE_BASE_VOLTAGE_PARAMETER = new Parameter("matpower.import.ignore-base-voltage",
             ParameterType.BOOLEAN,
             "Ignore base voltage specified in the file",
             Boolean.TRUE);
@@ -166,14 +159,9 @@ public class MatpowerImporter implements Importer {
                     .setTargetV(mGen.getVoltageMagnitudeSetpoint() * voltageLevel.getNominalV())
                     .setTargetP(mGen.getRealPowerOutput())
                     .setTargetQ(mGen.getReactivePowerOutput())
-                    .setVoltageRegulatorOn(true)
+                    .setVoltageRegulatorOn(mGen.getVoltageMagnitudeSetpoint() != 0)
                     .setMaxP(mGen.getMaximumRealPowerOutput())
                     .setMinP(mGen.getMinimumRealPowerOutput())
-                    .add();
-
-            generator.newMinMaxReactiveLimits()
-                    .setMinQ(mGen.getMinimumReactivePowerOutput())
-                    .setMaxQ(mGen.getMaximumReactivePowerOutput())
                     .add();
 
             if ((mGen.getPc1() != 0) || (mGen.getPc2() != 0)) {
@@ -189,6 +177,11 @@ public class MatpowerImporter implements Importer {
                         .setMinQ(mGen.getQc2Min())
                         .endPoint()
                         .add();
+            } else {
+                generator.newMinMaxReactiveLimits()
+                        .setMinQ(mGen.getMinimumReactivePowerOutput())
+                        .setMaxQ(mGen.getMaximumReactivePowerOutput())
+                        .add();
             }
         });
     }
@@ -198,7 +191,6 @@ public class MatpowerImporter implements Importer {
         LOGGER.debug("Creating bus {}", busId);
         Bus bus = voltageLevel.getBusBreakerView().newBus()
                 .setId(busId)
-                .setName(busId)
                 .add();
         bus.setV(mBus.getVoltageMagnitude() * voltageLevel.getNominalV())
                 .setAngle(mBus.getVoltageAngle());
@@ -260,7 +252,7 @@ public class MatpowerImporter implements Importer {
             String busId = getBusId(mBus.getNumber());
             String shuntId = busId + "-SH";
             LOGGER.debug("Creating shunt {}", shuntId);
-            double zb = Math.pow(voltageLevel.getNominalV(), 2) / perUnitContext.getBaseMva();
+            double zb = voltageLevel.getNominalV() * voltageLevel.getNominalV() / perUnitContext.getBaseMva();
             voltageLevel.newShuntCompensator()
                     .setId(shuntId)
                     .setConnectableBus(busId)
@@ -293,9 +285,9 @@ public class MatpowerImporter implements Importer {
 
     private static void createLine(MBranch branch, ContainersMapping containerMapping, Network network, PerUnitContext perUnitContext) {
         String lineId = getBranchId('L', branch.getFrom(), branch.getTo(), network);
-        LOGGER.debug("Creating line {}", lineId);
         String bus1Id = getBusId(branch.getFrom());
         String bus2Id = getBusId(branch.getTo());
+        LOGGER.debug("Creating line {} {} {}", lineId, bus1Id, bus2Id);
         String voltageLevel1Id = containerMapping.busNumToVoltageLevelId.get(branch.getFrom());
         String voltageLevel2Id = containerMapping.busNumToVoltageLevelId.get(branch.getTo());
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
@@ -421,8 +413,7 @@ public class MatpowerImporter implements Importer {
         Network network = networkFactory.createNetwork(dataSource.getBaseName(), FORMAT);
 
         // no info abount time & date from the matpower file, set a  default
-        ZonedDateTime caseDateTime = DEFAULTDATE.atStartOfDay(ZoneOffset.UTC.normalized());
-        network.setCaseDate(new DateTime(caseDateTime.toInstant().toEpochMilli(), DateTimeZone.UTC));
+        network.setCaseDate(DateTime.now());
 
         try {
             String ext = findExtension(dataSource, true);
@@ -431,10 +422,10 @@ public class MatpowerImporter implements Importer {
                 MatpowerModel model;
                 if (ext.equals("m")) {
                     //.m matlab text file
-                    model = new MatpowerReader().read(iStream);
+                    model = MatpowerReader.read(iStream);
                 } else if (ext.equals("mat")) {
                     //.mat matlab binary file
-                    model = new MatpowerBinReader().read(iStream, dataSource.getBaseName());
+                    model = MatpowerBinReader.read(iStream, dataSource.getBaseName());
                 } else {
                     throw new MatpowerException("file extension not supported: " + ext);
                 }

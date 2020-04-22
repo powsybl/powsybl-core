@@ -16,6 +16,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,8 +27,9 @@ import java.util.StringTokenizer;
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
  */
-public class MatpowerReader {
+public final class MatpowerReader {
 
+    public static final String MATPOWER_SUPPORTED_VERSION = "2";
     private static final Logger LOGGER = LoggerFactory.getLogger(MatpowerReader.class);
 
     enum MatpowerSection {
@@ -34,41 +38,18 @@ public class MatpowerReader {
         GENERATOR
     }
 
-    public static final String MATPOWER_SUPPORTED_VERSION = "2";
-
-    private String processCaseName(String str) {
-        String str2 = str.replace(';', ' ');
-        final StringTokenizer st = new StringTokenizer(str2, " ");
-        st.nextToken(); // function
-        st.nextToken(); // mpc
-        st.nextToken(); // =
-        return st.nextToken();
+    private MatpowerReader() {
     }
 
-    private String processMatlabAssignment(String str) {
-        Objects.requireNonNull(str);
-        String str2 = str.replace(';', ' ');
-        final StringTokenizer st = new StringTokenizer(str2, " ");
-        st.nextToken(); // mpc.XYZ
-        st.nextToken(); // =
-        return st.nextToken();
-    }
-
-    private String processMatlabStringAssignment(String str) {
-        return processMatlabAssignment(str).replace("'", "");
-    }
-
-    public MatpowerModel read(InputStream iStream) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(iStream))) {
+    public static MatpowerModel read(InputStream iStream) throws IOException {
+        Objects.requireNonNull(iStream);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(iStream, StandardCharsets.UTF_8))) {
             return read(reader);
         }
     }
 
-    private boolean canSkipLine(String line) {
-        return line.startsWith("%") || (line.trim().length() == 0);
-    }
-
-    public MatpowerModel read(BufferedReader reader) throws IOException {
+    public static MatpowerModel read(BufferedReader reader) throws IOException {
+        Objects.requireNonNull(reader);
         String line = reader.readLine();
 
         String title = processCaseName(line);
@@ -101,12 +82,43 @@ public class MatpowerReader {
         return model;
     }
 
-    private void processBaseMva(String line, MatpowerModel model) {
-        Double baseMva = Double.parseDouble(processMatlabAssignment(line));
+    public static MatpowerModel read(Path file) throws IOException {
+        Objects.requireNonNull(file);
+        return read(Files.newInputStream(file));
+    }
+
+    private static String processCaseName(String str) {
+        String str2 = str.replace(';', ' ');
+        final StringTokenizer st = new StringTokenizer(str2, " ");
+        st.nextToken(); // function
+        st.nextToken(); // mpc
+        st.nextToken(); // =
+        return st.nextToken();
+    }
+
+    private static String processMatlabAssignment(String str) {
+        Objects.requireNonNull(str);
+        String str2 = str.replace(';', ' ');
+        final StringTokenizer st = new StringTokenizer(str2, " ");
+        st.nextToken(); // mpc.XYZ
+        st.nextToken(); // =
+        return st.nextToken();
+    }
+
+    private static String processMatlabStringAssignment(String str) {
+        return processMatlabAssignment(str).replace("'", "");
+    }
+
+    private static boolean canSkipLine(String line) {
+        return line.startsWith("%") || (line.trim().length() == 0);
+    }
+
+    private static void processBaseMva(String line, MatpowerModel model) {
+        double baseMva = Double.parseDouble(processMatlabAssignment(line));
         model.setBaseMva(baseMva);
     }
 
-    private MatpowerSection processEndSection(MatpowerModel model, MatpowerSection section, List<String> lines) {
+    private static MatpowerSection processEndSection(MatpowerModel model, MatpowerSection section, List<String> lines) {
         if (section != null) {
             parseLines(lines, model, section);
             lines.clear();
@@ -115,7 +127,7 @@ public class MatpowerReader {
         return section;
     }
 
-    private void processVersion(String line, MatpowerModel model) {
+    private static void processVersion(String line, MatpowerModel model) {
         String version = processMatlabStringAssignment(line);
         if (!version.equals(MATPOWER_SUPPORTED_VERSION)) {
             throw new IllegalStateException("unsupported MATPOWER version file: " + version);
@@ -123,7 +135,7 @@ public class MatpowerReader {
         model.setVersion(version);
     }
 
-    private void parseLines(List<String> lines, MatpowerModel model, MatpowerSection section) {
+    private static void parseLines(List<String> lines, MatpowerModel model, MatpowerSection section) {
         switch (section) {
             case BUS:
                 model.getBuses().addAll(parseLines(lines, MBus.class));

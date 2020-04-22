@@ -3,7 +3,7 @@
     <iidm:substation id="S20">
         <iidm:voltageLevel id="VL1" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B1" name="B1" v="1.06" angle="0.0"/>
+                <iidm:bus id="B1" v="1.06" angle="0.0"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="G1-0" energySource="OTHER" minP="0.0" maxP="360.2" voltageRegulatorOn="true" targetP="260.2" targetV="1.06" targetQ="-16.1" bus="B1" connectableBus="B1">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="10.0"/>
@@ -13,7 +13,7 @@
     <iidm:substation id="S23">
         <iidm:voltageLevel id="VL2" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B2" name="B2" v="1.043" angle="-5.48"/>
+                <iidm:bus id="B2" v="1.043" angle="-5.48"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="G2-0" energySource="OTHER" minP="0.0" maxP="140.0" voltageRegulatorOn="true" targetP="40.0" targetV="1.045" targetQ="50.0" bus="B2" connectableBus="B2">
                 <iidm:minMaxReactiveLimits minQ="-40.0" maxQ="50.0"/>
@@ -24,7 +24,7 @@
     <iidm:substation id="S22">
         <iidm:voltageLevel id="VL3" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B3" name="B3" v="1.021" angle="-7.96"/>
+                <iidm:bus id="B3" v="1.021" angle="-7.96"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B3-L" loadType="UNDEFINED" p0="2.4" q0="1.2" bus="B3" connectableBus="B3"/>
         </iidm:voltageLevel>
@@ -32,13 +32,13 @@
     <iidm:substation id="S26">
         <iidm:voltageLevel id="VL4" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B4" name="B4" v="1.012" angle="-9.62"/>
+                <iidm:bus id="B4" v="1.012" angle="-9.62"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B4-L" loadType="UNDEFINED" p0="7.6" q0="1.6" bus="B4" connectableBus="B4"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL12" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B12" name="B12" v="1.057" angle="-15.24"/>
+                <iidm:bus id="B12" v="1.057" angle="-15.24"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B12-L" loadType="UNDEFINED" p0="11.2" q0="7.5" bus="B12" connectableBus="B12"/>
         </iidm:voltageLevel>
@@ -47,7 +47,7 @@
     <iidm:substation id="S24">
         <iidm:voltageLevel id="VL5" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B5" name="B5" v="1.01" angle="-14.37"/>
+                <iidm:bus id="B5" v="1.01" angle="-14.37"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="G5-0" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="0.0" targetV="1.01" targetQ="37.0" bus="B5" connectableBus="B5">
                 <iidm:minMaxReactiveLimits minQ="-40.0" maxQ="40.0"/>
@@ -58,17 +58,17 @@
     <iidm:substation id="S2">
         <iidm:voltageLevel id="VL6" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B6" name="B6" v="1.01" angle="-11.34"/>
+                <iidm:bus id="B6" v="1.01" angle="-11.34"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL9" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B9" name="B9" v="1.051" angle="-14.38"/>
+                <iidm:bus id="B9" v="1.051" angle="-14.38"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL10" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B10" name="B10" v="1.045" angle="-15.97"/>
+                <iidm:bus id="B10" v="1.045" angle="-15.97"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B10-L" loadType="UNDEFINED" p0="5.8" q0="2.0" bus="B10" connectableBus="B10"/>
             <iidm:linearShunt id="B10-SH" bPerSection="19.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B10" connectableBus="B10"/>
@@ -79,7 +79,7 @@
     <iidm:substation id="S1">
         <iidm:voltageLevel id="VL7" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B7" name="B7" v="1.002" angle="-13.12"/>
+                <iidm:bus id="B7" v="1.002" angle="-13.12"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B7-L" loadType="UNDEFINED" p0="22.8" q0="10.9" bus="B7" connectableBus="B7"/>
         </iidm:voltageLevel>
@@ -87,7 +87,7 @@
     <iidm:substation id="S3">
         <iidm:voltageLevel id="VL8" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B8" name="B8" v="1.01" angle="-12.1"/>
+                <iidm:bus id="B8" v="1.01" angle="-12.1"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="G8-0" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="0.0" targetV="1.01" targetQ="37.3" bus="B8" connectableBus="B8">
                 <iidm:minMaxReactiveLimits minQ="-10.0" maxQ="40.0"/>
@@ -98,7 +98,7 @@
     <iidm:substation id="S25">
         <iidm:voltageLevel id="VL11" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B11" name="B11" v="1.082" angle="-14.39"/>
+                <iidm:bus id="B11" v="1.082" angle="-14.39"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="G11-0" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="0.0" targetV="1.082" targetQ="16.2" bus="B11" connectableBus="B11">
                 <iidm:minMaxReactiveLimits minQ="-6.0" maxQ="24.0"/>
@@ -108,7 +108,7 @@
     <iidm:substation id="S13">
         <iidm:voltageLevel id="VL13" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B13" name="B13" v="1.071" angle="-15.24"/>
+                <iidm:bus id="B13" v="1.071" angle="-15.24"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="G13-0" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="0.0" targetV="1.071" targetQ="10.6" bus="B13" connectableBus="B13">
                 <iidm:minMaxReactiveLimits minQ="-6.0" maxQ="24.0"/>
@@ -118,7 +118,7 @@
     <iidm:substation id="S14">
         <iidm:voltageLevel id="VL14" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B14" name="B14" v="1.042" angle="-16.13"/>
+                <iidm:bus id="B14" v="1.042" angle="-16.13"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B14-L" loadType="UNDEFINED" p0="6.2" q0="1.6" bus="B14" connectableBus="B14"/>
         </iidm:voltageLevel>
@@ -126,7 +126,7 @@
     <iidm:substation id="S15">
         <iidm:voltageLevel id="VL15" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B15" name="B15" v="1.038" angle="-16.22"/>
+                <iidm:bus id="B15" v="1.038" angle="-16.22"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B15-L" loadType="UNDEFINED" p0="8.2" q0="2.5" bus="B15" connectableBus="B15"/>
         </iidm:voltageLevel>
@@ -134,7 +134,7 @@
     <iidm:substation id="S16">
         <iidm:voltageLevel id="VL16" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B16" name="B16" v="1.045" angle="-15.83"/>
+                <iidm:bus id="B16" v="1.045" angle="-15.83"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B16-L" loadType="UNDEFINED" p0="3.5" q0="1.8" bus="B16" connectableBus="B16"/>
         </iidm:voltageLevel>
@@ -142,7 +142,7 @@
     <iidm:substation id="S17">
         <iidm:voltageLevel id="VL17" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B17" name="B17" v="1.04" angle="-16.14"/>
+                <iidm:bus id="B17" v="1.04" angle="-16.14"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B17-L" loadType="UNDEFINED" p0="9.0" q0="5.8" bus="B17" connectableBus="B17"/>
         </iidm:voltageLevel>
@@ -150,7 +150,7 @@
     <iidm:substation id="S18">
         <iidm:voltageLevel id="VL18" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B18" name="B18" v="1.028" angle="-16.82"/>
+                <iidm:bus id="B18" v="1.028" angle="-16.82"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B18-L" loadType="UNDEFINED" p0="3.2" q0="0.9" bus="B18" connectableBus="B18"/>
         </iidm:voltageLevel>
@@ -158,7 +158,7 @@
     <iidm:substation id="S19">
         <iidm:voltageLevel id="VL19" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B19" name="B19" v="1.026" angle="-17.0"/>
+                <iidm:bus id="B19" v="1.026" angle="-17.0"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B19-L" loadType="UNDEFINED" p0="9.5" q0="3.4" bus="B19" connectableBus="B19"/>
         </iidm:voltageLevel>
@@ -166,7 +166,7 @@
     <iidm:substation id="S9">
         <iidm:voltageLevel id="VL20" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B20" name="B20" v="1.03" angle="-16.8"/>
+                <iidm:bus id="B20" v="1.03" angle="-16.8"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B20-L" loadType="UNDEFINED" p0="2.2" q0="0.7" bus="B20" connectableBus="B20"/>
         </iidm:voltageLevel>
@@ -174,7 +174,7 @@
     <iidm:substation id="S10">
         <iidm:voltageLevel id="VL21" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B21" name="B21" v="1.033" angle="-16.42"/>
+                <iidm:bus id="B21" v="1.033" angle="-16.42"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B21-L" loadType="UNDEFINED" p0="17.5" q0="11.2" bus="B21" connectableBus="B21"/>
         </iidm:voltageLevel>
@@ -182,14 +182,14 @@
     <iidm:substation id="S11">
         <iidm:voltageLevel id="VL22" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B22" name="B22" v="1.033" angle="-16.41"/>
+                <iidm:bus id="B22" v="1.033" angle="-16.41"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S12">
         <iidm:voltageLevel id="VL23" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B23" name="B23" v="1.027" angle="-16.61"/>
+                <iidm:bus id="B23" v="1.027" angle="-16.61"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B23-L" loadType="UNDEFINED" p0="3.2" q0="1.6" bus="B23" connectableBus="B23"/>
         </iidm:voltageLevel>
@@ -197,7 +197,7 @@
     <iidm:substation id="S4">
         <iidm:voltageLevel id="VL24" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B24" name="B24" v="1.021" angle="-16.78"/>
+                <iidm:bus id="B24" v="1.021" angle="-16.78"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B24-L" loadType="UNDEFINED" p0="8.7" q0="6.7" bus="B24" connectableBus="B24"/>
             <iidm:linearShunt id="B24-SH" bPerSection="4.3" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="B24" connectableBus="B24"/>
@@ -206,14 +206,14 @@
     <iidm:substation id="S5">
         <iidm:voltageLevel id="VL25" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B25" name="B25" v="1.017" angle="-16.35"/>
+                <iidm:bus id="B25" v="1.017" angle="-16.35"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S6">
         <iidm:voltageLevel id="VL26" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B26" name="B26" v="1.0" angle="-16.77"/>
+                <iidm:bus id="B26" v="1.0" angle="-16.77"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B26-L" loadType="UNDEFINED" p0="3.5" q0="2.3" bus="B26" connectableBus="B26"/>
         </iidm:voltageLevel>
@@ -221,12 +221,12 @@
     <iidm:substation id="S7">
         <iidm:voltageLevel id="VL27" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B27" name="B27" v="1.023" angle="-15.82"/>
+                <iidm:bus id="B27" v="1.023" angle="-15.82"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL28" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B28" name="B28" v="1.007" angle="-11.97"/>
+                <iidm:bus id="B28" v="1.007" angle="-11.97"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T28-27-1" r="0.0" x="0.00396" g="0.0" b="0.0" ratedU1="0.968" ratedU2="1.0" bus1="B28" connectableBus1="B28" voltageLevelId1="VL28" bus2="B27" connectableBus2="B27" voltageLevelId2="VL27"/>
@@ -234,7 +234,7 @@
     <iidm:substation id="S8">
         <iidm:voltageLevel id="VL29" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B29" name="B29" v="1.003" angle="-17.06"/>
+                <iidm:bus id="B29" v="1.003" angle="-17.06"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B29-L" loadType="UNDEFINED" p0="2.4" q0="0.9" bus="B29" connectableBus="B29"/>
         </iidm:voltageLevel>
@@ -242,7 +242,7 @@
     <iidm:substation id="S21">
         <iidm:voltageLevel id="VL30" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B30" name="B30" v="0.992" angle="-17.94"/>
+                <iidm:bus id="B30" v="0.992" angle="-17.94"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B30-L" loadType="UNDEFINED" p0="10.6" q0="1.9" bus="B30" connectableBus="B30"/>
         </iidm:voltageLevel>

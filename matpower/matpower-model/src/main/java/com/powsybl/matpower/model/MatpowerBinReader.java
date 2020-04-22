@@ -6,6 +6,7 @@
  */
 package com.powsybl.matpower.model;
 
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.hebi.matlab.mat.format.Mat5;
@@ -16,8 +17,9 @@ import us.hebi.matlab.mat.types.Struct;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.powsybl.matpower.model.MatpowerReader.MATPOWER_SUPPORTED_VERSION;
@@ -25,19 +27,28 @@ import static com.powsybl.matpower.model.MatpowerReader.MATPOWER_SUPPORTED_VERSI
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
  */
-public class MatpowerBinReader {
+public final class MatpowerBinReader {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MatpowerBinReader.class);
     public static final String MATPOWER_STRUCT_NAME = "mpc";
+    private static final Logger LOGGER = LoggerFactory.getLogger(MatpowerBinReader.class);
 
-    public MatpowerModel read(InputStream iStream, String caseName) throws IOException {
+    private MatpowerBinReader() {
+    }
+
+    public static MatpowerModel read(Path file, String caseName) throws IOException {
+        return read(Files.newInputStream(file), caseName);
+    }
+
+    public static MatpowerModel read(InputStream iStream, String caseName) throws IOException {
+        Objects.requireNonNull(iStream);
+
         MatpowerModel model = null;
         try (MatFile mat = Mat5.newReader(Sources.wrapInputStream(iStream)).setEntryFilter(entry -> entry.getName().equals(MATPOWER_STRUCT_NAME)).readMat()) {
             if (mat.getNumEntries() == 0) {
                 throw new IllegalStateException("not a MATPOWER stream: a structure named '" + MATPOWER_STRUCT_NAME + "' is expected.");
             }
             Struct mpcStruct = mat.getStruct(MATPOWER_STRUCT_NAME);
-            Set<String> mpcNames = new HashSet<>(Arrays.asList("version", "baseMVA", "bus", "gen", "branch"));
+            Set<String> mpcNames = Sets.newHashSet("version", "baseMVA", "bus", "gen", "branch");
             if (!mpcStruct.getFieldNames().containsAll(mpcNames)) {
                 throw new IllegalStateException("not a MATPOWER stream: expected variables not found: " + mpcNames);
             }
@@ -46,7 +57,7 @@ public class MatpowerBinReader {
                 throw new IllegalStateException("unsupported MATPOWER version file: " + version);
             }
 
-            Double baseMVA = mpcStruct.getMatrix("baseMVA").getDouble(0);
+            double baseMVA = mpcStruct.getMatrix("baseMVA").getDouble(0);
             Matrix buses = mpcStruct.getMatrix("bus");
             Matrix generators = mpcStruct.getMatrix("gen");
             Matrix branches = mpcStruct.getMatrix("branch");

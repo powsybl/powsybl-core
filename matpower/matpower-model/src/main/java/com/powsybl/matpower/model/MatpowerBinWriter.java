@@ -15,21 +15,20 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
  */
-public class MatpowerBinWriter {
+public final class MatpowerBinWriter {
 
-    private final MatpowerModel model;
-
-    public MatpowerBinWriter(MatpowerModel model) {
-        this.model = Objects.requireNonNull(model);
+    private MatpowerBinWriter() {
     }
 
-    private Struct fillMatStruct(Struct struct) {
+    private static Struct fillMatStruct(Struct struct, MatpowerModel model) {
         List<MBus> buses = model.getBuses();
         Matrix busesM = Mat5.newMatrix(buses.size(), 13);
         for (int row = 0; row < buses.size(); row++) {
@@ -100,26 +99,24 @@ public class MatpowerBinWriter {
         return struct;
     }
 
-    public void write(File oFile) throws IOException {
-        try (Struct struct = fillMatStruct(Mat5.newStruct())) {
-            try (MatFile matFile = Mat5.newMatFile().addArray(MatpowerBinReader.MATPOWER_STRUCT_NAME, struct)) {
-                Mat5.writeToFile(matFile, oFile);
-            }
-        }
-    }
-
-    public void write(OutputStream oStream) throws IOException {
+    public static void write(MatpowerModel model, OutputStream oStream) throws IOException {
+        Objects.requireNonNull(model);
+        Objects.requireNonNull(oStream);
         try (WritableByteChannel channel = Channels.newChannel(oStream)) {
-            try (Struct struct = fillMatStruct(Mat5.newStruct())) {
+            try (Struct struct = fillMatStruct(Mat5.newStruct(), model)) {
                 try (MatFile matFile = Mat5.newMatFile().addArray(MatpowerBinReader.MATPOWER_STRUCT_NAME, struct)) {
-                    ByteBuffer bBuffer = getByteBuffer(matFile);
-                    channel.write(bBuffer);
+                    channel.write(getByteBuffer(matFile));
                 }
             }
         }
     }
 
-    private ByteBuffer getByteBuffer(MatFile matFile) throws IOException {
+    public static void write(MatpowerModel model, Path pFile) throws IOException {
+        Objects.requireNonNull(pFile);
+        write(model, Files.newOutputStream(pFile));
+    }
+
+    private static ByteBuffer getByteBuffer(MatFile matFile) throws IOException {
         int bufferSize = Casts.sint32(matFile.getUncompressedSerializedSize());
         ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
         buffer.order(ByteOrder.nativeOrder());
@@ -127,5 +124,4 @@ public class MatpowerBinWriter {
         buffer.flip();
         return buffer;
     }
-
 }

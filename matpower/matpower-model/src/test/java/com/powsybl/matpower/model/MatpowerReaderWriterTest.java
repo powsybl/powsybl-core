@@ -14,10 +14,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.FileSystem;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -47,15 +46,9 @@ public class MatpowerReaderWriterTest {
         MatpowerModel model;
         // read the source file in a model
         try (InputStream iStream = getClass().getResourceAsStream("/" + fileName)) {
-            model = new MatpowerReader().read(iStream);
+            model = MatpowerReader.read(iStream);
         }
         return model;
-    }
-
-    private void createMatCaseFile(MatpowerModel model, Path destMatFile) throws IOException {
-        Objects.requireNonNull(model);
-        Objects.requireNonNull(destMatFile);
-        new MatpowerBinWriter(model).write(Files.newOutputStream(destMatFile));
     }
 
     private void testMatpowerFile(String fileName) throws IOException {
@@ -63,15 +56,10 @@ public class MatpowerReaderWriterTest {
 
         // write the model in a file
         Path file = fileSystem.getPath("/work/" + fileName);
-        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-            new MatpowerWriter(model).write(writer);
-        }
+        MatpowerWriter.write(model, file);
 
         // read the model
-        MatpowerModel model2;
-        try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            model2 = new MatpowerReader().read(reader);
-        }
+        MatpowerModel model2 = MatpowerReader.read(file);
 
         // compare the two models
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(model);
@@ -85,10 +73,10 @@ public class MatpowerReaderWriterTest {
         // write the model in a bin file
         String fileBaseName = FilenameUtils.getBaseName(fileName);
         Path file = fileSystem.getPath("/work/" + fileBaseName + ".mat");
-        createMatCaseFile(model, file);
+        MatpowerBinWriter.write(model, file);
 
         // read the bin model back
-        MatpowerModel model2 = new MatpowerBinReader().read(Files.newInputStream(file), fileBaseName);
+        MatpowerModel model2 = MatpowerBinReader.read(file, fileBaseName);
 
         // compare the two models
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(model);

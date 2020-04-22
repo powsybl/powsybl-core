@@ -16,13 +16,18 @@ import java.util.Objects;
 public class MatpowerModel {
 
     private final String caseName;
-    private Double baseMva;
+    private double baseMva;
+    private String version;
 
-    private List<MBus> buses = new ArrayList<>();
+    private final List<MBus> buses = new ArrayList<>();
 
-    private List<MGen> generators = new ArrayList<>();
+    private final List<MGen> generators = new ArrayList<>();
 
-    private List<MBranch> branches = new ArrayList<>();
+    private final List<MBranch> branches = new ArrayList<>();
+
+    public MatpowerModel(String caseName) {
+        this.caseName = Objects.requireNonNull(caseName);
+    }
 
     public String getVersion() {
         return version;
@@ -32,21 +37,15 @@ public class MatpowerModel {
         this.version = version;
     }
 
-    private String version;
-
-    public MatpowerModel(String caseName) {
-        this.caseName = Objects.requireNonNull(caseName);
-    }
-
     public String getCaseName() {
         return caseName;
     }
 
-    public Double getBaseMva() {
+    public double getBaseMva() {
         return baseMva;
     }
 
-    public void setBaseMva(Double baseMva) {
+    public void setBaseMva(double baseMva) {
         this.baseMva = baseMva;
     }
 

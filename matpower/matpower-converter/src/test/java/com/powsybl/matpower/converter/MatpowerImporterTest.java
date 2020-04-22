@@ -17,12 +17,18 @@ import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.matpower.model.MatpowerBinWriter;
 import com.powsybl.matpower.model.MatpowerModel;
 import com.powsybl.matpower.model.MatpowerReader;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
@@ -33,13 +39,15 @@ import static org.junit.Assert.assertTrue;
  */
 public class MatpowerImporterTest extends AbstractConverterTest {
 
+    private static final LocalDate DEFAULTDATEFORTESTS = LocalDate.of(2020, Month.JANUARY, 1);
+
     @Test
     public void baseTest() {
         Importer importer = new MatpowerImporter();
         assertEquals("MATPOWER", importer.getFormat());
         assertEquals("MATPOWER Format to IIDM converter", importer.getComment());
         assertEquals(1, importer.getParameters().size());
-        assertEquals("ignore-base-voltage", importer.getParameters().get(0).getName());
+        assertEquals("matpower.import.ignore-base-voltage", importer.getParameters().get(0).getName());
     }
 
     @Test
@@ -55,6 +63,10 @@ public class MatpowerImporterTest extends AbstractConverterTest {
     }
 
     private void testNetwork(Network network, String id) throws IOException {
+        //set the case date of the network to be tested to a default value to match the saved networks' date
+        ZonedDateTime caseDateTime = DEFAULTDATEFORTESTS.atStartOfDay(ZoneOffset.UTC.normalized());
+        network.setCaseDate(new DateTime(caseDateTime.toInstant().toEpochMilli(), DateTimeZone.UTC));
+
         Path file = fileSystem.getPath("/work/" + id + ".xiidm");
         NetworkXml.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
@@ -73,14 +85,14 @@ public class MatpowerImporterTest extends AbstractConverterTest {
 
     private void createMatCaseFile(String sourceTextFile, Path destMatFile) throws IOException {
         MatpowerModel model = readModelFromResources(sourceTextFile);
-        new MatpowerBinWriter(model).write(Files.newOutputStream(destMatFile));
+        MatpowerBinWriter.write(model, Files.newOutputStream(destMatFile));
     }
 
     private MatpowerModel readModelFromResources(String fileName) throws IOException {
         Objects.requireNonNull(fileName);
         MatpowerModel model;
         try (InputStream iStream = getClass().getResourceAsStream("/" + fileName)) {
-            model = new MatpowerReader().read(iStream);
+            model = MatpowerReader.read(iStream);
         }
         return model;
     }

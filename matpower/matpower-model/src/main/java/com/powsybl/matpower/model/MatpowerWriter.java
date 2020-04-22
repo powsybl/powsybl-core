@@ -13,18 +13,18 @@ import com.univocity.parsers.tsv.TsvWriterSettings;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
  */
-public class MatpowerWriter {
+public final class MatpowerWriter {
 
-    private final MatpowerModel model;
-
-    public MatpowerWriter(MatpowerModel model) {
-        this.model = Objects.requireNonNull(model);
+    private MatpowerWriter() {
     }
 
     private static <T> void writeRecords(Writer writer, List<T> beans, Class<T> aClass) {
@@ -35,7 +35,18 @@ public class MatpowerWriter {
         new TsvWriter(writer, settings).processRecords(beans);
     }
 
-    public void write(BufferedWriter writer) throws IOException {
+    public static void write(MatpowerModel model, Path file) throws IOException {
+        Objects.requireNonNull(model);
+        Objects.requireNonNull(file);
+        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+            write(model, writer);
+        }
+    }
+
+    public static void write(MatpowerModel model, BufferedWriter writer) throws IOException {
+        Objects.requireNonNull(model);
+        Objects.requireNonNull(writer);
+
         writer.write(String.format("function mpc = %s", model.getCaseName()));
         writer.newLine();
 
