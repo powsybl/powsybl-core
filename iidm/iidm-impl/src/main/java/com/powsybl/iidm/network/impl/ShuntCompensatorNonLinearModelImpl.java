@@ -95,7 +95,7 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
 
     @Override
     public boolean containsSection(int sectionNumber) {
-        return sections.containsKey(sectionNumber);
+        return sections.containsKey(sectionNumber) || sectionNumber == 0;
     }
 
     @Override
