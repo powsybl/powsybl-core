@@ -12,11 +12,11 @@ import java.nio.file.Paths;
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
  */
-public class PathDataStoreTest extends AbstractDataStoreTest {
+public class DirectoryDataStoreTest extends AbstractDataStoreTest {
 
     @Override
     protected DataStore createDataStore() throws IOException {
-        return new PathDataStore(Paths.get(testDir.toUri()));
+        return new DirectoryDataStore(Paths.get(testDir.toUri()));
     }
 
 }

@@ -56,7 +56,7 @@ public class DataFormatTest {
     public void testDataFormat() {
 
         try {
-            DataStore ds = new PathDataStore(Paths.get(testDir1.toUri()));
+            DataStore ds = new DirectoryDataStore(Paths.get(testDir1.toUri()));
             DataFormat df = new DummyDataFormat();
             DataResolver dr = df.getDataResolver();
             Properties props = new Properties();
@@ -79,7 +79,7 @@ public class DataFormatTest {
             Optional<DataEntry> de = pack.getEntries().stream().filter(e -> e.getName().equals(mainFileName)).findFirst();
             assertTrue(de.isPresent());
 
-            DataStore ds2 = new PathDataStore(Paths.get(testDir2.toUri()));
+            DataStore ds2 = new DirectoryDataStore(Paths.get(testDir2.toUri()));
             pack.copyTo(ds2);
 
             Optional<DataPack> dp2 = dr.resolve(ds2, mainFileName, props);

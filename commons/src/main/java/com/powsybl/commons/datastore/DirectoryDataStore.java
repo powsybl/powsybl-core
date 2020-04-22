@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
@@ -19,12 +20,15 @@ import java.util.stream.Stream;
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
  */
-public class PathDataStore implements DataStore {
+public class DirectoryDataStore implements DataStore {
 
     private final Path path;
 
-    public PathDataStore(Path path) {
+    public DirectoryDataStore(Path path) throws NotDirectoryException {
         this.path = Objects.requireNonNull(path);
+        if (!Files.isDirectory(path)) {
+            throw new NotDirectoryException("Not a directory: " + path.toString());
+        }
     }
 
     @Override

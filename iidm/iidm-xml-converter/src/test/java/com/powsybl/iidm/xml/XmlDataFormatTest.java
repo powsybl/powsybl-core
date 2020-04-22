@@ -20,7 +20,7 @@ import com.powsybl.commons.datastore.DataEntry;
 import com.powsybl.commons.datastore.DataPack;
 import com.powsybl.commons.datastore.DataResolver;
 import com.powsybl.commons.datastore.NonUniqueResultException;
-import com.powsybl.commons.datastore.PathDataStore;
+import com.powsybl.commons.datastore.DirectoryDataStore;
 import com.powsybl.iidm.IidmImportExportMode;
 
 /**
@@ -32,7 +32,7 @@ public class XmlDataFormatTest extends AbstractConverterTest {
     @Test
     public void test() throws IOException, NonUniqueResultException {
 
-        PathDataStore ds = new PathDataStore(tmpDir);
+        DirectoryDataStore ds = new DirectoryDataStore(tmpDir);
         XmlDataFormat format = new XmlDataFormat();
         DataResolver resolver = format.getDataResolver();
 
@@ -61,7 +61,7 @@ public class XmlDataFormatTest extends AbstractConverterTest {
     @Test(expected = NonUniqueResultException.class)
     public void testNonUnique() throws IOException, NonUniqueResultException {
 
-        PathDataStore ds = new PathDataStore(tmpDir);
+        DirectoryDataStore ds = new DirectoryDataStore(tmpDir);
         XmlDataFormat format = new XmlDataFormat();
         DataResolver resolver = format.getDataResolver();
 
@@ -83,7 +83,7 @@ public class XmlDataFormatTest extends AbstractConverterTest {
     @Test
     public void testExtensions() throws IOException, NonUniqueResultException {
 
-        PathDataStore ds = new PathDataStore(tmpDir);
+        DirectoryDataStore ds = new DirectoryDataStore(tmpDir);
         XmlDataFormat format = new XmlDataFormat();
         DataResolver resolver = format.getDataResolver();
 
