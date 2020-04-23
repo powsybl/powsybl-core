@@ -179,7 +179,9 @@ public abstract class AbstractCgmesModel implements CgmesModel {
 
     private Map<String, CgmesTerminal> computeTerminals() {
         Map<String, CgmesTerminal> ts = new HashMap<>();
-        conductingEquipmentTerminal = new HashMap<>();
+        if (conductingEquipmentTerminal == null) {
+            conductingEquipmentTerminal = new HashMap<>();
+        }
         terminals().forEach(t -> {
             CgmesTerminal td = new CgmesTerminal(t);
             if (ts.containsKey(td.id())) {
@@ -193,7 +195,9 @@ public abstract class AbstractCgmesModel implements CgmesModel {
 
     private Map<String, CgmesDcTerminal> computeDcTerminals() {
         Map<String, CgmesDcTerminal> ts = new HashMap<>();
-        conductingEquipmentTerminal = new HashMap<>();
+        if (conductingEquipmentTerminal == null) {
+            conductingEquipmentTerminal = new HashMap<>();
+        }
         dcTerminals().forEach(t -> {
             CgmesDcTerminal td = new CgmesDcTerminal(t);
             if (ts.containsKey(td.id())) {
