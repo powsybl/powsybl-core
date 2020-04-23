@@ -16,7 +16,7 @@ public class TwoWindingsTransformerPhaseAngleClockAdderImpl
     extends AbstractExtensionAdder<TwoWindingsTransformer, TwoWindingsTransformerPhaseAngleClock>
     implements TwoWindingsTransformerPhaseAngleClockAdder {
 
-    private int phaseAngleClock;
+    private int phaseAngleClock = -1;
 
     protected TwoWindingsTransformerPhaseAngleClockAdderImpl(TwoWindingsTransformer extendable) {
         super(extendable);

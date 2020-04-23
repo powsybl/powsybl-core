@@ -448,10 +448,10 @@ public class Comparison {
 
         compareRatioTapChanger(expected.getRatioTapChanger(), actual.getRatioTapChanger());
         comparePhaseTapChanger(expected.getPhaseTapChanger(), actual.getPhaseTapChanger());
-        comparePhaseAngleClock(expected.<TwoWindingsTransformerPhaseAngleClock>getExtension(TwoWindingsTransformerPhaseAngleClock.class), actual.<TwoWindingsTransformerPhaseAngleClock>getExtension(TwoWindingsTransformerPhaseAngleClock.class));
+        comparePhaseAngleClock2(expected.getExtension(TwoWindingsTransformerPhaseAngleClock.class), actual.getExtension(TwoWindingsTransformerPhaseAngleClock.class));
     }
 
-    private void comparePhaseAngleClock(TwoWindingsTransformerPhaseAngleClock expected, TwoWindingsTransformerPhaseAngleClock actual) {
+    private void comparePhaseAngleClock2(TwoWindingsTransformerPhaseAngleClock expected, TwoWindingsTransformerPhaseAngleClock actual) {
         if (expected == null && actual == null) {
             return;
         } else if (expected == null && actual != null) {
@@ -470,10 +470,10 @@ public class Comparison {
         compareLeg(expected.getLeg1(), actual.getLeg1(), expected, actual);
         compareLeg(expected.getLeg2(), actual.getLeg2(), expected, actual);
         compareLeg(expected.getLeg3(), actual.getLeg3(), expected, actual);
-        comparePhaseAngleClock(expected.<ThreeWindingsTransformerPhaseAngleClock>getExtension(ThreeWindingsTransformerPhaseAngleClock.class), actual.<ThreeWindingsTransformerPhaseAngleClock>getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
+        comparePhaseAngleClock3(expected.getExtension(ThreeWindingsTransformerPhaseAngleClock.class), actual.getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
     }
 
-    private void comparePhaseAngleClock(ThreeWindingsTransformerPhaseAngleClock expected, ThreeWindingsTransformerPhaseAngleClock actual) {
+    private void comparePhaseAngleClock3(ThreeWindingsTransformerPhaseAngleClock expected, ThreeWindingsTransformerPhaseAngleClock actual) {
         if (expected == null && actual == null) {
             return;
         } else if (expected == null && actual != null) {
