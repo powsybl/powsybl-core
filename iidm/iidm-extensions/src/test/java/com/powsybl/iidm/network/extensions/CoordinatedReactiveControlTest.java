@@ -48,18 +48,4 @@ public class CoordinatedReactiveControlTest {
         exception.expectMessage("Undefined value for qPercent");
         new CoordinatedReactiveControlImpl(generator, Double.NaN);
     }
-
-    @Test
-    public void testUpperBoundError() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("Unexpected value for qPercent: 101.0");
-        new CoordinatedReactiveControlImpl(generator, 101.0);
-    }
-
-    @Test
-    public void testLowerBoundError() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("Unexpected value for qPercent: -1.0");
-        new CoordinatedReactiveControlImpl(generator, -1.0);
-    }
 }
