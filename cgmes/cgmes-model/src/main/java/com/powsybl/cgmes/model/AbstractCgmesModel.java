@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -62,11 +63,18 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public String terminalForEquipment(String conduntingEquipmentId) {
+    public Map<Integer, String> terminalForEquipment(String conduntingEquipmentId) {
         // TODO Not all conducting equipment have a single terminal
         // For the current purposes of this mapping (export State Variables)
         // this is enough
-        return conductingEquipmentTerminal.get(conduntingEquipmentId);
+        return conductingEquipmentTerminals.containsKey(conduntingEquipmentId)
+            ? conductingEquipmentTerminals.get(conduntingEquipmentId)
+            : new HashMap<>();
+    }
+
+    @Override
+    public Set<String> conduntingEquipmentsId() {
+        return conductingEquipmentTerminals.keySet();
     }
 
     @Override
@@ -179,34 +187,55 @@ public abstract class AbstractCgmesModel implements CgmesModel {
 
     private Map<String, CgmesTerminal> computeTerminals() {
         Map<String, CgmesTerminal> ts = new HashMap<>();
-        if (conductingEquipmentTerminal == null) {
-            conductingEquipmentTerminal = new HashMap<>();
-        }
         terminals().forEach(t -> {
             CgmesTerminal td = new CgmesTerminal(t);
             if (ts.containsKey(td.id())) {
                 return;
             }
             ts.put(td.id(), td);
-            conductingEquipmentTerminal.put(t.getId("ConductingEquipment"), t.getId(CgmesNames.TERMINAL));
         });
         return ts;
     }
 
     private Map<String, CgmesDcTerminal> computeDcTerminals() {
         Map<String, CgmesDcTerminal> ts = new HashMap<>();
-        if (conductingEquipmentTerminal == null) {
-            conductingEquipmentTerminal = new HashMap<>();
-        }
         dcTerminals().forEach(t -> {
             CgmesDcTerminal td = new CgmesDcTerminal(t);
             if (ts.containsKey(td.id())) {
                 return;
             }
             ts.put(td.id(), td);
-            conductingEquipmentTerminal.put(t.getId("ConductingEquipment"), t.getId(CgmesNames.DC_TERMINAL));
         });
         return ts;
+    }
+
+    @Override
+    public void completeCopy(CgmesModel cgmes) {
+        setBasename(cgmes.getBasename());
+        buildConductingEquipmentTerminals(cgmes);
+        buildCaches();
+    }
+
+    @Override
+    public void setConductingEquipmentTerminalNumber(String conductingEquipment, String cgmesTerminal,
+        int terminalIndex) {
+        conductingEquipmentTerminals.computeIfAbsent(conductingEquipment, k -> new HashMap<>())
+            .putIfAbsent(terminalIndex, cgmesTerminal);
+    }
+
+    private void buildConductingEquipmentTerminals(CgmesModel cgmes) {
+        cgmes.conduntingEquipmentsId()
+            .forEach(id -> conductingEquipmentTerminals.putIfAbsent(id, cgmes.terminalForEquipment(id)));
+    }
+
+    private void buildCaches() {
+        cachedGroupedTransformerEnds = computeGroupedTransformerEnds();
+        cachedTerminals = computeTerminals();
+        cachedDcTerminals = computeDcTerminals();
+        cachedContainers = computeContainers();
+        cachedBaseVoltages = new HashMap<>();
+        baseVoltages().forEach(bv -> cachedBaseVoltages.put(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage")));
+        cachedNodes = computeNodes();
     }
 
     // TODO(Luma): better caches create an object "Cache" that is final ...
@@ -267,7 +296,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     private Map<String, CgmesContainer> cachedContainers;
     private Map<String, Double> cachedBaseVoltages;
     private Map<String, PropertyBag> cachedNodes;
-    private Map<String, String> conductingEquipmentTerminal;
+    private final Map<String, Map<Integer, String>> conductingEquipmentTerminals = new HashMap<>();
     private Map<String, String> powerTransformerRatioTapChanger;
     private Map<String, String> powerTransformerPhaseTapChanger;
     private Map<String, CgmesDcTerminal> cachedDcTerminals;
