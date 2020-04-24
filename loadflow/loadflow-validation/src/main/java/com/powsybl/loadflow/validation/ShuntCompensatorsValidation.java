@@ -15,11 +15,12 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
@@ -61,10 +62,10 @@ public final class ShuntCompensatorsValidation {
         Objects.requireNonNull(shuntsWriter);
         LOGGER.info("Checking shunt compensators of network {}", network.getId());
         return network.getShuntCompensatorStream()
-                .sorted(Comparator.comparing(ShuntCompensator::getId))
-                .map(shunt -> checkShunts(shunt, config, shuntsWriter))
-                .reduce(Boolean::logicalAnd)
-                .orElse(true);
+                      .sorted(Comparator.comparing(ShuntCompensator::getId))
+                      .map(shunt -> checkShunts(shunt, config, shuntsWriter))
+                      .reduce(Boolean::logicalAnd)
+                      .orElse(true);
     }
 
     public boolean checkShunts(ShuntCompensator shunt, ValidationConfig config, Writer writer) {
@@ -84,15 +85,11 @@ public final class ShuntCompensatorsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(shuntsWriter);
 
-        if (ShuntCompensatorModelType.NON_LINEAR.equals(shunt.getModelType())) {
-            throw new PowsyblException("non linear shunt not supported yet");
-        }
-
         double p = shunt.getTerminal().getP();
         double q = shunt.getTerminal().getQ();
         int currentSectionCount = shunt.getCurrentSectionCount();
         int maximumSectionCount = shunt.getMaximumSectionCount();
-        double bPerSection = shunt.getModel(ShuntCompensatorLinearModel.class).getbPerSection();
+        double bPerSection = shunt.getbPerSection();
         double nominalV = shunt.getTerminal().getVoltageLevel().getNominalV();
         double qMax = bPerSection * maximumSectionCount * nominalV * nominalV;
         Bus bus = shunt.getTerminal().getBusView().getBus();
@@ -105,8 +102,8 @@ public final class ShuntCompensatorsValidation {
     }
 
     public boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
-                               double v, double qMax, double nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
-                               Writer writer) {
+                                      double v, double qMax, double nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
+                                      Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
@@ -119,8 +116,8 @@ public final class ShuntCompensatorsValidation {
     }
 
     public boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
-                               double v, double qMax, double nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
-                               ValidationWriter shuntsWriter) {
+                                      double v, double qMax, double nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
+                                      ValidationWriter shuntsWriter) {
         boolean validated = true;
 
         if (!connected && !Double.isNaN(q) && q != 0) { // if the shunt is disconnected then either “q” is not defined or “q” is 0

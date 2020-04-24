@@ -21,13 +21,9 @@ import com.powsybl.loadflow.validation.io.ValidationWriters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.codehaus.groovy.control.CompilationFailedException;
-import org.codehaus.groovy.control.CompilerConfiguration;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -55,7 +51,6 @@ public class ValidationTool implements Tool {
     private static final String OUTPUT_FORMAT = "output-format";
     private static final String TYPES = "types";
     private static final String COMPARE_RESULTS = "compare-results";
-    private static final String GROOVY_SCRIPT = "groovy-script";
     private static final String RUN_COMPUTATION = "run-computation";
     private static final String COMPARE_CASE_FILE = "compare-case-file";
 
@@ -123,11 +118,6 @@ public class ValidationTool implements Tool {
                     .hasArg()
                     .argName("FILE")
                     .build());
-            options.addOption(Option.builder().longOpt(GROOVY_SCRIPT)
-                    .desc("groovy script to run before validation")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
             options.addOption(createImportParametersFileOption());
             options.addOption(createImportParameterOption());
             return options;
@@ -171,9 +161,6 @@ public class ValidationTool implements Tool {
                                     .collect(Collectors.toSet());
         }
         Network network = loadNetwork(caseFile, line, context);
-        if (line.hasOption(GROOVY_SCRIPT)) {
-            runGroovyScript(Paths.get(line.getOptionValue(GROOVY_SCRIPT)), network, context);
-        }
         try (ValidationWriters validationWriters = new ValidationWriters(network.getId(), validationTypes, outputFolder, config)) {
             if (config.isCompareResults() && ComparisonType.COMPUTATION.equals(comparisonType)) {
                 Preconditions.checkArgument(line.hasOption(LOAD_FLOW) || line.hasOption(RUN_COMPUTATION),
@@ -212,24 +199,6 @@ public class ValidationTool implements Tool {
             throw new PowsyblException("Case " + caseFile + " not found");
         }
         return network;
-    }
-
-    private void runGroovyScript(Path script, Network network, ToolRunningContext context) {
-        if (Files.exists(script)) {
-            context.getOutputStream().println("Running Groovy script " + script + " on network " + network.getId());
-            CompilerConfiguration conf = new CompilerConfiguration();
-            Binding binding = new Binding();
-            binding.setVariable("network", network);
-            binding.setVariable("computationManager", context.getShortTimeExecutionComputationManager());
-            GroovyShell shell = new GroovyShell(binding, conf);
-            try {
-                shell.evaluate(script.toFile());
-            } catch (CompilationFailedException | IOException e) {
-                throw new PowsyblException("Error running Groovy script " + script + " on network " + network.getId() + ": " + e.getMessage());
-            }
-        } else {
-            throw new PowsyblException("Groovy script " + script + " does not exist");
-        }
     }
 
     private void runValidation(Network network, ValidationConfig config, Set<ValidationType> validationTypes, ValidationWriters validationWriter, ToolRunningContext context) {

@@ -470,21 +470,17 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
                 .setId("SC3.1")
                 .setConnectableBus("B3.1")
                 .setBus("B3.1")
+                .setbPerSection(25.0 / Math.pow(vbase, 2))
+                .setMaximumSectionCount(1)
                 .setCurrentSectionCount(1)
-                .newLinearModel()
-                    .setbPerSection(25.0 / Math.pow(vbase, 2))
-                    .setMaximumSectionCount(1)
-                    .add()
                 .add();
         vl.newShuntCompensator()
                 .setId("SC3.4")
                 .setConnectableBus("B3.4")
                 .setBus("B3.4")
+                .setbPerSection(5.00 / Math.pow(vbase, 2))
+                .setMaximumSectionCount(1)
                 .setCurrentSectionCount(1)
-                .newLinearModel()
-                    .setbPerSection(5.00 / Math.pow(vbase, 2))
-                    .setMaximumSectionCount(1)
-                    .add()
                 .add();
         return network;
     }
