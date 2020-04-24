@@ -14,11 +14,11 @@ import com.univocity.parsers.conversions.ObjectConversion;
 public class MBusTypeConversion extends ObjectConversion<MBus.Type> {
     @Override
     protected MBus.Type fromString(String s) {
-        return MBus.Type.values()[Integer.parseInt(s.trim()) - 1];
+        return MBus.Type.fromInt(Integer.parseInt(s.trim()));
     }
 
     @Override
     public String revert(MBus.Type type) {
-        return Integer.toString(type.ordinal() + 1);
+        return Integer.toString(type.getValue());
     }
 }

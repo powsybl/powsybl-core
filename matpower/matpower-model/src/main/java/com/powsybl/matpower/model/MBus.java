@@ -64,12 +64,10 @@ public class MBus {
         }
 
         public static Type fromInt(int iType) {
-            for (Type b : Type.values()) {
-                if (b.getValue() == iType) {
-                    return b;
-                }
+            if (iType < 1 || iType > 4) {
+                throw new IllegalArgumentException("No type with id " + iType + " found");
             }
-            throw new IllegalArgumentException("No type with id " + iType + " found");
+            return values()[iType - 1];
         }
     }
 
