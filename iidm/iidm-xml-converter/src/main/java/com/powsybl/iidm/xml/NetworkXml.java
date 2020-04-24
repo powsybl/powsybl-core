@@ -379,8 +379,6 @@ public final class NetworkXml {
 
             Set<String> extensionNamesNotFound = new TreeSet<>();
 
-            boolean[] modeWarn = new boolean[1];
-
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
                 switch (reader.getLocalName()) {
                     case PropertiesXml.PROPERTY:
@@ -404,7 +402,6 @@ public final class NetworkXml {
                         break;
 
                     case EXTENSION_ELEMENT_NAME:
-                        modeWarn[0] = true;
                         String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
                         Identifiable identifiable = network.getIdentifiable(id2);
                         if (identifiable == null) {
@@ -419,10 +416,6 @@ public final class NetworkXml {
             });
 
             checkExtensionsNotFound(context, extensionNamesNotFound);
-
-            if (modeWarn[0]) {
-                LOGGER.warn("Mode isn't UNIQUE_FILE and some extensions was found in the base file!, some extensions may be overwritten later when reading extensions files");
-            }
 
             context.getEndTasks().forEach(Runnable::run);
             return network;

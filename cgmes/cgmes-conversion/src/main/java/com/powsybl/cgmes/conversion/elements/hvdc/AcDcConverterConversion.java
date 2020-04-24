@@ -45,7 +45,7 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
             return false;
         }
         if (converterType == null) {
-            invalid(String.format("Type %s", p.getLocal("type")));
+            invalid("Type " + p.getLocal("type"));
             return false;
         }
         return true;

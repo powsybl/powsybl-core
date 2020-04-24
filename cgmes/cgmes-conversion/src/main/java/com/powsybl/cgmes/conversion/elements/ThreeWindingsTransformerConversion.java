@@ -49,7 +49,7 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
             String name1 = voltageLevel(1).getSubstation().getNameOrId();
             String name2 = voltageLevel(2).getSubstation().getNameOrId();
             String name3 = voltageLevel(3).getSubstation().getNameOrId();
-            invalid(String.format("different substations at ends %s %s %s", name1, name2, name3));
+            invalid(() -> String.format("different substations at ends %s %s %s", name1, name2, name3));
             return false;
         }
         return true;
