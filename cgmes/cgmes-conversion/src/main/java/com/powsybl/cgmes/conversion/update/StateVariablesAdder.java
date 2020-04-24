@@ -23,6 +23,8 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.DanglingLine;
@@ -143,6 +145,8 @@ public class StateVariablesAdder {
         addInjectionPowerFlowToCgmes(powerFlows, network.getShuntCompensators());
         addInjectionPowerFlowToCgmes(powerFlows, network.getStaticVarCompensators());
         addInjectionPowerFlowToCgmes(powerFlows, network.getBatteries());
+        addBranchPowerFlowToCgmes(powerFlows, network.getLines());
+        addBranchPowerFlowToCgmes(powerFlows, network.getTwoWindingsTransformers());
 
         // PowerFlow at boundaries set as it was in original cgmes.
         for (PropertyBag terminal : originalTerminals) {
@@ -165,7 +169,7 @@ public class StateVariablesAdder {
     private <I extends Injection> void addInjectionPowerFlowToCgmes(PropertyBags powerFlows,
         Iterable<I> injectionStream) {
         injectionStream.forEach(i -> {
-            PropertyBag p = createPowerFlowProperties(i.getTerminal());
+            PropertyBag p = createPowerFlowProperties(i);
             if (p != null) {
                 powerFlows.add(p);
             } else if (i instanceof Load) {
@@ -173,6 +177,49 @@ public class StateVariablesAdder {
                 LOG.error("No SvPowerFlow created for load {}", i.getId());
             }
         });
+    }
+
+    private <B extends Branch> void addBranchPowerFlowToCgmes(PropertyBags powerFlows,
+        Iterable<B> branchStream) {
+        branchStream.forEach(b -> {
+            PropertyBags p = createPowerFlowProperties(b);
+            if (p != null) {
+                powerFlows.addAll(p);
+            } else {
+                LOG.error("No SvPowerFlow created for {} id  {}", b.getClass().getSimpleName(), b.getId());
+            }
+        });
+    }
+
+    private PropertyBag createPowerFlowProperties(Injection i) {
+        // TODO If we could store a terminal identifier in IIDM
+        // we would not need to obtain it querying CGMES for the related equipment
+        Terminal terminal = i.getTerminal();
+        Map<Integer, String> cgmesTerminals = cgmes.terminalForEquipment(i.getId());
+        if (cgmesTerminals == null || cgmesTerminals.isEmpty()) {
+            return null;
+        }
+        PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
+        addPowerFlowForTerminals(p, terminal, cgmesTerminals.get(1));
+        return p;
+    }
+
+    private PropertyBags createPowerFlowProperties(Branch b) {
+        PropertyBags pbs = new PropertyBags();
+        Map<Integer, Terminal> terminals = new HashMap<>();
+        terminals.computeIfAbsent(1, k -> b.getTerminal(Side.ONE));
+        terminals.computeIfAbsent(2, k -> b.getTerminal(Side.TWO));
+
+        Map<Integer, String> cgmesTerminals = cgmes.terminalForEquipment(b.getId());
+        if (cgmesTerminals == null || cgmesTerminals.isEmpty()) {
+            return null;
+        }
+        cgmesTerminals.forEach((index, cgmesTerminal) -> {
+            PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
+            addPowerFlowForTerminals(p, terminals.get(index), cgmesTerminal);
+            pbs.add(p);
+        });
+        return pbs;
     }
 
     private void addShuntCompensatorSectionsToCgmes() {
@@ -260,7 +307,7 @@ public class StateVariablesAdder {
                 continue;
             }
             boundaryNodesFromDanglingLines.values().forEach(value -> {
-                if (terminal.getId(CgmesNames.TOPOLOGICAL_NODE).equals(value)) {
+                if (CgmesTerminal.topologicalNode(terminal).equals(value)) {
                     PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
                     p.put(IN_SERVICE, terminal.getId(IN_SERVICE));
                     p.put(CgmesNames.CONDUCTING_EQUIPMENT, terminal.getId(CgmesNames.CONDUCTING_EQUIPMENT));
@@ -308,20 +355,6 @@ public class StateVariablesAdder {
         } else {
             return CgmesNames.POSITION;
         }
-    }
-
-    private PropertyBag createPowerFlowProperties(Terminal terminal) {
-        // TODO If we could store a terminal identifier in IIDM
-        // we would not need to obtain it querying CGMES for the related equipment
-        String cgmesTerminal = cgmes.terminalForEquipment(terminal.getConnectable().getId());
-        if (cgmesTerminal == null) {
-            return null;
-        }
-        PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
-        p.put("p", fs(terminal.getP()));
-        p.put("q", fs(terminal.getQ()));
-        p.put(CgmesNames.TERMINAL, cgmesTerminal);
-        return p;
     }
 
     // added TopologicalIsland as it was in cgmes : original topology is
@@ -389,6 +422,12 @@ public class StateVariablesAdder {
             fullModelSV.add(newModelDescription);
             cgmes.add(originalSVcontext, CgmesNames.FULL_MODEL, fullModelSV);
         }
+    }
+
+    private static void addPowerFlowForTerminals(PropertyBag pb, Terminal terminal, String cgmesTerminal) {
+        pb.put("p", fs(terminal.getP()));
+        pb.put("q", fs(terminal.getQ()));
+        pb.put(CgmesNames.TERMINAL, cgmesTerminal);
     }
 
     private static String fs(double value) {

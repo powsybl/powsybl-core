@@ -559,7 +559,7 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public String terminalForEquipment(String conductingEquipmentId) {
+    public Map<Integer, String> terminalForEquipment(String conductingEquipmentId) {
         return null;
     }
 
