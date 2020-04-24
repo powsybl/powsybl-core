@@ -257,11 +257,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         return namedQuery("allObjectsOfType", type);
     }
 
-    public PropertyBag typeBySubject(String fullSubject) {
-        Objects.requireNonNull(fullSubject);
-        return namedQuery("typeBySubject", fullSubject).get(0);
-    }
-
     @Override
     public PropertyBags boundaryNodes() {
         return namedQuery("boundaryNodes");

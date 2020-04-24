@@ -14,6 +14,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.cgmes.conversion.CgmesReferences;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.conversion.update.elements16.IidmToCgmes16;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -28,8 +29,9 @@ import com.powsybl.triplestore.api.TripleStore;
  */
 public class CgmesUpdate {
 
-    public CgmesUpdate(Network network) {
+    public CgmesUpdate(Network network, CgmesReferences cgmesReferences) {
         this.changelog = new Changelog(network);
+        this.iidmToCgmes16 = new IidmToCgmes16(cgmesReferences);
     }
 
     public Changelog changelog() {
@@ -52,7 +54,7 @@ public class CgmesUpdate {
         }
         UpdateContext context = new UpdateContext(cgmests);
         for (IidmChange change : changes) {
-            List<TripleStoreChange> tsChanges = convert(change, context, cgmests);
+            List<TripleStoreChange> tsChanges = convert(change, context);
             update(cgmests, tsChanges, context);
         }
     }
@@ -63,15 +65,15 @@ public class CgmesUpdate {
         }
     }
 
-    private List<TripleStoreChange> convert(IidmChange change, UpdateContext context, CgmesModelTripleStore cgmests) {
+    private List<TripleStoreChange> convert(IidmChange change, UpdateContext context) {
         // Right now we only know how to deal with update changes
         requireChangeIsUpdate(change);
-        IidmToCgmes c = findConversion(change, context, cgmests);
+        IidmToCgmes c = findConversion(change, context);
         if (c == null) {
             LOG.error("Unsupported conversion for IIDM change {}", change);
             return Collections.emptyList();
         }
-        return c.convert(change, cgmests);
+        return c.convert(change);
     }
 
     private void requireChangeIsUpdate(IidmChange change) {
@@ -80,9 +82,9 @@ public class CgmesUpdate {
         }
     }
 
-    private IidmToCgmes findConversion(IidmChange change, UpdateContext context, CgmesModelTripleStore cgmests) {
+    private IidmToCgmes findConversion(IidmChange change, UpdateContext context) {
         if (context.cimVersion == 16) {
-            return IIDM_TO_CGMES16.findConversion(change, cgmests);
+            return iidmToCgmes16.findConversion(change);
         }
         throw new ConversionException("Unsupported format for conversion to CGMES model " + context.cimVersion);
     }
@@ -131,8 +133,7 @@ public class CgmesUpdate {
     }
 
     private final Changelog changelog;
-
-    private static final IidmToCgmes16 IIDM_TO_CGMES16 = new IidmToCgmes16();
+    private IidmToCgmes16 iidmToCgmes16;
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesUpdate.class);
 }

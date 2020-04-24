@@ -138,7 +138,8 @@ public class Conversion {
             throw new CgmesModelException("Data source does not contain EquipmentCore data");
         }
         Network network = createNetwork();
-        Context context = createContext(network);
+        CgmesReferences cgmesReferences = new CgmesReferences();
+        Context context = createContext(network, cgmesReferences);
         assignNetworkProperties(context);
 
         Function<PropertyBag, AbstractObjectConversion> convf;
@@ -214,7 +215,7 @@ public class Conversion {
         if (config.storeCgmesModelAsNetworkExtension()) {
             // Store a reference to the original CGMES model inside the IIDM network
             // CgmesUpdate will add a listener to Network changes
-            CgmesUpdate cgmesUpdater = new CgmesUpdate(network);
+            CgmesUpdate cgmesUpdater = new CgmesUpdate(network, context.cgmesReferences());
             network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes, cgmesUpdater));
         }
         if (config.storeCgmesConversionContextAsNetworkExtension()) {
@@ -255,8 +256,8 @@ public class Conversion {
         return network;
     }
 
-    private Context createContext(Network network) {
-        Context context = new Context(cgmes, config, network);
+    private Context createContext(Network network, CgmesReferences cgmesReferences) {
+        Context context = new Context(cgmes, config, network, cgmesReferences);
         context.substationIdMapping().build();
         context.dc().initialize();
         context.loadRatioTapChangers();

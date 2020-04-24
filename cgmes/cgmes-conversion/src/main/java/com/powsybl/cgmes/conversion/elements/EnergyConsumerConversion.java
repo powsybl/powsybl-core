@@ -33,6 +33,7 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         connect(adder);
         Load load = adder.add();
         convertedTerminals(load.getTerminal());
+        context.cgmesReferences().addIdentifiableType(load.getId(), getType());
     }
 
     private double p0() {

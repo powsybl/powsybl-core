@@ -122,6 +122,10 @@ public abstract class AbstractObjectConversion {
         context.missing(complete(what), defaultValue);
     }
 
+    public String getType() {
+        return p.containsKey("type") ? p.getId("type") : type;
+    }
+
     protected final String type;
     protected final PropertyBag p;
     protected final PropertyBags ps;

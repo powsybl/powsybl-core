@@ -37,10 +37,11 @@ public class Context {
     private static final String INVALID_REASON = "Invalid {}. Reason: {}";
     private static final String IGNORED_REASON = "Ignored {}. Reason: {}";
 
-    public Context(CgmesModel cgmes, Config config, Network network) {
+    public Context(CgmesModel cgmes, Config config, Network network, CgmesReferences cgmesReferences) {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
         this.network = Objects.requireNonNull(network);
+        this.cgmesReferences = Objects.requireNonNull(cgmesReferences);
 
         // Even if the CGMES model is node-breaker,
         // we could decide to ignore the connectivity nodes and
@@ -76,6 +77,10 @@ public class Context {
 
     public Config config() {
         return config;
+    }
+
+    public CgmesReferences cgmesReferences() {
+        return cgmesReferences;
     }
 
     public boolean nodeBreaker() {
@@ -293,6 +298,7 @@ public class Context {
     private final CgmesModel cgmes;
     private final Network network;
     private final Config config;
+    private final CgmesReferences cgmesReferences;
     private final boolean nodeBreaker;
     private final NamingStrategy namingStrategy;
     private final SubstationIdMapping substationIdMapping;

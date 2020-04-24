@@ -37,5 +37,13 @@ public class AsynchronousMachineConversion extends AbstractConductingEquipmentCo
         connect(adder);
         Load load = adder.add();
         convertedTerminals(load.getTerminal());
+        context.cgmesReferences().addIdentifiableType(load.getId(), getType());
+    }
+
+    // the 'type' value in sparql "asynchronousMachines" is distinct from rdf type. For this
+    // element we need to override it with the correct value.
+    @Override
+    public String getType() {
+        return type;
     }
 }

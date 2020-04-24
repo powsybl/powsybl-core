@@ -9,10 +9,10 @@ package com.powsybl.cgmes.conversion.update.elements16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.cgmes.conversion.CgmesReferences;
 import com.powsybl.cgmes.conversion.update.IidmChange;
 import com.powsybl.cgmes.conversion.update.IidmToCgmes;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Line;
@@ -26,23 +26,36 @@ import com.powsybl.iidm.network.VoltageLevel;
  */
 public class IidmToCgmes16 {
 
-    public IidmToCgmes findConversion(IidmChange change, CgmesModelTripleStore cgmests) {
+    public IidmToCgmes16(CgmesReferences cgmesReferences) {
+        this.cgmesReferences = cgmesReferences;
+        this.generator = new GeneratorToSynchronousMachine();
+        this.loadEc = new LoadToEnergyConsumer();
+        this.loadEs = new LoadToEnergySource();
+        this.loadAm = new LoadToAsynchronousMachine();
+        this.line = new LineToACLineSegment();
+        this.t2 = new TwoWindingsTransformerToPowerTransformer();
+        this.shunt = new ShuntCompensatorToShuntCompensator();
+        this.vl = new VoltageLevelToVoltageLevel();
+    }
+
+    public IidmToCgmes findConversion(IidmChange change) {
+        String cgmesType;
         Identifiable o = change.getIdentifiable();
-        String type = cgmesType(o, cgmests);
         if (o instanceof Generator) {
             return generator;
         } else if (o instanceof Load) {
-            if (type.equals(CgmesNames.ENERGY_CONSUMER) ||
-                type.equals(CgmesNames.CONFORM_LOAD)) {
+            cgmesType = cgmesReferences.getIdentifiableType(o.getId());
+            if (cgmesType.equals(CgmesNames.ENERGY_CONSUMER) ||
+                cgmesType.equals(CgmesNames.CONFORM_LOAD)) {
                 return loadEc;
             }
-            if (type.equals(CgmesNames.ASYNCHRONOUS_MACHINE)) {
+            if (cgmesType.equals(CgmesNames.ASYNCHRONOUS_MACHINE)) {
                 return loadAm;
             }
-            if (type.equals(CgmesNames.ENERGY_SOURCE)) {
+            if (cgmesType.equals(CgmesNames.ENERGY_SOURCE)) {
                 return loadEs;
             }
-            LOG.warn("Currently not supported conversion for type {}", type);
+            LOG.warn("Currently not supported conversion for type {}", cgmesType);
             return null;
         } else if (o instanceof Line) {
             return line;
@@ -58,19 +71,15 @@ public class IidmToCgmes16 {
         }
     }
 
-    private String cgmesType(Identifiable id, CgmesModelTripleStore cgmes) {
-        String baseUri = cgmes.getBaseUri(cgmes.getBasename());
-        return cgmes.typeBySubject(baseUri.concat(id.getId())).getId("type");
-    }
-
-    private final IidmToCgmes generator = new GeneratorToSynchronousMachine();
-    private final IidmToCgmes loadEc = new LoadToEnergyConsumer();
-    private final IidmToCgmes loadEs = new LoadToEnergySource();
-    private final IidmToCgmes loadAm = new LoadToAsynchronousMachine();
-    private final IidmToCgmes line = new LineToACLineSegment();
-    private final IidmToCgmes t2 = new TwoWindingsTransformerToPowerTransformer();
-    private final IidmToCgmes shunt = new ShuntCompensatorToShuntCompensator();
-    private final IidmToCgmes vl = new VoltageLevelToVoltageLevel();
+    private CgmesReferences cgmesReferences;
+    private final IidmToCgmes generator;
+    private final IidmToCgmes loadEc;
+    private final IidmToCgmes loadEs;
+    private final IidmToCgmes loadAm;
+    private final IidmToCgmes line;
+    private final IidmToCgmes t2;
+    private final IidmToCgmes shunt;
+    private final IidmToCgmes vl;
 
     private static final Logger LOG = LoggerFactory.getLogger(IidmToCgmes16.class);
 }
