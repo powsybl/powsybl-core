@@ -187,13 +187,10 @@ public class UcteImporter implements Importer {
         if (ucteNode.getPowerPlantType() != null) {
             switch (ucteNode.getPowerPlantType()) {
                 case C:
-                    voltageLevel.getNetwork().setProperty(UCTE_POWERPLANT_TYPE_KEY + generatorId, ucteNode.getPowerPlantType().toString());
                     break;
                 case G:
-                    voltageLevel.getNetwork().setProperty(UCTE_POWERPLANT_TYPE_KEY + generatorId, ucteNode.getPowerPlantType().toString());
                     break;
                 case L:
-                    voltageLevel.getNetwork().setProperty(UCTE_POWERPLANT_TYPE_KEY + generatorId, ucteNode.getPowerPlantType().toString());
                     break;
                 case O:
                     energySource = EnergySource.THERMAL;
@@ -231,6 +228,9 @@ public class UcteImporter implements Importer {
                 .setMinQ(-ucteNode.getMinimumPermissibleReactivePowerGeneration())
                 .setMaxQ(-ucteNode.getMaximumPermissibleReactivePowerGeneration())
                 .add();
+        if (ucteNode.getPowerPlantType() != null) {
+            generator.setProperty(UCTE_POWERPLANT_TYPE_KEY + generatorId, ucteNode.getPowerPlantType().toString());
+        }
     }
 
     private static void createDanglingLine(UcteLine ucteLine, boolean connected,
