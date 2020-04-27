@@ -7,11 +7,16 @@
 
 package com.powsybl.cgmes.model.test.cim14;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 
 import org.junit.Test;
 
+import com.powsybl.cgmes.model.CgmesOnDataSource;
 import com.powsybl.cgmes.model.test.CgmesModelTester;
+import com.powsybl.cgmes.model.test.TestGridModelResources;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -21,6 +26,18 @@ public class Cim14SmallCasesTest {
     @Test
     public void small1() throws IOException {
         new CgmesModelTester(Cim14SmallCasesCatalog.small1()).test();
+    }
+
+    @Test
+    public void small1PlusInvalidFileContent() throws IOException {
+        TestGridModelResources t = Cim14SmallCasesCatalog.small1PlusInvalidFileContent();
+        // The data source contains an invalid file
+        CgmesOnDataSource c = new CgmesOnDataSource(t.dataSource());
+        assertTrue(t.dataSource().listNames(".*").contains(INVALID_CONTENT_XML));
+        // And it is correctly ignored as valid CIM content
+        assertFalse(c.names().contains(INVALID_CONTENT_XML));
+        // The test case ignoring the invalid content is handled correctly
+        new CgmesModelTester(t).test();
     }
 
     @Test
@@ -37,4 +54,7 @@ public class Cim14SmallCasesTest {
     public void nordic32() throws IOException {
         new CgmesModelTester(Cim14SmallCasesCatalog.nordic32()).test();
     }
+
+    private static final String INVALID_CONTENT_XML = "invalidContent_EQ.xml";
+
 }
