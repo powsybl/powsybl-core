@@ -42,6 +42,13 @@ public interface TripleStore {
     void write(DataSource ds);
 
     /**
+     * Write the contents of a context in the given data source.
+     * @param ds the output data source
+     * @param contextName the context to write
+     */
+    void write(DataSource ds, String contextName);
+
+    /**
      * Print a summary of the contents of the Triplestore.
      * Typically a list of contexts and its size (number of statements).
      *

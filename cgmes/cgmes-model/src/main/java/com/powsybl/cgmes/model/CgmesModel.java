@@ -166,6 +166,8 @@ public interface CgmesModel {
 
     void write(DataSource ds);
 
+    void write(DataSource ds, CgmesSubset subset);
+
     void read(ReadOnlyDataSource ds);
 
     void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary);
