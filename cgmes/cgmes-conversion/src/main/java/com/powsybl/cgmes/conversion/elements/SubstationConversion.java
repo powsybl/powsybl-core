@@ -25,7 +25,7 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
     @Override
     public boolean valid() {
         // Only create IIDM Substations for CGMES substations that are not mapped to others
-        return !context.substationIdMapping().isMapped(id);
+        return !context.substationIdMapping().subStationIsMapped(id);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
         // already been created
         String geoTag = context.namingStrategy().getGeographicalTag(geo);
 
-        String iidmSubstationId = context.substationIdMapping().iidm(id);
+        String iidmSubstationId = context.substationIdMapping().substationIidm(id);
         Substation substation = context.network().getSubstation(iidmSubstationId);
         assert substation == null;
         context.network().newSubstation()
