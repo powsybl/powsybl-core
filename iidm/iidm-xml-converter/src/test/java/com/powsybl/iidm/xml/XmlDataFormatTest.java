@@ -39,7 +39,7 @@ public class XmlDataFormatTest extends AbstractConverterTest {
         Optional<DataPack> dp = resolver.resolve(ds, "test.xiidm", props);
         assertEquals(false, dp.isPresent());
 
-        try (OutputStream os = ds.newOutputStream("test.xiidm")) {
+        try (OutputStream os = ds.newOutputStream("test.xiidm", false)) {
             dp = resolver.resolve(ds, "test.xiidm", props);
             assertEquals(true, dp.isPresent());
         }
@@ -51,7 +51,7 @@ public class XmlDataFormatTest extends AbstractConverterTest {
         dp = resolver.resolve(ds, "wrong.xiidm", props);
         assertEquals(false, dp.isPresent());
 
-        try (OutputStream os = ds.newOutputStream("test.txt")) {
+        try (OutputStream os = ds.newOutputStream("test.txt", false)) {
             dp = resolver.resolve(ds, "test.txt", props);
             assertEquals(false, dp.isPresent());
         }
@@ -65,12 +65,12 @@ public class XmlDataFormatTest extends AbstractConverterTest {
         XmlDataFormat format = new XmlDataFormat();
         DataResolver resolver = format.getDataResolver();
 
-        try (OutputStream os = ds.newOutputStream("test.xiidm")) {
+        try (OutputStream os = ds.newOutputStream("test.xiidm", false)) {
             Optional<DataPack> dp = resolver.resolve(ds, "test.xiidm", props);
             assertEquals(true, dp.isPresent());
         }
 
-        try (OutputStream os = ds.newOutputStream("multi.xiidm")) {
+        try (OutputStream os = ds.newOutputStream("multi.xiidm", false)) {
             Optional<DataPack> dp = resolver.resolve(ds, null, props);
             assertEquals(true, dp.isPresent());
         }
@@ -87,12 +87,12 @@ public class XmlDataFormatTest extends AbstractConverterTest {
         XmlDataFormat format = new XmlDataFormat();
         DataResolver resolver = format.getDataResolver();
 
-        try (OutputStream os = ds.newOutputStream("test.xiidm")) {
+        try (OutputStream os = ds.newOutputStream("test.xiidm", false)) {
             Optional<DataPack> dp = resolver.resolve(ds, "test.xiidm", props);
             assertEquals(true, dp.isPresent());
         }
 
-        try (OutputStream os = ds.newOutputStream("test-ext.xiidm")) {
+        try (OutputStream os = ds.newOutputStream("test-ext.xiidm", false)) {
             props.setProperty(XmlDataResolver.IMPORT_MODE, IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE.toString());
             Optional<DataPack> dp = resolver.resolve(ds, "test.xiidm", props);
             assertEquals(true, dp.isPresent());
@@ -105,7 +105,7 @@ public class XmlDataFormatTest extends AbstractConverterTest {
 
         }
 
-        try (OutputStream os = ds.newOutputStream("test-loadFoo.xiidm"); OutputStream os2 = ds.newOutputStream("test-loadBar.xiidm")) {
+        try (OutputStream os = ds.newOutputStream("test-loadFoo.xiidm", false); OutputStream os2 = ds.newOutputStream("test-loadBar.xiidm", false)) {
             props.setProperty(XmlDataResolver.IMPORT_MODE, IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE.toString());
             props.setProperty(XmlDataResolver.EXTENSIONS_LIST, "loadFoo,loadBar");
 

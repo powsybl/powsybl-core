@@ -15,6 +15,9 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datastore.DataPack;
+import com.powsybl.commons.datastore.NonUniqueResultException;
+import com.powsybl.commons.datastore.ReadOnlyDataStore;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.import_.ImportOptions;
@@ -194,6 +197,51 @@ public class XMLImporter implements Importer {
             throw new PowsyblException(e);
         }
         return network;
+    }
+
+    @Override
+    public boolean exists(ReadOnlyDataStore dataStore, String fileName) {
+        XmlDataFormat df = new XmlDataFormat();
+        try {
+            Optional<DataPack> dp = df.getDataResolver().resolve(dataStore, fileName, null);
+            return dp.isPresent();
+        } catch (IOException | NonUniqueResultException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public Network importDataStore(ReadOnlyDataStore dataStore, String fileName, NetworkFactory networkFactory, Properties parameters) {
+        Objects.requireNonNull(dataStore);
+        Network network = null;
+
+        ImportOptions options = new ImportOptions()
+                .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
+                .setMode(IidmImportExportMode.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, IMPORT_MODE_PARAMETER, defaultValueConfig)))
+                .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null);
+
+        XmlDataFormat df = new XmlDataFormat();
+        long startTime = System.currentTimeMillis();
+        try {
+            Optional<DataPack> dp = df.getDataResolver().resolve(dataStore, fileName, parameters);
+            if (dp.isPresent()) {
+                network = NetworkXml.read(dp.get(), networkFactory, options);
+                LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);
+            }
+        } catch (IOException | NonUniqueResultException e) {
+            throw new PowsyblException(e);
+        }
+        return network;
+    }
+
+    @Override
+    public Network importDataStore(ReadOnlyDataStore dataStore, Properties parameters) {
+        return importDataStore(dataStore,  null, NetworkFactory.findDefault(), parameters);
+    }
+
+    @Override
+    public Network importDataStore(ReadOnlyDataStore dataStore, String fileName, Properties parameters) {
+        return importDataStore(dataStore, fileName,  NetworkFactory.findDefault(), parameters);
     }
 }
 

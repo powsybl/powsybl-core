@@ -57,7 +57,7 @@ public class DataFormatTest {
 
         try {
             DataStore ds = new DirectoryDataStore(Paths.get(testDir1.toUri()));
-            DataFormat df = new DummyDataFormat();
+            DataFormat df = new DummyDataFormat("TXT");
             DataResolver dr = df.getDataResolver();
             Properties props = new Properties();
             String mainFileName = "dummy.txt";
@@ -65,7 +65,7 @@ public class DataFormatTest {
             Optional<DataPack> dp = dr.resolve(ds, mainFileName, props);
             assertFalse(dp.isPresent());
 
-            ds.newOutputStream(mainFileName);
+            ds.newOutputStream(mainFileName, false);
 
             dp = dr.resolve(ds, mainFileName, props);
             assertTrue(dp.isPresent());

@@ -15,9 +15,15 @@ import java.util.Properties;
  */
 public class DummyDataFormat implements DataFormat {
 
+    private final String format;
+
+    public DummyDataFormat(String format) {
+        this.format = format;
+    }
+
     @Override
     public String getId() {
-        return "DUMMY";
+        return format;
     }
 
     @Override

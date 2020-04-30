@@ -8,6 +8,7 @@ package com.powsybl.iidm.import_;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datastore.ReadOnlyDataStore;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.parameters.Parameter;
@@ -85,4 +86,34 @@ public interface Importer {
     default void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
         throw new UnsupportedOperationException("Copy not implemented");
     }
+
+    /**
+     * Create a model.
+     *
+     * @param dataStore data store
+     * @param networkFactory network factory
+     * @param parameters some properties to configure the import
+     * @return the model
+     */
+    default Network importDataStore(ReadOnlyDataStore dataStore, NetworkFactory networkFactory, Properties parameters) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    default Network importDataStore(ReadOnlyDataStore dataStore, String fileName, NetworkFactory networkFactory,
+            Properties parameters) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    default boolean exists(ReadOnlyDataStore dataStore, String fileName) {
+        return false;
+    }
+
+    default Network importDataStore(ReadOnlyDataStore dataStore, Properties parameters) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    default Network importDataStore(ReadOnlyDataStore dataStore, String fileName, Properties parameters) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
 }

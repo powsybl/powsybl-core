@@ -6,14 +6,18 @@
  */
 package com.powsybl.iidm.import_;
 
-import com.google.auto.service.AutoService;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Optional;
 import java.util.Properties;
+
+import com.google.auto.service.AutoService;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datastore.DataPack;
+import com.powsybl.commons.datastore.NonUniqueResultException;
+import com.powsybl.commons.datastore.ReadOnlyDataStore;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -42,6 +46,22 @@ public class TestImporter implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
+        return EurostagTutorialExample1Factory.create();
+    }
+
+    @Override
+    public boolean exists(ReadOnlyDataStore dataStore, String fileName) {
+        TstDataFormat df = new TstDataFormat(getFormat());
+        try {
+            Optional<DataPack> dp = df.getDataResolver().resolve(dataStore, fileName, null);
+            return dp.isPresent();
+        } catch (IOException | NonUniqueResultException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public Network importDataStore(ReadOnlyDataStore dataStore, String fileName, Properties parameters) {
         return EurostagTutorialExample1Factory.create();
     }
 }

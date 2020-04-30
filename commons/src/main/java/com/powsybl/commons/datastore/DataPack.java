@@ -62,7 +62,7 @@ public class DataPack {
         Objects.requireNonNull(target);
         DataPack copy = new DataPack(target, dataFormatId);
         for (DataEntry e : entries) {
-            try (InputStream in = source.newInputStream(e.getName()); OutputStream out = target.newOutputStream(e.getName())) {
+            try (InputStream in = source.newInputStream(e.getName()); OutputStream out = target.newOutputStream(e.getName(), false)) {
                 ByteStreams.copy(in, out);
             }
             copy.addEntry(e);

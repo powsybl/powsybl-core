@@ -17,6 +17,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.powsybl.commons.datasource.DataSourceUtil;
+
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
  */
@@ -47,8 +49,8 @@ public class DirectoryDataStore implements DataStore {
     }
 
     @Override
-    public OutputStream newOutputStream(String entryName) throws IOException {
-        return Files.newOutputStream(path.resolve(entryName));
+    public OutputStream newOutputStream(String entryName, boolean append) throws IOException {
+        return Files.newOutputStream(path.resolve(entryName), DataSourceUtil.getOpenOptions(append));
     }
 
     @Override

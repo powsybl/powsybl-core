@@ -57,17 +57,22 @@ public abstract class AbstractDataStoreTest {
 
     protected abstract DataStore createDataStore() throws IOException;
 
+    @Test
+    public void test() throws IOException {
+        writeThenReadTest();
+    }
+
     private void writeThenReadTest(String entry) throws IOException {
 
         assertFalse(dataStore.exists(entry));
 
         // write file
-        try (OutputStream os = dataStore.newOutputStream(entry)) {
+        try (OutputStream os = dataStore.newOutputStream(entry, false)) {
             os.write("line1".getBytes(StandardCharsets.UTF_8));
         }
 
         // write another file
-        try (OutputStream os = dataStore.newOutputStream("dummy.txt")) {
+        try (OutputStream os = dataStore.newOutputStream("dummy.txt", false)) {
             os.write("otherline1".getBytes(StandardCharsets.UTF_8));
         }
 

@@ -6,12 +6,71 @@
  */
 package com.powsybl.iidm.xml;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_PREFIX;
+import static com.powsybl.iidm.xml.IidmXmlConstants.INDENT;
+import static com.powsybl.iidm.xml.XMLImporter.SUFFIX_MAPPING;
+
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
+import javax.xml.XMLConstants;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+
+import org.apache.commons.io.FilenameUtils;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datastore.DataEntry;
+import com.powsybl.commons.datastore.DataPack;
+import com.powsybl.commons.datastore.DataStoreUtil;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
@@ -24,34 +83,20 @@ import com.powsybl.iidm.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.export.BusFilter;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportOptions;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
+
 import javanet.staxutils.IndentingXMLStreamWriter;
-import org.apache.commons.io.FilenameUtils;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-
-import javax.xml.XMLConstants;
-import javax.xml.stream.*;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ForkJoinPool;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
-import static com.powsybl.iidm.xml.IidmXmlConstants.*;
-import static com.powsybl.iidm.xml.XMLImporter.SUFFIX_MAPPING;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -919,5 +964,64 @@ public final class NetworkXml {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public static Network read(DataPack dataPack, NetworkFactory networkFactory, ImportOptions options) {
+        Objects.requireNonNull(dataPack);
+        Network network = null;
+        Anonymizer anonymizer = null;
+        Optional<DataEntry> main = dataPack.getMainEntry();
+        if (main.isPresent()) {
+            Optional<DataEntry> mappingFile = dataPack.getEntry(DataStoreUtil.getBasename(main.get().getName()) + SUFFIX_MAPPING + ".csv");
+            if (mappingFile.isPresent()) {
+                anonymizer = new SimpleAnonymizer();
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataPack.getSource().newInputStream(mappingFile.get().getName()), StandardCharsets.UTF_8))) {
+                    anonymizer.read(reader);
+                } catch (IOException e) {
+                    return null;
+                }
+            }
+
+            //Read the base file with the extensions declared in the extensions list
+            try (InputStream isb = dataPack.getSource().newInputStream(main.get().getName())) {
+                network = NetworkXml.read(isb, options, anonymizer, networkFactory);
+            } catch (IOException e) {
+                return null;
+            }
+
+            if (!options.withNoExtension()) {
+                switch (options.getMode()) {
+                    case EXTENSIONS_IN_ONE_SEPARATED_FILE:
+                        // in this case we have to read all extensions from one  file
+                        Optional<DataEntry> ext = dataPack.getEntries().stream().filter(e -> e.getTags().contains(DataPack.EXTENSION_TAG)).findFirst();
+                        if (ext.isPresent()) {
+                            try (InputStream ise = dataPack.getSource().newInputStream(ext.get().getName())) {
+                                readExtensions(network, ise, anonymizer, options);
+                            } catch (IOException e) {
+                                LOGGER.warn(String.format("the extensions file wasn't found while importing, please ensure that the file name respect the naming convention baseFileName-ext.%s", ext.get().getName()));
+                            }
+                        }
+                        break;
+                    case ONE_SEPARATED_FILE_PER_EXTENSION_TYPE:
+                        readExtensions(network, dataPack, anonymizer, options);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        return network;
+    }
+
+    static void readExtensions(Network network, DataPack dataPack, Anonymizer anonymizer, ImportOptions options) {
+        List<DataEntry> extensions = dataPack.getEntries().stream().filter(e -> e.getTags().contains(DataPack.EXTENSION_TAG)).collect(Collectors.toList());
+
+        extensions.forEach(extension -> {
+            try (InputStream ise = dataPack.getSource().newInputStream(extension.getName())) {
+                readExtensions(network, ise, anonymizer, options);
+            } catch (IOException e) {
+                LOGGER.warn(String.format("the %s extension file is not found despite it was declared in the extensions list", extension.getName()));
+            }
+        });
     }
 }

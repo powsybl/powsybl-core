@@ -6,26 +6,20 @@
  */
 package com.powsybl.iidm.import_;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.datasource.*;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.ConversionParameters;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.parameters.Parameter;
-import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,6 +27,29 @@ import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.DataSourceUtil;
+import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datastore.DataStore;
+import com.powsybl.commons.datastore.DirectoryDataStore;
+import com.powsybl.commons.datastore.MemDataStore;
+import com.powsybl.commons.datastore.ReadOnlyDataStore;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.ConversionParameters;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 
 /**
  * A utility class to work with IIDM importers.
@@ -369,6 +386,19 @@ public final class Importers {
         return DataSourceUtil.createDataSource(directory, fileNameOrBaseName, null);
     }
 
+    public static DataStore createDataStore(Path file) throws NotDirectoryException {
+        Objects.requireNonNull(file);
+        if (!Files.isRegularFile(file)) {
+            throw new PowsyblException("File " + file + " does not exist or is not a regular file");
+        }
+        Path absFile = file.toAbsolutePath();
+        return createDataStore(absFile.getParent(), absFile.getFileName().toString());
+    }
+
+    public static DataStore createDataStore(Path directory, String fileName) throws NotDirectoryException {
+        return new DirectoryDataStore(directory);
+    }
+
     public static Importer findImporter(ReadOnlyDataSource dataSource, ImportersLoader loader, ComputationManager computationManager, ImportConfig config) {
         for (Importer importer : Importers.list(loader, computationManager, config)) {
             if (importer.exists(dataSource)) {
@@ -382,12 +412,33 @@ public final class Importers {
         return findImporter(dataSource, LOADER.get(), computationManager, CONFIG.get());
     }
 
+    public static Importer findImporter(ReadOnlyDataStore dataStore, String fileName, ImportersLoader loader, ComputationManager computationManager, ImportConfig config) {
+        for (Importer importer : Importers.list(loader, computationManager, config)) {
+            if (importer.exists(dataStore, fileName)) {
+                return importer;
+            }
+        }
+        return null;
+    }
+
     public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
+        ReadOnlyDataStore dataStore;
+        try {
+            dataStore = createDataStore(file);
+        } catch (NotDirectoryException nde) {
+            throw new PowsyblException("Invalid file.");
+        }
+        String fileName = file.toString();
+        Importer importer = findImporter(dataStore, fileName, loader, computationManager, config);
+        if (importer != null) {
+            return importer.importDataStore(dataStore, fileName, parameters);
+        }
         ReadOnlyDataSource dataSource = createDataSource(file);
-        Importer importer = findImporter(dataSource, loader, computationManager, config);
+        importer = findImporter(dataSource, loader, computationManager, config);
         if (importer != null) {
             return importer.importData(dataSource, parameters);
         }
+
         throw new PowsyblException("Unsupported file format or invalid file.");
     }
 
@@ -404,11 +455,16 @@ public final class Importers {
     }
 
     public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
-        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
-        dataSource.putData(filename, data);
-        Importer importer = findImporter(dataSource, loader, computationManager, config);
+        MemDataStore dataStore = new MemDataStore();
+        try (OutputStream os = dataStore.newOutputStream(filename, false)) {
+            IOUtils.copy(data, os);
+        } catch (IOException e) {
+            throw new PowsyblException("Invalid data.");
+        }
+        Importer importer = findImporter(dataStore, filename, loader, computationManager, config);
+
         if (importer != null) {
-            return importer.importData(dataSource, parameters);
+            return importer.importDataStore(dataStore, filename, parameters);
         }
         throw new PowsyblException("Unsupported file format or invalid file.");
     }
