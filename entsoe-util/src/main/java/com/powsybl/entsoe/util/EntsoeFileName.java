@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  */
 public class EntsoeFileName {
 
-    private static final Pattern DATE_REGEX = Pattern.compile(".*(\\d{4})[- /._]?(\\d{2})[- /._]?(\\d{2})[- /._]?(\\d{2})[- /._]?(\\d{2}).*");
+    private static final Pattern DATE_REGEX = Pattern.compile("(\\d{4})[- /._]?(\\d{2})[- /._]?(\\d{2})[- /._]?(\\d{2})[- /._]?(\\d{2}).*");
 
     private final DateTime date;
 

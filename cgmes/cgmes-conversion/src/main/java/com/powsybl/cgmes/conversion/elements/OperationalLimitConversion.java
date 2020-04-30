@@ -17,6 +17,8 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import java.util.function.Supplier;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -130,10 +132,10 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         } else {
             if (terminalId != null) {
                 context.fixed(PERMANENT_CURRENT_LIMIT,
-                        String.format("Several permanent limits defined for Terminal %s. Only the lowest is kept.", terminalId));
+                    () -> String.format("Several permanent limits defined for Terminal %s. Only the lowest is kept.", terminalId));
             } else {
                 context.fixed(PERMANENT_CURRENT_LIMIT,
-                        String.format("Several permanent limits defined for Equipment %s. Only the lowest is kept.", equipmentId));
+                    () -> String.format("Several permanent limits defined for Equipment %s. Only the lowest is kept.", equipmentId));
             }
             if (adder.getPermanentLimit() > value) {
                 adder.setPermanentLimit(value);
@@ -171,10 +173,10 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         } else {
             if (terminalId != null) {
                 context.fixed(TEMPORARY_CURRENT_LIMIT,
-                        String.format("Several temporary limits defined for same acceptable duration (%d s) for Terminal %s. Only the lowest is kept.", acceptableDuration, terminalId));
+                    () -> String.format("Several temporary limits defined for same acceptable duration (%d s) for Terminal %s. Only the lowest is kept.", acceptableDuration, terminalId));
             } else {
                 context.fixed(TEMPORARY_CURRENT_LIMIT,
-                        String.format("Several temporary limits defined for same acceptable duration (%d s) for Equipment %s. Only the lowest is kept.", acceptableDuration, equipmentId));
+                    () -> String.format("Several temporary limits defined for same acceptable duration (%d s) for Equipment %s. Only the lowest is kept.", acceptableDuration, equipmentId));
             }
             if (adder.getTemporaryLimitValue(acceptableDuration) > value) {
                 adder.beginTemporaryLimit()
@@ -206,9 +208,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 }
             }
         } else if (direction.endsWith("low")) {
-            context.invalid(TEMPORARY_CURRENT_LIMIT, String.format("TATL %s is a low limit", id));
+            context.invalid(TEMPORARY_CURRENT_LIMIT, () -> String.format("TATL %s is a low limit", id));
         } else {
-            context.invalid(TEMPORARY_CURRENT_LIMIT, String.format("TATL %s does not have a valid direction", id));
+            context.invalid(TEMPORARY_CURRENT_LIMIT, () -> String.format("TATL %s does not have a valid direction", id));
         }
     }
 
@@ -220,7 +222,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         String type = p.getLocal(LIMIT_TYPE);
         String typeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
         String subclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
-        String reason = String.format(
+        Supplier<String> reason = () -> String.format(
                 "Not assigned for %s %s. Limit id, type, typeName, subClass, terminal : %s, %s, %s, %s, %s",
                 eq != null ? className(eq) : "",
                 eq != null ? eq.getId() : "",
@@ -229,7 +231,6 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 typeName,
                 subclass,
                 terminalId);
-        context.pending(OPERATIONAL_LIMIT, reason);
         context.pending(OPERATIONAL_LIMIT, reason);
     }
 

@@ -79,8 +79,8 @@ abstract class AbstractCgmesTapChangerBuilder {
         double value = point.asDouble(attr, defaultValue);
         if (Double.isNaN(value)) {
             context.fixed(
-                    "RatioTapChangerTablePoint " + attr + " for step " + step + " in table " + tableId,
-                    "invalid value " + point.get(attr));
+                "RatioTapChangerTablePoint " + attr + " for step " + step + " in table " + tableId,
+                "invalid value " + point.get(attr));
             return defaultValue;
         }
         return value;
