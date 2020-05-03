@@ -78,7 +78,7 @@ public class UcteRegulation implements UcteRecord {
         if (phaseRegulation != null) {
             if (phaseRegulation.getU() <= 0) {
                 report.addPhaseRegulationWithBadTargetVoltage();
-                LOGGER.debug("Phase regulation of transformer '{}' has a bad target voltage {}, set to undefined",
+                LOGGER.warn("Phase regulation of transformer '{}' has a bad target voltage {}, set to undefined",
                         transfoId, phaseRegulation.getU());
                 phaseRegulation.setU(Float.NaN);
             }
@@ -86,7 +86,7 @@ public class UcteRegulation implements UcteRecord {
             if (phaseRegulation.getN() == null || phaseRegulation.getN() == 0
                 || phaseRegulation.getNp() == null || Float.isNaN(phaseRegulation.getDu())) {
                 report.addIncompletePhaseRegulation();
-                LOGGER.debug("Phase regulation of transformer '{}' removed because incomplete", transfoId);
+                LOGGER.warn("Phase regulation of transformer '{}' removed because incomplete", transfoId);
                 phaseRegulation = null;
             }
         }
@@ -96,13 +96,13 @@ public class UcteRegulation implements UcteRecord {
                     || angleRegulation.getNp() == null || Float.isNaN(angleRegulation.getDu())
                     || Float.isNaN(angleRegulation.getTheta())) {
                 report.addIncompleteAngleRegulation();
-                LOGGER.debug("Angle regulation of transformer '{}' removed because incomplete", transfoId);
+                LOGGER.warn("Angle regulation of transformer '{}' removed because incomplete", transfoId);
                 angleRegulation = null;
             } else {
                 // FIXME: type should not be null
                 if (angleRegulation.getType() == null) {
                     report.addAngleRegulationWithNoType();
-                    LOGGER.debug("Type is missing for angle regulation of transformer '{}', default to {}", transfoId, UcteAngleRegulationType.ASYM);
+                    LOGGER.warn("Type is missing for angle regulation of transformer '{}', default to {}", transfoId, UcteAngleRegulationType.ASYM);
                     angleRegulation.setType(UcteAngleRegulationType.ASYM);
                 }
             }
