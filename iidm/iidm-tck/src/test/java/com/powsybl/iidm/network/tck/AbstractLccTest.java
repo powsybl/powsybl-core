@@ -48,10 +48,10 @@ public abstract class AbstractLccTest {
         assertNotNull(cs2);
         assertEquals(1, network.getVoltageLevel("VL1").getLccConverterStationCount());
         assertEquals(1, network.getVoltageLevel("VL2").getLccConverterStationCount());
-        assertEquals(0.011f, cs1.getLossFactor(), 0.0f);
-        assertEquals(0.011f, cs2.getLossFactor(), 0.0f);
-        cs1.setLossFactor(0.022f);
-        assertEquals(0.022f, cs1.getLossFactor(), 0.0f);
+        assertEquals(1.1f, cs1.getLossFactor(), 0.0f);
+        assertEquals(1.1f, cs2.getLossFactor(), 0.0f);
+        cs1.setLossFactor(2.2f);
+        assertEquals(2.2f, cs1.getLossFactor(), 0.0f);
         assertEquals(0.5f, cs1.getPowerFactor(), 0.0f);
         assertEquals(0.6f, cs2.getPowerFactor(), 0.0f);
         cs1.setPowerFactor(0.6f);
@@ -61,6 +61,9 @@ public abstract class AbstractLccTest {
         assertEquals(1e-5, network.getShuntCompensator("C1_Filter1").getCurrentB(), 0.0);
         assertTrue(network.getShuntCompensator("C1_Filter1").getTerminal().isConnected());
         assertEquals(0.0, network.getShuntCompensator(C1_FILTER2).getCurrentB(), 0.0);
+
+        // TODO: delete this line when getMaximumB() is deleted
+        assertEquals(2e-5, network.getShuntCompensator(C1_FILTER2).getMaximumB(), 0.0);
 
         assertFalse(network.getShuntCompensator(C1_FILTER2).getTerminal().isConnected());
         assertEquals(1, network.getHvdcLineCount());

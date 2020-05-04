@@ -70,6 +70,7 @@ public class GroovyDslContingenciesProviderTest {
         assertEquals(1, contingencies.size());
         Contingency contingency = contingencies.get(0);
         assertEquals("c1", contingency.getId());
+        assertEquals(0, contingency.getExtensions().size());
         assertEquals(1, contingency.getElements().size());
         ContingencyElement element = contingency.getElements().iterator().next();
         assertTrue(element instanceof BranchContingency);
@@ -178,5 +179,22 @@ public class GroovyDslContingenciesProviderTest {
         contingencies = new GroovyDslContingenciesProvider(dslFile)
                 .getContingencies(network);
         assertTrue(contingencies.isEmpty());
+    }
+
+    @Test
+    public void testExtension() throws IOException {
+        writeToDslFile(
+                "contingency('test') {",
+                "    equipments 'NHV1_NHV2_1'",
+                "    probability {",
+                "        base 0.1",
+                "        tsName 'myTs'",
+                "    }",
+                "}");
+        List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
+                .getContingencies(network);
+        assertEquals(1, contingencies.size());
+        assertEquals(1, contingencies.get(0).getExtensions().size());
+        assertEquals("myTs", contingencies.get(0).getExtension(ProbabilityContingencyExtension.class).getProbabilityTimeSeriesRef());
     }
 }

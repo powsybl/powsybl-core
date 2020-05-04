@@ -20,7 +20,7 @@
     </parent>
 
     <artifactId>powsybl-core</artifactId>
-    <version>3.3.0-SNAPSHOT</version>
+    <version>3.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>powsybl</name>
@@ -117,7 +117,7 @@
         <rdf4j.version>2.4.4</rdf4j.version>
         <sirocco.version>1.0</sirocco.version>
         <slf4j.version>1.7.22</slf4j.version>
-        <snakeyaml.version>1.21</snakeyaml.version>
+        <snakeyaml.version>1.26</snakeyaml.version>
         <staxutils.version>20070216</staxutils.version>
         <supercsv.version>2.4.0</supercsv.version>
         <threeten.version>1.0</threeten.version>
@@ -126,7 +126,7 @@
         <univocity-parsers.version>2.8.3</univocity-parsers.version>
         <xmlunit.version>2.3.0</xmlunit.version>
 
-        <powsyblmathnative.version>1.0.1</powsyblmathnative.version>
+        <powsyblmathnative.version>1.0.2</powsyblmathnative.version>
     </properties>
 
     <profiles>

@@ -18,6 +18,8 @@ import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import java.util.function.Supplier;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -33,7 +35,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
             return false;
         }
         if (busId(1).equals(busId(2))) {
-            ignored(String.format("end buses are the same bus %s", busId(1)));
+            ignored("end buses are the same bus " + busId(1));
             return false;
         }
         if ((isBoundary(1) || isBoundary(2)) && LOG.isWarnEnabled()) {
@@ -107,7 +109,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
     }
 
     private void warnLowImpedanceLineCreated() {
-        String reason = String.format(
+        Supplier<String> reason = () -> String.format(
                 "Connected to a terminal not in the same voltage level %s (side 1: %s, side 2: %s)",
                 switchVoltageLevelId(),
                 cgmesVoltageLevelId(1),

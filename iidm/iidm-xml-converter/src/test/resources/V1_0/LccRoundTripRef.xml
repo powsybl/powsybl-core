@@ -7,7 +7,7 @@
             </iidm:busBreakerTopology>
             <iidm:shunt id="C1_Filter1" name="Filter 1" bPerSection="1.0E-5" maximumSectionCount="1" currentSectionCount="1" bus="B1" connectableBus="B1" q="25.0"/>
             <iidm:shunt id="C1_Filter2" name="Filter 2" bPerSection="2.0E-5" maximumSectionCount="1" currentSectionCount="0" connectableBus="B1" q="25.0"/>
-            <iidm:lccConverterStation id="C1" name="Converter1" lossFactor="0.011" powerFactor="0.5" bus="B1" connectableBus="B1" p="100.0" q="50.0"/>
+            <iidm:lccConverterStation id="C1" name="Converter1" lossFactor="1.1" powerFactor="0.5" bus="B1" connectableBus="B1" p="100.0" q="50.0"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S2" country="FR">
@@ -23,7 +23,7 @@
             </iidm:nodeBreakerTopology>
             <iidm:shunt id="C2_Filter1" name="Filter 3"  bPerSection="3.0E-5" maximumSectionCount="1" currentSectionCount="1" node="4" q="12.5"/>
             <iidm:shunt id="C2_Filter2" name="Filter 4" bPerSection="4.0E-5" maximumSectionCount="1" currentSectionCount="1" node="6" q="12.5"/>
-            <iidm:lccConverterStation id="C2" name="Converter2" lossFactor="0.011" powerFactor="0.6" node="2" p="75.0" q="25.0"/>
+            <iidm:lccConverterStation id="C2" name="Converter2" lossFactor="1.1" powerFactor="0.6" node="2" p="75.0" q="25.0"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:hvdcLine id="L" name="HVDC" r="1.0" nominalV="400.0" convertersMode="SIDE_1_INVERTER_SIDE_2_RECTIFIER" activePowerSetpoint="280.0" maxP="300.0" converterStation1="C1" converterStation2="C2"/>

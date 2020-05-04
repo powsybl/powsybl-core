@@ -1,0 +1,17 @@
+{
+  "version": "1.0",
+  "load-flow-parameters": {
+    "version": "1.0",
+    "voltageInitMode": "UNIFORM_VALUES",
+    "transformerVoltageControlOn": false,
+    "phaseShifterRegulationOn": false,
+    "noGeneratorReactiveLimits": false,
+    "specificCompatibility": false
+  },
+  "extensions": {
+    "dummy-extension": {
+      "parameterBoolean": false,
+      "parameterString": "Hello"
+    }
+  }
+}
