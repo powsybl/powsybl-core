@@ -242,8 +242,8 @@ public class UcteNetworkExt implements UcteNetwork {
     }
 
     @Override
-    public void fix() {
-        network.fix();
+    public void fix(boolean verbose) {
+        network.fix(verbose);
     }
 
 }

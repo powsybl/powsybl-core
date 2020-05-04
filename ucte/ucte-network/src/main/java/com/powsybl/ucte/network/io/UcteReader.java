@@ -7,24 +7,8 @@
  */
 package com.powsybl.ucte.network.io;
 
-import com.powsybl.ucte.network.UcteAngleRegulation;
-import com.powsybl.ucte.network.UcteAngleRegulationType;
-import com.powsybl.ucte.network.UcteLine;
-import com.powsybl.ucte.network.UcteNodeCode;
-import com.powsybl.ucte.network.UcteTransformer;
-import com.powsybl.ucte.network.UcteNodeStatus;
-import com.powsybl.ucte.network.UcteNodeTypeCode;
-import com.powsybl.ucte.network.UcteCountryCode;
-import com.powsybl.ucte.network.UcteNode;
-import com.powsybl.ucte.network.UctePowerPlantType;
-import com.powsybl.ucte.network.UcteFormatVersion;
-import com.powsybl.ucte.network.UcteElementId;
-import com.powsybl.ucte.network.UcteElementStatus;
-import com.powsybl.ucte.network.UcteNetwork;
-import com.powsybl.ucte.network.UcteNetworkImpl;
-import com.powsybl.ucte.network.UctePhaseRegulation;
-import com.powsybl.ucte.network.UcteRegulation;
-import com.powsybl.ucte.network.UcteVoltageLevelCode;
+import com.powsybl.ucte.network.*;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import org.slf4j.Logger;
@@ -281,13 +265,13 @@ public class UcteReader {
         } while (parser.nextLine());
     }
 
-    public UcteNetwork read(BufferedReader reader) throws IOException {
+    public UcteNetwork read(BufferedReader reader, boolean verbose) throws IOException {
         long start = System.currentTimeMillis();
         UcteNetwork network = new UcteNetworkImpl();
         UcteRecordParser parser = new UcteRecordParser(reader);
         parseRecords(parser, network);
         LOGGER.debug("UCTE file read in {} ms", System.currentTimeMillis() - start);
-        network.fix();
+        network.fix(verbose);
         return network;
     }
 

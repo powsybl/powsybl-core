@@ -14,11 +14,16 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.entsoe.util.*;
+import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
+import com.powsybl.iidm.parameters.ParameterType;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.ext.UcteNetworkExt;
 import com.powsybl.ucte.network.ext.UcteSubstation;
@@ -44,6 +49,21 @@ public class UcteImporter implements Importer {
     private static final float LINE_MIN_Z = 0.05f;
 
     private static final String[] EXTENSIONS = {"uct", "UCT"};
+
+    public static final String VERBOSE_PROPERTY_NAME = "ucte.import.verbose";
+
+    private static final Parameter VERBOSE_PARAMETER
+            = new Parameter(VERBOSE_PROPERTY_NAME, ParameterType.BOOLEAN, "Enable verbose inconsistencies report", false);
+
+    private final ParameterDefaultValueConfig defaultValueConfig;
+
+    public UcteImporter() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    public UcteImporter(PlatformConfig platformConfig) {
+        defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
+    }
 
     private static float getConductance(UcteTransformer ucteTransfo) {
         float g = 0;
@@ -896,10 +916,11 @@ public class UcteImporter implements Importer {
         try {
             String ext = findExtension(dataSource, true);
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
+                boolean verbose = ConversionParameters.readBooleanParameter(getFormat(), parameters, VERBOSE_PARAMETER, defaultValueConfig);
 
                 Stopwatch stopwatch = Stopwatch.createStarted();
 
-                UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader), LINE_MIN_Z);
+                UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader, verbose), LINE_MIN_Z);
                 String fileName = dataSource.getBaseName();
 
                 EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);

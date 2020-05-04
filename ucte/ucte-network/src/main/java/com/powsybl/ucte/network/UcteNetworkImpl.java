@@ -111,8 +111,8 @@ public class UcteNetworkImpl implements UcteNetwork {
     }
 
     @Override
-    public void fix() {
-        UcteReport report = new UcteReport();
+    public void fix(boolean verbose) {
+        UcteReport report = new UcteReport(verbose);
 
         for (UcteNode node : nodes.values()) {
             node.fix(report);

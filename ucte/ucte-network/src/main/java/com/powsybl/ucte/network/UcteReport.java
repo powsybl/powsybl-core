@@ -16,6 +16,8 @@ public class UcteReport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteReport.class);
 
+    private final boolean verbose;
+
     private int nodeWithUndefinedActivePowerCount = 0;
 
     private int nodeWithUndefinedMinimumActivePowerCount = 0;
@@ -64,100 +66,191 @@ public class UcteReport {
 
     private int angleRegulationWithNoTypeCount = 0;
 
-    public void addNodeWithUndefinedActivePower() {
-        nodeWithUndefinedActivePowerCount++;
+    public UcteReport() {
+        this(false);
     }
 
-    public void addNodeWithUndefinedMinimumActivePower() {
-        nodeWithUndefinedMinimumActivePowerCount++;
+    public UcteReport(boolean verbose) {
+        this.verbose = verbose;
     }
 
-    public void addNodeWithUndefinedMaximumActivePower() {
-        nodeWithUndefinedMaximumActivePowerCount++;
-    }
-
-    public void addNodeWithInvertedActivePowerLimits() {
-        nodeWithInvertedActivePowerLimitsCount++;
-    }
-
-    public void addNodeWithActivePowerUnderMaximumPermissibleValue() {
-        nodeWithActivePowerUnderMaximumPermissibleValueCount++;
-    }
-
-    public void addNodeWithActivePowerAboveMinimumPermissibleValue() {
-        nodeWithActivePowerAboveMinimumPermissibleValueCount++;
-    }
-
-    public void addNodeWithFlatActiveLimits() {
-        nodeWithFlatActiveLimitsCount++;
-    }
-
-    public void addNodeRegulatingVoltageWithNullSetpoint() {
-        nodeRegulatingVoltageWithNullSetpointCount++;
-    }
-
-    public void addNodeNotRegulatingVoltageWithUndefinedReactivePowerCount() {
-        nodeNotRegulatingVoltageWithUndefinedReactivePowerCount++;
-    }
-
-    public void addNodeWithUndefinedMinimumReactivePower() {
-        nodeWithUndefinedMinimumReactivePowerCount++;
-    }
-
-    public void addNodeWithUndefinedMaximumReactivePower() {
-        nodeWithUndefinedMaximumReactivePowerCount++;
-    }
-
-    public void addNodeWithInvertedReactivePowerLimits() {
-        nodeWithInvertedReactivePowerLimitsCount++;
-    }
-
-    public void addNodeWithReactivePowerUnderMaximumPermissibleValue() {
-        nodeWithReactivePowerUnderMaximumPermissibleValueCount++;
-    }
-
-    public void addNodeWithReactivePowerAboveMinimumPermissibleValue() {
-        nodeWithReactivePowerAboveMinimumPermissibleValueCount++;
-    }
-
-    public void addNodeWithTooHighMinimumReactivePower() {
-        nodeWithTooHighMinimumReactivePowerCount++;
-    }
-
-    public void addNodeWithTooHighMaximumReactivePower() {
-        nodeWithTooHighMaximumReactivePowerCount++;
-    }
-
-    public void addNodeWithFlatReactiveLimits() {
-        nodeWithFlatReactiveLimitsCount++;
-    }
-
-    public void addElementWithSmallReactance() {
-        elementWithSmallReactanceCount++;
-    }
-
-    public void addElementWithMissingCurrentLimit() {
-        elementWithMissingCurrentLimitCount++;
-    }
-
-    public void addElementWithInvalidCurrentLimit() {
+    public void onElementWithInvalidCurrentLimit(UcteElementId id, int currentLimit) {
         elementWithInvalidCurrentLimitCount++;
+        if (verbose) {
+            LOGGER.debug("Invalid current limit {} for element '{}'", currentLimit, id);
+        }
     }
 
-    public void addPhaseRegulationWithBadTargetVoltage() {
+    public void onElementWithMissingCurrentLimit(UcteElementId id) {
+        elementWithMissingCurrentLimitCount++;
+        if (verbose) {
+            LOGGER.warn("Missing current limit for element '{}'", id);
+        }
+    }
+
+    public void onElementWithSmallReactance(UcteElementId id, float oldReactance, float newReactance) {
+        elementWithSmallReactanceCount++;
+        if (verbose) {
+            LOGGER.warn("Small reactance {} of element '{}' fixed to {}", oldReactance, id, newReactance);
+        }
+    }
+
+    public void onNodeWithUndefinedActivePowerGeneration(UcteNodeCode id, float newActivePowerGeneration) {
+        nodeWithUndefinedActivePowerCount++;
+        if (verbose) {
+            LOGGER.warn("Node {}: active power is undefined, set value to {}", id, newActivePowerGeneration);
+        }
+    }
+
+    public void onNodeWithUndefinedMinimumActivePower(UcteNodeCode id, float newMinimumPermissibleActivePowerGeneration) {
+        nodeWithUndefinedMinimumActivePowerCount++;
+        if (verbose) {
+            LOGGER.warn("Node {}: minimum active power is undefined, set value to {}", id, newMinimumPermissibleActivePowerGeneration);
+        }
+    }
+
+    public void onNodeWithUndefinedMaximumActivePower(UcteNodeCode id, float newMaximumPermissibleActivePowerGeneration) {
+        nodeWithUndefinedMaximumActivePowerCount++;
+        if (verbose) {
+            LOGGER.warn("Node {}: maximum active power is undefined, set value to {}", id, newMaximumPermissibleActivePowerGeneration);
+        }
+    }
+
+    public void onNodeWithInvertedActivePowerLimits(UcteNodeCode id, float minimumPermissibleActivePowerGeneration, float maximumPermissibleActivePowerGeneration) {
+        nodeWithInvertedActivePowerLimitsCount++;
+        if (verbose) {
+            LOGGER.warn("Node {}: active power limits are inverted ({}, {}), swap values",
+                    id, minimumPermissibleActivePowerGeneration, maximumPermissibleActivePowerGeneration);
+        }
+    }
+
+    public void onNodeWithActivePowerUnderMaximumPermissibleValue(UcteNodeCode id, float activePowerGeneration, float oldMaximumPermissibleActivePowerGeneration, float newMaximumPermissibleActivePowerGeneration) {
+        nodeWithActivePowerUnderMaximumPermissibleValueCount++;
+        if (verbose) {
+            LOGGER.warn("Node {}: active power {} under maximum permissible value {}, set maximum permissible value to {}",
+                    id, activePowerGeneration, oldMaximumPermissibleActivePowerGeneration, newMaximumPermissibleActivePowerGeneration);
+        }
+    }
+
+    public void onNodeWithActivePowerAboveMinimumPermissibleValue(UcteNodeCode id, float activePowerGeneration, float oldMinimumPermissibleActivePowerGeneration, float newMinimumPermissibleActivePowerGeneration) {
+        nodeWithActivePowerAboveMinimumPermissibleValueCount++;
+        if (verbose) {
+            LOGGER.warn("Node {}: active power {} above minimum permissible value {}, set minimum permissible value to {}",
+                    id, activePowerGeneration, oldMinimumPermissibleActivePowerGeneration, newMinimumPermissibleActivePowerGeneration);
+        }
+    }
+
+    public void onNodeWithFlatActiveLimits(UcteNodeCode id, float oldMinimumPermissibleActivePowerGeneration, float oldMaximumPermissibleActivePowerGeneration, float newMinimumPermissibleActivePowerGeneration, float newMaximumPermissibleActivePowerGeneration) {
+        nodeWithFlatActiveLimitsCount++;
+        if (verbose) {
+            LOGGER.warn("Node {}: flat active limits [{}, {}], set values to [{}, {}]",
+                    id, oldMinimumPermissibleActivePowerGeneration, oldMaximumPermissibleActivePowerGeneration,
+                    newMinimumPermissibleActivePowerGeneration, newMaximumPermissibleActivePowerGeneration);
+        }
+    }
+
+    public void onNodeRegulatingVoltageWithNullSetpoint(UcteNodeCode id, float voltageReference, UcteNodeTypeCode oldTypeCode, UcteNodeTypeCode newTypeCode) {
+        nodeRegulatingVoltageWithNullSetpointCount++;
+        if (verbose) {
+            LOGGER.warn("Node {}: voltage is regulated, but voltage setpoint is null ({}), switch type code from {} to {}",
+                    id, voltageReference, oldTypeCode, newTypeCode);
+        }
+    }
+
+    public void onNodeNotRegulatingVoltageWithUndefinedReactivePowerCount(UcteNodeCode id, float newReactivePowerGeneration) {
+        nodeNotRegulatingVoltageWithUndefinedReactivePowerCount++;
+        if (verbose) {
+            LOGGER.warn("Node {}: voltage is not regulated but reactive power is undefined, set value to {}", id, newReactivePowerGeneration);
+        }
+    }
+
+    public void onNodeWithUndefinedMinimumReactivePower(UcteNodeCode id, float newMinimumPermissibleReactivePowerGeneration) {
+        nodeWithUndefinedMinimumReactivePowerCount++;
+        if (verbose) {
+            LOGGER.warn("Node {}: minimum reactive power is undefined, set value to {}", id, newMinimumPermissibleReactivePowerGeneration);
+        }
+    }
+
+    public void onNodeWithUndefinedMaximumReactivePower(UcteNodeCode id, float newMaximumPermissibleReactivePowerGeneration) {
+        nodeWithUndefinedMaximumReactivePowerCount++;
+        if (verbose) {
+            LOGGER.warn("Node {}: maximum reactive power is undefined, set value to {}", id, newMaximumPermissibleReactivePowerGeneration);
+        }
+    }
+
+    public void onNodeWithInvertedReactivePowerLimits(UcteNodeCode id, float minimumPermissibleReactivePowerGeneration, float maximumPermissibleReactivePowerGeneration) {
+        nodeWithInvertedReactivePowerLimitsCount++;
+        if (verbose) {
+            LOGGER.warn("Node {}: reactive power limits are inverted ({}, {}), swap values",
+                    id, minimumPermissibleReactivePowerGeneration, maximumPermissibleReactivePowerGeneration);
+        }
+    }
+
+    public void onNodeWithReactivePowerUnderMaximumPermissibleValue(UcteNodeCode id, float reactivePowerGeneration, float oldMaximumPermissibleReactivePowerGeneration, float newMaximumPermissibleReactivePowerGeneration) {
+        nodeWithReactivePowerUnderMaximumPermissibleValueCount++;
+        if (verbose) {
+            LOGGER.warn("Node {}: reactive power {} under maximum permissible value {}, set maximum permissible value to {}",
+                    id, reactivePowerGeneration, oldMaximumPermissibleReactivePowerGeneration, newMaximumPermissibleReactivePowerGeneration);
+        }
+    }
+
+    public void onNodeWithReactivePowerAboveMinimumPermissibleValue(UcteNodeCode id, float reactivePowerGeneration, float oldMinimumPermissibleReactivePowerGeneration, float newMinimumPermissibleReactivePowerGeneration) {
+        nodeWithReactivePowerAboveMinimumPermissibleValueCount++;
+        if (verbose) {
+            LOGGER.warn("Node {}: reactive power {} above minimum permissible value {}, set minimum permissible value to {}",
+                    id, reactivePowerGeneration, oldMinimumPermissibleReactivePowerGeneration, newMinimumPermissibleReactivePowerGeneration);
+        }
+    }
+
+    public void onNodeWithTooHighMinimumReactivePower(UcteNodeCode id, float oldMinimumPermissibleReactivePowerGeneration, float newMinimumPermissibleReactivePowerGeneration) {
+        nodeWithTooHighMinimumReactivePowerCount++;
+        if (verbose) {
+            LOGGER.warn("Node {}: minimum reactive power is too high {}, set value to {}", id, oldMinimumPermissibleReactivePowerGeneration, newMinimumPermissibleReactivePowerGeneration);
+        }
+    }
+
+    public void onNodeWithTooHighMaximumReactivePower(UcteNodeCode id, float oldMaximumPermissibleReactivePowerGeneration, float newMaximumPermissibleReactivePowerGeneration) {
+        nodeWithTooHighMaximumReactivePowerCount++;
+        if (verbose) {
+            LOGGER.warn("Node {}: maximum reactive power is too high {}, set value to {}", id, oldMaximumPermissibleReactivePowerGeneration, newMaximumPermissibleReactivePowerGeneration);
+        }
+    }
+
+    public void onNodeWithFlatReactiveLimits(UcteNodeCode id, float oldMinimumPermissibleReactivePowerGeneration, float oldMaximumPermissibleReactivePowerGeneration, float newMinimumPermissibleReactivePowerGeneration, float newMaximumPermissibleReactivePowerGeneration) {
+        nodeWithFlatReactiveLimitsCount++;
+        if (verbose) {
+            LOGGER.warn("Node {}: flat reactive limits [{}, {}), set values to [{}, {}]",
+                    id, oldMinimumPermissibleReactivePowerGeneration, oldMaximumPermissibleReactivePowerGeneration,
+                    newMinimumPermissibleReactivePowerGeneration, newMaximumPermissibleReactivePowerGeneration);
+        }
+    }
+
+    public void onPhaseRegulationWithBadVoltageSetpoint(UcteElementId id, float oldVoltageSetpoint, float newVoltageSetpoint) {
         phaseRegulationWithBadTargetVoltageCount++;
+        if (verbose) {
+            LOGGER.warn("Phase regulation of transformer '{}' has a bad target voltage {}, set to undefined", id, oldVoltageSetpoint);
+        }
     }
 
-    public void addIncompletePhaseRegulation() {
+    public void onIncompletePhaseRegulation(UcteElementId id) {
         incompletePhaseRegulationCount++;
+        if (verbose) {
+            LOGGER.warn("Phase regulation of transformer '{}' removed because incomplete", id);
+        }
     }
 
-    public void addIncompleteAngleRegulation() {
+    public void onIncompleteAngleRegulation(UcteElementId id) {
         incompleteAngleRegulationCount++;
+        if (verbose) {
+            LOGGER.warn("Angle regulation of transformer '{}' removed because incomplete", id);
+        }
     }
 
-    public void addAngleRegulationWithNoType() {
+    public void onAngleRegulationWithNoType(UcteElementId id, UcteAngleRegulationType newAngleRegulationType) {
         angleRegulationWithNoTypeCount++;
+        if (verbose) {
+            LOGGER.warn("Type is missing for angle regulation of transformer '{}', default to {}", id, newAngleRegulationType);
+        }
     }
 
     private void logNodeActivePower() {
