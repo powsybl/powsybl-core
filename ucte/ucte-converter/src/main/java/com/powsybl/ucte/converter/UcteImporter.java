@@ -45,12 +45,6 @@ public class UcteImporter implements Importer {
 
     private static final String[] EXTENSIONS = {"uct", "UCT"};
 
-    /**
-     * Key to store ucte power plant type in properties
-     * Concat this key with generator id
-     */
-    public static final String UCTE_POWERPLANT_TYPE_KEY = "UctePowerPlantType_";
-
     private static float getConductance(UcteTransformer ucteTransfo) {
         float g = 0;
         if (!Float.isNaN(ucteTransfo.getConductance())) {
@@ -187,11 +181,8 @@ public class UcteImporter implements Importer {
         if (ucteNode.getPowerPlantType() != null) {
             switch (ucteNode.getPowerPlantType()) {
                 case C:
-                    break;
                 case G:
-                    break;
                 case L:
-                    break;
                 case O:
                     energySource = EnergySource.THERMAL;
                     break;
@@ -229,7 +220,7 @@ public class UcteImporter implements Importer {
                 .setMaxQ(-ucteNode.getMaximumPermissibleReactivePowerGeneration())
                 .add();
         if (ucteNode.getPowerPlantType() != null) {
-            generator.setProperty(UCTE_POWERPLANT_TYPE_KEY + generatorId, ucteNode.getPowerPlantType().toString());
+            generator.setProperty(POWER_PLANT_TYPE_PROPERTY_KEY, ucteNode.getPowerPlantType().toString());
         }
     }
 

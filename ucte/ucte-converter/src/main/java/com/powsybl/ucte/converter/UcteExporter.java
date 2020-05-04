@@ -703,8 +703,8 @@ public class UcteExporter implements Exporter {
     }
 
     private static UctePowerPlantType energySourceToUctePowerPlantType(Generator generator) {
-        if (generator.hasProperty(UcteImporter.UCTE_POWERPLANT_TYPE_KEY + generator.getId())) {
-            return UctePowerPlantType.valueOf(generator.getProperty(UcteImporter.UCTE_POWERPLANT_TYPE_KEY + generator.getId()));
+        if (generator.hasProperty(POWER_PLANT_TYPE_PROPERTY_KEY)) {
+            return UctePowerPlantType.valueOf(generator.getProperty(POWER_PLANT_TYPE_PROPERTY_KEY));
         }
         switch (generator.getEnergySource()) {
             case HYDRO:
