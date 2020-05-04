@@ -50,7 +50,7 @@ public final class UcteNetworkFactory {
         UcteRegulation regulation = new UcteRegulation(transformerId, null, null);
         network.addRegulation(regulation);
 
-        network.fix();
+        network.fix(new UcteSyntheticReport());
 
         return network;
     }

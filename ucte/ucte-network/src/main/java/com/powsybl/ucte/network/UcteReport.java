@@ -4,273 +4,67 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.ucte.network;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.powsybl.commons.config.PlatformConfigNamedProvider;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class UcteReport {
+public interface UcteReport extends PlatformConfigNamedProvider {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UcteReport.class);
+    void log();
 
-    private int nodeWithUndefinedActivePowerCount = 0;
+    // - Element notifications ------------------------------------------------
+    void onElementWithInvalidCurrentLimit(UcteElementId id, int currentLimit);
 
-    private int nodeWithUndefinedMinimumActivePowerCount = 0;
+    void onElementWithMissingCurrentLimit(UcteElementId id);
 
-    private int nodeWithUndefinedMaximumActivePowerCount = 0;
+    void onElementWithSmallReactance(UcteElementId id, float oldReactance, float newReactance);
 
-    private int nodeWithInvertedActivePowerLimitsCount = 0;
+    // - Node notifications ---------------------------------------------------
+    void onNodeWithUndefinedActivePowerGeneration(UcteNodeCode id, float newActivePowerGeneration);
 
-    private int nodeWithActivePowerUnderMaximumPermissibleValueCount = 0;
+    void onNodeWithUndefinedMinimumActivePower(UcteNodeCode id, float newMinimumPermissibleActivePowerGeneration);
 
-    private int nodeWithActivePowerAboveMinimumPermissibleValueCount = 0;
+    void onNodeWithUndefinedMaximumActivePower(UcteNodeCode id, float newMaximumPermissibleActivePowerGeneration);
 
-    private int nodeWithFlatActiveLimitsCount = 0;
+    void onNodeWithInvertedActivePowerLimits(UcteNodeCode id, float minimumPermissibleActivePowerGeneration, float maximumPermissibleActivePowerGeneration);
 
-    private int nodeRegulatingVoltageWithNullSetpointCount = 0;
+    void onNodeWithActivePowerUnderMaximumPermissibleValue(UcteNodeCode id, float activePowerGeneration, float oldMaximumPermissibleActivePowerGeneration, float newMaximumPermissibleActivePowerGeneration);
 
-    private int nodeNotRegulatingVoltageWithUndefinedReactivePowerCount = 0;
+    void onNodeWithActivePowerAboveMinimumPermissibleValue(UcteNodeCode id, float activePowerGeneration, float oldMinimumPermissibleActivePowerGeneration, float newMinimumPermissibleActivePowerGeneration);
 
-    private int nodeWithUndefinedMinimumReactivePowerCount = 0;
+    void onNodeWithFlatActiveLimits(UcteNodeCode id, float oldMinimumPermissibleActivePowerGeneration, float oldMaximumPermissibleActivePowerGeneration, float newMinimumPermissibleActivePowerGeneration, float newMaximumPermissibleActivePowerGeneration);
 
-    private int nodeWithUndefinedMaximumReactivePowerCount = 0;
+    void onNodeRegulatingVoltageWithNullSetpoint(UcteNodeCode id, float voltageReference, UcteNodeTypeCode oldTypeCode, UcteNodeTypeCode newTypeCode);
 
-    private int nodeWithInvertedReactivePowerLimitsCount = 0;
+    void onNodeNotRegulatingVoltageWithUndefinedReactivePowerCount(UcteNodeCode id, float newReactivePowerGeneration);
 
-    private int nodeWithReactivePowerUnderMaximumPermissibleValueCount = 0;
+    void onNodeWithUndefinedMinimumReactivePower(UcteNodeCode id, float newMinimumPermissibleReactivePowerGeneration);
 
-    private int nodeWithReactivePowerAboveMinimumPermissibleValueCount = 0;
+    void onNodeWithUndefinedMaximumReactivePower(UcteNodeCode id, float newMaximumPermissibleReactivePowerGeneration);
 
-    private int nodeWithTooHighMinimumReactivePowerCount = 0;
+    void onNodeWithInvertedReactivePowerLimits(UcteNodeCode id, float minimumPermissibleReactivePowerGeneration, float maximumPermissibleReactivePowerGeneration);
 
-    private int nodeWithTooHighMaximumReactivePowerCount = 0;
+    void onNodeWithReactivePowerUnderMaximumPermissibleValue(UcteNodeCode id, float reactivePowerGeneration, float oldMaximumPermissibleReactivePowerGeneration, float newMaximumPermissibleReactivePowerGeneration);
 
-    private int nodeWithFlatReactiveLimitsCount = 0;
+    void onNodeWithReactivePowerAboveMinimumPermissibleValue(UcteNodeCode id, float reactivePowerGeneration, float oldMinimumPermissibleReactivePowerGeneration, float newMinimumPermissibleReactivePowerGeneration);
 
-    private int elementWithSmallReactanceCount = 0;
+    void onNodeWithTooHighMinimumReactivePower(UcteNodeCode id, float oldMinimumPermissibleReactivePowerGeneration, float newMinimumPermissibleReactivePowerGeneration);
 
-    private int elementWithMissingCurrentLimitCount = 0;
+    void onNodeWithTooHighMaximumReactivePower(UcteNodeCode id, float oldMaximumPermissibleReactivePowerGeneration, float newMaximumPermissibleReactivePowerGeneration);
 
-    private int elementWithInvalidCurrentLimitCount = 0;
+    void onNodeWithFlatReactiveLimits(UcteNodeCode id, float oldMinimumPermissibleReactivePowerGeneration, float oldMaximumPermissibleReactivePowerGeneration, float newMinimumPermissibleReactivePowerGeneration, float newMaximumPermissibleReactivePowerGeneration);
 
-    private int phaseRegulationWithBadTargetVoltageCount = 0;
+    // - Phase regulation notifications ---------------------------------------
+    void onPhaseRegulationWithBadVoltageSetpoint(UcteElementId id, float oldVoltageSetpoint, float newVoltageSetpoint);
 
-    private int incompletePhaseRegulationCount = 0;
+    void onIncompletePhaseRegulation(UcteElementId id);
 
-    private int incompleteAngleRegulationCount = 0;
+    void onIncompleteAngleRegulation(UcteElementId id);
 
-    private int angleRegulationWithNoTypeCount = 0;
+    void onAngleRegulationWithNoType(UcteElementId id, UcteAngleRegulationType newAngleRegulationType);
 
-    public void addNodeWithUndefinedActivePower() {
-        nodeWithUndefinedActivePowerCount++;
-    }
-
-    public void addNodeWithUndefinedMinimumActivePower() {
-        nodeWithUndefinedMinimumActivePowerCount++;
-    }
-
-    public void addNodeWithUndefinedMaximumActivePower() {
-        nodeWithUndefinedMaximumActivePowerCount++;
-    }
-
-    public void addNodeWithInvertedActivePowerLimits() {
-        nodeWithInvertedActivePowerLimitsCount++;
-    }
-
-    public void addNodeWithActivePowerUnderMaximumPermissibleValue() {
-        nodeWithActivePowerUnderMaximumPermissibleValueCount++;
-    }
-
-    public void addNodeWithActivePowerAboveMinimumPermissibleValue() {
-        nodeWithActivePowerAboveMinimumPermissibleValueCount++;
-    }
-
-    public void addNodeWithFlatActiveLimits() {
-        nodeWithFlatActiveLimitsCount++;
-    }
-
-    public void addNodeRegulatingVoltageWithNullSetpoint() {
-        nodeRegulatingVoltageWithNullSetpointCount++;
-    }
-
-    public void addNodeNotRegulatingVoltageWithUndefinedReactivePowerCount() {
-        nodeNotRegulatingVoltageWithUndefinedReactivePowerCount++;
-    }
-
-    public void addNodeWithUndefinedMinimumReactivePower() {
-        nodeWithUndefinedMinimumReactivePowerCount++;
-    }
-
-    public void addNodeWithUndefinedMaximumReactivePower() {
-        nodeWithUndefinedMaximumReactivePowerCount++;
-    }
-
-    public void addNodeWithInvertedReactivePowerLimits() {
-        nodeWithInvertedReactivePowerLimitsCount++;
-    }
-
-    public void addNodeWithReactivePowerUnderMaximumPermissibleValue() {
-        nodeWithReactivePowerUnderMaximumPermissibleValueCount++;
-    }
-
-    public void addNodeWithReactivePowerAboveMinimumPermissibleValue() {
-        nodeWithReactivePowerAboveMinimumPermissibleValueCount++;
-    }
-
-    public void addNodeWithTooHighMinimumReactivePower() {
-        nodeWithTooHighMinimumReactivePowerCount++;
-    }
-
-    public void addNodeWithTooHighMaximumReactivePower() {
-        nodeWithTooHighMaximumReactivePowerCount++;
-    }
-
-    public void addNodeWithFlatReactiveLimits() {
-        nodeWithFlatReactiveLimitsCount++;
-    }
-
-    public void addElementWithSmallReactance() {
-        elementWithSmallReactanceCount++;
-    }
-
-    public void addElementWithMissingCurrentLimit() {
-        elementWithMissingCurrentLimitCount++;
-    }
-
-    public void addElementWithInvalidCurrentLimit() {
-        elementWithInvalidCurrentLimitCount++;
-    }
-
-    public void addPhaseRegulationWithBadTargetVoltage() {
-        phaseRegulationWithBadTargetVoltageCount++;
-    }
-
-    public void addIncompletePhaseRegulation() {
-        incompletePhaseRegulationCount++;
-    }
-
-    public void addIncompleteAngleRegulation() {
-        incompleteAngleRegulationCount++;
-    }
-
-    public void addAngleRegulationWithNoType() {
-        angleRegulationWithNoTypeCount++;
-    }
-
-    private void logNodeActivePower() {
-        if (nodeWithUndefinedActivePowerCount > 0) {
-            LOGGER.warn("{} nodes have an undefined active power", nodeWithUndefinedActivePowerCount);
-        }
-
-        if (nodeWithUndefinedMinimumActivePowerCount > 0) {
-            LOGGER.warn("{} nodes have an undefined minimum active power", nodeWithUndefinedMinimumActivePowerCount);
-        }
-
-        if (nodeWithUndefinedMaximumActivePowerCount > 0) {
-            LOGGER.warn("{} nodes have an undefined maximum active power", nodeWithUndefinedMaximumActivePowerCount);
-        }
-
-        if (nodeWithInvertedActivePowerLimitsCount > 0) {
-            LOGGER.warn("{} nodes have inverted active power limits", nodeWithInvertedActivePowerLimitsCount);
-        }
-
-        if (nodeWithActivePowerUnderMaximumPermissibleValueCount > 0) {
-            LOGGER.warn("{} nodes have active power under maximum permissible value", nodeWithActivePowerUnderMaximumPermissibleValueCount);
-        }
-
-        if (nodeWithActivePowerAboveMinimumPermissibleValueCount > 0) {
-            LOGGER.warn("{} nodes have active power above minimum permissible value", nodeWithActivePowerAboveMinimumPermissibleValueCount);
-        }
-
-        if (nodeWithFlatActiveLimitsCount > 0) {
-            LOGGER.warn("{} nodes have flat active limits", nodeWithFlatActiveLimitsCount);
-        }
-    }
-
-    private void logNodeVoltage() {
-        if (nodeRegulatingVoltageWithNullSetpointCount > 0) {
-            LOGGER.warn("{} nodes have voltage regulation with a null setpoint", nodeRegulatingVoltageWithNullSetpointCount);
-        }
-    }
-
-    private void logNodeReactivePower() {
-        if (nodeNotRegulatingVoltageWithUndefinedReactivePowerCount > 0) {
-            LOGGER.warn("{} nodes not regulating voltage with an undefined reactive power", nodeNotRegulatingVoltageWithUndefinedReactivePowerCount);
-        }
-
-        if (nodeWithUndefinedMinimumReactivePowerCount > 0) {
-            LOGGER.warn("{} nodes have an undefined minimum reactive power", nodeWithUndefinedMinimumReactivePowerCount);
-        }
-
-        if (nodeWithUndefinedMaximumReactivePowerCount > 0) {
-            LOGGER.warn("{} nodes have an undefined maximum reactive power", nodeWithUndefinedMaximumReactivePowerCount);
-        }
-
-        if (nodeWithInvertedReactivePowerLimitsCount > 0) {
-            LOGGER.warn("{} nodes have inverted reactive power limits", nodeWithInvertedReactivePowerLimitsCount);
-        }
-
-        if (nodeWithReactivePowerUnderMaximumPermissibleValueCount > 0) {
-            LOGGER.warn("{} nodes have reactive power under maximum permissible value", nodeWithReactivePowerUnderMaximumPermissibleValueCount);
-        }
-
-        if (nodeWithReactivePowerAboveMinimumPermissibleValueCount > 0) {
-            LOGGER.warn("{} nodes have reactive power above minimum permissible value", nodeWithReactivePowerAboveMinimumPermissibleValueCount);
-        }
-
-        if (nodeWithTooHighMinimumReactivePowerCount > 0) {
-            LOGGER.warn("{} nodes have a too high minimum reactive power", nodeWithTooHighMinimumReactivePowerCount);
-        }
-
-        if (nodeWithTooHighMaximumReactivePowerCount > 0) {
-            LOGGER.warn("{} nodes have a too high maximum reactive power", nodeWithTooHighMaximumReactivePowerCount);
-        }
-
-        if (nodeWithFlatReactiveLimitsCount > 0) {
-            LOGGER.warn("{} nodes have flat reactive limits", nodeWithFlatReactiveLimitsCount);
-        }
-    }
-
-    private void logElement() {
-        if (elementWithSmallReactanceCount > 0) {
-            LOGGER.warn("{} elements have a small reactance", elementWithSmallReactanceCount);
-        }
-
-        if (elementWithMissingCurrentLimitCount > 0) {
-            LOGGER.warn("{} elements have a missing current limit", elementWithMissingCurrentLimitCount);
-        }
-
-        if (elementWithInvalidCurrentLimitCount > 0) {
-            LOGGER.warn("{} elements have an invalid current limit", elementWithInvalidCurrentLimitCount);
-        }
-    }
-
-    private void logRegulation() {
-        if (phaseRegulationWithBadTargetVoltageCount > 0) {
-            LOGGER.warn("{} phase regulations have a bad target voltage", phaseRegulationWithBadTargetVoltageCount);
-        }
-
-        if (incompletePhaseRegulationCount > 0) {
-            LOGGER.warn("{} phase regulations are incomplete", incompletePhaseRegulationCount);
-        }
-
-        if (incompleteAngleRegulationCount > 0) {
-            LOGGER.warn("{} angle regulations are incomplete", incompleteAngleRegulationCount);
-        }
-
-        if (angleRegulationWithNoTypeCount > 0) {
-            LOGGER.warn("{} angle regulations do not have a type", angleRegulationWithNoTypeCount);
-        }
-    }
-
-    public void log() {
-        logNodeActivePower();
-        logNodeVoltage();
-        logNodeReactivePower();
-        logElement();
-        logRegulation();
-    }
 }
