@@ -21,7 +21,7 @@ import java.util.function.BiFunction;
  */
 public class ParameterDefaultValueConfig {
 
-    private static final String MODULE_NAME = "import-export-parameters-default-value";
+    public static final String MODULE_NAME = "import-export-parameters-default-value";
 
     public static final ParameterDefaultValueConfig INSTANCE = new ParameterDefaultValueConfig();
 
