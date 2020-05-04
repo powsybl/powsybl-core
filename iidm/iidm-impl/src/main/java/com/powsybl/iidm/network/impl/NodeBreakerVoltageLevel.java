@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
@@ -556,7 +555,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private final NodeBreakerViewExt nodeBreakerView = new NodeBreakerViewExt() {
-
         /**
          * @deprecated Use {@link #getMaximumNodeIndex()} instead.
          */
@@ -591,6 +589,19 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         @Override
         public Terminal getTerminal(int node) {
             return graph.getVertexObject(node);
+        }
+
+        @Override
+        public Optional<Terminal> getOptionalTerminal(int node) {
+            if (graph.vertexExists(node)) {
+                return Optional.ofNullable(graph.getVertexObject(node));
+            }
+            return Optional.empty();
+        }
+
+        @Override
+        public boolean hasAttachedEquipment(int node) {
+            return graph.vertexExists(node);
         }
 
         @Override
@@ -1062,13 +1073,15 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     protected void removeTopology() {
-        removeAllSwitches();
+        removeAllEdges();
     }
 
-    private void removeAllSwitches() {
+    private void removeAllEdges() {
         for (SwitchImpl s : graph.getEdgesObject()) {
-            getNetwork().getIndex().remove(s);
-            getNetwork().getListeners().notifyRemoval(s);
+            if (s != null) {
+                getNetwork().getIndex().remove(s);
+                getNetwork().getListeners().notifyRemoval(s);
+            }
         }
         graph.removeAllEdges();
         switches.clear();

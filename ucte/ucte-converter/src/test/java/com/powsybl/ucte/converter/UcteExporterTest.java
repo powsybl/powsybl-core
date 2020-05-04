@@ -19,6 +19,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
@@ -48,7 +49,7 @@ public class UcteExporterTest extends AbstractConverterTest {
 
         try (InputStream actual = dataSource.newInputStream(null, "uct");
              InputStream expected = UcteExporterTest.class.getResourceAsStream(reference)) {
-            compareTxt(expected, actual);
+            compareTxt(expected, actual, Arrays.asList(1, 2));
         }
     }
 
@@ -63,6 +64,19 @@ public class UcteExporterTest extends AbstractConverterTest {
         Network merge = Network.create("merge", "UCT");
         merge.merge(networkBE, networkFR);
         testExporter(merge, "/uxTestGridForMerging.uct");
+    }
+
+    @Test
+    public void testMergeProperties() throws IOException {
+        Network networkFR = loadNetworkFromResourceFile("/frForMergeProperties.uct");
+        testExporter(networkFR, "/frForMergeProperties.uct");
+
+        Network networkBE = loadNetworkFromResourceFile("/beForMergeProperties.uct");
+        testExporter(networkBE, "/beForMergeProperties.uct");
+
+        Network mergedNetwork = Network.create("mergedNetwork", "UCT");
+        mergedNetwork.merge(networkBE, networkFR);
+        testExporter(mergedNetwork, "/uxForMergeProperties.uct");
     }
 
     @Test

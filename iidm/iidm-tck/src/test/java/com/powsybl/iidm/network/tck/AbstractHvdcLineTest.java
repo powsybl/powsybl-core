@@ -70,18 +70,19 @@ public abstract class AbstractHvdcLineTest {
                                         .setR(5.0)
                                         .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
                                         .setNominalV(440.0)
-                                        .setMaxP(-50.0)
+                                        .setMaxP(50.0)
                                         .setActivePowerSetpoint(20.0)
                                         .setConverterStationId1("C1")
                                         .setConverterStationId2("C2")
                                     .add();
         assertNotNull(hvdcLine);
         assertEquals("hvdc_line", hvdcLine.getId());
-        assertEquals("hvdcLine", hvdcLine.getName());
+        assertEquals("hvdcLine", hvdcLine.getOptionalName().orElse(null));
+        assertEquals("hvdcLine", hvdcLine.getNameOrId());
         assertEquals(5.0, hvdcLine.getR(), 0.0);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, hvdcLine.getConvertersMode());
         assertEquals(440.0, hvdcLine.getNominalV(), 0.0);
-        assertEquals(-50.0, hvdcLine.getMaxP(), 0.0);
+        assertEquals(50.0, hvdcLine.getMaxP(), 0.0);
         assertEquals(20.0, hvdcLine.getActivePowerSetpoint(), 0.0);
         assertSame(network.getHvdcConverterStation("C1"), hvdcLine.getConverterStation1());
         assertSame(network.getHvdcConverterStation("C2"), hvdcLine.getConverterStation2());

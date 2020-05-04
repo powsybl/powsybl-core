@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements.transformers;
 
 import java.util.Comparator;
+import java.util.function.Supplier;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers;
@@ -32,8 +33,8 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
     @Override
     public TapChanger build() {
         if (!validType()) {
-            String type = p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE).toLowerCase();
-            context.invalid(CgmesNames.PHASE_TAP_CHANGER_TYPE, String.format("Unexpected type %s", type));
+            Supplier<String> type = () -> "Unexpected type " + p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE).toLowerCase();
+            context.invalid(CgmesNames.PHASE_TAP_CHANGER_TYPE, type);
             return null;
         }
         return super.build();

@@ -82,7 +82,7 @@ public final class ChangelogCreationRemovalTest {
 
     private Map<String, String> actual(List<IidmChange> changes) {
         actual.put("id", changes.get(0).getIdentifiable().getId());
-        actual.put("name", changes.get(0).getIdentifiable().getName());
+        actual.put("name", changes.get(0).getIdentifiable().getNameOrId());
         return actual;
     }
 

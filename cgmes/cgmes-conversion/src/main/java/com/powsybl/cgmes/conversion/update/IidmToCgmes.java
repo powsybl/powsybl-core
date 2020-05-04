@@ -30,7 +30,8 @@ public class IidmToCgmes {
         if (change instanceof IidmChangeUpdate) {
             return convertUpdate((IidmChangeUpdate) change);
         } else {
-            throw new UnsupportedOperationException(String.format("Changes of type %s are not yet supported", change.getClass().getSimpleName()));
+            LOG.warn("Changes of type {} are not yet supported", change.getClass().getSimpleName());
+            return Collections.emptyList();
         }
     }
 
@@ -45,7 +46,8 @@ public class IidmToCgmes {
         } else if (ignoredAttributes.contains(change.getAttribute())) {
             return Collections.emptyList();
         } else {
-            throw new UnsupportedOperationException("Convert to CGMES a change on IIDM " + change.getIdentifiable().getClass().getSimpleName() + "." + change.getAttribute());
+            LOG.warn("Convert to CGMES a change on IIDM {}.{}", change.getIdentifiable().getClass().getSimpleName(), change.getAttribute());
+            return Collections.emptyList();
         }
     }
 

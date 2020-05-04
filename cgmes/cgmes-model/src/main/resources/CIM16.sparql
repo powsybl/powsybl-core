@@ -166,17 +166,22 @@ OPTIONAL { GRAPH ?graphSV {
         a cim:SvPowerFlow ;
         cim:SvPowerFlow.Terminal ?Terminal ;
         cim:SvPowerFlow.p ?p ;
-        cim:SvPowerFlow.q ?q
-} OPTIONAL {?SvStatus
+        cim:SvPowerFlow.q ?q .
+}}
+OPTIONAL { GRAPH ?graphSV2 {
+    ?SvStatus
         a cim:SvStatus ;
         cim:SvStatus.ConductingEquipment ?ConductingEquipment ;
         cim:SvStatus.inService ?inService . 
 }}
 OPTIONAL { GRAPH ?graphCN {
         ?Terminal cim:Terminal.ConnectivityNode ?ConnectivityNode .
+		OPTIONAL { GRAPH ?graphTPCN {
+			?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNodeConnectivityNode .
+		}}
 }}
 OPTIONAL { GRAPH ?graphTPT {
-        ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode .
+		?Terminal cim:Terminal.TopologicalNode ?TopologicalNodeTerminal .
 }}
 }
 
@@ -185,17 +190,33 @@ SELECT *
 WHERE {
 { GRAPH ?graphCN2 {
     ?ConnectivityNode cim:ConnectivityNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
-    OPTIONAL {
-        ?ConnectivityNode cim:IdentifiedObject.name ?name
-    }
+    OPTIONAL { ?ConnectivityNode cim:IdentifiedObject.name ?name }
     OPTIONAL { ?ConnectivityNode entsoe:ConnectivityNode.fromEndIsoCode ?fromEndIsoCode }
     OPTIONAL { ?ConnectivityNode entsoe:ConnectivityNode.toEndIsoCode ?toEndIsoCode }
 }}
-OPTIONAL { GRAPH ?graphTPCN {
-    ?ConnectivityNode
-        cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
-    ?TopologicalNode
-        cim:TopologicalNode.BaseVoltage ?BaseVoltage
+OPTIONAL { 
+    {
+        SELECT ?TopologicalNode 
+        WHERE {
+            {
+                GRAPH ?graphTPCN { ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode }
+            }
+            UNION 
+            {
+                # For TSOs missing the direct relationship ConnectivityNode -> TopologicalNode in TP
+                # We have to locate the TopologicalNode through one of the Terminals connected to the
+                # ConnectivityNode
+                SELECT ?TopologicalNode 
+                WHERE {
+                    GRAPH ?graphEQ { ?Terminal cim:Terminal.ConnectivityNode ?ConnectivityNode }
+                    GRAPH ?graphTPCN2 { ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode }
+                }
+                LIMIT 1
+            }
+        }
+        LIMIT 1
+    }
+    ?TopologicalNode cim:TopologicalNode.BaseVoltage ?BaseVoltage
     OPTIONAL { GRAPH ?graphSVT {
         ?SvVoltageT 
             a cim:SvVoltage ;
@@ -203,7 +224,7 @@ OPTIONAL { GRAPH ?graphTPCN {
             cim:SvVoltage.v ?v ;
             cim:SvVoltage.angle ?angle 
     }}
-}}
+}
 }
 
 # query: topologicalNodes
@@ -608,10 +629,6 @@ WHERE {
     ?RegulatingControl
         cim:RegulatingControl.mode ?mode ;
         cim:RegulatingControl.Terminal ?Terminal .
-        { GRAPH ?graphTP {
-            ?Terminal
-                cim:Terminal.TopologicalNode ?topologicalNode
-        }}
 }}
 { GRAPH ?graphSSH {
     ?RegulatingControl
@@ -910,27 +927,16 @@ UNION
     ?DCConductingEquipment a ?dcConductingEquipmentType .
 }}
 }
+OPTIONAL { ?DCTerminal cim:IdentifiedObject.name ?name }
 OPTIONAL { GRAPH ?graphSSH {
     ?DCTerminal cim:ACDCTerminal.connected ?connected
 }}
-}
-
-# query: dcTerminalsTP
-SELECT *
-WHERE {
-{ GRAPH ?graphTP {
-    ?DCTerminal cim:DCBaseTerminal.DCTopologicalNode ?DCTopologicalNode
+OPTIONAL { GRAPH ?graphCN {
+?DCTerminal cim:DCBaseTerminal.DCNode ?DCNode .
 }}
-OPTIONAL {
-    { GRAPH ?graphTP2 {
-        ?DCTopologicalNode cim:DCTopologicalNode.DCEquipmentContainer ?EquipmentContainer
-    }}
-    OPTIONAL { GRAPH ?graph3 {
-        ?EquipmentContainer
-            a cim:DCConverterUnit ;
-            cim:DCConverterUnit.Substation ?Substation .
-    }}
-}
+OPTIONAL { GRAPH ?graphTPT {
+?DCTerminal cim:DCBaseTerminal.DCTopologicalNode ?DCTopologicalNode .
+}}
 }
 
 # query: dcLineSegments

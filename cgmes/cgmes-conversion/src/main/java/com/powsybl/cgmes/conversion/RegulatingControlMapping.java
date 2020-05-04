@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
@@ -20,8 +21,9 @@ import java.util.Optional;
  */
 public class RegulatingControlMapping {
 
-    static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES topological node: %s";
+    static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES terminal: %s";
 
+    private static final String REGULATING_TERMINAL = "Regulating Terminal";
     private static final String REGULATING_CONTROL = "RegulatingControl";
     private static final String TERMINAL = "Terminal";
     private static final String VOLTAGE = "voltage";
@@ -59,7 +61,6 @@ public class RegulatingControlMapping {
     static class RegulatingControl {
         final String mode;
         final String cgmesTerminal;
-        final String topologicalNode;
         final boolean enabled;
         final double targetValue;
         final double targetDeadband;
@@ -68,7 +69,6 @@ public class RegulatingControlMapping {
         RegulatingControl(PropertyBag p) {
             this.mode = p.get("mode").toLowerCase();
             this.cgmesTerminal = p.getId(TERMINAL);
-            this.topologicalNode = p.getId("topologicalNode");
             this.enabled = p.asBoolean("enabled", true);
             this.targetValue = p.asDouble("targetValue");
             // targetDeadband is optional in CGMES,
@@ -107,21 +107,29 @@ public class RegulatingControlMapping {
 
         cachedRegulatingControls.forEach((key, value) -> {
             if (value.correctlySet == null || !value.correctlySet) {
-                context.pending("Regulating terminal",
-                        String.format("The setting of the regulating control %s is not entirely handled.", key));
+                context.pending(REGULATING_TERMINAL,
+                    () -> String.format("The setting of the regulating control %s is not entirely handled.", key));
             }
         });
 
         cachedRegulatingControls.clear();
     }
 
-    Terminal findRegulatingTerminal(String cgmesTerminal, String topologicalNode) {
-        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminal)).filter(Terminal::isConnected)
+    Terminal findRegulatingTerminal(String cgmesTerminalId) {
+        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId)).filter(Terminal::isConnected)
                 .orElseGet(() -> {
-                    context.invalid("Regulating terminal", String.format("No connected IIDM terminal has been found for CGMES terminal %s. " +
-                                    "A connected terminal linked to the topological node %s is searched.",
-                            cgmesTerminal, topologicalNode));
-                    return context.terminalMapping().findFromTopologicalNode(topologicalNode);
+                    CgmesTerminal cgmesTerminal = context.cgmes().terminal(cgmesTerminalId);
+                    if (cgmesTerminal != null) {
+                        // Try to obtain Terminal from TopologicalNode
+                        String topologicalNode = cgmesTerminal.topologicalNode();
+                        context.invalid(REGULATING_TERMINAL, () -> String.format("No connected IIDM terminal has been found for CGMES terminal %s. " +
+                            "A connected terminal linked to the topological node %s is searched.",
+                            cgmesTerminalId, topologicalNode));
+                        return context.terminalMapping().findFromTopologicalNode(topologicalNode);
+                    } else {
+                        context.invalid(REGULATING_TERMINAL, "No CGMES terminal found with identifier " + cgmesTerminalId);
+                        return null;
+                    }
                 });
     }
 
@@ -133,12 +141,12 @@ public class RegulatingControlMapping {
         return p.getId(REGULATING_CONTROL);
     }
 
-    Terminal getRegulatingTerminal(Injection injection, String cgmesTerminal, String topologicalNode) {
+    Terminal getRegulatingTerminal(Injection injection, String cgmesTerminal) {
         // Will take default terminal ONLY if it has not been explicitly defined in CGMES
         // the default terminal is the local terminal
         Terminal terminal = injection.getTerminal();
-        if (cgmesTerminal != null || topologicalNode != null) {
-            terminal = findRegulatingTerminal(cgmesTerminal, topologicalNode);
+        if (cgmesTerminal != null) {
+            terminal = findRegulatingTerminal(cgmesTerminal);
             // If terminal is null here it means that no IIDM terminal has been found
             // from the initial CGMES terminal or topological node,
             // we will consider the regulating control invalid,

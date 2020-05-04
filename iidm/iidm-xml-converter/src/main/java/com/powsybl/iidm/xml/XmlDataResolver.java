@@ -25,7 +25,6 @@ import com.powsybl.commons.datastore.DataResolver;
 import com.powsybl.commons.datastore.NonUniqueResultException;
 import com.powsybl.commons.datastore.ReadOnlyDataStore;
 import com.powsybl.iidm.ConversionParameters;
-import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
@@ -53,9 +52,6 @@ public class XmlDataResolver implements DataResolver {
 
     public static final String EXTENSIONS_LIST = "iidm.import.xml.extensions";
 
-    private static final Parameter IMPORT_MODE_PARAMETER
-            = new Parameter(IMPORT_MODE, ParameterType.STRING, "import mode", String.valueOf(IidmImportExportMode.UNIQUE_FILE));
-
     private static final Parameter EXTENSIONS_LIST_PARAMETER
             = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of extension files ", null);
 
@@ -64,13 +60,12 @@ public class XmlDataResolver implements DataResolver {
     @Override
     public Optional<DataPack> resolve(ReadOnlyDataStore store, @Nullable String mainFileName, @Nullable Properties parameters) throws IOException, NonUniqueResultException {
         Objects.requireNonNull(store);
-        IidmImportExportMode mode = IidmImportExportMode.valueOf(ConversionParameters.readStringParameter(DATA_FORMAT_ID, parameters, IMPORT_MODE_PARAMETER, defaultValueConfig));
         HashSet<String> extensions = ConversionParameters.readStringListParameter(DATA_FORMAT_ID, parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(DATA_FORMAT_ID, parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null;
 
         DataPack dp = null;
         if (mainFileName != null) {
             if (store.exists(mainFileName) && checkFileExtension(mainFileName)) {
-                dp = buildDataPack(store, mainFileName, extensions, mode);
+                dp = buildDataPack(store, mainFileName, extensions);
             }
         } else {
             List<String> candidates = store.getEntryNames().stream().filter(XmlDataResolver::checkFileExtension).collect(Collectors.toList());
@@ -78,7 +73,7 @@ public class XmlDataResolver implements DataResolver {
                 throw new NonUniqueResultException();
             } else if (candidates.size() == 1) {
                 String entryName = candidates.get(0);
-                dp = buildDataPack(store, entryName, extensions, mode);
+                dp = buildDataPack(store, entryName, extensions);
             }
         }
         return Optional.ofNullable(dp);
@@ -94,36 +89,11 @@ public class XmlDataResolver implements DataResolver {
         return Arrays.asList(EXTENSIONS).contains(Files.getFileExtension(filename));
     }
 
-    private DataPack buildDataPack(ReadOnlyDataStore store, String mainFileName, HashSet<String> extensions, IidmImportExportMode mode) throws IOException {
+    private DataPack buildDataPack(ReadOnlyDataStore store, String mainFileName, HashSet<String> extensions) throws IOException {
         DataPack dp = new DataPack(store, DATA_FORMAT_ID);
         DataEntry entry = new DataEntry(mainFileName, DataPack.MAIN_ENTRY_TAG);
         dp.addEntry(entry);
-        if (!mode.equals(IidmImportExportMode.UNIQUE_FILE)) {
-            findExtensions(store, dp, mainFileName, extensions, mode);
-        }
         return dp;
-    }
-
-    private void findExtensions(ReadOnlyDataStore store, DataPack dp, String mainFileName, HashSet<String> extensions,
-            IidmImportExportMode mode) throws IOException {
-        String mainExt = Files.getFileExtension(mainFileName);
-        String baseName = Files.getNameWithoutExtension(mainFileName);
-        List<String> entries = store.getEntryNames();
-        if (mode.equals(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE)) {
-            String extFileName = baseName + "-ext." + mainExt;
-            if (entries.contains(extFileName)) {
-                DataEntry entry = new DataEntry(extFileName, DataPack.EXTENSION_TAG);
-                dp.addEntry(entry);
-            }
-        } else {
-            extensions.forEach(ext -> {
-                String extFileName = baseName + "-" + ext + "." + mainExt;
-                if (entries.contains(extFileName)) {
-                    DataEntry entry = new DataEntry(extFileName, DataPack.EXTENSION_TAG, ext);
-                    dp.addEntry(entry);
-                }
-            });
-        }
     }
 
 }

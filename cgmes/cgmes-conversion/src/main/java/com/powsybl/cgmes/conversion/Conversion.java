@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
+import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.NewThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.NewTwoWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
@@ -30,6 +31,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
@@ -184,9 +186,8 @@ public class Conversion {
             convert(cgmes.phaseTapChangers(), ptc -> new PhaseTapChangerConversion(ptc, context));
         }
 
-        // DC Converters must be converted first
-        convert(cgmes.acDcConverters(), c -> new AcDcConverterConversion(c, context));
-        convert(cgmes.dcLineSegments(), l -> new DcLineSegmentConversion(l, context));
+        CgmesDcConversion cgmesDcConversion = new CgmesDcConversion(cgmes, context);
+        cgmesDcConversion.convert();
 
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.currentLimitsMapping().addAll();
@@ -336,8 +337,8 @@ public class Conversion {
             } else if (ends.size() == 3) {
                 c = new NewThreeWindingsTransformerConversion(ends, context);
             } else {
-                String what = String.format("PowerTransformer %s", t);
-                String reason = String.format("Has %d ends. Only 2 or 3 ends are supported", ends.size());
+                String what = "PowerTransformer " + t;
+                Supplier<String> reason = () -> String.format("Has %d ends. Only 2 or 3 ends are supported", ends.size());
                 context.invalid(what, reason);
             }
             if (c != null && c.valid()) {
@@ -365,8 +366,8 @@ public class Conversion {
                     } else if (ends.size() == 3) {
                         c = new ThreeWindingsTransformerConversion(ends, context);
                     } else {
-                        String what = String.format("PowerTransformer %s", t);
-                        String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",
+                        String what = "PowerTransformer " + t;
+                        Supplier<String> reason = () -> String.format("Has %d ends. Only 2 or 3 ends are supported",
                                 ends.size());
                         context.invalid(what, reason);
                     }
@@ -393,15 +394,14 @@ public class Conversion {
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
         network.getHvdcConverterStationStream()
                 .filter(converter -> converter.getHvdcLine() == null)
-                .peek(converter -> context.ignored(String.format("HVDC Converter Station %s",
-                        converter.getId()), "No correct linked HVDC line found."))
+                .peek(converter -> context.ignored("HVDC Converter Station " + converter.getId(), "No correct linked HVDC line found."))
                 .collect(Collectors.toList())
                 .forEach(Connectable::remove);
     }
 
     private void debugTopology(Context context) {
         context.network().getVoltageLevels().forEach(vl -> {
-            String name = vl.getSubstation().getName() + "-" + vl.getName();
+            String name = vl.getSubstation().getNameOrId() + "-" + vl.getNameOrId();
             name = name.replace('/', '-');
             Path file = Paths.get(System.getProperty("java.io.tmpdir"), "temp-cgmes-" + name + ".dot");
             try {
@@ -606,6 +606,7 @@ public class Conversion {
         private Xfmr3RatioPhaseInterpretationAlternative xfmr3RatioPhase = Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3ShuntInterpretationAlternative xfmr3Shunt = Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
+
     }
 
     private final CgmesModel cgmes;

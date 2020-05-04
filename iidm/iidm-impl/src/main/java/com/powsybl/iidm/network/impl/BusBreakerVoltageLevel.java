@@ -34,7 +34,6 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class BusBreakerVoltageLevel extends AbstractVoltageLevel {
@@ -346,7 +345,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private final NodeBreakerViewExt nodeBreakerView = new NodeBreakerViewExt() {
-
         @Override
         public int getMaximumNodeIndex() {
             throw createNotSupportedBusBreakerTopologyException();
@@ -369,6 +367,16 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Terminal getTerminal(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public Optional<Terminal> getOptionalTerminal(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public boolean hasAttachedEquipment(int node) {
             throw createNotSupportedBusBreakerTopologyException();
         }
 

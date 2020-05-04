@@ -675,6 +675,63 @@ public interface Network extends Container<Network> {
     Collection<Identifiable<?>> getIdentifiables();
 
     /**
+     * Get all connectables of the network for a given type
+     *
+     * @param clazz connectable type class
+     * @return all the connectables of the given type
+     */
+    default <C extends Connectable> Iterable<C> getConnectables(Class<C> clazz) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get a stream of all connectables of the network for a given type
+     *
+     * @param clazz connectable type class
+     * @return a stream of all the connectables of the given type
+     */
+    default <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Count the connectables of the network for a given type
+     *
+     * @param clazz connectable type class
+     * @return the count of all the connectables of the given type
+     */
+    default <C extends Connectable> int getConnectableCount(Class<C> clazz) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get all connectables of the network
+     *
+     * @return all the connectables
+     */
+    default Iterable<Connectable> getConnectables() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get a stream of all connectables of the network
+     *
+     * @return a stream of all the connectables
+     */
+    default Stream<Connectable> getConnectableStream() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Count the connectables of the network
+     *
+     * @return the count of all the connectables
+     */
+    default int getConnectableCount() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Get a bus/breaker view of the network.
      */
     BusBreakerView getBusBreakerView();

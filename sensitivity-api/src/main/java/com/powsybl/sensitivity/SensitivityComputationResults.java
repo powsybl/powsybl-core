@@ -77,6 +77,13 @@ public class SensitivityComputationResults {
         this.sensitivityValuesContingencies = Optional.ofNullable(sensitivityValuesContingencies).map(Collections::unmodifiableMap).orElse(Collections.emptyMap());
     }
 
+    public SensitivityComputationResults(boolean ok,
+                                         Map<String, String> metrics,
+                                         String logs,
+                                         List<SensitivityValue> sensitivityValues) {
+        this(ok, metrics, logs, sensitivityValues, Collections.emptyMap());
+    }
+
     /**
      * Get the status of the sensitivity computation
      *
@@ -113,7 +120,6 @@ public class SensitivityComputationResults {
     public Collection<SensitivityValue> getSensitivityValues() {
         return Collections.unmodifiableCollection(sensitivityValues);
     }
-
 
     /**
      * Get a collection of all the sensitivity values associated with given function in state N.

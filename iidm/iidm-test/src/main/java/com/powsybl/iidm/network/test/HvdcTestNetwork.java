@@ -103,7 +103,7 @@ public final class HvdcTestNetwork {
                 .setName("Converter1")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .setLossFactor(0.011f)
+                .setLossFactor(1.1f)
                 .setVoltageSetpoint(405.0)
                 .setVoltageRegulatorOn(true)
                 .add();
@@ -127,7 +127,7 @@ public final class HvdcTestNetwork {
                 .setId("C2")
                 .setName("Converter2")
                 .setNode(2)
-                .setLossFactor(0.011f)
+                .setLossFactor(1.1f)
                 .setReactivePowerSetpoint(123)
                 .setVoltageRegulatorOn(false)
                 .add();
@@ -172,7 +172,7 @@ public final class HvdcTestNetwork {
                 .setName("Converter1")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .setLossFactor(0.011f)
+                .setLossFactor(1.1f)
                 .setPowerFactor(0.5f)
                 .add();
         cs1.getTerminal()
@@ -235,7 +235,7 @@ public final class HvdcTestNetwork {
                 .setId("C2")
                 .setName("Converter2")
                 .setNode(2)
-                .setLossFactor(0.011f)
+                .setLossFactor(1.1f)
                 .setPowerFactor(0.6f)
                 .add();
         cs2.getTerminal()

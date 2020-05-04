@@ -254,7 +254,7 @@ public class AmplNetworkWriter {
                         .writeCell(actionNum)
                         .writeCell(vl.getSubstation().getCountry().map(Enum::toString).orElse(""))
                         .writeCell(vl.getId())
-                        .writeCell(vl.getName());
+                        .writeCell(vl.getNameOrId());
                 addExtensions(num, vl);
             }
             // voltage level associated to 3 windings transformers middle bus
@@ -671,7 +671,7 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)
-                        .writeCell(l.getName());
+                        .writeCell(l.getNameOrId());
             }
             addExtensions(num, l);
         }
@@ -711,7 +711,7 @@ public class AmplNetworkWriter {
             double g2;
             double b1;
             double b2;
-            if (config.isSpecificCompatibility()) {
+            if (config.isT2wtSplitShuntAdmittance()) {
                 g1 = twt.getG() * zb2 / 2;
                 g2 = g1;
                 b1 = twt.getB() * zb2 / 2;
@@ -756,7 +756,7 @@ public class AmplNetworkWriter {
                     .writeCell(faultNum)
                     .writeCell(actionNum)
                     .writeCell(id)
-                    .writeCell(twt.getName());
+                    .writeCell(twt.getNameOrId());
             addExtensions(num, twt);
         }
     }
@@ -966,7 +966,7 @@ public class AmplNetworkWriter {
                     .writeCell(faultNum)
                     .writeCell(actionNum)
                     .writeCell(id)
-                    .writeCell(dl.getName());
+                    .writeCell(dl.getNameOrId());
             addExtensions(num, dl);
         }
     }
@@ -1236,7 +1236,7 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)
-                        .writeCell(l.getName())
+                        .writeCell(l.getNameOrId())
                         .writeCell(t.getP())
                         .writeCell(t.getQ());
                 addExtensions(num, l);
@@ -1353,7 +1353,7 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)
-                        .writeCell(sc.getName())
+                        .writeCell(sc.getNameOrId())
                         .writeCell(t.getP())
                         .writeCell(t.getQ())
                         .writeCell(sc.getCurrentSectionCount());
@@ -1418,7 +1418,7 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)
-                        .writeCell(svc.getName())
+                        .writeCell(svc.getNameOrId())
                         .writeCell(t.getP())
                         .writeCell(t.getQ());
                 addExtensions(num, svc);
@@ -1509,7 +1509,7 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)
-                        .writeCell(g.getName())
+                        .writeCell(g.getNameOrId())
                         .writeCell(t.getP())
                         .writeCell(t.getQ());
                 addExtensions(num, g);
@@ -1596,7 +1596,7 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)
-                        .writeCell(b.getName())
+                        .writeCell(b.getNameOrId())
                         .writeCell(t.getP())
                         .writeCell(t.getQ());
                 addExtensions(num, b);
@@ -1724,7 +1724,7 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)
-                        .writeCell(hvdcLine.getName());
+                        .writeCell(hvdcLine.getNameOrId());
                 addExtensions(num, hvdcLine);
             }
         }
@@ -1785,7 +1785,7 @@ public class AmplNetworkWriter {
                             .writeCell(faultNum)
                             .writeCell(actionNum)
                             .writeCell(lccStation.getId())
-                            .writeCell(lccStation.getName())
+                            .writeCell(lccStation.getNameOrId())
                             .writeCell(t.getP())
                             .writeCell(t.getQ());
                     addExtensions(num, lccStation);
@@ -1863,7 +1863,7 @@ public class AmplNetworkWriter {
                             .writeCell(faultNum)
                             .writeCell(actionNum)
                             .writeCell(vscStation.getId())
-                            .writeCell(vscStation.getName())
+                            .writeCell(vscStation.getNameOrId())
                             .writeCell(t.getP())
                             .writeCell(t.getQ());
                     addExtensions(num, vscStation);

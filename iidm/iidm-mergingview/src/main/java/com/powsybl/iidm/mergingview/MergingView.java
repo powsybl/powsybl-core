@@ -187,8 +187,13 @@ public final class MergingView implements Network {
     }
 
     @Override
-    public String getName() {
-        return workingNetwork.getName();
+    public Optional<String> getOptionalName() {
+        return workingNetwork.getOptionalName();
+    }
+
+    @Override
+    public String getNameOrId() {
+        return workingNetwork.getNameOrId();
     }
 
     @Override
@@ -310,6 +315,36 @@ public final class MergingView implements Network {
     }
 
     @Override
+    public <C extends Connectable> Iterable<C> getConnectables(Class<C> clazz) {
+        return Collections.unmodifiableCollection(index.getConnectables(clazz));
+    }
+
+    @Override
+    public <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
+        return index.getConnectables(clazz).stream();
+    }
+
+    @Override
+    public <C extends Connectable> int getConnectableCount(Class<C> clazz) {
+        return index.getConnectables(clazz).size();
+    }
+
+    @Override
+    public Iterable<Connectable> getConnectables() {
+        return Collections.unmodifiableCollection(index.getConnectables());
+    }
+
+    @Override
+    public Stream<Connectable> getConnectableStream() {
+        return index.getConnectables().stream();
+    }
+
+    @Override
+    public int getConnectableCount() {
+        return index.getConnectables().size();
+    }
+
+    @Override
     public SubstationAdderAdapter newSubstation() {
         return new SubstationAdderAdapter(workingNetwork.newSubstation(), index);
     }
@@ -338,11 +373,11 @@ public final class MergingView implements Network {
     @Override
     public Iterable<Substation> getSubstations(final String country, final String tsoId, final String... geographicalTags) {
         return index.getNetworkStream()
-                    .map(n -> n.getSubstations(country, tsoId, geographicalTags))
-                    .flatMap(x -> StreamSupport.stream(x.spliterator(), false))
-                    .filter(Objects::nonNull)
-                    .map(index::getSubstation)
-                    .collect(Collectors.toList());
+                .map(n -> n.getSubstations(country, tsoId, geographicalTags))
+                .flatMap(x -> StreamSupport.stream(x.spliterator(), false))
+                .filter(Objects::nonNull)
+                .map(index::getSubstation)
+                .collect(Collectors.toList());
     }
 
     @Override
