@@ -11,6 +11,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -31,11 +34,11 @@ public class Cim14SmallCasesTest {
     @Test
     public void small1PlusInvalidFileContent() throws IOException {
         TestGridModelResources t = Cim14SmallCasesCatalog.small1PlusInvalidFileContent();
-        // The data source contains an invalid file
+        // The data source contains invalid files
         CgmesOnDataSource c = new CgmesOnDataSource(t.dataSource());
-        assertTrue(t.dataSource().listNames(".*").contains(INVALID_CONTENT_XML));
-        // And it is correctly ignored as valid CIM content
-        assertFalse(c.names().contains(INVALID_CONTENT_XML));
+        assertTrue(t.dataSource().listNames(".*").containsAll(INVALID_CONTENT_FILES));
+        // And they are correctly ignored as valid CIM content
+        assertFalse(c.names().containsAll(INVALID_CONTENT_FILES));
         // The test case ignoring the invalid content is handled correctly
         new CgmesModelTester(t).test();
     }
@@ -55,6 +58,12 @@ public class Cim14SmallCasesTest {
         new CgmesModelTester(Cim14SmallCasesCatalog.nordic32()).test();
     }
 
-    private static final String INVALID_CONTENT_XML = "invalidContent_EQ.xml";
+    private static final String[] INVALID_CONTENT_FILES_VALUES = new String[] {
+        "invalidContent_EQ.notxml",
+        "invalidContent_EQ.xml",
+        "validRdfInvalidContent_EQ.xml",
+        "validCimInvalidContent_EQ.xml"
+    };
+    private static final Set<String> INVALID_CONTENT_FILES = new HashSet<>(Arrays.asList(INVALID_CONTENT_FILES_VALUES));
 
 }
