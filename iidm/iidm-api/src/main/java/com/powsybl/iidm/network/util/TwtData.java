@@ -97,12 +97,12 @@ public class TwtData {
     }
 
     public TwtData(ThreeWindingsTransformer twt, double epsilonX, boolean applyReactanceCorrection,
-        boolean t3wtSplitShuntAdmittance) {
-        this(twt, 0, 0, epsilonX, applyReactanceCorrection, t3wtSplitShuntAdmittance);
+        boolean twtSplitShuntAdmittance) {
+        this(twt, 0, 0, epsilonX, applyReactanceCorrection, twtSplitShuntAdmittance);
     }
 
     public TwtData(ThreeWindingsTransformer twt, int phaseAngleClock2, int phaseAngleClock3, double epsilonX,
-        boolean applyReactanceCorrection, boolean t3wtSplitShuntAdmittance) {
+        boolean applyReactanceCorrection, boolean twtSplitShuntAdmittance) {
         Objects.requireNonNull(twt);
         id = twt.getId();
 
@@ -127,18 +127,18 @@ public class TwtData {
         r3 = getR(twt.getLeg3());
         x3 = LinkData.getFixedX(getX(twt.getLeg3()), epsilonX, applyReactanceCorrection);
 
-        g11 = getG1(twt.getLeg1(), t3wtSplitShuntAdmittance);
-        b11 = getB1(twt.getLeg1(), t3wtSplitShuntAdmittance);
-        g12 = getG2(twt.getLeg1(), t3wtSplitShuntAdmittance);
-        b12 = getB2(twt.getLeg1(), t3wtSplitShuntAdmittance);
-        g21 = getG1(twt.getLeg2(), t3wtSplitShuntAdmittance);
-        b21 = getB1(twt.getLeg2(), t3wtSplitShuntAdmittance);
-        g22 = getG2(twt.getLeg2(), t3wtSplitShuntAdmittance);
-        b22 = getB2(twt.getLeg2(), t3wtSplitShuntAdmittance);
-        g31 = getG1(twt.getLeg3(), t3wtSplitShuntAdmittance);
-        b31 = getB1(twt.getLeg3(), t3wtSplitShuntAdmittance);
-        g32 = getG2(twt.getLeg3(), t3wtSplitShuntAdmittance);
-        b32 = getB2(twt.getLeg3(), t3wtSplitShuntAdmittance);
+        g11 = getG1(twt.getLeg1(), twtSplitShuntAdmittance);
+        b11 = getB1(twt.getLeg1(), twtSplitShuntAdmittance);
+        g12 = getG2(twt.getLeg1(), twtSplitShuntAdmittance);
+        b12 = getB2(twt.getLeg1(), twtSplitShuntAdmittance);
+        g21 = getG1(twt.getLeg2(), twtSplitShuntAdmittance);
+        b21 = getB1(twt.getLeg2(), twtSplitShuntAdmittance);
+        g22 = getG2(twt.getLeg2(), twtSplitShuntAdmittance);
+        b22 = getB2(twt.getLeg2(), twtSplitShuntAdmittance);
+        g31 = getG1(twt.getLeg3(), twtSplitShuntAdmittance);
+        b31 = getB1(twt.getLeg3(), twtSplitShuntAdmittance);
+        g32 = getG2(twt.getLeg3(), twtSplitShuntAdmittance);
+        b32 = getB2(twt.getLeg3(), twtSplitShuntAdmittance);
 
         this.ratedU0 = twt.getRatedU0();
         this.phaseAngleClock2 = phaseAngleClock2;
@@ -390,26 +390,26 @@ public class TwtData {
             leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getX() : 0);
     }
 
-    private static double getG1(Leg leg, boolean t3wtSplitShuntAdmittance) {
-        return getValue(t3wtSplitShuntAdmittance ? leg.getG() / 2 : leg.getG(),
+    private static double getG1(Leg leg, boolean twtSplitShuntAdmittance) {
+        return getValue(twtSplitShuntAdmittance ? leg.getG() / 2 : leg.getG(),
             leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getG() : 0,
             leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getG() : 0);
     }
 
-    private static double getB1(Leg leg, boolean t3wtSplitShuntAdmittance) {
-        return getValue(t3wtSplitShuntAdmittance ? leg.getB() / 2 : leg.getB(),
+    private static double getB1(Leg leg, boolean twtSplitShuntAdmittance) {
+        return getValue(twtSplitShuntAdmittance ? leg.getB() / 2 : leg.getB(),
             leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getB() : 0,
             leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }
 
-    private static double getG2(Leg leg, boolean t3wtSplitShuntAdmittance) {
-        return getValue(t3wtSplitShuntAdmittance ? leg.getG() / 2 : 0.0,
+    private static double getG2(Leg leg, boolean twtSplitShuntAdmittance) {
+        return getValue(twtSplitShuntAdmittance ? leg.getG() / 2 : 0.0,
             leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getG() : 0,
             leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getG() : 0);
     }
 
-    private static double getB2(Leg leg, boolean t3wtSplitShuntAdmittance) {
-        return getValue(t3wtSplitShuntAdmittance ? leg.getB() / 2 : 0.0,
+    private static double getB2(Leg leg, boolean twtSplitShuntAdmittance) {
+        return getValue(twtSplitShuntAdmittance ? leg.getB() / 2 : 0.0,
             leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getB() : 0,
             leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }

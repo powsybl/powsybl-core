@@ -26,6 +26,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
 
     static final String CONTEXT_NAME = "LoadFlowParameters";
     static final String REFERENCE_VERSION = "1.0";
+    static final String REFERENCE_VERSION_T2WT = "1.1";
 
     LoadFlowParametersDeserializer() {
         super(LoadFlowParameters.class);
@@ -70,19 +71,20 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                 case "specificCompatibility":
                     JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", version, REFERENCE_VERSION);
                     parser.nextToken();
-                    parameters.setT2wtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
+                    parameters.setTwtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
                     break;
 
                 case "t2wtSplitShuntAdmittance":
                     JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: t2wtSplitShuntAdmittance", version, REFERENCE_VERSION);
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: t2wtSplitShuntAdmittance", version, REFERENCE_VERSION_T2WT);
                     parser.nextToken();
-                    parameters.setT2wtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
+                    parameters.setTwtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
                     break;
 
-                case "t3wtSplitShuntAdmittance":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: t3wtSplitShuntAdmittance", version, REFERENCE_VERSION);
+                case "twtSplitShuntAdmittance":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: twtSplitShuntAdmittance", version, REFERENCE_VERSION_T2WT);
                     parser.nextToken();
-                    parameters.setT3wtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
+                    parameters.setTwtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
                     break;
 
                 case "extensions":

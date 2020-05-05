@@ -1,8 +1,8 @@
 {
-  "version" : "1.0",
+  "version" : "1.2",
   "voltageInitMode" : "PREVIOUS_VALUES",
   "transformerVoltageControlOn" : true,
   "phaseShifterRegulationOn" : false,
   "noGeneratorReactiveLimits" : true,
-  "t3wtSplitShuntAdmittance" : true
+  "t2wtSplitShuntAdmittance" : true
 }
