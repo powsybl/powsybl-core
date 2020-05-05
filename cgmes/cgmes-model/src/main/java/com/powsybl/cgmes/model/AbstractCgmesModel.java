@@ -54,6 +54,14 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
+    public CgmesDcTerminal dcTerminal(String dcTerminalId) {
+        if (cachedDcTerminals == null) {
+            cachedDcTerminals = computeDcTerminals();
+        }
+        return cachedDcTerminals.get(dcTerminalId);
+    }
+
+    @Override
     public String terminalForEquipment(String conduntingEquipmentId) {
         // TODO Not all conducting equipment have a single terminal
         // For the current purposes of this mapping (export State Variables)
@@ -171,7 +179,9 @@ public abstract class AbstractCgmesModel implements CgmesModel {
 
     private Map<String, CgmesTerminal> computeTerminals() {
         Map<String, CgmesTerminal> ts = new HashMap<>();
-        conductingEquipmentTerminal = new HashMap<>();
+        if (conductingEquipmentTerminal == null) {
+            conductingEquipmentTerminal = new HashMap<>();
+        }
         terminals().forEach(t -> {
             CgmesTerminal td = new CgmesTerminal(t);
             if (ts.containsKey(td.id())) {
@@ -179,6 +189,22 @@ public abstract class AbstractCgmesModel implements CgmesModel {
             }
             ts.put(td.id(), td);
             conductingEquipmentTerminal.put(t.getId("ConductingEquipment"), t.getId(CgmesNames.TERMINAL));
+        });
+        return ts;
+    }
+
+    private Map<String, CgmesDcTerminal> computeDcTerminals() {
+        Map<String, CgmesDcTerminal> ts = new HashMap<>();
+        if (conductingEquipmentTerminal == null) {
+            conductingEquipmentTerminal = new HashMap<>();
+        }
+        dcTerminals().forEach(t -> {
+            CgmesDcTerminal td = new CgmesDcTerminal(t);
+            if (ts.containsKey(td.id())) {
+                return;
+            }
+            ts.put(td.id(), td);
+            conductingEquipmentTerminal.put(t.getId("ConductingEquipment"), t.getId(CgmesNames.DC_TERMINAL));
         });
         return ts;
     }
@@ -244,6 +270,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     private Map<String, String> conductingEquipmentTerminal;
     private Map<String, String> powerTransformerRatioTapChanger;
     private Map<String, String> powerTransformerPhaseTapChanger;
+    private Map<String, CgmesDcTerminal> cachedDcTerminals;
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCgmesModel.class);
 }

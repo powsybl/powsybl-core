@@ -16,6 +16,7 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -54,10 +55,10 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
                 Range<Double> prev = qRanges.get(p);
                 if (prev != null) {
                     if (prev.isConnected(qRange)) {
-                        fixed("reactive capability curve", String.format("point merged with another one with same p (%f)", p));
+                        fixed("reactive capability curve", () -> String.format("point merged with another one with same p (%f)", p));
                         qRanges.put(p, prev.span(qRange));
                     } else {
-                        ignored("reactive capability curve point", String.format("another point with same p (%f) and a disconnected reactive range", p));
+                        ignored("reactive capability curve point", () -> String.format("another point with same p (%f) and a disconnected reactive range", p));
                     }
                 } else {
                     qRanges.put(p, qRange);
@@ -110,7 +111,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
 
     private boolean checkPointValidity(double p, double minQ, double maxQ) {
         if (Double.isNaN(p) || Double.isNaN(minQ) || Double.isNaN(maxQ)) {
-            String reason = String.format("Incomplete point p, minQ, maxQ = %f, %f, %f", p, minQ, maxQ);
+            Supplier<String> reason = () -> String.format("Incomplete point p, minQ, maxQ = %f, %f, %f", p, minQ, maxQ);
             ignored("ReactiveCapabilityCurvePoint", reason);
             return false;
         }
@@ -119,7 +120,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
 
     private Range<Double> fixedMinMaxQ(String context, double minQ, double maxQ) {
         if (minQ > maxQ) {
-            String reason = String.format("minQ > maxQ (%.4f > %.4f)", minQ, maxQ);
+            Supplier<String> reason = () -> String.format("minQ > maxQ (%.4f > %.4f)", minQ, maxQ);
             fixed(context, reason);
             return Range.closed(maxQ, minQ);
         }

@@ -927,27 +927,16 @@ UNION
     ?DCConductingEquipment a ?dcConductingEquipmentType .
 }}
 }
+OPTIONAL { ?DCTerminal cim:IdentifiedObject.name ?name }
 OPTIONAL { GRAPH ?graphSSH {
     ?DCTerminal cim:ACDCTerminal.connected ?connected
 }}
-}
-
-# query: dcTerminalsTP
-SELECT *
-WHERE {
-{ GRAPH ?graphTP {
-    ?DCTerminal cim:DCBaseTerminal.DCTopologicalNode ?DCTopologicalNode
+OPTIONAL { GRAPH ?graphCN {
+?DCTerminal cim:DCBaseTerminal.DCNode ?DCNode .
 }}
-OPTIONAL {
-    { GRAPH ?graphTP2 {
-        ?DCTopologicalNode cim:DCTopologicalNode.DCEquipmentContainer ?EquipmentContainer
-    }}
-    OPTIONAL { GRAPH ?graph3 {
-        ?EquipmentContainer
-            a cim:DCConverterUnit ;
-            cim:DCConverterUnit.Substation ?Substation .
-    }}
-}
+OPTIONAL { GRAPH ?graphTPT {
+?DCTerminal cim:DCBaseTerminal.DCTopologicalNode ?DCTopologicalNode .
+}}
 }
 
 # query: dcLineSegments

@@ -6,8 +6,9 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,20 +45,23 @@ public class ShuntCompensatorAdapterTest {
         });
 
         int maxCount = shuntCExpected.getMaximumSectionCount();
-        shuntCActual.getModel(ShuntCompensatorLinearModel.class).setMaximumSectionCount(++maxCount);
+        assertEquals(maxCount, shuntCActual.getMaximumSectionCount());
+        assertTrue(shuntCActual.setMaximumSectionCount(++maxCount) instanceof ShuntCompensatorAdapter);
+        assertEquals(maxCount, shuntCActual.getMaximumSectionCount());
+
         int currentCount = shuntCExpected.getCurrentSectionCount();
         assertEquals(currentCount, shuntCActual.getCurrentSectionCount());
         assertTrue(shuntCActual.setCurrentSectionCount(++currentCount) instanceof ShuntCompensatorAdapter);
         assertEquals(currentCount, shuntCActual.getCurrentSectionCount());
 
-        double b = shuntCExpected.getModel(ShuntCompensatorLinearModel.class).getbPerSection();
-        assertEquals(b, shuntCActual.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), 0.0d);
-        shuntCActual.getModel(ShuntCompensatorLinearModel.class).setbPerSection(++b);
-        assertEquals(shuntCExpected.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), shuntCActual.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), 0.0d);
+        double b = shuntCExpected.getbPerSection();
+        assertEquals(b, shuntCActual.getbPerSection(), 0.0d);
+        assertTrue(shuntCActual.setbPerSection(++b) instanceof ShuntCompensatorAdapter);
+        assertEquals(shuntCExpected.getbPerSection(), shuntCActual.getbPerSection(), 0.0d);
 
         double currentB = shuntCExpected.getCurrentB();
         assertEquals(currentB, shuntCActual.getCurrentB(), 0.0d);
-        shuntCActual.getModel(ShuntCompensatorLinearModel.class).setbPerSection(++currentB);
+        assertTrue(shuntCActual.setbPerSection(++currentB) instanceof ShuntCompensatorAdapter);
         assertEquals(shuntCExpected.getCurrentB(), shuntCActual.getCurrentB(), 0.0d);
 
         Terminal terminal = mergingView.getLccConverterStation("C1").getTerminal();
@@ -81,73 +85,6 @@ public class ShuntCompensatorAdapterTest {
 
         // Not implemented yet !
         TestUtil.notImplemented(shuntCActual::remove);
-    }
-
-    @Test
-    public void testCreateLinear() {
-        createNetwork();
-
-        // Linear shunt
-        ShuntCompensatorAdder adder = mergingView.getVoltageLevel("VLLOAD")
-                .newShuntCompensator()
-                    .setId("linear")
-                    .setConnectableBus("NLOAD")
-                    .setCurrentSectionCount(0)
-                    .newLinearModel()
-                        .setbPerSection(1.0)
-                        .setMaximumSectionCount(2)
-                    .add();
-        assertTrue(adder instanceof ShuntCompensatorAdderAdapter);
-        assertTrue(adder.add() instanceof ShuntCompensatorAdapter);
-
-        ShuntCompensator shunt = mergingView.getShuntCompensator("linear");
-        assertEquals(0, shunt.getCurrentSectionCount());
-        assertEquals(2, shunt.getMaximumSectionCount());
-
-        ShuntCompensatorLinearModel model = shunt.getModel(ShuntCompensatorLinearModel.class);
-        assertEquals(1.0, model.getbPerSection(), 0.0);
-        assertTrue(Double.isNaN(model.getgPerSection()));
-    }
-
-    @Test
-    public void testCreateNonLinear() {
-        createNetwork();
-
-        // Non linear shunt
-        ShuntCompensatorAdder adder = mergingView.getVoltageLevel("VLLOAD")
-                .newShuntCompensator()
-                .setId("nonLinear")
-                .setConnectableBus("NLOAD")
-                .setCurrentSectionCount(0)
-                .newNonLinearModel()
-                    .beginSection()
-                        .setSectionNum(0)
-                        .setB(1.0)
-                    .endSection()
-                    .beginSection()
-                        .setSectionNum(1)
-                        .setB(2.0)
-                    .endSection()
-                .add();
-        assertTrue(adder instanceof ShuntCompensatorAdderAdapter);
-        assertTrue(adder.add() instanceof ShuntCompensatorAdapter);
-
-        ShuntCompensator shunt = mergingView.getShuntCompensator("nonLinear");
-        assertEquals(0, shunt.getCurrentSectionCount());
-        assertEquals(1, shunt.getMaximumSectionCount());
-
-        ShuntCompensatorNonLinearModel model = shunt.getModel(ShuntCompensatorNonLinearModel.class);
-        assertEquals(2, model.getSections().size());
-        assertEquals(1.0, model.getB(0), 0.0);
-        assertTrue(Double.isNaN(model.getG(0)));
-        assertEquals(2.0, model.getB(1), 0.0);
-        assertTrue(Double.isNaN(model.getG(1)));
-    }
-
-    private void createNetwork() {
-        Network network = EurostagTutorialExample1Factory.create();
-        network.getLoad("LOAD").remove();
-        mergingView.merge(network);
     }
 }
     //pour les méthodes setComponentNumber de BusExt je peux les remonter dans Bus

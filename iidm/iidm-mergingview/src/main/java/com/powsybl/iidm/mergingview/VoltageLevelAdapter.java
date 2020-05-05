@@ -230,7 +230,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
         }
 
         @Override
-        public boolean hasAttachedEquipment(final  int node) {
+        public boolean hasAttachedEquipment(final int node) {
             return getDelegate().hasAttachedEquipment(node);
         }
 
@@ -339,7 +339,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
 
         @Override
         public int getSwitchCount() {
-            return  getDelegate().getSwitchCount();
+            return getDelegate().getSwitchCount();
         }
 
         @Override
@@ -440,7 +440,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public Iterable<VscConverterStation> getVscConverterStations() {
         return Iterables.transform(getDelegate().getVscConverterStations(),
-                                   getIndex()::getVscConverterStation);
+                getIndex()::getVscConverterStation);
     }
 
     @Override
@@ -451,7 +451,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public Iterable<Battery> getBatteries() {
         return Iterables.transform(getDelegate().getBatteries(),
-                                   getIndex()::getBattery);
+                getIndex()::getBattery);
     }
 
     @Override
@@ -467,7 +467,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public Iterable<Generator> getGenerators() {
         return Iterables.transform(getDelegate().getGenerators(),
-                                   getIndex()::getGenerator);
+                getIndex()::getGenerator);
     }
 
     @Override
@@ -483,7 +483,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public Iterable<Load> getLoads() {
         return Iterables.transform(getDelegate().getLoads(),
-                                   getIndex()::getLoad);
+                getIndex()::getLoad);
     }
 
     @Override
@@ -499,7 +499,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public Iterable<ShuntCompensator> getShuntCompensators() {
         return Iterables.transform(getDelegate().getShuntCompensators(),
-                                   getIndex()::getShuntCompensator);
+                getIndex()::getShuntCompensator);
     }
 
     @Override
@@ -515,7 +515,7 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
         return Iterables.transform(getDelegate().getStaticVarCompensators(),
-                                   getIndex()::getStaticVarCompensator);
+                getIndex()::getStaticVarCompensator);
     }
 
     @Override
@@ -556,8 +556,8 @@ class VoltageLevelAdapter extends AbstractIdentifiableAdapter<VoltageLevel> impl
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
         return getDelegate().getDanglingLineStream()
-                            .filter(dl -> !getIndex().isMerged(dl))
-                            .map(getIndex()::getDanglingLine);
+                .filter(dl -> !getIndex().isMerged(dl))
+                .map(getIndex()::getDanglingLine);
     }
 
     @Override

@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import java.util.Comparator;
+import java.util.function.Supplier;
 
 import com.powsybl.cgmes.conversion.elements.transformers.NewThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.model.CgmesModelException;
@@ -61,7 +62,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
                 if (position == neutralStep && !regulating) {
                     ignored(reason0 + ", but is at neutralStep and regulating control disabled");
                 } else {
-                    String reason = String.format(
+                    Supplier<String> reason = () -> String.format(
                             "%s, tap step: %d, regulating control enabled: %b",
                             reason0,
                             position,
@@ -170,8 +171,8 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         double value = point.asDouble(attr, defaultValue);
         if (Double.isNaN(value)) {
             fixed(
-                    "RatioTapChangerTablePoint " + attr + " for step " + step + " in table " + tableId,
-                    "invalid value " + point.get(attr));
+                "RatioTapChangerTablePoint " + attr + " for step " + step + " in table " + tableId,
+                "invalid value " + point.get(attr));
             return defaultValue;
         }
         return value;
