@@ -76,7 +76,7 @@ public class MatpowerImporter implements Importer {
     private static ContainersMapping createContainerMapping(MatpowerModel matpowerModel) {
         ContainersMapping containersMapping = new ContainersMapping();
 
-        // group buses connected to non impedant lines to voltage levels
+        // each bus is mapped to a corresponding voltage level
         createVoltageLevelMapping(matpowerModel, containersMapping);
 
         // group voltage levels connected by transformers to substations
@@ -93,13 +93,13 @@ public class MatpowerImporter implements Importer {
         return prefix + "-" + num;
     }
 
-    private static String getBranchId(String prefix, int from, int to) {
+    private static String getId(String prefix, int from, int to) {
         return prefix + "-" + from + "-" + to;
     }
 
     private static void createSubstationMapping(MatpowerModel model, ContainersMapping containersMapping) {
         UndirectedGraph<String, Object> sGraph = new Pseudograph<>(Object.class);
-        for (String voltageLevelId : containersMapping.voltageLevelIdToBusNums.keySet()) {
+        for (String voltageLevelId : containersMapping.busNumToVoltageLevelId.values()) {
             sGraph.addVertex(voltageLevelId);
         }
         for (MBranch branch : model.getBranches()) {
@@ -118,21 +118,9 @@ public class MatpowerImporter implements Importer {
     }
 
     private static void createVoltageLevelMapping(MatpowerModel model, ContainersMapping containersMapping) {
-        UndirectedGraph<Integer, Object> vlGraph = new Pseudograph<>(Object.class);
         for (MBus mBus : model.getBuses()) {
-            vlGraph.addVertex(mBus.getNumber());
-        }
-        for (MBranch mBranch : model.getBranches()) {
-            if (mBranch.getR() == 0 && mBranch.getX() == 0) {
-                vlGraph.addEdge(mBranch.getFrom(), mBranch.getTo());
-            }
-        }
-        for (Set<Integer> busNums : new ConnectivityInspector<>(vlGraph).connectedSets()) {
-            String voltageLevelId = getId(VOLTAGE_LEVEL_PREFIX, busNums.iterator().next());
-            containersMapping.voltageLevelIdToBusNums.put(voltageLevelId, busNums);
-            for (int busNum : busNums) {
-                containersMapping.busNumToVoltageLevelId.put(busNum, voltageLevelId);
-            }
+            String voltageLevelId = getId(VOLTAGE_LEVEL_PREFIX, mBus.getNumber());
+            containersMapping.busNumToVoltageLevelId.put(mBus.getNumber(), voltageLevelId);
         }
     }
 
@@ -289,27 +277,9 @@ public class MatpowerImporter implements Importer {
             double zb = voltageLevel2.getNominalV() * voltageLevel2.getNominalV() / perUnitContext.getBaseMva();
             boolean isInService = isInService(mBranch);
 
-            if (mBranch.getRatio() == 0) {
-                Line newLine = network.newLine()
-                        .setId(getBranchId(LINE_PREFIX, mBranch.getFrom(), mBranch.getTo()))
-                        .setEnsureIdUnicity(true)
-                        .setBus1(isInService ? bus1Id : null)
-                        .setConnectableBus1(bus1Id)
-                        .setVoltageLevel1(voltageLevel1Id)
-                        .setBus2(isInService ? bus2Id : null)
-                        .setConnectableBus2(bus2Id)
-                        .setVoltageLevel2(voltageLevel2Id)
-                        .setR(mBranch.getR() * zb)
-                        .setX(mBranch.getX() * zb)
-                        .setG1(0)
-                        .setB1(mBranch.getB() / zb / 2)
-                        .setG2(0)
-                        .setB2(mBranch.getB() / zb / 2)
-                        .add();
-                LOGGER.debug("Created line {} {} {}", newLine.getId(), bus1Id, bus2Id);
-            } else {
+            if (isTransformer(mBranch)) {
                 TwoWindingsTransformer newTwt = voltageLevel2.getSubstation().newTwoWindingsTransformer()
-                        .setId(getBranchId(TRANSFORMER_PREFIX, mBranch.getFrom(), mBranch.getTo()))
+                        .setId(getId(TRANSFORMER_PREFIX, mBranch.getFrom(), mBranch.getTo()))
                         .setEnsureIdUnicity(true)
                         .setBus1(isInService ? bus1Id : null)
                         .setConnectableBus1(bus1Id)
@@ -325,6 +295,24 @@ public class MatpowerImporter implements Importer {
                         .setB(mBranch.getB() / zb)
                         .add();
                 LOGGER.debug("Created TwoWindingsTransformer {} {} {}", newTwt.getId(), bus1Id, bus2Id);
+            } else {
+                Line newLine = network.newLine()
+                        .setId(getId(LINE_PREFIX, mBranch.getFrom(), mBranch.getTo()))
+                        .setEnsureIdUnicity(true)
+                        .setBus1(isInService ? bus1Id : null)
+                        .setConnectableBus1(bus1Id)
+                        .setVoltageLevel1(voltageLevel1Id)
+                        .setBus2(isInService ? bus2Id : null)
+                        .setConnectableBus2(bus2Id)
+                        .setVoltageLevel2(voltageLevel2Id)
+                        .setR(mBranch.getR() * zb)
+                        .setX(mBranch.getX() * zb)
+                        .setG1(0)
+                        .setB1(mBranch.getB() / zb / 2)
+                        .setG2(0)
+                        .setB2(mBranch.getB() / zb / 2)
+                        .add();
+                LOGGER.debug("Created line {} {} {}", newLine.getId(), bus1Id, bus2Id);
             }
         }
     }
@@ -389,7 +377,7 @@ public class MatpowerImporter implements Importer {
         Objects.requireNonNull(networkFactory);
         Network network = networkFactory.createNetwork(dataSource.getBaseName(), FORMAT);
 
-        // no info about time & date from the matpower file, set a default now()
+        //there is no info about time & date declared in the matpower file: set a default now()
         network.setCaseDate(DateTime.now());
 
         try {
@@ -427,10 +415,7 @@ public class MatpowerImporter implements Importer {
     }
 
     private static class ContainersMapping {
-
         private final Map<Integer, String> busNumToVoltageLevelId = new HashMap<>();
-
-        private final Map<String, Set<Integer>> voltageLevelIdToBusNums = new HashMap<>();
 
         private final Map<String, String> voltageLevelIdToSubstationId = new HashMap<>();
     }
