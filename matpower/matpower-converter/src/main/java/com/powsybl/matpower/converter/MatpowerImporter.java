@@ -276,15 +276,17 @@ public class MatpowerImporter implements Importer {
             VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
             double zb = voltageLevel2.getNominalV() * voltageLevel2.getNominalV() / perUnitContext.getBaseMva();
             boolean isInService = isInService(mBranch);
+            String connectedBus1 = isInService ? bus1Id : null;
+            String connectedBus2 = isInService ? bus2Id : null;
 
             if (isTransformer(mBranch)) {
                 TwoWindingsTransformer newTwt = voltageLevel2.getSubstation().newTwoWindingsTransformer()
                         .setId(getId(TRANSFORMER_PREFIX, mBranch.getFrom(), mBranch.getTo()))
                         .setEnsureIdUnicity(true)
-                        .setBus1(isInService ? bus1Id : null)
+                        .setBus1(connectedBus1)
                         .setConnectableBus1(bus1Id)
                         .setVoltageLevel1(voltageLevel1Id)
-                        .setBus2(isInService ? bus2Id : null)
+                        .setBus2(connectedBus2)
                         .setConnectableBus2(bus2Id)
                         .setVoltageLevel2(voltageLevel2Id)
                         .setRatedU1(voltageLevel1.getNominalV() * mBranch.getRatio())
@@ -299,10 +301,10 @@ public class MatpowerImporter implements Importer {
                 Line newLine = network.newLine()
                         .setId(getId(LINE_PREFIX, mBranch.getFrom(), mBranch.getTo()))
                         .setEnsureIdUnicity(true)
-                        .setBus1(isInService ? bus1Id : null)
+                        .setBus1(connectedBus1)
                         .setConnectableBus1(bus1Id)
                         .setVoltageLevel1(voltageLevel1Id)
-                        .setBus2(isInService ? bus2Id : null)
+                        .setBus2(connectedBus2)
                         .setConnectableBus2(bus2Id)
                         .setVoltageLevel2(voltageLevel2Id)
                         .setR(mBranch.getR() * zb)
