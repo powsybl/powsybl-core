@@ -31,8 +31,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
@@ -53,8 +52,9 @@ public class MatpowerImporterTest extends AbstractConverterTest {
     @Test
     public void copyTest() {
         new MatpowerImporter().copy(new ResourceDataSource("case118", new ResourceSet("/", "case118.m")),
-            new FileDataSource(fileSystem.getPath("/work"), "copy.m"));
+            new FileDataSource(fileSystem.getPath("/work"), "copy"));
         assertTrue(Files.exists(fileSystem.getPath("/work").resolve("copy.m")));
+        assertFalse(Files.exists(fileSystem.getPath("/work").resolve("copy.mat")));
     }
 
     @Test

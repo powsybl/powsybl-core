@@ -360,10 +360,9 @@ public class MatpowerImporter implements Importer {
         Objects.requireNonNull(fromDataSource);
         Objects.requireNonNull(toDataSource);
         try {
-            String extFrom = findExtension(fromDataSource, false);
-            String extTo = findExtension(toDataSource, false);
-            try (InputStream is = fromDataSource.newInputStream(null, extFrom);
-                 OutputStream os = toDataSource.newOutputStream(null, extTo, false)) {
+            String extension = findExtension(fromDataSource, true);
+            try (InputStream is = fromDataSource.newInputStream(null, extension);
+                 OutputStream os = toDataSource.newOutputStream(null, extension, false)) {
                 ByteStreams.copy(is, os);
             }
         } catch (IOException e) {
