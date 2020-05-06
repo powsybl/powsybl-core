@@ -13,8 +13,31 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.MinMaxReactiveLimits;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.PhaseTapChangerStep;
+import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.RatioTapChangerStep;
+import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
+import com.powsybl.iidm.network.ReactiveLimits;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.TapChanger;
+import com.powsybl.iidm.network.TapChangerStep;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
@@ -210,8 +233,8 @@ public class Comparison {
                 expected.getMaximumSectionCount(),
                 actual.getMaximumSectionCount());
         compare("bPerSection",
-                expected.getModel(ShuntCompensatorLinearModel.class).getbPerSection(),
-                actual.getModel(ShuntCompensatorLinearModel.class).getbPerSection());
+                expected.getbPerSection(),
+                actual.getbPerSection());
         compare("voltageRegulationOn",
                 expected.isVoltageRegulatorOn(),
                 actual.isVoltageRegulatorOn());
@@ -448,10 +471,10 @@ public class Comparison {
 
         compareRatioTapChanger(expected.getRatioTapChanger(), actual.getRatioTapChanger());
         comparePhaseTapChanger(expected.getPhaseTapChanger(), actual.getPhaseTapChanger());
-        comparePhaseAngleClock(expected.getExtension(TwoWindingsTransformerPhaseAngleClock.class), actual.getExtension(TwoWindingsTransformerPhaseAngleClock.class));
+        comparePhaseAngleClock2(expected.getExtension(TwoWindingsTransformerPhaseAngleClock.class), actual.getExtension(TwoWindingsTransformerPhaseAngleClock.class));
     }
 
-    private void comparePhaseAngleClock(TwoWindingsTransformerPhaseAngleClock expected, TwoWindingsTransformerPhaseAngleClock actual) {
+    private void comparePhaseAngleClock2(TwoWindingsTransformerPhaseAngleClock expected, TwoWindingsTransformerPhaseAngleClock actual) {
         if (expected == null && actual == null) {
             return;
         } else if (expected == null && actual != null) {
@@ -470,10 +493,10 @@ public class Comparison {
         compareLeg(expected.getLeg1(), actual.getLeg1(), expected, actual);
         compareLeg(expected.getLeg2(), actual.getLeg2(), expected, actual);
         compareLeg(expected.getLeg3(), actual.getLeg3(), expected, actual);
-        comparePhaseAngleClock(expected.getExtension(ThreeWindingsTransformerPhaseAngleClock.class), actual.getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
+        comparePhaseAngleClock3(expected.getExtension(ThreeWindingsTransformerPhaseAngleClock.class), actual.getExtension(ThreeWindingsTransformerPhaseAngleClock.class));
     }
 
-    private void comparePhaseAngleClock(ThreeWindingsTransformerPhaseAngleClock expected, ThreeWindingsTransformerPhaseAngleClock actual) {
+    private void comparePhaseAngleClock3(ThreeWindingsTransformerPhaseAngleClock expected, ThreeWindingsTransformerPhaseAngleClock actual) {
         if (expected == null && actual == null) {
             return;
         } else if (expected == null && actual != null) {
