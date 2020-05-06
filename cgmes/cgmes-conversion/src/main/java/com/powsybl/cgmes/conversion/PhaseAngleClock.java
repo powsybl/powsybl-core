@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
-import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
@@ -73,8 +73,7 @@ public class PhaseAngleClock implements CgmesImportPostProcessor {
                 LOG.warn("Ignored {}. Reason: {}.", what, reason);
             }
             if (phaseAngleClock2 != 0) {
-                TwoWindingsTransformerPhaseAngleClock phaseAngleClock = new TwoWindingsTransformerPhaseAngleClock(tx, phaseAngleClock2);
-                tx.addExtension(TwoWindingsTransformerPhaseAngleClock.class, phaseAngleClock);
+                tx.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClock(phaseAngleClock2).add();
             }
         }
     }
