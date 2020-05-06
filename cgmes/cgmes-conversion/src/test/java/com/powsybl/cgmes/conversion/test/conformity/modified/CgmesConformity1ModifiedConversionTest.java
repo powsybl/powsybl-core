@@ -11,8 +11,15 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelFactory;
+import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
+import com.powsybl.triplestore.api.TripleStoreFactory;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,6 +72,48 @@ public class CgmesConformity1ModifiedConversionTest {
         for (int k = 1; k <= 4; k++) {
             assertEquals(1.0, ptc.getStep(k).getRho(), 0);
         }
+    }
+
+    @Test
+    public void microBEPhaseTapChangerLinearTest() throws IOException {
+        Conversion.Config config = new Conversion.Config();
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.microT4BePhaseTapChangerLinear(),
+            config);
+
+        PhaseTapChanger ptc = n.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
+        assertEquals(25, ptc.getStepCount());
+
+        for (int step = 1; step <= ptc.getStepCount(); step++) {
+            assertEquals(1.0, ptc.getStep(step).getRho(), 0);
+            assertEquals(0.0, ptc.getStep(step).getR(), 0);
+            assertEquals(-87.517240, ptc.getStep(1).getX(), 0.000001);
+            assertEquals(0.0, ptc.getStep(step).getG(), 0);
+            assertEquals(0.0, ptc.getStep(step).getB(), 0);
+        }
+
+        // Check alpha in some steps
+        assertEquals(14.4, ptc.getStep(1).getAlpha(), 0.001);
+        assertEquals(8.4, ptc.getStep(6).getAlpha(), 0.001);
+        assertEquals(2.4, ptc.getStep(11).getAlpha(), 0.001);
+        assertEquals(0.0, ptc.getStep(13).getAlpha(), 0.0);
+        assertEquals(-1.2, ptc.getStep(14).getAlpha(), 0.001);
+        assertEquals(-7.2, ptc.getStep(19).getAlpha(), 0.001);
+        assertEquals(-14.4, ptc.getStep(25).getAlpha(), 0.001);
+    }
+
+    private Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
+
+        ReadOnlyDataSource ds = testGridModel.dataSource();
+        String impl = TripleStoreFactory.defaultImplementation();
+
+        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
+
+        config.setConvertSvInjections(true);
+        config.setProfileUsedForInitialStateValues(Conversion.Config.StateProfile.SSH.name());
+        Conversion c = new Conversion(cgmes, config);
+        Network n = c.convert();
+
+        return n;
     }
 
     @Test
