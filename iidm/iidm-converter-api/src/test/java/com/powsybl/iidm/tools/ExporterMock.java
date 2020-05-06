@@ -8,6 +8,7 @@ package com.powsybl.iidm.tools;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datastore.DataStore;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
 
@@ -37,6 +38,13 @@ public class ExporterMock implements Exporter {
 
     @Override
     public void export(Network network, Properties parameters, DataSource dataSource) {
+        assertEquals(2, parameters.size());
+        assertEquals("value2", parameters.getProperty("param2"));
+        assertEquals("value", parameters.getProperty("export.parameter"));
+    }
+
+    @Override
+    public void export(Network network, Properties parameters, DataStore dataStore, String filename) {
         assertEquals(2, parameters.size());
         assertEquals("value2", parameters.getProperty("param2"));
         assertEquals("value", parameters.getProperty("export.parameter"));

@@ -6,10 +6,23 @@
  */
 package com.powsybl.iidm.tools;
 
+import static com.powsybl.iidm.tools.ConversionToolUtils.createExportParameterOption;
+import static com.powsybl.iidm.tools.ConversionToolUtils.createExportParametersFileOption;
+import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParameterOption;
+import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParametersFileOption;
+import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
+
+import java.nio.file.Path;
+import java.util.Properties;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.DefaultDataSourceObserver;
+import com.powsybl.commons.datastore.DataStore;
+import com.powsybl.commons.datastore.DirectoryDataStore;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.ImportConfig;
@@ -18,13 +31,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-
-import java.util.Properties;
-
-import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
 /**
  *
@@ -111,12 +117,16 @@ public class ConversionTool implements Tool {
         Network network = Importers.loadNetwork(context.getFileSystem().getPath(inputFile), context.getShortTimeExecutionComputationManager(), createImportConfig(), inputParams);
 
         Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
+        /*
         DataSource ds2 = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new DefaultDataSourceObserver() {
             @Override
             public void opened(String streamName) {
                 context.getOutputStream().println("Generating file " + streamName + "...");
             }
         });
-        exporter.export(network, outputParams, ds2);
+        */
+        Path out = context.getFileSystem().getPath(outputFile);
+        DataStore dst = new DirectoryDataStore(out.getParent());
+        exporter.export(network, outputParams, dst, out.getFileName().toString());
     }
 }

@@ -64,7 +64,8 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datastore.DataEntry;
 import com.powsybl.commons.datastore.DataPack;
-import com.powsybl.commons.datastore.DataStoreUtil;
+import com.powsybl.commons.datastore.DataStore;
+import com.powsybl.commons.datastore.FilesUtil;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
@@ -368,6 +369,21 @@ public final class NetworkXml {
             Anonymizer anonymizer = write(network, options, bosb);
             if (options.isAnonymized()) {
                 try (BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {
+                    anonymizer.write(writer2);
+                }
+            }
+            return anonymizer;
+        }
+    }
+
+    public static Anonymizer write(Network network, ExportOptions options, DataStore dataStore, String filename) throws IOException {
+        try (OutputStream osb = dataStore.newOutputStream(filename, false);
+             BufferedOutputStream bosb = new BufferedOutputStream(osb)) {
+
+            Anonymizer anonymizer = write(network, options, bosb);
+            if (options.isAnonymized()) {
+                String mappingFilename = FilesUtil.getBasename(filename) + "_mapping,csv";
+                try (BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter(dataStore.newOutputStream(mappingFilename, false), StandardCharsets.UTF_8))) {
                     anonymizer.write(writer2);
                 }
             }
@@ -692,7 +708,7 @@ public final class NetworkXml {
         Anonymizer anonymizer = null;
         Optional<DataEntry> main = dataPack.getMainEntry();
         if (main.isPresent()) {
-            Optional<DataEntry> mappingFile = dataPack.getEntry(DataStoreUtil.getBasename(main.get().getName()) + SUFFIX_MAPPING + ".csv");
+            Optional<DataEntry> mappingFile = dataPack.getEntry(FilesUtil.getBasename(main.get().getName()) + SUFFIX_MAPPING + ".csv");
             if (mappingFile.isPresent()) {
                 anonymizer = new SimpleAnonymizer();
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataPack.getSource().newInputStream(mappingFile.get().getName()), StandardCharsets.UTF_8))) {

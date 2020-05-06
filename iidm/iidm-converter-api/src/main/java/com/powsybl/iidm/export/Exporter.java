@@ -7,6 +7,7 @@
 package com.powsybl.iidm.export;
 
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datastore.DataStore;
 import com.powsybl.iidm.network.Network;
 import java.util.Properties;
 
@@ -42,5 +43,17 @@ public interface Exporter {
      * @param dataSource data source
      */
     void export(Network network, Properties parameters, DataSource dataSource);
+
+    /**
+     * Export a model.
+     *
+     * @param network the model
+     * @param parameters some properties to configure the export
+     * @param dataStore data store
+     * @param exported file name
+     */
+    default void export(Network network, Properties parameters, DataStore dataStore, String filename) {
+        throw new UnsupportedOperationException("Method not implemented");
+    }
 
 }

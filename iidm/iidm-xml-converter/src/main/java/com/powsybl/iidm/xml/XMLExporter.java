@@ -11,6 +11,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datastore.DataStore;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.iidm.ConversionParameters;
@@ -115,6 +116,21 @@ public class XMLExporter implements Exporter {
         try {
             long startTime = System.currentTimeMillis();
             NetworkXml.write(network, options, dataSource, "xiidm");
+            LOGGER.debug("XIIDM export done in {} ms", System.currentTimeMillis() - startTime);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void export(Network network, Properties parameters, DataStore dataStore, String filename) {
+        if (network == null) {
+            throw new IllegalArgumentException("network is null");
+        }
+        ExportOptions options = createExportOptions(parameters);
+        try {
+            long startTime = System.currentTimeMillis();
+            NetworkXml.write(network, options, dataStore, filename);
             LOGGER.debug("XIIDM export done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

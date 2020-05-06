@@ -40,8 +40,7 @@ import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datastore.DataStore;
-import com.powsybl.commons.datastore.DirectoryDataStore;
+import com.powsybl.commons.datastore.DataStoreUtil;
 import com.powsybl.commons.datastore.MemDataStore;
 import com.powsybl.commons.datastore.ReadOnlyDataStore;
 import com.powsybl.computation.ComputationManager;
@@ -386,19 +385,6 @@ public final class Importers {
         return DataSourceUtil.createDataSource(directory, fileNameOrBaseName, null);
     }
 
-    public static DataStore createDataStore(Path file) throws NotDirectoryException {
-        Objects.requireNonNull(file);
-        if (!Files.isRegularFile(file)) {
-            throw new PowsyblException("File " + file + " does not exist or is not a regular file");
-        }
-        Path absFile = file.toAbsolutePath();
-        return createDataStore(absFile.getParent(), absFile.getFileName().toString());
-    }
-
-    public static DataStore createDataStore(Path directory, String fileName) throws NotDirectoryException {
-        return new DirectoryDataStore(directory);
-    }
-
     public static Importer findImporter(ReadOnlyDataSource dataSource, ImportersLoader loader, ComputationManager computationManager, ImportConfig config) {
         for (Importer importer : Importers.list(loader, computationManager, config)) {
             if (importer.exists(dataSource)) {
@@ -423,8 +409,9 @@ public final class Importers {
 
     public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
         ReadOnlyDataStore dataStore;
+
         try {
-            dataStore = createDataStore(file);
+            dataStore = DataStoreUtil.createDataStore(file);
         } catch (NotDirectoryException nde) {
             throw new PowsyblException("Invalid file.");
         }
