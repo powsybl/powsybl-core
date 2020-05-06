@@ -7,8 +7,6 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorModel;
-import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import com.powsybl.iidm.network.Terminal;
 
 /**
@@ -24,13 +22,19 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     // Simple delegated methods ------
     // -------------------------------
     @Override
-    public int getCurrentSectionCount() {
-        return getDelegate().getCurrentSectionCount();
+    public int getMaximumSectionCount() {
+        return getDelegate().getMaximumSectionCount();
     }
 
     @Override
-    public int getMaximumSectionCount() {
-        return getDelegate().getMaximumSectionCount();
+    public ShuntCompensator setMaximumSectionCount(final int maximumSectionCount) {
+        getDelegate().setMaximumSectionCount(maximumSectionCount);
+        return this;
+    }
+
+    @Override
+    public int getCurrentSectionCount() {
+        return getDelegate().getCurrentSectionCount();
     }
 
     @Override
@@ -40,28 +44,19 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     }
 
     @Override
+    public double getbPerSection() {
+        return getDelegate().getbPerSection();
+    }
+
+    @Override
+    public ShuntCompensator setbPerSection(final double bPerSection) {
+        getDelegate().setbPerSection(bPerSection);
+        return this;
+    }
+
+    @Override
     public double getCurrentB() {
         return getDelegate().getCurrentB();
-    }
-
-    @Override
-    public double getCurrentG() {
-        return getDelegate().getCurrentG();
-    }
-
-    @Override
-    public ShuntCompensatorModelType getModelType() {
-        return getDelegate().getModelType();
-    }
-
-    @Override
-    public ShuntCompensatorModel getModel() {
-        return getDelegate().getModel();
-    }
-
-    @Override
-    public <M extends ShuntCompensatorModel> M getModel(Class<M> modelType) {
-        return getDelegate().getModel(modelType);
     }
 
     @Override

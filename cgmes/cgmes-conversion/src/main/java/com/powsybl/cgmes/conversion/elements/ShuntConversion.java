@@ -66,10 +66,8 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
 
         ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator()
                 .setCurrentSectionCount(sections)
-                .newLinearModel()
-                    .setbPerSection(bPerSection)
-                    .setMaximumSectionCount(maximumSections)
-                    .add();
+                .setbPerSection(bPerSection)
+                .setMaximumSectionCount(maximumSections);
         identify(adder);
         connect(adder);
         ShuntCompensator shunt = adder.add();
