@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
-import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -412,7 +411,7 @@ public final class Importers {
 
         try {
             dataStore = DataStoreUtil.createDataStore(file);
-        } catch (NotDirectoryException nde) {
+        } catch (IOException nde) {
             throw new PowsyblException("Invalid file.");
         }
         String fileName = file.toString();

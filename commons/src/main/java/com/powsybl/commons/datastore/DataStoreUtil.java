@@ -6,31 +6,30 @@
  */
 package com.powsybl.commons.datastore;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.util.Objects;
-
-import com.powsybl.commons.PowsyblException;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
  */
 public interface DataStoreUtil {
 
-    static DataStore createDataStore(Path fileName) throws NotDirectoryException {
+    static DataStore createDataStore(Path fileName) throws IOException {
         Objects.requireNonNull(fileName);
         DataStore ds = null;
         if (Files.isDirectory(fileName)) {
             ds = new DirectoryDataStore(fileName);
-        } else if (Files.isRegularFile(fileName)) {
-            String extension = FilesUtil.getExtension(fileName.getFileName().toString());
+        } else {
+            String extension = getExtension(fileName.getFileName().toString());
             if (extension.equals("zip")) {
-                throw new PowsyblException("Unsupported compression format");
+                ds = new ZipFileDataStore(fileName);
             } else if (extension.equals("gz")) {
-                throw new PowsyblException("Unsupported compression format");
+                ds = new GzipFileDataStore(fileName);
             } else if (extension.equals("bz2")) {
-                throw new PowsyblException("Unsupported compression format");
+                ds = new Bzip2FileDataStore(fileName);
             } else {
                 Path parent = fileName.toAbsolutePath().getParent();
                 if (parent == null) {
@@ -42,4 +41,13 @@ public interface DataStoreUtil {
         return ds;
     }
 
+    static String getExtension(String filename) {
+        int dotIndex = filename.lastIndexOf(".");
+        return dotIndex < 0 ? "" : filename.substring(dotIndex + 1);
+    }
+
+    static String getBasename(String filename) {
+        int dotIndex = filename.lastIndexOf(".");
+        return dotIndex < 0 ? filename : filename.substring(0, dotIndex);
+    }
 }

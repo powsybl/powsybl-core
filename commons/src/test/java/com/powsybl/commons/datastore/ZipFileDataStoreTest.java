@@ -6,18 +6,16 @@
  */
 package com.powsybl.commons.datastore;
 
-import com.google.common.io.Files;
+import java.io.IOException;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
  */
-public interface FilesUtil {
+public class ZipFileDataStoreTest extends AbstractDataStoreTest {
 
-    static String getBasename(String fileName) {
-        return Files.getNameWithoutExtension(fileName);
+    @Override
+    protected DataStore createDataStore() throws IOException {
+        return DataStoreUtil.createDataStore(testDir.resolve("test.zip"));
     }
 
-    static String getExtension(String fileName) {
-        return Files.getFileExtension(fileName);
-    }
 }

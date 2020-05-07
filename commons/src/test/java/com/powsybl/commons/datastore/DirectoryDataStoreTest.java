@@ -7,7 +7,6 @@
 package com.powsybl.commons.datastore;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
@@ -16,7 +15,7 @@ public class DirectoryDataStoreTest extends AbstractDataStoreTest {
 
     @Override
     protected DataStore createDataStore() throws IOException {
-        return new DirectoryDataStore(Paths.get(testDir.toUri()));
+        return DataStoreUtil.createDataStore(testDir);
     }
 
 }

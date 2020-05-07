@@ -85,7 +85,7 @@ public class XmlDataResolver implements DataResolver {
         return main.isPresent() && checkFileExtension(main.get().getName());
     }
 
-    private static boolean checkFileExtension(String filename) {
+    public static boolean checkFileExtension(String filename) {
         return Arrays.asList(EXTENSIONS).contains(Files.getFileExtension(filename));
     }
 

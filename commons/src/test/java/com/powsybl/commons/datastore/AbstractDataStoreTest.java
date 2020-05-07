@@ -8,7 +8,6 @@ package com.powsybl.commons.datastore;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -64,21 +63,13 @@ public abstract class AbstractDataStoreTest {
 
     private void writeThenReadTest(String entry) throws IOException {
 
-        assertFalse(dataStore.exists(entry));
-
         // write file
         try (OutputStream os = dataStore.newOutputStream(entry, false)) {
             os.write("line1".getBytes(StandardCharsets.UTF_8));
         }
 
-        // write another file
-        try (OutputStream os = dataStore.newOutputStream("dummy.txt", false)) {
-            os.write("otherline1".getBytes(StandardCharsets.UTF_8));
-        }
-
         // check files exists
         assertTrue(dataStore.getEntryNames().contains(entry));
-        assertTrue(dataStore.getEntryNames().contains("dummy.txt"));
 
         // check all listed names exist and we can read them
         for (String name : dataStore.getEntryNames()) {
@@ -94,9 +85,7 @@ public abstract class AbstractDataStoreTest {
         try (InputStream is = dataStore.newInputStream(entry)) {
             assertEquals("line1", new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
         }
-        try (InputStream is = dataStore.newInputStream("dummy.txt")) {
-            assertEquals("otherline1", new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
-        }
+
     }
 
     @Test

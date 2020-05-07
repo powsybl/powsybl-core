@@ -6,9 +6,20 @@
  */
 package com.powsybl.iidm.xml;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.HashSet;
+import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.auto.service.AutoService;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.io.Files;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datastore.DataStore;
@@ -22,15 +33,6 @@ import com.powsybl.iidm.network.TopologyLevel;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.HashSet;
-import java.util.Properties;
-
-import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
  * XML export of an IIDM model.<p>
@@ -127,10 +129,11 @@ public class XMLExporter implements Exporter {
         if (network == null) {
             throw new IllegalArgumentException("network is null");
         }
+
         ExportOptions options = createExportOptions(parameters);
         try {
             long startTime = System.currentTimeMillis();
-            NetworkXml.write(network, options, dataStore, filename);
+            NetworkXml.write(network, options, dataStore, XmlDataResolver.checkFileExtension(filename) ? filename : Files.getNameWithoutExtension(filename) + ".xiidm");
             LOGGER.debug("XIIDM export done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

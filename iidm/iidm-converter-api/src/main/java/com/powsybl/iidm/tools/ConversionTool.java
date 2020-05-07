@@ -22,7 +22,7 @@ import org.apache.commons.cli.Options;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datastore.DataStore;
-import com.powsybl.commons.datastore.DirectoryDataStore;
+import com.powsybl.commons.datastore.DataStoreUtil;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.ImportConfig;
@@ -126,7 +126,8 @@ public class ConversionTool implements Tool {
         });
         */
         Path out = context.getFileSystem().getPath(outputFile);
-        DataStore dst = new DirectoryDataStore(out.getParent());
+        DataStore dst = DataStoreUtil.createDataStore(out);
+
         exporter.export(network, outputParams, dst, out.getFileName().toString());
     }
 }
