@@ -219,6 +219,9 @@ public class UcteImporter implements Importer {
                 .setMinQ(-ucteNode.getMinimumPermissibleReactivePowerGeneration())
                 .setMaxQ(-ucteNode.getMaximumPermissibleReactivePowerGeneration())
                 .add();
+        if (ucteNode.getPowerPlantType() != null) {
+            generator.setProperty(POWER_PLANT_TYPE_PROPERTY_KEY, ucteNode.getPowerPlantType().toString());
+        }
     }
 
     private static void createDanglingLine(UcteLine ucteLine, boolean connected,
