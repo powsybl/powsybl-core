@@ -6,9 +6,7 @@
  */
 package com.powsybl.psse.model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  *
@@ -18,7 +16,7 @@ public class PsseRawModel {
 
     private final PsseCaseIdentification caseIdentification;
 
-    private final List<PsseBus> buses = new ArrayList<>();
+    private final Map<Integer, PsseBus> buses = new LinkedHashMap<>();
 
     private final List<PsseLoad> loads = new ArrayList<>();
 
@@ -44,39 +42,93 @@ public class PsseRawModel {
         return caseIdentification;
     }
 
-    public List<PsseBus> getBuses() {
-        return buses;
+    public void addBuses(Collection<PsseBus> buses) {
+        for (PsseBus bus : buses) {
+            this.buses.put(bus.getI(), bus);
+        }
     }
 
-    public List<PsseLoad> getLoads() {
+    public Collection<PsseBus> getBuses() {
+        return buses.values();
+    }
+
+    public PsseBus getBus(int i) {
+        return buses.get(i);
+    }
+
+    public void addLoads(Collection<PsseLoad> loads) {
+        this.loads.addAll(loads);
+    }
+
+    public Collection<PsseLoad> getLoads() {
         return loads;
     }
 
-    public List<PsseFixedShunt> getFixedShunts() {
+    public void addFixedShunts(Collection<PsseFixedShunt> fixedShunts) {
+        this.fixedShunts.addAll(fixedShunts);
+    }
+
+    public Collection<PsseFixedShunt> getFixedShunts() {
         return fixedShunts;
     }
 
-    public List<PsseGenerator> getGenerators() {
+    public void addGenerators(Collection<PsseGenerator> generators) {
+        this.generators.addAll(generators);
+    }
+
+    public Collection<PsseGenerator> getGenerators() {
         return generators;
     }
 
-    public List<PsseNonTransformerBranch> getNonTransformerBranches() {
+    public void addNonTransformerBranches(Collection<PsseNonTransformerBranch> nonTransformerBranches) {
+        this.nonTransformerBranches.addAll(nonTransformerBranches);
+    }
+
+    public Collection<PsseNonTransformerBranch> getNonTransformerBranches() {
         return nonTransformerBranches;
     }
 
-    public List<PsseTransformer> getTransformers() {
+    public void addTransformers(Collection<PsseTransformer> transformers) {
+        this.transformers.addAll(transformers);
+    }
+
+    public Collection<PsseTransformer> getTransformers() {
         return transformers;
     }
 
-    public List<PsseArea> getAreas() {
+    public void addAreas(Collection<PsseArea> areas) {
+        this.areas.addAll(areas);
+    }
+
+    public Collection<PsseArea> getAreas() {
         return areas;
     }
 
-    public List<PsseZone> getZones() {
+    public void addZones(Collection<PsseZone> zones) {
+        this.zones.addAll(zones);
+    }
+
+    public Collection<PsseZone> getZones() {
         return zones;
     }
 
-    public List<PsseOwner> getOwners() {
+    public void addOwners(Collection<PsseOwner> owners) {
+        this.owners.addAll(owners);
+    }
+
+    public Collection<PsseOwner> getOwners() {
         return owners;
+    }
+
+    public void postProcess() {
+        for (PsseLoad load : loads) {
+            load.postProcess(this);
+        }
+        for (PsseGenerator generator : generators) {
+            generator.postProcess(this);
+        }
+        for (PsseNonTransformerBranch nonTransformerBranch : nonTransformerBranches) {
+            nonTransformerBranch.postProcess(this);
+        }
     }
 }

@@ -323,4 +323,10 @@ public class PsseGenerator {
     public void setWpf(double wpf) {
         this.wpf = wpf;
     }
+
+    public void postProcess(PsseRawModel model) {
+        if (Double.isNaN(mbase)) {
+            mbase = model.getCaseIdentification().getSbase();
+        }
+    }
 }

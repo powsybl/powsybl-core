@@ -122,25 +122,25 @@ public class PsseRawReader {
         PsseRawModel model = new PsseRawModel(caseIdentification);
 
         // bus data
-        model.getBuses().addAll(parseRecords(readRecordBlock(reader), PsseBus.class));
+        model.addBuses(parseRecords(readRecordBlock(reader), PsseBus.class));
 
         // load data
-        model.getLoads().addAll(parseRecords(readRecordBlock(reader), PsseLoad.class));
+        model.addLoads(parseRecords(readRecordBlock(reader), PsseLoad.class));
 
         // fixed shunt data
-        model.getFixedShunts().addAll(parseRecords(readRecordBlock(reader), PsseFixedShunt.class));
+        model.addFixedShunts(parseRecords(readRecordBlock(reader), PsseFixedShunt.class));
 
         // generator data
-        model.getGenerators().addAll(parseRecords(readRecordBlock(reader), PsseGenerator.class));
+        model.addGenerators(parseRecords(readRecordBlock(reader), PsseGenerator.class));
 
         // non transformer data
-        model.getNonTransformerBranches().addAll(parseRecords(readRecordBlock(reader), PsseNonTransformerBranch.class));
+        model.addNonTransformerBranches(parseRecords(readRecordBlock(reader), PsseNonTransformerBranch.class));
 
         // transformer data
-        model.getTransformers().addAll(readTransformers(reader));
+        model.addTransformers(readTransformers(reader));
 
         // area data
-        model.getAreas().addAll(parseRecords(readRecordBlock(reader), PsseArea.class));
+        model.addAreas(parseRecords(readRecordBlock(reader), PsseArea.class));
 
         // 2-terminal DC data
         readRecordBlock(reader); // TODO
@@ -158,13 +158,13 @@ public class PsseRawReader {
         readRecordBlock(reader); // TODO
 
         // zone data
-        model.getZones().addAll(parseRecords(readRecordBlock(reader), PsseZone.class));
+        model.addZones(parseRecords(readRecordBlock(reader), PsseZone.class));
 
         // inter-area transfer data
         readRecordBlock(reader); // TODO
 
         // owner data
-        model.getOwners().addAll(parseRecords(readRecordBlock(reader), PsseOwner.class));
+        model.addOwners(parseRecords(readRecordBlock(reader), PsseOwner.class));
 
         // facts control device data
         readRecordBlock(reader); // TODO

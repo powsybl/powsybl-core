@@ -282,4 +282,10 @@ public class PsseNonTransformerBranch {
     public void setF4(double f4) {
         this.f4 = f4;
     }
+
+    public void postProcess(PsseRawModel model) {
+        if (o1 == -1) {
+            o1 = model.getBus(i).getOwner();
+        }
+    }
 }

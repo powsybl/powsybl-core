@@ -169,4 +169,16 @@ public class PsseLoad {
     public void setIntrpt(int intrpt) {
         this.intrpt = intrpt;
     }
+
+    public void postProcess(PsseRawModel model) {
+        if (area == -1) {
+            area = model.getBus(i).getArea();
+        }
+        if (zone == -1) {
+            zone = model.getBus(i).getZone();
+        }
+        if (owner == -1) {
+            owner = model.getBus(i).getOwner();
+        }
+    }
 }

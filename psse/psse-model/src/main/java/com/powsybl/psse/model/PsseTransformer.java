@@ -564,6 +564,16 @@ public class PsseTransformer {
         public void setCnxa(double cnxa) {
             this.cnxa = cnxa;
         }
+
+        public void postProcess(PsseRawModel model, FirstRecord firstRecord) {
+            if (Double.isNaN(windv)) {
+                if (firstRecord.cw == 1 || firstRecord.cw == 3) {
+                    windv = 1;
+                } else if (firstRecord.cw == 2) {
+                    windv = model.getBus(firstRecord.i).getBaskv();
+                }
+            }
+        }
     }
 
     private FirstRecord firstRecord;
@@ -614,5 +624,27 @@ public class PsseTransformer {
 
     public void setThirdRecord3(ThirdRecord thirdRecord3) {
         this.thirdRecord3 = thirdRecord3;
+    }
+
+    public void postProcess(PsseRawModel model) {
+        if (firstRecord.o1 == -1) {
+            firstRecord.o1 = model.getBus(firstRecord.i).getOwner();
+        }
+        if (Double.isNaN(secondRecord.sbase12)) {
+            secondRecord.sbase12 = model.getCaseIdentification().getSbase();
+        }
+        if (firstRecord.k != 0) { // 3 windings
+            if (Double.isNaN(secondRecord.sbase23)) {
+                secondRecord.sbase23 = model.getCaseIdentification().getSbase();
+            }
+            if (Double.isNaN(secondRecord.sbase31)) {
+                secondRecord.sbase31 = model.getCaseIdentification().getSbase();
+            }
+        }
+        thirdRecord1.postProcess(model, firstRecord);
+        thirdRecord2.postProcess(model, firstRecord);
+        if (thirdRecord3 != null) {
+            thirdRecord3.postProcess(model, firstRecord);
+        }
     }
 }
