@@ -158,7 +158,7 @@ public class UcteElement implements UcteRecord {
                     float oldReactance = reactance;
                     reactance = reactance >= 0 ? MIN_X : -MIN_X;
                     report.addElementWithSmallReactance();
-                    LOGGER.debug("Small reactance {} of element '{}' fixed to {}", oldReactance, id, reactance);
+                    LOGGER.warn("Small reactance {} of element '{}' fixed to {}", oldReactance, id, reactance);
                 }
                 break;
             case BUSBAR_COUPLER_IN_OPERATION:
@@ -170,10 +170,10 @@ public class UcteElement implements UcteRecord {
         }
         if (currentLimit == null) {
             report.addElementWithMissingCurrentLimit();
-            LOGGER.debug("Missing current limit for element '{}'", id);
+            LOGGER.warn("Missing current limit for element '{}'", id);
         } else if (currentLimit <= 0) {
             report.addElementWithInvalidCurrentLimit();
-            LOGGER.debug("Invalid current limit {} for element '{}'", currentLimit, id);
+            LOGGER.warn("Invalid current limit {} for element '{}'", currentLimit, id);
             currentLimit = null;
         }
     }
