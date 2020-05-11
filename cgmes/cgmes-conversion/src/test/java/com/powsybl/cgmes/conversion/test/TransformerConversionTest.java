@@ -26,6 +26,7 @@ import com.powsybl.cgmes.conversion.Conversion.Xfmr3StructuralRatioInterpretatio
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
@@ -87,6 +88,7 @@ public class TransformerConversionTest {
     public void microGridBaseCaseBExfmr2ShuntSplit() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.SPLIT);
+        config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.SPLIT);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.970891, -15.839366, 94.275697, 20.952066);
         assertTrue(ok);
@@ -242,11 +244,12 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr3ShuntSplit() throws IOException {
         Conversion.Config config = new Conversion.Config();
+        config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.SPLIT);
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.SPLIT);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
+        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.231950, 2.876479, -216.194348, -85.558437, 117.981856, 92.439531);
         assertTrue(ok);
     }
 
@@ -497,17 +500,25 @@ public class TransformerConversionTest {
                 break;
         }
 
-        boolean splitShuntAdmittanceXfmr3 = false;
+        boolean t3wtSplitShuntAdmittance = false;
         switch (config.getXfmr3Shunt()) {
             case NETWORK_SIDE:
             case STAR_BUS_SIDE:
                 break;
             case SPLIT:
-                splitShuntAdmittanceXfmr3 = true;
+                t3wtSplitShuntAdmittance = true;
+        }
+        boolean twtSplitShuntAdmittance = false;
+        if (!t2wtSplitShuntAdmittance && !t3wtSplitShuntAdmittance) {
+            twtSplitShuntAdmittance = false;
+        } else if (t2wtSplitShuntAdmittance && t3wtSplitShuntAdmittance) {
+            twtSplitShuntAdmittance = true;
+        } else {
+            throw new PowsyblException(String.format("Unexpected SplitShuntAdmittance configuration %s %s",
+                t2wtSplitShuntAdmittance, t3wtSplitShuntAdmittance));
         }
 
-        copyLoadFlowParameters.setT2wtSplitShuntAdmittance(t2wtSplitShuntAdmittance);
-        // copyLoadFlowParameters.setSplitShuntAdmittanceXfmr3(splitShuntAdmittanceXfmr3);
+        copyLoadFlowParameters.setTwtSplitShuntAdmittance(twtSplitShuntAdmittance);
 
         return copyLoadFlowParameters;
     }
