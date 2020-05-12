@@ -4,25 +4,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.impl;
+package com.powsybl.iidm.network.components;
 
 import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Component;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.Network;
 
 import java.util.function.Predicate;
 
 /**
  * @author Thomas ADAM <tadam at silicom.fr>
  */
-class SynchronousComponentImpl extends AbstractComponentImpl implements Component {
+public final class SynchronousComponent extends AbstractComponent {
 
-    SynchronousComponentImpl(int num, int size, Ref<NetworkImpl> networkRef) {
-        super(num, size, networkRef);
+    SynchronousComponent(Network network, int num, int size) {
+        super(network, num, size);
     }
 
     @Override
     protected Predicate<Bus> getBusPredicate() {
-        return bus -> bus.getSynchronousComponent() == SynchronousComponentImpl.this;
+        return bus -> bus.getSynchronousComponent() == SynchronousComponent.this;
     }
 }

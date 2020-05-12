@@ -8,6 +8,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.components.ConnectedComponentsManager;
+import com.powsybl.iidm.network.components.SynchronousComponentsManager;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.util.*;
@@ -167,7 +169,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public Component getConnectedComponent() {
         checkValidity();
-        NetworkImpl.ConnectedComponentsManager ccm = voltageLevel.getNetwork().getConnectedComponentsManager();
+        ConnectedComponentsManager ccm = voltageLevel.getNetwork().getConnectedComponentsManager();
         ccm.update();
         return terminalRef == null ? null : ccm.getComponent(terminalRef.getConnectedComponentNumber());
     }
@@ -183,7 +185,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public Component getSynchronousComponent() {
         checkValidity();
-        NetworkImpl.SynchronousComponentsManager scm = voltageLevel.getNetwork().getSynchronousComponentsManager();
+        SynchronousComponentsManager scm = voltageLevel.getNetwork().getSynchronousComponentsManager();
         scm.update();
         return terminalRef == null ? null : scm.getComponent(terminalRef.getSynchronousComponentNumber());
     }

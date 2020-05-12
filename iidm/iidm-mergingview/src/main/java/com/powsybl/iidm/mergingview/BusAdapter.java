@@ -225,4 +225,14 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     public boolean isInMainSynchronousComponent() {
         throw MergingView.createNotImplementedException();
     }
+
+    @Override
+    public void setConnectedComponentNumber(int connectedComponentNumber) {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public void setSynchronousComponentNumber(int synchronousComponentNumber) {
+        throw MergingView.createNotImplementedException();
+    }
 }

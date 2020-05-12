@@ -59,6 +59,13 @@ public interface Bus extends Identifiable<Bus> {
     Component getConnectedComponent();
 
     /**
+     * Set the connected component number
+     */
+    default void setConnectedComponentNumber(int connectedComponentNumber) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Check if the bus belongs to the main connected component
      * @return true if the bus belongs to the main connected component, false otherwise
      */
@@ -68,6 +75,13 @@ public interface Bus extends Identifiable<Bus> {
      * Get the synchronous component that the bus is part of.
      */
     Component getSynchronousComponent();
+
+    /**
+     * Set the synchronous component number
+     */
+    default void setSynchronousComponentNumber(int synchronousComponentNumber) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Check if the bus belongs to the main synchronous component

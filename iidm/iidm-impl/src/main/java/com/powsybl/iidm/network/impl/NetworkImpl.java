@@ -11,11 +11,10 @@ import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.components.ConnectedComponentsManager;
+import com.powsybl.iidm.network.components.SynchronousComponentsManager;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
-import com.powsybl.math.graph.GraphUtil;
-import com.powsybl.math.graph.GraphUtil.ConnectedComponentsComputationResult;
-import gnu.trove.list.array.TIntArrayList;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -665,165 +664,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public BusViewImpl getBusView() {
         return busView;
-    }
-
-    private abstract static class AbstractComponentsManager<C extends Component> {
-
-        protected final NetworkImpl network;
-
-        private AbstractComponentsManager(NetworkImpl network) {
-            this.network = Objects.requireNonNull(network);
-        }
-
-        private List<C> components;
-
-        void invalidate() {
-            components = null;
-        }
-
-        protected void addToAdjacencyList(Bus bus1, Bus bus2, Map<String, Integer> id2num, TIntArrayList[] adjacencyList) {
-            if (bus1 != null && bus2 != null) {
-                int busNum1 = id2num.get(bus1.getId());
-                int busNum2 = id2num.get(bus2.getId());
-                adjacencyList[busNum1].add(busNum2);
-                adjacencyList[busNum2].add(busNum1);
-            }
-        }
-
-        protected void fillAdjacencyList(Map<String, Integer> id2num, TIntArrayList[] adjacencyList) {
-            for (LineImpl line : Sets.union(network.index.getAll(LineImpl.class), network.index.getAll(TieLineImpl.class))) {
-                BusExt bus1 = line.getTerminal1().getBusView().getBus();
-                BusExt bus2 = line.getTerminal2().getBusView().getBus();
-                addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
-            }
-            for (TwoWindingsTransformerImpl transfo : network.index.getAll(TwoWindingsTransformerImpl.class)) {
-                BusExt bus1 = transfo.getTerminal1().getBusView().getBus();
-                BusExt bus2 = transfo.getTerminal2().getBusView().getBus();
-                addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
-            }
-            for (ThreeWindingsTransformerImpl transfo : network.index.getAll(ThreeWindingsTransformerImpl.class)) {
-                BusExt bus1 = transfo.getLeg1().getTerminal().getBusView().getBus();
-                BusExt bus2 = transfo.getLeg2().getTerminal().getBusView().getBus();
-                BusExt bus3 = transfo.getLeg3().getTerminal().getBusView().getBus();
-                addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
-                addToAdjacencyList(bus1, bus3, id2num, adjacencyList);
-                addToAdjacencyList(bus2, bus3, id2num, adjacencyList);
-            }
-        }
-
-        protected abstract C createComponent(int num, int size);
-
-        protected abstract String getComponentLabel();
-
-        protected abstract void setComponentNumber(BusExt bus, int num);
-
-        void update() {
-            if (components != null) {
-                return;
-            }
-
-            long startTime = System.currentTimeMillis();
-
-            // reset
-            for (Bus b : network.getBusBreakerView().getBuses()) {
-                setComponentNumber((BusExt) b, -1);
-            }
-
-            int num = 0;
-            Map<String, Integer> id2num = new HashMap<>();
-            List<BusExt> num2bus = new ArrayList<>();
-            for (Bus bus : network.getBusView().getBuses()) {
-                num2bus.add((BusExt) bus);
-                id2num.put(bus.getId(), num);
-                num++;
-            }
-            TIntArrayList[] adjacencyList = new TIntArrayList[num];
-            for (int i = 0; i < adjacencyList.length; i++) {
-                adjacencyList[i] = new TIntArrayList(3);
-            }
-            fillAdjacencyList(id2num, adjacencyList);
-
-            ConnectedComponentsComputationResult result = GraphUtil.computeConnectedComponents(adjacencyList);
-
-            components = new ArrayList<>(result.getComponentSize().length);
-            for (int i = 0; i < result.getComponentSize().length; i++) {
-                components.add(createComponent(i, result.getComponentSize()[i]));
-            }
-
-            for (int i = 0; i < result.getComponentNumber().length; i++) {
-                BusExt bus = num2bus.get(i);
-                setComponentNumber(bus, result.getComponentNumber()[i]);
-            }
-
-            LOGGER.debug("{} components computed in {} ms", getComponentLabel(), System.currentTimeMillis() - startTime);
-        }
-
-        List<C> getConnectedComponents() {
-            update();
-            return components;
-        }
-
-        C getComponent(int num) {
-            // update() must not be put here, but explicitly called each time before because update may
-            // trigger a new component computation and so on a change in the value of the num component already passed
-            // (and outdated consequently) in parameter of this method
-            return num != -1 ? components.get(num) : null;
-        }
-
-    }
-
-    static final class ConnectedComponentsManager extends AbstractComponentsManager<ConnectedComponentImpl> {
-
-        private ConnectedComponentsManager(NetworkImpl network) {
-            super(network);
-        }
-
-        @Override
-        protected void fillAdjacencyList(Map<String, Integer> id2num, TIntArrayList[] adjacencyList) {
-            super.fillAdjacencyList(id2num, adjacencyList);
-            for (HvdcLineImpl line : network.index.getAll(HvdcLineImpl.class)) {
-                BusExt bus1 = line.getConverterStation1().getTerminal().getBusView().getBus();
-                BusExt bus2 = line.getConverterStation2().getTerminal().getBusView().getBus();
-                addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
-            }
-        }
-
-        @Override
-        protected String getComponentLabel() {
-            return "Connected";
-        }
-
-        @Override
-        protected void setComponentNumber(BusExt bus, int num) {
-            Objects.requireNonNull(bus);
-            bus.setConnectedComponentNumber(num);
-        }
-
-        protected ConnectedComponentImpl createComponent(int num, int size) {
-            return new ConnectedComponentImpl(num, size, network.ref);
-        }
-    }
-
-    static final class SynchronousComponentsManager extends AbstractComponentsManager<SynchronousComponentImpl> {
-
-        private SynchronousComponentsManager(NetworkImpl network) {
-            super(network);
-        }
-
-        protected SynchronousComponentImpl createComponent(int num, int size) {
-            return new SynchronousComponentImpl(num, size, network.ref);
-        }
-
-        @Override
-        protected String getComponentLabel() {
-            return "Synchronous";
-        }
-
-        @Override
-        protected void setComponentNumber(BusExt bus, int num) {
-            Objects.requireNonNull(bus);
-            bus.setSynchronousComponentNumber(num);
-        }
     }
 
     private class VariantImpl implements Variant {
