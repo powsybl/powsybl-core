@@ -19,7 +19,8 @@ import java.util.stream.Stream;
 public enum IidmXmlVersion {
     V_1_0("itesla_project.eu", ImmutableList.of(1, 0)),
     V_1_1("powsybl.org", ImmutableList.of(1, 1)),
-    V_1_2("powsybl.org", ImmutableList.of(1, 2));
+    V_1_2("powsybl.org", ImmutableList.of(1, 2)),
+    V_1_3("powsybl.org", ImmutableList.of(1, 3));
 
     private final String domain;
     private final List<Integer> versionArray;
