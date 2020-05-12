@@ -166,7 +166,9 @@ public interface CgmesModel {
 
     void write(DataSource ds);
 
-    void write(DataSource ds, CgmesSubset subset);
+    default void write(DataSource ds, CgmesSubset subset) {
+        throw new UnsupportedOperationException();
+    }
 
     void read(ReadOnlyDataSource ds);
 

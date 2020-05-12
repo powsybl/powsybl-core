@@ -46,7 +46,9 @@ public interface TripleStore {
      * @param ds the output data source
      * @param contextName the context to write
      */
-    void write(DataSource ds, String contextName);
+    default void write(DataSource ds, String contextName) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Print a summary of the contents of the Triplestore.
