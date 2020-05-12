@@ -78,5 +78,12 @@ public interface Extendable<O> {
      * @param type The interface of the ExtensionAdder
      * @return the adder
      */
-    <E extends Extension<O>, B extends ExtensionAdder<O, E>> B newExtension(Class<B> type);
+    // Don't bother all the way with generics because the this is a runtime system
+    // that doesn't know generics. We do check that the builder is from the the same
+    // extendable class T as "this".
+    default <E extends Extension<O>, B extends ExtensionAdder<O, E>> B newExtension(Class<B> type) {
+        ExtensionAdderProvider provider = ExtensionAdderProviders.findCachedProvider(getImplementationName(), type);
+        return (B) provider.newAdder(this);
+    }
+
 }

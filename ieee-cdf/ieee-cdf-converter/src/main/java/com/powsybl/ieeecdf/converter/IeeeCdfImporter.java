@@ -47,6 +47,8 @@ public class IeeeCdfImporter implements Importer {
                                                                                  "Ignore base voltage specified in the file",
                                                                                  Boolean.TRUE);
 
+    private static final double DEFAULT_ACTIVE_POWER_LIMIT = 9999d;
+
     @Override
     public String getFormat() {
         return FORMAT;
@@ -297,8 +299,8 @@ public class IeeeCdfImporter implements Importer {
                 .setConnectableBus(busId)
                 .setBus(busId)
                 .setTargetP(ieeeCdfBus.getActiveGeneration())
-                .setMaxP(Double.MAX_VALUE)
-                .setMinP(-Double.MAX_VALUE);
+                .setMaxP(DEFAULT_ACTIVE_POWER_LIMIT)
+                .setMinP(-DEFAULT_ACTIVE_POWER_LIMIT);
     }
 
     private static void createShuntCompensator(IeeeCdfBus ieeeCdfBus, PerUnitContext perUnitContext, VoltageLevel voltageLevel) {

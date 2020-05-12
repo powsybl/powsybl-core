@@ -552,7 +552,7 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected void testTwts3w(String twts3wContent, boolean verbose, boolean compareResults, String twt3wId1, String twt3wId2) throws IOException {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
-        TwtData twtData = new TwtData(new TwtTestData().get3WTransformer(), 0, false);
+        TwtData twtData = new TwtData(new TwtTestData().get3WTransformer(), 0, false, false);
         try (ValidationWriter twts3wWriter = getTwts3wValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
             twts3wWriter.write(twt3wId1, twtData, validated);
             twts3wWriter.setValidationCompleted();
