@@ -148,21 +148,44 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
             RepositoryResult<Resource> contexts = conn.getContextIDs();
             while (contexts.hasNext()) {
                 Resource context = contexts.next();
-                LOG.info("Writing context {}", context);
-
-                RepositoryResult<Statement> statements = conn.getStatements(null, null, null, true, context);
-                Model model = new LinkedHashModel();
-                QueryResults.addAll(statements, model);
-                copyNamespacesToModel(conn, model);
-
-                String outname = context.toString();
-                write(model, outputStream(ds, outname));
+                write(ds, conn, context);
             }
         } catch (RepositoryException x) {
             throw new TripleStoreException(String.format("Writing on %s", ds), x);
         } finally {
             closeConnection(conn, "Writing on " + ds);
         }
+    }
+
+    @Override
+    public void write(DataSource ds, String contextName) {
+        RepositoryConnection conn = null;
+        try {
+            conn = repo.getConnection();
+            RepositoryResult<Resource> contexts = conn.getContextIDs();
+            while (contexts.hasNext()) {
+                Resource context = contexts.next();
+                if (context.stringValue().equals(contextName)) {
+                    write(ds, conn, context);
+                }
+            }
+        } catch (RepositoryException x) {
+            throw new TripleStoreException(String.format("Writing on %s", ds), x);
+        } finally {
+            closeConnection(conn, "Writing on " + ds);
+        }
+    }
+
+    private void write(DataSource ds, RepositoryConnection conn, Resource context) throws RepositoryException {
+        LOG.info("Writing context {}", context);
+
+        RepositoryResult<Statement> statements = conn.getStatements(null, null, null, true, context);
+        Model model = new LinkedHashModel();
+        QueryResults.addAll(statements, model);
+        copyNamespacesToModel(conn, model);
+
+        String outname = context.toString();
+        write(model, outputStream(ds, outname));
     }
 
     @Override

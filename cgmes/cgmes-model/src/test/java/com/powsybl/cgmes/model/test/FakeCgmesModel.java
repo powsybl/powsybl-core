@@ -527,6 +527,11 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
+    public void write(DataSource ds, CgmesSubset subset) {
+        // FakeCgmesModel, no need to implement write
+    }
+
+    @Override
     public void clear(CgmesSubset subset) {
         // FakeCgmesModel, no need to implement clear
     }
