@@ -795,6 +795,11 @@ public final class MergingView implements Network {
     }
 
     @Override
+    public String getImplementationName() {
+        return "MergingView";
+    }
+
+    @Override
     public <E extends Extension<Network>, B extends ExtensionAdder<Network, E>> B newExtension(Class<B> type) {
         return workingNetwork.newExtension(type);
     }
