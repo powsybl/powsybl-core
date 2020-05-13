@@ -1,0 +1,7 @@
+This is not a valid xml file
+
+Although it contains the text for namespaces required for CGMES import:
+
+RDF namespace: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+CIM14 namespace: http://iec.ch/TC57/2009/CIM-schema-cim14#
+CIM16 namespace: http://iec.ch/TC57/2013/CIM-schema-cim16#

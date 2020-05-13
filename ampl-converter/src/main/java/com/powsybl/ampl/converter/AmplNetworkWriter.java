@@ -711,7 +711,7 @@ public class AmplNetworkWriter {
             double g2;
             double b1;
             double b2;
-            if (config.isT2wtSplitShuntAdmittance()) {
+            if (config.isTwtSplitShuntAdmittance()) {
                 g1 = twt.getG() * zb2 / 2;
                 g2 = g1;
                 b1 = twt.getB() * zb2 / 2;
