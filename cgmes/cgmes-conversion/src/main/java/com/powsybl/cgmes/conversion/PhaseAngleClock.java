@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Network;
@@ -25,6 +26,7 @@ import com.powsybl.triplestore.api.TripleStore;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
+@AutoService(CgmesImportPostProcessor.class)
 public class PhaseAngleClock implements CgmesImportPostProcessor {
 
     @Override
