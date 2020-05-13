@@ -67,7 +67,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
 
     @Override
     public void assertCommand() {
-        assertCommand(tool.getCommand(), "security-analysis", 14, 1);
+        assertCommand(tool.getCommand(), "security-analysis", 13, 1);
         assertOption(tool.getCommand().getOptions(), "case-file", true, true);
         assertOption(tool.getCommand().getOptions(), "parameters-file", false, true);
         assertOption(tool.getCommand().getOptions(), "limit-types", false, true);
@@ -79,7 +79,6 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
         assertOption(tool.getCommand().getOptions(), "task", false, true);
         assertOption(tool.getCommand().getOptions(), "external", false, false);
         assertOption(tool.getCommand().getOptions(), "log-file", false, true);
-        assertOption(tool.getCommand().getOptions(), "skip-postproc", false, false);
     }
 
     @Test

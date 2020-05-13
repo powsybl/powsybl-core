@@ -38,27 +38,26 @@ public class SensitivityComputationToolTest extends AbstractToolTest {
 
     @Override
     public void assertCommand() {
-        assertCommand(tool.getCommand(), COMMAND_NAME, 8, 2);
+        assertCommand(tool.getCommand(), COMMAND_NAME, 7, 2);
         assertOption(tool.getCommand().getOptions(), "case-file", true, true);
         assertOption(tool.getCommand().getOptions(), "output-file", false, true);
         assertOption(tool.getCommand().getOptions(), "output-format", false, true);
         assertOption(tool.getCommand().getOptions(), "factors-file", true, true);
-        assertOption(tool.getCommand().getOptions(), "skip-postproc", false, false);
         assertOption(tool.getCommand().getOptions(), "contingencies-file", false, true);
     }
 
     @Test
     public void checkFailsWhenNetworkFileNotFound() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--case-file", "wrongFile.uct", "--factors-file", "test.csv", "--skip-postproc", "true"}, 3, null, "com.powsybl.commons.PowsyblException: File wrongFile.uct does not exist or is not a regular file");
+        assertCommand(new String[] {COMMAND_NAME, "--case-file", "wrongFile.uct", "--factors-file", "test.csv"}, 3, null, "com.powsybl.commons.PowsyblException: File wrongFile.uct does not exist or is not a regular file");
     }
 
     @Test
     public void checkFailsWhenFactorsFileNotFound() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--case-file", "test.uct", "--factors-file", "wrongFile.csv", "--skip-postproc", "true"}, 3, null, "PowsyblException: Unsupported file format or invalid file");
+        assertCommand(new String[] {COMMAND_NAME, "--case-file", "test.uct", "--factors-file", "wrongFile.csv"}, 3, null, "PowsyblException: Unsupported file format or invalid file");
     }
 
     @Test
     public void checkThrowsWhenOutputFileAndNoFormat() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--case-file", "test.uct", "--factors-file", "test.csv", "--output-file", "out.txt", "--skip-postproc", "true"}, 2, "", "error: Missing required option: output-format");
+        assertCommand(new String[] {COMMAND_NAME, "--case-file", "test.uct", "--factors-file", "test.csv", "--output-file", "out.txt"}, 2, "", "error: Missing required option: output-format");
     }
 }
