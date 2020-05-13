@@ -9,8 +9,8 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
-import com.powsybl.cgmes.conversion.elements.transformers.NewThreeWindingsTransformerConversion;
-import com.powsybl.cgmes.conversion.elements.transformers.NewTwoWindingsTransformerConversion;
+import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
+import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
@@ -327,9 +327,9 @@ public class Conversion {
             }
             AbstractConductingEquipmentConversion c = null;
             if (ends.size() == 2) {
-                c = new NewTwoWindingsTransformerConversion(ends, context);
+                c = new TwoWindingsTransformerConversion(ends, context);
             } else if (ends.size() == 3) {
-                c = new NewThreeWindingsTransformerConversion(ends, context);
+                c = new ThreeWindingsTransformerConversion(ends, context);
             } else {
                 String what = "PowerTransformer " + t;
                 Supplier<String> reason = () -> String.format("Has %d ends. Only 2 or 3 ends are supported", ends.size());
