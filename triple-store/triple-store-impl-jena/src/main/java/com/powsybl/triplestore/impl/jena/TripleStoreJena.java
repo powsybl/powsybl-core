@@ -7,48 +7,24 @@
 
 package com.powsybl.triplestore.impl.jena;
 
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSet;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.RDFWriter;
-import org.apache.jena.rdf.model.ResIterator;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.Statement;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.triplestore.api.*;
+import org.apache.jena.query.*;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.rdf.model.impl.Util;
 import org.apache.jena.shared.PropertyNotFoundException;
-import org.apache.jena.util.IteratorCollection;
 import org.apache.jena.update.UpdateAction;
 import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.util.IteratorCollection;
 import org.apache.jena.vocabulary.RDF;
 
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
-import com.powsybl.triplestore.api.PrefixNamespace;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.triplestore.api.TripleStore;
-import com.powsybl.triplestore.api.TripleStoreException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -102,8 +78,25 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         while (k.hasNext()) {
             String n = k.next();
             Model m = dataset.getNamedModel(n);
-            writer.setProperty("prettyTypes", subjectsTypes(m));
-            writer.write(m, outputStream(ds, n), n);
+            write(m, ds, n);
+        }
+    }
+
+    @Override
+    public void write(DataSource ds, String contextName) {
+        Model m = dataset.getNamedModel(contextName);
+        if (m == null) {
+            throw new IllegalArgumentException("Invalid context: " + contextName);
+        }
+        write(m, ds, contextName);
+    }
+
+    private void write(Model model, DataSource ds, String contextName) {
+        try (OutputStream os = outputStream(ds, contextName)) {
+            writer.setProperty("prettyTypes", subjectsTypes(model));
+            writer.write(model, os, contextName);
+        } catch (IOException e) {
+            throw new TripleStoreException(String.format("Error when closing the output stream %s in data source %s", contextName, ds), e);
         }
     }
 

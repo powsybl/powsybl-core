@@ -38,6 +38,19 @@ public final class Cim14SmallCasesCatalog {
                                            "ENTSO-E_Boundary_Set_EU_TP.xml"));
     }
 
+    public static TestGridModelResources small1PlusInvalidFileContent() {
+        return new TestGridModelResources("smallcase1", expectedSmall1(),
+                new ResourceSet("/", "invalidContent_EQ.xml",
+                                     "validRdfInvalidContent_EQ.xml",
+                                     "validCimInvalidContent_EQ.xml",
+                                     "invalidContent_EQ.notxml"),
+                new ResourceSet("/cim14/smallcase1/", "case1_EQ.xml",
+                                                      "case1_SV.xml",
+                                                      "case1_TP.xml"),
+                new ResourceSet("/cim14/", "ENTSO-E_Boundary_Set_EU_EQ.xml",
+                                           "ENTSO-E_Boundary_Set_EU_TP.xml"));
+    }
+
     public static TestGridModelResources m7buses() {
         return new TestGridModelResources("7buses", expectedM7Buses(),
                 new ResourceSet("/cim14/m7buses/", "m7buses_EQ.xml",
