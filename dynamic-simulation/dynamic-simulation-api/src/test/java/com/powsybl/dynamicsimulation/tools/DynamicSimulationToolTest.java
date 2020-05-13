@@ -41,13 +41,12 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
     public void assertCommand() {
         Command command = tool.getCommand();
 
-        assertCommand(command, "dynamic-simulation", 6, 1);
+        assertCommand(command, "dynamic-simulation", 5, 1);
         assertEquals("Computation", command.getTheme());
         assertEquals("Run dynamic simulation", command.getDescription());
         assertNull(command.getUsageFooter());
         assertOption(command.getOptions(), "case-file", true, true);
         assertOption(command.getOptions(), "output-file", false, true);
-        assertOption(command.getOptions(), "skip-postproc", false, false);
     }
 
     @Before
