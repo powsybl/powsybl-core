@@ -17,6 +17,9 @@ public final class IidmXmlConstants {
 
     public static final String IIDM_PREFIX = "iidm";
 
+    public static final String ITESLA_DOMAIN = "itesla_project.eu";
+    public static final String POWSYBL_DOMAIN = "powsybl.org";
+
     private IidmXmlConstants() {
     }
 }
