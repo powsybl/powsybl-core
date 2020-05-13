@@ -361,7 +361,6 @@ public class TransformerConversionTest {
         postProcessors.add(new PhaseAngleClock());
 
         Network n = networkModel(CgmesConformity1Catalog.miniBusBranch(), config, postProcessors);
-        //Network n = networkModel(CgmesConformity1Catalog.miniBusBranch(), config);
 
         boolean ok = t2xCompareFlow(n, "_f1e72854-ec35-46e9-b614-27db354e8dbb", -318.691633, 1424.484145, 436.204160, 1393.367311);
         assertTrue(ok);

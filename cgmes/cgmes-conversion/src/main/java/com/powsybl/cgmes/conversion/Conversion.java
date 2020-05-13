@@ -211,15 +211,16 @@ public class Conversion {
             CgmesUpdate cgmesUpdater = new CgmesUpdate(network);
             network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes, cgmesUpdater));
         }
-        if (config.storeCgmesConversionContextAsNetworkExtension()) {
-            // Store the terminal mapping in an extension for external validation
-            network.addExtension(CgmesConversionContextExtension.class, new CgmesConversionContextExtension(context));
-        }
 
         // apply post-processors
         for (CgmesImportPostProcessor postProcessor : postProcessors) {
             // FIXME generic cgmes models may not have an underlying triplestore
             postProcessor.process(network, cgmes.tripleStore());
+        }
+
+        if (config.storeCgmesConversionContextAsNetworkExtension()) {
+            // Store the terminal mapping in an extension for external validation
+            network.addExtension(CgmesConversionContextExtension.class, new CgmesConversionContextExtension(context));
         }
 
         return network;
