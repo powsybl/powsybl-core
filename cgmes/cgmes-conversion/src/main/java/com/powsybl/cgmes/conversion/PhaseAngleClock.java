@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -52,6 +53,8 @@ public class PhaseAngleClock implements CgmesImportPostProcessor {
                 phaseAngleClockTwoWindingTransformer(ends, network);
             } else if (ends.size() == 3) {
                 phaseAngleClockThreeWindingTransformer(ends, network);
+            } else {
+                throw new PowsyblException(String.format("Unexpected TransformerEnds: ends %d", ends.size()));
             }
         });
     }
