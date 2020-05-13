@@ -414,7 +414,8 @@ public final class Importers {
         } catch (IOException nde) {
             throw new PowsyblException("Invalid file.");
         }
-        String fileName = file.toString();
+        String fileName = Files.isDirectory(file) ? null : file.toString();
+
         Importer importer = findImporter(dataStore, fileName, loader, computationManager, config);
         if (importer != null) {
             return importer.importDataStore(dataStore, fileName, parameters);
