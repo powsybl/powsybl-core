@@ -13,8 +13,6 @@ public interface ShuntCompensatorNonLinearModelAdder {
 
     interface SectionAdder {
 
-        SectionAdder setSectionIndex(int sectionIndex);
-
         SectionAdder setB(double b);
 
         SectionAdder setG(double g);

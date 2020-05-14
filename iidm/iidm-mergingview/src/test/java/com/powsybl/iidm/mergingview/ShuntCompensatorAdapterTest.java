@@ -50,14 +50,14 @@ public class ShuntCompensatorAdapterTest {
         assertTrue(shuntCActual.setCurrentSectionCount(++currentCount) instanceof ShuntCompensatorAdapter);
         assertEquals(currentCount, shuntCActual.getCurrentSectionCount());
 
-        double b = shuntCExpected.getModel(ShuntCompensatorLinearModel.class).getbPerSection();
-        assertEquals(b, shuntCActual.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), 0.0d);
-        shuntCActual.getModel(ShuntCompensatorLinearModel.class).setbPerSection(++b);
-        assertEquals(shuntCExpected.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), shuntCActual.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), 0.0d);
+        double b = shuntCExpected.getModel(ShuntCompensatorLinearModel.class).getBPerSection();
+        assertEquals(b, shuntCActual.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0d);
+        shuntCActual.getModel(ShuntCompensatorLinearModel.class).setBPerSection(++b);
+        assertEquals(shuntCExpected.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), shuntCActual.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0d);
 
         double currentB = shuntCExpected.getCurrentB();
         assertEquals(currentB, shuntCActual.getCurrentB(), 0.0d);
-        shuntCActual.getModel(ShuntCompensatorLinearModel.class).setbPerSection(++currentB);
+        shuntCActual.getModel(ShuntCompensatorLinearModel.class).setBPerSection(++currentB);
         assertEquals(shuntCExpected.getCurrentB(), shuntCActual.getCurrentB(), 0.0d);
 
         Terminal terminal = mergingView.getLccConverterStation("C1").getTerminal();
@@ -94,7 +94,7 @@ public class ShuntCompensatorAdapterTest {
                     .setConnectableBus("NLOAD")
                     .setCurrentSectionCount(0)
                     .newLinearModel()
-                        .setbPerSection(1.0)
+                        .setBPerSection(1.0)
                         .setMaximumSectionCount(2)
                     .add();
         assertTrue(adder instanceof ShuntCompensatorAdderAdapter);
@@ -113,11 +113,11 @@ public class ShuntCompensatorAdapterTest {
         assertEquals(0.0, shunt.getG(2), 0.0);
 
         ShuntCompensatorLinearModel model = shunt.getModel(ShuntCompensatorLinearModel.class);
-        assertEquals(1.0, model.getbPerSection(), 0.0);
-        assertTrue(Double.isNaN(model.getgPerSection()));
-        assertEquals(0.0, model.getBSection(0), 0.0);
-        assertEquals(1.0, model.getBSection(2), 0.0);
-        assertEquals(0.0, model.getGSection(2), 0.0);
+        assertEquals(1.0, model.getBPerSection(), 0.0);
+        assertTrue(Double.isNaN(model.getGPerSection()));
+        assertEquals(0.0, model.getBPerSection(0), 0.0);
+        assertEquals(1.0, model.getBPerSection(2), 0.0);
+        assertEquals(0.0, model.getGPerSection(2), 0.0);
     }
 
     @Test
@@ -132,11 +132,9 @@ public class ShuntCompensatorAdapterTest {
                 .setCurrentSectionCount(1)
                 .newNonLinearModel()
                     .beginSection()
-                        .setSectionIndex(1)
                         .setB(1.0)
                     .endSection()
                     .beginSection()
-                        .setSectionIndex(2)
                         .setB(2.0)
                     .endSection()
                 .add();
@@ -148,11 +146,11 @@ public class ShuntCompensatorAdapterTest {
         assertEquals(2, shunt.getMaximumSectionCount());
 
         ShuntCompensatorNonLinearModel model = shunt.getModel(ShuntCompensatorNonLinearModel.class);
-        assertEquals(2, model.getSections().size());
-        assertEquals(1.0, model.getBSection(1), 0.0);
-        assertEquals(0.0, model.getGSection(1), 0.0);
-        assertEquals(2.0, model.getBSection(2), 0.0);
-        assertEquals(0.0, model.getGSection(2), 0.0);
+        assertEquals(3, model.getSections().size());
+        assertEquals(1.0, model.getBPerSection(1), 0.0);
+        assertEquals(0.0, model.getGPerSection(1), 0.0);
+        assertEquals(1.0, model.getBPerSection(2), 0.0);
+        assertEquals(0.0, model.getGPerSection(2), 0.0);
     }
 
     private void createNetwork() {

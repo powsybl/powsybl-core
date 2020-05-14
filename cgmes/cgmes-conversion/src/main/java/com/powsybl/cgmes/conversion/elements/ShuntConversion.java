@@ -22,6 +22,8 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class ShuntConversion extends AbstractConductingEquipmentConversion {
 
+    private static final String SECTION_NUMBER = "sectionNumber";
+
     public ShuntConversion(PropertyBag sh, Context context) {
         super("ShuntCompensator", sh, context);
     }
@@ -48,20 +50,32 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         String shuntType = p.getId("type");
         if ("LinearShuntCompensator".equals(shuntType)) {
             double bPerSection = p.asDouble(CgmesNames.B_PER_SECTION, Float.MIN_VALUE);
+            if (bPerSection == 0) {
+                double bPerSectionFixed = Double.MIN_VALUE;
+                fixed(CgmesNames.B_PER_SECTION, "Can not be zero", bPerSection, bPerSectionFixed);
+                bPerSection = bPerSectionFixed;
+            }
             double gPerSection = p.asDouble("gPerSection", Double.NaN);
             adder.newLinearModel()
-                    .setbPerSection(bPerSection)
-                    .setgPerSection(gPerSection)
+                    .setBPerSection(bPerSection)
+                    .setGPerSection(gPerSection)
                     .setMaximumSectionCount(maximumSections)
                     .add();
         } else if ("NonlinearShuntCompensator".equals(shuntType)) {
             ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
             PropertyBags ss = context.cgmes().nonlinearShuntCompensatorPoints(id);
             for (PropertyBag sp : ss) {
+                int sectionNumber = sp.asInt(SECTION_NUMBER);
+                double b = ss.stream().filter(s -> s.asInt(SECTION_NUMBER) <= sectionNumber).map(s -> s.asDouble("b")).reduce(0.0, Double::sum);
+                if (sectionNumber == 0) {
+                    if (b != 0) {
+                        fixed("Shunt.section0", "Susceptance of section 0 should always be zero (disconnected state)", b, 0.);
+                    }
+                    continue;
+                }
                 modelAdder.beginSection()
-                        .setB(sp.asDouble("b"))
-                        .setG(sp.asDouble("g"))
-                        .setSectionIndex(sp.asInt("sectionNumber"))
+                        .setB(b)
+                        .setG(ss.stream().filter(s -> s.asInt(SECTION_NUMBER) <= sectionNumber).map(s -> s.asDouble("g")).reduce(0.0, Double::sum))
                         .endSection();
             }
             modelAdder.add();

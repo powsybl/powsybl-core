@@ -67,15 +67,19 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     double getCurrentG();
 
     /**
-     * Get the susceptance (in S) for a given section count i.e. the sum of the sections' susceptances from 1 to sectionCount.
+     * Get the susceptance (in S) for a given activated sections count i.e. the sum of the sections' susceptances from 1 to sectionCount.
      * Return O if sectionCount is equal to 0 (disconnected state).
+     *
+     * @param sectionCount count of wanted activated sections. Must be in [0; maximumSectionCount]. Else, throws a {@link ValidationException}.
      */
     double getB(int sectionCount);
 
     /**
-     * Get the conductance (in S) for a given section count i.e. the sum of the sections' conductances from 1 to sectionCount.
+     * Get the conductance (in S) for a given activated sections count i.e. the sum of the sections' conductances from 1 to sectionCount.
      * If the conductance of a section is undefined, it is considered equal to 0.
      * Return 0 if sectionCount is equal to 0 (disconnected state).
+     *
+     * @param sectionCount count of wanted activated sections. Must be in [0; maximumSectionCount]. Else, throws a {@link ValidationException}.
      */
     double getG(int sectionCount);
 

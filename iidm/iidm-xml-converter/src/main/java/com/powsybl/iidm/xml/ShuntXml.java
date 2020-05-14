@@ -46,7 +46,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
                 IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
         IidmXmlUtil.assertMinimumVersionIfNotDefault(sc.getRegulatingTerminal().getConnectable() != sc, ROOT_ELEMENT_NAME, "regulatingTerminal",
                 IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
-        XmlUtil.writeDouble("bPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), context.getWriter());
+        XmlUtil.writeDouble("bPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), context.getWriter());
         context.getWriter().writeAttribute("maximumSectionCount", Integer.toString(sc.getMaximumSectionCount()));
         context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getCurrentSectionCount()));
         writeNodeOrBus(null, sc.getTerminal(), context);
@@ -67,7 +67,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         adder.setCurrentSectionCount(currentSectionCount)
                 .newLinearModel()
                 .setMaximumSectionCount(maximumSectionCount)
-                .setbPerSection(bPerSection)
+                .setBPerSection(bPerSection)
                 .add();
         readNodeOrBus(adder, context);
         ShuntCompensator sc = adder.add();

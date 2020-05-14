@@ -38,7 +38,7 @@ public final class ShuntTestCaseFactory {
                     .setTargetDeadband(5.0)
                     .newLinearModel()
                         .setMaximumSectionCount(1)
-                        .setbPerSection(1e-5)
+                        .setBPerSection(1e-5)
                     .add()
                 .add();
 
@@ -64,11 +64,10 @@ public final class ShuntTestCaseFactory {
                     .setTargetDeadband(5.0)
                     .newNonLinearModel()
                         .beginSection()
-                            .setSectionIndex(1)
                             .setB(1e-5)
+                            .setG(0.0)
                         .endSection()
                         .beginSection()
-                            .setSectionIndex(2)
                             .setB(2e-2)
                             .setG(3e-1)
                         .endSection()

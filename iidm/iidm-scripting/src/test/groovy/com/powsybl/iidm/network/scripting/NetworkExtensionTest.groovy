@@ -45,7 +45,7 @@ class NetworkExtensionTest {
                 .setConnectableBus("Bus1")
                 .setCurrentSectionCount(6)
                 .newLinearModel()
-                    .setbPerSection(5.0)
+                    .setBPerSection(5.0)
                     .setMaximumSectionCount(10)
                     .add()
                 .add()

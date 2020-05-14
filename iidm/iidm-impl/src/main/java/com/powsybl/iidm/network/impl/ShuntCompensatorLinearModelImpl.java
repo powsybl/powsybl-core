@@ -29,13 +29,13 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     }
 
     @Override
-    public double getbPerSection() {
+    public double getBPerSection() {
         return bPerSection;
     }
 
     @Override
-    public ShuntCompensatorLinearModel setbPerSection(double bPerSection) {
-        ValidationUtil.checkbPerSection(shuntCompensator, bPerSection);
+    public ShuntCompensatorLinearModel setBPerSection(double bPerSection) {
+        ValidationUtil.checkLinearBPerSection(shuntCompensator, bPerSection);
         double oldValue = this.bPerSection;
         this.bPerSection = bPerSection;
         shuntCompensator.notifyUpdate("bPerSection", oldValue, bPerSection);
@@ -43,12 +43,12 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     }
 
     @Override
-    public double getgPerSection() {
+    public double getGPerSection() {
         return gPerSection;
     }
 
     @Override
-    public ShuntCompensatorLinearModel setgPerSection(double gPerSection) {
+    public ShuntCompensatorLinearModel setGPerSection(double gPerSection) {
         double oldValue = this.gPerSection;
         this.gPerSection = gPerSection;
         shuntCompensator.notifyUpdate("gPerSection", oldValue, gPerSection);
@@ -91,12 +91,7 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     }
 
     @Override
-    public boolean containsSection(int sectionNumber) {
-        return sectionNumber >= 0 && sectionNumber <= maximumSectionCount;
-    }
-
-    @Override
-    public double getBSection(int sectionIndex) {
+    public double getBPerSection(int sectionIndex) {
         if (sectionIndex < 0 || sectionIndex > maximumSectionCount) {
             throw new PowsyblException("the given index of section (" + sectionIndex + ") is not associated with any susceptance");
         }
@@ -104,7 +99,7 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     }
 
     @Override
-    public double getGSection(int sectionIndex) {
+    public double getGPerSection(int sectionIndex) {
         if (sectionIndex < 0 || sectionIndex > maximumSectionCount) {
             throw new PowsyblException("the given index of section (" + sectionIndex + ") is not associated with any conductance");
         }

@@ -22,7 +22,7 @@ class ShuntCompensatorExtension {
     static double getMaximumB(ShuntCompensator self) {
         if (ShuntCompensatorModelType.LINEAR == self.getModelType()) {
             // forward bPerSection * maximumSectionCount for linear shunts
-            return self.getModel(ShuntCompensatorLinearModel.class).getbPerSection() * self.getModel().getMaximumSectionCount()
+            return self.getModel(ShuntCompensatorLinearModel.class).getBPerSection() * self.getModel().getMaximumSectionCount()
         }
         throw new PowsyblException("shunt model is not linear")
     }
@@ -30,7 +30,7 @@ class ShuntCompensatorExtension {
     static double getbPerSection(ShuntCompensator self) {
         if (ShuntCompensatorModelType.LINEAR == self.getModelType()) {
             // forward bPerSection of linear model
-            return self.getModel(ShuntCompensatorLinearModel.class).getbPerSection()
+            return self.getModel(ShuntCompensatorLinearModel.class).getBPerSection()
         }
         throw new PowsyblException("shunt model is not linear")
     }
@@ -38,7 +38,7 @@ class ShuntCompensatorExtension {
     static void setbPerSection(ShuntCompensator self, double bPerSection) {
         if (ShuntCompensatorModelType.LINEAR == self.getModelType()) {
             // forward to linear model setter for bPerSection
-            self.getModel(ShuntCompensatorLinearModel.class).setbPerSection(bPerSection)
+            self.getModel(ShuntCompensatorLinearModel.class).setBPerSection(bPerSection)
         } else {
             throw new PowsyblException("shunt model is not linear")
         }

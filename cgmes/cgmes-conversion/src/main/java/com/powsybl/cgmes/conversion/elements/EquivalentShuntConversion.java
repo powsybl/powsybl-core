@@ -24,7 +24,7 @@ public class EquivalentShuntConversion extends AbstractConductingEquipmentConver
         ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator()
                 .setCurrentSectionCount(terminalConnected() ? 1 : 0)
                 .newLinearModel()
-                    .setbPerSection(p.asDouble("b"))
+                    .setBPerSection(p.asDouble("b"))
                     .setMaximumSectionCount(1)
                     .add();
         identify(adder);

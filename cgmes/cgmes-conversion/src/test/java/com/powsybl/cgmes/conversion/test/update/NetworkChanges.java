@@ -83,7 +83,7 @@ public final class NetworkChanges {
 
         if (network.getShuntCompensatorCount() > 0) {
             ShuntCompensator sh = network.getShuntCompensators().iterator().next();
-            sh.getModel(ShuntCompensatorLinearModel.class).setbPerSection(sh.getModel(ShuntCompensatorLinearModel.class).getbPerSection() + 0.2);
+            sh.getModel(ShuntCompensatorLinearModel.class).setBPerSection(sh.getModel(ShuntCompensatorLinearModel.class).getBPerSection() + 0.2);
             sh.getModel(ShuntCompensatorLinearModel.class).setMaximumSectionCount(sh.getMaximumSectionCount() + 5);
         }
     }

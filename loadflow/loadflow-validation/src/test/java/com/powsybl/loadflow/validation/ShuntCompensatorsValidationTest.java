@@ -64,7 +64,7 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
         Mockito.when(shuntTerminal.getVoltageLevel()).thenReturn(shuntVoltageLevel);
 
         ShuntCompensatorLinearModel shuntModel = Mockito.mock(ShuntCompensatorLinearModel.class);
-        Mockito.when(shuntModel.getbPerSection()).thenReturn(bPerSection);
+        Mockito.when(shuntModel.getBPerSection()).thenReturn(bPerSection);
 
         shunt = Mockito.mock(ShuntCompensator.class);
         Mockito.when(shunt.getId()).thenReturn("shunt");

@@ -231,28 +231,30 @@ public class Comparison {
                         expected.getMaximumSectionCount(),
                         actual.getMaximumSectionCount());
                 compare("bPerSection",
-                        expected.getModel(ShuntCompensatorLinearModel.class).getbPerSection(),
-                        actual.getModel(ShuntCompensatorLinearModel.class).getbPerSection());
+                        expected.getModel(ShuntCompensatorLinearModel.class).getBPerSection(),
+                        actual.getModel(ShuntCompensatorLinearModel.class).getBPerSection());
                 compare("gPerSection",
-                        expected.getModel(ShuntCompensatorLinearModel.class).getgPerSection(),
-                        actual.getModel(ShuntCompensatorLinearModel.class).getgPerSection());
+                        expected.getModel(ShuntCompensatorLinearModel.class).getGPerSection(),
+                        actual.getModel(ShuntCompensatorLinearModel.class).getGPerSection());
                 break;
             case NON_LINEAR:
                 ShuntCompensatorNonLinearModel expectedModel = expected.getModel(ShuntCompensatorNonLinearModel.class);
                 ShuntCompensatorNonLinearModel actualModel = actual.getModel(ShuntCompensatorNonLinearModel.class);
-                for (Map.Entry<Integer, ShuntCompensatorNonLinearModel.Section> section : expectedModel.getSections().entrySet()) {
-                    Optional<ShuntCompensatorNonLinearModel.Section> actualSection = actualModel.getSection(section.getKey());
-                    if (!actualSection.isPresent()) {
-                        diff.missing("section" + section.getKey());
-                    } else {
-                        compare("section" + section.getKey() + ".b", section.getValue().getB(), actualSection.get().getB());
-                        compare("section" + section.getKey() + ".g", section.getValue().getG(), actualSection.get().getG());
+                if (expectedModel.getSections().size() > actualModel.getSections().size()) {
+                    for (int i = actualModel.getSections().size(); i < expectedModel.getSections().size(); i++) {
+                        diff.missing("section" + i);
                     }
                 }
-                for (Map.Entry<Integer, ShuntCompensatorNonLinearModel.Section> section : actualModel.getSections().entrySet()) {
-                    if (!expectedModel.getSection(section.getKey()).isPresent()) {
-                        diff.unexpected("section" + section.getKey());
+                if (expectedModel.getSections().size() < actualModel.getSections().size()) {
+                    for (int i = expectedModel.getSections().size(); i < actualModel.getSections().size(); i++) {
+                        diff.unexpected("section" + i);
                     }
+                }
+                for (int i = 0; i < expectedModel.getSections().size(); i++) {
+                    ShuntCompensatorNonLinearModel.Section expectedSection = expectedModel.getSection(i);
+                    ShuntCompensatorNonLinearModel.Section actualSection = actualModel.getSection(i);
+                    compare("section" + i + ".b", expectedSection.getB(), actualSection.getB());
+                    compare("section" + i + ".g", expectedSection.getG(), actualSection.getG());
                 }
                 break;
             default:

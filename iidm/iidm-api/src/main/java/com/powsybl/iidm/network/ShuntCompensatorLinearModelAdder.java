@@ -11,9 +11,9 @@ package com.powsybl.iidm.network;
  */
 public interface ShuntCompensatorLinearModelAdder {
 
-    ShuntCompensatorLinearModelAdder setbPerSection(double bPerSection);
+    ShuntCompensatorLinearModelAdder setBPerSection(double bPerSection);
 
-    ShuntCompensatorLinearModelAdder setgPerSection(double gPerSection);
+    ShuntCompensatorLinearModelAdder setGPerSection(double gPerSection);
 
     ShuntCompensatorLinearModelAdder setMaximumSectionCount(int maximumSectionCount);
 

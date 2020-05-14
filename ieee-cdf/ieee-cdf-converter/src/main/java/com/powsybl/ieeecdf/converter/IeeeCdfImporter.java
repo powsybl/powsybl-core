@@ -252,7 +252,7 @@ public class IeeeCdfImporter implements Importer {
                     .setCurrentSectionCount(1)
                     .newLinearModel()
                         .setMaximumSectionCount(1)
-                        .setbPerSection(ieeeCdfBus.getShuntSusceptance() / zb)
+                        .setBPerSection(ieeeCdfBus.getShuntSusceptance() / zb)
                         .add()
                     .add();
         }

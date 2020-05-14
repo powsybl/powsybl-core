@@ -75,8 +75,8 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(10, shuntCompensator.getTargetDeadband(), 0.0);
         assertEquals(ShuntCompensatorModelType.LINEAR, shuntCompensator.getModelType());
         ShuntCompensatorLinearModel shuntLinearModel = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
-        assertEquals(5.0, shuntLinearModel.getbPerSection(), 0.0);
-        assertEquals(4.0, shuntLinearModel.getgPerSection(), 0.0);
+        assertEquals(5.0, shuntLinearModel.getBPerSection(), 0.0);
+        assertEquals(4.0, shuntLinearModel.getGPerSection(), 0.0);
 
         // try get incorrect shunt model
         try {
@@ -135,18 +135,18 @@ public abstract class AbstractShuntCompensatorTest {
 
         // bPerSection
         try {
-            shuntLinearModel.setbPerSection(0.0);
+            shuntLinearModel.setBPerSection(0.0);
             fail();
         } catch (ValidationException ignored) {
             // ignore
         }
-        shuntLinearModel.setbPerSection(-1.0);
-        assertEquals(-1.0, shuntLinearModel.getbPerSection(), 0.0);
+        shuntLinearModel.setBPerSection(-1.0);
+        assertEquals(-1.0, shuntLinearModel.getBPerSection(), 0.0);
         assertEquals(-6.0, shuntCompensator.getCurrentB(), 0.0);
 
         // gPerSection
-        shuntLinearModel.setgPerSection(-2.0);
-        assertEquals(-2.0, shuntLinearModel.getgPerSection(), 0.0);
+        shuntLinearModel.setGPerSection(-2.0);
+        assertEquals(-2.0, shuntLinearModel.getGPerSection(), 0.0);
         assertEquals(-12.0, shuntCompensator.getCurrentG(), 0.0);
 
         // maximumSectionCount
@@ -202,13 +202,12 @@ public abstract class AbstractShuntCompensatorTest {
                 .setTargetDeadband(10);
         adder.newNonLinearModel()
                 .beginSection()
-                    .setSectionIndex(1)
-                    .setB(5.0)
-                    .setG(2.0)
+                .setB(5.0)
+                .setG(2.0)
                 .endSection()
                 .beginSection()
-                    .setSectionIndex(2)
-                    .setB(6.0)
+                .setB(6.0)
+                .setG(2.0)
                 .endSection()
                 .add();
         ShuntCompensator shuntCompensator = adder.add();
@@ -223,7 +222,7 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(2.0, shuntCompensator.getCurrentG(), 0.0);
         assertEquals(0.0, shuntCompensator.getB(0), 0.0);
         assertEquals(5.0, shuntCompensator.getB(1), 0.0);
-        assertEquals(11.0, shuntCompensator.getB(2), 0.0);
+        assertEquals(6.0, shuntCompensator.getB(2), 0.0);
         assertEquals(0.0, shuntCompensator.getG(0), 0.0);
         assertEquals(2.0, shuntCompensator.getG(1), 0.0);
         assertEquals(2.0, shuntCompensator.getG(2), 0.0);
@@ -234,8 +233,13 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(ShuntCompensatorModelType.NON_LINEAR, shuntCompensator.getModelType());
         ShuntCompensatorNonLinearModel shuntNonLinearModel = shuntCompensator.getModel(ShuntCompensatorNonLinearModel.class);
         assertEquals(2, shuntNonLinearModel.getSections().size());
-        assertFalse(shuntNonLinearModel.getSection(3).isPresent());
-        assertFalse(shuntNonLinearModel.getSection(3).isPresent());
+
+        // try to get an invalid section
+        try {
+            shuntNonLinearModel.getSection(3);
+        } catch (ValidationException ignored) {
+            // ignore
+        }
 
         // try get incorrect shunt model
         try {
@@ -291,75 +295,23 @@ public abstract class AbstractShuntCompensatorTest {
         }
         // for non linear model
 
-        // getBSection
+        // getBPerSection
         try {
             // try to get susceptance of a non-existing section
-            shuntNonLinearModel.getBSection(3);
+            shuntNonLinearModel.getBPerSection(3);
             fail();
         } catch (PowsyblException ignored) {
             // ignore
         }
 
-        // getGSection
+        // getGPerSection
         try {
             // try to get conductance of a non-existing section
-            shuntNonLinearModel.getGSection(3);
+            shuntNonLinearModel.getGPerSection(3);
             fail();
         } catch (PowsyblException ignored) {
             // ignore
         }
-
-        // add or replace a section
-        try {
-            // try to add or replace with negative section number
-            shuntNonLinearModel.addOrReplaceSection(-2, 4.0, 1.0);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignored
-        }
-        try {
-            // try to add or replace with a negative susceptance
-            shuntNonLinearModel.addOrReplaceSection(3, Double.NaN, 1.0);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignored
-        }
-        shuntNonLinearModel.addOrReplaceSection(3, 4.0, 1.0); // add a section
-        assertEquals(3, shuntNonLinearModel.getSections().size());
-        assertEquals(4.0, shuntNonLinearModel.getBSection(3), 0.0);
-        assertEquals(1.0, shuntNonLinearModel.getGSection(3), 0.0);
-        assertEquals(3, shuntCompensator.getMaximumSectionCount());
-        shuntNonLinearModel.addOrReplaceSection(1, -3.0, -1.5); // replace a section
-        assertEquals(3, shuntNonLinearModel.getSections().size());
-        assertEquals(-3.0, shuntNonLinearModel.getBSection(1), 0.0);
-        assertEquals(-1.5, shuntNonLinearModel.getGSection(1), 0.0);
-
-        // remove a section
-        try {
-            // try to remove a section with negative section number
-            shuntNonLinearModel.removeSection(-1);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignored
-        }
-        try {
-            // try to remove a non-existing section
-            shuntNonLinearModel.removeSection(4);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignored
-        }
-        try {
-            // try to remove the current section
-            shuntNonLinearModel.removeSection(2);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignored
-        }
-        shuntNonLinearModel.removeSection(3);
-        assertEquals(2, shuntNonLinearModel.getSections().size());
-        assertFalse(shuntNonLinearModel.getSection(3).isPresent());
-        assertEquals(2, shuntCompensator.getMaximumSectionCount());
     }
 
     @Test
@@ -368,22 +320,6 @@ public abstract class AbstractShuntCompensatorTest {
         thrown.expectMessage("a shunt compensator must have at least one section");
         ShuntCompensatorAdder adder = createShuntAdder(INVALID, INVALID, 6, terminal, true, 200, 10);
         adder.newNonLinearModel().add();
-    }
-
-    @Test
-    public void invalidExistingSection() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("a section is already defined at this number");
-        ShuntCompensatorAdder adder = createShuntAdder(INVALID, INVALID, 6, terminal, true, 200, 10);
-        adder.newNonLinearModel()
-                .beginSection()
-                    .setSectionIndex(1)
-                    .setB(5.0)
-                .endSection()
-                .beginSection()
-                    .setSectionIndex(1)
-                    .setB(4.0)
-                .endSection();
     }
 
     @Test
@@ -564,10 +500,10 @@ public abstract class AbstractShuntCompensatorTest {
     private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection, int currentSectionCount, int maxSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
         return createShuntAdder(id, name, currentSectionCount, regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband)
                 .newLinearModel()
-                    .setbPerSection(bPerSection)
-                    .setgPerSection(gPerSection)
-                    .setMaximumSectionCount(maxSectionCount)
-                    .add()
+                .setBPerSection(bPerSection)
+                .setGPerSection(gPerSection)
+                .setMaximumSectionCount(maxSectionCount)
+                .add()
                 .add();
     }
 

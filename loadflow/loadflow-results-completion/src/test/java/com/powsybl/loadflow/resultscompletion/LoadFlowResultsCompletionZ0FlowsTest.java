@@ -472,7 +472,7 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
                 .setBus("B3.1")
                 .setCurrentSectionCount(1)
                 .newLinearModel()
-                    .setbPerSection(25.0 / Math.pow(vbase, 2))
+                    .setBPerSection(25.0 / Math.pow(vbase, 2))
                     .setMaximumSectionCount(1)
                     .add()
                 .add();
@@ -482,7 +482,7 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
                 .setBus("B3.4")
                 .setCurrentSectionCount(1)
                 .newLinearModel()
-                    .setbPerSection(5.00 / Math.pow(vbase, 2))
+                    .setBPerSection(5.00 / Math.pow(vbase, 2))
                     .setMaximumSectionCount(1)
                     .add()
                 .add();

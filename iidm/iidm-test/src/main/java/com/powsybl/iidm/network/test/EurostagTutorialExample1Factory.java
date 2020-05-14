@@ -447,7 +447,7 @@ public final class EurostagTutorialExample1Factory {
                 .setConnectableBus(nshunt.getId())
                 .setCurrentSectionCount(1)
                 .newLinearModel()
-                    .setbPerSection(1e-5)
+                    .setBPerSection(1e-5)
                     .setMaximumSectionCount(1)
                     .add()
                 .add();

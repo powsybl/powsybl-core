@@ -7,5 +7,6 @@
     "phaseShifterRegulationOn" : false,
     "noGeneratorReactiveLimits" : false,
     "twtSplitShuntAdmittance" : false
+    "simulShunt" : false
   }
 }

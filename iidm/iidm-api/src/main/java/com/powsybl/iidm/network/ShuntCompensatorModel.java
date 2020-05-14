@@ -13,16 +13,16 @@ public interface ShuntCompensatorModel {
 
     /**
      * Get the section susceptance in S of the section with a given section number if it exists.
-     * Return 0 if sectionIndex is equal to 0 (disconnected state).
-     * Throw an exception if such a section does not exist.
+     *
+     * @param sectionIndex index of the wanted section. Must be in [1;maximumSectionCount]. Else, throws a {@link ValidationException}.
      */
-    double getBSection(int sectionIndex);
+    double getBPerSection(int sectionIndex);
 
     /**
      * Get the section conductance in S of the section with a given section number if it exists.
-     * Return 0 if sectionIndex is equal to 0 (disconnected state).
      * If the section conductance has not been defined, return 0.
-     * Throw an exception if such a section does not exist.
+     *
+     * @param sectionIndex index of the wanted section. Must be in [1; maximumSectionCount]. Else, throws a {@link ValidationException}.
      */
-    double getGSection(int sectionIndex);
+    double getGPerSection(int sectionIndex);
 }

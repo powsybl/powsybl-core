@@ -153,7 +153,7 @@ public final class HvdcTestNetwork {
                 .setBus("B1")
                 .setCurrentSectionCount(1)
                 .newLinearModel()
-                    .setbPerSection(1e-5)
+                    .setBPerSection(1e-5)
                     .setMaximumSectionCount(1)
                     .add()
                 .add();
@@ -165,7 +165,7 @@ public final class HvdcTestNetwork {
                 .setConnectableBus("B1")
                 .setCurrentSectionCount(0)
                 .newLinearModel()
-                    .setbPerSection(2e-5)
+                    .setBPerSection(2e-5)
                     .setMaximumSectionCount(1)
                     .add()
                 .add();
@@ -221,7 +221,7 @@ public final class HvdcTestNetwork {
                 .setNode(4)
                 .setCurrentSectionCount(1)
                 .newLinearModel()
-                    .setbPerSection(3e-5)
+                    .setBPerSection(3e-5)
                     .setMaximumSectionCount(1)
                     .add()
                 .add();
@@ -233,7 +233,7 @@ public final class HvdcTestNetwork {
                 .setNode(6)
                 .setCurrentSectionCount(1)
                 .newLinearModel()
-                    .setbPerSection(4e-5)
+                    .setBPerSection(4e-5)
                     .setMaximumSectionCount(1)
                     .add()
                 .add();

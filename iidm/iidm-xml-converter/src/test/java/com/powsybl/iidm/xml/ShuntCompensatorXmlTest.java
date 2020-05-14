@@ -48,7 +48,7 @@ public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
         Network network = ShuntTestCaseFactory.createNonLinear();
         ShuntCompensator sc = network.getShuntCompensator("SHUNT");
         sc.setProperty("test", "test");
-        roundTripXmlTest(network,
+        roundTripTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 getVersionedNetworkPath("nonLinearShuntRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));

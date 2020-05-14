@@ -36,8 +36,8 @@ public class LinearShuntXml extends AbstractConnectableXml<ShuntCompensator, Shu
 
     @Override
     protected void writeRootElementAttributes(ShuntCompensator sc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("bPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getbPerSection(), context.getWriter());
-        XmlUtil.writeDouble("gPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getgPerSection(), context.getWriter());
+        XmlUtil.writeDouble("bPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), context.getWriter());
+        XmlUtil.writeDouble("gPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getGPerSection(), context.getWriter());
         context.getWriter().writeAttribute("maximumSectionCount", Integer.toString(sc.getMaximumSectionCount()));
         context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getCurrentSectionCount()));
         context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(sc.isVoltageRegulatorOn()));
@@ -74,8 +74,8 @@ public class LinearShuntXml extends AbstractConnectableXml<ShuntCompensator, Shu
                 .setTargetDeadband(targetDeadband)
                 .newLinearModel()
                     .setMaximumSectionCount(maximumSectionCount)
-                    .setbPerSection(bPerSection)
-                    .setgPerSection(gPerSection)
+                    .setBPerSection(bPerSection)
+                    .setGPerSection(gPerSection)
                     .add()
                 .setCurrentSectionCount(currentSectionCount);
         readNodeOrBus(adder, context);

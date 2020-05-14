@@ -87,7 +87,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public ShuntCompensatorImpl setCurrentSectionCount(int currentSectionCount) {
         ValidationUtil.checkSections(this, currentSectionCount, model.getMaximumSectionCount());
-        if (!model.containsSection(currentSectionCount)) {
+        if (currentSectionCount < 0 || currentSectionCount > model.getMaximumSectionCount()) {
             throw new ValidationException(this, "unexpected section number (" + currentSectionCount + "): no existing associated section");
         }
         int variantIndex = network.get().getVariantIndex();

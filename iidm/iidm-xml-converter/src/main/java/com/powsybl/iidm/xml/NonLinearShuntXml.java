@@ -52,11 +52,11 @@ public class NonLinearShuntXml extends AbstractConnectableXml<ShuntCompensator, 
     }
 
     private static void writeSections(ShuntCompensator sc, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (Map.Entry<Integer, ShuntCompensatorNonLinearModel.Section> section : sc.getModel(ShuntCompensatorNonLinearModel.class).getSections().entrySet()) {
+        List<ShuntCompensatorNonLinearModel.Section> sections = sc.getModel(ShuntCompensatorNonLinearModel.class).getSections();
+        for (int i = 1; i < sections.size(); i++) {
             context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "section");
-            context.getWriter().writeAttribute("num", Integer.toString(section.getKey()));
-            XmlUtil.writeDouble("b", section.getValue().getB(), context.getWriter());
-            XmlUtil.writeDouble("g", section.getValue().getG(), context.getWriter());
+            XmlUtil.writeDouble("b", sections.get(i).getB(), context.getWriter());
+            XmlUtil.writeDouble("g", sections.get(i).getG(), context.getWriter());
         }
     }
 
@@ -120,11 +120,9 @@ public class NonLinearShuntXml extends AbstractConnectableXml<ShuntCompensator, 
     }
 
     private static void readSection(ShuntCompensatorNonLinearModelAdder adder, NetworkXmlReaderContext context) {
-        int sectionNum = XmlUtil.readIntAttribute(context.getReader(), "num");
         double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
         double g = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g");
         adder.beginSection()
-                .setSectionIndex(sectionNum)
                 .setB(b)
                 .setG(g)
                 .endSection();
