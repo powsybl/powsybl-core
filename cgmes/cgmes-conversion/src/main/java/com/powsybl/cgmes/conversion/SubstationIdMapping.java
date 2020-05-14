@@ -106,27 +106,28 @@ public class SubstationIdMapping {
         Map<String, List<String>> substationAdjacency, PropertyBag sw) {
         CgmesTerminal t1 = context.cgmes().terminal(sw.getId(CgmesNames.TERMINAL + 1));
         String node1 = context.nodeBreaker() ? t1.connectivityNode() : t1.topologicalNode();
-        String voltageLevelId1 = null;
 
-        if (node1 != null && !context.boundary().containsNode(node1)) {
-            voltageLevelId1 = context.cgmes().voltageLevel(t1, context.nodeBreaker());
-        }
+        String voltageLevelId1 = nodeGetVoltageLevel(node1, t1);
         if (voltageLevelId1 == null) {
             return;
         }
 
         CgmesTerminal t2 = context.cgmes().terminal(sw.getId(CgmesNames.TERMINAL + 2));
         String node2 = context.nodeBreaker() ? t2.connectivityNode() : t2.topologicalNode();
-        String voltageLevelId2 = null;
-
-        if (node2 != null && !context.boundary().containsNode(node2)) {
-            voltageLevelId2 = context.cgmes().voltageLevel(t2, context.nodeBreaker());
-        }
+        String voltageLevelId2 = nodeGetVoltageLevel(node2, t2);
         if (voltageLevelId2 == null) {
             return;
         }
 
         addSwitchAdjacency(voltageLevelAdjacency, substationAdjacency, t1, t2, voltageLevelId1, voltageLevelId2);
+    }
+
+    private String nodeGetVoltageLevel(String node, CgmesTerminal t) {
+        String voltageLevelId = null;
+        if (node != null && !context.boundary().containsNode(node)) {
+            voltageLevelId = context.cgmes().voltageLevel(t, context.nodeBreaker());
+        }
+        return voltageLevelId;
     }
 
     private void addSwitchAdjacency(Map<String, List<String>> voltageLevelAdjacency,
