@@ -107,45 +107,62 @@ public class SubstationIdMapping {
         CgmesTerminal t1 = context.cgmes().terminal(sw.getId(CgmesNames.TERMINAL + 1));
         String node1 = context.nodeBreaker() ? t1.connectivityNode() : t1.topologicalNode();
         String voltageLevelId1 = null;
-        String substationId1 = null;
+
         if (node1 != null && !context.boundary().containsNode(node1)) {
             voltageLevelId1 = context.cgmes().voltageLevel(t1, context.nodeBreaker());
-            substationId1 = context.cgmes().substation(t1, context.nodeBreaker());
         }
-        if (voltageLevelId1 == null || substationId1 == null) {
+        if (voltageLevelId1 == null) {
             return;
         }
 
         CgmesTerminal t2 = context.cgmes().terminal(sw.getId(CgmesNames.TERMINAL + 2));
         String node2 = context.nodeBreaker() ? t2.connectivityNode() : t2.topologicalNode();
         String voltageLevelId2 = null;
-        String substationId2 = null;
+
         if (node2 != null && !context.boundary().containsNode(node2)) {
             voltageLevelId2 = context.cgmes().voltageLevel(t2, context.nodeBreaker());
-            substationId2 = context.cgmes().substation(t2, context.nodeBreaker());
         }
-        if (voltageLevelId2 == null || substationId2 == null) {
+        if (voltageLevelId2 == null) {
             return;
         }
-        if (!voltageLevelId1.equals(voltageLevelId2)) {
-            List<String> ad1 = voltageLevelAdjacency.get(voltageLevelId1);
-            if (ad1 != null) {
-                ad1.add(voltageLevelId2);
-            }
-            List<String> ad2 = voltageLevelAdjacency.get(voltageLevelId2);
-            if (ad2 != null) {
-                ad2.add(voltageLevelId1);
-            }
+
+        addSwitchAdjacency(voltageLevelAdjacency, substationAdjacency, t1, t2, voltageLevelId1, voltageLevelId2);
+    }
+
+    private void addSwitchAdjacency(Map<String, List<String>> voltageLevelAdjacency,
+        Map<String, List<String>> substationAdjacency, CgmesTerminal t1, CgmesTerminal t2, String voltageLevelId1,
+        String voltageLevelId2) {
+        if (voltageLevelId1.equals(voltageLevelId2)) {
+            return;
         }
-        if (!substationId1.equals(substationId2)) {
-            List<String> ad1 = substationAdjacency.get(substationId1);
-            if (ad1 != null) {
-                ad1.add(substationId2);
-            }
-            List<String> ad2 = substationAdjacency.get(substationId2);
-            if (ad2 != null) {
-                ad2.add(substationId1);
-            }
+        List<String> ad1 = voltageLevelAdjacency.get(voltageLevelId1);
+        if (ad1 != null) {
+            ad1.add(voltageLevelId2);
+        }
+        List<String> ad2 = voltageLevelAdjacency.get(voltageLevelId2);
+        if (ad2 != null) {
+            ad2.add(voltageLevelId1);
+        }
+
+        String substationId1 = context.cgmes().substation(t1, context.nodeBreaker());
+        if (substationId1 == null) {
+            return;
+        }
+        String substationId2 = context.cgmes().substation(t2, context.nodeBreaker());
+        if (substationId2 == null) {
+            return;
+        }
+        if (substationId1.equals(substationId2)) {
+            return;
+        }
+
+        ad1 = substationAdjacency.get(substationId1);
+        if (ad1 != null) {
+            ad1.add(substationId2);
+        }
+        ad2 = substationAdjacency.get(substationId2);
+        if (ad2 != null) {
+            ad2.add(substationId1);
         }
     }
 
