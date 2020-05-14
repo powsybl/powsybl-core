@@ -140,7 +140,7 @@ public class SecurityAnalysisTool implements Tool {
                 options.addOption(createImportParametersFileOption());
                 options.addOption(createImportParameterOption());
                 options.addOption(Option.builder().longOpt(OUTPUT_LOG_OPTION)
-                        .desc("log output path (.zip")
+                        .desc("log output path (.zip)")
                         .hasArg()
                         .argName("FILE")
                         .build());
