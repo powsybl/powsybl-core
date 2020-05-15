@@ -8,9 +8,8 @@ package com.powsybl.iidm.network;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface CurrentLimitsAdder {
+public interface CurrentLimitsAdder extends LoadingLimitsAdder {
 
     interface TemporaryLimitAdder {
 
@@ -29,22 +28,13 @@ public interface CurrentLimitsAdder {
         CurrentLimitsAdder endTemporaryLimit();
     }
 
-    CurrentLimitsAdder setPermanentLimit(double limit);
-
     TemporaryLimitAdder beginTemporaryLimit();
 
-    default double getPermanentLimit() {
-        return Double.NaN;
-    }
-
-    default double getTemporaryLimitValue(int acceptableDuration) {
-        return Double.NaN;
-    }
+    CurrentLimitsAdder setPermanentLimit(double limit);
 
     default boolean hasTemporaryLimits() {
         return false;
     }
 
     CurrentLimits add();
-
 }

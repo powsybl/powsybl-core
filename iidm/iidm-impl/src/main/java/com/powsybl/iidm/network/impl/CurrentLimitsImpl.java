@@ -95,4 +95,10 @@ public class CurrentLimitsImpl implements CurrentLimits {
         TemporaryLimit tl = getTemporaryLimit(acceptableDuration);
         return tl != null ? tl.getValue() : Double.NaN;
     }
+
+    @Override
+    public String getUnit() {
+        return "A";
+    }
+
 }
