@@ -37,7 +37,7 @@ public class MatpowerImporter implements Importer {
 
     private static final String FORMAT = "MATPOWER";
 
-    private static final String[] EXTENSIONS = {"m", "mat"};
+    private static final String EXT = "mat";
 
     private static final String BUS_PREFIX = "BUS";
     private static final String GENERATOR_PREFIX = "GEN";
@@ -320,13 +320,12 @@ public class MatpowerImporter implements Importer {
     }
 
     @Override
-    public String getFormat() {
-        return FORMAT;
-    }
-
-    @Override
-    public List<Parameter> getParameters() {
-        return Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER);
+    public boolean exists(ReadOnlyDataSource dataSource) {
+        try {
+            return dataSource.exists(null, EXT);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
@@ -334,27 +333,9 @@ public class MatpowerImporter implements Importer {
         return "MATPOWER Format to IIDM converter";
     }
 
-    private String findExtension(ReadOnlyDataSource dataSource, boolean throwException) throws IOException {
-        for (String ext : EXTENSIONS) {
-            if (dataSource.exists(null, ext)) {
-                return ext;
-            }
-        }
-        if (throwException) {
-            throw new MatpowerException("File " + dataSource.getBaseName()
-                    + "." + String.join("|", EXTENSIONS) + " not found");
-        }
-        return null;
-    }
-
     @Override
-    public boolean exists(ReadOnlyDataSource dataSource) {
-        try {
-            String ext = findExtension(dataSource, false);
-            return dataSource.exists(null, ext);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+    public String getFormat() {
+        return FORMAT;
     }
 
     @Override
@@ -362,14 +343,18 @@ public class MatpowerImporter implements Importer {
         Objects.requireNonNull(fromDataSource);
         Objects.requireNonNull(toDataSource);
         try {
-            String extension = findExtension(fromDataSource, true);
-            try (InputStream is = fromDataSource.newInputStream(null, extension);
-                 OutputStream os = toDataSource.newOutputStream(null, extension, false)) {
+            try (InputStream is = fromDataSource.newInputStream(null, EXT);
+                 OutputStream os = toDataSource.newOutputStream(null, EXT, false)) {
                 ByteStreams.copy(is, os);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public List<Parameter> getParameters() {
+        return Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER);
     }
 
     @Override
@@ -382,19 +367,9 @@ public class MatpowerImporter implements Importer {
         network.setCaseDate(DateTime.now());
 
         try {
-            String ext = findExtension(dataSource, true);
-            try (InputStream iStream = dataSource.newInputStream(null, ext)) {
+            try (InputStream iStream = dataSource.newInputStream(null, EXT)) {
                 // parse file
-                MatpowerModel model;
-                if (ext.equals("m")) {
-                    //.m matlab text file
-                    model = MatpowerReader.read(iStream);
-                } else if (ext.equals("mat")) {
-                    //.mat matlab binary file
-                    model = MatpowerBinReader.read(iStream, dataSource.getBaseName());
-                } else {
-                    throw new MatpowerException("file extension not supported: " + ext);
-                }
+                MatpowerModel model = MatpowerReader.read(iStream, dataSource.getBaseName());
                 LOGGER.debug("MATPOWER model {}", model);
 
                 ContainersMapping containerMapping = createContainerMapping(model);

@@ -6,14 +6,15 @@
  */
 package com.powsybl.matpower.model;
 
-import com.univocity.parsers.common.processor.BeanWriterProcessor;
-import com.univocity.parsers.tsv.TsvWriter;
-import com.univocity.parsers.tsv.TsvWriterSettings;
+import us.hebi.matlab.mat.format.Mat5;
+import us.hebi.matlab.mat.types.*;
+import us.hebi.matlab.mat.util.Casts;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -27,67 +28,100 @@ public final class MatpowerWriter {
     private MatpowerWriter() {
     }
 
-    private static <T> void writeRecords(Writer writer, List<T> beans, Class<T> aClass) {
-        TsvWriterSettings settings = new TsvWriterSettings();
-        settings.getFormat().setLineSeparator(";\n");
-        BeanWriterProcessor<T> processor = new BeanWriterProcessor<>(aClass);
-        settings.setRowWriterProcessor(processor);
-        new TsvWriter(writer, settings).processRecords(beans);
+    private static Struct fillMatStruct(Struct struct, MatpowerModel model) {
+        List<MBus> buses = model.getBuses();
+        Matrix busesM = Mat5.newMatrix(buses.size(), 13);
+        for (int row = 0; row < buses.size(); row++) {
+            busesM.setDouble(row, 0, buses.get(row).getNumber());
+            busesM.setDouble(row, 1, buses.get(row).getType().getValue());
+            busesM.setDouble(row, 2, buses.get(row).getRealPowerDemand());
+            busesM.setDouble(row, 3, buses.get(row).getReactivePowerDemand());
+            busesM.setDouble(row, 4, buses.get(row).getShuntConductance());
+            busesM.setDouble(row, 5, buses.get(row).getShuntSusceptance());
+            busesM.setDouble(row, 6, buses.get(row).getAreaNumber());
+            busesM.setDouble(row, 7, buses.get(row).getVoltageMagnitude());
+            busesM.setDouble(row, 8, buses.get(row).getVoltageAngle());
+            busesM.setDouble(row, 9, buses.get(row).getBaseVoltage());
+            busesM.setDouble(row, 10, buses.get(row).getLossZone());
+            busesM.setDouble(row, 11, buses.get(row).getMaximumVoltageMagnitude());
+            busesM.setDouble(row, 12, buses.get(row).getMinimumVoltageMagnitude());
+        }
+
+        List<MGen> gens = model.getGenerators();
+        Matrix gensM = Mat5.newMatrix(gens.size(), 21);
+        for (int row = 0; row < gens.size(); row++) {
+            gensM.setDouble(row, 0, gens.get(row).getNumber());
+            gensM.setDouble(row, 1, gens.get(row).getRealPowerOutput());
+            gensM.setDouble(row, 2, gens.get(row).getReactivePowerOutput());
+            gensM.setDouble(row, 3, gens.get(row).getMaximumReactivePowerOutput());
+            gensM.setDouble(row, 4, gens.get(row).getMinimumReactivePowerOutput());
+            gensM.setDouble(row, 5, gens.get(row).getVoltageMagnitudeSetpoint());
+            gensM.setDouble(row, 6, gens.get(row).getTotalMbase());
+            gensM.setDouble(row, 7, gens.get(row).getStatus());
+            gensM.setDouble(row, 8, gens.get(row).getMaximumRealPowerOutput());
+            gensM.setDouble(row, 9, gens.get(row).getMinimumRealPowerOutput());
+            gensM.setDouble(row, 10, gens.get(row).getPc1());
+            gensM.setDouble(row, 11, gens.get(row).getPc2());
+            gensM.setDouble(row, 12, gens.get(row).getQc1Min());
+            gensM.setDouble(row, 13, gens.get(row).getQc1Max());
+            gensM.setDouble(row, 14, gens.get(row).getQc2Min());
+            gensM.setDouble(row, 15, gens.get(row).getQc2Max());
+            gensM.setDouble(row, 16, gens.get(row).getRampAgc());
+            gensM.setDouble(row, 17, gens.get(row).getRampTenMinutes());
+            gensM.setDouble(row, 18, gens.get(row).getRampThirtyMinutes());
+            gensM.setDouble(row, 19, gens.get(row).getRampQ());
+            gensM.setDouble(row, 20, gens.get(row).getApf());
+        }
+
+        List<MBranch> branches = model.getBranches();
+        Matrix branchesM = Mat5.newMatrix(branches.size(), 13);
+        for (int row = 0; row < branches.size(); row++) {
+            branchesM.setDouble(row, 0, branches.get(row).getFrom());
+            branchesM.setDouble(row, 1, branches.get(row).getTo());
+            branchesM.setDouble(row, 2, branches.get(row).getR());
+            branchesM.setDouble(row, 3, branches.get(row).getX());
+            branchesM.setDouble(row, 4, branches.get(row).getB());
+            branchesM.setDouble(row, 5, branches.get(row).getRateA());
+            branchesM.setDouble(row, 6, branches.get(row).getRateB());
+            branchesM.setDouble(row, 7, branches.get(row).getRateC());
+            branchesM.setDouble(row, 8, branches.get(row).getRatio());
+            branchesM.setDouble(row, 9, branches.get(row).getPhaseShiftAngle());
+            branchesM.setDouble(row, 10, branches.get(row).getStatus());
+            branchesM.setDouble(row, 11, branches.get(row).getAngMin());
+            branchesM.setDouble(row, 12, branches.get(row).getAngMax());
+        }
+
+        struct.set("version", Mat5.newString("2"))
+                .set("baseMVA", Mat5.newScalar(100))
+                .set("bus", busesM)
+                .set("gen", gensM)
+                .set("branch", branchesM);
+        return struct;
     }
 
-    public static void write(MatpowerModel model, Path file) throws IOException {
+    public static void write(MatpowerModel model, OutputStream oStream) throws IOException {
         Objects.requireNonNull(model);
-        Objects.requireNonNull(file);
-        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-            write(model, writer);
+        Objects.requireNonNull(oStream);
+        try (WritableByteChannel channel = Channels.newChannel(oStream)) {
+            try (Struct struct = fillMatStruct(Mat5.newStruct(), model)) {
+                try (MatFile matFile = Mat5.newMatFile().addArray(MatpowerReader.MATPOWER_STRUCT_NAME, struct)) {
+                    channel.write(getByteBuffer(matFile));
+                }
+            }
         }
     }
 
-    public static void write(MatpowerModel model, BufferedWriter writer) throws IOException {
-        Objects.requireNonNull(model);
-        Objects.requireNonNull(writer);
+    public static void write(MatpowerModel model, Path pFile) throws IOException {
+        Objects.requireNonNull(pFile);
+        write(model, Files.newOutputStream(pFile));
+    }
 
-        writer.write(String.format("function mpc = %s", model.getCaseName()));
-        writer.newLine();
-
-        writer.write(String.format("mpc.version = '%s'", model.getVersion()));
-        writer.newLine();
-
-        writer.write("%% system MVA base");
-        writer.newLine();
-        writer.write(String.format("mpc.baseMVA = %f", model.getBaseMva()));
-        writer.newLine();
-
-        writer.newLine();
-        writer.write("%% bus data");
-        writer.newLine();
-        writer.write("%\tbus_i\ttype\tPd\tQd\tGs\tBs\tarea\tVm\tVa\tbaseKV\tzone\tVmax\tVmin");
-        writer.newLine();
-        writer.write("mpc.bus = [");
-        writer.newLine();
-        writeRecords(writer, model.getBuses(), MBus.class);
-        writer.write("];");
-        writer.newLine();
-
-        writer.write("%% generator data");
-        writer.newLine();
-        writer.write("%\tbus\tPg\tQg\tQmax\tQmin\tVg\tmBase\tstatus\tPmax\tPmin\tPc1\tPc2\tQc1min\tQc1max\tQc2min\tQc2max\tramp_agc\tramp_10\tramp_30\tramp_q\tapf");
-        writer.newLine();
-        writer.write("mpc.gen = [");
-        writer.newLine();
-        writeRecords(writer, model.getGenerators(), MGen.class);
-        writer.write("];");
-        writer.newLine();
-
-        writer.newLine();
-        writer.write("%% branch data");
-        writer.newLine();
-        writer.write("%\tfbus\ttbus\tr\tx\tb\trateA\trateB\trateC\tratio\tangle\tstatus\tangmin\tangmax");
-        writer.newLine();
-        writer.write("mpc.branch = [");
-        writer.newLine();
-        writeRecords(writer, model.getBranches(), MBranch.class);
-        writer.write("];");
-        writer.newLine();
+    private static ByteBuffer getByteBuffer(MatFile matFile) throws IOException {
+        int bufferSize = Casts.sint32(matFile.getUncompressedSerializedSize());
+        ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+        buffer.order(ByteOrder.nativeOrder());
+        matFile.writeTo(Sinks.wrap(buffer));
+        buffer.flip();
+        return buffer;
     }
 }

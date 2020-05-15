@@ -6,161 +6,134 @@
  */
 package com.powsybl.matpower.model;
 
-import com.univocity.parsers.common.processor.BeanListProcessor;
-import com.univocity.parsers.tsv.TsvParser;
-import com.univocity.parsers.tsv.TsvParserSettings;
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import us.hebi.matlab.mat.format.Mat5;
+import us.hebi.matlab.mat.types.MatFile;
+import us.hebi.matlab.mat.types.Matrix;
+import us.hebi.matlab.mat.types.Sources;
+import us.hebi.matlab.mat.types.Struct;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import java.util.StringTokenizer;
+import java.util.Set;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
  */
 public final class MatpowerReader {
 
+    public static final String MATPOWER_STRUCT_NAME = "mpc";
     public static final String MATPOWER_SUPPORTED_VERSION = "2";
     private static final Logger LOGGER = LoggerFactory.getLogger(MatpowerReader.class);
-
-    enum MatpowerSection {
-        BUS,
-        BRANCH,
-        GENERATOR
-    }
 
     private MatpowerReader() {
     }
 
-    public static MatpowerModel read(InputStream iStream) throws IOException {
+    public static MatpowerModel read(Path file, String caseName) throws IOException {
+        return read(Files.newInputStream(file), caseName);
+    }
+
+    public static MatpowerModel read(InputStream iStream, String caseName) throws IOException {
         Objects.requireNonNull(iStream);
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(iStream, StandardCharsets.UTF_8))) {
-            return read(reader);
-        }
-    }
 
-    public static MatpowerModel read(BufferedReader reader) throws IOException {
-        Objects.requireNonNull(reader);
-        String line = reader.readLine();
-
-        String title = processCaseName(line);
-        MatpowerModel model = new MatpowerModel(title);
-
-        MatpowerSection section = null;
-        List<String> lines = new ArrayList<>();
-        while ((line = reader.readLine()) != null) {
-            if (canSkipLine(line)) {
-                //skip comments and empty lines
-            } else if (line.startsWith("mpc.version ")) {
-                processVersion(line, model);
-            }  else if (line.startsWith("mpc.baseMVA ")) {
-                processBaseMva(line, model);
-            } else if (line.startsWith("mpc.bus ")) {
-                section = MatpowerSection.BUS;
-            } else if (line.startsWith("mpc.gen ")) {
-                section = MatpowerSection.GENERATOR;
-            } else if (line.startsWith("mpc.branch ")) {
-                section = MatpowerSection.BRANCH;
-            } else if (line.startsWith("];")) {
-                section = processEndSection(model, section, lines);
-            } else {
-                if (section != null) {
-                    lines.add(line);
-                }
+        MatpowerModel model = null;
+        try (MatFile mat = Mat5.newReader(Sources.wrapInputStream(iStream)).setEntryFilter(entry -> entry.getName().equals(MATPOWER_STRUCT_NAME)).readMat()) {
+            if (mat.getNumEntries() == 0) {
+                throw new IllegalStateException("no MATPOWER data: expected structure named '" + MATPOWER_STRUCT_NAME + "' not found.");
             }
-        }
+            Struct mpcStruct = mat.getStruct(MATPOWER_STRUCT_NAME);
+            Set<String> mpcNames = Sets.newHashSet("version", "baseMVA", "bus", "gen", "branch");
+            if (!mpcStruct.getFieldNames().containsAll(mpcNames)) {
+                throw new IllegalStateException("expected MATPOWER variables not found: " + mpcNames);
+            }
+            String version = mpcStruct.get("version").toString().replace("'", "");
+            if (!version.equals(MATPOWER_SUPPORTED_VERSION)) {
+                throw new IllegalStateException("unsupported MATPOWER version: " + version);
+            }
 
+            double baseMVA = mpcStruct.getMatrix("baseMVA").getDouble(0);
+            Matrix buses = mpcStruct.getMatrix("bus");
+            Matrix generators = mpcStruct.getMatrix("gen");
+            Matrix branches = mpcStruct.getMatrix("branch");
+            model = new MatpowerModel(caseName);
+            model.setVersion(version);
+            model.setBaseMva(baseMVA);
+
+            for (int row = 0; row < buses.getDimensions()[0]; row++) {
+                MBus bus = new MBus();
+                for (int col = 0; col < buses.getDimensions()[1]; col++) {
+                    bus.setNumber(buses.getInt(row, 0));
+                    bus.setType(MBus.Type.fromInt(buses.getInt(row, 1)));
+                    bus.setRealPowerDemand(buses.getDouble(row, 2));
+                    bus.setReactivePowerDemand(buses.getDouble(row, 3));
+                    bus.setShuntConductance(buses.getDouble(row, 4));
+                    bus.setShuntSusceptance(buses.getDouble(row, 5));
+                    bus.setAreaNumber(buses.getInt(row, 6));
+                    bus.setVoltageMagnitude(buses.getDouble(row, 7));
+                    bus.setVoltageAngle(buses.getDouble(row, 8));
+                    bus.setBaseVoltage(buses.getDouble(row, 9));
+                    bus.setLossZone(buses.getInt(row, 10));
+                    bus.setMaximumVoltageMagnitude(buses.getDouble(row, 11));
+                    bus.setMinimumVoltageMagnitude(buses.getDouble(row, 12));
+                }
+                model.getBuses().add(bus);
+            }
+
+            for (int row = 0; row < generators.getDimensions()[0]; row++) {
+                MGen gen = new MGen();
+                for (int col = 0; col < generators.getDimensions()[1]; col++) {
+                    gen.setNumber(generators.getInt(row, 0));
+                    gen.setRealPowerOutput(generators.getDouble(row, 1));
+                    gen.setReactivePowerOutput(generators.getDouble(row, 2));
+                    gen.setMaximumReactivePowerOutput(generators.getDouble(row, 3));
+                    gen.setMinimumReactivePowerOutput(generators.getDouble(row, 4));
+                    gen.setVoltageMagnitudeSetpoint(generators.getDouble(row, 5));
+                    gen.setTotalMbase(generators.getDouble(row, 6));
+                    gen.setStatus(generators.getInt(row, 7));
+                    gen.setMaximumRealPowerOutput(generators.getDouble(row, 8));
+                    gen.setMinimumRealPowerOutput(generators.getDouble(row, 9));
+                    gen.setPc1(generators.getDouble(row, 10));
+                    gen.setPc2(generators.getDouble(row, 11));
+                    gen.setQc1Min(generators.getDouble(row, 12));
+                    gen.setQc1Max(generators.getDouble(row, 13));
+                    gen.setQc2Min(generators.getDouble(row, 14));
+                    gen.setQc2Max(generators.getDouble(row, 15));
+                    gen.setRampAgc(generators.getDouble(row, 16));
+                    gen.setRampTenMinutes(generators.getDouble(row, 17));
+                    gen.setRampThirtyMinutes(generators.getDouble(row, 18));
+                    gen.setRampQ(generators.getDouble(row, 19));
+                    gen.setApf(generators.getDouble(row, 20));
+                }
+                model.getGenerators().add(gen);
+            }
+
+            for (int row = 0; row < branches.getDimensions()[0]; row++) {
+                MBranch branch = new MBranch();
+                for (int col = 0; col < branches.getDimensions()[1]; col++) {
+                    branch.setFrom(branches.getInt(row, 0));
+                    branch.setTo(branches.getInt(row, 1));
+                    branch.setR(branches.getDouble(row, 2));
+                    branch.setX(branches.getDouble(row, 3));
+                    branch.setB(branches.getDouble(row, 4));
+                    branch.setRateA(branches.getDouble(row, 5));
+                    branch.setRateB(branches.getDouble(row, 6));
+                    branch.setRateC(branches.getDouble(row, 7));
+                    branch.setRatio(branches.getDouble(row, 8));
+                    branch.setPhaseShiftAngle(branches.getDouble(row, 9));
+                    branch.setStatus(branches.getInt(row, 10));
+                    branch.setAngMin(branches.getDouble(row, 11));
+                    branch.setAngMax(branches.getDouble(row, 12));
+                }
+                model.getBranches().add(branch);
+            }
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
         return model;
-    }
-
-    public static MatpowerModel read(Path file) throws IOException {
-        Objects.requireNonNull(file);
-        return read(Files.newInputStream(file));
-    }
-
-    private static String processCaseName(String str) {
-        String str2 = str.replace(';', ' ');
-        final StringTokenizer st = new StringTokenizer(str2, " ");
-        st.nextToken(); // function
-        st.nextToken(); // mpc
-        st.nextToken(); // =
-        return st.nextToken();
-    }
-
-    private static String processMatlabAssignment(String str) {
-        Objects.requireNonNull(str);
-        String str2 = str.replace(';', ' ');
-        final StringTokenizer st = new StringTokenizer(str2, " ");
-        st.nextToken(); // mpc.XYZ
-        st.nextToken(); // =
-        return st.nextToken();
-    }
-
-    private static String processMatlabStringAssignment(String str) {
-        return processMatlabAssignment(str).replace("'", "");
-    }
-
-    private static boolean canSkipLine(String line) {
-        return line.startsWith("%") || (line.trim().length() == 0);
-    }
-
-    private static void processBaseMva(String line, MatpowerModel model) {
-        double baseMva = Double.parseDouble(processMatlabAssignment(line));
-        model.setBaseMva(baseMva);
-    }
-
-    private static MatpowerSection processEndSection(MatpowerModel model, MatpowerSection section, List<String> lines) {
-        if (section != null) {
-            parseLines(lines, model, section);
-            lines.clear();
-            return null;
-        }
-        return section;
-    }
-
-    private static void processVersion(String line, MatpowerModel model) {
-        String version = processMatlabStringAssignment(line);
-        if (!version.equals(MATPOWER_SUPPORTED_VERSION)) {
-            throw new IllegalStateException("unsupported MATPOWER version file: " + version);
-        }
-        model.setVersion(version);
-    }
-
-    private static void parseLines(List<String> lines, MatpowerModel model, MatpowerSection section) {
-        switch (section) {
-            case BUS:
-                model.getBuses().addAll(parseLines(lines, MBus.class));
-                break;
-            case GENERATOR:
-                model.getGenerators().addAll(parseLines(lines, MGen.class));
-                break;
-            case BRANCH:
-                model.getBranches().addAll(parseLines(lines, MBranch.class));
-                break;
-            default:
-                throw new IllegalStateException("Section unknown: " + section);
-        }
-    }
-
-    private static <T> List<T> parseLines(List<String> lines, Class<T> aClass) {
-        LOGGER.debug("Parsing data for class {}", aClass);
-        BeanListProcessor<T> rowProcessor = new BeanListProcessor<>(aClass);
-        TsvParserSettings settings = new TsvParserSettings();
-        settings.setProcessor(rowProcessor);
-        settings.setHeaderExtractionEnabled(false);
-        settings.setLineSeparatorDetectionEnabled(true);
-        settings.getFormat().setLineSeparator(";");
-        TsvParser parser = new TsvParser(settings);
-        lines.stream().map(String::trim).forEach(parser::parseLine);
-        return rowProcessor.getBeans();
     }
 }

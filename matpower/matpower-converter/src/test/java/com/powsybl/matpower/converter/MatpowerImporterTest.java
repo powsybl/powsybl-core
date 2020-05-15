@@ -8,21 +8,20 @@ package com.powsybl.matpower.converter;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
-import com.powsybl.matpower.model.MatpowerBinWriter;
+import com.powsybl.matpower.model.MatpowerWriter;
 import com.powsybl.matpower.model.MatpowerModel;
-import com.powsybl.matpower.model.MatpowerReader;
+import com.powsybl.matpower.model.io.MReader;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -50,16 +49,23 @@ public class MatpowerImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void copyTest() {
-        new MatpowerImporter().copy(new ResourceDataSource("case118", new ResourceSet("/", "case118.m")),
+    public void copyTest() throws IOException {
+        String caseId = "case118";
+        Path matCase = fileSystem.getPath("/work").resolve(caseId + ".mat");
+        createMatCaseFile(caseId + ".m", matCase);
+        new MatpowerImporter().copy(new FileDataSource(matCase.getParent(), caseId),
             new FileDataSource(fileSystem.getPath("/work"), "copy"));
-        assertTrue(Files.exists(fileSystem.getPath("/work").resolve("copy.m")));
-        assertFalse(Files.exists(fileSystem.getPath("/work").resolve("copy.mat")));
+        assertTrue(Files.exists(fileSystem.getPath("/work").resolve("copy.mat")));
     }
 
     @Test
-    public void existsTest() {
-        assertTrue(new MatpowerImporter().exists(new ResourceDataSource("case118", new ResourceSet("/", "case118.m"))));
+    public void existsTest() throws IOException {
+        String caseId = "case118";
+        Path matCase = fileSystem.getPath("/work").resolve(caseId + ".mat");
+        createMatCaseFile(caseId + ".m", matCase);
+
+        assertTrue(new MatpowerImporter().exists(new FileDataSource(fileSystem.getPath("/work"), caseId)));
+        assertFalse(new MatpowerImporter().exists(new FileDataSource(fileSystem.getPath("/work"), "doesnotexist")));
     }
 
     private void testNetwork(Network network, String id) throws IOException {
@@ -85,46 +91,16 @@ public class MatpowerImporterTest extends AbstractConverterTest {
 
     private void createMatCaseFile(String sourceTextFile, Path destMatFile) throws IOException {
         MatpowerModel model = readModelFromResources(sourceTextFile);
-        MatpowerBinWriter.write(model, Files.newOutputStream(destMatFile));
+        MatpowerWriter.write(model, Files.newOutputStream(destMatFile));
     }
 
     private MatpowerModel readModelFromResources(String fileName) throws IOException {
         Objects.requireNonNull(fileName);
         MatpowerModel model;
         try (InputStream iStream = getClass().getResourceAsStream("/" + fileName)) {
-            model = MatpowerReader.read(iStream);
+            model = MReader.read(iStream);
         }
         return model;
-    }
-
-    @Test
-    public void testCase118() throws IOException {
-        testNetwork(MatpowerNetworkFactory.create118());
-    }
-
-    @Test
-    public void testCase14() throws IOException {
-        testNetwork(MatpowerNetworkFactory.create14());
-    }
-
-    @Test
-    public void testCase30() throws IOException {
-        testNetwork(MatpowerNetworkFactory.create30());
-    }
-
-    @Test
-    public void testCase300() throws IOException {
-        testNetwork(MatpowerNetworkFactory.create300());
-    }
-
-    @Test
-    public void testCase57() throws IOException {
-        testNetwork(MatpowerNetworkFactory.create57());
-    }
-
-    @Test
-    public void testCase9() throws IOException {
-        testNetwork(MatpowerNetworkFactory.create9());
     }
 
     @Test
@@ -157,7 +133,7 @@ public class MatpowerImporterTest extends AbstractConverterTest {
         testCaseBin("case300");
     }
 
-    @Test(expected = MatpowerException.class)
+    @Test(expected = UncheckedIOException.class)
     public void testNonexistentCase() throws IOException {
         testNetwork(new MatpowerImporter().importData(new FileDataSource(fileSystem.getPath("/"), "unknown"), NetworkFactory.findDefault(), null));
     }

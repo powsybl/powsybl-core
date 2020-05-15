@@ -6,49 +6,12 @@
  */
 package com.powsybl.matpower.model;
 
-import com.univocity.parsers.annotations.Convert;
-import com.univocity.parsers.annotations.Parsed;
-
 /**
+ * Generator data
+ *
  * <p>
  * @see <a href="https://matpower.org/doc/">https://matpower.org/doc/</a>
  * </p>
- *
- * <pre>
- * Generator Data (mpc.gen)
- * -------------------------------------------------------------------------
- * Name         Column  Description
- * -------------------------------------------------------------------------
- * GEN BUS      1       bus number
- * PG           2       real power output (MW)
- * QG           3       reactive power output (MVAr)
- * QMAX         4       maximum reactive power output (MVAr)
- * QMIN         5       minimum reactive power output (MVAr)
- * VG           6       voltage magnitude setpoint (p.u.)
- * MBASE        7       total MVA base of machine, defaults to baseMVA
- * GEN STATUS   8       machine status:
- *                       - greater than 0:  machine in-service;
-  *                      - less or equal to 0:  machine out-of-service)
- * PMAX         9       maximum real power output (MW)
- * PMIN         10      minimum real power output (MW)
- * PC1          11      lower real power output of PQ capability curve (MW)
- * PC2          12      upper real power output of PQ capability curve (MW)
- * QC1MIN       13      minimum reactive power output at PC1 (MVAr)
- * QC1MAX       14      maximum reactive power output at PC1 (MVAr)
- * QC2MIN       15      minimum reactive power output at PC2 (MVAr)
- * QC2MAX       16      maximum reactive power output at PC2 (MVAr)
- * RAMP AGC     17      ramp rate for load following/AGC (MW/min)
- * RAMP 10      18      ramp rate for 10 minute reserves (MW)
- * RAMP 30      19      ramp rate for 30 minute reserves (MW)
- * RAMP Q       20      ramp rate for reactive power (2 sec timescale) (MVAr/min)
- * APF          21      area participation factor
- * MU PMAX(+)   22      Kuhn-Tucker multiplier on upper Pg limit (u/MW)
- * MU PMIN(+)   23      Kuhn-Tucker multiplier on lower Pg limit (u/MW)
- * MU QMAX(+)   24      Kuhn-Tucker multiplier on upper Qg limit (u/MVAr)
- * MU QMIN(+)   25      Kuhn-Tucker multiplier on lower Qg limit (u/MVAr)
- * -------------------------------------------------------------------------
- * (+) Included in OPF output, typically not included (or ignored) in input matrix.
- * </pre>
  *
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
  */
@@ -57,129 +20,106 @@ public class MGen {
     /**
      * bus number (positive integer)
      */
-    @Parsed(index = 0)
     private int number;
 
     /**
      * real power output (MW)
      */
-    @Parsed(index = 1)
     private double realPowerOutput;
 
     /**
      * reactive power output (MVAr)
      */
-    @Parsed(index = 2)
     private double reactivePowerOutput;
 
     /**
      *  maximum reactive power output (MVAr)
      */
-    @Parsed(index = 3)
-    @Convert(conversionClass = MDoubleConversion.class)
     private double maximumReactivePowerOutput;
 
     /**
      * minimum reactive power output (MVAr)
      */
-    @Parsed(index = 4)
-    @Convert(conversionClass = MDoubleConversion.class)
     private Double minimumReactivePowerOutput;
 
     /**
      * voltage magnitude setpoint (p.u.)
      */
-    @Parsed(index = 5)
     private double voltageMagnitudeSetpoint;
 
     /**
      * total MVA base of machine, defaults to baseMVA
      */
-    @Parsed(index = 6)
     private double totalMbase;
 
     /**
      * status
      */
-    @Parsed(index = 7)
     private int status;
 
     /**
      * maximum real power output (MW)
      */
-    @Parsed(index = 8)
     private double maximumRealPowerOutput;
 
     /**
      * minimum real power output (MW)
      */
-    @Parsed(index = 9)
     private double minimumRealPowerOutput;
 
     /**
      * lower real power output of PQ capability curve (MW)
      */
-    @Parsed(index = 10)
     private double pc1;
 
     /**
      * upper real power output of PQ capability curve (MW)
      */
-    @Parsed(index = 11)
     private double pc2;
 
     /**
      * minimum reactive power output at PC1 (MVAr)
      */
-    @Parsed(index = 12)
     private double qc1Min;
 
     /**
      * maximum reactive power output at PC1 (MVAr)
      */
-    @Parsed(index = 13)
     private double qc1Max;
 
     /**
      * minimum reactive power output at PC2 (MVAr)
      */
-    @Parsed(index = 14)
     private double qc2Min;
 
     /**
      * maximum reactive power output at PC2 (MVAr)
      */
-    @Parsed(index = 15)
     private double qc2Max;
 
     /**
      * ramp rate for load following/AGC (MW/min)
      */
-    @Parsed(index = 16)
     private double rampAgc;
 
     /**
      * ramp rate for 10 minute reserves (MW)
      */
-    @Parsed(index = 17)
     private double rampTenMinutes;
 
     /**
      * ramp rate for 30 minute reserves (MW)
      */
-    @Parsed(index = 18)
     private double rampThirtyMinutes;
 
     /**
      * ramp rate for reactive power (2 sec timescale) (MVAr/min)
      */
-    @Parsed(index = 19)
     private double rampQ;
 
     /**
      * area participation factor
      */
-    @Parsed(index = 20)
     private double apf;
 
     public int getNumber() {
