@@ -101,7 +101,7 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(-14.4, ptc.getStep(25).getAlpha(), 0.001);
     }
 
-    private Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
+    private static Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
 
         ReadOnlyDataSource ds = testGridModel.dataSource();
         String impl = TripleStoreFactory.defaultImplementation();
