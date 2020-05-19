@@ -4,8 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.xml;
-
+package com.powsybl.ucte.converter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,11 +13,11 @@ import com.powsybl.commons.datastore.AbstractDataResolver;
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
  */
-public class XmlDataResolver extends AbstractDataResolver {
+public class UcteDataResolver extends AbstractDataResolver {
 
-    private static final String[] EXTENSIONS = {"xiidm", "iidm", "xml", "iidm.xml"};
+    private static final String[] EXTENSIONS = {"uct", "UCT"};
 
-    private static final String DATA_FORMAT_ID = "XIIDM";
+    private static final String DATA_FORMAT_ID = "UCTE";
 
     @Override
     public String getDataFormatId() {

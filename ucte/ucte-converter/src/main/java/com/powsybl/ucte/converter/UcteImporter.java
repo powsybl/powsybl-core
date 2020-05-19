@@ -14,8 +14,13 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datastore.DataEntry;
+import com.powsybl.commons.datastore.DataPack;
+import com.powsybl.commons.datastore.NonUniqueResultException;
+import com.powsybl.commons.datastore.ReadOnlyDataStore;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
@@ -922,6 +927,68 @@ public class UcteImporter implements Importer {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public boolean exists(ReadOnlyDataStore dataStore, String fileName) {
+        try {
+            UcteDataFormat df = new UcteDataFormat();
+            Optional<DataPack> dp = df.getDataResolver().resolve(dataStore, fileName, null);
+            if (dp.isPresent()) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataStore.newInputStream(fileName)))) {
+                    return new UcteReader().checkHeader(reader);
+                }
+            }
+            return false;
+        } catch (IOException | NonUniqueResultException e) {
+            throw new PowsyblException(e);
+        }
+    }
+
+    @Override
+    public Network importDataStore(ReadOnlyDataStore dataStore, String fileName, NetworkFactory networkFactory,
+            Properties parameters) {
+        try {
+            UcteDataFormat df = new UcteDataFormat();
+            Optional<DataPack> dp = df.getDataResolver().resolve(dataStore, fileName, parameters);
+            if (dp.isPresent()) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataStore.newInputStream(fileName)))) {
+
+                    Stopwatch stopwatch = Stopwatch.createStarted();
+
+                    UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader), LINE_MIN_Z);
+
+                    Optional<DataEntry> mainEntryOp = dp.get().getMainEntry();
+                    if (mainEntryOp.isPresent()) {
+                        EntsoeFileName ucteFileName = EntsoeFileName.parse(mainEntryOp.get().getName());
+
+                        Network network = networkFactory.createNetwork(fileName, "UCTE");
+                        network.setCaseDate(ucteFileName.getDate());
+                        network.setForecastDistance(ucteFileName.getForecastDistance());
+
+                        createBuses(ucteNetwork, network);
+                        createLines(ucteNetwork, network);
+                        createTransformers(ucteNetwork, network, ucteFileName);
+
+                        mergeXnodeDanglingLines(ucteNetwork, network);
+
+                        stopwatch.stop();
+                        LOGGER.debug("UCTE import done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
+                        return network;
+                    }
+                }
+            }
+
+        } catch (IOException | NonUniqueResultException e) {
+            throw new PowsyblException(e);
+        }
+        return null;
+    }
+
+    @Override
+    public Network importDataStore(ReadOnlyDataStore dataStore, String fileName, Properties parameters) {
+        return importDataStore(dataStore, fileName, NetworkFactory.findDefault(), parameters);
     }
 
 }

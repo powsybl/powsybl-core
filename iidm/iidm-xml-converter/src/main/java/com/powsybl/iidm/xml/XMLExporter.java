@@ -133,7 +133,8 @@ public class XMLExporter implements Exporter {
         ExportOptions options = createExportOptions(parameters);
         try {
             long startTime = System.currentTimeMillis();
-            NetworkXml.write(network, options, dataStore, XmlDataResolver.checkFileExtension(filename) ? filename : Files.getNameWithoutExtension(filename) + ".xiidm");
+            XmlDataResolver resolver = new XmlDataResolver();
+            NetworkXml.write(network, options, dataStore, resolver.checkFileExtension(filename) ? filename : Files.getNameWithoutExtension(filename) + ".xiidm");
             LOGGER.debug("XIIDM export done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
