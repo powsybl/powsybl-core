@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.sensitivity.converter.CsvSensitivityComputationResultExporter;
 import com.powsybl.sensitivity.converter.SensitivityComputationResultExporters;
+import com.powsybl.sensitivity.json.JsonSensitivityComputationParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -44,6 +45,7 @@ public class SensitivityComputationTool implements Tool {
     private static final String SKIP_POSTPROC_OPTION = "skip-postproc";
     private static final String FACTORS_FILE_OPTION = "factors-file";
     private static final String CONTINGENCIES_FILE_OPTION = "contingencies-file";
+    private static final String PARAMETERS_FILE = "parameters-file";
 
     @Override
     public Command getCommand() {
@@ -96,6 +98,12 @@ public class SensitivityComputationTool implements Tool {
                 options.addOption(Option.builder().longOpt(SKIP_POSTPROC_OPTION)
                         .desc("skip network importer post processors (when configured)")
                         .build());
+
+                options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
+                        .desc("sensivity computation parameters as JSON file")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
                 options.addOption(createImportParametersFileOption());
                 options.addOption(createImportParameterOption());
                 return options;
@@ -137,6 +145,11 @@ public class SensitivityComputationTool implements Tool {
         SensitivityComputation sensitivityComputation = defaultConfig.newFactoryImpl(SensitivityComputationFactory.class).create(network, context.getShortTimeExecutionComputationManager(), 0);
 
         SensitivityComputationParameters params = SensitivityComputationParameters.load();
+
+        if (line.hasOption(PARAMETERS_FILE)) {
+            Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
+            JsonSensitivityComputationParameters.update(params, parametersFile);
+        }
         String workingStateId = network.getVariantManager().getWorkingVariantId();
         SensitivityFactorsProviderFactory factorsProviderFactory = defaultConfig.newFactoryImpl(SensitivityFactorsProviderFactory.class);
         SensitivityFactorsProvider factorsProvider = factorsProviderFactory.create(sensitivityFactorsFile);
