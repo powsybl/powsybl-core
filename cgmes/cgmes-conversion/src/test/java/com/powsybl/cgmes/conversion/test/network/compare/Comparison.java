@@ -127,8 +127,6 @@ public class Comparison {
                 diff.unexpected(actual);
                 return;
             }
-            String context = className(actual);
-            compare(context, expected.getClass(), actual.getClass());
         });
         expecteds.forEach(expected -> {
             Identifiable<?> actual = networkMapping.findActual(expected);
@@ -139,13 +137,12 @@ public class Comparison {
             diff.match(expected);
             diff.current(expected);
             String context = className(actual);
-            compare(context, expected.getClass(), actual.getClass());
             context = context + ".name";
             compareNames(context, expected.getOptionalName().orElse(""), actual.getOptionalName().orElse(""));
             // Obtained identifiable in actual must be of type T
             @SuppressWarnings("unchecked")
             T tactual = (T) actual;
-            testAttributes.accept((T) expected, tactual);
+            testAttributes.accept(expected, tactual);
         });
     }
 
@@ -166,8 +163,6 @@ public class Comparison {
                 diff.unexpected(actual);
                 return;
             }
-            String context = className(actual);
-            compare(context, expected.getClass(), actual.getClass());
         });
         expectedsById.values().forEach(expected -> {
             Bus actual = actualsById.get(expected.getId());
@@ -178,7 +173,6 @@ public class Comparison {
             diff.match(expected);
             diff.current(expected);
             String context = className(actual);
-            compare(context, expected.getClass(), actual.getClass());
             context = context + ".name";
             compareNames(context, expected.getOptionalName().orElse(""), actual.getOptionalName().orElse(""));
             testAttributes.accept((Bus) expected, actual);
@@ -389,12 +383,11 @@ public class Comparison {
     }
 
     private void testLines(Line expected, Line actual) {
-        equivalent("VoltageLevel1",
-                expected.getTerminal1().getVoltageLevel(),
-                actual.getTerminal1().getVoltageLevel());
-        equivalent("VoltageLevel2",
-                expected.getTerminal2().getVoltageLevel(),
-                actual.getTerminal2().getVoltageLevel());
+        equivalent("VoltageLevel",
+                new Identifiable[] {expected.getTerminal1().getVoltageLevel(),
+                    expected.getTerminal2().getVoltageLevel()},
+                new Identifiable[] {actual.getTerminal1().getVoltageLevel(),
+                    actual.getTerminal2().getVoltageLevel()});
         compare("r", expected.getR(), actual.getR());
         compare("x", expected.getX(), actual.getX());
         compare("g1", expected.getG1(), actual.getG1());
@@ -691,6 +684,15 @@ public class Comparison {
         }
     }
 
+    private void equivalent(
+        String context,
+        Identifiable[] expected,
+        Identifiable[] actual) {
+        if (!networkMapping.equivalent(expected, actual)) {
+            diff.notEquivalent(context, expected, actual);
+        }
+    }
+
     private void sameIdentifier(
         String context,
         Identifiable expected,
@@ -714,7 +716,9 @@ public class Comparison {
         if (dot >= 0) {
             s = s.substring(dot + 1);
         }
-        s = s.replace("Impl", "");
+        for (String n : IGNORED_NAMES) {
+            s = s.replace(n, "");
+        }
         return s;
     }
 
@@ -723,4 +727,6 @@ public class Comparison {
     private final NetworkMapping networkMapping;
     private final Differences diff;
     private final ComparisonConfig config;
+    private static final Set<String> IGNORED_NAMES = new HashSet<>(Arrays.asList(
+        "Impl", "Adapter"));
 }

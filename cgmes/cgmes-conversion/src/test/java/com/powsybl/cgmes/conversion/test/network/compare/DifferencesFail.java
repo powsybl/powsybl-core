@@ -75,6 +75,17 @@ public class DifferencesFail implements Differences {
     }
 
     @Override
+    public void notEquivalent(String context, Identifiable[] expected, Identifiable[] actual) {
+        LOG.error("Not equivalent {}.{} for {}: expected {}, actual {}",
+                Comparison.className(current),
+                context,
+                current.getId(),
+                expected.toString(),
+                actual.toString());
+        fail();
+    }
+
+    @Override
     public void notSameIdentifier(String context, Identifiable expected, Identifiable actual) {
         LOG.error("Not same identifer {}.{} for {}: expected {}, actual {}",
                 Comparison.className(current),

@@ -15,6 +15,7 @@ import com.powsybl.cgmes.conversion.update.StateVariablesAdder;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesModelFactory;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
@@ -48,6 +49,25 @@ public class CgmesExport implements Exporter {
         StateVariablesAdder adder = new StateVariablesAdder(cgmes, network);
         adder.addStateVariablesToCgmes();
         cgmes.write(ds);
+    }
+
+    public void export(Network network, Properties params, DataSource ds, CgmesSubset subset) {
+        CgmesModelExtension ext = network.getExtension(CgmesModelExtension.class);
+        if (ext == null) {
+            throw new CgmesModelException("No extension for CGMES model found in Network");
+        }
+        CgmesUpdate cgmesUpdate = ext.getCgmesUpdate();
+
+        CgmesModel cgmesSource = ext.getCgmesModel();
+        CgmesModel cgmes = CgmesModelFactory.copy(cgmesSource);
+
+        String variantId = network.getVariantManager().getWorkingVariantId();
+
+        cgmesUpdate.update(cgmes, variantId);
+        // Fill the State Variables data with the Network current state values
+        StateVariablesAdder adder = new StateVariablesAdder(cgmes, network);
+        adder.addStateVariablesToCgmes();
+        cgmes.write(ds, subset);
     }
 
     @Override

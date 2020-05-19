@@ -35,6 +35,8 @@ public interface Differences {
 
     void notEquivalent(String context, Identifiable expected, Identifiable actual);
 
+    void notEquivalent(String context, Identifiable[] expected, Identifiable[] actual);
+
     void notSameIdentifier(String context, Identifiable expected, Identifiable actual);
 
     void end();

@@ -8,7 +8,9 @@
 package com.powsybl.cgmes.conversion.test.network.compare;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
@@ -33,6 +35,9 @@ public class NetworkMapping {
             return e;
         }
         String eid = applyPrefixToActual(a.getId());
+        if (eid.contains("+") && expected.getIdentifiable(eid) == null) {
+            return expected.getIdentifiable(findByComposedId(eid, expected));
+        }
         return expected.getIdentifiable(eid);
     }
 
@@ -42,7 +47,23 @@ public class NetworkMapping {
             return a;
         }
         String aid = applyPrefixToExpected(e.getId());
+        if (aid.contains("+") && actual.getIdentifiable(aid) == null) {
+            return actual.getIdentifiable(findByComposedId(aid, actual));
+        }
         return actual.getIdentifiable(aid);
+    }
+
+    private String findByComposedId(String id, Network n) {
+        if (!id.contains("+")) {
+            return id;
+        } else {
+            int index = id.indexOf("+");
+            String switchedId = id.substring(index + 2) + " + " + id.substring(0, index - 1);
+            if (n.getIdentifiable(switchedId) != null) {
+                return switchedId;
+            }
+        }
+        return id;
     }
 
     public String applyPrefixToExpected(String eid) {
@@ -63,6 +84,32 @@ public class NetworkMapping {
         } else {
             return expected1.getId().equals(expected.getId());
         }
+    }
+
+    public boolean equivalent(Identifiable[] expected, Identifiable[] actual) {
+        if (expected == null) {
+            return actual == null;
+        }
+        Identifiable check;
+        Set<String> expectedId = new HashSet<>();
+        Set<String> actualId = new HashSet<>();
+        for (Identifiable i : expected) {
+            check = findExpected(i);
+            if (check == null) {
+                return false;
+            } else {
+                expectedId.add(i.getId());
+            }
+        }
+        for (Identifiable i : actual) {
+            check = findActual(i);
+            if (check == null) {
+                return false;
+            } else {
+                actualId.add(i.getId());
+            }
+        }
+        return expectedId.equals(actualId);
     }
 
     protected void addMapping(String expected, String actual) {

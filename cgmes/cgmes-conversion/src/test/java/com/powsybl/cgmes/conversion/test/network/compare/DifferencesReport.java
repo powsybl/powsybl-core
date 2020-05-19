@@ -98,6 +98,11 @@ public class DifferencesReport implements Differences {
     }
 
     @Override
+    public void notEquivalent(String context, Identifiable[] expected, Identifiable[] actual) {
+        record(context, expected, actual);
+    }
+
+    @Override
     public void notSameIdentifier(String context, Identifiable expected, Identifiable actual) {
         record(context, expected, actual);
     }

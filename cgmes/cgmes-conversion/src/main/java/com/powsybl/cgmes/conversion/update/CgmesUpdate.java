@@ -68,7 +68,7 @@ public class CgmesUpdate {
         requireChangeIsUpdate(change);
         IidmToCgmes c = findConversion(change, context);
         if (c == null) {
-            LOG.error("Unsupported conversion for IIDM change {}", change);
+            LOG.error("Unsupported conversion for IIDM change {}", change.getIdentifiable().getClass());
             return Collections.emptyList();
         }
         return c.convert(change);
