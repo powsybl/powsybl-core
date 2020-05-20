@@ -235,6 +235,8 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             pi1.b1 = lineBch / 2.0;
             pi1.g2 = pi1.g1;
             pi1.b2 = pi1.b1;
+            System.out.println(String.format("%s id %s pi1: r %s, x %s, g1 %s, b1 %s, g2 %s, b2 %s",
+                this.getClass().getSimpleName(), this.id, pi1.r, pi1.x, pi1.g1, pi1.b1, pi1.g2, pi1.b2));
             PiModel pi2 = new PiModel();
             pi2.r = otherR;
             pi2.x = otherX;
@@ -242,6 +244,8 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             pi2.b1 = otherBch / 2.0;
             pi2.g2 = pi2.g1;
             pi2.b2 = pi2.b1;
+            System.out.println(String.format("%s id %s pi2: r %s, x %s, g1 %s, b1 %s, g2 %s, b2 %s",
+                this.getClass().getSimpleName(), other.getId("ACLineSegment"), pi2.r, pi2.x, pi2.g1, pi2.b1, pi2.g2, pi2.b2));
             PiModel pim = Quadripole.from(pi1).cascade(Quadripole.from(pi2)).toPiModel();
             LineAdder adder = context.network().newLine()
                     .setR(pim.r)

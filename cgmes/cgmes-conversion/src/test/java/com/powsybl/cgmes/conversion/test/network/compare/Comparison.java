@@ -395,11 +395,8 @@ public class Comparison {
         compare("g2", expected.getG2(), actual.getG2());
         compare("b2", expected.getB2(), actual.getB2());
         compareCurrentLimits(expected, actual,
-                expected.getCurrentLimits1(),
-                actual.getCurrentLimits1());
-        compareCurrentLimits(expected, actual,
-                expected.getCurrentLimits2(),
-                actual.getCurrentLimits2());
+            new CurrentLimits[] {expected.getCurrentLimits1(),expected.getCurrentLimits2()},
+            new CurrentLimits[] {actual.getCurrentLimits1(), actual.getCurrentLimits2()});
     }
 
     private void compareDanglingLines(DanglingLine expected, DanglingLine actual) {
@@ -420,6 +417,34 @@ public class Comparison {
                 expected.getCurrentLimits(),
                 actual.getCurrentLimits());
     }
+
+    private void compareCurrentLimits(
+        Identifiable bexpected,
+        Identifiable bactual,
+        CurrentLimits[] expected,
+        CurrentLimits[] actual) {
+    if (expected.length == 0) {
+        if (actual.length != 0) {
+            diff.unexpected(bactual);
+            return;
+        }
+    } else {
+        if (actual.length == 0) {
+            diff.missing(bexpected);
+            return;
+        }
+        List<CurrentLimits.TemporaryLimit> etempLimits = new ArrayList<>();
+        List<CurrentLimits.TemporaryLimit> atempLimits = new ArrayList<>();
+        for(CurrentLimits l : expected) {
+            l.getTemporaryLimits().stream().forEach(tl -> etempLimits.add(tl));
+        }
+        for(CurrentLimits l : actual) {
+            l.getTemporaryLimits().stream().forEach(tl -> atempLimits.add(tl));
+        }
+        compare("permanentLimit", expected[0].getPermanentLimit(), actual[0].getPermanentLimit());
+        compareTemporaryLimitsMerged(bactual, Collections.unmodifiableList(etempLimits), Collections.unmodifiableList(atempLimits));
+    }
+}
 
     private void compareCurrentLimits(
             Identifiable bexpected,
@@ -648,6 +673,24 @@ public class Comparison {
                     actual1.substring(0, endIndex));
         } else {
             compare(context, expected1, actual1);
+        }
+    }
+
+    private void compareTemporaryLimitsMerged(Identifiable bactual,
+                                              Collection<CurrentLimits.TemporaryLimit> expected,
+                                              Collection<CurrentLimits.TemporaryLimit> actual) {
+        if (expected.size() != actual.size()) {
+            diff.unexpected(bactual);
+            return;
+        }
+        // Compare limits names, there are 4 in each list
+        List<String> enames = expected.stream().map(CurrentLimits.TemporaryLimit::getName).collect(Collectors.toList());
+        Collections.sort(enames);
+        List<String> anames = actual.stream().map(CurrentLimits.TemporaryLimit::getName).collect(Collectors.toList());
+        Collections.sort(anames);
+        Iterator<String> actualIt = anames.iterator();
+        for(String name : enames) {
+            diff.compare("temporaryLimit", name, actualIt.next());
         }
     }
 
