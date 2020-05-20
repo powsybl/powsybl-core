@@ -23,5 +23,7 @@
 
     <modules>
         <module>dynamic-simulation-api</module>
+        <module>dynamic-simulation-dsl</module>
+        <module>dynamic-simulation-tool</module>
     </modules>
 </project>
