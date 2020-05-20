@@ -428,6 +428,57 @@ public final class CgmesConformity1ModifiedCatalog {
                         "MiniGridTestConfiguration_BC_TP_v3.0.0.xml"));
     }
 
+    public static TestGridModelResources miniBusBranchPhaseAngleClockZero() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MiniGrid/BusBranch/BaseCase_v3_phaseAngleClockZero/";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/BusBranch/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_v3/";
+        return new TestGridModelResources(
+            "MiniGrid-BusBranch-PhaseAngleClockZero",
+            null,
+            new ResourceSet(base,
+                "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml"),
+            new ResourceSet(baseOriginal,
+                "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
+                "MiniGridTestConfiguration_BC_TP_v3.0.0.xml",
+                "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
+                "MiniGridTestConfiguration_BC_SV_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources miniBusBranchT2xPhaseAngleClock1NonZero() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MiniGrid/BusBranch/BaseCase_v3_T2xPhaseAngleClock1NonZero/";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/BusBranch/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_v3/";
+        return new TestGridModelResources(
+            "MiniGrid-BusBranch-T2xPhaseAngleClock1NonZero",
+            null,
+            new ResourceSet(base,
+                "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml"),
+            new ResourceSet(baseOriginal,
+                "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
+                "MiniGridTestConfiguration_BC_TP_v3.0.0.xml",
+                "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
+                "MiniGridTestConfiguration_BC_SV_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources miniBusBranchT3xAllPhaseAngleClockNonZero() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MiniGrid/BusBranch/BaseCase_v3_T3xAllPhaseAngleClockNonZero/";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/BusBranch/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_v3/";
+        return new TestGridModelResources(
+            "MiniGrid-BusBranch-T3xAllPhaseAngleClockNonZero",
+            null,
+            new ResourceSet(base,
+                "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml"),
+            new ResourceSet(baseOriginal,
+                "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
+                "MiniGridTestConfiguration_BC_TP_v3.0.0.xml",
+                "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
+                "MiniGridTestConfiguration_BC_SV_v3.0.0.xml"));
+    }
+
     public static TestGridModelResources miniNodeBreakerLimitsforEquipment() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_limits/";
