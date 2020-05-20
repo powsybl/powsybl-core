@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2019, RTE (http://www.rte-france.com)
+    Copyright (c) 2020, RTE (http://www.rte-france.com)
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -16,9 +16,9 @@
         <version>3.4.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>powsybl-dynamic-simulation-api</artifactId>
-    <name>Dynamic Simulation API</name>
-    <description>An API and a tool to run dynamic simulation computations</description>
+    <artifactId>powsybl-dynamic-simulation-dsl</artifactId>
+    <name>Dynamic Simulation DSL</name>
+    <description>DSL for dynamic simulations</description>
 
     <build>
         <plugins>
@@ -28,10 +28,14 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.dynamic.simulation.api</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.dynamic.simulation.dsl</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
@@ -39,13 +43,17 @@
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-computation-local</artifactId>
+            <artifactId>powsybl-dsl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-api</artifactId>
+            <artifactId>powsybl-dynamic-simulation-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -61,20 +69,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-commons</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -83,6 +79,19 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>
