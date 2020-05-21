@@ -10,13 +10,11 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.common.jimfs.Configuration;
