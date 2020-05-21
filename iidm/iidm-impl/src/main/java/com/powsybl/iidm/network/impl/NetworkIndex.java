@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 class NetworkIndex {
 
     private final Map<String, Identifiable<?>> objectsById = new HashMap<>();
+    private final Map<String, String> idByAlias = new HashMap<>();
 
     private final Map<Class<? extends Identifiable>, Set<Identifiable<?>>> objectsByClass = new HashMap<>();
 
@@ -42,6 +43,8 @@ class NetworkIndex {
                     + ") '" + obj.getId() + "' already exists");
         }
         objectsById.put(obj.getId(), obj);
+        obj.getAliases().forEach(alias -> addAlias(obj, alias));
+
         Set<Identifiable<?>> all = objectsByClass.get(obj.getClass());
         if (all == null) {
             all = new LinkedHashSet<>();
@@ -50,14 +53,53 @@ class NetworkIndex {
         all.add(obj);
     }
 
+    void addAlias(Identifiable<?> obj, String alias) {
+        if (objectsById.containsKey(alias)) {
+            Identifiable<?> aliasConflict = objectsById.get(alias);
+            String message = String.format("Object (%s) with alias '%s' cannot be created because alias already refers to object (%s) with ID '%s'",
+                    obj.getClass(),
+                    alias,
+                    aliasConflict.getClass(),
+                    aliasConflict.getId());
+            throw new PowsyblException(message);
+        } else if (idByAlias.containsKey(alias)) {
+            Identifiable<?> aliasConflict = objectsById.get(idByAlias.get(alias));
+            String message = String.format("Object (%s) with alias '%s' cannot be created because alias already refers to object (%s) with ID '%s'",
+                    obj.getClass(),
+                    alias,
+                    aliasConflict.getClass(),
+                    aliasConflict.getId());
+            throw new PowsyblException(message);
+        }
+        idByAlias.put(alias, obj.getId());
+    }
+
+    public <I extends Identifiable<I>> void removeAlias(Identifiable<?> obj, String alias) {
+        if (!idByAlias.containsKey(alias)) {
+            throw new PowsyblException(String.format("No alias '%s' found in the network", alias));
+        } else if (!idByAlias.get(alias).equals(obj.getId())) {
+            throw new PowsyblException(String.format("Alias '%s' do not correspond to object '%s'", alias, obj.getId()));
+        } else {
+            idByAlias.remove(alias);
+        }
+    }
+
     Identifiable get(String id) {
-        checkId(id);
-        return objectsById.get(id);
+        return get(id, false);
+    }
+
+    Identifiable get(String id, boolean searchInAlias) {
+        String idOrAlias = searchInAlias ? idByAlias.getOrDefault(id, id) : id;
+        checkId(idOrAlias);
+        return objectsById.get(idOrAlias);
     }
 
     <T extends Identifiable> T get(String id, Class<T> clazz) {
-        checkId(id);
-        Identifiable obj = objectsById.get(id);
+        return get(id, clazz, false);
+    }
+
+    <T extends Identifiable> T get(String id, Class<T> clazz, boolean searchInAlias) {
+        Identifiable obj = get(id, searchInAlias);
         if (obj != null && clazz.isAssignableFrom(obj.getClass())) {
             return (T) obj;
         } else {
@@ -78,8 +120,9 @@ class NetworkIndex {
     }
 
     boolean contains(String id) {
-        checkId(id);
-        return objectsById.containsKey(id);
+        String idFromPotentialAlias = idByAlias.getOrDefault(id, id);
+        checkId(idFromPotentialAlias);
+        return objectsById.containsKey(idFromPotentialAlias);
     }
 
     void remove(Identifiable obj) {
@@ -89,6 +132,7 @@ class NetworkIndex {
             throw new PowsyblException("Object (" + obj.getClass().getName()
                     + ") '" + obj.getId() + "' not found");
         }
+        obj.getAliases().forEach(idByAlias::remove);
         Set<Identifiable<?>> all = objectsByClass.get(obj.getClass());
         if (all != null) {
             all.remove(obj);
@@ -139,5 +183,4 @@ class NetworkIndex {
             out.println(entry.getKey() + " " + entry.getValue().stream().map(System::identityHashCode).collect(Collectors.toList()));
         }
     }
-
 }

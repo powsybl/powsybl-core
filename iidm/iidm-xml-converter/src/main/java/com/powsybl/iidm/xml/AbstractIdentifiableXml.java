@@ -61,6 +61,8 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
 
         writeRootElementAttributes(identifiable, parent, context);
 
+        AliasesXml.write(identifiable, context);
+
         PropertiesXml.write(identifiable, context);
 
         writeSubElements(identifiable, parent, context);
@@ -80,8 +82,10 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
     protected abstract T readRootElementAttributes(A adder, NetworkXmlReaderContext context);
 
     protected void readSubElements(T identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
-        if (context.getReader().getLocalName().equals("property")) {
+        if (context.getReader().getLocalName().equals(PropertiesXml.PROPERTY)) {
             PropertiesXml.read(identifiable, context);
+        } else if (context.getReader().getLocalName().equals(AliasesXml.ALIAS)) {
+            AliasesXml.read(identifiable, context);
         } else {
             throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + identifiable.getId() + ">");
         }

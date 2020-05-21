@@ -257,6 +257,9 @@ public class UcteImporter implements Importer {
                 .setQ0(q0)
                 .setUcteXnodeCode(xnode.getCode().toString())
                 .add();
+        if (ucteLine.getElementName() != null && !ucteLine.getElementName().isEmpty()) {
+            dl.addAlias(String.format("%s %s %s", ucteLine.getId().getNodeCode1().toString(), ucteLine.getId().getNodeCode2().toString(), ucteLine.getElementName()));
+        }
         dl.newExtension(XnodeAdder.class).withCode(xnode.getCode().toString()).add();
 
         if (ucteLine.getCurrentLimit() != null) {
@@ -312,6 +315,9 @@ public class UcteImporter implements Importer {
                 .setBus2(nodeCode2.toString())
                 .setOpen(!connected)
                 .add();
+        if (ucteLine.getElementName() != null && !ucteLine.getElementName().isEmpty()) {
+            couplerSwitch.addAlias(String.format("%s %s %s", nodeCode1.toString(), nodeCode2.toString(), ucteLine.getElementName()));
+        }
 
         addCurrentLimitProperty(ucteLine, couplerSwitch);
         addOrderCodeProperty(ucteLine, couplerSwitch);
@@ -339,6 +345,10 @@ public class UcteImporter implements Importer {
                 .setB1(getSusceptance(ucteLine) / 2)
                 .setB2(getSusceptance(ucteLine) / 2)
                 .add();
+
+        if (ucteLine.getElementName() != null && !ucteLine.getElementName().isEmpty()) {
+            l.addAlias(String.format("%s %s %s", nodeCode1.toString(), nodeCode2.toString(), ucteLine.getElementName()));
+        }
 
         addElementNameProperty(ucteLine, l);
 
@@ -559,7 +569,7 @@ public class UcteImporter implements Importer {
         }
 
         // create a transformer connected to the YNODE and other node
-        return substation.newTwoWindingsTransformer()
+        TwoWindingsTransformer twoWindingsTransformer = substation.newTwoWindingsTransformer()
                 .setEnsureIdUnicity(true)
                 .setId(ucteTransfo.getId().toString())
                 .setVoltageLevel1(voltageLevelId1)
@@ -575,7 +585,10 @@ public class UcteImporter implements Importer {
                 .setG(getConductance(ucteTransfo))
                 .setB(getSusceptance(ucteTransfo))
                 .add();
-
+        if (ucteTransfo.getElementName() != null && !ucteTransfo.getElementName().isEmpty()) {
+            twoWindingsTransformer.addAlias(String.format("%s %s %s", busId1, busId2, ucteTransfo.getElementName()));
+        }
+        return twoWindingsTransformer;
     }
 
     private static boolean isConnected(UcteTransformer ucteTransfo) {
@@ -652,7 +665,9 @@ public class UcteImporter implements Importer {
                         .setG(getConductance(ucteTransfo))
                         .setB(getSusceptance(ucteTransfo))
                         .add();
-
+                if (ucteTransfo.getElementName() != null && !ucteTransfo.getElementName().isEmpty()) {
+                    transformer.addAlias(String.format("%s %s %s", nodeCode1.toString(), nodeCode2.toString(), ucteTransfo.getElementName()));
+                }
             }
 
             if (ucteTransfo.getCurrentLimit() != null) {
@@ -861,6 +876,15 @@ public class UcteImporter implements Importer {
                 .setXnodeQ(xnodeQ2)
                 .setUcteXnodeCode(xnodeCode)
                 .add();
+
+        // Copy alias and remove it to the dangling lines before adding it to the tie line
+        // Aliases must be unique in the network
+        Set<String> aliases = new TreeSet<>();
+        aliases.addAll(dlAtSideOne.getAliases());
+        aliases.addAll(dlAtSideTwo.getAliases());
+        dlAtSideOne.getAliases().forEach(dlAtSideOne::removeAlias);
+        dlAtSideTwo.getAliases().forEach(dlAtSideTwo::removeAlias);
+        aliases.forEach(mergeLine::addAlias);
 
         addElementNameProperty(mergeLine, dlAtSideOne, dlAtSideTwo);
         addGeographicalNameProperty(ucteNetwork, mergeLine, dlAtSideOne, dlAtSideTwo);

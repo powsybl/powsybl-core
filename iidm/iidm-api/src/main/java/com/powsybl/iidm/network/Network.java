@@ -661,11 +661,21 @@ public interface Network extends Container<Network> {
     HvdcLineAdder newHvdcLine();
 
     /**
-     * Get a equipment.
+     * Get an equipment by its ID.
      *
      * @param id the id of the equipment
      */
     Identifiable<?> getIdentifiable(String id);
+
+    /**
+     * Get an equipment by its ID or eventually an alias.
+     *
+     * @param idOrAlias the id or an alias of the equipment
+     * @param searchInAlias if true then searches in the alias and the IDs. If false, searches only by ID.
+     */
+    default Identifiable<?> getIdentifiable(String idOrAlias, boolean searchInAlias) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Get all identifiables of the network.

@@ -63,6 +63,11 @@ public class UcteExporterTest extends AbstractConverterTest {
 
         Network merge = Network.create("merge", "UCT");
         merge.merge(networkBE, networkFR);
+        assertNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));
+        assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE", true));
+        assertNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
+        assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE", true));
+        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE", true), merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE", true));
         testExporter(merge, "/uxTestGridForMerging.uct");
     }
 
