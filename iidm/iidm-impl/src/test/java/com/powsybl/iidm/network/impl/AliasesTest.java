@@ -1,0 +1,68 @@
+/*
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.iidm.network.impl;
+
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.NetworkTest1Factory;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+/**
+ * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
+ */
+public class AliasesTest {
+    @Test
+    public void canAddAliases() {
+        Network network = NetworkTest1Factory.create();
+        Load load = network.getLoad("load1");
+        assertTrue(load.getAliases().isEmpty());
+        load.addAlias("Load alias");
+
+        assertEquals(1, load.getAliases().size());
+        assertTrue(load.getAliases().contains("Load alias"));
+    }
+
+    @Test
+    public void canRemoveAliases() {
+        Network network = NetworkTest1Factory.create();
+        Load load = network.getLoad("load1");
+        assertTrue(load.getAliases().isEmpty());
+        load.addAlias("Load alias");
+
+        assertEquals(1, load.getAliases().size());
+        assertTrue(load.getAliases().contains("Load alias"));
+
+        load.removeAlias("Load alias");
+        assertTrue(load.getAliases().isEmpty());
+    }
+
+    @Test(expected = PowsyblException.class)
+    public void failWhenDuplicatedAlias() {
+        Network network = NetworkTest1Factory.create();
+        Load load = network.getLoad("load1");
+        load.addAlias("Load alias");
+        load.addAlias("Load alias");
+    }
+
+    @Test(expected = PowsyblException.class)
+    public void failWhenAliasEqualToAnId() {
+        Network network = NetworkTest1Factory.create();
+        Load load = network.getLoad("load1");
+        load.addAlias("load1");
+    }
+
+    @Test(expected = PowsyblException.class)
+    public void failWhenRemovingNonExistingAlias() {
+        Network network = NetworkTest1Factory.create();
+        Load load = network.getLoad("load1");
+        load.removeAlias("Load alias");
+    }
+}
