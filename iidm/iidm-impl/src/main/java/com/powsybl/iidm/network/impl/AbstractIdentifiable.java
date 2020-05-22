@@ -71,6 +71,11 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     }
 
     @Override
+    public boolean hasAliases() {
+        return !aliases.isEmpty();
+    }
+
+    @Override
     public boolean isFictitious() {
         return fictitious;
     }

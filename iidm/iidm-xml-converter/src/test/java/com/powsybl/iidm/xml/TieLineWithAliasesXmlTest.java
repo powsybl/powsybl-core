@@ -18,6 +18,9 @@ public class TieLineWithAliasesXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void test() throws IOException {
+        roundTripVersionedXmlTest("tielineWithAliases.xml", IidmXmlConstants.CURRENT_IIDM_XML_VERSION);
+
+        // Tests for backward compatibility
         roundTripVersionedXmlFromMinToCurrentVersionTest("tielineWithAliases.xml", IidmXmlVersion.V_1_3);
     }
 }

@@ -38,6 +38,8 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
     public final void write(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException {
         boolean hasSubElements = hasSubElements(identifiable, context);
         if (hasSubElements || identifiable.hasProperty()) {
+        boolean isEmptyElement = hasSubElements(identifiable) || identifiable.hasProperty() || identifiable.hasAliases();
+        if (isEmptyElement) {
             context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), getRootElementName());
         } else {
             context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), getRootElementName());
@@ -61,12 +63,18 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
 
         writeRootElementAttributes(identifiable, parent, context);
 
-        AliasesXml.write(identifiable, context);
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
+            try {
+                AliasesXml.write(identifiable, context);
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
 
         PropertiesXml.write(identifiable, context);
 
         writeSubElements(identifiable, parent, context);
-        if (hasSubElements || identifiable.hasProperty()) {
+        if (isEmptyElement) {
             context.getWriter().writeEndElement();
         }
 

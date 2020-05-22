@@ -61,6 +61,13 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     }
 
     /**
+     * Return true if identifiable has aliases.
+     */
+    default boolean hasAliases() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Return an optional containing the name  of the object if it exists. If not, return an empty optional.
      */
     default Optional<String> getOptionalName() {
