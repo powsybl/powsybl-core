@@ -819,9 +819,6 @@ public class UcteImporter implements Importer {
 
                 createTieLine(ucteNetwork, network, dlAtSideOne, dlAtSideTwo);
 
-                dlToProcess.remove();
-                dlMatchingDlToProcess.remove();
-
                 danglingLinesToProcess.remove(dlMatchingDlToProcess);
             }
             danglingLinesToProcess.remove(dlToProcess);
@@ -877,15 +874,6 @@ public class UcteImporter implements Importer {
                 .setUcteXnodeCode(xnodeCode)
                 .add();
 
-        // Copy alias and remove it to the dangling lines before adding it to the tie line
-        // Aliases must be unique in the network
-        Set<String> aliases = new TreeSet<>();
-        aliases.addAll(dlAtSideOne.getAliases());
-        aliases.addAll(dlAtSideTwo.getAliases());
-        dlAtSideOne.getAliases().forEach(dlAtSideOne::removeAlias);
-        dlAtSideTwo.getAliases().forEach(dlAtSideTwo::removeAlias);
-        aliases.forEach(mergeLine::addAlias);
-
         addElementNameProperty(mergeLine, dlAtSideOne, dlAtSideTwo);
         addGeographicalNameProperty(ucteNetwork, mergeLine, dlAtSideOne, dlAtSideTwo);
 
@@ -899,6 +887,20 @@ public class UcteImporter implements Importer {
         }
         mergeLine.newExtension(MergedXnodeAdder.class).withRdp(rdp).withXdp(xdp).withXnodeP1(xnodeP1).withXnodeQ1(xnodeQ1)
                 .withXnodeP2(xnodeP2).withXnodeQ2(xnodeQ2).withLine1Name(dlAtSideOne.getId()).withLine2Name(dlAtSideTwo.getId()).withCode(xnodeCode).add();
+
+        // Copy aliases and remove dangling lines from the network
+        // before adding them to the tie line
+        // Aliases must be unique in the network
+        Set<String> aliases = new TreeSet<>();
+        aliases.add(dlAtSideOne.getId());
+        aliases.add(dlAtSideTwo.getId());
+        aliases.addAll(dlAtSideOne.getAliases());
+        aliases.addAll(dlAtSideTwo.getAliases());
+
+        dlAtSideOne.remove();
+        dlAtSideTwo.remove();
+
+        aliases.forEach(mergeLine::addAlias);
     }
 
     @Override
