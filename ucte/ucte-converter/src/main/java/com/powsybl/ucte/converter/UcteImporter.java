@@ -399,6 +399,9 @@ public class UcteImporter implements Importer {
         for (UcteLine ucteLine : ucteNetwork.getLines()) {
             UcteNodeCode nodeCode1 = ucteLine.getId().getNodeCode1();
             UcteNodeCode nodeCode2 = ucteLine.getId().getNodeCode2();
+            if (!nodeCode1.getVoltageLevelCode().equals(nodeCode2.getVoltageLevelCode())) {
+                throw new UcteException("Line with two different nominal voltages");
+            }
             UcteVoltageLevel ucteVoltageLevel1 = ucteNetwork.getVoltageLevel(nodeCode1);
             UcteVoltageLevel ucteVoltageLevel2 = ucteNetwork.getVoltageLevel(nodeCode2);
 

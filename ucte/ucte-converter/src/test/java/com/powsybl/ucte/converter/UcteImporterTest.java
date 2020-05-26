@@ -16,7 +16,9 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.*;
 
@@ -149,6 +151,19 @@ public class UcteImporterTest {
         ResourceDataSource dataSource = new ResourceDataSource("lastCharacterIssue", new ResourceSet("/", "lastCharacterIssue.uct"));
         Network network = new UcteImporter().importData(dataSource, null);
         assertEquals(2, network.getBusBreakerView().getBusStream().count());
+    }
+
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
+
+    @Test
+    public void testImportLinesDifferentNominalvoltage() {
+        ResourceDataSource dataSource = new ResourceDataSource("differentLinesVoltage", new ResourceSet("/", "differentLinesVoltage.uct"));
+
+        exceptionRule.expect(UcteException.class);
+        exceptionRule.expectMessage("Line with two different nominal voltages");
+
+        new UcteImporter().importData(dataSource, null);
     }
 }
 
