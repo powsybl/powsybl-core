@@ -9,6 +9,7 @@ package com.powsybl.iidm.import_;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class TestImporter implements Importer {
     }
 
     @Override
-    public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
+    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
         return EurostagTutorialExample1Factory.create();
     }
 }
