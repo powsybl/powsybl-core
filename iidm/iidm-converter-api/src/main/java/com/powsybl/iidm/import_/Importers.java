@@ -14,6 +14,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import org.slf4j.Logger;
@@ -177,8 +178,8 @@ public final class Importers {
         }
 
         @Override
-        public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
-            Network network = importer.importData(dataSource, parameters);
+        public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
+            Network network = importer.importData(dataSource, networkFactory, parameters);
             for (String name : names) {
                 try {
                     getPostProcessor(loader, name).process(network, computationManager);
