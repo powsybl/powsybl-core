@@ -18,12 +18,10 @@ public final class AliasesXml {
     static final String ALIAS = "alias";
 
     public static void write(Identifiable<?> identifiable, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (identifiable.hasAliases()) {
-            for (String alias : identifiable.getAliases()) {
-                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), ALIAS);
-                context.getWriter().writeCharacters(context.getAnonymizer().anonymizeString(alias));
-                context.getWriter().writeEndElement();
-            }
+        for (String alias : identifiable.getAliases()) {
+            context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), ALIAS);
+            context.getWriter().writeCharacters(context.getAnonymizer().anonymizeString(alias));
+            context.getWriter().writeEndElement();
         }
     }
 
