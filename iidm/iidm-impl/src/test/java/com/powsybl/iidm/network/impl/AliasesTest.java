@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
@@ -44,19 +45,41 @@ public class AliasesTest {
         assertTrue(load.getAliases().isEmpty());
     }
 
+    @Test
+    public void silentlyIgnoreAffectingObjectsIdAsAlias() {
+        Network network = NetworkTest1Factory.create();
+        Load load = network.getLoad("load1");
+        assertTrue(load.getAliases().isEmpty());
+        load.addAlias("load1");
+        assertTrue(load.getAliases().isEmpty());
+    }
+
+    @Test
+    public void silentlyIgnoreAffectingTwiceSameIdToAnObject() {
+        Network network = NetworkTest1Factory.create();
+        Load load = network.getLoad("load1");
+        assertTrue(load.getAliases().isEmpty());
+        load.addAlias("Load alias");
+        load.addAlias("Load alias");
+
+        assertEquals(1, load.getAliases().size());
+        assertTrue(load.getAliases().contains("Load alias"));
+    }
+
     @Test(expected = PowsyblException.class)
     public void failWhenDuplicatedAlias() {
         Network network = NetworkTest1Factory.create();
         Load load = network.getLoad("load1");
-        load.addAlias("Load alias");
-        load.addAlias("Load alias");
+        Generator generator = network.getGenerator("generator1");
+        load.addAlias("Alias");
+        generator.addAlias("Alias");
     }
 
     @Test(expected = PowsyblException.class)
     public void failWhenAliasEqualToAnId() {
         Network network = NetworkTest1Factory.create();
-        Load load = network.getLoad("load1");
-        load.addAlias("load1");
+        Generator generator = network.getGenerator("generator1");
+        generator.addAlias("load1");
     }
 
     @Test(expected = PowsyblException.class)

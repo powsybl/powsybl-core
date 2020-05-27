@@ -60,8 +60,9 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public void addAlias(String alias) {
-        getNetwork().getIndex().addAlias(this, alias);
-        aliases.add(alias);
+        if (getNetwork().getIndex().addAlias(this, alias)) {
+            aliases.add(alias);
+        }
     }
 
     @Override

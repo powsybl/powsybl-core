@@ -53,8 +53,12 @@ class NetworkIndex {
         all.add(obj);
     }
 
-    void addAlias(Identifiable<?> obj, String alias) {
+    boolean addAlias(Identifiable<?> obj, String alias) {
         if (objectsById.containsKey(alias)) {
+            if (objectsById.get(alias).equals(obj)) {
+                // Silently ignore affecting the objects id to its own aliases
+                return false;
+            }
             Identifiable<?> aliasConflict = objectsById.get(alias);
             String message = String.format("Object (%s) with alias '%s' cannot be created because alias already refers to object (%s) with ID '%s'",
                     obj.getClass(),
@@ -63,6 +67,10 @@ class NetworkIndex {
                     aliasConflict.getId());
             throw new PowsyblException(message);
         } else if (idByAlias.containsKey(alias)) {
+            if (objectsById.get(idByAlias.get(alias)).equals(obj)) {
+                // Silently ignore affecting the same alias twice to an object
+                return false;
+            }
             Identifiable<?> aliasConflict = objectsById.get(idByAlias.get(alias));
             String message = String.format("Object (%s) with alias '%s' cannot be created because alias already refers to object (%s) with ID '%s'",
                     obj.getClass(),
@@ -72,6 +80,7 @@ class NetworkIndex {
             throw new PowsyblException(message);
         }
         idByAlias.put(alias, obj.getId());
+        return true;
     }
 
     public <I extends Identifiable<I>> void removeAlias(Identifiable<?> obj, String alias) {
