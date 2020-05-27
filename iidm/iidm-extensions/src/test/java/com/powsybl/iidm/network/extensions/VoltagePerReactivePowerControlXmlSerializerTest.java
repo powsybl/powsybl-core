@@ -7,20 +7,14 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
