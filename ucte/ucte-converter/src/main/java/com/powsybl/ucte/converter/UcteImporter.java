@@ -719,7 +719,7 @@ public class UcteImporter implements Importer {
     }
 
     private static void addElementNameAlias(UcteElement ucteElement, Identifiable identifiable) {
-        if (ucteElement.getElementName() != null && ! ucteElement.getElementName().isEmpty()) {
+        if (ucteElement.getElementName() != null && !ucteElement.getElementName().isEmpty()) {
             identifiable.addAlias(String.format("%s %s %s", ucteElement.getId().getNodeCode1().toString(), ucteElement.getId().getNodeCode2().toString(), ucteElement.getElementName()));
         }
     }
