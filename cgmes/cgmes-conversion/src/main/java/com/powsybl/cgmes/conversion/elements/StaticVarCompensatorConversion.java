@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForStaticVarCompensators;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
+import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlImpl;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -25,8 +26,6 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
     @Override
     public void convert() {
         double slope = p.asDouble("slope", 0.0);
-        ignored("Slope " + slope);
-
         double capacitiveRating = p.asDouble("capacitiveRating", 0.0);
         double inductiveRating = p.asDouble("inductiveRating", 0.0);
 
@@ -39,6 +38,9 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
 
         StaticVarCompensator svc = adder.add();
         convertedTerminals(svc.getTerminal());
+        if (slope > 0) {
+            new VoltagePerReactivePowerControlImpl(svc, slope);
+        }
 
         context.regulatingControlMapping().forStaticVarCompensators().add(svc.getId(), p);
     }
