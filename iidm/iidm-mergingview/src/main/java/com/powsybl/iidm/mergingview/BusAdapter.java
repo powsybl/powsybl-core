@@ -9,6 +9,7 @@ package com.powsybl.iidm.mergingview;
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -188,22 +189,25 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
     @Override
     public Iterable<Line> getLines() {
-        throw MergingView.createNotImplementedException();
+        return getLineStream().collect(Collectors.toList());
     }
 
     @Override
     public Stream<Line> getLineStream() {
-        throw MergingView.createNotImplementedException();
+        return Stream.concat(getDelegate().getLineStream(),
+                getDelegate().getDanglingLineStream()
+                        .filter(dl -> getIndex().isMerged(dl))
+                        .map(dl -> getIndex().getMergedLineByCode(dl.getUcteXnodeCode())));
     }
 
     @Override
     public Iterable<DanglingLine> getDanglingLines() {
-        throw MergingView.createNotImplementedException();
+        return getDanglingLineStream().collect(Collectors.toList());
     }
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        throw MergingView.createNotImplementedException();
+        return getDelegate().getDanglingLineStream().filter(dl -> !getIndex().isMerged(dl));
     }
 
     @Override

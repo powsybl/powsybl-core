@@ -6,13 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.TopologyVisitor;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Network.BusBreakerView;
 import com.powsybl.iidm.network.Network.BusView;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -73,10 +67,6 @@ public class BusAdapterTest {
 
         // Not implemented yet !
         TestUtil.notImplemented(bus::getConnectedTerminalCount);
-        TestUtil.notImplemented(bus::getLines);
-        TestUtil.notImplemented(bus::getLineStream);
-        TestUtil.notImplemented(bus::getDanglingLines);
-        TestUtil.notImplemented(bus::getDanglingLineStream);
     }
 
     @Test
@@ -86,6 +76,56 @@ public class BusAdapterTest {
         TestUtil.notImplemented(bus::getConnectedComponent);
         TestUtil.notImplemented(bus::isInMainConnectedComponent);
         TestUtil.notImplemented(bus::isInMainSynchronousComponent);
+    }
+
+    @Test
+    public void testGetMergedLine() {
+        Network network1 = NoEquipmentNetworkFactory.create();
+        Network network2 = NetworkFactory.findDefault().createNetwork("test2", "test");
+        Substation substation = network2.newSubstation()
+                .setId("sub2")
+                .setCountry(Country.FR)
+                .setTso("RTE")
+                .add();
+        VoltageLevel vl3 = substation.newVoltageLevel()
+                .setId("vl3")
+                .setName("vl3")
+                .setNominalV(440.0)
+                .setHighVoltageLimit(400.0)
+                .setLowVoltageLimit(200.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        vl3.getBusBreakerView().newBus()
+                .setId("busC")
+                .setName("busC")
+                .add();
+
+        VoltageLevel vl1 = network1.getVoltageLevel("vl1");
+
+        double r = 10.0;
+        double x = 20.0;
+        double g = 30.0;
+        double b = 40.0;
+        double p0 = 50.0;
+        double q0 = 60.0;
+        String baseId = "DL";
+        String baseName = "DanglingLine";
+        String ucteXnodeCode = "code";
+        createDangingLine(vl1, baseId + "1", baseName + "1", r, x, g, b, p0, q0, ucteXnodeCode, "busA");
+        createDangingLine(vl3, baseId + "2", baseName + "2", r, x, g, b, p0, q0, ucteXnodeCode, "busC");
+
+        assertFalse(network1.getBusBreakerView().getBus("busA").getDanglingLineStream().noneMatch(dl -> "DL1".equals(dl.getId())));
+        assertTrue(network1.getBusBreakerView().getBus("busA").getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+        assertFalse(network2.getBusBreakerView().getBus("busC").getDanglingLineStream().noneMatch(dl -> "DL2".equals(dl.getId())));
+        assertTrue(network2.getBusBreakerView().getBus("busC").getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+
+        MergingView mergingView = MergingView.create("merge", "test");
+        mergingView.merge(network1, network2);
+
+        assertTrue(mergingView.getBusBreakerView().getBus("busA").getDanglingLineStream().noneMatch(dl -> "DL1".equals(dl.getId())));
+        assertFalse(mergingView.getBusBreakerView().getBus("busA").getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+        assertTrue(mergingView.getBusBreakerView().getBus("busC").getDanglingLineStream().noneMatch(dl -> "DL2".equals(dl.getId())));
+        assertFalse(mergingView.getBusBreakerView().getBus("busC").getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
     }
 
     @Test
