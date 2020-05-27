@@ -42,7 +42,7 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
      * Get the aliases of the object.
      */
     default Set<String> getAliases() {
-        throw new UnsupportedOperationException();
+        return Collections.emptySet();
     }
 
     /**
@@ -50,21 +50,19 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
      * from any identifiable ID.
      */
     default void addAlias(String alias) {
-        throw new UnsupportedOperationException();
     }
 
     /**
      * Remove an alias of the object.
      */
     default void removeAlias(String alias) {
-        throw new UnsupportedOperationException();
     }
 
     /**
      * Return true if identifiable has aliases.
      */
     default boolean hasAliases() {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     /**
