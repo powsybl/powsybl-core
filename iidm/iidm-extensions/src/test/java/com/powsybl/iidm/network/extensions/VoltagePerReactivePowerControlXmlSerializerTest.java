@@ -10,11 +10,14 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
+import com.powsybl.iidm.xml.NetworkXml;
+
 import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -31,10 +34,7 @@ public class VoltagePerReactivePowerControlXmlSerializerTest extends AbstractCon
 
         svc.newExtension(VoltagePerReactivePowerControlAdder.class).withSlope(0.5).add();
 
-        // FIXME
-        /*Network network2 = roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
+        Network network2 = roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::read,
                 "/voltagePerReactivePowerControl.xml");
 
         StaticVarCompensator svc2 = network2.getStaticVarCompensator("SVC2");
@@ -42,8 +42,8 @@ public class VoltagePerReactivePowerControlXmlSerializerTest extends AbstractCon
         VoltagePerReactivePowerControl control2 = svc2.getExtension(VoltagePerReactivePowerControl.class);
         assertNotNull(control2);
 
-        assertEquals(0.2, control2.getSlope(), 0.0);
-        assertEquals("voltagePerReactivePowerControl", control2.getName());*/
+        assertEquals(0.5, control2.getSlope(), 0.0);
+        assertEquals("voltagePerReactivePowerControl", control2.getName());
     }
 
 }
