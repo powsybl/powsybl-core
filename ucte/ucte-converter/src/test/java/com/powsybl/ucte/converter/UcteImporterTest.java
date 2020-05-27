@@ -160,8 +160,8 @@ public class UcteImporterTest {
     public void testImportLinesDifferentNominalvoltage() {
         ResourceDataSource dataSource = new ResourceDataSource("differentLinesVoltage", new ResourceSet("/", "differentLinesVoltage.uct"));
 
-        exceptionRule.expect(UcteException.class);
-        exceptionRule.expectMessage("Line with two different nominal voltages");
+        exceptionRule.expect(AssertionError.class);
+        exceptionRule.expectMessage("with two different nominal voltages");
 
         new UcteImporter().importData(dataSource, null);
     }

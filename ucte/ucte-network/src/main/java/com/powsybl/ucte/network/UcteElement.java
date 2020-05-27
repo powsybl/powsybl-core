@@ -173,6 +173,9 @@ public class UcteElement implements UcteRecord {
             LOGGER.warn("Invalid current limit {} for element '{}'", currentLimit, id);
             currentLimit = null;
         }
+        if (this instanceof UcteLine && !id.getNodeCode1().getVoltageLevelCode().equals(id.getNodeCode2().getVoltageLevelCode())) {
+            throw new AssertionError("Line " + id.toString() + " with two different nominal voltages");
+        }
     }
 
     @Override
