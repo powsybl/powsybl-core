@@ -257,9 +257,7 @@ public class UcteImporter implements Importer {
                 .setQ0(q0)
                 .setUcteXnodeCode(xnode.getCode().toString())
                 .add();
-        if (ucteLine.getElementName() != null && !ucteLine.getElementName().isEmpty()) {
-            dl.addAlias(String.format("%s %s %s", ucteLine.getId().getNodeCode1().toString(), ucteLine.getId().getNodeCode2().toString(), ucteLine.getElementName()));
-        }
+        addElementNameAlias(ucteLine, dl);
         dl.newExtension(XnodeAdder.class).withCode(xnode.getCode().toString()).add();
 
         if (ucteLine.getCurrentLimit() != null) {
@@ -315,10 +313,7 @@ public class UcteImporter implements Importer {
                 .setBus2(nodeCode2.toString())
                 .setOpen(!connected)
                 .add();
-        if (ucteLine.getElementName() != null && !ucteLine.getElementName().isEmpty()) {
-            couplerSwitch.addAlias(String.format("%s %s %s", nodeCode1.toString(), nodeCode2.toString(), ucteLine.getElementName()));
-        }
-
+        addElementNameAlias(ucteLine, couplerSwitch);
         addCurrentLimitProperty(ucteLine, couplerSwitch);
         addOrderCodeProperty(ucteLine, couplerSwitch);
         addElementNameProperty(ucteLine, couplerSwitch);
@@ -346,10 +341,7 @@ public class UcteImporter implements Importer {
                 .setB2(getSusceptance(ucteLine) / 2)
                 .add();
 
-        if (ucteLine.getElementName() != null && !ucteLine.getElementName().isEmpty()) {
-            l.addAlias(String.format("%s %s %s", nodeCode1.toString(), nodeCode2.toString(), ucteLine.getElementName()));
-        }
-
+        addElementNameAlias(ucteLine, l);
         addElementNameProperty(ucteLine, l);
 
         if (ucteLine.getCurrentLimit() != null) {
@@ -585,9 +577,7 @@ public class UcteImporter implements Importer {
                 .setG(getConductance(ucteTransfo))
                 .setB(getSusceptance(ucteTransfo))
                 .add();
-        if (ucteTransfo.getElementName() != null && !ucteTransfo.getElementName().isEmpty()) {
-            twoWindingsTransformer.addAlias(String.format("%s %s %s", busId1, busId2, ucteTransfo.getElementName()));
-        }
+        addElementNameAlias(ucteTransfo, twoWindingsTransformer);
         return twoWindingsTransformer;
     }
 
@@ -665,9 +655,7 @@ public class UcteImporter implements Importer {
                         .setG(getConductance(ucteTransfo))
                         .setB(getSusceptance(ucteTransfo))
                         .add();
-                if (ucteTransfo.getElementName() != null && !ucteTransfo.getElementName().isEmpty()) {
-                    transformer.addAlias(String.format("%s %s %s", nodeCode1.toString(), nodeCode2.toString(), ucteTransfo.getElementName()));
-                }
+                addElementNameAlias(ucteTransfo, transformer);
             }
 
             if (ucteTransfo.getCurrentLimit() != null) {
@@ -727,6 +715,12 @@ public class UcteImporter implements Importer {
     private static void addElementNameProperty(UcteElement ucteElement, Identifiable identifiable) {
         if (ucteElement.getElementName() != null) {
             identifiable.setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteElement.getElementName());
+        }
+    }
+
+    private static void addElementNameAlias(UcteElement ucteElement, Identifiable identifiable) {
+        if (ucteElement.getElementName() != null && ! ucteElement.getElementName().isEmpty()) {
+            identifiable.addAlias(String.format("%s %s %s", ucteElement.getId().getNodeCode1().toString(), ucteElement.getId().getNodeCode2().toString(), ucteElement.getElementName()));
         }
     }
 
