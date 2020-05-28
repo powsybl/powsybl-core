@@ -171,7 +171,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .add();
 
         Generator generatorHydro3 = s1vl2.newGenerator()
-                .setId("GEN_HYDRO_3")
+                .setId("GH3")
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
                 .setMaxP(35.0)
@@ -188,12 +188,12 @@ public final class FourSubstationsNodeBreakerFactory {
                 .beginPoint()
                 .setP(0.0)
                 .setMinQ(-20.6)
-                .setMaxQ(218.1)
+                .setMaxQ(318.1)
                 .endPoint()
                 .beginPoint()
                 .setP(35.0)
                 .setMinQ(-21.725)
-                .setMaxQ(216.3500004)
+                .setMaxQ(316.3500004)
                 .endPoint()
                 .add();
 
@@ -315,9 +315,9 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setName("VSC1")
                 .setNode(5)
                 .setLossFactor(1.1f)
-                .setReactivePowerSetpoint(0)
+                .setReactivePowerSetpoint(500)
                 .setVoltageSetpoint(227.0)
-                .setVoltageRegulatorOn(true)
+                .setVoltageRegulatorOn(false)
                 .add();
         vsc1.getTerminal()
                 .setP(100.0)
@@ -372,9 +372,9 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setEnergySource(EnergySource.THERMAL)
                 .setMinP(0.0)
                 .setMaxP(80.0)
-                .setVoltageRegulatorOn(false)
+                .setVoltageRegulatorOn(true)
                 .setTargetP(70.0)
-                .setTargetV(0.0)
+                .setTargetV(226)
                 .setTargetQ(0.0)
                 .setNode(2)
                 .add();
