@@ -16,6 +16,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.stream.StreamSupport;
+
 import static org.junit.Assert.*;
 
 /**
@@ -114,18 +116,32 @@ public class BusAdapterTest {
         createDangingLine(vl1, baseId + "1", baseName + "1", r, x, g, b, p0, q0, ucteXnodeCode, "busA");
         createDangingLine(vl3, baseId + "2", baseName + "2", r, x, g, b, p0, q0, ucteXnodeCode, "busC");
 
-        assertFalse(network1.getBusBreakerView().getBus("busA").getDanglingLineStream().noneMatch(dl -> "DL1".equals(dl.getId())));
-        assertTrue(network1.getBusBreakerView().getBus("busA").getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
-        assertFalse(network2.getBusBreakerView().getBus("busC").getDanglingLineStream().noneMatch(dl -> "DL2".equals(dl.getId())));
-        assertTrue(network2.getBusBreakerView().getBus("busC").getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+        Bus busA = network1.getBusBreakerView().getBus("busA");
+        assertFalse(busA.getDanglingLineStream().noneMatch(dl -> "DL1".equals(dl.getId())));
+        assertFalse(StreamSupport.stream(busA.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL1".equals(dl.getId())));
+        assertTrue(busA.getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+        assertTrue(StreamSupport.stream(busA.getLines().spliterator(), false).noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+
+        Bus busC = network2.getBusBreakerView().getBus("busC");
+        assertFalse(busC.getDanglingLineStream().noneMatch(dl -> "DL2".equals(dl.getId())));
+        assertFalse(StreamSupport.stream(busC.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL2".equals(dl.getId())));
+        assertTrue(busC.getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+        assertTrue(StreamSupport.stream(busC.getLines().spliterator(), false).noneMatch(l -> "DL1 + DL2".equals(l.getId())));
 
         MergingView mergingView = MergingView.create("merge", "test");
         mergingView.merge(network1, network2);
 
-        assertTrue(mergingView.getBusBreakerView().getBus("busA").getDanglingLineStream().noneMatch(dl -> "DL1".equals(dl.getId())));
-        assertFalse(mergingView.getBusBreakerView().getBus("busA").getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
-        assertTrue(mergingView.getBusBreakerView().getBus("busC").getDanglingLineStream().noneMatch(dl -> "DL2".equals(dl.getId())));
-        assertFalse(mergingView.getBusBreakerView().getBus("busC").getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+        Bus mergedBusA = mergingView.getBusBreakerView().getBus("busA");
+        assertTrue(mergedBusA.getDanglingLineStream().noneMatch(dl -> "DL1".equals(dl.getId())));
+        assertTrue(StreamSupport.stream(mergedBusA.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL1".equals(dl.getId())));
+        assertFalse(mergedBusA.getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+        assertFalse(StreamSupport.stream(mergedBusA.getLines().spliterator(), false).noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+
+        Bus mergedBusC = mergingView.getBusBreakerView().getBus("busC");
+        assertTrue(mergedBusC.getDanglingLineStream().noneMatch(dl -> "DL2".equals(dl.getId())));
+        assertTrue(StreamSupport.stream(mergedBusC.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL2".equals(dl.getId())));
+        assertFalse(mergedBusC.getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+        assertFalse(StreamSupport.stream(mergedBusC.getLines().spliterator(), false).noneMatch(l -> "DL1 + DL2".equals(l.getId())));
     }
 
     @Test
