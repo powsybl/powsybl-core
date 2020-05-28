@@ -6,15 +6,15 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.CurrentLimitsAdder;
+import com.powsybl.iidm.network.Terminal;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractIdentifiableAdapter<I> implements Branch<I> {
+abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnectableAdapter<I> implements Branch<I> {
 
     protected AbstractBranchAdapter(I delegate, MergingViewIndex index) {
         super(delegate, index);
@@ -47,13 +47,6 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractIdenti
             terminalCopied = ((TerminalAdapter) terminalCopied).getDelegate();
         }
         return getDelegate().getSide(terminalCopied);
-    }
-
-    @Override
-    public List<? extends Terminal> getTerminals() {
-        return getDelegate().getTerminals().stream()
-                                           .map(getIndex()::getTerminal)
-                                           .collect(Collectors.toList());
     }
 
     // -------------------------------
@@ -157,18 +150,5 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractIdenti
     @Override
     public Overload checkTemporaryLimits2() {
         return getDelegate().checkTemporaryLimits2();
-    }
-
-    @Override
-    public ConnectableType getType() {
-        return getDelegate().getType();
-    }
-
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
-    @Override
-    public void remove() {
-        throw MergingView.createNotImplementedException();
     }
 }
