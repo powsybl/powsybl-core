@@ -9,8 +9,8 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
-import com.powsybl.cgmes.conversion.elements.transformers.NewThreeWindingsTransformerConversion;
-import com.powsybl.cgmes.conversion.elements.transformers.NewTwoWindingsTransformerConversion;
+import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
+import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
@@ -178,13 +178,7 @@ public class Conversion {
         convert(cgmes.equivalentBranches(), eqb -> new EquivalentBranchConversion(eqb, context));
         convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
 
-        if (config.useNewTransformerConversion()) {
-            newConvertTransformers(context);
-        } else {
-            convertTransformers(context);
-            convert(cgmes.ratioTapChangers(), rtc -> new RatioTapChangerConversion(rtc, context));
-            convert(cgmes.phaseTapChangers(), ptc -> new PhaseTapChangerConversion(ptc, context));
-        }
+        convertTransformers(context);
 
         CgmesDcConversion cgmesDcConversion = new CgmesDcConversion(cgmes, context);
         cgmesDcConversion.convert();
@@ -326,7 +320,7 @@ public class Conversion {
         context.endLinesConversion();
     }
 
-    private void newConvertTransformers(Context context) {
+    private void convertTransformers(Context context) {
         cgmes.groupedTransformerEnds().forEach((t, ends) -> {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Transformer {}, {}-winding", t, ends.size());
@@ -334,9 +328,9 @@ public class Conversion {
             }
             AbstractConductingEquipmentConversion c = null;
             if (ends.size() == 2) {
-                c = new NewTwoWindingsTransformerConversion(ends, context);
+                c = new TwoWindingsTransformerConversion(ends, context);
             } else if (ends.size() == 3) {
-                c = new NewThreeWindingsTransformerConversion(ends, context);
+                c = new ThreeWindingsTransformerConversion(ends, context);
             } else {
                 String what = "PowerTransformer " + t;
                 Supplier<String> reason = () -> String.format("Has %d ends. Only 2 or 3 ends are supported", ends.size());
@@ -346,36 +340,6 @@ public class Conversion {
                 c.convert();
             }
         });
-    }
-
-    /**
-     * @deprecated Use @link{{@link #newConvertTransformers(Context)}}
-     */
-    @Deprecated
-    private void convertTransformers(Context context) {
-        cgmes.groupedTransformerEnds().entrySet()
-                .forEach(tends -> {
-                    String t = tends.getKey();
-                    PropertyBags ends = tends.getValue();
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Transformer {}, {}-winding", t, ends.size());
-                        ends.forEach(e -> LOG.debug(e.tabulateLocals("TransformerEnd")));
-                    }
-                    AbstractConductingEquipmentConversion c = null;
-                    if (ends.size() == 2) {
-                        c = new TwoWindingsTransformerConversion(ends, context);
-                    } else if (ends.size() == 3) {
-                        c = new ThreeWindingsTransformerConversion(ends, context);
-                    } else {
-                        String what = "PowerTransformer " + t;
-                        Supplier<String> reason = () -> String.format("Has %d ends. Only 2 or 3 ends are supported",
-                                ends.size());
-                        context.invalid(what, reason);
-                    }
-                    if (c != null && c.valid()) {
-                        c.convert();
-                    }
-                });
     }
 
     private void voltageAngles(PropertyBags nodes, Context context) {
@@ -418,18 +382,6 @@ public class Conversion {
         public enum StateProfile {
             SSH,
             SV
-        }
-
-        // Temporal flag while we keep two versions of transformer conversion
-        private boolean useNewTransformerConversion = true;
-
-        private boolean useNewTransformerConversion() {
-            return useNewTransformerConversion;
-        }
-
-        public Config setUseNewTransformerConversion(boolean b) {
-            useNewTransformerConversion = b;
-            return this;
         }
 
         public List<String> substationIdsExcludedFromMapping() {
