@@ -194,7 +194,8 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
     @Override
     public Stream<Line> getLineStream() {
-        return Stream.concat(getDelegate().getLineStream(),
+        return Stream.concat(getDelegate().getLineStream()
+                        .map(l -> getIndex().getLine(l)),
                 getDelegate().getDanglingLineStream()
                         .filter(dl -> getIndex().isMerged(dl))
                         .map(dl -> getIndex().getMergedLineByCode(dl.getUcteXnodeCode())));
@@ -207,7 +208,9 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        return getDelegate().getDanglingLineStream().filter(dl -> !getIndex().isMerged(dl));
+        return getDelegate().getDanglingLineStream()
+                .filter(dl -> !getIndex().isMerged(dl))
+                .map(dl -> getIndex().getDanglingLine(dl));
     }
 
     @Override

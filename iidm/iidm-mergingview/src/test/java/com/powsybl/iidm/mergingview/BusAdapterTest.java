@@ -82,14 +82,15 @@ public class BusAdapterTest {
 
     @Test
     public void testGetMergedLine() {
+        // Networks creation
         Network network1 = NoEquipmentNetworkFactory.create();
         Network network2 = NetworkFactory.findDefault().createNetwork("test2", "test");
-        Substation substation = network2.newSubstation()
+        Substation s2 = network2.newSubstation()
                 .setId("sub2")
                 .setCountry(Country.FR)
                 .setTso("RTE")
                 .add();
-        VoltageLevel vl3 = substation.newVoltageLevel()
+        VoltageLevel vl3 = s2.newVoltageLevel()
                 .setId("vl3")
                 .setName("vl3")
                 .setNominalV(440.0)
@@ -115,7 +116,24 @@ public class BusAdapterTest {
         String ucteXnodeCode = "code";
         createDangingLine(vl1, baseId + "1", baseName + "1", r, x, g, b, p0, q0, ucteXnodeCode, "busA");
         createDangingLine(vl3, baseId + "2", baseName + "2", r, x, g, b, p0, q0, ucteXnodeCode, "busC");
+        createDangingLine(vl1, baseId + "3", baseName + "3", r, x, g, b, p0, q0, "", "busA");
+        network1.newLine()
+                .setId("L")
+                .setVoltageLevel1("vl1")
+                .setBus1("busA")
+                .setConnectableBus1("busA")
+                .setVoltageLevel2("vl2")
+                .setBus2("busB")
+                .setConnectableBus2("busB")
+                .setR(3.0)
+                .setX(33.0)
+                .setG1(0.0)
+                .setB1(386E-6 / 2)
+                .setG2(0.0)
+                .setB2(386E-6 / 2)
+                .add();
 
+        // Check that dangling lines are present in networks and that merged line doesn't exist
         Bus busA = network1.getBusBreakerView().getBus("busA");
         assertFalse(busA.getDanglingLineStream().noneMatch(dl -> "DL1".equals(dl.getId())));
         assertFalse(StreamSupport.stream(busA.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL1".equals(dl.getId())));
@@ -128,10 +146,17 @@ public class BusAdapterTest {
         assertTrue(busC.getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
         assertTrue(StreamSupport.stream(busC.getLines().spliterator(), false).noneMatch(l -> "DL1 + DL2".equals(l.getId())));
 
+        // Merge networks
         MergingView mergingView = MergingView.create("merge", "test");
         mergingView.merge(network1, network2);
 
+        // Check that methods returning lines and dangling lines return adapters (wrapped objects)
         Bus mergedBusA = mergingView.getBusBreakerView().getBus("busA");
+
+        assertTrue(mergedBusA.getLineStream().allMatch(l -> l instanceof LineAdapter || l instanceof MergedLine));
+        assertTrue(mergedBusA.getDanglingLineStream().allMatch(dl -> dl instanceof DanglingLineAdapter));
+
+        // Check that merged dangling lines are not present anymore and that merged line exist
         assertTrue(mergedBusA.getDanglingLineStream().noneMatch(dl -> "DL1".equals(dl.getId())));
         assertTrue(StreamSupport.stream(mergedBusA.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL1".equals(dl.getId())));
         assertFalse(mergedBusA.getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
