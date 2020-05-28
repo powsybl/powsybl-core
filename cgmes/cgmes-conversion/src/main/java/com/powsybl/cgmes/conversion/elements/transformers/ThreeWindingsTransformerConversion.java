@@ -54,9 +54,9 @@ import com.powsybl.triplestore.api.PropertyBags;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class NewThreeWindingsTransformerConversion extends AbstractTransformerConversion {
+public class ThreeWindingsTransformerConversion extends AbstractTransformerConversion {
 
-    public NewThreeWindingsTransformerConversion(PropertyBags ends, Context context) {
+    public ThreeWindingsTransformerConversion(PropertyBags ends, Context context) {
         super(CgmesNames.POWER_TRANSFORMER, ends, context);
     }
 
