@@ -67,20 +67,15 @@ public class SecurityAnalysisTest {
         network.getLine("NHV1_NHV2_1").getTerminal2().setP(560.0).setQ(550.0);
         network.getLine("NHV1_NHV2_1").newCurrentLimits1().setPermanentLimit(1500.0).add();
         network.getLine("NHV1_NHV2_1").newCurrentLimits2()
-            .setPermanentLimit(1200.0)
-            .beginTemporaryLimit()
+                .setPermanentLimit(1200.0)
+                .beginTemporaryLimit()
                 .setName("10'")
                 .setAcceptableDuration(10 * 60)
                 .setValue(1300.0)
-            .endTemporaryLimit()
-            .add();
+                .endTemporaryLimit()
+                .add();
 
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-        Executor executor = Runnable::run;
-        Mockito.when(computationManager.getExecutor()).thenReturn(executor);
-        ComputationResourcesStatus computationResourcesStatus = Mockito.mock(ComputationResourcesStatus.class);
-        Mockito.when(computationResourcesStatus.getAvailableCores()).thenReturn(4);
-        Mockito.when(computationManager.getResourcesStatus()).thenReturn(computationResourcesStatus);
+        ComputationManager computationManager = createMockComputationManager();
 
         ContingenciesProvider contingenciesProvider = Mockito.mock(ContingenciesProvider.class);
         Contingency contingency = Mockito.mock(Contingency.class);
@@ -126,5 +121,40 @@ public class SecurityAnalysisTest {
         assertEquals(1, interceptorMock.getOnPostContingencyResultCount());
         assertEquals(1, interceptorMock.getOnPreContingencyResultCount());
         assertEquals(1, interceptorMock.getOnSecurityAnalysisResultCount());
+    }
+
+    @Test
+    public void runWithoutContingency() {
+        Network network = EurostagTutorialExample1Factory.create();
+        ComputationManager computationManager = createMockComputationManager();
+
+        ContingenciesProvider contingenciesProvider = Mockito.mock(ContingenciesProvider.class);
+        Mockito.when(contingenciesProvider.getContingencies(network)).thenReturn(Collections.emptyList());
+        LimitViolationFilter filter = new LimitViolationFilter();
+
+        SecurityAnalysis securityAnalysis = new SecurityAnalysisImpl(network, filter, computationManager);
+        SecurityAnalysisInterceptorMock interceptorMock = new SecurityAnalysisInterceptorMock();
+        securityAnalysis.addInterceptor(interceptorMock);
+        securityAnalysis.addInterceptor(new CurrentLimitViolationInterceptor());
+
+        SecurityAnalysisResult result = securityAnalysis.run(VariantManagerConstants.INITIAL_VARIANT_ID, SecurityAnalysisParameters.load(platformConfig), contingenciesProvider).join();
+
+        assertTrue(result.getPreContingencyResult().isComputationOk());
+        assertEquals(0, result.getPreContingencyResult().getLimitViolations().size());
+        assertEquals(0, result.getPostContingencyResults().size());
+
+        assertEquals(0, interceptorMock.getOnPostContingencyResultCount());
+        assertEquals(1, interceptorMock.getOnPreContingencyResultCount());
+        assertEquals(1, interceptorMock.getOnSecurityAnalysisResultCount());
+    }
+
+    private static ComputationManager createMockComputationManager() {
+        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+        Executor executor = Runnable::run;
+        Mockito.when(computationManager.getExecutor()).thenReturn(executor);
+        ComputationResourcesStatus computationResourcesStatus = Mockito.mock(ComputationResourcesStatus.class);
+        Mockito.when(computationResourcesStatus.getAvailableCores()).thenReturn(4);
+        Mockito.when(computationManager.getResourcesStatus()).thenReturn(computationResourcesStatus);
+        return computationManager;
     }
 }

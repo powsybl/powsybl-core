@@ -151,7 +151,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                                                        SecurityAnalysisResultBuilder resultBuilder) {
 
         List<Contingency> contingencies = contingenciesProvider.getContingencies(network);
-        int workerCount = Math.min(MAX_VARIANTS_PER_ANALYSIS, Math.min(computationManager.getResourcesStatus().getAvailableCores(), contingencies.size()));
+        int workerCount = Math.min(MAX_VARIANTS_PER_ANALYSIS, Math.min(computationManager.getResourcesStatus().getAvailableCores(), contingencies.isEmpty() ? 1 : contingencies.size()));
         List<String> variantIds = makeWorkingVariantsNames(workerCount);
         BlockingQueue<String> queue = new ArrayBlockingQueue<>(workerCount, false, variantIds);
 
