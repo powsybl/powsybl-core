@@ -33,7 +33,7 @@ public abstract class AbstractBusViewTest {
                 .setId("S")
                 .add();
 
-        substation.newVoltageLevel()
+        VoltageLevel vl1 = substation.newVoltageLevel()
                 .setId("VL1")
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .setNominalV(400)
@@ -135,7 +135,7 @@ public abstract class AbstractBusViewTest {
                 .setQ0(0)
                 .add();
 
-        // Assert.assertEquals(3, network.getVoltageLevel("VL").getBusBreakerView().getBusStream().count());
-        // Assert.assertEquals(1, network.getVoltageLevel("VL").getBusView().getBusStream().count());
+        Assert.assertEquals(3, network.getVoltageLevel("VL").getBusBreakerView().getBusStream().count());
+        Assert.assertEquals(1, network.getVoltageLevel("VL").getBusView().getBusStream().count());
     }
 }
