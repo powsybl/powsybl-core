@@ -6,6 +6,9 @@
  */
 package com.powsybl.matpower.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -15,7 +18,8 @@ import java.util.Objects;
  */
 public class MatpowerModel {
 
-    private final String caseName;
+    @JsonProperty("caseName")
+    private String caseName;
     private double baseMva;
     private String version;
 
@@ -25,7 +29,8 @@ public class MatpowerModel {
 
     private final List<MBranch> branches = new ArrayList<>();
 
-    public MatpowerModel(String caseName) {
+    @JsonCreator
+    public MatpowerModel(@JsonProperty("caseName") String caseName) {
         this.caseName = Objects.requireNonNull(caseName);
     }
 

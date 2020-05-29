@@ -91,8 +91,8 @@ public final class MatpowerWriter {
             branchesM.setDouble(row, 12, branches.get(row).getAngMax());
         }
 
-        struct.set("version", Mat5.newString("2"))
-                .set("baseMVA", Mat5.newScalar(100))
+        struct.set("version", Mat5.newString(model.getVersion()))
+                .set("baseMVA", Mat5.newScalar(model.getBaseMva()))
                 .set("bus", busesM)
                 .set("gen", gensM)
                 .set("branch", branchesM);

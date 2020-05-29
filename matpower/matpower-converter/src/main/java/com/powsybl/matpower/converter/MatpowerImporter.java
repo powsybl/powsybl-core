@@ -363,12 +363,12 @@ public class MatpowerImporter implements Importer {
         Objects.requireNonNull(networkFactory);
         Network network = networkFactory.createNetwork(dataSource.getBaseName(), FORMAT);
 
-        //there is no info about time & date declared in the matpower file: set a default now()
+        //there is no time & date declared in the MATPOWER file: set a default now()
         network.setCaseDate(DateTime.now());
 
         try {
             try (InputStream iStream = dataSource.newInputStream(null, EXT)) {
-                // parse file
+
                 MatpowerModel model = MatpowerReader.read(iStream, dataSource.getBaseName());
                 LOGGER.debug("MATPOWER model {}", model);
 

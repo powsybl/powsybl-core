@@ -212,23 +212,4 @@ public class MBus {
     public void setMinimumVoltageMagnitude(double minimumVoltageMagnitude) {
         this.minimumVoltageMagnitude = minimumVoltageMagnitude;
     }
-
-    @Override
-    public String toString() {
-        return "MBus{" +
-                "number=" + number +
-                ", type=" + type +
-                ", realPowerDemand=" + realPowerDemand +
-                ", reactivePowerDemand=" + reactivePowerDemand +
-                ", shuntConductance=" + shuntConductance +
-                ", shuntSusceptance=" + shuntSusceptance +
-                ", areaNumber=" + areaNumber +
-                ", voltageMagnitude=" + voltageMagnitude +
-                ", voltageAngle=" + voltageAngle +
-                ", baseVoltage=" + baseVoltage +
-                ", lossZone=" + lossZone +
-                ", maximumVoltageMagnitude=" + maximumVoltageMagnitude +
-                ", minimumVoltageMagnitude=" + minimumVoltageMagnitude +
-                '}';
-    }
 }

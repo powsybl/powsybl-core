@@ -7,8 +7,6 @@
 package com.powsybl.matpower.model;
 
 import com.google.common.collect.Sets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.types.MatFile;
 import us.hebi.matlab.mat.types.Matrix;
@@ -29,7 +27,6 @@ public final class MatpowerReader {
 
     public static final String MATPOWER_STRUCT_NAME = "mpc";
     public static final String MATPOWER_SUPPORTED_VERSION = "2";
-    private static final Logger LOGGER = LoggerFactory.getLogger(MatpowerReader.class);
 
     private MatpowerReader() {
     }
@@ -131,8 +128,6 @@ public final class MatpowerReader {
                 }
                 model.getBranches().add(branch);
             }
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
         }
         return model;
     }
