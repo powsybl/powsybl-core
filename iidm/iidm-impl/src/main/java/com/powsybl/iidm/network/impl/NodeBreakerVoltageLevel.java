@@ -291,9 +291,15 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             CalculatedBus[] node2bus = new CalculatedBus[graph.getVertexCapacity()];
             boolean[] encountered = new boolean[graph.getVertexCapacity()];
             Arrays.fill(encountered, false);
-            for (int e : graph.getEdges()) {
-                traverse(graph.getEdgeVertex1(e), encountered, terminate, id2bus, node2bus);
-                traverse(graph.getEdgeVertex2(e), encountered, terminate, id2bus, node2bus);
+            if (graph.getEdgeCount() == 0) {
+                boolean[] test = new boolean[graph.getVertexCapacity()];
+                Arrays.fill(test, false);
+                traverse(0, test, terminate, id2bus, node2bus);
+            } else {
+                for (int e : graph.getEdges()) {
+                    traverse(graph.getEdgeVertex1(e), encountered, terminate, id2bus, node2bus);
+                    traverse(graph.getEdgeVertex2(e), encountered, terminate, id2bus, node2bus);
+                }
             }
             busCache = new BusCache(node2bus, id2bus);
             LOGGER.trace("Found buses {}", id2bus.values());
@@ -474,7 +480,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 }
             }
             return (busbarSectionCount >= 1 && feederCount >= 1)
-                    || (branchCount >= 1 && feederCount >= 2);
+                    || branchCount >= 1 || feederCount >= 2;
         }
     }
 
