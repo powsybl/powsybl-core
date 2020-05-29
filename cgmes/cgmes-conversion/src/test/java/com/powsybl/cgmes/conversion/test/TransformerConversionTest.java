@@ -10,12 +10,16 @@ package com.powsybl.cgmes.conversion.test;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.Conversion.Xfmr2RatioPhaseInterpretationAlternative;
 import com.powsybl.cgmes.conversion.Conversion.Xfmr2ShuntInterpretationAlternative;
@@ -23,9 +27,11 @@ import com.powsybl.cgmes.conversion.Conversion.Xfmr2StructuralRatioInterpretatio
 import com.powsybl.cgmes.conversion.Conversion.Xfmr3RatioPhaseInterpretationAlternative;
 import com.powsybl.cgmes.conversion.Conversion.Xfmr3ShuntInterpretationAlternative;
 import com.powsybl.cgmes.conversion.Conversion.Xfmr3StructuralRatioInterpretationAlternative;
+import com.powsybl.cgmes.conversion.PhaseAngleClock;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
@@ -87,6 +93,7 @@ public class TransformerConversionTest {
     public void microGridBaseCaseBExfmr2ShuntSplit() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.SPLIT);
+        config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.SPLIT);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.970891, -15.839366, 94.275697, 20.952066);
         assertTrue(ok);
@@ -242,11 +249,12 @@ public class TransformerConversionTest {
     @Test
     public void microGridBaseCaseBExfmr3ShuntSplit() throws IOException {
         Conversion.Config config = new Conversion.Config();
+        config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.SPLIT);
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.SPLIT);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
+        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.231950, 2.876479, -216.194348, -85.558437, 117.981856, 92.439531);
         assertTrue(ok);
     }
 
@@ -347,6 +355,58 @@ public class TransformerConversionTest {
         assertTrue(ok);
     }
 
+    @Test
+    public void miniBusBranchPhaseAngleClock() throws IOException {
+        Conversion.Config config = new Conversion.Config();
+        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
+        postProcessors.add(new PhaseAngleClock());
+
+        Network n = networkModel(CgmesConformity1Catalog.miniBusBranch(), config, postProcessors);
+
+        boolean ok = t2xCompareFlow(n, "_f1e72854-ec35-46e9-b614-27db354e8dbb", -318.691633, 1424.484145, 436.204160, 1393.367311);
+        assertTrue(ok);
+        ok = t3xCompareFlow(n, "_5d38b7ed-73fd-405a-9cdb-78425e003773", -7.505045, -1.896561, -288.380946, 1216.566903, 351.090362, 1199.878285);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void miniBusBranchPhaseAngleClockZero() throws IOException {
+        Conversion.Config config = new Conversion.Config();
+        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
+        postProcessors.add(new PhaseAngleClock());
+
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniBusBranchPhaseAngleClockZero(), config, postProcessors);
+
+        boolean ok = t2xCompareFlow(n, "_f1e72854-ec35-46e9-b614-27db354e8dbb", -0.087780, -0.178561, 0.087782, 0.178613);
+        assertTrue(ok);
+        ok = t3xCompareFlow(n, "_5d38b7ed-73fd-405a-9cdb-78425e003773", -0.000001, -0.000022, 0.000002, 0.000068, -0.000001, -0.000045);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void miniBusBranchT2xPhaseAngleClock1NonZero() throws IOException {
+        Conversion.Config config = new Conversion.Config();
+        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
+        postProcessors.add(new PhaseAngleClock());
+
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniBusBranchT2xPhaseAngleClock1NonZero(), config, postProcessors);
+
+        boolean ok = t2xCompareFlow(n, "_f1e72854-ec35-46e9-b614-27db354e8dbb", -318.691633, 1424.484145, 436.204160, 1393.367311);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void miniBusBranchT3xAllPhaseAngleClockNonZero() throws IOException {
+        Conversion.Config config = new Conversion.Config();
+        List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
+        postProcessors.add(new PhaseAngleClock());
+
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniBusBranchT3xAllPhaseAngleClockNonZero(), config, postProcessors);
+
+        boolean ok = t3xCompareFlow(n, "_5d38b7ed-73fd-405a-9cdb-78425e003773", -1494.636083, 1530.638656, 981.686099, 1826.870720, 562.199867, 309.289551);
+        assertTrue(ok);
+    }
+
     private boolean t2xCompareFlow(Network n, String id, double p1, double q1, double p2, double q2) {
         TwoWindingsTransformer twt = n.getTwoWindingsTransformer(id);
         T2xFlow actual = twoWindingsTransformerFlow(twt);
@@ -396,6 +456,25 @@ public class TransformerConversionTest {
         config.setConvertSvInjections(true);
         config.setProfileUsedForInitialStateValues(Conversion.Config.StateProfile.SSH.name());
         Conversion c = new Conversion(cgmes, config);
+        Network n = c.convert();
+
+        double threshold = 0.01;
+        ValidationConfig vconfig = loadFlowValidationConfig(threshold);
+        LoadFlowParameters lfParameters = defineLoadflowParameters(vconfig.getLoadFlowParameters(), config);
+        ConversionTester.computeMissingFlows(n, lfParameters);
+
+        return n;
+    }
+
+    private Network networkModel(TestGridModel testGridModel, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) throws IOException {
+
+        ReadOnlyDataSource ds = testGridModel.dataSource();
+        String impl = TripleStoreFactory.defaultImplementation();
+        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
+
+        config.setConvertSvInjections(true);
+        config.setProfileUsedForInitialStateValues(Conversion.Config.StateProfile.SSH.name());
+        Conversion c = new Conversion(cgmes, config, postProcessors);
         Network n = c.convert();
 
         double threshold = 0.01;
@@ -497,17 +576,25 @@ public class TransformerConversionTest {
                 break;
         }
 
-        boolean splitShuntAdmittanceXfmr3 = false;
+        boolean t3wtSplitShuntAdmittance = false;
         switch (config.getXfmr3Shunt()) {
             case NETWORK_SIDE:
             case STAR_BUS_SIDE:
                 break;
             case SPLIT:
-                splitShuntAdmittanceXfmr3 = true;
+                t3wtSplitShuntAdmittance = true;
+        }
+        boolean twtSplitShuntAdmittance = false;
+        if (!t2wtSplitShuntAdmittance && !t3wtSplitShuntAdmittance) {
+            twtSplitShuntAdmittance = false;
+        } else if (t2wtSplitShuntAdmittance && t3wtSplitShuntAdmittance) {
+            twtSplitShuntAdmittance = true;
+        } else {
+            throw new PowsyblException(String.format("Unexpected SplitShuntAdmittance configuration %s %s",
+                t2wtSplitShuntAdmittance, t3wtSplitShuntAdmittance));
         }
 
-        copyLoadFlowParameters.setT2wtSplitShuntAdmittance(t2wtSplitShuntAdmittance);
-        // copyLoadFlowParameters.setSplitShuntAdmittanceXfmr3(splitShuntAdmittanceXfmr3);
+        copyLoadFlowParameters.setTwtSplitShuntAdmittance(twtSplitShuntAdmittance);
 
         return copyLoadFlowParameters;
     }

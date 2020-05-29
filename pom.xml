@@ -113,7 +113,7 @@
         <maven.core.version>3.3.9</maven.core.version>
         <maven.plugin.annotations.version>3.6.0</maven.plugin.annotations.version>
         <mfl.version>0.5.6</mfl.version>
-        <mockito.version>1.10.19</mockito.version>
+        <mockito.version>3.3.3</mockito.version>
         <nativelibloader.version>2.3.4</nativelibloader.version>
         <poi.version>3.15</poi.version>
         <rdf4j.version>2.4.4</rdf4j.version>
@@ -342,7 +342,12 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.rdf4j</groupId>
-                <artifactId>rdf4j-runtime</artifactId>
+                <artifactId>rdf4j-repository-sail</artifactId>
+                <version>${rdf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.rdf4j</groupId>
+                <artifactId>rdf4j-sail-memory</artifactId>
                 <version>${rdf4j.version}</version>
             </dependency>
             <dependency>
@@ -421,7 +426,7 @@
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
+                <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>

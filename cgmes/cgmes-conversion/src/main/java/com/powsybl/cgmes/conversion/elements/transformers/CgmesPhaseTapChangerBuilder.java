@@ -43,7 +43,7 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
     private boolean validType() {
         String tableId = p.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
         String type = p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE).toLowerCase();
-        return isTabular(type, tableId) || isSymmetrical(type) || isAsymmetrical(type);
+        return isLinear(type) || isTabular(type, tableId) || isSymmetrical(type) || isAsymmetrical(type);
     }
 
     @Override
@@ -59,7 +59,9 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
     protected void addSteps() {
         String tableId = p.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
         String phaseTapChangerType = p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE).toLowerCase();
-        if (isTabular(phaseTapChangerType, tableId)) {
+        if (isLinear(phaseTapChangerType)) {
+            addStepsLinear();
+        } else if (isTabular(phaseTapChangerType, tableId)) {
             addStepsFromTable(tableId);
         } else if (isAsymmetrical(phaseTapChangerType)) {
             addStepsAsymmetrical();
@@ -69,6 +71,24 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
             // Add a single step with default values by default
             tapChanger.beginStep().endStep();
         }
+    }
+
+    private void addStepsLinear() {
+        int lowStep = p.asInt(CgmesNames.LOW_STEP);
+        int highStep = p.asInt(CgmesNames.HIGH_STEP);
+        int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
+        double stepPhaseShiftIncrement = p.asDouble(CgmesNames.STEP_PHASE_SHIFT_INCREMENT);
+        for (int step = lowStep; step <= highStep; step++) {
+            double angle = 0.0;
+            if (!Double.isNaN(stepPhaseShiftIncrement) && stepPhaseShiftIncrement != 0.0) {
+                angle = (step - neutralStep) * stepPhaseShiftIncrement;
+            }
+            tapChanger.beginStep()
+                .setRatio(1.0)
+                .setAngle(angle)
+                .endStep();
+        }
+        stepXforLinearAndSymmetrical();
     }
 
     private void addStepsFromTable(String tableId) {
@@ -156,30 +176,38 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
                 angle = Math.toDegrees(2 * Math.asin(dy / 2));
             }
             tapChanger.beginStep()
-                    .setRatio(1.0)
-                    .setAngle(angle)
-                    .endStep();
+                .setRatio(1.0)
+                .setAngle(angle)
+                .endStep();
         }
+        stepXforLinearAndSymmetrical();
+    }
+
+    private void stepXforLinearAndSymmetrical() {
         double xMin = p.asDouble(CgmesNames.X_STEP_MIN, p.asDouble(CgmesNames.X_MIN));
         double xMax = p.asDouble(CgmesNames.X_STEP_MAX, p.asDouble(CgmesNames.X_MAX));
         if (Double.isNaN(xMin) || Double.isNaN(xMax) || xMin < 0 || xMax <= 0 || xMin > xMax) {
             return;
         }
         double alphaMax = tapChanger.getSteps().stream().map(TapChanger.Step::getAngle)
-                .mapToDouble(Double::doubleValue).max().orElse(Double.NaN);
+            .mapToDouble(Double::doubleValue).max().orElse(Double.NaN);
         tapChanger.getSteps().forEach(step -> {
             double alpha = step.getAngle();
-            double x = getStepXforSymmetrical(xMin, xMax, alpha, alphaMax);
+            double x = getStepXforLinearAndSymmetrical(xMin, xMax, alpha, alphaMax);
             step.setX(100 * (x - xtx) / xtx);
         });
     }
 
-    private static double getStepXforSymmetrical(double xStepMin, double xStepMax, double alphaDegrees,
+    private static double getStepXforLinearAndSymmetrical(double xStepMin, double xStepMax, double alphaDegrees,
                                                  double alphaMaxDegrees) {
         double alpha = Math.toRadians(alphaDegrees);
         double alphaMax = Math.toRadians(alphaMaxDegrees);
         return xStepMin
                 + (xStepMax - xStepMin) * Math.pow(Math.sin(alpha / 2) / Math.sin(alphaMax / 2), 2);
+    }
+
+    private static boolean isLinear(String tapChangerType) {
+        return tapChangerType != null && tapChangerType.endsWith(CgmesNames.LINEAR);
     }
 
     private static boolean isTabular(String tapChangerType, String tableId) {

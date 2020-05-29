@@ -53,7 +53,7 @@ public class SensitivityComputationParametersDeserializer extends StdDeserialize
 
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonSensitivityComputationParameters.getExtensionSerializers());
+                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonSensitivityComputationParameters.getExtensionSerializers(), parameters);
                     break;
 
                 default:
