@@ -228,7 +228,7 @@ public class SubstationIdMapping {
         }
     }
 
-    private ArrayList<String> adjacents(Map<String, List<String>> adjacency, Set<String> visited, String id) {
+    private static ArrayList<String> adjacents(Map<String, List<String>> adjacency, Set<String> visited, String id) {
         ArrayList<String> adjacent = new ArrayList<>();
         adjacent.add(id);
         visited.add(id);
@@ -250,7 +250,7 @@ public class SubstationIdMapping {
         return adjacent;
     }
 
-    private String representativeVoltageLevelId(Collection<String> voltageLevelIds) {
+    private static String representativeVoltageLevelId(Collection<String> voltageLevelIds) {
         return voltageLevelIds.stream()
                 .sorted()
                 .findFirst()

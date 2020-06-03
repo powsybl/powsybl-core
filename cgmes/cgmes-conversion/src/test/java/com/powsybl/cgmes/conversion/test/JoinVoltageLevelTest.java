@@ -68,7 +68,7 @@ public class JoinVoltageLevelTest {
         assertTrue(ok);
     }
 
-    private Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
+    private static Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
 
         ReadOnlyDataSource ds = testGridModel.dataSource();
         String impl = TripleStoreFactory.defaultImplementation();
@@ -83,7 +83,7 @@ public class JoinVoltageLevelTest {
         return n;
     }
 
-    private boolean compareVoltageLevelSubstation(String expectedSubstationId, String expectedVoltageLevelId,
+    private static boolean compareVoltageLevelSubstation(String expectedSubstationId, String expectedVoltageLevelId,
         String actualSubstationId, String actualVoltageLevelId) {
         boolean ok = true;
         if (!expectedSubstationId.equals(actualSubstationId)) {
@@ -99,7 +99,7 @@ public class JoinVoltageLevelTest {
         return ok;
     }
 
-    private boolean compareVoltageLevelSubstation(String expectedSubstationId, String expectedVoltageLevelId1,
+    private static boolean compareVoltageLevelSubstation(String expectedSubstationId, String expectedVoltageLevelId1,
         String expectedVoltageLevelId2, String actualSubstationId, String actualVoltageLevelId1,
         String actualVoltageLevelId2) {
         boolean ok = true;
