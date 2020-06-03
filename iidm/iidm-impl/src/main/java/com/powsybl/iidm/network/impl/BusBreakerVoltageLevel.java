@@ -196,11 +196,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     case DANGLING_LINE:
                     case TWO_WINDINGS_TRANSFORMER:
                     case THREE_WINDINGS_TRANSFORMER:
-                    case HVDC_CONVERTER_STATION:
                         branchCount++;
                         feederCount++;
                         break;
 
+                    case HVDC_CONVERTER_STATION:
                     case LOAD:
                     case GENERATOR:
                     case BATTERY:
@@ -209,7 +209,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                         feederCount++;
                         break;
 
-                    case BUSBAR_SECTION: // must not happend in a bus/breaker topology
+                    case BUSBAR_SECTION: // must not happen in a bus/breaker topology
                     default:
                         throw new AssertionError();
                 }

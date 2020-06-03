@@ -41,7 +41,7 @@ public class HvdcLineTrippingTest {
         task.modify(network, null);
 
         assertFalse(terminal1.isConnected());
-        assertTrue(terminal2.isConnected());
+        assertFalse(terminal2.isConnected());
 
         terminal1.connect();
         terminal2.connect();
@@ -65,7 +65,7 @@ public class HvdcLineTrippingTest {
         contingency.toTask().modify(network, null);
 
         assertTrue(terminal1.isConnected());
-        assertTrue(terminal2.isConnected());
+        assertFalse(terminal2.isConnected());
     }
 
     @Test(expected = PowsyblException.class)
