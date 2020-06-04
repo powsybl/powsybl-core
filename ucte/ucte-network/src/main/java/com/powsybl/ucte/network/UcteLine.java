@@ -14,6 +14,10 @@ public class UcteLine extends UcteElement {
 
     public UcteLine(UcteElementId id, UcteElementStatus status, float resistance, float reactance, float susceptance, Integer currentLimit, String elementName) {
         super(id, status, resistance, reactance, susceptance, currentLimit, elementName);
+
+        if (id.getNodeCode1().getVoltageLevelCode() != id.getNodeCode2().getVoltageLevelCode()) {
+            throw new IllegalArgumentException("Line " + id.toString() + " with two different nominal voltages");
+        }
     }
 
 }
