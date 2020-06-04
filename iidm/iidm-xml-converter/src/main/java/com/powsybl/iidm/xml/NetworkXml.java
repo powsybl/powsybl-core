@@ -622,13 +622,21 @@ public final class NetworkXml {
     }
 
     public static Network copy(Network network, ExecutorService executor) {
+        return copy(network, new ExportOptions(), executor);
+    }
+
+    public static Network copy(Network network, ExportOptions options) {
+        return copy(network, options, ForkJoinPool.commonPool());
+    }
+
+    public static Network copy(Network network, ExportOptions options, ExecutorService executor) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(executor);
         PipedOutputStream pos = new PipedOutputStream();
         try (InputStream is = new PipedInputStream(pos)) {
             executor.execute(() -> {
                 try {
-                    write(network, pos);
+                    write(network, options, pos);
                 } catch (Exception t) {
                     LOGGER.error(t.toString(), t);
                 } finally {
