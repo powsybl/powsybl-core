@@ -36,9 +36,9 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.959798"
-     inkscape:cx="539.51395"
-     inkscape:cy="82.556061"
+     inkscape:zoom="1.4"
+     inkscape:cx="363.6332"
+     inkscape:cy="258.09753"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -507,11 +507,6 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
        inkscape:connector-curvature="0" />
     <path
        style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:2.28484082;stroke-miterlimit:4;stroke-opacity:1"
-       d="m 616.69431,625.52654 c -1.89053,0.093 -3.49873,-1.3637 -3.59201,-3.2542 -0.0933,-1.8905 1.36366,-3.4987 3.25418,-3.592 1.89053,-0.093 3.49872,1.3637 3.59201,3.2542 0.093,1.8855 -1.35625,3.4913 -3.24144,3.5913"
-       id="path12632-68-4-4-7-3"
-       inkscape:connector-curvature="0" />
-    <path
-       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:2.28484082;stroke-miterlimit:4;stroke-opacity:1"
        d="m 616.74754,672.6779 c -1.89053,0.093 -3.49873,-1.3637 -3.59201,-3.2542 -0.0933,-1.8905 1.36366,-3.4987 3.25418,-3.592 1.89053,-0.093 3.49872,1.3637 3.59201,3.2542 0.093,1.8855 -1.35625,3.4913 -3.24144,3.5913"
        id="path12632-68-1-2-7-9-7-8-0"
        inkscape:connector-curvature="0" />
@@ -521,6 +516,11 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
        id="path12412-2-1-6-7-5-3-7-6-3-5-0-3"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
+    <path
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2.28484082;stroke-miterlimit:4;stroke-opacity:1"
+       d="m 616.69431,625.52654 c -1.89053,0.093 -3.49873,-1.3637 -3.59201,-3.2542 -0.0933,-1.8905 1.36366,-3.4987 3.25418,-3.592 1.89053,-0.093 3.49872,1.3637 3.59201,3.2542 0.093,1.8855 -1.35625,3.4913 -3.24144,3.5913"
+       id="path12632-68-4-4-7-3"
+       inkscape:connector-curvature="0" />
     <flowRoot
        xml:space="preserve"
        id="flowRoot4971-9-9-6"
@@ -620,7 +620,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
        xml:space="preserve"
        id="flowRoot4971-9-9-6-6-4-7"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:13.33333302px;line-height:0.89999998;font-family:'UbuntuMono Nerd Font Mono';-inkscape-font-specification:'UbuntuMono Nerd Font Mono';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none"
-       transform="translate(-334.92686,602.09891)"><flowRegion
+       transform="translate(-272.92686,602.09891)"><flowRegion
          id="flowRegion4973-1-4-7-9-2-4"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:13.33333302px;line-height:0.89999998;font-family:'UbuntuMono Nerd Font Mono';-inkscape-font-specification:'UbuntuMono Nerd Font Mono';text-align:center;text-anchor:middle"><rect
            id="rect4975-38-6-3-3-0-6"

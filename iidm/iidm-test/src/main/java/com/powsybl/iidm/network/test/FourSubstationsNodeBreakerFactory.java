@@ -51,28 +51,11 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setHighVoltageLimit(120.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-
         BusbarSection busbarSectionS1VL1 = s1vl1.getNodeBreakerView().newBusbarSection()
                 .setId("S1VL1_BBS")
                 .setName("S1VL1_BBS")
                 .setNode(0)
                 .add();
-        createSwitch(s1vl1, "S1VL1_DI1", "S1VL1_DI1", SwitchKind.DISCONNECTOR, false, false, true, 0, 1);
-        createSwitch(s1vl1, "S1VL1_DI2", "S1VL1_DI2", SwitchKind.DISCONNECTOR, false, false, true, 0, 3);
-        createSwitch(s1vl1, "S1VL1_DI3", "S1VL1_DI3", SwitchKind.BREAKER, true, false, true, 1, 2);
-        createSwitch(s1vl1, "S1VL1_DI4", "S1VL1_DI4", SwitchKind.BREAKER, true, false, true, 3, 4);
-
-        Load load1 = s1vl1.newLoad()
-                .setId("LD1")
-                .setLoadType(LoadType.UNDEFINED)
-                .setP0(25)
-                .setQ0(10.168945)
-                .setNode(4)
-                .add();
-        load1.getTerminal()
-                .setP(25)
-                .setQ(10.168945);
-
         VoltageLevel s1vl2 = s1.newVoltageLevel()
                 .setId("S1VL2")
                 .setNominalV(400.0)
@@ -91,11 +74,78 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setNode(1)
                 .add();
 
-        // Connect a TWT on the bus bar section 1, using a disconnector and a breaker
-        // TWT could be connected to bbs 2 through a second disconnector, which is open at the moment
-        createSwitch(s1vl2, "S1VL2_BBS1_TWT_DISCONNECTOR", "S1VL2_BBS1_TWT_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 2);
-        createSwitch(s1vl2, "S1VL2_BBS2_TWT_DISCONNECTOR", "S1VL2_BBS2_TWT_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, true, 1, 2);
-        createSwitch(s1vl2, "S1VL2_TWT_BREAKER", "S1VL2_TWT_BREAKER", SwitchKind.BREAKER, true, false, true, 2, 3);
+        // Second substation
+        Substation s2 = network.newSubstation()
+                .setId("S2")
+                .add();
+        VoltageLevel s2vl1 = s2.newVoltageLevel()
+                .setId("S2VL1")
+                .setNominalV(400.0)
+                .setLowVoltageLimit(80.0)
+                .setHighVoltageLimit(120.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        BusbarSection busbarSectionS2VL1 = s2vl1.getNodeBreakerView().newBusbarSection()
+                .setId("S2VL1_BBS")
+                .setName("S2VL1_BBS")
+                .setNode(0)
+                .add();
+
+        // Third substation
+        Substation s3 = network.newSubstation()
+                .setId("S3")
+                .add();
+        VoltageLevel s3vl1 = s3.newVoltageLevel()
+                .setId("S3VL1")
+                .setNominalV(400.0)
+                .setLowVoltageLimit(80.0)
+                .setHighVoltageLimit(120.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        BusbarSection busbarSectionS3VL1 = s3vl1.getNodeBreakerView().newBusbarSection()
+                .setId("S3VL1_BBS")
+                .setName("S3VL1_BBS")
+                .setNode(0)
+                .add();
+
+        // Fourth substation
+        Substation s4 = network.newSubstation()
+                .setId("S4")
+                .add();
+        VoltageLevel s4vl1 = s4.newVoltageLevel()
+                .setId("S4VL1")
+                .setNominalV(400.0)
+                .setLowVoltageLimit(80.0)
+                .setHighVoltageLimit(120.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        BusbarSection busbarSectionS4VL1 = s4vl1.getNodeBreakerView().newBusbarSection()
+                .setId("S4VL1_BBS")
+                .setName("S4VL1_BBS")
+                .setNode(0)
+                .add();
+
+        // Connect a load on the first voltage level of substation 1
+        createSwitch(s1vl1, "S1VL1_BBS_LD1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 1);
+        createSwitch(s1vl1, "S1VL1_LD1_BREAKER", SwitchKind.BREAKER, false, 1, 2);
+        Load load1 = s1vl1.newLoad()
+                .setId("LD1")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(25)
+                .setQ0(10.168945)
+                .setNode(2)
+                .add();
+        load1.getTerminal()
+                .setP(25)
+                .setQ(10.168945);
+
+        // Connect a TWT between the two voltage levels of substation 1, on the bus bar section 1 of the second voltage level
+        // TWT could be connected to bbs 2 of the second VL through a second disconnector, which is open at the moment
+        createSwitch(s1vl1, "S1VL1_BBS_TWT_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 3);
+        createSwitch(s1vl1, "S1VL1_TWT_BREAKER", SwitchKind.BREAKER, false, 3, 4);
+        createSwitch(s1vl2, "S1VL2_BBS1_TWT_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 2);
+        createSwitch(s1vl2, "S1VL2_BBS2_TWT_DISCONNECTOR", SwitchKind.DISCONNECTOR, true, 1, 2);
+        createSwitch(s1vl2, "S1VL2_TWT_BREAKER", SwitchKind.BREAKER, false, 2, 3);
 
         TwoWindingsTransformer twt = s1.newTwoWindingsTransformer()
                 .setId("TWT")
@@ -105,7 +155,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setB(3.2E-5)
                 .setRatedU1(225.0)
                 .setRatedU2(225.0)
-                .setNode1(2)
+                .setNode1(4)
                 .setVoltageLevel1("S1VL1")
                 .setNode2(3)
                 .setVoltageLevel2("S1VL2")
@@ -158,10 +208,10 @@ public final class FourSubstationsNodeBreakerFactory {
                 .beginStep().setR(39.78473).setX(39.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(42.8).endStep()
                 .add();
 
-        // Connect a VSC station to BBS2 with a possibility to connect it to BBS1
-        createSwitch(s1vl2, "S1VL2_BBS1_VSC1_DISCONNECTOR", "S1VL2_BBS1_VSC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, false, 0, 4);
-        createSwitch(s1vl2, "S1VL2_BBS2_VSC1_DISCONNECTOR", "S1VL2_BBS2_VSC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 1, 4);
-        createSwitch(s1vl2, "S1VL2_VSC1_BREAKER", "S1VL2_VSC1_BREAKER", SwitchKind.BREAKER, true, false, false, 4, 5);
+        // Connect a VSC station to BBS2 of the second voltage level of substation 1, with a possibility to connect it to BBS1
+        createSwitch(s1vl2, "S1VL2_BBS1_VSC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, true, 0, 4);
+        createSwitch(s1vl2, "S1VL2_BBS2_VSC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 1, 4);
+        createSwitch(s1vl2, "S1VL2_VSC1_BREAKER", SwitchKind.BREAKER, false, 4, 5);
         VscConverterStation vsc1 = s1vl2.newVscConverterStation()
                 .setId("VSC1")
                 .setName("VSC1")
@@ -187,16 +237,16 @@ public final class FourSubstationsNodeBreakerFactory {
                 .endPoint()
                 .add();
 
-        // Connect three hydro generators on the bbs 1, with a possibility to connect them onto bbs 2
-        createSwitch(s1vl2, "S1VL2_BBS1_GH1_DISCONNECTOR", "S1VL2_BBS1_GH1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 0, 6);
-        createSwitch(s1vl2, "S1VL2_BBS1_GH2_DISCONNECTOR", "S1VL2_BBS1_GH2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 0, 8);
-        createSwitch(s1vl2, "S1VL2_BBS1_GH3_DISCONNECTOR", "S1VL2_BBS1_GH3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 0, 10);
-        createSwitch(s1vl2, "S1VL2_BBS2_GH1_DISCONNECTOR", "S1VL2_BBS2_GH1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, false, 1, 6);
-        createSwitch(s1vl2, "S1VL2_BBS2_GH2_DISCONNECTOR", "S1VL2_BBS2_GH2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, false, 1, 8);
-        createSwitch(s1vl2, "S1VL2_BBS2_GH3_DISCONNECTOR", "S1VL2_BBS2_GH3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, false, 1, 10);
-        createSwitch(s1vl2, "S1VL2_GH1_BREAKER", "S1VL2_GH1_BREAKER", SwitchKind.BREAKER, true, false, false, 6, 7);
-        createSwitch(s1vl2, "S1VL2_GH2_BREAKER", "S1VL2_GH2_BREAKER", SwitchKind.BREAKER, true, false, false, 8, 9);
-        createSwitch(s1vl2, "S1VL2_GH3_BREAKER", "S1VL2_GH3_BREAKER", SwitchKind.BREAKER, true, false, false, 10, 11);
+        // Connect three hydro generators on the bbs 1 of the second voltage level of substation 1, with a possibility to connect them onto bbs 2
+        createSwitch(s1vl2, "S1VL2_BBS1_GH1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 6);
+        createSwitch(s1vl2, "S1VL2_BBS1_GH2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 8);
+        createSwitch(s1vl2, "S1VL2_BBS1_GH3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 10);
+        createSwitch(s1vl2, "S1VL2_BBS2_GH1_DISCONNECTOR", SwitchKind.DISCONNECTOR, true, 1, 6);
+        createSwitch(s1vl2, "S1VL2_BBS2_GH2_DISCONNECTOR", SwitchKind.DISCONNECTOR, true, 1, 8);
+        createSwitch(s1vl2, "S1VL2_BBS2_GH3_DISCONNECTOR", SwitchKind.DISCONNECTOR, true, 1, 10);
+        createSwitch(s1vl2, "S1VL2_GH1_BREAKER", SwitchKind.BREAKER, false, 6, 7);
+        createSwitch(s1vl2, "S1VL2_GH2_BREAKER", SwitchKind.BREAKER, false, 8, 9);
+        createSwitch(s1vl2, "S1VL2_GH3_BREAKER", SwitchKind.BREAKER, false, 10, 11);
 
         Generator generatorHydro1 = s1vl2.newGenerator()
                 .setId("GH1")
@@ -274,15 +324,15 @@ public final class FourSubstationsNodeBreakerFactory {
                 .add();
 
         // Connect three loads on the bbs 2, with a possibility to connect them onto bbs 1
-        createSwitch(s1vl2, "S1VL2_BBS1_LD2_DISCONNECTOR", "S1VL2_BBS1_LD2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, false, 0, 12);
-        createSwitch(s1vl2, "S1VL2_BBS1_LD3_DISCONNECTOR", "S1VL2_BBS1_LD3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, false, 0, 14);
-        createSwitch(s1vl2, "S1VL2_BBS1_LD4_DISCONNECTOR", "S1VL2_BBS1_LD4_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, false, 0, 16);
-        createSwitch(s1vl2, "S1VL2_BBS2_LD2_DISCONNECTOR", "S1VL2_BBS2_LD2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 1, 12);
-        createSwitch(s1vl2, "S1VL2_BBS2_LD3_DISCONNECTOR", "S1VL2_BBS2_LD3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 1, 14);
-        createSwitch(s1vl2, "S1VL2_BBS2_LD4_DISCONNECTOR", "S1VL2_BBS4_LD4_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 1, 16);
-        createSwitch(s1vl2, "S1VL2_LD2_BREAKER", "S1VL2_LD2_BREAKER", SwitchKind.BREAKER, true, false, false, 12, 13);
-        createSwitch(s1vl2, "S1VL2_LD3_BREAKER", "S1VL2_LD3_BREAKER", SwitchKind.BREAKER, true, false, false, 14, 15);
-        createSwitch(s1vl2, "S1VL2_LD4_BREAKER", "S1VL2_LD4_BREAKER", SwitchKind.BREAKER, true, false, false, 16, 17);
+        createSwitch(s1vl2, "S1VL2_BBS1_LD2_DISCONNECTOR", SwitchKind.DISCONNECTOR, true, 0, 12);
+        createSwitch(s1vl2, "S1VL2_BBS1_LD3_DISCONNECTOR", SwitchKind.DISCONNECTOR, true, 0, 14);
+        createSwitch(s1vl2, "S1VL2_BBS1_LD4_DISCONNECTOR", SwitchKind.DISCONNECTOR, true, 0, 16);
+        createSwitch(s1vl2, "S1VL2_BBS2_LD2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 1, 12);
+        createSwitch(s1vl2, "S1VL2_BBS2_LD3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 1, 14);
+        createSwitch(s1vl2, "S1VL2_BBS2_LD4_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 1, 16);
+        createSwitch(s1vl2, "S1VL2_LD2_BREAKER", SwitchKind.BREAKER, false, 12, 13);
+        createSwitch(s1vl2, "S1VL2_LD3_BREAKER", SwitchKind.BREAKER, false, 14, 15);
+        createSwitch(s1vl2, "S1VL2_LD4_BREAKER", SwitchKind.BREAKER, false, 16, 17);
 
         Load load2 = s1vl2.newLoad()
                 .setId("LD2")
@@ -318,9 +368,9 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setQ(4.9081216);
 
         // Connect a shunt on the BBS1, with a possibility to connect it to BBS2
-        createSwitch(s1vl2, "S1VL2_BBS1_SHUNT_DISCONNECTOR", "S1VL2_BBS1_SHUNT_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 0, 18);
-        createSwitch(s1vl2, "S1VL2_BBS2_SHUNT_DISCONNECTOR", "S1VL2_BBS2_SHUNT_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, false, 1, 18);
-        createSwitch(s1vl2, "S1VL2_SHUNT_BREAKER", "S1VL2_SHUNT_BREAKER", SwitchKind.BREAKER, true, false, false, 18, 19);
+        createSwitch(s1vl2, "S1VL2_BBS1_SHUNT_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 18);
+        createSwitch(s1vl2, "S1VL2_BBS2_SHUNT_DISCONNECTOR", SwitchKind.DISCONNECTOR, true, 1, 18);
+        createSwitch(s1vl2, "S1VL2_SHUNT_BREAKER", SwitchKind.BREAKER, false, 18, 19);
 
         s1vl2.newShuntCompensator()
                 .setId("SHUNT")
@@ -330,9 +380,9 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setbPerSection(-0.012)
                 .add();
 
-        createSwitch(s1vl2, "S1VL2_BBS1_LCC1_DISCONNECTOR", "S1VL2_BBS1_LCC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 0, 20);
-        createSwitch(s1vl2, "S1VL2_BBS2_LCC1_DISCONNECTOR", "S1VL2_BBS2_LCC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 1, 20);
-        createSwitch(s1vl2, "S1VL2_LCC1_BREAKER", "S1VL2_LCC1_BREAKER", SwitchKind.BREAKER, true, false, false, 20, 21);
+        createSwitch(s1vl2, "S1VL2_BBS1_LCC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, true, 0, 20);
+        createSwitch(s1vl2, "S1VL2_BBS2_LCC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 1, 20);
+        createSwitch(s1vl2, "S1VL2_LCC1_BREAKER", SwitchKind.BREAKER, false, 20, 21);
 
         LccConverterStation lcc1 = s1vl2.newLccConverterStation()
                 .setId("LCC1")
@@ -346,33 +396,13 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setQ(50.0);
 
         // Add a coupler between the two busbar sections
-        createSwitch(s1vl2, "S1VL2_BBS1_COUPLER_DISCONNECTOR", "S1VL2_BBS1_COUPLER_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 0, 22);
-        createSwitch(s1vl2, "S1VL2_BBS2_COUPLER_DISCONNECTOR", "S1VL2_BBS2_COUPLER_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 1, 23);
-        createSwitch(s1vl2, "S1VL2_COUPLER", "S1VL2_COUPLER", SwitchKind.BREAKER, true, false, false, 22, 23);
+        createSwitch(s1vl2, "S1VL2_BBS1_COUPLER_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 22);
+        createSwitch(s1vl2, "S1VL2_BBS2_COUPLER_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 1, 23);
+        createSwitch(s1vl2, "S1VL2_COUPLER", SwitchKind.BREAKER, false, 22, 23);
 
-        // Second substation
-        Substation s2 = network.newSubstation()
-                .setId("S2")
-                .add();
-        VoltageLevel s2vl1 = s2.newVoltageLevel()
-                .setId("S2VL1")
-                .setNominalV(400.0)
-                .setLowVoltageLimit(80.0)
-                .setHighVoltageLimit(120.0)
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        BusbarSection busbarSectionS2VL1 = s2vl1.getNodeBreakerView().newBusbarSection()
-                .setId("S2VL1_BBS")
-                .setName("S2VL1_BBS")
-                .setNode(0)
-                .add();
-        createSwitch(s2vl1, "S2VL1_BBS_GTH1_DISCONNECTOR", "S2VL1_BBS_GTH1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 1);
-        createSwitch(s2vl1, "S2VL1_BBS_VSC2_DISCONNECTOR", "S2VL1_BBS_VSC2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 3);
-        createSwitch(s2vl1, "S2VL1_BBS_LINES2S3_DISCONNECTOR", "S2VL1_BBS_LINES2S3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 5);
-        createSwitch(s2vl1, "S2VL1_GTH1_BREAKER", "S2VL1_GTH1_BREAKER", SwitchKind.BREAKER, true, false, true, 1, 2);
-        createSwitch(s2vl1, "S2VL1_VSC2_BREAKER", "S2VL1_VSC2_BREAKER", SwitchKind.BREAKER, true, false, true, 3, 4);
-        createSwitch(s2vl1, "S2VL1_LINES2S3_BREAKER", "S2VL1_LINES2S3_BREAKER", SwitchKind.BREAKER, true, false, true, 5, 6);
-
+        // Connect a thermal generator on the second substation
+        createSwitch(s2vl1, "S2VL1_BBS_GTH1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 1);
+        createSwitch(s2vl1, "S2VL1_GTH1_BREAKER", SwitchKind.BREAKER, false, 1, 2);
         Generator generatorThermal1 = s2vl1.newGenerator()
                 .setId("GTH1")
                 .setEnergySource(EnergySource.THERMAL)
@@ -397,6 +427,9 @@ public final class FourSubstationsNodeBreakerFactory {
                 .endPoint()
                 .add();
 
+        // Connect a second VSC station on the second substation
+        createSwitch(s2vl1, "S2VL1_BBS_VSC2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 3);
+        createSwitch(s2vl1, "S2VL1_VSC2_BREAKER", SwitchKind.BREAKER, false, 3, 4);
         VscConverterStation vsc2 = s2vl1.newVscConverterStation()
                 .setId("VSC2")
                 .setName("VSC2")
@@ -424,34 +457,11 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setActivePowerSetpoint(100)
                 .add();
 
-        // Third substation
-        Substation s3 = network.newSubstation()
-                .setId("S3")
-                .add();
-        VoltageLevel s3vl1 = s3.newVoltageLevel()
-                .setId("S3VL1")
-                .setNominalV(400.0)
-                .setLowVoltageLimit(80.0)
-                .setHighVoltageLimit(120.0)
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        BusbarSection busbarSectionS3VL1 = s3vl1.getNodeBreakerView().newBusbarSection()
-                .setId("S3VL1_BBS")
-                .setName("S3VL1_BBS")
-                .setNode(0)
-                .add();
-        createSwitch(s3vl1, "S3VL1_BBS_LINES2S3_DISCONNECTOR", "S3VL1_BBS_LINES2S3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 1);
-        createSwitch(s3vl1, "S3VL1_BBS_LD5_DISCONNECTOR", "S3VL1_BBS_LD5_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 3);
-        createSwitch(s3vl1, "S3VL1_BBS_GTH2_DISCONNECTOR", "S3VL1_BBS_GTH2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 5);
-        createSwitch(s3vl1, "S3VL1_BBS_LINES3S4_DISCONNECTOR", "S3VL1_BBS_LINES3S4_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 7);
-        createSwitch(s3vl1, "S3VL1_BBS_LCC2_DISCONNECTOR", "S3VL1_BBS_LCC2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 9);
-        createSwitch(s3vl1, "S3VL1_LINES2S3_BREAKER", "S3VL1_LINES2S3_BREAKER", SwitchKind.BREAKER, true, false, true, 1, 2);
-        createSwitch(s3vl1, "S3VL1_LD5_BREAKER", "S3VL1_LD5_BREAKER", SwitchKind.BREAKER, true, false, true, 3, 4);
-        createSwitch(s3vl1, "S3VL1_GTH2_BREAKER", "S3VL1_GTH2_BREAKER", SwitchKind.BREAKER, true, false, true, 5, 6);
-        createSwitch(s3vl1, "S3VL1_LINES3S4_BREAKER", "S3VL1_LINES3S4_BREAKER", SwitchKind.BREAKER, true, false, true, 7, 8);
-        createSwitch(s3vl1, "S3VL1_LCC2_BREAKER", "S3VL1_LCC2_BREAKER", SwitchKind.BREAKER, true, false, true, 9, 10);
-
-        // The substations 2 and 3 are connected by a line
+        // The substations 2 and 3 are connected through a line
+        createSwitch(s2vl1, "S2VL1_BBS_LINES2S3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 5);
+        createSwitch(s2vl1, "S2VL1_LINES2S3_BREAKER", SwitchKind.BREAKER, false, 5, 6);
+        createSwitch(s3vl1, "S3VL1_BBS_LINES2S3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 1);
+        createSwitch(s3vl1, "S3VL1_LINES2S3_BREAKER", SwitchKind.BREAKER, false, 1, 2);
         network.newLine()
                 .setId("LINE_S2S3")
                 .setR(0.009999999)
@@ -466,6 +476,9 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setVoltageLevel2("S3VL1")
                 .add();
 
+        // Connect a load onto the third substation
+        createSwitch(s3vl1, "S3VL1_BBS_LD5_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 3);
+        createSwitch(s3vl1, "S3VL1_LD5_BREAKER", SwitchKind.BREAKER, false, 3, 4);
         Load load5 = s3vl1.newLoad()
                 .setId("LD5")
                 .setLoadType(LoadType.UNDEFINED)
@@ -477,6 +490,9 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setP(50.09778)
                 .setQ(3.309844);
 
+        // Connect a thermal generator onto the third substation
+        createSwitch(s3vl1, "S3VL1_BBS_GTH2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 5);
+        createSwitch(s3vl1, "S3VL1_GTH2_BREAKER", SwitchKind.BREAKER, false, 5, 6);
         Generator generatorThermal2 = s3vl1.newGenerator()
                 .setId("GTH2")
                 .setEnergySource(EnergySource.THERMAL)
@@ -501,75 +517,11 @@ public final class FourSubstationsNodeBreakerFactory {
                 .endPoint()
                 .add();
 
-        LccConverterStation lcc2 = s3vl1.newLccConverterStation()
-                .setId("LCC2")
-                .setName("LCC2")
-                .setNode(10)
-                .setLossFactor(1.1f)
-                .setPowerFactor(0.6f)
-                .add();
-        lcc2.getTerminal()
-                .setP(75.0)
-                .setQ(25.0);
-
-        // The substations 1 and 2 are linked by an HVDC line
-        network.newHvdcLine()
-                .setId("HVDC2")
-                .setName("HVDC2")
-                .setConverterStationId1("LCC1")
-                .setConverterStationId2("LCC2")
-                .setR(1)
-                .setNominalV(400)
-                .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
-                .setMaxP(300.0)
-                .setActivePowerSetpoint(100)
-                .add();
-
-        // Fourth substation
-        Substation s4 = network.newSubstation()
-                .setId("S4")
-                .add();
-        VoltageLevel s4vl1 = s4.newVoltageLevel()
-                .setId("S4VL1")
-                .setNominalV(400.0)
-                .setLowVoltageLimit(80.0)
-                .setHighVoltageLimit(120.0)
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        BusbarSection busbarSectionS4VL1 = s4vl1.getNodeBreakerView().newBusbarSection()
-                .setId("S4VL1_BBS")
-                .setName("S4VL1_BBS")
-                .setNode(0)
-                .add();
-
-        createSwitch(s4vl1, "S4VL1_BBS_LD6_DISCONNECTOR", "S4VL1_BBS_LD6_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 1);
-        createSwitch(s4vl1, "S4VL1_BBS_SVC_DISCONNECTOR", "S4VL1_BBS_SVC_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 3);
-        createSwitch(s4vl1, "S4VL1_BBS_LINES3S4_DISCONNECTOR", "S4VL1_BBS_LINE_S3S4_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 5);
-        createSwitch(s4vl1, "S4VL1_LD6_BREAKER", "S4VL1_LD6_BREAKER", SwitchKind.BREAKER, true, false, false, 1, 2);
-        createSwitch(s4vl1, "S4VL1_SVC_BREAKER", "S4VL1_SVC_BREAKER", SwitchKind.BREAKER, true, false, false, 3, 4);
-        createSwitch(s4vl1, "S4VL1_LINES3S4_BREAKER", "S4VL1_LINES3S4_BREAKER", SwitchKind.BREAKER, true, false, false, 5, 6);
-
-        Load load6 = s4vl1.newLoad()
-                .setId("LD6")
-                .setLoadType(LoadType.UNDEFINED)
-                .setP0(112.18689)
-                .setQ0(0.168945)
-                .setNode(2)
-                .add();
-        load6.getTerminal()
-                .setP(112.09778)
-                .setQ(2.309844);
-
-        s4vl1.newStaticVarCompensator()
-                .setId("SVC")
-                .setNode(4)
-                .setBmin(-5e-2)
-                .setBmax(5e-2)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setVoltageSetPoint(226)
-                .add();
-
         // The stations 3 and 4 are linked by a line
+        createSwitch(s3vl1, "S3VL1_BBS_LINES3S4_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 7);
+        createSwitch(s3vl1, "S3VL1_LINES3S4_BREAKER", SwitchKind.BREAKER, false, 7, 8);
+        createSwitch(s4vl1, "S4VL1_BBS_LINES3S4_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 5);
+        createSwitch(s4vl1, "S4VL1_LINES3S4_BREAKER", SwitchKind.BREAKER, false, 5, 6);
         Line lineS3S4 = network.newLine()
                 .setId("LINE_S3S4")
                 .setR(0.009999999)
@@ -601,6 +553,59 @@ public final class FourSubstationsNodeBreakerFactory {
                 .endTemporaryLimit()
                 .add();
 
+        // Connect an LCC station to the third substation
+        createSwitch(s3vl1, "S3VL1_BBS_LCC2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 9);
+        createSwitch(s3vl1, "S3VL1_LCC2_BREAKER", SwitchKind.BREAKER, false, 9, 10);
+        LccConverterStation lcc2 = s3vl1.newLccConverterStation()
+                .setId("LCC2")
+                .setName("LCC2")
+                .setNode(10)
+                .setLossFactor(1.1f)
+                .setPowerFactor(0.6f)
+                .add();
+        lcc2.getTerminal()
+                .setP(75.0)
+                .setQ(25.0);
+
+        // The substations 1 and 3 are linked by an HVDC line
+        network.newHvdcLine()
+                .setId("HVDC2")
+                .setName("HVDC2")
+                .setConverterStationId1("LCC1")
+                .setConverterStationId2("LCC2")
+                .setR(1)
+                .setNominalV(400)
+                .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
+                .setMaxP(300.0)
+                .setActivePowerSetpoint(100)
+                .add();
+
+        // Connect a load to the fourth substation
+        createSwitch(s4vl1, "S4VL1_BBS_LD6_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 1);
+        createSwitch(s4vl1, "S4VL1_LD6_BREAKER", SwitchKind.BREAKER, false, 1, 2);
+        Load load6 = s4vl1.newLoad()
+                .setId("LD6")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(112.18689)
+                .setQ0(0.168945)
+                .setNode(2)
+                .add();
+        load6.getTerminal()
+                .setP(112.09778)
+                .setQ(2.309844);
+
+        // Connect a static var compensator to the fourth substation
+        createSwitch(s4vl1, "S4VL1_BBS_SVC_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 3);
+        createSwitch(s4vl1, "S4VL1_SVC_BREAKER", SwitchKind.BREAKER, false, 3, 4);
+        s4vl1.newStaticVarCompensator()
+                .setId("SVC")
+                .setNode(4)
+                .setBmin(-5e-2)
+                .setBmax(5e-2)
+                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setVoltageSetPoint(226)
+                .add();
+
         busbarSectionS1VL1.getTerminal().getBusView().getBus()
                 .setV(234.40912)
                 .setAngle(0.0);
@@ -624,14 +629,14 @@ public final class FourSubstationsNodeBreakerFactory {
 
     }
 
-    private static void createSwitch(VoltageLevel vl, String id, String name, SwitchKind kind, boolean retained, boolean open, boolean fictitious, int node1, int node2) {
+    private static void createSwitch(VoltageLevel vl, String id, SwitchKind kind, boolean open, int node1, int node2) {
         vl.getNodeBreakerView().newSwitch()
                 .setId(id)
-                .setName(name)
+                .setName(id)
                 .setKind(kind)
-                .setRetained(retained)
+                .setRetained(kind.equals(SwitchKind.BREAKER))
                 .setOpen(open)
-                .setFictitious(fictitious)
+                .setFictitious(false)
                 .setNode1(node1)
                 .setNode2(node2)
                 .add();
