@@ -14,4 +14,6 @@ import java.util.List;
 public interface ExportersLoader {
 
     List<Exporter> loadExporters();
+
+    List<ExportPostProcessor> loadPostProcessors();
 }

@@ -8,9 +8,13 @@ package com.powsybl.iidm.export;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.AbstractConvertersTest;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 
@@ -30,7 +35,11 @@ public class ExportersTest extends AbstractConvertersTest {
     private static final String WORK_FOO_TST = "/work/" + FOO_TST;
 
     private final Exporter testExporter = new TestExporter();
-    private final ExportersLoader loader = new ExportersLoaderList(testExporter);
+    private final ExportPostProcessor testExportPostProcessor = new TestExportPostProcessor();
+    private final ExportersLoader loader = new ExportersLoaderList(Collections.singletonList(testExporter),
+            Collections.singletonList(testExportPostProcessor));
+
+    private final ComputationManager computationManager = Mockito.mock(ComputationManager.class);
 
     @Test
     public void getFormats() {
@@ -50,6 +59,39 @@ public class ExportersTest extends AbstractConvertersTest {
     public void getNullExporter() {
         Exporter exporter = Exporters.getExporter(loader, UNSUPPORTED_FORMAT);
         assertNull(exporter);
+    }
+
+    @Test
+    public void getPostProcessorNames() {
+        Collection<String> names = Exporters.getPostProcessorNames(loader);
+        assertNotNull(names);
+        assertEquals(1, names.size());
+        assertTrue(names.contains("test"));
+    }
+
+    @Test
+    public void addAndRemovePostProcessor() throws IOException {
+        Files.createFile(fileSystem.getPath(WORK_FOO_TST));
+        DataSource dataSource = Exporters.createDataSource(path);
+        Exporter exporter1 = Exporters.addPostProcessors(loader, testExporter, computationManager, "test");
+        Network network1 = NetworkTest1Factory.create();
+        exporter1.export(network1, null, dataSource);
+        assertTrue(network1.isFictitious());
+
+        Network network2 = NetworkTest1Factory.create();
+        Exporter exporter2 = Exporters.removePostProcessors(exporter1);
+        exporter2.export(network2, null, dataSource);
+        assertFalse(network2.isFictitious());
+    }
+
+    @Test
+    public void setPostProcessor() throws IOException {
+        Files.createFile(fileSystem.getPath(WORK_FOO_TST));
+        DataSource dataSource = Exporters.createDataSource(path);
+        Exporter exporter = Exporters.setPostProcessors(loader, testExporter, computationManager, "test");
+        Network network = NetworkTest1Factory.create();
+        exporter.export(network, null, dataSource);
+        assertTrue(network.isFictitious());
     }
 
     @Test

@@ -57,7 +57,7 @@ public class GroovyScriptExportPostProcessor implements ExportPostProcessor {
 
         Path defaultScript = platformConfig.getConfigDir().resolve(DEFAULT_SCRIPT_NAME);
 
-        return platformConfig.getOptionalModuleConfig("ucte-export-post-processor")
+        return platformConfig.getOptionalModuleConfig("groovy-export-post-processor")
             .map(config -> config.getPathProperty("script", defaultScript))
             .orElse(defaultScript);
     }
@@ -68,7 +68,7 @@ public class GroovyScriptExportPostProcessor implements ExportPostProcessor {
     }
 
     @Override
-    public void process(Network network, String format, Object nativeModel, ComputationManager computationManager) {
+    public void process(Network network, String format, Object nativeDataModel, ComputationManager computationManager) {
         if (Files.exists(script)) {
             LOGGER.debug("Execute export post processor {}", script);
             try (Reader reader = Files.newBufferedReader(script, StandardCharsets.UTF_8)) {
@@ -77,7 +77,7 @@ public class GroovyScriptExportPostProcessor implements ExportPostProcessor {
                 Binding binding = new Binding();
                 binding.setVariable("network", network);
                 binding.setVariable("format", format);
-                binding.setVariable("nativeModel", nativeModel);
+                binding.setVariable("nativeDataModel", nativeDataModel);
                 binding.setVariable("computationManager", computationManager);
 
                 GroovyShell shell = new GroovyShell(binding, conf);

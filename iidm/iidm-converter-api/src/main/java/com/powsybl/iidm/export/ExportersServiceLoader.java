@@ -17,8 +17,15 @@ public class ExportersServiceLoader implements ExportersLoader {
 
     private static final ServiceLoaderCache<Exporter> EXPORTER_LOADER = new ServiceLoaderCache<>(Exporter.class);
 
+    private static final ServiceLoaderCache<ExportPostProcessor> POST_PROCESSOR_LOADER = new ServiceLoaderCache<>(ExportPostProcessor.class);
+
     @Override
     public List<Exporter> loadExporters() {
         return EXPORTER_LOADER.getServices();
+    }
+
+    @Override
+    public List<ExportPostProcessor> loadPostProcessors() {
+        return POST_PROCESSOR_LOADER.getServices();
     }
 }

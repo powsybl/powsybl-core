@@ -9,20 +9,13 @@ package com.powsybl.ucte.converter;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.io.FilenameUtils;
-import org.junit.ComparisonFailure;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -46,14 +39,10 @@ public class UcteExporterTest extends AbstractConverterTest {
     }
 
     private static void testExporter(Network network, String reference) throws IOException {
-        testExporter(network, reference, new Properties());
-    }
-
-    private static void testExporter(Network network, String reference, Properties parameters) throws IOException {
         MemDataSource dataSource = new MemDataSource();
 
         UcteExporter exporter = new UcteExporter();
-        exporter.export(network, parameters, dataSource);
+        exporter.export(network, new Properties(), dataSource);
 
         try (InputStream actual = dataSource.newInputStream(null, "uct");
              InputStream expected = UcteExporterTest.class.getResourceAsStream(reference)) {
@@ -91,24 +80,6 @@ public class UcteExporterTest extends AbstractConverterTest {
     public void testExport() throws IOException {
         Network network = loadNetworkFromResourceFile("/expectedExport.uct");
         testExporter(network, "/expectedExport.uct");
-    }
-
-    @Test
-    public void testExportPostProcessing() throws IOException {
-        PlatformConfig platformConfig = PlatformConfig.defaultConfig();
-
-        Path script = platformConfig.getConfigDir().resolve("/ucte-export-post-processor-test-fail.groovy");
-        Files.copy(UcteExporterTest.class.getResourceAsStream("/ucte-export-post-processor-test-fail.groovy"), script);
-
-        Properties parameters = new Properties();
-        parameters.setProperty(UcteExporter.POST_PROCESSOR, "/ucte-export-post-processor-test-fail.groovy");
-
-        Network network = loadNetworkFromResourceFile("/expectedExport.uct");
-        try {
-            testExporter(network, "/expectedExport.uct", parameters);
-            fail();
-        } catch (ComparisonFailure ignored) {
-        }
     }
 
     @Test

@@ -5,7 +5,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-if (network == null || nativeModel == null) {
+if (network == null || format == null || nativeDataModel == null || computationManager == null) {
     throw new NullPointerException()
 }
-

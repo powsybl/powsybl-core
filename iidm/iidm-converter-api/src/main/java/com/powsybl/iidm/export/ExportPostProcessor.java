@@ -17,6 +17,6 @@ public interface ExportPostProcessor {
 
     String getName();
 
-    void process(Network network, String format, Object nativeModel, ComputationManager computationManager);
+    void process(Network network, String format, Object nativeDataModel, ComputationManager computationManager);
 
 }

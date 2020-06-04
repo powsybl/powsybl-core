@@ -8,6 +8,10 @@ package com.powsybl.iidm.export;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.parameters.Parameter;
+
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -30,6 +34,14 @@ public interface Exporter {
     String getFormat();
 
     /**
+     * Get a description of import parameters
+     * @return
+     */
+    default List<Parameter> getParameters() {
+        return Collections.emptyList();
+    }
+
+    /**
      * Get some information about this exporter.
      */
     String getComment();
@@ -43,4 +55,25 @@ public interface Exporter {
      */
     void export(Network network, Properties parameters, DataSource dataSource);
 
+    /**
+     * Conversion from iidm format.
+     *
+     * @param network the iidm model
+     * @param parameters some properties to configure the export
+     * @return the native data model
+     */
+    default Object conversion(Network network, Properties parameters) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    /**
+     * Export the native model.
+     *
+     * @param nativeDataModel the native data model to export
+     * @param parameters some properties to configure the export
+     * @param dataSource data source
+     */
+    default void export(Object nativeDataModel, Properties parameters, DataSource dataSource) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }

@@ -7,6 +7,7 @@
 package com.powsybl.iidm.export;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,16 +18,28 @@ public class ExportersLoaderList implements ExportersLoader {
 
     private final List<Exporter> exporters;
 
+    private final List<ExportPostProcessor> exportPostProcessors;
+
     public ExportersLoaderList(Exporter... exporters) {
         this(Arrays.asList(exporters));
     }
 
     public ExportersLoaderList(List<Exporter> exporters) {
+        this(exporters, Collections.emptyList());
+    }
+
+    public ExportersLoaderList(List<Exporter> exporters, List<ExportPostProcessor> exportPostProcessors) {
         this.exporters = Objects.requireNonNull(exporters);
+        this.exportPostProcessors = Objects.requireNonNull(exportPostProcessors);
     }
 
     @Override
     public List<Exporter> loadExporters() {
         return exporters;
+    }
+
+    @Override
+    public List<ExportPostProcessor> loadPostProcessors() {
+        return exportPostProcessors;
     }
 }

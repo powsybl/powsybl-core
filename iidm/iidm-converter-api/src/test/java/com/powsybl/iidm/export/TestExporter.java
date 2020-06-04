@@ -33,6 +33,16 @@ public class TestExporter implements Exporter {
 
     @Override
     public void export(Network network, Properties parameters, DataSource dataSource) {
+        export(1, parameters, dataSource);
+    }
+
+    @Override
+    public Object conversion(Network network, Properties parameters) {
+        return null;
+    }
+
+    @Override
+    public void export(Object nativeDataModel, Properties parameters, DataSource dataSource) {
         try (OutputStream outputStream = dataSource.newOutputStream(null, "tst", false)) {
             outputStream.write(Byte.BYTES);
         } catch (IOException e) {
