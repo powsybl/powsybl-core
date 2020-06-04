@@ -38,26 +38,29 @@ public final class FourSubstationsNodeBreakerFactory {
         network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setForecastDistance(0);
 
+        // First substation
+        // It is constituted of 2 voltage levels
+        // The second voltage levels comprises two busbar sections
         Substation s1 = network.newSubstation()
                 .setId("S1")
-                .setCountry(Country.FR)
                 .add();
         VoltageLevel s1vl1 = s1.newVoltageLevel()
                 .setId("S1VL1")
                 .setNominalV(225.0)
-                .setLowVoltageLimit(0.0)
+                .setLowVoltageLimit(80.0)
+                .setHighVoltageLimit(120.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
 
-        BusbarSection busbarSectionFR1 = s1vl1.getNodeBreakerView().newBusbarSection()
+        BusbarSection busbarSectionS1VL1 = s1vl1.getNodeBreakerView().newBusbarSection()
                 .setId("S1VL1_BBS")
                 .setName("S1VL1_BBS")
                 .setNode(0)
                 .add();
         createSwitch(s1vl1, "S1VL1_DI1", "S1VL1_DI1", SwitchKind.DISCONNECTOR, false, false, true, 0, 1);
         createSwitch(s1vl1, "S1VL1_DI2", "S1VL1_DI2", SwitchKind.DISCONNECTOR, false, false, true, 0, 3);
-        createSwitch(s1vl1, "S1VL1_DI3", "S1VL1_DI3", SwitchKind.BREAKER, false, false, true, 1, 2);
-        createSwitch(s1vl1, "S1VL1_DI4", "S1VL1_DI4", SwitchKind.BREAKER, false, false, true, 3, 4);
+        createSwitch(s1vl1, "S1VL1_DI3", "S1VL1_DI3", SwitchKind.BREAKER, true, false, true, 1, 2);
+        createSwitch(s1vl1, "S1VL1_DI4", "S1VL1_DI4", SwitchKind.BREAKER, true, false, true, 3, 4);
 
         Load load1 = s1vl1.newLoad()
                 .setId("LD1")
@@ -72,9 +75,9 @@ public final class FourSubstationsNodeBreakerFactory {
 
         VoltageLevel s1vl2 = s1.newVoltageLevel()
                 .setId("S1VL2")
-                .setNominalV(225.0)
-                .setLowVoltageLimit(220.0)
-                .setHighVoltageLimit(245.00002)
+                .setNominalV(400.0)
+                .setLowVoltageLimit(80.0)
+                .setHighVoltageLimit(120.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         BusbarSection busbarSectionS1VL21 = s1vl2.getNodeBreakerView().newBusbarSection()
@@ -87,167 +90,12 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setName("S1VL2_BBS2")
                 .setNode(1)
                 .add();
-        createSwitch(s1vl2, "S1VL2_A", "S1VL2_A", SwitchKind.DISCONNECTOR, false, false, false, 0, 19);
-        createSwitch(s1vl2, "S1VL2_B", "S1VL2_B", SwitchKind.DISCONNECTOR, false, false, false, 0, 17);
-        createSwitch(s1vl2, "S1VL2_C", "S1VL2_C", SwitchKind.DISCONNECTOR, false, false, false, 0, 21);
-        createSwitch(s1vl2, "S1VL2_D", "S1VL2_D", SwitchKind.DISCONNECTOR, false, false, false, 0, 11);
-        createSwitch(s1vl2, "S1VL2_E", "S1VL2_E", SwitchKind.DISCONNECTOR, false, false, false, 0, 13);
-        createSwitch(s1vl2, "S1VL2_F", "S1VL2_F", SwitchKind.DISCONNECTOR, false, false, false, 0, 15);
-        createSwitch(s1vl2, "S1VL2_G", "S1VL2_G", SwitchKind.DISCONNECTOR, false, false, false, 0, 8);
-        createSwitch(s1vl2, "S1VL2_H", "S1VL2_H", SwitchKind.DISCONNECTOR, false, false, true, 0, 2);
-        createSwitch(s1vl2, "S1VL2_I", "S1VL2_I", SwitchKind.DISCONNECTOR, false, false, false, 7, 0);
-        createSwitch(s1vl2, "S1VL2_J", "S1VL2_J", SwitchKind.DISCONNECTOR, false, false, false, 1, 6);
-        createSwitch(s1vl2, "S1VL2_K", "S1VL2_K", SwitchKind.DISCONNECTOR, false, false, false, 1, 19);
-        createSwitch(s1vl2, "S1VL2_L", "S1VL2_L", SwitchKind.DISCONNECTOR, false, false, false, 1, 17);
-        createSwitch(s1vl2, "S1VL2_M", "S1VL2_M", SwitchKind.DISCONNECTOR, false, false, false, 1, 21);
-        createSwitch(s1vl2, "S1VL2_N", "S1VL2_N", SwitchKind.DISCONNECTOR, false, false, false, 1, 23);
-        createSwitch(s1vl2, "S1VL2_O", "S1VL2_O", SwitchKind.DISCONNECTOR, false, false, false, 1, 25);
-        createSwitch(s1vl2, "S1VL2_P", "S1VL2_P", SwitchKind.DISCONNECTOR, false, false, false, 1, 11);
-        createSwitch(s1vl2, "S1VL2_Q", "S1VL2_Q", SwitchKind.DISCONNECTOR, false, false, false, 1, 13);
-        createSwitch(s1vl2, "S1VL2_R", "S1VL2_R", SwitchKind.DISCONNECTOR, false, false, false, 1, 15);
-        createSwitch(s1vl2, "S1VL2_S", "S1VL2_S", SwitchKind.DISCONNECTOR, false, false, false, 1, 8);
-        createSwitch(s1vl2, "S1VL2_T", "S1VL2_T", SwitchKind.DISCONNECTOR, false, false, true, 1, 2);
-        createSwitch(s1vl2, "S1VL2_U", "S1VL2_U", SwitchKind.BREAKER, true, true, true, 2, 3);
-        createSwitch(s1vl2, "S1VL2_V", "S1VL2_V", SwitchKind.BREAKER, true, false, false, 3, 4);
-        createSwitch(s1vl2, "S1VL2_W", "S1VL2_W", SwitchKind.DISCONNECTOR, false, false, false, 3, 5);
-        createSwitch(s1vl2, "S1VL2_X", "S1VL2_X", SwitchKind.DISCONNECTOR, false, false, false, 9, 3);
-        createSwitch(s1vl2, "S1VL2_Y", "S1VL2_Y", SwitchKind.BREAKER, true, false, false, 6, 7);
-        createSwitch(s1vl2, "S1VL2_Z", "S1VL2_Z", SwitchKind.BREAKER, true, false, false, 8, 9);
-        createSwitch(s1vl2, "S1VL2_AA", "S1VL2_AA", SwitchKind.DISCONNECTOR, false, false, false, 9, 10);
-        createSwitch(s1vl2, "S1VL2_AB", "S1VL2_AB", SwitchKind.BREAKER, true, false, false, 11, 12);
-        createSwitch(s1vl2, "S1VL2_AC", "S1VL2_AC", SwitchKind.BREAKER, true, false, false, 13, 14);
-        createSwitch(s1vl2, "S1VL2_AD", "S1VL2_AD", SwitchKind.BREAKER, true, false, false, 15, 16);
-        createSwitch(s1vl2, "S1VL2_AE", "S1VL2_AE", SwitchKind.BREAKER, true, false, false, 17, 18);
-        createSwitch(s1vl2, "S1VL2_AF", "S1VL2_AF", SwitchKind.BREAKER, true, false, false, 0, 20);
-        createSwitch(s1vl2, "S1VL2_AG", "S1VL2_AG", SwitchKind.BREAKER, true, false, false, 0, 22);
-        createSwitch(s1vl2, "S1VL2_AH", "S1VL2_AH", SwitchKind.BREAKER, false, false, false, 0, 24);
 
-        Generator generatorHydro1 = s1vl2.newGenerator()
-                .setId("GH1")
-                .setEnergySource(EnergySource.HYDRO)
-                .setMinP(0.0)
-                .setMaxP(100.0)
-                .setVoltageRegulatorOn(false)
-                .setTargetP(80.0)
-                .setTargetV(0.0)
-                .setTargetQ(50)
-                .setNode(12)
-                .add();
-        generatorHydro1.newReactiveCapabilityCurve()
-                .beginPoint()
-                .setP(0.0)
-                .setMinQ(-59.3)
-                .setMaxQ(160.0)
-                .endPoint()
-                .beginPoint()
-                .setP(100.0)
-                .setMinQ(-54.55)
-                .setMaxQ(146.25)
-                .endPoint()
-                .add();
-
-        Generator generatorHydro2 = s1vl2.newGenerator()
-                .setId("GH2")
-                .setEnergySource(EnergySource.HYDRO)
-                .setMinP(0.0)
-                .setMaxP(80.0)
-                .setVoltageRegulatorOn(false)
-                .setTargetP(40.0)
-                .setTargetV(0.0)
-                .setTargetQ(0.0)
-                .setNode(14)
-                .add();
-        generatorHydro2.newReactiveCapabilityCurve()
-                .beginPoint()
-                .setP(0.0)
-                .setMinQ(-56.8)
-                .setMaxQ(257.4)
-                .endPoint()
-                .beginPoint()
-                .setP(80.0)
-                .setMinQ(-53.514)
-                .setMaxQ(236.4)
-                .endPoint()
-                .add();
-
-        Generator generatorHydro3 = s1vl2.newGenerator()
-                .setId("GH3")
-                .setEnergySource(EnergySource.HYDRO)
-                .setMinP(0.0)
-                .setMaxP(35.0)
-                .setVoltageRegulatorOn(true)
-                .setTargetP(51.789589)
-                .setTargetV(227)
-                .setTargetQ(0.701546)
-                .setNode(16)
-                .add();
-        generatorHydro3.getTerminal()
-                .setP(-21.789589)
-                .setQ(20.693394);
-        generatorHydro3.newReactiveCapabilityCurve()
-                .beginPoint()
-                .setP(0.0)
-                .setMinQ(-20.6)
-                .setMaxQ(318.1)
-                .endPoint()
-                .beginPoint()
-                .setP(35.0)
-                .setMinQ(-21.725)
-                .setMaxQ(316.3500004)
-                .endPoint()
-                .add();
-
-        Load load2 = s1vl2.newLoad()
-                .setId("LD2")
-                .setLoadType(LoadType.UNDEFINED)
-                .setP0(42.18689)
-                .setQ0(0.168945)
-                .setNode(4)
-                .add();
-        load2.getTerminal()
-                .setP(42.18689)
-                .setQ(0.168945);
-
-        s1vl2.newShuntCompensator()
-                .setId("SHUNT")
-                .setNode(24)
-                .setMaximumSectionCount(1)
-                .setCurrentSectionCount(1)
-                .setbPerSection(-0.012)
-                .add();
-
-        Load load3 = s1vl2.newLoad()
-                .setId("LD3")
-                .setLoadType(LoadType.UNDEFINED)
-                .setP0(48.455854)
-                .setQ0(3.695925)
-                .setNode(18)
-                .add();
-        load3.getTerminal()
-                .setP(48.455854)
-                .setQ(3.695925);
-
-        Load load4 = s1vl2.newLoad()
-                .setId("LD4")
-                .setLoadType(LoadType.UNDEFINED)
-                .setP0(40.39911)
-                .setQ0(1.96869)
-                .setNode(20)
-                .add();
-        load4.getTerminal()
-                .setP(40.39911)
-                .setQ(1.96869);
-
-        Load load5 = s1vl2.newLoad()
-                .setId("LD5")
-                .setLoadType(LoadType.UNDEFINED)
-                .setP0(-5.102249)
-                .setQ0(4.9081216)
-                .setNode(22)
-                .add();
-        load5.getTerminal()
-                .setP(-5.102249)
-                .setQ(4.9081216);
+        // Connect a TWT on the bus bar section 1, using a disconnector and a breaker
+        // TWT could be connected to bbs 2 through a second disconnector, which is open at the moment
+        createSwitch(s1vl2, "S1VL2_BBS1_TWT_DISCONNECTOR", "S1VL2_BBS1_TWT_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 2);
+        createSwitch(s1vl2, "S1VL2_BBS2_TWT_DISCONNECTOR", "S1VL2_BBS2_TWT_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, true, 1, 2);
+        createSwitch(s1vl2, "S1VL2_TWT_BREAKER", "S1VL2_TWT_BREAKER", SwitchKind.BREAKER, true, false, true, 2, 3);
 
         TwoWindingsTransformer twt = s1.newTwoWindingsTransformer()
                 .setId("TWT")
@@ -259,7 +107,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setRatedU2(225.0)
                 .setNode1(2)
                 .setVoltageLevel1("S1VL1")
-                .setNode2(10)
+                .setNode2(3)
                 .setVoltageLevel2("S1VL2")
                 .add();
         twt.newCurrentLimits1()
@@ -310,6 +158,10 @@ public final class FourSubstationsNodeBreakerFactory {
                 .beginStep().setR(39.78473).setX(39.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(42.8).endStep()
                 .add();
 
+        // Connect a VSC station to BBS2 with a possibility to connect it to BBS1
+        createSwitch(s1vl2, "S1VL2_BBS1_VSC1_DISCONNECTOR", "S1VL2_BBS1_VSC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, false, 0, 4);
+        createSwitch(s1vl2, "S1VL2_BBS2_VSC1_DISCONNECTOR", "S1VL2_BBS2_VSC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 1, 4);
+        createSwitch(s1vl2, "S1VL2_VSC1_BREAKER", "S1VL2_VSC1_BREAKER", SwitchKind.BREAKER, true, false, false, 4, 5);
         VscConverterStation vsc1 = s1vl2.newVscConverterStation()
                 .setId("VSC1")
                 .setName("VSC1")
@@ -335,10 +187,157 @@ public final class FourSubstationsNodeBreakerFactory {
                 .endPoint()
                 .add();
 
+        // Connect three hydro generators on the bbs 1, with a possibility to connect them onto bbs 2
+        createSwitch(s1vl2, "S1VL2_BBS1_GH1_DISCONNECTOR", "S1VL2_BBS1_GH1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 0, 6);
+        createSwitch(s1vl2, "S1VL2_BBS1_GH2_DISCONNECTOR", "S1VL2_BBS1_GH2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 0, 8);
+        createSwitch(s1vl2, "S1VL2_BBS1_GH3_DISCONNECTOR", "S1VL2_BBS1_GH3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 0, 10);
+        createSwitch(s1vl2, "S1VL2_BBS2_GH1_DISCONNECTOR", "S1VL2_BBS2_GH1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, false, 1, 6);
+        createSwitch(s1vl2, "S1VL2_BBS2_GH2_DISCONNECTOR", "S1VL2_BBS2_GH2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, false, 1, 8);
+        createSwitch(s1vl2, "S1VL2_BBS2_GH3_DISCONNECTOR", "S1VL2_BBS2_GH3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, false, 1, 10);
+        createSwitch(s1vl2, "S1VL2_GH1_BREAKER", "S1VL2_GH1_BREAKER", SwitchKind.BREAKER, true, false, false, 6, 7);
+        createSwitch(s1vl2, "S1VL2_GH2_BREAKER", "S1VL2_GH2_BREAKER", SwitchKind.BREAKER, true, false, false, 8, 9);
+        createSwitch(s1vl2, "S1VL2_GH3_BREAKER", "S1VL2_GH3_BREAKER", SwitchKind.BREAKER, true, false, false, 10, 11);
+
+        Generator generatorHydro1 = s1vl2.newGenerator()
+                .setId("GH1")
+                .setEnergySource(EnergySource.HYDRO)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setVoltageRegulatorOn(false)
+                .setTargetP(80.0)
+                .setTargetV(0.0)
+                .setTargetQ(50)
+                .setNode(7)
+                .add();
+        generatorHydro1.newReactiveCapabilityCurve()
+                .beginPoint()
+                .setP(0.0)
+                .setMinQ(-59.3)
+                .setMaxQ(160.0)
+                .endPoint()
+                .beginPoint()
+                .setP(100.0)
+                .setMinQ(-54.55)
+                .setMaxQ(146.25)
+                .endPoint()
+                .add();
+
+        Generator generatorHydro2 = s1vl2.newGenerator()
+                .setId("GH2")
+                .setEnergySource(EnergySource.HYDRO)
+                .setMinP(0.0)
+                .setMaxP(80.0)
+                .setVoltageRegulatorOn(false)
+                .setTargetP(40.0)
+                .setTargetV(0.0)
+                .setTargetQ(0.0)
+                .setNode(9)
+                .add();
+        generatorHydro2.newReactiveCapabilityCurve()
+                .beginPoint()
+                .setP(0.0)
+                .setMinQ(-56.8)
+                .setMaxQ(257.4)
+                .endPoint()
+                .beginPoint()
+                .setP(80.0)
+                .setMinQ(-53.514)
+                .setMaxQ(236.4)
+                .endPoint()
+                .add();
+
+        Generator generatorHydro3 = s1vl2.newGenerator()
+                .setId("GH3")
+                .setEnergySource(EnergySource.HYDRO)
+                .setMinP(0.0)
+                .setMaxP(35.0)
+                .setVoltageRegulatorOn(true)
+                .setTargetP(51.789589)
+                .setTargetV(227)
+                .setTargetQ(0.701546)
+                .setNode(11)
+                .add();
+        generatorHydro3.getTerminal()
+                .setP(-21.789589)
+                .setQ(20.693394);
+        generatorHydro3.newReactiveCapabilityCurve()
+                .beginPoint()
+                .setP(0.0)
+                .setMinQ(-20.6)
+                .setMaxQ(318.1)
+                .endPoint()
+                .beginPoint()
+                .setP(35.0)
+                .setMinQ(-21.725)
+                .setMaxQ(316.3500004)
+                .endPoint()
+                .add();
+
+        // Connect three loads on the bbs 2, with a possibility to connect them onto bbs 1
+        createSwitch(s1vl2, "S1VL2_BBS1_LD2_DISCONNECTOR", "S1VL2_BBS1_LD2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, false, 0, 12);
+        createSwitch(s1vl2, "S1VL2_BBS1_LD3_DISCONNECTOR", "S1VL2_BBS1_LD3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, false, 0, 14);
+        createSwitch(s1vl2, "S1VL2_BBS1_LD4_DISCONNECTOR", "S1VL2_BBS1_LD4_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, false, 0, 16);
+        createSwitch(s1vl2, "S1VL2_BBS2_LD2_DISCONNECTOR", "S1VL2_BBS2_LD2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 1, 12);
+        createSwitch(s1vl2, "S1VL2_BBS2_LD3_DISCONNECTOR", "S1VL2_BBS2_LD3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 1, 14);
+        createSwitch(s1vl2, "S1VL2_BBS2_LD4_DISCONNECTOR", "S1VL2_BBS4_LD4_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 1, 16);
+        createSwitch(s1vl2, "S1VL2_LD2_BREAKER", "S1VL2_LD2_BREAKER", SwitchKind.BREAKER, true, false, false, 12, 13);
+        createSwitch(s1vl2, "S1VL2_LD3_BREAKER", "S1VL2_LD3_BREAKER", SwitchKind.BREAKER, true, false, false, 14, 15);
+        createSwitch(s1vl2, "S1VL2_LD4_BREAKER", "S1VL2_LD4_BREAKER", SwitchKind.BREAKER, true, false, false, 16, 17);
+
+        Load load2 = s1vl2.newLoad()
+                .setId("LD2")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(48.455854)
+                .setQ0(3.695925)
+                .setNode(13)
+                .add();
+        load2.getTerminal()
+                .setP(48.455854)
+                .setQ(3.695925);
+
+        Load load3 = s1vl2.newLoad()
+                .setId("LD3")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(40.39911)
+                .setQ0(1.96869)
+                .setNode(15)
+                .add();
+        load3.getTerminal()
+                .setP(40.39911)
+                .setQ(1.96869);
+
+        Load load4 = s1vl2.newLoad()
+                .setId("LD4")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(-5.102249)
+                .setQ0(4.9081216)
+                .setNode(17)
+                .add();
+        load4.getTerminal()
+                .setP(-5.102249)
+                .setQ(4.9081216);
+
+        // Connect a shunt on the BBS1, with a possibility to connect it to BBS2
+        createSwitch(s1vl2, "S1VL2_BBS1_SHUNT_DISCONNECTOR", "S1VL2_BBS1_SHUNT_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 0, 18);
+        createSwitch(s1vl2, "S1VL2_BBS2_SHUNT_DISCONNECTOR", "S1VL2_BBS2_SHUNT_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, true, false, 1, 18);
+        createSwitch(s1vl2, "S1VL2_SHUNT_BREAKER", "S1VL2_SHUNT_BREAKER", SwitchKind.BREAKER, true, false, false, 18, 19);
+
+        s1vl2.newShuntCompensator()
+                .setId("SHUNT")
+                .setNode(19)
+                .setMaximumSectionCount(1)
+                .setCurrentSectionCount(1)
+                .setbPerSection(-0.012)
+                .add();
+
+        createSwitch(s1vl2, "S1VL2_BBS1_LCC1_DISCONNECTOR", "S1VL2_BBS1_LCC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 0, 20);
+        createSwitch(s1vl2, "S1VL2_BBS2_LCC1_DISCONNECTOR", "S1VL2_BBS2_LCC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 1, 20);
+        createSwitch(s1vl2, "S1VL2_LCC1_BREAKER", "S1VL2_LCC1_BREAKER", SwitchKind.BREAKER, true, false, false, 20, 21);
+
         LccConverterStation lcc1 = s1vl2.newLccConverterStation()
                 .setId("LCC1")
                 .setName("LCC1")
-                .setNode(25)
+                .setNode(21)
                 .setLossFactor(1.1f)
                 .setPowerFactor(0.6f)
                 .add();
@@ -346,14 +345,20 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setP(100.0)
                 .setQ(50.0);
 
+        // Add a coupler between the two busbar sections
+        createSwitch(s1vl2, "S1VL2_BBS1_COUPLER_DISCONNECTOR", "S1VL2_BBS1_COUPLER_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 0, 22);
+        createSwitch(s1vl2, "S1VL2_BBS2_COUPLER_DISCONNECTOR", "S1VL2_BBS2_COUPLER_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, false, 1, 23);
+        createSwitch(s1vl2, "S1VL2_COUPLER", "S1VL2_COUPLER", SwitchKind.BREAKER, true, false, false, 22, 23);
+
+        // Second substation
         Substation s2 = network.newSubstation()
                 .setId("S2")
-                .setCountry(Country.ES)
                 .add();
         VoltageLevel s2vl1 = s2.newVoltageLevel()
                 .setId("S2VL1")
-                .setNominalV(225.0)
-                .setLowVoltageLimit(0.0)
+                .setNominalV(400.0)
+                .setLowVoltageLimit(80.0)
+                .setHighVoltageLimit(120.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         BusbarSection busbarSectionS2VL1 = s2vl1.getNodeBreakerView().newBusbarSection()
@@ -361,11 +366,12 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setName("S2VL1_BBS")
                 .setNode(0)
                 .add();
-        createSwitch(s2vl1, "S2VL1_A", "S2VL1_A", SwitchKind.DISCONNECTOR, false, false, true, 0, 1);
-        createSwitch(s2vl1, "S2VL1_B", "S2VL1_B", SwitchKind.DISCONNECTOR, false, false, true, 0, 3);
-        createSwitch(s2vl1, "S2VL1_C", "S2VL1_C", SwitchKind.BREAKER, true, false, true, 1, 2);
-        createSwitch(s2vl1, "S2VL1_D", "S2VL1_D", SwitchKind.BREAKER, true, false, true, 3, 4);
-        createSwitch(s2vl1, "S2VL1_E", "S2VL1_E", SwitchKind.DISCONNECTOR, true, false, true, 0, 5);
+        createSwitch(s2vl1, "S2VL1_BBS_GTH1_DISCONNECTOR", "S2VL1_BBS_GTH1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 1);
+        createSwitch(s2vl1, "S2VL1_BBS_VSC2_DISCONNECTOR", "S2VL1_BBS_VSC2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 3);
+        createSwitch(s2vl1, "S2VL1_BBS_LINES2S3_DISCONNECTOR", "S2VL1_BBS_LINES2S3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 5);
+        createSwitch(s2vl1, "S2VL1_GTH1_BREAKER", "S2VL1_GTH1_BREAKER", SwitchKind.BREAKER, true, false, true, 1, 2);
+        createSwitch(s2vl1, "S2VL1_VSC2_BREAKER", "S2VL1_VSC2_BREAKER", SwitchKind.BREAKER, true, false, true, 3, 4);
+        createSwitch(s2vl1, "S2VL1_LINES2S3_BREAKER", "S2VL1_LINES2S3_BREAKER", SwitchKind.BREAKER, true, false, true, 5, 6);
 
         Generator generatorThermal1 = s2vl1.newGenerator()
                 .setId("GTH1")
@@ -405,6 +411,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMaxQ(10.0)
                 .add();
 
+        // The substations 1 and 2 are linked through an HVDC line
         network.newHvdcLine()
                 .setId("HVDC1")
                 .setName("HVDC1")
@@ -417,14 +424,15 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setActivePowerSetpoint(100)
                 .add();
 
+        // Third substation
         Substation s3 = network.newSubstation()
                 .setId("S3")
-                .setCountry(Country.ES)
                 .add();
         VoltageLevel s3vl1 = s3.newVoltageLevel()
                 .setId("S3VL1")
-                .setNominalV(225.0)
-                .setLowVoltageLimit(0.0)
+                .setNominalV(400.0)
+                .setLowVoltageLimit(80.0)
+                .setHighVoltageLimit(120.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         BusbarSection busbarSectionS3VL1 = s3vl1.getNodeBreakerView().newBusbarSection()
@@ -432,23 +440,40 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setName("S3VL1_BBS")
                 .setNode(0)
                 .add();
-        createSwitch(s3vl1, "S3VL1_A", "S3VL1_A", SwitchKind.DISCONNECTOR, false, false, true, 0, 1);
-        createSwitch(s3vl1, "S3VL1_B", "S3VL1_B", SwitchKind.DISCONNECTOR, false, false, true, 0, 3);
-        createSwitch(s3vl1, "S3VL1_C", "S3VL1_C", SwitchKind.BREAKER, true, false, true, 1, 2);
-        createSwitch(s3vl1, "S3VL1_D", "S3VL1_D", SwitchKind.BREAKER, true, false, true, 3, 4);
-        createSwitch(s3vl1, "S3VL1_E", "S3VL1_E", SwitchKind.DISCONNECTOR, true, false, true, 0, 5);
-        createSwitch(s3vl1, "S3VL1_F", "S3VL1_F", SwitchKind.BREAKER, true, false, true, 5, 6);
-        createSwitch(s3vl1, "S3VL1_G", "S3VL1_G", SwitchKind.DISCONNECTOR, true, false, true, 0, 7);
-        createSwitch(s3vl1, "S3VL1_H", "S3VL1_H", SwitchKind.DISCONNECTOR, true, false, true, 0, 8);
+        createSwitch(s3vl1, "S3VL1_BBS_LINES2S3_DISCONNECTOR", "S3VL1_BBS_LINES2S3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 1);
+        createSwitch(s3vl1, "S3VL1_BBS_LD5_DISCONNECTOR", "S3VL1_BBS_LD5_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 3);
+        createSwitch(s3vl1, "S3VL1_BBS_GTH2_DISCONNECTOR", "S3VL1_BBS_GTH2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 5);
+        createSwitch(s3vl1, "S3VL1_BBS_LINES3S4_DISCONNECTOR", "S3VL1_BBS_LINES3S4_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 7);
+        createSwitch(s3vl1, "S3VL1_BBS_LCC2_DISCONNECTOR", "S3VL1_BBS_LCC2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 9);
+        createSwitch(s3vl1, "S3VL1_LINES2S3_BREAKER", "S3VL1_LINES2S3_BREAKER", SwitchKind.BREAKER, true, false, true, 1, 2);
+        createSwitch(s3vl1, "S3VL1_LD5_BREAKER", "S3VL1_LD5_BREAKER", SwitchKind.BREAKER, true, false, true, 3, 4);
+        createSwitch(s3vl1, "S3VL1_GTH2_BREAKER", "S3VL1_GTH2_BREAKER", SwitchKind.BREAKER, true, false, true, 5, 6);
+        createSwitch(s3vl1, "S3VL1_LINES3S4_BREAKER", "S3VL1_LINES3S4_BREAKER", SwitchKind.BREAKER, true, false, true, 7, 8);
+        createSwitch(s3vl1, "S3VL1_LCC2_BREAKER", "S3VL1_LCC2_BREAKER", SwitchKind.BREAKER, true, false, true, 9, 10);
 
-        Load load6 = s3vl1.newLoad()
-                .setId("LD6")
+        // The substations 2 and 3 are connected by a line
+        network.newLine()
+                .setId("LINE_S2S3")
+                .setR(0.009999999)
+                .setX(0.100000024)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
+                .setNode1(6)
+                .setVoltageLevel1("S2VL1")
+                .setNode2(2)
+                .setVoltageLevel2("S3VL1")
+                .add();
+
+        Load load5 = s3vl1.newLoad()
+                .setId("LD5")
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(50.989060)
                 .setQ0(3.168945)
-                .setNode(2)
+                .setNode(4)
                 .add();
-        load6.getTerminal()
+        load5.getTerminal()
                 .setP(50.09778)
                 .setQ(3.309844);
 
@@ -479,7 +504,7 @@ public final class FourSubstationsNodeBreakerFactory {
         LccConverterStation lcc2 = s3vl1.newLccConverterStation()
                 .setId("LCC2")
                 .setName("LCC2")
-                .setNode(4)
+                .setNode(10)
                 .setLossFactor(1.1f)
                 .setPowerFactor(0.6f)
                 .add();
@@ -487,6 +512,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setP(75.0)
                 .setQ(25.0);
 
+        // The substations 1 and 2 are linked by an HVDC line
         network.newHvdcLine()
                 .setId("HVDC2")
                 .setName("HVDC2")
@@ -499,28 +525,15 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setActivePowerSetpoint(100)
                 .add();
 
-        network.newLine()
-                .setId("LINE_S2S3")
-                .setR(0.009999999)
-                .setX(0.100000024)
-                .setG1(0.0)
-                .setB1(0.0)
-                .setG2(0.0)
-                .setB2(0.0)
-                .setNode1(5)
-                .setVoltageLevel1("S2VL1")
-                .setNode2(7)
-                .setVoltageLevel2("S3VL1")
-                .add();
-
+        // Fourth substation
         Substation s4 = network.newSubstation()
                 .setId("S4")
-                .setCountry(Country.ES)
                 .add();
         VoltageLevel s4vl1 = s4.newVoltageLevel()
                 .setId("S4VL1")
-                .setNominalV(225.0)
-                .setLowVoltageLimit(0.0)
+                .setNominalV(400.0)
+                .setLowVoltageLimit(80.0)
+                .setHighVoltageLimit(120.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         BusbarSection busbarSectionS4VL1 = s4vl1.getNodeBreakerView().newBusbarSection()
@@ -528,20 +541,22 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setName("S4VL1_BBS")
                 .setNode(0)
                 .add();
-        createSwitch(s4vl1, "S4VL1_A", "S4VL1_A", SwitchKind.DISCONNECTOR, false, false, true, 0, 1);
-        createSwitch(s4vl1, "S4VL1_B", "S4VL1_B", SwitchKind.BREAKER, false, false, true, 1, 2);
-        createSwitch(s4vl1, "S4VL1_C", "S4VL1_C", SwitchKind.DISCONNECTOR, false, false, true, 0, 3);
-        createSwitch(s4vl1, "S4VL1_D", "S4VL1_D", SwitchKind.BREAKER, false, false, true, 3, 4);
-        createSwitch(s4vl1, "S4VL1_E", "S4VL1_E", SwitchKind.DISCONNECTOR, false, false, true, 0, 5);
 
-        Load load7 = s4vl1.newLoad()
-                .setId("LD7")
+        createSwitch(s4vl1, "S4VL1_BBS_LD6_DISCONNECTOR", "S4VL1_BBS_LD6_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 1);
+        createSwitch(s4vl1, "S4VL1_BBS_SVC_DISCONNECTOR", "S4VL1_BBS_SVC_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 3);
+        createSwitch(s4vl1, "S4VL1_BBS_LINES3S4_DISCONNECTOR", "S4VL1_BBS_LINE_S3S4_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, false, true, 0, 5);
+        createSwitch(s4vl1, "S4VL1_LD6_BREAKER", "S4VL1_LD6_BREAKER", SwitchKind.BREAKER, true, false, false, 1, 2);
+        createSwitch(s4vl1, "S4VL1_SVC_BREAKER", "S4VL1_SVC_BREAKER", SwitchKind.BREAKER, true, false, false, 3, 4);
+        createSwitch(s4vl1, "S4VL1_LINES3S4_BREAKER", "S4VL1_LINES3S4_BREAKER", SwitchKind.BREAKER, true, false, false, 5, 6);
+
+        Load load6 = s4vl1.newLoad()
+                .setId("LD6")
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(112.18689)
                 .setQ0(0.168945)
                 .setNode(2)
                 .add();
-        load7.getTerminal()
+        load6.getTerminal()
                 .setP(112.09778)
                 .setQ(2.309844);
 
@@ -554,6 +569,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setVoltageSetPoint(226)
                 .add();
 
+        // The stations 3 and 4 are linked by a line
         Line lineS3S4 = network.newLine()
                 .setId("LINE_S3S4")
                 .setR(0.009999999)
@@ -564,7 +580,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setB2(0.0)
                 .setNode1(8)
                 .setVoltageLevel1("S3VL1")
-                .setNode2(5)
+                .setNode2(6)
                 .setVoltageLevel2("S4VL1")
                 .add();
         lineS3S4.newCurrentLimits1()
@@ -585,23 +601,23 @@ public final class FourSubstationsNodeBreakerFactory {
                 .endTemporaryLimit()
                 .add();
 
-        busbarSectionFR1.getTerminal().getBusView().getBus()
+        busbarSectionS1VL1.getTerminal().getBusView().getBus()
                 .setV(234.40912)
                 .setAngle(0.0);
         busbarSectionS1VL21.getTerminal().getBusView().getBus()
-                .setV(236.44736)
+                .setV(416.44736)
                 .setAngle(15.250391);
         busbarSectionS1VL22.getTerminal().getBusView().getBus()
-                .setV(236.44736)
+                .setV(416.44736)
                 .setAngle(15.250391);
         busbarSectionS2VL1.getTerminal().getBusView().getBus()
-                .setV(235.49015)
+                .setV(415.49015)
                 .setAngle(18.075423);
         busbarSectionS3VL1.getTerminal().getBusView().getBus()
-                .setV(233.232565)
+                .setV(413.232565)
                 .setAngle(16.098765);
         busbarSectionS4VL1.getTerminal().getBusView().getBus()
-                .setV(233.232565)
+                .setV(413.232565)
                 .setAngle(16.098765);
 
         return network;
