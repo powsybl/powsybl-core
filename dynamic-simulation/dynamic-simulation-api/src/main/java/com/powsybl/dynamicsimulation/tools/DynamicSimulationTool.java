@@ -49,7 +49,6 @@ public class DynamicSimulationTool implements Tool {
 
     private static final String CASE_FILE = "case-file";
     private static final String PARAMETERS_FILE = "parameters-file";
-    private static final String SKIP_POSTPROC = "skip-postproc";
     private static final String OUTPUT_FILE = "output-file";
 
     @Override
@@ -90,9 +89,6 @@ public class DynamicSimulationTool implements Tool {
                     .hasArg()
                     .argName("FILE")
                     .build());
-                options.addOption(Option.builder().longOpt(SKIP_POSTPROC)
-                    .desc("skip network importer post processors (when configured)")
-                    .build());
                 options.addOption(createImportParametersFileOption());
                 options.addOption(createImportParameterOption());
                 return options;
@@ -109,7 +105,6 @@ public class DynamicSimulationTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE));
-        boolean skipPostProc = line.hasOption(SKIP_POSTPROC);
         Path outputFile = null;
 
         // process a single network: output-file/output-format options available
@@ -119,9 +114,7 @@ public class DynamicSimulationTool implements Tool {
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        ImportConfig importConfig = (!skipPostProc) ? ImportConfig.load() : new ImportConfig();
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(),
-            importConfig, inputParams);
+        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
