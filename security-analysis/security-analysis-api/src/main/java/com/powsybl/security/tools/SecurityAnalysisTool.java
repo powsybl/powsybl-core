@@ -240,7 +240,7 @@ public class SecurityAnalysisTool implements Tool {
         }
     }
 
-    static Network readNetwork(CommandLine line, ToolRunningContext context, Supplier<ImportConfig> importConfigLoader, ImportersLoader importersLoader) throws IOException {
+    static Network readNetwork(CommandLine line, ToolRunningContext context, ImportersLoader importersLoader) throws IOException {
         ToolOptions options = new ToolOptions(line, context);
         Path caseFile = options.getPath(CASE_FILE_OPTION)
                 .orElseThrow(AssertionError::new);
@@ -265,7 +265,6 @@ public class SecurityAnalysisTool implements Tool {
         run(line, context,
                 createBuilder(PlatformConfig.defaultConfig()),
                 SecurityAnalysisParameters::load,
-                ImportConfig::load,
                 new ImportersServiceLoader(),
                 TableFormatterConfig::load);
     }
@@ -273,7 +272,6 @@ public class SecurityAnalysisTool implements Tool {
     void run(CommandLine line, ToolRunningContext context,
              SecurityAnalysisExecutionBuilder executionBuilder,
              Supplier<SecurityAnalysisParameters> parametersLoader,
-             Supplier<ImportConfig> importConfigLoader,
              ImportersLoader importersLoader,
              Supplier<TableFormatterConfig> tableFormatterConfigLoader) throws Exception {
 
@@ -288,7 +286,7 @@ public class SecurityAnalysisTool implements Tool {
                             .orElseThrow(() -> new ParseException("Missing required option: " + OUTPUT_FORMAT_OPTION));
         }
 
-        Network network = readNetwork(line, context, importConfigLoader, importersLoader);
+        Network network = readNetwork(line, context, importersLoader);
 
         SecurityAnalysisExecutionInput executionInput = new SecurityAnalysisExecutionInput()
                 .setNetworkVariant(network, VariantManagerConstants.INITIAL_VARIANT_ID)

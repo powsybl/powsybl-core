@@ -12,7 +12,6 @@ import com.google.common.io.ByteSource;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
@@ -174,7 +173,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
                 mock(ComputationManager.class), mock(ComputationManager.class));
 
         CommandLine cli = mockCommandLine(ImmutableMap.of("case-file", "network.xml"), Collections.emptySet());
-        SecurityAnalysisTool.readNetwork(cli, context, ImportConfig::new, new ImportersLoaderList(new NetworkImporterMock()));
+        SecurityAnalysisTool.readNetwork(cli, context, new ImportersLoaderList(new NetworkImporterMock()));
     }
 
     @Test
@@ -199,7 +198,6 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
             // execute
             tool.run(cl, context, builder,
                     SecurityAnalysisParameters::new,
-                    ImportConfig::new,
                     new ImportersLoaderList(new NetworkImporterMock()),
                     TableFormatterConfig::new);
 
@@ -211,7 +209,6 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
             // execute
             tool.run(cl, context, builder,
                     SecurityAnalysisParameters::new,
-                    ImportConfig::new,
                     new ImportersLoaderList(new NetworkImporterMock()),
                     TableFormatterConfig::new);
             verify(sa, times(1)).run(any(), any(), any());
@@ -224,7 +221,6 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
             try {
                 tool.run(cl, context, builder2,
                         SecurityAnalysisParameters::new,
-                        ImportConfig::new,
                         new ImportersLoaderList(new NetworkImporterMock()),
                         TableFormatterConfig::new);
                 fail();
