@@ -39,6 +39,8 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private Map<String, String> extensionsVersions = new HashMap<>();
 
+    private boolean sorted = false;
+
     public ExportOptions() {
     }
 
@@ -165,5 +167,14 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
      */
     public Optional<String> getExtensionVersion(String extensionName) {
         return Optional.ofNullable(extensionsVersions.get(extensionName));
+    }
+
+    public boolean isSorted() {
+        return sorted;
+    }
+
+    public ExportOptions setSorted(boolean sorted) {
+        this.sorted = sorted;
+        return this;
     }
 }

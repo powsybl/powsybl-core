@@ -100,13 +100,13 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
                 IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
         writePhaseTapChanger(twt.getLeg3().getPhaseTapChanger(), 3, context);
         if (twt.getLeg1().getCurrentLimits() != null) {
-            writeCurrentLimits(1, twt.getLeg1().getCurrentLimits(), context.getWriter(), context.getVersion());
+            writeCurrentLimits(1, twt.getLeg1().getCurrentLimits(), context.getWriter(), context.getVersion(), context.getOptions());
         }
         if (twt.getLeg2().getCurrentLimits() != null) {
-            writeCurrentLimits(2, twt.getLeg2().getCurrentLimits(), context.getWriter(), context.getVersion());
+            writeCurrentLimits(2, twt.getLeg2().getCurrentLimits(), context.getWriter(), context.getVersion(), context.getOptions());
         }
         if (twt.getLeg3().getCurrentLimits() != null) {
-            writeCurrentLimits(3, twt.getLeg3().getCurrentLimits(), context.getWriter(), context.getVersion());
+            writeCurrentLimits(3, twt.getLeg3().getCurrentLimits(), context.getWriter(), context.getVersion(), context.getOptions());
         }
     }
 

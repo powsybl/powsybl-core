@@ -8,13 +8,22 @@ package com.powsybl.iidm.xml.util;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.export.ExportOptions;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.AbstractNetworkXmlContext;
 import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
 import javax.xml.stream.XMLStreamException;
+import java.util.Comparator;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -175,6 +184,49 @@ public final class IidmXmlUtil {
         if (context.getVersion().compareTo(maxVersion) <= 0) {
             XmlUtil.writeInt(attributeName, value, context.getWriter());
         }
+    }
+
+    public static Iterable<? extends Extension<? extends Identifiable<?>>> sortedExtensions(Iterable<? extends Extension<? extends Identifiable<?>>> extensions, ExportOptions exportOptions) {
+        Objects.requireNonNull(exportOptions);
+        Objects.requireNonNull(exportOptions);
+        return exportOptions.isSorted() ? StreamSupport.stream(extensions.spliterator(), false)
+                                                       .sorted(Comparator.comparing(Extension::getName))
+                                                       .collect(Collectors.toList())
+                : extensions;
+    }
+
+    public static <T extends Identifiable> Iterable<T> sorted(Iterable<T> identifiables, ExportOptions exportOptions) {
+        Objects.requireNonNull(identifiables);
+        Objects.requireNonNull(exportOptions);
+        return exportOptions.isSorted() ? StreamSupport.stream(identifiables.spliterator(), false)
+                                                       .sorted(Comparator.comparing(Identifiable::getId))
+                                                       .collect(Collectors.toList())
+                                        : identifiables;
+    }
+
+    public static Iterable<CurrentLimits.TemporaryLimit> sortedTemporaryLimits(Iterable<CurrentLimits.TemporaryLimit> temporaryLimits, ExportOptions exportOptions) {
+        Objects.requireNonNull(temporaryLimits);
+        Objects.requireNonNull(exportOptions);
+        return exportOptions.isSorted() ? StreamSupport.stream(temporaryLimits.spliterator(), false)
+                                                       .sorted(Comparator.comparing(CurrentLimits.TemporaryLimit::getName))
+                                                       .collect(Collectors.toList())
+                                        : temporaryLimits;
+    }
+
+    public static Iterable<VoltageLevel.NodeBreakerView.InternalConnection> sortedInternalConnections(Iterable<VoltageLevel.NodeBreakerView.InternalConnection> internalConnections, ExportOptions exportOptions) {
+        Objects.requireNonNull(internalConnections);
+        Objects.requireNonNull(exportOptions);
+        return exportOptions.isSorted() ? StreamSupport.stream(internalConnections.spliterator(), false)
+                                                       .sorted(Comparator.comparing(VoltageLevel.NodeBreakerView.InternalConnection::getNode1)
+                                                                         .thenComparing(VoltageLevel.NodeBreakerView.InternalConnection::getNode2))
+                                                       .collect(Collectors.toList())
+                : internalConnections;
+    }
+
+    public static <T extends Identifiable<T>> Stream<T> sorted(Stream<T> stream, ExportOptions exportOptions) {
+        Objects.requireNonNull(stream);
+        Objects.requireNonNull(exportOptions);
+        return exportOptions.isSorted() ? stream.sorted(Comparator.comparing(Identifiable::getId)) : stream;
     }
 
     private IidmXmlUtil() {

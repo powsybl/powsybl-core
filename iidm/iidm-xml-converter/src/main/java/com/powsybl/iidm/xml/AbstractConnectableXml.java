@@ -7,8 +7,10 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -162,26 +164,29 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     }
 
     /**
-     * @deprecated Use {@link #writeCurrentLimits(Integer, CurrentLimits, XMLStreamWriter, IidmXmlVersion)} instead.
+     * @deprecated Use {@link #writeCurrentLimits(Integer, CurrentLimits, XMLStreamWriter, IidmXmlVersion, ExportOptions)} instead.
      */
     @Deprecated
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer) throws XMLStreamException {
-        writeCurrentLimits(index, limits, writer, IidmXmlConstants.CURRENT_IIDM_XML_VERSION);
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, ExportOptions exportOptions) throws XMLStreamException {
+        writeCurrentLimits(index, limits, writer, IidmXmlConstants.CURRENT_IIDM_XML_VERSION, exportOptions);
     }
 
     /**
-     * @deprecated Use {@link #writeCurrentLimits(Integer, CurrentLimits, XMLStreamWriter, String, IidmXmlVersion)} instead.
+     * @deprecated Use {@link #writeCurrentLimits(Integer, CurrentLimits, XMLStreamWriter, String, IidmXmlVersion, ExportOptions)} instead.
      */
     @Deprecated
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri) throws XMLStreamException {
-        writeCurrentLimits(index, limits, writer, nsUri, IidmXmlConstants.CURRENT_IIDM_XML_VERSION);
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri,
+                                          ExportOptions exportOptions) throws XMLStreamException {
+        writeCurrentLimits(index, limits, writer, nsUri, IidmXmlConstants.CURRENT_IIDM_XML_VERSION, exportOptions);
     }
 
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, IidmXmlVersion version) throws XMLStreamException {
-        writeCurrentLimits(index, limits, writer, version.getNamespaceURI(), version);
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, IidmXmlVersion version,
+                                          ExportOptions exportOptions) throws XMLStreamException {
+        writeCurrentLimits(index, limits, writer, version.getNamespaceURI(), version, exportOptions);
     }
 
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri, IidmXmlVersion version) throws XMLStreamException {
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri, IidmXmlVersion version,
+                                          ExportOptions exportOptions) throws XMLStreamException {
         if (!Double.isNaN(limits.getPermanentLimit())
                 || !limits.getTemporaryLimits().isEmpty()) {
             if (limits.getTemporaryLimits().isEmpty()) {
@@ -190,7 +195,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
                 writer.writeStartElement(nsUri, CURRENT_LIMITS + indexToString(index));
             }
             XmlUtil.writeDouble("permanentLimit", limits.getPermanentLimit(), writer);
-            for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) {
+            for (CurrentLimits.TemporaryLimit tl : IidmXmlUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
                 writer.writeEmptyElement(version.getNamespaceURI(), "temporaryLimit");
                 writer.writeAttribute("name", tl.getName());
                 XmlUtil.writeOptionalInt("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE, writer);
