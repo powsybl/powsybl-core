@@ -18,11 +18,6 @@ public class VscConverterStationAdapter extends AbstractHvdcConverterStationAdap
     }
 
     @Override
-    public Terminal getTerminal() {
-        return getIndex().getTerminal(getDelegate().getTerminal());
-    }
-
-    @Override
     public HvdcConverterStation setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
         return getIndex().getHvdcConverterStation(getDelegate().setVoltageRegulatorOn(voltageRegulatorOn));
     }
