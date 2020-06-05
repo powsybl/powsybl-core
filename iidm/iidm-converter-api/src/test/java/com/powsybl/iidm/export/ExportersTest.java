@@ -41,11 +41,23 @@ public class ExportersTest extends AbstractConvertersTest {
 
     private final ComputationManager computationManager = Mockito.mock(ComputationManager.class);
 
+    private final ExportConfig exportConfigMock = Mockito.mock(ExportConfig.class);
+    private final ExportConfig exportConfigWithPostProcessor = new ExportConfig("test");
+
     @Test
     public void getFormats() {
         Collection<String> formats = Exporters.getFormats(loader);
         assertEquals(1, formats.size());
         assertTrue(formats.contains(TEST_FORMAT));
+        assertTrue(Exporters.getFormats().contains(TEST_FORMAT));
+    }
+
+    @Test
+    public void list() {
+        Collection<Exporter> exporters = Exporters.list(loader, computationManager, exportConfigMock);
+        assertNotNull(exporters);
+        assertEquals(1, exporters.size());
+        assertTrue(exporters.contains(testExporter));
     }
 
     @Test
@@ -53,6 +65,16 @@ public class ExportersTest extends AbstractConvertersTest {
         Exporter exporter = Exporters.getExporter(loader, TEST_FORMAT);
         assertNotNull(exporter);
         assertSame(testExporter, exporter);
+        assertTrue(Exporters.list(loader, computationManager, ExportConfig.load()).contains(exporter));
+    }
+
+    @Test
+    public void getExporterWithExportConfig() throws IOException {
+        Exporter exporter = Exporters.getExporter(loader, TEST_FORMAT, computationManager, exportConfigWithPostProcessor);
+        assertNotNull(exporter);
+        DataSource ds = Exporters.createDataSource(path);
+        exporter.export(1, null, ds);
+        assertTrue(ds.exists(null, "tst"));
     }
 
     @Test

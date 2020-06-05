@@ -32,7 +32,7 @@ import java.util.Objects;
 @AutoService(ExportPostProcessor.class)
 public class GroovyScriptExportPostProcessor implements ExportPostProcessor {
 
-    public static final String NAME = "exportScript";
+    public static final String NAME = "groovyScript";
 
     public static final String DEFAULT_SCRIPT_NAME = "export-post-processor.groovy";
 

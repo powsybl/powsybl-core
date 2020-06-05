@@ -54,7 +54,7 @@ public class GroovyScriptExportPostProcessorTest {
 
     private void test(PlatformConfig platformConfig) {
         GroovyScriptExportPostProcessor processor = new GroovyScriptExportPostProcessor(platformConfig);
-        assertEquals("exportScript", processor.getName());
+        assertEquals("groovyScript", processor.getName());
         try {
             processor.process(null, null, null, null);
             fail();
