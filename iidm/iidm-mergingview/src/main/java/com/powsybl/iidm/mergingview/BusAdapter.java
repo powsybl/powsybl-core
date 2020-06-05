@@ -70,6 +70,32 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     }
 
     @Override
+    public Iterable<DanglingLine> getDanglingLines() {
+        return getDanglingLineStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<DanglingLine> getDanglingLineStream() {
+        return getDelegate().getDanglingLineStream()
+                .filter(dl -> !getIndex().isMerged(dl))
+                .map(dl -> getIndex().getDanglingLine(dl));
+    }
+
+    @Override
+    public Iterable<Line> getLines() {
+        return getLineStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<Line> getLineStream() {
+        return Stream.concat(getDelegate().getLineStream()
+                        .map(l -> getIndex().getLine(l)),
+                getDelegate().getDanglingLineStream()
+                        .filter(dl -> getIndex().isMerged(dl))
+                        .map(dl -> getIndex().getMergedLineByCode(dl.getUcteXnodeCode())));
+    }
+
+    @Override
     public Iterable<Load> getLoads() {
         return Iterables.transform(getDelegate().getLoads(),
                                    getIndex()::getLoad);
@@ -185,32 +211,6 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     @Override
     public int getConnectedTerminalCount() {
         throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public Iterable<Line> getLines() {
-        return getLineStream().collect(Collectors.toList());
-    }
-
-    @Override
-    public Stream<Line> getLineStream() {
-        return Stream.concat(getDelegate().getLineStream()
-                        .map(l -> getIndex().getLine(l)),
-                getDelegate().getDanglingLineStream()
-                        .filter(dl -> getIndex().isMerged(dl))
-                        .map(dl -> getIndex().getMergedLineByCode(dl.getUcteXnodeCode())));
-    }
-
-    @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        return getDanglingLineStream().collect(Collectors.toList());
-    }
-
-    @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return getDelegate().getDanglingLineStream()
-                .filter(dl -> !getIndex().isMerged(dl))
-                .map(dl -> getIndex().getDanglingLine(dl));
     }
 
     @Override
