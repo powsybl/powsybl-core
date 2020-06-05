@@ -9,6 +9,7 @@ package com.powsybl.iidm.mergingview;
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -66,6 +67,32 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     public Stream<Battery> getBatteryStream() {
         return getDelegate().getBatteryStream()
                             .map(getIndex()::getBattery);
+    }
+
+    @Override
+    public Iterable<DanglingLine> getDanglingLines() {
+        return getDanglingLineStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<DanglingLine> getDanglingLineStream() {
+        return getDelegate().getDanglingLineStream()
+                .filter(dl -> !getIndex().isMerged(dl))
+                .map(dl -> getIndex().getDanglingLine(dl));
+    }
+
+    @Override
+    public Iterable<Line> getLines() {
+        return getLineStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<Line> getLineStream() {
+        return Stream.concat(getDelegate().getLineStream()
+                        .map(l -> getIndex().getLine(l)),
+                getDelegate().getDanglingLineStream()
+                        .filter(dl -> getIndex().isMerged(dl))
+                        .map(dl -> getIndex().getMergedLineByCode(dl.getUcteXnodeCode())));
     }
 
     @Override
@@ -183,26 +210,6 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     // -------------------------------
     @Override
     public int getConnectedTerminalCount() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public Iterable<Line> getLines() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public Stream<Line> getLineStream() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
         throw MergingView.createNotImplementedException();
     }
 
