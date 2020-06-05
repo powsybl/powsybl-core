@@ -7,25 +7,29 @@
 package com.powsybl.psse.converter;
 
 import com.google.auto.service.AutoService;
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.psse.model.*;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
-import com.powsybl.psse.model.PsseRawModel;
-import org.jgrapht.UndirectedGraph;
-import org.jgrapht.alg.ConnectivityInspector;
-import org.jgrapht.graph.Pseudograph;
+import com.powsybl.psse.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
 
 /**
  * @author JB Heyberger <jean-baptiste.heyberger at rte-france.com>
@@ -110,65 +114,6 @@ public class PsseImporter implements Importer {
 
         public boolean isIgnoreBaseVoltage() {
             return ignoreBaseVoltage;
-        }
-    }
-
-    private static class ContainersMapping {
-
-        private final Map<Integer, String> busNumToVoltageLevelId = new HashMap<>();
-
-        private final Map<String, Set<Integer>> voltageLevelIdToBusNums = new HashMap<>();
-
-        private final Map<String, String> voltageLevelIdToSubstationId = new HashMap<>();
-    }
-
-    private static ContainersMapping createContainerMapping(PsseRawModel psseModel) {
-        ContainersMapping containersMapping = new ContainersMapping();
-
-        // group buses connected to non impedant lines to voltage levels
-        createVoltageLevelMapping(psseModel, containersMapping);
-
-        // group voltage levels connected by transformers to substations
-        createSubstationMapping(psseModel, containersMapping);
-
-        return containersMapping;
-    }
-
-    private static void createSubstationMapping(PsseRawModel psseModel, ContainersMapping containersMapping) {
-        UndirectedGraph<String, Object> sGraph = new Pseudograph<>(Object.class);
-        for (String voltageLevelId : containersMapping.voltageLevelIdToBusNums.keySet()) {
-            sGraph.addVertex(voltageLevelId);
-        }
-
-        for (PsseTransformer psseTfo : psseModel.getTransformers()) {
-            sGraph.addEdge(containersMapping.busNumToVoltageLevelId.get(psseTfo.getFirstRecord().getI()),
-                        containersMapping.busNumToVoltageLevelId.get(psseTfo.getFirstRecord().getJ()));
-        }
-        int substationNum = 1;
-        for (Set<String> voltageLevelIds : new ConnectivityInspector<>(sGraph).connectedSets()) {
-            String substationId = "S" + substationNum++;
-            for (String voltageLevelId : voltageLevelIds) {
-                containersMapping.voltageLevelIdToSubstationId.put(voltageLevelId, substationId);
-            }
-        }
-    }
-
-    private static void createVoltageLevelMapping(PsseRawModel psseModel, ContainersMapping containersMapping) {
-        UndirectedGraph<Integer, Object> vlGraph = new Pseudograph<>(Object.class);
-        for (PsseBus psseBus : psseModel.getBuses()) {
-            vlGraph.addVertex(psseBus.getI());
-        }
-        for (PsseNonTransformerBranch psseBranch : psseModel.getNonTransformerBranches()) {
-            if (psseBranch.getR() == 0 && psseBranch.getX() == 0) {
-                vlGraph.addEdge(psseBranch.getI(), psseBranch.getJ());
-            }
-        }
-        for (Set<Integer> busNums : new ConnectivityInspector<>(vlGraph).connectedSets()) {
-            String voltageLevelId = "VL" + busNums.iterator().next();
-            containersMapping.voltageLevelIdToBusNums.put(voltageLevelId, busNums);
-            for (int busNum : busNums) {
-                containersMapping.busNumToVoltageLevelId.put(busNum, voltageLevelId);
-            }
         }
     }
 
@@ -270,8 +215,8 @@ public class PsseImporter implements Importer {
     private static void createBuses(PsseRawModel psseModel, ContainersMapping containerMapping, PerUnitContext perUnitContext,
                                     Network network) {
         for (PsseBus psseBus : psseModel.getBuses()) {
-            String voltageLevelId = containerMapping.busNumToVoltageLevelId.get(psseBus.getI());
-            String substationId = containerMapping.voltageLevelIdToSubstationId.get(voltageLevelId);
+            String voltageLevelId = containerMapping.getVoltageLevelId(psseBus.getI());
+            String substationId = containerMapping.getSubstationId(voltageLevelId);
 
             // create substation
             Substation substation = createSubstation(network, substationId);
@@ -289,8 +234,8 @@ public class PsseImporter implements Importer {
         String id = "L-" + psseLine.getI() + "-" + psseLine.getJ() + "-" + psseLine.getCkt();
         String bus1Id = getBusId(psseLine.getI());
         String bus2Id = getBusId(psseLine.getJ());
-        String voltageLevel1Id = containerMapping.busNumToVoltageLevelId.get(psseLine.getI());
-        String voltageLevel2Id = containerMapping.busNumToVoltageLevelId.get(psseLine.getJ());
+        String voltageLevel1Id = containerMapping.getVoltageLevelId(psseLine.getI());
+        String voltageLevel2Id = containerMapping.getVoltageLevelId(psseLine.getJ());
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
         network.newLine()
@@ -318,8 +263,8 @@ public class PsseImporter implements Importer {
         String id = "T-" + psseTfo.getFirstRecord().getI() + "-" + psseTfo.getFirstRecord().getJ() + "-" + psseTfo.getFirstRecord().getCkt();
         String bus1Id = getBusId(psseTfo.getFirstRecord().getI());
         String bus2Id = getBusId(psseTfo.getFirstRecord().getJ());
-        String voltageLevel1Id = containerMapping.busNumToVoltageLevelId.get(psseTfo.getFirstRecord().getI());
-        String voltageLevel2Id = containerMapping.busNumToVoltageLevelId.get(psseTfo.getFirstRecord().getJ());
+        String voltageLevel1Id = containerMapping.getVoltageLevelId(psseTfo.getFirstRecord().getI());
+        String voltageLevel2Id = containerMapping.getVoltageLevelId(psseTfo.getFirstRecord().getJ());
         VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
@@ -362,7 +307,17 @@ public class PsseImporter implements Importer {
             // TO DO
 
             // build container to fit IIDM requirements
-            ContainersMapping containerMapping = createContainerMapping(psseModel);
+            List<Object> branches = ImmutableList.builder()
+                    .addAll(psseModel.getNonTransformerBranches())
+                    .addAll(psseModel.getTransformers())
+                    .build();
+            ToIntFunction<Object> branchToNum1 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getI() : ((PsseTransformer) branch).getFirstRecord().getI();
+            ToIntFunction<Object> branchToNum2 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getJ() : ((PsseTransformer) branch).getFirstRecord().getJ();
+            ToDoubleFunction<Object> branchToResistance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getR() : ((PsseTransformer) branch).getSecondRecord().getR12();
+            ToDoubleFunction<Object> branchToReactance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getX() : ((PsseTransformer) branch).getSecondRecord().getX12();
+            Predicate<Object> branchToIsTransformer = branch -> branch instanceof PsseTransformer;
+            ContainersMapping containerMapping = ContainersMapping.create(psseModel.getBuses(), branches, PsseBus::getI, branchToNum1,
+                                                                          branchToNum2, branchToResistance, branchToReactance, branchToIsTransformer);
 
             boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
                     ParameterDefaultValueConfig.INSTANCE);
@@ -373,16 +328,16 @@ public class PsseImporter implements Importer {
 
             //Create loads
             for (PsseLoad psseLoad : psseModel.getLoads()) {
-                createLoad(psseLoad, network.getVoltageLevel(containerMapping.busNumToVoltageLevelId.get(psseLoad.getI())));
+                createLoad(psseLoad, network.getVoltageLevel(containerMapping.getVoltageLevelId(psseLoad.getI())));
             }
 
             //Create shunts
             for (PsseFixedShunt psseShunt : psseModel.getFixedShunts()) {
-                createShuntCompensator(psseShunt, perUnitContext, network.getVoltageLevel(containerMapping.busNumToVoltageLevelId.get(psseShunt.getI())));
+                createShuntCompensator(psseShunt, perUnitContext, network.getVoltageLevel(containerMapping.getVoltageLevelId(psseShunt.getI())));
             }
 
             for (PsseGenerator psseGen : psseModel.getGenerators()) {
-                createGenerator(psseGen, network.getVoltageLevel(containerMapping.busNumToVoltageLevelId.get(psseGen.getI())));
+                createGenerator(psseGen, network.getVoltageLevel(containerMapping.getVoltageLevelId(psseGen.getI())));
             }
 
             for (PsseNonTransformerBranch psseLine : psseModel.getNonTransformerBranches()) {
