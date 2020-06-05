@@ -402,6 +402,7 @@ class NodeBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
     public void invalidateCache() {
         busBreakerView.invalidateCache();
         busView.invalidateCache();
+        // FIXME(mathbag): Remove this
         System.out.println("INVALIDATE");
     }
 }
