@@ -13,19 +13,23 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
 import com.powsybl.matpower.model.*;
-import org.jgrapht.UndirectedGraph;
-import org.jgrapht.alg.ConnectivityInspector;
-import org.jgrapht.graph.Pseudograph;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
@@ -73,18 +77,6 @@ public class MatpowerImporter implements Importer {
         }
     }
 
-    private static ContainersMapping createContainerMapping(MatpowerModel matpowerModel) {
-        ContainersMapping containersMapping = new ContainersMapping();
-
-        // each bus is mapped to a corresponding voltage level
-        createVoltageLevelMapping(matpowerModel, containersMapping);
-
-        // group voltage levels connected by transformers to substations
-        createSubstationMapping(matpowerModel, containersMapping);
-
-        return containersMapping;
-    }
-
     private static boolean isTransformer(MBranch branch) {
         return branch.getRatio() != 0;
     }
@@ -97,37 +89,10 @@ public class MatpowerImporter implements Importer {
         return prefix + "-" + from + "-" + to;
     }
 
-    private static void createSubstationMapping(MatpowerModel model, ContainersMapping containersMapping) {
-        UndirectedGraph<String, Object> sGraph = new Pseudograph<>(Object.class);
-        for (String voltageLevelId : containersMapping.busNumToVoltageLevelId.values()) {
-            sGraph.addVertex(voltageLevelId);
-        }
-        for (MBranch branch : model.getBranches()) {
-            if (isTransformer(branch)) {
-                sGraph.addEdge(containersMapping.busNumToVoltageLevelId.get(branch.getFrom()),
-                        containersMapping.busNumToVoltageLevelId.get(branch.getTo()));
-            }
-        }
-        int substationNum = 1;
-        for (Set<String> voltageLevelIds : new ConnectivityInspector<>(sGraph).connectedSets()) {
-            String substationId = getId(SUBSTATION_PREFIX, substationNum++);
-            for (String voltageLevelId : voltageLevelIds) {
-                containersMapping.voltageLevelIdToSubstationId.put(voltageLevelId, substationId);
-            }
-        }
-    }
-
-    private static void createVoltageLevelMapping(MatpowerModel model, ContainersMapping containersMapping) {
-        for (MBus mBus : model.getBuses()) {
-            String voltageLevelId = getId(VOLTAGE_LEVEL_PREFIX, mBus.getNumber());
-            containersMapping.busNumToVoltageLevelId.put(mBus.getNumber(), voltageLevelId);
-        }
-    }
-
     private static void createBuses(MatpowerModel model, ContainersMapping containerMapping, Network network, PerUnitContext perUnitContext) {
         for (MBus mBus : model.getBuses()) {
-            String voltageLevelId = containerMapping.busNumToVoltageLevelId.get(mBus.getNumber());
-            String substationId = containerMapping.voltageLevelIdToSubstationId.get(voltageLevelId);
+            String voltageLevelId = containerMapping.getVoltageLevelId(mBus.getNumber());
+            String substationId = containerMapping.getSubstationId(voltageLevelId);
 
             // create substation
             Substation substation = createSubstation(network, substationId);
@@ -270,8 +235,8 @@ public class MatpowerImporter implements Importer {
 
             String bus1Id = getId(BUS_PREFIX, mBranch.getFrom());
             String bus2Id = getId(BUS_PREFIX, mBranch.getTo());
-            String voltageLevel1Id = containerMapping.busNumToVoltageLevelId.get(mBranch.getFrom());
-            String voltageLevel2Id = containerMapping.busNumToVoltageLevelId.get(mBranch.getTo());
+            String voltageLevel1Id = containerMapping.getVoltageLevelId(mBranch.getFrom());
+            String voltageLevel2Id = containerMapping.getVoltageLevelId(mBranch.getTo());
             VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
             VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
             double zb = voltageLevel2.getNominalV() * voltageLevel2.getNominalV() / perUnitContext.getBaseMva();
@@ -370,9 +335,11 @@ public class MatpowerImporter implements Importer {
             try (InputStream iStream = dataSource.newInputStream(null, EXT)) {
 
                 MatpowerModel model = MatpowerReader.read(iStream, dataSource.getBaseName());
-                LOGGER.debug("MATPOWER model {}", model);
+                LOGGER.debug("MATPOWER model {}", model.getCaseName());
 
-                ContainersMapping containerMapping = createContainerMapping(model);
+                ContainersMapping containerMapping = ContainersMapping.create(model.getBuses(), model.getBranches(),
+                    MBus::getNumber, MBranch::getFrom, MBranch::getTo, MBranch::getR, MBranch::getX, MatpowerImporter::isTransformer,
+                    busNums -> getId(VOLTAGE_LEVEL_PREFIX, busNums.iterator().next()), substationNum -> getId(SUBSTATION_PREFIX, substationNum));
 
                 boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
                         ParameterDefaultValueConfig.INSTANCE);
@@ -388,11 +355,5 @@ public class MatpowerImporter implements Importer {
         }
 
         return network;
-    }
-
-    private static class ContainersMapping {
-        private final Map<Integer, String> busNumToVoltageLevelId = new HashMap<>();
-
-        private final Map<String, String> voltageLevelIdToSubstationId = new HashMap<>();
     }
 }

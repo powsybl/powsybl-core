@@ -20,15 +20,32 @@
     <name>MATPOWER converter</name>
     <description>MATPOWER Format to IIDM converter</description>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>com.powsybl.matpower.converter</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <!-- Compile dependencies -->
         <dependency>
-            <groupId>org.jgrapht</groupId>
-            <artifactId>jgrapht-core</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-converter-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-converter-api</artifactId>
+            <artifactId>powsybl-iidm-util</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -41,11 +58,6 @@
         <dependency>
             <groupId>com.google.jimfs</groupId>
             <artifactId>jimfs</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.univocity</groupId>
-            <artifactId>univocity-parsers</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

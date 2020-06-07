@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_2" id="ieee14" caseDate="2020-01-01T00:00:00.000Z" forecastDistance="0" sourceFormat="MATPOWER">
-    <iidm:substation id="SUB-1">
+    <iidm:substation id="SUB-8">
         <iidm:voltageLevel id="VL-1" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-1" v="1.06" angle="0.0"/>
@@ -10,7 +10,7 @@
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="SUB-2">
+    <iidm:substation id="SUB-9">
         <iidm:voltageLevel id="VL-2" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-2" v="1.045" angle="-4.98"/>
@@ -21,7 +21,7 @@
             <iidm:load id="LOAD-2" loadType="UNDEFINED" p0="21.7" q0="12.7" bus="BUS-2" connectableBus="BUS-2"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="SUB-3">
+    <iidm:substation id="SUB-10">
         <iidm:voltageLevel id="VL-3" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-3" v="1.01" angle="-12.72"/>
@@ -54,7 +54,7 @@
         <iidm:twoWindingsTransformer id="TWT-4-7" r="0.0" x="0.0020912" g="0.0" b="0.0" ratedU1="0.978" ratedU2="1.0" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId1="VL-4" bus2="BUS-7" connectableBus2="BUS-7" voltageLevelId2="VL-7"/>
         <iidm:twoWindingsTransformer id="TWT-4-9" r="0.0" x="0.0055618" g="0.0" b="0.0" ratedU1="0.969" ratedU2="1.0" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId1="VL-4" bus2="BUS-9" connectableBus2="BUS-9" voltageLevelId2="VL-9"/>
     </iidm:substation>
-    <iidm:substation id="SUB-5">
+    <iidm:substation id="SUB-11">
         <iidm:voltageLevel id="VL-5" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-5" v="1.02" angle="-8.78"/>
@@ -90,7 +90,7 @@
             <iidm:load id="LOAD-10" loadType="UNDEFINED" p0="9.0" q0="5.8" bus="BUS-10" connectableBus="BUS-10"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="SUB-8">
+    <iidm:substation id="SUB-5">
         <iidm:voltageLevel id="VL-11" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-11" v="1.057" angle="-14.79"/>
@@ -98,7 +98,7 @@
             <iidm:load id="LOAD-11" loadType="UNDEFINED" p0="3.5" q0="1.8" bus="BUS-11" connectableBus="BUS-11"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="SUB-9">
+    <iidm:substation id="SUB-3">
         <iidm:voltageLevel id="VL-12" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-12" v="1.055" angle="-15.07"/>
@@ -106,7 +106,7 @@
             <iidm:load id="LOAD-12" loadType="UNDEFINED" p0="6.1" q0="1.6" bus="BUS-12" connectableBus="BUS-12"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="SUB-10">
+    <iidm:substation id="SUB-2">
         <iidm:voltageLevel id="VL-13" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-13" v="1.05" angle="-15.16"/>
@@ -114,7 +114,7 @@
             <iidm:load id="LOAD-13" loadType="UNDEFINED" p0="13.5" q0="5.8" bus="BUS-13" connectableBus="BUS-13"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="SUB-11">
+    <iidm:substation id="SUB-1">
         <iidm:voltageLevel id="VL-14" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-14" v="1.036" angle="-16.04"/>
