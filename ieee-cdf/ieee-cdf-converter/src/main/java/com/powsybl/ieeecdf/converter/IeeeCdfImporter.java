@@ -466,8 +466,9 @@ public class IeeeCdfImporter implements Importer {
 
             // build container to fit IIDM requirements
             ContainersMapping containerMapping = ContainersMapping.create(ieeeCdfModel.getBuses(), ieeeCdfModel.getBranches(),
-                    IeeeCdfBus::getNumber, IeeeCdfBranch::getTapBusNumber, IeeeCdfBranch::getzBusNumber, IeeeCdfBranch::getResistance,
-                    IeeeCdfBranch::getReactance, IeeeCdfImporter::isTransformer);
+                IeeeCdfBus::getNumber, IeeeCdfBranch::getTapBusNumber, IeeeCdfBranch::getzBusNumber, IeeeCdfBranch::getResistance,
+                IeeeCdfBranch::getReactance, IeeeCdfImporter::isTransformer, busNums -> "VL" + busNums.iterator().next(),
+                substationNum -> "S" + substationNum++);
 
             boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
                                                                                   ParameterDefaultValueConfig.INSTANCE);

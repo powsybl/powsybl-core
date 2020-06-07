@@ -12,9 +12,7 @@ import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
 
 import java.util.*;
-import java.util.function.Predicate;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntFunction;
+import java.util.function.*;
 
 /**
  * A utility class that create IIDM containers, i.e voltage levels and substations from a bus branch model with respect
@@ -49,7 +47,8 @@ public class ContainersMapping {
     public static <N, B> ContainersMapping create(List<N> buses, List<B> branches, ToIntFunction<N> busToNum,
                                                   ToIntFunction<B> branchToNum1, ToIntFunction<B> branchToNum2,
                                                   ToDoubleFunction<B> branchToResistance, ToDoubleFunction<B> branchToReactance,
-                                                  Predicate<B> branchToIsTransformer) {
+                                                  Predicate<B> branchToIsTransformer, Function<Set<Integer>, String> busesToVoltageLevelId,
+                                                  IntFunction<String> substationNumToId) {
         Objects.requireNonNull(buses);
         Objects.requireNonNull(branches);
         Objects.requireNonNull(busToNum);
@@ -58,14 +57,17 @@ public class ContainersMapping {
         Objects.requireNonNull(branchToResistance);
         Objects.requireNonNull(branchToReactance);
         Objects.requireNonNull(branchToIsTransformer);
+        Objects.requireNonNull(busesToVoltageLevelId);
+        Objects.requireNonNull(substationNumToId);
 
         ContainersMapping containersMapping = new ContainersMapping();
 
         // group buses connected to non impedant lines to voltage levels
-        createVoltageLevelMapping(buses, branches, busToNum, branchToNum1, branchToNum2, branchToResistance, branchToReactance, containersMapping);
+        createVoltageLevelMapping(buses, branches, busToNum, branchToNum1, branchToNum2, branchToResistance, branchToReactance,
+                busesToVoltageLevelId, containersMapping);
 
         // group voltage levels connected by transformers to substations
-        createSubstationMapping(branches, branchToNum1, branchToNum2, branchToIsTransformer, containersMapping);
+        createSubstationMapping(branches, branchToNum1, branchToNum2, branchToIsTransformer, substationNumToId, containersMapping);
 
         return containersMapping;
     }
@@ -73,7 +75,7 @@ public class ContainersMapping {
     private static <N, B> void createVoltageLevelMapping(List<N> buses, List<B> branches, ToIntFunction<N> busToNum,
                                                          ToIntFunction<B> branchToNum1, ToIntFunction<B> branchToNum2,
                                                          ToDoubleFunction<B> branchToResistance, ToDoubleFunction<B> branchToReactance,
-                                                         ContainersMapping containersMapping) {
+                                                         Function<Set<Integer>, String> busesToVoltageLevelId, ContainersMapping containersMapping) {
         UndirectedGraph<Integer, Object> vlGraph = new Pseudograph<>(Object.class);
         for (N bus : buses) {
             vlGraph.addVertex(busToNum.applyAsInt(bus));
@@ -84,7 +86,7 @@ public class ContainersMapping {
             }
         }
         for (Set<Integer> busNums : new ConnectivityInspector<>(vlGraph).connectedSets()) {
-            String voltageLevelId = "VL" + busNums.iterator().next();
+            String voltageLevelId = busesToVoltageLevelId.apply(busNums);
             containersMapping.voltageLevelIdToBusNums.put(voltageLevelId, busNums);
             for (int busNum : busNums) {
                 containersMapping.busNumToVoltageLevelId.put(busNum, voltageLevelId);
@@ -93,7 +95,8 @@ public class ContainersMapping {
     }
 
     private static <B> void createSubstationMapping(List<B> branches, ToIntFunction<B> branchToNum1, ToIntFunction<B> branchToNum2,
-                                                    Predicate<B> branchToIsTransformer, ContainersMapping containersMapping) {
+                                                    Predicate<B> branchToIsTransformer, IntFunction<String> substationNumToId,
+                                                    ContainersMapping containersMapping) {
         UndirectedGraph<String, Object> sGraph = new Pseudograph<>(Object.class);
         for (String voltageLevelId : containersMapping.voltageLevelIdToBusNums.keySet()) {
             sGraph.addVertex(voltageLevelId);
@@ -106,7 +109,7 @@ public class ContainersMapping {
         }
         int substationNum = 1;
         for (Set<String> voltageLevelIds : new ConnectivityInspector<>(sGraph).connectedSets()) {
-            String substationId = "S" + substationNum++;
+            String substationId = substationNumToId.apply(substationNum++);
             for (String voltageLevelId : voltageLevelIds) {
                 containersMapping.voltageLevelIdToSubstationId.put(voltageLevelId, substationId);
             }

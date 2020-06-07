@@ -104,7 +104,7 @@ public class PhaseTapChangerAdapterTest {
         phaseTapChanger.setLowTapPosition(lowTapPosition);
         assertEquals(lowTapPosition, phaseTapChanger.getLowTapPosition());
 
-        // Not implemented yet !
-        TestUtil.notImplemented(phaseTapChanger::remove);
+        phaseTapChanger.remove();
+        assertNull(twt.getPhaseTapChanger());
     }
 }
