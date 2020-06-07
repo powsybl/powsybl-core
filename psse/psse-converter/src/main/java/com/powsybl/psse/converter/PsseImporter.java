@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -157,8 +157,9 @@ public class PsseImporter implements Importer {
         return voltageLevel;
     }
 
-    private static void createLoad(PsseLoad psseLoad, VoltageLevel voltageLevel) {
+    private static void createLoad(PsseLoad psseLoad, ContainersMapping containerMapping, Network network) {
         String busId = getBusId(psseLoad.getI());
+        VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseLoad.getI()));
         voltageLevel.newLoad()
                 .setId(busId + "-L" + psseLoad.getId())
                 .setConnectableBus(busId)
@@ -169,9 +170,9 @@ public class PsseImporter implements Importer {
 
     }
 
-    private static void createShuntCompensator(PsseFixedShunt psseShunt, PerUnitContext perUnitContext, VoltageLevel voltageLevel) {
+    private static void createShuntCompensator(PsseFixedShunt psseShunt, PerUnitContext perUnitContext, ContainersMapping containerMapping, Network network) {
         String busId = getBusId(psseShunt.getI());
-        double zb = Math.pow(voltageLevel.getNominalV(), 2) / perUnitContext.getSb();
+        VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseShunt.getI()));
         voltageLevel.newShuntCompensator()
                 .setId(busId + "-SH" + psseShunt.getId())
                 .setConnectableBus(busId)
@@ -186,8 +187,9 @@ public class PsseImporter implements Importer {
         }
     }
 
-    private static void createGenerator(PsseGenerator psseGen, VoltageLevel voltageLevel) {
+    private static void createGenerator(PsseGenerator psseGen, ContainersMapping containerMapping, Network network) {
         String busId = getBusId(psseGen.getI());
+        VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseGen.getI()));
         Generator generator =  voltageLevel.newGenerator()
                 .setId(busId + "-G" + psseGen.getId())
                 .setConnectableBus(busId)
@@ -329,16 +331,16 @@ public class PsseImporter implements Importer {
 
             //Create loads
             for (PsseLoad psseLoad : psseModel.getLoads()) {
-                createLoad(psseLoad, network.getVoltageLevel(containerMapping.getVoltageLevelId(psseLoad.getI())));
+                createLoad(psseLoad, containerMapping, network);
             }
 
             //Create shunts
             for (PsseFixedShunt psseShunt : psseModel.getFixedShunts()) {
-                createShuntCompensator(psseShunt, perUnitContext, network.getVoltageLevel(containerMapping.getVoltageLevelId(psseShunt.getI())));
+                createShuntCompensator(psseShunt, perUnitContext, containerMapping, network);
             }
 
             for (PsseGenerator psseGen : psseModel.getGenerators()) {
-                createGenerator(psseGen, network.getVoltageLevel(containerMapping.getVoltageLevelId(psseGen.getI())));
+                createGenerator(psseGen, containerMapping, network);
             }
 
             for (PsseNonTransformerBranch psseLine : psseModel.getNonTransformerBranches()) {
