@@ -317,7 +317,8 @@ public class PsseImporter implements Importer {
             ToDoubleFunction<Object> branchToReactance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getX() : ((PsseTransformer) branch).getSecondRecord().getX12();
             Predicate<Object> branchToIsTransformer = branch -> branch instanceof PsseTransformer;
             ContainersMapping containerMapping = ContainersMapping.create(psseModel.getBuses(), branches, PsseBus::getI, branchToNum1,
-                                                                          branchToNum2, branchToResistance, branchToReactance, branchToIsTransformer);
+                branchToNum2, branchToResistance, branchToReactance, branchToIsTransformer,
+                busNums -> "VL" + busNums.iterator().next(), substationNum -> "S" + substationNum++);
 
             boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
                     ParameterDefaultValueConfig.INSTANCE);
