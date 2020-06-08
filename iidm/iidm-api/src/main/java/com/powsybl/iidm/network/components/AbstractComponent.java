@@ -4,13 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.impl;
+package com.powsybl.iidm.network.components;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Component;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.Network;
 
-import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,18 +19,15 @@ import java.util.stream.StreamSupport;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractComponentImpl implements Component {
+abstract class AbstractComponent implements Component {
 
     private final int num;
 
     private final int size;
 
-    private final Ref<NetworkImpl> networkRef;
-
-    AbstractComponentImpl(int num, int size, Ref<NetworkImpl> networkRef) {
+    protected AbstractComponent(int num, int size) {
         this.num = num;
         this.size = size;
-        this.networkRef = Objects.requireNonNull(networkRef);
     }
 
     @Override
@@ -46,15 +42,17 @@ abstract class AbstractComponentImpl implements Component {
 
     @Override
     public Iterable<Bus> getBuses() {
-        return StreamSupport.stream(networkRef.get().getBusView().getBuses().spliterator(), false)
+        return StreamSupport.stream(getNetwork().getBusView().getBuses().spliterator(), false)
                             .filter(getBusPredicate())
                             .collect(Collectors.toList());
     }
 
     @Override
     public Stream<Bus> getBusStream() {
-        return networkRef.get().getBusView().getBusStream().filter(getBusPredicate());
+        return getNetwork().getBusView().getBusStream().filter(getBusPredicate());
     }
+
+    protected abstract Network getNetwork();
 
     protected abstract Predicate<Bus> getBusPredicate();
 }

@@ -6,23 +6,26 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Component;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.components.AbstractSynchronousComponent;
 import com.powsybl.iidm.network.impl.util.Ref;
 
-import java.util.function.Predicate;
+import java.util.Objects;
 
 /**
  * @author Thomas ADAM <tadam at silicom.fr>
  */
-class SynchronousComponentImpl extends AbstractComponentImpl implements Component {
+class SynchronousComponentImpl extends AbstractSynchronousComponent {
+
+    private final Ref<NetworkImpl> networkRef;
 
     SynchronousComponentImpl(int num, int size, Ref<NetworkImpl> networkRef) {
-        super(num, size, networkRef);
+        super(num, size);
+        this.networkRef = Objects.requireNonNull(networkRef);
     }
 
     @Override
-    protected Predicate<Bus> getBusPredicate() {
-        return bus -> bus.getSynchronousComponent() == SynchronousComponentImpl.this;
+    protected Network getNetwork() {
+        return networkRef.get();
     }
 }
