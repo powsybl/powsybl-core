@@ -41,7 +41,7 @@ public class PsseImporter implements Importer {
 
     private static final String FORMAT = "PSS/E";
 
-    private static final String EXT = "raw"; //TO DO: support both RAW and raw extensions
+    private static final String EXT = "raw"; //TODO: support both RAW and raw extensions
 
     private static final Parameter IGNORE_BASE_VOLTAGE_PARAMETER = new Parameter("ignore-base-voltage",
             ParameterType.BOOLEAN,
@@ -164,8 +164,8 @@ public class PsseImporter implements Importer {
                 .setId(busId + "-L" + psseLoad.getId())
                 .setConnectableBus(busId)
                 .setBus(busId)
-                .setP0(psseLoad.getPl()) //TO DO: take into account Ip, Yp
-                .setQ0(psseLoad.getQl()) //TO DO: take into account Iq, Yq
+                .setP0(psseLoad.getPl()) //TODO: take into account Ip, Yp
+                .setQ0(psseLoad.getQl()) //TODO: take into account Iq, Yq
                 .add();
 
     }
@@ -177,7 +177,7 @@ public class PsseImporter implements Importer {
                 .setId(busId + "-SH" + psseShunt.getId())
                 .setConnectableBus(busId)
                 .setBus(busId)
-                .setbPerSection(psseShunt.getBl())//TO DO: take into account gl
+                .setbPerSection(psseShunt.getBl())//TODO: take into account gl
                 .setCurrentSectionCount(1)
                 .setMaximumSectionCount(1)
                 .add();
@@ -207,11 +207,11 @@ public class PsseImporter implements Importer {
                 generator.setTargetV(psseGen.getVs() * voltageLevel.getNominalV());
                 generator.setVoltageRegulatorOn(true);
             } else {
-                //TO DO : implement remote voltage control regulation
+                //TODO : implement remote voltage control regulation
                 LOGGER.warn("Remote Voltage control not supported ({})", generator.getId());
             }
         }
-        //TO DO: take into account zr zx Mbase...
+        //TODO: take into account zr zx Mbase...
     }
 
     private static void createBuses(PsseRawModel psseModel, ContainersMapping containerMapping, PerUnitContext perUnitContext,
@@ -250,9 +250,9 @@ public class PsseImporter implements Importer {
                 .setVoltageLevel2(voltageLevel2Id)
                 .setR(psseLine.getR() * zb)
                 .setX(psseLine.getX() * zb)
-                .setG1(0) //TO DO
+                .setG1(0) //TODO
                 .setB1(psseLine.getB() / zb / 2)
-                .setG2(0) //TO DO
+                .setG2(0) //TODO
                 .setB2(psseLine.getB() / zb / 2)
                 .add();
 
@@ -284,8 +284,8 @@ public class PsseImporter implements Importer {
                     .setRatedU2(voltageLevel2.getNominalV())
                     .setR(psseTfo.getSecondRecord().getR12() * zb)
                     .setX(psseTfo.getSecondRecord().getX12() * zb)
-                    .setG(0) //TO DO
-                    .setB(0) //TO DO
+                    .setG(0) //TODO
+                    .setB(0) //TODO
                     .add();
 
         } else {
@@ -306,7 +306,7 @@ public class PsseImporter implements Importer {
             PsseRawModel psseModel = new PsseRawReader().read(reader);
 
             // set date and time
-            // TO DO
+            // TODO
 
             // build container to fit IIDM requirements
             List<Object> branches = ImmutableList.builder()
