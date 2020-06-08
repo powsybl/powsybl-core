@@ -30,8 +30,13 @@ public class CgmesModelExtensionAdderImpl extends AbstractExtensionAdder<Network
     }
 
     @Override
-    public CgmesModelExtensionAdder withModelAndUpdate(CgmesModel cgmes, CgmesUpdate cgmesUpdate) {
+    public CgmesModelExtensionAdder withModel(CgmesModel cgmes) {
         this.cgmes = cgmes;
+        return this;
+    }
+
+    @Override
+    public CgmesModelExtensionAdder withUpdate(CgmesUpdate cgmesUpdate) {
         this.cgmesUpdate = cgmesUpdate;
         return this;
     }

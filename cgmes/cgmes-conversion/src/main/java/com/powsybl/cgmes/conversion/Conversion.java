@@ -203,7 +203,7 @@ public class Conversion {
             // Store a reference to the original CGMES model inside the IIDM network
             // CgmesUpdate will add a listener to Network changes
             CgmesUpdate cgmesUpdater = new CgmesUpdate(network);
-            network.newExtension(CgmesModelExtensionAdder.class).withModelAndUpdate(cgmes, cgmesUpdater).add();
+            network.newExtension(CgmesModelExtensionAdder.class).withModel(cgmes).withUpdate(cgmesUpdater).add();
         }
 
         // apply post-processors

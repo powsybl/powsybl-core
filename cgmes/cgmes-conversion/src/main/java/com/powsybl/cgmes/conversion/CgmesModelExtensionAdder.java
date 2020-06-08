@@ -21,5 +21,7 @@ public interface CgmesModelExtensionAdder extends ExtensionAdder<Network, CgmesM
         return CgmesModelExtension.class;
     }
 
-    CgmesModelExtensionAdder withModelAndUpdate(CgmesModel cgmes, CgmesUpdate cgmesUpdate);
+    CgmesModelExtensionAdder withModel(CgmesModel cgmes);
+
+    CgmesModelExtensionAdder withUpdate(CgmesUpdate cgmesUpdate);
 }
