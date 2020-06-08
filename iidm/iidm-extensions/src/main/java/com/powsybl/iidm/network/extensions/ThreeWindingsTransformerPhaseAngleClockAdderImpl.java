@@ -29,8 +29,13 @@ public class ThreeWindingsTransformerPhaseAngleClockAdderImpl
     }
 
     @Override
-    public ThreeWindingsTransformerPhaseAngleClockAdder withPhasesAnglesClock(int phaseAngleClockLeg2, int phaseAngleClockLeg3) {
+    public ThreeWindingsTransformerPhaseAngleClockAdder withPhaseAngleClockLeg2(int phaseAngleClockLeg2) {
         this.phaseAngleClockLeg2 = phaseAngleClockLeg2;
+        return this;
+    }
+
+    @Override
+    public ThreeWindingsTransformerPhaseAngleClockAdder withPhaseAngleClockLeg3(int phaseAngleClockLeg3) {
         this.phaseAngleClockLeg3 = phaseAngleClockLeg3;
         return this;
     }

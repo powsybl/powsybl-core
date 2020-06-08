@@ -20,5 +20,7 @@ public interface ThreeWindingsTransformerPhaseAngleClockAdder
         return ThreeWindingsTransformerPhaseAngleClock.class;
     }
 
-    ThreeWindingsTransformerPhaseAngleClockAdder withPhasesAnglesClock(int phaseAngleClockLeg2, int phaseAngleClockLeg3);
+    ThreeWindingsTransformerPhaseAngleClockAdder withPhaseAngleClockLeg2(int phaseAngleClockLeg2);
+
+    ThreeWindingsTransformerPhaseAngleClockAdder withPhaseAngleClockLeg3(int phaseAngleClockLeg3);
 }

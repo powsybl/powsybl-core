@@ -105,7 +105,8 @@ public class PhaseAngleClock implements CgmesImportPostProcessor {
             }
 
             if (phaseAngleClock2 != 0 || phaseAngleClock3 != 0) {
-                tx.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class).withPhasesAnglesClock(phaseAngleClock2, phaseAngleClock3).add();
+                tx.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class)
+                        .withPhaseAngleClockLeg2(phaseAngleClock2).withPhaseAngleClockLeg3(phaseAngleClock3).add();
 
             }
         }
