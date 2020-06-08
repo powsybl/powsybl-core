@@ -25,7 +25,7 @@ import java.util.stream.StreamSupport;
  *
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public final class MergingView implements Network {
+public final class MergingView implements Network, MultiVariantObject {
     private static final Logger LOGGER = LoggerFactory.getLogger(MergingView.class);
 
     /** Indexing of all Identifiable into current merging view */
@@ -33,6 +33,10 @@ public final class MergingView implements Network {
 
     /** Delegate for Identifiable creation into current merging view */
     private final Network workingNetwork;
+
+    /** Components managers */
+    private final Map<String, ConnectedComponentsManager> connectedComponentsManager = new HashMap<>();
+    private final Map<String, SynchronousComponentsManager> synchronousComponentsManager = new HashMap<>();
 
     /** To listen events from merging network */
     private final NetworkListener mergeDanglingLineListener;
@@ -123,12 +127,9 @@ public final class MergingView implements Network {
                     .orElse(null);
         }
 
-        // -------------------------------
-        // Not implemented methods -------
-        // -------------------------------
         @Override
         public Collection<Component> getConnectedComponents() {
-            throw createNotImplementedException();
+            return Collections.unmodifiableList(index.getView().getConnectedComponentsManager().getConnectedComponents());
         }
     }
 
@@ -143,6 +144,10 @@ public final class MergingView implements Network {
 
         index = new MergingViewIndex(this);
         variantManager = new MergingVariantManager(index);
+
+        connectedComponentsManager.put(VariantManagerConstants.INITIAL_VARIANT_ID, new ConnectedComponentsManager(this));
+        synchronousComponentsManager.put(VariantManagerConstants.INITIAL_VARIANT_ID, new SynchronousComponentsManager(this));
+
         // Listeners creation
         mergeDanglingLineListener = new MergingLineListener(index);
         danglingLinePowerListener = new DanglingLinePowerListener(index);
@@ -814,8 +819,24 @@ public final class MergingView implements Network {
     }
 
     @Override
-    public VariantManager getVariantManager() {
+    public MergingVariantManager getVariantManager() {
         return variantManager;
+    }
+
+    @Override
+    public void cloneVariant(String sourceVariantId, List<String> targetVariantIds) {
+        // FIXME(mathbagu)
+        for (String targetVariantId : targetVariantIds) {
+            connectedComponentsManager.put(targetVariantId, new ConnectedComponentsManager(this));
+            synchronousComponentsManager.put(targetVariantId, new SynchronousComponentsManager(this));
+        }
+    }
+
+    @Override
+    public void removeVariant(String variantId) {
+        // FIXME(mathbagu)
+        connectedComponentsManager.remove(variantId);
+        synchronousComponentsManager.remove(variantId);
     }
 
     private void addInternalListeners(Network network) {
@@ -823,6 +844,14 @@ public final class MergingView implements Network {
         network.addListener(mergeDanglingLineListener);
         network.addListener(danglingLinePowerListener);
         network.addListener(topologyListener);
+    }
+
+    ConnectedComponentsManager getConnectedComponentsManager() {
+        return connectedComponentsManager.get(getVariantManager().getWorkingVariantId());
+    }
+
+    SynchronousComponentsManager getSynchronousComponentsManager() {
+        return synchronousComponentsManager.get(getVariantManager().getWorkingVariantId());
     }
 
     // -------------------------------

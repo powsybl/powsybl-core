@@ -6,15 +6,17 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.TopologyTraverser;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class TerminalAdapter extends AbstractAdapter<Terminal> implements Terminal {
+public class TerminalAdapter extends AbstractAdapter<Terminal> implements Terminal, MultiVariantObject {
 
     class BusBreakerViewAdapter extends AbstractAdapter<Terminal.BusBreakerView> implements Terminal.BusBreakerView {
 
@@ -83,6 +85,10 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
     }
 
     private NodeBreakerViewAdapter nodeBreakerView;
+
+    private final Map<String, Integer> connectedComponentNumber = new HashMap<>();
+
+    private final Map<String, Integer> synchronousComponentNumber = new HashMap<>();
 
     TerminalAdapter(final Terminal delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -167,6 +173,40 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
     @Override
     public boolean isConnected() {
         return getDelegate().isConnected();
+    }
+
+    @Override
+    public void cloneVariant(String sourceVariantId, List<String> targetVariantIds) {
+        for (String targetVariantId : targetVariantIds) {
+            connectedComponentNumber.put(targetVariantId, connectedComponentNumber.get(sourceVariantId));
+            synchronousComponentNumber.put(targetVariantId, synchronousComponentNumber.get(sourceVariantId));
+        }
+    }
+
+    @Override
+    public void removeVariant(String variantId) {
+        connectedComponentNumber.remove(variantId);
+        synchronousComponentNumber.remove(variantId);
+    }
+
+    int getConnectedComponentNumber() {
+        String variantId = getIndex().getView().getVariantManager().getWorkingVariantId();
+        return connectedComponentNumber.get(variantId);
+    }
+
+    void setConnectedComponentNumber(int connectedComponentNumber) {
+        String variantId = getIndex().getView().getVariantManager().getWorkingVariantId();
+        this.connectedComponentNumber.put(variantId, connectedComponentNumber);
+    }
+
+    int getSynchronousComponentNumber() {
+        String variantId = getIndex().getView().getVariantManager().getWorkingVariantId();
+        return synchronousComponentNumber.get(variantId);
+    }
+
+    void setSynchronousComponentNumber(int synchronousComponentNumber) {
+        String variantId = getIndex().getView().getVariantManager().getWorkingVariantId();
+        this.synchronousComponentNumber.put(variantId, synchronousComponentNumber);
     }
 
     // -------------------------------

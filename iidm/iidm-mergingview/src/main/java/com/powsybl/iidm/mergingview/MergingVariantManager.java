@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.VariantManagerConstants;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -74,6 +75,8 @@ class MergingVariantManager implements VariantManager {
     @Override
     public void cloneVariant(String sourceVariantId, List<String> targetVariantIds, boolean mayOverwrite) {
         getVariantManagerStream().forEach(v -> v.cloneVariant(sourceVariantId, targetVariantIds, mayOverwrite));
+
+        index.getView().cloneVariant(sourceVariantId, targetVariantIds);
     }
 
     @Override
@@ -84,6 +87,8 @@ class MergingVariantManager implements VariantManager {
     @Override
     public void cloneVariant(String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
         getVariantManagerStream().forEach(v -> v.cloneVariant(sourceVariantId, targetVariantId, mayOverwrite));
+
+        index.getView().cloneVariant(sourceVariantId, Arrays.asList(targetVariantId));
     }
 
     @Override
