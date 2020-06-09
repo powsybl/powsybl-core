@@ -36,7 +36,6 @@ public class EntsoeAreaXmlSerializerTest extends AbstractConverterTest {
         Substation s = network.getSubstation("S");
         s.newExtension(EntsoeAreaAdder.class).withCode(EntsoeGeographicalCode.BE).add();
         EntsoeArea country = s.getExtension(EntsoeArea.class);
-        s.addExtension(EntsoeArea.class, country);
 
         Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
