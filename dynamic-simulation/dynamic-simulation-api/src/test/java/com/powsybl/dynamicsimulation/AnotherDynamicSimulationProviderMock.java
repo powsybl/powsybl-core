@@ -27,7 +27,7 @@ public class AnotherDynamicSimulationProviderMock implements DynamicSimulationPr
     }
 
     @Override
-    public CompletableFuture<DynamicSimulationResult> run(Network network, CurvesSupplier curvesSupplier,
+    public CompletableFuture<DynamicSimulationResult> run(Network network, MappingSupplier mappingSupplier, CurvesSupplier curvesSupplier,
         String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters) {
         return CompletableFuture.completedFuture(new DynamicSimulationResultImpl(true, ""));
     }

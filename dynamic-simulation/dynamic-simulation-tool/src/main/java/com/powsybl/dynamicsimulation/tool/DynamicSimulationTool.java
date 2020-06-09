@@ -13,9 +13,12 @@ import com.powsybl.dynamicsimulation.CurvesSupplier;
 import com.powsybl.dynamicsimulation.DynamicSimulation;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
+import com.powsybl.dynamicsimulation.MappingSupplier;
 import com.powsybl.dynamicsimulation.groovy.CurveGroovyExtension;
+import com.powsybl.dynamicsimulation.groovy.DynamicModelExtension;
 import com.powsybl.dynamicsimulation.groovy.GroovyCurvesSupplier;
 import com.powsybl.dynamicsimulation.groovy.GroovyExtension;
+import com.powsybl.dynamicsimulation.groovy.GroovyMappingSupplier;
 import com.powsybl.dynamicsimulation.json.DynamicSimulationResultSerializer;
 import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
 import com.powsybl.iidm.import_.ImportConfig;
@@ -45,6 +48,7 @@ import java.util.Properties;
 public class DynamicSimulationTool implements Tool {
 
     private static final String CASE_FILE = "case-file";
+    private static final String MAPPING_FILE = "mapping-file";
     private static final String CURVES_FILE = "curves-file";
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String SKIP_POSTPROC = "skip-postproc";
@@ -74,6 +78,12 @@ public class DynamicSimulationTool implements Tool {
                 Options options = new Options();
                 options.addOption(Option.builder().longOpt(CASE_FILE)
                     .desc("the case path")
+                    .hasArg()
+                    .argName("FILE")
+                    .required()
+                    .build());
+                options.addOption(Option.builder().longOpt(MAPPING_FILE)
+                    .desc("mapping description as Groovy file")
                     .hasArg()
                     .argName("FILE")
                     .required()
@@ -131,6 +141,12 @@ public class DynamicSimulationTool implements Tool {
 
         DynamicSimulation.Runner runner = DynamicSimulation.find();
 
+        MappingSupplier mappingSupplier = MappingSupplier.empty();
+        if (line.hasOption(MAPPING_FILE)) {
+            Path mappingFile = context.getFileSystem().getPath(line.getOptionValue(MAPPING_FILE));
+            mappingSupplier = createMappingSupplier(mappingFile, runner.getName());
+        }
+
         CurvesSupplier curvesSupplier = CurvesSupplier.empty();
         if (line.hasOption(CURVES_FILE)) {
             Path curvesFile = context.getFileSystem().getPath(line.getOptionValue(CURVES_FILE));
@@ -143,12 +159,21 @@ public class DynamicSimulationTool implements Tool {
             JsonDynamicSimulationParameters.update(params, parametersFile);
         }
 
-        DynamicSimulationResult result = runner.run(network, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params);
+        DynamicSimulationResult result = runner.run(network, mappingSupplier, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params);
 
         if (outputFile != null) {
             exportResult(result, context, outputFile);
         } else {
             printResult(result, context);
+        }
+    }
+
+    private MappingSupplier createMappingSupplier(Path path, String providerName) {
+        String extension = FilenameUtils.getExtension(path.toString());
+        if (extension.equals("groovy")) {
+            return new GroovyMappingSupplier(path, GroovyExtension.find(DynamicModelExtension.class, providerName));
+        } else {
+            throw new PowsyblException("Unsupported mapping format: " + extension);
         }
     }
 
