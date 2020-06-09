@@ -564,6 +564,15 @@ public class CgmesConformity1ModifiedConversionTest {
         Bus bus2 = line.getTerminal2().getBusView().getBus();
         assertNull(bus1);
         assertNull(bus2);
+        // End2 must have a connectable bus
+        Bus cbus2 = line.getTerminal2().getBusView().getConnectableBus();
+        assertNotNull(cbus2);
+        assertTrue(cbus2.getConnectedTerminalCount() > 1);
+        // End1 may or may not have a bus defined in BusView,
+        // Depending on the definition of a bus,
+        // that is under review (PR #1316)
+        // The end1 will only be connectable to one end
+        // of a real line segment
     }
 
     private FileSystem fileSystem;
