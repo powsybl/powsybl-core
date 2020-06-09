@@ -214,7 +214,7 @@ public class Conversion {
 
         if (config.storeCgmesConversionContextAsNetworkExtension()) {
             // Store the terminal mapping in an extension for external validation
-            network.addExtension(CgmesConversionContextExtension.class, new CgmesConversionContextExtension(context));
+            network.newExtension(CgmesConversionContextExtensionAdder.class).withContext(context).add();
         }
 
         return network;
