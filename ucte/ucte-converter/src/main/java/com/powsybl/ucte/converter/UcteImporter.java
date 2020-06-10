@@ -912,15 +912,7 @@ public class UcteImporter implements Importer {
 
                 EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);
 
-                Network network = networkFactory.createNetwork(fileName, "UCTE");
-                network.setCaseDate(ucteFileName.getDate());
-                network.setForecastDistance(ucteFileName.getForecastDistance());
-
-                createBuses(ucteNetwork, network);
-                createLines(ucteNetwork, network);
-                createTransformers(ucteNetwork, network, ucteFileName);
-
-                mergeXnodeDanglingLines(ucteNetwork, network);
+                Network network = createNetwork(fileName, ucteFileName, networkFactory, ucteNetwork);
 
                 stopwatch.stop();
                 LOGGER.debug("UCTE import done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -965,18 +957,10 @@ public class UcteImporter implements Importer {
                     if (mainEntryOp.isPresent()) {
                         EntsoeFileName ucteFileName = EntsoeFileName.parse(mainEntryOp.get().getName());
 
-                        Network network = networkFactory.createNetwork(fileName, "UCTE");
-                        network.setCaseDate(ucteFileName.getDate());
-                        network.setForecastDistance(ucteFileName.getForecastDistance());
-
-                        createBuses(ucteNetwork, network);
-                        createLines(ucteNetwork, network);
-                        createTransformers(ucteNetwork, network, ucteFileName);
-
-                        mergeXnodeDanglingLines(ucteNetwork, network);
+                        Network network = createNetwork(fileName, ucteFileName, networkFactory, ucteNetwork);
 
                         stopwatch.stop();
-                        LOGGER.debug("UCTE import done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                        LOGGER.debug("UCTE import from DataStore done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
                         return network;
                     }
@@ -987,6 +971,19 @@ public class UcteImporter implements Importer {
             throw new PowsyblException(e);
         }
         return null;
+    }
+
+    private Network createNetwork(String fileName, EntsoeFileName ucteFileName, NetworkFactory networkFactory, UcteNetworkExt ucteNetwork) {
+        Network network = networkFactory.createNetwork(fileName, "UCTE");
+        network.setCaseDate(ucteFileName.getDate());
+        network.setForecastDistance(ucteFileName.getForecastDistance());
+
+        createBuses(ucteNetwork, network);
+        createLines(ucteNetwork, network);
+        createTransformers(ucteNetwork, network, ucteFileName);
+
+        mergeXnodeDanglingLines(ucteNetwork, network);
+        return network;
     }
 
     @Override

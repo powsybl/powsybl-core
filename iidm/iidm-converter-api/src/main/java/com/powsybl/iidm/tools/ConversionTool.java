@@ -117,14 +117,7 @@ public class ConversionTool implements Tool {
         Network network = Importers.loadNetwork(context.getFileSystem().getPath(inputFile), context.getShortTimeExecutionComputationManager(), createImportConfig(), inputParams);
 
         Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
-        /*
-        DataSource ds2 = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new DefaultDataSourceObserver() {
-            @Override
-            public void opened(String streamName) {
-                context.getOutputStream().println("Generating file " + streamName + "...");
-            }
-        });
-        */
+
         Path out = context.getFileSystem().getPath(outputFile);
         DataStore dst = DataStores.createDataStore(out);
 
