@@ -6,145 +6,52 @@
  */
 package com.powsybl.entsoe.util;
 
-import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Line;
-
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MergedXnode extends AbstractExtension<Line> {
-
-    private float rdp; // r divider position 1 -> 2
-
-    private float xdp; // x divider position 1 -> 2
-
-    private double xnodeP1;
-
-    private double xnodeQ1;
-
-    private double xnodeP2;
-
-    private double xnodeQ2;
-
-    private String line1Name;
-
-    private String line2Name;
-
-    private String code;
-
-    public MergedXnode(Line line, float rdp, float xdp, double xnodeP1, double xnodeQ1, double xnodeP2, double xnodeQ2,
-                       String line1Name, String line2Name, String code) {
-        super(line);
-        this.rdp = checkDividerPosition(rdp);
-        this.xdp = checkDividerPosition(xdp);
-        this.xnodeP1 = checkPowerFlow(xnodeP1);
-        this.xnodeQ1 = checkPowerFlow(xnodeQ1);
-        this.xnodeP2 = checkPowerFlow(xnodeP2);
-        this.xnodeQ2 = checkPowerFlow(xnodeQ2);
-        this.line1Name = Objects.requireNonNull(line1Name);
-        this.line2Name = Objects.requireNonNull(line2Name);
-        this.code = Objects.requireNonNull(code);
-    }
-
-    private static float checkDividerPosition(float dp) {
-        if (dp < 0f || dp > 1f || Double.isNaN(dp)) {
-            throw new IllegalArgumentException("Invalid divider postion: " + dp);
-        }
-        return dp;
-    }
-
-    private static double checkPowerFlow(double value) {
-        if (Double.isNaN(value)) {
-            throw new IllegalArgumentException("Power flow is invalid");
-        }
-        return value;
-    }
+public interface MergedXnode extends Extension<Line> {
 
     @Override
-    public String getName() {
+    default String getName() {
         return "mergedXnode";
     }
 
-    public float getRdp() {
-        return rdp;
-    }
+    float getRdp();
 
-    public MergedXnode setRdp(float rdp) {
-        this.rdp = checkDividerPosition(rdp);
-        return this;
-    }
+    MergedXnode setRdp(float rdp);
 
-    public float getXdp() {
-        return xdp;
-    }
+    float getXdp();
 
-    public MergedXnode setXdp(float xdp) {
-        this.xdp = checkDividerPosition(xdp);
-        return this;
-    }
+    MergedXnode setXdp(float xdp);
 
-    public double getXnodeP1() {
-        return xnodeP1;
-    }
+    double getXnodeP1();
 
-    public MergedXnode setXnodeP1(double xNodeP1) {
-        this.xnodeP1 = checkPowerFlow(xNodeP1);
-        return this;
-    }
+    MergedXnode setXnodeP1(double xNodeP1);
 
-    public double getXnodeQ1() {
-        return xnodeQ1;
-    }
+    double getXnodeQ1();
 
-    public MergedXnode setXnodeQ1(double xNodeQ1) {
-        this.xnodeQ1 = checkPowerFlow(xNodeQ1);
-        return this;
-    }
+    MergedXnode setXnodeQ1(double xNodeQ1);
 
-    public double getXnodeP2() {
-        return xnodeP2;
-    }
+    double getXnodeP2();
 
-    public MergedXnode setXnodeP2(double xNodeP2) {
-        this.xnodeP2 = checkPowerFlow(xNodeP2);
-        return this;
-    }
+    MergedXnode setXnodeP2(double xNodeP2);
 
-    public double getXnodeQ2() {
-        return xnodeQ2;
-    }
+    double getXnodeQ2();
 
-    public MergedXnode setXnodeQ2(double xNodeQ2) {
-        this.xnodeQ2 = checkPowerFlow(xNodeQ2);
-        return this;
-    }
+    MergedXnode setXnodeQ2(double xNodeQ2);
 
-    public String getLine1Name() {
-        return line1Name;
-    }
+    String getLine1Name();
 
-    public MergedXnode setLine1Name(String line1Name) {
-        this.line1Name = Objects.requireNonNull(line1Name);
-        return this;
-    }
+    MergedXnode setLine1Name(String line1Name);
 
-    public String getLine2Name() {
-        return line2Name;
-    }
+    String getLine2Name();
 
-    public MergedXnode setLine2Name(String line2Name) {
-        this.line2Name = Objects.requireNonNull(line2Name);
-        return this;
-    }
+    MergedXnode setLine2Name(String line2Name);
 
-    public String getCode() {
-        return code;
-    }
+    String getCode();
 
-    public MergedXnode setCode(String xNodeCode) {
-        this.code = Objects.requireNonNull(xNodeCode);
-        return this;
-    }
+    MergedXnode setCode(String xNodeCode);
 }
