@@ -126,7 +126,7 @@ public class UcteImporter implements Importer {
 
             EntsoeGeographicalCode regionalCode = getRegionalGeographicalCode(substation);
             if (regionalCode != null) {
-                substation.addExtension(EntsoeArea.class, new EntsoeArea(substation, regionalCode));
+                substation.newExtension(EntsoeAreaAdder.class).withCode(regionalCode).add();
             }
 
             for (UcteVoltageLevel ucteVoltageLevel : ucteSubstation.getVoltageLevels()) {
