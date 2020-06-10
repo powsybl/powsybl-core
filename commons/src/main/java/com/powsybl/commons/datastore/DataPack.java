@@ -21,7 +21,7 @@ import com.google.common.io.ByteStreams;
  */
 public class DataPack {
 
-    public static String MAIN_ENTRY_TAG = "MAIN_ENTRY";
+    public static final String MAIN_ENTRY_TAG = "MAIN_ENTRY";
 
     private final String dataFormatId;
 
