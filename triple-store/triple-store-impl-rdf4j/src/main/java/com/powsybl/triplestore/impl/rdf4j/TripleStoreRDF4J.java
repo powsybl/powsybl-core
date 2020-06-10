@@ -121,17 +121,34 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             RepositoryResult<Resource> contexts = conn.getContextIDs();
             while (contexts.hasNext()) {
                 Resource context = contexts.next();
-                LOGGER.info("Writing context {}", context);
-
-                RepositoryResult<Statement> statements;
-                statements = conn.getStatements(null, null, null, context);
-                Model model = QueryResults.asModel(statements);
-                copyNamespacesToModel(conn, model);
-
-                String outname = context.toString();
-                write(model, outputStream(ds, outname));
+                write(ds, conn, context);
             }
         }
+    }
+
+    @Override
+    public void write(DataSource ds, String contextName) {
+        try (RepositoryConnection conn = repo.getConnection()) {
+            RepositoryResult<Resource> contexts = conn.getContextIDs();
+            while (contexts.hasNext()) {
+                Resource context = contexts.next();
+                if (context.stringValue().equals(contextName)) {
+                    write(ds, conn, context);
+                }
+            }
+        }
+    }
+
+    private void write(DataSource ds, RepositoryConnection conn, Resource context) {
+        LOGGER.info("Writing context {}", context);
+
+        RepositoryResult<Statement> statements;
+        statements = conn.getStatements(null, null, null, context);
+        Model model = QueryResults.asModel(statements);
+        copyNamespacesToModel(conn, model);
+
+        String outname = context.toString();
+        write(model, outputStream(ds, outname));
     }
 
     @Override

@@ -22,7 +22,7 @@ public class TwtDataTest {
 
     @Test
     public void test() {
-        TwtData twtData = new TwtData(new TwtTestData().get3WTransformer(), 0, false);
+        TwtData twtData = new TwtData(new TwtTestData().get3WTransformer(), 0, false, false);
 
         assertEquals(TwtTestData.P1, twtData.getComputedP(Side.ONE), .3);
         assertEquals(TwtTestData.Q1, twtData.getComputedQ(Side.ONE), .3);
@@ -33,6 +33,14 @@ public class TwtDataTest {
 
         assertEquals(TwtTestData.STAR_U, twtData.getStarU(), .0001);
         assertEquals(TwtTestData.STAR_ANGLE, Math.toDegrees(twtData.getStarTheta()), .0001);
+    }
+
+    @Test
+    public void testSplitShuntAdmittance() {
+        ThreeWindingsTransformer twt = new TwtTestData().get3WTransformer();
+        TwtData twtData = new TwtData(twt, 0, false, true);
+        boolean ok = t3xCompareFlow(twtData, 99.231950, 2.876479, -216.194348, -85.558437, 117.981856, 92.439531);
+        assertTrue(ok);
     }
 
     @Test
