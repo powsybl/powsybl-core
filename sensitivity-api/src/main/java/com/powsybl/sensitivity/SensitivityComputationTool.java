@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.sensitivity.converter.CsvSensitivityComputationResultExporter;
 import com.powsybl.sensitivity.converter.SensitivityComputationResultExporters;
+import com.powsybl.sensitivity.json.JsonSensitivityComputationParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -41,9 +42,9 @@ public class SensitivityComputationTool implements Tool {
     private static final String CASE_FILE_OPTION = "case-file";
     private static final String OUTPUT_FILE_OPTION = "output-file";
     private static final String OUTPUT_FORMAT_OPTION = "output-format";
-    private static final String SKIP_POSTPROC_OPTION = "skip-postproc";
     private static final String FACTORS_FILE_OPTION = "factors-file";
     private static final String CONTINGENCIES_FILE_OPTION = "contingencies-file";
+    private static final String PARAMETERS_FILE = "parameters-file";
 
     @Override
     public Command getCommand() {
@@ -93,8 +94,10 @@ public class SensitivityComputationTool implements Tool {
                         .hasArg()
                         .argName("FORMAT")
                         .build());
-                options.addOption(Option.builder().longOpt(SKIP_POSTPROC_OPTION)
-                        .desc("skip network importer post processors (when configured)")
+                options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
+                        .desc("sensivity computation parameters as JSON file")
+                        .hasArg()
+                        .argName("FILE")
                         .build());
                 options.addOption(createImportParametersFileOption());
                 options.addOption(createImportParameterOption());
@@ -111,12 +114,10 @@ public class SensitivityComputationTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
-        boolean skipPostProc = line.hasOption(SKIP_POSTPROC_OPTION);
         Path outputFile = null;
         String format = null;
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
 
-        ImportConfig importConfig = (!skipPostProc) ? ImportConfig.load() : new ImportConfig();
         // process a single network: output-file/output-format options available
         if (line.hasOption(OUTPUT_FILE_OPTION)) {
             outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
@@ -130,13 +131,18 @@ public class SensitivityComputationTool implements Tool {
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), importConfig, inputParams);
+        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
         SensitivityComputation sensitivityComputation = defaultConfig.newFactoryImpl(SensitivityComputationFactory.class).create(network, context.getShortTimeExecutionComputationManager(), 0);
 
         SensitivityComputationParameters params = SensitivityComputationParameters.load();
+
+        if (line.hasOption(PARAMETERS_FILE)) {
+            Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
+            JsonSensitivityComputationParameters.update(params, parametersFile);
+        }
         String workingStateId = network.getVariantManager().getWorkingVariantId();
         SensitivityFactorsProviderFactory factorsProviderFactory = defaultConfig.newFactoryImpl(SensitivityFactorsProviderFactory.class);
         SensitivityFactorsProvider factorsProvider = factorsProviderFactory.create(sensitivityFactorsFile);

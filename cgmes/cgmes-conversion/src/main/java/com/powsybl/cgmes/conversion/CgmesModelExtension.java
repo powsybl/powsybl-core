@@ -6,36 +6,22 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import java.util.Objects;
-
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class CgmesModelExtension extends AbstractExtension<Network> {
+public interface CgmesModelExtension extends Extension<Network> {
 
-    private final CgmesModel cgmes;
-    private final CgmesUpdate cgmesUpdate;
+    CgmesModel getCgmesModel();
 
-    public CgmesModelExtension(CgmesModel cgmes, CgmesUpdate cgmesUpdate) {
-        this.cgmes = Objects.requireNonNull(cgmes);
-        this.cgmesUpdate = Objects.requireNonNull(cgmesUpdate);
-    }
-
-    public CgmesModel getCgmesModel() {
-        return cgmes;
-    }
-
-    public CgmesUpdate getCgmesUpdate() {
-        return cgmesUpdate;
-    }
+    CgmesUpdate getCgmesUpdate();
 
     @Override
-    public String getName() {
+    default String getName() {
         return "CgmesModel";
     }
 }

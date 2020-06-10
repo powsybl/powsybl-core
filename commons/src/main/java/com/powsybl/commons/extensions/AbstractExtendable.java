@@ -61,13 +61,9 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
         return extensionsByName.values();
     }
 
-    // Don't bother all the way with generics because the this is a runtime system
-    // that doesn't know generics. We do check that the builder is from the the same
-    // extendable class T as "this".
     @Override
-    public <E extends Extension<T>, B extends ExtensionAdder<T, E>> B newExtension(Class<B> type) {
-        ExtensionAdderProvider provider = ExtensionAdderProviders.findCachedProvider(getImplementationName(), type);
-        return (B) provider.newAdder(this);
+    public String getImplementationName() {
+        return "Default";
     }
 
 }

@@ -246,7 +246,7 @@ public class UcteExporter implements Exporter {
             maxQ = (float) generator.getReactiveLimits().getMaxQ(activePowerGeneration);
 
             // FIXME(mathbagu): what if not all the generators have the same energy source?
-            powerPlantType = energySourceToUctePowerPlantType(generator.getEnergySource());
+            powerPlantType = energySourceToUctePowerPlantType(generator);
         }
         ucteNode.setActivePowerGeneration(-activePowerGeneration);
         ucteNode.setReactivePowerGeneration(-reactivePowerGeneration);
@@ -444,7 +444,7 @@ public class UcteExporter implements Exporter {
                 (float) line.getR() * mergedXnode.getRdp(),
                 (float) line.getX() * mergedXnode.getXdp(),
                 (float) line.getB1(),
-                (int) getPermanentLimit(line),
+                (int) line.getCurrentLimits1().getPermanentLimit(),
                 elementName1);
         ucteNetwork.addLine(ucteLine1);
 
@@ -457,7 +457,7 @@ public class UcteExporter implements Exporter {
                 (float) line.getR() * (1.0f - mergedXnode.getRdp()),
                 (float) line.getX() * (1.0f - mergedXnode.getXdp()),
                 (float) line.getB2(),
-                (int) getPermanentLimit(line),
+                (int) line.getCurrentLimits2().getPermanentLimit(),
                 elementName2);
         ucteNetwork.addLine(ucteLine2);
     }
@@ -488,7 +488,7 @@ public class UcteExporter implements Exporter {
                 (float) half1.getR(),
                 (float) half1.getX(),
                 (float) (half1.getB1() + half1.getB2()),
-                (int) getPermanentLimit(tieLine),
+                (int) tieLine.getCurrentLimits1().getPermanentLimit(),
                 elementName1);
         ucteNetwork.addLine(ucteLine1);
 
@@ -502,7 +502,7 @@ public class UcteExporter implements Exporter {
                 (float) half2.getR(),
                 (float) half2.getX(),
                 (float) (half2.getB1() + half2.getB2()),
-                (int) getPermanentLimit(tieLine),
+                (int) tieLine.getCurrentLimits2().getPermanentLimit(),
                 elementName2);
         ucteNetwork.addLine(ucteLine2);
     }
@@ -702,8 +702,11 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    private static UctePowerPlantType energySourceToUctePowerPlantType(EnergySource energySource) {
-        switch (energySource) {
+    private static UctePowerPlantType energySourceToUctePowerPlantType(Generator generator) {
+        if (generator.hasProperty(POWER_PLANT_TYPE_PROPERTY_KEY)) {
+            return UctePowerPlantType.valueOf(generator.getProperty(POWER_PLANT_TYPE_PROPERTY_KEY));
+        }
+        switch (generator.getEnergySource()) {
             case HYDRO:
                 return UctePowerPlantType.H;
             case NUCLEAR:
