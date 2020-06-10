@@ -15,9 +15,12 @@ import java.util.Objects;
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
  */
-public interface DataStoreUtil {
+public final class DataStores {
 
-    static DataStore createDataStore(Path fileName) throws IOException {
+    private DataStores() {
+    }
+
+    public static DataStore createDataStore(Path fileName) throws IOException {
         Objects.requireNonNull(fileName);
         DataStore ds = null;
         if (Files.isDirectory(fileName)) {
@@ -41,12 +44,12 @@ public interface DataStoreUtil {
         return ds;
     }
 
-    static String getExtension(String filename) {
+    public static String getExtension(String filename) {
         int dotIndex = filename.lastIndexOf(".");
         return dotIndex < 0 ? "" : filename.substring(dotIndex + 1);
     }
 
-    static String getBasename(String filename) {
+    public static String getBasename(String filename) {
         int dotIndex = filename.lastIndexOf(".");
         return dotIndex < 0 ? filename : filename.substring(0, dotIndex);
     }

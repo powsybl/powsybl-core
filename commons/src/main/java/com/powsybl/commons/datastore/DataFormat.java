@@ -11,10 +11,10 @@ package com.powsybl.commons.datastore;
  */
 public interface DataFormat {
 
-    public String getId();
+    String getId();
 
-    public String getDescription();
+    String getDescription();
 
-    public DataResolver getDataResolver();
+    DataResolver getDataResolver();
 
 }

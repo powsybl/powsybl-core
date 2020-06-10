@@ -15,9 +15,9 @@ import java.util.List;
  */
 public interface ReadOnlyDataStore {
 
-    public List<String> getEntryNames() throws IOException;
+    List<String> getEntryNames() throws IOException;
 
-    public boolean exists(String entryName);
+    boolean exists(String entryName);
 
-    public InputStream newInputStream(String entryName) throws IOException;
+    InputStream newInputStream(String entryName) throws IOException;
 }

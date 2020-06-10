@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public class DataEntry {
 
-    private String name;
+    private final String name;
 
     private final List<String> tags = new ArrayList<>();
 

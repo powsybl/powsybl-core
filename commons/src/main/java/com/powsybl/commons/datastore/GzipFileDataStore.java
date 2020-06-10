@@ -54,6 +54,6 @@ public class GzipFileDataStore implements DataStore {
 
     private String getEntryName() {
         String fileName = path.getFileName().toString();
-        return DataStoreUtil.getBasename(fileName);
+        return DataStores.getBasename(fileName);
     }
 }

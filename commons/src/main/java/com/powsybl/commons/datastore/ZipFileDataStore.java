@@ -43,7 +43,7 @@ public class ZipFileDataStore implements DataStore {
 
         if (Files.exists(path)) {
             try (ZipFile zipFile = new ZipFile(path)) {
-                return Collections.list(zipFile.entries()).stream().map(e -> e.getName()).collect(Collectors.toList());
+                return Collections.list(zipFile.entries()).stream().map(ZipEntry::getName).collect(Collectors.toList());
             }
         }
         return Collections.emptyList();

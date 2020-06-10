@@ -65,7 +65,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datastore.DataEntry;
 import com.powsybl.commons.datastore.DataPack;
 import com.powsybl.commons.datastore.DataStore;
-import com.powsybl.commons.datastore.DataStoreUtil;
+import com.powsybl.commons.datastore.DataStores;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
@@ -382,7 +382,7 @@ public final class NetworkXml {
 
             Anonymizer anonymizer = write(network, options, bosb);
             if (options.isAnonymized()) {
-                String mappingFilename = DataStoreUtil.getBasename(filename) + "_mapping,csv";
+                String mappingFilename = DataStores.getBasename(filename) + "_mapping,csv";
                 try (BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter(dataStore.newOutputStream(mappingFilename, false), StandardCharsets.UTF_8))) {
                     anonymizer.write(writer2);
                 }
@@ -708,7 +708,7 @@ public final class NetworkXml {
         Anonymizer anonymizer = null;
         Optional<DataEntry> main = dataPack.getMainEntry();
         if (main.isPresent()) {
-            Optional<DataEntry> mappingFile = dataPack.getEntry(DataStoreUtil.getBasename(main.get().getName()) + SUFFIX_MAPPING + ".csv");
+            Optional<DataEntry> mappingFile = dataPack.getEntry(DataStores.getBasename(main.get().getName()) + SUFFIX_MAPPING + ".csv");
             if (mappingFile.isPresent()) {
                 anonymizer = new SimpleAnonymizer();
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataPack.getSource().newInputStream(mappingFile.get().getName()), StandardCharsets.UTF_8))) {

@@ -10,7 +10,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.*;
-import com.powsybl.commons.datastore.DataStoreUtil;
+import com.powsybl.commons.datastore.DataStores;
 import com.powsybl.commons.datastore.MemDataStore;
 import com.powsybl.commons.datastore.ReadOnlyDataStore;
 import com.powsybl.computation.ComputationManager;
@@ -402,7 +402,7 @@ public final class Importers {
         ReadOnlyDataStore dataStore;
 
         try {
-            dataStore = DataStoreUtil.createDataStore(file);
+            dataStore = DataStores.createDataStore(file);
         } catch (IOException nde) {
             throw new PowsyblException("Invalid file.");
         }

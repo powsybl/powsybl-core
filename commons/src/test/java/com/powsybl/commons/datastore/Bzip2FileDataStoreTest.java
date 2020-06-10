@@ -6,7 +6,7 @@ public class Bzip2FileDataStoreTest extends AbstractDataStoreTest {
 
     @Override
     protected DataStore createDataStore() throws IOException {
-        return DataStoreUtil.createDataStore(testDir.resolve("test.txt.bz2"));
+        return DataStores.createDataStore(testDir.resolve("test.txt.bz2"));
     }
 
 }

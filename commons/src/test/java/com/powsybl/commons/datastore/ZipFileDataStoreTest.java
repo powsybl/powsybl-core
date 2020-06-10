@@ -15,7 +15,7 @@ public class ZipFileDataStoreTest extends AbstractDataStoreTest {
 
     @Override
     protected DataStore createDataStore() throws IOException {
-        return DataStoreUtil.createDataStore(testDir.resolve("test.zip"));
+        return DataStores.createDataStore(testDir.resolve("test.zip"));
     }
 
 }

@@ -31,7 +31,7 @@ public abstract class AbstractDataResolver implements DataResolver {
                 dp = buildDataPack(store, mainFileName);
             }
         } else {
-            List<String> candidates = store.getEntryNames().stream().filter(a -> checkFileExtension(a)).collect(Collectors.toList());
+            List<String> candidates = store.getEntryNames().stream().filter(this::checkFileExtension).collect(Collectors.toList());
             if (candidates.size() > 1) {
                 throw new NonUniqueResultException();
             } else if (candidates.size() == 1) {

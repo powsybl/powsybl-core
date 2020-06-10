@@ -14,6 +14,6 @@ import java.io.OutputStream;
  */
 public interface DataStore extends ReadOnlyDataStore {
 
-    public OutputStream newOutputStream(String entryName, boolean append) throws IOException;
+    OutputStream newOutputStream(String entryName, boolean append) throws IOException;
 
 }

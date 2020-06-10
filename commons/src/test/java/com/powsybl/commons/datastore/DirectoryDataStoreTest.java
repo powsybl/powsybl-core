@@ -15,7 +15,7 @@ public class DirectoryDataStoreTest extends AbstractDataStoreTest {
 
     @Override
     protected DataStore createDataStore() throws IOException {
-        return DataStoreUtil.createDataStore(testDir);
+        return DataStores.createDataStore(testDir);
     }
 
 }
