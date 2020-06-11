@@ -16,7 +16,7 @@ import com.powsybl.dynamicsimulation.DynamicModel
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 @AutoService(DynamicModelGroovyExtension.class)
-class DummyDynamicModelExtension implements DynamicModelGroovyExtension {
+class DummyDynamicModelGroovyExtension implements DynamicModelGroovyExtension {
 
     static class DummyDynamicModelSpec {
         String id
