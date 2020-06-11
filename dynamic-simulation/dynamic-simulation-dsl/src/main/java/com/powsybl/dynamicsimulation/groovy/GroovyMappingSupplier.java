@@ -32,13 +32,13 @@ public class GroovyMappingSupplier implements MappingSupplier {
 
     private final GroovyCodeSource codeSource;
 
-    private final List<DynamicModelExtension> extensions;
+    private final List<DynamicModelGroovyExtension> extensions;
 
     public GroovyMappingSupplier(Path path) {
         this(path, Collections.emptyList());
     }
 
-    public GroovyMappingSupplier(Path path, List<DynamicModelExtension> extensions) {
+    public GroovyMappingSupplier(Path path, List<DynamicModelGroovyExtension> extensions) {
         this.codeSource = GroovyScripts.load(path);
         this.extensions = Objects.requireNonNull(extensions);
     }

@@ -49,9 +49,9 @@ public class GroovyMappingSupplierTest {
     public void test() {
         Network network = EurostagTutorialExample1Factory.create();
 
-        List<DynamicModelExtension> extensions = GroovyExtension.find(DynamicModelExtension.class, "dummy");
+        List<DynamicModelGroovyExtension> extensions = GroovyExtension.find(DynamicModelGroovyExtension.class, "dummy");
         assertEquals(1, extensions.size());
-        assertTrue(extensions.get(0) instanceof DynamicModelExtension);
+        assertTrue(extensions.get(0) instanceof DynamicModelGroovyExtension);
 
         MappingSupplier supplier = new GroovyMappingSupplier(fileSystem.getPath("/mapping.groovy"), extensions);
 

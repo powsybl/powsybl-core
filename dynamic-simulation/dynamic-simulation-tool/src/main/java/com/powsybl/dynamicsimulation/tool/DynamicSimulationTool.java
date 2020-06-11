@@ -15,7 +15,7 @@ import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
 import com.powsybl.dynamicsimulation.MappingSupplier;
 import com.powsybl.dynamicsimulation.groovy.CurveGroovyExtension;
-import com.powsybl.dynamicsimulation.groovy.DynamicModelExtension;
+import com.powsybl.dynamicsimulation.groovy.DynamicModelGroovyExtension;
 import com.powsybl.dynamicsimulation.groovy.GroovyCurvesSupplier;
 import com.powsybl.dynamicsimulation.groovy.GroovyExtension;
 import com.powsybl.dynamicsimulation.groovy.GroovyMappingSupplier;
@@ -171,7 +171,7 @@ public class DynamicSimulationTool implements Tool {
     private MappingSupplier createMappingSupplier(Path path, String providerName) {
         String extension = FilenameUtils.getExtension(path.toString());
         if (extension.equals("groovy")) {
-            return new GroovyMappingSupplier(path, GroovyExtension.find(DynamicModelExtension.class, providerName));
+            return new GroovyMappingSupplier(path, GroovyExtension.find(DynamicModelGroovyExtension.class, providerName));
         } else {
             throw new PowsyblException("Unsupported mapping format: " + extension);
         }

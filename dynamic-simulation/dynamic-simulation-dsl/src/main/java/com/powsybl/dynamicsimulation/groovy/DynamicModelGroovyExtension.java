@@ -12,5 +12,5 @@ import com.powsybl.dynamicsimulation.DynamicModel;
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public interface DynamicModelExtension extends GroovyExtension<DynamicModel> {
+public interface DynamicModelGroovyExtension extends GroovyExtension<DynamicModel> {
 }
