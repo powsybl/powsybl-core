@@ -109,7 +109,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     private boolean twtSplitShuntAdmittance;
 
     private boolean simulShunt;
-    
+
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
                               boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
                               boolean twtSplitShuntAdmittance, boolean simulShunt) {
@@ -120,7 +120,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         this.twtSplitShuntAdmittance = twtSplitShuntAdmittance;
         this.simulShunt = simulShunt;
     }
-    
+
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
         boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
         boolean twtSplitShuntAdmittance) {
