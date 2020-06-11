@@ -9,6 +9,7 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +41,11 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
         }
 
         @Override
+        public Optional<PhaseTapChanger> getOptionalPhaseTapChanger() {
+            return Optional.ofNullable(getPhaseTapChanger());
+        }
+
+        @Override
         public RatioTapChangerAdder newRatioTapChanger() {
             return new RatioTapChangerAdderAdapter(getDelegate().newRatioTapChanger(), getIndex());
         }
@@ -47,6 +53,11 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
         @Override
         public RatioTapChanger getRatioTapChanger() {
             return getIndex().getRatioTapChanger(getDelegate().getRatioTapChanger());
+        }
+
+        @Override
+        public Optional<RatioTapChanger> getOptionalRatioTapChanger() {
+            return Optional.ofNullable(getRatioTapChanger());
         }
 
         // -------------------------------

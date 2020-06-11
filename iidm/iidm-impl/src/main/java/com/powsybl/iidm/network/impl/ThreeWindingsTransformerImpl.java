@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -138,12 +139,21 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             return ratioTapChanger;
         }
 
+        public Optional<RatioTapChanger> getOptionalRatioTapChanger() {
+            return Optional.ofNullable(ratioTapChanger);
+        }
+
         public PhaseTapChangerAdderImpl newPhaseTapChanger() {
             return new PhaseTapChangerAdderImpl(this);
         }
 
         public PhaseTapChangerImpl getPhaseTapChanger() {
             return phaseTapChanger;
+        }
+
+        @Override
+        public Optional<PhaseTapChanger> getOptionalPhaseTapChanger() {
+            return Optional.ofNullable(phaseTapChanger);
         }
 
         @Override

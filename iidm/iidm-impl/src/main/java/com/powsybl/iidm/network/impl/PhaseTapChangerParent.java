@@ -8,6 +8,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.PhaseTapChanger;
 
+import java.util.Optional;
+
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -19,4 +21,6 @@ interface PhaseTapChangerParent extends TapChangerParent {
     void setPhaseTapChanger(PhaseTapChangerImpl ratioTapChanger);
 
     PhaseTapChanger getPhaseTapChanger();
+
+    Optional<PhaseTapChanger> getOptionalPhaseTapChanger();
 }
