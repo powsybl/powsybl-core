@@ -32,6 +32,9 @@ public class UcteDataFormatTest extends AbstractConverterTest {
 
         DirectoryDataStore ds = new DirectoryDataStore(tmpDir);
         UcteDataFormat format = new UcteDataFormat();
+
+        assertEquals("UCTE", format.getId());
+
         DataResolver resolver = format.getDataResolver();
 
         Optional<DataPack> dp = resolver.resolve(ds, "test.uct", props);

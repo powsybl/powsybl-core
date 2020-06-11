@@ -13,6 +13,7 @@ import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.datastore.MemDataStore;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Test;
@@ -53,6 +54,18 @@ public class UcteExporterTest extends AbstractConverterTest {
         }
     }
 
+    private static void testDataStoreExporter(Network network, String reference) throws IOException {
+        MemDataStore dataStore = new MemDataStore();
+
+        UcteExporter exporter = new UcteExporter();
+        exporter.export(network, new Properties(), dataStore, reference);
+
+        try (InputStream actual = dataStore.newInputStream(reference);
+             InputStream expected = UcteExporterTest.class.getResourceAsStream(reference)) {
+            compareTxt(expected, actual, Arrays.asList(1, 2));
+        }
+    }
+
     @Test
     public void testMerge() throws IOException {
         Network networkFR = loadNetworkFromResourceFile("/frTestGridForMerging.uct");
@@ -83,6 +96,7 @@ public class UcteExporterTest extends AbstractConverterTest {
     public void testExport() throws IOException {
         Network network = loadNetworkFromResourceFile("/expectedExport.uct");
         testExporter(network, "/expectedExport.uct");
+        testDataStoreExporter(network, "/expectedExport.uct");
     }
 
     @Test

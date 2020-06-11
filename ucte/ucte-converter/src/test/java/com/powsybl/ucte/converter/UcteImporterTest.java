@@ -9,9 +9,12 @@ package com.powsybl.ucte.converter;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.datastore.DataStores;
+import com.powsybl.commons.datastore.ReadOnlyDataStore;
 import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.entsoe.util.MergedXnode;
+import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -21,6 +24,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.*;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
 
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
@@ -164,6 +171,49 @@ public class UcteImporterTest {
         exceptionRule.expectMessage("with two different nominal voltages");
 
         new UcteImporter().importData(dataSource, null);
+    }
+
+    @Test
+    public void testImportDataStore() throws IOException, URISyntaxException {
+
+        ReadOnlyDataStore dataStore = DataStores.createDataStore(Paths.get(getClass().getResource("/elementName.uct").toURI()));
+        assertFalse(dataStore.exists("missing.uct"));
+
+        Importer importer = new UcteImporter();
+        assertTrue(importer.exists(dataStore, "elementName.uct"));
+
+        Network network = importer.importDataStore(dataStore, "elementName.uct", null);
+        // Test Element name Line
+        assertEquals("Test Line", network.getLine("F_SU1_12 F_SU2_11 1").getProperty("elementName"));
+        // Test Dangling Line element name
+        assertEquals("Test DL", network.getDanglingLine("XG__F_21 F_SU1_21 1").getProperty("elementName"));
+        // Test Switch element name
+        assertEquals("Test Coupler", network.getSwitch("F_SU1_12 F_SU1_11 1").getProperty("elementName"));
+        // Test 2WT element name
+        assertEquals("Test 2WT 1", network.getBranch("F_SU1_11 F_SU1_21 1").getProperty("elementName"));
+        assertEquals("Test 2WT 2", network.getBranch("B_SU1_11 B_SU1_21 1").getProperty("elementName"));
+        // Test tie line
+        // cannot refer to side of tieline directly cause order of half lines may change
+        // at import : due to HashSet iterator on dangling lines ?
+        TieLine tieLine1 = (TieLine) network.getLineStream().filter(Line::isTieLine)
+                .filter(line -> {
+                    TieLine tl = (TieLine) line;
+                    return tl.getHalf1().getId().equals("XB__F_11 B_SU1_11 1") || tl.getHalf2().getId().equals("XB__F_11 B_SU1_11 1");
+                }).findAny().get();
+        String expectedElementName1 = tieLine1.getHalf1().getId().equals("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
+        String expectedElementName2 = tieLine1.getHalf2().getId().equals("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
+        assertEquals(expectedElementName1, tieLine1.getProperty("elementName_1"));
+        assertEquals(expectedElementName2, tieLine1.getProperty("elementName_2"));
+
+        TieLine tieLine2 = (TieLine) network.getLineStream().filter(Line::isTieLine)
+                .filter(line -> {
+                    TieLine tl = (TieLine) line;
+                    return tl.getHalf1().getId().equals("XB__F_21 B_SU1_21 1") || tl.getHalf2().getId().equals("XB__F_21 B_SU1_21 1");
+                }).findAny().get();
+        expectedElementName1 = tieLine2.getHalf1().getId().equals("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
+        expectedElementName2 = tieLine2.getHalf2().getId().equals("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
+        assertEquals(expectedElementName1, tieLine2.getProperty("elementName_1"));
+        assertEquals(expectedElementName2, tieLine2.getProperty("elementName_2"));
     }
 }
 
