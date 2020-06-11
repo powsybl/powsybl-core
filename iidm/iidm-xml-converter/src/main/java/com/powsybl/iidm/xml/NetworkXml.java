@@ -9,7 +9,7 @@ package com.powsybl.iidm.xml;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_PREFIX;
 import static com.powsybl.iidm.xml.IidmXmlConstants.INDENT;
-import static com.powsybl.iidm.xml.XMLImporter.SUFFIX_MAPPING;
+import static com.powsybl.iidm.xml.XmlDataResolver.SUFFIX_MAPPING;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;

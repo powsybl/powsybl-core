@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.xml.XmlDataResolver.SUFFIX_MAPPING;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,8 +74,6 @@ public class XMLImporter implements Importer {
             = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of extension files ", null);
 
     private final ParameterDefaultValueConfig defaultValueConfig;
-
-    static final String SUFFIX_MAPPING = "_mapping";
 
     public XMLImporter() {
         this(PlatformConfig.defaultConfig());
