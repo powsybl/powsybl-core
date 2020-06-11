@@ -264,16 +264,32 @@
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
+                    <xs:choice>
+                        <xs:element name="shuntLinearModel" type="iidm:ShuntLinearModel"/>
+                        <xs:element name="shuntNonLinearModel" type="iidm:ShuntNonLinearModel"/>
+                    </xs:choice>
                     <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
                 </xs:sequence>
-                <xs:attribute name="bPerSection" use="required" type="xs:double"/>
-                <xs:attribute name="maximumSectionCount" use="required" type="xs:int"/>
                 <xs:attribute name="currentSectionCount" use="required" type="xs:int"/>
                 <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
                 <xs:attribute name="targetV" use="optional" type="xs:double"/>
                 <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="ShuntLinearModel">
+        <xs:attribute name="bPerSection" use="required" type="xs:double"/>
+        <xs:attribute name="gPerSection" use="optional" type="xs:double"/>
+        <xs:attribute name="maximumSectionCount" use="required" type="xs:int"/>
+    </xs:complexType>
+    <xs:complexType name="ShuntNonLinearModel">
+        <xs:sequence>
+            <xs:element name="section" maxOccurs="unbounded" type="iidm:ShuntSection" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ShuntSection">
+        <xs:attribute name="b" use="required" type="xs:double"/>
+        <xs:attribute name="g" use="optional" type="xs:double"/>
     </xs:complexType>
     <xs:complexType name="CurrentLimit">
         <xs:sequence>
