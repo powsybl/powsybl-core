@@ -168,7 +168,7 @@ public class UcteElement implements UcteRecord {
                 throw new AssertionError("Unexpected UcteElementStatus value: " + status);
         }
         if (currentLimit == null) {
-            LOGGER.warn("Missing current limit for element '{}'", id);
+            LOGGER.info("Missing current limit for element '{}'", id);
         } else if (currentLimit <= 0) {
             LOGGER.warn("Invalid current limit {} for element '{}'", currentLimit, id);
             currentLimit = null;
