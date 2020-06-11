@@ -257,7 +257,6 @@ public class UcteImporter implements Importer {
                 .setQ0(q0)
                 .setUcteXnodeCode(xnode.getCode().toString())
                 .add();
-        addElementNameAlias(ucteLine, dl);
         dl.newExtension(XnodeAdder.class).withCode(xnode.getCode().toString()).add();
 
         if (ucteLine.getCurrentLimit() != null) {
@@ -313,7 +312,7 @@ public class UcteImporter implements Importer {
                 .setBus2(nodeCode2.toString())
                 .setOpen(!connected)
                 .add();
-        addElementNameAlias(ucteLine, couplerSwitch);
+
         addCurrentLimitProperty(ucteLine, couplerSwitch);
         addOrderCodeProperty(ucteLine, couplerSwitch);
         addElementNameProperty(ucteLine, couplerSwitch);
@@ -341,7 +340,6 @@ public class UcteImporter implements Importer {
                 .setB2(getSusceptance(ucteLine) / 2)
                 .add();
 
-        addElementNameAlias(ucteLine, l);
         addElementNameProperty(ucteLine, l);
 
         if (ucteLine.getCurrentLimit() != null) {
@@ -561,7 +559,7 @@ public class UcteImporter implements Importer {
         }
 
         // create a transformer connected to the YNODE and other node
-        TwoWindingsTransformer twoWindingsTransformer = substation.newTwoWindingsTransformer()
+        return substation.newTwoWindingsTransformer()
                 .setEnsureIdUnicity(true)
                 .setId(ucteTransfo.getId().toString())
                 .setVoltageLevel1(voltageLevelId1)
@@ -577,8 +575,7 @@ public class UcteImporter implements Importer {
                 .setG(getConductance(ucteTransfo))
                 .setB(getSusceptance(ucteTransfo))
                 .add();
-        addElementNameAlias(ucteTransfo, twoWindingsTransformer);
-        return twoWindingsTransformer;
+
     }
 
     private static boolean isConnected(UcteTransformer ucteTransfo) {
@@ -655,7 +652,7 @@ public class UcteImporter implements Importer {
                         .setG(getConductance(ucteTransfo))
                         .setB(getSusceptance(ucteTransfo))
                         .add();
-                addElementNameAlias(ucteTransfo, transformer);
+
             }
 
             if (ucteTransfo.getCurrentLimit() != null) {
@@ -715,12 +712,6 @@ public class UcteImporter implements Importer {
     private static void addElementNameProperty(UcteElement ucteElement, Identifiable identifiable) {
         if (ucteElement.getElementName() != null) {
             identifiable.setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteElement.getElementName());
-        }
-    }
-
-    private static void addElementNameAlias(UcteElement ucteElement, Identifiable identifiable) {
-        if (ucteElement.getElementName() != null && !ucteElement.getElementName().isEmpty()) {
-            identifiable.addAlias(String.format("%s %s %s", ucteElement.getId().getNodeCode1().toString(), ucteElement.getId().getNodeCode2().toString(), ucteElement.getElementName()));
         }
     }
 
@@ -813,6 +804,9 @@ public class UcteImporter implements Importer {
 
                 createTieLine(ucteNetwork, network, dlAtSideOne, dlAtSideTwo);
 
+                dlToProcess.remove();
+                dlMatchingDlToProcess.remove();
+
                 danglingLinesToProcess.remove(dlMatchingDlToProcess);
             }
             danglingLinesToProcess.remove(dlToProcess);
@@ -879,22 +873,9 @@ public class UcteImporter implements Importer {
             mergeLine.newCurrentLimits2()
                     .setPermanentLimit(dlAtSideTwo.getCurrentLimits().getPermanentLimit()).add();
         }
+
         mergeLine.newExtension(MergedXnodeAdder.class).withRdp(rdp).withXdp(xdp).withXnodeP1(xnodeP1).withXnodeQ1(xnodeQ1)
                 .withXnodeP2(xnodeP2).withXnodeQ2(xnodeQ2).withLine1Name(dlAtSideOne.getId()).withLine2Name(dlAtSideTwo.getId()).withCode(xnodeCode).add();
-
-        // Copy aliases and remove dangling lines from the network
-        // before adding them to the tie line
-        // Aliases must be unique in the network
-        Set<String> aliases = new TreeSet<>();
-        aliases.add(dlAtSideOne.getId());
-        aliases.add(dlAtSideTwo.getId());
-        aliases.addAll(dlAtSideOne.getAliases());
-        aliases.addAll(dlAtSideTwo.getAliases());
-
-        dlAtSideOne.remove();
-        dlAtSideTwo.remove();
-
-        aliases.forEach(mergeLine::addAlias);
     }
 
     @Override
