@@ -62,12 +62,10 @@ public class GroovyMappingSupplierTest {
         DummyDynamicModel dynamicModel1 = (DummyDynamicModel) dynamicModels.get(0);
         assertEquals("id", dynamicModel1.getId());
         assertEquals("parameterSetId", dynamicModel1.getParameterSetId());
-        assertEquals("parameterSetFile", dynamicModel1.getParameterSetFile());
 
         assertTrue(dynamicModels.get(1) instanceof DummyDynamicModel);
         DummyDynamicModel dynamicModel2 = (DummyDynamicModel) dynamicModels.get(1);
         assertEquals("LOAD", dynamicModel2.getId());
         assertEquals("LOAD", dynamicModel2.getParameterSetId());
-        assertEquals("network.par", dynamicModel2.getParameterSetFile());
     }
 }

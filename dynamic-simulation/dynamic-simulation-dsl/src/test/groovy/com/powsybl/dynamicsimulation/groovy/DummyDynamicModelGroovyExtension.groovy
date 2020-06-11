@@ -21,7 +21,6 @@ class DummyDynamicModelGroovyExtension implements DynamicModelGroovyExtension {
     static class DummyDynamicModelSpec {
         String id
         String parameterSetId
-        String parameterSetFile
         
         void id(String id) {
             this.id = id
@@ -29,10 +28,6 @@ class DummyDynamicModelGroovyExtension implements DynamicModelGroovyExtension {
 
         void parameterSetId(String parameterSetId) {
             this.parameterSetId = parameterSetId
-        }
-
-        void parameterSetFile(String parameterSetFile) {
-            this.parameterSetFile = parameterSetFile
         }
     }
 
@@ -50,11 +45,8 @@ class DummyDynamicModelGroovyExtension implements DynamicModelGroovyExtension {
             if (!dynamicModelSpec.parameterSetId) {
                 throw new DslException("'parameterSetId' field is not set")
             }
-            if (!dynamicModelSpec.parameterSetFile) {
-                throw new DslException("'parameterSetFile' field is not set")
-            }
 
-            consumer.accept(new DummyDynamicModel(dynamicModelSpec.id, dynamicModelSpec.parameterSetId, dynamicModelSpec.parameterSetFile))
+            consumer.accept(new DummyDynamicModel(dynamicModelSpec.id, dynamicModelSpec.parameterSetId))
         }
     }
 }

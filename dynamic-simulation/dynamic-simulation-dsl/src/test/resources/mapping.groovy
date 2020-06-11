@@ -15,13 +15,11 @@ Logger logger = LoggerFactory.getLogger("com.powsybl.dynamicsimulation.groovy.Gr
 dummyDynamicModel {
     id "id"
     parameterSetId "parameterSetId"
-    parameterSetFile "parameterSetFile"
 }
 
 for (Load load : network.loads) {
     dummyDynamicModel {
         id load.id
         parameterSetId load.id
-        parameterSetFile "network.par"
     }
 }

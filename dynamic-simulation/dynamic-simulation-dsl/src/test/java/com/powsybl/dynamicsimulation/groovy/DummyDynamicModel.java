@@ -20,12 +20,9 @@ public class DummyDynamicModel implements DynamicModel {
 
     private final String parameterSetId;
 
-    private final String parameterSetFile;
-
-    public DummyDynamicModel(String id, String parameterSetId, String parameterSetFile) {
+    public DummyDynamicModel(String id, String parameterSetId) {
         this.id = Objects.requireNonNull(id);
         this.parameterSetId = Objects.requireNonNull(parameterSetId);
-        this.parameterSetFile = Objects.requireNonNull(parameterSetFile);
     }
 
     public String getId() {
@@ -34,10 +31,6 @@ public class DummyDynamicModel implements DynamicModel {
 
     public String getParameterSetId() {
         return parameterSetId;
-    }
-
-    public String getParameterSetFile() {
-        return parameterSetFile;
     }
 
 }
