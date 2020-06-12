@@ -382,7 +382,7 @@ public final class NetworkXml {
 
             Anonymizer anonymizer = write(network, options, bosb);
             if (options.isAnonymized()) {
-                String mappingFilename = DataStores.getBasename(filename) + "_mapping,csv";
+                String mappingFilename = DataStores.getBasename(filename) + "_mapping.csv";
                 try (BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter(dataStore.newOutputStream(mappingFilename, false), StandardCharsets.UTF_8))) {
                     anonymizer.write(writer2);
                 }
