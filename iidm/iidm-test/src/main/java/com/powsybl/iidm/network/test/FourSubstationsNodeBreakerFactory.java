@@ -148,7 +148,7 @@ public final class FourSubstationsNodeBreakerFactory {
         TwoWindingsTransformer twt = s1.newTwoWindingsTransformer()
                 .setId("TWT")
                 .setR(2.0)
-                .setX(14.745)
+                .setX(114.745)
                 .setG(0.0)
                 .setB(3.2E-5)
                 .setRatedU1(225.0)
