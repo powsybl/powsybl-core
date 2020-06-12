@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.datastore.MemDataStore;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
 import org.junit.Test;
@@ -36,8 +37,22 @@ public class XMLExporterTest extends AbstractXmlConverterTest {
         }
     }
 
+    public void dataStoreExporterTest(Network network, IidmXmlVersion version) throws IOException {
+        Properties properties = new Properties();
+        properties.put(XMLExporter.ANONYMISED, "false");
+
+        MemDataStore dataStore = new MemDataStore();
+        new XMLExporter().export(network, properties, dataStore, "exported.xiidm");
+        // check the exported file and compare it to iidm reference file
+        try (InputStream is = dataStore.newInputStream("exported.xiidm")) {
+            compareXml(getVersionedNetworkAsStream("multiple-extensions.xml", version), is);
+        }
+    }
+
     @Test
     public void exportTest() throws IOException {
         exporterTest(MultipleExtensionsTestNetworkFactory.create(), CURRENT_IIDM_XML_VERSION);
+        dataStoreExporterTest(MultipleExtensionsTestNetworkFactory.create(), CURRENT_IIDM_XML_VERSION);
+
     }
 }

@@ -9,6 +9,7 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.datastore.MemDataStore;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
@@ -53,10 +54,42 @@ public class SimpleAnonymizerTest extends AbstractXmlConverterTest {
                 getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_XML_VERSION));
     }
 
+    private void dataStoreAnonymisationTest(Network network) throws IOException {
+        PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+
+        // export with anonymisation on
+        Properties properties = new Properties();
+        properties.put(XMLExporter.ANONYMISED, "true");
+
+        MemDataStore dataStore = new MemDataStore();
+        new XMLExporter().export(network, properties, dataStore, "exported.xiidm");
+        // check the exported file and compare it to iidm reference file
+        try (InputStream is = dataStore.newInputStream("exported.xiidm")) {
+            compareXml(getVersionedNetworkAsStream("eurostag-tutorial-example1-anonymized.xml", CURRENT_IIDM_XML_VERSION), is);
+        }
+        try (InputStream is = dataStore.newInputStream("exported_mapping.csv")) {
+            compareTxt(getClass().getResourceAsStream("/eurostag-tutorial-example1-mapping.csv"), is);
+        }
+
+        // re-import the IIDM XML using the CSV mapping file
+        Network network2 = new XMLImporter(platformConfig).importDataStore(dataStore, null);
+        MemDataStore dataStore2 = new MemDataStore();
+        new XMLExporter(platformConfig).export(network2, null, dataStore2, "exported2.xiidm");
+
+        // check that re-imported IIDM XML has been deanonymized and is equals to reference file
+        roundTripXmlTest(network2,
+                NetworkXml::writeAndValidate,
+                NetworkXml::read,
+                getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_XML_VERSION));
+    }
+
     @Test
     public void test() throws IOException {
         anonymisationTest(NetworkXml.read(getVersionedNetworkAsStream("eurostag-tutorial-example1.xml", IidmXmlVersion.V_1_0)));
 
         anonymisationTest(NetworkXmlTest.createEurostagTutorialExample1());
+
+        dataStoreAnonymisationTest(NetworkXml.read(getVersionedNetworkAsStream("eurostag-tutorial-example1.xml", IidmXmlVersion.V_1_0)));
+
     }
 }
