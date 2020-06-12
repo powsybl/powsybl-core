@@ -189,7 +189,7 @@ public class PsseImporter implements Importer {
                 .setId(busId + "-SH" + psseShunt.getId())
                 .setConnectableBus(busId)
                 .setBus(busId)
-                .setCurrentSectionCount(1);
+                .setSectionCount(1);
         adder.newLinearModel()
                 .setBPerSection(psseShunt.getBl())//TODO: take into account gl
                 .setMaximumSectionCount(1)

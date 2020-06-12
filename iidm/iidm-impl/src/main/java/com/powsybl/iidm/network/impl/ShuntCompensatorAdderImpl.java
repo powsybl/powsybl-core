@@ -142,8 +142,8 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     }
 
     @Override
-    public ShuntCompensatorAdder setCurrentSectionCount(int currentSectionCount) {
-        this.currentSectionCount = currentSectionCount;
+    public ShuntCompensatorAdder setSectionCount(int sectionCount) {
+        this.currentSectionCount = sectionCount;
         return this;
     }
 

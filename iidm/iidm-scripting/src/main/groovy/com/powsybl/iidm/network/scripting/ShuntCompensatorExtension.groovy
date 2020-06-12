@@ -57,4 +57,16 @@ class ShuntCompensatorExtension {
             throw new PowsyblException("shunt model is not linear")
         }
     }
+
+    static int getCurrentSectionCount(ShuntCompensator self) {
+        self.getSectionCount()
+    }
+
+    static void setCurrentSectionCount(ShuntCompensator self, int currentSectionCount) {
+        self.setSectionCount(currentSectionCount)
+    }
+
+    static double getCurrentB(ShuntCompensator self) {
+        self.getB()
+    }
 }

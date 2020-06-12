@@ -30,7 +30,7 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensatorAd
 
     ShuntCompensatorNonLinearModelAdder newNonLinearModel();
 
-    ShuntCompensatorAdder setCurrentSectionCount(int currentSectionCount);
+    ShuntCompensatorAdder setSectionCount(int sectionCount);
 
     default ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException();

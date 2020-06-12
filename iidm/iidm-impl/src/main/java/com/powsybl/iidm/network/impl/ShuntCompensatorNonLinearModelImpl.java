@@ -87,7 +87,7 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
     }
 
     @Override
-    public List<Section> getSections() {
+    public List<Section> getAllSections() {
         return Collections.unmodifiableList(sections);
     }
 

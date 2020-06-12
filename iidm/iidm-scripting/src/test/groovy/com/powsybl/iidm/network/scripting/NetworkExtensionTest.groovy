@@ -43,7 +43,7 @@ class NetworkExtensionTest {
         network.getVoltageLevel("bbVL").newShuntCompensator().setId("SHUNT")
                 .setBus("Bus1")
                 .setConnectableBus("Bus1")
-                .setCurrentSectionCount(6)
+                .setSectionCount(6)
                 .newLinearModel()
                     .setBPerSection(5.0)
                     .setMaximumSectionCount(10)
@@ -65,6 +65,6 @@ class NetworkExtensionTest {
     @Test
     void getShuntTest() {
         assertNotNull(network.getShunt("SHUNT"))
-        assertEquals(6, network.getShunt("SHUNT").getCurrentSectionCount())
+        assertEquals(6, network.getShunt("SHUNT").getSectionCount())
     }
 }

@@ -138,7 +138,7 @@ public class VoltageLevelAdapterTest {
                     .setId("SHUNT")
                     .setConnectableBus("busA")
                     .setBus("busA")
-                    .setCurrentSectionCount(1)
+                    .setSectionCount(1)
                     .newLinearModel()
                         .setBPerSection(1e-5)
                         .setMaximumSectionCount(1)

@@ -1343,7 +1343,7 @@ public class AmplNetworkWriter {
                 double b2 = sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection() * sc.getMaximumSectionCount() * zb;
                 double minB = Math.min(b1, b2);
                 double maxB = Math.max(b1, b2);
-                double b = sc.getCurrentB() * zb;
+                double b = sc.getB() * zb;
                 int points = sc.getMaximumSectionCount() < 1 ? 0 : sc.getMaximumSectionCount() - 1;
                 formatter.writeCell(variantIndex)
                         .writeCell(num)
@@ -1360,7 +1360,7 @@ public class AmplNetworkWriter {
                         .writeCell(sc.getNameOrId())
                         .writeCell(t.getP())
                         .writeCell(t.getQ())
-                        .writeCell(sc.getCurrentSectionCount());
+                        .writeCell(sc.getSectionCount());
                 addExtensions(num, sc);
             }
             if (!skipped.isEmpty()) {

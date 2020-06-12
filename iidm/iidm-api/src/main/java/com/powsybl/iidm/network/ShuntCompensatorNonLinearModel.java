@@ -47,5 +47,5 @@ public interface ShuntCompensatorNonLinearModel extends ShuntCompensatorModel {
     /**
      * Get all the sections as a list.
      */
-    List<Section> getSections();
+    List<Section> getAllSections();
 }

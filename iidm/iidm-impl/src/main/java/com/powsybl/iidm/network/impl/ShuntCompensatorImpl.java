@@ -75,7 +75,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public int getCurrentSectionCount() {
+    public int getSectionCount() {
         return currentSectionCount.get(network.get().getVariantIndex());
     }
 
@@ -85,25 +85,25 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public ShuntCompensatorImpl setCurrentSectionCount(int currentSectionCount) {
-        ValidationUtil.checkSections(this, currentSectionCount, model.getMaximumSectionCount());
-        if (currentSectionCount < 0 || currentSectionCount > model.getMaximumSectionCount()) {
-            throw new ValidationException(this, "unexpected section number (" + currentSectionCount + "): no existing associated section");
+    public ShuntCompensatorImpl setSectionCount(int sectionCount) {
+        ValidationUtil.checkSections(this, sectionCount, model.getMaximumSectionCount());
+        if (sectionCount < 0 || sectionCount > model.getMaximumSectionCount()) {
+            throw new ValidationException(this, "unexpected section number (" + sectionCount + "): no existing associated section");
         }
         int variantIndex = network.get().getVariantIndex();
-        int oldValue = this.currentSectionCount.set(variantIndex, currentSectionCount);
+        int oldValue = this.currentSectionCount.set(variantIndex, sectionCount);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("currentSectionCount", variantId, oldValue, currentSectionCount);
+        notifyUpdate("currentSectionCount", variantId, oldValue, sectionCount);
         return this;
     }
 
     @Override
-    public double getCurrentB() {
+    public double getB() {
         return model.getB(currentSectionCount.get(network.get().getVariantIndex()));
     }
 
     @Override
-    public double getCurrentG() {
+    public double getG() {
         return model.getG(currentSectionCount.get(network.get().getVariantIndex()));
     }
 

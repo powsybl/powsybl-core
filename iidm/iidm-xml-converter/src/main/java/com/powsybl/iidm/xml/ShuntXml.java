@@ -59,7 +59,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
                 throw new UncheckedXmlStreamException(e);
             }
         });
-        context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getCurrentSectionCount()));
+        context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getSectionCount()));
         IidmXmlUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", sc.isVoltageRegulatorOn(), false, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "targetV", sc.getTargetV(),
                 IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
@@ -92,7 +92,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
             context.getWriter().writeAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(sc.getMaximumSectionCount()));
         } else if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
             context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), SHUNT_NON_LINEAR_MODEL);
-            for (ShuntCompensatorNonLinearModel.Section s : sc.getModel(ShuntCompensatorNonLinearModel.class).getSections()) {
+            for (ShuntCompensatorNonLinearModel.Section s : sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections()) {
                 context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "section");
                 XmlUtil.writeDouble("b", s.getB(), context.getWriter());
                 XmlUtil.writeDouble("g", s.getG(), context.getWriter());
@@ -132,7 +132,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
                     .setMaximumSectionCount(maximumSectionCount)
                     .add();
         });
-        adder.setCurrentSectionCount(currentSectionCount);
+        adder.setSectionCount(currentSectionCount);
         readNodeOrBus(adder, context);
         double p = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p");
         double q = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q");

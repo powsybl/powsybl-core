@@ -39,6 +39,10 @@ class ShuntCompensatorExtensionTest {
         shunt.bPerSection = 4.0
         assertEquals(4.0, shunt.bPerSection, 0.0f)
         assertEquals(44.0, shunt.maximumB, 0.0)
+        assertEquals(4.0 * 6, shunt.currentB, 0.0f)
+        assertEquals(6, shunt.currentSectionCount, 0)
+        shunt.currentSectionCount = 5
+        assertEquals(5, shunt.currentSectionCount, 0)
     }
 
     @Test
@@ -93,7 +97,7 @@ class ShuntCompensatorExtensionTest {
         network.getVoltageLevel("bbVL").newShuntCompensator().setId("SHUNT")
                 .setBus("Bus1")
                 .setConnectableBus("Bus1")
-                .setCurrentSectionCount(6)
+                .setSectionCount(6)
                 .newLinearModel()
                     .setBPerSection(5.0)
                     .setMaximumSectionCount(10)
@@ -124,7 +128,7 @@ class ShuntCompensatorExtensionTest {
                 .setId("SHUNT")
                 .setBus("Bus1")
                 .setConnectableBus("Bus1")
-                .setCurrentSectionCount(1)
+                .setSectionCount(1)
         adder.newNonLinearModel()
                 .beginSection()
                     .setB(5.0)

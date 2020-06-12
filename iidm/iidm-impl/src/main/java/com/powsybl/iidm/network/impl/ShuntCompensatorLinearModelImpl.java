@@ -78,7 +78,7 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
 
     @Override
     public ShuntCompensatorLinearModel setMaximumSectionCount(int maximumSectionCount) {
-        ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getCurrentSectionCount(), maximumSectionCount);
+        ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getSectionCount(), maximumSectionCount);
         int oldValue = this.maximumSectionCount;
         this.maximumSectionCount = maximumSectionCount;
         shuntCompensator.notifyUpdate("maximumSectionCount", oldValue, maximumSectionCount);

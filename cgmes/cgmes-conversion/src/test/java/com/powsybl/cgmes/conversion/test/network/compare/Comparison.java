@@ -207,8 +207,8 @@ public class Comparison {
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
         compare("currentSectionCount",
-                expected.getCurrentSectionCount(),
-                actual.getCurrentSectionCount());
+                expected.getSectionCount(),
+                actual.getSectionCount());
         compare("voltageRegulationOn",
                 expected.isVoltageRegulatorOn(),
                 actual.isVoltageRegulatorOn());
@@ -240,17 +240,17 @@ public class Comparison {
             case NON_LINEAR:
                 ShuntCompensatorNonLinearModel expectedModel = expected.getModel(ShuntCompensatorNonLinearModel.class);
                 ShuntCompensatorNonLinearModel actualModel = actual.getModel(ShuntCompensatorNonLinearModel.class);
-                if (expectedModel.getSections().size() > actualModel.getSections().size()) {
-                    for (int i = actualModel.getSections().size(); i < expectedModel.getSections().size(); i++) {
+                if (expectedModel.getAllSections().size() > actualModel.getAllSections().size()) {
+                    for (int i = actualModel.getAllSections().size(); i < expectedModel.getAllSections().size(); i++) {
                         diff.missing("section" + i);
                     }
                 }
-                if (expectedModel.getSections().size() < actualModel.getSections().size()) {
-                    for (int i = expectedModel.getSections().size(); i < actualModel.getSections().size(); i++) {
+                if (expectedModel.getAllSections().size() < actualModel.getAllSections().size()) {
+                    for (int i = expectedModel.getAllSections().size(); i < actualModel.getAllSections().size(); i++) {
                         diff.unexpected("section" + i);
                     }
                 }
-                for (int i = 1; i < expectedModel.getSections().size(); i++) {
+                for (int i = 1; i < expectedModel.getAllSections().size(); i++) {
                     ShuntCompensatorNonLinearModel.Section expectedSection = expectedModel.getSection(i);
                     ShuntCompensatorNonLinearModel.Section actualSection = actualModel.getSection(i);
                     compare("section" + i + ".b", expectedSection.getB(), actualSection.getB());

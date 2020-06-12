@@ -24,8 +24,8 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     // Simple delegated methods ------
     // -------------------------------
     @Override
-    public int getCurrentSectionCount() {
-        return getDelegate().getCurrentSectionCount();
+    public int getSectionCount() {
+        return getDelegate().getSectionCount();
     }
 
     @Override
@@ -34,19 +34,19 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     }
 
     @Override
-    public ShuntCompensator setCurrentSectionCount(final int currentSectionCount) {
-        getDelegate().setCurrentSectionCount(currentSectionCount);
+    public ShuntCompensator setSectionCount(final int sectionCount) {
+        getDelegate().setSectionCount(sectionCount);
         return this;
     }
 
     @Override
-    public double getCurrentB() {
-        return getDelegate().getCurrentB();
+    public double getB() {
+        return getDelegate().getB();
     }
 
     @Override
-    public double getCurrentG() {
-        return getDelegate().getCurrentG();
+    public double getG() {
+        return getDelegate().getG();
     }
 
     @Override

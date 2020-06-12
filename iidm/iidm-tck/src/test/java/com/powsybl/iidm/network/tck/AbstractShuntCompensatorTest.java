@@ -61,10 +61,10 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(ConnectableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
         assertEquals("shuntName", shuntCompensator.getOptionalName().orElse(null));
         assertEquals(SHUNT, shuntCompensator.getId());
-        assertEquals(6, shuntCompensator.getCurrentSectionCount());
+        assertEquals(6, shuntCompensator.getSectionCount());
         assertEquals(10, shuntCompensator.getMaximumSectionCount());
-        assertEquals(30.0, shuntCompensator.getCurrentB(), 0.0);
-        assertEquals(24.0, shuntCompensator.getCurrentG(), 0.0);
+        assertEquals(30.0, shuntCompensator.getB(), 0.0);
+        assertEquals(24.0, shuntCompensator.getG(), 0.0);
         assertEquals(0.0, shuntCompensator.getB(0), 0.0);
         assertEquals(30.0, shuntCompensator.getB(6), 0.0);
         assertEquals(0.0, shuntCompensator.getG(0), 0.0);
@@ -88,20 +88,20 @@ public abstract class AbstractShuntCompensatorTest {
 
         // currentSectionCount
         try {
-            shuntCompensator.setCurrentSectionCount(-1);
+            shuntCompensator.setSectionCount(-1);
             fail();
         } catch (ValidationException ignored) {
             // ignore
         }
         try {
             // max = 10, current could not be 20
-            shuntCompensator.setCurrentSectionCount(20);
+            shuntCompensator.setSectionCount(20);
             fail();
         } catch (ValidationException ignored) {
             // ignore
         }
-        shuntCompensator.setCurrentSectionCount(6);
-        assertEquals(6, shuntCompensator.getCurrentSectionCount());
+        shuntCompensator.setSectionCount(6);
+        assertEquals(6, shuntCompensator.getSectionCount());
 
         // b
         try {
@@ -142,12 +142,12 @@ public abstract class AbstractShuntCompensatorTest {
         }
         shuntLinearModel.setBPerSection(-1.0);
         assertEquals(-1.0, shuntLinearModel.getBPerSection(), 0.0);
-        assertEquals(-6.0, shuntCompensator.getCurrentB(), 0.0);
+        assertEquals(-6.0, shuntCompensator.getB(), 0.0);
 
         // gPerSection
         shuntLinearModel.setGPerSection(-2.0);
         assertEquals(-2.0, shuntLinearModel.getGPerSection(), 0.0);
-        assertEquals(-12.0, shuntCompensator.getCurrentG(), 0.0);
+        assertEquals(-12.0, shuntCompensator.getG(), 0.0);
 
         // maximumSectionCount
         try {
@@ -195,7 +195,7 @@ public abstract class AbstractShuntCompensatorTest {
                 .setId(SHUNT)
                 .setName("shuntName")
                 .setConnectableBus("busA")
-                .setCurrentSectionCount(1)
+                .setSectionCount(1)
                 .setRegulatingTerminal(terminal)
                 .setVoltageRegulatorOn(true)
                 .setTargetV(200)
@@ -216,10 +216,10 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals("shuntName", shuntCompensator.getOptionalName().orElse(null));
         assertEquals("shuntName", shuntCompensator.getNameOrId());
         assertEquals(SHUNT, shuntCompensator.getId());
-        assertEquals(1, shuntCompensator.getCurrentSectionCount());
+        assertEquals(1, shuntCompensator.getSectionCount());
         assertEquals(2, shuntCompensator.getMaximumSectionCount());
-        assertEquals(5.0, shuntCompensator.getCurrentB(), 0.0);
-        assertEquals(2.0, shuntCompensator.getCurrentG(), 0.0);
+        assertEquals(5.0, shuntCompensator.getB(), 0.0);
+        assertEquals(2.0, shuntCompensator.getG(), 0.0);
         assertEquals(0.0, shuntCompensator.getB(0), 0.0);
         assertEquals(5.0, shuntCompensator.getB(1), 0.0);
         assertEquals(6.0, shuntCompensator.getB(2), 0.0);
@@ -232,7 +232,7 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(10, shuntCompensator.getTargetDeadband(), 0.0);
         assertEquals(ShuntCompensatorModelType.NON_LINEAR, shuntCompensator.getModelType());
         ShuntCompensatorNonLinearModel shuntNonLinearModel = shuntCompensator.getModel(ShuntCompensatorNonLinearModel.class);
-        assertEquals(2, shuntNonLinearModel.getSections().size());
+        assertEquals(2, shuntNonLinearModel.getAllSections().size());
 
         // try to get an invalid section
         try {
@@ -251,20 +251,20 @@ public abstract class AbstractShuntCompensatorTest {
 
         // currentSectionCount
         try {
-            shuntCompensator.setCurrentSectionCount(-1);
+            shuntCompensator.setSectionCount(-1);
             fail();
         } catch (ValidationException ignored) {
             // ignore
         }
         try {
             // exiting = 0, 1, 2, current could not be 20
-            shuntCompensator.setCurrentSectionCount(20);
+            shuntCompensator.setSectionCount(20);
             fail();
         } catch (ValidationException ignored) {
             // ignore
         }
-        shuntCompensator.setCurrentSectionCount(2);
-        assertEquals(2, shuntCompensator.getCurrentSectionCount());
+        shuntCompensator.setSectionCount(2);
+        assertEquals(2, shuntCompensator.getSectionCount());
 
         // b
         try {
@@ -330,7 +330,7 @@ public abstract class AbstractShuntCompensatorTest {
                 .setId(INVALID)
                 .setName(INVALID)
                 .setConnectableBus("busA")
-                .setCurrentSectionCount(6)
+                .setSectionCount(6)
                 .setRegulatingTerminal(terminal)
                 .setVoltageRegulatorOn(false)
                 .setTargetV(Double.NaN)
@@ -437,11 +437,11 @@ public abstract class AbstractShuntCompensatorTest {
 
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
-        assertEquals(5, shunt.getCurrentSectionCount());
-        assertEquals(10.0, shunt.getCurrentB(), 0.0); // 2*5
-        assertEquals(5.0, shunt.getCurrentG(), 0.0); // 1*5
+        assertEquals(5, shunt.getSectionCount());
+        assertEquals(10.0, shunt.getB(), 0.0); // 2*5
+        assertEquals(5.0, shunt.getG(), 0.0); // 1*5
         // change values in s4
-        shunt.setCurrentSectionCount(4)
+        shunt.setSectionCount(4)
                 .setVoltageRegulatorOn(false)
                 .setTargetV(220)
                 .setTargetDeadband(5.0);
@@ -452,18 +452,18 @@ public abstract class AbstractShuntCompensatorTest {
         variantManager.cloneVariant("s4", "s2b");
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
-        assertEquals(4, shunt.getCurrentSectionCount());
-        assertEquals(8.0, shunt.getCurrentB(), 0.0); // 2*4
-        assertEquals(4.0, shunt.getCurrentG(), 0.0); // 1*4
+        assertEquals(4, shunt.getSectionCount());
+        assertEquals(8.0, shunt.getB(), 0.0); // 2*4
+        assertEquals(4.0, shunt.getG(), 0.0); // 1*4
         assertFalse(shunt.isVoltageRegulatorOn());
         assertEquals(220, shunt.getTargetV(), 0.0);
         assertEquals(5.0, shunt.getTargetDeadband(), 0.0);
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertEquals(5, shunt.getCurrentSectionCount());
-        assertEquals(10.0, shunt.getCurrentB(), 0.0); // 2*5
-        assertEquals(5.0, shunt.getCurrentG(), 0.0); // 1*5
+        assertEquals(5, shunt.getSectionCount());
+        assertEquals(10.0, shunt.getB(), 0.0); // 2*5
+        assertEquals(5.0, shunt.getG(), 0.0); // 1*5
         assertTrue(shunt.isVoltageRegulatorOn());
         assertEquals(200, shunt.getTargetV(), 0.0);
         assertEquals(10, shunt.getTargetDeadband(), 0.0);
@@ -472,7 +472,7 @@ public abstract class AbstractShuntCompensatorTest {
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
         try {
-            shunt.getCurrentSectionCount();
+            shunt.getSectionCount();
             fail();
         } catch (Exception ignored) {
             // ignore
@@ -512,7 +512,7 @@ public abstract class AbstractShuntCompensatorTest {
                 .setId(id)
                 .setName(name)
                 .setConnectableBus("busA")
-                .setCurrentSectionCount(currentSectionCount)
+                .setSectionCount(currentSectionCount)
                 .setRegulatingTerminal(regulatingTerminal)
                 .setVoltageRegulatorOn(voltageRegulatorOn)
                 .setTargetV(targetV)

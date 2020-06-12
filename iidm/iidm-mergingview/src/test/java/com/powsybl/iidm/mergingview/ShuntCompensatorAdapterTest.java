@@ -45,20 +45,20 @@ public class ShuntCompensatorAdapterTest {
 
         int maxCount = shuntCExpected.getMaximumSectionCount();
         shuntCActual.getModel(ShuntCompensatorLinearModel.class).setMaximumSectionCount(++maxCount);
-        int currentCount = shuntCExpected.getCurrentSectionCount();
-        assertEquals(currentCount, shuntCActual.getCurrentSectionCount());
-        assertTrue(shuntCActual.setCurrentSectionCount(++currentCount) instanceof ShuntCompensatorAdapter);
-        assertEquals(currentCount, shuntCActual.getCurrentSectionCount());
+        int currentCount = shuntCExpected.getSectionCount();
+        assertEquals(currentCount, shuntCActual.getSectionCount());
+        assertTrue(shuntCActual.setSectionCount(++currentCount) instanceof ShuntCompensatorAdapter);
+        assertEquals(currentCount, shuntCActual.getSectionCount());
 
         double b = shuntCExpected.getModel(ShuntCompensatorLinearModel.class).getBPerSection();
         assertEquals(b, shuntCActual.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0d);
         shuntCActual.getModel(ShuntCompensatorLinearModel.class).setBPerSection(++b);
         assertEquals(shuntCExpected.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), shuntCActual.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0d);
 
-        double currentB = shuntCExpected.getCurrentB();
-        assertEquals(currentB, shuntCActual.getCurrentB(), 0.0d);
+        double currentB = shuntCExpected.getB();
+        assertEquals(currentB, shuntCActual.getB(), 0.0d);
         shuntCActual.getModel(ShuntCompensatorLinearModel.class).setBPerSection(++currentB);
-        assertEquals(shuntCExpected.getCurrentB(), shuntCActual.getCurrentB(), 0.0d);
+        assertEquals(shuntCExpected.getB(), shuntCActual.getB(), 0.0d);
 
         Terminal terminal = mergingView.getLccConverterStation("C1").getTerminal();
         assertTrue(shuntCActual.setRegulatingTerminal(terminal) instanceof ShuntCompensatorAdapter);
@@ -92,7 +92,7 @@ public class ShuntCompensatorAdapterTest {
                 .newShuntCompensator()
                     .setId("linear")
                     .setConnectableBus("NLOAD")
-                    .setCurrentSectionCount(0)
+                    .setSectionCount(0)
                     .newLinearModel()
                         .setBPerSection(1.0)
                         .setMaximumSectionCount(2)
@@ -101,10 +101,10 @@ public class ShuntCompensatorAdapterTest {
         assertTrue(adder.add() instanceof ShuntCompensatorAdapter);
 
         ShuntCompensator shunt = mergingView.getShuntCompensator("linear");
-        assertEquals(0, shunt.getCurrentSectionCount());
+        assertEquals(0, shunt.getSectionCount());
         assertEquals(2, shunt.getMaximumSectionCount());
-        assertEquals(0, shunt.getCurrentB(), 0.0);
-        assertEquals(0.0, shunt.getCurrentG(), 0.0);
+        assertEquals(0, shunt.getB(), 0.0);
+        assertEquals(0.0, shunt.getG(), 0.0);
         assertEquals(0, shunt.getB(0), 0.0);
         assertEquals(1.0, shunt.getB(1), 0.0);
         assertEquals(2.0, shunt.getB(2), 0.0);
@@ -129,7 +129,7 @@ public class ShuntCompensatorAdapterTest {
                 .newShuntCompensator()
                 .setId("nonLinear")
                 .setConnectableBus("NLOAD")
-                .setCurrentSectionCount(1)
+                .setSectionCount(1)
                 .newNonLinearModel()
                     .beginSection()
                         .setB(1.0)
@@ -142,11 +142,11 @@ public class ShuntCompensatorAdapterTest {
         assertTrue(adder.add() instanceof ShuntCompensatorAdapter);
 
         ShuntCompensator shunt = mergingView.getShuntCompensator("nonLinear");
-        assertEquals(1, shunt.getCurrentSectionCount());
+        assertEquals(1, shunt.getSectionCount());
         assertEquals(2, shunt.getMaximumSectionCount());
 
         ShuntCompensatorNonLinearModel model = shunt.getModel(ShuntCompensatorNonLinearModel.class);
-        assertEquals(2, model.getSections().size());
+        assertEquals(2, model.getAllSections().size());
         assertEquals(1.0, model.getBPerSection(1), 0.0);
         assertEquals(0.0, model.getGPerSection(1), 0.0);
         assertEquals(1.0, model.getBPerSection(2), 0.0);

@@ -214,7 +214,7 @@ public class MatpowerImporter implements Importer {
                     .setId(shuntId)
                     .setConnectableBus(busId)
                     .setBus(busId)
-                    .setCurrentSectionCount(1);
+                    .setSectionCount(1);
             adder.newLinearModel()
                     .setBPerSection(mBus.getShuntSusceptance() / perUnitContext.getBaseMva() / zb)
                     .setMaximumSectionCount(1)
