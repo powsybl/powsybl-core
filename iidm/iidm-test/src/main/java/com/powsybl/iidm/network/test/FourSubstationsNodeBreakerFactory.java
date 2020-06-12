@@ -132,7 +132,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setId("LD1")
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(80)
-                .setQ0(10.168945)
+                .setQ0(10)
                 .setNode(2)
                 .add();
         load1.getTerminal().setP(80.0).setQ(10.1689453125);
@@ -217,7 +217,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setName("VSC1")
                 .setNode(5)
                 .setLossFactor(1.1f)
-                .setReactivePowerSetpoint(200)
+                .setReactivePowerSetpoint(150)
                 .setVoltageSetpoint(402.0)
                 .setVoltageRegulatorOn(false)
                 .add();
@@ -252,7 +252,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setVoltageRegulatorOn(true)
-                .setTargetP(61)
+                .setTargetP(90)
                 .setTargetV(400.0)
                 .setTargetQ(50)
                 .setNode(7)
@@ -275,9 +275,9 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setId("GH2")
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
-                .setMaxP(100.0)
+                .setMaxP(70.0)
                 .setVoltageRegulatorOn(false)
-                .setTargetP(61)
+                .setTargetP(90)
                 .setTargetV(400.0)
                 .setTargetQ(100.0)
                 .setNode(9)
@@ -302,9 +302,9 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMinP(0.0)
                 .setMaxP(200.0)
                 .setVoltageRegulatorOn(false)
-                .setTargetP(128)
+                .setTargetP(160)
                 .setTargetV(400)
-                .setTargetQ(71)
+                .setTargetQ(70)
                 .setNode(11)
                 .add();
         generatorHydro3.newReactiveCapabilityCurve()
@@ -335,8 +335,8 @@ public final class FourSubstationsNodeBreakerFactory {
         Load load2 = s1vl2.newLoad()
                 .setId("LD2")
                 .setLoadType(LoadType.UNDEFINED)
-                .setP0(81)
-                .setQ0(4)
+                .setP0(60)
+                .setQ0(5)
                 .setNode(13)
                 .add();
         load2.getTerminal().setP(48.45585250854492).setQ(3.695924997329712);
@@ -344,8 +344,8 @@ public final class FourSubstationsNodeBreakerFactory {
         Load load3 = s1vl2.newLoad()
                 .setId("LD3")
                 .setLoadType(LoadType.UNDEFINED)
-                .setP0(49)
-                .setQ0(2)
+                .setP0(60)
+                .setQ0(5)
                 .setNode(15)
                 .add();
         load3.getTerminal().setP(40.39910888671875).setQ(1.968690037727356);
@@ -353,7 +353,7 @@ public final class FourSubstationsNodeBreakerFactory {
         Load load4 = s1vl2.newLoad()
                 .setId("LD4")
                 .setLoadType(LoadType.UNDEFINED)
-                .setP0(45)
+                .setP0(40)
                 .setQ0(5)
                 .setNode(17)
                 .add();
@@ -398,11 +398,11 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setId("GTH1")
                 .setEnergySource(EnergySource.THERMAL)
                 .setMinP(0.0)
-                .setMaxP(80.0)
+                .setMaxP(100.0)
                 .setVoltageRegulatorOn(false)
-                .setTargetP(71.500526)
+                .setTargetP(80)
                 .setTargetV(400)
-                .setTargetQ(66)
+                .setTargetQ(70)
                 .setNode(2)
                 .add();
         generatorThermal1.newReactiveCapabilityCurve()
@@ -412,7 +412,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMaxQ(77.4)
                 .endPoint()
                 .beginPoint()
-                .setP(80.0)
+                .setP(100.0)
                 .setMinQ(-73.514)
                 .setMaxQ(76.4)
                 .endPoint()
@@ -427,7 +427,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setName("VSC2")
                 .setNode(4)
                 .setLossFactor(1.1f)
-                .setReactivePowerSetpoint(123)
+                .setReactivePowerSetpoint(120)
                 .setVoltageSetpoint(0)
                 .setVoltageRegulatorOn(false)
                 .add();
@@ -447,7 +447,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setNominalV(400)
                 .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
                 .setMaxP(300.0)
-                .setActivePowerSetpoint(185)
+                .setActivePowerSetpoint(10)
                 .add();
 
         // The substations 2 and 3 are connected through a line
@@ -477,8 +477,8 @@ public final class FourSubstationsNodeBreakerFactory {
         Load load5 = s3vl1.newLoad()
                 .setId("LD5")
                 .setLoadType(LoadType.UNDEFINED)
-                .setP0(218)
-                .setQ0(3)
+                .setP0(200)
+                .setQ0(5)
                 .setNode(4)
                 .add();
         load5.getTerminal().setP(300.0).setQ(3.168945074081421);
@@ -492,7 +492,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMinP(0.0)
                 .setMaxP(400.0)
                 .setVoltageRegulatorOn(true)
-                .setTargetP(177)
+                .setTargetP(70)
                 .setTargetV(400)
                 .setTargetQ(60.0)
                 .setNode(6)
@@ -571,7 +571,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setNominalV(400)
                 .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
                 .setMaxP(300.0)
-                .setActivePowerSetpoint(79)
+                .setActivePowerSetpoint(80)
                 .add();
 
         // Connect a load to the fourth substation
@@ -580,8 +580,8 @@ public final class FourSubstationsNodeBreakerFactory {
         Load load6 = s4vl1.newLoad()
                 .setId("LD6")
                 .setLoadType(LoadType.UNDEFINED)
-                .setP0(43)
-                .setQ0(0.2)
+                .setP0(40)
+                .setQ0(0)
                 .setNode(2)
                 .add();
         load6.getTerminal().setP(42.667999267578125).setQ(0.16894499957561493);
