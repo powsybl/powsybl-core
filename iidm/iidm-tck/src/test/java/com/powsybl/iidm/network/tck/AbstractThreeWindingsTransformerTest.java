@@ -115,7 +115,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         RatioTapChanger ratioTapChangerInLeg2 = createRatioTapChanger(leg2,
             transformer.getTerminal(ThreeWindingsTransformer.Side.TWO));
 
-        assertTrue(leg2.getOptionalRatioTapChanger().isPresent());
+        assertTrue(leg2.hasRatioTapChanger());
         assertSame(ratioTapChangerInLeg2, leg2.getRatioTapChanger());
         CurrentLimits currentLimitsInLeg2 = leg2.newCurrentLimits()
             .setPermanentLimit(100)
@@ -149,7 +149,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         PhaseTapChanger phaseTapChangerInLeg2 = createPhaseTapChanger(leg2,
             transformer.getTerminal(ThreeWindingsTransformer.Side.TWO));
-        assertTrue(leg2.getOptionalPhaseTapChanger().isPresent());
+        assertTrue(leg2.hasPhaseTapChanger());
         assertSame(phaseTapChangerInLeg2, leg2.getPhaseTapChanger());
 
         PhaseTapChanger phaseTapChangerInLeg3 = createPhaseTapChanger(leg3,

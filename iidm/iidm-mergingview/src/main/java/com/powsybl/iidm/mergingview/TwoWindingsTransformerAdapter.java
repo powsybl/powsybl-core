@@ -8,8 +8,6 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.Optional;
-
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -25,18 +23,8 @@ public class TwoWindingsTransformerAdapter extends AbstractBranchAdapter<TwoWind
     }
 
     @Override
-    public Optional<PhaseTapChanger> getOptionalPhaseTapChanger() {
-        return Optional.ofNullable(getPhaseTapChanger());
-    }
-
-    @Override
     public RatioTapChanger getRatioTapChanger() {
         return getIndex().getRatioTapChanger(getDelegate().getRatioTapChanger());
-    }
-
-    @Override
-    public Optional<RatioTapChanger> getOptionalRatioTapChanger() {
-        return Optional.ofNullable(getRatioTapChanger());
     }
 
     @Override
