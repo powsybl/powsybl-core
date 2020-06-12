@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.Load
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-Logger logger = LoggerFactory.getLogger("com.powsybl.dynamicsimulation.groovy.GroovyCurvesProvider")
+Logger logger = LoggerFactory.getLogger("com.powsybl.dynamicsimulation.groovy.GroovyCurvesSupplier")
 
 dummyCurve {
     id "id"
