@@ -146,7 +146,7 @@ public class ShuntCompensatorAdapterTest {
         assertEquals(2, shunt.getMaximumSectionCount());
 
         ShuntCompensatorNonLinearModel model = shunt.getModel(ShuntCompensatorNonLinearModel.class);
-        assertEquals(3, model.getSections().size());
+        assertEquals(2, model.getSections().size());
         assertEquals(1.0, model.getBPerSection(1), 0.0);
         assertEquals(0.0, model.getGPerSection(1), 0.0);
         assertEquals(1.0, model.getBPerSection(2), 0.0);
