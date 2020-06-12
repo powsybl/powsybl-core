@@ -7,8 +7,6 @@
 package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.RatioTapChanger;
 
-import java.util.Optional;
-
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -20,6 +18,4 @@ interface RatioTapChangerParent extends TapChangerParent {
     void setRatioTapChanger(RatioTapChangerImpl ratioTapChanger);
 
     RatioTapChanger getRatioTapChanger();
-
-    Optional<RatioTapChanger> getOptionalRatioTapChanger();
 }

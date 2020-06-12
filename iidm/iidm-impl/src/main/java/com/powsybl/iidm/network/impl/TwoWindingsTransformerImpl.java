@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.impl;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import com.powsybl.iidm.network.*;
@@ -172,11 +171,6 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
     }
 
     @Override
-    public Optional<RatioTapChanger> getOptionalRatioTapChanger() {
-        return Optional.ofNullable(ratioTapChanger);
-    }
-
-    @Override
     public PhaseTapChangerAdderImpl newPhaseTapChanger() {
         return new PhaseTapChangerAdderImpl(this);
     }
@@ -184,11 +178,6 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
     @Override
     public PhaseTapChangerImpl getPhaseTapChanger() {
         return phaseTapChanger;
-    }
-
-    @Override
-    public Optional<PhaseTapChanger> getOptionalPhaseTapChanger() {
-        return Optional.ofNullable(phaseTapChanger);
     }
 
     @Override

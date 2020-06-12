@@ -30,5 +30,14 @@ public interface PhaseTapChangerHolder {
     /**
      * Get the optional ratio tap changer.
      */
-    Optional<PhaseTapChanger> getOptionalPhaseTapChanger();
+    default Optional<PhaseTapChanger> getOptionalPhaseTapChanger() {
+        return Optional.ofNullable(getPhaseTapChanger());
+    }
+
+    /**
+     *  Check if a phase tap changer is present
+     */
+    default boolean hasPhaseTapChanger() {
+        return getPhaseTapChanger() != null;
+    }
 }
