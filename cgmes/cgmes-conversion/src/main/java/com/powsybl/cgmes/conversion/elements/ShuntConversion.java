@@ -17,6 +17,8 @@ import com.powsybl.iidm.network.ShuntCompensatorNonLinearModelAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
+import java.util.Comparator;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -64,20 +66,16 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         } else if ("NonlinearShuntCompensator".equals(shuntType)) {
             ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
             PropertyBags ss = context.cgmes().nonlinearShuntCompensatorPoints(id);
-            for (PropertyBag sp : ss) {
-                int sectionNumber = sp.asInt(SECTION_NUMBER);
-                double b = ss.stream().filter(s -> s.asInt(SECTION_NUMBER) <= sectionNumber).map(s -> s.asDouble("b")).reduce(0.0, Double::sum);
-                if (sectionNumber == 0) {
-                    if (b != 0) {
-                        fixed("Shunt.section0", "Susceptance of section 0 should always be zero (disconnected state)", b, 0.);
-                    }
-                    continue;
-                }
-                modelAdder.beginSection()
-                        .setB(b)
-                        .setG(ss.stream().filter(s -> s.asInt(SECTION_NUMBER) <= sectionNumber).map(s -> s.asDouble("g")).reduce(0.0, Double::sum))
-                        .endSection();
-            }
+            ss.stream()
+                    .filter(s -> s.asInt(SECTION_NUMBER) > 0)
+                    .sorted(Comparator.comparing(s -> s.asInt(SECTION_NUMBER)))
+                    .forEach(sec -> {
+                        int sectionNumber = sec.asInt(SECTION_NUMBER);
+                        modelAdder.beginSection()
+                                .setB(ss.stream().filter(s -> s.asInt(SECTION_NUMBER) <= sectionNumber).map(s -> s.asDouble("b")).reduce(0.0, Double::sum))
+                                .setG(ss.stream().filter(s -> s.asInt(SECTION_NUMBER) <= sectionNumber).map(s -> s.asDouble("g")).reduce(0.0, Double::sum))
+                                .endSection();
+                    });
             modelAdder.add();
         } else {
             throw new AssertionError("Unexpected shunt type: " + shuntType);

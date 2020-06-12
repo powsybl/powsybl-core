@@ -250,7 +250,7 @@ public class Comparison {
                         diff.unexpected("section" + i);
                     }
                 }
-                for (int i = 0; i < expectedModel.getSections().size(); i++) {
+                for (int i = 1; i < expectedModel.getSections().size(); i++) {
                     ShuntCompensatorNonLinearModel.Section expectedSection = expectedModel.getSection(i);
                     ShuntCompensatorNonLinearModel.Section actualSection = actualModel.getSection(i);
                     compare("section" + i + ".b", expectedSection.getB(), actualSection.getB());
