@@ -22,14 +22,14 @@ import org.junit.Test;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.dynamicsimulation.DynamicModel;
-import com.powsybl.dynamicsimulation.MappingSupplier;
+import com.powsybl.dynamicsimulation.DynamicModelSupplier;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public class GroovyMappingSupplierTest {
+public class GroovyDynamicModelSupplierTest {
 
     private FileSystem fileSystem;
 
@@ -37,7 +37,7 @@ public class GroovyMappingSupplierTest {
     public void setup() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
 
-        Files.copy(getClass().getResourceAsStream("/mapping.groovy"), fileSystem.getPath("/mapping.groovy"));
+        Files.copy(getClass().getResourceAsStream("/dynamicModels.groovy"), fileSystem.getPath("/dynamicModels.groovy"));
     }
 
     @After
@@ -53,7 +53,7 @@ public class GroovyMappingSupplierTest {
         assertEquals(1, extensions.size());
         assertTrue(extensions.get(0) instanceof DynamicModelGroovyExtension);
 
-        MappingSupplier supplier = new GroovyMappingSupplier(fileSystem.getPath("/mapping.groovy"), extensions);
+        DynamicModelSupplier supplier = new GroovyDynamicModelSupplier(fileSystem.getPath("/dynamicModels.groovy"), extensions);
 
         List<DynamicModel> dynamicModels = supplier.get(network);
         assertEquals(2, dynamicModels.size());

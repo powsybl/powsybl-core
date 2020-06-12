@@ -7,14 +7,9 @@
 
 package com.powsybl.dynamicsimulation;
 
-import java.util.Collections;
-
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public interface MappingSupplier extends SimulatorInputSupplier<DynamicModel> {
+public interface DynamicModelSupplier extends SimulatorInputSupplier<DynamicModel> {
 
-    static MappingSupplier empty() {
-        return network -> Collections.emptyList();
-    }
 }

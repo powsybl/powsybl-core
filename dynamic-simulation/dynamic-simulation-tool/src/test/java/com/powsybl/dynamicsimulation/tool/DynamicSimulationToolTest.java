@@ -35,7 +35,7 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
     public static class DynamicSimulationProviderMock implements DynamicSimulationProvider {
 
         @Override
-        public CompletableFuture<DynamicSimulationResult> run(Network network, MappingSupplier mappingSupplier, CurvesSupplier curvesSupplier, String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters) {
+        public CompletableFuture<DynamicSimulationResult> run(Network network, DynamicModelSupplier dynamicModelSupplier, CurvesSupplier curvesSupplier, String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters) {
             return CompletableFuture.completedFuture(new DynamicSimulationResultImpl(true, ""));
         }
 
@@ -69,7 +69,7 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
         assertEquals("Run dynamic simulation", command.getDescription());
         assertNull(command.getUsageFooter());
         assertOption(command.getOptions(), "case-file", true, true);
-        assertOption(command.getOptions(), "mapping-file", true, true);
+        assertOption(command.getOptions(), "dynamic-model-file", true, true);
         assertOption(command.getOptions(), "curves-file", false, true);
         assertOption(command.getOptions(), "output-file", false, true);
         assertOption(command.getOptions(), "skip-postproc", false, false);
@@ -81,7 +81,7 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
         super.setUp();
 
         Files.copy(getClass().getResourceAsStream("/network.xiidm"), fileSystem.getPath("/network.xiidm"));
-        Files.createFile(fileSystem.getPath("/mapping.groovy"));
+        Files.createFile(fileSystem.getPath("/dynamicModels.groovy"));
         Files.createFile(fileSystem.getPath("/curves.groovy"));
         Files.createFile(fileSystem.getPath("/curves.json"));
     }
@@ -96,19 +96,19 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
                 "+--------+",
                 "| true   |",
                 "+--------+");
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--mapping-file", "/mapping.groovy"}, 0, expectedOut, "");
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-model-file", "/dynamicModels.groovy"}, 0, expectedOut, "");
 
         // Run with curves
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--mapping-file", "/mapping.groovy", "--curves-file", "/curves.groovy"}, 0, expectedOut, "");
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-model-file", "/dynamicModels.groovy", "--curves-file", "/curves.groovy"}, 0, expectedOut, "");
     }
 
     @Test
     public void testDynamicSimulationWithCurves() throws IOException {
         // Run with curves in groovy
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--mapping-file", "/mapping.groovy", "--curves-file", "/curves.groovy"}, 0, null, "");
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-model-file", "/dynamicModels.groovy", "--curves-file", "/curves.groovy"}, 0, null, "");
 
         // Run with curves in JSON (not supported)
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--mapping-file", "/mapping.groovy", "--curves-file", "/curves.json"}, 3, null, "Unsupported curves format: json");
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-model-file", "/dynamicModels.groovy", "--curves-file", "/curves.json"}, 3, null, "Unsupported curves format: json");
     }
 
 }

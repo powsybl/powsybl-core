@@ -18,6 +18,6 @@ import com.powsybl.iidm.network.Network;
  */
 public interface DynamicSimulationProvider extends Versionable, PlatformConfigNamedProvider {
 
-    CompletableFuture<DynamicSimulationResult> run(Network network, MappingSupplier mappingSupplier, CurvesSupplier curvesSupplier, String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters);
+    CompletableFuture<DynamicSimulationResult> run(Network network, DynamicModelSupplier dynamicModelSupplier, CurvesSupplier curvesSupplier, String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters);
 
 }

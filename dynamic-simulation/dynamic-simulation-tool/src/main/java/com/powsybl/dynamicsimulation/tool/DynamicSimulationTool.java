@@ -13,12 +13,12 @@ import com.powsybl.dynamicsimulation.CurvesSupplier;
 import com.powsybl.dynamicsimulation.DynamicSimulation;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
-import com.powsybl.dynamicsimulation.MappingSupplier;
+import com.powsybl.dynamicsimulation.DynamicModelSupplier;
 import com.powsybl.dynamicsimulation.groovy.CurveGroovyExtension;
 import com.powsybl.dynamicsimulation.groovy.DynamicModelGroovyExtension;
 import com.powsybl.dynamicsimulation.groovy.GroovyCurvesSupplier;
 import com.powsybl.dynamicsimulation.groovy.GroovyExtension;
-import com.powsybl.dynamicsimulation.groovy.GroovyMappingSupplier;
+import com.powsybl.dynamicsimulation.groovy.GroovyDynamicModelSupplier;
 import com.powsybl.dynamicsimulation.json.DynamicSimulationResultSerializer;
 import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
 import com.powsybl.iidm.import_.ImportConfig;
@@ -48,7 +48,7 @@ import java.util.Properties;
 public class DynamicSimulationTool implements Tool {
 
     private static final String CASE_FILE = "case-file";
-    private static final String MAPPING_FILE = "mapping-file";
+    private static final String DYNAMIC_MODEL_FILE = "dynamic-model-file";
     private static final String CURVES_FILE = "curves-file";
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String SKIP_POSTPROC = "skip-postproc";
@@ -82,8 +82,8 @@ public class DynamicSimulationTool implements Tool {
                     .argName("FILE")
                     .required()
                     .build());
-                options.addOption(Option.builder().longOpt(MAPPING_FILE)
-                    .desc("mapping description as Groovy file")
+                options.addOption(Option.builder().longOpt(DYNAMIC_MODEL_FILE)
+                    .desc("dynamic models description as a Groovy file: defines the dynamic models to be associated to chosen equipments of the network")
                     .hasArg()
                     .argName("FILE")
                     .required()
@@ -141,11 +141,8 @@ public class DynamicSimulationTool implements Tool {
 
         DynamicSimulation.Runner runner = DynamicSimulation.find();
 
-        MappingSupplier mappingSupplier = MappingSupplier.empty();
-        if (line.hasOption(MAPPING_FILE)) {
-            Path mappingFile = context.getFileSystem().getPath(line.getOptionValue(MAPPING_FILE));
-            mappingSupplier = createMappingSupplier(mappingFile, runner.getName());
-        }
+        Path dydFile = context.getFileSystem().getPath(line.getOptionValue(DYNAMIC_MODEL_FILE));
+        DynamicModelSupplier dydSupplier = createMappingSupplier(dydFile, runner.getName());
 
         CurvesSupplier curvesSupplier = CurvesSupplier.empty();
         if (line.hasOption(CURVES_FILE)) {
@@ -159,7 +156,7 @@ public class DynamicSimulationTool implements Tool {
             JsonDynamicSimulationParameters.update(params, parametersFile);
         }
 
-        DynamicSimulationResult result = runner.run(network, mappingSupplier, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params);
+        DynamicSimulationResult result = runner.run(network, dydSupplier, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params);
 
         if (outputFile != null) {
             exportResult(result, context, outputFile);
@@ -168,12 +165,12 @@ public class DynamicSimulationTool implements Tool {
         }
     }
 
-    private MappingSupplier createMappingSupplier(Path path, String providerName) {
+    private DynamicModelSupplier createMappingSupplier(Path path, String providerName) {
         String extension = FilenameUtils.getExtension(path.toString());
         if (extension.equals("groovy")) {
-            return new GroovyMappingSupplier(path, GroovyExtension.find(DynamicModelGroovyExtension.class, providerName));
+            return new GroovyDynamicModelSupplier(path, GroovyExtension.find(DynamicModelGroovyExtension.class, providerName));
         } else {
-            throw new PowsyblException("Unsupported mapping format: " + extension);
+            throw new PowsyblException("Unsupported dynamic model format: " + extension);
         }
     }
 
