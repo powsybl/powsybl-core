@@ -47,8 +47,8 @@ public final class FourSubstationsNodeBreakerFactory {
         VoltageLevel s1vl1 = s1.newVoltageLevel()
                 .setId("S1VL1")
                 .setNominalV(225.0)
-                .setLowVoltageLimit(80.0)
-                .setHighVoltageLimit(120.0)
+                .setLowVoltageLimit(220.0)
+                .setHighVoltageLimit(240.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         BusbarSection busbarSectionS1VL1 = s1vl1.getNodeBreakerView().newBusbarSection()
@@ -59,8 +59,8 @@ public final class FourSubstationsNodeBreakerFactory {
         VoltageLevel s1vl2 = s1.newVoltageLevel()
                 .setId("S1VL2")
                 .setNominalV(400.0)
-                .setLowVoltageLimit(80.0)
-                .setHighVoltageLimit(120.0)
+                .setLowVoltageLimit(390.0)
+                .setHighVoltageLimit(440.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         BusbarSection busbarSectionS1VL21 = s1vl2.getNodeBreakerView().newBusbarSection()
@@ -81,8 +81,8 @@ public final class FourSubstationsNodeBreakerFactory {
         VoltageLevel s2vl1 = s2.newVoltageLevel()
                 .setId("S2VL1")
                 .setNominalV(400.0)
-                .setLowVoltageLimit(80.0)
-                .setHighVoltageLimit(120.0)
+                .setLowVoltageLimit(390.0)
+                .setHighVoltageLimit(440.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         BusbarSection busbarSectionS2VL1 = s2vl1.getNodeBreakerView().newBusbarSection()
@@ -98,8 +98,8 @@ public final class FourSubstationsNodeBreakerFactory {
         VoltageLevel s3vl1 = s3.newVoltageLevel()
                 .setId("S3VL1")
                 .setNominalV(400.0)
-                .setLowVoltageLimit(80.0)
-                .setHighVoltageLimit(120.0)
+                .setLowVoltageLimit(390.0)
+                .setHighVoltageLimit(440.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         BusbarSection busbarSectionS3VL1 = s3vl1.getNodeBreakerView().newBusbarSection()
@@ -115,8 +115,8 @@ public final class FourSubstationsNodeBreakerFactory {
         VoltageLevel s4vl1 = s4.newVoltageLevel()
                 .setId("S4VL1")
                 .setNominalV(400.0)
-                .setLowVoltageLimit(80.0)
-                .setHighVoltageLimit(120.0)
+                .setLowVoltageLimit(390.0)
+                .setHighVoltageLimit(440.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         BusbarSection busbarSectionS4VL1 = s4vl1.getNodeBreakerView().newBusbarSection()
@@ -131,13 +131,11 @@ public final class FourSubstationsNodeBreakerFactory {
         Load load1 = s1vl1.newLoad()
                 .setId("LD1")
                 .setLoadType(LoadType.UNDEFINED)
-                .setP0(25)
+                .setP0(80)
                 .setQ0(10.168945)
                 .setNode(2)
                 .add();
-        load1.getTerminal()
-                .setP(25)
-                .setQ(10.168945);
+        load1.getTerminal().setP(80.0).setQ(10.1689453125);
 
         // Connect a TWT between the two voltage levels of substation 1, on the bus bar section 1 of the second voltage level
         // TWT could be connected to bbs 2 of the second VL through a second disconnector, which is open at the moment
@@ -170,7 +168,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setLowTapPosition(0)
                 .setTapPosition(22)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
-                .setRegulationValue(930.6667)
+                .setRegulationValue(830.6667)
                 .setRegulating(false)
                 .setRegulationTerminal(twt.getTerminal(Branch.Side.ONE))
                 .beginStep().setR(39.78473).setX(39.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-42.8).endStep()
@@ -207,6 +205,8 @@ public final class FourSubstationsNodeBreakerFactory {
                 .beginStep().setR(31.720245).setX(31.720242).setG(0.0).setB(0.0).setRho(1.0).setAlpha(40.18).endStep()
                 .beginStep().setR(39.78473).setX(39.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(42.8).endStep()
                 .add();
+        twt.getTerminal1().setP(1675.03).setQ(-3238.05);
+        twt.getTerminal2().setP(-1251.76).setQ(6355.24);
 
         // Connect a VSC station to BBS2 of the second voltage level of substation 1, with a possibility to connect it to BBS1
         createSwitch(s1vl2, "S1VL2_BBS1_VSC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, true, 0, 4);
@@ -217,16 +217,13 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setName("VSC1")
                 .setNode(5)
                 .setLossFactor(1.1f)
-                .setReactivePowerSetpoint(500)
-                .setVoltageSetpoint(227.0)
+                .setReactivePowerSetpoint(200)
+                .setVoltageSetpoint(402.0)
                 .setVoltageRegulatorOn(false)
                 .add();
-        vsc1.getTerminal()
-                .setP(100.0)
-                .setQ(0.0);
         vsc1.newReactiveCapabilityCurve()
                 .beginPoint()
-                .setP(5.0)
+                .setP(-100.0)
                 .setMinQ(-200.0)
                 .setMaxQ(100.0)
                 .endPoint()
@@ -236,6 +233,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMaxQ(100.0)
                 .endPoint()
                 .add();
+        vsc1.getTerminal().setP(15.872700691223145).setQ(-200.0);
 
         // Connect three hydro generators on the bbs 1 of the second voltage level of substation 1, with a possibility to connect them onto bbs 2
         createSwitch(s1vl2, "S1VL2_BBS1_GH1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 6);
@@ -253,33 +251,34 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
                 .setMaxP(100.0)
-                .setVoltageRegulatorOn(false)
-                .setTargetP(80.0)
-                .setTargetV(0.0)
+                .setVoltageRegulatorOn(true)
+                .setTargetP(61.875656)
+                .setTargetV(400.0)
                 .setTargetQ(50)
                 .setNode(7)
                 .add();
         generatorHydro1.newReactiveCapabilityCurve()
                 .beginPoint()
                 .setP(0.0)
-                .setMinQ(-59.3)
+                .setMinQ(-69.3)
                 .setMaxQ(160.0)
                 .endPoint()
                 .beginPoint()
                 .setP(100.0)
-                .setMinQ(-54.55)
+                .setMinQ(-64.55)
                 .setMaxQ(146.25)
                 .endPoint()
                 .add();
+        generatorHydro1.getTerminal().setP(-61.87565612792969).setQ(-50.0);
 
         Generator generatorHydro2 = s1vl2.newGenerator()
                 .setId("GH2")
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
-                .setMaxP(80.0)
+                .setMaxP(100.0)
                 .setVoltageRegulatorOn(false)
-                .setTargetP(40.0)
-                .setTargetV(0.0)
+                .setTargetP(61.875656)
+                .setTargetV(400.0)
                 .setTargetQ(0.0)
                 .setNode(9)
                 .add();
@@ -290,26 +289,24 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMaxQ(257.4)
                 .endPoint()
                 .beginPoint()
-                .setP(80.0)
+                .setP(100.0)
                 .setMinQ(-53.514)
                 .setMaxQ(236.4)
                 .endPoint()
                 .add();
+        generatorHydro2.getTerminal().setP(-61.87565612792969).setQ(0.0);
 
         Generator generatorHydro3 = s1vl2.newGenerator()
                 .setId("GH3")
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
-                .setMaxP(35.0)
-                .setVoltageRegulatorOn(true)
-                .setTargetP(51.789589)
-                .setTargetV(227)
+                .setMaxP(200.0)
+                .setVoltageRegulatorOn(false)
+                .setTargetP(128.751312)
+                .setTargetV(400)
                 .setTargetQ(0.701546)
                 .setNode(11)
                 .add();
-        generatorHydro3.getTerminal()
-                .setP(-21.789589)
-                .setQ(20.693394);
         generatorHydro3.newReactiveCapabilityCurve()
                 .beginPoint()
                 .setP(0.0)
@@ -317,11 +314,12 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMaxQ(318.1)
                 .endPoint()
                 .beginPoint()
-                .setP(35.0)
+                .setP(200.0)
                 .setMinQ(-21.725)
                 .setMaxQ(316.3500004)
                 .endPoint()
                 .add();
+        generatorHydro3.getTerminal().setP(-128.75131225585938).setQ(-0.7015460133552551);
 
         // Connect three loads on the bbs 2, with a possibility to connect them onto bbs 1
         createSwitch(s1vl2, "S1VL2_BBS1_LD2_DISCONNECTOR", SwitchKind.DISCONNECTOR, true, 0, 12);
@@ -341,9 +339,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setQ0(3.695925)
                 .setNode(13)
                 .add();
-        load2.getTerminal()
-                .setP(48.455854)
-                .setQ(3.695925);
+        load2.getTerminal().setP(48.45585250854492).setQ(3.695924997329712);
 
         Load load3 = s1vl2.newLoad()
                 .setId("LD3")
@@ -352,9 +348,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setQ0(1.96869)
                 .setNode(15)
                 .add();
-        load3.getTerminal()
-                .setP(40.39911)
-                .setQ(1.96869);
+        load3.getTerminal().setP(40.39910888671875).setQ(1.968690037727356);
 
         Load load4 = s1vl2.newLoad()
                 .setId("LD4")
@@ -363,22 +357,21 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setQ0(4.9081216)
                 .setNode(17)
                 .add();
-        load4.getTerminal()
-                .setP(-5.102249)
-                .setQ(4.9081216);
+        load4.getTerminal().setP(-5.1022491455078125).setQ(4.908121585845947);
 
         // Connect a shunt on the BBS1, with a possibility to connect it to BBS2
         createSwitch(s1vl2, "S1VL2_BBS1_SHUNT_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 18);
         createSwitch(s1vl2, "S1VL2_BBS2_SHUNT_DISCONNECTOR", SwitchKind.DISCONNECTOR, true, 1, 18);
         createSwitch(s1vl2, "S1VL2_SHUNT_BREAKER", SwitchKind.BREAKER, false, 18, 19);
 
-        s1vl2.newShuntCompensator()
+        ShuntCompensator shunt = s1vl2.newShuntCompensator()
                 .setId("SHUNT")
                 .setNode(19)
                 .setMaximumSectionCount(1)
                 .setCurrentSectionCount(1)
                 .setbPerSection(-0.012)
                 .add();
+        shunt.getTerminal().setQ(1920.0);
 
         createSwitch(s1vl2, "S1VL2_BBS1_LCC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, true, 0, 20);
         createSwitch(s1vl2, "S1VL2_BBS2_LCC1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 1, 20);
@@ -391,9 +384,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setLossFactor(1.1f)
                 .setPowerFactor(0.6f)
                 .add();
-        lcc1.getTerminal()
-                .setP(100.0)
-                .setQ(50.0);
+        lcc1.getTerminal().setP(79.86900329589844);
 
         // Add a coupler between the two busbar sections
         createSwitch(s1vl2, "S1VL2_BBS1_COUPLER_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 22);
@@ -408,10 +399,10 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setEnergySource(EnergySource.THERMAL)
                 .setMinP(0.0)
                 .setMaxP(80.0)
-                .setVoltageRegulatorOn(true)
-                .setTargetP(70.0)
-                .setTargetV(226)
-                .setTargetQ(0.0)
+                .setVoltageRegulatorOn(false)
+                .setTargetP(71.500526)
+                .setTargetV(400)
+                .setTargetQ(-50.0)
                 .setNode(2)
                 .add();
         generatorThermal1.newReactiveCapabilityCurve()
@@ -426,6 +417,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMaxQ(36.4)
                 .endPoint()
                 .add();
+        generatorThermal1.getTerminal().setP(-71.50052642822266).setQ(50.0);
 
         // Connect a second VSC station on the second substation
         createSwitch(s2vl1, "S2VL1_BBS_VSC2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 3);
@@ -443,6 +435,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMinQ(0.0)
                 .setMaxQ(10.0)
                 .add();
+        vsc2.getTerminal().setP(-15.527299880981445).setQ(-123.0);
 
         // The substations 1 and 2 are linked through an HVDC line
         network.newHvdcLine()
@@ -454,7 +447,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setNominalV(400)
                 .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
                 .setMaxP(300.0)
-                .setActivePowerSetpoint(100)
+                .setActivePowerSetpoint(15.7)
                 .add();
 
         // The substations 2 and 3 are connected through a line
@@ -462,10 +455,10 @@ public final class FourSubstationsNodeBreakerFactory {
         createSwitch(s2vl1, "S2VL1_LINES2S3_BREAKER", SwitchKind.BREAKER, false, 5, 6);
         createSwitch(s3vl1, "S3VL1_BBS_LINES2S3_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 1);
         createSwitch(s3vl1, "S3VL1_LINES2S3_BREAKER", SwitchKind.BREAKER, false, 1, 2);
-        network.newLine()
+        Line lineS2S3 = network.newLine()
                 .setId("LINE_S2S3")
                 .setR(0.009999999)
-                .setX(0.100000024)
+                .setX(9.100000024)
                 .setG1(0.0)
                 .setB1(0.0)
                 .setG2(0.0)
@@ -475,6 +468,8 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setNode2(2)
                 .setVoltageLevel2("S3VL1")
                 .add();
+        lineS2S3.getTerminal1().setP(87.02782440185547).setQ(73.0);
+        lineS2S3.getTerminal2().setP(-87.02702331542969).setQ(-72.27217102050781);
 
         // Connect a load onto the third substation
         createSwitch(s3vl1, "S3VL1_BBS_LD5_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 3);
@@ -482,13 +477,11 @@ public final class FourSubstationsNodeBreakerFactory {
         Load load5 = s3vl1.newLoad()
                 .setId("LD5")
                 .setLoadType(LoadType.UNDEFINED)
-                .setP0(50.989060)
+                .setP0(300)
                 .setQ0(3.168945)
                 .setNode(4)
                 .add();
-        load5.getTerminal()
-                .setP(50.09778)
-                .setQ(3.309844);
+        load5.getTerminal().setP(300.0).setQ(3.168945074081421);
 
         // Connect a thermal generator onto the third substation
         createSwitch(s3vl1, "S3VL1_BBS_GTH2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 5);
@@ -497,25 +490,26 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setId("GTH2")
                 .setEnergySource(EnergySource.THERMAL)
                 .setMinP(0.0)
-                .setMaxP(70.0)
-                .setVoltageRegulatorOn(false)
-                .setTargetP(30.0)
-                .setTargetV(0.0)
-                .setTargetQ(0.0)
+                .setMaxP(400.0)
+                .setVoltageRegulatorOn(true)
+                .setTargetP(177.5026)
+                .setTargetV(400)
+                .setTargetQ(40.0)
                 .setNode(6)
                 .add();
         generatorThermal2.newReactiveCapabilityCurve()
                 .beginPoint()
                 .setP(0.0)
                 .setMinQ(-59.3)
-                .setMaxQ(60.0)
+                .setMaxQ(100.0)
                 .endPoint()
                 .beginPoint()
-                .setP(70.0)
+                .setP(400.0)
                 .setMinQ(-54.55)
-                .setMaxQ(46.25)
+                .setMaxQ(76.25)
                 .endPoint()
                 .add();
+        generatorThermal2.getTerminal().setP(-177.50262451171875).setQ(-35.113399505615234);
 
         // The stations 3 and 4 are linked by a line
         createSwitch(s3vl1, "S3VL1_BBS_LINES3S4_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 7);
@@ -525,7 +519,7 @@ public final class FourSubstationsNodeBreakerFactory {
         Line lineS3S4 = network.newLine()
                 .setId("LINE_S3S4")
                 .setR(0.009999999)
-                .setX(0.100000024)
+                .setX(13.100000024)
                 .setG1(0.0)
                 .setB1(0.0)
                 .setG2(0.0)
@@ -535,6 +529,8 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setNode2(6)
                 .setVoltageLevel2("S4VL1")
                 .add();
+        lineS3S4.getTerminal1().setP(42.668113708496094).setQ(0.04195854440331459);
+        lineS3S4.getTerminal2().setP(-42.667999267578125).setQ(0.10710060596466064);
         lineS3S4.newCurrentLimits1()
                 .setPermanentLimit(931.0)
                 .add();
@@ -563,9 +559,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setLossFactor(1.1f)
                 .setPowerFactor(0.6f)
                 .add();
-        lcc2.getTerminal()
-                .setP(75.0)
-                .setQ(25.0);
+        lcc2.getTerminal().setP(-78.1310043334961);
 
         // The substations 1 and 3 are linked by an HVDC line
         network.newHvdcLine()
@@ -577,7 +571,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setNominalV(400)
                 .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
                 .setMaxP(300.0)
-                .setActivePowerSetpoint(100)
+                .setActivePowerSetpoint(79)
                 .add();
 
         // Connect a load to the fourth substation
@@ -586,44 +580,43 @@ public final class FourSubstationsNodeBreakerFactory {
         Load load6 = s4vl1.newLoad()
                 .setId("LD6")
                 .setLoadType(LoadType.UNDEFINED)
-                .setP0(112.18689)
+                .setP0(42.668)
                 .setQ0(0.168945)
                 .setNode(2)
                 .add();
-        load6.getTerminal()
-                .setP(112.09778)
-                .setQ(2.309844);
+        load6.getTerminal().setP(42.667999267578125).setQ(0.16894499957561493);
 
         // Connect a static var compensator to the fourth substation
         createSwitch(s4vl1, "S4VL1_BBS_SVC_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 3);
         createSwitch(s4vl1, "S4VL1_SVC_BREAKER", SwitchKind.BREAKER, false, 3, 4);
-        s4vl1.newStaticVarCompensator()
+        StaticVarCompensator svc = s4vl1.newStaticVarCompensator()
                 .setId("SVC")
                 .setNode(4)
                 .setBmin(-5e-2)
                 .setBmax(5e-2)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setVoltageSetPoint(226)
+                .setVoltageSetPoint(400)
                 .add();
+        svc.getTerminal().setQ(-0.2760455906391144);
 
         busbarSectionS1VL1.getTerminal().getBusView().getBus()
-                .setV(234.40912)
+                .setV(225.0)
                 .setAngle(0.0);
         busbarSectionS1VL21.getTerminal().getBusView().getBus()
-                .setV(416.44736)
-                .setAngle(15.250391);
+                .setV(400.0)
+                .setAngle(0.0);
         busbarSectionS1VL22.getTerminal().getBusView().getBus()
-                .setV(416.44736)
-                .setAngle(15.250391);
+                .setV(400.0)
+                .setAngle(0.0);
         busbarSectionS2VL1.getTerminal().getBusView().getBus()
-                .setV(415.49015)
-                .setAngle(18.075423);
+                .setV(401.6512451171875)
+                .setAngle(0.2821722626686096);
         busbarSectionS3VL1.getTerminal().getBusView().getBus()
-                .setV(413.232565)
-                .setAngle(16.098765);
+                .setV(400.0)
+                .setAngle(0.0);
         busbarSectionS4VL1.getTerminal().getBusView().getBus()
-                .setV(413.232565)
-                .setAngle(16.098765);
+                .setV(400.0)
+                .setAngle(-0.20016030967235565);
 
         return network;
 
