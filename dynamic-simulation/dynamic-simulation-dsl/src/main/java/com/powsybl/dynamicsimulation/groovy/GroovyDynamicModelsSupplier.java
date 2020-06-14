@@ -18,7 +18,7 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 import com.powsybl.dsl.ExpressionDslLoader;
 import com.powsybl.dsl.GroovyScripts;
 import com.powsybl.dynamicsimulation.DynamicModel;
-import com.powsybl.dynamicsimulation.DynamicModelSupplier;
+import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.iidm.network.Network;
 
 import groovy.lang.Binding;
@@ -28,17 +28,17 @@ import groovy.lang.GroovyShell;
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public class GroovyDynamicModelSupplier implements DynamicModelSupplier {
+public class GroovyDynamicModelsSupplier implements DynamicModelsSupplier {
 
     private final GroovyCodeSource codeSource;
 
     private final List<DynamicModelGroovyExtension> extensions;
 
-    public GroovyDynamicModelSupplier(Path path) {
+    public GroovyDynamicModelsSupplier(Path path) {
         this(path, Collections.emptyList());
     }
 
-    public GroovyDynamicModelSupplier(Path path, List<DynamicModelGroovyExtension> extensions) {
+    public GroovyDynamicModelsSupplier(Path path, List<DynamicModelGroovyExtension> extensions) {
         this.codeSource = GroovyScripts.load(path);
         this.extensions = Objects.requireNonNull(extensions);
     }

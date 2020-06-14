@@ -13,12 +13,12 @@ import com.powsybl.dynamicsimulation.CurvesSupplier;
 import com.powsybl.dynamicsimulation.DynamicSimulation;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
-import com.powsybl.dynamicsimulation.DynamicModelSupplier;
+import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.groovy.CurveGroovyExtension;
 import com.powsybl.dynamicsimulation.groovy.DynamicModelGroovyExtension;
 import com.powsybl.dynamicsimulation.groovy.GroovyCurvesSupplier;
 import com.powsybl.dynamicsimulation.groovy.GroovyExtension;
-import com.powsybl.dynamicsimulation.groovy.GroovyDynamicModelSupplier;
+import com.powsybl.dynamicsimulation.groovy.GroovyDynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.json.DynamicSimulationResultSerializer;
 import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
 import com.powsybl.iidm.import_.ImportConfig;
@@ -142,7 +142,7 @@ public class DynamicSimulationTool implements Tool {
         DynamicSimulation.Runner runner = DynamicSimulation.find();
 
         Path dydFile = context.getFileSystem().getPath(line.getOptionValue(DYNAMIC_MODEL_FILE));
-        DynamicModelSupplier dydSupplier = createMappingSupplier(dydFile, runner.getName());
+        DynamicModelsSupplier dydSupplier = createMappingSupplier(dydFile, runner.getName());
 
         CurvesSupplier curvesSupplier = CurvesSupplier.empty();
         if (line.hasOption(CURVES_FILE)) {
@@ -165,10 +165,10 @@ public class DynamicSimulationTool implements Tool {
         }
     }
 
-    private DynamicModelSupplier createMappingSupplier(Path path, String providerName) {
+    private DynamicModelsSupplier createMappingSupplier(Path path, String providerName) {
         String extension = FilenameUtils.getExtension(path.toString());
         if (extension.equals("groovy")) {
-            return new GroovyDynamicModelSupplier(path, GroovyExtension.find(DynamicModelGroovyExtension.class, providerName));
+            return new GroovyDynamicModelsSupplier(path, GroovyExtension.find(DynamicModelGroovyExtension.class, providerName));
         } else {
             throw new PowsyblException("Unsupported dynamic model format: " + extension);
         }

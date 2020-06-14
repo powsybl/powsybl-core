@@ -35,7 +35,7 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
     public static class DynamicSimulationProviderMock implements DynamicSimulationProvider {
 
         @Override
-        public CompletableFuture<DynamicSimulationResult> run(Network network, DynamicModelSupplier dynamicModelSupplier, CurvesSupplier curvesSupplier, String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters) {
+        public CompletableFuture<DynamicSimulationResult> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters) {
             return CompletableFuture.completedFuture(new DynamicSimulationResultImpl(true, ""));
         }
 

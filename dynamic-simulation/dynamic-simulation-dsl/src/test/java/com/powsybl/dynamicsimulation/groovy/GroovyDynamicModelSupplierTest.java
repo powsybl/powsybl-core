@@ -22,7 +22,7 @@ import org.junit.Test;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.dynamicsimulation.DynamicModel;
-import com.powsybl.dynamicsimulation.DynamicModelSupplier;
+import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 
@@ -53,7 +53,7 @@ public class GroovyDynamicModelSupplierTest {
         assertEquals(1, extensions.size());
         assertTrue(extensions.get(0) instanceof DynamicModelGroovyExtension);
 
-        DynamicModelSupplier supplier = new GroovyDynamicModelSupplier(fileSystem.getPath("/dynamicModels.groovy"), extensions);
+        DynamicModelsSupplier supplier = new GroovyDynamicModelsSupplier(fileSystem.getPath("/dynamicModels.groovy"), extensions);
 
         List<DynamicModel> dynamicModels = supplier.get(network);
         assertEquals(2, dynamicModels.size());

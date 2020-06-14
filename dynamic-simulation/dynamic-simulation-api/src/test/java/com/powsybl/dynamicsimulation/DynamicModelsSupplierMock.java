@@ -5,9 +5,9 @@ import java.util.List;
 
 import com.powsybl.iidm.network.Network;
 
-public class DynamicModelSupplierMock implements DynamicModelSupplier {
+public class DynamicModelsSupplierMock implements DynamicModelsSupplier {
 
-    static DynamicModelSupplier empty() {
+    static DynamicModelsSupplier empty() {
         return network -> Collections.emptyList();
     }
 

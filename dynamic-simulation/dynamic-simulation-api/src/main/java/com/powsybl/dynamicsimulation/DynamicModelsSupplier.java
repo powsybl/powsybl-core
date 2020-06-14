@@ -10,6 +10,6 @@ package com.powsybl.dynamicsimulation;
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public interface DynamicModelSupplier extends SimulatorInputSupplier<DynamicModel> {
+public interface DynamicModelsSupplier extends SimulatorInputSupplier<DynamicModel> {
 
 }
