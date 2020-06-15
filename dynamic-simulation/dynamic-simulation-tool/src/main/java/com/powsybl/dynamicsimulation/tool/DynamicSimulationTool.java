@@ -13,9 +13,12 @@ import com.powsybl.dynamicsimulation.CurvesSupplier;
 import com.powsybl.dynamicsimulation.DynamicSimulation;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
+import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.groovy.CurveGroovyExtension;
+import com.powsybl.dynamicsimulation.groovy.DynamicModelGroovyExtension;
 import com.powsybl.dynamicsimulation.groovy.GroovyCurvesSupplier;
 import com.powsybl.dynamicsimulation.groovy.GroovyExtension;
+import com.powsybl.dynamicsimulation.groovy.GroovyDynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.json.DynamicSimulationResultSerializer;
 import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
 import com.powsybl.iidm.import_.ImportConfig;
@@ -45,6 +48,7 @@ import java.util.Properties;
 public class DynamicSimulationTool implements Tool {
 
     private static final String CASE_FILE = "case-file";
+    private static final String DYNAMIC_MODEL_FILE = "dynamic-model-file";
     private static final String CURVES_FILE = "curves-file";
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String SKIP_POSTPROC = "skip-postproc";
@@ -74,6 +78,12 @@ public class DynamicSimulationTool implements Tool {
                 Options options = new Options();
                 options.addOption(Option.builder().longOpt(CASE_FILE)
                     .desc("the case path")
+                    .hasArg()
+                    .argName("FILE")
+                    .required()
+                    .build());
+                options.addOption(Option.builder().longOpt(DYNAMIC_MODEL_FILE)
+                    .desc("dynamic models description as a Groovy file: defines the dynamic models to be associated to chosen equipments of the network")
                     .hasArg()
                     .argName("FILE")
                     .required()
@@ -131,6 +141,9 @@ public class DynamicSimulationTool implements Tool {
 
         DynamicSimulation.Runner runner = DynamicSimulation.find();
 
+        Path dydFile = context.getFileSystem().getPath(line.getOptionValue(DYNAMIC_MODEL_FILE));
+        DynamicModelsSupplier dydSupplier = createMappingSupplier(dydFile, runner.getName());
+
         CurvesSupplier curvesSupplier = CurvesSupplier.empty();
         if (line.hasOption(CURVES_FILE)) {
             Path curvesFile = context.getFileSystem().getPath(line.getOptionValue(CURVES_FILE));
@@ -143,12 +156,21 @@ public class DynamicSimulationTool implements Tool {
             JsonDynamicSimulationParameters.update(params, parametersFile);
         }
 
-        DynamicSimulationResult result = runner.run(network, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params);
+        DynamicSimulationResult result = runner.run(network, dydSupplier, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params);
 
         if (outputFile != null) {
             exportResult(result, context, outputFile);
         } else {
             printResult(result, context);
+        }
+    }
+
+    private DynamicModelsSupplier createMappingSupplier(Path path, String providerName) {
+        String extension = FilenameUtils.getExtension(path.toString());
+        if (extension.equals("groovy")) {
+            return new GroovyDynamicModelsSupplier(path, GroovyExtension.find(DynamicModelGroovyExtension.class, providerName));
+        } else {
+            throw new PowsyblException("Unsupported dynamic model format: " + extension);
         }
     }
 
