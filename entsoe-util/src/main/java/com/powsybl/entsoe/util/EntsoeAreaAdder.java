@@ -4,20 +4,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.cgmes.conversion;
+package com.powsybl.entsoe.util;
 
 import com.powsybl.commons.extensions.ExtensionAdder;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
 
 /**
  * @author Jérémy Labous <jlabous at silicom.fr>
  */
-public interface CgmesConversionContextExtensionAdder extends ExtensionAdder<Network, CgmesConversionContextExtension> {
+public interface EntsoeAreaAdder extends ExtensionAdder<Substation, EntsoeArea> {
 
     @Override
-    default Class<CgmesConversionContextExtension> getExtensionClass() {
-        return CgmesConversionContextExtension.class;
+    default Class<EntsoeArea> getExtensionClass() {
+        return EntsoeArea.class;
     }
 
-    CgmesConversionContextExtensionAdder withContext(Context context);
+    EntsoeAreaAdder withCode(EntsoeGeographicalCode code);
 }

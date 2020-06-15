@@ -6,9 +6,10 @@
  */
 package com.powsybl.entsoe.util;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
 
@@ -19,8 +20,10 @@ public class EntsoeAreaTest {
 
     @Test
     public void test() {
-        Substation substation = Mockito.mock(Substation.class);
-        EntsoeArea area = new EntsoeArea(substation, EntsoeGeographicalCode.D1);
+        Network network = EurostagTutorialExample1Factory.create();
+        Substation substation = network.getSubstation("P1");
+        substation.newExtension(EntsoeAreaAdder.class).withCode(EntsoeGeographicalCode.D1).add();
+        EntsoeArea area = substation.getExtension(EntsoeArea.class);
 
         assertEquals("entsoeArea", area.getName());
         assertSame(substation, area.getExtendable());
