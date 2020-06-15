@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Network;
 
-
 /**
  * @author Jérémy Labous <jlabous at silicom.fr>
  */
