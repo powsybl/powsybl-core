@@ -422,13 +422,13 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         }
         // undefined min reactive power
         if (Float.isNaN(minimumPermissibleActivePowerGeneration)) {
-            LOGGER.warn("Node {}: minimum active power is undefined, set value to {}",
+            LOGGER.info("Node {}: minimum active power is undefined, set value to {}",
                     code, DEFAULT_POWER_LIMIT);
             minimumPermissibleActivePowerGeneration = DEFAULT_POWER_LIMIT;
         }
         // undefined max reactive power
         if (Float.isNaN(maximumPermissibleActivePowerGeneration)) {
-            LOGGER.warn("Node {}: maximum active power is undefined, set value to {}",
+            LOGGER.info("Node {}: maximum active power is undefined, set value to {}",
                     code, -DEFAULT_POWER_LIMIT);
             maximumPermissibleActivePowerGeneration = -DEFAULT_POWER_LIMIT;
         }
@@ -482,13 +482,13 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         }
         // undefined min reactive power
         if (Float.isNaN(minimumPermissibleReactivePowerGeneration)) {
-            LOGGER.warn("Node {}: minimum reactive power is undefined, set value to {}",
+            LOGGER.info("Node {}: minimum reactive power is undefined, set value to {}",
                     code, DEFAULT_POWER_LIMIT);
             minimumPermissibleReactivePowerGeneration = DEFAULT_POWER_LIMIT;
         }
         // undefined max reactive power
         if (Float.isNaN(maximumPermissibleReactivePowerGeneration)) {
-            LOGGER.warn("Node {}: maximum reactive power is undefined, set value to {}",
+            LOGGER.info("Node {}: maximum reactive power is undefined, set value to {}",
                     code, -DEFAULT_POWER_LIMIT);
             maximumPermissibleReactivePowerGeneration = -DEFAULT_POWER_LIMIT;
         }
