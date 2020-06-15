@@ -10,27 +10,16 @@ import com.powsybl.iidm.network.Load
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-Logger logger = LoggerFactory.getLogger("com.powsybl.dynamicsimulation.groovy.GroovyCurvesSupplier")
+Logger logger = LoggerFactory.getLogger("com.powsybl.dynamicsimulation.groovy.GroovyDynamicModelSupplier")
 
-dummyCurve {
+dummyDynamicModel {
     id "id"
-    variable "variable"
+    parameterSetId "parameterSetId"
 }
 
 for (Load load : network.loads) {
-    dummyCurve {
+    dummyDynamicModel {
         id load.id
-        variable "p0"
-    }
-}
-
-for (Generator generator : network.generators) {
-    if (generator.terminal.voltageLevel.nominalV < 400) {
-        logger.info("Skip generator: " + generator.id)
-        continue
-    }
-    dummyCurve {
-        id generator.id
-        variable "p"
+        parameterSetId load.id
     }
 }
