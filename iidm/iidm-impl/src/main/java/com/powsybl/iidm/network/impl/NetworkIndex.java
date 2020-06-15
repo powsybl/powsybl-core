@@ -104,7 +104,7 @@ class NetworkIndex {
     }
 
     <T extends Identifiable> T get(String id, Class<T> clazz) {
-        return get(id, clazz, false);
+        return get(id, clazz, true);
     }
 
     <T extends Identifiable> T get(String id, Class<T> clazz, boolean searchInAlias) {

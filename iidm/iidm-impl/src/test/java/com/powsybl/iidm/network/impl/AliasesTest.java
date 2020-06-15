@@ -13,8 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
@@ -29,6 +28,9 @@ public class AliasesTest {
 
         assertEquals(1, load.getAliases().size());
         assertTrue(load.getAliases().contains("Load alias"));
+        assertNull(network.getIdentifiable("Load alias", false));
+        assertNotNull(network.getLoad("Load alias"));
+        assertEquals(network.getLoad("Load alias"), load);
     }
 
     @Test

@@ -36,27 +36,27 @@ public class UcteAliasesCreationTest {
         assertNull(network.getIdentifiable("FFFFFF11 XXXXXX11 1"));
 
         // No aliases on element name
-        assertNull(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE", true));
-        assertNull(network.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE", true));
+        assertNull(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));
+        assertNull(network.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
 
         // No aliases on disappeared dangling lines
-        assertNull(network.getIdentifiable("BBBBBB11 XXXXXX11 1", true));
-        assertNull(network.getIdentifiable("FFFFFF11 XXXXXX11 1", true));
+        assertNull(network.getIdentifiable("BBBBBB11 XXXXXX11 1"));
+        assertNull(network.getIdentifiable("FFFFFF11 XXXXXX11 1"));
 
         UcteAliasesCreation.createAliases(network);
 
         // Aliases on element name have been created
-        assertNotNull(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE", true));
-        assertNotNull(network.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE", true));
+        assertNotNull(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));
+        assertNotNull(network.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
 
         // Aliases on disappeared dangling lines have been created
-        assertNotNull(network.getIdentifiable("BBBBBB11 XXXXXX11 1", true));
-        assertNotNull(network.getIdentifiable("FFFFFF11 XXXXXX11 1", true));
+        assertNotNull(network.getIdentifiable("BBBBBB11 XXXXXX11 1"));
+        assertNotNull(network.getIdentifiable("FFFFFF11 XXXXXX11 1"));
 
         // They are all referencing the same identifiable
-        assertEquals(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE", true), network.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE", true));
-        assertEquals(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE", true), network.getIdentifiable("BBBBBB11 XXXXXX11 1", true));
-        assertEquals(network.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE", true), network.getIdentifiable("FFFFFF11 XXXXXX11 1", true));
+        assertEquals(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), network.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
+        assertEquals(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), network.getIdentifiable("BBBBBB11 XXXXXX11 1"));
+        assertEquals(network.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), network.getIdentifiable("FFFFFF11 XXXXXX11 1"));
     }
 
     @Test
@@ -68,24 +68,24 @@ public class UcteAliasesCreationTest {
         UcteAliasesCreation.createAliases(networkFR);
 
         // Aliases on element name have been created
-        assertNotNull(networkBE.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE", true));
-        assertNotNull(networkFR.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE", true));
+        assertNotNull(networkBE.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));
+        assertNotNull(networkFR.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
 
         Network merge = Network.create("merge", "UCT");
         merge.merge(networkBE, networkFR);
 
         // Aliases on element name have been kept after merge
-        assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE", true));
-        assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE", true));
+        assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));
+        assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
 
         // Aliases on disappeared dangling lines have been created after merge
-        assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 1", true));
-        assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 1", true));
+        assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 1"));
+        assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 1"));
 
         // They are all referencing the same identifiable
-        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE", true), merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE", true));
-        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE", true), merge.getIdentifiable("BBBBBB11 XXXXXX11 1", true));
-        assertEquals(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE", true), merge.getIdentifiable("FFFFFF11 XXXXXX11 1", true));
+        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
+        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getIdentifiable("BBBBBB11 XXXXXX11 1"));
+        assertEquals(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), merge.getIdentifiable("FFFFFF11 XXXXXX11 1"));
     }
 
     @Test
@@ -96,30 +96,30 @@ public class UcteAliasesCreationTest {
         merge.merge(networkBE, networkFR);
 
         // Merged dangling lines disappeared
-        assertNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 1"));
-        assertNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 1"));
+        assertNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 1", false));
+        assertNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 1", false));
 
         // No aliases on dangling lines element name
-        assertNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE", true));
-        assertNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE", true));
+        assertNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));
+        assertNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
 
         // Aliases on disappeared dangling lines ids are created
-        assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 1", true));
-        assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 1", true));
+        assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 1"));
+        assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 1"));
 
         UcteAliasesCreation.createAliases(merge);
 
         // Aliases on element name have been created
-        assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE", true));
-        assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE", true));
+        assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));
+        assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
 
         // Aliases on disappeared dangling lines are still there
-        assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 1", true));
-        assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 1", true));
+        assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 1"));
+        assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 1"));
 
         // They are all referencing the same identifiable
-        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE", true), merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE", true));
-        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE", true), merge.getIdentifiable("BBBBBB11 XXXXXX11 1", true));
-        assertEquals(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE", true), merge.getIdentifiable("FFFFFF11 XXXXXX11 1", true));
+        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
+        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getIdentifiable("BBBBBB11 XXXXXX11 1"));
+        assertEquals(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), merge.getIdentifiable("FFFFFF11 XXXXXX11 1"));
     }
 }
