@@ -6,61 +6,64 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.TopologyTraverser;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class TerminalAdapter extends AbstractAdapter<Terminal> implements Terminal {
+public class TerminalAdapter extends AbstractAdapter<Terminal> implements Terminal, MultiVariantObject {
 
-    static class BusBreakerViewAdapter extends AbstractAdapter<Terminal.BusBreakerView> implements Terminal.BusBreakerView {
+    class BusBreakerViewAdapter extends AbstractAdapter<Terminal.BusBreakerView> implements Terminal.BusBreakerView {
 
         BusBreakerViewAdapter(final BusBreakerView delegate, final MergingViewIndex index) {
             super(delegate, index);
         }
 
-        // -------------------------------
-        // Simple delegated methods ------
-        // -------------------------------
         @Override
         public Bus getBus() {
-            return getIndex().getBus(getDelegate().getBus());
+            return getBus(getDelegate().getBus());
         }
 
         @Override
         public Bus getConnectableBus() {
-            return getIndex().getBus(getDelegate().getConnectableBus());
+            return getBus(getDelegate().getConnectableBus());
         }
 
         @Override
         public void setConnectableBus(final String busId) {
             getDelegate().setConnectableBus(busId);
         }
+
+        private Bus getBus(Bus bus) {
+            return getVoltageLevel().getBusBreakerView().getBus(bus);
+        }
     }
 
     private BusBreakerViewAdapter busBreakerView;
 
-    static class BusViewAdapter extends AbstractAdapter<Terminal.BusView> implements Terminal.BusView {
+    class BusViewAdapter extends AbstractAdapter<Terminal.BusView> implements Terminal.BusView {
 
         BusViewAdapter(final BusView delegate, final MergingViewIndex index) {
             super(delegate, index);
         }
 
-        // -------------------------------
-        // Simple delegated methods ------
-        // -------------------------------
         @Override
         public Bus getBus() {
-            return getIndex().getBus(getDelegate().getBus());
+            return getBus(getDelegate().getBus());
         }
 
         @Override
         public Bus getConnectableBus() {
-            return getIndex().getBus(getDelegate().getConnectableBus());
+            return getBus(getDelegate().getConnectableBus());
+        }
+
+        private Bus getBus(Bus bus) {
+            return getVoltageLevel().getBusView().getBus(bus);
         }
     }
 
@@ -83,6 +86,10 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
 
     private NodeBreakerViewAdapter nodeBreakerView;
 
+    private final Map<String, Integer> connectedComponentNumber = new HashMap<>();
+
+    private final Map<String, Integer> synchronousComponentNumber = new HashMap<>();
+
     TerminalAdapter(final Terminal delegate, final MergingViewIndex index) {
         super(delegate, index);
         busBreakerView = new BusBreakerViewAdapter(getDelegate().getBusBreakerView(), index);
@@ -91,7 +98,7 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
     }
 
     @Override
-    public VoltageLevel getVoltageLevel() {
+    public AbstractVoltageLevelAdapter getVoltageLevel() {
         return getIndex().getVoltageLevel(getDelegate().getVoltageLevel());
     }
 
@@ -147,17 +154,59 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
 
     @Override
     public boolean connect() {
-        return getDelegate().connect();
+        boolean connected = getDelegate().connect();
+        if (connected) {
+            getVoltageLevel().invalidateCache();
+        }
+        return connected;
     }
 
     @Override
     public boolean disconnect() {
-        return getDelegate().disconnect();
+        boolean disconnected = getDelegate().disconnect();
+        if (disconnected) {
+            getVoltageLevel().invalidateCache();
+        }
+        return disconnected;
     }
 
     @Override
     public boolean isConnected() {
         return getDelegate().isConnected();
+    }
+
+    @Override
+    public void cloneVariant(String sourceVariantId, List<String> targetVariantIds) {
+        for (String targetVariantId : targetVariantIds) {
+            connectedComponentNumber.put(targetVariantId, connectedComponentNumber.get(sourceVariantId));
+            synchronousComponentNumber.put(targetVariantId, synchronousComponentNumber.get(sourceVariantId));
+        }
+    }
+
+    @Override
+    public void removeVariant(String variantId) {
+        connectedComponentNumber.remove(variantId);
+        synchronousComponentNumber.remove(variantId);
+    }
+
+    int getConnectedComponentNumber() {
+        String variantId = getIndex().getView().getVariantManager().getWorkingVariantId();
+        return connectedComponentNumber.get(variantId);
+    }
+
+    void setConnectedComponentNumber(int connectedComponentNumber) {
+        String variantId = getIndex().getView().getVariantManager().getWorkingVariantId();
+        this.connectedComponentNumber.put(variantId, connectedComponentNumber);
+    }
+
+    int getSynchronousComponentNumber() {
+        String variantId = getIndex().getView().getVariantManager().getWorkingVariantId();
+        return synchronousComponentNumber.get(variantId);
+    }
+
+    void setSynchronousComponentNumber(int synchronousComponentNumber) {
+        String variantId = getIndex().getView().getVariantManager().getWorkingVariantId();
+        this.synchronousComponentNumber.put(variantId, synchronousComponentNumber);
     }
 
     // -------------------------------
