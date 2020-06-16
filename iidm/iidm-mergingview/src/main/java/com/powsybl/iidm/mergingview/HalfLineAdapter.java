@@ -46,7 +46,7 @@ public class HalfLineAdapter implements TieLine.HalfLine {
 
     @Override
     public String getName() {
-        return danglingLine.getName();
+        return danglingLine.getNameOrId();
     }
 
     @Override

@@ -246,7 +246,6 @@ public class BusAdapterTest {
         Network network1 = createGeneratorNetwork();
         Network network2 = createLoadNetwork();
 
-        Generator generator = network1.getGenerator("GEN");
         Load load = network2.getLoad("LOAD");
 
         VoltageLevel vl1 = network1.getVoltageLevel("S1_VL");
