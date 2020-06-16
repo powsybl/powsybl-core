@@ -303,6 +303,10 @@ class MergingViewIndex {
         return Iterables.concat(Iterables.concat(Iterables.concat(Iterables.transform(networks, Network::getLines)), mergedLineCached.values()));
     }
 
+    int getLineCount() {
+        return getNetworkStream().mapToInt(Network::getLineCount).sum() + mergedLineCached.size();
+    }
+
     boolean isMerged(final DanglingLine dl) {
         return mergedLineCached.containsKey(dl.getUcteXnodeCode());
     }
@@ -314,6 +318,10 @@ class MergingViewIndex {
     Iterable<DanglingLine> getDanglingLines() {
         // Search DanglingLine into merging & working networks
         return MergingViewUtil.getDanglingLines(Iterables.concat(Iterables.transform(networks, Network::getDanglingLines)), this);
+    }
+
+    int getDanglingLineCount() {
+        return getNetworkStream().mapToInt(Network::getDanglingLineCount).sum() - 2 * mergedLineCached.size();
     }
 
     Collection<HvdcLine> getHvdcLines() {

@@ -703,7 +703,7 @@ public final class MergingView implements Network {
 
     @Override
     public int getLineCount() {
-        return (int) index.getLineStream().count();
+        return index.getLineCount();
     }
 
     @Override
@@ -724,7 +724,7 @@ public final class MergingView implements Network {
 
     @Override
     public int getDanglingLineCount() {
-        return (int) index.getDanglingLineStream().count();
+        return index.getDanglingLineCount();
     }
 
     @Override
