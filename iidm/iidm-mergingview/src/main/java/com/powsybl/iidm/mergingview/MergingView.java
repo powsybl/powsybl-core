@@ -693,17 +693,17 @@ public final class MergingView implements Network {
 
     @Override
     public Iterable<Line> getLines() {
-        return Collections.unmodifiableCollection(index.getLines());
+        return index.getLines();
     }
 
     @Override
     public Stream<Line> getLineStream() {
-        return index.getLines().stream();
+        return index.getLineStream();
     }
 
     @Override
     public int getLineCount() {
-        return index.getLines().size();
+        return index.getLineCount();
     }
 
     @Override
@@ -714,17 +714,17 @@ public final class MergingView implements Network {
     // DanglingLines
     @Override
     public Iterable<DanglingLine> getDanglingLines() {
-        return Collections.unmodifiableCollection(index.getDanglingLines());
+        return index.getDanglingLines();
     }
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        return index.getDanglingLines().stream();
+        return index.getDanglingLineStream();
     }
 
     @Override
     public int getDanglingLineCount() {
-        return index.getDanglingLines().size();
+        return index.getDanglingLineCount();
     }
 
     @Override
