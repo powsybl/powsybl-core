@@ -28,7 +28,6 @@ public class AliasesTest {
 
         assertEquals(1, load.getAliases().size());
         assertTrue(load.getAliases().contains("Load alias"));
-        assertNull(network.getIdentifiable("Load alias", false));
         assertNotNull(network.getLoad("Load alias"));
         assertEquals(network.getLoad("Load alias"), load);
     }

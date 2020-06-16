@@ -93,22 +93,14 @@ class NetworkIndex {
         }
     }
 
-    Identifiable get(String id) {
-        return get(id, false);
-    }
-
-    Identifiable get(String id, boolean searchInAlias) {
-        String idOrAlias = searchInAlias ? idByAlias.getOrDefault(id, id) : id;
-        checkId(idOrAlias);
-        return objectsById.get(idOrAlias);
+    Identifiable get(String idOrAlias) {
+        String id = idByAlias.getOrDefault(idOrAlias, idOrAlias);
+        checkId(id);
+        return objectsById.get(id);
     }
 
     <T extends Identifiable> T get(String id, Class<T> clazz) {
-        return get(id, clazz, true);
-    }
-
-    <T extends Identifiable> T get(String id, Class<T> clazz, boolean searchInAlias) {
-        Identifiable obj = get(id, searchInAlias);
+        Identifiable obj = get(id);
         if (obj != null && clazz.isAssignableFrom(obj.getClass())) {
             return (T) obj;
         } else {

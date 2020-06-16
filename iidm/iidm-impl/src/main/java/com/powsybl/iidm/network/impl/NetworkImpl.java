@@ -623,11 +623,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
-    public Identifiable<?> getIdentifiable(String id, boolean searchInAlias) {
-        return index.get(id, Identifiable.class, searchInAlias);
-    }
-
-    @Override
     public Collection<Identifiable<?>> getIdentifiables() {
         return index.getAll();
     }

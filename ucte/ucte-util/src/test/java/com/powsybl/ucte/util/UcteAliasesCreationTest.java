@@ -95,10 +95,6 @@ public class UcteAliasesCreationTest {
         Network merge = Network.create("merge", "UCT");
         merge.merge(networkBE, networkFR);
 
-        // Merged dangling lines disappeared
-        assertNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 1", false));
-        assertNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 1", false));
-
         // No aliases on dangling lines element name
         assertNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));
         assertNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
@@ -106,6 +102,8 @@ public class UcteAliasesCreationTest {
         // Aliases on disappeared dangling lines ids are created
         assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 1"));
         assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 1"));
+        assertNotEquals("BBBBBB11 XXXXXX11 1", merge.getIdentifiable("BBBBBB11 XXXXXX11 1").getId());
+        assertNotEquals("FFFFFF11 XXXXXX11 1", merge.getIdentifiable("FFFFFF11 XXXXXX11 1").getId());
 
         UcteAliasesCreation.createAliases(merge);
 
@@ -121,5 +119,22 @@ public class UcteAliasesCreationTest {
         assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
         assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getIdentifiable("BBBBBB11 XXXXXX11 1"));
         assertEquals(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), merge.getIdentifiable("FFFFFF11 XXXXXX11 1"));
+    }
+
+    @Test
+    public void checkThatItDoesNotCreateDuplicatedAliasesNorThrow() {
+        Network network = loadNetworkFromResourceFile("/aliasesDuplicationTest.uct");
+        UcteAliasesCreation.createAliases(network);
+
+        // Devices exist
+        assertNotNull(network.getIdentifiable("FFFFFF11 FFFFFF12 1"));
+        assertNotNull(network.getIdentifiable("FFFFFF11 FFFFFF12 2"));
+        assertNotNull(network.getIdentifiable("FFFFFF11 FFFFFF12 3"));
+
+        // Duplicated aliases does not exist
+        assertNull(network.getIdentifiable("FFFFFF11 FFFFFF12 N/A"));
+
+        // Non duplicated alias exists
+        assertNotNull(network.getIdentifiable("FFFFFF11 FFFFFF12 Unique"));
     }
 }

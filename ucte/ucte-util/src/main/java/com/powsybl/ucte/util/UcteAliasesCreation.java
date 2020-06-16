@@ -9,7 +9,9 @@ package com.powsybl.ucte.util;
 import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.network.UcteElementId;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.powsybl.ucte.network.UcteElementId.parseUcteElementId;
 
@@ -26,37 +28,38 @@ public final class UcteAliasesCreation {
     }
 
     public static void createAliases(Network network) {
+        Set<String> duplicatedAliases = new HashSet<>();
         network.getBranchStream().forEach(branch -> {
             if (branch instanceof TieLine) {
                 TieLine tieLine = (TieLine) branch;
                 tieLine.addAlias(tieLine.getHalf1().getId());
                 tieLine.addAlias(tieLine.getHalf2().getId());
-                addHalfElementNameAliases(tieLine);
+                addHalfElementNameAliases(tieLine, duplicatedAliases);
             }
-            addElementNameAlias(branch);
+            addElementNameAlias(branch, duplicatedAliases);
         });
-        network.getSwitchStream().forEach(UcteAliasesCreation::addElementNameAlias);
-        network.getDanglingLineStream().forEach(UcteAliasesCreation::addElementNameAlias);
+        network.getSwitchStream().forEach(switchEl -> addElementNameAlias(switchEl, duplicatedAliases));
+        network.getDanglingLineStream().forEach(dl -> addElementNameAlias(dl, duplicatedAliases));
     }
 
-    private static void addElementNameAlias(Identifiable identifiable) {
+    private static void addElementNameAlias(Identifiable identifiable, Set<String> duplicatedAliases) {
         String elementNameProperty = identifiable.getProperty(ELEMENT_NAME_PROPERTY_KEY);
         if (elementNameProperty != null && !elementNameProperty.isEmpty()) {
             Optional<UcteElementId> ucteElementIdOptional = parseUcteElementId(identifiable.getId());
             if (ucteElementIdOptional.isPresent()) {
                 UcteElementId ucteElementId = ucteElementIdOptional.get();
-                identifiable.addAlias(String.format(ALIAS_TRIPLET_TEMPLATE, ucteElementId.getNodeCode1(), ucteElementId.getNodeCode2(), elementNameProperty));
+                safeAddAlias(identifiable, duplicatedAliases, String.format(ALIAS_TRIPLET_TEMPLATE, ucteElementId.getNodeCode1(), ucteElementId.getNodeCode2(), elementNameProperty));
             }
         }
     }
 
-    private static void addHalfElementNameAliases(TieLine tieLine) {
+    private static void addHalfElementNameAliases(TieLine tieLine, Set<String> duplicatedAliases) {
         String elementName1Property = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1");
         if (elementName1Property != null && !elementName1Property.isEmpty()) {
             Optional<UcteElementId> ucteElementIdOptional = parseUcteElementId(tieLine.getHalf1().getId());
             if (ucteElementIdOptional.isPresent()) {
                 UcteElementId ucteElementId = ucteElementIdOptional.get();
-                tieLine.addAlias(String.format(ALIAS_TRIPLET_TEMPLATE, ucteElementId.getNodeCode1(), ucteElementId.getNodeCode2(), elementName1Property));
+                safeAddAlias(tieLine, duplicatedAliases, String.format(ALIAS_TRIPLET_TEMPLATE, ucteElementId.getNodeCode1(), ucteElementId.getNodeCode2(), elementName1Property));
             }
         }
         String elementName2Property = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2");
@@ -64,8 +67,25 @@ public final class UcteAliasesCreation {
             Optional<UcteElementId> ucteElementIdOptional = parseUcteElementId(tieLine.getHalf2().getId());
             if (ucteElementIdOptional.isPresent()) {
                 UcteElementId ucteElementId = ucteElementIdOptional.get();
-                tieLine.addAlias(String.format(ALIAS_TRIPLET_TEMPLATE, ucteElementId.getNodeCode1(), ucteElementId.getNodeCode2(), elementName2Property));
+                safeAddAlias(tieLine, duplicatedAliases, String.format(ALIAS_TRIPLET_TEMPLATE, ucteElementId.getNodeCode1(), ucteElementId.getNodeCode2(), elementName2Property));
             }
         }
+    }
+
+    private static void safeAddAlias(Identifiable identifiable, Set<String> duplicatedAliases, String alias) {
+        if (duplicatedAliases.contains(alias)) {
+            return;
+        }
+
+        Identifiable alreadyAssignedIdentifiable = identifiable.getNetwork().getIdentifiable(alias);
+        if (alreadyAssignedIdentifiable != null && alreadyAssignedIdentifiable != identifiable) {
+            if (!alreadyAssignedIdentifiable.getId().equals(alias)) {
+                alreadyAssignedIdentifiable.removeAlias(alias);
+            }
+            duplicatedAliases.add(alias);
+            return;
+        }
+
+        identifiable.addAlias(alias);
     }
 }
