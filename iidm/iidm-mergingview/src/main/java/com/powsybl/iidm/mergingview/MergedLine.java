@@ -104,6 +104,7 @@ class MergedLine implements TieLine {
     }
 
     void computeAndSetP0() {
+        // TODO(mathbagu): depending on the b/g in the middle of the MergedLine, this computation is not correct
         double p1 = getTerminal1().getP();
         double p2 = getTerminal2().getP();
         if (!Double.isNaN(p1) && !Double.isNaN(p2)) {
@@ -114,6 +115,7 @@ class MergedLine implements TieLine {
     }
 
     void computeAndSetQ0() {
+        // TODO(mathbagu): depending on the b/g in the middle of the MergedLine, this computation is not correct
         double q1 = getTerminal1().getQ();
         double q2 = getTerminal2().getQ();
         if (!Double.isNaN(q1) && !Double.isNaN(q2)) {
@@ -503,8 +505,9 @@ class MergedLine implements TieLine {
 
     @Override
     public <E extends Extension<Line>> E getExtensionByName(final String name) {
+        // TODO(mathbagu): This method is used in the UCTE export so we prefer returning an empty list instead of throwing an exception
+        // TODO(mathbagu): is it a good idea to extend AbstractExtendable?
         return null;
-        // throw MergingView.createNotImplementedException();
     }
 
     @Override
@@ -514,8 +517,9 @@ class MergedLine implements TieLine {
 
     @Override
     public <E extends Extension<Line>> Collection<E> getExtensions() {
+        // TODO(mathbagu): This method is used in the UCTE export so we prefer returning an empty list instead of throwing an exception
+        // TODO(mathbagu): is it a good idea to extend AbstractExtendable?
         return Collections.emptyList();
-        // throw MergingView.createNotImplementedException();
     }
 
     @Override

@@ -29,6 +29,7 @@ public class HalfLineAdapter implements TieLine.HalfLine {
 
     public HalfLineAdapter(DanglingLine danglingLine) {
         this.danglingLine = Objects.requireNonNull(danglingLine);
+        // TODO(mathbagu): is it correct? should we initialize only b1/g1 (resp. b2/g2) like it's done in the destructive merge?
         this.g1 = danglingLine.getG() / 2.0;
         this.g2 = danglingLine.getG() / 2.0;
         this.b1 = danglingLine.getB() / 2.0;

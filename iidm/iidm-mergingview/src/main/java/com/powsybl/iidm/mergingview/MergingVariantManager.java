@@ -76,6 +76,7 @@ class MergingVariantManager implements VariantManager {
     public void cloneVariant(String sourceVariantId, List<String> targetVariantIds, boolean mayOverwrite) {
         getVariantManagerStream().forEach(v -> v.cloneVariant(sourceVariantId, targetVariantIds, mayOverwrite));
 
+        // FIXME(mathbagu): we should propagate to terminals?
         index.getView().cloneVariant(sourceVariantId, targetVariantIds);
     }
 
@@ -88,11 +89,15 @@ class MergingVariantManager implements VariantManager {
     public void cloneVariant(String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
         getVariantManagerStream().forEach(v -> v.cloneVariant(sourceVariantId, targetVariantId, mayOverwrite));
 
+        // FIXME(mathbagu): we should propagate to terminals?
         index.getView().cloneVariant(sourceVariantId, Arrays.asList(targetVariantId));
     }
 
     @Override
     public void removeVariant(String variantId) {
         getVariantManagerStream().forEach(v -> v.removeVariant(variantId));
+
+        // FIXME(mathbagu): we should propagate to terminals?
+        index.getView().removeVariant(variantId);
     }
 }

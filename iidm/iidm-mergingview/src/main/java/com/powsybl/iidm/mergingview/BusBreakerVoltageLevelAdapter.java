@@ -206,7 +206,5 @@ class BusBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
     @Override
     public void invalidateCache() {
         busView.invalidateCache();
-        // FIXME(mathbag): Remove this
-        System.out.println("BBKVLA::invalidate");
     }
 }
