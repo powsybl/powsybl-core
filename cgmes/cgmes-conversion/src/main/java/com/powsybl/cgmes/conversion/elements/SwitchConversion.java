@@ -62,7 +62,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
                     .setG2(0)
                     .setB2(0);
             identify(adder);
-            connect(adder, terminalConnected(1) && !open, terminalConnected(2) && !open);
+            boolean branchIsClosed = !open;
+            connect(adder, terminalConnected(1), terminalConnected(2), branchIsClosed);
             Line line = adder.add();
             convertedTerminals(line.getTerminal1(), line.getTerminal2());
         } else {
