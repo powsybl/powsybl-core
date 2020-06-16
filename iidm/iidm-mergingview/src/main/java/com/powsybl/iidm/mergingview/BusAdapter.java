@@ -9,6 +9,8 @@ package com.powsybl.iidm.mergingview;
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -16,8 +18,17 @@ import java.util.stream.Stream;
  */
 class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
+    private final List<TerminalAdapter> terminals = new ArrayList<>();
+
     BusAdapter(final Bus delegate, final MergingViewIndex index) {
         super(delegate, index);
+
+        delegate.visitConnectedEquipments(new AbstractTerminalTopologyVisitor() {
+            @Override
+            public void visitTerminal(Terminal t) {
+                terminals.add(getIndex().getTerminal(t));
+            }
+        });
     }
 
     @Override
@@ -198,31 +209,47 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
         getDelegate().visitConnectedOrConnectableEquipments(new TopologyVisitorAdapter(visitor, getIndex()));
     }
 
+    @Override
+    public Component getConnectedComponent() {
+        ConnectedComponentsManager ccm = getIndex().getView().getConnectedComponentsManager();
+        ccm.update();
+
+        return terminals.isEmpty() ? null : ccm.getComponent(terminals.get(0).getConnectedComponentNumber());
+    }
+
+    void setConnectedComponentNumber(int connectedComponentNumber) {
+        terminals.forEach(t -> t.setConnectedComponentNumber(connectedComponentNumber));
+    }
+
+    @Override
+    public boolean isInMainConnectedComponent() {
+        Component cc = getConnectedComponent();
+        return cc != null && cc.getNum() == ComponentConstants.MAIN_NUM;
+    }
+
+    @Override
+    public Component getSynchronousComponent() {
+        SynchronousComponentsManager ccm = getIndex().getView().getSynchronousComponentsManager();
+        ccm.update();
+
+        return terminals.isEmpty() ? null : ccm.getComponent(terminals.get(0).getSynchronousComponentNumber());
+    }
+
+    void setSynchronousComponentNumber(int synchronousComponentNumber) {
+        terminals.forEach(t -> t.setSynchronousComponentNumber(synchronousComponentNumber));
+    }
+
+    @Override
+    public boolean isInMainSynchronousComponent() {
+        Component sc = getSynchronousComponent();
+        return sc != null && sc.getNum() == ComponentConstants.MAIN_NUM;
+    }
+
     // -------------------------------
     // Not implemented methods -------
     // -------------------------------
     @Override
     public int getConnectedTerminalCount() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public Component getSynchronousComponent() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public Component getConnectedComponent() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public boolean isInMainConnectedComponent() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public boolean isInMainSynchronousComponent() {
         throw MergingView.createNotImplementedException();
     }
 }

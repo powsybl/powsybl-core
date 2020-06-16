@@ -128,7 +128,7 @@ public class DanglingLineAdapterTest {
         // MergedLine
         final MergedLine mergedLine = (MergedLine) line;
         assertEquals(ConnectableType.LINE, mergedLine.getType());
-        assertFalse(mergedLine.isTieLine());
+        assertTrue(mergedLine.isTieLine());
         assertSame(mergingView, mergedLine.getNetwork());
         assertSame(dl1.getTerminal(), mergedLine.getTerminal(Branch.Side.ONE));
         assertSame(dl1.getTerminal(), mergedLine.getTerminal1());
@@ -224,10 +224,11 @@ public class DanglingLineAdapterTest {
         // Not implemented yet !
         TestUtil.notImplemented(mergedLine::remove);
         TestUtil.notImplemented(() -> mergedLine.addExtension(null, null));
-        TestUtil.notImplemented(() -> mergedLine.getExtension(null));
-        TestUtil.notImplemented(() -> mergedLine.getExtensionByName(""));
+        assertNull(mergedLine.getExtension(null));
+        assertNull(mergedLine.getExtensionByName(""));
         TestUtil.notImplemented(() -> mergedLine.removeExtension(null));
-        TestUtil.notImplemented(mergedLine::getExtensions);
+        assertNotNull(mergedLine.getExtensions());
+        assertEquals(0, mergedLine.getExtensions().size());
 
         // Exception(s)
         thrown.expect(PowsyblException.class);
