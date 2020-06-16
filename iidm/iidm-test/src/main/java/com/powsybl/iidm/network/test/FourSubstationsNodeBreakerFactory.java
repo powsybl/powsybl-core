@@ -401,7 +401,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setVoltageRegulatorOn(false)
-                .setTargetP(80.1982)
+                .setTargetP(100.0)
                 .setTargetV(400)
                 .setTargetQ(70)
                 .setNode(2)
@@ -418,7 +418,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMaxQ(76.4)
                 .endPoint()
                 .add();
-        generatorThermal1.getTerminal().setP(-80.1982).setQ(-70.0);
+        generatorThermal1.getTerminal().setP(-100.0).setQ(-70.0);
 
         // Connect a second VSC station on the second substation
         createSwitch(s2vl1, "S2VL1_BBS_VSC2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 3);
@@ -469,8 +469,8 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setNode2(2)
                 .setVoltageLevel2("S3VL1")
                 .add();
-        lineS2S3.getTerminal1().setP(90.0882).setQ(190.0);
-        lineS2S3.getTerminal2().setP(-90.5865).setQ(-184.9479);
+        lineS2S3.getTerminal1().setP(109.8893).setQ(190.0229);
+        lineS2S3.getTerminal2().setP(-109.8864).setQ(-184.5171);
 
         // Connect a load onto the third substation
         createSwitch(s3vl1, "S3VL1_BBS_LD5_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 3);
@@ -493,9 +493,9 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMinP(0.0)
                 .setMaxP(400.0)
                 .setVoltageRegulatorOn(true)
-                .setTargetP(70.7929)
+                .setTargetP(250.9944)
                 .setTargetV(400)
-                .setTargetQ(74.4196)
+                .setTargetQ(71.8487)
                 .setNode(6)
                 .add();
         generatorThermal2.newReactiveCapabilityCurve()
@@ -510,7 +510,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setMaxQ(176.25)
                 .endPoint()
                 .add();
-        generatorThermal2.getTerminal().setP(-70.7929).setQ(74.4196);
+        generatorThermal2.getTerminal().setP(-250.9944).setQ(71.8487);
 
         // The stations 3 and 4 are linked by a line
         createSwitch(s3vl1, "S3VL1_BBS_LINES3S4_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 7);
@@ -530,8 +530,8 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setNode2(6)
                 .setVoltageLevel2("S4VL1")
                 .add();
-        lineS3S4.getTerminal1().setP(90.0882).setQ(190.0);
-        lineS3S4.getTerminal2().setP(-40.0).setQ(0.09603);
+        lineS3S4.getTerminal1().setP(240.0036).setQ(2.1751);
+        lineS3S4.getTerminal2().setP(-240.0).setQ(2.5415);
         lineS3S4.newCurrentLimits1()
                 .setPermanentLimit(931.0)
                 .add();
@@ -581,11 +581,11 @@ public final class FourSubstationsNodeBreakerFactory {
         Load load6 = s4vl1.newLoad()
                 .setId("LD6")
                 .setLoadType(LoadType.UNDEFINED)
-                .setP0(40)
+                .setP0(240)
                 .setQ0(10)
                 .setNode(2)
                 .add();
-        load6.getTerminal().setP(40.0).setQ(10.0);
+        load6.getTerminal().setP(240.0).setQ(10.0);
 
         // Connect a static var compensator to the fourth substation
         createSwitch(s4vl1, "S4VL1_BBS_SVC_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 3);
@@ -598,7 +598,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetPoint(400)
                 .add();
-        svc.getTerminal().setQ(-10.0960);
+        svc.getTerminal().setQ(-12.5415);
 
         busbarSectionS1VL1.getTerminal().getBusView().getBus()
                 .setV(224.6139)
@@ -610,14 +610,14 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setV(400.0)
                 .setAngle(0.0);
         busbarSectionS2VL1.getTerminal().getBusView().getBus()
-                .setV(408.8569)
-                .setAngle(0.5908);
+                .setV(408.8470)
+                .setAngle(0.7347);
         busbarSectionS3VL1.getTerminal().getBusView().getBus()
                 .setV(400.0)
                 .setAngle(0.0);
         busbarSectionS4VL1.getTerminal().getBusView().getBus()
                 .setV(400.0)
-                .setAngle(-0.20016030967235565);
+                .setAngle(-1.1259);
 
         return network;
 
