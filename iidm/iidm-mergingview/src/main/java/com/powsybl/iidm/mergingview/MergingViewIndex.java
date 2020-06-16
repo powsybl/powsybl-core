@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
@@ -136,9 +137,9 @@ class MergingViewIndex {
     <C extends Connectable> Collection<C> getConnectables(Class<C> clazz) {
         // Search Connectables of a given type into merging & working networks
         if (clazz == Line.class) {
-            return getLines().stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
+            return getLineStream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
         } else if (clazz == DanglingLine.class) {
-            return getDanglingLines().stream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
+            return getDanglingLineStream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
         } else {
             return getNetworkStream()
                     .flatMap(n -> n.getConnectableStream(clazz))
@@ -291,25 +292,36 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
-    Collection<Line> getLines() {
+    Stream<Line> getLineStream() {
         // Search Line into merging & working networks, and MergedLines
         return Stream.concat(getNetworkStream().flatMap(Network::getLineStream)
                         .map(this::getLine),
-                mergedLineCached.values().stream())
-                .collect(Collectors.toList());
+                mergedLineCached.values().stream());
+    }
+
+    Iterable<Line> getLines() {
+        return Iterables.concat(Iterables.concat(Iterables.concat(Iterables.transform(networks, Network::getLines)), mergedLineCached.values()));
+    }
+
+    int getLineCount() {
+        return getNetworkStream().mapToInt(Network::getLineCount).sum() + mergedLineCached.size();
     }
 
     boolean isMerged(final DanglingLine dl) {
         return mergedLineCached.containsKey(dl.getUcteXnodeCode());
     }
 
-    Collection<DanglingLine> getDanglingLines() {
+    Stream<DanglingLine> getDanglingLineStream() {
+        return MergingViewUtil.getDanglingLineStream(getNetworkStream().flatMap(Network::getDanglingLineStream), this);
+    }
+
+    Iterable<DanglingLine> getDanglingLines() {
         // Search DanglingLine into merging & working networks
-        return getNetworkStream()
-                .flatMap(Network::getDanglingLineStream)
-                .filter(dl -> !isMerged(dl))
-                .map(this::getDanglingLine)
-                .collect(Collectors.toList());
+        return MergingViewUtil.getDanglingLines(Iterables.concat(Iterables.transform(networks, Network::getDanglingLines)), this);
+    }
+
+    int getDanglingLineCount() {
+        return getNetworkStream().mapToInt(Network::getDanglingLineCount).sum() - 2 * mergedLineCached.size();
     }
 
     Collection<HvdcLine> getHvdcLines() {
