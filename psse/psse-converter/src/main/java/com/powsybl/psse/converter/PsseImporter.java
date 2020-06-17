@@ -48,6 +48,8 @@ public class PsseImporter implements Importer {
             "Ignore base voltage specified in the file",
             Boolean.TRUE);
 
+    private static final double DEFAULT_ACTIVE_POWER_LIMIT = 9999d;
+
     @Override
     public String getFormat() {
         return FORMAT;
@@ -82,7 +84,13 @@ public class PsseImporter implements Importer {
             String ext = findExtension(dataSource, false);
             if (ext != null) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
-                    return new PsseRawReader().checkCaseIdentification(reader);
+                    int ic = new PsseRawReader().checkCaseIdentification(reader);
+                    if (ic == 0) {
+                        return true;
+                    } else if (ic == 1) {
+                        throw new PsseException("Incremental load of PSS/E data  option from " + dataSource.getBaseName()
+                                    + "." + ext + " not supported");
+                    }
                 }
             }
         } catch (IOException e) {
@@ -394,8 +402,11 @@ public class PsseImporter implements Importer {
                     createTransformer(psseTfo, containerMapping, perUnitContext, network);
                 }
 
-                return network;
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
+
+            return network;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
