@@ -180,4 +180,15 @@ public class PsseRawReader {
 
         return model;
     }
+
+    public int checkCaseIdentification(BufferedReader reader) throws IOException {
+
+        Objects.requireNonNull(reader);
+
+        // just check the first record if this file is in PSS/E format
+        PsseCaseIdentification caseIdentification = readCaseIdentification(reader);
+
+        return caseIdentification.getIc();
+    }
+
 }
