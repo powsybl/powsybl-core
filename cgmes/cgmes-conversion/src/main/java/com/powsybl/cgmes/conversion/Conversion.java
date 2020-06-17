@@ -203,7 +203,7 @@ public class Conversion {
             // Store a reference to the original CGMES model inside the IIDM network
             // CgmesUpdate will add a listener to Network changes
             CgmesUpdate cgmesUpdater = new CgmesUpdate(network);
-            network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes, cgmesUpdater));
+            network.newExtension(CgmesModelExtensionAdder.class).withModel(cgmes).withUpdate(cgmesUpdater).add();
         }
 
         // apply post-processors
@@ -214,7 +214,7 @@ public class Conversion {
 
         if (config.storeCgmesConversionContextAsNetworkExtension()) {
             // Store the terminal mapping in an extension for external validation
-            network.addExtension(CgmesConversionContextExtension.class, new CgmesConversionContextExtension(context));
+            network.newExtension(CgmesConversionContextExtensionAdder.class).withContext(context).add();
         }
 
         return network;
