@@ -22,7 +22,7 @@ package com.powsybl.iidm.network;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see DanglingLineAdder
  */
-public interface DanglingLine extends Injection<DanglingLine> {
+public interface DanglingLine extends Injection<DanglingLine>, ReactiveLimitsHolder {
 
     /**
      * Get the constant active power in MW.
@@ -91,6 +91,63 @@ public interface DanglingLine extends Injection<DanglingLine> {
      * Set the shunt susceptance in S.
      */
     DanglingLine setB(double b);
+
+    /**
+     * <p>Get the reactive power setpoint in MVAR.</p>
+     * <p>The reactive power setpoint follows a load sign convention.</p>
+     * <p>Depends on the working variant.</p>
+     * @return the reactive power setpoint
+     */
+    double getActivePowerSetpoint();
+
+    /**
+     * <p>Set the reactive power setpoint in MVAR.</p>
+     * <p>Depends on the working variant.</p>
+     * @param activePowerSetpoint the reactive power setpoint
+     * @return this to allow method chaining
+     */
+    DanglingLine setActivePowerSetpoint(double activePowerSetpoint);
+
+    /**
+     * <p>Get the reactive power setpoint in MVAR.</p>
+     * <p>The reactive power setpoint follows a load sign convention.</p>
+     * <p>Depends on the working variant.</p>
+     * @return the reactive power setpoint
+     */
+    double getReactivePowerSetpoint();
+
+    /**
+     * <p>Set the reactive power setpoint in MVAR.</p>
+     * <p>Depends on the working variant.</p>
+     * @param reactivePowerSetpoint the reactive power setpoint
+     * @return this to allow method chaining
+     */
+    DanglingLine setReactivePowerSetpoint(double reactivePowerSetpoint);
+
+    /**
+     * Get the voltage regulation status.
+     */
+    boolean isVoltageRegulationOn();
+
+    /**
+     * Set the voltage regulation status.
+     */
+    DanglingLine setVoltageRegulationOn(boolean voltageRegulationOn);
+
+    /**
+     * <p>Get the voltage setpoint in Kv.</p>
+     * <p>Depends on the working variant.</p>
+     * @return the voltage setpoint
+     */
+    double getVoltageSetpoint();
+
+    /**
+     * <p>Set the voltage setpoint in Kv.</p>
+     * <p>Depends on the working variant.</p>
+     * @param voltageSetpoint the voltage setpoint
+     * @return this to allow method chaining
+     */
+    DanglingLine setVoltageSetpoint(double voltageSetpoint);
 
     /**
      * Get the UCTE Xnode code corresponding to this dangling line in the case

@@ -6,10 +6,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.commons.util.trove.TBooleanArrayList;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
@@ -17,7 +15,7 @@ import gnu.trove.list.array.TDoubleArrayList;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine, CurrentLimitsOwner<Void> {
+class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine, CurrentLimitsOwner<Void>, ReactiveLimitsOwner {
 
     private final Ref<? extends VariantManagerHolder> network;
 
@@ -33,27 +31,49 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private CurrentLimitsImpl limits;
 
+    private final ReactiveLimitsHolderImpl reactiveLimits;
+
     // attributes depending on the variant
 
     private final TDoubleArrayList p0;
 
     private final TDoubleArrayList q0;
 
-    DanglingLineImpl(Ref<? extends VariantManagerHolder> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode) {
+    private final TDoubleArrayList activePowerSetpoint;
+
+    private final TDoubleArrayList reactivePowerSetpoint;
+
+    private final TBooleanArrayList voltageRegulationOn;
+
+    private final TDoubleArrayList voltageSetpoint;
+
+    DanglingLineImpl(Ref<? extends VariantManagerHolder> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b,
+                     double activePowerSetpoint, double reactivePowerSetpoint, boolean voltageRegulationOn, double voltageSetpoint, String ucteXnodeCode) {
         super(id, name, fictitious);
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.p0 = new TDoubleArrayList(variantArraySize);
         this.q0 = new TDoubleArrayList(variantArraySize);
+        this.activePowerSetpoint = new TDoubleArrayList(variantArraySize);
+        this.reactivePowerSetpoint = new TDoubleArrayList(variantArraySize);
+        this.voltageRegulationOn = new TBooleanArrayList(variantArraySize);
+        this.voltageSetpoint = new TDoubleArrayList(variantArraySize);
+
         for (int i = 0; i < variantArraySize; i++) {
             this.p0.add(p0);
             this.q0.add(q0);
+            this.activePowerSetpoint.add(activePowerSetpoint);
+            this.reactivePowerSetpoint.add(reactivePowerSetpoint);
+            this.voltageRegulationOn.add(voltageRegulationOn);
+            this.voltageSetpoint.add(voltageSetpoint);
         }
         this.r = r;
         this.x = x;
         this.g = g;
         this.b = b;
         this.ucteXnodeCode = ucteXnodeCode;
+        this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
+
     }
 
     @Override
@@ -158,6 +178,63 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
+    public double getActivePowerSetpoint() {
+        return activePowerSetpoint.get(getNetwork().getVariantIndex());
+    }
+
+    @Override
+    public DanglingLineImpl setActivePowerSetpoint(double activePowerSetpoint) {
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.activePowerSetpoint.set(variantIndex, activePowerSetpoint);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("activePowerSetpoint", variantId, oldValue, activePowerSetpoint);
+        return this;
+    }
+
+    @Override
+    public double getReactivePowerSetpoint() {
+        return reactivePowerSetpoint.get(getNetwork().getVariantIndex());
+    }
+
+    @Override
+    public DanglingLineImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.reactivePowerSetpoint.set(variantIndex, reactivePowerSetpoint);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("reactivePowerSetPoint", variantId, oldValue, reactivePowerSetpoint);
+        return this;
+    }
+
+    @Override
+    public boolean isVoltageRegulationOn() {
+        return voltageRegulationOn.get(getNetwork().getVariantIndex());
+    }
+
+    @Override
+    public DanglingLineImpl setVoltageRegulationOn(boolean voltageRegulatonOn) {
+        int variantIndex = getNetwork().getVariantIndex();
+        boolean oldValue = this.voltageRegulationOn.get(variantIndex);
+        this.voltageRegulationOn.set(variantIndex, voltageRegulatonOn);
+        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatonOn);
+        return this;
+    }
+
+    @Override
+    public double getVoltageSetpoint() {
+        return this.voltageSetpoint.get(getNetwork().getVariantIndex());
+    }
+
+    @Override
+    public DanglingLineImpl setVoltageSetpoint(double voltageSetpoint) {
+        int variantIndex = getNetwork().getVariantIndex();
+        double oldValue = this.voltageSetpoint.set(variantIndex, voltageSetpoint);
+        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("voltageSetpoint", variantId, oldValue, voltageSetpoint);
+        return this;
+    }
+
+    @Override
     public String getUcteXnodeCode() {
         return ucteXnodeCode;
     }
@@ -180,13 +257,44 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
+    public ReactiveCapabilityCurveAdderImpl newReactiveCapabilityCurve() {
+        return new ReactiveCapabilityCurveAdderImpl(this);
+    }
+
+    @Override
+    public MinMaxReactiveLimitsAdderImpl newMinMaxReactiveLimits() {
+        return new MinMaxReactiveLimitsAdderImpl(this);
+    }
+
+    @Override
+    public void setReactiveLimits(ReactiveLimits reactiveLimits) {
+        this.reactiveLimits.setReactiveLimits(reactiveLimits);
+    }
+
+    @Override
+    public ReactiveLimits getReactiveLimits() {
+        return reactiveLimits.getReactiveLimits();
+    }
+
+    @Override
+    public <RL extends ReactiveLimits> RL getReactiveLimits(Class<RL> type) {
+        return reactiveLimits.getReactiveLimits(type);
+    }
+
+    @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         p0.ensureCapacity(p0.size() + number);
         q0.ensureCapacity(q0.size() + number);
+        activePowerSetpoint.ensureCapacity(activePowerSetpoint.size() + number);
+        reactivePowerSetpoint.ensureCapacity(reactivePowerSetpoint.size() + number);
         for (int i = 0; i < number; i++) {
             p0.add(p0.get(sourceIndex));
             q0.add(q0.get(sourceIndex));
+            activePowerSetpoint.add(activePowerSetpoint.get(sourceIndex));
+            reactivePowerSetpoint.add(reactivePowerSetpoint.get(sourceIndex));
+            voltageRegulationOn.add(voltageRegulationOn.get(sourceIndex));
+            voltageSetpoint.add(voltageSetpoint.get(sourceIndex));
         }
     }
 
@@ -195,6 +303,10 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         super.reduceVariantArraySize(number);
         p0.remove(p0.size() - number, number);
         q0.remove(q0.size() - number, number);
+        activePowerSetpoint.remove(activePowerSetpoint.size() - number, number);
+        reactivePowerSetpoint.remove(reactivePowerSetpoint.size() - number, number);
+        voltageRegulationOn.remove(voltageRegulationOn.size() - number, number);
+        voltageSetpoint.remove(voltageSetpoint.size() - number, number);
     }
 
     @Override
@@ -209,6 +321,10 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         for (int index : indexes) {
             p0.set(index, p0.get(sourceIndex));
             q0.set(index, q0.get(sourceIndex));
+            activePowerSetpoint.set(index, activePowerSetpoint.get(sourceIndex));
+            reactivePowerSetpoint.set(index, reactivePowerSetpoint.get(sourceIndex));
+            voltageRegulationOn.set(index, voltageRegulationOn.get(sourceIndex));
+            voltageSetpoint.set(index, voltageSetpoint.get(sourceIndex));
         }
     }
 

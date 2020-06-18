@@ -228,6 +228,36 @@ public abstract class AbstractDanglingLineTest {
         }
     }
 
+    @Test
+    public void withRegulatingCapabilityTests() {
+        double r = 10.0;
+        double x = 20.0;
+        double g = 0.0;
+        double b = 0.0;
+        double p0 = 0.0;
+        double q0 = 0.0;
+        String id = "danglingId";
+        String name = "danlingName";
+        String ucteXnodeCode = "code";
+        DanglingLine dl = voltageLevel.newDanglingLine()
+                .setId(id)
+                .setName(name)
+                .setR(r)
+                .setX(x)
+                .setG(g)
+                .setB(b)
+                .setP0(p0)
+                .setQ0(q0)
+                .setUcteXnodeCode(ucteXnodeCode)
+                .setBus(BUS_VL_ID)
+                .setConnectableBus(BUS_VL_ID)
+                .add();
+
+        dl.setVoltageSetpoint(440).setVoltageRegulationOn(true);
+        dl.newMinMaxReactiveLimits().setMaxQ(500).setMinQ(-500).add();
+        dl.setActivePowerSetpoint(0);
+    }
+
     private void createDanglingLine(String id, String name, double r, double x, double g, double b,
                                     double p0, double q0, String ucteCode) {
         voltageLevel.newDanglingLine()

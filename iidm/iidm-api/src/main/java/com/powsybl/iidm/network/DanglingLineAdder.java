@@ -38,6 +38,14 @@ public interface DanglingLineAdder extends InjectionAdder<DanglingLineAdder> {
 
     DanglingLineAdder setB(double b);
 
+    DanglingLineAdder setActivePowerSetpoint(double activePowerSetPoint);
+
+    DanglingLineAdder setReactivePowerSetpoint(double reactivePowerSetPoint);
+
+    DanglingLineAdder setVoltageRegulationOn(boolean voltageRegulationOn);
+
+    DanglingLineAdder setVoltageSetpoint(double voltageSetPoint);
+
     DanglingLineAdder setUcteXnodeCode(String ucteXnodeCode);
 
     DanglingLine add();

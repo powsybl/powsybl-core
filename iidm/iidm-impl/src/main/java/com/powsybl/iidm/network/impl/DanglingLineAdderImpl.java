@@ -29,6 +29,14 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     private double b = Double.NaN;
 
+    private double activePowerSetpoint = Double.NaN;
+
+    private double reactivePowerSetpoint = Double.NaN;
+
+    private boolean voltageRegulationOn = false;
+
+    private double voltageSetpoint = Double.NaN;
+
     private String ucteXnodeCode;
 
     DanglingLineAdderImpl(VoltageLevelExt voltageLevel) {
@@ -82,6 +90,30 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
     }
 
     @Override
+    public DanglingLineAdderImpl setActivePowerSetpoint(double activePowerSetpoint) {
+        this.activePowerSetpoint = activePowerSetpoint;
+        return this;
+    }
+
+    @Override
+    public DanglingLineAdderImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        this.reactivePowerSetpoint = reactivePowerSetpoint;
+        return this;
+    }
+
+    @Override
+    public DanglingLineAdderImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
+        this.voltageRegulationOn = voltageRegulationOn;
+        return this;
+    }
+
+    @Override
+    public DanglingLineAdderImpl setVoltageSetpoint(double voltageSetpoint) {
+        this.voltageSetpoint = voltageSetpoint;
+        return this;
+    }
+
+    @Override
     public DanglingLineAdder setUcteXnodeCode(String ucteXnodeCode) {
         this.ucteXnodeCode = ucteXnodeCode;
         return this;
@@ -99,7 +131,8 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         ValidationUtil.checkG(this, g);
         ValidationUtil.checkB(this, b);
 
-        DanglingLineImpl danglingLine = new DanglingLineImpl(getNetwork().getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode);
+        DanglingLineImpl danglingLine = new DanglingLineImpl(getNetwork().getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b,
+                activePowerSetpoint, reactivePowerSetpoint, voltageRegulationOn, voltageSetpoint, ucteXnodeCode);
         danglingLine.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(danglingLine);
