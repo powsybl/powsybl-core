@@ -93,6 +93,7 @@ public class UcteImporter implements Importer {
                     .add();
 
             addGeographicalNameProperty(ucteNode, bus);
+            addStatusProperty(ucteNode, bus);
             bus.setFictitious(UcteNodeStatus.EQUIVALENT == ucteNode.getStatus());
 
             if (isValueValid(ucteNode.getActiveLoad()) || isValueValid(ucteNode.getReactiveLoad())) {
@@ -268,6 +269,8 @@ public class UcteImporter implements Importer {
 
         addElementNameProperty(ucteLine, dl);
         addGeographicalNameProperty(xnode, dl);
+        addStatusProperty(ucteLine, dl);
+        addStatusProperty(xnode, dl);
     }
 
     private static void createCoupler(UcteNetworkExt ucteNetwork, Network network,
@@ -317,6 +320,7 @@ public class UcteImporter implements Importer {
         addCurrentLimitProperty(ucteLine, couplerSwitch);
         addOrderCodeProperty(ucteLine, couplerSwitch);
         addElementNameProperty(ucteLine, couplerSwitch);
+        addStatusProperty(ucteLine, couplerSwitch);
     }
 
     private static void createStandardLine(Network network, UcteLine ucteLine, UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
@@ -342,6 +346,7 @@ public class UcteImporter implements Importer {
                 .add();
 
         addElementNameProperty(ucteLine, l);
+        addStatusProperty(ucteLine, l);
 
         if (ucteLine.getCurrentLimit() != null) {
             int currentLimit = ucteLine.getCurrentLimit();
@@ -666,6 +671,7 @@ public class UcteImporter implements Importer {
             addElementNameProperty(ucteTransfo, transformer);
             addTapChangers(ucteNetwork, ucteTransfo, transformer);
             addNominalPowerProperty(ucteTransfo, transformer);
+            addStatusProperty(ucteTransfo, transformer);
 
         }
 
@@ -746,6 +752,19 @@ public class UcteImporter implements Importer {
 
     private static void addNominalPowerProperty(UcteTransformer transformer, TwoWindingsTransformer twoWindingsTransformer) {
         twoWindingsTransformer.setProperty(NOMINAL_POWER_KEY, String.valueOf(transformer.getNominalPower()));
+    }
+
+    private static void addStatusProperty(UcteNode ucteNode, Identifiable identifiable) {
+        identifiable.setProperty(STATUS_PROPERTY_KEY + "_XNode", ucteNode.getStatus().toString());
+    }
+
+    private static void addStatusProperty(UcteElement ucteElement, Identifiable identifiable) {
+        identifiable.setProperty(STATUS_PROPERTY_KEY, ucteElement.getStatus().toString());
+    }
+
+    private static void addStatusProperty(TieLine tieLine, DanglingLine dl1, DanglingLine dl2) {
+        tieLine.setProperty(STATUS_PROPERTY_KEY + "_1", dl1.getProperty(STATUS_PROPERTY_KEY));
+        tieLine.setProperty(STATUS_PROPERTY_KEY + "_2", dl2.getProperty(STATUS_PROPERTY_KEY));
     }
 
     @Override
@@ -865,6 +884,7 @@ public class UcteImporter implements Importer {
 
         addElementNameProperty(mergeLine, dlAtSideOne, dlAtSideTwo);
         addGeographicalNameProperty(ucteNetwork, mergeLine, dlAtSideOne, dlAtSideTwo);
+        addStatusProperty(mergeLine, dlAtSideOne, dlAtSideTwo);
 
         if (dlAtSideOne.getCurrentLimits() != null) {
             mergeLine.newCurrentLimits1()
