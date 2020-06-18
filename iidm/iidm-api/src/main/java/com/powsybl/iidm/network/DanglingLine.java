@@ -93,17 +93,17 @@ public interface DanglingLine extends Injection<DanglingLine>, ReactiveLimitsHol
     DanglingLine setB(double b);
 
     /**
-     * <p>Get the reactive power setpoint in MVAR.</p>
-     * <p>The reactive power setpoint follows a load sign convention.</p>
+     * <p>Get the active power setpoint in MW.</p>
+     * <p>The active power setpoint follows a load sign convention.</p>
      * <p>Depends on the working variant.</p>
      * @return the reactive power setpoint
      */
     double getActivePowerSetpoint();
 
     /**
-     * <p>Set the reactive power setpoint in MVAR.</p>
+     * <p>Set the active power setpoint in MW.</p>
      * <p>Depends on the working variant.</p>
-     * @param activePowerSetpoint the reactive power setpoint
+     * @param activePowerSetpoint the active power setpoint
      * @return this to allow method chaining
      */
     DanglingLine setActivePowerSetpoint(double activePowerSetpoint);
