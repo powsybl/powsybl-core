@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.ConnectableType;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class BusbarSectionImpl extends AbstractConnectable<BusbarSection> implements BusbarSection {
+class BusbarSectionImpl extends AbstractInjection<BusbarSection> implements BusbarSection {
 
     BusbarSectionImpl(String id, String name, boolean fictitious) {
         super(id, name, fictitious);

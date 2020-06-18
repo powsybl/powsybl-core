@@ -17,7 +17,7 @@ import gnu.trove.list.array.TIntArrayList;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator> implements StaticVarCompensator {
+class StaticVarCompensatorImpl extends AbstractInjection<StaticVarCompensator> implements StaticVarCompensator {
 
     static final String TYPE_DESCRIPTION = "staticVarCompensator";
 

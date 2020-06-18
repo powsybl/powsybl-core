@@ -510,7 +510,7 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(525, l0.getCurrentLimits1().getPermanentLimit(), tol);
         assertNull(l0.getCurrentLimits2());
         assertEquals(525, l1.getCurrentLimits1().getPermanentLimit(), tol);
-        assertEquals(525, l1.getCurrentLimits2().getPermanentLimit(), tol);
+        assertEquals(525, l1.getCurrentLimits1().getPermanentLimit(), tol);
 
         // 2 - PATL Current defined for an ACTransmissionLine
         // that will be mapped to a DanglingLine in IIDM

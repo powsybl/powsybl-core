@@ -14,7 +14,7 @@ import gnu.trove.list.array.TDoubleArrayList;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class GeneratorImpl extends AbstractConnectable<Generator> implements Generator, ReactiveLimitsOwner {
+class GeneratorImpl extends AbstractInjection<Generator> implements Generator, ReactiveLimitsOwner {
 
     private EnergySource energySource;
 

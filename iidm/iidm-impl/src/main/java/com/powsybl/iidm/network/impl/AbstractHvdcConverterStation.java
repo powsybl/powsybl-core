@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.ValidationException;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> extends AbstractConnectable<T> implements HvdcConverterStation<T> {
+abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> extends AbstractInjection<T> implements HvdcConverterStation<T> {
 
     private HvdcLine hvdcLine;
 

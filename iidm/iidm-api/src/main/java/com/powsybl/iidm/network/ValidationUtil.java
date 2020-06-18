@@ -197,6 +197,13 @@ public final class ValidationUtil {
         }
     }
 
+    public static void checkDefinedVoltageLimits(Validable validable, double lowVoltageLimit, double highVoltageLimit) {
+        if (Double.isNaN(lowVoltageLimit) && Double.isNaN(highVoltageLimit)) {
+            throw new ValidationException(validable, "At least the low or the high voltage limit must be defined.");
+        }
+        ValidationUtil.checkVoltageLimits(validable, lowVoltageLimit, highVoltageLimit);
+    }
+
     public static void checkVoltageLimits(Validable validable, double lowVoltageLimit, double highVoltageLimit) {
         if (lowVoltageLimit < 0) {
             throw new ValidationException(validable, "low voltage limit is < 0");
@@ -385,8 +392,9 @@ public final class ValidationUtil {
     }
 
     public static void checkPermanentLimit(Validable validable, double permanentLimit) {
+        // TODO: if (Double.isNaN(permanentLimit) || permanentLimit <= 0) {
         if (permanentLimit <= 0) {
-            throw new ValidationException(validable, "permanent limit must be > 0");
+            throw new ValidationException(validable, "permanent limit must be defined and be > 0");
         }
     }
 

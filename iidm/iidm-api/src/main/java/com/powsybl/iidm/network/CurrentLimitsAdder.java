@@ -9,32 +9,5 @@ package com.powsybl.iidm.network;
 /**
  *
  */
-public interface CurrentLimitsAdder extends LoadingLimitsAdder {
-
-    interface TemporaryLimitAdder {
-
-        TemporaryLimitAdder setName(String name);
-
-        TemporaryLimitAdder setValue(double value);
-
-        TemporaryLimitAdder setAcceptableDuration(int duration);
-
-        TemporaryLimitAdder setFictitious(boolean fictitious);
-
-        default TemporaryLimitAdder ensureNameUnicity() {
-            return this;
-        }
-
-        CurrentLimitsAdder endTemporaryLimit();
-    }
-
-    TemporaryLimitAdder beginTemporaryLimit();
-
-    CurrentLimitsAdder setPermanentLimit(double limit);
-
-    default boolean hasTemporaryLimits() {
-        return false;
-    }
-
-    CurrentLimits add();
+public interface CurrentLimitsAdder extends LoadingLimitsAdder<CurrentLimits, CurrentLimitsAdder> {
 }

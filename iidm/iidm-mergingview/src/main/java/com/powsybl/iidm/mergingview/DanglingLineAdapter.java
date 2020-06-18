@@ -95,14 +95,4 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     public String getUcteXnodeCode() {
         return getDelegate().getUcteXnodeCode();
     }
-
-    @Override
-    public CurrentLimits getCurrentLimits() {
-        return getDelegate().getCurrentLimits();
-    }
-
-    @Override
-    public CurrentLimitsAdder newCurrentLimits() {
-        return getDelegate().newCurrentLimits();
-    }
 }

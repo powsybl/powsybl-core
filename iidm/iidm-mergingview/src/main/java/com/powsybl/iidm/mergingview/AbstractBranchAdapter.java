@@ -6,10 +6,9 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
+
+import java.util.List;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -53,8 +52,8 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     // Simple delegated methods ------
     // -------------------------------
     @Override
-    public CurrentLimits getCurrentLimits(final Side side) {
-        return getDelegate().getCurrentLimits(side);
+    public List<OperationalLimits> getOperationalLimits1() {
+        return getDelegate().getOperationalLimits1();
     }
 
     @Override
@@ -68,6 +67,41 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
+    public ApparentPowerLimits getApparentPowerLimits1() {
+        return getDelegate().getApparentPowerLimits1();
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
+        return getDelegate().newApparentPowerLimits1();
+    }
+
+    @Override
+    public ActivePowerLimits getActivePowerLimits1() {
+        return getDelegate().getActivePowerLimits1();
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits1() {
+        return getDelegate().newActivePowerLimits1();
+    }
+
+    @Override
+    public VoltageLimits getVoltageLimits1() {
+        return getDelegate().getVoltageLimits1();
+    }
+
+    @Override
+    public VoltageLimitsAdder newVoltageLimits1() {
+        return getDelegate().newVoltageLimits1();
+    }
+
+    @Override
+    public List<OperationalLimits> getOperationalLimits2() {
+        return getDelegate().getOperationalLimits2();
+    }
+
+    @Override
     public CurrentLimits getCurrentLimits2() {
         return getDelegate().getCurrentLimits2();
     }
@@ -75,6 +109,36 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
         return getDelegate().newCurrentLimits2();
+    }
+
+    @Override
+    public ApparentPowerLimits getApparentPowerLimits2() {
+        return getDelegate().getApparentPowerLimits2();
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
+        return getDelegate().newApparentPowerLimits2();
+    }
+
+    @Override
+    public ActivePowerLimits getActivePowerLimits2() {
+        return getDelegate().getActivePowerLimits2();
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits2() {
+        return getDelegate().newActivePowerLimits2();
+    }
+
+    @Override
+    public VoltageLimits getVoltageLimits2() {
+        return getDelegate().getVoltageLimits2();
+    }
+
+    @Override
+    public VoltageLimitsAdder newVoltageLimits2() {
+        return getDelegate().newVoltageLimits2();
     }
 
     @Override

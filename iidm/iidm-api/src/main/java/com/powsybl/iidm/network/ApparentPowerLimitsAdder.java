@@ -9,6 +9,6 @@ package com.powsybl.iidm.network;
 /**
  *
  */
-public interface ApparentPowerLimitsAdder extends LoadingLimitsAdder {
+public interface ApparentPowerLimitsAdder extends LoadingLimitsAdder<ApparentPowerLimits, ApparentPowerLimitsAdder> {
 
 }

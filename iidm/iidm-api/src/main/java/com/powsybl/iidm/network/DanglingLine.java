@@ -6,6 +6,9 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * A dangling line to model boundaries (X nodes).
  * <p>A dangling line is a component that aggregates a line chunk and a constant
@@ -274,8 +277,8 @@ public interface DanglingLine extends Injection<DanglingLine> {
      */
     String getUcteXnodeCode();
 
-    CurrentLimits getCurrentLimits();
-
-    CurrentLimitsAdder newCurrentLimits();
-
+    @Override
+    default List<OperationalLimits> getOperationalLimits() {
+        return getCurrentLimits() != null ? Collections.singletonList(getCurrentLimits()) : Collections.emptyList();
+    }
 }

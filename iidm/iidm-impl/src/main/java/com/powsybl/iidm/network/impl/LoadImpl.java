@@ -17,7 +17,7 @@ import gnu.trove.list.array.TDoubleArrayList;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class LoadImpl extends AbstractConnectable<Load> implements Load {
+class LoadImpl extends AbstractInjection<Load> implements Load {
 
     private final Ref<? extends VariantManagerHolder> network;
 

@@ -6,6 +6,9 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * An equipment with two terminals.
  *
@@ -94,7 +97,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface Branch<I extends Branch<I>> extends Connectable<I> {
+public interface Branch<I extends Branch<I>> extends Connectable<I>, OperationalLimitsSidedHolder {
 
     enum Side {
         ONE,
@@ -140,15 +143,15 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
 
     Side getSide(Terminal terminal);
 
-    CurrentLimits getCurrentLimits(Side side);
+    @Override
+    default List<OperationalLimits> getOperationalLimits1() {
+        return getCurrentLimits1() != null ? Collections.singletonList(getCurrentLimits1()) : Collections.emptyList();
+    }
 
-    CurrentLimits getCurrentLimits1();
-
-    CurrentLimitsAdder newCurrentLimits1();
-
-    CurrentLimits getCurrentLimits2();
-
-    CurrentLimitsAdder newCurrentLimits2();
+    @Override
+    default List<OperationalLimits> getOperationalLimits2() {
+        return getCurrentLimits2() != null ? Collections.singletonList(getCurrentLimits2()) : Collections.emptyList();
+    }
 
     boolean isOverloaded();
 

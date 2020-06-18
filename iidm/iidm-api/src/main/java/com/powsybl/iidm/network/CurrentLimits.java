@@ -30,4 +30,8 @@ package com.powsybl.iidm.network;
  */
 public interface CurrentLimits extends LoadingLimits {
 
+    @Override
+    default LimitType getLimitType() {
+        return LimitType.CURRENT;
+    }
 }

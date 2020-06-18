@@ -15,7 +15,7 @@ import gnu.trove.list.array.TDoubleArrayList;
  *
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
-public class BatteryImpl extends AbstractConnectable<Battery> implements Battery, ReactiveLimitsOwner {
+public class BatteryImpl extends AbstractInjection<Battery> implements Battery, ReactiveLimitsOwner {
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
 

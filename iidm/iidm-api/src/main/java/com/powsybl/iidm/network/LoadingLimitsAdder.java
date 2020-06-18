@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -10,14 +10,40 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface LoadingLimitsAdder {
+public interface LoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> extends OperationalLimitsAdder<L> {
 
-    default double getPermanentLimit() {
-        return Double.NaN;
+    interface TemporaryLimitAdder<A> {
+
+        TemporaryLimitAdder<A> setName(String name);
+
+        TemporaryLimitAdder<A> setValue(double value);
+
+        TemporaryLimitAdder<A> setAcceptableDuration(int duration);
+
+        /**
+         * @deprecated Use {@link #setOverloadingProtection(boolean)} instead e.g. {@code adder.setOverloadingProtection(!fictitious)}.
+         */
+        @Deprecated
+        default TemporaryLimitAdder<A> setFictitious(boolean fictitious) {
+            return setOverloadingProtection(!fictitious);
+        }
+
+        default TemporaryLimitAdder<A> setOverloadingProtection(boolean hasOverloadingProtection) {
+            return setFictitious(!hasOverloadingProtection);
+        }
+
+        TemporaryLimitAdder<A> ensureNameUnicity();
+
+        A endTemporaryLimit();
     }
 
-    default double getTemporaryLimitValue(int acceptableDuration) {
-        return Double.NaN;
-    }
+    A setPermanentLimit(double limit);
 
+    TemporaryLimitAdder<A> beginTemporaryLimit();
+
+    double getPermanentLimit();
+
+    double getTemporaryLimitValue(int acceptableDuration);
+
+    boolean hasTemporaryLimits();
 }

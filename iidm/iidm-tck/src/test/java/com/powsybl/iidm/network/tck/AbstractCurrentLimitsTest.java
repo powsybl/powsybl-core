@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractCurrentLimitsTest {
 
-    private Network createNetwork() {
+    private static Network createNetwork() {
         Network network = Network.create("test", "test");
         Substation s1 = network.newSubstation()
                 .setId("S1")
@@ -129,7 +129,7 @@ public abstract class AbstractCurrentLimitsTest {
             currentLimitsAdder.beginTemporaryLimit()
                     .setAcceptableDuration(5 * 60)
                     .setValue(1400.0)
-                    .setFictitious(true)
+                    .setOverloadingProtection(false)
                     .endTemporaryLimit();
             fail();
         } catch (ValidationException ignored) {
@@ -140,7 +140,7 @@ public abstract class AbstractCurrentLimitsTest {
                     .setName("5'")
                     .setAcceptableDuration(5 * 60)
                     .setValue(1400.0)
-                    .setFictitious(true)
+                    .setOverloadingProtection(false)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
                     .setName("1'")
