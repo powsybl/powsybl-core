@@ -35,5 +35,16 @@ public class BranchContingencyTest {
                 .addEqualityGroup(new BranchContingency("c2"), new BranchContingency("c2"))
                 .testEquals();
 
+        Contingency contingency2 = Contingency.line("LINE");
+        assertEquals("LINE", contingency2.getId());
+        assertEquals(1, contingency2.getElements().size());
+        assertEquals("LINE", contingency2.getElements().get(0).getId());
+        assertEquals(ContingencyElementType.LINE, contingency2.getElements().get(0).getType());
+
+        Contingency contingency3 = Contingency.twoWindingsTransformer("TWT");
+        assertEquals("TWT", contingency3.getId());
+        assertEquals(1, contingency3.getElements().size());
+        assertEquals("TWT", contingency3.getElements().get(0).getId());
+        assertEquals(ContingencyElementType.TWO_WINDINGS_TRANSFORMER, contingency3.getElements().get(0).getType());
     }
 }

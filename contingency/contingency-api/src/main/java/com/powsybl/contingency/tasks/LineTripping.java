@@ -7,6 +7,7 @@
 
 package com.powsybl.contingency.tasks;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -22,7 +23,13 @@ public class LineTripping extends BranchTripping {
         super(lineId, voltageLevelId, Network::getLine);
     }
 
-    protected String getLabel() {
-        return "Line";
+    @Override
+    protected PowsyblException createNotFoundException() {
+        return new PowsyblException("Line '" + getBranchId() + "' not found");
+    }
+
+    @Override
+    protected PowsyblException createNotConnectedException() {
+        return new PowsyblException("VoltageLevel '" + getVoltageLevelId() + "' not connected to line '" + getBranchId() + "'");
     }
 }

@@ -26,7 +26,7 @@ public class BranchTripping extends AbstractTrippingTask {
 
     private final String branchId;
     private final String voltageLevelId;
-    private final BiFunction<Network, String, Branch> supplier;
+    private final BiFunction<Network, String, Branch<?>> supplier;
 
     public BranchTripping(String branchId) {
         this(branchId, null);
@@ -36,23 +36,27 @@ public class BranchTripping extends AbstractTrippingTask {
         this(branchId, voltageLevelId, Network::getBranch);
     }
 
-    protected BranchTripping(String branchId, String voltageLevelId, BiFunction<Network, String, Branch> supplier) {
+    protected BranchTripping(String branchId, String voltageLevelId, BiFunction<Network, String, Branch<?>> supplier) {
         this.branchId = Objects.requireNonNull(branchId);
         this.voltageLevelId = voltageLevelId;
         this.supplier = supplier;
     }
 
-    protected String getLabel() {
-        return "Branch";
+    protected String getBranchId() {
+        return branchId;
+    }
+
+    protected String getVoltageLevelId() {
+        return voltageLevelId;
     }
 
     @Override
     public void traverse(Network network, ComputationManager computationManager, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
         Objects.requireNonNull(network);
 
-        Branch branch = supplier.apply(network, branchId);
+        Branch<?> branch = supplier.apply(network, branchId);
         if (branch == null) {
-            throw new PowsyblException(getLabel() + " '" + branchId + "' not found");
+            throw createNotFoundException();
         }
         if (voltageLevelId != null) {
             if (voltageLevelId.equals(branch.getTerminal1().getVoltageLevel().getId())) {
@@ -60,12 +64,20 @@ public class BranchTripping extends AbstractTrippingTask {
             } else if (voltageLevelId.equals(branch.getTerminal2().getVoltageLevel().getId())) {
                 ContingencyTopologyTraverser.traverse(branch.getTerminal2(), switchesToOpen, terminalsToDisconnect);
             } else {
-                throw new PowsyblException("VoltageLevel '" + voltageLevelId + "' not connected to " + getLabel().toLowerCase() + " '" + branchId + "'");
+                throw createNotConnectedException();
             }
         } else {
             ContingencyTopologyTraverser.traverse(branch.getTerminal1(), switchesToOpen, terminalsToDisconnect);
             ContingencyTopologyTraverser.traverse(branch.getTerminal2(), switchesToOpen, terminalsToDisconnect);
         }
+    }
+
+    protected PowsyblException createNotFoundException() {
+        return new PowsyblException("Branch '" + branchId + "' not found");
+    }
+
+    protected PowsyblException createNotConnectedException() {
+        return new PowsyblException("VoltageLevel '" + voltageLevelId + "' not connected to branch '" + branchId + "'");
     }
 
 }

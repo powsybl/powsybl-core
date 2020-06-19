@@ -207,50 +207,50 @@ public class Contingency extends AbstractExtendable<Contingency> {
     }
 
     public static Contingency branch(String id) {
-        return new Contingency(id, new BranchContingency(id));
+        return builder(id).branch(id).build();
     }
 
     public static Contingency branch(String id, String voltageLevelId) {
-        return new Contingency(id, new BranchContingency(id, voltageLevelId));
+        return builder(id).branch(id, voltageLevelId).build();
     }
 
     public static Contingency busbarSection(String id) {
-        return new Contingency(id, new BusbarSectionContingency(id));
+        return builder(id).busbarSection(id).build();
     }
 
     public static Contingency generator(String id) {
-        return new Contingency(id, new GeneratorContingency(id));
+        return builder(id).generator(id).build();
     }
 
     public static Contingency hvdcLine(String id) {
-        return new Contingency(id, new HvdcLineContingency(id));
+        return builder(id).hvdcLine(id).build();
     }
 
-    public static Contingency hvdcLine(String id, String voltageLevel) {
-        return new Contingency(id, new HvdcLineContingency(id, voltageLevel));
+    public static Contingency hvdcLine(String id, String voltageLevelId) {
+        return builder(id).hvdcLine(id, voltageLevelId).build();
     }
 
     public static Contingency line(String id) {
-        return new Contingency(id, new LineContingency(id));
+        return builder(id).line(id).build();
     }
 
     public static Contingency line(String id, String voltageLevelId) {
-        return new Contingency(id, new LineContingency(id, voltageLevelId));
+        return builder(id).line(id, voltageLevelId).build();
     }
 
     public static Contingency shuntCompensator(String id) {
-        return new Contingency(id, new ShuntCompensatorContingency(id));
+        return builder(id).shuntCompensator(id).build();
     }
 
     public static Contingency staticVarCompensator(String id) {
-        return new Contingency(id, new StaticVarCompensatorContingency(id));
+        return builder(id).staticVarCompensator(id).build();
     }
 
     public static Contingency twoWindingsTransformer(String id) {
-        return new Contingency(id, new TwoWindingsTransformerContingency(id));
+        return builder(id).twoWindingsTransformer(id).build();
     }
 
     public static Contingency twoWindingsTransformer(String id, String voltageLevelId) {
-        return new Contingency(id, new TwoWindingsTransformerContingency(id, voltageLevelId));
+        return builder(id).twoWindingsTransformer(id, voltageLevelId).build();
     }
 }

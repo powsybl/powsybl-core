@@ -7,6 +7,7 @@
 
 package com.powsybl.contingency.tasks;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -22,7 +23,13 @@ public class TwoWindingsTransformerTripping extends BranchTripping {
         super(lineId, voltageLevelId, Network::getTwoWindingsTransformer);
     }
 
-    protected String getLabel() {
-        return "Two windings transformer";
+    @Override
+    protected PowsyblException createNotFoundException() {
+        return new PowsyblException("Two windings transformer  '" + getBranchId() + "' not found");
+    }
+
+    @Override
+    protected PowsyblException createNotConnectedException() {
+        return new PowsyblException("VoltageLevel '" + getVoltageLevelId() + "' not connected to the two windings transformer '" + getBranchId() + "'");
     }
 }

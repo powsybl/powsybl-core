@@ -26,7 +26,7 @@ public class DefaultContingencyList implements ContingencyList {
     }
 
     public DefaultContingencyList(String name, Contingency... contingencies) {
-        this("", Arrays.asList(contingencies));
+        this(name, Arrays.asList(contingencies));
     }
 
     public DefaultContingencyList(String name, List<Contingency> contingencies) {
