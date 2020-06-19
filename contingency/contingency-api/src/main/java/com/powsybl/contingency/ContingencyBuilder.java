@@ -60,14 +60,12 @@ public class ContingencyBuilder {
     }
 
     public ContingencyBuilder line(String id) {
-        // FIXME(mathbagu): Check that the ID is really a line, not a two windings transformer
-        elements.add(new BranchContingency(id));
+        elements.add(new LineContingency(id));
         return this;
     }
 
     public ContingencyBuilder line(String id, String voltageLevelId) {
-        // FIXME(mathbagu): Check that the ID is really a line, not a two windings transformer
-        elements.add(new BranchContingency(id, voltageLevelId));
+        elements.add(new LineContingency(id, voltageLevelId));
         return this;
     }
 
@@ -82,14 +80,12 @@ public class ContingencyBuilder {
     }
 
     public ContingencyBuilder twoWindingsTransformer(String id) {
-        // FIXME(mathbagu): Check that the ID is really a two windings transformer, not a line
-        elements.add(new BranchContingency(id));
+        elements.add(new TwoWindingsTransformerContingency(id));
         return this;
     }
 
     public ContingencyBuilder twoWindingsTransformer(String id, String voltageLevelId) {
-        // FIXME(mathbagu): Check that the ID is really a two windings transformer, not a line
-        elements.add(new BranchContingency(id, voltageLevelId));
+        elements.add(new TwoWindingsTransformerContingency(id, voltageLevelId));
         return this;
     }
 

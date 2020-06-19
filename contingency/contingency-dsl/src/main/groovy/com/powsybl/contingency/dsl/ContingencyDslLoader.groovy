@@ -72,8 +72,10 @@ class ContingencyDslLoader extends DslLoader {
                 if (identifiable == null) {
                     LOGGER.warn("Equipment '{}' of contingency '{}' not found", equipment, id)
                     valid = false
-                } else if (identifiable instanceof Line || identifiable instanceof TwoWindingsTransformer) {
-                    builder.branch(equipment);
+                } else if (identifiable instanceof Line) {
+                    builder.line(equipment);
+                } else if (identifiable instanceof TwoWindingsTransformer) {
+                    builder.twoWindingsTransformer(equipment);
                 } else if (identifiable instanceof HvdcLine) {
                     builder.hvdcLine(equipment);
                 } else if (identifiable instanceof Generator) {

@@ -10,10 +10,7 @@ package com.powsybl.contingency.dsl;
 import com.google.common.collect.Sets;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.contingency.BranchContingency;
-import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyElement;
-import com.powsybl.contingency.ContingencyList;
+import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.After;
@@ -74,7 +71,7 @@ public class GroovyContingencyListTest {
         assertEquals(0, contingency.getExtensions().size());
         assertEquals(1, contingency.getElements().size());
         ContingencyElement element = contingency.getElements().iterator().next();
-        assertTrue(element instanceof BranchContingency);
+        assertTrue(element instanceof LineContingency);
         assertEquals("NHV1_NHV2_1", element.getId());
     }
 

@@ -15,8 +15,10 @@ public enum ContingencyElementType {
     GENERATOR,
     STATIC_VAR_COMPENSATOR,
     SHUNT_COMPENSATOR,
-    BRANCH,
+    @Deprecated BRANCH,
     HVDC_LINE,
     BUSBAR_SECTION,
-    DANGLING_LINE
+    DANGLING_LINE,
+    LINE,
+    TWO_WINDINGS_TRANSFORMER
 }
