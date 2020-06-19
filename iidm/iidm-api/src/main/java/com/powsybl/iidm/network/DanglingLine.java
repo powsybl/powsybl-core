@@ -98,7 +98,9 @@ public interface DanglingLine extends Injection<DanglingLine>, ReactiveLimitsHol
      * <p>Depends on the working variant.</p>
      * @return the reactive power setpoint
      */
-    double getActivePowerSetpoint();
+    default double getActivePowerSetpoint() {
+        return Double.NaN;
+    }
 
     /**
      * <p>Set the active power setpoint in MW.</p>
@@ -106,7 +108,9 @@ public interface DanglingLine extends Injection<DanglingLine>, ReactiveLimitsHol
      * @param activePowerSetpoint the active power setpoint
      * @return this to allow method chaining
      */
-    DanglingLine setActivePowerSetpoint(double activePowerSetpoint);
+    default DanglingLine setActivePowerSetpoint(double activePowerSetpoint) {
+        return this;
+    }
 
     /**
      * <p>Get the reactive power setpoint in MVAR.</p>
@@ -114,7 +118,9 @@ public interface DanglingLine extends Injection<DanglingLine>, ReactiveLimitsHol
      * <p>Depends on the working variant.</p>
      * @return the reactive power setpoint
      */
-    double getReactivePowerSetpoint();
+    default double getReactivePowerSetpoint() {
+        return Double.NaN;
+    }
 
     /**
      * <p>Set the reactive power setpoint in MVAR.</p>
@@ -122,24 +128,32 @@ public interface DanglingLine extends Injection<DanglingLine>, ReactiveLimitsHol
      * @param reactivePowerSetpoint the reactive power setpoint
      * @return this to allow method chaining
      */
-    DanglingLine setReactivePowerSetpoint(double reactivePowerSetpoint);
+    default DanglingLine setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        return this;
+    }
 
     /**
      * Get the voltage regulation status.
      */
-    boolean isVoltageRegulationOn();
+    default boolean isVoltageRegulationOn() {
+        return false;
+    }
 
     /**
      * Set the voltage regulation status.
      */
-    DanglingLine setVoltageRegulationOn(boolean voltageRegulationOn);
+    default DanglingLine setVoltageRegulationOn(boolean voltageRegulationOn) {
+        return this;
+    }
 
     /**
      * <p>Get the voltage setpoint in Kv.</p>
      * <p>Depends on the working variant.</p>
      * @return the voltage setpoint
      */
-    double getVoltageSetpoint();
+    default double getVoltageSetpoint() {
+        return Double.NaN;
+    }
 
     /**
      * <p>Set the voltage setpoint in Kv.</p>
@@ -147,7 +161,9 @@ public interface DanglingLine extends Injection<DanglingLine>, ReactiveLimitsHol
      * @param voltageSetpoint the voltage setpoint
      * @return this to allow method chaining
      */
-    DanglingLine setVoltageSetpoint(double voltageSetpoint);
+    default DanglingLine setVoltageSetpoint(double voltageSetpoint) {
+        return this;
+    }
 
     /**
      * Get the UCTE Xnode code corresponding to this dangling line in the case
