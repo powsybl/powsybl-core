@@ -10,6 +10,7 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.contingency.tasks.CompoundModificationTask;
 import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,22 +21,95 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class Contingency extends AbstractExtendable<Contingency> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Contingency.class);
 
-    private String id;
+    private final String id;
 
     private final List<ContingencyElement> elements;
 
     public Contingency(String id, ContingencyElement... elements) {
-        this(id, Arrays.asList(elements));
+        this.id = Objects.requireNonNull(id);
+        this.elements = Arrays.asList(elements);
     }
 
     public Contingency(String id, List<ContingencyElement> elements) {
         this.id = Objects.requireNonNull(id);
-        this.elements = new ArrayList<>(Objects.requireNonNull(elements));
+        this.elements = new ArrayList<>(elements);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public List<ContingencyElement> getElements() {
+        return Collections.unmodifiableList(elements);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, elements);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Contingency) {
+            Contingency other = (Contingency) obj;
+            return id.equals(other.id) && elements.equals(other.elements);
+        }
+        return false;
+    }
+
+    public ModificationTask toTask() {
+        List<ModificationTask> subTasks = elements.stream().map(ContingencyElement::toTask).collect(Collectors.toList());
+
+        return new CompoundModificationTask(subTasks);
+    }
+
+    boolean isValid(Network network) {
+        Objects.requireNonNull(network);
+        boolean valid = true;
+        for (ContingencyElement element : elements) {
+            switch (element.getType()) {
+                case GENERATOR:
+                    valid = checkGeneratorContingency(this, (GeneratorContingency) element, network);
+                    break;
+
+                case STATIC_VAR_COMPENSATOR:
+                    valid = checkStaticVarCompensatorContingency(this, (StaticVarCompensatorContingency) element, network);
+                    break;
+
+                case SHUNT_COMPENSATOR:
+                    valid = checkShuntCompensatorContingency(this, (ShuntCompensatorContingency) element, network);
+                    break;
+
+                case BRANCH:
+                    valid = checkBranchContingency(this, (BranchContingency) element, network);
+                    break;
+
+                case HVDC_LINE:
+                    valid = checkHvdcLineContingency(this, (HvdcLineContingency) element, network);
+                    break;
+
+                case BUSBAR_SECTION:
+                    valid = checkBusbarSectionContingency(this, (BusbarSectionContingency) element, network);
+                    break;
+
+                case DANGLING_LINE:
+                    valid = checkDanglingLineContingency(this, (DanglingLineContingency) element, network);
+                    break;
+
+                default:
+                    throw new AssertionError("Unknown contingency element type " + element.getType());
+            }
+        }
+        if (!valid) {
+            LOGGER.warn("Contingency '{}' is invalid", id);
+        }
+        return valid;
     }
 
     private static boolean checkGeneratorContingency(Contingency contingency, GeneratorContingency element, Network network) {
@@ -62,12 +136,23 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return true;
     }
 
-    private static boolean checkSidedContingency(Contingency contingency, AbstractSidedContingency element, Network network) {
+    private static boolean checkBranchContingency(Contingency contingency, BranchContingency element, Network network) {
         Branch branch = network.getBranch(element.getId());
         if (branch == null || (element.getVoltageLevelId() != null &&
                 !(element.getVoltageLevelId().equals(branch.getTerminal1().getVoltageLevel().getId()) ||
                         element.getVoltageLevelId().equals(branch.getTerminal2().getVoltageLevel().getId())))) {
-            LOGGER.warn("Branch or HVDC line '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            LOGGER.warn("Branch '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean checkHvdcLineContingency(Contingency contingency, HvdcLineContingency element, Network network) {
+        HvdcLine hvdcLine = network.getHvdcLine(element.getId());
+        if (hvdcLine == null || (element.getVoltageLevelId() != null &&
+                !(element.getVoltageLevelId().equals(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getId()) ||
+                        element.getVoltageLevelId().equals(hvdcLine.getConverterStation2().getTerminal().getVoltageLevel().getId())))) {
+            LOGGER.warn("HVDC line '{}' of contingency '{}' not found", element.getId(), contingency.getId());
             return false;
         }
         return true;
@@ -89,92 +174,59 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return true;
     }
 
-    private static boolean isValid(Contingency contingency, Network network) {
-        Objects.requireNonNull(contingency);
-        Objects.requireNonNull(network);
-        boolean valid = true;
-        for (ContingencyElement element : contingency.getElements()) {
-            switch (element.getType()) {
-                case GENERATOR:
-                    valid = checkGeneratorContingency(contingency, (GeneratorContingency) element, network);
-                    break;
-                case STATIC_VAR_COMPENSATOR:
-                    valid = checkStaticVarCompensatorContingency(contingency, (StaticVarCompensatorContingency) element, network);
-                    break;
-                case SHUNT_COMPENSATOR:
-                    valid = checkShuntCompensatorContingency(contingency, (ShuntCompensatorContingency) element, network);
-                    break;
-
-                case BRANCH:
-                case HVDC_LINE:
-                    valid = checkSidedContingency(contingency, (AbstractSidedContingency) element, network);
-                    break;
-
-                case BUSBAR_SECTION:
-                    valid = checkBusbarSectionContingency(contingency, (BusbarSectionContingency) element, network);
-                    break;
-
-                case DANGLING_LINE:
-                    valid = checkDanglingLineContingency(contingency, (DanglingLineContingency) element, network);
-                    break;
-
-                default:
-                    throw new AssertionError("Unknown contingency element type " + element.getType());
-            }
-        }
-        if (!valid) {
-            LOGGER.warn("Contingency '{}' is invalid", contingency.getId());
-        }
-        return valid;
+    public static ContingencyBuilder builder(String id) {
+        return new ContingencyBuilder(id);
     }
 
-    public static List<Contingency> checkValidity(List<Contingency> contingencies, Network network) {
-        Objects.requireNonNull(contingencies);
-        Objects.requireNonNull(network);
-        return contingencies.stream()
-                .filter(c -> isValid(c, network))
-                .collect(Collectors.toList());
+    public static Contingency branch(String id) {
+        return new Contingency(id, new BranchContingency(id));
     }
 
-    public String getId() {
-        return id;
+    public static Contingency branch(String id, String voltageLevelId) {
+        return new Contingency(id, new BranchContingency(id, voltageLevelId));
     }
 
-    public void setId(String id) {
-        this.id = Objects.requireNonNull(id);
+    public static Contingency busbarSection(String id) {
+        return new Contingency(id, new BusbarSectionContingency(id));
     }
 
-    public void addElement(ContingencyElement element) {
-        Objects.requireNonNull(element);
-        elements.add(element);
+    public static Contingency generator(String id) {
+        return new Contingency(id, new GeneratorContingency(id));
     }
 
-    public void removeElement(ContingencyElement element) {
-        Objects.requireNonNull(element);
-        elements.remove(element);
+    public static Contingency hvdcLine(String id) {
+        return new Contingency(id, new HvdcLineContingency(id));
     }
 
-    public Collection<ContingencyElement> getElements() {
-        return Collections.unmodifiableCollection(elements);
+    public static Contingency hvdcLine(String id, String voltageLevel) {
+        return new Contingency(id, new HvdcLineContingency(id, voltageLevel));
     }
 
-    public ModificationTask toTask() {
-        List<ModificationTask> subTasks = elements.stream().map(ContingencyElement::toTask).collect(Collectors.toList());
-
-        return new CompoundModificationTask(subTasks);
+    public static Contingency line(String id) {
+        // FIXME(mathbagu): Check that the ID is really a line, not a two windings transformer
+        return new Contingency(id, new BranchContingency(id));
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, elements);
+    public static Contingency line(String id, String voltageLevelId) {
+        // FIXME(mathbagu): Check that the ID is really a line, not a two windings transformer
+        return new Contingency(id, new BranchContingency(id, voltageLevelId));
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Contingency) {
-            Contingency other = (Contingency) obj;
-            return id.equals(other.id) && elements.equals(other.elements);
-        }
-        return false;
+    public static Contingency shuntCompensator(String id) {
+        return new Contingency(id, new ShuntCompensatorContingency(id));
+    }
+
+    public static Contingency staticVarCompensator(String id) {
+        return new Contingency(id, new StaticVarCompensatorContingency(id));
+    }
+
+    public static Contingency twoWindingsTransformer(String id) {
+        // FIXME(mathbagu): Check that the ID is really a two windings transformer, not a line
+        return new Contingency(id, new BranchContingency(id));
+    }
+
+    public static Contingency twoWindingsTransformer(String id, String voltageLevelId) {
+        // FIXME(mathbagu): Check that the ID is really a two windings transformer, not a line
+        return new Contingency(id, new BranchContingency(id, voltageLevelId));
     }
 }

@@ -10,9 +10,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.contingency.BranchContingency;
+import com.powsybl.contingency.AbstractSidedContingency;
 import com.powsybl.contingency.ContingencyElement;
-import com.powsybl.contingency.HvdcLineContingency;
 
 import java.io.IOException;
 
@@ -30,12 +29,9 @@ public class ContingencyElementSerializer extends StdSerializer<ContingencyEleme
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("id", contingencyElement.getId());
         jsonGenerator.writeStringField("type", contingencyElement.getType().name());
-        if (contingencyElement instanceof BranchContingency) {
-            BranchContingency branchContingencyElement = (BranchContingency) contingencyElement;
-            JsonUtil.writeOptionalStringField(jsonGenerator, "voltageLevelId", branchContingencyElement.getVoltageLevelId());
-        } else if (contingencyElement instanceof HvdcLineContingency) {
-            HvdcLineContingency hvdcLineContingencyElement = (HvdcLineContingency) contingencyElement;
-            JsonUtil.writeOptionalStringField(jsonGenerator, "voltageLevelId", hvdcLineContingencyElement.getVoltageLevelId());
+        if (contingencyElement instanceof AbstractSidedContingency) {
+            AbstractSidedContingency sidedContingency = (AbstractSidedContingency) contingencyElement;
+            JsonUtil.writeOptionalStringField(jsonGenerator, "voltageLevelId", sidedContingency.getVoltageLevelId());
         }
         jsonGenerator.writeEndObject();
     }
