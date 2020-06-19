@@ -32,10 +32,12 @@ public class CurrentLimitsMapping {
     void addAll() {
         for (Map.Entry<String, CurrentLimitsAdder> entry : adders.entrySet()) {
             if (Double.isNaN(entry.getValue().getPermanentLimit())) {
-                context.ignored("Operational Limit Set of " + entry.getKey(), "An operational limit set must at least contain one value for permanent limit.");
-            } else {
-                entry.getValue().add();
+                context.fixed("Operational Limit Set of " + entry.getKey(),
+                        "An operational limit set without permanent limit is considered with infinite limit.",
+                        Double.NaN, Double.MAX_VALUE);
+                entry.getValue().setPermanentLimit(Double.MAX_VALUE);
             }
+            entry.getValue().add();
         }
         adders.clear();
     }
