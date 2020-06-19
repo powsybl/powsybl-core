@@ -19,12 +19,16 @@ public class BusbarSectionContingencyTest {
 
     @Test
     public void test() {
-        BusbarSectionContingency contingency = new BusbarSectionContingency("id");
+        Contingency contingency = Contingency.busbarSection("id");
         assertEquals("id", contingency.getId());
-        assertEquals(ContingencyElementType.BUSBAR_SECTION, contingency.getType());
+        assertEquals(1, contingency.getElements().size());
 
-        assertNotNull(contingency.toTask());
-        assertTrue(contingency.toTask() instanceof BusbarSectionTripping);
+        BusbarSectionContingency bbsContingency = new BusbarSectionContingency("id");
+        assertEquals("id", bbsContingency.getId());
+        assertEquals(ContingencyElementType.BUSBAR_SECTION, bbsContingency.getType());
+
+        assertNotNull(bbsContingency.toTask());
+        assertTrue(bbsContingency.toTask() instanceof BusbarSectionTripping);
 
         new EqualsTester()
                 .addEqualityGroup(new BusbarSectionContingency("bbs1"), new BusbarSectionContingency("bbs1"))

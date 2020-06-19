@@ -8,7 +8,11 @@ package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
 import com.powsybl.contingency.tasks.BranchTripping;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -46,5 +50,30 @@ public class BranchContingencyTest {
         assertEquals(1, contingency3.getElements().size());
         assertEquals("TWT", contingency3.getElements().get(0).getId());
         assertEquals(ContingencyElementType.TWO_WINDINGS_TRANSFORMER, contingency3.getElements().get(0).getType());
+    }
+
+    @Test
+    public void test2() {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        ContingencyList contingencyList = ContingencyList.of(
+                Contingency.line("NHV1_NHV2_1"),
+                Contingency.line("UNKNOWN"),
+                Contingency.line("NHV1_NHV2_2", "UNKNOWN"),
+                Contingency.twoWindingsTransformer("NGEN_NHV1"),
+                Contingency.twoWindingsTransformer("UNKNOWN"),
+                Contingency.twoWindingsTransformer("NHV2_NLOAD", "UNKNOWN")
+        );
+
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(2, contingencies.size());
+
+        LineContingency lineCtg = (LineContingency) contingencies.get(0).getElements().get(0);
+        assertEquals("NHV1_NHV2_1", lineCtg.getId());
+        assertNull(lineCtg.getVoltageLevelId());
+
+        TwoWindingsTransformerContingency twtCtg = (TwoWindingsTransformerContingency) contingencies.get(1).getElements().get(0);
+        assertEquals("NGEN_NHV1", twtCtg.getId());
+        assertNull(twtCtg.getVoltageLevelId());
     }
 }
