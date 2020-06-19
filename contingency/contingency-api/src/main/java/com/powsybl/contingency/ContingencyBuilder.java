@@ -93,4 +93,8 @@ public class ContingencyBuilder {
         return this;
     }
 
+    public ContingencyBuilder danglingLine(String id) {
+        elements.add(new DanglingLineContingency(id));
+        return this;
+    }
 }
