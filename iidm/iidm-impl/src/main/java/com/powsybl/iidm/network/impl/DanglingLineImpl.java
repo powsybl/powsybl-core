@@ -226,7 +226,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public DanglingLineImpl getGeneratorTargetV(double generatorTargetV) {
+    public DanglingLineImpl setGeneratorTargetV(double generatorTargetV) {
         int variantIndex = getNetwork().getVariantIndex();
         double oldValue = this.generatorTargetV.set(variantIndex, generatorTargetV);
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);

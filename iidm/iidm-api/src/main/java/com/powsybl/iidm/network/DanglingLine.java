@@ -148,7 +148,7 @@ public interface DanglingLine extends Injection<DanglingLine>, ReactiveLimitsHol
      * @param generatorTargetV the generator voltage target
      * @return this to allow method chaining
      */
-    DanglingLine getGeneratorTargetV(double generatorTargetV);
+    DanglingLine setGeneratorTargetV(double generatorTargetV);
 
     /**
      * Get the UCTE Xnode code corresponding to this dangling line in the case

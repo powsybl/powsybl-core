@@ -230,20 +230,11 @@ public class UcteImporter implements Importer {
 
         LOGGER.trace("Create dangling line '{}' (Xnode='{}')", ucteLine.getId(), xnode.getCode());
 
-        float p0 = 0;
-        if (isValueValid(xnode.getActiveLoad())) {
-            p0 += xnode.getActiveLoad();
-        }
-        if (isValueValid(xnode.getActivePowerGeneration())) {
-            p0 += xnode.getActivePowerGeneration();
-        }
-        float q0 = 0;
-        if (isValueValid(xnode.getReactiveLoad())) {
-            q0 += xnode.getReactiveLoad();
-        }
-        if (isValueValid(xnode.getReactivePowerGeneration())) {
-            q0 += xnode.getReactivePowerGeneration();
-        }
+
+        float p0 = isValueValid(xnode.getActiveLoad()) ? xnode.getActiveLoad() : 0;
+        float q0 = isValueValid(xnode.getReactiveLoad()) ? xnode.getReactiveLoad() : 0;
+        float targetP = isValueValid(xnode.getActivePowerGeneration()) ? xnode.getActivePowerGeneration() : 0;
+        float targetQ = isValueValid(xnode.getReactivePowerGeneration()) ? xnode.getReactivePowerGeneration() : 0;
 
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel.getName());
         DanglingLine dl = voltageLevel.newDanglingLine()
@@ -256,8 +247,20 @@ public class UcteImporter implements Importer {
                 .setB(getSusceptance(ucteLine))
                 .setP0(p0)
                 .setQ0(q0)
+                .setGeneratorTargetP(-targetP)
+                .setGeneratorTargetQ(-targetQ)
                 .setUcteXnodeCode(xnode.getCode().toString())
                 .add();
+
+        if (xnode.isRegulatingVoltage()) {
+            dl.setGeneratorVoltageRegulationOn(true);
+            dl.setGeneratorTargetV(xnode.getVoltageReference());
+            dl.newMinMaxReactiveLimits()
+                    .setMinQ(-xnode.getMinimumPermissibleReactivePowerGeneration())
+                    .setMaxQ(-xnode.getMaximumPermissibleReactivePowerGeneration())
+                    .add();
+        }
+
         dl.newExtension(XnodeAdder.class).withCode(xnode.getCode().toString()).add();
 
         if (ucteLine.getCurrentLimit() != null) {

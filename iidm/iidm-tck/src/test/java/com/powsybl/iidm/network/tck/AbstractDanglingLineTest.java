@@ -253,7 +253,7 @@ public abstract class AbstractDanglingLineTest {
                 .setConnectableBus(BUS_VL_ID)
                 .add();
 
-        dl.getGeneratorTargetV(440).setGeneratorVoltageRegulationOn(true);
+        dl.setGeneratorTargetP(440).setGeneratorVoltageRegulationOn(true);
         dl.newMinMaxReactiveLimits().setMaxQ(500).setMinQ(-500).add();
         dl.setGeneratorTargetP(0);
     }
