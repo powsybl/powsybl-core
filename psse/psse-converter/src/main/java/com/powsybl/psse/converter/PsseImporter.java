@@ -23,10 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
@@ -134,6 +131,35 @@ public class PsseImporter implements Importer {
         }
     }
 
+    private final class ShuntBlockTab {
+
+        private HashMap<Integer, Integer > ni;
+
+        private HashMap<Integer, Double > bi;
+
+        private ShuntBlockTab() {
+            ni = new HashMap<Integer, Integer>();
+            bi = new HashMap<Integer, Double>();
+        }
+
+        public void add(int i, int nni, double bni) {
+            ni.put(i, nni);
+            bi.put(i, bni);
+        }
+
+        public int getNi(int i) {
+            return this.ni.get(i);
+        }
+
+        public double getBi(int i) {
+            return this.bi.get(i);
+        }
+
+        public int getSize() {
+            return ni.size();
+        }
+    }
+
     private static String getBusId(int busNum) {
         return "B" + busNum;
     }
@@ -213,7 +239,85 @@ public class PsseImporter implements Importer {
         }
     }
 
-    private static void createGenerator(PsseGenerator psseGen, ContainersMapping containerMapping, Network network) {
+    private void createSwitchedShuntBlocMap(PsseRawModel psseModel, Map<PsseSwitchedShunt, ShuntBlockTab > stoBlockiTab) {
+
+        for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
+
+            Boolean isLastBlock = false;
+
+            ShuntBlockTab sbt = new ShuntBlockTab();
+
+            if (psseSwShunt.getN1() != 0 && !isLastBlock) {
+                sbt.add(1, psseSwShunt.getN1(), psseSwShunt.getB1());
+            } else {
+                isLastBlock = true;
+            }
+
+            if (psseSwShunt.getN2() != 0 && !isLastBlock) {
+                sbt.add(2, psseSwShunt.getN2(), psseSwShunt.getB2());
+            } else {
+                isLastBlock = true;
+            }
+
+            if (psseSwShunt.getN3() != 0 && !isLastBlock) {
+                sbt.add(3, psseSwShunt.getN3(), psseSwShunt.getB3());
+            } else {
+                isLastBlock = true;
+            }
+
+            if (psseSwShunt.getN4() != 0 && !isLastBlock) {
+                sbt.add(4, psseSwShunt.getN4(), psseSwShunt.getB4());
+            } else {
+                isLastBlock = true;
+            }
+
+            if (psseSwShunt.getN5() != 0 && !isLastBlock) {
+                sbt.add(5, psseSwShunt.getN5(), psseSwShunt.getB5());
+            } else {
+                isLastBlock = true;
+            }
+
+            if (psseSwShunt.getN6() != 0 && !isLastBlock) {
+                sbt.add(6, psseSwShunt.getN6(), psseSwShunt.getB6());
+            } else {
+                isLastBlock = true;
+            }
+
+            if (psseSwShunt.getN7() != 0 && !isLastBlock) {
+                sbt.add(7, psseSwShunt.getN7(), psseSwShunt.getB7());
+            } else {
+                isLastBlock = true;
+            }
+
+            if (psseSwShunt.getN8() != 0 && !isLastBlock) {
+                sbt.add(8, psseSwShunt.getN8(), psseSwShunt.getB8());
+            }
+
+            stoBlockiTab.put(psseSwShunt, sbt);
+        }
+    }
+
+    private static void createSwitchedShunt(PsseSwitchedShunt psseSwShunt, PerUnitContext perUnitContext, ContainersMapping containerMapping, Network network, Map<PsseSwitchedShunt, ShuntBlockTab >  stoBlockiTab) {
+        String busId = getBusId(psseSwShunt.getI());
+        VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseSwShunt.getI()));
+        ShuntBlockTab sbl = stoBlockiTab.get(psseSwShunt);
+
+        for (int i = 1; i <= sbl.getSize(); i++) {
+            ShuntCompensator shunt = voltageLevel.newShuntCompensator()
+                    .setId(busId + "-SwSH-B" + i)
+                    .setConnectableBus(busId)
+                    .setbPerSection(sbl.getBi(i))
+                    .setCurrentSectionCount(sbl.getNi(i)) //TODO: take into account BINIT to define the number of switched steps
+                    .setMaximumSectionCount(sbl.getNi(i))
+                    .add();
+
+            if (psseSwShunt.getStat() == 1) {
+                shunt.getTerminal().connect();
+            }
+        }
+    }
+
+    private static void createGenerator(PsseGenerator psseGen, PsseBus psseBus, ContainersMapping containerMapping, Network network) {
         String busId = getBusId(psseGen.getI());
         VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseGen.getI()));
         Generator generator =  voltageLevel.newGenerator()
@@ -226,16 +330,18 @@ public class PsseImporter implements Importer {
                 .setTargetQ(psseGen.getQt())
                 .add();
 
-        generator.newMinMaxReactiveLimits()
-                .setMinQ(psseGen.getQb())
-                .setMaxQ(psseGen.getQt())
-                .add();
+        if (psseBus.getIde() != 3) {
+            generator.newMinMaxReactiveLimits()
+                    .setMinQ(psseGen.getQb())
+                    .setMaxQ(psseGen.getQt())
+                    .add();
+        }
 
         if (psseGen.getStat() == 1) {
             generator.getTerminal().connect();
         }
 
-        if (psseGen.getVs() > 0) {
+        if (psseGen.getVs() > 0 && ((psseGen.getQt() - psseGen.getQb()) > 0.002 || psseBus.getIde() == 3)) {
             if (psseGen.getIreg() == 0) {
                 //PV group
                 generator.setTargetV(psseGen.getVs() * voltageLevel.getNominalV());
@@ -250,7 +356,7 @@ public class PsseImporter implements Importer {
     }
 
     private static void createBuses(PsseRawModel psseModel, ContainersMapping containerMapping, PerUnitContext perUnitContext,
-                                    Network network) {
+                                    Network network, Map<Integer, PsseBus>  busNumToPsseBus) {
         for (PsseBus psseBus : psseModel.getBuses()) {
             String voltageLevelId = containerMapping.getVoltageLevelId(psseBus.getI());
             String substationId = containerMapping.getSubstationId(voltageLevelId);
@@ -263,6 +369,8 @@ public class PsseImporter implements Importer {
 
             // create bus
             createBus(psseBus, voltageLevel);
+
+            busNumToPsseBus.put(psseBus.getI(), psseBus);
 
         }
     }
@@ -377,21 +485,31 @@ public class PsseImporter implements Importer {
                         ParameterDefaultValueConfig.INSTANCE);
                 PerUnitContext perUnitContext = new PerUnitContext(psseModel.getCaseIdentification().getSbase(), ignoreBaseVoltage);
 
+                //The map gives access to PsseBus object with the int bus Number
+                Map<Integer, PsseBus> busNumToPsseBus = new HashMap<>();
+
                 // create buses
-                createBuses(psseModel, containerMapping, perUnitContext, network);
+                createBuses(psseModel, containerMapping, perUnitContext, network, busNumToPsseBus);
 
                 //Create loads
                 for (PsseLoad psseLoad : psseModel.getLoads()) {
                     createLoad(psseLoad, containerMapping, network);
                 }
 
-                //Create shunts
+                //Create fixed shunts
                 for (PsseFixedShunt psseShunt : psseModel.getFixedShunts()) {
                     createShuntCompensator(psseShunt, perUnitContext, containerMapping, network);
                 }
 
+                //Create switched shunts
+                Map<PsseSwitchedShunt, ShuntBlockTab > stoBlockiTab = new HashMap<>();
+                createSwitchedShuntBlocMap(psseModel, stoBlockiTab);
+                for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
+                    createSwitchedShunt(psseSwShunt, perUnitContext, containerMapping, network, stoBlockiTab);
+                }
+
                 for (PsseGenerator psseGen : psseModel.getGenerators()) {
-                    createGenerator(psseGen, containerMapping, network);
+                    createGenerator(psseGen, busNumToPsseBus.get(psseGen.getI()), containerMapping, network);
                 }
 
                 for (PsseNonTransformerBranch psseLine : psseModel.getNonTransformerBranches()) {

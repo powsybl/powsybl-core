@@ -170,7 +170,7 @@ public class PsseRawReader {
         readRecordBlock(reader); // TODO
 
         // switched shunt data
-        readRecordBlock(reader); // TODO
+        model.getSwitchedShunts().addAll(parseRecords(readRecordBlock(reader), PsseSwitchedShunt.class));
 
         // gne device data
         readRecordBlock(reader); // TODO
