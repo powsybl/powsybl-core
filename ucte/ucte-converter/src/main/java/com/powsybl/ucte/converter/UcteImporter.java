@@ -230,7 +230,6 @@ public class UcteImporter implements Importer {
 
         LOGGER.trace("Create dangling line '{}' (Xnode='{}')", ucteLine.getId(), xnode.getCode());
 
-
         float p0 = isValueValid(xnode.getActiveLoad()) ? xnode.getActiveLoad() : 0;
         float q0 = isValueValid(xnode.getReactiveLoad()) ? xnode.getReactiveLoad() : 0;
         float targetP = isValueValid(xnode.getActivePowerGeneration()) ? xnode.getActivePowerGeneration() : 0;
@@ -255,9 +254,17 @@ public class UcteImporter implements Importer {
         if (xnode.isRegulatingVoltage()) {
             dl.setGeneratorVoltageRegulationOn(true);
             dl.setGeneratorTargetV(xnode.getVoltageReference());
-            dl.newMinMaxReactiveLimits()
+            dl.newReactiveCapabilityCurve()
+                    .beginPoint()
+                    .setP(-xnode.getMinimumPermissibleActivePowerGeneration())
                     .setMinQ(-xnode.getMinimumPermissibleReactivePowerGeneration())
                     .setMaxQ(-xnode.getMaximumPermissibleReactivePowerGeneration())
+                    .endPoint()
+                    .beginPoint()
+                    .setP(-xnode.getMaximumPermissibleActivePowerGeneration())
+                    .setMinQ(-xnode.getMinimumPermissibleReactivePowerGeneration())
+                    .setMaxQ(-xnode.getMaximumPermissibleReactivePowerGeneration())
+                    .endPoint()
                     .add();
         }
 

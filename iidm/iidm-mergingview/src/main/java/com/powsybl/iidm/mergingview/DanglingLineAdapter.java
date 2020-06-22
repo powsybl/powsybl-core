@@ -125,8 +125,8 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public DanglingLine getGeneratorTargetV(final double generatorTargetV) {
-        getDelegate().getGeneratorTargetV(generatorTargetV);
+    public DanglingLine setGeneratorTargetV(final double generatorTargetV) {
+        getDelegate().setGeneratorTargetV(generatorTargetV);
         return this;
     }
 
