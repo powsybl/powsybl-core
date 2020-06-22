@@ -196,11 +196,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     case TWO_WINDINGS_TRANSFORMER:
                     case THREE_WINDINGS_TRANSFORMER:
                     case HVDC_CONVERTER_STATION:
+                    case DANGLING_LINE:
                         branchCount++;
                         feederCount++;
                         break;
 
-                    case DANGLING_LINE:
                     case LOAD:
                     case GENERATOR:
                     case BATTERY:
