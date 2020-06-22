@@ -253,9 +253,9 @@ public abstract class AbstractDanglingLineTest {
                 .setConnectableBus(BUS_VL_ID)
                 .add();
 
-        dl.setVoltageSetpoint(440).setVoltageRegulationOn(true);
+        dl.getGeneratorTargetV(440).setGeneratorVoltageRegulationOn(true);
         dl.newMinMaxReactiveLimits().setMaxQ(500).setMinQ(-500).add();
-        dl.setActivePowerSetpoint(0);
+        dl.setGeneratorTargetP(0);
     }
 
     private void createDanglingLine(String id, String name, double r, double x, double g, double b,

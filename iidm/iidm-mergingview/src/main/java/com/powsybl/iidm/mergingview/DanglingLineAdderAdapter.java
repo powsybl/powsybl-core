@@ -66,26 +66,26 @@ public class DanglingLineAdderAdapter extends AbstractInjectionAdderAdapter<Dang
     }
 
     @Override
-    public DanglingLineAdder setActivePowerSetpoint(final double activePowerSetpoint) {
-        getDelegate().setActivePowerSetpoint(activePowerSetpoint);
+    public DanglingLineAdder setGeneratorTargetP(final double generatorTargetP) {
+        getDelegate().setGeneratorTargetP(generatorTargetP);
         return this;
     }
 
     @Override
-    public DanglingLineAdder setReactivePowerSetpoint(final double reactivePowerSetpoint) {
-        getDelegate().setReactivePowerSetpoint(reactivePowerSetpoint);
+    public DanglingLineAdder setGeneratorTargetQ(final double generatorTargetQ) {
+        getDelegate().setGeneratorTargetQ(generatorTargetQ);
         return this;
     }
 
     @Override
-    public DanglingLineAdder setVoltageRegulationOn(final boolean voltageRegulationOn) {
-        getDelegate().setVoltageRegulationOn(voltageRegulationOn);
+    public DanglingLineAdder setGeneratorVoltageRegulationOn(final boolean generatorVoltageRegulationOn) {
+        getDelegate().setGeneratorVoltageRegulationOn(generatorVoltageRegulationOn);
         return this;
     }
 
     @Override
-    public DanglingLineAdder setVoltageSetpoint(final double voltageSetpoint) {
-        getDelegate().setVoltageSetpoint(voltageSetpoint);
+    public DanglingLineAdder setGeneratorTargetV(final double generatorTargetV) {
+        getDelegate().setGeneratorTargetV(generatorTargetV);
         return this;
     }
 

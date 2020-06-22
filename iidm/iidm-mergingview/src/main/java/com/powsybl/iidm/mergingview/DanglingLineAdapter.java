@@ -87,46 +87,46 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public double getActivePowerSetpoint() {
-        return getDelegate().getActivePowerSetpoint();
+    public double getGeneratorTargetP() {
+        return getDelegate().getGeneratorTargetP();
     }
 
     @Override
-    public DanglingLine setActivePowerSetpoint(final double activePowerSetpoint) {
-        getDelegate().setActivePowerSetpoint(activePowerSetpoint);
+    public DanglingLine setGeneratorTargetP(final double generatorTargetP) {
+        getDelegate().setGeneratorTargetP(generatorTargetP);
         return this;
     }
 
     @Override
-    public double getReactivePowerSetpoint() {
-        return getDelegate().getReactivePowerSetpoint();
+    public double getGeneratorTargetQ() {
+        return getDelegate().getGeneratorTargetQ();
     }
 
     @Override
-    public DanglingLine setReactivePowerSetpoint(final double reactivePowerSetpoint) {
-        getDelegate().setReactivePowerSetpoint(reactivePowerSetpoint);
+    public DanglingLine setGeneratorTargetQ(final double generatorTargetQ) {
+        getDelegate().setGeneratorTargetQ(generatorTargetQ);
         return this;
     }
 
     @Override
-    public boolean isVoltageRegulationOn() {
-        return getDelegate().isVoltageRegulationOn();
+    public boolean isGeneratorVoltageRegulationOn() {
+        return getDelegate().isGeneratorVoltageRegulationOn();
     }
 
     @Override
-    public DanglingLine setVoltageRegulationOn(final boolean voltageRegulationOn) {
-        getDelegate().setVoltageRegulationOn(voltageRegulationOn);
+    public DanglingLine setGeneratorVoltageRegulationOn(final boolean generatorVoltageRegulationOn) {
+        getDelegate().setGeneratorVoltageRegulationOn(generatorVoltageRegulationOn);
         return this;
     }
 
     @Override
-    public double getVoltageSetpoint() {
-        return getDelegate().getVoltageSetpoint();
+    public double getGeneratorTargetV() {
+        return getDelegate().getGeneratorTargetV();
     }
 
     @Override
-    public DanglingLine setVoltageSetpoint(final double voltageSetpoint) {
-        getDelegate().setVoltageSetpoint(voltageSetpoint);
+    public DanglingLine getGeneratorTargetV(final double generatorTargetV) {
+        getDelegate().getGeneratorTargetV(generatorTargetV);
         return this;
     }
 

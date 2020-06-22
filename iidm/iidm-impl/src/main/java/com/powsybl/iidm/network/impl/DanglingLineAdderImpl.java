@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.ValidationUtil;
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ *
  */
 class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl> implements DanglingLineAdder {
 
@@ -29,13 +31,13 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     private double b = Double.NaN;
 
-    private double activePowerSetpoint = Double.NaN;
+    private double generatorTargetP = Double.NaN;
 
-    private double reactivePowerSetpoint = Double.NaN;
+    private double generatorTargetQ = Double.NaN;
 
-    private boolean voltageRegulationOn = false;
+    private boolean generatorVoltageRegulationOn = false;
 
-    private double voltageSetpoint = Double.NaN;
+    private double generatorTargetV = Double.NaN;
 
     private String ucteXnodeCode;
 
@@ -90,26 +92,26 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
     }
 
     @Override
-    public DanglingLineAdderImpl setActivePowerSetpoint(double activePowerSetpoint) {
-        this.activePowerSetpoint = activePowerSetpoint;
+    public DanglingLineAdderImpl setGeneratorTargetP(double generatorTargetP) {
+        this.generatorTargetP = generatorTargetP;
         return this;
     }
 
     @Override
-    public DanglingLineAdderImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        this.reactivePowerSetpoint = reactivePowerSetpoint;
+    public DanglingLineAdderImpl setGeneratorTargetQ(double generatorTargetQ) {
+        this.generatorTargetQ = generatorTargetQ;
         return this;
     }
 
     @Override
-    public DanglingLineAdderImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
-        this.voltageRegulationOn = voltageRegulationOn;
+    public DanglingLineAdderImpl setGeneratorVoltageRegulationOn(boolean generatorVoltageRegulationOn) {
+        this.generatorVoltageRegulationOn = generatorVoltageRegulationOn;
         return this;
     }
 
     @Override
-    public DanglingLineAdderImpl setVoltageSetpoint(double voltageSetpoint) {
-        this.voltageSetpoint = voltageSetpoint;
+    public DanglingLineAdderImpl setGeneratorTargetV(double generatorTargetV) {
+        this.generatorTargetV = generatorTargetV;
         return this;
     }
 
@@ -132,7 +134,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         ValidationUtil.checkB(this, b);
 
         DanglingLineImpl danglingLine = new DanglingLineImpl(getNetwork().getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b,
-                activePowerSetpoint, reactivePowerSetpoint, voltageRegulationOn, voltageSetpoint, ucteXnodeCode);
+                generatorTargetP, generatorTargetQ, generatorVoltageRegulationOn, generatorTargetV, ucteXnodeCode);
         danglingLine.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(danglingLine);

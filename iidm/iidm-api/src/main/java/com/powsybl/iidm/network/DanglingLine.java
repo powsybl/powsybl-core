@@ -20,6 +20,7 @@ package com.powsybl.iidm.network;
  * <p>To create a dangling line, see {@link DanglingLineAdder}
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Anne Tilloy <anne.tilloy at rte-france.com>
  * @see DanglingLineAdder
  */
 public interface DanglingLine extends Injection<DanglingLine>, ReactiveLimitsHolder {
@@ -93,61 +94,61 @@ public interface DanglingLine extends Injection<DanglingLine>, ReactiveLimitsHol
     DanglingLine setB(double b);
 
     /**
-     * <p>Get the active power setpoint in MW.</p>
-     * <p>The active power setpoint follows a load sign convention.</p>
+     * <p>Get the generator active power target in MW.</p>
+     * <p>The active power target follows a generator sign convention.</p>
      * <p>Depends on the working variant.</p>
-     * @return the reactive power setpoint
+     * @return the generator active power target
      */
-    double getActivePowerSetpoint();
+    double getGeneratorTargetP();
 
     /**
-     * <p>Set the active power setpoint in MW.</p>
+     * <p>Set the generator active power target in MW.</p>
      * <p>Depends on the working variant.</p>
-     * @param activePowerSetpoint the active power setpoint
+     * @param generatorTargetP the generator active power target
      * @return this to allow method chaining
      */
-    DanglingLine setActivePowerSetpoint(double activePowerSetpoint);
+    DanglingLine setGeneratorTargetP(double generatorTargetP);
 
     /**
-     * <p>Get the reactive power setpoint in MVAR.</p>
-     * <p>The reactive power setpoint follows a load sign convention.</p>
+     * <p>Get the generator reactive power target in MVAR.</p>
+     * <p>The generator reactive power target follows a generator sign convention.</p>
      * <p>Depends on the working variant.</p>
-     * @return the reactive power setpoint
+     * @return the generator reactive power target
      */
-    double getReactivePowerSetpoint();
+    double getGeneratorTargetQ();
 
     /**
-     * <p>Set the reactive power setpoint in MVAR.</p>
+     * <p>Set the generator reactive power target in MVAR.</p>
      * <p>Depends on the working variant.</p>
-     * @param reactivePowerSetpoint the reactive power setpoint
+     * @param generatorTargetQ the generator reactive power target
      * @return this to allow method chaining
      */
-    DanglingLine setReactivePowerSetpoint(double reactivePowerSetpoint);
+    DanglingLine setGeneratorTargetQ(double generatorTargetQ);
 
     /**
-     * Get the voltage regulation status.
+     * Get the generator voltage regulation status.
      */
-    boolean isVoltageRegulationOn();
+    boolean isGeneratorVoltageRegulationOn();
 
     /**
-     * Set the voltage regulation status.
+     * Set the generator voltage regulation status.
      */
-    DanglingLine setVoltageRegulationOn(boolean voltageRegulationOn);
+    DanglingLine setGeneratorVoltageRegulationOn(boolean generatorVoltageRegulationOn);
 
     /**
-     * <p>Get the voltage setpoint in Kv.</p>
+     * <p>Get the generator voltage target in Kv.</p>
      * <p>Depends on the working variant.</p>
-     * @return the voltage setpoint
+     * @return the generator voltage target
      */
-    double getVoltageSetpoint();
+    double getGeneratorTargetV();
 
     /**
-     * <p>Set the voltage setpoint in Kv.</p>
+     * <p>Set the generator voltage target in Kv.</p>
      * <p>Depends on the working variant.</p>
-     * @param voltageSetpoint the voltage setpoint
+     * @param generatorTargetV the generator voltage target
      * @return this to allow method chaining
      */
-    DanglingLine setVoltageSetpoint(double voltageSetpoint);
+    DanglingLine getGeneratorTargetV(double generatorTargetV);
 
     /**
      * Get the UCTE Xnode code corresponding to this dangling line in the case

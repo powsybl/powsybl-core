@@ -21,6 +21,7 @@ package com.powsybl.iidm.network;
  *</pre>
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Anne Tilloy <anne.tilloy at rte-france.com>
  * @see DanglingLine
  * @see VoltageLevel
  */
@@ -38,13 +39,13 @@ public interface DanglingLineAdder extends InjectionAdder<DanglingLineAdder> {
 
     DanglingLineAdder setB(double b);
 
-    DanglingLineAdder setActivePowerSetpoint(double activePowerSetPoint);
+    DanglingLineAdder setGeneratorTargetP(double generatorTargetP);
 
-    DanglingLineAdder setReactivePowerSetpoint(double reactivePowerSetPoint);
+    DanglingLineAdder setGeneratorTargetQ(double generatorTargetQ);
 
-    DanglingLineAdder setVoltageRegulationOn(boolean voltageRegulationOn);
+    DanglingLineAdder setGeneratorVoltageRegulationOn(boolean generatorVoltageRegulationOn);
 
-    DanglingLineAdder setVoltageSetpoint(double voltageSetPoint);
+    DanglingLineAdder setGeneratorTargetV(double generatorTargetV);
 
     DanglingLineAdder setUcteXnodeCode(String ucteXnodeCode);
 
