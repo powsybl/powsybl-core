@@ -67,7 +67,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
         String extensionVersion = networkContext.getOptions().getExtensionVersion(getExtensionName())
                 .orElseGet(() -> getVersion(networkContext.getVersion()));
         TerminalRefXml.writeTerminalRef(extension.getTerminal(), networkContext, getNamespaceUri(extensionVersion),
-                "terminal", "", context.getExtensionsWriter());
+                "terminal", context.getExtensionsWriter());
     }
 
     @Override

@@ -19,15 +19,19 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class TerminalRefXml {
 
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName, String transformerId) throws XMLStreamException {
-        writeTerminalRef(t, context, context.getVersion().getNamespaceURI(), elementName, transformerId);
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName, String id) throws XMLStreamException {
+        writeTerminalRef(t, context, context.getVersion().getNamespaceURI(), elementName, id);
     }
 
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, String transformerId) throws XMLStreamException {
-        writeTerminalRef(t, context, namespace, elementName, transformerId, context.getWriter());
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, String id) throws XMLStreamException {
+        writeTerminalRef(t, context, namespace, elementName, id, context.getWriter());
     }
 
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, String transformerId, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, XMLStreamWriter writer) throws XMLStreamException {
+        writeTerminalRef(t, context, namespace, elementName, null, writer);
+    }
+
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, String id, XMLStreamWriter writer) throws XMLStreamException {
         Connectable c = t.getConnectable();
         if (!context.getFilter().test(c)) {
             throw new PowsyblException("Oups, terminal ref point to a filtered equipment " + c.getId());
@@ -36,7 +40,7 @@ public final class TerminalRefXml {
         final boolean[] writeId = {false};
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> writeId[0] = true);
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-            if (!transformerId.equals(c.getId())) {
+            if (id == null || !id.equals(c.getId())) {
                 writeId[0] = true;
             }
         });
