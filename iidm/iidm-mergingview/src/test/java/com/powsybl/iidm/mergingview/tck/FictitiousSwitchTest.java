@@ -8,4 +8,7 @@ package com.powsybl.iidm.mergingview.tck;
 
 import com.powsybl.iidm.network.tck.AbstractFictitiousSwitchTest;
 
+/**
+ * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ */
 public class FictitiousSwitchTest extends AbstractFictitiousSwitchTest { }

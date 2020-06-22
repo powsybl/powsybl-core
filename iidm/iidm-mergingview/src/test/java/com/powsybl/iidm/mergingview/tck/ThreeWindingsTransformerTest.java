@@ -8,4 +8,7 @@ package com.powsybl.iidm.mergingview.tck;
 
 import com.powsybl.iidm.network.tck.AbstractThreeWindingsTransformerTest;
 
+/**
+ * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ */
 public class ThreeWindingsTransformerTest extends AbstractThreeWindingsTransformerTest { }
