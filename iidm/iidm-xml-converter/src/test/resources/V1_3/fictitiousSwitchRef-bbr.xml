@@ -36,7 +36,7 @@
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="CI" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="225.0" ratedU2="225.0" bus1="C_0" connectableBus1="C_0" voltageLevelId1="C" bus2="N_0" connectableBus2="N_0" voltageLevelId2="N">
             <iidm:phaseTapChanger lowTapPosition="0" tapPosition="22" regulationMode="CURRENT_LIMITER" regulationValue="930.6667" regulating="false">
-                <iidm:terminalRef id="CI" side="ONE"/>
+                <iidm:terminalRef side="ONE"/>
                 <iidm:step r="39.78473" x="39.784725" g="0.0" b="0.0" rho="1.0" alpha="-42.8"/>
                 <iidm:step r="31.720245" x="31.720242" g="0.0" b="0.0" rho="1.0" alpha="-40.18"/>
                 <iidm:step r="23.655737" x="23.655735" g="0.0" b="0.0" rho="1.0" alpha="-37.54"/>

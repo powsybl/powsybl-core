@@ -51,7 +51,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     @Override
     protected void writeSubElements(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (!Objects.equals(g, g.getRegulatingTerminal().getConnectable())) {
-            TerminalRefXml.writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal");
+            TerminalRefXml.writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal", g.getId());
         }
         ReactiveLimitsXml.INSTANCE.write(g, context);
     }
@@ -92,7 +92,11 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
                 case "regulatingTerminal":
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                     String side = context.getReader().getAttributeValue(null, "side");
-                    context.getEndTasks().add(() -> g.setRegulatingTerminal(TerminalRefXml.readTerminalRef(g.getTerminal().getVoltageLevel().getSubstation().getNetwork(), id, side)));
+                    if (id != null) {
+                        context.getEndTasks().add(() -> g.setRegulatingTerminal(TerminalRefXml.readTerminalRef(g.getTerminal().getVoltageLevel().getSubstation().getNetwork(), id, side)));
+                    } else {
+                        context.getEndTasks().add(() -> g.setRegulatingTerminal(TerminalRefXml.readTerminalRef(g.getTerminal().getVoltageLevel().getSubstation().getNetwork(), g.getId(), side)));
+                    }
                     break;
 
                 case "reactiveCapabilityCurve":

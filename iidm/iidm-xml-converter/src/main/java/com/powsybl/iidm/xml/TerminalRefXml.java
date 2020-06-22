@@ -9,6 +9,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -18,21 +19,30 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class TerminalRefXml {
 
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
-        writeTerminalRef(t, context, context.getVersion().getNamespaceURI(), elementName);
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName, String transformerId) throws XMLStreamException {
+        writeTerminalRef(t, context, context.getVersion().getNamespaceURI(), elementName, transformerId);
     }
 
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName) throws XMLStreamException {
-        writeTerminalRef(t, context, namespace, elementName, context.getWriter());
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, String transformerId) throws XMLStreamException {
+        writeTerminalRef(t, context, namespace, elementName, transformerId, context.getWriter());
     }
 
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, String transformerId, XMLStreamWriter writer) throws XMLStreamException {
         Connectable c = t.getConnectable();
         if (!context.getFilter().test(c)) {
             throw new PowsyblException("Oups, terminal ref point to a filtered equipment " + c.getId());
         }
         writer.writeEmptyElement(namespace, elementName);
-        writer.writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
+        final boolean[] writeId = {false};
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> writeId[0] = true);
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
+            if (!transformerId.equals(c.getId())) {
+                writeId[0] = true;
+            }
+        });
+        if (writeId[0]) {
+            writer.writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
+        }
         if (c.getTerminals().size() > 1) {
             if (c instanceof Injection) {
                 // nothing to do

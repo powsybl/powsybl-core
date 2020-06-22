@@ -204,11 +204,11 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     }
 
     /**
-     * @deprecated Use {@link TerminalRefXml#writeTerminalRef(Terminal, NetworkXmlWriterContext, String)} instead.
+     * @deprecated Use {@link TerminalRefXml#writeTerminalRef(Terminal, NetworkXmlWriterContext, String, String)} instead.
      */
     @Deprecated
     protected static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
-        TerminalRefXml.writeTerminalRef(t, context, elementName);
+        TerminalRefXml.writeTerminalRef(t, context, elementName, t.getConnectable().getId());
     }
 
     /**

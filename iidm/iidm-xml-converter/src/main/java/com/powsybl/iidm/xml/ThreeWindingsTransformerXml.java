@@ -87,18 +87,18 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     protected void writeSubElements(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         IidmXmlUtil.assertMinimumVersionIfNotDefault(twt.getLeg1().getRatioTapChanger() != null, ROOT_ELEMENT_NAME, RATIO_TAP_CHANGER_1,
                 IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-        writeRatioTapChanger(twt.getLeg1().getRatioTapChanger(), 1, context);
+        writeRatioTapChanger(twt.getLeg1().getRatioTapChanger(), 1, context, twt.getId());
         IidmXmlUtil.assertMinimumVersionIfNotDefault(twt.getLeg1().getPhaseTapChanger() != null, ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_1,
                 IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-        writePhaseTapChanger(twt.getLeg1().getPhaseTapChanger(), 1, context);
-        writeRatioTapChanger(twt.getLeg2().getRatioTapChanger(), 2, context);
+        writePhaseTapChanger(twt.getLeg1().getPhaseTapChanger(), 1, context, twt.getId());
+        writeRatioTapChanger(twt.getLeg2().getRatioTapChanger(), 2, context, twt.getId());
         IidmXmlUtil.assertMinimumVersionIfNotDefault(twt.getLeg2().getPhaseTapChanger() != null, ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_2,
                 IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-        writePhaseTapChanger(twt.getLeg2().getPhaseTapChanger(), 2, context);
-        writeRatioTapChanger(twt.getLeg3().getRatioTapChanger(), 3, context);
+        writePhaseTapChanger(twt.getLeg2().getPhaseTapChanger(), 2, context, twt.getId());
+        writeRatioTapChanger(twt.getLeg3().getRatioTapChanger(), 3, context, twt.getId());
         IidmXmlUtil.assertMinimumVersionIfNotDefault(twt.getLeg3().getPhaseTapChanger() != null, ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_3,
                 IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-        writePhaseTapChanger(twt.getLeg3().getPhaseTapChanger(), 3, context);
+        writePhaseTapChanger(twt.getLeg3().getPhaseTapChanger(), 3, context, twt.getId());
         if (twt.getLeg1().getCurrentLimits() != null) {
             writeCurrentLimits(1, twt.getLeg1().getCurrentLimits(), context.getWriter(), context.getVersion());
         }
@@ -110,15 +110,15 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         }
     }
 
-    private static void writeRatioTapChanger(RatioTapChanger rtc, int index, NetworkXmlWriterContext context) throws XMLStreamException {
+    private static void writeRatioTapChanger(RatioTapChanger rtc, int index, NetworkXmlWriterContext context, String transformerId) throws XMLStreamException {
         if (rtc != null) {
-            writeRatioTapChanger("ratioTapChanger" + index, rtc, context);
+            writeRatioTapChanger("ratioTapChanger" + index, rtc, context, transformerId);
         }
     }
 
-    private static void writePhaseTapChanger(PhaseTapChanger ptc, int index, NetworkXmlWriterContext context) throws XMLStreamException {
+    private static void writePhaseTapChanger(PhaseTapChanger ptc, int index, NetworkXmlWriterContext context, String transformerId) throws XMLStreamException {
         if (ptc != null) {
-            writePhaseTapChanger("phaseTapChanger" + index, ptc, context);
+            writePhaseTapChanger("phaseTapChanger" + index, ptc, context, transformerId);
         }
     }
 
@@ -191,30 +191,30 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
                 case RATIO_TAP_CHANGER_1:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, RATIO_TAP_CHANGER_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-                    readRatioTapChanger(1, tx.getLeg1(), context);
+                    readRatioTapChanger(1, tx.getLeg1(), tx.getId(), context);
                     break;
 
                 case PHASE_TAP_CHANGER_1:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-                    readPhaseTapChanger(1, tx.getLeg1(), context);
+                    readPhaseTapChanger(1, tx.getLeg1(), tx.getId(), context);
                     break;
 
                 case RATIO_TAP_CHANGER_2:
-                    readRatioTapChanger(2, tx.getLeg2(), context);
+                    readRatioTapChanger(2, tx.getLeg2(), tx.getId(), context);
                     break;
 
                 case PHASE_TAP_CHANGER_2:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-                    readPhaseTapChanger(2, tx.getLeg2(), context);
+                    readPhaseTapChanger(2, tx.getLeg2(), tx.getId(), context);
                     break;
 
                 case RATIO_TAP_CHANGER_3:
-                    readRatioTapChanger(3, tx.getLeg3(), context);
+                    readRatioTapChanger(3, tx.getLeg3(), tx.getId(), context);
                     break;
 
                 case PHASE_TAP_CHANGER_3:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_3, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-                    readPhaseTapChanger(3, tx.getLeg3(), context);
+                    readPhaseTapChanger(3, tx.getLeg3(), tx.getId(), context);
                     break;
 
                 default:
