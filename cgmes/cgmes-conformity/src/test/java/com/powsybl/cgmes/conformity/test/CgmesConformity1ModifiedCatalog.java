@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conformity.test;
 
+import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.cgmes.model.test.TestGridModelResources;
 import com.powsybl.commons.datasource.ResourceSet;
 
@@ -263,6 +264,25 @@ public final class CgmesConformity1ModifiedCatalog {
         String baseBoundary = ENTSOE_CONFORMITY_1
                 + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
         return new TestGridModelResources("MicroGrid-BaseCase-BE-Missing-Shunt-Regulating-Control-ID",
+                null,
+                new ResourceSet(baseModified,
+                        "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_SSH_V2.xml"),
+                new ResourceSet(base,
+                        "MicroGridTestConfiguration_BC_BE_TP_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_SV_V2.xml"),
+                new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                        "MicroGridTestConfiguration_TP_BD.xml"));
+    }
+
+    public static TestGridModel microGridBaseCaseBEEquivalentInjectionRegulatingVoltage() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
+        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_BE_v2_equivalent_injection_regulating_voltage/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new TestGridModelResources("MicroGrid-BaseCase-BE-Equivalent-Injection-Regulating-Control",
                 null,
                 new ResourceSet(baseModified,
                         "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",

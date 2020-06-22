@@ -285,6 +285,22 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBEEquivalentInjectionRegulatingVoltage() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentInjectionRegulatingVoltage().dataSource(),
+                NetworkFactory.findDefault(), null);
+
+        DanglingLine danglingLineRegulating = network.getDanglingLine("_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
+        assertNotNull(danglingLineRegulating);
+        assertEquals(true, danglingLineRegulating.isGeneratorVoltageRegulationOn());
+        assertEquals(220.1234, danglingLineRegulating.getGeneratorTargetV(), 0.0001);
+
+        DanglingLine danglingLineNotRegulating = network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da");
+        assertNotNull(danglingLineNotRegulating);
+        assertEquals(-27.365, danglingLineNotRegulating.getP0(), 0.001);
+        assertEquals(0.425, danglingLineNotRegulating.getQ0(), 0.001);
+    }
+
+    @Test
     public void microT4InvalidSvcMode() {
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator svc = network.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
