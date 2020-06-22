@@ -181,14 +181,31 @@ public class PsseRawReader {
         return model;
     }
 
-    public int checkCaseIdentification(BufferedReader reader) throws IOException {
+    public boolean checkCaseIdentification(BufferedReader reader) throws IOException {
 
         Objects.requireNonNull(reader);
 
         // just check the first record if this file is in PSS/E format
         PsseCaseIdentification caseIdentification = readCaseIdentification(reader);
 
-        return caseIdentification.getIc();
+        int ic = caseIdentification.getIc();
+        double sbase = caseIdentification.getSbase();
+        int rev = caseIdentification.getRev();
+        double basfrq = caseIdentification.getBasfrq();
+
+        if (ic == 0 && sbase > 0. && rev <= 33 && basfrq > 0.) {
+            return true;
+        }
+
+        if (rev > 33) {
+            throw new PsseException("PSS/E Version higher than 33 not supported");
+        }
+
+        if (ic == 1) {
+            throw new PsseException("Incremental load of PSS/E data  option (IC = 1) not supported");
+        }
+
+        return false;
     }
 
 }

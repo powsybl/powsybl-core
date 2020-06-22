@@ -85,13 +85,7 @@ public class PsseImporter implements Importer {
             String ext = findExtension(dataSource, false);
             if (ext != null) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
-                    int ic = new PsseRawReader().checkCaseIdentification(reader);
-                    if (ic == 0) {
-                        return true;
-                    } else if (ic == 1) {
-                        throw new PsseException("Incremental load of PSS/E data  option from " + dataSource.getBaseName()
-                                    + "." + ext + " not supported");
-                    }
+                    return new PsseRawReader().checkCaseIdentification(reader);
                 }
             }
         } catch (IOException e) {

@@ -7,6 +7,7 @@
 package com.powsybl.psse.converter;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
@@ -46,6 +47,11 @@ public class PsseImporterTest extends AbstractConverterTest {
         try (InputStream is = Files.newInputStream(file)) {
             compareTxt(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
         }
+    }
+
+    @Test
+    public void existsTest() {
+        assertTrue(new PsseImporter().exists(new ResourceDataSource("IEEE_30_bus", new ResourceSet("/", "IEEE_30_bus.RAW"))));
     }
 
     @Test
