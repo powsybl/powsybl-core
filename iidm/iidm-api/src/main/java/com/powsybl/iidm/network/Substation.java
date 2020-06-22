@@ -83,6 +83,8 @@ import java.util.stream.Stream;
  */
 public interface Substation extends Container<Substation> {
 
+    String GEOGRAPHICAL_TAGS_KEY = "geographicalTags";
+
     Network getNetwork();
 
     /**

@@ -28,8 +28,6 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     private final Ref<NetworkImpl> networkRef;
 
-    private final Set<String> geographicalTags = new LinkedHashSet<>();
-
     private final Set<VoltageLevelExt> voltageLevels = new LinkedHashSet<>();
 
     SubstationImpl(String id, String name, boolean fictitious, Country country, String tso, Ref<NetworkImpl> networkRef) {
@@ -147,7 +145,11 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     @Override
     public Set<String> getGeographicalTags() {
-        return Collections.unmodifiableSet(geographicalTags);
+        if (hasProperty(GEOGRAPHICAL_TAGS_KEY)) {
+            return new HashSet<>(Arrays.asList(getProperty(GEOGRAPHICAL_TAGS_KEY).split(",")));
+        } else {
+            return Collections.emptySet();
+        }
     }
 
     @Override
@@ -155,9 +157,12 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
         if (tag == null) {
             throw new ValidationException(this, "geographical tag is null");
         }
-        if (geographicalTags.add(tag)) {
-            getNetwork().getListeners().notifyElementAdded(this, "geographicalTags", tag);
+        if (hasProperty(GEOGRAPHICAL_TAGS_KEY)) {
+            setProperty(GEOGRAPHICAL_TAGS_KEY, getProperty(GEOGRAPHICAL_TAGS_KEY) + "," + tag);
+        } else {
+            setProperty(GEOGRAPHICAL_TAGS_KEY, tag);
         }
+        getNetwork().getListeners().notifyElementAdded(this, "geographicalTags", tag);
         return this;
     }
 

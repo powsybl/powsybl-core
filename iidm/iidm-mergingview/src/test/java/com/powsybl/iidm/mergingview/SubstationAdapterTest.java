@@ -61,12 +61,13 @@ public class SubstationAdapterTest {
         // Properties
         final String key = "keyTest";
         final String value = "ValueTest";
-        assertFalse(substation.hasProperty());
+        assertTrue(substation.hasProperty());
+        assertEquals(1, substation.getPropertyNames().size());
         substation.setProperty(key, value);
         assertTrue(substation.hasProperty(key));
         assertEquals(value, substation.getProperty(key));
         assertEquals("defaultValue", substation.getProperty("noFound", "defaultValue"));
-        assertEquals(1, substation.getPropertyNames().size());
+        assertEquals(2, substation.getPropertyNames().size());
 
         // Extension
         assertTrue(substation.getExtensions().isEmpty());

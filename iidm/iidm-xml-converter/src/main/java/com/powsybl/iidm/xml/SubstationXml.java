@@ -6,7 +6,9 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Arrays;
@@ -44,11 +46,17 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
         if (s.getTso() != null) {
             context.getWriter().writeAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
         }
-        if (!s.getGeographicalTags().isEmpty()) {
-            context.getWriter().writeAttribute("geographicalTags", s.getGeographicalTags().stream()
-                    .map(tag -> context.getAnonymizer().anonymizeString(tag))
-                    .collect(Collectors.joining(",")));
-        }
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_3, context, () -> {
+            if (!s.getGeographicalTags().isEmpty()) {
+                try {
+                    context.getWriter().writeAttribute(Substation.GEOGRAPHICAL_TAGS_KEY, s.getGeographicalTags().stream()
+                            .map(tag -> context.getAnonymizer().anonymizeString(tag))
+                            .collect(Collectors.joining(",")));
+                } catch (XMLStreamException e) {
+                    throw new UncheckedXmlStreamException(e);
+                }
+            }
+        });
     }
 
     @Override
