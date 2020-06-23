@@ -385,11 +385,8 @@ public class PsseImporter implements Importer {
                     createTransformer(psseTfo, containerMapping, perUnitContext, network);
                 }
 
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+                return network;
             }
-
-            return network;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
