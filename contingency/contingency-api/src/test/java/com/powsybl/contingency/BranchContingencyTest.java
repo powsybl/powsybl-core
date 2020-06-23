@@ -45,11 +45,21 @@ public class BranchContingencyTest {
         assertEquals("LINE", contingency2.getElements().get(0).getId());
         assertEquals(ContingencyElementType.LINE, contingency2.getElements().get(0).getType());
 
+        new EqualsTester()
+                .addEqualityGroup(new LineContingency("c1", "vl1"), new LineContingency("c1", "vl1"))
+                .addEqualityGroup(new LineContingency("c2"), new LineContingency("c2"))
+                .testEquals();
+
         Contingency contingency3 = Contingency.twoWindingsTransformer("TWT");
         assertEquals("TWT", contingency3.getId());
         assertEquals(1, contingency3.getElements().size());
         assertEquals("TWT", contingency3.getElements().get(0).getId());
         assertEquals(ContingencyElementType.TWO_WINDINGS_TRANSFORMER, contingency3.getElements().get(0).getType());
+
+        new EqualsTester()
+                .addEqualityGroup(new TwoWindingsTransformerContingency("c1", "vl1"), new TwoWindingsTransformerContingency("c1", "vl1"))
+                .addEqualityGroup(new TwoWindingsTransformerContingency("c2"), new TwoWindingsTransformerContingency("c2"))
+                .testEquals();
     }
 
     @Test
@@ -62,11 +72,16 @@ public class BranchContingencyTest {
                 Contingency.line("NHV1_NHV2_2", "UNKNOWN"),
                 Contingency.twoWindingsTransformer("NGEN_NHV1"),
                 Contingency.twoWindingsTransformer("UNKNOWN"),
-                Contingency.twoWindingsTransformer("NHV2_NLOAD", "UNKNOWN")
+                Contingency.twoWindingsTransformer("NHV2_NLOAD", "UNKNOWN"),
+                Contingency.branch("NHV1_NHV2_1"),
+                Contingency.branch("UNKNOWN"),
+                Contingency.branch("NHV1_NHV2_2", "UNKNOWN"),
+                Contingency.branch("NGEN_NHV1"),
+                Contingency.branch("NHV2_NLOAD", "UNKNOWN")
         );
 
         List<Contingency> contingencies = contingencyList.getContingencies(network);
-        assertEquals(2, contingencies.size());
+        assertEquals(4, contingencies.size());
 
         LineContingency lineCtg = (LineContingency) contingencies.get(0).getElements().get(0);
         assertEquals("NHV1_NHV2_1", lineCtg.getId());
@@ -75,5 +90,13 @@ public class BranchContingencyTest {
         TwoWindingsTransformerContingency twtCtg = (TwoWindingsTransformerContingency) contingencies.get(1).getElements().get(0);
         assertEquals("NGEN_NHV1", twtCtg.getId());
         assertNull(twtCtg.getVoltageLevelId());
+
+        BranchContingency branchCtg = (BranchContingency) contingencies.get(2).getElements().get(0);
+        assertEquals("NHV1_NHV2_1", branchCtg.getId());
+        assertNull(branchCtg.getVoltageLevelId());
+
+        branchCtg = (BranchContingency) contingencies.get(3).getElements().get(0);
+        assertEquals("NGEN_NHV1", branchCtg.getId());
+        assertNull(branchCtg.getVoltageLevelId());
     }
 }
