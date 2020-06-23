@@ -79,14 +79,6 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
     }
 
     @Override
-    public Section getSection(int sectionIndex) {
-        if (sectionIndex < 1 || sectionIndex > sections.size()) {
-            throw new ValidationException(shuntCompensator, "invalid section index (must be in [1;maximumSectionCount]");
-        }
-        return sections.get(sectionIndex - 1);
-    }
-
-    @Override
     public List<Section> getAllSections() {
         return Collections.unmodifiableList(sections);
     }
@@ -115,23 +107,6 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
             throw new ValidationException(shuntCompensator, "invalid section count (must be in [0;maximumSectionCount]");
         }
         return sectionCount == 0 || Double.isNaN(sections.get(sectionCount - 1).getG()) ? 0 : sections.get(sectionCount - 1).getG();
-    }
-
-    @Override
-    public double getBPerSection(int sectionIndex) {
-        if (sectionIndex < 1 || sectionIndex > sections.size()) {
-            throw new ValidationException(shuntCompensator, "invalid section index (must be in [1;maximumSectionCount]");
-        }
-        return sectionIndex == 1 ? sections.get(0).getB() : sections.get(sectionIndex - 1).getB() - sections.get(sectionIndex - 2).getB();
-    }
-
-    @Override
-    public double getGPerSection(int sectionIndex) {
-        if (sectionIndex < 1 || sectionIndex > sections.size()) {
-            throw new ValidationException(shuntCompensator, "invalid section index (must be in [1;maximumSectionCount]");
-        }
-        double g = sectionIndex == 1 ? sections.get(0).getG() : sections.get(sectionIndex - 1).getG() - sections.get(sectionIndex - 2).getG();
-        return Double.isNaN(g) ? 0 : g;
     }
 
     @Override

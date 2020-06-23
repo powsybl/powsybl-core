@@ -115,9 +115,6 @@ public class ShuntCompensatorAdapterTest {
         ShuntCompensatorLinearModel model = shunt.getModel(ShuntCompensatorLinearModel.class);
         assertEquals(1.0, model.getBPerSection(), 0.0);
         assertTrue(Double.isNaN(model.getGPerSection()));
-        assertEquals(0.0, model.getBPerSection(0), 0.0);
-        assertEquals(1.0, model.getBPerSection(2), 0.0);
-        assertEquals(0.0, model.getGPerSection(2), 0.0);
     }
 
     @Test
@@ -147,10 +144,6 @@ public class ShuntCompensatorAdapterTest {
 
         ShuntCompensatorNonLinearModel model = shunt.getModel(ShuntCompensatorNonLinearModel.class);
         assertEquals(2, model.getAllSections().size());
-        assertEquals(1.0, model.getBPerSection(1), 0.0);
-        assertEquals(0.0, model.getGPerSection(1), 0.0);
-        assertEquals(1.0, model.getBPerSection(2), 0.0);
-        assertEquals(0.0, model.getGPerSection(2), 0.0);
     }
 
     private void createNetwork() {

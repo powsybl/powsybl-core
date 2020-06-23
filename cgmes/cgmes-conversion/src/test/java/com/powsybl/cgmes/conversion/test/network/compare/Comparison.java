@@ -250,11 +250,13 @@ public class Comparison {
                         diff.unexpected("section" + i);
                     }
                 }
-                for (int i = 1; i < expectedModel.getAllSections().size(); i++) {
-                    ShuntCompensatorNonLinearModel.Section expectedSection = expectedModel.getSection(i);
-                    ShuntCompensatorNonLinearModel.Section actualSection = actualModel.getSection(i);
-                    compare("section" + i + ".b", expectedSection.getB(), actualSection.getB());
-                    compare("section" + i + ".g", expectedSection.getG(), actualSection.getG());
+                List<ShuntCompensatorNonLinearModel.Section> expectedSections = expectedModel.getAllSections();
+                List<ShuntCompensatorNonLinearModel.Section> actualSections = actualModel.getAllSections();
+                for (int i = 0; i < expectedSections.size(); i++) {
+                    ShuntCompensatorNonLinearModel.Section expectedSection = expectedSections.get(i);
+                    ShuntCompensatorNonLinearModel.Section actualSection = actualSections.get(i);
+                    compare("section" + i + 1 + ".b", expectedSection.getB(), actualSection.getB());
+                    compare("section" + i + 1 + ".g", expectedSection.getG(), actualSection.getG());
                 }
                 break;
             default:

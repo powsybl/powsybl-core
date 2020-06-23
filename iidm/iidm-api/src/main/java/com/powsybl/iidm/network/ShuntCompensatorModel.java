@@ -10,19 +10,4 @@ package com.powsybl.iidm.network;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public interface ShuntCompensatorModel {
-
-    /**
-     * Get the section susceptance in S of the section with a given section index if it exists.
-     *
-     * @param sectionIndex index of the wanted section. Must be in [1;maximumSectionCount]. Else, throws a {@link ValidationException}.
-     */
-    double getBPerSection(int sectionIndex);
-
-    /**
-     * Get the section conductance in S of the section with a given section index if it exists.
-     * If the section conductance has not been defined, return 0.
-     *
-     * @param sectionIndex index of the wanted section. Must be in [1; maximumSectionCount]. Else, throws a {@link ValidationException}.
-     */
-    double getGPerSection(int sectionIndex);
 }

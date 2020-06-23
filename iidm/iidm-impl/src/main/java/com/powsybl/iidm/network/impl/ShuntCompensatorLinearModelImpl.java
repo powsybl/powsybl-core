@@ -89,20 +89,4 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     public ShuntCompensatorModelType getType() {
         return ShuntCompensatorModelType.LINEAR;
     }
-
-    @Override
-    public double getBPerSection(int sectionIndex) {
-        if (sectionIndex < 0 || sectionIndex > maximumSectionCount) {
-            throw new PowsyblException("the given index of section (" + sectionIndex + ") is not associated with any susceptance");
-        }
-        return sectionIndex == 0 ? 0 : bPerSection;
-    }
-
-    @Override
-    public double getGPerSection(int sectionIndex) {
-        if (sectionIndex < 0 || sectionIndex > maximumSectionCount) {
-            throw new PowsyblException("the given index of section (" + sectionIndex + ") is not associated with any conductance");
-        }
-        return Double.isNaN(gPerSection) || sectionIndex == 0 ? 0 : gPerSection;
-    }
 }

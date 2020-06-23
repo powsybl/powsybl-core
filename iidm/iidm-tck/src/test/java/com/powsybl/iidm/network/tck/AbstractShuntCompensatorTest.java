@@ -234,13 +234,6 @@ public abstract class AbstractShuntCompensatorTest {
         ShuntCompensatorNonLinearModel shuntNonLinearModel = shuntCompensator.getModel(ShuntCompensatorNonLinearModel.class);
         assertEquals(2, shuntNonLinearModel.getAllSections().size());
 
-        // try to get an invalid section
-        try {
-            shuntNonLinearModel.getSection(3);
-        } catch (ValidationException ignored) {
-            // ignore
-        }
-
         // try get incorrect shunt model
         try {
             shuntCompensator.getModel(FooModel.class);
@@ -289,25 +282,6 @@ public abstract class AbstractShuntCompensatorTest {
         }
         try {
             shuntCompensator.getG(1000);
-            fail();
-        } catch (PowsyblException ignored) {
-            // ignore
-        }
-        // for non linear model
-
-        // getBPerSection
-        try {
-            // try to get susceptance of a non-existing section
-            shuntNonLinearModel.getBPerSection(3);
-            fail();
-        } catch (PowsyblException ignored) {
-            // ignore
-        }
-
-        // getGPerSection
-        try {
-            // try to get conductance of a non-existing section
-            shuntNonLinearModel.getGPerSection(3);
             fail();
         } catch (PowsyblException ignored) {
             // ignore

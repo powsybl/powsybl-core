@@ -37,14 +37,6 @@ public interface ShuntCompensatorNonLinearModel extends ShuntCompensatorModel {
     }
 
     /**
-     * Get an optional of the section associated with a given section index if it exists.
-     *
-     * @param sectionIndex the index of the wanted section. Must be in [1;maximumSectionCount]. Else, throws a {@link ValidationException}.
-     *
-     */
-    Section getSection(int sectionIndex);
-
-    /**
      * Get all the sections as a list.
      */
     List<Section> getAllSections();
