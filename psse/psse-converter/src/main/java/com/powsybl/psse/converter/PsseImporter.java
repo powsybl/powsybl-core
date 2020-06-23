@@ -48,8 +48,6 @@ public class PsseImporter implements Importer {
             "Ignore base voltage specified in the file",
             Boolean.TRUE);
 
-    private static final double DEFAULT_ACTIVE_POWER_LIMIT = 9999d;
-
     @Override
     public String getFormat() {
         return FORMAT;

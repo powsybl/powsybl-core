@@ -182,11 +182,15 @@ public class PsseRawReader {
     }
 
     public boolean checkCaseIdentification(BufferedReader reader) throws IOException {
-
         Objects.requireNonNull(reader);
 
         // just check the first record if this file is in PSS/E format
-        PsseCaseIdentification caseIdentification = readCaseIdentification(reader);
+        PsseCaseIdentification caseIdentification;
+        try {
+            caseIdentification = readCaseIdentification(reader);
+        } catch (PsseException e) {
+            return false; // invalid PSS/E content
+        }
 
         int ic = caseIdentification.getIc();
         double sbase = caseIdentification.getSbase();

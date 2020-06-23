@@ -6,25 +6,23 @@
  */
 package com.powsybl.psse.converter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.iidm.import_.Importer;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.iidm.import_.Importer;
-import com.powsybl.iidm.network.*;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static org.junit.Assert.*;
 
 /**
  * @author JB Heyberger <jean-baptiste.heyberger at rte-france.com>
@@ -51,7 +49,15 @@ public class PsseImporterTest extends AbstractConverterTest {
 
     @Test
     public void existsTest() {
+        // test with a valid raw/RAW file
+        assertTrue(new PsseImporter().exists(new ResourceDataSource("IEEE_14_bus", new ResourceSet("/", "IEEE_14_bus.raw"))));
         assertTrue(new PsseImporter().exists(new ResourceDataSource("IEEE_30_bus", new ResourceSet("/", "IEEE_30_bus.RAW"))));
+
+        // test with an invalid extension
+        assertFalse(new PsseImporter().exists(new ResourceDataSource("IEEE_14_bus", new ResourceSet("/", "IEEE_14_bus.json"))));
+
+        // test with a valid extension and an invalid content
+        assertFalse(new PsseImporter().exists(new ResourceDataSource("fake", new ResourceSet("/", "fake.raw"))));
     }
 
     @Test
