@@ -337,6 +337,14 @@ public class PsseImporter implements Importer {
                 // parse file
                 PsseRawModel psseModel = new PsseRawReader().read(reader);
 
+                // check version
+                if (psseModel.getCaseIdentification().getRev() > PsseConstants.SUPPORTED_VERSION) {
+                    throw new PsseException("PSS/E version higher than " + PsseConstants.SUPPORTED_VERSION + " not supported");
+                }
+                if (psseModel.getCaseIdentification().getIc() == 1) {
+                    throw new PsseException("Incremental load of PSS/E data option (IC = 1) not supported");
+                }
+
                 // set date and time
                 // TODO
 

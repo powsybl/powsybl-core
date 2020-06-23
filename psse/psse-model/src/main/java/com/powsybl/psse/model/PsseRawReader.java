@@ -197,19 +197,10 @@ public class PsseRawReader {
         int rev = caseIdentification.getRev();
         double basfrq = caseIdentification.getBasfrq();
 
-        if (ic == 0 && sbase > 0. && rev <= 33 && basfrq > 0.) {
+        if (ic == 0 && sbase > 0. && rev <= PsseConstants.SUPPORTED_VERSION && basfrq > 0.) {
             return true;
-        }
-
-        if (rev > 33) {
-            throw new PsseException("PSS/E Version higher than 33 not supported");
-        }
-
-        if (ic == 1) {
-            throw new PsseException("Incremental load of PSS/E data  option (IC = 1) not supported");
         }
 
         return false;
     }
-
 }
