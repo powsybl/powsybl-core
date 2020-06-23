@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.*;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
+import com.powsybl.security.extensions.VoltageExtension;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
 import org.junit.Test;
 
@@ -46,12 +47,13 @@ public class ExporterTest extends AbstractConverterTest {
 
         LimitViolation violation3 = new LimitViolation("GEN", LimitViolationType.HIGH_VOLTAGE, 100, 0.9f, 110);
         LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100, 0.7f, 115);
+        violation4.addExtension(VoltageExtension.class, new VoltageExtension(400.0));
 
         List<ContingencyElement> elements = Arrays.asList(
-            new BranchContingency("NHV1_NHV2_2", "VLNHV1"),
-            new BranchContingency("NHV1_NHV2_1"),
-            new GeneratorContingency("GEN"),
-            new BusbarSectionContingency("BBS1")
+                new BranchContingency("NHV1_NHV2_2", "VLNHV1"),
+                new BranchContingency("NHV1_NHV2_1"),
+                new GeneratorContingency("GEN"),
+                new BusbarSectionContingency("BBS1")
         );
         Contingency contingency = new Contingency("contingency", elements);
 
