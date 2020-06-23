@@ -55,11 +55,18 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
             try {
                 XmlUtil.writeDouble(B_PER_SECTION, sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), context.getWriter());
                 context.getWriter().writeAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(sc.getMaximumSectionCount()));
+                context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getSectionCount()));
             } catch (XMLStreamException e) {
                 throw new UncheckedXmlStreamException(e);
             }
         });
-        context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getSectionCount()));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
+            try {
+                context.getWriter().writeAttribute("sectionCount", Integer.toString(sc.getSectionCount()));
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
         IidmXmlUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", sc.isVoltageRegulatorOn(), false, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "targetV", sc.getTargetV(),
                 IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
@@ -115,7 +122,6 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     @Override
     protected void readElement(String id, ShuntCompensatorAdder adder, NetworkXmlReaderContext context) throws XMLStreamException {
-        int currentSectionCount = XmlUtil.readIntAttribute(context.getReader(), "currentSectionCount");
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
             boolean voltageRegulatorOn = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
             double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
@@ -127,12 +133,17 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
             double bPerSection = XmlUtil.readDoubleAttribute(context.getReader(), B_PER_SECTION);
             int maximumSectionCount = XmlUtil.readIntAttribute(context.getReader(), MAXIMUM_SECTION_COUNT);
+            int sectionCount = XmlUtil.readIntAttribute(context.getReader(), "currentSectionCount");
+            adder.setSectionCount(sectionCount);
             adder.newLinearModel()
                     .setBPerSection(bPerSection)
                     .setMaximumSectionCount(maximumSectionCount)
                     .add();
         });
-        adder.setSectionCount(currentSectionCount);
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
+            int sectionCount = XmlUtil.readIntAttribute(context.getReader(), "sectionCount");
+            adder.setSectionCount(sectionCount);
+        });
         readNodeOrBus(adder, context);
         double p = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p");
         double q = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q");

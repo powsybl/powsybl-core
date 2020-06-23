@@ -49,7 +49,7 @@
                 <iidm:bus id="B9" name="Bus 9       " v="1.05593" angle="-14.9385"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B9-L1 " loadType="UNDEFINED" p0="29.5" q0="16.6" bus="B9" connectableBus="B9"/>
-            <iidm:shunt id="B9-SH 1" currentSectionCount="1" voltageRegulatorOn="false" bus="B9" connectableBus="B9">
+            <iidm:shunt id="B9-SH 1" sectionCount="1" voltageRegulatorOn="false" bus="B9" connectableBus="B9">
                 <iidm:shuntLinearModel bPerSection="19.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>

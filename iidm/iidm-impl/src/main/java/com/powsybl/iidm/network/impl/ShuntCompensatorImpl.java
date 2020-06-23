@@ -93,7 +93,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         int variantIndex = network.get().getVariantIndex();
         int oldValue = this.currentSectionCount.set(variantIndex, sectionCount);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("currentSectionCount", variantId, oldValue, sectionCount);
+        notifyUpdate("sectionCount", variantId, oldValue, sectionCount);
         return this;
     }
 

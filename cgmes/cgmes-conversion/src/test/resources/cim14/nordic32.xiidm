@@ -50,7 +50,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_N4012____TN" v="389.052001953125" angle="-3.1062989234924316"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="_N4012____SC" name="N4012   " currentSectionCount="1" voltageRegulatorOn="false" bus="_N4012____TN" connectableBus="_N4012____TN">
+            <iidm:shunt id="_N4012____SC" name="N4012   " sectionCount="1" voltageRegulatorOn="false" bus="_N4012____TN" connectableBus="_N4012____TN">
                 <iidm:shuntLinearModel bPerSection="-6.249999860301614E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -92,7 +92,7 @@
                 <iidm:bus id="_N1022____TN" v="110.60600280761719" angle="-17.621028900146484"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N1022____EC" name="N1022   " loadType="UNDEFINED" p0="280.0" q0="95.0" bus="_N1022____TN" connectableBus="_N1022____TN" p="280.0" q="95.0"/>
-            <iidm:shunt id="_N1022____SC" name="N1022   " currentSectionCount="1" voltageRegulatorOn="false" bus="_N1022____TN" connectableBus="_N1022____TN">
+            <iidm:shunt id="_N1022____SC" name="N1022   " sectionCount="1" voltageRegulatorOn="false" bus="_N1022____TN" connectableBus="_N1022____TN">
                 <iidm:shuntLinearModel bPerSection="0.002958579920232296" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -111,7 +111,7 @@
                 <iidm:bus id="_N1041____TN" v="110.677001953125" angle="-94.36389923095703"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N1041____EC" name="N1041   " loadType="UNDEFINED" p0="400.0" q0="180.0" bus="_N1041____TN" connectableBus="_N1041____TN" p="400.0" q="180.0"/>
-            <iidm:shunt id="_N1041____SC" name="N1041   " currentSectionCount="1" voltageRegulatorOn="false" bus="_N1041____TN" connectableBus="_N1041____TN">
+            <iidm:shunt id="_N1041____SC" name="N1041   " sectionCount="1" voltageRegulatorOn="false" bus="_N1041____TN" connectableBus="_N1041____TN">
                 <iidm:shuntLinearModel bPerSection="0.011834300123155117" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -127,7 +127,7 @@
                 <iidm:bus id="_N1044____TN" v="112.66100311279297" angle="-80.51592254638672"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N1044____EC" name="N1044   " loadType="UNDEFINED" p0="840.0" q0="300.0" bus="_N1044____TN" connectableBus="_N1044____TN" p="840.0" q="300.0"/>
-            <iidm:shunt id="_N1044____SC" name="N1044   " currentSectionCount="1" voltageRegulatorOn="false" bus="_N1044____TN" connectableBus="_N1044____TN">
+            <iidm:shunt id="_N1044____SC" name="N1044   " sectionCount="1" voltageRegulatorOn="false" bus="_N1044____TN" connectableBus="_N1044____TN">
                 <iidm:shuntLinearModel bPerSection="0.011834300123155117" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -151,7 +151,7 @@
                 <iidm:bus id="_N1045____TN" v="115.51200103759766" angle="-85.65843200683594"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N1045____EC" name="N1045   " loadType="UNDEFINED" p0="720.0" q0="230.0" bus="_N1045____TN" connectableBus="_N1045____TN" p="720.0" q="230.0"/>
-            <iidm:shunt id="_N1045____SC" name="N1045   " currentSectionCount="1" voltageRegulatorOn="false" bus="_N1045____TN" connectableBus="_N1045____TN">
+            <iidm:shunt id="_N1045____SC" name="N1045   " sectionCount="1" voltageRegulatorOn="false" bus="_N1045____TN" connectableBus="_N1045____TN">
                 <iidm:shuntLinearModel bPerSection="0.011834300123155117" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -206,7 +206,7 @@
                 <iidm:bus id="_N4043____TN" v="343.68499755859375" angle="-75.2749252319336"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N4043____EC" name="N4043   " loadType="UNDEFINED" p0="900.0" q0="303.20001220703125" bus="_N4043____TN" connectableBus="_N4043____TN" p="900.0" q="303.20001220703125"/>
-            <iidm:shunt id="_N4043____SC" name="N4043   " currentSectionCount="1" voltageRegulatorOn="false" bus="_N4043____TN" connectableBus="_N4043____TN">
+            <iidm:shunt id="_N4043____SC" name="N4043   " sectionCount="1" voltageRegulatorOn="false" bus="_N4043____TN" connectableBus="_N4043____TN">
                 <iidm:shuntLinearModel bPerSection="0.0012499999720603228" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -217,7 +217,7 @@
                 <iidm:bus id="_N4046____TN" v="346.0889892578125" angle="-76.19192504882812"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N4046____EC" name="N4046   " loadType="UNDEFINED" p0="700.0" q0="250.0" bus="_N4046____TN" connectableBus="_N4046____TN" p="700.0" q="250.0"/>
-            <iidm:shunt id="_N4046____SC" name="N4046   " currentSectionCount="1" voltageRegulatorOn="false" bus="_N4046____TN" connectableBus="_N4046____TN">
+            <iidm:shunt id="_N4046____SC" name="N4046   " sectionCount="1" voltageRegulatorOn="false" bus="_N4046____TN" connectableBus="_N4046____TN">
                 <iidm:shuntLinearModel bPerSection="6.249999860301614E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -263,7 +263,7 @@
                 <iidm:bus id="_N4041____TN" v="353.125" angle="-62.66741180419922"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N4041____EC" name="N4041   " loadType="UNDEFINED" p0="540.0" q0="160.0" bus="_N4041____TN" connectableBus="_N4041____TN" p="540.0" q="160.0"/>
-            <iidm:shunt id="_N4041____SC" name="N4041   " currentSectionCount="1" voltageRegulatorOn="false" bus="_N4041____TN" connectableBus="_N4041____TN">
+            <iidm:shunt id="_N4041____SC" name="N4041   " sectionCount="1" voltageRegulatorOn="false" bus="_N4041____TN" connectableBus="_N4041____TN">
                 <iidm:shuntLinearModel bPerSection="0.0012499999720603228" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -326,7 +326,7 @@
                 <iidm:bus id="_N4051____TN" v="363.5039978027344" angle="-85.46057891845703"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N4051____EC" name="N4051   " loadType="UNDEFINED" p0="800.0" q0="302.3999938964844" bus="_N4051____TN" connectableBus="_N4051____TN" p="800.0" q="302.3999938964844"/>
-            <iidm:shunt id="_N4051____SC" name="N4051   " currentSectionCount="1" voltageRegulatorOn="false" bus="_N4051____TN" connectableBus="_N4051____TN">
+            <iidm:shunt id="_N4051____SC" name="N4051   " sectionCount="1" voltageRegulatorOn="false" bus="_N4051____TN" connectableBus="_N4051____TN">
                 <iidm:shuntLinearModel bPerSection="6.249999860301614E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -389,7 +389,7 @@
                 <iidm:bus id="_N4071____TN" v="384.0769958496094" angle="-2.306674003601074"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N4071____EC" name="N4071   " loadType="UNDEFINED" p0="300.0" q0="100.0" bus="_N4071____TN" connectableBus="_N4071____TN" p="300.0" q="100.0"/>
-            <iidm:shunt id="_N4071____SC" name="N4071   " currentSectionCount="1" voltageRegulatorOn="false" bus="_N4071____TN" connectableBus="_N4071____TN">
+            <iidm:shunt id="_N4071____SC" name="N4071   " sectionCount="1" voltageRegulatorOn="false" bus="_N4071____TN" connectableBus="_N4071____TN">
                 <iidm:shuntLinearModel bPerSection="-0.0024999999441206455" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -510,7 +510,7 @@
                 <iidm:bus id="_N1043____TN" v="113.4800033569336" angle="-89.6317367553711"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N1043____EC" name="N1043   " loadType="UNDEFINED" p0="260.0" q0="100.0" bus="_N1043____TN" connectableBus="_N1043____TN" p="260.0" q="100.0"/>
-            <iidm:shunt id="_N1043____SC" name="N1043   " currentSectionCount="1" voltageRegulatorOn="false" bus="_N1043____TN" connectableBus="_N1043____TN">
+            <iidm:shunt id="_N1043____SC" name="N1043   " sectionCount="1" voltageRegulatorOn="false" bus="_N1043____TN" connectableBus="_N1043____TN">
                 <iidm:shuntLinearModel bPerSection="0.008875739760696888" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>

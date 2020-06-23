@@ -71,7 +71,7 @@
                 <iidm:bus id="B10" name="Roanoke   33" v="1.045" angle="-15.97"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B10-L" loadType="UNDEFINED" p0="5.8" q0="2.0" bus="B10" connectableBus="B10"/>
-            <iidm:shunt id="B10-SH" currentSectionCount="1" voltageRegulatorOn="false" bus="B10" connectableBus="B10">
+            <iidm:shunt id="B10-SH" sectionCount="1" voltageRegulatorOn="false" bus="B10" connectableBus="B10">
                 <iidm:shuntLinearModel bPerSection="19.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -202,7 +202,7 @@
                 <iidm:bus id="B24" name="Bus 24    33" v="1.021" angle="-16.78"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B24-L" loadType="UNDEFINED" p0="8.7" q0="6.7" bus="B24" connectableBus="B24"/>
-            <iidm:shunt id="B24-SH" currentSectionCount="1" voltageRegulatorOn="false" bus="B24" connectableBus="B24">
+            <iidm:shunt id="B24-SH" sectionCount="1" voltageRegulatorOn="false" bus="B24" connectableBus="B24">
                 <iidm:shuntLinearModel bPerSection="4.3" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>

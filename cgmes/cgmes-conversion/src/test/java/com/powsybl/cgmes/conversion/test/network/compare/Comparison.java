@@ -206,7 +206,7 @@ public class Comparison {
         equivalent("VoltageLevel",
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
-        compare("currentSectionCount",
+        compare("sectionCount",
                 expected.getSectionCount(),
                 actual.getSectionCount());
         compare("voltageRegulationOn",
