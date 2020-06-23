@@ -87,7 +87,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         });
         if (sc != sc.getRegulatingTerminal().getConnectable()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
-            TerminalRefXml.writeTerminalRef(sc.getRegulatingTerminal(), context, REGULATING_TERMINAL, sc.getId());
+            TerminalRefXml.writeTerminalRef(sc, sc.getRegulatingTerminal(), context, REGULATING_TERMINAL);
         }
     }
 

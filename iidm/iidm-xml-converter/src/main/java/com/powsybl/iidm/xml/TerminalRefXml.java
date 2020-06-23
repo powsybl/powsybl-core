@@ -8,6 +8,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
@@ -19,34 +20,43 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class TerminalRefXml {
 
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName, String id) throws XMLStreamException {
-        writeTerminalRef(t, context, context.getVersion().getNamespaceURI(), elementName, id);
+    @Deprecated
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
+        writeTerminalRef(null, t, context, context.getVersion().getNamespaceURI(), elementName);
     }
 
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, String id) throws XMLStreamException {
-        writeTerminalRef(t, context, namespace, elementName, id, context.getWriter());
+    public static void writeTerminalRef(Connectable owner, Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
+        writeTerminalRef(owner, t, context, context.getVersion().getNamespaceURI(), elementName);
     }
 
+    @Deprecated
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName) throws XMLStreamException {
+        writeTerminalRef(null, t, context, namespace, elementName, context.getWriter());
+    }
+
+    public static void writeTerminalRef(Connectable owner, Terminal t, NetworkXmlWriterContext context, String namespace, String elementName) throws XMLStreamException {
+        writeTerminalRef(owner, t, context, namespace, elementName, context.getWriter());
+    }
+
+    @Deprecated
     public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, XMLStreamWriter writer) throws XMLStreamException {
-        writeTerminalRef(t, context, namespace, elementName, null, writer);
+        writeTerminalRef(null, t, context, namespace, elementName, writer);
     }
 
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, String id, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeTerminalRef(Connectable owner, Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, XMLStreamWriter writer) throws XMLStreamException {
         Connectable c = t.getConnectable();
         if (!context.getFilter().test(c)) {
             throw new PowsyblException("Oups, terminal ref point to a filtered equipment " + c.getId());
         }
         writer.writeEmptyElement(namespace, elementName);
-        final boolean[] writeId = {false};
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> writeId[0] = true);
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () ->
+                XmlUtil.writeStringAttribute("id", context.getAnonymizer().anonymizeString(c.getId()), writer)
+        );
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-            if (id == null || !id.equals(c.getId())) {
-                writeId[0] = true;
+            if (!c.equals(owner)) {
+                XmlUtil.writeStringAttribute("id", context.getAnonymizer().anonymizeString(c.getId()), writer);
             }
         });
-        if (writeId[0]) {
-            writer.writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
-        }
         if (c.getTerminals().size() > 1) {
             if (c instanceof Injection) {
                 // nothing to do

@@ -54,7 +54,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
                 ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED,
                 IidmXmlVersion.V_1_1, context, () -> {
                 try {
-                    TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL, svc.getId());
+                    TerminalRefXml.writeTerminalRef(svc, svc.getRegulatingTerminal(), context, REGULATING_TERMINAL);
                 } catch (XMLStreamException e) {
                     throw new UncheckedXmlStreamException(e);
                 }

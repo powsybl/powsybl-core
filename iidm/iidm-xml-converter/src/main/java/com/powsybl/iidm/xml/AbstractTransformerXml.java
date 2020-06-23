@@ -84,7 +84,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         writeTargetDeadband(tc.getTargetDeadband(), context);
     }
 
-    protected static void writeRatioTapChanger(String name, RatioTapChanger rtc, NetworkXmlWriterContext context, String transformerId) throws XMLStreamException {
+    protected static void writeRatioTapChanger(Connectable owner, String name, RatioTapChanger rtc, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), name);
         writeTapChanger(rtc, context);
         context.getWriter().writeAttribute("loadTapChangingCapabilities", Boolean.toString(rtc.hasLoadTapChangingCapabilities()));
@@ -95,7 +95,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             XmlUtil.writeDouble("targetV", rtc.getTargetV(), context.getWriter());
         }
         if (rtc.getRegulationTerminal() != null) {
-            TerminalRefXml.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF, transformerId);
+            TerminalRefXml.writeTerminalRef(owner, rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
         for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
             RatioTapChangerStep rtcs = rtc.getStep(p);
@@ -161,7 +161,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         readRatioTapChanger(RATIO_TAP_CHANGER + leg, twl.newRatioTapChanger(), twl.getTerminal(), transformerId, context);
     }
 
-    protected static void writePhaseTapChanger(String name, PhaseTapChanger ptc, NetworkXmlWriterContext context, String transformerId) throws XMLStreamException {
+    protected static void writePhaseTapChanger(Connectable owner, String name, PhaseTapChanger ptc, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), name);
         writeTapChanger(ptc, context);
         context.getWriter().writeAttribute("regulationMode", ptc.getRegulationMode().name());
@@ -172,7 +172,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(ptc.isRegulating()));
         }
         if (ptc.getRegulationTerminal() != null) {
-            TerminalRefXml.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF, transformerId);
+            TerminalRefXml.writeTerminalRef(owner, ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
         for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
             PhaseTapChangerStep ptcs = ptc.getStep(p);

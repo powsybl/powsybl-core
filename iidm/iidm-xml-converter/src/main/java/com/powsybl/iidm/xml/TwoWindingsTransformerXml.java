@@ -55,11 +55,11 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     protected void writeSubElements(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         RatioTapChanger rtc = twt.getRatioTapChanger();
         if (rtc != null) {
-            writeRatioTapChanger("ratioTapChanger", rtc, context, twt.getId());
+            writeRatioTapChanger(twt, "ratioTapChanger", rtc, context);
         }
         PhaseTapChanger ptc = twt.getPhaseTapChanger();
         if (ptc != null) {
-            writePhaseTapChanger("phaseTapChanger", ptc, context, twt.getId());
+            writePhaseTapChanger(twt, "phaseTapChanger", ptc, context);
         }
         if (twt.getCurrentLimits1() != null) {
             writeCurrentLimits(1, twt.getCurrentLimits1(), context.getWriter(), context.getVersion());

@@ -51,7 +51,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     @Override
     protected void writeSubElements(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (!Objects.equals(g, g.getRegulatingTerminal().getConnectable())) {
-            TerminalRefXml.writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal", g.getId());
+            TerminalRefXml.writeTerminalRef(g, g.getRegulatingTerminal(), context, "regulatingTerminal");
         }
         ReactiveLimitsXml.INSTANCE.write(g, context);
     }

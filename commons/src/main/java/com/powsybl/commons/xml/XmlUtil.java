@@ -6,6 +6,8 @@
  */
 package com.powsybl.commons.xml;
 
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
+
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -122,6 +124,14 @@ public final class XmlUtil {
     public static void writeOptionalString(String name, String value, XMLStreamWriter writer) throws XMLStreamException {
         if (value != null) {
             writer.writeAttribute(name, value);
+        }
+    }
+
+    public static void writeStringAttribute(String attributeName, String value, XMLStreamWriter writer) {
+        try {
+            writer.writeAttribute(attributeName, value);
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
     }
 
