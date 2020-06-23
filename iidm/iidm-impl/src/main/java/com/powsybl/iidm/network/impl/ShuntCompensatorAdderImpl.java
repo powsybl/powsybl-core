@@ -20,7 +20,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private ShuntCompensatorModelWrapper model;
 
-    private int currentSectionCount = -1;
+    private int sectionCount = -1;
 
     private double targetV = Double.NaN;
 
@@ -143,7 +143,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     @Override
     public ShuntCompensatorAdder setSectionCount(int sectionCount) {
-        this.currentSectionCount = sectionCount;
+        this.sectionCount = sectionCount;
         return this;
     }
 
@@ -178,9 +178,9 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         if (model == null) {
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }
-        ValidationUtil.checkSections(this, currentSectionCount, model.getMaximumSectionCount());
-        if (currentSectionCount < 0 || currentSectionCount > model.getMaximumSectionCount()) {
-            throw new ValidationException(this, "unexpected section number (" + currentSectionCount + "): no existing associated section");
+        ValidationUtil.checkSections(this, sectionCount, model.getMaximumSectionCount());
+        if (sectionCount < 0 || sectionCount > model.getMaximumSectionCount()) {
+            throw new ValidationException(this, "unexpected section number (" + sectionCount + "): no existing associated section");
         }
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV);
@@ -188,7 +188,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         ShuntCompensatorImpl shunt
                 = new ShuntCompensatorImpl(getNetwork().getRef(),
                 id, getName(), isFictitious(), model,
-                currentSectionCount, regulatingTerminal == null ? terminal : regulatingTerminal,
+                sectionCount, regulatingTerminal == null ? terminal : regulatingTerminal,
                 voltageRegulatorOn, targetV, targetDeadband);
         shunt.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
