@@ -20,6 +20,9 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class TerminalRefXml {
 
+    /**
+     * @deprecated Use {@link #writeTerminalRef(Connectable, Terminal, NetworkXmlWriterContext, String)} instead
+     */
     @Deprecated
     public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
         writeTerminalRef(null, t, context, context.getVersion().getNamespaceURI(), elementName);
@@ -29,6 +32,9 @@ public final class TerminalRefXml {
         writeTerminalRef(owner, t, context, context.getVersion().getNamespaceURI(), elementName);
     }
 
+    /**
+     * @deprecated Use {@link #writeTerminalRef(Connectable, Terminal, NetworkXmlWriterContext, String, String)} instead
+     */
     @Deprecated
     public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName) throws XMLStreamException {
         writeTerminalRef(null, t, context, namespace, elementName, context.getWriter());
@@ -38,6 +44,9 @@ public final class TerminalRefXml {
         writeTerminalRef(owner, t, context, namespace, elementName, context.getWriter());
     }
 
+    /**
+     * @deprecated Use {@link #writeTerminalRef(Connectable, Terminal, NetworkXmlWriterContext, String, String, XMLStreamWriter)} instead
+     */
     @Deprecated
     public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, XMLStreamWriter writer) throws XMLStreamException {
         writeTerminalRef(null, t, context, namespace, elementName, writer);
