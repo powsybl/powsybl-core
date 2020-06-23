@@ -33,13 +33,8 @@ public class CurrentLimitsMapping {
 
     void addAll() {
         for (Map.Entry<String, CurrentLimitsAdder> entry : adders.entrySet()) {
-            boolean fixPermanentLimit = false;
-            if (Double.isNaN(entry.getValue().getPermanentLimit())) {
-                entry.getValue().setPermanentLimit(Double.MAX_VALUE);
-                fixPermanentLimit = true;
-            }
             CurrentLimits limits = entry.getValue().add();
-            if (fixPermanentLimit) {
+            if (Double.isNaN(limits.getPermanentLimit())) {
                 double fixedPermanentLimit = Iterables.get(limits.getTemporaryLimits(), 0).getValue();
                 context.fixed("Operational Limit Set of " + entry.getKey(),
                         "An operational limit set without permanent limit is considered with permanent limit" +
