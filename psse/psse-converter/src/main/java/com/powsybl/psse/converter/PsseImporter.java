@@ -7,7 +7,6 @@
 package com.powsybl.psse.converter;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.DataSource;
@@ -74,7 +73,7 @@ public class PsseImporter implements Importer {
         }
         if (throwException) {
             throw new PsseException("File " + dataSource.getBaseName()
-                    + "." + Joiner.on("|").join(EXTS) + " not found");
+                    + "." + String.join("|", EXTS) + " not found");
         }
         return null;
     }
