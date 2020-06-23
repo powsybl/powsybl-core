@@ -6,24 +6,24 @@
  */
 package com.powsybl.psse.converter;
 
-import static org.junit.Assert.assertEquals;
-
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
-import com.powsybl.iidm.xml.NetworkXml;
-import org.joda.time.DateTime;
-import org.junit.Test;
-
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.import_.Importer;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
+import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.psse.model.PsseException;
+import org.joda.time.DateTime;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static org.junit.Assert.*;
 
 /**
  * @author JB Heyberger <jean-baptiste.heyberger at rte-france.com>
@@ -49,10 +49,38 @@ public class PsseImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void importTest()throws IOException {
+    public void existsTest() {
+        // test with a valid raw/RAW file
+        assertTrue(new PsseImporter().exists(new ResourceDataSource("IEEE_14_bus", new ResourceSet("/", "IEEE_14_bus.raw"))));
+        assertTrue(new PsseImporter().exists(new ResourceDataSource("IEEE_30_bus", new ResourceSet("/", "IEEE_30_bus.RAW"))));
+
+        // test with an invalid extension
+        assertFalse(new PsseImporter().exists(new ResourceDataSource("IEEE_14_bus", new ResourceSet("/", "IEEE_14_bus.json"))));
+
+        // test with a valid extension and an invalid content
+        assertFalse(new PsseImporter().exists(new ResourceDataSource("fake", new ResourceSet("/", "fake.raw"))));
+
+        // test with not supported content
+        assertFalse(new PsseImporter().exists(new ResourceDataSource("case-flag-not-supported", new ResourceSet("/", "case-flag-not-supported.raw"))));
+        assertFalse(new PsseImporter().exists(new ResourceDataSource("version-not-supported", new ResourceSet("/", "version-not-supported.raw"))));
+    }
+
+    @Test
+    public void importTest() throws IOException {
         ReadOnlyDataSource dataSource = new ResourceDataSource("IEEE_14_bus", new ResourceSet("/", "IEEE_14_bus.raw"));
         Network network = new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), null);
         testNetwork(network);
     }
 
+    @Test(expected = PsseException.class)
+    public void badVersionTest() {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("case-flag-not-supported", new ResourceSet("/", "case-flag-not-supported.raw"));
+        new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+    }
+
+    @Test(expected = PsseException.class)
+    public void badModeTest() {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("version-not-supported", new ResourceSet("/", "version-not-supported.raw"));
+        new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+    }
 }
