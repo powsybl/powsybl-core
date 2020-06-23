@@ -18,7 +18,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
 
     /**
      * Get the count of sections in service.
-     * Please note sections can only be sequentially in service i.e. all sections from section 1 to section currentSectionCount are in service.
+     * Please note sections can only be sequentially in service i.e. the first sectionCount sections are in service.
      * <p>
      * It is expected to be greater than one and lesser than or equal to the
      * maximum section count.
@@ -35,7 +35,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
 
     /**
      * Change the count of sections in service.
-     * Please note sections can only be sequentially in service i.e. all section from section 1 to section currentSectionCount are in service.
+     * Please note sections can only be sequentially in service i.e. the first sectionCount sections are in service.
      * <p>
      * Depends on the working variant.
      *
