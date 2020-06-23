@@ -6,6 +6,8 @@
  */
 package com.powsybl.cgmes.conversion;
 
+import com.google.common.collect.Iterables;
+import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.CurrentLimitsAdder;
 
 import java.util.HashMap;
@@ -31,13 +33,20 @@ public class CurrentLimitsMapping {
 
     void addAll() {
         for (Map.Entry<String, CurrentLimitsAdder> entry : adders.entrySet()) {
+            boolean fixPermanentLimit = false;
             if (Double.isNaN(entry.getValue().getPermanentLimit())) {
-                context.fixed("Operational Limit Set of " + entry.getKey(),
-                        "An operational limit set without permanent limit is considered with infinite limit.",
-                        Double.NaN, Double.MAX_VALUE);
                 entry.getValue().setPermanentLimit(Double.MAX_VALUE);
+                fixPermanentLimit = true;
             }
-            entry.getValue().add();
+            CurrentLimits limits = entry.getValue().add();
+            if (fixPermanentLimit) {
+                double fixedPermanentLimit = Iterables.get(limits.getTemporaryLimits(), 0).getValue();
+                context.fixed("Operational Limit Set of " + entry.getKey(),
+                        "An operational limit set without permanent limit is considered with permanent limit" +
+                                "equal to lowest TATL value",
+                        Double.NaN, fixedPermanentLimit);
+                limits.setPermanentLimit(fixedPermanentLimit);
+            }
         }
         adders.clear();
     }
