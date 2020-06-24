@@ -471,8 +471,8 @@ public abstract class AbstractShuntCompensatorTest {
         }
     }
 
-    private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection, int currentSectionCount, int maxSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
-        return createShuntAdder(id, name, currentSectionCount, regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband)
+    private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection, int sectionCount, int maxSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
+        return createShuntAdder(id, name, sectionCount, regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband)
                 .newLinearModel()
                 .setBPerSection(bPerSection)
                 .setGPerSection(gPerSection)
@@ -481,12 +481,12 @@ public abstract class AbstractShuntCompensatorTest {
                 .add();
     }
 
-    private ShuntCompensatorAdder createShuntAdder(String id, String name, int currentSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
+    private ShuntCompensatorAdder createShuntAdder(String id, String name, int sectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
         return voltageLevel.newShuntCompensator()
                 .setId(id)
                 .setName(name)
                 .setConnectableBus("busA")
-                .setSectionCount(currentSectionCount)
+                .setSectionCount(sectionCount)
                 .setRegulatingTerminal(regulatingTerminal)
                 .setVoltageRegulatorOn(voltageRegulatorOn)
                 .setTargetV(targetV)
