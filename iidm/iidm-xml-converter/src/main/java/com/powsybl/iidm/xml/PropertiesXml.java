@@ -9,10 +9,8 @@ package com.powsybl.iidm.xml;
 
 import javax.xml.stream.XMLStreamException;
 
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -33,16 +31,10 @@ public final class PropertiesXml {
                     context.getWriter().writeAttribute(NAME, name);
                     context.getWriter().writeAttribute(VALUE, value);
                 } else {
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> {
-                        String value = context.getAnonymizer().anonymizeString(identifiable.getProperty(name));
-                        try {
-                            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), PROPERTY);
-                            context.getWriter().writeAttribute(NAME, name);
-                            context.getWriter().writeAttribute(VALUE, value);
-                        } catch (XMLStreamException e) {
-                            throw new UncheckedXmlStreamException(e);
-                        }
-                    });
+                    String value = context.getAnonymizer().anonymizeString(identifiable.getProperty(name));
+                    context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), PROPERTY);
+                    context.getWriter().writeAttribute(NAME, name);
+                    context.getWriter().writeAttribute(VALUE, value);
                 }
             }
         }
@@ -51,7 +43,12 @@ public final class PropertiesXml {
     public static void read(Identifiable identifiable, NetworkXmlReaderContext context) {
         assert context.getReader().getLocalName().equals(PROPERTY);
         String name = context.getReader().getAttributeValue(null, NAME);
-        String value = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, VALUE));
+        String value;
+        if (!name.equals(Substation.GEOGRAPHICAL_TAGS_KEY)) {
+            value = context.getReader().getAttributeValue(null, VALUE);
+        } else {
+            value = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, VALUE));
+        }
         identifiable.setProperty(name, value);
     }
 

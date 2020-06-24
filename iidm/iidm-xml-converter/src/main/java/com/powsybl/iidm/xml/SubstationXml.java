@@ -6,14 +6,12 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -46,17 +44,6 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
         if (s.getTso() != null) {
             context.getWriter().writeAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
         }
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_3, context, () -> {
-            if (!s.getGeographicalTags().isEmpty()) {
-                try {
-                    context.getWriter().writeAttribute(Substation.GEOGRAPHICAL_TAGS_KEY, s.getGeographicalTags().stream()
-                            .map(tag -> context.getAnonymizer().anonymizeString(tag))
-                            .collect(Collectors.joining(",")));
-                } catch (XMLStreamException e) {
-                    throw new UncheckedXmlStreamException(e);
-                }
-            }
-        });
     }
 
     @Override
@@ -92,12 +79,14 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
                 .map(c -> context.getAnonymizer().deanonymizeCountry(Country.valueOf(c)))
                 .orElse(null);
         String tso = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "tso"));
-        String geographicalTags = context.getReader().getAttributeValue(null, "geographicalTags");
-        if (geographicalTags != null) {
-            adder.setGeographicalTags(Arrays.stream(geographicalTags.split(","))
-                    .map(tag -> context.getAnonymizer().deanonymizeString(tag))
-                    .toArray(size -> new String[size]));
-        }
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
+            String geographicalTags = context.getReader().getAttributeValue(null, "geographicalTags");
+            if (geographicalTags != null) {
+                adder.setGeographicalTags(Arrays.stream(geographicalTags.split(","))
+                        .map(tag -> context.getAnonymizer().deanonymizeString(tag))
+                        .toArray(size -> new String[size]));
+            }
+        });
         return adder.setCountry(country)
                 .setTso(tso)
                 .add();

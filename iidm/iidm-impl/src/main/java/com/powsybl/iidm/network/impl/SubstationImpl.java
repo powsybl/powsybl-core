@@ -155,7 +155,7 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     @Override
     public Substation addGeographicalTag(String tag) {
         if (tag == null) {
-            throw new ValidationException(this, "geographical tag is null");
+            throw new IllegalArgumentException("geographical tag is null");
         }
         if (hasProperty(GEOGRAPHICAL_TAGS_KEY)) {
             setProperty(GEOGRAPHICAL_TAGS_KEY, getProperty(GEOGRAPHICAL_TAGS_KEY) + "," + tag);

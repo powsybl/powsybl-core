@@ -164,12 +164,18 @@ public interface Substation extends Container<Substation> {
 
     /**
      * Get geographical tags associated to the substation.
+     *
+     * @deprecated use properties to store geographicalTags.
      */
+    @Deprecated
     Set<String> getGeographicalTags();
 
     /**
      * Associate a new geographical tag to the substation.
+     *
+     * @deprecated use properties to store geographicalTags.
      */
+    @Deprecated
     Substation addGeographicalTag(String tag);
 
     /**

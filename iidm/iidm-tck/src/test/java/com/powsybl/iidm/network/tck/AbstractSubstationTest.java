@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.ValidationException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -91,7 +90,7 @@ public abstract class AbstractSubstationTest {
 
     @Test
     public void addNullTag() {
-        thrown.expect(ValidationException.class);
+        thrown.expect(IllegalArgumentException.class);
         Substation substation = network.newSubstation()
                                         .setId("sub")
                                         .setName(SUB_NAME)
@@ -100,7 +99,7 @@ public abstract class AbstractSubstationTest {
                                         .setEnsureIdUnicity(false)
                                         .setGeographicalTags("geoTag1", "geoTag2")
                                     .add();
-        thrown.expect(ValidationException.class);
+        thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("geographical tag is null");
         substation.addGeographicalTag(null);
     }

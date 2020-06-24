@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_3" id="fictitious" caseDate="2017-06-25T17:43:00.000+01:00" forecastDistance="0" sourceFormat="test">
-    <iidm:substation id="P1" country="FR" geographicalTags="A" tso="R">
+    <iidm:substation id="P1" country="FR" tso="R">
+        <iidm:property name="geographicalTags" value="A"/>
         <iidm:voltageLevel id="VLGEN" nominalV="400.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="NGEN"/>
@@ -10,7 +11,8 @@
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="P2" country="FR" geographicalTags="B" tso="R">
+    <iidm:substation id="P2" country="FR" tso="R">
+        <iidm:property name="geographicalTags" value="B"/>
         <iidm:voltageLevel id="VLBAT" nominalV="400.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="NBAT"/>
