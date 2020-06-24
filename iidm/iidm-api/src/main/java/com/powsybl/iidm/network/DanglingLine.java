@@ -110,6 +110,26 @@ public interface DanglingLine extends Injection<DanglingLine>, ReactiveLimitsHol
     DanglingLine setGeneratorTargetP(double generatorTargetP);
 
     /**
+     * Get the generator maximal active power in MW.
+     */
+    double getGeneratorMaxP();
+
+    /**
+     * Set the generator maximal active power in MW.
+     */
+    DanglingLine setGeneratorMaxP(double generatorMaxP);
+
+    /**
+     * Get the generator minimal active power in MW.
+     */
+    double getGeneratorMinP();
+
+    /**
+     * Set the generator minimal active power in MW.
+     */
+    DanglingLine setGeneratorMinP(double generatorMinP);
+
+    /**
      * <p>Get the generator reactive power target in MVAR.</p>
      * <p>The generator reactive power target follows a generator sign convention.</p>
      * <p>Depends on the working variant.</p>

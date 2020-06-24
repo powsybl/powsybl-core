@@ -31,6 +31,10 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     private double b = Double.NaN;
 
+    private double generatorMaxP = Double.NaN;
+
+    private double generatorMinP = Double.NaN;
+
     private double generatorTargetP = Double.NaN;
 
     private double generatorTargetQ = Double.NaN;
@@ -88,6 +92,18 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
     @Override
     public DanglingLineAdderImpl setB(double b) {
         this.b = b;
+        return this;
+    }
+
+    @Override
+    public DanglingLineAdderImpl setGeneratorMaxP(double generatorMaxP) {
+        this.generatorMaxP = generatorMaxP;
+        return this;
+    }
+
+    @Override
+    public DanglingLineAdderImpl setGeneratorMinP(double minP) {
+        this.generatorMinP = generatorMinP;
         return this;
     }
 

@@ -66,6 +66,18 @@ public class DanglingLineAdderAdapter extends AbstractInjectionAdderAdapter<Dang
     }
 
     @Override
+    public DanglingLineAdder setGeneratorMaxP(final double generatorMaxP) {
+        getDelegate().setGeneratorMaxP(generatorMaxP);
+        return this;
+    }
+
+    @Override
+    public DanglingLineAdder setGeneratorMinP(final double generatorMinP) {
+        getDelegate().setGeneratorMinP(generatorMinP);
+        return this;
+    }
+
+    @Override
     public DanglingLineAdder setGeneratorTargetP(final double generatorTargetP) {
         getDelegate().setGeneratorTargetP(generatorTargetP);
         return this;

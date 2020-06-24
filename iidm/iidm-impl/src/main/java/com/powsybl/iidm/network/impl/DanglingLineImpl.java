@@ -33,6 +33,10 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
+    private double generatorMinP;
+
+    private double generatorMaxP;
+
     // attributes depending on the variant
 
     private final TDoubleArrayList p0;
@@ -188,6 +192,36 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         double oldValue = this.generatorTargetP.set(variantIndex, generatorTargetP);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("generatorTargetP", variantId, oldValue, generatorTargetP);
+        return this;
+    }
+
+    @Override
+    public double getGeneratorMaxP() {
+        return generatorMaxP;
+    }
+
+    @Override
+    public DanglingLineImpl setGeneratorMaxP(double generatorMaxP) {
+        ValidationUtil.checkMaxP(this, generatorMaxP);
+        ValidationUtil.checkActivePowerLimits(this, generatorMinP, generatorMaxP);
+        double oldValue = this.generatorMaxP;
+        this.generatorMaxP = generatorMaxP;
+        notifyUpdate("generatorMaxP", oldValue, generatorMaxP);
+        return this;
+    }
+
+    @Override
+    public double getGeneratorMinP() {
+        return generatorMinP;
+    }
+
+    @Override
+    public DanglingLineImpl setGeneratorMinP(double generatorMinP) {
+        ValidationUtil.checkMinP(this, generatorMinP);
+        ValidationUtil.checkActivePowerLimits(this, generatorMinP, generatorMaxP);
+        double oldValue = this.generatorMinP;
+        this.generatorMinP = generatorMinP;
+        notifyUpdate("generatorMinP", oldValue, generatorMinP);
         return this;
     }
 

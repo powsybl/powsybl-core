@@ -58,22 +58,22 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             // If this equivalent injection is regulating voltage,
             // map it over the dangling line 'virtual generator'
             adder.setGeneratorVoltageRegulationOn(regulation.status)
-                .setGeneratorTargetP(regulation.targetP)
-                .setGeneratorTargetQ(regulation.targetQ)
-                .setGeneratorTargetV(regulation.targetV)
-                .setP0(fother.p())
-                .setQ0(fother.q());
+                    .setGeneratorMinP(-Double.MAX_VALUE)
+                    .setGeneratorMaxP(Double.MAX_VALUE)
+                    .setGeneratorTargetP(regulation.targetP)
+                    .setGeneratorTargetQ(regulation.targetQ)
+                    .setGeneratorTargetV(regulation.targetV)
+                    .setP0(fother.p())
+                    .setQ0(fother.q());
         } else {
             // Map all the observed flows to the 'virtual load'
             // of the dangling line
             PowerFlow f = powerFlow();
             adder
-                .setP0(fother.p() + f.p())
-                .setQ0(fother.q() + f.q())
-                .setGeneratorTargetP(0.0)
-                .setGeneratorTargetQ(0.0)
-                .setGeneratorTargetV(Double.NaN)
-                .setGeneratorVoltageRegulationOn(false);
+                    .setP0(fother.p() + f.p())
+                    .setQ0(fother.q() + f.q())
+                    .setGeneratorTargetP(0.0)
+                    .setGeneratorTargetQ(0.0);
         }
     }
 
