@@ -43,6 +43,22 @@ public interface ContingencyList {
     static ContingencyList load(Path path) {
         try (InputStream stream = new BufferedInputStream(Files.newInputStream(path))) {
             String filename = path.getFileName().toString();
+            return load(filename, stream);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /**
+     * Load a {@link ContingencyList} from an input stream of given file name
+     *
+     * @param filename The input file name
+     * @param stream The input stream to load
+     *
+     * @return a contingency list
+     */
+    static ContingencyList load(String filename, InputStream stream) {
+        try {
             ContingencyListLoader loader = ContingencyLists.getLoader(FilenameUtils.getExtension(filename));
             return loader.load(filename, stream);
         } catch (IOException e) {
