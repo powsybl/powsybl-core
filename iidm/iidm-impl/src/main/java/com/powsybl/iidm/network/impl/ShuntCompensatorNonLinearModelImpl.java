@@ -106,7 +106,7 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
         if (sectionCount < 0 || sectionCount > sections.size()) {
             throw new ValidationException(shuntCompensator, "invalid section count (must be in [0;maximumSectionCount]");
         }
-        return sectionCount == 0 || Double.isNaN(sections.get(sectionCount - 1).getG()) ? 0 : sections.get(sectionCount - 1).getG();
+        return sectionCount == 0 ? 0 : sections.get(sectionCount - 1).getG();
     }
 
     @Override

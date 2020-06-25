@@ -82,7 +82,6 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     class ShuntCompensatorNonLinearModelAdderImpl implements ShuntCompensatorNonLinearModelAdder {
 
         private final List<ShuntCompensatorNonLinearModelImpl.SectionImpl> sections = new ArrayList<>();
-        private boolean hasDefinedG = false;
         private int index = 1;
 
         class SectionAdderImpl implements SectionAdder {
@@ -106,10 +105,13 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
             @Override
             public ShuntCompensatorNonLinearModelAdder endSection() {
                 ValidationUtil.checkBPerSection(ShuntCompensatorAdderImpl.this, b);
-                if ((Double.isNaN(g) && hasDefinedG) || (!Double.isNaN(g) && !hasDefinedG && !sections.isEmpty())) {
-                    throw new ValidationException(ShuntCompensatorAdderImpl.this, "if conductance has been defined for a section, it must be defined for all sections.");
+                if (Double.isNaN(g))  {
+                    if (sections.isEmpty()) {
+                        g = 0;
+                    } else {
+                        g = sections.get(sections.size() - 1).getG();
+                    }
                 }
-                hasDefinedG = hasDefinedG || !Double.isNaN(g);
                 sections.add(new ShuntCompensatorNonLinearModelImpl.SectionImpl(index, b, g));
                 index++;
                 return ShuntCompensatorNonLinearModelAdderImpl.this;
