@@ -1,0 +1,118 @@
+/**
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.iidm.network.util;
+
+import org.apache.commons.math3.complex.Complex;
+import com.powsybl.iidm.network.DanglingLine;
+
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
+ */
+public class DanglingLineData {
+
+    private final String id;
+
+    private final double r;
+    private final double x;
+    private final double g1;
+    private final double g2;
+    private final double b1;
+    private final double b2;
+
+    private final double u1;
+    private final double theta1;
+    private final double p0;
+    private final double q0;
+
+    double dummyBusU;
+    double dummyBusTheta;
+
+    public DanglingLineData(DanglingLine danglingLine) {
+
+        id = danglingLine.getId();
+        r = danglingLine.getR();
+        x = danglingLine.getX();
+        g1 = danglingLine.getG();
+        b1 = danglingLine.getB();
+        g2 = 0.0;
+        b2 = 0.0;
+        p0 = danglingLine.getP0();
+        q0 = danglingLine.getQ0();
+
+        u1 = getV(danglingLine);
+        theta1 = getTheta(danglingLine);
+
+        dummyBusU = Double.NaN;
+        dummyBusTheta = Double.NaN;
+
+        Complex v1 = new Complex(u1 * Math.cos(theta1), u1 * Math.sin(theta1));
+
+        Complex vDummyBus = new Complex(Double.NaN, Double.NaN);
+        if (p0 == 0.0 && q0 == 0.0) {
+            LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0, new Complex(g1, b1), new Complex(g2, b2));
+            vDummyBus = adm.y21.multiply(v1).negate().divide(adm.y22);
+        } else {
+
+            // Two buses Loadflow
+            double pDummyBus = -p0;
+            double qDummyBus = -q0;
+            Complex ytr = new Complex(r, x).reciprocal();
+            Complex ysh2 = new Complex(g2, b2);
+            Complex zt = ytr.add(ysh2).reciprocal();
+            Complex v0 = ytr.multiply(v1).divide(ytr.add(ysh2));
+            double v02 = v0.abs() * v0.abs();
+
+            double sigmar = (zt.getImaginary() * qDummyBus + zt.getReal() * pDummyBus) / v02;
+            double sigmai = (zt.getImaginary() * pDummyBus - zt.getReal() * qDummyBus) / v02;
+            double d = 0.25 + sigmar - sigmai * sigmai;
+            // d < 0 Collapsed network
+            if (d >= 0) {
+                vDummyBus = new Complex(0.5 + Math.sqrt(d), sigmai).multiply(v0);
+            }
+        }
+
+        dummyBusU = vDummyBus.abs();
+        dummyBusTheta = vDummyBus.getArgument();
+    }
+
+    private static double getV(DanglingLine danglingLine) {
+        if (danglingLine.getTerminal().getBusBreakerView() != null) {
+            return danglingLine.getTerminal().isConnected()
+                ? danglingLine.getTerminal().getBusBreakerView().getBus().getV()
+                : Double.NaN;
+        } else {
+            return danglingLine.getTerminal().isConnected() ? danglingLine.getTerminal().getBusView().getBus().getV()
+                : Double.NaN;
+        }
+    }
+
+    private static double getTheta(DanglingLine danglingLine) {
+        if (danglingLine.getTerminal().getBusBreakerView() != null) {
+            return danglingLine.getTerminal().isConnected()
+                ? Math.toRadians(danglingLine.getTerminal().getBusBreakerView().getBus().getAngle())
+                : Double.NaN;
+        } else {
+            return danglingLine.getTerminal().isConnected()
+                ? Math.toRadians(danglingLine.getTerminal().getBusView().getBus().getAngle())
+                : Double.NaN;
+        }
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public double getDummyBusU() {
+        return dummyBusU;
+    }
+
+    public double getDummyBusTheta() {
+        return dummyBusTheta;
+    }
+}
+
