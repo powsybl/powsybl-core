@@ -194,7 +194,7 @@ public class PsseImporter implements Importer {
                 .setBPerSection(psseShunt.getBl())//TODO: take into account gl
                 .setMaximumSectionCount(1)
                 .add();
-        adder.add();
+        ShuntCompensator shunt = adder.add();
 
         if (psseShunt.getStatus() == 1) {
             shunt.getTerminal().connect();
