@@ -73,6 +73,16 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertEquals(ratedS, twoWindingsTransformer.getRatedS(), 0.0);
 
         assertEquals(substation.getTwoWindingsTransformerStream().count(), substation.getTwoWindingsTransformerCount());
+
+        RatioTapChanger ratioTapChangerInLeg1 = createRatioTapChanger(twoWindingsTransformer,
+                twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE));
+        assertTrue(twoWindingsTransformer.getOptionalRatioTapChanger().isPresent());
+        assertSame(ratioTapChangerInLeg1, twoWindingsTransformer.getRatioTapChanger());
+
+        PhaseTapChanger phaseTapChangerInLeg1 = createPhaseTapChanger(twoWindingsTransformer,
+                twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.TWO));
+        assertTrue(twoWindingsTransformer.getOptionalPhaseTapChanger().isPresent());
+        assertSame(phaseTapChangerInLeg1, twoWindingsTransformer.getPhaseTapChanger());
     }
 
     @Test
@@ -180,4 +190,80 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 .add();
     }
 
+    private RatioTapChanger createRatioTapChanger(TwoWindingsTransformer transformer, Terminal terminal) {
+        return createRatioTapChanger(transformer, terminal, false);
+    }
+
+    private RatioTapChanger createRatioTapChanger(TwoWindingsTransformer transformer, Terminal terminal, boolean regulating) {
+        return transformer.newRatioTapChanger()
+                .setTargetV(200.0)
+                .setLoadTapChangingCapabilities(false)
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .setRegulating(regulating)
+                .setRegulationTerminal(terminal)
+                .setTargetDeadband(0.5)
+                .beginStep()
+                .setR(39.78473)
+                .setX(39.784725)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(1.0)
+                .endStep()
+                .beginStep()
+                .setR(39.78474)
+                .setX(39.784726)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(1.0)
+                .endStep()
+                .beginStep()
+                .setR(39.78475)
+                .setX(39.784727)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(1.0)
+                .endStep()
+                .add();
+    }
+
+    private PhaseTapChanger createPhaseTapChanger(TwoWindingsTransformer transformer, Terminal terminal) {
+        return createPhaseTapChanger(transformer, terminal, false);
+    }
+
+    private PhaseTapChanger createPhaseTapChanger(TwoWindingsTransformer transformer, Terminal terminal, boolean regulating) {
+        return transformer.newPhaseTapChanger()
+                .setRegulationValue(200.0)
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .setRegulating(regulating)
+                .setRegulationTerminal(terminal)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setTargetDeadband(0.5)
+                .beginStep()
+                .setR(39.78473)
+                .setX(39.784725)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(1.0)
+                .setAlpha(-10.0)
+                .endStep()
+                .beginStep()
+                .setR(39.78474)
+                .setX(39.784726)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(1.0)
+                .setAlpha(0.0)
+                .endStep()
+                .beginStep()
+                .setR(39.78475)
+                .setX(39.784727)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(1.0)
+                .setAlpha(10.0)
+                .endStep()
+                .add();
+    }
 }
