@@ -52,32 +52,32 @@ public class DanglingLineData {
 
         Complex v1 = new Complex(u1 * Math.cos(theta1), u1 * Math.sin(theta1));
 
-        Complex vDummyBus = new Complex(Double.NaN, Double.NaN);
+        Complex vBoundaryBus = new Complex(Double.NaN, Double.NaN);
         if (p0 == 0.0 && q0 == 0.0) {
             LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0, new Complex(g1, b1), new Complex(g2, b2));
-            vDummyBus = adm.y21.multiply(v1).negate().divide(adm.y22);
+            vBoundaryBus = adm.y21.multiply(v1).negate().divide(adm.y22);
         } else {
 
             // Two buses Loadflow
-            double pDummyBus = -p0;
-            double qDummyBus = -q0;
+            double pBoundaryBus = -p0;
+            double qBoundaryBus = -q0;
             Complex ytr = new Complex(r, x).reciprocal();
             Complex ysh2 = new Complex(g2, b2);
             Complex zt = ytr.add(ysh2).reciprocal();
             Complex v0 = ytr.multiply(v1).divide(ytr.add(ysh2));
             double v02 = v0.abs() * v0.abs();
 
-            double sigmar = (zt.getImaginary() * qDummyBus + zt.getReal() * pDummyBus) / v02;
-            double sigmai = (zt.getImaginary() * pDummyBus - zt.getReal() * qDummyBus) / v02;
+            double sigmar = (zt.getImaginary() * qBoundaryBus + zt.getReal() * pBoundaryBus) / v02;
+            double sigmai = (zt.getImaginary() * pBoundaryBus - zt.getReal() * qBoundaryBus) / v02;
             double d = 0.25 + sigmar - sigmai * sigmai;
             // d < 0 Collapsed network
             if (d >= 0) {
-                vDummyBus = new Complex(0.5 + Math.sqrt(d), sigmai).multiply(v0);
+                vBoundaryBus = new Complex(0.5 + Math.sqrt(d), sigmai).multiply(v0);
             }
         }
 
-        boundaryBusU = vDummyBus.abs();
-        boundaryBusTheta = vDummyBus.getArgument();
+        boundaryBusU = vBoundaryBus.abs();
+        boundaryBusTheta = vBoundaryBus.getArgument();
     }
 
     private static double getV(DanglingLine danglingLine) {
