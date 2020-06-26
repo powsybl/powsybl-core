@@ -185,13 +185,16 @@ public class PsseImporter implements Importer {
     private static void createShuntCompensator(PsseFixedShunt psseShunt, PerUnitContext perUnitContext, ContainersMapping containerMapping, Network network) {
         String busId = getBusId(psseShunt.getI());
         VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseShunt.getI()));
-        ShuntCompensator shunt = voltageLevel.newShuntCompensator()
+        ShuntCompensatorAdder adder = voltageLevel.newShuntCompensator()
                 .setId(busId + "-SH" + psseShunt.getId())
                 .setConnectableBus(busId)
-                .setbPerSection(psseShunt.getBl())//TODO: take into account gl
-                .setCurrentSectionCount(1)
+                .setBus(busId)
+                .setSectionCount(1);
+        adder.newLinearModel()
+                .setBPerSection(psseShunt.getBl())//TODO: take into account gl
                 .setMaximumSectionCount(1)
                 .add();
+        ShuntCompensator shunt = adder.add();
 
         if (psseShunt.getStatus() == 1) {
             shunt.getTerminal().connect();

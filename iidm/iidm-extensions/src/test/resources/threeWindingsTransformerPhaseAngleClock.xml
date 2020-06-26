@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_2" xmlns:threewtpac="http://www.powsybl.org/schema/iidm/ext/three_windings_transformer_phase_angle_clock/1_0" id="three-windings-transformer" caseDate="2018-03-05T13:30:30.486+01:00" forecastDistance="0" sourceFormat="test">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_3" xmlns:threewtpac="http://www.powsybl.org/schema/iidm/ext/three_windings_transformer_phase_angle_clock/1_0" id="three-windings-transformer" caseDate="2018-03-05T13:30:30.486+01:00" forecastDistance="0" sourceFormat="test">
     <iidm:substation id="SUBSTATION" country="FR">
         <iidm:voltageLevel id="VL_132" nominalV="132.0" lowVoltageLimit="118.8" highVoltageLimit="145.2" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>

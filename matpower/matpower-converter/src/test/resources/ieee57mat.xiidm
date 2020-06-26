@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_2" id="ieee57" caseDate="2020-01-01T00:00:00.000Z" forecastDistance="0" sourceFormat="MATPOWER">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_3" id="ieee57" caseDate="2020-01-01T00:00:00.000Z" forecastDistance="0" sourceFormat="MATPOWER">
     <iidm:substation id="SUB-38">
         <iidm:voltageLevel id="VL-1" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -44,7 +44,9 @@
                 <iidm:bus id="BUS-18" v="1.001" angle="-11.71"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-18" loadType="UNDEFINED" p0="27.2" q0="9.8" bus="BUS-18" connectableBus="BUS-18"/>
-            <iidm:shunt id="SHUNT-18" bPerSection="10.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="BUS-18" connectableBus="BUS-18"/>
+            <iidm:shunt id="SHUNT-18" sectionCount="1" voltageRegulatorOn="false" bus="BUS-18" connectableBus="BUS-18">
+                <iidm:shuntLinearModel bPerSection="10.0" maximumSectionCount="1"/>
+            </iidm:shunt>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT-4-18" r="0.0" x="0.00555" g="0.0" b="0.0" ratedU1="0.97" ratedU2="1.0" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId1="VL-4" bus2="BUS-18" connectableBus2="BUS-18" voltageLevelId2="VL-18"/>
         <iidm:twoWindingsTransformer id="TWT-4-18#0" r="0.0" x="0.0043" g="0.0" b="0.0" ratedU1="0.978" ratedU2="1.0" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId1="VL-4" bus2="BUS-18" connectableBus2="BUS-18" voltageLevelId2="VL-18"/>
@@ -265,7 +267,9 @@
                 <iidm:bus id="BUS-25" v="0.982" angle="-18.13"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-25" loadType="UNDEFINED" p0="6.3" q0="3.2" bus="BUS-25" connectableBus="BUS-25"/>
-            <iidm:shunt id="SHUNT-25" bPerSection="5.9" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="BUS-25" connectableBus="BUS-25"/>
+            <iidm:shunt id="SHUNT-25" sectionCount="1" voltageRegulatorOn="false" bus="BUS-25" connectableBus="BUS-25">
+                <iidm:shuntLinearModel bPerSection="5.9" maximumSectionCount="1"/>
+            </iidm:shunt>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL-26" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -441,7 +445,9 @@
                 <iidm:bus id="BUS-53" v="0.971" angle="-12.23"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-53" loadType="UNDEFINED" p0="20.0" q0="10.0" bus="BUS-53" connectableBus="BUS-53"/>
-            <iidm:shunt id="SHUNT-53" bPerSection="6.3" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="BUS-53" connectableBus="BUS-53"/>
+            <iidm:shunt id="SHUNT-53" sectionCount="1" voltageRegulatorOn="false" bus="BUS-53" connectableBus="BUS-53">
+                <iidm:shuntLinearModel bPerSection="6.3" maximumSectionCount="1"/>
+            </iidm:shunt>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-28">
