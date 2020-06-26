@@ -210,14 +210,16 @@ public class MatpowerImporter implements Importer {
             String busId = getId(BUS_PREFIX, mBus.getNumber());
             String shuntId = getId(SHUNT_PREFIX, mBus.getNumber());
             double zb = voltageLevel.getNominalV() * voltageLevel.getNominalV() / perUnitContext.getBaseMva();
-            ShuntCompensator newShunt = voltageLevel.newShuntCompensator()
+            ShuntCompensatorAdder adder = voltageLevel.newShuntCompensator()
                     .setId(shuntId)
                     .setConnectableBus(busId)
                     .setBus(busId)
-                    .setbPerSection(mBus.getShuntSusceptance() / perUnitContext.getBaseMva() / zb)
-                    .setCurrentSectionCount(1)
+                    .setSectionCount(1);
+            adder.newLinearModel()
+                    .setBPerSection(mBus.getShuntSusceptance() / perUnitContext.getBaseMva() / zb)
                     .setMaximumSectionCount(1)
                     .add();
+            ShuntCompensator newShunt = adder.add();
             LOGGER.debug("Created shunt {}", newShunt.getId());
         }
     }
