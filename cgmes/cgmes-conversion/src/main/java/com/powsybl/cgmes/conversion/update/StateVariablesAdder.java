@@ -165,7 +165,8 @@ public class StateVariablesAdder {
     private <I extends Injection> void addInjectionPowerFlowToCgmes(PropertyBags powerFlows,
         Iterable<I> injectionStream) {
         injectionStream.forEach(i -> {
-            PropertyBag p = createPowerFlowProperties(i.getTerminal());
+            int sequenceNumber = 1;
+            PropertyBag p = createPowerFlowProperties(i.getTerminal(), sequenceNumber);
             if (p != null) {
                 powerFlows.add(p);
             } else if (i instanceof Load) {
@@ -310,10 +311,10 @@ public class StateVariablesAdder {
         }
     }
 
-    private PropertyBag createPowerFlowProperties(Terminal terminal) {
+    private PropertyBag createPowerFlowProperties(Terminal terminal, int sequenceNumber) {
         // TODO If we could store a terminal identifier in IIDM
         // we would not need to obtain it querying CGMES for the related equipment
-        String cgmesTerminal = cgmes.terminalForEquipment(terminal.getConnectable().getId());
+        String cgmesTerminal = cgmes.terminalForEquipment(terminal.getConnectable().getId(), sequenceNumber);
         if (cgmesTerminal == null) {
             return null;
         }
