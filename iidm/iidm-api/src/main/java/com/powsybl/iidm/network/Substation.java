@@ -6,8 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -82,8 +81,6 @@ import java.util.stream.Stream;
  * @see SubstationAdder
  */
 public interface Substation extends Container<Substation> {
-
-    String GEOGRAPHICAL_TAGS_KEY = "geographicalTags";
 
     Network getNetwork();
 
@@ -168,7 +165,13 @@ public interface Substation extends Container<Substation> {
      * @deprecated use properties to store geographicalTags.
      */
     @Deprecated
-    Set<String> getGeographicalTags();
+    default Set<String> getGeographicalTags() {
+        if (hasProperty("geographicalTags")) {
+            return new HashSet<>(Arrays.asList(getProperty("geographicalTags").split(",")));
+        } else {
+            return Collections.emptySet();
+        }
+    }
 
     /**
      * Associate a new geographical tag to the substation.
@@ -176,7 +179,17 @@ public interface Substation extends Container<Substation> {
      * @deprecated use properties to store geographicalTags.
      */
     @Deprecated
-    Substation addGeographicalTag(String tag);
+    default Substation addGeographicalTag(String tag) {
+        if (tag == null) {
+            throw new IllegalArgumentException("geographical tag is null");
+        }
+        if (hasProperty("geographicalTags")) {
+            setProperty("geographicalTags", getProperty("geographicalTags") + "," + tag);
+        } else {
+            setProperty("geographicalTags", tag);
+        }
+        return this;
+    }
 
     /**
      * Remove this substation from the network.

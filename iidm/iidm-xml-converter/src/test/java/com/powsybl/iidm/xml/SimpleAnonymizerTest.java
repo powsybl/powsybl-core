@@ -12,9 +12,7 @@ import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Properties;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;

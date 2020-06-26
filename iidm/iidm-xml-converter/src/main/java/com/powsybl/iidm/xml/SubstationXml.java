@@ -12,6 +12,7 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import javax.xml.stream.XMLStreamException;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -79,17 +80,19 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
                 .map(c -> context.getAnonymizer().deanonymizeCountry(Country.valueOf(c)))
                 .orElse(null);
         String tso = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "tso"));
+
+        Substation sub = adder.setCountry(country)
+                .setTso(tso)
+                .add();
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
             String geographicalTags = context.getReader().getAttributeValue(null, "geographicalTags");
             if (geographicalTags != null) {
-                adder.setGeographicalTags(Arrays.stream(geographicalTags.split(","))
+                sub.setProperty("geographicalTags", Arrays.stream(geographicalTags.split(","))
                         .map(tag -> context.getAnonymizer().deanonymizeString(tag))
-                        .toArray(size -> new String[size]));
+                        .collect(Collectors.joining(",")));
             }
         });
-        return adder.setCountry(country)
-                .setTso(tso)
-                .add();
+        return sub;
     }
 
     @Override

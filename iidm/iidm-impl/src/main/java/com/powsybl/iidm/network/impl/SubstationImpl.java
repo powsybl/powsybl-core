@@ -144,29 +144,6 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     }
 
     @Override
-    public Set<String> getGeographicalTags() {
-        if (hasProperty(GEOGRAPHICAL_TAGS_KEY)) {
-            return new HashSet<>(Arrays.asList(getProperty(GEOGRAPHICAL_TAGS_KEY).split(",")));
-        } else {
-            return Collections.emptySet();
-        }
-    }
-
-    @Override
-    public Substation addGeographicalTag(String tag) {
-        if (tag == null) {
-            throw new IllegalArgumentException("geographical tag is null");
-        }
-        if (hasProperty(GEOGRAPHICAL_TAGS_KEY)) {
-            setProperty(GEOGRAPHICAL_TAGS_KEY, getProperty(GEOGRAPHICAL_TAGS_KEY) + "," + tag);
-        } else {
-            setProperty(GEOGRAPHICAL_TAGS_KEY, tag);
-        }
-        getNetwork().getListeners().notifyElementAdded(this, "geographicalTags", tag);
-        return this;
-    }
-
-    @Override
     protected String getTypeDescription() {
         return "Substation";
     }

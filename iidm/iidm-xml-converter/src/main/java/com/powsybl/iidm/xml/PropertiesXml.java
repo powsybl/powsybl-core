@@ -10,7 +10,6 @@ package com.powsybl.iidm.xml;
 import javax.xml.stream.XMLStreamException;
 
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Substation;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -25,17 +24,10 @@ public final class PropertiesXml {
     public static void write(Identifiable<?> identifiable, NetworkXmlWriterContext context) throws XMLStreamException {
         if (identifiable.hasProperty()) {
             for (String name : identifiable.getPropertyNames()) {
-                if (!name.equals(Substation.GEOGRAPHICAL_TAGS_KEY)) {
-                    String value = identifiable.getProperty(name);
-                    context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), PROPERTY);
-                    context.getWriter().writeAttribute(NAME, name);
-                    context.getWriter().writeAttribute(VALUE, value);
-                } else {
-                    String value = context.getAnonymizer().anonymizeString(identifiable.getProperty(name));
-                    context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), PROPERTY);
-                    context.getWriter().writeAttribute(NAME, name);
-                    context.getWriter().writeAttribute(VALUE, value);
-                }
+                String value = identifiable.getProperty(name);
+                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), PROPERTY);
+                context.getWriter().writeAttribute(NAME, name);
+                context.getWriter().writeAttribute(VALUE, value);
             }
         }
     }
@@ -43,12 +35,7 @@ public final class PropertiesXml {
     public static void read(Identifiable identifiable, NetworkXmlReaderContext context) {
         assert context.getReader().getLocalName().equals(PROPERTY);
         String name = context.getReader().getAttributeValue(null, NAME);
-        String value;
-        if (!name.equals(Substation.GEOGRAPHICAL_TAGS_KEY)) {
-            value = context.getReader().getAttributeValue(null, VALUE);
-        } else {
-            value = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, VALUE));
-        }
+        String value = context.getReader().getAttributeValue(null, VALUE);
         identifiable.setProperty(name, value);
     }
 

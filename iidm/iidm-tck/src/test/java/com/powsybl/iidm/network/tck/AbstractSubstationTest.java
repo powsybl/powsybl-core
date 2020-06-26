@@ -9,9 +9,7 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ContainerType;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.Substation;
 import org.junit.Before;
 import org.junit.Rule;
@@ -20,7 +18,6 @@ import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.Mockito.*;
 
 public abstract class AbstractSubstationTest {
 
@@ -59,25 +56,6 @@ public abstract class AbstractSubstationTest {
         assertEquals(Country.AF, substation.getCountry().orElse(null));
         substation.setTso("new tso");
         assertEquals("new tso", substation.getTso());
-
-        // Create mocked network listeners
-        NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementAdded(any(), anyString(), any());
-        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
-        // Test without listeners registered
-        substation.addGeographicalTag("no listeners");
-        verifyNoMoreInteractions(mockedListener);
-        verifyNoMoreInteractions(exceptionListener);
-        // Add observer changes to current network
-        network.addListener(exceptionListener);
-        network.addListener(mockedListener);
-        // Change in order to raise update notification
-        substation.addGeographicalTag("test");
-        // Check notification done
-        verify(mockedListener, times(1))
-               .onElementAdded(any(Substation.class), anyString(), anyString());
-        // Remove observer
-        network.removeListener(mockedListener);
     }
 
     @Test

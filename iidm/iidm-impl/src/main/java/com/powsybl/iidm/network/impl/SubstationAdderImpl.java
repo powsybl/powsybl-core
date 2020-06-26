@@ -62,7 +62,7 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
         String id = checkAndGetUniqueId();
         SubstationImpl substation = new SubstationImpl(id, getName(), isFictitious(), country, tso, networkRef);
         if (tags != null) {
-            substation.setProperty(Substation.GEOGRAPHICAL_TAGS_KEY, String.join(",", tags));
+            substation.setProperty("geographicalTags", String.join(",", tags));
         }
         getNetwork().getIndex().checkAndAdd(substation);
         getNetwork().getListeners().notifyCreation(substation);
