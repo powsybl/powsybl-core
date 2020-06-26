@@ -5,6 +5,7 @@
   "phaseShifterRegulationOn" : false,
   "noGeneratorReactiveLimits" : false,
   "twtSplitShuntAdmittance" : false,
+  "simulShunt" : false,
   "extensions" : {
     "dummy-extension" : { }
   }
