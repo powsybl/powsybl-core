@@ -269,8 +269,8 @@ public class CgmesConformity1ModifiedConversionTest {
         ShuntCompensator shunt = network.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da");
         assertNotNull(shunt);
         assertEquals(1, shunt.getMaximumSectionCount());
-        assertEquals(0.0012, shunt.getbPerSection(), 0.0);
-        assertEquals(1, shunt.getCurrentSectionCount());
+        assertEquals(0.0012, shunt.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
+        assertEquals(1, shunt.getSectionCount());
     }
 
     @Test

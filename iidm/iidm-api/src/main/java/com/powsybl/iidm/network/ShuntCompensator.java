@@ -17,20 +17,8 @@ package com.powsybl.iidm.network;
 public interface ShuntCompensator extends Injection<ShuntCompensator> {
 
     /**
-     * Get the maximum section count.
-     */
-    int getMaximumSectionCount();
-
-    /**
-     * Set the maximum number of section.
-     *
-     * @param maximumSectionCount the maximum number of section
-     * @return the shunt compensator to chain method calls.
-     */
-    ShuntCompensator setMaximumSectionCount(int maximumSectionCount);
-
-    /**
-     * Get the current section count.
+     * Get the count of sections in service.
+     * Please note sections can only be sequentially in service i.e. the first sectionCount sections are in service.
      * <p>
      * It is expected to be greater than one and lesser than or equal to the
      * maximum section count.
@@ -38,50 +26,74 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * Depends on the working variant.
      * @see VariantManager
      */
-    int getCurrentSectionCount();
+    int getSectionCount();
 
     /**
-     * Change the number of section.
-     *
+     * Get the maximum number of sections that can be in service
+     */
+    int getMaximumSectionCount();
+
+    /**
+     * Change the count of sections in service.
+     * Please note sections can only be sequentially in service i.e. the first sectionCount sections are in service.
      * <p>
      * Depends on the working variant.
      *
      * @see VariantManager
-     * @param currentSectionCount the number of section
+     * @param sectionCount the number of sections wanted to be put in service
      * @return the shunt compensator to chain method calls.
      */
-    ShuntCompensator setCurrentSectionCount(int currentSectionCount);
+    ShuntCompensator setSectionCount(int sectionCount);
 
     /**
-     * Get the susceptance per section in S.
-     */
-    double getbPerSection();
-
-    /**
-     * Set the susceptance per section in S.
-     *
-     * @param bPerSection the susceptance per section
-     * @return the shunt compensator to chain method calls.
-     */
-    ShuntCompensator setbPerSection(double bPerSection);
-
-    /**
-     * Get the susceptance for the maximum section count.
-     *
-     * @deprecated Use {@link #getbPerSection()} * {@link #getMaximumSectionCount()} instead.
-     */
-    @Deprecated
-    default double getMaximumB() {
-        return getbPerSection() * getMaximumSectionCount();
-    }
-
-    /**
-     * Get the susceptance for the current section counts.
+     * Get the susceptance (in S) of the shunt in its current state i.e. the sum of the sections' susceptances for all sections in service.
+     * Return 0 if no section is in service (disconnected state).
+     * @see #getSectionCount()
      * <p>
      * Depends on the working variant.
      * @see VariantManager
      */
-    double getCurrentB();
+    double getB();
+
+    /**
+     * Get the conductance (in S) of the shunt in its current state i.e. the sum of the sections' conductances for all sections in service.
+     * If the conductance of a section in service is undefined, it is considered equal to 0.
+     * Return 0 if no section is in service (disconnected state).
+     * @see #getSectionCount()
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    double getG();
+
+    /**
+     * Get the susceptance (in S) for a given activated sections count i.e. the sum of the sections' susceptances from 1 to sectionCount.
+     * Return O if sectionCount is equal to 0 (disconnected state).
+     *
+     * @param sectionCount count of wanted activated sections. Must be in [0; maximumSectionCount]. Else, throws a {@link ValidationException}.
+     */
+    double getB(int sectionCount);
+
+    /**
+     * Get the conductance (in S) for a given activated sections count i.e. the sum of the sections' conductances from 1 to sectionCount.
+     * If the conductance of a section is undefined, it is considered equal to 0.
+     * Return 0 if sectionCount is equal to 0 (disconnected state).
+     *
+     * @param sectionCount count of wanted activated sections. Must be in [0; maximumSectionCount]. Else, throws a {@link ValidationException}.
+     */
+    double getG(int sectionCount);
+
+    /**
+     * Get the model type of the shunt compensator (linear or non-linear)
+     */
+    ShuntCompensatorModelType getModelType();
+
+    /**
+     * Get the shunt model.
+     */
+    ShuntCompensatorModel getModel();
+
+    <M extends ShuntCompensatorModel> M getModel(Class<M> modelType);
 
     /**
      * Get the terminal used for regulation.
