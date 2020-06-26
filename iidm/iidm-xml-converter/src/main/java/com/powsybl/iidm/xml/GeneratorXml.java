@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -90,13 +91,9 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case "regulatingTerminal":
-                    String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
+                    String id = Optional.ofNullable(context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"))).orElse(g.getId());
                     String side = context.getReader().getAttributeValue(null, "side");
-                    if (id != null) {
-                        context.getEndTasks().add(() -> g.setRegulatingTerminal(TerminalRefXml.readTerminalRef(g.getTerminal().getVoltageLevel().getSubstation().getNetwork(), id, side)));
-                    } else {
-                        context.getEndTasks().add(() -> g.setRegulatingTerminal(TerminalRefXml.readTerminalRef(g.getTerminal().getVoltageLevel().getSubstation().getNetwork(), g.getId(), side)));
-                    }
+                    context.getEndTasks().add(() -> g.setRegulatingTerminal(TerminalRefXml.readTerminalRef(g.getTerminal().getVoltageLevel().getSubstation().getNetwork(), id, side)));
                     break;
 
                 case "reactiveCapabilityCurve":

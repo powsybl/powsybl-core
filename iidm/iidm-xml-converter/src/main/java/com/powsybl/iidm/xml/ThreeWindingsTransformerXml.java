@@ -191,30 +191,30 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
                 case RATIO_TAP_CHANGER_1:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, RATIO_TAP_CHANGER_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-                    readRatioTapChanger(1, tx.getLeg1(), tx.getId(), context);
+                    readRatioTapChanger(tx, 1, tx.getLeg1(), context);
                     break;
 
                 case PHASE_TAP_CHANGER_1:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-                    readPhaseTapChanger(1, tx.getLeg1(), tx.getId(), context);
+                    readPhaseTapChanger(tx, 1, tx.getLeg1(), context);
                     break;
 
                 case RATIO_TAP_CHANGER_2:
-                    readRatioTapChanger(2, tx.getLeg2(), tx.getId(), context);
+                    readRatioTapChanger(tx, 2, tx.getLeg2(), context);
                     break;
 
                 case PHASE_TAP_CHANGER_2:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-                    readPhaseTapChanger(2, tx.getLeg2(), tx.getId(), context);
+                    readPhaseTapChanger(tx, 2, tx.getLeg2(), context);
                     break;
 
                 case RATIO_TAP_CHANGER_3:
-                    readRatioTapChanger(3, tx.getLeg3(), tx.getId(), context);
+                    readRatioTapChanger(tx, 3, tx.getLeg3(), context);
                     break;
 
                 case PHASE_TAP_CHANGER_3:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_3, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-                    readPhaseTapChanger(3, tx.getLeg3(), tx.getId(), context);
+                    readPhaseTapChanger(tx, 3, tx.getLeg3(), context);
                     break;
 
                 default:

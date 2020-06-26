@@ -59,11 +59,11 @@ public final class TerminalRefXml {
         }
         writer.writeEmptyElement(namespace, elementName);
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () ->
-                XmlUtil.writeStringAttribute("id", context.getAnonymizer().anonymizeString(c.getId()), writer)
+                XmlUtil.writeString("id", context.getAnonymizer().anonymizeString(c.getId()), writer)
         );
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-            if (!c.equals(owner)) {
-                XmlUtil.writeStringAttribute("id", context.getAnonymizer().anonymizeString(c.getId()), writer);
+            if (c != owner) {
+                XmlUtil.writeString("id", context.getAnonymizer().anonymizeString(c.getId()), writer);
             }
         });
         if (c.getTerminals().size() > 1) {

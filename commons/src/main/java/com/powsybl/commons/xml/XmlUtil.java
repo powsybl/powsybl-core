@@ -127,7 +127,7 @@ public final class XmlUtil {
         }
     }
 
-    public static void writeStringAttribute(String attributeName, String value, XMLStreamWriter writer) {
+    public static void writeString(String attributeName, String value, XMLStreamWriter writer) {
         try {
             writer.writeAttribute(attributeName, value);
         } catch (XMLStreamException e) {
