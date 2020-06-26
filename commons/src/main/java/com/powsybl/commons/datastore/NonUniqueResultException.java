@@ -11,4 +11,8 @@ package com.powsybl.commons.datastore;
  */
 public class NonUniqueResultException extends Exception {
 
+    public NonUniqueResultException(String message) {
+        super(message);
+    }
+
 }

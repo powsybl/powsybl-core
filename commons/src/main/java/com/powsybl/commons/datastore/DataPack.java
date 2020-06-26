@@ -10,11 +10,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
@@ -36,10 +38,13 @@ public class DataPack {
     }
 
     public List<DataEntry> getEntries() {
-        return entries;
+        return Collections.unmodifiableList(entries);
     }
 
     public void addEntry(DataEntry entry) {
+        if (entry.getTags().contains(MAIN_ENTRY_TAG) && getMainEntry().isPresent()) {
+            throw new PowsyblException("Main entry already added");
+        }
         entries.add(entry);
     }
 
