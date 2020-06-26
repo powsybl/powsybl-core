@@ -13,31 +13,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.MinMaxReactiveLimits;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChangerStep;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.iidm.network.ReactiveCapabilityCurve;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
-import com.powsybl.iidm.network.ReactiveLimits;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.TapChanger;
-import com.powsybl.iidm.network.TapChangerStep;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
@@ -152,9 +129,9 @@ public class Comparison {
     // Buses in bus breaker view are not inserted in the index for Network Identifiables
     // We prepare an index external to the network for comparing the two lists
     private void compareBuses(
-        Stream<Bus> expecteds,
-        Stream<Bus> actuals,
-        BiConsumer<Bus, Bus> testAttributes) {
+            Stream<Bus> expecteds,
+            Stream<Bus> actuals,
+            BiConsumer<Bus, Bus> testAttributes) {
         Map<String, Bus> actualsById = new HashMap<>();
         actuals.forEach(b -> actualsById.put(b.getId(), b));
         Map<String, Bus> expectedsById = new HashMap<>();
@@ -229,12 +206,9 @@ public class Comparison {
         equivalent("VoltageLevel",
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
-        compare("maximumSectionCount",
-                expected.getMaximumSectionCount(),
-                actual.getMaximumSectionCount());
-        compare("bPerSection",
-                expected.getbPerSection(),
-                actual.getbPerSection());
+        compare("sectionCount",
+                expected.getSectionCount(),
+                actual.getSectionCount());
         compare("voltageRegulationOn",
                 expected.isVoltageRegulatorOn(),
                 actual.isVoltageRegulatorOn());
@@ -247,6 +221,47 @@ public class Comparison {
         sameIdentifier("regulationTerminal",
                 expected.getRegulatingTerminal().getBusBreakerView().getBus(),
                 actual.getRegulatingTerminal().getBusBreakerView().getBus());
+        compareShuntModels(expected, actual);
+    }
+
+    private void compareShuntModels(ShuntCompensator expected, ShuntCompensator actual) {
+        switch (expected.getModelType()) {
+            case LINEAR:
+                compare("maximumSectionCount",
+                        expected.getMaximumSectionCount(),
+                        actual.getMaximumSectionCount());
+                compare("bPerSection",
+                        expected.getModel(ShuntCompensatorLinearModel.class).getBPerSection(),
+                        actual.getModel(ShuntCompensatorLinearModel.class).getBPerSection());
+                compare("gPerSection",
+                        expected.getModel(ShuntCompensatorLinearModel.class).getGPerSection(),
+                        actual.getModel(ShuntCompensatorLinearModel.class).getGPerSection());
+                break;
+            case NON_LINEAR:
+                ShuntCompensatorNonLinearModel expectedModel = expected.getModel(ShuntCompensatorNonLinearModel.class);
+                ShuntCompensatorNonLinearModel actualModel = actual.getModel(ShuntCompensatorNonLinearModel.class);
+                if (expectedModel.getAllSections().size() > actualModel.getAllSections().size()) {
+                    for (int i = actualModel.getAllSections().size(); i < expectedModel.getAllSections().size(); i++) {
+                        diff.missing("section" + i);
+                    }
+                }
+                if (expectedModel.getAllSections().size() < actualModel.getAllSections().size()) {
+                    for (int i = expectedModel.getAllSections().size(); i < actualModel.getAllSections().size(); i++) {
+                        diff.unexpected("section" + i);
+                    }
+                }
+                List<ShuntCompensatorNonLinearModel.Section> expectedSections = expectedModel.getAllSections();
+                List<ShuntCompensatorNonLinearModel.Section> actualSections = actualModel.getAllSections();
+                for (int i = 0; i < expectedSections.size(); i++) {
+                    ShuntCompensatorNonLinearModel.Section expectedSection = expectedSections.get(i);
+                    ShuntCompensatorNonLinearModel.Section actualSection = actualSections.get(i);
+                    compare("section" + i + 1 + ".b", expectedSection.getB(), actualSection.getB());
+                    compare("section" + i + 1 + ".g", expectedSection.getG(), actualSection.getG());
+                }
+                break;
+            default:
+                throw new AssertionError("Unexpected shunt model type: " + expected.getModelType());
+        }
     }
 
     private void compareStaticVarCompensators(
@@ -489,7 +504,7 @@ public class Comparison {
     }
 
     private void compareThreeWindingsTransformers(ThreeWindingsTransformer expected,
-        ThreeWindingsTransformer actual) {
+                                                  ThreeWindingsTransformer actual) {
         compareLeg(expected.getLeg1(), actual.getLeg1(), expected, actual);
         compareLeg(expected.getLeg2(), actual.getLeg2(), expected, actual);
         compareLeg(expected.getLeg3(), actual.getLeg3(), expected, actual);
@@ -512,10 +527,10 @@ public class Comparison {
     }
 
     private void compareLeg(ThreeWindingsTransformer.Leg expected, ThreeWindingsTransformer.Leg actual,
-        ThreeWindingsTransformer expectedt, ThreeWindingsTransformer actualt) {
+                            ThreeWindingsTransformer expectedt, ThreeWindingsTransformer actualt) {
         equivalent("VoltageLevel",
-            expected.getTerminal().getVoltageLevel(),
-            actual.getTerminal().getVoltageLevel());
+                expected.getTerminal().getVoltageLevel(),
+                actual.getTerminal().getVoltageLevel());
         compare("r", expected.getR(), actual.getR());
         compare("x", expected.getX(), actual.getX());
         compare("g", expected.getG(), actual.getG());
@@ -523,8 +538,8 @@ public class Comparison {
 
         compare("ratedU", expected.getRatedU(), actual.getRatedU());
         compareCurrentLimits(expectedt, actualt,
-            expected.getCurrentLimits(),
-            actual.getCurrentLimits());
+                expected.getCurrentLimits(),
+                actual.getCurrentLimits());
         compareRatioTapChanger(expected.getRatioTapChanger(), actual.getRatioTapChanger());
         comparePhaseTapChanger(expected.getPhaseTapChanger(), actual.getPhaseTapChanger());
     }
@@ -692,9 +707,9 @@ public class Comparison {
     }
 
     private void sameIdentifier(
-        String context,
-        Identifiable expected,
-        Identifiable actual) {
+            String context,
+            Identifiable expected,
+            Identifiable actual) {
         boolean sameIdentifier;
         if (expected == null) {
             sameIdentifier = actual == null;

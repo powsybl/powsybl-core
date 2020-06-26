@@ -7,6 +7,8 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.ShuntCompensatorModel;
+import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import com.powsybl.iidm.network.Terminal;
 
 /**
@@ -22,41 +24,54 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     // Simple delegated methods ------
     // -------------------------------
     @Override
+    public int getSectionCount() {
+        return getDelegate().getSectionCount();
+    }
+
+    @Override
     public int getMaximumSectionCount() {
         return getDelegate().getMaximumSectionCount();
     }
 
     @Override
-    public ShuntCompensator setMaximumSectionCount(final int maximumSectionCount) {
-        getDelegate().setMaximumSectionCount(maximumSectionCount);
+    public ShuntCompensator setSectionCount(final int sectionCount) {
+        getDelegate().setSectionCount(sectionCount);
         return this;
     }
 
     @Override
-    public int getCurrentSectionCount() {
-        return getDelegate().getCurrentSectionCount();
+    public double getB() {
+        return getDelegate().getB();
     }
 
     @Override
-    public ShuntCompensator setCurrentSectionCount(final int currentSectionCount) {
-        getDelegate().setCurrentSectionCount(currentSectionCount);
-        return this;
+    public double getG() {
+        return getDelegate().getG();
     }
 
     @Override
-    public double getbPerSection() {
-        return getDelegate().getbPerSection();
+    public double getB(int sectionCount) {
+        return getDelegate().getB(sectionCount);
     }
 
     @Override
-    public ShuntCompensator setbPerSection(final double bPerSection) {
-        getDelegate().setbPerSection(bPerSection);
-        return this;
+    public double getG(int sectionCount) {
+        return getDelegate().getG(sectionCount);
     }
 
     @Override
-    public double getCurrentB() {
-        return getDelegate().getCurrentB();
+    public ShuntCompensatorModelType getModelType() {
+        return getDelegate().getModelType();
+    }
+
+    @Override
+    public ShuntCompensatorModel getModel() {
+        return getDelegate().getModel();
+    }
+
+    @Override
+    public <M extends ShuntCompensatorModel> M getModel(Class<M> modelType) {
+        return getDelegate().getModel(modelType);
     }
 
     @Override
