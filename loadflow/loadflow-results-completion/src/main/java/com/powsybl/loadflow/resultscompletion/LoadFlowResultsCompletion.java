@@ -118,7 +118,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
                     && terminal.getBusView().getBus() != null
                     && terminal.getBusView().getBus().isInMainConnectedComponent()) {
                 double v = terminal.getBusView().getBus().getV();
-                double q = -sh.getCurrentB() * v * v;
+                double q = -sh.getB() * v * v;
                 LOGGER.debug("Shunt {}, setting q = {}", sh, q);
                 terminal.setQ(q);
             }
