@@ -109,7 +109,9 @@ public class ExportersTest extends AbstractConvertersTest {
     public void exportDataStoreFallback() throws IOException {
         Path dir = Files.createTempDirectory("tmp-export");
         DataStore dataStore = DataStores.createDataStore(dir);
-        TestExporter testExporter = new TestExporter();
-        testExporter.export(null, null, dataStore, "filename.tst");
+        testExporter.export(null, null, dataStore, "tmp2.tst");
+        try (InputStream is = Files.newInputStream(dir.resolve("tmp2.tst"))) {
+            assertEquals(Byte.BYTES, is.read());
+        }
     }
 }

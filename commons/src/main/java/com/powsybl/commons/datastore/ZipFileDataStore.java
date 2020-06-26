@@ -41,7 +41,7 @@ public class ZipFileDataStore implements DataStore {
 
         if (Files.exists(path)) {
             try (ZipFile zipFile = new ZipFile(path)) {
-                List<String> list = new ArrayList();
+                List<String> list = new ArrayList<>();
                 Iterators.forEnumeration(zipFile.entries()).forEachRemaining(e -> list.add(e.getName()));
                 return Collections.unmodifiableList(list);
             }
