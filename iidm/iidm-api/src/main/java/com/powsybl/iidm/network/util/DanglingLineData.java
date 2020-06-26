@@ -29,8 +29,8 @@ public class DanglingLineData {
     private final double p0;
     private final double q0;
 
-    double dummyBusU;
-    double dummyBusTheta;
+    double boundaryBusU;
+    double boundaryBusTheta;
 
     public DanglingLineData(DanglingLine danglingLine) {
 
@@ -47,8 +47,8 @@ public class DanglingLineData {
         u1 = getV(danglingLine);
         theta1 = getTheta(danglingLine);
 
-        dummyBusU = Double.NaN;
-        dummyBusTheta = Double.NaN;
+        boundaryBusU = Double.NaN;
+        boundaryBusTheta = Double.NaN;
 
         Complex v1 = new Complex(u1 * Math.cos(theta1), u1 * Math.sin(theta1));
 
@@ -76,8 +76,8 @@ public class DanglingLineData {
             }
         }
 
-        dummyBusU = vDummyBus.abs();
-        dummyBusTheta = vDummyBus.getArgument();
+        boundaryBusU = vDummyBus.abs();
+        boundaryBusTheta = vDummyBus.getArgument();
     }
 
     private static double getV(DanglingLine danglingLine) {
@@ -107,12 +107,12 @@ public class DanglingLineData {
         return id;
     }
 
-    public double getDummyBusU() {
-        return dummyBusU;
+    public double getBoundaryBusU() {
+        return boundaryBusU;
     }
 
-    public double getDummyBusTheta() {
-        return dummyBusTheta;
+    public double getBoundaryBusTheta() {
+        return boundaryBusTheta;
     }
 }
 

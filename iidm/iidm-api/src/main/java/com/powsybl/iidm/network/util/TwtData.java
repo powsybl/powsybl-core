@@ -106,7 +106,6 @@ public class TwtData {
         Objects.requireNonNull(twt);
         id = twt.getId();
 
-        System.err.printf("T3wt twtData %s %n", id);
         p1 = twt.getLeg1().getTerminal().getP();
         q1 = twt.getLeg1().getTerminal().getQ();
         p2 = twt.getLeg2().getTerminal().getP();
