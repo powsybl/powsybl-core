@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_2" xmlns:mxn="http://www.itesla_project.eu/schema/iidm/ext/merged_xnode/1_0" id="test" caseDate="2016-06-27T12:27:58.535+02:00" forecastDistance="0" sourceFormat="test">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_3" xmlns:mxn="http://www.itesla_project.eu/schema/iidm/ext/merged_xnode/1_0" id="test" caseDate="2016-06-27T12:27:58.535+02:00" forecastDistance="0" sourceFormat="test">
     <iidm:substation id="S1" country="FR">
         <iidm:voltageLevel id="VL1" nominalV="400.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
