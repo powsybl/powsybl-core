@@ -191,7 +191,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         shunt = Mockito.mock(ShuntCompensator.class);
         Mockito.when(shunt.getId()).thenReturn(shuntId);
         Mockito.when(shunt.getTerminal()).thenReturn(shuntTerminal);
-        Mockito.when(shunt.getCurrentB()).thenReturn(0.099769);
+        Mockito.when(shunt.getB()).thenReturn(0.099769);
 
         Bus leg1Bus = Mockito.mock(Bus.class);
         Mockito.when(leg1Bus.getV()).thenReturn(412.989001);
