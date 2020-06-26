@@ -7,6 +7,12 @@
 package com.powsybl.commons.datastore;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import org.junit.Test;
+
+import com.powsybl.commons.PowsyblException;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
@@ -18,4 +24,19 @@ public class DirectoryDataStoreTest extends AbstractDataStoreTest {
         return DataStores.createDataStore(testDir);
     }
 
+    @Test(expected = PowsyblException.class)
+    public void testSubfolder() throws IOException {
+
+        try (OutputStream os = dataStore.newOutputStream("b/a.txt", false)) {
+            // subfolder creation not supported
+        }
+    }
+
+    @Test(expected = PowsyblException.class)
+    public void testSubfolderRead() throws IOException {
+
+        try (InputStream os = dataStore.newInputStream("b/a.txt")) {
+            // subfolders not supported
+        }
+    }
 }
