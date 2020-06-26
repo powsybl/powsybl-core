@@ -6,10 +6,11 @@
  */
 package com.powsybl.iidm.export;
 
+import java.util.Properties;
+
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datastore.DataStore;
 import com.powsybl.iidm.network.Network;
-import java.util.Properties;
 
 /**
  * This is the base class for all IIDM exporters.
@@ -53,7 +54,7 @@ public interface Exporter {
      * @param exported file name
      */
     default void export(Network network, Properties parameters, DataStore dataStore, String filename) {
-        throw new UnsupportedOperationException("Method not implemented");
+        export(network, parameters, dataStore.toDataSource(filename));
     }
 
 }

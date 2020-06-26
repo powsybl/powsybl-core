@@ -11,15 +11,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
-import com.powsybl.commons.io.ForwardingInputStream;
+import com.google.common.collect.Iterators;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.ZipFileDataSource;
+import com.powsybl.commons.util.Filenames;
+import com.powsybl.commons.util.ZipEntryInputStream;
 import com.powsybl.commons.util.ZipEntryOutputStream;
 
-import net.java.truevfs.comp.zip.ZipEntry;
 import net.java.truevfs.comp.zip.ZipFile;
 
 /**
@@ -30,8 +33,7 @@ public class ZipFileDataStore implements DataStore {
     private final Path path;
 
     public ZipFileDataStore(Path path) {
-        Objects.requireNonNull(path);
-        this.path = path;
+        this.path = Objects.requireNonNull(path);
     }
 
     @Override
@@ -39,7 +41,9 @@ public class ZipFileDataStore implements DataStore {
 
         if (Files.exists(path)) {
             try (ZipFile zipFile = new ZipFile(path)) {
-                return Collections.list(zipFile.entries()).stream().map(ZipEntry::getName).collect(Collectors.toList());
+                List<String> list = new ArrayList();
+                Iterators.forEnumeration(zipFile.entries()).forEachRemaining(e -> list.add(e.getName()));
+                return Collections.unmodifiableList(list);
             }
         }
         return Collections.emptyList();
@@ -47,7 +51,7 @@ public class ZipFileDataStore implements DataStore {
 
     @Override
     public boolean exists(String entryName) {
-        if (Files.exists(path)) {
+        if (entryName != null && Files.exists(path)) {
             try (ZipFile zipFile = new ZipFile(path)) {
                 return zipFile.entry(entryName) != null;
             } catch (IOException e) {
@@ -59,8 +63,6 @@ public class ZipFileDataStore implements DataStore {
 
     @Override
     public InputStream newInputStream(String entryName) throws IOException {
-        Objects.requireNonNull(entryName);
-
         if (exists(entryName)) {
             return new ZipEntryInputStream(new ZipFile(path), entryName);
         }
@@ -77,21 +79,9 @@ public class ZipFileDataStore implements DataStore {
         return new ZipEntryOutputStream(path, entryName);
     }
 
-    private static final class ZipEntryInputStream extends ForwardingInputStream<InputStream> {
-
-        private final ZipFile zipFile;
-
-        public ZipEntryInputStream(ZipFile zipFile, String fileName) throws IOException {
-            super(zipFile.getInputStream(fileName));
-            this.zipFile = zipFile;
-        }
-
-        @Override
-        public void close() throws IOException {
-            super.close();
-
-            zipFile.close();
-        }
+    @Override
+    public DataSource toDataSource(String filename) {
+        return new ZipFileDataSource(path.getParent(), Filenames.getBasename(path.getFileName().toString()));
     }
 
 }

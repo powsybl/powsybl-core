@@ -8,6 +8,8 @@ package com.powsybl.iidm.export;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datastore.DataStore;
+import com.powsybl.commons.datastore.DataStores;
 import com.powsybl.iidm.AbstractConvertersTest;
 
 import org.junit.Test;
@@ -101,5 +103,13 @@ public class ExportersTest extends AbstractConvertersTest {
         try (InputStream is = Files.newInputStream(dir.resolve("tmp.tst"))) {
             assertEquals(Byte.BYTES, is.read());
         }
+    }
+
+    @Test
+    public void exportDataStoreFallback() throws IOException {
+        Path dir = Files.createTempDirectory("tmp-export");
+        DataStore dataStore = DataStores.createDataStore(dir);
+        TestExporter testExporter = new TestExporter();
+        testExporter.export(null, null, dataStore, "filename.tst");
     }
 }

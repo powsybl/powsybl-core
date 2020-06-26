@@ -25,6 +25,7 @@ import org.junit.Test;
 import com.google.common.io.ByteStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.datasource.DataSource;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
@@ -35,7 +36,7 @@ public abstract class AbstractDataStoreTest {
 
     protected Path testDir;
 
-    private DataStore dataStore;
+    protected DataStore dataStore;
 
     @Before
     public void setUp() throws Exception {
@@ -58,7 +59,8 @@ public abstract class AbstractDataStoreTest {
 
     @Test
     public void test() throws IOException {
-        writeThenReadTest();
+        writeThenReadTest("test.txt");
+        dataSourceConversionTest("test.txt");
     }
 
     private void writeThenReadTest(String entry) throws IOException {
@@ -88,9 +90,13 @@ public abstract class AbstractDataStoreTest {
 
     }
 
-    @Test
-    public void writeThenReadTest() throws IOException {
-        writeThenReadTest("test.txt");
+    private void dataSourceConversionTest(String entryName) throws IOException {
+        DataSource dataSource = dataStore.toDataSource(entryName);
+        assertTrue(dataSource.exists(entryName));
+
+        try (InputStream is = dataSource.newInputStream(entryName)) {
+            assertEquals("line1", new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
+        }
     }
 
 }

@@ -17,7 +17,10 @@ import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
+import com.powsybl.commons.datasource.GzFileDataSource;
+import com.powsybl.commons.util.Filenames;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
@@ -25,21 +28,21 @@ import com.powsybl.commons.datasource.DataSourceUtil;
 public class GzipFileDataStore implements DataStore {
 
     private final Path path;
+    private String entryFilename;
 
     public GzipFileDataStore(Path path) {
-        Objects.requireNonNull(path);
-        this.path = path;
+        this.path = Objects.requireNonNull(path);
+        entryFilename = Filenames.getBasename(path.getFileName().toString());
     }
 
     @Override
     public List<String> getEntryNames() throws IOException {
-        return Collections.singletonList(getEntryName());
+        return Collections.singletonList(entryFilename);
     }
 
     @Override
     public boolean exists(String entryName) {
-        String tmp = getEntryName();
-        return tmp.equals(entryName);
+        return entryFilename.equals(entryName);
     }
 
     @Override
@@ -52,8 +55,9 @@ public class GzipFileDataStore implements DataStore {
         return new GZIPOutputStream(Files.newOutputStream(path, DataSourceUtil.getOpenOptions(append)));
     }
 
-    private String getEntryName() {
-        String fileName = path.getFileName().toString();
-        return DataStores.getBasename(fileName);
+    @Override
+    public DataSource toDataSource(String filename) {
+        return new GzFileDataSource(path.getParent(), filename);
     }
+
 }
