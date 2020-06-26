@@ -18,6 +18,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datastore.DataEntry;
+import com.powsybl.commons.datastore.DataFormat;
 import com.powsybl.commons.datastore.DataPack;
 import com.powsybl.commons.datastore.NonUniqueResultException;
 import com.powsybl.commons.datastore.ReadOnlyDataStore;
@@ -927,8 +928,7 @@ public class UcteImporter implements Importer {
     @Override
     public boolean exists(ReadOnlyDataStore dataStore, String fileName) {
         try {
-            UcteDataFormat df = new UcteDataFormat();
-            Optional<DataPack> dp = df.getDataResolver().resolve(dataStore, fileName, null);
+            Optional<DataPack> dp = UcteDataFormat.INSTANCE.newDataResolver().resolve(dataStore, fileName, null);
             if (dp.isPresent()) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataStore.newInputStream(fileName)))) {
                     return new UcteReader().checkHeader(reader);
@@ -944,8 +944,7 @@ public class UcteImporter implements Importer {
     public Network importDataStore(ReadOnlyDataStore dataStore, String fileName, NetworkFactory networkFactory,
             Properties parameters) {
         try {
-            UcteDataFormat df = new UcteDataFormat();
-            Optional<DataPack> dp = df.getDataResolver().resolve(dataStore, fileName, parameters);
+            Optional<DataPack> dp = UcteDataFormat.INSTANCE.newDataResolver().resolve(dataStore, fileName, parameters);
             if (dp.isPresent()) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataStore.newInputStream(fileName)))) {
 
@@ -989,6 +988,11 @@ public class UcteImporter implements Importer {
     @Override
     public Network importDataStore(ReadOnlyDataStore dataStore, String fileName, Properties parameters) {
         return importDataStore(dataStore, fileName, NetworkFactory.findDefault(), parameters);
+    }
+
+    @Override
+    public DataFormat getDataFormat() {
+        return UcteDataFormat.INSTANCE;
     }
 
 }

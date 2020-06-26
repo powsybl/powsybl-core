@@ -8,7 +8,6 @@ package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
 import com.google.common.base.Suppliers;
-import com.google.common.io.Files;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
@@ -761,8 +760,7 @@ public class UcteExporter implements Exporter {
         NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, NAMING_STRATEGY_SUPPLIERS.get());
 
         UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy);
-        UcteDataResolver resolver = new UcteDataResolver();
-        try (OutputStream os = dataStore.newOutputStream(resolver.checkFileExtension(filename) ? filename : Files.getNameWithoutExtension(filename) + ".uct", false);
+        try (OutputStream os = dataStore.newOutputStream(filename, false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
             new UcteWriter(ucteNetwork).write(writer);
         } catch (IOException e) {

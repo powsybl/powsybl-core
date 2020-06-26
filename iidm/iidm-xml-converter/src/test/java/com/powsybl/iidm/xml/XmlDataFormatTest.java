@@ -31,8 +31,7 @@ public class XmlDataFormatTest extends AbstractConverterTest {
     public void test() throws IOException, NonUniqueResultException {
 
         DirectoryDataStore ds = new DirectoryDataStore(tmpDir);
-        XmlDataFormat format = new XmlDataFormat();
-        DataResolver resolver = format.getDataResolver();
+        DataResolver resolver = XiidmDataFormat.INSTANCE.newDataResolver();
 
         Optional<DataPack> dp = resolver.resolve(ds, "test.xiidm", props);
         assertEquals(false, dp.isPresent());
@@ -60,8 +59,7 @@ public class XmlDataFormatTest extends AbstractConverterTest {
     public void testNonUnique() throws IOException, NonUniqueResultException {
 
         DirectoryDataStore ds = new DirectoryDataStore(tmpDir);
-        XmlDataFormat format = new XmlDataFormat();
-        DataResolver resolver = format.getDataResolver();
+        DataResolver resolver = XiidmDataFormat.INSTANCE.newDataResolver();
 
         try (OutputStream os = ds.newOutputStream("test.xiidm", false)) {
             Optional<DataPack> dp = resolver.resolve(ds, "test.xiidm", props);

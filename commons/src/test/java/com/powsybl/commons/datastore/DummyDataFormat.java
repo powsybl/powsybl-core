@@ -7,8 +7,11 @@
 package com.powsybl.commons.datastore;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
@@ -32,7 +35,7 @@ public class DummyDataFormat implements DataFormat {
     }
 
     @Override
-    public DataResolver getDataResolver() {
+    public DataResolver newDataResolver() {
         return new DataResolver() {
 
             @Override
@@ -52,6 +55,11 @@ public class DummyDataFormat implements DataFormat {
                 return pack.getMainEntry().isPresent();
             }
         };
+    }
+
+    @Override
+    public List<String> getExtensions() {
+        return ImmutableList.of(format);
     }
 
 }

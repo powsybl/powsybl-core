@@ -7,7 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static com.powsybl.iidm.xml.XmlDataResolver.SUFFIX_MAPPING;
+import static com.powsybl.iidm.xml.XiidmDataResolver.SUFFIX_MAPPING;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +38,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datastore.DataFormat;
 import com.powsybl.commons.datastore.DataPack;
 import com.powsybl.commons.datastore.NonUniqueResultException;
 import com.powsybl.commons.datastore.ReadOnlyDataStore;
@@ -197,9 +198,8 @@ public class XMLImporter implements Importer {
 
     @Override
     public boolean exists(ReadOnlyDataStore dataStore, String fileName) {
-        XmlDataFormat df = new XmlDataFormat();
         try {
-            Optional<DataPack> dp = df.getDataResolver().resolve(dataStore, fileName, null);
+            Optional<DataPack> dp = XiidmDataFormat.INSTANCE.newDataResolver().resolve(dataStore, fileName, null);
             return dp.isPresent();
         } catch (IOException | NonUniqueResultException e) {
             return false;
@@ -212,10 +212,9 @@ public class XMLImporter implements Importer {
         Network network = null;
 
         ImportOptions options = createImportOptions(parameters);
-        XmlDataFormat df = new XmlDataFormat();
         long startTime = System.currentTimeMillis();
         try {
-            Optional<DataPack> dp = df.getDataResolver().resolve(dataStore, fileName, parameters);
+            Optional<DataPack> dp = XiidmDataFormat.INSTANCE.newDataResolver().resolve(dataStore, fileName, parameters);
             if (dp.isPresent()) {
                 network = NetworkXml.read(dp.get(), networkFactory, options);
                 LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);
@@ -241,5 +240,11 @@ public class XMLImporter implements Importer {
                 .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
                 .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null);
     }
+
+    @Override
+    public DataFormat getDataFormat() {
+        return XiidmDataFormat.INSTANCE;
+    }
+
 }
 

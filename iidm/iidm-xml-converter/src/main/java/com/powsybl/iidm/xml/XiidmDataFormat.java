@@ -8,13 +8,19 @@ package com.powsybl.iidm.xml;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
+import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.datastore.DataFormat;
 import com.powsybl.commons.datastore.DataResolver;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
  */
-public class XmlDataFormat implements DataFormat {
+public enum XiidmDataFormat implements DataFormat {
+    INSTANCE();
+
+    private static final List<String> EXTENSIONS = ImmutableList.of("xiidm", "iidm", "xml", "iidm.xml");
 
     @Override
     public String getId() {
@@ -28,8 +34,13 @@ public class XmlDataFormat implements DataFormat {
     }
 
     @Override
-    public DataResolver getDataResolver() {
-        return new XmlDataResolver();
+    public DataResolver newDataResolver() {
+        return new XiidmDataResolver();
+    }
+
+    @Override
+    public List<String> getExtensions() {
+        return EXTENSIONS;
     }
 
 }

@@ -6,7 +6,12 @@
  */
 package com.powsybl.commons.datastore;
 
+import java.util.List;
+
 /**
+ * DataFormat identifies a network data format and give access to the
+ * specific DataResolver implementation
+ *
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
  */
 public interface DataFormat {
@@ -15,6 +20,8 @@ public interface DataFormat {
 
     String getDescription();
 
-    DataResolver getDataResolver();
+    List<String> getExtensions();
+
+    DataResolver newDataResolver();
 
 }

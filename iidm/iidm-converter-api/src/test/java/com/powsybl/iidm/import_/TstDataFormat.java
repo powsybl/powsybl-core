@@ -7,10 +7,11 @@
 package com.powsybl.iidm.import_;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
 import com.powsybl.commons.datastore.DataEntry;
 import com.powsybl.commons.datastore.DataFormat;
@@ -25,7 +26,7 @@ import com.powsybl.commons.datastore.ReadOnlyDataStore;
 public class TstDataFormat implements DataFormat {
 
     private final String format;
-    private static final String[] EXTENSIONS = {"tst"};
+    private static final List<String> EXTENSIONS = ImmutableList.of("tst");
 
     public TstDataFormat(String format) {
         this.format = format;
@@ -42,7 +43,7 @@ public class TstDataFormat implements DataFormat {
     }
 
     @Override
-    public DataResolver getDataResolver() {
+    public DataResolver newDataResolver() {
         return new DataResolver() {
 
             @Override
@@ -65,7 +66,12 @@ public class TstDataFormat implements DataFormat {
     }
 
     private static boolean checkFileExtension(String filename) {
-        return Arrays.asList(EXTENSIONS).contains(Files.getFileExtension(filename));
+        return EXTENSIONS.contains(Files.getFileExtension(filename));
+    }
+
+    @Override
+    public List<String> getExtensions() {
+        return EXTENSIONS;
     }
 
 }

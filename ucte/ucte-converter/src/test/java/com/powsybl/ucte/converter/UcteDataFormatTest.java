@@ -31,11 +31,10 @@ public class UcteDataFormatTest extends AbstractConverterTest {
     public void test() throws IOException, NonUniqueResultException {
 
         DirectoryDataStore ds = new DirectoryDataStore(tmpDir);
-        UcteDataFormat format = new UcteDataFormat();
 
-        assertEquals("UCTE", format.getId());
+        assertEquals("UCTE", UcteDataFormat.INSTANCE.getId());
 
-        DataResolver resolver = format.getDataResolver();
+        DataResolver resolver = UcteDataFormat.INSTANCE.newDataResolver();
 
         Optional<DataPack> dp = resolver.resolve(ds, "test.uct", props);
         assertEquals(false, dp.isPresent());
@@ -63,8 +62,7 @@ public class UcteDataFormatTest extends AbstractConverterTest {
     public void testNonUnique() throws IOException, NonUniqueResultException {
 
         DirectoryDataStore ds = new DirectoryDataStore(tmpDir);
-        UcteDataFormat format = new UcteDataFormat();
-        DataResolver resolver = format.getDataResolver();
+        DataResolver resolver = UcteDataFormat.INSTANCE.newDataResolver();
 
         try (OutputStream os = ds.newOutputStream("test.uct", false)) {
             Optional<DataPack> dp = resolver.resolve(ds, "test.uct", props);

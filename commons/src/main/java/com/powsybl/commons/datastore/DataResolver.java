@@ -13,6 +13,10 @@ import java.util.Properties;
 import javax.annotation.Nullable;
 
 /**
+ * DataResolver implementations are responsible for knowing how to constitute,
+ * among the set of entries available in a DataStore, a consistent data pack
+ * representing one Network in a specific format
+ *
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
  */
 public interface DataResolver {

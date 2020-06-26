@@ -12,6 +12,8 @@ import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.util.Objects;
 
+import com.powsybl.commons.util.Filenames;
+
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
  */
@@ -26,7 +28,7 @@ public final class DataStores {
         if (Files.isDirectory(fileName)) {
             ds = new DirectoryDataStore(fileName);
         } else {
-            String extension = getExtension(fileName.getFileName().toString());
+            String extension = Filenames.getExtension(fileName.getFileName().toString());
             if (extension.equals("zip")) {
                 ds = new ZipFileDataStore(fileName);
             } else if (extension.equals("gz")) {
@@ -44,13 +46,4 @@ public final class DataStores {
         return ds;
     }
 
-    public static String getExtension(String filename) {
-        int dotIndex = filename.lastIndexOf(".");
-        return dotIndex < 0 ? "" : filename.substring(dotIndex + 1);
-    }
-
-    public static String getBasename(String filename) {
-        int dotIndex = filename.lastIndexOf(".");
-        return dotIndex < 0 ? filename : filename.substring(0, dotIndex);
-    }
 }

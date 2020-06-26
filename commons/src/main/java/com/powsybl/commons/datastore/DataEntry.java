@@ -8,6 +8,7 @@ package com.powsybl.commons.datastore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,7 +33,7 @@ public class DataEntry {
     }
 
     public List<String> getTags() {
-        return tags;
+        return Collections.unmodifiableList(tags);
     }
 
 }

@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.google.common.io.Files;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datastore.DataStore;
@@ -133,8 +132,7 @@ public class XMLExporter implements Exporter {
         ExportOptions options = createExportOptions(parameters);
         try {
             long startTime = System.currentTimeMillis();
-            XmlDataResolver resolver = new XmlDataResolver();
-            NetworkXml.write(network, options, dataStore, resolver.checkFileExtension(filename) ? filename : Files.getNameWithoutExtension(filename) + ".xiidm");
+            NetworkXml.write(network, options, dataStore, filename);
             LOGGER.debug("XIIDM export done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

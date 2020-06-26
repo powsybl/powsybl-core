@@ -58,7 +58,7 @@ public class DataFormatTest {
         try {
             DataStore ds = new DirectoryDataStore(Paths.get(testDir1.toUri()));
             DataFormat df = new DummyDataFormat("TXT");
-            DataResolver dr = df.getDataResolver();
+            DataResolver dr = df.newDataResolver();
             Properties props = new Properties();
             String mainFileName = "dummy.txt";
 

@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.powsybl.commons.io.ForwardingInputStream;
+import com.powsybl.commons.util.ZipEntryInputStream;
 import com.powsybl.commons.util.ZipEntryOutputStream;
 
 import net.java.truevfs.comp.zip.ZipEntry;
@@ -94,23 +94,6 @@ public class ZipFileDataSource implements DataSource {
     @Override
     public InputStream newInputStream(String suffix, String ext) throws IOException {
         return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
-    }
-
-    private static final class ZipEntryInputStream extends ForwardingInputStream<InputStream> {
-
-        private final ZipFile zipFile;
-
-        public ZipEntryInputStream(ZipFile zipFile, String fileName) throws IOException {
-            super(zipFile.getInputStream(fileName));
-            this.zipFile = zipFile;
-        }
-
-        @Override
-        public void close() throws IOException {
-            super.close();
-
-            zipFile.close();
-        }
     }
 
     @Override

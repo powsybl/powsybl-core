@@ -6,13 +6,20 @@
  */
 package com.powsybl.ucte.converter;
 
+import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
  */
 import com.powsybl.commons.datastore.DataFormat;
 import com.powsybl.commons.datastore.DataResolver;
 
-public class UcteDataFormat implements DataFormat {
+public enum UcteDataFormat implements DataFormat {
+
+    INSTANCE();
+
+    private static final List<String> EXTENSIONS = ImmutableList.of("uct", "UCT");
 
     @Override
     public String getId() {
@@ -25,8 +32,13 @@ public class UcteDataFormat implements DataFormat {
     }
 
     @Override
-    public DataResolver getDataResolver() {
+    public DataResolver newDataResolver() {
         return new UcteDataResolver();
+    }
+
+    @Override
+    public List<String> getExtensions() {
+        return EXTENSIONS;
     }
 
 }

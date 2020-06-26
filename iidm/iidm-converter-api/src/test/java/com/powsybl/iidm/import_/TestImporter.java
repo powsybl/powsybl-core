@@ -54,7 +54,7 @@ public class TestImporter implements Importer {
     public boolean exists(ReadOnlyDataStore dataStore, String fileName) {
         TstDataFormat df = new TstDataFormat(getFormat());
         try {
-            Optional<DataPack> dp = df.getDataResolver().resolve(dataStore, fileName, null);
+            Optional<DataPack> dp = df.newDataResolver().resolve(dataStore, fileName, null);
             return dp.isPresent();
         } catch (IOException | NonUniqueResultException e) {
             return false;

@@ -8,6 +8,7 @@ package com.powsybl.iidm.import_;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datastore.DataFormat;
 import com.powsybl.commons.datastore.ReadOnlyDataStore;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -116,4 +117,7 @@ public interface Importer {
         throw new UnsupportedOperationException("Not implemented");
     }
 
+    default DataFormat getDataFormat() {
+        return null;
+    }
 }

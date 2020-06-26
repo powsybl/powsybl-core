@@ -33,7 +33,7 @@ public abstract class AbstractDataResolver implements DataResolver {
         } else {
             List<String> candidates = store.getEntryNames().stream().filter(this::checkFileExtension).collect(Collectors.toList());
             if (candidates.size() > 1) {
-                throw new NonUniqueResultException();
+                throw new NonUniqueResultException("Non unique data pack found");
             } else if (candidates.size() == 1) {
                 String entryName = candidates.get(0);
                 dp = buildDataPack(store, entryName);
@@ -45,22 +45,20 @@ public abstract class AbstractDataResolver implements DataResolver {
     @Override
     public boolean validate(DataPack pack, Properties properties) {
         Optional<DataEntry> main = pack.getMainEntry();
-        return pack.getDataFormatId().equals(getDataFormatId()) && main.isPresent() && checkFileExtension(main.get().getName());
+        return pack.getDataFormatId().equals(getDataFormat().getId()) && main.isPresent() && checkFileExtension(main.get().getName());
     }
 
     public boolean checkFileExtension(String filename) {
-        return getExtensions().contains(Files.getFileExtension(filename));
+        return getDataFormat().getExtensions().contains(Files.getFileExtension(filename));
     }
 
     private DataPack buildDataPack(ReadOnlyDataStore store, String mainFileName) {
-        DataPack dp = new DataPack(store, getDataFormatId());
+        DataPack dp = new DataPack(store, getDataFormat().getId());
         DataEntry entry = new DataEntry(mainFileName, DataPack.MAIN_ENTRY_TAG);
         dp.addEntry(entry);
         return dp;
     }
 
-    public abstract String getDataFormatId();
-
-    public abstract List<String> getExtensions();
+    public abstract DataFormat getDataFormat();
 
 }
