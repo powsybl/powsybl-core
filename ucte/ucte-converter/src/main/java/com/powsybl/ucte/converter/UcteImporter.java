@@ -873,7 +873,6 @@ public class UcteImporter implements Importer {
             mergeLine.newCurrentLimits2()
                     .setPermanentLimit(dlAtSideTwo.getCurrentLimits().getPermanentLimit()).add();
         }
-
         mergeLine.newExtension(MergedXnodeAdder.class).withRdp(rdp).withXdp(xdp).withXnodeP1(xnodeP1).withXnodeQ1(xnodeQ1)
                 .withXnodeP2(xnodeP2).withXnodeQ2(xnodeQ2).withLine1Name(dlAtSideOne.getId()).withLine2Name(dlAtSideTwo.getId()).withCode(xnodeCode).add();
     }
