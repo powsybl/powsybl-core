@@ -262,6 +262,8 @@ public abstract class AbstractDanglingLineTest {
                 .setMaxQ(500)
                 .setMinQ(-500)
                 .add();
+        assertNotNull(dl.getReactiveLimits());
+        assertTrue(dl.getReactiveLimits() instanceof MinMaxReactiveLimits);
     }
 
     private void createDanglingLine(String id, String name, double r, double x, double g, double b,

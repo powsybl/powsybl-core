@@ -52,7 +52,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     private final TDoubleArrayList generatorTargetV;
 
     DanglingLineImpl(Ref<? extends VariantManagerHolder> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b,
-                     double generatorTargetP, double generatorTargetQ, boolean generatorVoltageRegulationOn, double generatorTargetV, String ucteXnodeCode) {
+                     double generatorTargetP, double generatorTargetQ, boolean generatorVoltageRegulationOn, double generatorTargetV, double generatorMinP, double generatorMaxP, String ucteXnodeCode) {
         super(id, name, fictitious);
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
@@ -62,6 +62,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.generatorTargetQ = new TDoubleArrayList(variantArraySize);
         this.generatorVoltageRegulationOn = new TBooleanArrayList(variantArraySize);
         this.generatorTargetV = new TDoubleArrayList(variantArraySize);
+        this.generatorMinP = generatorMinP;
+        this.generatorMaxP = generatorMaxP;
 
         for (int i = 0; i < variantArraySize; i++) {
             this.p0.add(p0);
@@ -292,12 +294,12 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public ReactiveCapabilityCurveAdderImpl newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl(this);
+        return new ReactiveCapabilityCurveAdderImpl<>(this);
     }
 
     @Override
     public MinMaxReactiveLimitsAdderImpl newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl(this);
+        return new MinMaxReactiveLimitsAdderImpl<>(this);
     }
 
     @Override

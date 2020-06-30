@@ -102,7 +102,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
     }
 
     @Override
-    public DanglingLineAdderImpl setGeneratorMinP(double minP) {
+    public DanglingLineAdderImpl setGeneratorMinP(double generatorMinP) {
         this.generatorMinP = generatorMinP;
         return this;
     }
@@ -149,8 +149,9 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         ValidationUtil.checkG(this, g);
         ValidationUtil.checkB(this, b);
 
+        ValidationUtil.checkActivePowerLimits(this, generatorMinP, generatorMaxP);
         DanglingLineImpl danglingLine = new DanglingLineImpl(getNetwork().getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b,
-                generatorTargetP, generatorTargetQ, generatorVoltageRegulationOn, generatorTargetV, ucteXnodeCode);
+                generatorTargetP, generatorTargetQ, generatorVoltageRegulationOn, generatorTargetV, generatorMinP, generatorMaxP, ucteXnodeCode);
         danglingLine.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(danglingLine);
