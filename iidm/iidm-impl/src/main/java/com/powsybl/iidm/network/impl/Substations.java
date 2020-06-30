@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -33,7 +34,7 @@ final class Substations {
                 return false;
             }
             for (String tag : geographicalTags) {
-                if (!substation.getGeographicalTags().contains(tag)) {
+                if (!Arrays.asList(substation.getProperty("geographicalTags").split(",")).contains(tag)) {
                     return false;
                 }
             }
