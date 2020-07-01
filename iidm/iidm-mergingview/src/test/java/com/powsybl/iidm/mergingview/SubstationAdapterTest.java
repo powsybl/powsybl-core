@@ -37,7 +37,6 @@ public class SubstationAdapterTest {
                 .setCountry(Country.AD)
                 .setTso("TSO")
                 .setEnsureIdUnicity(false)
-                .setGeographicalTags("geoTag1", "geoTag2")
                 .add();
         assertNotNull(substation);
         assertEquals("subAdapted", substation.getId());
@@ -55,19 +54,16 @@ public class SubstationAdapterTest {
         assertEquals("new tso", substation.getTso());
         assertEquals(0, substation.getTwoWindingsTransformerCount());
         assertEquals(0, substation.getThreeWindingsTransformerCount());
-        assertEquals(substation, substation.addGeographicalTag("geoTag3"));
-        assertEquals(3, substation.getGeographicalTags().size());
 
         // Properties
         final String key = "keyTest";
         final String value = "ValueTest";
-        assertTrue(substation.hasProperty());
-        assertEquals(1, substation.getPropertyNames().size());
+        assertFalse(substation.hasProperty());
         substation.setProperty(key, value);
         assertTrue(substation.hasProperty(key));
         assertEquals(value, substation.getProperty(key));
         assertEquals("defaultValue", substation.getProperty("noFound", "defaultValue"));
-        assertEquals(2, substation.getPropertyNames().size());
+        assertEquals(1, substation.getPropertyNames().size());
 
         // Extension
         assertTrue(substation.getExtensions().isEmpty());

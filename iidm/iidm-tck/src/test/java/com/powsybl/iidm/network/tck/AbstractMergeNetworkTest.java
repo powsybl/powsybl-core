@@ -77,7 +77,6 @@ public abstract class AbstractMergeNetworkTest {
                             .setId(substationId)
                             .setCountry(Country.FR)
                             .setTso("RTE")
-                            .setGeographicalTags("A")
                         .add();
     }
 

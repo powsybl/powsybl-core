@@ -31,14 +31,14 @@ public final class EurostagTutorialExample1Factory {
                 .setId("P1")
                 .setCountry(Country.FR)
                 .setTso("RTE")
-                .setGeographicalTags("A")
             .add();
+        p1.setProperty("geographicalTags", "A");
         Substation p2 = network.newSubstation()
                 .setId("P2")
                 .setCountry(Country.FR)
                 .setTso("RTE")
-                .setGeographicalTags("B")
             .add();
+        p2.setProperty("geographicalTags", "B");
         VoltageLevel vlgen = p1.newVoltageLevel()
                 .setId(VLGEN)
                 .setNominalV(24.0)

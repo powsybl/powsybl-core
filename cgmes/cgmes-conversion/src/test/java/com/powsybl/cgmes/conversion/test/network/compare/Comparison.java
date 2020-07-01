@@ -164,12 +164,6 @@ public class Comparison {
 
     private void compareSubstations(Substation expected, Substation actual) {
         compare("country", expected.getCountry(), actual.getCountry());
-        Set<String> mappedActualGeoTags = actual.getGeographicalTags().stream()
-                .map(networkMapping::applyPrefixToActual)
-                .collect(Collectors.toSet());
-        compare("geographicalTags",
-                expected.getGeographicalTags(),
-                mappedActualGeoTags);
     }
 
     private void compareVoltageLevels(VoltageLevel expected, VoltageLevel actual) {

@@ -31,8 +31,8 @@ public final class NetworkTest1Factory {
                 .setId("substation1")
                 .setCountry(Country.FR)
                 .setTso("TSO1")
-                .setGeographicalTags("region1")
                 .add();
+        substation1.setProperty("geographicalTags", "region1");
         VoltageLevel voltageLevel1 = substation1.newVoltageLevel()
                 .setId("voltageLevel1")
                 .setNominalV(400)

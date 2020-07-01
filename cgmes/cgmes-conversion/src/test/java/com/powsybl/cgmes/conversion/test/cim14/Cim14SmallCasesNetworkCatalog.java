@@ -32,13 +32,13 @@ public final class Cim14SmallCasesNetworkCatalog {
         Substation sGen = network.newSubstation()
             .setId("_GEN______SS")
             .setName("GEN     _SS")
-            .setGeographicalTags(sGenGeoTag)
             .add();
+        sGen.setProperty("geographicalTags", sGenGeoTag);
         Substation sInf = network.newSubstation()
             .setId("_INF______SS")
             .setName("INF     _SS")
-            .setGeographicalTags(sInfGeoTag)
             .add();
+        sInf.setProperty("geographicalTags", sInfGeoTag);
         VoltageLevel vlInf = sInf.newVoltageLevel()
             .setId("_INF______VL")
             .setName("INF     _VL")

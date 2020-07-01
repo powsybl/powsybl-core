@@ -52,6 +52,7 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
     }
 
     @Override
+    @Deprecated
     public SubstationAdder setGeographicalTags(String... tags) {
         this.tags = tags;
         return this;

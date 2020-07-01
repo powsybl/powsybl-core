@@ -42,7 +42,6 @@ public abstract class AbstractSubstationTest {
                                     .setCountry(Country.AD)
                                     .setTso("TSO")
                                     .setEnsureIdUnicity(false)
-                                    .setGeographicalTags("geoTag1", "geoTag2")
                                 .add();
         assertEquals("sub", substation.getId());
         assertEquals(SUB_NAME, substation.getOptionalName().orElse(null));
@@ -64,22 +63,6 @@ public abstract class AbstractSubstationTest {
                 .setId("undefined_country")
                 .add();
         assertFalse(s.getCountry().isPresent());
-    }
-
-    @Test
-    public void addNullTag() {
-        thrown.expect(IllegalArgumentException.class);
-        Substation substation = network.newSubstation()
-                                        .setId("sub")
-                                        .setName(SUB_NAME)
-                                        .setCountry(Country.AD)
-                                        .setTso("TSO")
-                                        .setEnsureIdUnicity(false)
-                                        .setGeographicalTags("geoTag1", "geoTag2")
-                                    .add();
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("geographical tag is null");
-        substation.addGeographicalTag(null);
     }
 
     @Test

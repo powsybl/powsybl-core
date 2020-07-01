@@ -38,14 +38,14 @@ public final class BatteryNetworkFactory {
                 .setId("P1")
                 .setCountry(Country.FR)
                 .setTso("R")
-                .setGeographicalTags("A")
                 .add();
+        p1.setProperty("geographicalTags", "A");
         Substation p2 = network.newSubstation()
                 .setId("P2")
                 .setCountry(Country.FR)
                 .setTso("R")
-                .setGeographicalTags("B")
                 .add();
+        p2.setProperty("geographicalTags", "B");
 
         // 2 VoltageLevels
         VoltageLevel vlgen = p1.newVoltageLevel()

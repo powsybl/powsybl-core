@@ -340,13 +340,14 @@ public class MergingNetworkTest {
     }
 
     private static Substation addSubstation(final Network network, final String substationId, final Country country, boolean ensureIdUnicity) {
-        return network.newSubstation()
+        Substation s = network.newSubstation()
                 .setId(substationId)
                 .setName(substationId)
                 .setEnsureIdUnicity(ensureIdUnicity)
                 .setCountry(country)
                 .setTso("RTE")
-                .setGeographicalTags("A")
                 .add();
+        s.setProperty("geographicalTags", "A");
+        return s;
     }
 }

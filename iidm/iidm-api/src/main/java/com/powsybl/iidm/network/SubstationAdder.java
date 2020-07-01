@@ -34,7 +34,9 @@ public interface SubstationAdder extends IdentifiableAdder<SubstationAdder> {
      * @deprecated uses properties to store geographical tags.
      */
     @Deprecated
-    SubstationAdder setGeographicalTags(String... tags);
+    default SubstationAdder setGeographicalTags(String... tags) {
+        return this;
+    }
 
     Substation add();
 }

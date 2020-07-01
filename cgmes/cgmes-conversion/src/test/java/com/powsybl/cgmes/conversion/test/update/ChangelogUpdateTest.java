@@ -178,8 +178,8 @@ public final class ChangelogUpdateTest {
             .setId("substation")
             .setCountry(Country.FR)
             .setTso("TSO")
-            .setGeographicalTags("region")
             .add();
+        substation.setProperty("geographicalTags", "region");
         VoltageLevel voltageLevel1 = substation.newVoltageLevel()
             .setId("voltageLevel1")
             .setNominalV(400)

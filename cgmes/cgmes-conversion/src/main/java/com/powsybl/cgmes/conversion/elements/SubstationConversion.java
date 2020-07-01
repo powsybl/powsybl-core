@@ -48,12 +48,12 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
         String iidmSubstationId = context.substationIdMapping().iidm(id);
         Substation substation = context.network().getSubstation(iidmSubstationId);
         assert substation == null;
-        context.network().newSubstation()
+        Substation s = context.network().newSubstation()
                 .setId(iidmSubstationId)
                 .setName(iidmName())
                 .setEnsureIdUnicity(false)
                 .setCountry(country)
-                .setGeographicalTags(geoTag)
                 .add();
+        s.setProperty("geographicalTags", geoTag);
     }
 }

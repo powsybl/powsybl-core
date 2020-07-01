@@ -9,10 +9,7 @@ package com.powsybl.iidm.mergingview;
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 
-import java.util.Arrays;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -118,16 +115,5 @@ class SubstationAdapter extends AbstractIdentifiableAdapter<Substation> implemen
     @Override
     public int getThreeWindingsTransformerCount() {
         return getDelegate().getThreeWindingsTransformerCount();
-    }
-
-    @Override
-    public Set<String> getGeographicalTags() {
-        return Arrays.stream(getDelegate().getProperty("geographicalTags").split(",")).collect(Collectors.toSet());
-    }
-
-    @Override
-    public Substation addGeographicalTag(final String tag) {
-        getDelegate().setProperty("geographicalTags", getDelegate().getProperty("geographicalTags") + "," + tag);
-        return this;
     }
 }
