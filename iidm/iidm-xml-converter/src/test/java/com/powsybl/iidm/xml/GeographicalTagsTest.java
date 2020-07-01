@@ -6,8 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
@@ -23,12 +21,10 @@ import java.util.Properties;
 public class GeographicalTagsTest extends AbstractXmlConverterTest {
 
     private void geographicalTagsTest(Network network, IidmXmlVersion version) throws IOException {
-        PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-
         Properties properties = new Properties();
         properties.setProperty(XMLExporter.VERSION, version.toString("."));
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter(platformConfig).export(network, properties, dataSource);
+        new XMLExporter().export(network, properties, dataSource);
 
         // compare with a file with geographical tags in properties
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
