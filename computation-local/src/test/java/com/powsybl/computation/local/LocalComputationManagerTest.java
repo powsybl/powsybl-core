@@ -299,7 +299,7 @@ public class LocalComputationManagerTest {
     }
 
     @Test
-    public void cancelDuringExecutionShouldThrowAndEventuallyStopExecution() throws InterruptedException {
+    public void cancelDuringExecutionShouldThrowAndEventuallyStopExecution() throws InterruptedException, ExecutionException, IOException {
 
         CountDownLatch waitForExecution = new CountDownLatch(1);
         CountDownLatch execution = new CountDownLatch(1); // Will be interrupted, not decremented
@@ -349,11 +349,9 @@ public class LocalComputationManagerTest {
             waitForExecution.await();
             result.cancel(true);
             result.get();
-            fail();
+            fail("Should not happen: result has been cancelled");
         } catch (CancellationException exc) {
             //OK
-        } catch (Throwable t) {
-            fail();
         }
 
         waitForInterruption.await(10, TimeUnit.SECONDS);

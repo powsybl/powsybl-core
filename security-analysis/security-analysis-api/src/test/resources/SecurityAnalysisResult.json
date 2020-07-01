@@ -72,7 +72,12 @@
         "limitType" : "LOW_VOLTAGE",
         "limit" : 100.0,
         "limitReduction" : 0.7,
-        "value" : 115.0
+        "value" : 115.0,
+        "extensions" : {
+          "Voltage" : {
+            "preContingencyValue" : 400.0
+          }
+        }
       } ],
       "actionsTaken" : [ "action1", "action2" ]
     }

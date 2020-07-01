@@ -4,5 +4,6 @@
   "transformerVoltageControlOn" : true,
   "phaseShifterRegulationOn" : false,
   "noGeneratorReactiveLimits" : true,
-  "twtSplitShuntAdmittance" : false
+  "twtSplitShuntAdmittance" : false,
+  "simulShunt" : false
 }

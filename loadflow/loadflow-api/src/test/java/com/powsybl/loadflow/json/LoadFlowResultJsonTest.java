@@ -8,7 +8,6 @@ package com.powsybl.loadflow.json;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.loadflow.LoadFlowResult;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -53,11 +52,9 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
 
     @Test
     public void handleErrorTest() throws IOException {
-        try {
-            LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultError.json"));
-            Assert.fail();
-        } catch (AssertionError ignored) {
-        }
+        expected.expect(AssertionError.class);
+        expected.expectMessage("Unexpected field: alienAttribute");
+        LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultError.json"));
     }
 
 }

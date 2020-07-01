@@ -114,11 +114,9 @@ public class CompletableFutureTaskTest {
 
         try {
             task.get();
-            fail();
+            fail("Should not happen: task has been cancelled");
         } catch (CancellationException exc) {
             //ignored
-        } catch (Throwable exc) {
-            fail();
         }
 
         waitForInterruption.await();
