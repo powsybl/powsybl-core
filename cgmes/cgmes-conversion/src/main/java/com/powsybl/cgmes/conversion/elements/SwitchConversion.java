@@ -16,8 +16,6 @@ import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
 
-import java.util.function.Supplier;
-
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -84,20 +82,6 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
             LOG.error("Missing equipment container for switch {} {}", id, name);
         }
         return container == null ? null : container.voltageLevel();
-    }
-
-    private boolean convertToLowImpedanceLine() {
-        String vl = switchVoltageLevelId();
-        return !cgmesVoltageLevelId(1).equals(vl) || !cgmesVoltageLevelId(2).equals(vl);
-    }
-
-    private void warnLowImpedanceLineCreated() {
-        Supplier<String> reason = () -> String.format(
-                "Connected to a terminal not in the same voltage level %s (side 1: %s, side 2: %s)",
-                switchVoltageLevelId(),
-                cgmesVoltageLevelId(1),
-                cgmesVoltageLevelId(2));
-        fixed("Low impedance line", reason);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SwitchConversion.class);

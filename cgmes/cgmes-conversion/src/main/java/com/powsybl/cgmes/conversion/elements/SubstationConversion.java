@@ -25,7 +25,7 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
     @Override
     public boolean valid() {
         // Only create IIDM Substations for CGMES substations that are not mapped to others
-        return !context.substationIdMapping().subStationIsMapped(id);
+        return !context.substationIdMapping().substationIsMapped(id);
     }
 
     @Override

@@ -34,7 +34,7 @@ public class SubstationIdMapping {
         this.voltageLevelMapping = new HashMap<>();
     }
 
-    public boolean subStationIsMapped(String cgmesIdentifier) {
+    public boolean substationIsMapped(String cgmesIdentifier) {
         String sid = context.namingStrategy().getId(CgmesNames.SUBSTATION, cgmesIdentifier);
         return substationMapping.containsKey(sid);
     }
@@ -107,14 +107,14 @@ public class SubstationIdMapping {
         CgmesTerminal t1 = context.cgmes().terminal(sw.getId(CgmesNames.TERMINAL + 1));
         String node1 = context.nodeBreaker() ? t1.connectivityNode() : t1.topologicalNode();
 
-        String voltageLevelId1 = nodeGetVoltageLevel(node1, t1);
+        String voltageLevelId1 = getVoltageLevelFromNode(node1, t1);
         if (voltageLevelId1 == null) {
             return;
         }
 
         CgmesTerminal t2 = context.cgmes().terminal(sw.getId(CgmesNames.TERMINAL + 2));
         String node2 = context.nodeBreaker() ? t2.connectivityNode() : t2.topologicalNode();
-        String voltageLevelId2 = nodeGetVoltageLevel(node2, t2);
+        String voltageLevelId2 = getVoltageLevelFromNode(node2, t2);
         if (voltageLevelId2 == null) {
             return;
         }
@@ -122,7 +122,7 @@ public class SubstationIdMapping {
         addSwitchAdjacency(voltageLevelAdjacency, substationAdjacency, t1, t2, voltageLevelId1, voltageLevelId2);
     }
 
-    private String nodeGetVoltageLevel(String node, CgmesTerminal t) {
+    private String getVoltageLevelFromNode(String node, CgmesTerminal t) {
         String voltageLevelId = null;
         if (node != null && !context.boundary().containsNode(node)) {
             voltageLevelId = context.cgmes().voltageLevel(t, context.nodeBreaker());
