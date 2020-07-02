@@ -180,9 +180,12 @@ public final class CgmesConformity1NetworkCatalog {
                 .setName("BE_S2")
                 .setConnectableBus(busBrussels380.getId())
                 .setBus(busBrussels380.getId())
-                .setbPerSection(3.46e-4)
-                .setMaximumSectionCount(1)
-                .setCurrentSectionCount(1)
+                .setSectionCount(1)
+                .newLinearModel()
+                    .setBPerSection(3.46e-4)
+                    .setGPerSection(7.0e-6)
+                    .setMaximumSectionCount(1)
+                    .add()
                 .add();
         shBrussels380.getTerminal().setQ(-59.058144);
         DanglingLine be3 = vlBrussels380.newDanglingLine()
@@ -268,9 +271,12 @@ public final class CgmesConformity1NetworkCatalog {
                 .setName("BE_S1")
                 .setConnectableBus(busBrussels110.getId())
                 .setBus(busBrussels110.getId())
-                .setbPerSection(0.024793)
-                .setMaximumSectionCount(1)
-                .setCurrentSectionCount(1)
+                .setSectionCount(1)
+                .newLinearModel()
+                    .setBPerSection(0.024793)
+                    .setGPerSection(0.0)
+                    .setMaximumSectionCount(1)
+                    .add()
                 .add();
         shBrussels110.getTerminal().setQ(-330.75);
         Bus busBrussels21 = vlBrussels21.getBusBreakerView().newBus()
@@ -1028,6 +1034,37 @@ public final class CgmesConformity1NetworkCatalog {
                 .setP0(-11.518776)
                 .setQ0(67.377544);
 
+        network.getShuntCompensator("_002b0a40-3957-46db-b84a-30420083558f").remove();
+        network.getVoltageLevel("_469df5f7-058f-4451-a998-57a48e8a56fe")
+                .newShuntCompensator()
+                    .setId("_002b0a40-3957-46db-b84a-30420083558f")
+                    .setName("BE_S2")
+                    .setConnectableBus(busBrussels380.getId())
+                    .setBus(busBrussels380.getId())
+                    .setSectionCount(1)
+                    .newNonLinearModel()
+                        .beginSection()
+                            .setB(3.46e-4)
+                            .setG(7.0e-6)
+                        .endSection()
+                        .beginSection()
+                            .setB(5.19E-4)
+                            .setG(9.0E-6)
+                        .endSection()
+                        .beginSection()
+                            .setB(6.58E-4)
+                            .setG(9.999999999999999E-6)
+                        .endSection()
+                        .beginSection()
+                            .setB(7.27E-4)
+                            .setG(1.06E-5)
+                        .endSection()
+                        .beginSection()
+                            .setB(7.620000000000001E-4)
+                            .setG(1.09E-5)
+                        .endSection()
+                    .add()
+                .add();
         return network;
     }
 

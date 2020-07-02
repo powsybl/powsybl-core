@@ -141,6 +141,11 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
     }
 
     @Override
+    public boolean hasTemporaryLimits() {
+        return !temporaryLimits.isEmpty();
+    }
+
+    @Override
     public TemporaryLimitAdder beginTemporaryLimit() {
         return new TemporaryLimitAdderImpl();
     }

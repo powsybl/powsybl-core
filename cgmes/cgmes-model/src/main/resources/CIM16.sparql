@@ -156,6 +156,7 @@ WHERE {
         a cim:Terminal ;
         cim:Terminal.ConductingEquipment ?ConductingEquipment .
     ?ConductingEquipment a ?conductingEquipmentType .
+    OPTIONAL { ?Terminal cim:ACDCTerminal.sequenceNumber ?sequenceNumber }
     OPTIONAL { ?Terminal cim:IdentifiedObject.name ?name }
 }}
 OPTIONAL { GRAPH ?graphSSH {
@@ -924,6 +925,7 @@ WHERE {
         a cim:DCTerminal ;
         cim:DCTerminal.DCConductingEquipment ?DCConductingEquipment .
     ?DCConductingEquipment a ?dcConductingEquipmentType .
+    OPTIONAL { ?DCTerminal cim:ACDCTerminal.sequenceNumber ?sequenceNumber }
 }}
 UNION
 { GRAPH ?graphACDC {
@@ -931,6 +933,7 @@ UNION
         a cim:ACDCConverterDCTerminal ;
         cim:ACDCConverterDCTerminal.DCConductingEquipment ?DCConductingEquipment .
     ?DCConductingEquipment a ?dcConductingEquipmentType .
+    OPTIONAL { ?DCTerminal cim:ACDCTerminal.sequenceNumber ?sequenceNumber }
 }}
 }
 OPTIONAL { ?DCTerminal cim:IdentifiedObject.name ?name }

@@ -101,6 +101,7 @@ public class ThreeWindingsTransformerAdapterTest {
                     .endStep()
                 .add();
         assertTrue(ratioTapChangerInLeg1 instanceof RatioTapChangerAdapter);
+        assertTrue(leg1.hasRatioTapChanger());
         assertSame(ratioTapChangerInLeg1, leg1.getRatioTapChanger());
 
         // Leg 2
@@ -129,6 +130,7 @@ public class ThreeWindingsTransformerAdapterTest {
                         .setRho(6.0)
                     .endStep()
                 .add();
+        assertTrue(leg2.hasPhaseTapChanger());
         assertSame(ptc, leg2.getPhaseTapChanger());
 
         // Leg 3

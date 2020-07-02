@@ -8,7 +8,6 @@ package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
 import com.google.common.base.Enums;
-import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -126,7 +125,7 @@ public class UcteImporter implements Importer {
 
             EntsoeGeographicalCode regionalCode = getRegionalGeographicalCode(substation);
             if (regionalCode != null) {
-                substation.addExtension(EntsoeArea.class, new EntsoeArea(substation, regionalCode));
+                substation.newExtension(EntsoeAreaAdder.class).withCode(regionalCode).add();
             }
 
             for (UcteVoltageLevel ucteVoltageLevel : ucteSubstation.getVoltageLevels()) {
@@ -766,7 +765,7 @@ public class UcteImporter implements Importer {
         }
         if (throwException) {
             throw new UcteException("File " + dataSource.getBaseName()
-                    + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
+                    + "." + String.join("|", EXTENSIONS) + " not found");
         }
         return null;
     }
@@ -874,9 +873,8 @@ public class UcteImporter implements Importer {
             mergeLine.newCurrentLimits2()
                     .setPermanentLimit(dlAtSideTwo.getCurrentLimits().getPermanentLimit()).add();
         }
-
-        mergeLine.addExtension(MergedXnode.class, new MergedXnode(mergeLine, rdp, xdp, xnodeP1, xnodeQ1, xnodeP2, xnodeQ2,
-                dlAtSideOne.getId(), dlAtSideTwo.getId(), xnodeCode));
+        mergeLine.newExtension(MergedXnodeAdder.class).withRdp(rdp).withXdp(xdp).withXnodeP1(xnodeP1).withXnodeQ1(xnodeQ1)
+                .withXnodeP2(xnodeP2).withXnodeQ2(xnodeQ2).withLine1Name(dlAtSideOne.getId()).withLine2Name(dlAtSideTwo.getId()).withCode(xnodeCode).add();
     }
 
     @Override

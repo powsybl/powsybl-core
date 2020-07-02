@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -42,6 +43,24 @@ public class JoinVoltageLevelTest {
         Network n = networkModel(CgmesConformity1ModifiedCatalog.miniNodeBreakerJoinVoltageLevelSwitch(), config);
 
         Switch sw = n.getSwitch("_5e9f0079-647e-46da-b0ee-f5f24e127602");
+        VoltageLevel voltageLevel = sw.getVoltageLevel();
+        Substation substation = voltageLevel.getSubstation();
+
+        boolean ok = compareVoltageLevelSubstation("_d6056127-34f1-43a9-b029-23fddb913bd5", "_a43d15db-44a6-4fda-a525-2402ff43226f", substation.getId(), voltageLevel.getId());
+        assertTrue(ok);
+    }
+
+    @Test
+    public void miniNodeBreakerSwitchBetweenVoltageLevelsOpen() throws IOException {
+        Conversion.Config config = new Conversion.Config();
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniNodeBreakerSwitchBetweenVoltageLevelsOpen(), config);
+
+        Switch sw = n.getSwitch("_5e9f0079-647e-46da-b0ee-f5f24e127602");
+        assertNotNull(sw);
+
+        boolean isOpen = sw.isOpen();
+        assertTrue(isOpen);
+
         VoltageLevel voltageLevel = sw.getVoltageLevel();
         Substation substation = voltageLevel.getSubstation();
 

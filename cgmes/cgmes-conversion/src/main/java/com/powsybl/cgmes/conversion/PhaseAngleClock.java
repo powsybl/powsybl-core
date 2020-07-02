@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClockAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -105,9 +105,9 @@ public class PhaseAngleClock implements CgmesImportPostProcessor {
             }
 
             if (phaseAngleClock2 != 0 || phaseAngleClock3 != 0) {
-                ThreeWindingsTransformerPhaseAngleClock phaseAngleClock = new ThreeWindingsTransformerPhaseAngleClock(
-                    tx, phaseAngleClock2, phaseAngleClock3);
-                tx.addExtension(ThreeWindingsTransformerPhaseAngleClock.class, phaseAngleClock);
+                tx.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class)
+                        .withPhaseAngleClockLeg2(phaseAngleClock2).withPhaseAngleClockLeg3(phaseAngleClock3).add();
+
             }
         }
     }

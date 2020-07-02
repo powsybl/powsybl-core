@@ -13,13 +13,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.ITESLA_DOMAIN;
+import static com.powsybl.iidm.xml.IidmXmlConstants.POWSYBL_DOMAIN;
+
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public enum IidmXmlVersion {
-    V_1_0("itesla_project.eu", ImmutableList.of(1, 0)),
-    V_1_1("powsybl.org", ImmutableList.of(1, 1)),
-    V_1_2("powsybl.org", ImmutableList.of(1, 2));
+    V_1_0(ITESLA_DOMAIN, ImmutableList.of(1, 0)),
+    V_1_1(POWSYBL_DOMAIN, ImmutableList.of(1, 1)),
+    V_1_2(POWSYBL_DOMAIN, ImmutableList.of(1, 2)),
+    V_1_3(POWSYBL_DOMAIN, ImmutableList.of(1, 3));
 
     private final String domain;
     private final List<Integer> versionArray;

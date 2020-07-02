@@ -26,13 +26,17 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
 
     protected abstract boolean hasSubElements(T identifiable);
 
+    protected boolean hasSubElements(T identifiable, NetworkXmlWriterContext context) {
+        return hasSubElements(identifiable);
+    }
+
     protected abstract void writeRootElementAttributes(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException;
 
     protected void writeSubElements(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException {
     }
 
     public final void write(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException {
-        boolean hasSubElements = hasSubElements(identifiable);
+        boolean hasSubElements = hasSubElements(identifiable, context);
         if (hasSubElements || identifiable.hasProperty()) {
             context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), getRootElementName());
         } else {
@@ -83,17 +87,21 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         }
     }
 
+    protected void readElement(String id, A adder, NetworkXmlReaderContext context) throws XMLStreamException {
+        T identifiable = readRootElementAttributes(adder, context);
+        readSubElements(identifiable, context);
+    }
+
     public final void read(P parent, NetworkXmlReaderContext context) throws XMLStreamException {
         A adder = createAdder(parent);
         String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name"));
         adder.setId(id)
-             .setName(name);
+                .setName(name);
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
             boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious", false);
             adder.setFictitious(fictitious);
         });
-        T identifiable = readRootElementAttributes(adder, context);
-        readSubElements(identifiable, context);
+        readElement(id, adder, context);
     }
 }

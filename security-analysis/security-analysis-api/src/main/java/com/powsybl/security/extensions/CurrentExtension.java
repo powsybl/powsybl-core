@@ -6,46 +6,20 @@
  */
 package com.powsybl.security.extensions;
 
-import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.AbstractPrecontingencyValueExtension;
 import com.powsybl.security.LimitViolation;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class CurrentExtension implements Extension<LimitViolation> {
-
-    private LimitViolation limitViolation;
-
-    private final double preContingencyValue;
+public class CurrentExtension extends AbstractPrecontingencyValueExtension<LimitViolation> {
 
     public CurrentExtension(double value) {
-        this.preContingencyValue = checkValue(value);
+        super(value);
     }
 
     @Override
     public String getName() {
         return "Current";
-    }
-
-    @Override
-    public LimitViolation getExtendable() {
-        return limitViolation;
-    }
-
-    @Override
-    public void setExtendable(LimitViolation limitViolation) {
-        this.limitViolation = limitViolation;
-    }
-
-    public double getPreContingencyValue() {
-        return preContingencyValue;
-    }
-
-    private static double checkValue(double value) {
-        if (Double.isNaN(value)) {
-            throw new IllegalArgumentException("Value is undefined");
-        }
-
-        return value;
     }
 }
