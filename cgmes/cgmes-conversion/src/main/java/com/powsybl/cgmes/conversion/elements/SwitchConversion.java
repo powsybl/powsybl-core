@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.model.CgmesContainer;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -74,14 +73,6 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
             return SwitchKind.LOAD_BREAK_SWITCH;
         }
         return SwitchKind.BREAKER;
-    }
-
-    private String switchVoltageLevelId() {
-        CgmesContainer container = context.cgmes().container(p.getId("EquipmentContainer"));
-        if (container == null) {
-            LOG.error("Missing equipment container for switch {} {}", id, name);
-        }
-        return container == null ? null : container.voltageLevel();
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SwitchConversion.class);
