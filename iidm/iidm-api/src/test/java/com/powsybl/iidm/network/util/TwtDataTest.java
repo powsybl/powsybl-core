@@ -143,9 +143,28 @@ public class TwtDataTest {
         assertTrue(ok);
     }
 
+    @Test
+    public void testEnd1End2End3Disconnected() {
+        TwtTestData twtTestData = new TwtTestData();
+        twtTestData.setLeg1Disconnected();
+        twtTestData.setLeg2Disconnected();
+        twtTestData.setLeg3Disconnected();
+
+        ThreeWindingsTransformer twt = twtTestData.get3WTransformer();
+        TwtData twtData = new TwtData(twt, 0, false);
+        boolean ok = t3xCompareFlow(twtData, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+        assertTrue(ok);
+
+        ok = t3xCompareStarBusVoltage(twtData, Double.NaN, Double.NaN);
+        assertTrue(ok);
+    }
+
     private static boolean t3xCompareStarBusVoltage(TwtData twtData, double starU, double starAngle) {
         double tol = 0.00001;
-        if (Math.abs(twtData.getStarU() - starU) > tol || Math.abs(Math.toDegrees(twtData.getStarTheta()) - starAngle) > tol) {
+        if ((Double.isNaN(twtData.getStarU()) && !Double.isNaN(starU)) ||
+            (Double.isNaN(twtData.getStarTheta()) && !Double.isNaN(starAngle)) ||
+            Math.abs(twtData.getStarU() - starU) > tol ||
+            Math.abs(Math.toDegrees(twtData.getStarTheta()) - starAngle) > tol) {
             LOG.info("ThreeWindingsTransformer {} Expected {} {} Actual {} {}", twtData.getId(),
                 starU, starAngle, twtData.getStarU(), Math.toDegrees(twtData.getStarTheta()));
             return false;
@@ -175,7 +194,13 @@ public class TwtDataTest {
 
     private static boolean sameFlow(T3xFlow expected, T3xFlow actual) {
         double tol = 0.00001;
-        if (Math.abs(expected.p1 - actual.p1) > tol ||
+        if ((!Double.isNaN(expected.p1) && Double.isNaN(actual.p1)) ||
+            (!Double.isNaN(expected.q1) && Double.isNaN(actual.q1)) ||
+            (!Double.isNaN(expected.p2) && Double.isNaN(actual.p2)) ||
+            (!Double.isNaN(expected.q2) && Double.isNaN(actual.q2)) ||
+            (!Double.isNaN(expected.p3) && Double.isNaN(actual.p3)) ||
+            (!Double.isNaN(expected.q3) && Double.isNaN(actual.q3)) ||
+            Math.abs(expected.p1 - actual.p1) > tol ||
             Math.abs(expected.q1 - actual.q1) > tol ||
             Math.abs(expected.p2 - actual.p2) > tol ||
             Math.abs(expected.q2 - actual.q2) > tol ||
