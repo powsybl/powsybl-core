@@ -232,12 +232,12 @@ public class PsseImporter implements Importer {
                 shunt.getTerminal().connect();
             }
 
-        if (psseShunt.getGl() != 0) {
-            LOGGER.warn("Shunt Gl not supported ({})", psseShunt.getI());
+            if (psseShunt.getGl() != 0) {
+                LOGGER.warn("Shunt Gl not supported ({})", psseShunt.getI());
+            }
+        } else {
+            LOGGER.warn("Shunt ({}) has Bl = 0, not imported ", psseShunt.getI()); //TODO : allow import of shunts with Bl= 0 in iidm?
         }
-    } else {
-        LOGGER.warn("Shunt ({}) has Bl = 0, not imported ", psseShunt.getI()); //TODO : allow import of shunts with Bl= 0 in iidm?
-    }
     }
 
     private void createSwitchedShuntBlocMap(PsseRawModel psseModel, HashMap<PsseSwitchedShunt, ShuntBlockTab > stoBlockiTab) {
@@ -279,7 +279,6 @@ public class PsseImporter implements Importer {
         }
     }
 
-
     private static void createSwitchedShunt(PsseSwitchedShunt psseSwShunt, PerUnitContext perUnitContext, ContainersMapping containerMapping, Network network, HashMap<PsseSwitchedShunt, ShuntBlockTab >  stoBlockiTab) {
         String busId = getBusId(psseSwShunt.getI());
         VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseSwShunt.getI()));
@@ -287,14 +286,17 @@ public class PsseImporter implements Importer {
 
         for (int i = 1; i <= sbl.getSize(); i++) {
             if (psseSwShunt.getBinit() != 0) { //TODO : improve it to make it robust to all configurations
-                ShuntCompensator shunt = voltageLevel.newShuntCompensator()
+                ShuntCompensatorAdder adder = voltageLevel.newShuntCompensator()
                         .setId(busId + "-SwSH-B" + i)
                         .setConnectableBus(busId)
-                        //.setbPerSection(sbl.getBi(i)) //TODO: use Binit to initiate Bi, for now we use Binit to obtain de same load-flow results
-                        .setbPerSection(psseSwShunt.getBinit())
-                        .setCurrentSectionCount(sbl.getNi(i)) //TODO: take into account BINIT to define the number of switched steps in the case BINIT is different from the max switched steps
-                        .setMaximumSectionCount(sbl.getNi(i))
+                        .setSectionCount(1);
+                adder.newLinearModel() //TODO: use Binit to initiate Bi, for now we use Binit to obtain de same load-flow results
+                        .setBPerSection(psseSwShunt.getBinit())//TODO: take into account BINIT to define the number of switched steps in the case BINIT is different from the max switched steps
+                        .setMaximumSectionCount(1)
+                        //.setCurrentSectionCount(sbl.getNi(i))
+                        //.setMaximumSectionCount(sbl.getNi(i))
                         .add();
+                ShuntCompensator shunt = adder.add();
 
                 if (psseSwShunt.getStat() == 1) {
                     shunt.getTerminal().connect();
