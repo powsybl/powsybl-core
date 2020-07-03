@@ -45,6 +45,10 @@ public class PsseImporter implements Importer {
             "Ignore base voltage specified in the file",
             Boolean.TRUE);
 
+    private static final String V_PROPERTY = "v";
+
+    private static final String ANGLE_PROPERTY = "angle";
+
     private static final double DEFAULT_ACTIVE_POWER_LIMIT = 9999d;
 
     @Override
@@ -81,13 +85,7 @@ public class PsseImporter implements Importer {
             String ext = findExtension(dataSource, false);
             if (ext != null) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
-                    int ic = new PsseRawReader().checkCaseIdentification(reader);
-                    if (ic == 0) {
-                        return true;
-                    } else if (ic == 1) {
-                        throw new PsseException("Incremental load of PSS/E data  option from " + dataSource.getBaseName()
-                                    + "." + ext + " not supported");
-                    }
+                    return new PsseRawReader().checkCaseIdentification(reader);
                 }
             }
         } catch (IOException e) {
@@ -134,7 +132,6 @@ public class PsseImporter implements Importer {
     private final class ShuntBlockTab {
 
         private HashMap<Integer, Integer > ni;
-
         private HashMap<Integer, Double > bi;
 
         private ShuntBlockTab() {
@@ -206,8 +203,8 @@ public class PsseImporter implements Importer {
         Load load = voltageLevel.newLoad()
                 .setId(busId + "-L" + psseLoad.getId())
                 .setConnectableBus(busId)
-                .setP0(psseLoad.getPl()) //TODO: take into account Ip, Yp
-                .setQ0(psseLoad.getQl()) //TODO: take into account Iq, Yq
+                .setP0(psseLoad.getPl()) //TODO: take into account Ip, Yp when iidm static load will have exponential modelling
+                .setQ0(psseLoad.getQl()) //TODO: take into account Iq, Yq when iidm static load will have exponential modelling
                 .add();
 
         if (psseLoad.getStatus() == 1) {
@@ -217,102 +214,91 @@ public class PsseImporter implements Importer {
     }
 
     private static void createShuntCompensator(PsseFixedShunt psseShunt, PerUnitContext perUnitContext, ContainersMapping containerMapping, Network network) {
-        String busId = getBusId(psseShunt.getI());
-        VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseShunt.getI()));
-        ShuntCompensatorAdder adder = voltageLevel.newShuntCompensator()
-                .setId(busId + "-SH" + psseShunt.getId())
-                .setConnectableBus(busId)
-                .setBus(busId)
-                .setSectionCount(1);
-        adder.newLinearModel()
-                .setBPerSection(psseShunt.getBl())//TODO: take into account gl
-                .setMaximumSectionCount(1)
-                .add();
-        ShuntCompensator shunt = adder.add();
+        if (psseShunt.getBl() != 0) {
+            String busId = getBusId(psseShunt.getI());
+            VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseShunt.getI()));
+            ShuntCompensatorAdder adder = voltageLevel.newShuntCompensator()
+                    .setId(busId + "-SH" + psseShunt.getId())
+                    .setConnectableBus(busId)
+                    .setBus(busId)
+                    .setSectionCount(1);
+            adder.newLinearModel()
+                    .setBPerSection(psseShunt.getBl())//TODO: take into account gl
+                    .setMaximumSectionCount(1)
+                    .add();
+            ShuntCompensator shunt = adder.add();
 
-        if (psseShunt.getStatus() == 1) {
-            shunt.getTerminal().connect();
-        }
+            if (psseShunt.getStatus() == 1) {
+                shunt.getTerminal().connect();
+            }
 
         if (psseShunt.getGl() != 0) {
             LOGGER.warn("Shunt Gl not supported ({})", psseShunt.getI());
         }
+    } else {
+        LOGGER.warn("Shunt ({}) has Bl = 0, not imported ", psseShunt.getI()); //TODO : allow import of shunts with Bl= 0 in iidm?
+    }
     }
 
-    private void createSwitchedShuntBlocMap(PsseRawModel psseModel, Map<PsseSwitchedShunt, ShuntBlockTab > stoBlockiTab) {
+    private void createSwitchedShuntBlocMap(PsseRawModel psseModel, HashMap<PsseSwitchedShunt, ShuntBlockTab > stoBlockiTab) {
 
+        /* Creates a map between the PSSE switched shunt and the blocks info of this shunt
+        A switched shunt may contain up to 8 blocks and each block may contain up to 9 steps of the same value (in MVAR)
+        A block may be capacitive or inductive */
         for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
-
-            Boolean isLastBlock = false;
 
             ShuntBlockTab sbt = new ShuntBlockTab();
 
-            if (psseSwShunt.getN1() != 0 && !isLastBlock) {
-                sbt.add(1, psseSwShunt.getN1(), psseSwShunt.getB1());
-            } else {
-                isLastBlock = true;
-            }
+            int[] ni = new int[8];
+            ni[0] = psseSwShunt.getN1();
+            ni[1] = psseSwShunt.getN2();
+            ni[2] = psseSwShunt.getN3();
+            ni[3] = psseSwShunt.getN4();
+            ni[4] = psseSwShunt.getN5();
+            ni[5] = psseSwShunt.getN6();
+            ni[6] = psseSwShunt.getN7();
+            ni[7] = psseSwShunt.getN8();
 
-            if (psseSwShunt.getN2() != 0 && !isLastBlock) {
-                sbt.add(2, psseSwShunt.getN2(), psseSwShunt.getB2());
-            } else {
-                isLastBlock = true;
-            }
+            double[] bi = new double[8];
+            bi[0] = psseSwShunt.getB1();
+            bi[1] = psseSwShunt.getB2();
+            bi[2] = psseSwShunt.getB3();
+            bi[3] = psseSwShunt.getB4();
+            bi[4] = psseSwShunt.getB5();
+            bi[5] = psseSwShunt.getB6();
+            bi[6] = psseSwShunt.getB7();
+            bi[7] = psseSwShunt.getB8();
 
-            if (psseSwShunt.getN3() != 0 && !isLastBlock) {
-                sbt.add(3, psseSwShunt.getN3(), psseSwShunt.getB3());
-            } else {
-                isLastBlock = true;
-            }
-
-            if (psseSwShunt.getN4() != 0 && !isLastBlock) {
-                sbt.add(4, psseSwShunt.getN4(), psseSwShunt.getB4());
-            } else {
-                isLastBlock = true;
-            }
-
-            if (psseSwShunt.getN5() != 0 && !isLastBlock) {
-                sbt.add(5, psseSwShunt.getN5(), psseSwShunt.getB5());
-            } else {
-                isLastBlock = true;
-            }
-
-            if (psseSwShunt.getN6() != 0 && !isLastBlock) {
-                sbt.add(6, psseSwShunt.getN6(), psseSwShunt.getB6());
-            } else {
-                isLastBlock = true;
-            }
-
-            if (psseSwShunt.getN7() != 0 && !isLastBlock) {
-                sbt.add(7, psseSwShunt.getN7(), psseSwShunt.getB7());
-            } else {
-                isLastBlock = true;
-            }
-
-            if (psseSwShunt.getN8() != 0 && !isLastBlock) {
-                sbt.add(8, psseSwShunt.getN8(), psseSwShunt.getB8());
+            int i = 0;
+            while (i <= 7 && ni[i] > 0) {
+                sbt.add(i + 1, ni[i], bi[i]);
+                i++;
             }
 
             stoBlockiTab.put(psseSwShunt, sbt);
         }
     }
 
-    private static void createSwitchedShunt(PsseSwitchedShunt psseSwShunt, PerUnitContext perUnitContext, ContainersMapping containerMapping, Network network, Map<PsseSwitchedShunt, ShuntBlockTab >  stoBlockiTab) {
+
+    private static void createSwitchedShunt(PsseSwitchedShunt psseSwShunt, PerUnitContext perUnitContext, ContainersMapping containerMapping, Network network, HashMap<PsseSwitchedShunt, ShuntBlockTab >  stoBlockiTab) {
         String busId = getBusId(psseSwShunt.getI());
         VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseSwShunt.getI()));
         ShuntBlockTab sbl = stoBlockiTab.get(psseSwShunt);
 
         for (int i = 1; i <= sbl.getSize(); i++) {
-            ShuntCompensator shunt = voltageLevel.newShuntCompensator()
-                    .setId(busId + "-SwSH-B" + i)
-                    .setConnectableBus(busId)
-                    .setbPerSection(sbl.getBi(i))
-                    .setCurrentSectionCount(sbl.getNi(i)) //TODO: take into account BINIT to define the number of switched steps
-                    .setMaximumSectionCount(sbl.getNi(i))
-                    .add();
+            if (psseSwShunt.getBinit() != 0) { //TODO : improve it to make it robust to all configurations
+                ShuntCompensator shunt = voltageLevel.newShuntCompensator()
+                        .setId(busId + "-SwSH-B" + i)
+                        .setConnectableBus(busId)
+                        //.setbPerSection(sbl.getBi(i)) //TODO: use Binit to initiate Bi, for now we use Binit to obtain de same load-flow results
+                        .setbPerSection(psseSwShunt.getBinit())
+                        .setCurrentSectionCount(sbl.getNi(i)) //TODO: take into account BINIT to define the number of switched steps in the case BINIT is different from the max switched steps
+                        .setMaximumSectionCount(sbl.getNi(i))
+                        .add();
 
-            if (psseSwShunt.getStat() == 1) {
-                shunt.getTerminal().connect();
+                if (psseSwShunt.getStat() == 1) {
+                    shunt.getTerminal().connect();
+                }
             }
         }
     }
@@ -330,11 +316,22 @@ public class PsseImporter implements Importer {
                 .setTargetQ(psseGen.getQt())
                 .add();
 
+        generator.newMinMaxReactiveLimits()
+                .setMinQ(psseGen.getQb())
+                .setMaxQ(psseGen.getQt())
+                .add();
+
         if (psseBus.getIde() != 3) {
+            // The "if" added to be compliant with the IEEE 24 case where type 3 bus is regulating out of its Qmin Qmax
+            // Assuming this is true in general for all PSSE cases for type 3 buses
             generator.newMinMaxReactiveLimits()
                     .setMinQ(psseGen.getQb())
                     .setMaxQ(psseGen.getQt())
                     .add();
+        }
+
+        if (psseGen.getStat() == 1) {
+            generator.getTerminal().connect();
         }
 
         if (psseGen.getStat() == 1) {
@@ -356,7 +353,7 @@ public class PsseImporter implements Importer {
     }
 
     private static void createBuses(PsseRawModel psseModel, ContainersMapping containerMapping, PerUnitContext perUnitContext,
-                                    Network network, Map<Integer, PsseBus>  busNumToPsseBus) {
+                                    Network network, HashMap<Integer, PsseBus>  busNumToPsseBus) {
         for (PsseBus psseBus : psseModel.getBuses()) {
             String voltageLevelId = containerMapping.getVoltageLevelId(psseBus.getI());
             String substationId = containerMapping.getSubstationId(voltageLevelId);
@@ -377,12 +374,29 @@ public class PsseImporter implements Importer {
 
     private static void createLine(PsseNonTransformerBranch psseLine, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network) {
         String id = "L-" + psseLine.getI() + "-" + psseLine.getJ() + "-" + psseLine.getCkt();
+
+        //build a unique name
+        String idTmp = id;
+        int i = 2;
+        while (network.getLine(idTmp) != null) {
+            idTmp = id + "-" + i;
+            i++;
+        }
+
+        id = idTmp;
+
         String bus1Id = getBusId(psseLine.getI());
         String bus2Id = getBusId(psseLine.getJ());
         String voltageLevel1Id = containerMapping.getVoltageLevelId(psseLine.getI());
         String voltageLevel2Id = containerMapping.getVoltageLevelId(psseLine.getJ());
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
+        double x = psseLine.getX();
+        /*if (x < 0.0002) { //TODO check how to handle small impedances lines
+            x = 0.0002;
+            LOGGER.warn("Impedance of line ({}) modified to minimal value ({})", psseLine.getI(), x);
+        }*/
+
         Line line = network.newLine()
                 .setId(id)
                 .setConnectableBus1(bus1Id)
@@ -390,11 +404,11 @@ public class PsseImporter implements Importer {
                 .setConnectableBus2(bus2Id)
                 .setVoltageLevel2(voltageLevel2Id)
                 .setR(psseLine.getR() * zb)
-                .setX(psseLine.getX() * zb)
-                .setG1(0) //TODO
-                .setB1(psseLine.getB() / zb / 2)
-                .setG2(0) //TODO
-                .setB2(psseLine.getB() / zb / 2)
+                .setX(x * zb)
+                .setG1(psseLine.getGi() / zb)
+                .setB1(psseLine.getB() / zb / 2 + psseLine.getBi() / zb)
+                .setG2(psseLine.getGj() / zb)
+                .setB2(psseLine.getB() / zb / 2 + psseLine.getBj() / zb)
                 .add();
 
         if (psseLine.getSt() == 1) {
@@ -407,30 +421,124 @@ public class PsseImporter implements Importer {
         }
     }
 
-    private static void createTransformer(PsseTransformer psseTfo, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network) {
+    private static void createTransformer(PsseTransformer psseTfo, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network, HashMap<Integer, PsseBus> busNumToPsseBus, double sbase) {
         String id = "T-" + psseTfo.getFirstRecord().getI() + "-" + psseTfo.getFirstRecord().getJ() + "-" + psseTfo.getFirstRecord().getCkt();
+
+        //build a unique name (cf. IEEE57)
+        String idTmp = id;
+        int i = 2;
+        while (network.getTwoWindingsTransformer(idTmp) != null || network.getThreeWindingsTransformer(idTmp) != null) {
+            idTmp = id + "-" + i;
+            i++;
+        }
+
+        id = idTmp;
+
         String bus1Id = getBusId(psseTfo.getFirstRecord().getI());
         String bus2Id = getBusId(psseTfo.getFirstRecord().getJ());
         String voltageLevel1Id = containerMapping.getVoltageLevelId(psseTfo.getFirstRecord().getI());
         String voltageLevel2Id = containerMapping.getVoltageLevelId(psseTfo.getFirstRecord().getJ());
         VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
-        double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
+        double baskv1 = busNumToPsseBus.get(psseTfo.getFirstRecord().getI()).getBaskv();
+        double baskv2 = busNumToPsseBus.get(psseTfo.getFirstRecord().getJ()).getBaskv();
+        double zb2 = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
+        double sbase12 = psseTfo.getSecondRecord().getSbase12();
+        double nomV1 = psseTfo.getThirdRecord1().getNomv();
+
+        //handling impedance and admittance
+        // CZ = 1 the triangle values are already in right pu
+        double r12 = psseTfo.getSecondRecord().getR12();
+        double x12 = psseTfo.getSecondRecord().getX12();
+
+        if (psseTfo.getFirstRecord().getCz() == 2) {
+            //CZ = 2 change to right Sbase pu
+            r12 = r12 * sbase / sbase12;
+            x12 = x12 * sbase / sbase12;
+        } else if (psseTfo.getFirstRecord().getCz() == 3) {
+            //CZ = 3 convert load loss power and current into pu impedances
+            r12 = r12 * sbase / (sbase12 * sbase12 * 1000000);
+            double absZ12 = x12 * sbase / sbase12;
+            x12 = Math.sqrt(absZ12 * absZ12 - r12 * r12);
+        }
+
+        // Handling terminal ratios
+        //default value when Cw = 1
+        double w1 = psseTfo.getThirdRecord1().getWindv();
+        double w2 = psseTfo.getThirdRecord2().getWindv();
+        if (psseTfo.getFirstRecord().getCw() == 2) {
+            // case where Cw = 2
+            w1 = w1 / baskv1;
+            w2 = w2 / baskv2;
+        }
+
+        // Handling magnetizing admittance Gm and Bm
+        // Case where Cm = 1
+        double mag1 = psseTfo.getFirstRecord().getMag1(); // admittance value when Cm = 1
+        double mag2 = psseTfo.getFirstRecord().getMag2(); // admittance value when Cm = 1
+        double bmPu = mag2; //bmPu and gmPu represent the values of the magnetizing admittance at the i end in pu at 1/Zb1 base where Zb1 = Vb1*Vb1/Sb1
+        double gmPu = mag1; //Vb1 is the bus i voltage base  (BASKV) and Sb1 is the system MVA base which is SBASE
+        double ymPu = 0;
+        if (psseTfo.getFirstRecord().getCm() == 2) {
+            // modification of value if Cm = 2
+            gmPu = mag1 / (nomV1 * nomV1 * 1000000) * (baskv1 * baskv1 / sbase); // we need to convert mag1 and mag2 from a (NOMV1, Sbase12) to a (baskv1, Sbase) base so that it is expressed in pu admittance at i end.
+            ymPu = mag2 / (nomV1 * nomV1) * sbase12 * (baskv1 * baskv1 / sbase);
+            double bm2 = ymPu * ymPu - gmPu * gmPu;
+            if (bm2 >= 0) {
+                bmPu = -Math.sqrt(bm2);
+            } else {
+                bmPu = 0;
+                LOGGER.warn("Magnetizing susceptance of Transformer ({}) set to 0 because admittance module is ({}) and conductance is ({})  ", id, ymPu, gmPu);
+            }
+        }
 
         if (psseTfo.getFirstRecord().getK() == 0) {
+            // Case of a 2 windings Transformer
             TwoWindingsTransformer tfo2W = voltageLevel2.getSubstation().newTwoWindingsTransformer()
                     .setId(id)
                     .setConnectableBus1(bus1Id)
                     .setVoltageLevel1(voltageLevel1Id)
                     .setConnectableBus2(bus2Id)
                     .setVoltageLevel2(voltageLevel2Id)
-                    .setRatedU1(voltageLevel1.getNominalV() * psseTfo.getThirdRecord1().getWindv())
-                    .setRatedU2(voltageLevel2.getNominalV())
-                    .setR(psseTfo.getSecondRecord().getR12() * zb)
-                    .setX(psseTfo.getSecondRecord().getX12() * zb)
-                    .setG(0) //TODO
-                    .setB(0) //TODO
+                    .setRatedU1(voltageLevel1.getNominalV() * w1)
+                    .setRatedU2(voltageLevel2.getNominalV() * w2)
+                    .setR(r12 * zb2 * w2 * w2) // R12 and X12 shifted on the other side of the 2 wire (PSSE model to iidm model)
+                    .setX(x12 * zb2 * w2 * w2)
+                    .setG(gmPu / (zb2 * (w2 / w1) * (w2 / w1))) // magnetizing susceptance and conductance shifted from left of the first wire (PSSE model) to the right of the second wire (iidm model)
+                    .setB(bmPu / (zb2 * (w2 / w1) * (w2 / w1)))
                     .add();
+
+            //Phase Shift Transformer
+            if (psseTfo.getThirdRecord1().getAng() != 0) {
+                PhaseTapChangerAdder phaseTapChangerAdder = tfo2W.newPhaseTapChanger()
+                        .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                        .setRegulating(false)
+                        .setTapPosition(0);
+                List<Double> alphas = new ArrayList<>();
+                alphas.add(-psseTfo.getThirdRecord1().getAng());  //TODO : check angle and angle units (supposed in degrees)
+                // TODO create full table
+                for (double alpha : alphas) {
+                    phaseTapChangerAdder.beginStep()
+                            .setAlpha(alpha)
+                            .setRho(1)
+                            .setR(0)
+                            .setX(0)
+                            .setG(0)
+                            .setB(0)
+                            .endStep();
+                }
+                phaseTapChangerAdder.add();
+            }
+
+            //TODO support phase shift on all ends of the Tfo
+            if (psseTfo.getThirdRecord2().getAng() != 0) {
+                LOGGER.warn("Phase shift of Transformer ({}) located on end 2 not yet supported  ", id);
+            }
+            if (psseTfo.getFirstRecord().getK() != 0) {
+                if (psseTfo.getThirdRecord3().getAng() != 0) {
+                    LOGGER.warn("Phase shift of Transformer ({}) located on end 3 not yet supported  ", id);
+                }
+            }
 
             if (psseTfo.getFirstRecord().getStat() == 1) {
                 tfo2W.getTerminal1().connect();
@@ -438,7 +546,122 @@ public class PsseImporter implements Importer {
             }
 
         } else {
-            LOGGER.warn("Non-2-windings transformers not supported ({})", id);
+            // case of a three windings transformer
+            String bus3Id = getBusId(psseTfo.getFirstRecord().getK());
+            String voltageLevel3Id = containerMapping.getVoltageLevelId(psseTfo.getFirstRecord().getK());
+            VoltageLevel voltageLevel3 = network.getVoltageLevel(voltageLevel3Id);
+            double baskv3 = busNumToPsseBus.get(psseTfo.getFirstRecord().getK()).getBaskv();
+
+            // Cw = 1
+            double w3 = psseTfo.getThirdRecord3().getWindv();
+            if (psseTfo.getFirstRecord().getCw() == 2) {
+                // Cw = 2 : conversion of kV into ratio
+                w3 = w3 / baskv3;
+            }
+
+            double sbase31 = psseTfo.getSecondRecord().getSbase31();
+            double sbase23 = psseTfo.getSecondRecord().getSbase23();
+
+            //Get the triangle impedances (rij,xij) values in all Cz configurations
+            // CZ = 1 the triangle values are already in right pu
+            double r23 = psseTfo.getSecondRecord().getR23();
+            double x23 = psseTfo.getSecondRecord().getX23();
+            double r31 = psseTfo.getSecondRecord().getR31();
+            double x31 = psseTfo.getSecondRecord().getX31();
+            if (psseTfo.getFirstRecord().getCz() == 2) {
+                //CZ = 2 change to right Sbase pu
+                r12 = r12 * sbase / sbase12;
+                x12 = x12 * sbase / sbase12;
+                r23 = r23 * sbase / sbase23;
+                x23 = x23 * sbase / sbase23;
+                r31 = r31 * sbase / sbase31;
+                x31 = x31 * sbase / sbase31;
+            } else if (psseTfo.getFirstRecord().getCz() == 3) {
+                //CZ = 3 convert load loss power and current into pu impedances
+                r23 = r23 * sbase / (sbase23 * sbase23 * 1000000);
+                r31 = r31 * sbase / (sbase23 * sbase23 * 1000000);
+
+                double absZ23 = x23 * sbase / sbase23;
+                if (absZ23 * absZ23 - r23 * r23 <= 0) {
+                    x23 = 0;
+                    LOGGER.warn("inductance x23 of Transformer ({}) set to 0 because impedance module is ({}) and resistance is ({})  ", id, absZ23, r23);
+                } else {
+                    x23 = Math.sqrt(absZ23 * absZ23 - r23 * r23);
+                }
+
+                double absZ31 = x31 * sbase / sbase31;
+                if (absZ23 * absZ23 - r23 * r23 <= 0) {
+                    x31 = 0;
+                    LOGGER.warn("inductance x31 of Transformer ({}) set to 0 because impedance module is ({}) and resistance is ({})  ", id, absZ31, r31);
+                } else {
+                    x31 = Math.sqrt(absZ31 * absZ31 - r31 * r31);
+                }
+            }
+
+            //transform triangle (rij,xij) impedances into star (ri,xj) impedances
+            double sumR = r12 + r23 + r31;
+            double sumX = x12 + x23 + x31;
+            double squareMod = sumR * sumR + sumX * sumX;
+
+            double r1 = ((r31 * r12 - x31 * x12) * sumR + (r31 * x12 + r12 * x31) * sumX) / squareMod;
+            double x1 = ((r31 * x12 + r12 * x31) * sumR - (r31 * r12 - x31 * x12) * sumX) / squareMod;
+
+            double r2 = ((r12 * r23 - x12 * x23) * sumR + (r12 * x23 + r23 * x12) * sumX) / squareMod;
+            double x2 = ((r12 * x23 + r23 * x12) * sumR - (r12 * r23 - x12 * x23) * sumX) / squareMod;
+
+            double r3 = ((r23 * r31 - x23 * x31) * sumR + (r23 * x31 + r31 * x23) * sumX) / squareMod;
+            double x3 = ((r23 * x31 + r31 * x23) * sumR - (r23 * r31 - x23 * x31) * sumX) / squareMod;
+
+            //set a voltage base at star node with the associated Zbase
+            double v0 = 1.0;
+            double zbV0 = Math.pow(v0, 2) / perUnitContext.getSb();
+
+            ThreeWindingsTransformerAdder tfoAdder = voltageLevel1.getSubstation().newThreeWindingsTransformer()
+                    .setRatedU0(v0)
+                    .setId(id);
+
+            ThreeWindingsTransformerAdder.LegAdder l1adder = tfoAdder.newLeg1();
+            l1adder.setR(r1 * zbV0)
+                    .setX(x1 * zbV0)
+                    .setG(gmPu * w1 * w1 / zbV0)
+                    .setB(bmPu * w1 * w1 / zbV0)
+                    .setRatedU(voltageLevel1.getNominalV() * w1)
+                    .setConnectableBus(bus1Id)
+                    .setVoltageLevel(voltageLevel1Id);
+            l1adder.add();
+
+            ThreeWindingsTransformerAdder.LegAdder l2adder = tfoAdder.newLeg2();
+            l2adder.setR(r2 * zbV0)
+                    .setX(x2 * zbV0)
+                    .setG(0)
+                    .setB(0)
+                    .setRatedU(voltageLevel2.getNominalV() * w2)
+                    .setConnectableBus(bus2Id)
+                    .setVoltageLevel(voltageLevel2Id);
+            l2adder.add();
+
+            ThreeWindingsTransformerAdder.LegAdder l3adder = tfoAdder.newLeg3();
+            l3adder.setR(r3 * zbV0)
+                    .setX(x3 * zbV0)
+                    .setG(0)
+                    .setB(0)
+                    .setRatedU(voltageLevel3.getNominalV() * w3)
+                    .setConnectableBus(bus3Id)
+                    .setVoltageLevel(voltageLevel3Id);
+            l3adder.add();
+
+            ThreeWindingsTransformer tfo3W = tfoAdder.add();
+
+            if (psseTfo.getFirstRecord().getStat() == 1) {
+                tfo3W.getLeg1().getTerminal().connect();
+                tfo3W.getLeg2().getTerminal().connect();
+                tfo3W.getLeg3().getTerminal().connect();
+            }
+
+            //set the init value at the star point
+            tfo3W.setProperty(V_PROPERTY, Float.toString((float) psseTfo.getSecondRecord().getVmstar())); //TODO: check the right base to put the voltage module
+            tfo3W.setProperty(ANGLE_PROPERTY, Float.toString((float) psseTfo.getSecondRecord().getAnstar()));
+
         }
     }
 
@@ -474,11 +697,13 @@ public class PsseImporter implements Importer {
                         .build();
                 ToIntFunction<Object> branchToNum1 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getI() : ((PsseTransformer) branch).getFirstRecord().getI();
                 ToIntFunction<Object> branchToNum2 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getJ() : ((PsseTransformer) branch).getFirstRecord().getJ();
+                ToIntFunction<Object> branchToNum3 = branch -> branch instanceof PsseNonTransformerBranch ? 0 : ((PsseTransformer) branch).getFirstRecord().getK();
                 ToDoubleFunction<Object> branchToResistance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getR() : ((PsseTransformer) branch).getSecondRecord().getR12();
                 ToDoubleFunction<Object> branchToReactance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getX() : ((PsseTransformer) branch).getSecondRecord().getX12();
                 Predicate<Object> branchToIsTransformer = branch -> branch instanceof PsseTransformer;
+                //Predicate<Object> branchToIsT3E = branch -> branch instanceof PsseTransformer;
                 ContainersMapping containerMapping = ContainersMapping.create(psseModel.getBuses(), branches, PsseBus::getI, branchToNum1,
-                    branchToNum2, branchToResistance, branchToReactance, branchToIsTransformer,
+                    branchToNum2, branchToNum3, branchToResistance, branchToReactance, branchToIsTransformer,
                     busNums -> "VL" + busNums.iterator().next(), substationNum -> "S" + substationNum++);
 
                 boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
@@ -486,7 +711,7 @@ public class PsseImporter implements Importer {
                 PerUnitContext perUnitContext = new PerUnitContext(psseModel.getCaseIdentification().getSbase(), ignoreBaseVoltage);
 
                 //The map gives access to PsseBus object with the int bus Number
-                Map<Integer, PsseBus> busNumToPsseBus = new HashMap<>();
+                HashMap<Integer, PsseBus> busNumToPsseBus = new HashMap<>();
 
                 // create buses
                 createBuses(psseModel, containerMapping, perUnitContext, network, busNumToPsseBus);
@@ -502,7 +727,7 @@ public class PsseImporter implements Importer {
                 }
 
                 //Create switched shunts
-                Map<PsseSwitchedShunt, ShuntBlockTab > stoBlockiTab = new HashMap<>();
+                HashMap<PsseSwitchedShunt, ShuntBlockTab > stoBlockiTab = new HashMap<>();
                 createSwitchedShuntBlocMap(psseModel, stoBlockiTab);
                 for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
                     createSwitchedShunt(psseSwShunt, perUnitContext, containerMapping, network, stoBlockiTab);
@@ -517,17 +742,13 @@ public class PsseImporter implements Importer {
                 }
 
                 for (PsseTransformer psseTfo : psseModel.getTransformers()) {
-                    createTransformer(psseTfo, containerMapping, perUnitContext, network);
+                    createTransformer(psseTfo, containerMapping, perUnitContext, network, busNumToPsseBus, psseModel.getCaseIdentification().getSbase());
                 }
 
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+                return network;
             }
-
-            return network;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
-
 }
