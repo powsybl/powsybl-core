@@ -19,8 +19,8 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.IOException;
-//import java.io.InputStream;
-//import java.nio.file.Files;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.Assert.*;
@@ -43,9 +43,9 @@ public class PsseImporterTest extends AbstractConverterTest {
         Path file = fileSystem.getPath("/work/" + network.getId() + ".xiidm");
         network.setCaseDate(DateTime.parse("2016-01-01T10:00:00.000+02:00"));
         NetworkXml.write(network, file);
-        /*try (InputStream is = Files.newInputStream(file)) {
+        try (InputStream is = Files.newInputStream(file)) {
             compareTxt(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
-        }*/
+        }
     }
 
     @Test
