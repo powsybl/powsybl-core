@@ -49,8 +49,6 @@ public class PsseImporter implements Importer {
 
     private static final String ANGLE_PROPERTY = "angle";
 
-    private static final double DEFAULT_ACTIVE_POWER_LIMIT = 9999d;
-
     @Override
     public String getFormat() {
         return FORMAT;
@@ -131,12 +129,12 @@ public class PsseImporter implements Importer {
 
     private final class ShuntBlockTab {
 
-        private HashMap<Integer, Integer > ni;
-        private HashMap<Integer, Double > bi;
+        private HashMap<Integer, Integer> ni;
+        private HashMap<Integer, Double> bi;
 
         private ShuntBlockTab() {
-            ni = new HashMap<Integer, Integer>();
-            bi = new HashMap<Integer, Double>();
+            ni = new HashMap<>();
+            bi = new HashMap<>();
         }
 
         public void add(int i, int nni, double bni) {
@@ -213,7 +211,7 @@ public class PsseImporter implements Importer {
 
     }
 
-    private static void createShuntCompensator(PsseFixedShunt psseShunt, PerUnitContext perUnitContext, ContainersMapping containerMapping, Network network) {
+    private static void createShuntCompensator(PsseFixedShunt psseShunt, ContainersMapping containerMapping, Network network) {
         if (psseShunt.getBl() != 0) {
             String busId = getBusId(psseShunt.getI());
             VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseShunt.getI()));
@@ -394,10 +392,6 @@ public class PsseImporter implements Importer {
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
         double x = psseLine.getX();
-        /*if (x < 0.0002) { //TODO check how to handle small impedances lines
-            x = 0.0002;
-            LOGGER.warn("Impedance of line ({}) modified to minimal value ({})", psseLine.getI(), x);
-        }*/
 
         Line line = network.newLine()
                 .setId(id)
@@ -536,10 +530,8 @@ public class PsseImporter implements Importer {
             if (psseTfo.getThirdRecord2().getAng() != 0) {
                 LOGGER.warn("Phase shift of Transformer ({}) located on end 2 not yet supported  ", id);
             }
-            if (psseTfo.getFirstRecord().getK() != 0) {
-                if (psseTfo.getThirdRecord3().getAng() != 0) {
-                    LOGGER.warn("Phase shift of Transformer ({}) located on end 3 not yet supported  ", id);
-                }
+            if (psseTfo.getFirstRecord().getK() != 0 && psseTfo.getThirdRecord3().getAng() != 0) {
+                LOGGER.warn("Phase shift of Transformer ({}) located on end 3 not yet supported  ", id);
             }
 
             if (psseTfo.getFirstRecord().getStat() == 1) {
@@ -703,7 +695,6 @@ public class PsseImporter implements Importer {
                 ToDoubleFunction<Object> branchToResistance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getR() : ((PsseTransformer) branch).getSecondRecord().getR12();
                 ToDoubleFunction<Object> branchToReactance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getX() : ((PsseTransformer) branch).getSecondRecord().getX12();
                 Predicate<Object> branchToIsTransformer = branch -> branch instanceof PsseTransformer;
-                //Predicate<Object> branchToIsT3E = branch -> branch instanceof PsseTransformer;
                 ContainersMapping containerMapping = ContainersMapping.create(psseModel.getBuses(), branches, PsseBus::getI, branchToNum1,
                     branchToNum2, branchToNum3, branchToResistance, branchToReactance, branchToIsTransformer,
                     busNums -> "VL" + busNums.iterator().next(), substationNum -> "S" + substationNum++);
@@ -725,7 +716,7 @@ public class PsseImporter implements Importer {
 
                 //Create fixed shunts
                 for (PsseFixedShunt psseShunt : psseModel.getFixedShunts()) {
-                    createShuntCompensator(psseShunt, perUnitContext, containerMapping, network);
+                    createShuntCompensator(psseShunt, containerMapping, network);
                 }
 
                 //Create switched shunts
