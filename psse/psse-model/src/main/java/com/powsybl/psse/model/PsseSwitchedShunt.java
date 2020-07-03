@@ -114,8 +114,8 @@ public class PsseSwitchedShunt {
         return adjm;
     }
 
-    public void setAdjm(int modsw) {
-        this.modsw = modsw;
+    public void setAdjm(int adjm) {
+        this.adjm = adjm;
     }
 
     public int getStat() {
@@ -207,7 +207,7 @@ public class PsseSwitchedShunt {
     }
 
     public int getN3() {
-        return n2;
+        return n3;
     }
 
     public void setN3(int n3) {
