@@ -124,7 +124,7 @@ public class XMLExporter implements Exporter {
     }
 
     @Override
-    public void export(Network network, Properties parameters, DataStore dataStore, String filename) {
+    public void export(Network network, Properties parameters, DataStore dataStore, String basename) {
         if (network == null) {
             throw new IllegalArgumentException("network is null");
         }
@@ -132,7 +132,7 @@ public class XMLExporter implements Exporter {
         ExportOptions options = createExportOptions(parameters);
         try {
             long startTime = System.currentTimeMillis();
-            NetworkXml.write(network, options, dataStore, filename);
+            NetworkXml.write(network, options, dataStore, basename + ".xiidm");
             LOGGER.debug("XIIDM export done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

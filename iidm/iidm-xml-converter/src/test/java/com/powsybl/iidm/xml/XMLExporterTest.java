@@ -42,7 +42,7 @@ public class XMLExporterTest extends AbstractXmlConverterTest {
         properties.put(XMLExporter.ANONYMISED, "false");
 
         MemDataStore dataStore = new MemDataStore();
-        new XMLExporter().export(network, properties, dataStore, "exported.xiidm");
+        new XMLExporter().export(network, properties, dataStore, "exported");
         // check the exported file and compare it to iidm reference file
         try (InputStream is = dataStore.newInputStream("exported.xiidm")) {
             compareXml(getVersionedNetworkAsStream("multiple-extensions.xml", version), is);

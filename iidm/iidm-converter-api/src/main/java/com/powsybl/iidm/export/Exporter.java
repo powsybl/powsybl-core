@@ -51,10 +51,10 @@ public interface Exporter {
      * @param network the model
      * @param parameters some properties to configure the export
      * @param dataStore data store
-     * @param exported file name
+     * @param basename exported files base name
      */
-    default void export(Network network, Properties parameters, DataStore dataStore, String filename) {
-        export(network, parameters, dataStore.toDataSource(filename));
+    default void export(Network network, Properties parameters, DataStore dataStore, String basename) {
+        export(network, parameters, dataStore.toDataSource(basename));
     }
 
 }

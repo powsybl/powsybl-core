@@ -62,7 +62,7 @@ public class SimpleAnonymizerTest extends AbstractXmlConverterTest {
         properties.put(XMLExporter.ANONYMISED, "true");
 
         MemDataStore dataStore = new MemDataStore();
-        new XMLExporter().export(network, properties, dataStore, "exported.xiidm");
+        new XMLExporter().export(network, properties, dataStore, "exported");
         // check the exported file and compare it to iidm reference file
         try (InputStream is = dataStore.newInputStream("exported.xiidm")) {
             compareXml(getVersionedNetworkAsStream("eurostag-tutorial-example1-anonymized.xml", CURRENT_IIDM_XML_VERSION), is);

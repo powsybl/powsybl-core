@@ -751,7 +751,7 @@ public class UcteExporter implements Exporter {
     }
 
     @Override
-    public void export(Network network, Properties parameters, DataStore dataStore, String filename) {
+    public void export(Network network, Properties parameters, DataStore dataStore, String basename) {
         if (network == null) {
             throw new IllegalArgumentException("network is null");
         }
@@ -760,7 +760,7 @@ public class UcteExporter implements Exporter {
         NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, NAMING_STRATEGY_SUPPLIERS.get());
 
         UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy);
-        try (OutputStream os = dataStore.newOutputStream(filename, false);
+        try (OutputStream os = dataStore.newOutputStream(basename + ".uct", false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
             new UcteWriter(ucteNetwork).write(writer);
         } catch (IOException e) {

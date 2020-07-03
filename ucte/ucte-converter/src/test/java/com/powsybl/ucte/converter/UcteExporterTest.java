@@ -54,13 +54,13 @@ public class UcteExporterTest extends AbstractConverterTest {
         }
     }
 
-    private static void testDataStoreExporter(Network network, String reference) throws IOException {
+    private static void testDataStoreExporter(Network network, String basename, String reference) throws IOException {
         MemDataStore dataStore = new MemDataStore();
 
         UcteExporter exporter = new UcteExporter();
-        exporter.export(network, new Properties(), dataStore, reference);
+        exporter.export(network, new Properties(), dataStore, basename);
 
-        try (InputStream actual = dataStore.newInputStream(reference);
+        try (InputStream actual = dataStore.newInputStream(basename + ".uct");
              InputStream expected = UcteExporterTest.class.getResourceAsStream(reference)) {
             compareTxt(expected, actual, Arrays.asList(1, 2));
         }
@@ -96,7 +96,7 @@ public class UcteExporterTest extends AbstractConverterTest {
     public void testExport() throws IOException {
         Network network = loadNetworkFromResourceFile("/expectedExport.uct");
         testExporter(network, "/expectedExport.uct");
-        testDataStoreExporter(network, "/expectedExport.uct");
+        testDataStoreExporter(network, "expectedExport", "/expectedExport.uct");
     }
 
     @Test

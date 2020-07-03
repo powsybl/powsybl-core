@@ -23,6 +23,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datastore.DataStore;
 import com.powsybl.commons.datastore.DataStores;
+import com.powsybl.commons.util.Filenames;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.ImportConfig;
@@ -121,6 +122,6 @@ public class ConversionTool implements Tool {
         Path out = context.getFileSystem().getPath(outputFile);
         DataStore dst = DataStores.createDataStore(out);
 
-        exporter.export(network, outputParams, dst, out.getFileName().toString());
+        exporter.export(network, outputParams, dst, Filenames.getBasename(out.getFileName().toString()));
     }
 }
