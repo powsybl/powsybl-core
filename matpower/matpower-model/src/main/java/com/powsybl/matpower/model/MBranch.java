@@ -110,10 +110,6 @@ public class MBranch {
         return x;
     }
 
-    public int getThirdEnd() {
-        return 0;
-    }
-
     public void setX(double x) {
         this.x = x;
     }

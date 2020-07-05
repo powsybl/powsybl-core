@@ -468,7 +468,7 @@ public class IeeeCdfImporter implements Importer {
 
             // build container to fit IIDM requirements
             ContainersMapping containerMapping = ContainersMapping.create(ieeeCdfModel.getBuses(), ieeeCdfModel.getBranches(),
-                IeeeCdfBus::getNumber, IeeeCdfBranch::getTapBusNumber, IeeeCdfBranch::getzBusNumber, IeeeCdfBranch::getBus3Number,  IeeeCdfBranch::getResistance,
+                IeeeCdfBus::getNumber, IeeeCdfBranch::getTapBusNumber, IeeeCdfBranch::getzBusNumber, IeeeCdfBranch -> 0,  IeeeCdfBranch::getResistance,
                 IeeeCdfBranch::getReactance, IeeeCdfImporter::isTransformer, busNums -> "VL" + busNums.iterator().next(),
                 substationNum -> "S" + substationNum++);
 

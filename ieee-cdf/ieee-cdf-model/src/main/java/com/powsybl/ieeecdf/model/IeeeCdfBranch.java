@@ -245,10 +245,6 @@ public class IeeeCdfBranch {
         return zBusNumber;
     }
 
-    public int getBus3Number() {
-        return 0; //non three windings handled yet
-    }
-
     public void setzBusNumber(int zBusNumber) {
         this.zBusNumber = zBusNumber;
     }

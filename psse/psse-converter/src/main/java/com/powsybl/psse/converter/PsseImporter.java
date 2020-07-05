@@ -129,8 +129,8 @@ public class PsseImporter implements Importer {
 
     private final class ShuntBlockTab {
 
-        private HashMap<Integer, Integer> ni;
-        private HashMap<Integer, Double> bi;
+        private final Map<Integer, Integer> ni;
+        private final Map<Integer, Double> bi;
 
         private ShuntBlockTab() {
             ni = new HashMap<>();
@@ -143,11 +143,11 @@ public class PsseImporter implements Importer {
         }
 
         public int getNi(int i) {
-            return this.ni.get(i);
+            return ni.get(i);
         }
 
         public double getBi(int i) {
-            return this.bi.get(i);
+            return bi.get(i);
         }
 
         public int getSize() {
@@ -247,25 +247,15 @@ public class PsseImporter implements Importer {
 
             ShuntBlockTab sbt = new ShuntBlockTab();
 
-            int[] ni = new int[8];
-            ni[0] = psseSwShunt.getN1();
-            ni[1] = psseSwShunt.getN2();
-            ni[2] = psseSwShunt.getN3();
-            ni[3] = psseSwShunt.getN4();
-            ni[4] = psseSwShunt.getN5();
-            ni[5] = psseSwShunt.getN6();
-            ni[6] = psseSwShunt.getN7();
-            ni[7] = psseSwShunt.getN8();
+            int[] ni = {
+                    psseSwShunt.getN1(), psseSwShunt.getN2(), psseSwShunt.getN3(), psseSwShunt.getN4(),
+                    psseSwShunt.getN5(), psseSwShunt.getN6(), psseSwShunt.getN7(), psseSwShunt.getN8()
+            };
 
-            double[] bi = new double[8];
-            bi[0] = psseSwShunt.getB1();
-            bi[1] = psseSwShunt.getB2();
-            bi[2] = psseSwShunt.getB3();
-            bi[3] = psseSwShunt.getB4();
-            bi[4] = psseSwShunt.getB5();
-            bi[5] = psseSwShunt.getB6();
-            bi[6] = psseSwShunt.getB7();
-            bi[7] = psseSwShunt.getB8();
+            double[] bi = {
+                    psseSwShunt.getB1(), psseSwShunt.getB2(), psseSwShunt.getB3(), psseSwShunt.getB4(),
+                    psseSwShunt.getB5(), psseSwShunt.getB6(), psseSwShunt.getB7(), psseSwShunt.getB8()
+            };
 
             int i = 0;
             while (i <= 7 && ni[i] > 0) {
@@ -288,11 +278,9 @@ public class PsseImporter implements Importer {
                         .setId(busId + "-SwSH-B" + i)
                         .setConnectableBus(busId)
                         .setSectionCount(1);
-                adder.newLinearModel() //TODO: use Binit to initiate Bi, for now we use Binit to obtain de same load-flow results
+                adder.newLinearModel() //TODO: use Binit and sbl.getNi(i) to initiate Bi, for now we use Binit to obtain de same load-flow results
                         .setBPerSection(psseSwShunt.getBinit())//TODO: take into account BINIT to define the number of switched steps in the case BINIT is different from the max switched steps
                         .setMaximumSectionCount(1)
-                        //.setCurrentSectionCount(sbl.getNi(i))
-                        //.setMaximumSectionCount(sbl.getNi(i))
                         .add();
                 ShuntCompensator shunt = adder.add();
 
@@ -353,7 +341,7 @@ public class PsseImporter implements Importer {
     }
 
     private static void createBuses(PsseRawModel psseModel, ContainersMapping containerMapping, PerUnitContext perUnitContext,
-                                    Network network, HashMap<Integer, PsseBus>  busNumToPsseBus) {
+                                    Network network, Map<Integer, PsseBus>  busNumToPsseBus) {
         for (PsseBus psseBus : psseModel.getBuses()) {
             String voltageLevelId = containerMapping.getVoltageLevelId(psseBus.getI());
             String substationId = containerMapping.getSubstationId(voltageLevelId);
@@ -372,18 +360,27 @@ public class PsseImporter implements Importer {
         }
     }
 
+    private static String  getUniqueId(String id, Predicate<String> predicate) {
+        String tmpId = id;
+        int i = 2;
+        while (predicate.test(tmpId)) {
+            tmpId = id + "-" + i;
+            i++;
+        }
+        return tmpId;
+    }
+
     private static void createLine(PsseNonTransformerBranch psseLine, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network) {
         String id = "L-" + psseLine.getI() + "-" + psseLine.getJ() + "-" + psseLine.getCkt();
+        id = getUniqueId(id, s -> network.getLine(s) != null);
 
         //build a unique name
-        String idTmp = id;
+        /*String idTmp = id;
         int i = 2;
         while (network.getLine(idTmp) != null) {
             idTmp = id + "-" + i;
             i++;
-        }
-
-        id = idTmp;
+        }*/
 
         String bus1Id = getBusId(psseLine.getI());
         String bus2Id = getBusId(psseLine.getJ());
@@ -391,7 +388,6 @@ public class PsseImporter implements Importer {
         String voltageLevel2Id = containerMapping.getVoltageLevelId(psseLine.getJ());
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
-        double x = psseLine.getX();
 
         Line line = network.newLine()
                 .setId(id)
@@ -400,7 +396,7 @@ public class PsseImporter implements Importer {
                 .setConnectableBus2(bus2Id)
                 .setVoltageLevel2(voltageLevel2Id)
                 .setR(psseLine.getR() * zb)
-                .setX(x * zb)
+                .setX(psseLine.getX() * zb)
                 .setG1(psseLine.getGi() / zb)
                 .setB1(psseLine.getB() / zb / 2 + psseLine.getBi() / zb)
                 .setG2(psseLine.getGj() / zb)
@@ -417,10 +413,19 @@ public class PsseImporter implements Importer {
         }
     }
 
-    private static void createTransformer(PsseTransformer psseTfo, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network, HashMap<Integer, PsseBus> busNumToPsseBus, double sbase) {
-        String id = "T-" + psseTfo.getFirstRecord().getI() + "-" + psseTfo.getFirstRecord().getJ() + "-" + psseTfo.getFirstRecord().getCkt();
+    private static void createTransformer(PsseTransformer psseTfo, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network, Map<Integer, PsseBus> busNumToPsseBus, double sbase) {
+
+        String id = "T-" + psseTfo.getFirstRecord().getI() + "-" + psseTfo.getFirstRecord().getJ();
+        if (psseTfo.getFirstRecord().getK() == 0) {
+            id = id + "-" + psseTfo.getFirstRecord().getCkt();
+            id = getUniqueId(id, s -> network.getTwoWindingsTransformer(s) != null);
+        } else {
+            id = id + "-" + psseTfo.getFirstRecord().getK() + "-" + psseTfo.getFirstRecord().getCkt();
+            id = getUniqueId(id, s -> network.getThreeWindingsTransformer(s) != null);
+        }
 
         //build a unique name (cf. IEEE57)
+        /*
         String idTmp = id;
         int i = 2;
         while (network.getTwoWindingsTransformer(idTmp) != null || network.getThreeWindingsTransformer(idTmp) != null) {
@@ -428,7 +433,7 @@ public class PsseImporter implements Importer {
             i++;
         }
 
-        id = idTmp;
+        id = idTmp;*/
 
         String bus1Id = getBusId(psseTfo.getFirstRecord().getI());
         String bus2Id = getBusId(psseTfo.getFirstRecord().getJ());
@@ -608,7 +613,7 @@ public class PsseImporter implements Importer {
 
             //set a voltage base at star node with the associated Zbase
             double v0 = 1.0;
-            double zbV0 = Math.pow(v0, 2) / perUnitContext.getSb();
+            double zbV0 = v0 * v0 / perUnitContext.getSb();
 
             ThreeWindingsTransformerAdder tfoAdder = voltageLevel1.getSubstation().newThreeWindingsTransformer()
                     .setRatedU0(v0)
@@ -704,7 +709,7 @@ public class PsseImporter implements Importer {
                 PerUnitContext perUnitContext = new PerUnitContext(psseModel.getCaseIdentification().getSbase(), ignoreBaseVoltage);
 
                 //The map gives access to PsseBus object with the int bus Number
-                HashMap<Integer, PsseBus> busNumToPsseBus = new HashMap<>();
+                Map<Integer, PsseBus> busNumToPsseBus = new HashMap<>();
 
                 // create buses
                 createBuses(psseModel, containerMapping, perUnitContext, network, busNumToPsseBus);
