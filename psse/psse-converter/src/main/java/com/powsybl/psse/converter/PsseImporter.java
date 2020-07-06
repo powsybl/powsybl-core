@@ -360,19 +360,8 @@ public class PsseImporter implements Importer {
         }
     }
 
-    private static String  getUniqueId(String id, Predicate<String> predicate) {
-        String tmpId = id;
-        int i = 2;
-        while (predicate.test(tmpId)) {
-            tmpId = id + "-" + i;
-            i++;
-        }
-        return tmpId;
-    }
-
     private static void createLine(PsseNonTransformerBranch psseLine, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network) {
         String id = "L-" + psseLine.getI() + "-" + psseLine.getJ() + "-" + psseLine.getCkt();
-        //id = getUniqueId(id, s -> network.getLine(s) != null);
 
         String bus1Id = getBusId(psseLine.getI());
         String bus2Id = getBusId(psseLine.getJ());
@@ -411,10 +400,8 @@ public class PsseImporter implements Importer {
         String id = "T-" + psseTfo.getFirstRecord().getI() + "-" + psseTfo.getFirstRecord().getJ();
         if (psseTfo.getFirstRecord().getK() == 0) {
             id = id + "-" + psseTfo.getFirstRecord().getCkt();
-            //id = getUniqueId(id, s -> network.getTwoWindingsTransformer(s) != null);
         } else {
             id = id + "-" + psseTfo.getFirstRecord().getK() + "-" + psseTfo.getFirstRecord().getCkt();
-            //id = getUniqueId(id, s -> network.getThreeWindingsTransformer(s) != null);
         }
 
         String bus1Id = getBusId(psseTfo.getFirstRecord().getI());
