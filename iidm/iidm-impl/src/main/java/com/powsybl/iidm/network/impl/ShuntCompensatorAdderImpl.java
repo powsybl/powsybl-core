@@ -6,23 +6,21 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ShuntCompensatorAdder;
-import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorAdderImpl> implements ShuntCompensatorAdder {
 
     private final VoltageLevelExt voltageLevel;
 
-    private double bPerSection;
+    private ShuntCompensatorModelWrapper model;
 
-    private int maximumSectionCount;
-
-    private int currentSectionCount;
+    private int sectionCount = -1;
 
     private double targetV = Double.NaN;
 
@@ -46,21 +44,108 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         return "Shunt compensator";
     }
 
-    @Override
-    public ShuntCompensatorAdder setbPerSection(double bPerSection) {
-        this.bPerSection = bPerSection;
-        return this;
+    class ShuntCompensatorLinearModelAdderImpl implements ShuntCompensatorLinearModelAdder {
+
+        private double bPerSection = Double.NaN;
+
+        private double gPerSection = Double.NaN;
+
+        private int maximumSectionCount = -1;
+
+        @Override
+        public ShuntCompensatorLinearModelAdder setBPerSection(double bPerSection) {
+            this.bPerSection = bPerSection;
+            return this;
+        }
+
+        @Override
+        public ShuntCompensatorLinearModelAdder setGPerSection(double gPerSection) {
+            this.gPerSection = gPerSection;
+            return this;
+        }
+
+        @Override
+        public ShuntCompensatorLinearModelAdder setMaximumSectionCount(int maximumSectionCount) {
+            this.maximumSectionCount = maximumSectionCount;
+            return this;
+        }
+
+        @Override
+        public ShuntCompensatorAdder add() {
+            ValidationUtil.checkLinearBPerSection(ShuntCompensatorAdderImpl.this, bPerSection);
+            ValidationUtil.checkMaximumSectionCount(ShuntCompensatorAdderImpl.this, maximumSectionCount);
+            model = new ShuntCompensatorLinearModelImpl(bPerSection, gPerSection, maximumSectionCount);
+            return ShuntCompensatorAdderImpl.this;
+        }
+    }
+
+    class ShuntCompensatorNonLinearModelAdderImpl implements ShuntCompensatorNonLinearModelAdder {
+
+        private final List<ShuntCompensatorNonLinearModelImpl.SectionImpl> sections = new ArrayList<>();
+        private int index = 1;
+
+        class SectionAdderImpl implements SectionAdder {
+
+            private double b = Double.NaN;
+
+            private double g = Double.NaN;
+
+            @Override
+            public SectionAdder setB(double b) {
+                this.b = b;
+                return this;
+            }
+
+            @Override
+            public SectionAdder setG(double g) {
+                this.g = g;
+                return this;
+            }
+
+            @Override
+            public ShuntCompensatorNonLinearModelAdder endSection() {
+                ValidationUtil.checkBPerSection(ShuntCompensatorAdderImpl.this, b);
+                if (Double.isNaN(g))  {
+                    if (sections.isEmpty()) {
+                        g = 0;
+                    } else {
+                        g = sections.get(sections.size() - 1).getG();
+                    }
+                }
+                sections.add(new ShuntCompensatorNonLinearModelImpl.SectionImpl(index, b, g));
+                index++;
+                return ShuntCompensatorNonLinearModelAdderImpl.this;
+            }
+        }
+
+        @Override
+        public SectionAdder beginSection() {
+            return new SectionAdderImpl();
+        }
+
+        @Override
+        public ShuntCompensatorAdder add() {
+            if (sections.isEmpty()) {
+                throw new ValidationException(ShuntCompensatorAdderImpl.this, "a shunt compensator must have at least one section");
+            }
+            model = new ShuntCompensatorNonLinearModelImpl(sections);
+            return ShuntCompensatorAdderImpl.this;
+        }
     }
 
     @Override
-    public ShuntCompensatorAdder setMaximumSectionCount(int maximumSectionCount) {
-        this.maximumSectionCount = maximumSectionCount;
-        return this;
+    public ShuntCompensatorLinearModelAdder newLinearModel() {
+        return new ShuntCompensatorLinearModelAdderImpl();
     }
 
     @Override
-    public ShuntCompensatorAdder setCurrentSectionCount(int currentSectionCount) {
-        this.currentSectionCount = currentSectionCount;
+    public ShuntCompensatorNonLinearModelAdder newNonLinearModel() {
+        return new ShuntCompensatorNonLinearModelAdderImpl();
+    }
+
+    @Override
+    public ShuntCompensatorAdder setSectionCount(int sectionCount) {
+        this.sectionCount = sectionCount;
         return this;
     }
 
@@ -92,15 +177,20 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     public ShuntCompensatorImpl add() {
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
-        ValidationUtil.checkbPerSection(this, bPerSection);
-        ValidationUtil.checkSections(this, currentSectionCount, maximumSectionCount);
+        if (model == null) {
+            throw new ValidationException(this, "the shunt compensator model has not been defined");
+        }
+        ValidationUtil.checkSections(this, sectionCount, model.getMaximumSectionCount());
+        if (sectionCount < 0 || sectionCount > model.getMaximumSectionCount()) {
+            throw new ValidationException(this, "unexpected section number (" + sectionCount + "): no existing associated section");
+        }
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV);
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband);
         ShuntCompensatorImpl shunt
                 = new ShuntCompensatorImpl(getNetwork().getRef(),
-                id, getName(), isFictitious(), bPerSection, maximumSectionCount,
-                currentSectionCount, regulatingTerminal == null ? terminal : regulatingTerminal,
+                id, getName(), isFictitious(), model,
+                sectionCount, regulatingTerminal == null ? terminal : regulatingTerminal,
                 voltageRegulatorOn, targetV, targetDeadband);
         shunt.addTerminal(terminal);
         voltageLevel.attach(terminal, false);

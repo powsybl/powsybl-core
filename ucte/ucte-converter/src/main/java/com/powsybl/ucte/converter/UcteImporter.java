@@ -8,7 +8,6 @@ package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
 import com.google.common.base.Enums;
-import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -785,7 +784,7 @@ public class UcteImporter implements Importer {
         }
         if (throwException) {
             throw new UcteException("File " + dataSource.getBaseName()
-                    + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
+                    + "." + String.join("|", EXTENSIONS) + " not found");
         }
         return null;
     }

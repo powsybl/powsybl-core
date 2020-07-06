@@ -13,9 +13,12 @@ public final class IidmXmlConstants {
 
     public static final String INDENT = "    ";
 
-    public static final IidmXmlVersion CURRENT_IIDM_XML_VERSION = IidmXmlVersion.V_1_2;
+    public static final IidmXmlVersion CURRENT_IIDM_XML_VERSION = IidmXmlVersion.V_1_3;
 
     public static final String IIDM_PREFIX = "iidm";
+
+    public static final String ITESLA_DOMAIN = "itesla_project.eu";
+    public static final String POWSYBL_DOMAIN = "powsybl.org";
 
     private IidmXmlConstants() {
     }

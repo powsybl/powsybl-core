@@ -128,15 +128,15 @@ public final class LinkData {
         }
 
         public Complex y12() {
-            return y11;
+            return y12;
         }
 
         public Complex y21() {
-            return y11;
+            return y21;
         }
 
         public Complex y22() {
-            return y11;
+            return y22;
         }
     }
 

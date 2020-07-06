@@ -249,9 +249,11 @@ public class IeeeCdfImporter implements Importer {
                     .setId(busId + "-SH")
                     .setConnectableBus(busId)
                     .setBus(busId)
-                    .setbPerSection(ieeeCdfBus.getShuntSusceptance() / zb)
-                    .setCurrentSectionCount(1)
-                    .setMaximumSectionCount(1)
+                    .setSectionCount(1)
+                    .newLinearModel()
+                        .setMaximumSectionCount(1)
+                        .setBPerSection(ieeeCdfBus.getShuntSusceptance() / zb)
+                        .add()
                     .add();
         }
     }

@@ -269,8 +269,8 @@ public class CgmesConformity1ModifiedConversionTest {
         ShuntCompensator shunt = network.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da");
         assertNotNull(shunt);
         assertEquals(1, shunt.getMaximumSectionCount());
-        assertEquals(0.0012, shunt.getbPerSection(), 0.0);
-        assertEquals(1, shunt.getCurrentSectionCount());
+        assertEquals(0.0012, shunt.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
+        assertEquals(1, shunt.getSectionCount());
     }
 
     @Test
@@ -282,6 +282,17 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(shunt.getTerminal().getBusView().getBus().getV(), shunt.getTargetV(), 0.0d);
         assertEquals(0.0d, shunt.getTargetDeadband(), 0.0d);
         assertEquals(shunt.getTerminal(), shunt.getRegulatingTerminal());
+    }
+
+    @Test
+    public void microBEUndefinedPatl() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEUndefinedPatl().dataSource(),
+                NetworkFactory.findDefault(), null);
+        Line line = network.getLine("_ffbabc27-1ccd-4fdc-b037-e341706c8d29");
+        CurrentLimits limits = line.getCurrentLimits1();
+        assertNotNull(limits);
+        assertEquals(2, limits.getTemporaryLimits().size());
+        assertEquals(1312.0, limits.getPermanentLimit(), 0.0);
     }
 
     @Test

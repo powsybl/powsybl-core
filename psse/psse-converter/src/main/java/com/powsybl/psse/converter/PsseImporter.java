@@ -41,14 +41,12 @@ public class PsseImporter implements Importer {
 
     private static final String FORMAT = "PSS/E";
 
-    private static final String EXT = "raw"; //TODO: support both RAW and raw extensions
+    private static final String[] EXTS = {"raw", "RAW"};
 
     private static final Parameter IGNORE_BASE_VOLTAGE_PARAMETER = new Parameter("ignore-base-voltage",
             ParameterType.BOOLEAN,
             "Ignore base voltage specified in the file",
             Boolean.TRUE);
-
-    private static final double DEFAULT_ACTIVE_POWER_LIMIT = 9999d;
 
     @Override
     public String getFormat() {
@@ -65,16 +63,26 @@ public class PsseImporter implements Importer {
         return "PSS/E Format to IIDM converter";
     }
 
+    private String findExtension(ReadOnlyDataSource dataSource, boolean throwException) throws IOException {
+        for (String ext : EXTS) {
+            if (dataSource.exists(null, ext)) {
+                return ext;
+            }
+        }
+        if (throwException) {
+            throw new PsseException("File " + dataSource.getBaseName()
+                    + "." + String.join("|", EXTS) + " not found");
+        }
+        return null;
+    }
+
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            if (dataSource.exists(null, EXT)) {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, EXT)))) {
-                    String titleLine = reader.readLine();
-                    if (titleLine != null) {
-                        return titleLine.length() >= 38
-                                && titleLine.charAt(37) == '/';
-                    }
+            String ext = findExtension(dataSource, false);
+            if (ext != null) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
+                    return new PsseRawReader().checkCaseIdentification(reader);
                 }
             }
         } catch (IOException e) {
@@ -88,8 +96,9 @@ public class PsseImporter implements Importer {
         Objects.requireNonNull(fromDataSource);
         Objects.requireNonNull(toDataSource);
         try {
-            try (InputStream is = fromDataSource.newInputStream(null, EXT);
-                 OutputStream os = toDataSource.newOutputStream(null, EXT, false)) {
+            String ext = findExtension(fromDataSource, false);
+            try (InputStream is = fromDataSource.newInputStream(null, ext);
+                 OutputStream os = toDataSource.newOutputStream(null, ext, false)) {
                 ByteStreams.copy(is, os);
             }
         } catch (IOException e) {
@@ -160,27 +169,36 @@ public class PsseImporter implements Importer {
     private static void createLoad(PsseLoad psseLoad, ContainersMapping containerMapping, Network network) {
         String busId = getBusId(psseLoad.getI());
         VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseLoad.getI()));
-        voltageLevel.newLoad()
+        Load load = voltageLevel.newLoad()
                 .setId(busId + "-L" + psseLoad.getId())
                 .setConnectableBus(busId)
-                .setBus(busId)
                 .setP0(psseLoad.getPl()) //TODO: take into account Ip, Yp
                 .setQ0(psseLoad.getQl()) //TODO: take into account Iq, Yq
                 .add();
+
+        if (psseLoad.getStatus() == 1) {
+            load.getTerminal().connect();
+        }
 
     }
 
     private static void createShuntCompensator(PsseFixedShunt psseShunt, PerUnitContext perUnitContext, ContainersMapping containerMapping, Network network) {
         String busId = getBusId(psseShunt.getI());
         VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseShunt.getI()));
-        voltageLevel.newShuntCompensator()
+        ShuntCompensatorAdder adder = voltageLevel.newShuntCompensator()
                 .setId(busId + "-SH" + psseShunt.getId())
                 .setConnectableBus(busId)
                 .setBus(busId)
-                .setbPerSection(psseShunt.getBl())//TODO: take into account gl
-                .setCurrentSectionCount(1)
+                .setSectionCount(1);
+        adder.newLinearModel()
+                .setBPerSection(psseShunt.getBl())//TODO: take into account gl
                 .setMaximumSectionCount(1)
                 .add();
+        ShuntCompensator shunt = adder.add();
+
+        if (psseShunt.getStatus() == 1) {
+            shunt.getTerminal().connect();
+        }
 
         if (psseShunt.getGl() != 0) {
             LOGGER.warn("Shunt Gl not supported ({})", psseShunt.getI());
@@ -193,19 +211,28 @@ public class PsseImporter implements Importer {
         Generator generator =  voltageLevel.newGenerator()
                 .setId(busId + "-G" + psseGen.getId())
                 .setConnectableBus(busId)
-                .setBus(busId)
                 .setTargetP(psseGen.getPg())
-                .setMaxP(DEFAULT_ACTIVE_POWER_LIMIT)
-                .setMinP(-DEFAULT_ACTIVE_POWER_LIMIT)
+                .setMaxP(psseGen.getPt())
+                .setMinP(psseGen.getPb())
                 .setVoltageRegulatorOn(false)
-                .setTargetQ(psseGen.getQg())
+                .setTargetQ(psseGen.getQt())
                 .add();
+
+        generator.newMinMaxReactiveLimits()
+                .setMinQ(psseGen.getQb())
+                .setMaxQ(psseGen.getQt())
+                .add();
+
+        if (psseGen.getStat() == 1) {
+            generator.getTerminal().connect();
+        }
 
         if (psseGen.getVs() > 0) {
             if (psseGen.getIreg() == 0) {
                 //PV group
                 generator.setTargetV(psseGen.getVs() * voltageLevel.getNominalV());
                 generator.setVoltageRegulatorOn(true);
+                generator.setTargetQ(psseGen.getQg());
             } else {
                 //TODO : implement remote voltage control regulation
                 LOGGER.warn("Remote Voltage control not supported ({})", generator.getId());
@@ -240,12 +267,10 @@ public class PsseImporter implements Importer {
         String voltageLevel2Id = containerMapping.getVoltageLevelId(psseLine.getJ());
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
-        network.newLine()
+        Line line = network.newLine()
                 .setId(id)
-                .setBus1(bus1Id)
                 .setConnectableBus1(bus1Id)
                 .setVoltageLevel1(voltageLevel1Id)
-                .setBus2(bus2Id)
                 .setConnectableBus2(bus2Id)
                 .setVoltageLevel2(voltageLevel2Id)
                 .setR(psseLine.getR() * zb)
@@ -255,6 +280,11 @@ public class PsseImporter implements Importer {
                 .setG2(0) //TODO
                 .setB2(psseLine.getB() / zb / 2)
                 .add();
+
+        if (psseLine.getSt() == 1) {
+            line.getTerminal1().connect();
+            line.getTerminal2().connect();
+        }
 
         if (psseLine.getGi() != 0 || psseLine.getGj() != 0) {
             LOGGER.warn("Branch G not supported ({})", psseLine.getI());
@@ -271,13 +301,11 @@ public class PsseImporter implements Importer {
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
 
-        if (psseTfo.getFirstRecord().getNmetr() == 2) {
-            voltageLevel2.getSubstation().newTwoWindingsTransformer()
+        if (psseTfo.getFirstRecord().getK() == 0) {
+            TwoWindingsTransformer tfo2W = voltageLevel2.getSubstation().newTwoWindingsTransformer()
                     .setId(id)
-                    .setBus1(bus1Id)
                     .setConnectableBus1(bus1Id)
                     .setVoltageLevel1(voltageLevel1Id)
-                    .setBus2(bus2Id)
                     .setConnectableBus2(bus2Id)
                     .setVoltageLevel2(voltageLevel2Id)
                     .setRatedU1(voltageLevel1.getNominalV() * psseTfo.getThirdRecord1().getWindv())
@@ -287,6 +315,11 @@ public class PsseImporter implements Importer {
                     .setG(0) //TODO
                     .setB(0) //TODO
                     .add();
+
+            if (psseTfo.getFirstRecord().getStat() == 1) {
+                tfo2W.getTerminal1().connect();
+                tfo2W.getTerminal2().connect();
+            }
 
         } else {
             LOGGER.warn("Non-2-windings transformers not supported ({})", id);
@@ -300,62 +333,72 @@ public class PsseImporter implements Importer {
 
         Network network = networkFactory.createNetwork(dataSource.getBaseName(), FORMAT);
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, EXT)))) {
+        try {
+            String ext = findExtension(dataSource, true);
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
 
-            // parse file
-            PsseRawModel psseModel = new PsseRawReader().read(reader);
+                // parse file
+                PsseRawModel psseModel = new PsseRawReader().read(reader);
 
-            // set date and time
-            // TODO
+                // check version
+                if (psseModel.getCaseIdentification().getRev() > PsseConstants.SUPPORTED_VERSION) {
+                    throw new PsseException("PSS/E version higher than " + PsseConstants.SUPPORTED_VERSION + " not supported");
+                }
+                if (psseModel.getCaseIdentification().getIc() == 1) {
+                    throw new PsseException("Incremental load of PSS/E data option (IC = 1) not supported");
+                }
 
-            // build container to fit IIDM requirements
-            List<Object> branches = ImmutableList.builder()
-                    .addAll(psseModel.getNonTransformerBranches())
-                    .addAll(psseModel.getTransformers())
-                    .build();
-            ToIntFunction<Object> branchToNum1 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getI() : ((PsseTransformer) branch).getFirstRecord().getI();
-            ToIntFunction<Object> branchToNum2 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getJ() : ((PsseTransformer) branch).getFirstRecord().getJ();
-            ToDoubleFunction<Object> branchToResistance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getR() : ((PsseTransformer) branch).getSecondRecord().getR12();
-            ToDoubleFunction<Object> branchToReactance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getX() : ((PsseTransformer) branch).getSecondRecord().getX12();
-            Predicate<Object> branchToIsTransformer = branch -> branch instanceof PsseTransformer;
-            ContainersMapping containerMapping = ContainersMapping.create(psseModel.getBuses(), branches, PsseBus::getI, branchToNum1,
-                branchToNum2, branchToResistance, branchToReactance, branchToIsTransformer,
-                busNums -> "VL" + busNums.iterator().next(), substationNum -> "S" + substationNum++);
+                // set date and time
+                // TODO
 
-            boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
-                    ParameterDefaultValueConfig.INSTANCE);
-            PerUnitContext perUnitContext = new PerUnitContext(psseModel.getCaseIdentification().getSbase(), ignoreBaseVoltage);
+                // build container to fit IIDM requirements
+                List<Object> branches = ImmutableList.builder()
+                        .addAll(psseModel.getNonTransformerBranches())
+                        .addAll(psseModel.getTransformers())
+                        .build();
+                ToIntFunction<Object> branchToNum1 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getI() : ((PsseTransformer) branch).getFirstRecord().getI();
+                ToIntFunction<Object> branchToNum2 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getJ() : ((PsseTransformer) branch).getFirstRecord().getJ();
+                ToDoubleFunction<Object> branchToResistance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getR() : ((PsseTransformer) branch).getSecondRecord().getR12();
+                ToDoubleFunction<Object> branchToReactance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getX() : ((PsseTransformer) branch).getSecondRecord().getX12();
+                Predicate<Object> branchToIsTransformer = branch -> branch instanceof PsseTransformer;
+                ContainersMapping containerMapping = ContainersMapping.create(psseModel.getBuses(), branches, PsseBus::getI, branchToNum1,
+                    branchToNum2, branchToResistance, branchToReactance, branchToIsTransformer,
+                    busNums -> "VL" + busNums.iterator().next(), substationNum -> "S" + substationNum++);
 
-            // create buses
-            createBuses(psseModel, containerMapping, perUnitContext, network);
+                boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
+                        ParameterDefaultValueConfig.INSTANCE);
+                PerUnitContext perUnitContext = new PerUnitContext(psseModel.getCaseIdentification().getSbase(), ignoreBaseVoltage);
 
-            //Create loads
-            for (PsseLoad psseLoad : psseModel.getLoads()) {
-                createLoad(psseLoad, containerMapping, network);
+                // create buses
+                createBuses(psseModel, containerMapping, perUnitContext, network);
+
+                //Create loads
+                for (PsseLoad psseLoad : psseModel.getLoads()) {
+                    createLoad(psseLoad, containerMapping, network);
+                }
+
+                //Create shunts
+                for (PsseFixedShunt psseShunt : psseModel.getFixedShunts()) {
+                    createShuntCompensator(psseShunt, perUnitContext, containerMapping, network);
+                }
+
+                for (PsseGenerator psseGen : psseModel.getGenerators()) {
+                    createGenerator(psseGen, containerMapping, network);
+                }
+
+                for (PsseNonTransformerBranch psseLine : psseModel.getNonTransformerBranches()) {
+                    createLine(psseLine, containerMapping, perUnitContext, network);
+                }
+
+                for (PsseTransformer psseTfo : psseModel.getTransformers()) {
+                    createTransformer(psseTfo, containerMapping, perUnitContext, network);
+                }
+
+                return network;
             }
-
-            //Create shunts
-            for (PsseFixedShunt psseShunt : psseModel.getFixedShunts()) {
-                createShuntCompensator(psseShunt, perUnitContext, containerMapping, network);
-            }
-
-            for (PsseGenerator psseGen : psseModel.getGenerators()) {
-                createGenerator(psseGen, containerMapping, network);
-            }
-
-            for (PsseNonTransformerBranch psseLine : psseModel.getNonTransformerBranches()) {
-                createLine(psseLine, containerMapping, perUnitContext, network);
-            }
-
-            for (PsseTransformer psseTfo : psseModel.getTransformers()) {
-                createTransformer(psseTfo, containerMapping, perUnitContext, network);
-            }
-
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-
-        return network;
     }
 
 }

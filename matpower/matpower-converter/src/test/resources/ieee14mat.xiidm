@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_2" id="ieee14" caseDate="2020-01-01T00:00:00.000Z" forecastDistance="0" sourceFormat="MATPOWER">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_3" id="ieee14" caseDate="2020-01-01T00:00:00.000Z" forecastDistance="0" sourceFormat="MATPOWER">
     <iidm:substation id="SUB-8">
         <iidm:voltageLevel id="VL-1" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -49,7 +49,9 @@
                 <iidm:bus id="BUS-9" v="1.056" angle="-14.94"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-9" loadType="UNDEFINED" p0="29.5" q0="16.6" bus="BUS-9" connectableBus="BUS-9"/>
-            <iidm:shunt id="SHUNT-9" bPerSection="19.0" maximumSectionCount="1" currentSectionCount="1" voltageRegulatorOn="false" bus="BUS-9" connectableBus="BUS-9"/>
+            <iidm:shunt id="SHUNT-9" sectionCount="1" voltageRegulatorOn="false" bus="BUS-9" connectableBus="BUS-9">
+                <iidm:shuntLinearModel bPerSection="19.0" maximumSectionCount="1"/>
+            </iidm:shunt>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT-4-7" r="0.0" x="0.0020912" g="0.0" b="0.0" ratedU1="0.978" ratedU2="1.0" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId1="VL-4" bus2="BUS-7" connectableBus2="BUS-7" voltageLevelId2="VL-7"/>
         <iidm:twoWindingsTransformer id="TWT-4-9" r="0.0" x="0.0055618" g="0.0" b="0.0" ratedU1="0.969" ratedU2="1.0" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId1="VL-4" bus2="BUS-9" connectableBus2="BUS-9" voltageLevelId2="VL-9"/>
