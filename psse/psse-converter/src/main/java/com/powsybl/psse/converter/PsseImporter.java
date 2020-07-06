@@ -292,31 +292,31 @@ public class PsseImporter implements Importer {
     }
 
     private static void createTransformer(PsseTransformer psseTfo, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network) {
-        String id = "T-" + psseTfo.getFirstRecord().getI() + "-" + psseTfo.getFirstRecord().getJ() + "-" + psseTfo.getFirstRecord().getCkt();
-        String bus1Id = getBusId(psseTfo.getFirstRecord().getI());
-        String bus2Id = getBusId(psseTfo.getFirstRecord().getJ());
-        String voltageLevel1Id = containerMapping.getVoltageLevelId(psseTfo.getFirstRecord().getI());
-        String voltageLevel2Id = containerMapping.getVoltageLevelId(psseTfo.getFirstRecord().getJ());
+        String id = "T-" + psseTfo.getI() + "-" + psseTfo.getJ() + "-" + psseTfo.getCkt();
+        String bus1Id = getBusId(psseTfo.getI());
+        String bus2Id = getBusId(psseTfo.getJ());
+        String voltageLevel1Id = containerMapping.getVoltageLevelId(psseTfo.getI());
+        String voltageLevel2Id = containerMapping.getVoltageLevelId(psseTfo.getJ());
         VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
 
-        if (psseTfo.getFirstRecord().getK() == 0) {
+        if (psseTfo.getK() == 0) {
             TwoWindingsTransformer tfo2W = voltageLevel2.getSubstation().newTwoWindingsTransformer()
                     .setId(id)
                     .setConnectableBus1(bus1Id)
                     .setVoltageLevel1(voltageLevel1Id)
                     .setConnectableBus2(bus2Id)
                     .setVoltageLevel2(voltageLevel2Id)
-                    .setRatedU1(voltageLevel1.getNominalV() * psseTfo.getThirdRecord1().getWindv())
+                    .setRatedU1(voltageLevel1.getNominalV() * psseTfo.getWindingRecord1().getWindv())
                     .setRatedU2(voltageLevel2.getNominalV())
-                    .setR(psseTfo.getSecondRecord().getR12() * zb)
-                    .setX(psseTfo.getSecondRecord().getX12() * zb)
+                    .setR(psseTfo.getR12() * zb)
+                    .setX(psseTfo.getX12() * zb)
                     .setG(0) //TODO
                     .setB(0) //TODO
                     .add();
 
-            if (psseTfo.getFirstRecord().getStat() == 1) {
+            if (psseTfo.getStat() == 1) {
                 tfo2W.getTerminal1().connect();
                 tfo2W.getTerminal2().connect();
             }
@@ -356,10 +356,10 @@ public class PsseImporter implements Importer {
                         .addAll(psseModel.getNonTransformerBranches())
                         .addAll(psseModel.getTransformers())
                         .build();
-                ToIntFunction<Object> branchToNum1 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getI() : ((PsseTransformer) branch).getFirstRecord().getI();
-                ToIntFunction<Object> branchToNum2 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getJ() : ((PsseTransformer) branch).getFirstRecord().getJ();
-                ToDoubleFunction<Object> branchToResistance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getR() : ((PsseTransformer) branch).getSecondRecord().getR12();
-                ToDoubleFunction<Object> branchToReactance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getX() : ((PsseTransformer) branch).getSecondRecord().getX12();
+                ToIntFunction<Object> branchToNum1 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getI() : ((PsseTransformer) branch).getI();
+                ToIntFunction<Object> branchToNum2 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getJ() : ((PsseTransformer) branch).getJ();
+                ToDoubleFunction<Object> branchToResistance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getR() : ((PsseTransformer) branch).getR12();
+                ToDoubleFunction<Object> branchToReactance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getX() : ((PsseTransformer) branch).getX12();
                 Predicate<Object> branchToIsTransformer = branch -> branch instanceof PsseTransformer;
                 ContainersMapping containerMapping = ContainersMapping.create(psseModel.getBuses(), branches, PsseBus::getI, branchToNum1,
                     branchToNum2, branchToResistance, branchToReactance, branchToIsTransformer,
