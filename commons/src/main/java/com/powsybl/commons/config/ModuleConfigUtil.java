@@ -6,10 +6,7 @@
  */
 package com.powsybl.commons.config;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -30,6 +27,13 @@ public final class ModuleConfigUtil {
 
     public static Optional<List<String>> getOptionalStringListProperty(ModuleConfig moduleConfig, List<String> names) {
         return getOptionalProperty(moduleConfig, names, moduleConfig::getOptionalStringListProperty);
+    }
+
+    public static Optional<Double> getOptionalDoubleProperty(ModuleConfig moduleConfig, List<String> names) {
+        return getOptionalProperty(moduleConfig, names, name -> {
+            OptionalDouble optionalDouble = moduleConfig.getOptionalDoubleProperty(name);
+            return optionalDouble.isPresent() ? Optional.of(optionalDouble.getAsDouble()) : Optional.empty();
+        });
     }
 
     private static <T> Optional<T> getOptionalProperty(ModuleConfig moduleConfig, List<String> names, Function<String, Optional<T>> supplier) {

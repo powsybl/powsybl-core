@@ -29,6 +29,8 @@ public final class ConversionParameters {
                 return readStringParameter(format, parameters, configuredParameter, defaultValueConfig);
             case STRING_LIST:
                 return readStringListParameter(format, parameters, configuredParameter, defaultValueConfig);
+            case DOUBLE:
+                return readDoubleParameter(format, parameters, configuredParameter, defaultValueConfig);
             default:
                 throw new AssertionError();
         }
@@ -60,6 +62,14 @@ public final class ConversionParameters {
 
     public static List<String> readStringListParameter(String format, Properties parameters, Parameter configuredParameter) {
         return readStringListParameter(format, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
+    }
+
+    public static double readDoubleParameter(String format, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
+        return readParameter(format, parameters, configuredParameter, defaultValueConfig.getDoubleValue(format, configuredParameter), ModuleConfigUtil::getOptionalDoubleProperty);
+    }
+
+    public static double readDoubleParameter(String format, Properties parameters, Parameter configuredParameter) {
+        return readDoubleParameter(format, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
     }
 
     private static <T> T readParameter(String format, Properties parameters, Parameter configuredParameter, T defaultValue, BiFunction<ModuleConfig, List<String>, Optional<T>> supplier) {
