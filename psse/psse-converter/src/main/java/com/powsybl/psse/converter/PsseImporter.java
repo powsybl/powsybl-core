@@ -374,14 +374,6 @@ public class PsseImporter implements Importer {
         String id = "L-" + psseLine.getI() + "-" + psseLine.getJ() + "-" + psseLine.getCkt();
         id = getUniqueId(id, s -> network.getLine(s) != null);
 
-        //build a unique name
-        /*String idTmp = id;
-        int i = 2;
-        while (network.getLine(idTmp) != null) {
-            idTmp = id + "-" + i;
-            i++;
-        }*/
-
         String bus1Id = getBusId(psseLine.getI());
         String bus2Id = getBusId(psseLine.getJ());
         String voltageLevel1Id = containerMapping.getVoltageLevelId(psseLine.getI());
@@ -423,17 +415,6 @@ public class PsseImporter implements Importer {
             id = id + "-" + psseTfo.getFirstRecord().getK() + "-" + psseTfo.getFirstRecord().getCkt();
             id = getUniqueId(id, s -> network.getThreeWindingsTransformer(s) != null);
         }
-
-        //build a unique name (cf. IEEE57)
-        /*
-        String idTmp = id;
-        int i = 2;
-        while (network.getTwoWindingsTransformer(idTmp) != null || network.getThreeWindingsTransformer(idTmp) != null) {
-            idTmp = id + "-" + i;
-            i++;
-        }
-
-        id = idTmp;*/
 
         String bus1Id = getBusId(psseTfo.getFirstRecord().getI());
         String bus2Id = getBusId(psseTfo.getFirstRecord().getJ());
