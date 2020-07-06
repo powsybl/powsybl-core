@@ -91,6 +91,11 @@ public class PsseImporterTest extends AbstractConverterTest {
         importTest("IEEE_118_bus", "IEEE_118_bus.RAW");
     }
 
+    @Test
+    public void importTestT3W() throws IOException {
+        importTest("ThreeMIB_T3W_modified", "ThreeMIB_T3W_modified.RAW");
+    }
+
     @Test(expected = PsseException.class)
     public void badVersionTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("case-flag-not-supported", new ResourceSet("/", "case-flag-not-supported.raw"));
