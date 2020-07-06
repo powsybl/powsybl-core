@@ -31,7 +31,7 @@ public class ConversionParametersTest {
         assertFalse(ConversionParameters.readBooleanParameter("TEST", properties, paramBoolean2, ParameterDefaultValueConfig.INSTANCE));
 
         properties.put("test-param-string", "TestProperty");
-        Parameter paramString = new Parameter("test-param-string", ParameterType.STRING, "", "Test");
+        Parameter paramString = new Parameter("test-param-string", ParameterType.STRING, "", "TestParam");
         Parameter paramString2 = new Parameter("test-param-string2", ParameterType.STRING, "", "TestParam");
         assertEquals("TestProperty", ConversionParameters.readStringParameter("TEST", properties, paramString, ParameterDefaultValueConfig.INSTANCE));
         assertEquals("TestParam", ConversionParameters.readStringParameter("TEST", properties, paramString2, ParameterDefaultValueConfig.INSTANCE));
@@ -43,13 +43,13 @@ public class ConversionParametersTest {
         stringList2.add("Test1Param");
         stringList2.add("Test2Param");
         properties.put("test-param-string-list", stringList);
-        Parameter paramStringList = new Parameter("test-param-string-list", ParameterType.STRING_LIST, "", stringList);
+        Parameter paramStringList = new Parameter("test-param-string-list", ParameterType.STRING_LIST, "", stringList2);
         Parameter paramStringList2 = new Parameter("test-param-string-list2", ParameterType.STRING_LIST, "", stringList2);
         assertEquals("Test2Property", ConversionParameters.readStringListParameter("TEST", properties, paramStringList, ParameterDefaultValueConfig.INSTANCE).get(1));
         assertEquals("Test1Param", ConversionParameters.readStringListParameter("TEST", properties, paramStringList2, ParameterDefaultValueConfig.INSTANCE).get(0));
 
         properties.put("test-param-double", 0.06);
-        Parameter paramDouble = new Parameter("test-param-double", ParameterType.DOUBLE, "", 0.06);
+        Parameter paramDouble = new Parameter("test-param-double", ParameterType.DOUBLE, "", 0.08);
         Parameter paramDouble2 = new Parameter("test-param-double2", ParameterType.DOUBLE, "", 0.08);
         assertEquals(0.06, ConversionParameters.readDoubleParameter("TEST", properties, paramDouble, ParameterDefaultValueConfig.INSTANCE), 1e-8);
         assertEquals(0.08, ConversionParameters.readDoubleParameter("TEST", properties, paramDouble2, ParameterDefaultValueConfig.INSTANCE), 1e-8);
