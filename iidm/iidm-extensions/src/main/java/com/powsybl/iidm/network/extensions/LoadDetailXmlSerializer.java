@@ -38,22 +38,22 @@ public class LoadDetailXmlSerializer extends AbstractExtensionXmlSerializer<Load
     }
 
     @Override
-    public LoadDetail read(Load load, XmlReaderContext context) throws XMLStreamException {
-        float fixedActivePower = XmlUtil.readOptionalFloatAttribute(context.getReader(), "subLoad1ActivePower");
+    public LoadDetail read(Load load, XmlReaderContext context) {
+        float fixedActivePower = XmlUtil.readOptionalFloatAttribute(context.getReader(), "fixedActivePower");
         if (Float.isNaN(fixedActivePower)) {
-            fixedActivePower = XmlUtil.readFloatAttribute(context.getReader(), "fixedActivePower");
+            fixedActivePower = XmlUtil.readFloatAttribute(context.getReader(), "subLoad1ActivePower");
         }
-        float fixedReactivePower = XmlUtil.readOptionalFloatAttribute(context.getReader(), "subLoad1ReactivePower");
+        float fixedReactivePower = XmlUtil.readOptionalFloatAttribute(context.getReader(), "fixedReactivePower");
         if (Float.isNaN(fixedReactivePower)) {
-            fixedReactivePower = XmlUtil.readFloatAttribute(context.getReader(), "fixedReactivePower");
+            fixedReactivePower = XmlUtil.readFloatAttribute(context.getReader(), "subLoad1ReactivePower");
         }
-        float variableActivePower = XmlUtil.readOptionalFloatAttribute(context.getReader(), "subLoad2ActivePower");
+        float variableActivePower = XmlUtil.readOptionalFloatAttribute(context.getReader(), "variableActivePower");
         if (Float.isNaN(variableActivePower)) {
-            variableActivePower = XmlUtil.readFloatAttribute(context.getReader(), "variableActivePower");
+            variableActivePower = XmlUtil.readFloatAttribute(context.getReader(), "subLoad2ActivePower");
         }
-        float variableReactivePower = XmlUtil.readOptionalFloatAttribute(context.getReader(), "subLoad2ReactivePower");
+        float variableReactivePower = XmlUtil.readOptionalFloatAttribute(context.getReader(), "variableReactivePower");
         if (Float.isNaN(variableReactivePower)) {
-            variableReactivePower = XmlUtil.readFloatAttribute(context.getReader(), "variableReactivePower");
+            variableReactivePower = XmlUtil.readFloatAttribute(context.getReader(), "subLoad2ReactivePower");
         }
         load.newExtension(LoadDetailAdder.class)
                 .withFixedActivePower(fixedActivePower)
