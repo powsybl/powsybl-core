@@ -238,7 +238,7 @@ public class PsseImporter implements Importer {
         }
     }
 
-    private void createSwitchedShuntBlocMap(PsseRawModel psseModel, HashMap<PsseSwitchedShunt, ShuntBlockTab > stoBlockiTab) {
+    private void createSwitchedShuntBlocMap(PsseRawModel psseModel, Map<PsseSwitchedShunt, ShuntBlockTab > stoBlockiTab) {
 
         /* Creates a map between the PSSE switched shunt and the blocks info of this shunt
         A switched shunt may contain up to 8 blocks and each block may contain up to 9 steps of the same value (in MVAR)
@@ -274,15 +274,15 @@ public class PsseImporter implements Importer {
 
         for (int i = 1; i <= sbl.getSize(); i++) {
             if (psseSwShunt.getBinit() != 0) { //TODO : improve it to make it robust to all configurations
-                ShuntCompensatorAdder adder = voltageLevel.newShuntCompensator()
+                ShuntCompensator shunt = voltageLevel.newShuntCompensator()
                         .setId(busId + "-SwSH-B" + i)
                         .setConnectableBus(busId)
-                        .setSectionCount(1);
-                adder.newLinearModel() //TODO: use Binit and sbl.getNi(i) to initiate Bi, for now we use Binit to obtain de same load-flow results
-                        .setBPerSection(psseSwShunt.getBinit())//TODO: take into account BINIT to define the number of switched steps in the case BINIT is different from the max switched steps
-                        .setMaximumSectionCount(1)
-                        .add();
-                ShuntCompensator shunt = adder.add();
+                        .setSectionCount(1)
+                        .newLinearModel() //TODO: use Binit and sbl.getNi(i) to initiate Bi, for now we use Binit to obtain de same load-flow results
+                            .setBPerSection(psseSwShunt.getBinit())//TODO: take into account BINIT to define the number of switched steps in the case BINIT is different from the max switched steps
+                            .setMaximumSectionCount(1)
+                        .add()
+                    .add();
 
                 if (psseSwShunt.getStat() == 1) {
                     shunt.getTerminal().connect();
@@ -372,7 +372,7 @@ public class PsseImporter implements Importer {
 
     private static void createLine(PsseNonTransformerBranch psseLine, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network) {
         String id = "L-" + psseLine.getI() + "-" + psseLine.getJ() + "-" + psseLine.getCkt();
-        id = getUniqueId(id, s -> network.getLine(s) != null);
+        //id = getUniqueId(id, s -> network.getLine(s) != null);
 
         String bus1Id = getBusId(psseLine.getI());
         String bus2Id = getBusId(psseLine.getJ());
@@ -383,6 +383,7 @@ public class PsseImporter implements Importer {
 
         Line line = network.newLine()
                 .setId(id)
+                .setEnsureIdUnicity(true)
                 .setConnectableBus1(bus1Id)
                 .setVoltageLevel1(voltageLevel1Id)
                 .setConnectableBus2(bus2Id)
@@ -410,10 +411,10 @@ public class PsseImporter implements Importer {
         String id = "T-" + psseTfo.getFirstRecord().getI() + "-" + psseTfo.getFirstRecord().getJ();
         if (psseTfo.getFirstRecord().getK() == 0) {
             id = id + "-" + psseTfo.getFirstRecord().getCkt();
-            id = getUniqueId(id, s -> network.getTwoWindingsTransformer(s) != null);
+            //id = getUniqueId(id, s -> network.getTwoWindingsTransformer(s) != null);
         } else {
             id = id + "-" + psseTfo.getFirstRecord().getK() + "-" + psseTfo.getFirstRecord().getCkt();
-            id = getUniqueId(id, s -> network.getThreeWindingsTransformer(s) != null);
+            //id = getUniqueId(id, s -> network.getThreeWindingsTransformer(s) != null);
         }
 
         String bus1Id = getBusId(psseTfo.getFirstRecord().getI());
@@ -478,6 +479,7 @@ public class PsseImporter implements Importer {
             // Case of a 2 windings Transformer
             TwoWindingsTransformer tfo2W = voltageLevel2.getSubstation().newTwoWindingsTransformer()
                     .setId(id)
+                    .setEnsureIdUnicity(true)
                     .setConnectableBus1(bus1Id)
                     .setVoltageLevel1(voltageLevel1Id)
                     .setConnectableBus2(bus2Id)
@@ -596,41 +598,38 @@ public class PsseImporter implements Importer {
             double v0 = 1.0;
             double zbV0 = v0 * v0 / perUnitContext.getSb();
 
-            ThreeWindingsTransformerAdder tfoAdder = voltageLevel1.getSubstation().newThreeWindingsTransformer()
+            ThreeWindingsTransformer tfo3W = voltageLevel1.getSubstation().newThreeWindingsTransformer()
                     .setRatedU0(v0)
-                    .setId(id);
-
-            ThreeWindingsTransformerAdder.LegAdder l1adder = tfoAdder.newLeg1();
-            l1adder.setR(r1 * zbV0)
-                    .setX(x1 * zbV0)
-                    .setG(gmPu * w1 * w1 / zbV0)
-                    .setB(bmPu * w1 * w1 / zbV0)
-                    .setRatedU(voltageLevel1.getNominalV() * w1)
-                    .setConnectableBus(bus1Id)
-                    .setVoltageLevel(voltageLevel1Id);
-            l1adder.add();
-
-            ThreeWindingsTransformerAdder.LegAdder l2adder = tfoAdder.newLeg2();
-            l2adder.setR(r2 * zbV0)
-                    .setX(x2 * zbV0)
-                    .setG(0)
-                    .setB(0)
-                    .setRatedU(voltageLevel2.getNominalV() * w2)
-                    .setConnectableBus(bus2Id)
-                    .setVoltageLevel(voltageLevel2Id);
-            l2adder.add();
-
-            ThreeWindingsTransformerAdder.LegAdder l3adder = tfoAdder.newLeg3();
-            l3adder.setR(r3 * zbV0)
-                    .setX(x3 * zbV0)
-                    .setG(0)
-                    .setB(0)
-                    .setRatedU(voltageLevel3.getNominalV() * w3)
-                    .setConnectableBus(bus3Id)
-                    .setVoltageLevel(voltageLevel3Id);
-            l3adder.add();
-
-            ThreeWindingsTransformer tfo3W = tfoAdder.add();
+                    .setEnsureIdUnicity(true)
+                    .setId(id)
+                    .newLeg1()
+                        .setR(r1 * zbV0)
+                        .setX(x1 * zbV0)
+                        .setG(gmPu * w1 * w1 / zbV0)
+                        .setB(bmPu * w1 * w1 / zbV0)
+                        .setRatedU(voltageLevel1.getNominalV() * w1)
+                        .setConnectableBus(bus1Id)
+                        .setVoltageLevel(voltageLevel1Id)
+                    .add()
+                    .newLeg2()
+                        .setR(r2 * zbV0)
+                        .setX(x2 * zbV0)
+                        .setG(0)
+                        .setB(0)
+                        .setRatedU(voltageLevel2.getNominalV() * w2)
+                        .setConnectableBus(bus2Id)
+                        .setVoltageLevel(voltageLevel2Id)
+                    .add()
+                    .newLeg3()
+                        .setR(r3 * zbV0)
+                        .setX(x3 * zbV0)
+                        .setG(0)
+                        .setB(0)
+                        .setRatedU(voltageLevel3.getNominalV() * w3)
+                        .setConnectableBus(bus3Id)
+                        .setVoltageLevel(voltageLevel3Id)
+                    .add()
+                 .add();
 
             if (psseTfo.getFirstRecord().getStat() == 1) {
                 tfo3W.getLeg1().getTerminal().connect();
