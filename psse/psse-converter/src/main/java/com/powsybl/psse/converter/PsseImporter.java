@@ -122,35 +122,30 @@ public class PsseImporter implements Importer {
             return sb;
         }
 
-        public boolean isIgnoreBaseVoltage() {
+        private boolean isIgnoreBaseVoltage() {
             return ignoreBaseVoltage;
         }
     }
 
-    private final class ShuntBlockTab {
+    private static final class ShuntBlockTab {
 
-        private final Map<Integer, Integer> ni;
-        private final Map<Integer, Double> bi;
+        private final Map<Integer, Integer> ni = new HashMap<>();
+        private final Map<Integer, Double> bi = new HashMap<>();
 
-        private ShuntBlockTab() {
-            ni = new HashMap<>();
-            bi = new HashMap<>();
-        }
-
-        public void add(int i, int nni, double bni) {
+        private void add(int i, int nni, double bni) {
             ni.put(i, nni);
             bi.put(i, bni);
         }
 
-        public int getNi(int i) {
+        private int getNi(int i) {
             return ni.get(i);
         }
 
-        public double getBi(int i) {
+        private double getBi(int i) {
             return bi.get(i);
         }
 
-        public int getSize() {
+        private int getSize() {
             return ni.size();
         }
     }
@@ -238,13 +233,12 @@ public class PsseImporter implements Importer {
         }
     }
 
-    private void createSwitchedShuntBlocMap(PsseRawModel psseModel, Map<PsseSwitchedShunt, ShuntBlockTab > stoBlockiTab) {
+    private void createSwitchedShuntBlockMap(PsseRawModel psseModel, Map<PsseSwitchedShunt, ShuntBlockTab> stoBlockiTab) {
 
         /* Creates a map between the PSSE switched shunt and the blocks info of this shunt
         A switched shunt may contain up to 8 blocks and each block may contain up to 9 steps of the same value (in MVAR)
         A block may be capacitive or inductive */
         for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
-
             ShuntBlockTab sbt = new ShuntBlockTab();
 
             int[] ni = {
@@ -267,7 +261,7 @@ public class PsseImporter implements Importer {
         }
     }
 
-    private static void createSwitchedShunt(PsseSwitchedShunt psseSwShunt, PerUnitContext perUnitContext, ContainersMapping containerMapping, Network network, HashMap<PsseSwitchedShunt, ShuntBlockTab >  stoBlockiTab) {
+    private static void createSwitchedShunt(PsseSwitchedShunt psseSwShunt, PerUnitContext perUnitContext, ContainersMapping containerMapping, Network network, Map<PsseSwitchedShunt, ShuntBlockTab> stoBlockiTab) {
         String busId = getBusId(psseSwShunt.getI());
         VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseSwShunt.getI()));
         ShuntBlockTab sbl = stoBlockiTab.get(psseSwShunt);
@@ -341,7 +335,7 @@ public class PsseImporter implements Importer {
     }
 
     private static void createBuses(PsseRawModel psseModel, ContainersMapping containerMapping, PerUnitContext perUnitContext,
-                                    Network network, Map<Integer, PsseBus>  busNumToPsseBus) {
+                                    Network network, Map<Integer, PsseBus> busNumToPsseBus) {
         for (PsseBus psseBus : psseModel.getBuses()) {
             String voltageLevelId = containerMapping.getVoltageLevelId(psseBus.getI());
             String substationId = containerMapping.getSubstationId(voltageLevelId);
@@ -356,7 +350,6 @@ public class PsseImporter implements Importer {
             createBus(psseBus, voltageLevel);
 
             busNumToPsseBus.put(psseBus.getI(), psseBus);
-
         }
     }
 
@@ -368,7 +361,7 @@ public class PsseImporter implements Importer {
         String voltageLevel1Id = containerMapping.getVoltageLevelId(psseLine.getI());
         String voltageLevel2Id = containerMapping.getVoltageLevelId(psseLine.getJ());
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
-        double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
+        double zb = voltageLevel2.getNominalV() * voltageLevel2.getNominalV() / perUnitContext.getSb();
 
         Line line = network.newLine()
                 .setId(id)
@@ -412,7 +405,7 @@ public class PsseImporter implements Importer {
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double baskv1 = busNumToPsseBus.get(psseTfo.getFirstRecord().getI()).getBaskv();
         double baskv2 = busNumToPsseBus.get(psseTfo.getFirstRecord().getJ()).getBaskv();
-        double zb2 = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
+        double zb2 = voltageLevel2.getNominalV() * voltageLevel2.getNominalV() / perUnitContext.getSb();
         double sbase12 = psseTfo.getSecondRecord().getSbase12();
         double nomV1 = psseTfo.getThirdRecord1().getNomv();
 
@@ -692,8 +685,8 @@ public class PsseImporter implements Importer {
                 }
 
                 //Create switched shunts
-                HashMap<PsseSwitchedShunt, ShuntBlockTab > stoBlockiTab = new HashMap<>();
-                createSwitchedShuntBlocMap(psseModel, stoBlockiTab);
+                Map<PsseSwitchedShunt, ShuntBlockTab > stoBlockiTab = new HashMap<>();
+                createSwitchedShuntBlockMap(psseModel, stoBlockiTab);
                 for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
                     createSwitchedShunt(psseSwShunt, perUnitContext, containerMapping, network, stoBlockiTab);
                 }

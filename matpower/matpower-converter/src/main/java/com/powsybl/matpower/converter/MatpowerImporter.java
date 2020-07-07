@@ -340,7 +340,7 @@ public class MatpowerImporter implements Importer {
                 LOGGER.debug("MATPOWER model {}", model.getCaseName());
 
                 ContainersMapping containerMapping = ContainersMapping.create(model.getBuses(), model.getBranches(),
-                    MBus::getNumber, MBranch::getFrom, MBranch::getTo, branch -> 0, MBranch::getR, MBranch::getX,  MatpowerImporter::isTransformer,
+                    MBus::getNumber, MBranch::getFrom, MBranch::getTo, branch -> 0, MBranch::getR, MBranch::getX, MatpowerImporter::isTransformer,
                     busNums -> getId(VOLTAGE_LEVEL_PREFIX, busNums.iterator().next()), substationNum -> getId(SUBSTATION_PREFIX, substationNum));
 
                 boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
