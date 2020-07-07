@@ -12,8 +12,12 @@ import com.powsybl.commons.config.ModuleConfigUtil;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -29,6 +33,8 @@ public final class ConversionParameters {
                 return readStringParameter(format, parameters, configuredParameter, defaultValueConfig);
             case STRING_LIST:
                 return readStringListParameter(format, parameters, configuredParameter, defaultValueConfig);
+            case DOUBLE:
+                return readDoubleParameter(format, parameters, configuredParameter, defaultValueConfig);
             default:
                 throw new AssertionError();
         }
@@ -62,20 +68,34 @@ public final class ConversionParameters {
         return readStringListParameter(format, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
     }
 
-    private static <T> T readParameter(String format, Properties parameters, Parameter configuredParameter, T defaultValue, BiFunction<ModuleConfig, List<String>, Optional<T>> supplier) {
+    public static double readDoubleParameter(String format, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
+        return readParameter(format, parameters, configuredParameter, defaultValueConfig.getDoubleValue(format, configuredParameter),
+            (moduleConfig, names) -> ModuleConfigUtil.getOptionalDoubleProperty(moduleConfig, names).orElse(Double.NaN), value -> !Double.isNaN(value));
+    }
+
+    public static double readDoubleParameter(String format, Properties parameters, Parameter configuredParameter) {
+        return readDoubleParameter(format, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
+    }
+
+    private static <T> T readParameter(String format, Properties parameters, Parameter configuredParameter, T defaultValue,
+                                          BiFunction<ModuleConfig, List<String>, T> supplier, Predicate<T> isPresent) {
         Objects.requireNonNull(format);
         Objects.requireNonNull(configuredParameter);
         T value = null;
         // priority on passed parameters
         if (parameters != null) {
             MapModuleConfig moduleConfig = new MapModuleConfig(parameters);
-            value = supplier.apply(moduleConfig, configuredParameter.getNames()).orElse(null);
+            value = supplier.apply(moduleConfig, configuredParameter.getNames());
         }
         // if none, use configured parameters
-        if (value != null) {
+        if (isPresent.test(value)) {
             return value;
         }
         return defaultValue;
+    }
+
+    private static <T> T readParameter(String format, Properties parameters, Parameter configuredParameter, T defaultValue, BiFunction<ModuleConfig, List<String>, Optional<T>> supplier) {
+        return readParameter(format, parameters, configuredParameter, defaultValue, (moduleConfig, strings) -> supplier.apply(moduleConfig, strings).orElse(null), Objects::nonNull);
     }
 
     private ConversionParameters() {

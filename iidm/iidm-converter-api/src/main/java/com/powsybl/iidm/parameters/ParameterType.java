@@ -14,7 +14,8 @@ import java.util.List;
 public enum ParameterType {
     BOOLEAN(Boolean.class),
     STRING(String.class),
-    STRING_LIST(List.class);
+    STRING_LIST(List.class),
+    DOUBLE(Double.class);
 
     private final Class<?> clazz;
 
