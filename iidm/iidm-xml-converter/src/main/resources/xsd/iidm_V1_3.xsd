@@ -304,10 +304,19 @@
         </xs:sequence>
         <xs:attribute name="permanentLimit" use="optional" type="xs:double"/>
     </xs:complexType>
+    <xs:complexType name="Generation">
+        <xs:attribute name="minP" use="optional" type="xs:double"/>
+        <xs:attribute name="maxP" use="optional" type="xs:double"/>
+        <xs:attribute name="voltageRegulationOn" use="required" type="xs:boolean"/>
+        <xs:attribute name="targetP" use="optional" type="xs:double"/>
+        <xs:attribute name="targetV" use="optional" type="xs:double"/>
+        <xs:attribute name="targetQ" use="optional" type="xs:double"/>
+    </xs:complexType>
     <xs:complexType name="DanglingLine">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
+                    <xs:element name="generation" type="iidm:Generation" minOccurs="0"/>
                     <xs:element name="currentLimits" type="iidm:CurrentLimit" minOccurs="0"/>
                 </xs:sequence>
                 <xs:attribute name="p0" use="required" type="xs:double"/>

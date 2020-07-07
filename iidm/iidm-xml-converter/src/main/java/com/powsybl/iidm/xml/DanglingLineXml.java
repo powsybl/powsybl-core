@@ -10,14 +10,19 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.DanglingLineAdder;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineAdder, VoltageLevel> {
+
+    private static final String GENERATION = "generation";
 
     static final DanglingLineXml INSTANCE = new DanglingLineXml();
 
@@ -48,8 +53,22 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         writePQ(null, dl.getTerminal(), context.getWriter());
     }
 
+    private static void writeGeneration(DanglingLine.Generation generation, XMLStreamWriter writer, IidmXmlVersion version) throws XMLStreamException {
+        writer.writeEmptyElement(version.getNamespaceURI(), GENERATION);
+        XmlUtil.writeDouble("minP", generation.getMinP(), writer);
+        XmlUtil.writeDouble("maxP", generation.getMaxP(), writer);
+        writer.writeAttribute("voltageRegulationOn", Boolean.toString(generation.isVoltageRegulationOn()));
+        XmlUtil.writeDouble("targetP", generation.getTargetP(), writer);
+        XmlUtil.writeDouble("targetV", generation.getTargetV(), writer);
+        XmlUtil.writeDouble("targetQ", generation.getTargetQ(), writer);
+    }
+
     @Override
     protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (dl.getGeneration() != null) {
+            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, GENERATION, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+            writeGeneration(dl.getGeneration(), context.getWriter(), context.getVersion());
+        }
         if (dl.getCurrentLimits() != null) {
             writeCurrentLimits(null, dl.getCurrentLimits(), context.getWriter(), context.getVersion());
         }
@@ -82,13 +101,36 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         return dl;
     }
 
+    private static void readGeneration(DanglingLine dl, XMLStreamReader reader) {
+        double minP = XmlUtil.readOptionalDoubleAttribute(reader, "minP");
+        double maxP = XmlUtil.readOptionalDoubleAttribute(reader, "maxP");
+        boolean voltageRegulationOn = XmlUtil.readBoolAttribute(reader, "voltageRegulationOn");
+        double targetP = XmlUtil.readOptionalDoubleAttribute(reader, "targetP");
+        double targetV = XmlUtil.readOptionalDoubleAttribute(reader, "targetV");
+        double targetQ = XmlUtil.readOptionalDoubleAttribute(reader, "targetQ");
+        dl.newGeneration()
+                .setMinP(minP)
+                .setMaxP(maxP)
+                .setVoltageRegulationOn(voltageRegulationOn)
+                .setTargetP(targetP)
+                .setTargetV(targetV)
+                .setTargetQ(targetQ)
+                .add();
+    }
+
     @Override
     protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
-            if ("currentLimits".equals(context.getReader().getLocalName())) {
-                readCurrentLimits(null, dl::newCurrentLimits, context.getReader());
-            } else {
-                super.readSubElements(dl, context);
+            switch (context.getReader().getLocalName()) {
+                case "currentLimits":
+                    readCurrentLimits(null, dl::newCurrentLimits, context.getReader());
+                    break;
+                case GENERATION:
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, GENERATION, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+                    readGeneration(dl, context.getReader());
+                    break;
+                default:
+                    super.readSubElements(dl, context);
             }
         });
     }
