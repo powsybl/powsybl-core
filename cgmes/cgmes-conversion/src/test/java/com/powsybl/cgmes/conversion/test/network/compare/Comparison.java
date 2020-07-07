@@ -16,6 +16,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
+import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 
@@ -200,6 +201,25 @@ public class Comparison {
         // TODO Should we check terminals ? (we are not setting terminal id)
         compare("p", expected.getTerminal().getP(), actual.getTerminal().getP());
         compare("q", expected.getTerminal().getQ(), actual.getTerminal().getQ());
+        compareLoadDetails(expected.getExtension(LoadDetail.class), actual.getExtension(LoadDetail.class));
+    }
+
+    private void compareLoadDetails(LoadDetail expected, LoadDetail actual) {
+        if (expected == null) {
+            if (actual != null) {
+                diff.unexpected("expected conform or not conform load (is energyConsumer)");
+                return;
+            }
+            return;
+        }
+        if (actual == null) {
+            diff.unexpected("expected energyConsumer (is conform or not conform load)");
+            return;
+        }
+        diff.compare("fixedActivePower", expected.getFixedActivePower(), actual.getFixedActivePower());
+        diff.compare("fixedReactivePower", expected.getFixedReactivePower(), actual.getFixedReactivePower());
+        diff.compare("variableActivePower", expected.getVariableActivePower(), actual.getVariableActivePower());
+        diff.compare("variableReactivePower", expected.getVariableReactivePower(), actual.getVariableReactivePower());
     }
 
     private void compareShunts(ShuntCompensator expected, ShuntCompensator actual) {

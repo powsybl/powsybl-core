@@ -290,6 +290,7 @@ GRAPH ?graph {
         cim:Equipment.MemberOf_EquipmentContainer ?VoltageLevel .
     ?Terminal cim:Terminal.ConductingEquipment ?EnergyConsumer .
 }
+BIND ( "EnergyConsumer" AS ?type )
 }
 
 # query: svInjections
