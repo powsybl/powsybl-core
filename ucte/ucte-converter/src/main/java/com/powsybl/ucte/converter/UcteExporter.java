@@ -161,14 +161,13 @@ public class UcteExporter implements Exporter {
 
         UcteNodeCode ucteNodeCode = context.getNamingStrategy().getUcteNodeCode(bus);
         String geographicalName = bus.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
-        UcteNodeStatus ucteNodeStatus = getStatus(bus);
 
         // FIXME(mathbagu): how to initialize active/reactive load and generation: 0 vs NaN vs DEFAULT_MAX_POWER?
         // FIXME(mathbagu): how to find the slack node?
         UcteNode ucteNode = new UcteNode(
                 ucteNodeCode,
                 geographicalName,
-                ucteNodeStatus,
+                getStatus(bus),
                 UcteNodeTypeCode.PQ,
                 Float.NaN,
                 0.0f,
@@ -279,7 +278,7 @@ public class UcteExporter implements Exporter {
         UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(danglingLine);
         String geographicalName = danglingLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
 
-        UcteNodeStatus ucteNodeStatus = getStatus(danglingLine);
+        UcteNodeStatus ucteNodeStatus = getXnodeStatus(danglingLine);
         UcteNode ucteNode = convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
         ucteNode.setActiveLoad((float) danglingLine.getP0());
         ucteNode.setReactiveLoad((float) danglingLine.getQ0());
@@ -309,7 +308,7 @@ public class UcteExporter implements Exporter {
     private static void convertXNode(UcteNetwork ucteNetwork, TieLine tieLine, UcteExporterContext context) {
         UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(tieLine.getUcteXnodeCode());
         String geographicalName = tieLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, "");
-        UcteNodeStatus ucteNodeStatus = getStatus(tieLine);
+        UcteNodeStatus ucteNodeStatus = getXnodeStatus(tieLine);
         convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
     }
 
@@ -362,7 +361,7 @@ public class UcteExporter implements Exporter {
         LOGGER.trace("Converting switch {}", sw.getId());
 
         UcteElementId ucteElementId = context.getNamingStrategy().getUcteElementId(sw);
-        UcteElementStatus status = UcteElementStatus.valueOf(sw.getProperty(STATUS_PROPERTY_KEY));
+        UcteElementStatus status = getStatus(sw);
         String elementName = sw.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
 
         UcteLine ucteLine = new UcteLine(ucteElementId, status, 0, 0, 0, null, elementName);
@@ -387,7 +386,7 @@ public class UcteExporter implements Exporter {
         LOGGER.trace("Converting line {}", line.getId());
 
         UcteElementId lineId = context.getNamingStrategy().getUcteElementId(line);
-        UcteElementStatus status = UcteElementStatus.valueOf(line.getProperty(STATUS_PROPERTY_KEY));
+        UcteElementStatus status = getStatus(line);
         String elementName = line.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
 
         UcteLine ucteLine = new UcteLine(
@@ -437,7 +436,7 @@ public class UcteExporter implements Exporter {
         // Create half line 1
         UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(mergedXnode.getLine1Name());
         String elementName1 = line.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", null);
-        UcteElementStatus status1 = UcteElementStatus.valueOf(line.getProperty(STATUS_PROPERTY_KEY + "_1"));
+        UcteElementStatus status1 = line instanceof TieLine ? getStatusHalf((TieLine) line, Branch.Side.ONE) : getStatus(line, Branch.Side.ONE);
         UcteLine ucteLine1 = new UcteLine(
                 ucteElementId1,
                 status1,
@@ -451,7 +450,7 @@ public class UcteExporter implements Exporter {
         // Create half line2
         UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(mergedXnode.getLine2Name());
         String elementName2 = line.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", null);
-        UcteElementStatus status2 = UcteElementStatus.valueOf(line.getProperty(STATUS_PROPERTY_KEY + "_2"));
+        UcteElementStatus status2 = line instanceof TieLine ? getStatusHalf((TieLine) line, Branch.Side.TWO) : getStatus(line, Branch.Side.TWO);
         UcteLine ucteLine2 = new UcteLine(
                 ucteElementId2,
                 status2,
@@ -480,7 +479,7 @@ public class UcteExporter implements Exporter {
         TieLine.HalfLine half1 = tieLine.getHalf1();
         UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(half1.getId());
         String elementName1 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", null);
-        UcteElementStatus status1 = UcteElementStatus.valueOf(tieLine.getProperty(STATUS_PROPERTY_KEY + "_1"));
+        UcteElementStatus status1 = getStatusHalf(tieLine, Branch.Side.ONE);
         UcteLine ucteLine1 = new UcteLine(
                 ucteElementId1,
                 status1,
@@ -495,7 +494,7 @@ public class UcteExporter implements Exporter {
         TieLine.HalfLine half2 = tieLine.getHalf2();
         UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(half2.getId());
         String elementName2 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", null);
-        UcteElementStatus status2 = UcteElementStatus.valueOf(tieLine.getProperty(STATUS_PROPERTY_KEY + "_2"));
+        UcteElementStatus status2 = getStatusHalf(tieLine, Branch.Side.TWO);
         UcteLine ucteLine2 = new UcteLine(
                 ucteElementId2,
                 status2,
@@ -523,7 +522,7 @@ public class UcteExporter implements Exporter {
         // Create line
         UcteElementId elementId = context.getNamingStrategy().getUcteElementId(danglingLine);
         String elementName = danglingLine.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-        UcteElementStatus ucteElementStatus = UcteElementStatus.valueOf(danglingLine.getProperty(STATUS_PROPERTY_KEY));
+        UcteElementStatus ucteElementStatus = getStatus(danglingLine);
         double permanentLimit = danglingLine.getCurrentLimits() == null ? DEFAULT_MAX_CURRENT : danglingLine.getCurrentLimits().getPermanentLimit();
 
         UcteLine ucteLine = new UcteLine(
@@ -537,18 +536,101 @@ public class UcteExporter implements Exporter {
         ucteNetwork.addLine(ucteLine);
     }
 
-    /**
-     * get the ucte node status from an identifiable.
-     * @param identifiable The Identifiable element.
-     * @return The ucte node status of the specified identifiable.
-     */
-    private static UcteNodeStatus getStatus(Identifiable identifiable) {
+    private static UcteNodeStatus getXnodeStatus(Identifiable identifiable) {
         String statusNode = identifiable.getProperty(STATUS_PROPERTY_KEY + "_XNode");
         UcteNodeStatus ucteNodeStatus = UcteNodeStatus.REAL;
         if (statusNode != null && statusNode.equals(UcteNodeStatus.EQUIVALENT.toString())) {
             ucteNodeStatus = UcteNodeStatus.EQUIVALENT;
         }
         return ucteNodeStatus;
+    }
+
+    private static UcteNodeStatus getStatus(Identifiable identifiable) {
+        if (identifiable.isFictitious()) {
+            return UcteNodeStatus.EQUIVALENT;
+        } else {
+            return UcteNodeStatus.REAL;
+        }
+    }
+
+    private static UcteElementStatus getStatus(Branch branch) {
+        if (branch.isFictitious()) {
+            if (branch.getTerminal1().isConnected() && branch.getTerminal2().isConnected()) {
+                return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
+            } else {
+                return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
+            }
+        } else {
+            if (branch.getTerminal1().isConnected() && branch.getTerminal2().isConnected()) {
+                return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
+            } else {
+                return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;
+            }
+        }
+    }
+
+    private static UcteElementStatus getStatus(Branch branch, Branch.Side side) {
+        if (branch.isFictitious()) {
+            if (branch.getTerminal(side).isConnected()) {
+                return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
+            } else {
+                return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
+            }
+        } else {
+            if (branch.getTerminal(side).isConnected()) {
+                return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
+            } else {
+                return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;
+            }
+        }
+    }
+
+    private static UcteElementStatus getStatusHalf(TieLine tieLine, Branch.Side side) {
+        if (tieLine.getHalf(side).isFictitious()) {
+            if (tieLine.getTerminal(side).isConnected()) {
+                return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
+            } else {
+                return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
+            }
+        } else {
+            if (tieLine.getTerminal(side).isConnected()) {
+                return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
+            } else {
+                return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;
+            }
+        }
+    }
+
+    private static UcteElementStatus getStatus(DanglingLine danglingLine) {
+        if (Boolean.parseBoolean(danglingLine.getProperty(IS_COUPLER_PROPERTY_KEY, "false"))) {
+            if (danglingLine.getTerminal().isConnected()) {
+                return UcteElementStatus.BUSBAR_COUPLER_IN_OPERATION;
+            } else {
+                return UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION;
+            }
+        }
+
+        if (danglingLine.isFictitious()) {
+            if (danglingLine.getTerminal().isConnected()) {
+                return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
+            } else {
+                return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
+            }
+        } else {
+            if (danglingLine.getTerminal().isConnected()) {
+                return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
+            } else {
+                return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;
+            }
+        }
+    }
+
+    private static UcteElementStatus getStatus(Switch switchEl) {
+        if (switchEl.isOpen()) {
+            return UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION;
+        } else {
+            return UcteElementStatus.BUSBAR_COUPLER_IN_OPERATION;
+        }
     }
 
     /**
@@ -562,7 +644,7 @@ public class UcteExporter implements Exporter {
      */
     private static void convertTwoWindingsTransformer(UcteNetwork ucteNetwork, TwoWindingsTransformer twoWindingsTransformer, UcteExporterContext context) {
         UcteElementId elementId = context.getNamingStrategy().getUcteElementId(twoWindingsTransformer);
-        UcteElementStatus status = UcteElementStatus.valueOf(twoWindingsTransformer.getProperty(STATUS_PROPERTY_KEY));
+        UcteElementStatus status = getStatus(twoWindingsTransformer);
         String elementName = twoWindingsTransformer.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         double currentLimits = getPermanentLimit(twoWindingsTransformer);
         float nominalPower = Float.parseFloat(twoWindingsTransformer.getProperty(NOMINAL_POWER_KEY, null));
