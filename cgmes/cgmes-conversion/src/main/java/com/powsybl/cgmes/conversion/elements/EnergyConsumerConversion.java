@@ -47,7 +47,7 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
     }
 
     private static void setLoadDetail(String type, Load load) {
-        if (type.endsWith("#ConformLoad")) { // can participate in scaling
+        if (type.endsWith("#ConformLoad")) { // ConformLoad represent loads that follow a daily load change pattern where the pattern can be used to scale the load with a system load
             load.newExtension(LoadDetailAdder.class)
                     .withFixedActivePower(0)
                     .withFixedReactivePower(0)
