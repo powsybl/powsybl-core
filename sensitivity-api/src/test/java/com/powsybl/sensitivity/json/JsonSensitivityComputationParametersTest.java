@@ -18,7 +18,6 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -78,11 +77,9 @@ public class JsonSensitivityComputationParametersTest extends AbstractConverterT
 
     @Test
     public void readError() {
-        try {
-            JsonSensitivityComputationParameters.read(getClass().getResourceAsStream("/SensitivityComputationParametersWithExtension.json"));
-            Assert.fail();
-        } catch (AssertionError ignored) {
-        }
+        expected.expect(AssertionError.class);
+        expected.expectMessage("Unexpected field: unexpected");
+        JsonSensitivityComputationParameters.read(getClass().getResourceAsStream("/SensitivityComputationParametersInvalid.json"));
     }
 
     static class DummyExtension extends AbstractExtension<SensitivityComputationParameters> {

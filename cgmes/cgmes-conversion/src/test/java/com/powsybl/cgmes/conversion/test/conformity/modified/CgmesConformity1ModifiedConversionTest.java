@@ -20,6 +20,7 @@ import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
 import org.junit.After;
@@ -309,6 +310,26 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(danglingLineNotRegulating);
         assertEquals(-27.365225, danglingLineNotRegulating.getP0(), 0.0);
         assertEquals(0.425626, danglingLineNotRegulating.getQ0(), 0.0);
+    }
+
+    @Test
+    public void microBEConformNonConformLoads() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEConformNonConformLoads().dataSource(),
+                NetworkFactory.findDefault(), null);
+        Load conformLoad = network.getLoad("_cb459405-cc14-4215-a45c-416789205904");
+        Load nonConformLoad = network.getLoad("_1c6beed6-1acf-42e7-ba55-0cc9f04bddd8");
+        LoadDetail conformDetails = conformLoad.getExtension(LoadDetail.class);
+        assertNotNull(conformDetails);
+        assertEquals(0.0, conformDetails.getFixedActivePower(), 0.0);
+        assertEquals(0.0, conformDetails.getFixedReactivePower(), 0.0);
+        assertEquals(200.0, conformDetails.getVariableActivePower(), 0.0);
+        assertEquals(90.0, conformDetails.getVariableReactivePower(), 0.0);
+        LoadDetail nonConformDetails = nonConformLoad.getExtension(LoadDetail.class);
+        assertNotNull(nonConformDetails);
+        assertEquals(200.0, nonConformDetails.getFixedActivePower(), 0.0);
+        assertEquals(50.0, nonConformDetails.getFixedReactivePower(), 0.0);
+        assertEquals(0.0, nonConformDetails.getVariableActivePower(), 0.0);
+        assertEquals(0.0, nonConformDetails.getVariableReactivePower(), 0.0);
     }
 
     @Test

@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -20,6 +21,7 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
 
     public EnergyConsumerConversion(PropertyBag ec, Context context) {
         super("EnergyConsumer", ec, context);
+        loadKind = ec.get("type");
     }
 
     @Override
@@ -33,6 +35,7 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         connect(adder);
         Load load = adder.add();
         convertedTerminals(load.getTerminal());
+        setLoadDetail(loadKind, load);
     }
 
     private double p0() {
@@ -42,4 +45,25 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
     private double q0() {
         return powerFlow().defined() ? powerFlow().q() : p.asDouble("qFixed", Double.NaN);
     }
+
+    private static void setLoadDetail(String type, Load load) {
+        if (type.endsWith("#ConformLoad")) { // ConformLoad represent loads that follow a daily load change pattern where the pattern can be used to scale the load with a system load
+            load.newExtension(LoadDetailAdder.class)
+                    .withFixedActivePower(0)
+                    .withFixedReactivePower(0)
+                    .withVariableActivePower((float) load.getP0())
+                    .withVariableReactivePower((float) load.getQ0())
+                    .add();
+        } else if (type.endsWith("#NonConformLoad")) { // does not participate in scaling
+            load.newExtension(LoadDetailAdder.class)
+                    .withFixedActivePower((float) load.getP0())
+                    .withFixedReactivePower((float) load.getQ0())
+                    .withVariableActivePower(0)
+                    .withVariableReactivePower(0)
+                    .add();
+        }
+        // else: EnergyConsumer - undefined
+    }
+
+    private final String loadKind;
 }
