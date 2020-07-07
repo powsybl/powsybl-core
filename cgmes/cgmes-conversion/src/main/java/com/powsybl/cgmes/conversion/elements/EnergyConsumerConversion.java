@@ -47,14 +47,14 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
     }
 
     private static void setLoadDetail(String type, Load load) {
-        if (type.endsWith("ConformLoad")) { // can participate in scaling
+        if (type.endsWith("#ConformLoad")) { // can participate in scaling
             load.newExtension(LoadDetailAdder.class)
                     .withFixedActivePower(0)
                     .withFixedReactivePower(0)
                     .withVariableActivePower((float) load.getP0())
                     .withVariableReactivePower((float) load.getQ0())
                     .add();
-        } else if (type.endsWith("NonConformLoad")) { // does not participate in scaling
+        } else if (type.endsWith("#NonConformLoad")) { // does not participate in scaling
             load.newExtension(LoadDetailAdder.class)
                     .withFixedActivePower((float) load.getP0())
                     .withFixedReactivePower((float) load.getQ0())
