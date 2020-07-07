@@ -65,11 +65,35 @@ public class PsseImporterTest extends AbstractConverterTest {
         assertFalse(new PsseImporter().exists(new ResourceDataSource("version-not-supported", new ResourceSet("/", "version-not-supported.raw"))));
     }
 
-    @Test
-    public void importTest() throws IOException {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("IEEE_14_bus", new ResourceSet("/", "IEEE_14_bus.raw"));
+    public void importTest(String basename, String filename) throws IOException {
+        ReadOnlyDataSource dataSource = new ResourceDataSource(basename, new ResourceSet("/", filename));
         Network network = new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), null);
         testNetwork(network);
+    }
+
+    @Test
+    public void importTest14() throws IOException {
+        importTest("IEEE_14_bus", "IEEE_14_bus.raw");
+    }
+
+    @Test
+    public void importTest24() throws IOException {
+        importTest("IEEE_24_bus", "IEEE_24_bus.RAW");
+    }
+
+    @Test
+    public void importTest57() throws IOException {
+        importTest("IEEE_57_bus", "IEEE_57_bus.RAW");
+    }
+
+    @Test
+    public void importTest118() throws IOException {
+        importTest("IEEE_118_bus", "IEEE_118_bus.RAW");
+    }
+
+    @Test
+    public void importTestT3W() throws IOException {
+        importTest("ThreeMIB_T3W_modified", "ThreeMIB_T3W_modified.RAW");
     }
 
     @Test(expected = PsseException.class)
