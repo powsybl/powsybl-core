@@ -98,8 +98,7 @@ public class PsseRawReader {
         // facts control device data
         readRecordBlock(reader); // TODO
 
-        // switched shunt data
-        readRecordBlock(reader); // TODO
+        model.getSwitchedShunts().addAll(readSwitchedShuntData(reader, context));
 
         // gne device data
         readRecordBlock(reader); // TODO
@@ -241,6 +240,14 @@ public class PsseRawReader {
 
         context.setOwnerDataReadFields(readFields(records, headers, context.getDelimiter()));
         return parseRecordsHeader(records, PsseOwner.class, headers);
+    }
+
+    private static List<PsseSwitchedShunt> readSwitchedShuntData(BufferedReader reader, PsseContext context) throws IOException {
+        String[] headers = PsseContext.switchedShuntDataHeaders();
+        List<String> records = readRecordBlock(reader);
+
+        context.setSwitchedShuntDataReadFields(readFields(records, headers, context.getDelimiter()));
+        return parseRecordsHeader(records, PsseSwitchedShunt.class, headers);
     }
 
     // Parse

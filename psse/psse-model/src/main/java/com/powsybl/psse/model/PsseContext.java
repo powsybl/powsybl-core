@@ -33,6 +33,7 @@ public class PsseContext {
     private String[] areaInterchangeDataReadFields;
     private String[] zoneDataReadFields;
     private String[] ownerDataReadFields;
+    private String[] switchedShuntDataReadFields;
 
     PsseContext() {
     }
@@ -167,6 +168,14 @@ public class PsseContext {
         return this.ownerDataReadFields;
     }
 
+    void setSwitchedShuntDataReadFields(String[] fields) {
+        this.switchedShuntDataReadFields = fields;
+    }
+
+    String[] getSwitchedShuntDataReadFields() {
+        return this.switchedShuntDataReadFields;
+    }
+
     static String[] caseIdentificationDataHeaders(int firstRecordFields) {
         String[] first = new String[] {"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq"};
         return ArrayUtils.addAll(ArrayUtils.subarray(first, 0, firstRecordFields), "title1", "title2");
@@ -222,5 +231,10 @@ public class PsseContext {
 
     static String[] ownerDataHeaders() {
         return new String[] {"i", "owname"};
+    }
+
+    static String[] switchedShuntDataHeaders() {
+        return new String[] {"i", "modsw", "adjm", "stat", "vswhi", "vswlo", "swrem", "rmpct", "rmidnt", "binit",
+            "n1", "b1", "n2", "b2", "n3", "b3", "n4", "b4", "n5", "b5", "n6", "b6", "n7", "b7", "n8", "b8"};
     }
 }
