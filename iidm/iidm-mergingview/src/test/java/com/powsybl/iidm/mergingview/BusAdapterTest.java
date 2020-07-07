@@ -84,7 +84,9 @@ public class BusAdapterTest {
         // Not implemented yet !
         TestUtil.notImplemented(bus::getSynchronousComponent);
         TestUtil.notImplemented(bus::getConnectedComponent);
-        TestUtil.notImplemented(bus::isInMainConnectedComponent);
+        // XXX LUMA implemented returning default value true
+        // to be able to check flows against Conformity test case
+        // TestUtil.notImplemented(bus::isInMainConnectedComponent);
         TestUtil.notImplemented(bus::isInMainSynchronousComponent);
     }
 

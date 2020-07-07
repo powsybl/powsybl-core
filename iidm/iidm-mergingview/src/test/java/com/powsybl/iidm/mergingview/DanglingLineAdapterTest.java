@@ -161,18 +161,20 @@ public class DanglingLineAdapterTest {
         assertEquals("dl1 + dl2", mergedLine.getId());
         assertEquals("dl1 + dl2", mergedLine.getOptionalName().orElse(null));
         assertEquals("dl1 + dl2", mergedLine.getNameOrId());
-        assertSame(mergedLine, mergedLine.setR(1.0d));
-        assertEquals(dl1.getR() + dl2.getR(), mergedLine.getR(), 0.0d);
-        assertSame(mergedLine, mergedLine.setX(2.0d));
-        assertEquals(dl1.getX() + dl2.getX(), mergedLine.getX(), 0.0d);
-        assertSame(mergedLine, mergedLine.setG1(3.0d));
-        assertEquals(dl1.getG(), mergedLine.getG1(), 0.0d);
-        assertSame(mergedLine, mergedLine.setG2(4.0d));
-        assertEquals(dl2.getG(), mergedLine.getG2(), 0.0d);
-        assertSame(mergedLine, mergedLine.setB1(5.0d));
-        assertEquals(dl1.getB(), mergedLine.getB1(), 0.0d);
-        assertSame(mergedLine, mergedLine.setB2(6.0d));
-        assertEquals(dl2.getB(), mergedLine.getB2(), 0.0d);
+//        XXX LUMA set r, x, g, b should not be allowed on merged lines
+//        XXX LUMA impedance of merged line is not sum of impedances
+//        assertSame(mergedLine, mergedLine.setR(1.0d));
+//        assertEquals(dl1.getR() + dl2.getR(), mergedLine.getR(), 0.0d);
+//        assertSame(mergedLine, mergedLine.setX(2.0d));
+//        assertEquals(dl1.getX() + dl2.getX(), mergedLine.getX(), 0.0d);
+//        assertSame(mergedLine, mergedLine.setG1(3.0d));
+//        assertEquals(dl1.getG(), mergedLine.getG1(), 0.0d);
+//        assertSame(mergedLine, mergedLine.setG2(4.0d));
+//        assertEquals(dl2.getG(), mergedLine.getG2(), 0.0d);
+//        assertSame(mergedLine, mergedLine.setB1(5.0d));
+//        assertEquals(dl1.getB(), mergedLine.getB1(), 0.0d);
+//        assertSame(mergedLine, mergedLine.setB2(6.0d));
+//        assertEquals(dl2.getB(), mergedLine.getB2(), 0.0d);
         assertEquals(p0, dl1.getP0(), 0.0d);
         assertEquals(q0, dl1.getQ0(), 0.0d);
         assertEquals(p0, dl2.getP0(), 0.0d);
