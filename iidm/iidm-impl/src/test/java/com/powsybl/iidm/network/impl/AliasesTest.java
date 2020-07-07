@@ -53,6 +53,7 @@ public class AliasesTest {
         assertTrue(load.getAliases().isEmpty());
         load.addAlias("load1");
         assertTrue(load.getAliases().isEmpty());
+        assertEquals(load, network.getLoad("load1"));
     }
 
     @Test

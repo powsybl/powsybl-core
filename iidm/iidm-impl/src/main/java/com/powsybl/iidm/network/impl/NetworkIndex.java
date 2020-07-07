@@ -54,24 +54,26 @@ class NetworkIndex {
     }
 
     boolean addAlias(Identifiable<?> obj, String alias) {
-        if (objectsById.containsKey(alias)) {
-            if (objectsById.get(alias).equals(obj)) {
+        Identifiable<?> aliasConflict = objectsById.get(alias);
+        if (aliasConflict != null) {
+            if (aliasConflict.equals(obj)) {
                 // Silently ignore affecting the objects id to its own aliases
                 return false;
             }
-            Identifiable<?> aliasConflict = objectsById.get(alias);
             String message = String.format("Object (%s) with alias '%s' cannot be created because alias already refers to object (%s) with ID '%s'",
                     obj.getClass(),
                     alias,
                     aliasConflict.getClass(),
                     aliasConflict.getId());
             throw new PowsyblException(message);
-        } else if (idByAlias.containsKey(alias)) {
-            if (objectsById.get(idByAlias.get(alias)).equals(obj)) {
+        }
+        String idForAlias = idByAlias.get(alias);
+        if (idForAlias != null) {
+            aliasConflict = objectsById.get(idForAlias);
+            if (aliasConflict.equals(obj)) {
                 // Silently ignore affecting the same alias twice to an object
                 return false;
             }
-            Identifiable<?> aliasConflict = objectsById.get(idByAlias.get(alias));
             String message = String.format("Object (%s) with alias '%s' cannot be created because alias already refers to object (%s) with ID '%s'",
                     obj.getClass(),
                     alias,
@@ -84,9 +86,10 @@ class NetworkIndex {
     }
 
     public <I extends Identifiable<I>> void removeAlias(Identifiable<?> obj, String alias) {
-        if (!idByAlias.containsKey(alias)) {
+        String idForAlias = idByAlias.get(alias);
+        if (idForAlias == null) {
             throw new PowsyblException(String.format("No alias '%s' found in the network", alias));
-        } else if (!idByAlias.get(alias).equals(obj.getId())) {
+        } else if (!idForAlias.equals(obj.getId())) {
             throw new PowsyblException(String.format("Alias '%s' do not correspond to object '%s'", alias, obj.getId()));
         } else {
             idByAlias.remove(alias);

@@ -261,7 +261,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a substation voltage level.
      *
-     * @param id the id or ana alias of the substation voltage level
+     * @param id the id or an alias of the substation voltage level
      */
     VoltageLevel getVoltageLevel(String id);
 
