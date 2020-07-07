@@ -13,6 +13,9 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.iidm.network.util.Quadripole;
+import com.powsybl.iidm.network.util.Quadripole.PiModel;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,12 +44,33 @@ class MergedLine implements Line {
 
     private final Properties properties = new Properties();
 
+    private final double r;
+
+    private final double x;
+
+    private final double g1;
+
+    private final double b1;
+
+    private final double g2;
+
+    private final double b2;
+
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2, boolean ensureIdUnicity) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
         this.dl1 = Objects.requireNonNull(dl1, "dangling line 1 is null");
         this.dl2 = Objects.requireNonNull(dl2, "dangling line 2 is null");
         this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildId(dl1, dl2), index::contains) : buildId(dl1, dl2);
         this.name = buildName(dl1, dl2);
+
+        Quadripole.PiModel pim = Quadripole.from(PiModel.from(dl1)).cascade(Quadripole.from(PiModel.from(dl2))).toPiModel();
+        this.r = pim.r;
+        this.x = pim.x;
+        this.g1 = pim.g1;
+        this.b1 = pim.b1;
+        this.g2 = pim.g2;
+        this.b2 = pim.b2;
+
         mergeProperties(dl1, dl2);
     }
 
@@ -108,6 +132,8 @@ class MergedLine implements Line {
         double p1 = dl1.getTerminal().getP();
         double p2 = dl2.getTerminal().getP();
         if (!Double.isNaN(p1) && !Double.isNaN(p2)) {
+            // XXX LUMA Must be reviewed,
+            // It should take into account impedances of each dangling line
             double losses = p1 + p2;
             dl1.setP0((p1 + losses / 2.0) * sign(p2));
             dl2.setP0((p2 + losses / 2.0) * sign(p1));
@@ -118,6 +144,8 @@ class MergedLine implements Line {
         double q1 = dl1.getTerminal().getQ();
         double q2 = dl2.getTerminal().getQ();
         if (!Double.isNaN(q1) && !Double.isNaN(q2)) {
+            // XXX LUMA Must be reviewed,
+            // It should take into account impedances of each dangling line
             double losses = q1 + q2;
             dl1.setQ0((q1 + losses / 2.0) * sign(q2));
             dl2.setQ0((q2 + losses / 2.0) * sign(q1));
@@ -213,70 +241,62 @@ class MergedLine implements Line {
 
     @Override
     public double getR() {
-        return dl1.getR() + dl2.getR();
+        return r;
     }
 
     @Override
     public Line setR(final double r) {
-        dl1.setR(r / 2.0d);
-        dl2.setR(r / 2.0d);
-        return this;
+        throw new PowsyblException("R of merged line cannot be modified");
     }
 
     @Override
     public double getX() {
-        return dl1.getX() + dl2.getX();
+        return x;
     }
 
     @Override
     public Line setX(final double x) {
-        dl1.setX(x / 2.0d);
-        dl2.setX(x / 2.0d);
-        return this;
+        throw new PowsyblException("X of merged line cannot be modified");
     }
 
     @Override
     public double getG1() {
-        return dl1.getG();
+        return g1;
     }
 
     @Override
     public Line setG1(final double g1) {
-        dl1.setG(g1);
-        return this;
+        throw new PowsyblException("G1 of merged line cannot be modified");
     }
 
     @Override
     public double getG2() {
-        return dl2.getG();
+        return g2;
     }
 
     @Override
     public Line setG2(final double g2) {
-        dl2.setG(g2);
-        return this;
+        throw new PowsyblException("G2 of merged line cannot be modified");
     }
 
     @Override
     public double getB1() {
-        return dl1.getB();
+        return b1;
     }
 
     @Override
     public Line setB1(final double b1) {
-        dl1.setB(b1);
-        return this;
+        throw new PowsyblException("B1 of merged line cannot be modified");
     }
 
     @Override
     public double getB2() {
-        return dl2.getB();
+        return b2;
     }
 
     @Override
     public Line setB2(final double b2) {
-        dl2.setB(b2);
-        return this;
+        throw new PowsyblException("B2 of merged line cannot be modified");
     }
 
     @Override

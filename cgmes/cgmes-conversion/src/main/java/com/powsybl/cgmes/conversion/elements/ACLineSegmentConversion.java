@@ -9,8 +9,6 @@ package com.powsybl.cgmes.conversion.elements;
 
 import java.util.List;
 
-import org.apache.commons.math3.complex.Complex;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
@@ -19,7 +17,9 @@ import com.powsybl.iidm.network.DanglingLineAdder;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.TieLineAdder;
+import com.powsybl.iidm.network.util.Quadripole;
 import com.powsybl.iidm.network.util.SV;
+import com.powsybl.iidm.network.util.Quadripole.PiModel;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -228,21 +228,9 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
 
         Line mline;
         if (context.config().mergeLinesUsingQuadripole()) {
-            PiModel pi1 = new PiModel();
-            pi1.r = lineR;
-            pi1.x = lineX;
-            pi1.g1 = lineGch / 2.0;
-            pi1.b1 = lineBch / 2.0;
-            pi1.g2 = pi1.g1;
-            pi1.b2 = pi1.b1;
-            PiModel pi2 = new PiModel();
-            pi2.r = otherR;
-            pi2.x = otherX;
-            pi2.g1 = otherGch / 2.0;
-            pi2.b1 = otherBch / 2.0;
-            pi2.g2 = pi2.g1;
-            pi2.b2 = pi2.b1;
-            PiModel pim = Quadripole.from(pi1).cascade(Quadripole.from(pi2)).toPiModel();
+            PiModel piline = new PiModel(lineR, lineX, lineGch / 2, lineBch / 2, lineGch / 2, lineBch / 2);
+            PiModel piother = new PiModel(otherR, otherX, otherGch / 2, otherBch / 2, otherGch / 2, otherBch / 2);
+            PiModel pim = Quadripole.from(piline).cascade(Quadripole.from(piother)).toPiModel();
             LineAdder adder = context.network().newLine()
                     .setR(pim.r)
                     .setX(pim.x)
@@ -286,71 +274,4 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         context.convertedTerminal(otherc.terminalId(otherEnd), mline.getTerminal2(), 2, otherc.powerFlow(otherEnd));
     }
 
-    static class PiModel {
-        double r;
-        double x;
-        double g1;
-        double b1;
-        double g2;
-        double b2;
-    }
-
-    static class Quadripole {
-        Complex a;
-        Complex b;
-        Complex c;
-        Complex d;
-
-        public static Quadripole from(PiModel pi) {
-            Quadripole y1 = Quadripole.fromShuntAdmittance(pi.g1, pi.b1);
-            Quadripole z = Quadripole.fromSeriesImpedance(pi.r, pi.x);
-            Quadripole y2 = Quadripole.fromShuntAdmittance(pi.g2, pi.b2);
-            return y1.cascade(z).cascade(y2);
-        }
-
-        public static Quadripole fromSeriesImpedance(double r, double x) {
-            Quadripole q = new Quadripole();
-            q.a = new Complex(1);
-            q.b = new Complex(r, x);
-            q.c = new Complex(0);
-            q.d = new Complex(1);
-            return q;
-        }
-
-        public static Quadripole fromShuntAdmittance(double g, double b) {
-            Quadripole q = new Quadripole();
-            q.a = new Complex(1);
-            q.b = new Complex(0);
-            q.c = new Complex(g, b);
-            q.d = new Complex(1);
-            return q;
-        }
-
-        public Quadripole cascade(Quadripole q2) {
-            Quadripole q1 = this;
-            Quadripole qr = new Quadripole();
-            qr.a = q1.a.multiply(q2.a).add(q1.b.multiply(q2.c));
-            qr.b = q1.a.multiply(q2.b).add(q1.b.multiply(q2.d));
-            qr.c = q1.c.multiply(q2.a).add(q1.d.multiply(q2.c));
-            qr.d = q1.c.multiply(q2.b).add(q1.d.multiply(q2.d));
-            return qr;
-        }
-
-        public PiModel toPiModel() {
-            PiModel pi = new PiModel();
-
-            // Y2 = (A - 1)/B
-            // Y1 = (D - 1)/B
-            Complex y1 = d.add(-1).divide(b);
-            Complex y2 = a.add(-1).divide(b);
-
-            pi.r = b.getReal();
-            pi.x = b.getImaginary();
-            pi.g1 = y1.getReal();
-            pi.b1 = y1.getImaginary();
-            pi.g2 = y2.getReal();
-            pi.b2 = y2.getImaginary();
-            return pi;
-        }
-    }
 }

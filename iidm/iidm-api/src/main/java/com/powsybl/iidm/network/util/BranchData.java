@@ -229,7 +229,10 @@ public class BranchData {
             nominalV2 == 0.0 || Double.isNaN(nominalV2)) {
             return false;
         }
-        return nominalV1 != nominalV2;
+        return false;
+        // XXX LUMA MicroGrid flows validation is telling us
+        // that ratio should not be considered for lines with different nominal voltages
+        // return nominalV1 != nominalV2;
     }
 
     private double structuralRatioEnd1(Line line) {

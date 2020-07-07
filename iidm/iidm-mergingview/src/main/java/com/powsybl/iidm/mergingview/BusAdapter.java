@@ -218,7 +218,9 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
     @Override
     public boolean isInMainConnectedComponent() {
-        throw MergingView.createNotImplementedException();
+        // XXX LUMA To be able to compute flows on merged lines
+        return true;
+        // throw MergingView.createNotImplementedException();
     }
 
     @Override

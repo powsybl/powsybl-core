@@ -21,8 +21,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -30,6 +28,7 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
+import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.conversion.update.IidmChange;
@@ -38,10 +37,8 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
@@ -132,37 +129,12 @@ public class CgmesUpdateTest {
 
     private void runLoadFlowResultsCompletion(Network network, boolean invalidateFlows) {
         if (invalidateFlows) {
-            invalidateFlows(network);
+            ConversionTester.invalidateFlows(network);
         }
         LoadFlowParameters lfParameters = new LoadFlowParameters();
         LoadFlowResultsCompletionParameters parameters = new LoadFlowResultsCompletionParameters();
         LoadFlowResultsCompletion lfResultsCompletion = new LoadFlowResultsCompletion(parameters, lfParameters);
         lfResultsCompletion.run(network, Mockito.mock(ComputationManager.class));
-    }
-
-    private void invalidateFlows(Network n) {
-        n.getLineStream().forEach(line -> {
-            invalidateFlow(line.getTerminal(Side.ONE));
-            invalidateFlow(line.getTerminal(Side.TWO));
-        });
-        n.getTwoWindingsTransformerStream().forEach(twt -> {
-            invalidateFlow(twt.getTerminal(Side.ONE));
-            invalidateFlow(twt.getTerminal(Side.TWO));
-        });
-        n.getShuntCompensatorStream().forEach(sh -> {
-            Terminal terminal = sh.getTerminal();
-            terminal.setQ(Double.NaN);
-        });
-        n.getThreeWindingsTransformerStream().forEach(twt -> {
-            invalidateFlow(twt.getLeg1().getTerminal());
-            invalidateFlow(twt.getLeg2().getTerminal());
-            invalidateFlow(twt.getLeg3().getTerminal());
-        });
-    }
-
-    private void invalidateFlow(Terminal t) {
-        t.setP(Double.NaN);
-        t.setQ(Double.NaN);
     }
 
     private boolean isEmpty(Network network) {
@@ -193,6 +165,4 @@ public class CgmesUpdateTest {
 
     private FileSystem fileSystem;
     private CgmesImport cgmesImport;
-
-    private static final Logger LOG = LoggerFactory.getLogger(CgmesUpdateTest.class);
 }
