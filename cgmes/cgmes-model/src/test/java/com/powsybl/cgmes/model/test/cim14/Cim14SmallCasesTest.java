@@ -27,7 +27,7 @@ import com.powsybl.cgmes.model.test.TestGridModelResources;
 public class Cim14SmallCasesTest {
 
     @Test
-    public void small1() throws IOException {
+    public void small1() {
         new CgmesModelTester(Cim14SmallCasesCatalog.small1()).test();
     }
 
