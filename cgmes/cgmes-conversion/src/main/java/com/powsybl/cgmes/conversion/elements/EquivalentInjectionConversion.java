@@ -9,10 +9,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.iidm.network.DanglingLineAdder;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -52,29 +49,40 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     }
 
     // A dangling line has been created at the boundary node of the equivalent injection
-    public void convertOverDanglingLine(DanglingLineAdder adder, PowerFlow fother) {
+    public DanglingLine convertOverDanglingLine(DanglingLineAdder adder, PowerFlow fother) {
         Regulation regulation = getRegulation();
+        DanglingLine dl;
         if (regulation.status) {
             // If this equivalent injection is regulating voltage,
             // map it over the dangling line 'virtual generator'
-            adder.setGeneratorVoltageRegulationOn(regulation.status)
-                    .setGeneratorMinP(-Double.MAX_VALUE)
-                    .setGeneratorMaxP(Double.MAX_VALUE)
-                    .setGeneratorTargetP(regulation.targetP)
-                    .setGeneratorTargetQ(regulation.targetQ)
-                    .setGeneratorTargetV(regulation.targetV)
+            dl = adder
                     .setP0(fother.p())
-                    .setQ0(fother.q());
+                    .setQ0(fother.q())
+                    .add();
+            dl.newGeneration()
+                    .setVoltageRegulationOn(true)
+                    .setMinP(-Double.MAX_VALUE)
+                    .setMaxP(Double.MAX_VALUE)
+                    .setTargetP(regulation.targetP)
+                    .setTargetQ(regulation.targetQ)
+                    .setTargetV(regulation.targetV)
+                    .add();
         } else {
             // Map all the observed flows to the 'virtual load'
             // of the dangling line
             PowerFlow f = powerFlow();
-            adder
+            dl = adder
                     .setP0(fother.p() + f.p())
                     .setQ0(fother.q() + f.q())
-                    .setGeneratorTargetP(0.0)
-                    .setGeneratorTargetQ(0.0);
+                    .add();
+            dl.newGeneration()
+                    .setTargetV(Double.NaN)
+                    .setVoltageRegulationOn(false)
+                    .setTargetP(0.0)
+                    .setTargetQ(0.0)
+                    .add();
         }
+        return dl;
     }
 
     private void convertToGenerator() {

@@ -25,6 +25,102 @@ package com.powsybl.iidm.network;
  */
 public interface DanglingLine extends Injection<DanglingLine>, ReactiveLimitsHolder {
 
+    interface Generation {
+        /**
+         * <p>Get the generator active power target in MW.</p>
+         * <p>The active power target follows a generator sign convention.</p>
+         * <p>Depends on the working variant.</p>
+         * @return the generator active power target
+         */
+        double getTargetP();
+
+        /**
+         * <p>Set the generator active power target in MW.</p>
+         * <p>Depends on the working variant.</p>
+         * @param targetP the generator active power target
+         * @return this to allow method chaining
+         */
+        Generation setTargetP(double targetP);
+
+        /**
+         * Get the generator maximal active power in MW.
+         */
+        double getMaxP();
+
+        /**
+         * Set the generator maximal active power in MW.
+         */
+        Generation setMaxP(double maxP);
+
+        /**
+         * Get the generator minimal active power in MW.
+         */
+        double getMinP();
+
+        /**
+         * Set the generator minimal active power in MW.
+         */
+        Generation setMinP(double minP);
+
+        /**
+         * <p>Get the generator reactive power target in MVAR.</p>
+         * <p>The generator reactive power target follows a generator sign convention.</p>
+         * <p>Depends on the working variant.</p>
+         * @return the generator reactive power target
+         */
+        double getTargetQ();
+
+        /**
+         * <p>Set the generator reactive power target in MVAR.</p>
+         * <p>Depends on the working variant.</p>
+         * @param targetQ the generator reactive power target
+         * @return this to allow method chaining
+         */
+        Generation setTargetQ(double targetQ);
+
+        /**
+         * Get the generator voltage regulation status.
+         */
+        boolean isVoltageRegulationOn();
+
+        /**
+         * Set the generator voltage regulation status.
+         */
+        Generation setVoltageRegulationOn(boolean voltageRegulationOn);
+
+        /**
+         * <p>Get the generator voltage target in Kv.</p>
+         * <p>Depends on the working variant.</p>
+         * @return the generator voltage target
+         */
+        double getTargetV();
+
+        /**
+         * <p>Set the generator voltage target in Kv.</p>
+         * <p>Depends on the working variant.</p>
+         * @param targetV the generator voltage target
+         * @return this to allow method chaining
+         */
+        Generation setTargetV(double targetV);
+    }
+
+    interface GenerationAdder {
+
+        GenerationAdder setTargetP(double targetP);
+
+        GenerationAdder setMaxP(double maxP);
+
+        GenerationAdder setMinP(double minP);
+
+        GenerationAdder setTargetQ(double targetQ);
+
+        GenerationAdder setVoltageRegulationOn(boolean voltageRegulationOn);
+
+        GenerationAdder setTargetV(double targetV);
+
+        Generation add();
+    }
+
     /**
      * Get the constant active power in MW.
      * <p>Depends on the working variant.
@@ -93,82 +189,13 @@ public interface DanglingLine extends Injection<DanglingLine>, ReactiveLimitsHol
      */
     DanglingLine setB(double b);
 
-    /**
-     * <p>Get the generator active power target in MW.</p>
-     * <p>The active power target follows a generator sign convention.</p>
-     * <p>Depends on the working variant.</p>
-     * @return the generator active power target
-     */
-    double getGeneratorTargetP();
+    default Generation getGeneration() {
+        return null;
+    }
 
-    /**
-     * <p>Set the generator active power target in MW.</p>
-     * <p>Depends on the working variant.</p>
-     * @param generatorTargetP the generator active power target
-     * @return this to allow method chaining
-     */
-    DanglingLine setGeneratorTargetP(double generatorTargetP);
-
-    /**
-     * Get the generator maximal active power in MW.
-     */
-    double getGeneratorMaxP();
-
-    /**
-     * Set the generator maximal active power in MW.
-     */
-    DanglingLine setGeneratorMaxP(double generatorMaxP);
-
-    /**
-     * Get the generator minimal active power in MW.
-     */
-    double getGeneratorMinP();
-
-    /**
-     * Set the generator minimal active power in MW.
-     */
-    DanglingLine setGeneratorMinP(double generatorMinP);
-
-    /**
-     * <p>Get the generator reactive power target in MVAR.</p>
-     * <p>The generator reactive power target follows a generator sign convention.</p>
-     * <p>Depends on the working variant.</p>
-     * @return the generator reactive power target
-     */
-    double getGeneratorTargetQ();
-
-    /**
-     * <p>Set the generator reactive power target in MVAR.</p>
-     * <p>Depends on the working variant.</p>
-     * @param generatorTargetQ the generator reactive power target
-     * @return this to allow method chaining
-     */
-    DanglingLine setGeneratorTargetQ(double generatorTargetQ);
-
-    /**
-     * Get the generator voltage regulation status.
-     */
-    boolean isGeneratorVoltageRegulationOn();
-
-    /**
-     * Set the generator voltage regulation status.
-     */
-    DanglingLine setGeneratorVoltageRegulationOn(boolean generatorVoltageRegulationOn);
-
-    /**
-     * <p>Get the generator voltage target in Kv.</p>
-     * <p>Depends on the working variant.</p>
-     * @return the generator voltage target
-     */
-    double getGeneratorTargetV();
-
-    /**
-     * <p>Set the generator voltage target in Kv.</p>
-     * <p>Depends on the working variant.</p>
-     * @param generatorTargetV the generator voltage target
-     * @return this to allow method chaining
-     */
-    DanglingLine setGeneratorTargetV(double generatorTargetV);
+    default GenerationAdder newGeneration() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Get the UCTE Xnode code corresponding to this dangling line in the case

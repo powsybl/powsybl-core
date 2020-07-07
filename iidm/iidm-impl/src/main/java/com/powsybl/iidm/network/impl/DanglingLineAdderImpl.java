@@ -31,18 +31,6 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     private double b = Double.NaN;
 
-    private double generatorMaxP = Double.NaN;
-
-    private double generatorMinP = Double.NaN;
-
-    private double generatorTargetP = Double.NaN;
-
-    private double generatorTargetQ = Double.NaN;
-
-    private boolean generatorVoltageRegulationOn = false;
-
-    private double generatorTargetV = Double.NaN;
-
     private String ucteXnodeCode;
 
     DanglingLineAdderImpl(VoltageLevelExt voltageLevel) {
@@ -96,42 +84,6 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
     }
 
     @Override
-    public DanglingLineAdderImpl setGeneratorMaxP(double generatorMaxP) {
-        this.generatorMaxP = generatorMaxP;
-        return this;
-    }
-
-    @Override
-    public DanglingLineAdderImpl setGeneratorMinP(double generatorMinP) {
-        this.generatorMinP = generatorMinP;
-        return this;
-    }
-
-    @Override
-    public DanglingLineAdderImpl setGeneratorTargetP(double generatorTargetP) {
-        this.generatorTargetP = generatorTargetP;
-        return this;
-    }
-
-    @Override
-    public DanglingLineAdderImpl setGeneratorTargetQ(double generatorTargetQ) {
-        this.generatorTargetQ = generatorTargetQ;
-        return this;
-    }
-
-    @Override
-    public DanglingLineAdderImpl setGeneratorVoltageRegulationOn(boolean generatorVoltageRegulationOn) {
-        this.generatorVoltageRegulationOn = generatorVoltageRegulationOn;
-        return this;
-    }
-
-    @Override
-    public DanglingLineAdderImpl setGeneratorTargetV(double generatorTargetV) {
-        this.generatorTargetV = generatorTargetV;
-        return this;
-    }
-
-    @Override
     public DanglingLineAdder setUcteXnodeCode(String ucteXnodeCode) {
         this.ucteXnodeCode = ucteXnodeCode;
         return this;
@@ -149,9 +101,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         ValidationUtil.checkG(this, g);
         ValidationUtil.checkB(this, b);
 
-        ValidationUtil.checkActivePowerLimits(this, generatorMinP, generatorMaxP);
-        DanglingLineImpl danglingLine = new DanglingLineImpl(getNetwork().getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b,
-                generatorTargetP, generatorTargetQ, generatorVoltageRegulationOn, generatorTargetV, generatorMinP, generatorMaxP, ucteXnodeCode);
+        DanglingLineImpl danglingLine = new DanglingLineImpl(getNetwork().getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode);
         danglingLine.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(danglingLine);

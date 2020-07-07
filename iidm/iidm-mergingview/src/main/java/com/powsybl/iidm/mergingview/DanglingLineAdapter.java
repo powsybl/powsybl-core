@@ -87,69 +87,13 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public double getGeneratorMaxP() {
-        return getDelegate().getGeneratorMaxP();
+    public Generation getGeneration() {
+        return getDelegate().getGeneration();
     }
 
     @Override
-    public DanglingLine setGeneratorMaxP(final double generatorMaxP) {
-        getDelegate().setGeneratorMaxP(generatorMaxP);
-        return this;
-    }
-
-    @Override
-    public double getGeneratorMinP() {
-        return getDelegate().getGeneratorMinP();
-    }
-
-    @Override
-    public DanglingLine setGeneratorMinP(final double generatorMinP) {
-        getDelegate().setGeneratorMinP(generatorMinP);
-        return this;
-    }
-
-    @Override
-    public double getGeneratorTargetP() {
-        return getDelegate().getGeneratorTargetP();
-    }
-
-    @Override
-    public DanglingLine setGeneratorTargetP(final double generatorTargetP) {
-        getDelegate().setGeneratorTargetP(generatorTargetP);
-        return this;
-    }
-
-    @Override
-    public double getGeneratorTargetQ() {
-        return getDelegate().getGeneratorTargetQ();
-    }
-
-    @Override
-    public DanglingLine setGeneratorTargetQ(final double generatorTargetQ) {
-        getDelegate().setGeneratorTargetQ(generatorTargetQ);
-        return this;
-    }
-
-    @Override
-    public boolean isGeneratorVoltageRegulationOn() {
-        return getDelegate().isGeneratorVoltageRegulationOn();
-    }
-
-    @Override
-    public DanglingLine setGeneratorVoltageRegulationOn(final boolean generatorVoltageRegulationOn) {
-        getDelegate().setGeneratorVoltageRegulationOn(generatorVoltageRegulationOn);
-        return this;
-    }
-
-    @Override
-    public double getGeneratorTargetV() {
-        return getDelegate().getGeneratorTargetV();
-    }
-
-    @Override
-    public DanglingLine setGeneratorTargetV(final double generatorTargetV) {
-        getDelegate().setGeneratorTargetV(generatorTargetV);
-        return this;
+    public GenerationAdder newGeneration() {
+        return getDelegate().newGeneration();
     }
 
     @Override

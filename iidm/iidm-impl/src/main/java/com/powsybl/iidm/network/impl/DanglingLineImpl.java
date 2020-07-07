@@ -17,6 +17,216 @@ import gnu.trove.list.array.TDoubleArrayList;
  */
 class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine, CurrentLimitsOwner<Void>, ReactiveLimitsOwner {
 
+    class GenerationImpl implements Generation, MultiVariantObject {
+
+        private double minP;
+
+        private double maxP;
+
+        // attributes depending on the variant
+
+        private final TDoubleArrayList targetP;
+
+        private final TDoubleArrayList targetQ;
+
+        private final TBooleanArrayList voltageRegulationOn;
+
+        private final TDoubleArrayList targetV;
+
+        GenerationImpl(double minP, double maxP, double targetP, double targetQ, boolean voltageRegulationOn, double targetV) {
+            int variantArraySize = network.get().getVariantManager().getVariantArraySize();
+            this.targetP = new TDoubleArrayList(variantArraySize);
+            this.targetQ = new TDoubleArrayList(variantArraySize);
+            this.voltageRegulationOn = new TBooleanArrayList(variantArraySize);
+            this.targetV = new TDoubleArrayList(variantArraySize);
+            this.minP = minP;
+            this.maxP = maxP;
+            for (int i = 0; i < variantArraySize; i++) {
+                this.targetP.add(targetP);
+                this.targetQ.add(targetQ);
+                this.voltageRegulationOn.add(voltageRegulationOn);
+                this.targetV.add(targetV);
+            }
+        }
+
+        @Override
+        public double getTargetP() {
+            return targetP.get(getNetwork().getVariantIndex());
+        }
+
+        @Override
+        public GenerationImpl setTargetP(double targetP) {
+            int variantIndex = network.get().getVariantIndex();
+            double oldValue = this.targetP.set(variantIndex, targetP);
+            String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+            notifyUpdate("targetP", variantId, oldValue, targetP);
+            return this;
+        }
+
+        @Override
+        public double getMaxP() {
+            return maxP;
+        }
+
+        @Override
+        public GenerationImpl setMaxP(double maxP) {
+            ValidationUtil.checkMaxP(DanglingLineImpl.this, maxP);
+            ValidationUtil.checkActivePowerLimits(DanglingLineImpl.this, minP, maxP);
+            double oldValue = this.maxP;
+            this.maxP = maxP;
+            notifyUpdate("maxP", oldValue, maxP);
+            return this;
+        }
+
+        @Override
+        public double getMinP() {
+            return minP;
+        }
+
+        @Override
+        public GenerationImpl setMinP(double minP) {
+            ValidationUtil.checkMinP(DanglingLineImpl.this, minP);
+            ValidationUtil.checkActivePowerLimits(DanglingLineImpl.this, minP, maxP);
+            double oldValue = this.minP;
+            this.minP = minP;
+            notifyUpdate("minP", oldValue, minP);
+            return this;
+        }
+
+        @Override
+        public double getTargetQ() {
+            return targetQ.get(getNetwork().getVariantIndex());
+        }
+
+        @Override
+        public GenerationImpl setTargetQ(double targetQ) {
+            int variantIndex = network.get().getVariantIndex();
+            double oldValue = this.targetQ.set(variantIndex, targetQ);
+            String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+            notifyUpdate("targetQ", variantId, oldValue, targetQ);
+            return this;
+        }
+
+        @Override
+        public boolean isVoltageRegulationOn() {
+            return voltageRegulationOn.get(getNetwork().getVariantIndex());
+        }
+
+        @Override
+        public GenerationImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
+            int variantIndex = getNetwork().getVariantIndex();
+            boolean oldValue = this.voltageRegulationOn.get(variantIndex);
+            this.voltageRegulationOn.set(variantIndex, voltageRegulationOn);
+            String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+            notifyUpdate("voltageRegulationOn", variantId, oldValue, voltageRegulationOn);
+            return this;
+        }
+
+        @Override
+        public double getTargetV() {
+            return this.targetV.get(getNetwork().getVariantIndex());
+        }
+
+        @Override
+        public GenerationImpl setTargetV(double targetV) {
+            int variantIndex = getNetwork().getVariantIndex();
+            double oldValue = this.targetV.set(variantIndex, targetV);
+            String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+            notifyUpdate("targetV", variantId, oldValue, targetV);
+            return this;
+        }
+
+        @Override
+        public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+            targetP.ensureCapacity(targetP.size() + number);
+            targetQ.ensureCapacity(targetQ.size() + number);
+            voltageRegulationOn.ensureCapacity(voltageRegulationOn.size() + number);
+            targetV.ensureCapacity(targetV.size() + number);
+            for (int i = 0; i < number; i++) {
+                targetP.add(targetP.get(sourceIndex));
+                targetQ.add(targetQ.get(sourceIndex));
+                voltageRegulationOn.add(voltageRegulationOn.get(sourceIndex));
+                targetV.add(targetV.get(sourceIndex));
+            }
+        }
+
+        @Override
+        public void reduceVariantArraySize(int number) {
+            targetP.remove(targetP.size() - number, number);
+            targetQ.remove(targetQ.size() - number, number);
+            voltageRegulationOn.remove(voltageRegulationOn.size() - number, number);
+            targetV.remove(targetV.size() - number, number);
+        }
+
+        @Override
+        public void deleteVariantArrayElement(int index) {
+            // nothing to do
+        }
+
+        @Override
+        public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+            for (int index : indexes) {
+                targetP.set(index, targetP.get(sourceIndex));
+                targetQ.set(index, targetQ.get(sourceIndex));
+                voltageRegulationOn.set(index, voltageRegulationOn.get(sourceIndex));
+                targetV.set(index, targetV.get(sourceIndex));
+            }
+        }
+    }
+
+    class GenerationAdderImpl implements GenerationAdder {
+
+        private double minP;
+        private double maxP;
+        private double targetP;
+        private double targetQ;
+        private boolean voltageRegulationOn;
+        private double targetV;
+
+        @Override
+        public GenerationAdder setTargetP(double targetP) {
+            this.targetP = targetP;
+            return this;
+        }
+
+        @Override
+        public GenerationAdder setMaxP(double maxP) {
+            this.maxP = maxP;
+            return this;
+        }
+
+        @Override
+        public GenerationAdder setMinP(double minP) {
+            this.minP = minP;
+            return this;
+        }
+
+        @Override
+        public GenerationAdder setTargetQ(double targetQ) {
+            this.targetQ = targetQ;
+            return this;
+        }
+
+        @Override
+        public GenerationAdder setVoltageRegulationOn(boolean voltageRegulationOn) {
+            this.voltageRegulationOn = voltageRegulationOn;
+            return this;
+        }
+
+        @Override
+        public GenerationAdder setTargetV(double targetV) {
+            this.targetV = targetV;
+            return this;
+        }
+
+        @Override
+        public Generation add() {
+            ValidationUtil.checkActivePowerLimits(DanglingLineImpl.this, minP, maxP);
+            generation = new GenerationImpl(minP, maxP, targetP, targetQ, voltageRegulationOn, targetV);
+            return generation;
+        }
+    }
+
     private final Ref<? extends VariantManagerHolder> network;
 
     private double r;
@@ -29,13 +239,11 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final String ucteXnodeCode;
 
+    private GenerationImpl generation;
+
     private CurrentLimitsImpl limits;
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
-
-    private double generatorMinP;
-
-    private double generatorMaxP;
 
     // attributes depending on the variant
 
@@ -43,35 +251,16 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final TDoubleArrayList q0;
 
-    private final TDoubleArrayList generatorTargetP;
-
-    private final TDoubleArrayList generatorTargetQ;
-
-    private final TBooleanArrayList generatorVoltageRegulationOn;
-
-    private final TDoubleArrayList generatorTargetV;
-
     DanglingLineImpl(Ref<? extends VariantManagerHolder> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b,
-                     double generatorTargetP, double generatorTargetQ, boolean generatorVoltageRegulationOn, double generatorTargetV, double generatorMinP, double generatorMaxP, String ucteXnodeCode) {
+                     String ucteXnodeCode) {
         super(id, name, fictitious);
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.p0 = new TDoubleArrayList(variantArraySize);
         this.q0 = new TDoubleArrayList(variantArraySize);
-        this.generatorTargetP = new TDoubleArrayList(variantArraySize);
-        this.generatorTargetQ = new TDoubleArrayList(variantArraySize);
-        this.generatorVoltageRegulationOn = new TBooleanArrayList(variantArraySize);
-        this.generatorTargetV = new TDoubleArrayList(variantArraySize);
-        this.generatorMinP = generatorMinP;
-        this.generatorMaxP = generatorMaxP;
-
         for (int i = 0; i < variantArraySize; i++) {
             this.p0.add(p0);
             this.q0.add(q0);
-            this.generatorTargetP.add(generatorTargetP);
-            this.generatorTargetQ.add(generatorTargetQ);
-            this.generatorVoltageRegulationOn.add(generatorVoltageRegulationOn);
-            this.generatorTargetV.add(generatorTargetV);
         }
         this.r = r;
         this.x = x;
@@ -184,95 +373,18 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public double getGeneratorTargetP() {
-        return generatorTargetP.get(getNetwork().getVariantIndex());
-    }
-
-    @Override
-    public DanglingLineImpl setGeneratorTargetP(double generatorTargetP) {
-        int variantIndex = network.get().getVariantIndex();
-        double oldValue = this.generatorTargetP.set(variantIndex, generatorTargetP);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("generatorTargetP", variantId, oldValue, generatorTargetP);
-        return this;
-    }
-
-    @Override
-    public double getGeneratorMaxP() {
-        return generatorMaxP;
-    }
-
-    @Override
-    public DanglingLineImpl setGeneratorMaxP(double generatorMaxP) {
-        ValidationUtil.checkMaxP(this, generatorMaxP);
-        ValidationUtil.checkActivePowerLimits(this, generatorMinP, generatorMaxP);
-        double oldValue = this.generatorMaxP;
-        this.generatorMaxP = generatorMaxP;
-        notifyUpdate("generatorMaxP", oldValue, generatorMaxP);
-        return this;
-    }
-
-    @Override
-    public double getGeneratorMinP() {
-        return generatorMinP;
-    }
-
-    @Override
-    public DanglingLineImpl setGeneratorMinP(double generatorMinP) {
-        ValidationUtil.checkMinP(this, generatorMinP);
-        ValidationUtil.checkActivePowerLimits(this, generatorMinP, generatorMaxP);
-        double oldValue = this.generatorMinP;
-        this.generatorMinP = generatorMinP;
-        notifyUpdate("generatorMinP", oldValue, generatorMinP);
-        return this;
-    }
-
-    @Override
-    public double getGeneratorTargetQ() {
-        return generatorTargetQ.get(getNetwork().getVariantIndex());
-    }
-
-    @Override
-    public DanglingLineImpl setGeneratorTargetQ(double generatorTargetQ) {
-        int variantIndex = network.get().getVariantIndex();
-        double oldValue = this.generatorTargetQ.set(variantIndex, generatorTargetQ);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("generatorTargetQ", variantId, oldValue, generatorTargetQ);
-        return this;
-    }
-
-    @Override
-    public boolean isGeneratorVoltageRegulationOn() {
-        return generatorVoltageRegulationOn.get(getNetwork().getVariantIndex());
-    }
-
-    @Override
-    public DanglingLineImpl setGeneratorVoltageRegulationOn(boolean generatorVoltageRegulationOn) {
-        int variantIndex = getNetwork().getVariantIndex();
-        boolean oldValue = this.generatorVoltageRegulationOn.get(variantIndex);
-        this.generatorVoltageRegulationOn.set(variantIndex, generatorVoltageRegulationOn);
-        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("generatorVoltageRegulationOn", variantId, oldValue, generatorVoltageRegulationOn);
-        return this;
-    }
-
-    @Override
-    public double getGeneratorTargetV() {
-        return this.generatorTargetV.get(getNetwork().getVariantIndex());
-    }
-
-    @Override
-    public DanglingLineImpl setGeneratorTargetV(double generatorTargetV) {
-        int variantIndex = getNetwork().getVariantIndex();
-        double oldValue = this.generatorTargetV.set(variantIndex, generatorTargetV);
-        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("generatorTargetV", variantId, oldValue, generatorTargetV);
-        return this;
-    }
-
-    @Override
     public String getUcteXnodeCode() {
         return ucteXnodeCode;
+    }
+
+    @Override
+    public Generation getGeneration() {
+        return generation;
+    }
+
+    @Override
+    public GenerationAdder newGeneration() {
+        return new GenerationAdderImpl();
     }
 
     @Override
@@ -322,17 +434,12 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         p0.ensureCapacity(p0.size() + number);
         q0.ensureCapacity(q0.size() + number);
-        generatorTargetP.ensureCapacity(generatorTargetP.size() + number);
-        generatorTargetQ.ensureCapacity(generatorTargetQ.size() + number);
-        generatorVoltageRegulationOn.ensureCapacity(generatorVoltageRegulationOn.size() + number);
-        generatorTargetV.ensureCapacity(generatorTargetV.size() + number);
         for (int i = 0; i < number; i++) {
             p0.add(p0.get(sourceIndex));
             q0.add(q0.get(sourceIndex));
-            generatorTargetP.add(generatorTargetP.get(sourceIndex));
-            generatorTargetQ.add(generatorTargetQ.get(sourceIndex));
-            generatorVoltageRegulationOn.add(generatorVoltageRegulationOn.get(sourceIndex));
-            generatorTargetV.add(generatorTargetV.get(sourceIndex));
+        }
+        if (generation != null) {
+            generation.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         }
     }
 
@@ -341,15 +448,17 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         super.reduceVariantArraySize(number);
         p0.remove(p0.size() - number, number);
         q0.remove(q0.size() - number, number);
-        generatorTargetP.remove(generatorTargetP.size() - number, number);
-        generatorTargetQ.remove(generatorTargetQ.size() - number, number);
-        generatorVoltageRegulationOn.remove(generatorVoltageRegulationOn.size() - number, number);
-        generatorTargetV.remove(generatorTargetV.size() - number, number);
+        if (generation != null) {
+            generation.reduceVariantArraySize(number);
+        }
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
         super.deleteVariantArrayElement(index);
+        if (generation != null) {
+            generation.deleteVariantArrayElement(index);
+        }
         // nothing to do
     }
 
@@ -359,10 +468,9 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         for (int index : indexes) {
             p0.set(index, p0.get(sourceIndex));
             q0.set(index, q0.get(sourceIndex));
-            generatorTargetP.set(index, generatorTargetP.get(sourceIndex));
-            generatorTargetQ.set(index, generatorTargetQ.get(sourceIndex));
-            generatorVoltageRegulationOn.set(index, generatorVoltageRegulationOn.get(sourceIndex));
-            generatorTargetV.set(index, generatorTargetV.get(sourceIndex));
+        }
+        if (generation != null) {
+            generation.allocateVariantArrayElement(indexes, sourceIndex);
         }
     }
 

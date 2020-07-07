@@ -148,21 +148,23 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
                 .setG(gch)
                 .setB(bch)
                 .setUcteXnodeCode(findUcteXnodeCode(boundaryNode));
-        EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(boundaryNode);
-        if (equivalentInjectionConversion != null) {
-            equivalentInjectionConversion.convertOverDanglingLine(dlAdder, f);
-        } else {
-            dlAdder
-                .setP0(f.p())
-                .setQ0(f.q())
-                .setGeneratorTargetP(0.0)
-                .setGeneratorTargetQ(0.0)
-                .setGeneratorTargetV(Double.NaN)
-                .setGeneratorVoltageRegulationOn(false);
-        }
         identify(dlAdder);
         connect(dlAdder, modelSide);
-        DanglingLine dl = dlAdder.add();
+        EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(boundaryNode);
+        DanglingLine dl;
+        if (equivalentInjectionConversion != null) {
+            dl = equivalentInjectionConversion.convertOverDanglingLine(dlAdder, f);
+        } else {
+            dl = dlAdder.setP0(f.p())
+                    .setQ0(f.q())
+                    .add();
+            dl.newGeneration()
+                    .setTargetP(0.0)
+                    .setTargetQ(0.0)
+                    .setTargetV(Double.NaN)
+                    .setVoltageRegulationOn(false)
+                    .add();
+        }
         if (equivalentInjectionConversion != null) {
             equivalentInjectionConversion.convertReactiveLimits(dl);
         }
@@ -179,8 +181,8 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             // The net sum of power flow "entering" at boundary is "exiting"
             // through the line, we have to change the sign of the sum of flows
             // at the node when we consider flow at line end
-            double p = dl.getP0() - dl.getGeneratorTargetP();
-            double q = dl.getQ0() - dl.getGeneratorTargetQ();
+            double p = dl.getP0() - dl.getGeneration().getTargetP();
+            double q = dl.getQ0() - dl.getGeneration().getTargetQ();
             SV svboundary = new SV(-p, -q, v, angle);
             // The other side power flow must be computed taking into account
             // the same criteria used for ACLineSegment: total shunt admittance

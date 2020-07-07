@@ -282,16 +282,16 @@ public class UcteExporter implements Exporter {
         UcteNode ucteNode = convertXNode(ucteNetwork, xnodeCode, geographicalName);
         ucteNode.setActiveLoad((float) danglingLine.getP0());
         ucteNode.setReactiveLoad((float) danglingLine.getQ0());
-        double generatorTargetP = danglingLine.getGeneratorTargetP();
+        double generatorTargetP = danglingLine.getGeneration().getTargetP();
         ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : (float) -generatorTargetP);
-        double generatorTargetQ = danglingLine.getGeneratorTargetQ();
+        double generatorTargetQ = danglingLine.getGeneration().getTargetQ();
         ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : (float) -generatorTargetQ);
-        if (danglingLine.isGeneratorVoltageRegulationOn()) {
-            ucteNode.setVoltageReference((float) danglingLine.getGeneratorTargetV());
-            float minP = (float) danglingLine.getGeneratorMinP();
-            float maxP = (float) danglingLine.getGeneratorMaxP();
-            float minQ = (float) danglingLine.getReactiveLimits().getMinQ(danglingLine.getGeneratorTargetP());
-            float maxQ = (float) danglingLine.getReactiveLimits().getMaxQ(danglingLine.getGeneratorTargetP());
+        if (danglingLine.getGeneration().isVoltageRegulationOn()) {
+            ucteNode.setVoltageReference((float) danglingLine.getGeneration().getTargetV());
+            float minP = (float) danglingLine.getGeneration().getMinP();
+            float maxP = (float) danglingLine.getGeneration().getMaxP();
+            float minQ = (float) danglingLine.getReactiveLimits().getMinQ(danglingLine.getGeneration().getTargetP());
+            float maxQ = (float) danglingLine.getReactiveLimits().getMaxQ(danglingLine.getGeneration().getTargetP());
             if (minP != -DEFAULT_POWER_LIMIT) {
                 ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
             }

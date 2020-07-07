@@ -39,18 +39,6 @@ public interface DanglingLineAdder extends InjectionAdder<DanglingLineAdder> {
 
     DanglingLineAdder setB(double b);
 
-    DanglingLineAdder setGeneratorMaxP(double generatorMaxP);
-
-    DanglingLineAdder setGeneratorMinP(double generatorMinP);
-
-    DanglingLineAdder setGeneratorTargetP(double generatorTargetP);
-
-    DanglingLineAdder setGeneratorTargetQ(double generatorTargetQ);
-
-    DanglingLineAdder setGeneratorVoltageRegulationOn(boolean generatorVoltageRegulationOn);
-
-    DanglingLineAdder setGeneratorTargetV(double generatorTargetV);
-
     DanglingLineAdder setUcteXnodeCode(String ucteXnodeCode);
 
     DanglingLine add();

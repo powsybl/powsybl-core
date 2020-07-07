@@ -245,16 +245,19 @@ public class UcteImporter implements Importer {
                 .setB(getSusceptance(ucteLine))
                 .setP0(p0)
                 .setQ0(q0)
-                .setGeneratorTargetP(-targetP)
-                .setGeneratorTargetQ(-targetQ)
                 .setUcteXnodeCode(xnode.getCode().toString())
+                .add();
+        dl.newGeneration()
+                .setTargetP(-targetP)
+                .setTargetQ(-targetQ)
                 .add();
 
         if (xnode.isRegulatingVoltage()) {
-            dl.setGeneratorVoltageRegulationOn(true);
-            dl.setGeneratorTargetV(xnode.getVoltageReference());
-            dl.setGeneratorMinP(-xnode.getMinimumPermissibleActivePowerGeneration());
-            dl.setGeneratorMaxP(-xnode.getMaximumPermissibleActivePowerGeneration());
+            dl.getGeneration()
+                    .setTargetV(xnode.getVoltageReference())
+                    .setVoltageRegulationOn(true)
+                    .setMaxP(-xnode.getMaximumPermissibleActivePowerGeneration())
+                    .setMinP(-xnode.getMinimumPermissibleActivePowerGeneration());
             dl.newMinMaxReactiveLimits()
                     .setMinQ(-xnode.getMinimumPermissibleReactivePowerGeneration())
                     .setMaxQ(-xnode.getMaximumPermissibleReactivePowerGeneration())

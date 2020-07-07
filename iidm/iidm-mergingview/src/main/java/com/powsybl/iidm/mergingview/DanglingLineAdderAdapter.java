@@ -66,42 +66,6 @@ public class DanglingLineAdderAdapter extends AbstractInjectionAdderAdapter<Dang
     }
 
     @Override
-    public DanglingLineAdder setGeneratorMaxP(final double generatorMaxP) {
-        getDelegate().setGeneratorMaxP(generatorMaxP);
-        return this;
-    }
-
-    @Override
-    public DanglingLineAdder setGeneratorMinP(final double generatorMinP) {
-        getDelegate().setGeneratorMinP(generatorMinP);
-        return this;
-    }
-
-    @Override
-    public DanglingLineAdder setGeneratorTargetP(final double generatorTargetP) {
-        getDelegate().setGeneratorTargetP(generatorTargetP);
-        return this;
-    }
-
-    @Override
-    public DanglingLineAdder setGeneratorTargetQ(final double generatorTargetQ) {
-        getDelegate().setGeneratorTargetQ(generatorTargetQ);
-        return this;
-    }
-
-    @Override
-    public DanglingLineAdder setGeneratorVoltageRegulationOn(final boolean generatorVoltageRegulationOn) {
-        getDelegate().setGeneratorVoltageRegulationOn(generatorVoltageRegulationOn);
-        return this;
-    }
-
-    @Override
-    public DanglingLineAdder setGeneratorTargetV(final double generatorTargetV) {
-        getDelegate().setGeneratorTargetV(generatorTargetV);
-        return this;
-    }
-
-    @Override
     public DanglingLineAdder setUcteXnodeCode(final String ucteXnodeCode) {
         getDelegate().setUcteXnodeCode(ucteXnodeCode);
         return this;

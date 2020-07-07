@@ -302,13 +302,13 @@ public class CgmesConformity1ModifiedConversionTest {
 
         DanglingLine danglingLineRegulating = network.getDanglingLine("_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
         assertNotNull(danglingLineRegulating);
-        assertEquals(true, danglingLineRegulating.isGeneratorVoltageRegulationOn());
-        assertEquals(220.1234, danglingLineRegulating.getGeneratorTargetV(), 0.0001);
+        assertTrue(danglingLineRegulating.getGeneration().isVoltageRegulationOn());
+        assertEquals(220.1234, danglingLineRegulating.getGeneration().getTargetV(), 0.0);
 
         DanglingLine danglingLineNotRegulating = network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da");
         assertNotNull(danglingLineNotRegulating);
-        assertEquals(-27.365, danglingLineNotRegulating.getP0(), 0.001);
-        assertEquals(0.425, danglingLineNotRegulating.getQ0(), 0.001);
+        assertEquals(-27.365225, danglingLineNotRegulating.getP0(), 0.0);
+        assertEquals(0.425626, danglingLineNotRegulating.getQ0(), 0.0);
     }
 
     @Test
