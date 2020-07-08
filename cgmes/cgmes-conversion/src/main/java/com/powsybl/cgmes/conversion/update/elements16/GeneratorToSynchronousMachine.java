@@ -17,8 +17,6 @@ import com.powsybl.iidm.network.Identifiable;
 public class GeneratorToSynchronousMachine extends IidmToCgmes {
 
     public GeneratorToSynchronousMachine() {
-        ignore("p");
-        ignore("q");
         // Changes in energy source are ignored
         // In CGMES generating units with diferent energy source are separate types
         // This would be a major update
