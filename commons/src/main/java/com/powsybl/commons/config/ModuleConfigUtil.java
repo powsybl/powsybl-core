@@ -6,11 +6,10 @@
  */
 package com.powsybl.commons.config;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -32,16 +31,22 @@ public final class ModuleConfigUtil {
         return getOptionalProperty(moduleConfig, names, moduleConfig::getOptionalStringListProperty);
     }
 
+    public static OptionalDouble getOptionalDoubleProperty(ModuleConfig moduleConfig, List<String> names) {
+        return getOptionalProperty(moduleConfig, names, moduleConfig::getOptionalDoubleProperty, OptionalDouble::empty, OptionalDouble::isPresent);
+    }
+
     private static <T> Optional<T> getOptionalProperty(ModuleConfig moduleConfig, List<String> names, Function<String, Optional<T>> supplier) {
+        return getOptionalProperty(moduleConfig, names, supplier, Optional::empty, Optional::isPresent);
+    }
+
+    private static <T> T getOptionalProperty(ModuleConfig moduleConfig, List<String> names, Function<String, T> supplier, Supplier<T> factory, Predicate<T> isPresent) {
         Objects.requireNonNull(moduleConfig);
         Objects.requireNonNull(names);
-
-        Optional<T> res = Optional.empty();
+        T res = factory.get();
         Iterator<String> it = names.iterator();
-        while (!res.isPresent() && it.hasNext()) {
+        while (!isPresent.test(res) && it.hasNext()) {
             res = supplier.apply(it.next());
         }
-
         return res;
     }
 }
