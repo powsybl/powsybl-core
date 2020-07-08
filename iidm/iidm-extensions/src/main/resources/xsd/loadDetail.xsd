@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.itesla_project.eu/schema/iidm/ext/load_detail/1_0"
+           elementFormDefault="qualified">
+    <xs:element name="detail">
+        <xs:complexType>
+            <xs:attribute name="subLoad1ActivePower" type="xs:float"/>
+            <xs:attribute name="subLoad1ReactivePower" type="xs:float"/>
+            <xs:attribute name="subLoad2ActivePower" type="xs:float"/>
+            <xs:attribute name="subLoad2ReactivePower" type="xs:float"/>
+            <xs:attribute name="fixedActivePower" type="xs:float"/>
+            <xs:attribute name="fixedReactivePower" type="xs:float"/>
+            <xs:attribute name="variableActivePower" type="xs:float"/>
+            <xs:attribute name="variableReactivePower" type="xs:float"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

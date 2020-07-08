@@ -6,13 +6,11 @@
  */
 package com.powsybl.dynamicsimulation.json;
 
-import java.io.IOException;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
+import org.junit.Test;
+
+import java.io.IOException;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -40,11 +38,9 @@ public class DynamicSimulationResultJsonTest extends AbstractConverterTest {
 
     @Test
     public void handleErrorTest() throws IOException {
-        try {
-            DynamicSimulationResultDeserializer.read(getClass().getResourceAsStream("/DynamicSimulationResultError.json"));
-            Assert.fail();
-        } catch (AssertionError ignored) {
-        }
+        expected.expect(AssertionError.class);
+        expected.expectMessage("Unexpected field: metrics");
+        DynamicSimulationResultDeserializer.read(getClass().getResourceAsStream("/DynamicSimulationResultError.json"));
     }
 
 }
