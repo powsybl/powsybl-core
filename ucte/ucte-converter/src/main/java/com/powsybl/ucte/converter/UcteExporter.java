@@ -290,8 +290,8 @@ public class UcteExporter implements Exporter {
             ucteNode.setVoltageReference((float) danglingLine.getGeneration().getTargetV());
             float minP = (float) danglingLine.getGeneration().getMinP();
             float maxP = (float) danglingLine.getGeneration().getMaxP();
-            float minQ = (float) danglingLine.getReactiveLimits().getMinQ(danglingLine.getGeneration().getTargetP());
-            float maxQ = (float) danglingLine.getReactiveLimits().getMaxQ(danglingLine.getGeneration().getTargetP());
+            float minQ = (float) danglingLine.getGeneration().getReactiveLimits().getMinQ(danglingLine.getGeneration().getTargetP());
+            float maxQ = (float) danglingLine.getGeneration().getReactiveLimits().getMaxQ(danglingLine.getGeneration().getTargetP());
             if (minP != -DEFAULT_POWER_LIMIT) {
                 ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
             }

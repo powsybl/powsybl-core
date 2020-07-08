@@ -166,7 +166,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
                     .add();
         }
         if (equivalentInjectionConversion != null) {
-            equivalentInjectionConversion.convertReactiveLimits(dl);
+            equivalentInjectionConversion.convertReactiveLimits(dl.getGeneration());
         }
         context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
 

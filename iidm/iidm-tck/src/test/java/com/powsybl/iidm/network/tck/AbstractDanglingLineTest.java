@@ -253,19 +253,19 @@ public abstract class AbstractDanglingLineTest {
                 .setConnectableBus(BUS_VL_ID)
                 .add();
 
-        dl.newGeneration()
+        DanglingLine.Generation generation = dl.newGeneration()
                 .setTargetP(440)
                 .setMaxP(900)
                 .setMinP(0)
                 .setTargetV(400)
                 .setVoltageRegulationOn(true)
                 .add();
-        dl.newMinMaxReactiveLimits()
+        generation.newMinMaxReactiveLimits()
                 .setMaxQ(500)
                 .setMinQ(-500)
                 .add();
-        assertNotNull(dl.getReactiveLimits());
-        assertTrue(dl.getReactiveLimits() instanceof MinMaxReactiveLimits);
+        assertNotNull(generation.getReactiveLimits());
+        assertTrue(generation.getReactiveLimits() instanceof MinMaxReactiveLimits);
     }
 
     private void createDanglingLine(String id, String name, double r, double x, double g, double b,

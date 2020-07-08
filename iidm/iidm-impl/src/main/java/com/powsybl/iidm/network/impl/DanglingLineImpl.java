@@ -15,9 +15,11 @@ import gnu.trove.list.array.TDoubleArrayList;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine, CurrentLimitsOwner<Void>, ReactiveLimitsOwner {
+class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine, CurrentLimitsOwner<Void> {
 
-    class GenerationImpl implements Generation, MultiVariantObject {
+    class GenerationImpl implements Generation, ReactiveLimitsOwner, Validable {
+
+        private final ReactiveLimitsHolderImpl reactiveLimits;
 
         private double minP;
 
@@ -47,6 +49,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
                 this.voltageRegulationOn.add(voltageRegulationOn);
                 this.targetV.add(targetV);
             }
+            this.reactiveLimits = new ReactiveLimitsHolderImpl(DanglingLineImpl.this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
         }
 
         @Override
@@ -137,40 +140,33 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
 
         @Override
-        public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-            targetP.ensureCapacity(targetP.size() + number);
-            targetQ.ensureCapacity(targetQ.size() + number);
-            voltageRegulationOn.ensureCapacity(voltageRegulationOn.size() + number);
-            targetV.ensureCapacity(targetV.size() + number);
-            for (int i = 0; i < number; i++) {
-                targetP.add(targetP.get(sourceIndex));
-                targetQ.add(targetQ.get(sourceIndex));
-                voltageRegulationOn.add(voltageRegulationOn.get(sourceIndex));
-                targetV.add(targetV.get(sourceIndex));
-            }
+        public ReactiveCapabilityCurveAdderImpl newReactiveCapabilityCurve() {
+            return new ReactiveCapabilityCurveAdderImpl<>(this);
         }
 
         @Override
-        public void reduceVariantArraySize(int number) {
-            targetP.remove(targetP.size() - number, number);
-            targetQ.remove(targetQ.size() - number, number);
-            voltageRegulationOn.remove(voltageRegulationOn.size() - number, number);
-            targetV.remove(targetV.size() - number, number);
+        public MinMaxReactiveLimitsAdderImpl newMinMaxReactiveLimits() {
+            return new MinMaxReactiveLimitsAdderImpl<>(this);
         }
 
         @Override
-        public void deleteVariantArrayElement(int index) {
-            // nothing to do
+        public void setReactiveLimits(ReactiveLimits reactiveLimits) {
+            this.reactiveLimits.setReactiveLimits(reactiveLimits);
         }
 
         @Override
-        public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
-            for (int index : indexes) {
-                targetP.set(index, targetP.get(sourceIndex));
-                targetQ.set(index, targetQ.get(sourceIndex));
-                voltageRegulationOn.set(index, voltageRegulationOn.get(sourceIndex));
-                targetV.set(index, targetV.get(sourceIndex));
-            }
+        public ReactiveLimits getReactiveLimits() {
+            return reactiveLimits.getReactiveLimits();
+        }
+
+        @Override
+        public <R extends ReactiveLimits> R getReactiveLimits(Class<R> type) {
+            return reactiveLimits.getReactiveLimits(type);
+        }
+
+        @Override
+        public String getMessageHeader() {
+            return DanglingLineImpl.this.getMessageHeader();
         }
     }
 
@@ -243,8 +239,6 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private CurrentLimitsImpl limits;
 
-    private final ReactiveLimitsHolderImpl reactiveLimits;
-
     // attributes depending on the variant
 
     private final TDoubleArrayList p0;
@@ -267,8 +261,6 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.g = g;
         this.b = b;
         this.ucteXnodeCode = ucteXnodeCode;
-        this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
-
     }
 
     @Override
@@ -405,31 +397,6 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public ReactiveCapabilityCurveAdderImpl newReactiveCapabilityCurve() {
-        return new ReactiveCapabilityCurveAdderImpl<>(this);
-    }
-
-    @Override
-    public MinMaxReactiveLimitsAdderImpl newMinMaxReactiveLimits() {
-        return new MinMaxReactiveLimitsAdderImpl<>(this);
-    }
-
-    @Override
-    public void setReactiveLimits(ReactiveLimits reactiveLimits) {
-        this.reactiveLimits.setReactiveLimits(reactiveLimits);
-    }
-
-    @Override
-    public ReactiveLimits getReactiveLimits() {
-        return reactiveLimits.getReactiveLimits();
-    }
-
-    @Override
-    public <RL extends ReactiveLimits> RL getReactiveLimits(Class<RL> type) {
-        return reactiveLimits.getReactiveLimits(type);
-    }
-
-    @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         p0.ensureCapacity(p0.size() + number);
@@ -439,7 +406,16 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             q0.add(q0.get(sourceIndex));
         }
         if (generation != null) {
-            generation.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+            generation.targetP.ensureCapacity(generation.targetP.size() + number);
+            generation.targetQ.ensureCapacity(generation.targetQ.size() + number);
+            generation.voltageRegulationOn.ensureCapacity(generation.voltageRegulationOn.size() + number);
+            generation.targetV.ensureCapacity(generation.targetV.size() + number);
+            for (int i = 0; i < number; i++) {
+                generation.targetP.add(generation.targetP.get(sourceIndex));
+                generation.targetQ.add(generation.targetQ.get(sourceIndex));
+                generation.voltageRegulationOn.add(generation.voltageRegulationOn.get(sourceIndex));
+                generation.targetV.add(generation.targetV.get(sourceIndex));
+            }
         }
     }
 
@@ -449,16 +425,16 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         p0.remove(p0.size() - number, number);
         q0.remove(q0.size() - number, number);
         if (generation != null) {
-            generation.reduceVariantArraySize(number);
+            generation.targetP.remove(generation.targetP.size() - number, number);
+            generation.targetQ.remove(generation.targetQ.size() - number, number);
+            generation.voltageRegulationOn.remove(generation.voltageRegulationOn.size() - number, number);
+            generation.targetV.remove(generation.targetV.size() - number, number);
         }
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
         super.deleteVariantArrayElement(index);
-        if (generation != null) {
-            generation.deleteVariantArrayElement(index);
-        }
         // nothing to do
     }
 
@@ -470,8 +446,12 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             q0.set(index, q0.get(sourceIndex));
         }
         if (generation != null) {
-            generation.allocateVariantArrayElement(indexes, sourceIndex);
+            for (int index : indexes) {
+                generation.targetP.set(index, generation.targetP.get(sourceIndex));
+                generation.targetQ.set(index, generation.targetQ.get(sourceIndex));
+                generation.voltageRegulationOn.set(index, generation.voltageRegulationOn.get(sourceIndex));
+                generation.targetV.set(index, generation.targetV.get(sourceIndex));
+            }
         }
     }
-
 }

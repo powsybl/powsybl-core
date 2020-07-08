@@ -23,9 +23,9 @@ package com.powsybl.iidm.network;
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
  * @see DanglingLineAdder
  */
-public interface DanglingLine extends Injection<DanglingLine>, ReactiveLimitsHolder {
+public interface DanglingLine extends Injection<DanglingLine> {
 
-    interface Generation {
+    interface Generation extends ReactiveLimitsHolder {
         /**
          * <p>Get the generator active power target in MW.</p>
          * <p>The active power target follows a generator sign convention.</p>

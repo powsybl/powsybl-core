@@ -258,7 +258,7 @@ public class UcteImporter implements Importer {
                     .setVoltageRegulationOn(true)
                     .setMaxP(-xnode.getMaximumPermissibleActivePowerGeneration())
                     .setMinP(-xnode.getMinimumPermissibleActivePowerGeneration());
-            dl.newMinMaxReactiveLimits()
+            dl.getGeneration().newMinMaxReactiveLimits()
                     .setMinQ(-xnode.getMinimumPermissibleReactivePowerGeneration())
                     .setMaxQ(-xnode.getMaximumPermissibleReactivePowerGeneration())
                     .add();

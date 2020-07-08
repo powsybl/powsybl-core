@@ -110,24 +110,4 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     public CurrentLimitsAdder newCurrentLimits() {
         return getDelegate().newCurrentLimits();
     }
-
-    @Override
-    public ReactiveLimits getReactiveLimits() {
-        return getDelegate().getReactiveLimits();
-    }
-
-    @Override
-    public <L extends ReactiveLimits> L getReactiveLimits(Class<L> type) {
-        return getDelegate().getReactiveLimits(type);
-    }
-
-    @Override
-    public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        return getDelegate().newReactiveCapabilityCurve();
-    }
-
-    @Override
-    public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        return getDelegate().newMinMaxReactiveLimits();
-    }
 }
