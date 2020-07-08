@@ -26,7 +26,7 @@ public class DanglingLineDataTest {
         DanglingLine danglingLine = new DanglingLineTestData().getDanglingLine();
         DanglingLineData dlData = new DanglingLineData(danglingLine);
 
-        boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.63378691594147, -8.573433393194703);
+        boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.63382758266334, -8.573434828294932);
         assertTrue(ok);
     }
 
@@ -38,7 +38,7 @@ public class DanglingLineDataTest {
         DanglingLine danglingLine = dlTestData.getDanglingLine();
         DanglingLineData dlData = new DanglingLineData(danglingLine);
 
-        boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.62, -8.60);
+        boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.6200406620039, -8.60000143239463);
         assertTrue(ok);
     }
 

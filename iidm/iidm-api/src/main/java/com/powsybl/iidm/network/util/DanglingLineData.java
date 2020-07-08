@@ -37,10 +37,10 @@ public class DanglingLineData {
         id = danglingLine.getId();
         r = danglingLine.getR();
         x = danglingLine.getX();
-        g1 = danglingLine.getG();
-        b1 = danglingLine.getB();
-        g2 = 0.0;
-        b2 = 0.0;
+        g1 = danglingLine.getG() / 2.0;
+        b1 = danglingLine.getB() / 2.0;
+        g2 = danglingLine.getG() / 2.0;
+        b2 = danglingLine.getB() / 2.0;
         p0 = danglingLine.getP0();
         q0 = danglingLine.getQ0();
 
