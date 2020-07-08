@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -257,15 +258,36 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         }
     }
 
+    @Override
+    public void copyCachedIidmNodesForTopologicalNodes(Map<Pair<String, Integer>, String> iidmNodesTPNodes) {
+        this.cachedIiidmNodesForTopologicalNodes.clear();
+        this.cachedIiidmNodesForTopologicalNodes.putAll(Objects.requireNonNull(iidmNodesTPNodes));
+    }
+
+    @Override
+    public Map<Pair<String, Integer>, String> iidmNodesForTopologicalNodes() {
+        return cachedIiidmNodesForTopologicalNodes;
+    }
+
+    @Override
+    public void cacheIidmNode(String voltageLevelId, int iidmNode, String connectivityNode) {
+        // For now we assume the topology is not changed. The topology might change, if
+        // switches are opened in IIDM. Then we'd need to create new TNs.
+        String topologicalNode = cachedNodes.get(connectivityNode).getId(CgmesNames.TOPOLOGICAL_NODE);
+        // We're storing all possible IIDM node IDs for given TN.
+        cachedIiidmNodesForTopologicalNodes.computeIfAbsent(Pair.of(voltageLevelId, iidmNode), n -> topologicalNode);
+
+    }
+
     private final Properties properties;
     private String baseName;
-
     // Caches
     private Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private Map<String, CgmesTerminal> cachedTerminals;
     private Map<String, CgmesContainer> cachedContainers;
     private Map<String, Double> cachedBaseVoltages;
     private Map<String, PropertyBag> cachedNodes;
+    private final Map<Pair<String, Integer>, String> cachedIiidmNodesForTopologicalNodes = new HashMap<>();
     // equipmentId, sequenceNumber, terminalId
     private Table<String, Integer, String> conductingEquipmentTerminals;
     private Map<String, String> powerTransformerRatioTapChanger;

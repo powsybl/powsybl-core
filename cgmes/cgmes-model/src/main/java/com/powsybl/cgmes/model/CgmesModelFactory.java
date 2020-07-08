@@ -62,6 +62,7 @@ public final class CgmesModelFactory {
             TripleStore tripleStore = TripleStoreFactory.copy(cgmests.tripleStore());
             CgmesModel cgmesCopy = new CgmesModelTripleStore(cgmests.getCimNamespace(), tripleStore);
             cgmesCopy.setBasename(cgmes.getBasename());
+            cgmesCopy.copyCachedIidmNodesForTopologicalNodes(cgmes.iidmNodesForTopologicalNodes());
             buildCaches(cgmesCopy);
             return cgmesCopy;
         } else {

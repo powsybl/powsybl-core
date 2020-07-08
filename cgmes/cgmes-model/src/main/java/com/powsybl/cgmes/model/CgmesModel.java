@@ -11,6 +11,8 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
 
 import java.io.InputStream;
@@ -212,4 +214,19 @@ public interface CgmesModel {
     default PropertyBags modelProfiles() {
         throw new UnsupportedOperationException();
     }
+
+    // FIXME(Luma) The caching of IIDM nodes and TP nodes is polluting the CGMES model with IIDM information
+
+    default void cacheIidmNode(String voltageLevelId, int iidmNode, String connectivityNode) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void copyCachedIidmNodesForTopologicalNodes(Map<Pair<String, Integer>, String> cgmes2iidmNodeMapper) {
+        throw new UnsupportedOperationException();
+    }
+
+    default Map<Pair<String, Integer>, String> iidmNodesForTopologicalNodes() {
+        throw new UnsupportedOperationException();
+    }
+
 }

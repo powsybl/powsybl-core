@@ -35,6 +35,14 @@ public class Comparison {
         this.diff = config.differences;
     }
 
+    public void compareBuses() {
+        diff.current(expected);
+        compareBuses(
+            expected.getBusBreakerView().getBusStream(),
+            actual.getBusBreakerView().getBusStream(),
+            this::compareBuses);
+    }
+
     public void compare() {
         diff.current(expected);
         if (config.checkNetworkId) {
