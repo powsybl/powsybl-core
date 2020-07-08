@@ -48,8 +48,6 @@ public class UcteNodeCodeTest {
         UcteNodeCode node1 = new UcteNodeCode(UcteCountryCode.FR, "SUBST", UcteVoltageLevelCode.VL_380, '1');
         UcteNodeCode node2 = new UcteNodeCode(UcteCountryCode.FR, "SUBST", UcteVoltageLevelCode.VL_380, '1');
 
-        assertFalse(node1.equals(null));
-
         new EqualsTester()
                 .addEqualityGroup(node1, node2)
                 .testEquals();

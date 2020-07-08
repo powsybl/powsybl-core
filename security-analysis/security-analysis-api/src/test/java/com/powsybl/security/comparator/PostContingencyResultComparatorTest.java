@@ -6,7 +6,7 @@
  */
 package com.powsybl.security.comparator;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,9 +39,9 @@ public class PostContingencyResultComparatorTest {
         List<PostContingencyResult> results = Arrays.asList(result3, result1, result2);
         Collections.sort(results, new PostContingencyResultComparator());
 
-        assertTrue(results.get(0).equals(result1));
-        assertTrue(results.get(1).equals(result2));
-        assertTrue(results.get(2).equals(result3));
+        assertEquals(result1, results.get(0));
+        assertEquals(result2, results.get(1));
+        assertEquals(result3, results.get(2));
     }
 
 }

@@ -28,14 +28,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.XMLEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
@@ -118,7 +121,7 @@ public class XMLImporter implements Importer {
                     try {
                         while (xmlsr.hasNext()) {
                             int eventType = xmlsr.next();
-                            if (eventType == XMLEvent.START_ELEMENT) {
+                            if (eventType == XMLStreamConstants.START_ELEMENT) {
                                 String name = xmlsr.getLocalName();
                                 String ns = xmlsr.getNamespaceURI();
                                 return NetworkXml.NETWORK_ROOT_ELEMENT_NAME.equals(name)
