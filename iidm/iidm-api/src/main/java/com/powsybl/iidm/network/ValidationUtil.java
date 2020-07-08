@@ -228,22 +228,14 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkSectionNumber(Validable validable, int sectionNum) {
-        if (sectionNum < 0) {
-            throw new ValidationException(validable,
-                    "this number of section (" + sectionNum
-                            + ") should be greater than or equal to 0");
-        }
-    }
-
-    public static void checkbPerSection(Validable validable, double bPerSection) {
-        checkSectionB(validable, bPerSection);
+    public static void checkLinearBPerSection(Validable validable, double bPerSection) {
+        checkBPerSection(validable, bPerSection);
         if (bPerSection == 0) {
             throw new ValidationException(validable, "susceptance per section is equal to zero");
         }
     }
 
-    public static void checkSectionB(Validable validable, double sectionB) {
+    public static void checkBPerSection(Validable validable, double sectionB) {
         if (Double.isNaN(sectionB)) {
             throw new ValidationException(validable, "section susceptance is invalid");
         }

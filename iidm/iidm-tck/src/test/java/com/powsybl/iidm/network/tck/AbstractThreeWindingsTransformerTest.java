@@ -100,6 +100,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         RatioTapChanger ratioTapChangerInLeg1 = createRatioTapChanger(leg1,
             transformer.getTerminal(ThreeWindingsTransformer.Side.ONE));
 
+        assertTrue(leg1.getOptionalRatioTapChanger().isPresent());
         assertSame(ratioTapChangerInLeg1, leg1.getRatioTapChanger());
         CurrentLimits currentLimitsInLeg1 = leg1.newCurrentLimits()
             .setPermanentLimit(100)
@@ -114,6 +115,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         RatioTapChanger ratioTapChangerInLeg2 = createRatioTapChanger(leg2,
             transformer.getTerminal(ThreeWindingsTransformer.Side.TWO));
 
+        assertTrue(leg2.hasRatioTapChanger());
         assertSame(ratioTapChangerInLeg2, leg2.getRatioTapChanger());
         CurrentLimits currentLimitsInLeg2 = leg2.newCurrentLimits()
             .setPermanentLimit(100)
@@ -128,6 +130,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         RatioTapChanger ratioTapChangerInLeg3 = createRatioTapChanger(leg3,
             transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
 
+        assertTrue(leg3.getOptionalRatioTapChanger().isPresent());
         assertSame(ratioTapChangerInLeg3, leg3.getRatioTapChanger());
         CurrentLimits currentLimitsInLeg3 = leg3.newCurrentLimits()
             .setPermanentLimit(100)
@@ -141,14 +144,17 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
         PhaseTapChanger phaseTapChangerInLeg1 = createPhaseTapChanger(leg1,
             transformer.getTerminal(ThreeWindingsTransformer.Side.ONE));
+        assertTrue(leg1.getOptionalPhaseTapChanger().isPresent());
         assertSame(phaseTapChangerInLeg1, leg1.getPhaseTapChanger());
 
         PhaseTapChanger phaseTapChangerInLeg2 = createPhaseTapChanger(leg2,
             transformer.getTerminal(ThreeWindingsTransformer.Side.TWO));
+        assertTrue(leg2.hasPhaseTapChanger());
         assertSame(phaseTapChangerInLeg2, leg2.getPhaseTapChanger());
 
         PhaseTapChanger phaseTapChangerInLeg3 = createPhaseTapChanger(leg3,
             transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
+        assertTrue(leg3.getOptionalPhaseTapChanger().isPresent());
         assertSame(phaseTapChangerInLeg3, leg3.getPhaseTapChanger());
 
         int count = network.getThreeWindingsTransformerCount();

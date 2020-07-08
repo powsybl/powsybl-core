@@ -22,18 +22,15 @@ class ShuntCompensatorExtension {
     static double getMaximumB(ShuntCompensator self) {
         if (ShuntCompensatorModelType.LINEAR == self.getModelType()) {
             // forward bPerSection * maximumSectionCount for linear shunts
-            return self.getModel(ShuntCompensatorLinearModel.class).getbPerSection() * self.getModel().getMaximumSectionCount()
-        } else if (ShuntCompensatorModelType.NON_LINEAR == self.getModelType()) {
-            // forward to non linear model getter for non linear shunts
-            return self.getModel(ShuntCompensatorNonLinearModel.class).getMaximumB()
+            return self.getModel(ShuntCompensatorLinearModel.class).getBPerSection() * self.getModel().getMaximumSectionCount()
         }
-        throw new PowsyblException(String.format("Unexpected shunt model type: %s", self.getModelType().toString()))
+        throw new PowsyblException("shunt model is not linear")
     }
 
     static double getbPerSection(ShuntCompensator self) {
         if (ShuntCompensatorModelType.LINEAR == self.getModelType()) {
             // forward bPerSection of linear model
-            return self.getModel(ShuntCompensatorLinearModel.class).getbPerSection()
+            return self.getModel(ShuntCompensatorLinearModel.class).getBPerSection()
         }
         throw new PowsyblException("shunt model is not linear")
     }
@@ -41,7 +38,7 @@ class ShuntCompensatorExtension {
     static void setbPerSection(ShuntCompensator self, double bPerSection) {
         if (ShuntCompensatorModelType.LINEAR == self.getModelType()) {
             // forward to linear model setter for bPerSection
-            self.getModel(ShuntCompensatorLinearModel.class).setbPerSection(bPerSection)
+            self.getModel(ShuntCompensatorLinearModel.class).setBPerSection(bPerSection)
         } else {
             throw new PowsyblException("shunt model is not linear")
         }
@@ -59,5 +56,17 @@ class ShuntCompensatorExtension {
         } else {
             throw new PowsyblException("shunt model is not linear")
         }
+    }
+
+    static int getCurrentSectionCount(ShuntCompensator self) {
+        self.getSectionCount()
+    }
+
+    static void setCurrentSectionCount(ShuntCompensator self, int currentSectionCount) {
+        self.setSectionCount(currentSectionCount)
+    }
+
+    static double getCurrentB(ShuntCompensator self) {
+        self.getB()
     }
 }

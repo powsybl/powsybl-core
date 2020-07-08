@@ -54,16 +54,16 @@ public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
                 getVersionedNetworkPath("nonLinearShuntRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility from version 1.2
-        roundTripVersionedXmlFromMinToCurrentVersionTest("nonLinearShuntRoundTripRef.xml", IidmXmlVersion.V_1_2);
+        roundTripVersionedXmlFromMinToCurrentVersionTest("nonLinearShuntRoundTripRef.xml", IidmXmlVersion.V_1_3);
 
         // check that it fails for versions previous to 1.2
-        testForAllPreviousVersions(IidmXmlVersion.V_1_2, version -> {
+        testForAllPreviousVersions(IidmXmlVersion.V_1_3, version -> {
             try {
                 ExportOptions options = new ExportOptions().setVersion(version.toString("."));
                 NetworkXml.write(network, options, tmpDir.resolve("fail"));
                 fail();
             } catch (PowsyblException e) {
-                assertEquals("Non linear shunts are not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.2",
+                assertEquals("shunt.shuntNonLinearModel is not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.3",
                         e.getMessage());
             }
         });

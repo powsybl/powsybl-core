@@ -512,6 +512,11 @@ class MergedLine implements Line {
     }
 
     @Override
+    public String getImplementationName() {
+        return "MergingView";
+    }
+
+    @Override
     public <E extends Extension<Line>, B extends ExtensionAdder<Line, E>> B newExtension(Class<B> type) {
         throw MergingView.createNotImplementedException();
     }

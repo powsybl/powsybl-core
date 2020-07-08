@@ -74,6 +74,15 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         }
     }
 
+    @Override
+    public void write(DataSource ds, CgmesSubset subset) {
+        try {
+            tripleStore.write(ds, contextNameFor(subset));
+        } catch (TripleStoreException e) {
+            throw new CgmesModelException(String.format("Writing. Triple store problem %s", ds), e);
+        }
+    }
+
     // Queries
 
     @Override
@@ -614,26 +623,12 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     private String contextNameFor(CgmesSubset subset) {
-        String contextNameEQ = contextNameForEquipmentSubset();
-        return contextNameEQ != null
-                ? buildContextNameForSubsetFrom(contextNameEQ, subset)
-                : modelId() + "_" + subset + ".xml";
-    }
-
-    private String contextNameForEquipmentSubset() {
-        String eq = CgmesSubset.EQUIPMENT.getIdentifier();
-        String eqBD = CgmesSubset.EQUIPMENT_BOUNDARY.getIdentifier();
-        for (String contextName : tripleStore.contextNames()) {
-            if (contextName.contains(eq) && !contextName.contains(eqBD)) {
-                return contextName;
+        for (String context : tripleStore.contextNames()) {
+            if (subset.isValidName(context)) {
+                return context;
             }
         }
-        return null;
-    }
-
-    private String buildContextNameForSubsetFrom(String contextNameEQ, CgmesSubset subset) {
-        String eq = CgmesSubset.EQUIPMENT.getIdentifier();
-        return contextNameEQ.replace(eq, subset.getIdentifier());
+        return modelId() + "_" + subset + ".xml";
     }
 
     private QueryCatalog queryCatalogFor(int cimVersion) {

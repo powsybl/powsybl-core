@@ -25,14 +25,14 @@ public class ShuntCompensatorLinearModelAdderAdapter implements ShuntCompensator
     }
 
     @Override
-    public ShuntCompensatorLinearModelAdder setbPerSection(double bPerSection) {
-        delegate.setbPerSection(bPerSection);
+    public ShuntCompensatorLinearModelAdder setBPerSection(double bPerSection) {
+        delegate.setBPerSection(bPerSection);
         return this;
     }
 
     @Override
-    public ShuntCompensatorLinearModelAdder setgPerSection(double gPerSection) {
-        delegate.setgPerSection(gPerSection);
+    public ShuntCompensatorLinearModelAdder setGPerSection(double gPerSection) {
+        delegate.setGPerSection(gPerSection);
         return this;
     }
 

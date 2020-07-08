@@ -112,6 +112,11 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     }
 
     @Override
+    public String getImplementationName() {
+        return "MergingView";
+    }
+
+    @Override
     public <E extends Extension<I>, B extends ExtensionAdder<I, E>> B newExtension(Class<B> type) {
         return getDelegate().newExtension(type);
     }

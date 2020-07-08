@@ -13,7 +13,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>3.3.0-SNAPSHOT</version>
+        <version>3.5.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -23,5 +23,7 @@
 
     <modules>
         <module>dynamic-simulation-api</module>
+        <module>dynamic-simulation-dsl</module>
+        <module>dynamic-simulation-tool</module>
     </modules>
 </project>

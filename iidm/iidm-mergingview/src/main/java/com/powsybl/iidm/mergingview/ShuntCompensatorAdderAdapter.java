@@ -47,8 +47,8 @@ public class ShuntCompensatorAdderAdapter extends AbstractInjectionAdderAdapter<
     // Simple delegated methods ------
     // -------------------------------
     @Override
-    public ShuntCompensatorAdder setCurrentSectionCount(final int currentSectionCount) {
-        getDelegate().setCurrentSectionCount(currentSectionCount);
+    public ShuntCompensatorAdder setSectionCount(final int sectionCount) {
+        getDelegate().setSectionCount(sectionCount);
         return this;
     }
 

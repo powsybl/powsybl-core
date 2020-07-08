@@ -712,7 +712,7 @@ public class AmplNetworkWriter {
             double g2;
             double b1;
             double b2;
-            if (config.isT2wtSplitShuntAdmittance()) {
+            if (config.isTwtSplitShuntAdmittance()) {
                 g1 = twt.getG() * zb2 / 2;
                 g2 = g1;
                 b1 = twt.getB() * zb2 / 2;
@@ -1311,7 +1311,7 @@ public class AmplNetworkWriter {
                      new Column("sections count"))) {
             List<String> skipped = new ArrayList<>();
             for (ShuntCompensator sc : network.getShuntCompensators()) {
-                if (ShuntCompensatorModelType.NON_LINEAR.equals(sc.getModelType())) {
+                if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
                     throw new PowsyblException("Non linear shunt compensator not yet supported");
                 }
                 Terminal t = sc.getTerminal();
@@ -1340,10 +1340,10 @@ public class AmplNetworkWriter {
                 double vb = t.getVoltageLevel().getNominalV();
                 double zb = vb * vb / AmplConstants.SB;
                 double b1 = 0;
-                double b2 = sc.getModel(ShuntCompensatorLinearModel.class).getbPerSection() * sc.getMaximumSectionCount() * zb;
+                double b2 = sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection() * sc.getMaximumSectionCount() * zb;
                 double minB = Math.min(b1, b2);
                 double maxB = Math.max(b1, b2);
-                double b = sc.getCurrentB() * zb;
+                double b = sc.getB() * zb;
                 int points = sc.getMaximumSectionCount() < 1 ? 0 : sc.getMaximumSectionCount() - 1;
                 formatter.writeCell(variantIndex)
                         .writeCell(num)
@@ -1360,7 +1360,7 @@ public class AmplNetworkWriter {
                         .writeCell(sc.getNameOrId())
                         .writeCell(t.getP())
                         .writeCell(t.getQ())
-                        .writeCell(sc.getCurrentSectionCount());
+                        .writeCell(sc.getSectionCount());
                 addExtensions(num, sc);
             }
             if (!skipped.isEmpty()) {

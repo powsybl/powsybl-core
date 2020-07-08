@@ -53,7 +53,6 @@ public class Context {
         boundary = new Boundary(cgmes);
         substationIdMapping = new SubstationIdMapping(this);
         terminalMapping = new TerminalMapping();
-        tapChangerTransformers = new TapChangerTransformers();
         dcMapping = new DcMapping(this);
         currentLimitsMapping = new CurrentLimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
@@ -106,10 +105,6 @@ public class Context {
 
     public NodeMapping nodeMapping() {
         return nodeMapping;
-    }
-
-    public TapChangerTransformers tapChangerTransformers() {
-        return tapChangerTransformers;
     }
 
     public SubstationIdMapping substationIdMapping() {
@@ -299,7 +294,6 @@ public class Context {
     private final Boundary boundary;
     private final TerminalMapping terminalMapping;
     private final NodeMapping nodeMapping;
-    private final TapChangerTransformers tapChangerTransformers;
     private final DcMapping dcMapping;
     private final CurrentLimitsMapping currentLimitsMapping;
     private final RegulatingControlMapping regulatingControlMapping;

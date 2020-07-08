@@ -27,7 +27,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     // attributes depending on the variant
 
     /* the current number of section switched on */
-    private final TIntArrayList currentSectionCount;
+    private final TIntArrayList sectionCount;
 
     /* the regulating status */
     private final TBooleanArrayList voltageRegulatorOn;
@@ -40,19 +40,19 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     ShuntCompensatorImpl(Ref<? extends VariantManagerHolder> network,
                          String id, String name, boolean fictitious, ShuntCompensatorModelWrapper model,
-                         int currentSectionCount, TerminalExt regulatingTerminal, boolean voltageRegulatorOn,
+                         int sectionCount, TerminalExt regulatingTerminal, boolean voltageRegulatorOn,
                          double targetV, double targetDeadband) {
         super(id, name, fictitious);
         this.network = network;
         this.model = attach(model);
         this.regulatingTerminal = regulatingTerminal;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        this.currentSectionCount = new TIntArrayList(variantArraySize);
+        this.sectionCount = new TIntArrayList(variantArraySize);
         this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
         this.targetDeadband = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
-            this.currentSectionCount.add(currentSectionCount);
+            this.sectionCount.add(sectionCount);
             this.voltageRegulatorOn.add(voltageRegulatorOn);
             this.targetV.add(targetV);
             this.targetDeadband.add(targetDeadband);
@@ -75,8 +75,8 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public int getCurrentSectionCount() {
-        return currentSectionCount.get(network.get().getVariantIndex());
+    public int getSectionCount() {
+        return sectionCount.get(network.get().getVariantIndex());
     }
 
     @Override
@@ -85,26 +85,36 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public ShuntCompensatorImpl setCurrentSectionCount(int currentSectionCount) {
-        ValidationUtil.checkSections(this, currentSectionCount, model.getMaximumSectionCount());
-        if (!model.containsSection(currentSectionCount)) {
-            throw new ValidationException(this, "unexpected section number (" + currentSectionCount + "): no existing associated section");
+    public ShuntCompensatorImpl setSectionCount(int sectionCount) {
+        ValidationUtil.checkSections(this, sectionCount, model.getMaximumSectionCount());
+        if (sectionCount < 0 || sectionCount > model.getMaximumSectionCount()) {
+            throw new ValidationException(this, "unexpected section number (" + sectionCount + "): no existing associated section");
         }
         int variantIndex = network.get().getVariantIndex();
-        int oldValue = this.currentSectionCount.set(variantIndex, currentSectionCount);
+        int oldValue = this.sectionCount.set(variantIndex, sectionCount);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("currentSectionCount", variantId, oldValue, currentSectionCount);
+        notifyUpdate("sectionCount", variantId, oldValue, sectionCount);
         return this;
     }
 
     @Override
-    public double getCurrentB() {
-        return model.getB(currentSectionCount.get(network.get().getVariantIndex()));
+    public double getB() {
+        return model.getB(sectionCount.get(network.get().getVariantIndex()));
     }
 
     @Override
-    public double getCurrentG() {
-        return model.getG(currentSectionCount.get(network.get().getVariantIndex()));
+    public double getG() {
+        return model.getG(sectionCount.get(network.get().getVariantIndex()));
+    }
+
+    @Override
+    public double getB(int sectionCount) {
+        return model.getB(sectionCount);
+    }
+
+    @Override
+    public double getG(int sectionCount) {
+        return model.getG(sectionCount);
     }
 
     @Override
@@ -192,12 +202,12 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        currentSectionCount.ensureCapacity(currentSectionCount.size() + number);
+        sectionCount.ensureCapacity(sectionCount.size() + number);
         voltageRegulatorOn.ensureCapacity(voltageRegulatorOn.size() + number);
         targetV.ensureCapacity(targetV.size() + number);
         targetDeadband.ensureCapacity(targetDeadband.size() + number);
         for (int i = 0; i < number; i++) {
-            currentSectionCount.add(currentSectionCount.get(sourceIndex));
+            sectionCount.add(sectionCount.get(sourceIndex));
             voltageRegulatorOn.add(voltageRegulatorOn.get(sourceIndex));
             targetV.add(targetV.get(sourceIndex));
             targetDeadband.add(targetDeadband.get(sourceIndex));
@@ -207,7 +217,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        currentSectionCount.remove(currentSectionCount.size() - number, number);
+        sectionCount.remove(sectionCount.size() - number, number);
         voltageRegulatorOn.remove(voltageRegulatorOn.size() - number, number);
         targetV.remove(targetV.size() - number, number);
         targetDeadband.remove(targetDeadband.size() - number, number);
@@ -223,7 +233,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            currentSectionCount.set(index, currentSectionCount.get(sourceIndex));
+            sectionCount.set(index, sectionCount.get(sourceIndex));
             voltageRegulatorOn.set(index, voltageRegulatorOn.get(sourceIndex));
             targetV.set(index, targetV.get(sourceIndex));
             targetDeadband.set(index, targetDeadband.get(sourceIndex));

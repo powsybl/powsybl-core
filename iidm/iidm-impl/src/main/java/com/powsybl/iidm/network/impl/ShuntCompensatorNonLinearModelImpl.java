@@ -9,10 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -21,11 +18,16 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
 
     static class SectionImpl implements Section {
 
-        private final double b;
+        private ShuntCompensatorImpl shuntCompensator = null;
 
-        private final double g;
+        private final int index;
 
-        SectionImpl(double b, double g) {
+        private double b;
+
+        private double g;
+
+        SectionImpl(int index, double b, double g) {
+            this.index = index;
             this.b = b;
             this.g = g;
         }
@@ -36,68 +38,49 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
         }
 
         @Override
+        public Section setB(double b) {
+            ValidationUtil.checkB(shuntCompensator, b);
+            double oldValue = this.b;
+            this.b = b;
+            shuntCompensator.notifyUpdate(notifyUpdateSection(index, "b"), oldValue, this.b);
+            return this;
+        }
+
+        @Override
         public double getG() {
             return g;
         }
+
+        @Override
+        public Section setG(double g) {
+            ValidationUtil.checkG(shuntCompensator, g);
+            double oldValue = this.g;
+            this.g = g;
+            shuntCompensator.notifyUpdate(notifyUpdateSection(index, "g"), oldValue, this.g);
+            return this;
+        }
+
+        private static String notifyUpdateSection(int sectionNum, String attribute) {
+            return "section" + sectionNum + "." + attribute;
+        }
+
+        void setShuntCompensator(ShuntCompensatorImpl shuntCompensator) {
+            if (this.shuntCompensator != null) {
+                throw new PowsyblException("Shunt compensator " + shuntCompensator.getId() + " has been set twice for the section " + index);
+            }
+            this.shuntCompensator = shuntCompensator;
+        }
     }
 
-    private final TreeMap<Integer, SectionImpl> sections;
+    private final List<SectionImpl> sections;
 
-    ShuntCompensatorNonLinearModelImpl(TreeMap<Integer, SectionImpl> sections) {
+    ShuntCompensatorNonLinearModelImpl(List<SectionImpl> sections) {
         this.sections = sections;
     }
 
     @Override
-    public double getMaximumB() {
-        return sections.values().stream()
-                .map(SectionImpl::getB)
-                .max(Double::compare)
-                .orElseThrow(() -> new PowsyblException("a shunt compensator must have at least one section"));
-    }
-
-    @Override
-    public double getMaximumG() {
-        return sections.values().stream()
-                .map(SectionImpl::getG)
-                .filter(g -> !Double.isNaN(g))
-                .max(Double::compare)
-                .orElse(Double.NaN);
-    }
-
-    @Override
-    public Optional<Section> getSection(int sectionNum) {
-        ValidationUtil.checkSectionNumber(shuntCompensator, sectionNum);
-        return Optional.ofNullable(sections.get(sectionNum));
-    }
-
-    @Override
-    public Map<Integer, Section> getSections() {
-        return Collections.unmodifiableMap(sections);
-    }
-
-    @Override
-    public ShuntCompensatorNonLinearModel addOrReplaceSection(int sectionNum, double b, double g) {
-        ValidationUtil.checkSectionNumber(shuntCompensator, sectionNum);
-        ValidationUtil.checkSectionB(shuntCompensator, b);
-        SectionImpl oldValue = sections.put(sectionNum, new SectionImpl(b, g));
-        shuntCompensator.notifyUpdate(notifyUpdateSection(sectionNum, "b"), Optional.ofNullable(oldValue).map(SectionImpl::getB).orElse(Double.NaN), b);
-        shuntCompensator.notifyUpdate(notifyUpdateSection(sectionNum, "g"), Optional.ofNullable(oldValue).map(SectionImpl::getG).orElse(Double.NaN), g);
-        return this;
-    }
-
-    @Override
-    public ShuntCompensatorNonLinearModel removeSection(int sectionNum) {
-        ValidationUtil.checkSectionNumber(shuntCompensator, sectionNum);
-        if (shuntCompensator.getCurrentSectionCount() == sectionNum) {
-            throw new ValidationException(shuntCompensator, "the number of section to remove (" + sectionNum + ") is the current section count");
-        }
-        if (!sections.containsKey(sectionNum)) {
-            throw new ValidationException(shuntCompensator, invalidSectionNumberMessage(sectionNum, "susceptance nor conductance"));
-        }
-        SectionImpl oldValue = sections.remove(sectionNum);
-        shuntCompensator.notifyUpdate(notifyUpdateSection(sectionNum, "b"), oldValue.getB(), Double.NaN);
-        shuntCompensator.notifyUpdate(notifyUpdateSection(sectionNum, "g"), oldValue.getG(), Double.NaN);
-        return null;
+    public List<Section> getAllSections() {
+        return Collections.unmodifiableList(sections);
     }
 
     @Override
@@ -106,34 +89,29 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
     }
 
     @Override
-    public boolean containsSection(int sectionNumber) {
-        return sections.containsKey(sectionNumber);
-    }
-
-    @Override
     public int getMaximumSectionCount() {
-        return sections.lastKey();
+        return sections.size();
     }
 
     @Override
-    public double getB(int sectionNum) {
-        return Optional.ofNullable(sections.get(sectionNum))
-                .map(SectionImpl::getB)
-                .orElseThrow(() -> new PowsyblException(invalidSectionNumberMessage(sectionNum, "susceptance")));
+    public double getB(int sectionCount) {
+        if (sectionCount < 0 || sectionCount > sections.size()) {
+            throw new ValidationException(shuntCompensator, "invalid section count (must be in [0;maximumSectionCount]");
+        }
+        return sectionCount == 0 ? 0 : sections.get(sectionCount - 1).getB();
     }
 
     @Override
-    public double getG(int sectionNum) {
-        return Optional.ofNullable(sections.get(sectionNum))
-                .map(SectionImpl::getG)
-                .orElseThrow(() -> new PowsyblException(invalidSectionNumberMessage(sectionNum, "conductance")));
+    public double getG(int sectionCount) {
+        if (sectionCount < 0 || sectionCount > sections.size()) {
+            throw new ValidationException(shuntCompensator, "invalid section count (must be in [0;maximumSectionCount]");
+        }
+        return sectionCount == 0 ? 0 : sections.get(sectionCount - 1).getG();
     }
 
-    private static String invalidSectionNumberMessage(int sectionNum, String attributes) {
-        return "the given number of section (" + sectionNum + ") is not associated with any " + attributes;
-    }
-
-    private static String notifyUpdateSection(int sectionNum, String attribute) {
-        return "section" + sectionNum + "." + attribute;
+    @Override
+    public void setShuntCompensator(ShuntCompensatorImpl shuntCompensator) {
+        super.setShuntCompensator(shuntCompensator);
+        sections.forEach(section -> section.setShuntCompensator(shuntCompensator));
     }
 }

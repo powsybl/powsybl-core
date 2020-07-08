@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-cgmes</artifactId>
-        <version>3.3.0-SNAPSHOT</version>
+        <version>3.5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-cgmes-conversion</artifactId>
@@ -98,7 +98,7 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

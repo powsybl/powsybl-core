@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import com.powsybl.iidm.network.ValidationUtil;
@@ -28,13 +29,13 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     }
 
     @Override
-    public double getbPerSection() {
+    public double getBPerSection() {
         return bPerSection;
     }
 
     @Override
-    public ShuntCompensatorLinearModel setbPerSection(double bPerSection) {
-        ValidationUtil.checkbPerSection(shuntCompensator, bPerSection);
+    public ShuntCompensatorLinearModel setBPerSection(double bPerSection) {
+        ValidationUtil.checkLinearBPerSection(shuntCompensator, bPerSection);
         double oldValue = this.bPerSection;
         this.bPerSection = bPerSection;
         shuntCompensator.notifyUpdate("bPerSection", oldValue, bPerSection);
@@ -42,12 +43,12 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     }
 
     @Override
-    public double getgPerSection() {
+    public double getGPerSection() {
         return gPerSection;
     }
 
     @Override
-    public ShuntCompensatorLinearModel setgPerSection(double gPerSection) {
+    public ShuntCompensatorLinearModel setGPerSection(double gPerSection) {
         double oldValue = this.gPerSection;
         this.gPerSection = gPerSection;
         shuntCompensator.notifyUpdate("gPerSection", oldValue, gPerSection);
@@ -60,8 +61,24 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     }
 
     @Override
+    public double getB(int sectionCount) {
+        if (sectionCount < 0 || sectionCount > maximumSectionCount) {
+            throw new PowsyblException("the given count of sections in service (" + sectionCount + ") is invalid (negative or strictly greater than the maximum sections count");
+        }
+        return bPerSection * sectionCount;
+    }
+
+    @Override
+    public double getG(int sectionCount) {
+        if (sectionCount < 0 || sectionCount > maximumSectionCount) {
+            throw new PowsyblException("the given count of sections in service (" + sectionCount + ") is invalid (negative or strictly greater than the maximum sections count");
+        }
+        return Double.isNaN(gPerSection) ? 0 : gPerSection * sectionCount;
+    }
+
+    @Override
     public ShuntCompensatorLinearModel setMaximumSectionCount(int maximumSectionCount) {
-        ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getCurrentSectionCount(), maximumSectionCount);
+        ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getSectionCount(), maximumSectionCount);
         int oldValue = this.maximumSectionCount;
         this.maximumSectionCount = maximumSectionCount;
         shuntCompensator.notifyUpdate("maximumSectionCount", oldValue, maximumSectionCount);
@@ -71,20 +88,5 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
     @Override
     public ShuntCompensatorModelType getType() {
         return ShuntCompensatorModelType.LINEAR;
-    }
-
-    @Override
-    public boolean containsSection(int sectionNumber) {
-        return sectionNumber >= 0 && sectionNumber <= maximumSectionCount;
-    }
-
-    @Override
-    public double getB(int sectionNum) {
-        return bPerSection * sectionNum;
-    }
-
-    @Override
-    public double getG(int sectionNum) {
-        return gPerSection * sectionNum;
     }
 }

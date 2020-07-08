@@ -17,7 +17,8 @@ package com.powsybl.iidm.network;
 public interface ShuntCompensator extends Injection<ShuntCompensator> {
 
     /**
-     * Get the current section count.
+     * Get the count of sections in service.
+     * Please note sections can only be sequentially in service i.e. the first sectionCount sections are in service.
      * <p>
      * It is expected to be greater than one and lesser than or equal to the
      * maximum section count.
@@ -25,40 +26,62 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * Depends on the working variant.
      * @see VariantManager
      */
-    int getCurrentSectionCount();
+    int getSectionCount();
 
     /**
-     * Get the maximum number of sections.
+     * Get the maximum number of sections that can be in service
      */
     int getMaximumSectionCount();
 
     /**
-     * Change the number of section.
-     *
+     * Change the count of sections in service.
+     * Please note sections can only be sequentially in service i.e. the first sectionCount sections are in service.
      * <p>
      * Depends on the working variant.
      *
      * @see VariantManager
-     * @param currentSectionCount the number of section
+     * @param sectionCount the number of sections wanted to be put in service
      * @return the shunt compensator to chain method calls.
      */
-    ShuntCompensator setCurrentSectionCount(int currentSectionCount);
+    ShuntCompensator setSectionCount(int sectionCount);
 
     /**
-     * Get the susceptance for the current section count.
+     * Get the susceptance (in S) of the shunt in its current state i.e. the sum of the sections' susceptances for all sections in service.
+     * Return 0 if no section is in service (disconnected state).
+     * @see #getSectionCount()
      * <p>
      * Depends on the working variant.
      * @see VariantManager
      */
-    double getCurrentB();
+    double getB();
 
     /**
-     * Get the conductance for the current section count.
+     * Get the conductance (in S) of the shunt in its current state i.e. the sum of the sections' conductances for all sections in service.
+     * If the conductance of a section in service is undefined, it is considered equal to 0.
+     * Return 0 if no section is in service (disconnected state).
+     * @see #getSectionCount()
      * <p>
      * Depends on the working variant.
      * @see VariantManager
      */
-    double getCurrentG();
+    double getG();
+
+    /**
+     * Get the susceptance (in S) for a given activated sections count i.e. the sum of the sections' susceptances from 1 to sectionCount.
+     * Return O if sectionCount is equal to 0 (disconnected state).
+     *
+     * @param sectionCount count of wanted activated sections. Must be in [0; maximumSectionCount]. Else, throws a {@link ValidationException}.
+     */
+    double getB(int sectionCount);
+
+    /**
+     * Get the conductance (in S) for a given activated sections count i.e. the sum of the sections' conductances from 1 to sectionCount.
+     * If the conductance of a section is undefined, it is considered equal to 0.
+     * Return 0 if sectionCount is equal to 0 (disconnected state).
+     *
+     * @param sectionCount count of wanted activated sections. Must be in [0; maximumSectionCount]. Else, throws a {@link ValidationException}.
+     */
+    double getG(int sectionCount);
 
     /**
      * Get the model type of the shunt compensator (linear or non-linear)

@@ -13,12 +13,35 @@
     <parent>
         <artifactId>powsybl-psse</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>3.3.0-SNAPSHOT</version>
+        <version>3.5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-psse-model</artifactId>
     <name>PSS/E model</name>
     <description>PSS/E raw format data model</description>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>com.powsybl.psse.model</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <!-- Compile dependencies -->

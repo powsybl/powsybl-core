@@ -27,6 +27,7 @@ public final class CgmesNames {
     public static final String SUBSTATION = "Substation";
     public static final String VOLTAGE_LEVEL = "VoltageLevel";
     public static final String TERMINAL = "Terminal";
+    public static final String SEQUENCE_NUMBER = "sequenceNumber";
     public static final String AC_LINE_SEGMENT = "ACLineSegment";
     public static final String SERIES_COMPENSATOR = "SeriesCompensator";
     public static final String TOPOLOGICAL_NODE = "TopologicalNode";
@@ -90,6 +91,7 @@ public final class CgmesNames {
     public static final String X_MAX = "xMax";
     public static final String VOLTAGE_STEP_INCREMENT = "voltageStepIncrement";
     public static final String WINDING_CONNECTION_ANGLE = "windingConnectionAngle";
+    public static final String LINEAR = "linear";
     public static final String SYMMETRICAL = "symmetrical";
     public static final String ASYMMETRICAL = "asymmetrical";
     public static final String TABULAR = "tabular";

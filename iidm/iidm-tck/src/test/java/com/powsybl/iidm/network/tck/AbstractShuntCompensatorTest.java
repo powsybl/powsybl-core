@@ -61,16 +61,22 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(ConnectableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
         assertEquals("shuntName", shuntCompensator.getOptionalName().orElse(null));
         assertEquals(SHUNT, shuntCompensator.getId());
-        assertEquals(6, shuntCompensator.getCurrentSectionCount());
+        assertEquals(6, shuntCompensator.getSectionCount());
         assertEquals(10, shuntCompensator.getMaximumSectionCount());
+        assertEquals(30.0, shuntCompensator.getB(), 0.0);
+        assertEquals(24.0, shuntCompensator.getG(), 0.0);
+        assertEquals(0.0, shuntCompensator.getB(0), 0.0);
+        assertEquals(30.0, shuntCompensator.getB(6), 0.0);
+        assertEquals(0.0, shuntCompensator.getG(0), 0.0);
+        assertEquals(24.0, shuntCompensator.getG(6), 0.0);
         assertSame(terminal, shuntCompensator.getRegulatingTerminal());
         assertTrue(shuntCompensator.isVoltageRegulatorOn());
         assertEquals(200, shuntCompensator.getTargetV(), 0.0);
         assertEquals(10, shuntCompensator.getTargetDeadband(), 0.0);
         assertEquals(ShuntCompensatorModelType.LINEAR, shuntCompensator.getModelType());
         ShuntCompensatorLinearModel shuntLinearModel = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
-        assertEquals(5.0, shuntLinearModel.getbPerSection(), 0.0);
-        assertEquals(4.0, shuntLinearModel.getgPerSection(), 0.0);
+        assertEquals(5.0, shuntLinearModel.getBPerSection(), 0.0);
+        assertEquals(4.0, shuntLinearModel.getGPerSection(), 0.0);
 
         // try get incorrect shunt model
         try {
@@ -82,36 +88,66 @@ public abstract class AbstractShuntCompensatorTest {
 
         // currentSectionCount
         try {
-            shuntCompensator.setCurrentSectionCount(-1);
+            shuntCompensator.setSectionCount(-1);
             fail();
         } catch (ValidationException ignored) {
             // ignore
         }
         try {
             // max = 10, current could not be 20
-            shuntCompensator.setCurrentSectionCount(20);
+            shuntCompensator.setSectionCount(20);
             fail();
         } catch (ValidationException ignored) {
             // ignore
         }
-        shuntCompensator.setCurrentSectionCount(6);
-        assertEquals(6, shuntCompensator.getCurrentSectionCount());
+        shuntCompensator.setSectionCount(6);
+        assertEquals(6, shuntCompensator.getSectionCount());
+
+        // b
+        try {
+            shuntCompensator.getB(-1);
+            fail();
+        } catch (PowsyblException ignored) {
+            // ignore
+        }
+        try {
+            shuntCompensator.getB(1000);
+            fail();
+        } catch (PowsyblException ignored) {
+            // ignore
+        }
+
+        // g
+        try {
+            shuntCompensator.getG(-1);
+            fail();
+        } catch (PowsyblException ignored) {
+            // ignore
+        }
+        try {
+            shuntCompensator.getG(1000);
+            fail();
+        } catch (PowsyblException ignored) {
+            // ignore
+        }
 
         // for linear model
 
         // bPerSection
         try {
-            shuntLinearModel.setbPerSection(0.0);
+            shuntLinearModel.setBPerSection(0.0);
             fail();
         } catch (ValidationException ignored) {
             // ignore
         }
-        shuntLinearModel.setbPerSection(1.0);
-        assertEquals(1.0, shuntLinearModel.getbPerSection(), 0.0);
+        shuntLinearModel.setBPerSection(-1.0);
+        assertEquals(-1.0, shuntLinearModel.getBPerSection(), 0.0);
+        assertEquals(-6.0, shuntCompensator.getB(), 0.0);
 
         // gPerSection
-        shuntLinearModel.setgPerSection(2.0);
-        assertEquals(2.0, shuntLinearModel.getgPerSection(), 0.0);
+        shuntLinearModel.setGPerSection(-2.0);
+        assertEquals(-2.0, shuntLinearModel.getGPerSection(), 0.0);
+        assertEquals(-12.0, shuntCompensator.getG(), 0.0);
 
         // maximumSectionCount
         try {
@@ -159,25 +195,19 @@ public abstract class AbstractShuntCompensatorTest {
                 .setId(SHUNT)
                 .setName("shuntName")
                 .setConnectableBus("busA")
-                .setCurrentSectionCount(1)
+                .setSectionCount(1)
                 .setRegulatingTerminal(terminal)
                 .setVoltageRegulatorOn(true)
                 .setTargetV(200)
                 .setTargetDeadband(10);
         adder.newNonLinearModel()
                 .beginSection()
-                    .setSectionNum(0)
-                    .setB(0.0)
-                    .setG(0.0)
+                .setB(5.0)
+                .setG(2.0)
                 .endSection()
                 .beginSection()
-                    .setSectionNum(1)
-                    .setB(5.0)
-                    .setG(2.0)
-                .endSection()
-                .beginSection()
-                    .setSectionNum(2)
-                    .setB(6.0)
+                .setB(6.0)
+                .setG(2.0)
                 .endSection()
                 .add();
         ShuntCompensator shuntCompensator = adder.add();
@@ -186,25 +216,23 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals("shuntName", shuntCompensator.getOptionalName().orElse(null));
         assertEquals("shuntName", shuntCompensator.getNameOrId());
         assertEquals(SHUNT, shuntCompensator.getId());
-        assertEquals(1, shuntCompensator.getCurrentSectionCount());
+        assertEquals(1, shuntCompensator.getSectionCount());
         assertEquals(2, shuntCompensator.getMaximumSectionCount());
+        assertEquals(5.0, shuntCompensator.getB(), 0.0);
+        assertEquals(2.0, shuntCompensator.getG(), 0.0);
+        assertEquals(0.0, shuntCompensator.getB(0), 0.0);
+        assertEquals(5.0, shuntCompensator.getB(1), 0.0);
+        assertEquals(6.0, shuntCompensator.getB(2), 0.0);
+        assertEquals(0.0, shuntCompensator.getG(0), 0.0);
+        assertEquals(2.0, shuntCompensator.getG(1), 0.0);
+        assertEquals(2.0, shuntCompensator.getG(2), 0.0);
         assertSame(terminal, shuntCompensator.getRegulatingTerminal());
         assertTrue(shuntCompensator.isVoltageRegulatorOn());
         assertEquals(200, shuntCompensator.getTargetV(), 0.0);
         assertEquals(10, shuntCompensator.getTargetDeadband(), 0.0);
         assertEquals(ShuntCompensatorModelType.NON_LINEAR, shuntCompensator.getModelType());
         ShuntCompensatorNonLinearModel shuntNonLinearModel = shuntCompensator.getModel(ShuntCompensatorNonLinearModel.class);
-        assertEquals(3, shuntNonLinearModel.getSections().size());
-        assertFalse(shuntNonLinearModel.getSection(3).isPresent());
-        assertEquals(0.0, shuntNonLinearModel.getB(0), 0.0);
-        assertEquals(0.0, shuntNonLinearModel.getG(0), 0.0);
-        assertEquals(5.0, shuntNonLinearModel.getB(1), 0.0);
-        assertEquals(2.0, shuntNonLinearModel.getG(1), 0.0);
-        assertEquals(6.0, shuntNonLinearModel.getB(2), 0.0);
-        assertTrue(Double.isNaN(shuntNonLinearModel.getG(2)));
-        assertEquals(6.0, shuntNonLinearModel.getMaximumB(), 0.0);
-        assertEquals(2.0, shuntNonLinearModel.getMaximumG(), 0.0);
-        assertFalse(shuntNonLinearModel.getSection(3).isPresent());
+        assertEquals(2, shuntNonLinearModel.getAllSections().size());
 
         // try get incorrect shunt model
         try {
@@ -216,92 +244,48 @@ public abstract class AbstractShuntCompensatorTest {
 
         // currentSectionCount
         try {
-            shuntCompensator.setCurrentSectionCount(-1);
+            shuntCompensator.setSectionCount(-1);
             fail();
         } catch (ValidationException ignored) {
             // ignore
         }
         try {
             // exiting = 0, 1, 2, current could not be 20
-            shuntCompensator.setCurrentSectionCount(20);
+            shuntCompensator.setSectionCount(20);
             fail();
         } catch (ValidationException ignored) {
             // ignore
         }
-        shuntCompensator.setCurrentSectionCount(2);
-        assertEquals(2, shuntCompensator.getCurrentSectionCount());
+        shuntCompensator.setSectionCount(2);
+        assertEquals(2, shuntCompensator.getSectionCount());
 
-        // for non linear model
-
-        // getB
+        // b
         try {
-            // try to get susceptance of a non-existing section
-            shuntNonLinearModel.getB(3);
+            shuntCompensator.getB(-1);
+            fail();
+        } catch (PowsyblException ignored) {
+            // ignore
+        }
+        try {
+            shuntCompensator.getB(1000);
             fail();
         } catch (PowsyblException ignored) {
             // ignore
         }
 
-        // getG
+        // g
         try {
-            // try to get conductance of a non-existing section
-            shuntNonLinearModel.getG(3);
+            shuntCompensator.getG(-1);
             fail();
         } catch (PowsyblException ignored) {
             // ignore
         }
-
-        // add or replace a section
         try {
-            // try to add or replace with negative section number
-            shuntNonLinearModel.addOrReplaceSection(-2, 4.0, 1.0);
+            shuntCompensator.getG(1000);
             fail();
-        } catch (ValidationException ignored) {
-            // ignored
+        } catch (PowsyblException ignored) {
+            // ignore
         }
-        try {
-            // try to add or replace with a negative susceptance
-            shuntNonLinearModel.addOrReplaceSection(3, Double.NaN, 1.0);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignored
-        }
-        shuntNonLinearModel.addOrReplaceSection(3, 4.0, 1.0); // add a section
-        assertEquals(4, shuntNonLinearModel.getSections().size());
-        assertEquals(4.0, shuntNonLinearModel.getB(3), 0.0);
-        assertEquals(1.0, shuntNonLinearModel.getG(3), 0.0);
-        assertEquals(3, shuntCompensator.getMaximumSectionCount());
-        shuntNonLinearModel.addOrReplaceSection(3, 3.0, 1.5); // replace a section
-        assertEquals(4, shuntNonLinearModel.getSections().size());
-        assertEquals(3.0, shuntNonLinearModel.getB(3), 0.0);
-        assertEquals(1.5, shuntNonLinearModel.getG(3), 0.0);
-
-        // remove a section
-        try {
-            // try to remove a section with negative section number
-            shuntNonLinearModel.removeSection(-1);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignored
-        }
-        try {
-            // try to remove a non-existing section
-            shuntNonLinearModel.removeSection(4);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignored
-        }
-        try {
-            // try to remove the current section
-            shuntNonLinearModel.removeSection(2);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignored
-        }
-        shuntNonLinearModel.removeSection(3);
-        assertEquals(3, shuntNonLinearModel.getSections().size());
-        assertFalse(shuntNonLinearModel.getSection(3).isPresent());
-        assertEquals(2, shuntCompensator.getMaximumSectionCount());
     }
 
     @Test
@@ -313,22 +297,6 @@ public abstract class AbstractShuntCompensatorTest {
     }
 
     @Test
-    public void invalidExistingSection() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("a section is already defined at this number");
-        ShuntCompensatorAdder adder = createShuntAdder(INVALID, INVALID, 6, terminal, true, 200, 10);
-        adder.newNonLinearModel()
-                .beginSection()
-                    .setSectionNum(1)
-                    .setB(5.0)
-                .endSection()
-                .beginSection()
-                    .setSectionNum(1)
-                    .setB(4.0)
-                .endSection();
-    }
-
-    @Test
     public void undefinedModel() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("the shunt compensator model has not been defined");
@@ -336,7 +304,7 @@ public abstract class AbstractShuntCompensatorTest {
                 .setId(INVALID)
                 .setName(INVALID)
                 .setConnectableBus("busA")
-                .setCurrentSectionCount(6)
+                .setSectionCount(6)
                 .setRegulatingTerminal(terminal)
                 .setVoltageRegulatorOn(false)
                 .setTargetV(Double.NaN)
@@ -443,11 +411,11 @@ public abstract class AbstractShuntCompensatorTest {
 
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
-        assertEquals(5, shunt.getCurrentSectionCount());
-        assertEquals(10.0, shunt.getCurrentB(), 0.0); // 2*5
-        assertEquals(5.0, shunt.getCurrentG(), 0.0); // 1*5
+        assertEquals(5, shunt.getSectionCount());
+        assertEquals(10.0, shunt.getB(), 0.0); // 2*5
+        assertEquals(5.0, shunt.getG(), 0.0); // 1*5
         // change values in s4
-        shunt.setCurrentSectionCount(4)
+        shunt.setSectionCount(4)
                 .setVoltageRegulatorOn(false)
                 .setTargetV(220)
                 .setTargetDeadband(5.0);
@@ -458,18 +426,18 @@ public abstract class AbstractShuntCompensatorTest {
         variantManager.cloneVariant("s4", "s2b");
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
-        assertEquals(4, shunt.getCurrentSectionCount());
-        assertEquals(8.0, shunt.getCurrentB(), 0.0); // 2*4
-        assertEquals(4.0, shunt.getCurrentG(), 0.0); // 1*4
+        assertEquals(4, shunt.getSectionCount());
+        assertEquals(8.0, shunt.getB(), 0.0); // 2*4
+        assertEquals(4.0, shunt.getG(), 0.0); // 1*4
         assertFalse(shunt.isVoltageRegulatorOn());
         assertEquals(220, shunt.getTargetV(), 0.0);
         assertEquals(5.0, shunt.getTargetDeadband(), 0.0);
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertEquals(5, shunt.getCurrentSectionCount());
-        assertEquals(10.0, shunt.getCurrentB(), 0.0); // 2*5
-        assertEquals(5.0, shunt.getCurrentG(), 0.0); // 1*5
+        assertEquals(5, shunt.getSectionCount());
+        assertEquals(10.0, shunt.getB(), 0.0); // 2*5
+        assertEquals(5.0, shunt.getG(), 0.0); // 1*5
         assertTrue(shunt.isVoltageRegulatorOn());
         assertEquals(200, shunt.getTargetV(), 0.0);
         assertEquals(10, shunt.getTargetDeadband(), 0.0);
@@ -478,7 +446,7 @@ public abstract class AbstractShuntCompensatorTest {
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
         try {
-            shunt.getCurrentSectionCount();
+            shunt.getSectionCount();
             fail();
         } catch (Exception ignored) {
             // ignore
@@ -503,22 +471,22 @@ public abstract class AbstractShuntCompensatorTest {
         }
     }
 
-    private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection, int currentSectionCount, int maxSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
-        return createShuntAdder(id, name, currentSectionCount, regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband)
+    private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection, int sectionCount, int maxSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
+        return createShuntAdder(id, name, sectionCount, regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband)
                 .newLinearModel()
-                    .setbPerSection(bPerSection)
-                    .setgPerSection(gPerSection)
-                    .setMaximumSectionCount(maxSectionCount)
-                    .add()
+                .setBPerSection(bPerSection)
+                .setGPerSection(gPerSection)
+                .setMaximumSectionCount(maxSectionCount)
+                .add()
                 .add();
     }
 
-    private ShuntCompensatorAdder createShuntAdder(String id, String name, int currentSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
+    private ShuntCompensatorAdder createShuntAdder(String id, String name, int sectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
         return voltageLevel.newShuntCompensator()
                 .setId(id)
                 .setName(name)
                 .setConnectableBus("busA")
-                .setCurrentSectionCount(currentSectionCount)
+                .setSectionCount(sectionCount)
                 .setRegulatingTerminal(regulatingTerminal)
                 .setVoltageRegulatorOn(voltageRegulatorOn)
                 .setTargetV(targetV)

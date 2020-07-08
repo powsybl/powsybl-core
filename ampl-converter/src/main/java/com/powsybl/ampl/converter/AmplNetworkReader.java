@@ -278,10 +278,10 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid shunt compensator id '" + id + "'");
         }
 
-        if (ShuntCompensatorModelType.NON_LINEAR.equals(sc.getModelType())) {
+        if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
             throw new PowsyblException("non linear shunt not supported yet");
         }
-        sc.setCurrentSectionCount(Math.max(0, Math.min(sc.getMaximumSectionCount(), sections)));
+        sc.setSectionCount(Math.max(0, Math.min(sc.getMaximumSectionCount(), sections)));
         Terminal t = sc.getTerminal();
         t.setQ(q);
 

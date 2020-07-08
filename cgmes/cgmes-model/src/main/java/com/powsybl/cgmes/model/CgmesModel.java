@@ -168,6 +168,10 @@ public interface CgmesModel {
 
     void write(DataSource ds);
 
+    default void write(DataSource ds, CgmesSubset subset) {
+        throw new UnsupportedOperationException();
+    }
+
     void read(ReadOnlyDataSource ds);
 
     void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary);
@@ -179,7 +183,7 @@ public interface CgmesModel {
     // TODO If we could store identifiers for tap changers and terminals in IIDM
     // then we would not need to query back the CGMES model for these mappings
 
-    String terminalForEquipment(String conductingEquipmentId);
+    String terminalForEquipment(String conductingEquipmentId, int sequenceNumber);
 
     String ratioTapChangerForPowerTransformer(String powerTransformerId);
 

@@ -14,22 +14,22 @@ public interface ShuntCompensatorLinearModel extends ShuntCompensatorModel {
     /**
      * Get the susceptance per section in S.
      */
-    double getbPerSection();
+    double getBPerSection();
 
     /**
      * Set the susceptance per section in S.
      */
-    ShuntCompensatorLinearModel setbPerSection(double bPerSection);
+    ShuntCompensatorLinearModel setBPerSection(double bPerSection);
 
     /**
      * Get the conductance per section in S.
      */
-    double getgPerSection();
+    double getGPerSection();
 
     /**
      * Set the conductance per section in S.
      */
-    ShuntCompensatorLinearModel setgPerSection(double gPerSection);
+    ShuntCompensatorLinearModel setGPerSection(double gPerSection);
 
     /**
      * Set the maximum number of sections.

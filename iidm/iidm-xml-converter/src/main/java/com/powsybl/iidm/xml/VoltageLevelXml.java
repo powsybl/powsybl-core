@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
@@ -182,31 +181,12 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         }
     }
 
-    private void writeShuntCompensators(VoltageLevel vl, NetworkXmlWriterContext context) {
+    private void writeShuntCompensators(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         for (ShuntCompensator sc : vl.getShuntCompensators()) {
             if (!context.getFilter().test(sc)) {
                 continue;
             }
-            IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> {
-                try {
-                    ShuntXml.INSTANCE.write(sc, vl, context);
-                } catch (XMLStreamException e) {
-                    throw new UncheckedXmlStreamException(e);
-                }
-            });
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
-                try {
-                    if (ShuntCompensatorModelType.LINEAR == sc.getModelType()) {
-                        LinearShuntXml.INSTANCE.write(sc, vl, context);
-                    } else if (ShuntCompensatorModelType.NON_LINEAR == sc.getModelType()) {
-                        NonLinearShuntXml.INSTANCE.write(sc, vl, context);
-                    } else {
-                        throw new PowsyblException(String.format("Unexpected model type: %s", sc.getModelType()));
-                    }
-                } catch (XMLStreamException e) {
-                    throw new UncheckedXmlStreamException(e);
-                }
-            });
+            ShuntXml.INSTANCE.write(sc, vl, context);
         }
     }
 
@@ -293,14 +273,6 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     ShuntXml.INSTANCE.read(vl, context);
                     break;
 
-                case LinearShuntXml.ROOT_ELEMENT_NAME:
-                    LinearShuntXml.INSTANCE.read(vl, context);
-                    break;
-
-                case NonLinearShuntXml.ROOT_ELEMENT_NAME:
-                    NonLinearShuntXml.INSTANCE.read(vl, context);
-                    break;
-
                 case DanglingLineXml.ROOT_ELEMENT_NAME:
                     DanglingLineXml.INSTANCE.read(vl, context);
                     break;
@@ -324,7 +296,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void readNodeBreakerTopology(VoltageLevel vl, NetworkXmlReaderContext context) throws XMLStreamException {
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> LOGGER.info("attribute " + NODE_BREAKER_TOPOLOGY_ELEMENT_NAME + ".nodeCount is ignored."));
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> LOGGER.trace("attribute " + NODE_BREAKER_TOPOLOGY_ELEMENT_NAME + ".nodeCount is ignored."));
         XmlUtil.readUntilEndElement(NODE_BREAKER_TOPOLOGY_ELEMENT_NAME, context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case BusbarSectionXml.ROOT_ELEMENT_NAME:

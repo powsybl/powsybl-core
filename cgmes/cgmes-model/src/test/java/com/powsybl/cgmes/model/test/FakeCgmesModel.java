@@ -527,6 +527,11 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
+    public void write(DataSource ds, CgmesSubset subset) {
+        // FakeCgmesModel, no need to implement write
+    }
+
+    @Override
     public void clear(CgmesSubset subset) {
         // FakeCgmesModel, no need to implement clear
     }
@@ -559,7 +564,7 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public String terminalForEquipment(String conductingEquipmentId) {
+    public String terminalForEquipment(String conductingEquipmentId, int sequenceNumber) {
         return null;
     }
 
