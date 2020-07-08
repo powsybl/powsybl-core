@@ -356,7 +356,7 @@ public final class NetworkXml {
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
             int state = reader.next();
-            while (state == XMLStreamReader.COMMENT) {
+            while (state == XMLStreamConstants.COMMENT) {
                 state = reader.next();
             }
 
