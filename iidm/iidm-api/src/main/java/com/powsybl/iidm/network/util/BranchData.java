@@ -193,7 +193,7 @@ public class BranchData {
         u2 = bus2 != null ? bus2.getV() : Double.NaN;
         theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
         theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
-        alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
+        alpha1 = twt.hasPhaseTapChanger() ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
         alpha2 = 0f;
         g1 = getG1(twt, twtSplitShuntAdmittance);
         g2 = getG2(twt, twtSplitShuntAdmittance);
@@ -244,46 +244,46 @@ public class BranchData {
 
     private double getR(TwoWindingsTransformer twt) {
         return getValue(twt.getR(),
-                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getR() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getR() : 0);
+                        twt.hasRatioTapChanger() ? twt.getRatioTapChanger().getCurrentStep().getR() : 0,
+                        twt.hasPhaseTapChanger() ? twt.getPhaseTapChanger().getCurrentStep().getR() : 0);
     }
 
     private double getX(TwoWindingsTransformer twt) {
         return getValue(twt.getX(),
-                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getX() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getX() : 0);
+                        twt.hasRatioTapChanger() ? twt.getRatioTapChanger().getCurrentStep().getX() : 0,
+                        twt.hasPhaseTapChanger() ? twt.getPhaseTapChanger().getCurrentStep().getX() : 0);
     }
 
     private double getG1(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
         return getValue(twtSplitShuntAdmittance ? twt.getG() / 2 : twt.getG(),
-                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getG() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getG() : 0);
+                        twt.hasRatioTapChanger() ? twt.getRatioTapChanger().getCurrentStep().getG() : 0,
+                        twt.hasPhaseTapChanger() ? twt.getPhaseTapChanger().getCurrentStep().getG() : 0);
     }
 
     private double getB1(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
         return getValue(twtSplitShuntAdmittance ? twt.getB() / 2 : twt.getB(),
-                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
+                        twt.hasRatioTapChanger() ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
+                        twt.hasPhaseTapChanger() ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }
 
     private double getG2(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
         return getValue(twtSplitShuntAdmittance ? twt.getG() / 2 : 0,
-                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getG() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getG() : 0);
+                        twt.hasRatioTapChanger() ? twt.getRatioTapChanger().getCurrentStep().getG() : 0,
+                        twt.hasPhaseTapChanger() ? twt.getPhaseTapChanger().getCurrentStep().getG() : 0);
     }
 
     private double getB2(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
         return getValue(twtSplitShuntAdmittance ? twt.getB() / 2 : 0,
-                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
+                        twt.hasRatioTapChanger() ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
+                        twt.hasPhaseTapChanger() ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }
 
     private double getRho1(TwoWindingsTransformer twt) {
         double rho = twt.getRatedU2() / twt.getRatedU1();
-        if (twt.getRatioTapChanger() != null) {
+        if (twt.hasRatioTapChanger()) {
             rho *= twt.getRatioTapChanger().getCurrentStep().getRho();
         }
-        if (twt.getPhaseTapChanger() != null) {
+        if (twt.hasPhaseTapChanger()) {
             rho *= twt.getPhaseTapChanger().getCurrentStep().getRho();
         }
         return rho;

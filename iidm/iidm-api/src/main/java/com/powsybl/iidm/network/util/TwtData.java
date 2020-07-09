@@ -361,17 +361,17 @@ public class TwtData {
 
     private static double rho(Leg leg, double ratedU0) {
         double rho = ratedU0 / leg.getRatedU();
-        if (leg.getRatioTapChanger() != null) {
+        if (leg.hasRatioTapChanger()) {
             rho *= leg.getRatioTapChanger().getCurrentStep().getRho();
         }
-        if (leg.getPhaseTapChanger() != null) {
+        if (leg.hasPhaseTapChanger()) {
             rho *= leg.getPhaseTapChanger().getCurrentStep().getRho();
         }
         return rho;
     }
 
     private static double alpha(Leg leg) {
-        return leg.getPhaseTapChanger() != null ? Math.toRadians(leg.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
+        return leg.hasPhaseTapChanger() ? Math.toRadians(leg.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
     }
 
     private static double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {
@@ -380,38 +380,38 @@ public class TwtData {
 
     private static double getR(Leg leg) {
         return getValue(leg.getR(),
-            leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getR() : 0,
-            leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getR() : 0);
+            leg.hasRatioTapChanger() ? leg.getRatioTapChanger().getCurrentStep().getR() : 0,
+            leg.hasPhaseTapChanger() ? leg.getPhaseTapChanger().getCurrentStep().getR() : 0);
     }
 
     private static double getX(Leg leg) {
         return getValue(leg.getX(),
-            leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getX() : 0,
-            leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getX() : 0);
+            leg.hasRatioTapChanger() ? leg.getRatioTapChanger().getCurrentStep().getX() : 0,
+            leg.hasPhaseTapChanger() ? leg.getPhaseTapChanger().getCurrentStep().getX() : 0);
     }
 
     private static double getG1(Leg leg, boolean twtSplitShuntAdmittance) {
         return getValue(twtSplitShuntAdmittance ? leg.getG() / 2 : leg.getG(),
-            leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getG() : 0,
-            leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getG() : 0);
+            leg.hasRatioTapChanger() ? leg.getRatioTapChanger().getCurrentStep().getG() : 0,
+            leg.hasPhaseTapChanger() ? leg.getPhaseTapChanger().getCurrentStep().getG() : 0);
     }
 
     private static double getB1(Leg leg, boolean twtSplitShuntAdmittance) {
         return getValue(twtSplitShuntAdmittance ? leg.getB() / 2 : leg.getB(),
-            leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getB() : 0,
-            leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getB() : 0);
+            leg.hasRatioTapChanger() ? leg.getRatioTapChanger().getCurrentStep().getB() : 0,
+            leg.hasPhaseTapChanger() ? leg.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }
 
     private static double getG2(Leg leg, boolean twtSplitShuntAdmittance) {
         return getValue(twtSplitShuntAdmittance ? leg.getG() / 2 : 0.0,
-            leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getG() : 0,
-            leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getG() : 0);
+            leg.hasRatioTapChanger() ? leg.getRatioTapChanger().getCurrentStep().getG() : 0,
+            leg.hasPhaseTapChanger() ? leg.getPhaseTapChanger().getCurrentStep().getG() : 0);
     }
 
     private static double getB2(Leg leg, boolean twtSplitShuntAdmittance) {
         return getValue(twtSplitShuntAdmittance ? leg.getB() / 2 : 0.0,
-            leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getB() : 0,
-            leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getB() : 0);
+            leg.hasRatioTapChanger() ? leg.getRatioTapChanger().getCurrentStep().getB() : 0,
+            leg.hasPhaseTapChanger() ? leg.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }
 
     private static boolean isMainComponent(Leg leg) {

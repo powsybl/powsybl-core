@@ -592,13 +592,13 @@ public class UcteExporter implements Exporter {
      * @param twoWindingsTransformer The TwoWindingTransformer we want to convert
      */
     private static void convertRegulation(UcteNetwork ucteNetwork, UcteElementId ucteElementId, TwoWindingsTransformer twoWindingsTransformer) {
-        if (twoWindingsTransformer.getRatioTapChanger() != null || twoWindingsTransformer.getPhaseTapChanger() != null) {
+        if (twoWindingsTransformer.hasRatioTapChanger() || twoWindingsTransformer.hasPhaseTapChanger()) {
             UctePhaseRegulation uctePhaseRegulation = null;
             UcteAngleRegulation ucteAngleRegulation = null;
-            if (twoWindingsTransformer.getRatioTapChanger() != null) {
+            if (twoWindingsTransformer.hasRatioTapChanger()) {
                 uctePhaseRegulation = convertRatioTapChanger(twoWindingsTransformer);
             }
-            if (twoWindingsTransformer.getPhaseTapChanger() != null) {
+            if (twoWindingsTransformer.hasPhaseTapChanger()) {
                 ucteAngleRegulation = convertPhaseTapChanger(twoWindingsTransformer);
             }
             UcteRegulation ucteRegulation = new UcteRegulation(ucteElementId, uctePhaseRegulation, ucteAngleRegulation);
