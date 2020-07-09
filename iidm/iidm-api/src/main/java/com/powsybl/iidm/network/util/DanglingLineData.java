@@ -7,6 +7,8 @@
 package com.powsybl.iidm.network.util;
 
 import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.complex.ComplexUtils;
+
 import com.powsybl.iidm.network.DanglingLine;
 
 /**
@@ -50,7 +52,7 @@ public class DanglingLineData {
         boundaryBusU = Double.NaN;
         boundaryBusTheta = Double.NaN;
 
-        Complex v1 = new Complex(u1 * Math.cos(theta1), u1 * Math.sin(theta1));
+        Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
 
         Complex vBoundaryBus = new Complex(Double.NaN, Double.NaN);
         if (p0 == 0.0 && q0 == 0.0) {

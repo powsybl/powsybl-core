@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.util;
 import java.util.Objects;
 
 import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.complex.ComplexUtils;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
@@ -304,9 +305,9 @@ public class TwtData {
         double u3, double theta3, LinkData.BranchAdmittanceMatrix branchAdmittanceLeg1,
         LinkData.BranchAdmittanceMatrix branchAdmittanceLeg2, LinkData.BranchAdmittanceMatrix branchAdmittanceLeg3) {
 
-        Complex v1 = new Complex(u1 * Math.cos(theta1), u1 * Math.sin(theta1));
-        Complex v2 = new Complex(u2 * Math.cos(theta2), u2 * Math.sin(theta2));
-        Complex v3 = new Complex(u3 * Math.cos(theta3), u3 * Math.sin(theta3));
+        Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
+        Complex v2 = ComplexUtils.polar2Complex(u2, theta2);
+        Complex v3 = ComplexUtils.polar2Complex(u3, theta3);
 
         Complex v0 = branchAdmittanceLeg1.y21.multiply(v1).add(branchAdmittanceLeg2.y21.multiply(v2))
             .add(branchAdmittanceLeg3.y21.multiply(v3)).negate()
@@ -336,8 +337,8 @@ public class TwtData {
         LinkData.BranchAdmittanceMatrix admittanceMatrixLeg1, LinkData.BranchAdmittanceMatrix admittanceMatrixLeg2,
         LinkData.BranchAdmittanceMatrix admittanceMatrixOpenLeg) {
 
-        Complex v1 = new Complex(u1 * Math.cos(theta1), u1 * Math.sin(theta1));
-        Complex v2 = new Complex(u2 * Math.cos(theta2), u2 * Math.sin(theta2));
+        Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
+        Complex v2 = ComplexUtils.polar2Complex(u2, theta2);
 
         LinkData.BranchAdmittanceMatrix admittance = calculateTwoConnectedLegsAdmittance(admittanceMatrixLeg1,
             admittanceMatrixLeg2, admittanceMatrixOpenLeg);
@@ -349,8 +350,8 @@ public class TwtData {
         LinkData.BranchAdmittanceMatrix admittanceMatrixLeg1, LinkData.BranchAdmittanceMatrix admittanceMatrixLeg2,
         LinkData.BranchAdmittanceMatrix admittanceMatrixOpenLeg) {
 
-        Complex v1 = new Complex(u1 * Math.cos(theta1), u1 * Math.sin(theta1));
-        Complex v2 = new Complex(u2 * Math.cos(theta2), u2 * Math.sin(theta2));
+        Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
+        Complex v2 = ComplexUtils.polar2Complex(u2, theta2);
 
         Complex yshO = LinkData.kronAntenna(admittanceMatrixOpenLeg.y11, admittanceMatrixOpenLeg.y12, admittanceMatrixOpenLeg.y21, admittanceMatrixOpenLeg.y22, true);
         return (admittanceMatrixLeg1.y21.multiply(v1).add(admittanceMatrixLeg2.y21.multiply(v2))).negate()
@@ -371,7 +372,7 @@ public class TwtData {
         LinkData.BranchAdmittanceMatrix admittanceMatrixLeg, LinkData.BranchAdmittanceMatrix admittanceMatrixFirstOpenLeg,
         LinkData.BranchAdmittanceMatrix admittanceMatrixSecondOpenLeg) {
 
-        Complex v = new Complex(u * Math.cos(theta), u * Math.sin(theta));
+        Complex v = ComplexUtils.polar2Complex(u, theta);
 
         Complex ysh1O = LinkData.kronAntenna(admittanceMatrixFirstOpenLeg.y11, admittanceMatrixFirstOpenLeg.y12,
             admittanceMatrixFirstOpenLeg.y21, admittanceMatrixFirstOpenLeg.y22, true);
