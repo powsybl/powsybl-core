@@ -35,6 +35,11 @@ public class IidmChangeUpdate extends IidmChange {
         return newValue;
     }
 
+    @Override
+    public String toString() {
+        return getIdentifiable().getNameOrId() + "." + getAttribute() + " = " + getNewValue();
+    }
+
     private final String attribute;
     private final Object oldValue;
     private final Object newValue;
