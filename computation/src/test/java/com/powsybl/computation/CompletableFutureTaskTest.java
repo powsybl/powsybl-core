@@ -67,10 +67,8 @@ public class CompletableFutureTaskTest {
         try {
             task.get();
             fail();
-        } catch (ExecutionException exc) {
-            assertTrue(exc.getCause() instanceof MyException);
         } catch (Throwable exc) {
-            fail();
+            assertTrue(exc.getCause() instanceof MyException);
         }
     }
 
