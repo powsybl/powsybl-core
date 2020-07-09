@@ -32,13 +32,13 @@ import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.LinkData;
+import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -164,46 +164,12 @@ public class StateVariablesAdder {
         // If there is no Terminal at this IIDM node,
         // then find from it the first connected node with a Terminal
         Terminal t = topo.getOptionalTerminal(iidmNode)
-                .orElseGet(() -> new FirstTerminalTraverser(topo, iidmNode).firstTerminal());
+                .orElseGet(() -> Networks.getEquivalentTerminal(vl, iidmNode));
         if (t == null) {
             LOG.error("Can't find a Terminal for IIDM node {}", iidmNode);
             return null;
         }
         return t.getBusView().getBus();
-    }
-
-    // FIXME(Luma) Check if this is duplicated from IIDM API after recent changes
-    private static class FirstTerminalTraverser implements VoltageLevel.NodeBreakerView.Traverser {
-        FirstTerminalTraverser(VoltageLevel.NodeBreakerView topology, int node) {
-            this.topology = topology;
-            this.node = node;
-        }
-
-        Terminal firstTerminal() {
-            topology.traverse(node, this);
-            return terminal;
-        }
-
-        @Override
-        public boolean traverse(int node1, Switch sw, int node2) {
-            // If the first terminal has already been found,
-            // do not continue traversal
-            if (terminal != null) {
-                return false;
-            }
-            // Proceed only to new nodes that can be reached
-            // through internal connections or closed switches
-            if (sw != null && sw.isOpen()) {
-                return false;
-            }
-            terminal = topology.getTerminal(node2);
-            // Continue traversal if no terminal at node2
-            return terminal == null;
-        }
-
-        private final VoltageLevel.NodeBreakerView topology;
-        private final int node;
-        private Terminal terminal;
     }
 
     private void addVoltagesForBoundaryNodes() {
