@@ -158,11 +158,7 @@ public class BranchData {
         rho2 = 1f;
         alpha1 = 0f;
         alpha2 = 0f;
-        if (isStructuralRatioLineNeeded(line)) {
-            rho1 = 1.0 / structuralRatioEnd1(line);
-        } else {
-            rho1 = 1f;
-        }
+        rho1 = 1f;
 
         computeValues();
     }
@@ -214,28 +210,6 @@ public class BranchData {
         mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
 
         computeValues();
-    }
-
-    private boolean isStructuralRatioLineNeeded(Line line) {
-        if (line.getTerminal1() == null || line.getTerminal1().getVoltageLevel() == null ||
-            line.getTerminal2() == null || line.getTerminal2().getVoltageLevel() == null) {
-            return false;
-        }
-
-        double nominalV1 = line.getTerminal1().getVoltageLevel().getNominalV();
-        double nominalV2 = line.getTerminal2().getVoltageLevel().getNominalV();
-
-        if (nominalV1 == 0.0 || Double.isNaN(nominalV1) ||
-            nominalV2 == 0.0 || Double.isNaN(nominalV2)) {
-            return false;
-        }
-        return nominalV1 != nominalV2;
-    }
-
-    private double structuralRatioEnd1(Line line) {
-        double nominalV1 = line.getTerminal1().getVoltageLevel().getNominalV();
-        double nominalV2 = line.getTerminal2().getVoltageLevel().getNominalV();
-        return nominalV1 / nominalV2;
     }
 
     private double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {
