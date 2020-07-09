@@ -1,0 +1,94 @@
+/**
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.psse.model;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+
+import org.apache.commons.lang3.ArrayUtils;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.powsybl.commons.PowsyblException;
+
+/**
+ *
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
+ */
+public class CaseIdentificationData extends BlockData {
+
+    CaseIdentificationData(PsseVersion psseVersion) {
+        super(psseVersion);
+    }
+
+    CaseIdentificationData(PsseVersion psseVersion, PsseFileFormat psseFileFormat) {
+        super(psseVersion, psseFileFormat);
+    }
+
+    PsseCaseIdentification read(BufferedReader reader, PsseContext context) throws IOException {
+        assertMinimumExpectedVersion(PsseBlockData.CaseIdentificationData, PsseVersion.VERSION_33);
+
+        String line = readLineAndRemoveComment(reader);
+        Objects.requireNonNull(line);
+
+        context.setDelimiter(detectDelimiter(line));
+
+        String[] headers = caseIdentificationDataHeaders(line.split(context.getDelimiter()).length);
+        PsseCaseIdentification caseIdentification = parseRecordHeader(line, PsseCaseIdentification.class, headers);
+        caseIdentification.setTitle1(reader.readLine());
+        caseIdentification.setTitle2(reader.readLine());
+
+        context.setCaseIdentificationDataReadFields(headers);
+        return caseIdentification;
+    }
+
+    PsseCaseIdentification read(BufferedReader reader) throws IOException {
+        assertMinimumExpectedVersion(PsseBlockData.CaseIdentificationData, PsseVersion.VERSION_33);
+
+        String line = readLineAndRemoveComment(reader);
+        Objects.requireNonNull(line);
+
+        String[] headers = caseIdentificationDataHeaders();
+        PsseCaseIdentification caseIdentification = parseRecordHeader(line, PsseCaseIdentification.class, headers);
+        caseIdentification.setTitle1(reader.readLine());
+        caseIdentification.setTitle2(reader.readLine());
+
+        return caseIdentification;
+    }
+
+    PsseCaseIdentification read(JsonNode networkNode, PsseContext context) throws IOException {
+        assertMinimumExpectedVersion(PsseBlockData.CaseIdentificationData, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
+
+        context.setDelimiter(",");
+
+        JsonNode caseIdentificationNode = networkNode.get("caseid");
+        if (caseIdentificationNode == null) {
+            throw new PowsyblException("Psse: CaseIdentificationBlock does not exist");
+        }
+
+        String[] headers = nodeFields(caseIdentificationNode);
+        List<String> records = nodeRecords(caseIdentificationNode);
+        List<PsseCaseIdentification> caseIdentificationList = parseRecordsHeader(records, PsseCaseIdentification.class, headers);
+        if (caseIdentificationList.size() != 1) {
+            throw new PowsyblException("Psse: CaseIdentificationBlock, unexpected size " + caseIdentificationList.size());
+        }
+
+        context.setCaseIdentificationDataReadFields(headers);
+        return caseIdentificationList.get(0);
+    }
+
+    private static String[] caseIdentificationDataHeaders(int firstRecordFields) {
+        String[] first = new String[] {"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq"};
+        return ArrayUtils.addAll(ArrayUtils.subarray(first, 0, firstRecordFields), "title1", "title2");
+    }
+
+    private static String[] caseIdentificationDataHeaders() {
+        return new String[] {"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2"};
+    }
+}

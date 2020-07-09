@@ -15,14 +15,14 @@ import com.univocity.parsers.annotations.Validate;
  */
 public class PsseLoad {
 
-    @Parsed
+    @Parsed(field = {"i", "ibus"})
     @Validate
     private int i;
 
-    @Parsed
+    @Parsed(field = {"id", "loadid"})
     private String id = "1";
 
-    @Parsed
+    @Parsed(field = {"status", "stat"})
     private int status = 1;
 
     @Parsed

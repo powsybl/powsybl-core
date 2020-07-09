@@ -33,4 +33,11 @@ public class PsseRawReaderTest {
             assertEquals(jsonRef, json);
         }
     }
+
+    @Test
+    public void ieeeRawxTest() throws IOException {
+        String jsonFile = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE.rawx")), StandardCharsets.UTF_8);
+        assertNotNull(jsonFile);
+        PsseRawModel rawData = new PsseRawReader().readx(jsonFile);
+    }
 }

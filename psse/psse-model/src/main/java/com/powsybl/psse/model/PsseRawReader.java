@@ -6,6 +6,10 @@
  */
 package com.powsybl.psse.model;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.powsybl.psse.model.BlockData.PsseFileFormat;
+import com.powsybl.psse.model.BlockData.PsseVersion;
 import com.univocity.parsers.common.DataProcessingException;
 import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.RetryableErrorHandler;
@@ -38,10 +42,12 @@ public class PsseRawReader {
     public boolean checkCaseIdentification(BufferedReader reader) throws IOException {
         Objects.requireNonNull(reader);
 
+        PsseVersion version = PsseVersion.VERSION_33;
+
         // just check the first record if this file is in PSS/E format
         PsseCaseIdentification caseIdentification;
         try {
-            caseIdentification = readCaseIdentificationData(reader);
+            caseIdentification = new CaseIdentificationData(version).read(reader);
         } catch (PsseException e) {
             return false; // invalid PSS/E content
         }
@@ -62,12 +68,14 @@ public class PsseRawReader {
         Objects.requireNonNull(reader);
         PsseContext context = new PsseContext();
 
-        PsseCaseIdentification caseIdentification = readCaseIdentificationData(reader, context);
+        PsseVersion version = PsseVersion.VERSION_33;
+
+        PsseCaseIdentification caseIdentification = new CaseIdentificationData(version).read(reader, context);
         PsseRawModel model = new PsseRawModel(caseIdentification);
 
-        model.getBuses().addAll(readBusData(reader, context));
-        model.getLoads().addAll(readLoadData(reader, context));
-        model.getFixedShunts().addAll(readFixedBusShuntData(reader, context));
+        model.addBuses(new BusData(version).read(reader, context));
+        model.addLoads(new LoadData(version).read(reader, context));
+        model.addFixedShunts(new FixedBusShuntData(version).read(reader, context));
         model.getGenerators().addAll(readGeneratorData(reader, context));
         model.getNonTransformerBranches().addAll(readNonTransformerBranchData(reader, context));
         model.getTransformers().addAll(readTransformerData(reader, context));
@@ -106,61 +114,39 @@ public class PsseRawReader {
         // q record (nothing to do)
         readRecordBlock(reader);
 
+        System.err.printf("Loads %d %n", model.getLoads().size());
+
+        return model;
+    }
+
+    public PsseRawModel readx(String jsonFile) throws IOException {
+        Objects.requireNonNull(jsonFile);
+        PsseContext context = new PsseContext();
+
+        PsseVersion version = PsseVersion.VERSION_35;
+        PsseFileFormat format = PsseFileFormat.FORMAT_RAWX;
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(jsonFile);
+        JsonNode networkNode = rootNode.get("network");
+
+        PsseCaseIdentification caseIdentification = new CaseIdentificationData(version, format).read(networkNode, context);
+        PsseRawModel model = new PsseRawModel35(caseIdentification);
+
+        model.addBuses(new BusData(version, format).read(networkNode, context));
+        model.addLoads(new LoadData(version, format).read(networkNode, context));
+        model.addFixedShunts(new FixedBusShuntData(version, format).read(networkNode, context));
+
+        System.err.printf("Loads %d %n", model.getLoads().size());
+        model.getLoads().forEach(load -> {
+            PsseLoad35 load35 = (PsseLoad35) load;
+            load35.print();
+        });
+
         return model;
     }
 
     // Read blocks
-
-    private static PsseCaseIdentification readCaseIdentificationData(BufferedReader reader, PsseContext context) throws IOException {
-        String line = readLineAndRemoveComment(reader);
-        Objects.requireNonNull(line);
-
-        context.setDelimiter(detectDelimiter(line));
-
-        String[] headers = PsseContext.caseIdentificationDataHeaders(line.split(context.getDelimiter()).length);
-        PsseCaseIdentification caseIdentification = parseRecordHeader(line, PsseCaseIdentification.class, headers);
-        caseIdentification.setTitle1(reader.readLine());
-        caseIdentification.setTitle2(reader.readLine());
-
-        context.setCaseIdentificationDataReadFields(headers);
-        return caseIdentification;
-    }
-
-    private static PsseCaseIdentification readCaseIdentificationData(BufferedReader reader) throws IOException {
-        String line = readLineAndRemoveComment(reader);
-        Objects.requireNonNull(line);
-
-        String[] headers = PsseContext.caseIdentificationDataHeaders();
-        PsseCaseIdentification caseIdentification = parseRecordHeader(line, PsseCaseIdentification.class, headers);
-        caseIdentification.setTitle1(reader.readLine());
-        caseIdentification.setTitle2(reader.readLine());
-
-        return caseIdentification;
-    }
-
-    private static List<PsseBus> readBusData(BufferedReader reader, PsseContext context) throws IOException {
-        String[] headers = PsseContext.busDataHeaders();
-        List<String> records = readRecordBlock(reader);
-
-        context.setBusDataReadFields(readFields(records, headers, context.getDelimiter()));
-        return parseRecordsHeader(records, PsseBus.class, headers);
-    }
-
-    private static List<PsseLoad> readLoadData(BufferedReader reader, PsseContext context) throws IOException {
-        String[] headers = PsseContext.loadDataHeaders();
-        List<String> records = readRecordBlock(reader);
-
-        context.setLoadDataReadFields(readFields(records, headers, context.getDelimiter()));
-        return parseRecordsHeader(records, PsseLoad.class, headers);
-    }
-
-    private static List<PsseFixedShunt> readFixedBusShuntData(BufferedReader reader, PsseContext context) throws IOException {
-        String[] headers = PsseContext.fixedBusShuntDataHeaders();
-        List<String> records = readRecordBlock(reader);
-
-        context.setFixedBusShuntDataReadFields(readFields(records, headers, context.getDelimiter()));
-        return parseRecordsHeader(records, PsseFixedShunt.class, headers);
-    }
 
     private static List<PsseGenerator> readGeneratorData(BufferedReader reader, PsseContext context) throws IOException {
         String[] headers = PsseContext.generatorDataHeaders();

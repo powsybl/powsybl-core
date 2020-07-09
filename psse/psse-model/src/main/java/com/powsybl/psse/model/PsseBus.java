@@ -15,7 +15,7 @@ import com.univocity.parsers.annotations.Validate;
  */
 public class PsseBus {
 
-    @Parsed
+    @Parsed(field = {"i", "ibus"})
     @Validate
     private int i;
 

@@ -46,12 +46,24 @@ public class PsseRawModel {
         return caseIdentification;
     }
 
+    public void addBuses(List<PsseBus> buses) {
+        this.buses.addAll(buses);
+    }
+
     public List<PsseBus> getBuses() {
         return buses;
     }
 
+    public void addLoads(List<PsseLoad> loads) {
+        this.loads.addAll(loads);
+    }
+
     public List<PsseLoad> getLoads() {
         return loads;
+    }
+
+    public void addFixedShunts(List<PsseFixedShunt> fixedShunts) {
+        this.fixedShunts.addAll(fixedShunts);
     }
 
     public List<PsseFixedShunt> getFixedShunts() {
