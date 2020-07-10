@@ -52,7 +52,7 @@ public class UcteExporter implements Exporter {
     private static final Parameter NAMING_STRATEGY_PARAMETER = new Parameter(NAMING_STRATEGY, ParameterType.STRING, "Default naming strategy for UCTE codes conversion", "Default");
 
     private static final Supplier<List<NamingStrategy>> NAMING_STRATEGY_SUPPLIERS
-            = Suppliers.memoize(() -> new ServiceLoaderCache<>(NamingStrategy.class).getServices())::get;
+            = Suppliers.memoize(() -> new ServiceLoaderCache<>(NamingStrategy.class).getServices());
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -295,7 +295,8 @@ public class UcteExporter implements Exporter {
         UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(mergedXnode.getCode());
         String geographicalName = mergedXnode.getExtendable().getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, "");
 
-        convertXNode(ucteNetwork, xnodeCode, geographicalName, UcteNodeStatus.EQUIVALENT);
+        UcteNodeStatus xnodeStatus = getXnodeStatus(mergedXnode.getExtendable());
+        convertXNode(ucteNetwork, xnodeCode, geographicalName, xnodeStatus);
     }
 
     /**
@@ -536,7 +537,7 @@ public class UcteExporter implements Exporter {
         ucteNetwork.addLine(ucteLine);
     }
 
-    private static UcteNodeStatus getXnodeStatus(Identifiable identifiable) {
+    private static UcteNodeStatus getXnodeStatus(Identifiable<?> identifiable) {
         String statusNode = identifiable.getProperty(STATUS_PROPERTY_KEY + "_XNode");
         UcteNodeStatus ucteNodeStatus = UcteNodeStatus.REAL;
         if (statusNode != null && statusNode.equals(UcteNodeStatus.EQUIVALENT.toString())) {
@@ -545,7 +546,7 @@ public class UcteExporter implements Exporter {
         return ucteNodeStatus;
     }
 
-    private static UcteNodeStatus getStatus(Identifiable identifiable) {
+    private static UcteNodeStatus getStatus(Identifiable<?> identifiable) {
         if (identifiable.isFictitious()) {
             return UcteNodeStatus.EQUIVALENT;
         } else {
@@ -553,7 +554,7 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    private static UcteElementStatus getStatus(Branch branch) {
+    private static UcteElementStatus getStatus(Branch<?> branch) {
         if (branch.isFictitious()) {
             if (branch.getTerminal1().isConnected() && branch.getTerminal2().isConnected()) {
                 return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
@@ -569,7 +570,7 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    private static UcteElementStatus getStatus(Branch branch, Branch.Side side) {
+    private static UcteElementStatus getStatus(Branch<?> branch, Branch.Side side) {
         if (branch.isFictitious()) {
             if (branch.getTerminal(side).isConnected()) {
                 return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
@@ -804,7 +805,7 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    private static double getPermanentLimit(Branch branch) {
+    private static double getPermanentLimit(Branch<?> branch) {
         double permanentLimit1 = Optional.ofNullable(branch.getCurrentLimits1()).map(CurrentLimits::getPermanentLimit).orElse(DEFAULT_MAX_CURRENT);
         double permanentLimit2 = Optional.ofNullable(branch.getCurrentLimits2()).map(CurrentLimits::getPermanentLimit).orElse(DEFAULT_MAX_CURRENT);
 
