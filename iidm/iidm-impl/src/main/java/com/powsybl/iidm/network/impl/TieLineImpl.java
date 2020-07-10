@@ -29,6 +29,7 @@ class TieLineImpl extends LineImpl implements TieLine {
         double g2 = Double.NaN;
         double b1 = Double.NaN;
         double b2 = Double.NaN;
+        boolean fictitious = false;
 
         private void setParent(TieLineImpl parent) {
             this.parent = parent;
@@ -166,6 +167,19 @@ class TieLineImpl extends LineImpl implements TieLine {
             return this;
         }
 
+        @Override
+        public boolean isFictitious() {
+            return fictitious;
+        }
+
+        @Override
+        public HalfLineImpl setFictitious(boolean fictitious) {
+            boolean oldValue = this.fictitious;
+            this.fictitious = fictitious;
+            notifyUpdate("fictitious", oldValue, fictitious);
+            return this;
+        }
+
         private String getHalfLineAttribute() {
             return this == parent.half1 ? "half1" : "half2";
         }
@@ -207,6 +221,18 @@ class TieLineImpl extends LineImpl implements TieLine {
     @Override
     public HalfLineImpl getHalf2() {
         return half2;
+    }
+
+    @Override
+    public HalfLineImpl getHalf(Side side) {
+        switch (side) {
+            case ONE:
+                return half1;
+            case TWO:
+                return half2;
+            default:
+                throw new AssertionError("Unknown branch side " + side);
+        }
     }
 
     @Override
