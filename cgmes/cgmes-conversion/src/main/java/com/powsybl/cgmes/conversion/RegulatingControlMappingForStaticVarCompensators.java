@@ -37,7 +37,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
     public void add(String iidmId, PropertyBag sm) {
         String rcId = RegulatingControlMapping.getRegulatingControlId(sm);
         boolean controlEnabledProperty = sm.asBoolean("controlEnabled", false);
-        double defaultTargetVoltage = sm.asDouble("voltageSetPoint");
+        double defaultTargetVoltage = sm.asDouble("voltageSetpoint");
         double defaultTargetReactivePower = sm.asDouble("q");
         String defaultRegulationMode = sm.getId("controlMode");
 
@@ -116,8 +116,8 @@ public class RegulatingControlMappingForStaticVarCompensators {
             regulationMode = StaticVarCompensator.RegulationMode.OFF;
         }
 
-        svc.setVoltageSetPoint(targetVoltage);
-        svc.setReactivePowerSetPoint(targetReactivePower);
+        svc.setVoltageSetpoint(targetVoltage);
+        svc.setReactivePowerSetpoint(targetReactivePower);
         if (control.enabled && rc.controlEnabledProperty) {
             svc.setRegulationMode(regulationMode);
         }
@@ -143,8 +143,8 @@ public class RegulatingControlMappingForStaticVarCompensators {
             regulationMode = StaticVarCompensator.RegulationMode.OFF;
         }
 
-        svc.setVoltageSetPoint(targetVoltage);
-        svc.setReactivePowerSetPoint(targetReactivePower);
+        svc.setVoltageSetpoint(targetVoltage);
+        svc.setReactivePowerSetpoint(targetReactivePower);
         if (rc.controlEnabledProperty) {
             svc.setRegulationMode(regulationMode);
         }

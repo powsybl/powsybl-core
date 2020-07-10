@@ -15,6 +15,7 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -41,8 +42,16 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     protected void writeRootElementAttributes(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeDouble("bMin", svc.getBmin(), context.getWriter());
         XmlUtil.writeDouble("bMax", svc.getBmax(), context.getWriter());
-        XmlUtil.writeDouble("voltageSetPoint", svc.getVoltageSetPoint(), context.getWriter());
-        XmlUtil.writeDouble("reactivePowerSetPoint", svc.getReactivePowerSetPoint(), context.getWriter());
+
+        AtomicReference<String> voltageSetpointName = new AtomicReference<>("voltageSetpoint");
+        AtomicReference<String> reactivePowerSetpointName = new AtomicReference<>("reactivePowerSetpoint");
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
+            voltageSetpointName.set("voltageSetPoint");
+            reactivePowerSetpointName.set("reactivePowerSetPoint");
+        });
+        XmlUtil.writeDouble(voltageSetpointName.get(), svc.getVoltageSetpoint(), context.getWriter());
+        XmlUtil.writeDouble(reactivePowerSetpointName.get(), svc.getReactivePowerSetpoint(), context.getWriter());
+
         context.getWriter().writeAttribute("regulationMode", svc.getRegulationMode().name());
         writeNodeOrBus(null, svc.getTerminal(), context);
         writePQ(null, svc.getTerminal(), context.getWriter());
@@ -70,13 +79,21 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     protected StaticVarCompensator readRootElementAttributes(StaticVarCompensatorAdder adder, NetworkXmlReaderContext context) {
         double bMin = XmlUtil.readDoubleAttribute(context.getReader(), "bMin");
         double bMax = XmlUtil.readDoubleAttribute(context.getReader(), "bMax");
-        double voltageSetPoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "voltageSetPoint");
-        double reactivePowerSetPoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "reactivePowerSetPoint");
+
+        AtomicReference<String> voltageSetpointName = new AtomicReference<>("voltageSetpoint");
+        AtomicReference<String> reactivePowerSetpointName = new AtomicReference<>("reactivePowerSetpoint");
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
+            voltageSetpointName.set("voltageSetPoint");
+            reactivePowerSetpointName.set("reactivePowerSetPoint");
+        });
+        double voltageSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), voltageSetpointName.get());
+        double reactivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), reactivePowerSetpointName.get());
+
         StaticVarCompensator.RegulationMode regulationMode = StaticVarCompensator.RegulationMode.valueOf(context.getReader().getAttributeValue(null, "regulationMode"));
         adder.setBmin(bMin)
                 .setBmax(bMax)
-                .setVoltageSetPoint(voltageSetPoint)
-                .setReactivePowerSetPoint(reactivePowerSetPoint)
+                .setVoltageSetpoint(voltageSetpoint)
+                .setReactivePowerSetpoint(reactivePowerSetpoint)
                 .setRegulationMode(regulationMode);
         readNodeOrBus(adder, context);
         StaticVarCompensator svc = adder.add();
