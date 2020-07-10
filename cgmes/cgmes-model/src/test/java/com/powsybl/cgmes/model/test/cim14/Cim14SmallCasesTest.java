@@ -27,7 +27,7 @@ import com.powsybl.cgmes.model.test.TestGridModelResources;
 public class Cim14SmallCasesTest {
 
     @Test
-    public void small1() throws IOException {
+    public void small1() {
         new CgmesModelTester(Cim14SmallCasesCatalog.small1()).test();
     }
 
@@ -44,17 +44,17 @@ public class Cim14SmallCasesTest {
     }
 
     @Test
-    public void m7Buses() throws IOException {
+    public void m7Buses() {
         new CgmesModelTester(Cim14SmallCasesCatalog.m7buses()).test();
     }
 
     @Test
-    public void ieee14() throws IOException {
+    public void ieee14() {
         new CgmesModelTester(Cim14SmallCasesCatalog.ieee14()).test();
     }
 
     @Test
-    public void nordic32() throws IOException {
+    public void nordic32() {
         new CgmesModelTester(Cim14SmallCasesCatalog.nordic32()).test();
     }
 

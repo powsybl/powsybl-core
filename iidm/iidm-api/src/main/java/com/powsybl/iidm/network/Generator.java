@@ -118,7 +118,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     Generator setTargetQ(double targetQ);
 
     /**
-     * Get the rated nominal power in MVA.
+     * Get the rated nominal power (apparent power rating) in MVA.
      * @return the rated nominal power in MVA or NaN if not defined
      */
     double getRatedS();

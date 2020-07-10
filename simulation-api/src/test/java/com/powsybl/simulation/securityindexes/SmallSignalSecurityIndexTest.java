@@ -16,8 +16,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -41,8 +40,8 @@ public class SmallSignalSecurityIndexTest {
                 xmlReader.close();
             }
         }
-        assertTrue(index.getGmi() == 0.5d);
-        assertTrue(Arrays.equals(index.getAmi(), new double[] {1, 2}));
+        assertEquals(0.5d, index.getGmi(), 1e-6);
+        assertArrayEquals(new double[] {1, 2}, index.getAmi(), 1e-6);
         assertTrue(Arrays.deepEquals(index.getSmi(), new double[][] {new double[] {3, 4}, new double[] {5, 6}}));
         assertEquals(xml, index.toXml());
     }

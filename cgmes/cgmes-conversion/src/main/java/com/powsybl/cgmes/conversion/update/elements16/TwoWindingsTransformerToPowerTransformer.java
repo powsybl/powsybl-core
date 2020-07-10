@@ -15,10 +15,6 @@ import com.powsybl.cgmes.model.CgmesSubset;
 public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes {
 
     public TwoWindingsTransformerToPowerTransformer() {
-        ignore("p1");
-        ignore("q1");
-        ignore("p2");
-        ignore("q2");
 
         // These are examples of not-so-simple updates where
         // we have to find a CGMES sub-object related to IIDM main object
