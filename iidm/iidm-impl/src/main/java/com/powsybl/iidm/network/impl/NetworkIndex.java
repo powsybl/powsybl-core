@@ -151,7 +151,7 @@ class NetworkIndex {
     /**
      * Compute intersection between this index and another one.
      * @param other the other index
-     * @return list of objects id that exist in both indexes organized by class.
+     * @return list of objects id or alias that exist in both indexes organized by class.
      */
     Multimap<Class<? extends Identifiable>, String> intersection(NetworkIndex other) {
         Multimap<Class<? extends Identifiable>, String> intersection = HashMultimap.create();
@@ -159,8 +159,14 @@ class NetworkIndex {
             Class<? extends Identifiable> clazz = entry.getKey();
             Set<Identifiable<?>> objects = entry.getValue();
             for (Identifiable obj : objects) {
-                if (objectsById.containsKey(obj.getId())) {
+                if (objectsById.containsKey(obj.getId()) || idByAlias.containsKey(obj.getId())) {
                     intersection.put(clazz, obj.getId());
+                }
+                Set<String> aliases = obj.getAliases();
+                for (String alias : aliases) {
+                    if (objectsById.containsKey(alias) || idByAlias.containsKey(alias)) {
+                        intersection.put(clazz, alias);
+                    }
                 }
             }
         }
