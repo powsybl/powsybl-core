@@ -5,13 +5,13 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="C1_Filter1" name="Filter 1" sectionCount="1" voltageRegulatorOn="false" bus="B1" connectableBus="B1" q="25.0">
+            <iidm:shunt id="C1_Filter1" name="Filter 1" sectionCount="1" voltageRegulatorOn="false" busId="B1" connectionStatus="CONNECTED | CONNECTABLE" q="25.0">
                 <iidm:shuntLinearModel bPerSection="1.0E-5" maximumSectionCount="1"/>
             </iidm:shunt>
-            <iidm:shunt id="C1_Filter2" name="Filter 2" sectionCount="0" voltageRegulatorOn="false" connectableBus="B1" q="25.0">
+            <iidm:shunt id="C1_Filter2" name="Filter 2" sectionCount="0" voltageRegulatorOn="false" busId="B1" connectionStatus="CONNECTABLE" q="25.0">
                 <iidm:shuntLinearModel bPerSection="2.0E-5" maximumSectionCount="1"/>
             </iidm:shunt>
-            <iidm:lccConverterStation id="C1" name="Converter1" lossFactor="1.1" powerFactor="0.5" bus="B1" connectableBus="B1" p="100.0" q="50.0"/>
+            <iidm:lccConverterStation id="C1" name="Converter1" lossFactor="1.1" powerFactor="0.5" busId="B1" connectionStatus="CONNECTED | CONNECTABLE" p="100.0" q="50.0"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S2" country="FR">
