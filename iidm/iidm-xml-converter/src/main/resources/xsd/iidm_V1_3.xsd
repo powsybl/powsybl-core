@@ -525,6 +525,7 @@
                 <xs:attribute name="b2_1" use="required" type="xs:double"/>
                 <xs:attribute name="xnodeP_1" use="required" type="xs:double"/>
                 <xs:attribute name="xnodeQ_1" use="required" type="xs:double"/>
+                <xs:attribute name="fictitious_1" use="optional" type="xs:boolean"/>
                 <xs:attribute name="id_2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="name_2" use="optional" type="xs:string"/>
                 <xs:attribute name="r_2" use="required" type="xs:double"/>
@@ -535,6 +536,7 @@
                 <xs:attribute name="b2_2" use="required" type="xs:double"/>
                 <xs:attribute name="xnodeP_2" use="required" type="xs:double"/>
                 <xs:attribute name="xnodeQ_2" use="required" type="xs:double"/>
+                <xs:attribute name="fictitious_2" use="optional" type="xs:boolean"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
