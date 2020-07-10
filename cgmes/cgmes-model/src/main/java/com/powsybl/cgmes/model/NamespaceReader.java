@@ -7,16 +7,16 @@
 
 package com.powsybl.cgmes.model;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -41,7 +41,7 @@ public final class NamespaceReader {
             boolean root = false;
             while (xmlsr.hasNext() && !root) {
                 int eventType = xmlsr.next();
-                if (eventType == XMLStreamReader.START_ELEMENT) {
+                if (eventType == XMLStreamConstants.START_ELEMENT) {
                     root = true;
                     for (int k = 0; k < xmlsr.getNamespaceCount(); k++) {
                         found.add(xmlsr.getNamespaceURI(k));

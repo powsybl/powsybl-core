@@ -1,13 +1,10 @@
 package com.powsybl.triplestore.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-
+import com.powsybl.triplestore.api.QueryCatalog;
 import org.junit.Test;
 
-import com.powsybl.triplestore.api.QueryCatalog;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class QueryCatalogTest {
 
@@ -20,8 +17,8 @@ public class QueryCatalogTest {
         assertEquals(q1.hashCode(), q2.hashCode());
         assertNotEquals(q1.hashCode(), q3.hashCode());
         assertNotEquals(q1.hashCode(), q4.hashCode());
-        assertTrue(q1.equals(q2));
-        assertFalse(q1.equals(q3));
-        assertFalse(q1.equals(q4));
+        assertEquals(q1, q2);
+        assertNotEquals(q1, q3);
+        assertNotEquals(q1, q4);
     }
 }
