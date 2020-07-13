@@ -404,21 +404,11 @@ public class TwtData {
     }
 
     private static double getV(Leg leg) {
-        if (leg.getTerminal().getBusBreakerView() != null) {
-            return leg.getTerminal().isConnected() ? leg.getTerminal().getBusBreakerView().getBus().getV() : Double.NaN;
-        } else {
-            return leg.getTerminal().isConnected() ? leg.getTerminal().getBusView().getBus().getV() : Double.NaN;
-        }
+        return leg.getTerminal().isConnected() ? leg.getTerminal().getBusView().getBus().getV() : Double.NaN;
     }
 
     private static double getTheta(Leg leg) {
-        if (leg.getTerminal().getBusBreakerView() != null) {
-            return leg.getTerminal().isConnected() ? Math.toRadians(leg.getTerminal().getBusBreakerView().getBus().getAngle())
-                    : Double.NaN;
-        } else {
-            return leg.getTerminal().isConnected() ? Math.toRadians(leg.getTerminal().getBusView().getBus().getAngle())
-                    : Double.NaN;
-        }
+        return leg.getTerminal().isConnected() ? Math.toRadians(leg.getTerminal().getBusView().getBus().getAngle()) : Double.NaN;
     }
 
     private static double rho(Leg leg, double ratedU0) {

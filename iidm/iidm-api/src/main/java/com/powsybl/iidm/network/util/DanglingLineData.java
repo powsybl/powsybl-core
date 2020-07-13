@@ -61,20 +61,18 @@ public class DanglingLineData {
         } else {
 
             // Two buses Loadflow
-            double pBoundaryBus = -p0;
-            double qBoundaryBus = -q0;
+            Complex sBoundary = new Complex(-p0, -q0);
             Complex ytr = new Complex(r, x).reciprocal();
             Complex ysh2 = new Complex(g2, b2);
             Complex zt = ytr.add(ysh2).reciprocal();
             Complex v0 = ytr.multiply(v1).divide(ytr.add(ysh2));
             double v02 = v0.abs() * v0.abs();
 
-            double sigmar = (zt.getImaginary() * qBoundaryBus + zt.getReal() * pBoundaryBus) / v02;
-            double sigmai = (zt.getImaginary() * pBoundaryBus - zt.getReal() * qBoundaryBus) / v02;
-            double d = 0.25 + sigmar - sigmai * sigmai;
+            Complex sigma = zt.multiply(sBoundary.conjugate()).multiply(1.0 / v02);
+            double d = 0.25 + sigma.getReal() - sigma.getImaginary() * sigma.getImaginary();
             // d < 0 Collapsed network
             if (d >= 0) {
-                vBoundaryBus = new Complex(0.5 + Math.sqrt(d), sigmai).multiply(v0);
+                vBoundaryBus = new Complex(0.5 + Math.sqrt(d), sigma.getImaginary()).multiply(v0);
             }
         }
 
@@ -83,26 +81,14 @@ public class DanglingLineData {
     }
 
     private static double getV(DanglingLine danglingLine) {
-        if (danglingLine.getTerminal().getBusBreakerView() != null) {
-            return danglingLine.getTerminal().isConnected()
-                ? danglingLine.getTerminal().getBusBreakerView().getBus().getV()
-                : Double.NaN;
-        } else {
-            return danglingLine.getTerminal().isConnected() ? danglingLine.getTerminal().getBusView().getBus().getV()
-                : Double.NaN;
-        }
+        return danglingLine.getTerminal().isConnected() ? danglingLine.getTerminal().getBusView().getBus().getV()
+            : Double.NaN;
     }
 
     private static double getTheta(DanglingLine danglingLine) {
-        if (danglingLine.getTerminal().getBusBreakerView() != null) {
-            return danglingLine.getTerminal().isConnected()
-                ? Math.toRadians(danglingLine.getTerminal().getBusBreakerView().getBus().getAngle())
-                : Double.NaN;
-        } else {
-            return danglingLine.getTerminal().isConnected()
-                ? Math.toRadians(danglingLine.getTerminal().getBusView().getBus().getAngle())
-                : Double.NaN;
-        }
+        return danglingLine.getTerminal().isConnected()
+            ? Math.toRadians(danglingLine.getTerminal().getBusView().getBus().getAngle())
+            : Double.NaN;
     }
 
     public String getId() {
