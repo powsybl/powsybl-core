@@ -40,8 +40,6 @@ public class UcteElementIdTest {
         UcteElementId id2 = new UcteElementId(node2, node1, '3');
         UcteElementId id3 = new UcteElementId(node1, node2, '2');
 
-        assertFalse(id1.equals(null));
-
         new EqualsTester()
                 .addEqualityGroup(id1)
                 .addEqualityGroup(id2)

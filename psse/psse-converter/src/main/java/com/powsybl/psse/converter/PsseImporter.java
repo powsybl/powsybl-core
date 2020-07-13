@@ -316,10 +316,6 @@ public class PsseImporter implements Importer {
             generator.getTerminal().connect();
         }
 
-        if (psseGen.getStat() == 1) {
-            generator.getTerminal().connect();
-        }
-
         if (psseGen.getVs() > 0 && ((psseGen.getQt() - psseGen.getQb()) > 0.002 || psseBus.getIde() == 3)) {
             if (psseGen.getIreg() == 0) {
                 //PV group

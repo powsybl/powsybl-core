@@ -148,4 +148,10 @@ public class UcteExporterTest extends AbstractConverterTest {
         Network network = loadNetworkFromResourceFile("/id_duplication_test.uct");
         testExporter(network, "/id_duplication_test.uct");
     }
+
+    @Test
+    public void testElementStatusHandling() throws IOException {
+        Network network = loadNetworkFromResourceFile("/multipleStatusTests.uct");
+        testExporter(network, "/multipleStatusTests.uct");
+    }
 }

@@ -6,10 +6,12 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TieLineAdder;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -46,6 +48,14 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         XmlUtil.writeDouble("b2_" + side, halfLine.getB2(), context.getWriter());
         XmlUtil.writeDouble("xnodeP_" + side, halfLine.getXnodeP(), context.getWriter());
         XmlUtil.writeDouble("xnodeQ_" + side, halfLine.getXnodeQ(), context.getWriter());
+
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
+            try {
+                XmlUtil.writeOptionalBoolean("fictitious_" + side, halfLine.isFictitious(), false, context.getWriter());
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
     }
 
     @Override
@@ -97,6 +107,11 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
                 .setB2(b2)
                 .setXnodeP(xnodeP)
                 .setXnodeQ(xnodeQ);
+
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
+            boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious_" + side, false);
+            adder.setFictitious(fictitious);
+        });
     }
 
     @Override

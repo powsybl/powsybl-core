@@ -106,7 +106,7 @@ public final class NetworkChanges {
             }
         }
         if (!found) {
-            LOG.error("Did not find a ShuntCompensator to test");
+            LOG.warn("Did not find a ShuntCompensator to test");
         }
     }
 
