@@ -7,36 +7,17 @@
 
 package com.powsybl.triplestore.impl.blazegraph;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
-import java.util.UUID;
-
+import com.bigdata.journal.Options;
+import com.bigdata.rdf.sail.BigdataSail;
+import com.bigdata.rdf.sail.BigdataSailRepository;
+import com.bigdata.rdf.store.AbstractTripleStore;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.triplestore.api.*;
 import info.aduna.iteration.Iterations;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Model;
-import org.openrdf.model.Namespace;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.ValueFactory;
+import org.openrdf.model.*;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.QueryResults;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
-import org.openrdf.query.UpdateExecutionException;
+import org.openrdf.query.*;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -49,17 +30,11 @@ import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bigdata.journal.Options;
-import com.bigdata.rdf.sail.BigdataSail;
-import com.bigdata.rdf.sail.BigdataSailRepository;
-import com.bigdata.rdf.store.AbstractTripleStore;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
-import com.powsybl.triplestore.api.PrefixNamespace;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.triplestore.api.TripleStore;
-import com.powsybl.triplestore.api.TripleStoreException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -181,7 +156,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
 
         RepositoryResult<Statement> statements = conn.getStatements(null, null, null, true, context);
         Model model = new LinkedHashModel();
-        QueryResults.addAll(statements, model);
+        Iterations.addAll(statements, model);
         copyNamespacesToModel(conn, model);
 
         String outname = context.toString();
