@@ -983,6 +983,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half1.b2 = 0;
             l.half1.xnodeP = dl1.getP0();
             l.half1.xnodeQ = dl1.getQ0();
+            l.half1.fictitious = dl1.isFictitious();
             l.half2.id = dl2.getId();
             l.half2.name = dl2.getNameOrId();
             l.half2.r = dl2.getR();
@@ -993,6 +994,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half2.b1 = 0;
             l.half2.xnodeP = dl2.getP0();
             l.half2.xnodeQ = dl2.getQ0();
+            l.half2.fictitious = dl2.isFictitious();
             l.limits1 = dl1.getCurrentLimits();
             l.limits2 = dl2.getCurrentLimits();
             if (t1.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
@@ -1070,6 +1072,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                         .setB2(mergedLine.half1.b2)
                         .setXnodeP(mergedLine.half1.xnodeP)
                         .setXnodeQ(mergedLine.half1.xnodeQ)
+                        .setFictitious(mergedLine.half1.fictitious)
                     .line2().setId(mergedLine.half2.id)
                         .setName(mergedLine.half2.name)
                         .setR(mergedLine.half2.r)
@@ -1080,6 +1083,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                         .setB2(mergedLine.half2.b2)
                         .setXnodeP(mergedLine.half2.xnodeP)
                         .setXnodeQ(mergedLine.half2.xnodeQ)
+                        .setFictitious(mergedLine.half2.fictitious)
                     .setUcteXnodeCode(mergedLine.xnode);
             if (mergedLine.bus1 != null) {
                 la.setBus1(mergedLine.bus1);
@@ -1130,6 +1134,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             double b2;
             double xnodeP;
             double xnodeQ;
+            boolean fictitious;
         }
 
         final HalfMergedLine half1 = new HalfMergedLine();
