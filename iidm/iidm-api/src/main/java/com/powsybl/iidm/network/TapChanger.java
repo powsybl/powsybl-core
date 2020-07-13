@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Map;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -121,4 +123,10 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      */
     void remove();
 
+    /**
+     * Get all Tap changer steps
+     */
+    default Map<Integer, S> getAllSteps() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }
