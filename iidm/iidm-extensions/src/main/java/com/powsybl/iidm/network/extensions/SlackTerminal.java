@@ -8,41 +8,31 @@ package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public interface SlackBus extends Extension<VoltageLevel> {
+public interface SlackTerminal extends Extension<VoltageLevel> {
 
     @Override
     default String getName() {
-        return "slackBus";
-    }
-
-    interface NodeBreakerView {
-        int getNode();
-    }
-
-    interface BusBreakerView {
-        Bus getBus();
-    }
-
-    interface BusView {
-        Bus getBus();
+        return "slackTerminal";
     }
 
     /**
-     * Shortcut to getBusView().getBus()
+     * Get the terminal pointed by the current SlackTerminal
+     * @return the corresponding terminal
+     */
+    Terminal getTerminal();
+
+    /**
+     * Shortcut to getTerminal().getBusView().getBus()
      * @return the corresponding bus in the bus view
      */
-    default Bus get() {
-        return getBusView().getBus();
+    default Bus getBus() {
+        return getTerminal().getBusView().getBus();
     }
 
-    NodeBreakerView getNodeBreakerView();
-
-    BusBreakerView getBusBreakerView();
-
-    BusView getBusView();
 }

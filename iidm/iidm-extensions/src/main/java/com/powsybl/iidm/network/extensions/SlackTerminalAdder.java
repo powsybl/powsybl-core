@@ -12,15 +12,15 @@ import com.powsybl.iidm.network.VoltageLevel;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public interface SlackBusAdder extends ExtensionAdder<VoltageLevel, SlackBus> {
+public interface SlackTerminalAdder extends ExtensionAdder<VoltageLevel, SlackTerminal> {
 
     @Override
-    default Class<SlackBus> getExtensionClass() {
-        return SlackBus.class;
+    default Class<SlackTerminal> getExtensionClass() {
+        return SlackTerminal.class;
     }
 
-    SlackBusAdder setNode(int node);
+    SlackTerminalAdder setNode(int node);
 
-    SlackBusAdder setBusId(String busId);
+    SlackTerminalAdder setBusId(String busId);
 
 }

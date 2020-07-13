@@ -12,6 +12,7 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
@@ -20,36 +21,37 @@ import javax.xml.stream.XMLStreamException;
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class SlackBusXmlSerializer extends AbstractExtensionXmlSerializer<VoltageLevel, SlackBus> {
+public class SlackTerminalXmlSerializer extends AbstractExtensionXmlSerializer<VoltageLevel, SlackTerminal> {
 
-    public SlackBusXmlSerializer() {
-        super("mergedXnode", "network", SlackBus.class, false, "slackBus.xsd",
-            "http://www.powsybl.org/schema/iidm/ext/slack_bus/1_0", "slb");
+    public SlackTerminalXmlSerializer() {
+        super("slackTerminal", "network", SlackTerminal.class, false, "slackTerminal.xsd",
+            "http://www.powsybl.org/schema/iidm/ext/slack_bus/1_0", "slt");
     }
 
     @Override
-    public void write(SlackBus slackBus, XmlWriterContext context) throws XMLStreamException {
-        if (slackBus.getNodeBreakerView() != null) {
-            int node = slackBus.getNodeBreakerView().getNode();
+    public void write(SlackTerminal slackTerminal, XmlWriterContext context) throws XMLStreamException {
+        Terminal terminal = slackTerminal.getTerminal();
+        if (terminal.getNodeBreakerView() != null) {
+            int node = terminal.getNodeBreakerView().getNode();
             XmlUtil.writeInt("node", node, context.getExtensionsWriter());
         } else {
-            String busId = slackBus.getBusBreakerView().getBus().getId();
+            String busId = terminal.getBusBreakerView().getBus().getId();
             context.getExtensionsWriter().writeAttribute("busId", busId);
         }
     }
 
     @Override
-    public SlackBus read(VoltageLevel voltageLevel, XmlReaderContext context) {
-        SlackBusAdder slackBusAdder = voltageLevel.newExtension(SlackBusAdder.class);
+    public SlackTerminal read(VoltageLevel voltageLevel, XmlReaderContext context) {
+        SlackTerminalAdder slackTerminalAdder = voltageLevel.newExtension(SlackTerminalAdder.class);
         Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "node");
         if (node != null) {
-            slackBusAdder.setNode(node);
+            slackTerminalAdder.setNode(node);
         }
         String busId = context.getReader().getAttributeValue(null, "busId");
         if (busId != null) {
-            slackBusAdder.setBusId(busId);
+            slackTerminalAdder.setBusId(busId);
         }
-        slackBusAdder.add();
-        return voltageLevel.getExtension(SlackBusAdder.class);
+        slackTerminalAdder.add();
+        return voltageLevel.getExtension(SlackTerminalAdder.class);
     }
 }
