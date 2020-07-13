@@ -240,4 +240,14 @@ public interface Bus extends Identifiable<Bus> {
      */
     void visitConnectedOrConnectableEquipments(TopologyVisitor visitor);
 
+    /**
+     * Get an iterable of the terminals connected to the bus.
+     */
+    Iterable<? extends Terminal> getConnectedTerminals();
+
+    /**
+     * Get a stream of the terminals connected to the bus.
+     */
+    Stream<? extends Terminal> getConnectedTerminalStream();
+
 }
