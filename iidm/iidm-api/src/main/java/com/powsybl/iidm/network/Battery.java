@@ -8,6 +8,18 @@ package com.powsybl.iidm.network;
 
 /**
  * A battery system.
+ *
+ * **Characteristics**
+ *
+ * | Attribute | Type | Unit | Required | Default value | Description |
+ * | --------- | ---- | ---- | -------- | ------------- | ----------- |
+ * | Id | String | - | yes | - | The ID of the battery |
+ * | Name | String | - | no | - | The name of the battery |
+ * | P0 | double | MW | yes | - | The Constant active power |
+ * | Q0 | double | MVar | yes | - | The Constant reactive power |
+ * | MinP | double | MW | yes | - | The Minimal active power |
+ * | MaxP | double | MW | yes | - | The Maximum active power |
+ *
  * <p>
  * To create a battery, see {@link BatteryAdder}
  *

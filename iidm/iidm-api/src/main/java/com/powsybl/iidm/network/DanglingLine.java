@@ -17,6 +17,21 @@ package com.powsybl.iidm.network;
  * orginal line.
  * <p>r, x, g, b have to be consistent with the declared length of the dangling
  * line.
+ *
+ * **Characteristics**
+ *
+ * | Attribute | Type | Unit | Required | Default value | Description |
+ * | --------- | ---- | ---- | -------- | ------------- | ----------- |
+ * | Id | String | - | yes | - | The ID of the dangling line |
+ * | Name | String | - | no | - | The name of the dangling line |
+ * | P0 | double | MW | yes | - | The active power setpoint |
+ * | Q0 | double | MVar | yes | - | The reactive power setpoint |
+ * | R | double | $$\Omega\$$ | yes | - | The series resistance |
+ * | X | double | $$\Omega\$$ | yes | - | The series reactance |
+ * | G | double | S | yes | - | The shunt conductance |
+ * | B | double | S | yes | - | The shunt susceptance |
+ * | UcteXnodeCode | String | - | no | - | The dangling line's UCTE Xnode code |
+ *
  * <p>To create a dangling line, see {@link DanglingLineAdder}
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

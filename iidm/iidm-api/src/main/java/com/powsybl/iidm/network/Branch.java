@@ -9,6 +9,19 @@ package com.powsybl.iidm.network;
 /**
  * An equipment with two terminals.
  *
+ * **Characteristics**
+ *
+ * | Attribute | Type | Unit | Required | Default value | Description |
+ * | --------- | ---- | ---- | -------- | ------------- | ----------- |
+ * | Id | string | - | yes | - | Unique identifier of the line|
+ * | Name | string | - | no | "" | Human-readable name of the line|
+ * | R | double | $$\Omega\$$ | yes | - | The series resistance |
+ * | X | double | $$\Omega\$$ | yes | - | The series reactance |
+ * | G1 | double | S | yes | - | The first side shunt conductance |
+ * | B1 | double | S | yes | - | The first side shunt susceptance |
+ * | G2 | double | S | yes | - | The second side shunt conductance |
+ * | B2 | double | S | yes | - | The second side shunt susceptance |
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface Branch<I extends Branch<I>> extends Connectable<I> {

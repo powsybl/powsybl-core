@@ -10,6 +10,19 @@ package com.powsybl.iidm.network;
  * A HVDC line connected to two HVDC converters on DC side.
  * It has to be connected to the same <code>{@link HvdcConverterStation}</code> subclass.
  *
+ * **Characteristics**
+ *
+ * | Attribute | Type | Unit | Required | Default value | Description |
+ * | --------- | ---- | ---- | -------- | ------------- | ----------- |
+ * | Id | string | - | yes | - | Unique identifier of the HVDC line |
+ * | Name | string | - | yes | - | Human-readable name of the HVDC line |
+ * | R | double | $$\Omega\$$ | yes | - | The resistance of the HVDC line |
+ * | ConvertersMode | `ConvertersMode`| - | yes | - | The converter's mode |
+ * | NominalV | double | kV | yes | - | The nominal voltage |
+ * | ActivePowerSetpoint | MW | double | yes | - | The active power setpoint |
+ * | MaxP | double | MW | yes | - | The maximum active power |
+ * | ConverterStationId1 | String | - | yes | - | The ID of the HVDC converter station connected on side 1 |
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */

@@ -8,6 +8,24 @@ package com.powsybl.iidm.network;
 
 /**
  * A power generator.
+ *
+ * **Characteristics**
+ *
+ * | Attribute | Type | Unit | Required | Default value | Description |
+ * | --------- | ---- | ---- | -------- | ------------- | ----------- |
+ * | Id | String | - | yes | - | The ID of the generator |
+ * | Name | String | - | no | - | The name of the generator |
+ * | EnergySource | `EnergySource` | - | yes | `OTHER` | The energy source |
+ * | MinP | double | MW | yes | - | The minimal active power |
+ * | MaxP | double | MW | yes | - | The maximum active power |
+ * | RegulatingTerminal | `Terminal` | - | no | The generator's terminal | The terminal used for regulation |
+ * | VoltageRegulatorOn | boolean | - | yes | - | The voltage regulator status |
+ * | TargetP | double | MW | yes | - | The active power target |
+ * | TargetQ | double | MVAr | only if `VoltageRegulatorOn` is set to `false` | - | The reactive power target |
+ * | TargetV | double | kV | only if `VoltageRegulatorOn` is set to `true` | - | The voltage target |
+ * | RatedS | double | MVA | yes | - | The rated nominal power |
+ * | ReactiveLimits | - | - | no | min/max | Operational limits of the generator (P/Q/U diagram) |
+ *
  *<p>
  * To create a generator, see {@link GeneratorAdder}
  *

@@ -29,6 +29,18 @@ package com.powsybl.iidm.network;
  * <p>
  * Only one Tap Changer is allowed to be regulating on the equipment. An exception is thrown if
  * two or more regulating controls are enabled.
+ *
+ * **Characteristics**
+ *
+ * | Attribute | Type | Unit | Required | Default value | Description |
+ * | --------- | ---- | ---- |-------- | ------------- | ----------- |
+ * | Id | string | - | yes | - | Unique identifier of the transformer |
+ * | Name | string | - | yes | - | Human-readable name of the transformer |
+ * | RatedU0 | double | kV | yes | - | The rated voltage at the star bus |
+ * | Leg1 | `ThreeWindingsTransformer.Leg` | - | yes | - | The leg at the primary side |
+ * | Leg2 | `ThreeWindingsTransformer.Leg` | - | yes | - | The leg at the secondary side |
+ * | Leg3 | `ThreeWindingsTransformer.Leg` | - | yes | - | getId()The leg at the tertiary side |
+ *
  * <p>
  * To create a three windings transformer, see {@link ThreeWindingsTransformerAdder}
  *
@@ -45,6 +57,22 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         THREE
     }
 
+    /**
+     * Transformer leg
+     *
+     * **Characteristics**
+     *
+     * | Attribute | Type | Unit | Required | Default value | Description |
+     * | --------- | ---- | ---- |-------- | ------------- | ----------- |
+     * | Terminal | [`Terminal`](terminal.md) | - | yes | - | The terminal the leg is connected to |
+     * | R | double | $$\Omega\$$ | yes | - | The nominal series resistance specified at the voltage of the leg |
+     * | X | double | $$\Omega\$$ | yes | - | The nominal series reactance specified at the voltage of the leg |
+     * | G | double | S | yes | - | The nominal magnetizing conductance specified at the voltage of the leg |
+     * | B | double | S | yes | - | The nominal magnetizing susceptance specified at the voltage of the leg |
+     * | RatedU | double | kV | yes | - | The rated voltage |
+     * | RatedS | double | MVA | no | - | The normal apparent power |
+     *
+     */
     public interface Leg extends RatioTapChangerHolder, PhaseTapChangerHolder {
 
         /**

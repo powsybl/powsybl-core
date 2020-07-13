@@ -9,6 +9,19 @@ package com.powsybl.iidm.network;
 /**
  * Static VAR compensator model.
  *
+ * *Characteristics**
+ *
+ * | Attribute | Type | Unit | Required | Default value | Description |
+ * | --------- | ---- | ---- |-------- | ------------- | ----------- |
+ * | Id | String | - | yes | - | The ID of the static VAR compensator |
+ * | Name | String | - | no | - | The name of the static VAR compensator |
+ * | Bmin | double | S | yes | - | The minimum susceptance |
+ * | Bmax | double | S | yes | - | The maximum susceptance |
+ * | VoltageSetpoint | double | kV | only if `RegulationMode` is set to `VOLTAGE` | - | The voltage setpoint |
+ * | ReactivePowerSetpoint | double | MVar | only if `RegulationMode` is set to `REACTIVE_POWER` | - | The reactive power setpoint |
+ * | RegulatingTerminal | `Terminal`| - | no | The static var compensator's terminal | The terminal used for regulation |
+ * | RegulationMode | `RegulationMode` | - | yes | - | The regulation mode |
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface StaticVarCompensator extends Injection<StaticVarCompensator> {

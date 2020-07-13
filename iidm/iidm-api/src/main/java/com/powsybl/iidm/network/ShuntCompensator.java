@@ -9,6 +9,20 @@ package com.powsybl.iidm.network;
 /**
  * A shunt compensator.
  *
+ * **Characteristics**
+ *
+ * | Attribute | Type | Unit | Required | Default value | Description |
+ * | --------- | ---- | ---- |--------- | ------------- | ----------- |
+ * | Id | String | - | yes | - | The ID of the shunt compensator |
+ * | Name | String | - | no | - | The name of the shunt compensator |
+ * | bPerSection | double | S | yes | - | The Positive sequence shunt (charging) susceptance per section |
+ * | MaximumSectionCount| integer | int | yes | - | The maximum number of sections that may be switched on |
+ * | CurrentSectionCount | integer | int | yes | - | The current number of section that may be switched on |
+ * | RegulatingTerminal | `Terminal` | - | no | The shunt compensator's terminal | The terminal used for regulation |
+ * | TargetV | double | kV | only if `VoltageRegulatorOn` is set to `true` | - |  The voltage target |
+ * | TargetDeadband | double | kV | only if `VoltageRegulatorOn` is set to `true` | - | The deadband used to avoid excessive update of controls |
+ * | VoltageRegulatorOn | boolean | - | no | false | The voltage regulating status |
+ *
  * To create a shunt compensator, see {@link ShuntCompensatorAdder}
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

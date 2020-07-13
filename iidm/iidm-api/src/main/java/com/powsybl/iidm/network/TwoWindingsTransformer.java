@@ -15,6 +15,21 @@ package com.powsybl.iidm.network;
  * </div>
  * <p>b, g, r, x shall be specified at the side 2 voltage.
  * <p>b and g unit is siemens, r and x unit is ohm.
+ *
+ * **Characteristics**
+ *
+ * | Attribute | Type | Unit | Required | Default value | Description |
+ * | --------- | ---- | ---- | -------- | ------------- | ----------- |
+ * | Id | string | - | yes | - | Unique identifier of the transformer |
+ * | Name | string | - | yes | - | Human-readable name of the transformer |
+ * | Rnom | double | $$\Omega$$  | yes | - | The nominal series resistance at the side 2 of the transformer |
+ * | Xnom | double | $$\Omega$$ | yes | - | The nominal series reactance at the side 2 of the transformer |
+ * | Gnom | double | S | yes | - | The nominal magnetizing conductance at the side 2 of the transformer |
+ * | Bnom | double | S | yes | - | The nominal magnetizing susceptance at the side 2 of the transformer |
+ * | V1nom | double | kV | yes | - | The rated voltage at side 1 |
+ * | V2nom | double | kV | yes | - | The rated voltage at side 2 |
+ * | RatedS | double | MVA | no | - | The normal apparent power |
+ *
  * <p>b, g, r, x, &#961; and &#945; variables in the model can be computed with
  * the following Java code supposing <code>transfo</code> is an instance of
  * <code>TwoWindingsTransformer</code>.

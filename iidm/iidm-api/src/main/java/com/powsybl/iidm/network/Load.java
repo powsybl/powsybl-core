@@ -11,6 +11,16 @@ package com.powsybl.iidm.network;
  * <p>p0 and q0 are given at the nominal voltage of the voltage level to which
  * the load is connected (l.getTerminal().getVoltageLevel().getNominalV()).
  *
+ * **Characteristics**
+ *
+ * | Attribute | Type | Unit | Required | Default value | Description |
+ * | --------- | ---- | ---- |-------- | ------------- | ----------- |
+ * | Id | String | - | yes | - | The ID of the load |
+ * | Name | String | - | no | - | The name of the load |
+ * | LoadType | `LoadType` | - | no | `UNDEFINED` | The type of the load |
+ * | P0 | double | MW | yes | - | The active power setpoint |
+ * | Q0 | double | MVar | yes | - | The reactive power setpoint |
+ *
  * <p>To create a load, see {@link LoadAdder}
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

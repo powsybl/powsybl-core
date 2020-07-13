@@ -76,6 +76,18 @@ import java.util.stream.Stream;
  *     <td>readable</td>
  *   </tr>
  * </table>
+ *
+ * **Characteristics**
+ *
+ * | Attribute | Type | Unit | Required | Default value | Description |
+ * | --------- | ---- | ---- | -------- | ------------- | ----------- |
+ * | Id | String | - | yes | - | The ID of the voltage level |
+ * | Name | String | - | no | - | The name of the voltage level |
+ * | NominalV | double | kV | yes | - | The nominal voltage |
+ * | LowVoltageLimit | double | kV | no | - | The low voltage limit |
+ * | HighVoltageLimit | double | kV | no | - | The high voltage limit |
+ * | TopologyKind | `TopologyKind` | - | yes | - | The kind of topology |
+ *
  * <h3>Creating a substation with a node/breaker topology model:</h3>
  * The substation of the example has two voltage levels VL1 and VL2 described by a
  * node/breaker topology model. The first voltage level VL1 has 2 busbar sections

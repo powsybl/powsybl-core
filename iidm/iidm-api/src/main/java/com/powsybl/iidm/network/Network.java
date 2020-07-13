@@ -16,6 +16,15 @@ import java.util.stream.Stream;
 /**
  * A power network model.
  *
+ * **Characteristics**
+ *
+ * | Attribute | Type | Required | Default value | Description |
+ * | --------- | ---- | -------- | ------------- | ----------- |
+ * | Id | String | yes | - | The ID of the network |
+ * | Name | String | no | - | The name of the network |
+ * | CaseDate | `DateTime` | no | Now | The date of the case |
+ * | ForecastDistance | Integer | no | 0 | The number of minutes between the date of the case generation and the date of the case |
+ *
  * To create a new empty network with default implementation:
  *<pre>
  *    Network n = Network.create("test", "test");

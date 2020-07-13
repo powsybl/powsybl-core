@@ -11,11 +11,22 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * A substation is a collection of equipment located at a the same geographical
+ * A substation is a collection of equipments located at a the same geographical
  * site.
  * <p>It is composed of several voltage levels.
  * <p>A substation is located to one country and belongs to one TSO.
  * <p> To create a substation, see {@link SubstationAdder}
+ *
+ * **Characteristics**
+ *
+ *| Attribute | Type | Required | Default value | Description |
+ *| --------- | ---- | -------- | ------------- | ----------- |
+ *| Id | String | yes | - | The ID of the substation |
+ *| Name | String | no | - | The name of the substation |
+ *| Country | `Country` | no | - | The country where this substation is located |
+ *| Tso | String | no | - | The TSO this substations belongs to |
+ *| GeographicalTags | List of String | no | - | A list of geographical tags |
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see VoltageLevel
  * @see Country

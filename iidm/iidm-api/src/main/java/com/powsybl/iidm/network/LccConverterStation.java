@@ -9,6 +9,14 @@ package com.powsybl.iidm.network;
 /**
  * LCC converter station.
  *
+ * **Characteristics**
+ *
+ * | Attribute | Type | Unit | Required | Default value | Description |
+ * | --------- | ---- | ---- | -------- | ------------- | ----------- |
+ * | Id | string | - | yes | - | Unique identifier of the LCC converter station |
+ * | Name | string | - | yes | - | Human-readable name of the LCC converter station |
+ * | PowerFactor | float | - | yes | - | The power factor |
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
