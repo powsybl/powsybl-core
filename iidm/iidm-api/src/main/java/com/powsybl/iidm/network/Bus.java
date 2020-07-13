@@ -244,15 +244,11 @@ public interface Bus extends Identifiable<Bus> {
     /**
      * Get an iterable of the terminals connected to the bus.
      */
-    default Iterable<? extends Terminal> getConnectedTerminals() {
-        return Collections.emptyList();
-    }
+    Iterable<? extends Terminal> getConnectedTerminals();
 
     /**
      * Get a stream of the terminals connected to the bus.
      */
-    default Stream<? extends Terminal> getConnectedTerminalStream() {
-        return Stream.empty();
-    }
+    Stream<? extends Terminal> getConnectedTerminalStream();
 
 }
