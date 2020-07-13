@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.test.update;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -46,7 +47,7 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 public class StateVariablesAdderTest {
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         cgmesImport = new CgmesImport(new InMemoryPlatformConfig(fileSystem));
     }
@@ -93,8 +94,8 @@ public class StateVariablesAdderTest {
         PropertyBags fullModel1 = cgmes1.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
 
         // Compare
-        assertTrue(topologicalIslands0.equals(topologicalIslands1));
-        assertTrue(fullModel0.equals(fullModel1));
+        assertEquals(topologicalIslands0, topologicalIslands1);
+        assertEquals(fullModel0, fullModel1);
         assertTrue(networkVoltagesChangesInCgmes(network0, cgmes1));
     }
 

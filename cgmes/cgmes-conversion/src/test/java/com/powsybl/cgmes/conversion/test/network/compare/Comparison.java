@@ -12,7 +12,6 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
@@ -188,8 +187,8 @@ public class Comparison {
 
     private void compareBuses(Bus expected, Bus actual) {
         equivalent("VoltageLevel", expected.getVoltageLevel(), actual.getVoltageLevel());
-        compare(CgmesNames.VOLTAGE, expected.getV(), actual.getV());
-        compare(CgmesNames.ANGLE, expected.getAngle(), actual.getAngle());
+        compare("v", expected.getV(), actual.getV());
+        compare("angle", expected.getAngle(), actual.getAngle());
     }
 
     private void compareLoads(Load expected, Load actual) {
@@ -682,7 +681,7 @@ public class Comparison {
         // The names could be different only in trailing whitespace
         // Blazegraph does not preserve whitespace in input XML text
         String expected1 = expected.trim();
-        String actual1 = expected.trim();
+        String actual1 = actual.trim();
         if (config.compareNamesAllowSuffixes) {
             int endIndex = Math.min(expected.length(), actual.length());
             compare(context,

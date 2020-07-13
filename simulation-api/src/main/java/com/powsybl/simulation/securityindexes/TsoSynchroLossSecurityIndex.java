@@ -8,10 +8,10 @@ package com.powsybl.simulation.securityindexes;
 
 import com.google.common.collect.ImmutableMap;
 
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-import javax.xml.stream.events.XMLEvent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -38,15 +38,17 @@ public class TsoSynchroLossSecurityIndex extends AbstractSecurityIndex {
         while (xmlsr.hasNext()) {
             int eventType = xmlsr.next();
             switch (eventType) {
-                case XMLEvent.CHARACTERS:
+                case XMLStreamConstants.CHARACTERS:
                     text = xmlsr.getText();
                     break;
-                case XMLEvent.START_ELEMENT:
+
+                case XMLStreamConstants.START_ELEMENT:
                     if (GENERATOR.equals(xmlsr.getLocalName())) {
                         id = xmlsr.getAttributeValue(null, "id");
                     }
                     break;
-                case XMLEvent.END_ELEMENT:
+
+                case XMLStreamConstants.END_ELEMENT:
                     switch (xmlsr.getLocalName()) {
                         case GENERATOR:
                             if (id == null) {

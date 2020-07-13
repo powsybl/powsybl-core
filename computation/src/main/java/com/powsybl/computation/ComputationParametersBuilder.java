@@ -21,9 +21,6 @@ public class ComputationParametersBuilder {
 
     private final Map<String, Long> deadlineMap = new HashMap<>();
 
-    public ComputationParametersBuilder() {
-    }
-
     public ComputationParametersBuilder setTimeout(String cmdId, long seconds) {
         Objects.requireNonNull(cmdId);
         Preconditions.checkArgument(seconds > 0, "Timeout must be positive.");

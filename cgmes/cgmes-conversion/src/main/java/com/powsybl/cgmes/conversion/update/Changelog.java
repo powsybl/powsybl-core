@@ -7,7 +7,6 @@
 package com.powsybl.cgmes.conversion.update;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -18,6 +17,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
@@ -53,18 +54,23 @@ public class Changelog implements NetworkListener {
 
     @Override
     public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
-        if (!IGNORED_ATTRIBUTES.contains(attribute)) {
+        if (!ignoredAttribute(identifiable, attribute)) {
             baseChanges.add(new IidmChangeUpdate(identifiable, attribute, oldValue, newValue));
         }
     }
 
     @Override
     public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
-        if (!IGNORED_ATTRIBUTES.contains(attribute)) {
-            // Create a new list of changes if no changelog is found for the variant
-            // or if the previous changelog was null
-            changesByVariant.computeIfAbsent(variantId, k -> new ArrayList<>()).add(new IidmChangeUpdate(identifiable, attribute, oldValue, newValue));
+        // Create a new list of changes if no changelog is found for the variant
+        // or if the previous changelog was null
+        if (!ignoredAttribute(identifiable, attribute)) {
+            changesByVariant.computeIfAbsent(variantId, k -> new ArrayList<>())
+                .add(new IidmChangeUpdate(identifiable, attribute, oldValue, newValue));
         }
+    }
+
+    public boolean ignoredAttribute(Identifiable identifiable, String attribute) {
+        return IGNORED_ATTRIBUTES.contains(attribute);
     }
 
     @Override
@@ -97,10 +103,30 @@ public class Changelog implements NetworkListener {
     private final List<IidmChange> baseChanges;
     private final Map<String, List<IidmChange>> changesByVariant;
 
+    // Configure which attribute changes should be ignored for the Changelog
+    // Some IIDM attributes are not relevant for CGMES (component numbers).
+    // In the changelog we do not want to record changes in some state variables,
+    // as they will be processed systematically during the export
+    // We do not need to record its variations to make selective updates
+
     private static final String CONNECTED_COMPONENT_NUMBER = "connectedComponentNumber";
     private static final String SYNCHRONOUS_COMPONENT_NUMBER = "synchronousComponentNumber";
-    private static final Set<String> IGNORED_ATTRIBUTES = new HashSet<>(Arrays.asList(
-        CONNECTED_COMPONENT_NUMBER,
-        SYNCHRONOUS_COMPONENT_NUMBER));
+    private static final String V = "v";
+    private static final String ANGLE = "angle";
+    private static final String P = "p";
+    private static final String P1 = "p1";
+    private static final String P2 = "p2";
+    private static final String P3 = "p3";
+    private static final String Q = "q";
+    private static final String Q1 = "q1";
+    private static final String Q2 = "q2";
+    private static final String Q3 = "q3";
+
+    private static final Set<String> IGNORED_ATTRIBUTES = Stream.of(
+            CONNECTED_COMPONENT_NUMBER,
+            SYNCHRONOUS_COMPONENT_NUMBER,
+            V,
+            ANGLE,
+            P, Q, P1, Q1, P2, Q2, P3, Q3).collect(Collectors.toCollection(HashSet::new));
 
 }
