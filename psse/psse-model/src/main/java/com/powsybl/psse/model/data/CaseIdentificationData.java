@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.psse.model;
+package com.powsybl.psse.model.data;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,14 +14,16 @@ import java.util.Objects;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.powsybl.commons.PowsyblException;
+import com.powsybl.psse.model.PsseCaseIdentification;
+import com.powsybl.psse.model.PsseContext;
+import com.powsybl.psse.model.PsseException;
 
 /**
  *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class CaseIdentificationData extends BlockData {
+class CaseIdentificationData extends BlockData {
 
     CaseIdentificationData(PsseVersion psseVersion) {
         super(psseVersion);
@@ -69,14 +71,14 @@ public class CaseIdentificationData extends BlockData {
 
         JsonNode caseIdentificationNode = networkNode.get("caseid");
         if (caseIdentificationNode == null) {
-            throw new PowsyblException("Psse: CaseIdentificationBlock does not exist");
+            throw new PsseException("Psse: CaseIdentificationBlock does not exist");
         }
 
         String[] headers = nodeFields(caseIdentificationNode);
         List<String> records = nodeRecords(caseIdentificationNode);
         List<PsseCaseIdentification> caseIdentificationList = parseRecordsHeader(records, PsseCaseIdentification.class, headers);
         if (caseIdentificationList.size() != 1) {
-            throw new PowsyblException("Psse: CaseIdentificationBlock, unexpected size " + caseIdentificationList.size());
+            throw new PsseException("Psse: CaseIdentificationBlock, unexpected size " + caseIdentificationList.size());
         }
 
         context.setCaseIdentificationDataReadFields(headers);

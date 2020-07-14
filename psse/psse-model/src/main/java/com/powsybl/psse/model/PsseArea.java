@@ -15,7 +15,7 @@ import com.univocity.parsers.annotations.Validate;
  */
 public class PsseArea {
 
-    @Parsed
+    @Parsed(field = {"i", "iarea"})
     @Validate
     private int i;
 

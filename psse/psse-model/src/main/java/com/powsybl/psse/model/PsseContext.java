@@ -38,15 +38,15 @@ public class PsseContext {
     PsseContext() {
     }
 
-    void setDelimiter(String delimiter) {
+    public void setDelimiter(String delimiter) {
         this.delimiter = delimiter;
     }
 
-    String getDelimiter() {
+    public String getDelimiter() {
         return this.delimiter;
     }
 
-    void setCaseIdentificationDataReadFields(String[] fields) {
+    public void setCaseIdentificationDataReadFields(String[] fields) {
         this.caseIdentificationDataReadFields = fields;
     }
 
@@ -54,7 +54,7 @@ public class PsseContext {
         return this.caseIdentificationDataReadFields;
     }
 
-    void setBusDataReadFields(String[] fields) {
+    public void setBusDataReadFields(String[] fields) {
         this.busDataReadFields = fields;
     }
 
@@ -62,7 +62,7 @@ public class PsseContext {
         return this.busDataReadFields;
     }
 
-    void setLoadDataReadFields(String[] fields) {
+    public void setLoadDataReadFields(String[] fields) {
         this.loadDataReadFields = fields;
     }
 
@@ -70,7 +70,7 @@ public class PsseContext {
         return this.loadDataReadFields;
     }
 
-    void setFixedBusShuntDataReadFields(String[] fields) {
+    public void setFixedBusShuntDataReadFields(String[] fields) {
         this.fixedBusShuntDataReadFields = fields;
     }
 
@@ -78,7 +78,7 @@ public class PsseContext {
         return this.fixedBusShuntDataReadFields;
     }
 
-    void setGeneratorDataReadFields(String[] fields) {
+    public void setGeneratorDataReadFields(String[] fields) {
         this.generatorDataReadFields = fields;
     }
 
@@ -86,7 +86,7 @@ public class PsseContext {
         return this.generatorDataReadFields;
     }
 
-    void setNonTransformerBranchDataReadFields(String[] fields) {
+    public void setNonTransformerBranchDataReadFields(String[] fields) {
         this.nonTransformerBranchDataReadFields = fields;
     }
 
@@ -94,7 +94,7 @@ public class PsseContext {
         return this.nonTransformerBranchDataReadFields;
     }
 
-    void set3wTransformerDataReadFields(String[] fields, String[] winding1Fields, String[] winding2Fields,
+    public void set3wTransformerDataReadFields(String[] fields, String[] winding1Fields, String[] winding2Fields,
         String[] winding3Fields) {
         this.t3wTransformerDataReadFields = fields;
         this.t3wTransformerDataWinding1ReadFields = winding1Fields;
@@ -106,7 +106,7 @@ public class PsseContext {
         return this.t3wTransformerDataReadFields == null;
     }
 
-    String[] get3wTransformerDataReadFields() {
+    public String[] get3wTransformerDataReadFields() {
         return this.t3wTransformerDataReadFields;
     }
 
@@ -122,7 +122,7 @@ public class PsseContext {
         return this.t3wTransformerDataWinding3ReadFields;
     }
 
-    void set2wTransformerDataReadFields(String[] fields, String[] winding1Fields, String[] winding2Fields) {
+    public void set2wTransformerDataReadFields(String[] fields, String[] winding1Fields, String[] winding2Fields) {
         this.t2wTransformerDataReadFields = fields;
         this.t2wTransformerDataWinding1ReadFields = winding1Fields;
         this.t2wTransformerDataWinding2ReadFields = winding2Fields;
@@ -144,7 +144,7 @@ public class PsseContext {
         return this.t2wTransformerDataWinding2ReadFields;
     }
 
-    void setAreaInterchangeDataReadFields(String[] fields) {
+    public void setAreaInterchangeDataReadFields(String[] fields) {
         this.areaInterchangeDataReadFields = fields;
     }
 
@@ -152,7 +152,7 @@ public class PsseContext {
         return this.areaInterchangeDataReadFields;
     }
 
-    void setZoneDataReadFields(String[] fields) {
+    public void setZoneDataReadFields(String[] fields) {
         this.zoneDataReadFields = fields;
     }
 
@@ -160,7 +160,7 @@ public class PsseContext {
         return this.zoneDataReadFields;
     }
 
-    void setOwnerDataReadFields(String[] fields) {
+    public void setOwnerDataReadFields(String[] fields) {
         this.ownerDataReadFields = fields;
     }
 
@@ -168,7 +168,7 @@ public class PsseContext {
         return this.ownerDataReadFields;
     }
 
-    void setSwitchedShuntDataReadFields(String[] fields) {
+    public void setSwitchedShuntDataReadFields(String[] fields) {
         this.switchedShuntDataReadFields = fields;
     }
 
@@ -176,17 +176,7 @@ public class PsseContext {
         return this.switchedShuntDataReadFields;
     }
 
-    static String[] generatorDataHeaders() {
-        return new String[] {"i", "id", "pg", "qg", "qt", "qb", "vs", "ireg", "mbase", "zr", "zx", "rt",
-            "xt", "gtap", "stat", "rmpct", "pt", "pb", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "wmod", "wpf"};
-    }
-
-    static String[] nonTransformerBranchDataHeaders() {
-        return new String[] {"i", "j", "ckt", "r", "x", "b", "ratea", "rateb", "ratec", "gi", "bi", "gj", "bj",
-            "st", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
-    }
-
-    static String[] transformerDataHeaders(int firstRecordFields) {
+    public static String[] transformerDataHeaders(int firstRecordFields) {
         String[] first = new String[] {"i", "j", "k", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmetr", "name", "stat",
             "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "vecgrp"};
         String[] second = new String[] {"r12", "x12", "sbase12", "r23", "x23", "sbase23", "r31", "x31", "sbase31",
@@ -195,24 +185,12 @@ public class PsseContext {
         return ArrayUtils.addAll(ArrayUtils.subarray(first, 0, firstRecordFields), second);
     }
 
-    static String[] transformerWindingDataHeaders() {
+    public static String[] transformerWindingDataHeaders() {
         return new String[] {"windv", "nomv", "ang", "rata", "ratb", "ratc", "cod", "cont", "rma", "rmi", "vma", "vmi",
             "ntp", "tab", "cr", "cx", "cnxa"};
     }
 
-    static String[] areaInterchangeDataHeaders() {
-        return new String[] {"i", "isw", "pdes", "ptol", "arname"};
-    }
-
-    static String[] zoneDataHeaders() {
-        return new String[] {"i", "zoname"};
-    }
-
-    static String[] ownerDataHeaders() {
-        return new String[] {"i", "owname"};
-    }
-
-    static String[] switchedShuntDataHeaders() {
+    public static String[] switchedShuntDataHeaders() {
         return new String[] {"i", "modsw", "adjm", "stat", "vswhi", "vswlo", "swrem", "rmpct", "rmidnt", "binit",
             "n1", "b1", "n2", "b2", "n3", "b3", "n4", "b4", "n5", "b5", "n6", "b6", "n7", "b7", "n8", "b8"};
     }

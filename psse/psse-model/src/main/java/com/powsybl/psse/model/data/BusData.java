@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.psse.model;
+package com.powsybl.psse.model.data;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,13 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.powsybl.psse.model.PsseBus;
+import com.powsybl.psse.model.PsseContext;
 
 /**
  *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class BusData extends BlockData {
+class BusData extends BlockData {
 
     BusData(PsseVersion psseVersion) {
         super(psseVersion);
@@ -43,7 +45,7 @@ public class BusData extends BlockData {
 
         JsonNode busNode = networkNode.get("bus");
         if (busNode == null) {
-            return new ArrayList<PsseBus>();
+            return new ArrayList<>();
         }
 
         String[] headers = nodeFields(busNode);

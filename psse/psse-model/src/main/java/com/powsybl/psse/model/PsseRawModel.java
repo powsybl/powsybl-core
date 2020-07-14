@@ -70,8 +70,16 @@ public class PsseRawModel {
         return fixedShunts;
     }
 
+    public void addGenerators(List<PsseGenerator> generators) {
+        this.generators.addAll(generators);
+    }
+
     public List<PsseGenerator> getGenerators() {
         return generators;
+    }
+
+    public void addNonTransformerBranches(List<PsseNonTransformerBranch> nonTransformerBranches) {
+        this.nonTransformerBranches.addAll(nonTransformerBranches);
     }
 
     public List<PsseNonTransformerBranch> getNonTransformerBranches() {
@@ -82,12 +90,24 @@ public class PsseRawModel {
         return transformers;
     }
 
+    public void addAreas(List<PsseArea> areas) {
+        this.areas.addAll(areas);
+    }
+
     public List<PsseArea> getAreas() {
         return areas;
     }
 
+    public void addZones(List<PsseZone> zones) {
+        this.zones.addAll(zones);
+    }
+
     public List<PsseZone> getZones() {
         return zones;
+    }
+
+    public void addOwners(List<PsseOwner> owners) {
+        this.owners.addAll(owners);
     }
 
     public List<PsseOwner> getOwners() {
@@ -97,5 +117,4 @@ public class PsseRawModel {
     public List<PsseSwitchedShunt> getSwitchedShunts() {
         return switchedShunts;
     }
-
 }

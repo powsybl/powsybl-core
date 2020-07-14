@@ -31,4 +31,28 @@ public class PsseRawModel35 extends PsseRawModel {
         });
         getLoads().addAll(loads);
     }
+
+    @Override
+    public void addGenerators(List<PsseGenerator> generators) {
+        generators.forEach(generator -> {
+            if (generator instanceof PsseGenerator35) {
+                System.err.printf("es PsseGenerator35 %n");
+            } else {
+                System.err.printf("es PsseGenerator %n");
+            }
+        });
+        getGenerators().addAll(generators);
+    }
+
+    @Override
+    public void addNonTransformerBranches(List<PsseNonTransformerBranch> nonTransformerBranches) {
+        nonTransformerBranches.forEach(nonTransformerBranch -> {
+            if (nonTransformerBranch instanceof PsseNonTransformerBranch35) {
+                System.err.printf("es PsseGenerator35 %n");
+            } else {
+                System.err.printf("es PsseGenerator %n");
+            }
+        });
+        getNonTransformerBranches().addAll(nonTransformerBranches);
+    }
 }

@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.psse.model;
+package com.powsybl.psse.model.data;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.powsybl.commons.PowsyblException;
+import com.powsybl.psse.model.PsseException;
 import com.univocity.parsers.common.DataProcessingException;
 import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.RetryableErrorHandler;
@@ -34,7 +34,7 @@ import com.univocity.parsers.csv.CsvParserSettings;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class BlockData {
+class BlockData {
 
     private static final String PSSE = "Psse: ";
 
@@ -240,7 +240,7 @@ public class BlockData {
             && psseFileFormat == PsseFileFormat.FORMAT_RAW) {
             return;
         }
-        throw new PowsyblException(PSSE + blockData + ". Wrong version, expected version between (" + minimumVersion
+        throw new PsseException(PSSE + blockData + ". Wrong version, expected version between (" + minimumVersion
             + ", " + maximumVersion + ") actual version " + psseVersion + ". Expected format "
             + PsseFileFormat.FORMAT_RAW + " actual format" + psseFileFormat);
     }
@@ -251,7 +251,7 @@ public class BlockData {
             psseFileFormat == fileFormat) {
             return;
         }
-        throw new PowsyblException(PSSE + blockData + ". Wrong version, expected version between (" + minimumVersion
+        throw new PsseException(PSSE + blockData + ". Wrong version, expected version between (" + minimumVersion
             + ", " + maximumVersion + ") actual version " + psseVersion + ". Expected format "
             + fileFormat + " actual format" + psseFileFormat);
     }
@@ -260,7 +260,7 @@ public class BlockData {
         if (psseVersion.ordinal() >= version.ordinal() && psseFileFormat == PsseFileFormat.FORMAT_RAW) {
             return;
         }
-        throw new PowsyblException(PSSE + blockData + ". Wrong version, minimum expected version" + version + " actual version "
+        throw new PsseException(PSSE + blockData + ". Wrong version, minimum expected version" + version + " actual version "
             + psseVersion + ". Expected format " + PsseFileFormat.FORMAT_RAW + " actual format " + psseFileFormat);
     }
 
@@ -268,7 +268,7 @@ public class BlockData {
         if (psseVersion.ordinal() >= version.ordinal() && psseFileFormat == fileFormat) {
             return;
         }
-        throw new PowsyblException(PSSE + blockData + ". Wrong version, minimum expected version " + version + " actual version "
+        throw new PsseException(PSSE + blockData + ". Wrong version, minimum expected version " + version + " actual version "
             + psseVersion + ". Expected format " + fileFormat + " actual format " + psseFileFormat);
     }
 

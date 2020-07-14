@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.psse.model;
+package com.powsybl.psse.model.data;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,15 +12,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.powsybl.psse.model.PsseContext;
+import com.powsybl.psse.model.PsseFixedShunt;
 
 /**
  *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class FixedBusShuntData extends BlockData {
+class FixedBusShuntData extends BlockData {
 
-    FixedBusShuntData(PsseVersion psseVersion) {
+    public FixedBusShuntData(PsseVersion psseVersion) {
         super(psseVersion);
     }
 
@@ -43,7 +45,7 @@ public class FixedBusShuntData extends BlockData {
 
         JsonNode fixedShuntNode = networkNode.get("fixshunt");
         if (fixedShuntNode == null) {
-            return new ArrayList<PsseFixedShunt>();
+            return new ArrayList<>();
         }
 
         String[] headers = nodeFields(fixedShuntNode);

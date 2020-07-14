@@ -15,11 +15,11 @@ import com.univocity.parsers.annotations.Validate;
  */
 public class PsseGenerator {
 
-    @Parsed
+    @Parsed(field = {"i", "ibus"})
     @Validate
     private int i;
 
-    @Parsed
+    @Parsed(field = {"id", "machid"})
     private String id = "1";
 
     @Parsed

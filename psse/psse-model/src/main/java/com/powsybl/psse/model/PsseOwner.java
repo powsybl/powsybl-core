@@ -15,11 +15,11 @@ import com.univocity.parsers.annotations.Validate;
  */
 public class PsseOwner {
 
-    @Parsed
+    @Parsed(field = {"i", "iowner"})
     @Validate
     private int i;
 
-    @Parsed
+    @Parsed(field = {"owname", "owner"})
     private String owname = "            ";
 
     public int getI() {

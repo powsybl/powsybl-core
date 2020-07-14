@@ -15,26 +15,25 @@ import com.univocity.parsers.annotations.Validate;
  */
 public class PsseNonTransformerBranch {
 
-    @Parsed
+    @Parsed(field = {"i", "ibus"})
     @Validate
     private int i;
 
-    @Parsed
+    @Parsed(field = {"j", "jbus"})
     @Validate
     private int j;
 
     @Parsed
     private String ckt = "1";
 
-    @Parsed
-    @Validate
-    private double r;
+    @Parsed(field = {"r", "rpu"})
+    private double r = 0.0;
 
-    @Parsed
+    @Parsed(field = {"x", "xpu"})
     @Validate
     private double x;
 
-    @Parsed
+    @Parsed(field = {"b", "bpu"})
     private double b = 0;
 
     @Parsed
@@ -58,7 +57,7 @@ public class PsseNonTransformerBranch {
     @Parsed
     private double bj = 0;
 
-    @Parsed
+    @Parsed(field = {"st", "stat"})
     private int st = 1;
 
     @Parsed
