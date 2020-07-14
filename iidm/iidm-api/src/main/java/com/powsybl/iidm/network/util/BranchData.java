@@ -155,10 +155,10 @@ public class BranchData {
         mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
         mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
 
-        rho2 = 1f;
-        alpha1 = 0f;
-        alpha2 = 0f;
         rho1 = 1f;
+        alpha1 = 0f;
+        rho2 = 1f;
+        alpha2 = 0f;
 
         computeValues();
     }
