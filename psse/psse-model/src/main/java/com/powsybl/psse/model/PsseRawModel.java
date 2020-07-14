@@ -114,6 +114,10 @@ public class PsseRawModel {
         return owners;
     }
 
+    public void addSwitchedShunts(List<PsseSwitchedShunt> switchedShunts) {
+        this.switchedShunts.addAll(switchedShunts);
+    }
+
     public List<PsseSwitchedShunt> getSwitchedShunts() {
         return switchedShunts;
     }

@@ -27,7 +27,6 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseLoad35;
 import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseRawModel35;
-import com.powsybl.psse.model.PsseSwitchedShunt;
 import com.powsybl.psse.model.PsseTransformer;
 import com.powsybl.psse.model.data.BlockData.PsseFileFormat;
 import com.powsybl.psse.model.data.BlockData.PsseVersion;
@@ -112,7 +111,7 @@ public class PsseData {
         // facts control device data
         readRecordBlock(reader); // TODO
 
-        model.getSwitchedShunts().addAll(readSwitchedShuntData(reader, context));
+        model.addSwitchedShunts(new SwitchedShuntData(version).read(reader, context));
 
         // gne device data
         readRecordBlock(reader); // TODO
@@ -149,12 +148,15 @@ public class PsseData {
         model.addZones(new ZoneData(version, format).read(networkNode, context));
         model.addOwners(new OwnerData(version, format).read(networkNode, context));
 
+        model.addSwitchedShunts(new SwitchedShuntData(version, format).read(networkNode, context));
+
         System.err.printf("Loads %d %n", model.getLoads().size());
         System.err.printf("Generators %d %n", model.getGenerators().size());
         System.err.printf("NonTransformerBranches %d %n", model.getNonTransformerBranches().size());
         System.err.printf("Areas %d %n", model.getAreas().size());
         System.err.printf("Zones %d %n", model.getZones().size());
         System.err.printf("Owners %d %n", model.getOwners().size());
+        System.err.printf("SwitchedShunts %d %n", model.getSwitchedShunts().size());
         model.getLoads().forEach(load -> {
             PsseLoad35 load35 = (PsseLoad35) load;
             load35.print();
@@ -203,14 +205,6 @@ public class PsseData {
         }
 
         return transformers;
-    }
-
-    private static List<PsseSwitchedShunt> readSwitchedShuntData(BufferedReader reader, PsseContext context) throws IOException {
-        String[] headers = PsseContext.switchedShuntDataHeaders();
-        List<String> records = readRecordBlock(reader);
-
-        context.setSwitchedShuntDataReadFields(readFields(records, headers, context.getDelimiter()));
-        return parseRecordsHeader(records, PsseSwitchedShunt.class, headers);
     }
 
     // Parse

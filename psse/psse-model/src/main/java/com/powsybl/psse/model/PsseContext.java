@@ -189,9 +189,4 @@ public class PsseContext {
         return new String[] {"windv", "nomv", "ang", "rata", "ratb", "ratc", "cod", "cont", "rma", "rmi", "vma", "vmi",
             "ntp", "tab", "cr", "cx", "cnxa"};
     }
-
-    public static String[] switchedShuntDataHeaders() {
-        return new String[] {"i", "modsw", "adjm", "stat", "vswhi", "vswlo", "swrem", "rmpct", "rmidnt", "binit",
-            "n1", "b1", "n2", "b2", "n3", "b3", "n4", "b4", "n5", "b5", "n6", "b6", "n7", "b7", "n8", "b8"};
-    }
 }

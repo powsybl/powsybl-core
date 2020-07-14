@@ -55,4 +55,16 @@ public class PsseRawModel35 extends PsseRawModel {
         });
         getNonTransformerBranches().addAll(nonTransformerBranches);
     }
+
+    @Override
+    public void addSwitchedShunts(List<PsseSwitchedShunt> switchedShunts) {
+        switchedShunts.forEach(switchedShunt -> {
+            if (switchedShunt instanceof PsseSwitchedShunt35) {
+                System.err.printf("es PsseSwitchedShunt35 %n");
+            } else {
+                System.err.printf("es PsseSwitchedShunt %n");
+            }
+        });
+        getSwitchedShunts().addAll(switchedShunts);
+    }
 }
