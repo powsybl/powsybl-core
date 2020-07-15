@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -127,6 +128,10 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      * Get all Tap changer steps
      */
     default Map<Integer, S> getAllSteps() {
-        throw new UnsupportedOperationException("Not implemented");
+        Map<Integer, S> steps = new HashMap<>();
+        for (int i = getLowTapPosition(); i <= getHighTapPosition(); i++) {
+            steps.put(i, getStep(i));
+        }
+        return steps;
     }
 }
