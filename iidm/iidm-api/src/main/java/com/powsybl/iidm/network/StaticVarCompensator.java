@@ -59,7 +59,9 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * @deprecated use {@link #getVoltageSetpoint()} instead.
      */
     @Deprecated
-    double getVoltageSetPoint();
+    default double getVoltageSetPoint() {
+        return getVoltageSetpoint();
+    }
 
 
     /**
@@ -77,7 +79,9 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * @deprecated use {@link #setVoltageSetpoint(double voltageSetpoint)} instead.
      */
     @Deprecated
-    StaticVarCompensator setVoltageSetPoint(double voltageSetPoint);
+    default StaticVarCompensator setVoltageSetPoint(double voltageSetPoint) {
+        return setVoltageSetpoint(voltageSetPoint);
+    }
 
     /**
      * <p>Get the reactive power setpoint in MVAR.</p>
@@ -93,7 +97,9 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * @deprecated use {@link #getReactivePowerSetpoint()} instead.
      */
     @Deprecated
-    double getReactivePowerSetPoint();
+    default double getReactivePowerSetPoint() {
+        return getReactivePowerSetpoint();
+    }
 
     /**
      * <p>Set the reactive power setpoint in MVAR.</p>
@@ -103,14 +109,16 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * @return this to allow method chaining
      */
     default StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        throw new UnsupportedOperationException("Not implemented");
+        return setReactivePowerSetPoint(reactivePowerSetpoint);
     }
 
     /**
      * @deprecated use {@link #setReactivePowerSetpoint(double reactivePowerSetpoint)} instead.
      */
     @Deprecated
-    StaticVarCompensator setReactivePowerSetPoint(double reactivePowerSetPoint);
+    default StaticVarCompensator setReactivePowerSetPoint(double reactivePowerSetPoint) {
+        return setReactivePowerSetpoint(reactivePowerSetPoint);
+    }
 
     /**
      * <p>Get the regulating mode.</p>

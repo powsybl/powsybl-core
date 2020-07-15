@@ -101,11 +101,6 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     }
 
     @Override
-    public double getVoltageSetPoint() {
-        return getVoltageSetpoint();
-    }
-
-    @Override
     public StaticVarCompensatorImpl setVoltageSetpoint(double voltageSetpoint) {
         ValidationUtil.checkSvcRegulator(this, voltageSetpoint, getReactivePowerSetpoint(), getRegulationMode());
         int variantIndex = getNetwork().getVariantIndex();
@@ -116,18 +111,8 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     }
 
     @Override
-    public StaticVarCompensator setVoltageSetPoint(double voltageSetPoint) {
-        return setVoltageSetpoint(voltageSetPoint);
-    }
-
-    @Override
     public double getReactivePowerSetpoint() {
         return reactivePowerSetpoint.get(getNetwork().getVariantIndex());
-    }
-
-    @Override
-    public double getReactivePowerSetPoint() {
-        return getReactivePowerSetpoint();
     }
 
     @Override
@@ -138,11 +123,6 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
         return this;
-    }
-
-    @Override
-    public StaticVarCompensator setReactivePowerSetPoint(double reactivePowerSetPoint) {
-        return setReactivePowerSetpoint(reactivePowerSetPoint);
     }
 
     @Override
