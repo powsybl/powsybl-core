@@ -47,19 +47,9 @@ public class StaticVarCompensatorAdderAdapter extends AbstractInjectionAdderAdap
     }
 
     @Override
-    public StaticVarCompensatorAdder setVoltageSetPoint(double voltageSetPoint) {
-        return setVoltageSetpoint(voltageSetPoint);
-    }
-
-    @Override
     public StaticVarCompensatorAdder setReactivePowerSetpoint(double reactivePowerSetpoint) {
         getDelegate().setReactivePowerSetpoint(reactivePowerSetpoint);
         return this;
-    }
-
-    @Override
-    public StaticVarCompensatorAdder setReactivePowerSetPoint(double reactivePowerSetPoint) {
-        return setReactivePowerSetpoint(reactivePowerSetPoint);
     }
 
     @Override
