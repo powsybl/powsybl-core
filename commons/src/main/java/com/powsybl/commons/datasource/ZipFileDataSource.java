@@ -114,7 +114,7 @@ public class ZipFileDataSource implements DataSource {
             throw new UnsupportedOperationException("append not supported in zip file data source");
         }
         Path zipFilePath = getZipFilePath();
-        OutputStream os = new ZipEntryOutputStream(zipFilePath, fileName);
+        OutputStream os = new ZipEntryOutputStream(zipFilePath, fileName, entryExists(zipFilePath, fileName));
         return observer != null ? new ObservableOutputStream(os, zipFilePath + ":" + fileName, observer) : os;
     }
 

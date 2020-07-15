@@ -76,7 +76,7 @@ public class ZipFileDataStore implements DataStore {
             throw new UnsupportedOperationException("append not supported in zip file data source");
         }
 
-        return new ZipEntryOutputStream(path, entryName);
+        return new ZipEntryOutputStream(path, entryName, exists(entryName));
     }
 
     @Override

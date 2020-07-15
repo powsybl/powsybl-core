@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.Enumeration;
 
 import com.google.common.io.ByteStreams;
@@ -31,14 +32,29 @@ public final class ZipEntryOutputStream extends ForwardingOutputStream<ZipOutput
 
     private boolean closed;
 
-    public ZipEntryOutputStream(Path zipFilePath, String fileName) throws IOException {
-        super(new ZipOutputStream(Files.newOutputStream(getTmpZipFilePath(zipFilePath))));
+    private boolean rewrite;
+
+    public ZipEntryOutputStream(Path zipFilePath, String fileName, boolean rewrite) throws IOException {
+        super(newZipOutputStream(zipFilePath, rewrite));
+
         this.zipFilePath = zipFilePath;
         this.fileName = fileName;
         this.closed = false;
+        this.rewrite = rewrite;
 
         // create new entry
         os.putNextEntry(new ZipEntry(fileName));
+    }
+
+    private static ZipOutputStream newZipOutputStream(Path zipFilePath, boolean rewrite) throws IOException {
+        if (rewrite) {
+            return new ZipOutputStream(Files.newOutputStream(getTmpZipFilePath(zipFilePath)));
+        }
+        if (Files.exists(zipFilePath)) {
+            return new ZipOutputStream(Files.newOutputStream(zipFilePath, StandardOpenOption.APPEND), new ZipFile(zipFilePath));
+        } else {
+            return new ZipOutputStream(Files.newOutputStream(zipFilePath));
+        }
     }
 
     private static Path getTmpZipFilePath(Path zipFilePath) {
@@ -52,7 +68,7 @@ public final class ZipEntryOutputStream extends ForwardingOutputStream<ZipOutput
             os.closeEntry();
 
             // copy existing entries
-            if (Files.exists(zipFilePath)) {
+            if (rewrite && Files.exists(zipFilePath)) {
                 try (ZipFile zipFile = new ZipFile(zipFilePath)) {
                     Enumeration<? extends ZipEntry> e = zipFile.entries();
                     while (e.hasMoreElements()) {
@@ -71,11 +87,13 @@ public final class ZipEntryOutputStream extends ForwardingOutputStream<ZipOutput
             // close zip
             super.close();
 
-            // swap with tmp zip
-            Path tmpZipFilePath = getTmpZipFilePath(zipFilePath);
-            Files.move(tmpZipFilePath, zipFilePath, StandardCopyOption.REPLACE_EXISTING);
-
+            if (rewrite) {
+                // swap with tmp zip
+                Path tmpZipFilePath = getTmpZipFilePath(zipFilePath);
+                Files.move(tmpZipFilePath, zipFilePath, StandardCopyOption.REPLACE_EXISTING);
+            }
             closed = true;
         }
     }
+
 }
