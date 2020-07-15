@@ -846,7 +846,7 @@ WHERE {
         cim:StaticVarCompensator.inductiveRating ?inductiveRating ;
         cim:StaticVarCompensator.slope ?slope ;
         cim:StaticVarCompensator.sVCControlMode ?controlMode ;
-        cim:StaticVarCompensator.voltageSetpoint ?voltageSetpoint .
+        cim:StaticVarCompensator.voltageSetPoint ?voltageSetPoint .
     ?Terminal cim:Terminal.ConductingEquipment ?StaticVarCompensator .
     OPTIONAL {
         ?StaticVarCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl

@@ -37,7 +37,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
     public void add(String iidmId, PropertyBag sm) {
         String rcId = RegulatingControlMapping.getRegulatingControlId(sm);
         boolean controlEnabledProperty = sm.asBoolean("controlEnabled", false);
-        double defaultTargetVoltage = sm.asDouble("voltageSetpoint");
+        double defaultTargetVoltage = sm.asDouble("voltageSetPoint");
         double defaultTargetReactivePower = sm.asDouble("q");
         String defaultRegulationMode = sm.getId("controlMode");
 

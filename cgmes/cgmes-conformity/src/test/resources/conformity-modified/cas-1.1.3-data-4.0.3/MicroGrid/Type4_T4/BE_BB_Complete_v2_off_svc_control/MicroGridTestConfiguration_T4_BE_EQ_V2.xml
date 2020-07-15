@@ -2621,7 +2621,7 @@
 		<cim:StaticVarCompensator.inductiveRating>-5062.500000</cim:StaticVarCompensator.inductiveRating>
 		<cim:StaticVarCompensator.slope>0.102000</cim:StaticVarCompensator.slope>
 		<cim:StaticVarCompensator.sVCControlMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SVCControlMode.reactivePower"/>
-		<cim:StaticVarCompensator.voltageSetpoint>229.500000</cim:StaticVarCompensator.voltageSetpoint>
+		<cim:StaticVarCompensator.voltageSetPoint>229.500000</cim:StaticVarCompensator.voltageSetPoint>
 		<cim:RegulatingCondEq.RegulatingControl rdf:resource="#_caf65447-3cfb-48d7-aaaa-cd9af3d34261"/>
 	</cim:StaticVarCompensator>
 	<cim:SubGeographicalRegion rdf:ID="_c1d5c0378f8011e08e4d00247eb1f55e">
