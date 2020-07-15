@@ -6,7 +6,7 @@
  */
 package com.powsybl.security.comparator;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,10 +35,10 @@ public class LimitViolationComparatorTest {
         List<LimitViolation> violations = Arrays.asList(line1Violation2, vl1Violation1, line2Violation, line1Violation1, vl1Violation2);
         Collections.sort(violations, new LimitViolationComparator());
 
-        assertTrue(violations.get(0).equals(line1Violation1));
-        assertTrue(violations.get(1).equals(line1Violation2));
-        assertTrue(violations.get(2).equals(line2Violation));
-        assertTrue(violations.get(3).equals(vl1Violation1));
-        assertTrue(violations.get(4).equals(vl1Violation2));
+        assertEquals(line1Violation1, violations.get(0));
+        assertEquals(line1Violation2, violations.get(1));
+        assertEquals(line2Violation, violations.get(2));
+        assertEquals(vl1Violation1, violations.get(3));
+        assertEquals(vl1Violation2, violations.get(4));
     }
 }

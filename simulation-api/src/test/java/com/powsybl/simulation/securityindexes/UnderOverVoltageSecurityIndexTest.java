@@ -16,7 +16,6 @@ import java.io.Reader;
 import java.io.StringReader;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -40,7 +39,7 @@ public class UnderOverVoltageSecurityIndexTest {
                 xmlReader.close();
             }
         }
-        assertTrue(index.getIndexValue() == 0.5d);
+        assertEquals(0.5d, index.getIndexValue(), 1e-6);
         assertEquals(xml, index.toXml());
     }
 

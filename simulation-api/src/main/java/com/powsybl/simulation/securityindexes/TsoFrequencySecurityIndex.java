@@ -8,10 +8,10 @@ package com.powsybl.simulation.securityindexes;
 
 import com.google.common.collect.ImmutableMap;
 
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-import javax.xml.stream.events.XMLEvent;
 import java.util.Map;
 
 /**
@@ -31,10 +31,10 @@ public class TsoFrequencySecurityIndex extends AbstractSecurityIndex {
         while (xmlsr.hasNext()) {
             int eventType = xmlsr.next();
             switch (eventType) {
-                case XMLEvent.CHARACTERS:
+                case XMLStreamConstants.CHARACTERS:
                     text = xmlsr.getText();
                     break;
-                case XMLEvent.END_ELEMENT:
+                case XMLStreamConstants.END_ELEMENT:
                     if ("freq-out-count".equals(xmlsr.getLocalName())) {
                         return new TsoFrequencySecurityIndex(contingencyId, Integer.parseInt(text));
                     }

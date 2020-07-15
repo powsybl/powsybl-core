@@ -1194,5 +1194,6 @@
   "owners" : [ {
     "i" : 1,
     "owname" : "1"
-  } ]
+  } ],
+  "switchedShunts" : [ ]
 }
