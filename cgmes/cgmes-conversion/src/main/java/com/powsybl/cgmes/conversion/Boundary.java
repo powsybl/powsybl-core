@@ -72,9 +72,7 @@ public class Boundary {
     }
 
     public void addEquivalentInjectionAtNode(PropertyBag equivalentInjection, String node) {
-        List<PropertyBag> equivalentInjections;
-        equivalentInjections = nodesEquivalentInjections.computeIfAbsent(node, ls -> new ArrayList<>(2));
-        equivalentInjections.add(equivalentInjection);
+        nodesEquivalentInjections.computeIfAbsent(node, ls -> new ArrayList<>(2)).add(equivalentInjection);
     }
 
     public void addPowerFlowAtNode(String node, PowerFlow f) {
