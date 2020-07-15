@@ -104,23 +104,6 @@ public interface DanglingLine extends Injection<DanglingLine> {
         Generation setTargetV(double targetV);
     }
 
-    interface GenerationAdder {
-
-        GenerationAdder setTargetP(double targetP);
-
-        GenerationAdder setMaxP(double maxP);
-
-        GenerationAdder setMinP(double minP);
-
-        GenerationAdder setTargetQ(double targetQ);
-
-        GenerationAdder setVoltageRegulationOn(boolean voltageRegulationOn);
-
-        GenerationAdder setTargetV(double targetV);
-
-        Generation add();
-    }
-
     /**
      * Get the constant active power in MW.
      * <p>Depends on the working variant.
@@ -191,10 +174,6 @@ public interface DanglingLine extends Injection<DanglingLine> {
 
     default Generation getGeneration() {
         return null;
-    }
-
-    default GenerationAdder newGeneration() {
-        throw new UnsupportedOperationException();
     }
 
     /**

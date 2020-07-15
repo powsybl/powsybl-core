@@ -58,14 +58,14 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             dl = adder
                     .setP0(fother.p())
                     .setQ0(fother.q())
-                    .add();
-            dl.newGeneration()
-                    .setVoltageRegulationOn(true)
-                    .setMinP(-Double.MAX_VALUE)
-                    .setMaxP(Double.MAX_VALUE)
-                    .setTargetP(regulation.targetP)
-                    .setTargetQ(regulation.targetQ)
-                    .setTargetV(regulation.targetV)
+                    .newGeneration()
+                        .setVoltageRegulationOn(true)
+                        .setMinP(-Double.MAX_VALUE)
+                        .setMaxP(Double.MAX_VALUE)
+                        .setTargetP(regulation.targetP)
+                        .setTargetQ(regulation.targetQ)
+                        .setTargetV(regulation.targetV)
+                    .add()
                     .add();
         } else {
             // Map all the observed flows to the 'virtual load'
@@ -74,12 +74,12 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             dl = adder
                     .setP0(fother.p() + f.p())
                     .setQ0(fother.q() + f.q())
-                    .add();
-            dl.newGeneration()
-                    .setTargetV(Double.NaN)
-                    .setVoltageRegulationOn(false)
-                    .setTargetP(0.0)
-                    .setTargetQ(0.0)
+                    .newGeneration()
+                        .setTargetV(Double.NaN)
+                        .setVoltageRegulationOn(false)
+                        .setTargetP(0.0)
+                        .setTargetQ(0.0)
+                    .add()
                     .add();
         }
         return dl;

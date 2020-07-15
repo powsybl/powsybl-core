@@ -273,10 +273,10 @@ public class UcteImporter implements Importer {
                 .setQ0(q0)
                 .setUcteXnodeCode(xnode.getCode().toString())
                 .setFictitious(isFictitious(ucteLine))
-                .add();
-        dl.newGeneration()
-                .setTargetP(-targetP)
-                .setTargetQ(-targetQ)
+                .newGeneration()
+                    .setTargetP(-targetP)
+                    .setTargetQ(-targetQ)
+                .add()
                 .add();
 
         if (xnode.isRegulatingVoltage()) {

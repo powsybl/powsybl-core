@@ -158,12 +158,12 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         } else {
             dl = dlAdder.setP0(f.p())
                     .setQ0(f.q())
-                    .add();
-            dl.newGeneration()
-                    .setTargetP(0.0)
-                    .setTargetQ(0.0)
-                    .setTargetV(Double.NaN)
-                    .setVoltageRegulationOn(false)
+                    .newGeneration()
+                        .setTargetP(0.0)
+                        .setTargetQ(0.0)
+                        .setTargetV(Double.NaN)
+                        .setVoltageRegulationOn(false)
+                    .add()
                     .add();
         }
         context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));

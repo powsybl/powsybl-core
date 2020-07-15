@@ -6,15 +6,16 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.DanglingLineAdder;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -81,6 +82,11 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, NetworkXmlReaderContext context) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected void readElement(String id, DanglingLineAdder adder, NetworkXmlReaderContext context) throws XMLStreamException {
         double p0 = XmlUtil.readDoubleAttribute(context.getReader(), "p0");
         double q0 = XmlUtil.readDoubleAttribute(context.getReader(), "q0");
         double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
@@ -89,26 +95,71 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
         String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
         readNodeOrBus(adder, context);
-        DanglingLine dl = adder.setP0(p0)
+        adder.setP0(p0)
                 .setQ0(q0)
                 .setR(r)
                 .setX(x)
                 .setG(g)
                 .setB(b)
-                .setUcteXnodeCode(ucteXnodeCode)
-                .add();
-        readPQ(null, dl.getTerminal(), context.getReader());
-        return dl;
+                .setUcteXnodeCode(ucteXnodeCode);
+        Map<String, String> properties = new HashMap<>();
+        double p = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p");
+        double q = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q");
+        double[] permanentLimit = new double[1];
+        permanentLimit[0] = Double.NaN;
+        Map<Integer, TemporaryLimitXml> temporaryLimits = new HashMap<>();
+        readUntilEndRootElement(context.getReader(), () -> {
+            switch (context.getReader().getLocalName()) {
+                case "property":
+                    String name = context.getReader().getAttributeValue(null, "name");
+                    String value = context.getReader().getAttributeValue(null, "value");
+                    properties.put(name, value);
+                    break;
+                case "currentLimits":
+                    permanentLimit[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "permanentLimit");
+                    XmlUtil.readUntilEndElement("currentLimits", context.getReader(), () -> {
+                        if ("temporaryLimit".equals(context.getReader().getLocalName())) {
+                            String tlName = context.getReader().getAttributeValue(null, "name");
+                            int acceptableDuration = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "acceptableDuration", Integer.MAX_VALUE);
+                            double tlValue = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "value", Double.MAX_VALUE);
+                            boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious", false);
+                            temporaryLimits.put(acceptableDuration, new TemporaryLimitXml(tlName, tlValue, fictitious));
+                        }
+                    });
+                    break;
+                case GENERATION:
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, GENERATION, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+                    readGeneration(adder, context.getReader());
+                    break;
+                default:
+                    throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + id + ">");
+            }
+        });
+        DanglingLine danglingLine = adder.add();
+        properties.forEach(danglingLine::setProperty);
+        danglingLine.getTerminal().setP(p).setQ(q);
+        if (!Double.isNaN(permanentLimit[0]) || !temporaryLimits.isEmpty()) {
+            CurrentLimitsAdder limitsAdder = danglingLine.newCurrentLimits()
+                    .setPermanentLimit(permanentLimit[0]);
+            temporaryLimits
+                    .forEach((acceptableDuration, tl) -> limitsAdder.beginTemporaryLimit()
+                    .setAcceptableDuration(acceptableDuration)
+                    .setName(tl.name)
+                    .setValue(tl.value)
+                    .setFictitious(tl.fictitious)
+                    .endTemporaryLimit());
+            limitsAdder.add();
+        }
     }
 
-    private static void readGeneration(DanglingLine dl, XMLStreamReader reader) {
+    private static void readGeneration(DanglingLineAdder adder, XMLStreamReader reader) {
         double minP = XmlUtil.readOptionalDoubleAttribute(reader, "minP");
         double maxP = XmlUtil.readOptionalDoubleAttribute(reader, "maxP");
         boolean voltageRegulationOn = XmlUtil.readBoolAttribute(reader, "voltageRegulationOn");
         double targetP = XmlUtil.readOptionalDoubleAttribute(reader, "targetP");
         double targetV = XmlUtil.readOptionalDoubleAttribute(reader, "targetV");
         double targetQ = XmlUtil.readOptionalDoubleAttribute(reader, "targetQ");
-        dl.newGeneration()
+        adder.newGeneration()
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setVoltageRegulationOn(voltageRegulationOn)
@@ -118,20 +169,15 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
                 .add();
     }
 
-    @Override
-    protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
-                case "currentLimits":
-                    readCurrentLimits(null, dl::newCurrentLimits, context.getReader());
-                    break;
-                case GENERATION:
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, GENERATION, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-                    readGeneration(dl, context.getReader());
-                    break;
-                default:
-                    super.readSubElements(dl, context);
-            }
-        });
+    class TemporaryLimitXml {
+        private final String name;
+        private final double value;
+        private final boolean fictitious;
+
+        TemporaryLimitXml(String name, double value, boolean fictitious) {
+            this.name = name;
+            this.value = value;
+            this.fictitious = fictitious;
+        }
     }
 }
