@@ -154,6 +154,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         DanglingLine dl;
         if (equivalentInjectionConversion != null) {
             dl = equivalentInjectionConversion.convertOverDanglingLine(dlAdder, f);
+            equivalentInjectionConversion.convertReactiveLimits(dl.getGeneration());
         } else {
             dl = dlAdder.setP0(f.p())
                     .setQ0(f.q())
@@ -164,9 +165,6 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
                     .setTargetV(Double.NaN)
                     .setVoltageRegulationOn(false)
                     .add();
-        }
-        if (equivalentInjectionConversion != null) {
-            equivalentInjectionConversion.convertReactiveLimits(dl.getGeneration());
         }
         context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
 
