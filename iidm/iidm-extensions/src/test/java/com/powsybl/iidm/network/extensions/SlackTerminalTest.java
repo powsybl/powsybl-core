@@ -4,6 +4,8 @@ import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
+import java.util.Iterator;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -71,9 +73,14 @@ public class SlackTerminalTest {
                 .setBus2("B1")
                 .add();
 
+        // TODO: create utility rules function to decide which terminal to choose from a given bus
+        Iterator<? extends Terminal> connectedTerminals =
+            network.getBusBreakerView().getBus("B").getConnectedTerminals().iterator();
+        Terminal terminal = connectedTerminals.next();
+
         // extends voltage level
         vl.newExtension(SlackTerminalAdder.class)
-                .setBusId("B")
+                .setTerminal(terminal)
                 .add();
         return network;
     }

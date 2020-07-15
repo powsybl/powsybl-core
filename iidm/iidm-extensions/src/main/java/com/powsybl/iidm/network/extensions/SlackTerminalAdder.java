@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.ExtensionAdder;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 
 /**
@@ -19,8 +20,6 @@ public interface SlackTerminalAdder extends ExtensionAdder<VoltageLevel, SlackTe
         return SlackTerminal.class;
     }
 
-    SlackTerminalAdder setNode(int node);
-
-    SlackTerminalAdder setBusId(String busId);
+    SlackTerminalAdder setTerminal(Terminal terminal);
 
 }

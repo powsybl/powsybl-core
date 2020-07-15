@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -14,21 +13,17 @@ import com.powsybl.iidm.network.VoltageLevel;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class SlackTerminalNodeBreakerImpl extends AbstractExtension<VoltageLevel> implements SlackTerminal {
+public class SlackTerminalImpl extends AbstractExtension<VoltageLevel> implements SlackTerminal {
 
-    private final int node;
-    private final VoltageLevel voltageLevel;
+    private final Terminal terminal;
 
-    SlackTerminalNodeBreakerImpl(int node, VoltageLevel vl) {
-        super(vl);
-        this.node = node;
-        this.voltageLevel = vl;
+    SlackTerminalImpl(Terminal terminal, VoltageLevel voltageLevel) {
+        super(voltageLevel);
+        this.terminal = terminal;
     }
 
     @Override
     public Terminal getTerminal() {
-        return voltageLevel.getNodeBreakerView().getOptionalTerminal(node)
-            .orElseThrow(() -> new PowsyblException("The given slackTerminal is defined by a node which lacks a terminal"));
+        return terminal;
     }
-
 }
