@@ -16,7 +16,6 @@ import java.io.Reader;
 import java.io.StringReader;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -40,7 +39,7 @@ public class TsoOvervoltageSecurityIndexTest {
                 xmlReader.close();
             }
         }
-        assertTrue(index.getOvervoltageCount() == 1);
+        assertEquals(1, index.getOvervoltageCount());
         assertEquals(xml, index.toXml());
     }
 

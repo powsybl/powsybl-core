@@ -104,7 +104,7 @@ public final class ChangelogUpdateTest {
         assertEquals(changesVariant1, changesVariant2b.subList(0, changesVariant1.size()));
         // Additional changes have been recorded in the new variant
         assertTrue(changesVariant2b.size() > changesVariant2.size());
-        assertTrue(changesVariant1b.size() == changesVariant1.size());
+        assertEquals(changesVariant1.size(), changesVariant1b.size());
     }
 
     @Test
