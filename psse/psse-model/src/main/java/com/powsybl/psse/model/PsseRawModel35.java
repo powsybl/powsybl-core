@@ -57,6 +57,18 @@ public class PsseRawModel35 extends PsseRawModel {
     }
 
     @Override
+    public void addTransformers(List<PsseTransformer> transformers) {
+        transformers.forEach(transformer -> {
+            if (transformer instanceof PsseTransformer35) {
+                System.err.printf("es PsseTransformer35 %n");
+            } else {
+                System.err.printf("es PsseTransformer %n");
+            }
+        });
+        getTransformers().addAll(transformers);
+    }
+
+    @Override
     public void addSwitchedShunts(List<PsseSwitchedShunt> switchedShunts) {
         switchedShunts.forEach(switchedShunt -> {
             if (switchedShunt instanceof PsseSwitchedShunt35) {

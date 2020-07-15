@@ -86,6 +86,10 @@ public class PsseRawModel {
         return nonTransformerBranches;
     }
 
+    public void addTransformers(List<PsseTransformer> transformers) {
+        this.transformers.addAll(transformers);
+    }
+
     public List<PsseTransformer> getTransformers() {
         return transformers;
     }

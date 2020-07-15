@@ -141,7 +141,11 @@ class BlockData {
         return parser.getDetectedFormat().getDelimiterString();
     }
 
-     // Read
+    // Read
+
+    public static void readDiscardedRecordBlock(BufferedReader reader) throws IOException {
+        readRecordBlock(reader);
+    }
 
     static List<String> readRecordBlock(BufferedReader reader) throws IOException {
         String line;

@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.model;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.univocity.parsers.annotations.Parsed;
 import com.univocity.parsers.annotations.Validate;
 
@@ -13,17 +14,21 @@ import com.univocity.parsers.annotations.Validate;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+
+// order using alphabetic order
+@JsonPropertyOrder(alphabetic = true)
+
 public class PsseTransformer {
 
-    @Parsed
+    @Parsed(field = {"i", "ibus"})
     @Validate
     private int i;
 
-    @Parsed
+    @Parsed(field = {"j", "jbus"})
     @Validate
     private int j;
 
-    @Parsed
+    @Parsed(field = {"k", "kbus"})
     private int k = 0;
 
     @Parsed
@@ -44,7 +49,7 @@ public class PsseTransformer {
     @Parsed
     private double mag2 = 0;
 
-    @Parsed
+    @Parsed(field = {"nmetr", "nmet"})
     private int nmetr = 2;
 
     @Parsed
@@ -80,32 +85,32 @@ public class PsseTransformer {
     @Parsed
     private String vecgrp = "            ";
 
-    @Parsed
+    @Parsed(field = {"r12", "r1_2"})
     private double r12 = 0;
 
-    @Parsed
+    @Parsed(field = {"x12", "x1_2"})
     @Validate
     private double x12;
 
-    @Parsed
+    @Parsed(field = {"sbase12", "sabse1_2"})
     private double sbase12 = Double.NaN;
 
-    @Parsed
+    @Parsed(field = {"r23", "r2_3"})
     private double r23 = 0;
 
-    @Parsed
+    @Parsed(field = {"x23", "x2_3"})
     private double x23 = Double.NaN;
 
-    @Parsed
+    @Parsed(field = {"sbase23", "sbase2_3"})
     private double sbase23 = Double.NaN;
 
-    @Parsed
+    @Parsed(field = {"r31", "r3_1"})
     private double r31 = 0;
 
-    @Parsed
+    @Parsed(field = {"x31", "x3_1"})
     private double x31 = Double.NaN;
 
-    @Parsed
+    @Parsed(field = {"sbase31", "sbase3_1"})
     private double sbase31 = Double.NaN;
 
     @Parsed
@@ -113,6 +118,159 @@ public class PsseTransformer {
 
     @Parsed
     private double anstar = 0;
+
+    @Parsed
+    protected double windv1 = Double.NaN;
+
+    @Parsed
+    protected double nomv1 = 0;
+
+    @Parsed
+    protected double ang1 = 0;
+
+    @Parsed
+    protected double rata1 = 0;
+
+    @Parsed
+    protected double ratb1 = 0;
+
+    @Parsed
+    protected double ratc1 = 0;
+
+    @Parsed
+    protected int cod1 = 0;
+
+    @Parsed
+    protected int cont1 = 0;
+
+    @Parsed
+    protected double rma1 = Double.NaN;
+
+    @Parsed
+    protected double rmi1 = Double.NaN;
+
+    @Parsed
+    protected double vma1 = Double.NaN;
+
+    @Parsed
+    protected double vmi1 = Double.NaN;
+
+    @Parsed
+    protected int ntp1 = 33;
+
+    @Parsed
+    protected int tab1 = 0;
+
+    @Parsed
+    protected double cr1 = 0;
+
+    @Parsed
+    protected double cx1 = 0;
+
+    @Parsed
+    protected double cnxa1 = 0;
+
+    @Parsed
+    protected double windv2 = Double.NaN;
+
+    @Parsed
+    protected double nomv2 = 0;
+
+    @Parsed
+    protected double ang2 = 0;
+
+    @Parsed
+    protected double rata2 = 0;
+
+    @Parsed
+    protected double ratb2 = 0;
+
+    @Parsed
+    protected double ratc2 = 0;
+
+    @Parsed
+    protected int cod2 = 0;
+
+    @Parsed
+    protected int cont2 = 0;
+
+    @Parsed
+    protected double rma2 = Double.NaN;
+
+    @Parsed
+    protected double rmi2 = Double.NaN;
+
+    @Parsed
+    protected double vma2 = Double.NaN;
+
+    @Parsed
+    protected double vmi2 = Double.NaN;
+
+    @Parsed
+    protected int ntp2 = 33;
+
+    @Parsed
+    protected int tab2 = 0;
+
+    @Parsed
+    protected double cr2 = 0;
+
+    @Parsed
+    protected double cx2 = 0;
+
+    @Parsed
+    protected double cnxa2 = 0;
+
+    @Parsed
+    protected double windv3 = Double.NaN;
+
+    @Parsed
+    protected double nomv3 = 0;
+
+    @Parsed
+    protected double ang3 = 0;
+
+    @Parsed
+    protected double rata3 = 0;
+
+    @Parsed
+    protected double ratb3 = 0;
+
+    @Parsed
+    protected double ratc3 = 0;
+
+    @Parsed
+    protected int cod3 = 0;
+
+    @Parsed
+    protected int cont3 = 0;
+
+    @Parsed
+    protected double rma3 = Double.NaN;
+
+    @Parsed
+    protected double rmi3 = Double.NaN;
+
+    @Parsed
+    protected double vma3 = Double.NaN;
+
+    @Parsed
+    protected double vmi3 = Double.NaN;
+
+    @Parsed
+    protected int ntp3 = 33;
+
+    @Parsed
+    protected int tab3 = 0;
+
+    @Parsed
+    protected double cr3 = 0;
+
+    @Parsed
+    protected double cx3 = 0;
+
+    @Parsed
+    protected double cnxa3 = 0;
 
     public int getI() {
         return i;
@@ -370,221 +528,127 @@ public class PsseTransformer {
         this.anstar = anstar;
     }
 
+    public WindingRecord getWindingRecord1() {
+        return new WindingRecord(windv1, nomv1, ang1, rata1, ratb1, ratc1, cod1, cont1, rma1, rmi1, vma1, vmi1, ntp1,
+            tab1, cr1, cx1, cnxa1);
+    }
+
+    public WindingRecord getWindingRecord2() {
+        return new WindingRecord(windv2, nomv2, ang2, rata2, ratb2, ratc2, cod2, cont2, rma2, rmi2, vma2, vmi2, ntp2,
+            tab2, cr2, cx2, cnxa2);
+    }
+
+    public WindingRecord getWindingRecord3() {
+        return new WindingRecord(windv3, nomv3, ang3, rata3, ratb3, ratc3, cod3, cont3, rma3, rmi3, vma3, vmi3, ntp3,
+            tab3, cr3, cx3, cnxa3);
+    }
+
     public static class WindingRecord {
+        private final double windv;
+        private final double nomv;
+        private final double ang;
+        private final double rata;
+        private final double ratb;
+        private final double ratc;
+        private final int cod;
+        private final int cont;
+        private final double rma;
+        private final double rmi;
+        private final double vma;
+        private final double vmi;
+        private final int ntp;
+        private final int tab;
+        private final double cr;
+        private final double cx;
+        private final double cnxa;
 
-        @Parsed
-        private double windv = Double.NaN;
-
-        @Parsed
-        private double nomv = 0;
-
-        @Parsed
-        private double ang = 0;
-
-        @Parsed
-        private double rata = 0;
-
-        @Parsed
-        private double ratb = 0;
-
-        @Parsed
-        private double ratc = 0;
-
-        @Parsed
-        private int cod = 0;
-
-        @Parsed
-        private int cont = 0;
-
-        @Parsed
-        private double rma = Double.NaN;
-
-        @Parsed
-        private double rmi = Double.NaN;
-
-        @Parsed
-        private double vma = Double.NaN;
-
-        @Parsed
-        private double vmi = Double.NaN;
-
-        @Parsed
-        private int ntp = 33;
-
-        @Parsed
-        private int tab = 0;
-
-        @Parsed
-        private double cr = 0;
-
-        @Parsed
-        private double cx = 0;
-
-        @Parsed
-        private double cnxa = 0;
+        WindingRecord(double windv, double nomv, double ang, double rata, double ratb, double ratc, int cod, int cont,
+            double rma, double rmi, double vma, double vmi, int ntp, int tab, double cr, double cx, double cnxa) {
+            this.windv = windv;
+            this.nomv = nomv;
+            this.ang = ang;
+            this.rata = rata;
+            this.ratb = ratb;
+            this.ratc = ratc;
+            this.cod = cod;
+            this.cont = cont;
+            this.rma = rma;
+            this.rmi = rmi;
+            this.vma = vma;
+            this.vmi = vmi;
+            this.ntp = ntp;
+            this.tab = tab;
+            this.cr = cr;
+            this.cx = cx;
+            this.cnxa = cnxa;
+        }
 
         public double getWindv() {
             return windv;
-        }
-
-        public void setWindv(double windv) {
-            this.windv = windv;
         }
 
         public double getNomv() {
             return nomv;
         }
 
-        public void setNomv(double nomv) {
-            this.nomv = nomv;
-        }
-
         public double getAng() {
             return ang;
-        }
-
-        public void setAng(double ang) {
-            this.ang = ang;
         }
 
         public double getRata() {
             return rata;
         }
 
-        public void setRata(double rata) {
-            this.rata = rata;
-        }
-
         public double getRatb() {
             return ratb;
-        }
-
-        public void setRatb(double ratb) {
-            this.ratb = ratb;
         }
 
         public double getRatc() {
             return ratc;
         }
 
-        public void setRatc(double ratc) {
-            this.ratc = ratc;
-        }
-
         public int getCod() {
             return cod;
-        }
-
-        public void setCod(int cod) {
-            this.cod = cod;
         }
 
         public int getCont() {
             return cont;
         }
 
-        public void setCont(int cont) {
-            this.cont = cont;
-        }
-
         public double getRma() {
             return rma;
-        }
-
-        public void setRma(double rma) {
-            this.rma = rma;
         }
 
         public double getRmi() {
             return rmi;
         }
 
-        public void setRmi(double rmi) {
-            this.rmi = rmi;
-        }
-
         public double getVma() {
             return vma;
-        }
-
-        public void setVma(double vma) {
-            this.vma = vma;
         }
 
         public double getVmi() {
             return vmi;
         }
 
-        public void setVmi(double vmi) {
-            this.vmi = vmi;
-        }
-
         public int getNtp() {
             return ntp;
-        }
-
-        public void setNtp(int ntp) {
-            this.ntp = ntp;
         }
 
         public int getTab() {
             return tab;
         }
 
-        public void setTab(int tab) {
-            this.tab = tab;
-        }
-
         public double getCr() {
             return cr;
-        }
-
-        public void setCr(double cr) {
-            this.cr = cr;
         }
 
         public double getCx() {
             return cx;
         }
 
-        public void setCx(double cx) {
-            this.cx = cx;
-        }
-
         public double getCnxa() {
             return cnxa;
         }
-
-        public void setCnxa(double cnxa) {
-            this.cnxa = cnxa;
-        }
-    }
-
-    private WindingRecord windingRecord1;
-    private WindingRecord windingRecord2;
-    private WindingRecord windingRecord3;
-
-    public WindingRecord getWindingRecord1() {
-        return windingRecord1;
-    }
-
-    public void setWindingRecord1(WindingRecord windingRecord1) {
-        this.windingRecord1 = windingRecord1;
-    }
-
-    public WindingRecord getWindingRecord2() {
-        return windingRecord2;
-    }
-
-    public void setWindingRecord2(WindingRecord windingRecord2) {
-        this.windingRecord2 = windingRecord2;
-    }
-
-    public WindingRecord getWindingRecord3() {
-        return windingRecord3;
-    }
-
-    public void setWindingRecord3(WindingRecord windingRecord3) {
-        this.windingRecord3 = windingRecord3;
     }
 }
