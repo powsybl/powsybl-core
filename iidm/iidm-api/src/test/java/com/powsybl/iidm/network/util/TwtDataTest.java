@@ -10,6 +10,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
@@ -49,6 +51,9 @@ public class TwtDataTest {
         TwtData twtData = new TwtData(twt, 0, false);
         boolean ok = t3xCompareFlow(twtData, 99.227288294050, 2.747147185208, -216.195866533486, -85.490493190353, 117.988318295633, 92.500849015581);
         assertTrue(ok);
+
+        ok = t3xCompareStarBusVoltage(twtData, 412.66200701692287, -7.353686938578365);
+        assertTrue(ok);
     }
 
     @Test
@@ -59,6 +64,9 @@ public class TwtDataTest {
         ThreeWindingsTransformer twt = twtTestData.get3WTransformer();
         TwtData twtData = new TwtData(twt, 0, false);
         boolean ok = t3xCompareFlow(twtData, 0.0, 0.0, -164.099476216398, -81.835885442800, 165.291731946141, 89.787051339157);
+        assertTrue(ok);
+
+        ok = t3xCompareStarBusVoltage(twtData, 412.29478568401856, -7.700275244269859);
         assertTrue(ok);
     }
 
@@ -71,6 +79,9 @@ public class TwtDataTest {
         TwtData twtData = new TwtData(twt, 0, false);
         boolean ok = t3xCompareFlow(twtData, -18.723067158829, -59.239225729782, 0.0, 0.0, 18.851212571411, 59.694062940578);
         assertTrue(ok);
+
+        ok = t3xCompareStarBusVoltage(twtData, 415.4806896701992, -6.690799426080698);
+        assertTrue(ok);
     }
 
     @Test
@@ -81,6 +92,9 @@ public class TwtDataTest {
         ThreeWindingsTransformer twt = twtTestData.get3WTransformer();
         TwtData twtData = new TwtData(twt, 0, false);
         boolean ok = t3xCompareFlow(twtData, 161.351352526949, 51.327798049323, -161.019856627996, -45.536840365345, 0.0, 0.0);
+        assertTrue(ok);
+
+        ok = t3xCompareStarBusVoltage(twtData, 410.53566804098494, -7.703116461849692);
         assertTrue(ok);
     }
 
@@ -94,6 +108,9 @@ public class TwtDataTest {
         TwtData twtData = new TwtData(twt, 0, false);
         boolean ok = t3xCompareFlow(twtData,  0.0, -0.415739792683, 0.0, 0.0, 0.0, 0.0);
         assertTrue(ok);
+
+        ok = t3xCompareStarBusVoltage(twtData, 412.9890009999999, -6.78071000000000);
+        assertTrue(ok);
     }
 
     @Test
@@ -105,6 +122,9 @@ public class TwtDataTest {
         ThreeWindingsTransformer twt = twtTestData.get3WTransformer();
         TwtData twtData = new TwtData(twt, 0, false);
         boolean ok = t3xCompareFlow(twtData,  0.0, 0.0, 0.000001946510, -0.405486077928, 0.0, 0.0);
+        assertTrue(ok);
+
+        ok = t3xCompareStarBusVoltage(twtData, 407.8654944214268, -8.77026956158324);
         assertTrue(ok);
     }
 
@@ -118,9 +138,41 @@ public class TwtDataTest {
         TwtData twtData = new TwtData(twt, 0, false);
         boolean ok = t3xCompareFlow(twtData,  0.0, 0.0, 0.0, 0.0, 0.000005977974, -0.427562118410);
         assertTrue(ok);
+
+        ok = t3xCompareStarBusVoltage(twtData, 418.82221596280823, -6.65147559975559);
+        assertTrue(ok);
     }
 
-    private boolean t3xCompareFlow(TwtData twtData, double p1, double q1, double p2, double q2, double p3, double q3) {
+    @Test
+    public void testEnd1End2End3Disconnected() {
+        TwtTestData twtTestData = new TwtTestData();
+        twtTestData.setLeg1Disconnected();
+        twtTestData.setLeg2Disconnected();
+        twtTestData.setLeg3Disconnected();
+
+        ThreeWindingsTransformer twt = twtTestData.get3WTransformer();
+        TwtData twtData = new TwtData(twt, 0, false);
+        boolean ok = t3xCompareFlow(twtData, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+        assertTrue(ok);
+
+        ok = t3xCompareStarBusVoltage(twtData, Double.NaN, Double.NaN);
+        assertTrue(ok);
+    }
+
+    private static boolean t3xCompareStarBusVoltage(TwtData twtData, double starU, double starAngle) {
+        double tol = 0.00001;
+        if ((Double.isNaN(twtData.getStarU()) && !Double.isNaN(starU)) ||
+            (Double.isNaN(twtData.getStarTheta()) && !Double.isNaN(starAngle)) ||
+            Math.abs(twtData.getStarU() - starU) > tol ||
+            Math.abs(Math.toDegrees(twtData.getStarTheta()) - starAngle) > tol) {
+            LOG.info("ThreeWindingsTransformer {} Expected {} {} Actual {} {}", twtData.getId(),
+                starU, starAngle, twtData.getStarU(), Math.toDegrees(twtData.getStarTheta()));
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean t3xCompareFlow(TwtData twtData, double p1, double q1, double p2, double q2, double p3, double q3) {
         T3xFlow actual = new T3xFlow();
         actual.p1 = twtData.getComputedP(Side.ONE);
         actual.q1 = twtData.getComputedQ(Side.ONE);
@@ -140,9 +192,15 @@ public class TwtDataTest {
         return sameFlow(expected, actual);
     }
 
-    private boolean sameFlow(T3xFlow expected, T3xFlow actual) {
+    private static boolean sameFlow(T3xFlow expected, T3xFlow actual) {
         double tol = 0.00001;
-        if (Math.abs(expected.p1 - actual.p1) > tol ||
+        if ((!Double.isNaN(expected.p1) && Double.isNaN(actual.p1)) ||
+            (!Double.isNaN(expected.q1) && Double.isNaN(actual.q1)) ||
+            (!Double.isNaN(expected.p2) && Double.isNaN(actual.p2)) ||
+            (!Double.isNaN(expected.q2) && Double.isNaN(actual.q2)) ||
+            (!Double.isNaN(expected.p3) && Double.isNaN(actual.p3)) ||
+            (!Double.isNaN(expected.q3) && Double.isNaN(actual.q3)) ||
+            Math.abs(expected.p1 - actual.p1) > tol ||
             Math.abs(expected.q1 - actual.q1) > tol ||
             Math.abs(expected.p2 - actual.p2) > tol ||
             Math.abs(expected.q2 - actual.q2) > tol ||
@@ -161,4 +219,6 @@ public class TwtDataTest {
         double p3 = Double.NaN;
         double q3 = Double.NaN;
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(TwtDataTest.class);
 }
