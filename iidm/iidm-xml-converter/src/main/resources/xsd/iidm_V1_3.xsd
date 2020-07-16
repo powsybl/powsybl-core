@@ -305,6 +305,10 @@
         <xs:attribute name="permanentLimit" use="optional" type="xs:double"/>
     </xs:complexType>
     <xs:complexType name="Generation">
+        <xs:choice>
+            <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
+            <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
+        </xs:choice>
         <xs:attribute name="minP" use="optional" type="xs:double"/>
         <xs:attribute name="maxP" use="optional" type="xs:double"/>
         <xs:attribute name="voltageRegulationOn" use="required" type="xs:boolean"/>

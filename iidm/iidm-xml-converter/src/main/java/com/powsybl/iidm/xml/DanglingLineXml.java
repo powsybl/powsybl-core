@@ -54,21 +54,23 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         writePQ(null, dl.getTerminal(), context.getWriter());
     }
 
-    private static void writeGeneration(DanglingLine.Generation generation, XMLStreamWriter writer, IidmXmlVersion version) throws XMLStreamException {
-        writer.writeEmptyElement(version.getNamespaceURI(), GENERATION);
+    private static void writeGeneration(DanglingLine.Generation generation, XMLStreamWriter writer, IidmXmlVersion version, NetworkXmlWriterContext context) throws XMLStreamException {
+        writer.writeStartElement(version.getNamespaceURI(), GENERATION);
         XmlUtil.writeDouble("minP", generation.getMinP(), writer);
         XmlUtil.writeDouble("maxP", generation.getMaxP(), writer);
         writer.writeAttribute("voltageRegulationOn", Boolean.toString(generation.isVoltageRegulationOn()));
         XmlUtil.writeDouble("targetP", generation.getTargetP(), writer);
         XmlUtil.writeDouble("targetV", generation.getTargetV(), writer);
         XmlUtil.writeDouble("targetQ", generation.getTargetQ(), writer);
+        ReactiveLimitsXml.INSTANCE.write(generation, context);
+        writer.writeEndElement();
     }
 
     @Override
     protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (dl.getGeneration() != null) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, GENERATION, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-            writeGeneration(dl.getGeneration(), context.getWriter(), context.getVersion());
+            writeGeneration(dl.getGeneration(), context.getWriter(), context.getVersion(), context);
         }
         if (dl.getCurrentLimits() != null) {
             writeCurrentLimits(null, dl.getCurrentLimits(), context.getWriter(), context.getVersion());
@@ -108,6 +110,8 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         double[] permanentLimit = new double[1];
         permanentLimit[0] = Double.NaN;
         Map<Integer, TemporaryLimitXml> temporaryLimits = new HashMap<>();
+        DanglingLine[] danglingLine = new DanglingLine[1];
+        boolean[] hasGeneration = new boolean[1];
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case "property":
@@ -129,17 +133,20 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
                     break;
                 case GENERATION:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, GENERATION, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-                    readGeneration(adder, context.getReader());
+                    hasGeneration[0] = true;
+                    danglingLine[0] = readGeneration(adder, context.getReader(), context);
                     break;
                 default:
                     throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + id + ">");
             }
         });
-        DanglingLine danglingLine = adder.add();
-        properties.forEach(danglingLine::setProperty);
-        danglingLine.getTerminal().setP(p).setQ(q);
+        if (!hasGeneration[0]) {
+            danglingLine[0] = adder.add();
+        }
+        properties.forEach(danglingLine[0]::setProperty);
+        danglingLine[0].getTerminal().setP(p).setQ(q);
         if (!Double.isNaN(permanentLimit[0]) || !temporaryLimits.isEmpty()) {
-            CurrentLimitsAdder limitsAdder = danglingLine.newCurrentLimits()
+            CurrentLimitsAdder limitsAdder = danglingLine[0].newCurrentLimits()
                     .setPermanentLimit(permanentLimit[0]);
             temporaryLimits
                     .forEach((acceptableDuration, tl) -> limitsAdder.beginTemporaryLimit()
@@ -152,7 +159,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         }
     }
 
-    private static void readGeneration(DanglingLineAdder adder, XMLStreamReader reader) {
+    private static DanglingLine readGeneration(DanglingLineAdder adder, XMLStreamReader reader, NetworkXmlReaderContext context) throws XMLStreamException {
         double minP = XmlUtil.readOptionalDoubleAttribute(reader, "minP");
         double maxP = XmlUtil.readOptionalDoubleAttribute(reader, "maxP");
         boolean voltageRegulationOn = XmlUtil.readBoolAttribute(reader, "voltageRegulationOn");
@@ -167,6 +174,9 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
                 .setTargetV(targetV)
                 .setTargetQ(targetQ)
                 .add();
+        DanglingLine danglingLine = adder.add();
+        ReactiveLimitsXml.INSTANCE.read(danglingLine.getGeneration(), context);
+        return danglingLine;
     }
 
     class TemporaryLimitXml {
