@@ -6,16 +6,11 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
@@ -36,7 +31,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected boolean hasSubElements(DanglingLine dl) {
-        return dl.getCurrentLimits() != null;
+        return dl.getCurrentLimits() != null || dl.getGeneration() != null;
     }
 
     @Override
@@ -47,6 +42,16 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         XmlUtil.writeDouble("x", dl.getX(), context.getWriter());
         XmlUtil.writeDouble("g", dl.getG(), context.getWriter());
         XmlUtil.writeDouble("b", dl.getB(), context.getWriter());
+        DanglingLine.Generation generation = dl.getGeneration();
+        if (generation != null) {
+            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, GENERATION, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+            XmlUtil.writeDouble("generationMinP", generation.getMinP(), context.getWriter());
+            XmlUtil.writeDouble("generationMaxP", generation.getMaxP(), context.getWriter());
+            context.getWriter().writeAttribute("generationVoltageRegulationOn", Boolean.toString(generation.isVoltageRegulationOn()));
+            XmlUtil.writeDouble("generationTargetP", generation.getTargetP(), context.getWriter());
+            XmlUtil.writeDouble("generationTargetV", generation.getTargetV(), context.getWriter());
+            XmlUtil.writeDouble("generationTargetQ", generation.getTargetQ(), context.getWriter());
+        }
         if (dl.getUcteXnodeCode() != null) {
             context.getWriter().writeAttribute("ucteXnodeCode", dl.getUcteXnodeCode());
         }
@@ -54,23 +59,10 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         writePQ(null, dl.getTerminal(), context.getWriter());
     }
 
-    private static void writeGeneration(DanglingLine.Generation generation, XMLStreamWriter writer, IidmXmlVersion version, NetworkXmlWriterContext context) throws XMLStreamException {
-        writer.writeStartElement(version.getNamespaceURI(), GENERATION);
-        XmlUtil.writeDouble("minP", generation.getMinP(), writer);
-        XmlUtil.writeDouble("maxP", generation.getMaxP(), writer);
-        writer.writeAttribute("voltageRegulationOn", Boolean.toString(generation.isVoltageRegulationOn()));
-        XmlUtil.writeDouble("targetP", generation.getTargetP(), writer);
-        XmlUtil.writeDouble("targetV", generation.getTargetV(), writer);
-        XmlUtil.writeDouble("targetQ", generation.getTargetQ(), writer);
-        ReactiveLimitsXml.INSTANCE.write(generation, context);
-        writer.writeEndElement();
-    }
-
     @Override
     protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (dl.getGeneration() != null) {
-            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, GENERATION, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-            writeGeneration(dl.getGeneration(), context.getWriter(), context.getVersion(), context);
+            ReactiveLimitsXml.INSTANCE.write(dl.getGeneration(), context);
         }
         if (dl.getCurrentLimits() != null) {
             writeCurrentLimits(null, dl.getCurrentLimits(), context.getWriter(), context.getVersion());
@@ -84,119 +76,60 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, NetworkXmlReaderContext context) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected void readElement(String id, DanglingLineAdder adder, NetworkXmlReaderContext context) throws XMLStreamException {
         double p0 = XmlUtil.readDoubleAttribute(context.getReader(), "p0");
         double q0 = XmlUtil.readDoubleAttribute(context.getReader(), "q0");
         double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
         double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
         double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
         double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
+            String voltageRegulationOnStr = context.getReader().getAttributeValue(null, "generationVoltageRegulationOn");
+            if (voltageRegulationOnStr != null) {
+                double minP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationMinP");
+                double maxP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationMaxP");
+                boolean voltageRegulationOn = Boolean.parseBoolean(voltageRegulationOnStr);
+                double targetP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationTargetP");
+                double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationTargetV");
+                double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationTargetQ");
+                adder.newGeneration()
+                        .setMinP(minP)
+                        .setMaxP(maxP)
+                        .setVoltageRegulationOn(voltageRegulationOn)
+                        .setTargetP(targetP)
+                        .setTargetV(targetV)
+                        .setTargetQ(targetQ)
+                        .add();
+            }
+        });
         String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
         readNodeOrBus(adder, context);
-        adder.setP0(p0)
+        DanglingLine dl = adder.setP0(p0)
                 .setQ0(q0)
                 .setR(r)
                 .setX(x)
                 .setG(g)
                 .setB(b)
-                .setUcteXnodeCode(ucteXnodeCode);
-        Map<String, String> properties = new HashMap<>();
-        double p = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p");
-        double q = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q");
-        double[] permanentLimit = new double[1];
-        permanentLimit[0] = Double.NaN;
-        Map<Integer, TemporaryLimitXml> temporaryLimits = new HashMap<>();
-        DanglingLine[] danglingLine = new DanglingLine[1];
-        boolean[] hasGeneration = new boolean[1];
+                .setUcteXnodeCode(ucteXnodeCode)
+                .add();
+        readPQ(null, dl.getTerminal(), context.getReader());
+        return dl;
+    }
+
+    @Override
+    protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
-                case "property":
-                    String name = context.getReader().getAttributeValue(null, "name");
-                    String value = context.getReader().getAttributeValue(null, "value");
-                    properties.put(name, value);
-                    break;
                 case "currentLimits":
-                    permanentLimit[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "permanentLimit");
-                    XmlUtil.readUntilEndElement("currentLimits", context.getReader(), () -> {
-                        if ("temporaryLimit".equals(context.getReader().getLocalName())) {
-                            String tlName = context.getReader().getAttributeValue(null, "name");
-                            int acceptableDuration = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "acceptableDuration", Integer.MAX_VALUE);
-                            double tlValue = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "value", Double.MAX_VALUE);
-                            boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious", false);
-                            temporaryLimits.put(acceptableDuration, new TemporaryLimitXml(tlName, tlValue, fictitious));
-                        }
-                    });
+                    readCurrentLimits(null, dl::newCurrentLimits, context.getReader());
                     break;
-                case GENERATION:
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, GENERATION, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-                    hasGeneration[0] = true;
-                    danglingLine[0] = readGeneration(adder, context.getReader(), context);
-                    break;
-                default:
-                    throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + id + ">");
-            }
-        });
-        if (!hasGeneration[0]) {
-            danglingLine[0] = adder.add();
-        }
-        properties.forEach(danglingLine[0]::setProperty);
-        danglingLine[0].getTerminal().setP(p).setQ(q);
-        if (!Double.isNaN(permanentLimit[0]) || !temporaryLimits.isEmpty()) {
-            CurrentLimitsAdder limitsAdder = danglingLine[0].newCurrentLimits()
-                    .setPermanentLimit(permanentLimit[0]);
-            temporaryLimits
-                    .forEach((acceptableDuration, tl) -> limitsAdder.beginTemporaryLimit()
-                    .setAcceptableDuration(acceptableDuration)
-                    .setName(tl.name)
-                    .setValue(tl.value)
-                    .setFictitious(tl.fictitious)
-                    .endTemporaryLimit());
-            limitsAdder.add();
-        }
-    }
-
-    private DanglingLine readGeneration(DanglingLineAdder adder, XMLStreamReader reader, NetworkXmlReaderContext context) throws XMLStreamException {
-        double minP = XmlUtil.readOptionalDoubleAttribute(reader, "minP");
-        double maxP = XmlUtil.readOptionalDoubleAttribute(reader, "maxP");
-        boolean voltageRegulationOn = XmlUtil.readBoolAttribute(reader, "voltageRegulationOn");
-        double targetP = XmlUtil.readOptionalDoubleAttribute(reader, "targetP");
-        double targetV = XmlUtil.readOptionalDoubleAttribute(reader, "targetV");
-        double targetQ = XmlUtil.readOptionalDoubleAttribute(reader, "targetQ");
-        adder.newGeneration()
-                .setMinP(minP)
-                .setMaxP(maxP)
-                .setVoltageRegulationOn(voltageRegulationOn)
-                .setTargetP(targetP)
-                .setTargetV(targetV)
-                .setTargetQ(targetQ)
-                .add();
-        DanglingLine danglingLine = adder.add();
-        XmlUtil.readUntilEndElement(GENERATION, reader, () -> {
-            switch (context.getReader().getLocalName()) {
                 case "reactiveCapabilityCurve":
                 case "minMaxReactiveLimits":
-                    ReactiveLimitsXml.INSTANCE.read(danglingLine.getGeneration(), context);
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME + ".generation", "reactiveLimits", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+                    ReactiveLimitsXml.INSTANCE.read(dl.getGeneration(), context);
                     break;
                 default:
-                    throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + danglingLine.getId() + ".generation>");
+                    super.readSubElements(dl, context);
             }
         });
-        return danglingLine;
-    }
-
-    class TemporaryLimitXml {
-        private final String name;
-        private final double value;
-        private final boolean fictitious;
-
-        TemporaryLimitXml(String name, double value, boolean fictitious) {
-            this.name = name;
-            this.value = value;
-            this.fictitious = fictitious;
-        }
     }
 }
