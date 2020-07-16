@@ -17,15 +17,64 @@ import java.util.stream.Stream;
  * <p>A substation is located to one country and belongs to one TSO.
  * <p> To create a substation, see {@link SubstationAdder}
  *
- * **Characteristics**
+ * <p>
+ *  Characteristics
+ * </p>
  *
- *| Attribute | Type | Required | Default value | Description |
- *| --------- | ---- | -------- | ------------- | ----------- |
- *| Id | String | yes | - | The ID of the substation |
- *| Name | String | no | - | The name of the substation |
- *| Country | `Country` | no | - | The country where this substation is located |
- *| Tso | String | no | - | The TSO this substations belongs to |
- *| GeographicalTags | List of String | no | - | A list of geographical tags |
+ * <table style="border: 1px solid black; border-collapse: collapse">
+ *     <thead>
+ *         <tr>
+ *             <th style="border: 1px solid black">Attribute</th>
+ *             <th style="border: 1px solid black">Type</th>
+ *             <th style="border: 1px solid black">Unit</th>
+ *             <th style="border: 1px solid black">Required</th>
+ *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Description</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td style="border: 1px solid black">Id</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Unique identifier of the substation</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Name</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Human-readable name of the substation</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Country</td>
+ *             <td style="border: 1px solid black">Countrye</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The country where this substation is located</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Tso</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The TSO this substation belongs to</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">GeoraphicalTags</td>
+ *             <td style="border: 1px solid black">List of String</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">A list of geographical tags</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see VoltageLevel

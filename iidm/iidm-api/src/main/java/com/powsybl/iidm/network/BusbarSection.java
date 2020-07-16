@@ -10,14 +10,56 @@ package com.powsybl.iidm.network;
  * A busbar section, a non impedant element used in a node/breaker substation
  * topology to connect equipments.
  *
- * **Characteristics**
+ * <p>
+ *  Characteristics
+ * </p>
  *
- * | Attribute | Type | Unit | Required | Default value | Description |
- * | --------- | ---- | ---- | -------- | ------------- | ----------- |
- * | Id | String | - | yes | - | The ID of the busbar section |
- * | Name | String | - | no | - | The name of the busbar section |
- * | V | double | kV | no | - | The voltage magnitude of the busbar section |
- * | Angle | double | ° |  no | - | The voltage angle of the busbar section |
+ * <table style="border: 1px solid black; border-collapse: collapse">
+ *     <thead>
+ *         <tr>
+ *             <th style="border: 1px solid black">Attribute</th>
+ *             <th style="border: 1px solid black">Type</th>
+ *             <th style="border: 1px solid black">Unit</th>
+ *             <th style="border: 1px solid black">Required</th>
+ *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Description</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td style="border: 1px solid black">Id</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Unique identifier of the busbar section</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Name</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Human-readable name of the busbar section</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">V</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The voltage magnitude of the busbar section</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Angle</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">°</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The voltage angle of the busbar section</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */

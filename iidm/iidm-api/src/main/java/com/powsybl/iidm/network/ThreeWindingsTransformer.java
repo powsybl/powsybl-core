@@ -30,16 +30,71 @@ package com.powsybl.iidm.network;
  * Only one Tap Changer is allowed to be regulating on the equipment. An exception is thrown if
  * two or more regulating controls are enabled.
  *
- * **Characteristics**
- *
- * | Attribute | Type | Unit | Required | Default value | Description |
- * | --------- | ---- | ---- |-------- | ------------- | ----------- |
- * | Id | string | - | yes | - | Unique identifier of the transformer |
- * | Name | string | - | yes | - | Human-readable name of the transformer |
- * | RatedU0 | double | kV | yes | - | The rated voltage at the star bus |
- * | Leg1 | `ThreeWindingsTransformer.Leg` | - | yes | - | The leg at the primary side |
- * | Leg2 | `ThreeWindingsTransformer.Leg` | - | yes | - | The leg at the secondary side |
- * | Leg3 | `ThreeWindingsTransformer.Leg` | - | yes | - | getId()The leg at the tertiary side |
+ * <p>
+ *  Characteristics
+ * </p>
+ * <table style="border: 1px solid black; border-collapse: collapse">
+ *     <thead>
+ *         <tr>
+ *             <th style="border: 1px solid black">Attribute</th>
+ *             <th style="border: 1px solid black">Type</th>
+ *             <th style="border: 1px solid black">Unit</th>
+ *             <th style="border: 1px solid black">Required</th>
+ *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Description</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td style="border: 1px solid black">Id</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Unique identifier of the transformer</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Name</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Human-readable name of the transformer</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">RatedU0</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The rated voltage at the star bus</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Leg1</td>
+ *             <td style="border: 1px solid black">ThreeWindingsTransformer.Leg</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The leg at the primary side</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Leg2</td>
+ *             <td style="border: 1px solid black">ThreeWindingsTransformer.Leg</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The leg at the secondary side</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Leg3</td>
+ *             <td style="border: 1px solid black">ThreeWindingsTransformer.Leg</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The leg at the tertiary side</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
  *
  * <p>
  * To create a three windings transformer, see {@link ThreeWindingsTransformerAdder}
@@ -60,18 +115,96 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     /**
      * Transformer leg
      *
-     * **Characteristics**
+     * <p>
+     *     Characteristics
+     * </p>
      *
-     * | Attribute | Type | Unit | Required | Default value | Description |
-     * | --------- | ---- | ---- |-------- | ------------- | ----------- |
-     * | Terminal | [`Terminal`](terminal.md) | - | yes | - | The terminal the leg is connected to |
-     * | R | double | $$\Omega\$$ | yes | - | The nominal series resistance specified at the voltage of the leg |
-     * | X | double | $$\Omega\$$ | yes | - | The nominal series reactance specified at the voltage of the leg |
-     * | G | double | S | yes | - | The nominal magnetizing conductance specified at the voltage of the leg |
-     * | B | double | S | yes | - | The nominal magnetizing susceptance specified at the voltage of the leg |
-     * | RatedU | double | kV | yes | - | The rated voltage |
-     * | RatedS | double | MVA | no | - | The normal apparent power |
-     *
+     * <table style="border: 1px solid black; border-collapse: collapse">
+     *     <thead>
+     *         <tr>
+     *             <th style="border: 1px solid black">Attribute</th>
+     *             <th style="border: 1px solid black">Type</th>
+     *             <th style="border: 1px solid black">Unit</th>
+     *             <th style="border: 1px solid black">Required</th>
+     *             <th style="border: 1px solid black">Defaut value</th>
+     *             <th style="border: 1px solid black">Description</th>
+     *         </tr>
+     *     </thead>
+     *     <tbody>
+     *         <tr>
+     *             <td style="border: 1px solid black">Id</td>
+     *             <td style="border: 1px solid black">String</td>
+     *             <td style="border: 1px solid black"> - </td>
+     *             <td style="border: 1px solid black">yes</td>
+     *             <td style="border: 1px solid black"> - </td>
+     *             <td style="border: 1px solid black">Unique identifier of the transformer</td>
+     *         </tr>
+     *         <tr>
+     *             <td style="border: 1px solid black">Name</td>
+     *             <td style="border: 1px solid black">String</td>
+     *             <td style="border: 1px solid black">-</td>
+     *             <td style="border: 1px solid black">yes</td>
+     *             <td style="border: 1px solid black"> - </td>
+     *             <td style="border: 1px solid black">Human-readable name of the transformer</td>
+     *         </tr>
+     *         <tr>
+     *             <td style="border: 1px solid black">Terminal</td>
+     *             <td style="border: 1px solid black">Terminal</td>
+     *             <td style="border: 1px solid black"> - </td>
+     *             <td style="border: 1px solid black">yes</td>
+     *             <td style="border: 1px solid black"> - </td>
+     *             <td style="border: 1px solid black">The terminal the leg is connected to </td>
+     *         </tr>
+     *         <tr>
+     *             <td style="border: 1px solid black">R</td>
+     *             <td style="border: 1px solid black">double</td>
+     *             <td style="border: 1px solid black">&Omega;</td>
+     *             <td style="border: 1px solid black">yes</td>
+     *             <td style="border: 1px solid black"> - </td>
+     *             <td style="border: 1px solid black">The nominal series resistance specified at the voltage of the leg</td>
+     *         </tr>
+     *         <tr>
+     *             <td style="border: 1px solid black">X</td>
+     *             <td style="border: 1px solid black">double</td>
+     *             <td style="border: 1px solid black">&Omega;</td>
+     *             <td style="border: 1px solid black">yes</td>
+     *             <td style="border: 1px solid black"> - </td>
+     *             <td style="border: 1px solid black">The nominal series reactance specified at the voltage of the leg</td>
+     *         </tr>
+     *         <tr>
+     *             <td style="border: 1px solid black">G</td>
+     *             <td style="border: 1px solid black">double</td>
+     *             <td style="border: 1px solid black">S</td>
+     *             <td style="border: 1px solid black">yes</td>
+     *             <td style="border: 1px solid black"> - </td>
+     *             <td style="border: 1px solid black">The nominal magnetizing conductance specified at the voltage of the leg</td>
+     *         </tr>
+     *         <tr>
+     *             <td style="border: 1px solid black">B</td>
+     *             <td style="border: 1px solid black">double</td>
+     *             <td style="border: 1px solid black">S</td>
+     *             <td style="border: 1px solid black">yes</td>
+     *             <td style="border: 1px solid black"> - </td>
+     *             <td style="border: 1px solid black">The nominal magnetizing susceptance specified at the voltage of the leg</td>
+     *         </tr>
+     *         <tr>
+     *             <td style="border: 1px solid black">RatedU</td>
+     *             <td style="border: 1px solid black">double</td>
+     *             <td style="border: 1px solid black">kV</td>
+     *             <td style="border: 1px solid black">yes</td>
+     *             <td style="border: 1px solid black"> - </td>
+     *             <td style="border: 1px solid black">The rated voltage</td>
+     *         </tr>
+     *         <tr>
+     *             <td style="border: 1px solid black">RatedS</td>
+     *             <td style="border: 1px solid black">double</td>
+     *             <td style="border: 1px solid black">MVA</td>
+     *             <td style="border: 1px solid black">yes</td>
+     *             <td style="border: 1px solid black"> - </td>
+     *             <td style="border: 1px solid black">The normal apparent power</td>
+     *         </tr>
+     *     </tbody>
+     * </table>
      */
     public interface Leg extends RatioTapChangerHolder, PhaseTapChangerHolder {
 

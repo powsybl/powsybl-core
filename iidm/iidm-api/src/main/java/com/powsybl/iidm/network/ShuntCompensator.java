@@ -9,19 +9,96 @@ package com.powsybl.iidm.network;
 /**
  * A shunt compensator.
  *
- * **Characteristics**
+ * <p>
+ *  Characteristics
+ * </p>
  *
- * | Attribute | Type | Unit | Required | Default value | Description |
- * | --------- | ---- | ---- |--------- | ------------- | ----------- |
- * | Id | String | - | yes | - | The ID of the shunt compensator |
- * | Name | String | - | no | - | The name of the shunt compensator |
- * | bPerSection | double | S | yes | - | The Positive sequence shunt (charging) susceptance per section |
- * | MaximumSectionCount| integer | int | yes | - | The maximum number of sections that may be switched on |
- * | CurrentSectionCount | integer | int | yes | - | The current number of section that may be switched on |
- * | RegulatingTerminal | `Terminal` | - | no | The shunt compensator's terminal | The terminal used for regulation |
- * | TargetV | double | kV | only if `VoltageRegulatorOn` is set to `true` | - |  The voltage target |
- * | TargetDeadband | double | kV | only if `VoltageRegulatorOn` is set to `true` | - | The deadband used to avoid excessive update of controls |
- * | VoltageRegulatorOn | boolean | - | no | false | The voltage regulating status |
+ * <table style="border: 1px solid black; border-collapse: collapse">
+ *     <thead>
+ *         <tr>
+ *             <th style="border: 1px solid black">Attribute</th>
+ *             <th style="border: 1px solid black">Type</th>
+ *             <th style="border: 1px solid black">Unit</th>
+ *             <th style="border: 1px solid black">Required</th>
+ *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Description</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td style="border: 1px solid black">Id</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Unique identifier of the shunt compensator</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Name</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Human-readable name of the shunt compensator</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">bPerSection</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">S</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The Positive sequence shunt (charging) susceptance per section </td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">MaximumSectionCount</td>
+ *             <td style="border: 1px solid black">integer</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The maximum number of sections that may be switched on</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">CurrentSectionCount</td>
+ *             <td style="border: 1px solid black">integer</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The current number of section that may be switched on</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">RegulatingTerminal</td>
+ *             <td style="border: 1px solid black">Terminal</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> The shunt compensator's terminal </td>
+ *             <td style="border: 1px solid black">The terminal used for regulation</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">TargetV</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black">only if VoltageRegulatorOn is set to true</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The voltage target</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">TargetDeadband</td></td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black">only if VoltageRegulatorOn is set to true</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The deadband used to avoid excessive update of controls</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">VoltageRegulatorOn</td>
+ *             <td style="border: 1px solid black">boolean</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> false </td>
+ *             <td style="border: 1px solid black">The voltage regulating status</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
  *
  * To create a shunt compensator, see {@link ShuntCompensatorAdder}
  *

@@ -9,22 +9,120 @@ package com.powsybl.iidm.network;
 /**
  * A power generator.
  *
- * **Characteristics**
+ * <p>
+ *  Characteristics
+ * </p>
  *
- * | Attribute | Type | Unit | Required | Default value | Description |
- * | --------- | ---- | ---- | -------- | ------------- | ----------- |
- * | Id | String | - | yes | - | The ID of the generator |
- * | Name | String | - | no | - | The name of the generator |
- * | EnergySource | `EnergySource` | - | yes | `OTHER` | The energy source |
- * | MinP | double | MW | yes | - | The minimal active power |
- * | MaxP | double | MW | yes | - | The maximum active power |
- * | RegulatingTerminal | `Terminal` | - | no | The generator's terminal | The terminal used for regulation |
- * | VoltageRegulatorOn | boolean | - | yes | - | The voltage regulator status |
- * | TargetP | double | MW | yes | - | The active power target |
- * | TargetQ | double | MVAr | only if `VoltageRegulatorOn` is set to `false` | - | The reactive power target |
- * | TargetV | double | kV | only if `VoltageRegulatorOn` is set to `true` | - | The voltage target |
- * | RatedS | double | MVA | yes | - | The rated nominal power |
- * | ReactiveLimits | - | - | no | min/max | Operational limits of the generator (P/Q/U diagram) |
+ * <table style="border: 1px solid black; border-collapse: collapse">
+ *     <thead>
+ *         <tr>
+ *             <th style="border: 1px solid black">Attribute</th>
+ *             <th style="border: 1px solid black">Type</th>
+ *             <th style="border: 1px solid black">Unit</th>
+ *             <th style="border: 1px solid black">Required</th>
+ *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Description</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td style="border: 1px solid black">Id</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Unique identifier of the generator</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Name</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Human-readable name of the generator</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">EnergySource</td>
+ *             <td style="border: 1px solid black">EnergySource</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> OTHER </td>
+ *             <td style="border: 1px solid black">The energy source type</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">MinP</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">MW</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The minimum active power</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">MaxP</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">MW</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The maximum active power</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">RegulatingTerminal</td>
+ *             <td style="border: 1px solid black">Terminal</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> The generator's terminal </td>
+ *             <td style="border: 1px solid black">The terminal used for regulation</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">VoltageRegulatorOn</td>
+ *             <td style="border: 1px solid black">boolean</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> false </td>
+ *             <td style="border: 1px solid black">The voltage regulating status</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">TargetP</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">MW</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The active power target</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">TargetQ</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">MVar</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black">only if `VoltageRegulatorOn` is set to false</td>
+ *             <td style="border: 1px solid black">The reactive power target</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">TargetV</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black">only if `VoltageRegulatorOn` is set to true</td>
+ *             <td style="border: 1px solid black">The voltage target</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">RatedS</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">MVA</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">The rated nominal power</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">ReactiveLimits</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black">min/max</td>
+ *             <td style="border: 1px solid black">Operational limits of the generator (P/Q/U diagram)</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
  *
  *<p>
  * To create a generator, see {@link GeneratorAdder}
