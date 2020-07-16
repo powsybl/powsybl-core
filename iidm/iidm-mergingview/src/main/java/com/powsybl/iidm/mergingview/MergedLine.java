@@ -44,17 +44,7 @@ class MergedLine implements Line {
 
     private final Properties properties = new Properties();
 
-    private final double r;
-
-    private final double x;
-
-    private final double g1;
-
-    private final double b1;
-
-    private final double g2;
-
-    private final double b2;
+    private final PiModel equivalent;
 
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2, boolean ensureIdUnicity) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
@@ -62,15 +52,7 @@ class MergedLine implements Line {
         this.dl2 = Objects.requireNonNull(dl2, "dangling line 2 is null");
         this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildId(dl1, dl2), index::contains) : buildId(dl1, dl2);
         this.name = buildName(dl1, dl2);
-
-        Quadripole.PiModel pim = Quadripole.from(PiModel.from(dl1)).cascade(Quadripole.from(PiModel.from(dl2))).toPiModel();
-        this.r = pim.r;
-        this.x = pim.x;
-        this.g1 = pim.g1;
-        this.b1 = pim.b1;
-        this.g2 = pim.g2;
-        this.b2 = pim.b2;
-
+        equivalent = Quadripole.from(PiModel.from(dl1)).cascade(Quadripole.from(PiModel.from(dl2))).toPiModel();
         mergeProperties(dl1, dl2);
     }
 
@@ -241,7 +223,7 @@ class MergedLine implements Line {
 
     @Override
     public double getR() {
-        return r;
+        return equivalent.r;
     }
 
     @Override
@@ -251,7 +233,7 @@ class MergedLine implements Line {
 
     @Override
     public double getX() {
-        return x;
+        return equivalent.x;
     }
 
     @Override
@@ -261,7 +243,7 @@ class MergedLine implements Line {
 
     @Override
     public double getG1() {
-        return g1;
+        return equivalent.g1;
     }
 
     @Override
@@ -271,7 +253,7 @@ class MergedLine implements Line {
 
     @Override
     public double getG2() {
-        return g2;
+        return equivalent.g2;
     }
 
     @Override
@@ -281,7 +263,7 @@ class MergedLine implements Line {
 
     @Override
     public double getB1() {
-        return b1;
+        return equivalent.b1;
     }
 
     @Override
@@ -291,7 +273,7 @@ class MergedLine implements Line {
 
     @Override
     public double getB2() {
-        return b2;
+        return equivalent.b2;
     }
 
     @Override

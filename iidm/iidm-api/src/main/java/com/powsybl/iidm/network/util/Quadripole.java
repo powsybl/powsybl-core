@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.util;
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.LineCharacteristics;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -33,6 +34,10 @@ public final class Quadripole {
 
         public static PiModel from(DanglingLine dl) {
             return new PiModel(dl.getR(), dl.getX(), dl.getG() / 2, dl.getB() / 2, dl.getG() / 2, dl.getB() / 2);
+        }
+
+        public static PiModel from(LineCharacteristics<?> l) {
+            return new PiModel(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2());
         }
     }
 
@@ -65,10 +70,9 @@ public final class Quadripole {
 
     public Quadripole cascade(Quadripole q2) {
         Quadripole q1 = this;
-        Quadripole qr = new Quadripole(q1.a.multiply(q2.a).add(q1.b.multiply(q2.c)),
+        return new Quadripole(q1.a.multiply(q2.a).add(q1.b.multiply(q2.c)),
                 q1.a.multiply(q2.b).add(q1.b.multiply(q2.d)), q1.c.multiply(q2.a).add(q1.d.multiply(q2.c)),
                 q1.c.multiply(q2.b).add(q1.d.multiply(q2.d)));
-        return qr;
     }
 
     public Quadripole.PiModel toPiModel() {
