@@ -92,7 +92,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
                 case "regulatingTerminal":
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                     String side = context.getReader().getAttributeValue(null, "side");
-                    context.getEndTasks().add(() -> g.setRegulatingTerminal(TerminalRefXml.readTerminalRef(g.getTerminal().getVoltageLevel().getSubstation().getNetwork(), id, side)));
+                    context.getEndTasks().add(() -> g.setRegulatingTerminal(TerminalRefXml.readTerminalRef(g.getNetwork(), id, side)));
                     break;
 
                 case "reactiveCapabilityCurve":
