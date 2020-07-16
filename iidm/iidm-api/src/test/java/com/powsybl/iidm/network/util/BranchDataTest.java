@@ -41,8 +41,6 @@ public class BranchDataTest {
 
         Line line = branchTestData.getLine();
         BranchData branchData = new BranchData(line, 0, false);
-        // XXX LUMA Structural ratio should not be taken into account
-        // boolean ok = branchCompareFlow(branchData, -223.390802, 328.051088, 223.390802, -316.050498);
         boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
         assertTrue(ok);
     }
@@ -126,9 +124,7 @@ public class BranchDataTest {
 
         Line line = branchTestData.getLine();
         BranchData branchData = new BranchData(line, 0, false);
-        // XXX LUMA structural ratio should not be taken into account
         boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
-        //boolean ok = branchCompareFlow(branchData, -217.840937,   1.90106, 217.840937, 1.901069);
         assertTrue(ok);
     }
 

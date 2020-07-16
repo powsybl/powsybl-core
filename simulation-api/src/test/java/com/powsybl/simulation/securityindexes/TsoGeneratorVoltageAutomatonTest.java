@@ -17,7 +17,6 @@ import java.io.StringReader;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -37,8 +36,8 @@ public class TsoGeneratorVoltageAutomatonTest {
                 xmlReader.close();
             }
         }
-        assertTrue(index.getOnUnderVoltageDiconnectedGenerators().equals(Arrays.asList("a", "b")));
-        assertTrue(index.getOnOverVoltageDiconnectedGenerators().equals(Arrays.asList("c")));
+        assertEquals(Arrays.asList("a", "b"), index.getOnUnderVoltageDiconnectedGenerators());
+        assertEquals(Arrays.asList("c"), index.getOnOverVoltageDiconnectedGenerators());
         assertEquals(xml, index.toXml());
     }
 }
