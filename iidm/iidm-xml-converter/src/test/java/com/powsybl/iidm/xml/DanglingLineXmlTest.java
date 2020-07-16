@@ -15,6 +15,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -37,9 +38,10 @@ public class DanglingLineXmlTest extends AbstractXmlConverterTest {
 
         // check it fails for all versions < 1.3
         testForAllPreviousVersions(IidmXmlVersion.V_1_3, version -> {
+            ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+            Path path = tmpDir.resolve("fail");
             try {
-                ExportOptions options = new ExportOptions().setVersion(version.toString("."));
-                NetworkXml.write(network, options, tmpDir.resolve("fail"));
+                NetworkXml.write(network, options, path);
                 fail();
             } catch (PowsyblException e) {
                 assertEquals("danglingLine.generation is not null and not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.3", e.getMessage());
