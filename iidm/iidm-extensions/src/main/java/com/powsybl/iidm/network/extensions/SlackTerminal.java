@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 
@@ -26,13 +25,5 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
      * @return the corresponding terminal
      */
     Terminal getTerminal();
-
-    /**
-     * Shortcut to getTerminal().getBusView().getBus()
-     * @return the corresponding bus in the bus view
-     */
-    default Bus getBus() {
-        return getTerminal().getBusView().getBus();
-    }
 
 }

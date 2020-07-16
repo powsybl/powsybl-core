@@ -95,7 +95,6 @@ public class SlackTerminalTest {
             if (slackTerminal != null) {
                 assertEquals("B", slackTerminal.getTerminal().getBusBreakerView().getBus().getId());
                 assertEquals("VL_0", slackTerminal.getTerminal().getBusView().getBus().getId());
-                assertEquals("VL_0", slackTerminal.getBus().getId());
             }
         }
     }
