@@ -7,9 +7,17 @@
 
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.export.ExportOptions;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -19,5 +27,23 @@ public class DanglingLineXmlTest extends AbstractXmlConverterTest {
     @Test
     public void test() throws IOException {
         roundTripAllVersionedXmlTest("danglingLine.xml");
+    }
+
+    @Test
+    public void testWithGeneration() throws IOException {
+        Network network = DanglingLineNetworkFactory.createWithGeneration();
+        network.setCaseDate(DateTime.parse("2020-07-16T10:08:48.321+02:00"));
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::read, getVersionedNetworkPath("danglingLineWithGeneration.xml", IidmXmlVersion.V_1_3));
+
+        // check it fails for all versions < 1.3
+        testForAllPreviousVersions(IidmXmlVersion.V_1_3, version -> {
+            try {
+                ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+                NetworkXml.write(network, options, tmpDir.resolve("fail"));
+                fail();
+            } catch (PowsyblException e) {
+                assertEquals("danglingLine.generation is not null and not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.3", e.getMessage());
+            }
+        });
     }
 }
