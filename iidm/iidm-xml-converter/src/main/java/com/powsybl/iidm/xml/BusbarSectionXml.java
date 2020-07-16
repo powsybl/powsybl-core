@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusbarSection;
@@ -40,12 +39,8 @@ class BusbarSectionXml extends AbstractIdentifiableXml<BusbarSection, BusbarSect
     protected void writeRootElementAttributes(BusbarSection bs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeInt("node", bs.getTerminal().getNodeBreakerView().getNode(), context.getWriter());
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_0, context, () -> {
-            try {
-                XmlUtil.writeDouble("v", bs.getV(), context.getWriter());
-                XmlUtil.writeDouble("angle", bs.getAngle(), context.getWriter());
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
+            XmlUtil.writeDouble("v", bs.getV(), context.getWriter());
+            XmlUtil.writeDouble("angle", bs.getAngle(), context.getWriter());
         });
     }
 
