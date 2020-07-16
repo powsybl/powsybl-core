@@ -6,10 +6,13 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
+
+import java.util.Objects;
 
 /**
  *
@@ -17,46 +20,61 @@ import gnu.trove.list.array.TDoubleArrayList;
  */
 class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine, CurrentLimitsOwner<Void> {
 
-    public static class GenerationImpl implements Generation, ReactiveLimitsOwner, Validable {
+    static class GenerationImpl implements Generation, ReactiveLimitsOwner, Validable {
 
-        private final DanglingLineImpl danglingLine;
+        private DanglingLineImpl danglingLine;
 
-        private final ReactiveLimitsHolderImpl reactiveLimits;
+        private ReactiveLimitsHolderImpl reactiveLimits;
 
         private double minP;
 
         private double maxP;
 
+        private final double initialTargetP;
+
+        private final double initialTargetQ;
+
+        private final boolean initialVoltageRegulationOn;
+
+        private final double initialTargetV;
+
         // attributes depending on the variant
 
-        private final TDoubleArrayList targetP;
+        private TDoubleArrayList targetP;
 
-        private final TDoubleArrayList targetQ;
+        private TDoubleArrayList targetQ;
 
-        private final TBooleanArrayList voltageRegulationOn;
+        private TBooleanArrayList voltageRegulationOn;
 
-        private final TDoubleArrayList targetV;
+        private TDoubleArrayList targetV;
 
-        GenerationImpl(DanglingLineAdderImpl.GenerationAdderImpl adder, DanglingLineImpl danglingLine) {
-            this(adder.minP, adder.maxP, adder.targetP, adder.targetQ, adder.voltageRegulationOn, adder.targetV, danglingLine);
+        GenerationImpl(double minP, double maxP, double targetP, double targetQ, boolean voltageRegulationOn, double targetV) {
+            this.minP = minP;
+            this.maxP = maxP;
+            this.initialTargetP = targetP;
+            this.initialTargetQ = targetQ;
+            this.initialVoltageRegulationOn = voltageRegulationOn;
+            this.initialTargetV = targetV;
         }
 
-        GenerationImpl(double minP, double maxP, double targetP, double targetQ, boolean voltageRegulationOn, double targetV, DanglingLineImpl danglingLine) {
-            this.danglingLine = danglingLine;
+        GenerationImpl setDanglingLine(DanglingLineImpl danglingLine) {
+            if (this.danglingLine != null) {
+                throw new PowsyblException("DanglingLine " + this.danglingLine.getId() + " set twice for its generation object");
+            }
+            this.danglingLine = Objects.requireNonNull(danglingLine);
             int variantArraySize = danglingLine.network.get().getVariantManager().getVariantArraySize();
             this.targetP = new TDoubleArrayList(variantArraySize);
             this.targetQ = new TDoubleArrayList(variantArraySize);
             this.voltageRegulationOn = new TBooleanArrayList(variantArraySize);
             this.targetV = new TDoubleArrayList(variantArraySize);
-            this.minP = minP;
-            this.maxP = maxP;
             for (int i = 0; i < variantArraySize; i++) {
-                this.targetP.add(targetP);
-                this.targetQ.add(targetQ);
-                this.voltageRegulationOn.add(voltageRegulationOn);
-                this.targetV.add(targetV);
+                this.targetP.add(initialTargetP);
+                this.targetQ.add(initialTargetQ);
+                this.voltageRegulationOn.add(initialVoltageRegulationOn);
+                this.targetV.add(initialTargetV);
             }
             this.reactiveLimits = new ReactiveLimitsHolderImpl(danglingLine, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
+            return this;
         }
 
         @Override
@@ -200,7 +218,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     private final TDoubleArrayList q0;
 
     DanglingLineImpl(Ref<? extends VariantManagerHolder> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b,
-                     String ucteXnodeCode, DanglingLineAdderImpl.GenerationAdderImpl generationAdder) {
+                     String ucteXnodeCode, GenerationImpl generation) {
         super(id, name, fictitious);
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
@@ -215,11 +233,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.g = g;
         this.b = b;
         this.ucteXnodeCode = ucteXnodeCode;
-        if (generationAdder != null) {
-            generation = new GenerationImpl(generationAdder, this);
-        } else {
-            generation = null;
-        }
+        this.generation = generation != null ? generation.setDanglingLine(this) : null;
     }
 
     @Override

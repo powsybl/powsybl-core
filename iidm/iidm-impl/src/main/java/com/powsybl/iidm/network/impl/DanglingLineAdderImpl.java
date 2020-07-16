@@ -65,7 +65,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         @Override
         public DanglingLineAdder add() {
             ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
-            generationAdder = this;
+            generation = new DanglingLineImpl.GenerationImpl(minP, maxP, targetP, targetQ, voltageRegulationOn, targetV);
             return DanglingLineAdderImpl.this;
         }
     }
@@ -86,7 +86,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     private String ucteXnodeCode;
 
-    private GenerationAdderImpl generationAdder;
+    private DanglingLineImpl.GenerationImpl generation;
 
     DanglingLineAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
@@ -161,7 +161,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         ValidationUtil.checkG(this, g);
         ValidationUtil.checkB(this, b);
 
-        DanglingLineImpl danglingLine = new DanglingLineImpl(getNetwork().getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode, generationAdder);
+        DanglingLineImpl danglingLine = new DanglingLineImpl(getNetwork().getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode, generation);
         danglingLine.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(danglingLine);
