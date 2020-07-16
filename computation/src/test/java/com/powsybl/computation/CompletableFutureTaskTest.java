@@ -58,7 +58,7 @@ public class CompletableFutureTaskTest {
     }
 
     @Test
-    public void whenTaskThrowsThenThrowExecutionException() {
+    public void whenTaskThrowsThenThrowExecutionException() throws InterruptedException {
 
         CompletableFutureTask<Integer> task = CompletableFutureTask.runAsync(() -> {
             throw new MyException();
@@ -67,7 +67,7 @@ public class CompletableFutureTaskTest {
         try {
             task.get();
             fail();
-        } catch (Throwable exc) {
+        } catch (ExecutionException exc) {
             assertTrue(exc.getCause() instanceof MyException);
         }
     }
