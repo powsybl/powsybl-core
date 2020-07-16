@@ -19,12 +19,12 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     class GenerationAdderImpl implements GenerationAdder {
 
-        double minP;
-        double maxP;
-        double targetP;
-        double targetQ;
+        double minP = Double.NaN;
+        double maxP = Double.NaN;
+        double targetP = Double.NaN;
+        double targetQ = Double.NaN;
         boolean voltageRegulationOn;
-        double targetV;
+        double targetV = Double.NaN;
 
         @Override
         public GenerationAdder setTargetP(double targetP) {
@@ -65,6 +65,8 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         @Override
         public DanglingLineAdder add() {
             ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
+            ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP);
+            ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ);
             generation = new DanglingLineImpl.GenerationImpl(minP, maxP, targetP, targetQ, voltageRegulationOn, targetV);
             return DanglingLineAdderImpl.this;
         }
