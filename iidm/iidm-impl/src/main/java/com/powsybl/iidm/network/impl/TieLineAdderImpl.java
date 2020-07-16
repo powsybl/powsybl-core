@@ -84,6 +84,16 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
     }
 
     @Override
+    public TieLineAdderImpl setFictitious(boolean fictitious) {
+        if (activeHalf == null) {
+            return super.setFictitious(fictitious);
+        } else {
+            getActiveHalf().setFictitious(fictitious);
+        }
+        return this;
+    }
+
+    @Override
     public TieLineAdderImpl setR(double r) {
         getActiveHalf().setR(r);
         return this;

@@ -122,7 +122,7 @@ public class SV {
     }
 
     public SV otherSide(DanglingLine dl) {
-        return otherSide(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 1);
+        return otherSide(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, dl.getG() / 2.0, dl.getB() / 2.0, 1);
     }
 
     @Override
