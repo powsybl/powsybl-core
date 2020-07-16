@@ -34,6 +34,7 @@ public class DanglingLineXmlTest extends AbstractXmlConverterTest {
     public void testWithGeneration() throws IOException {
         Network network = DanglingLineNetworkFactory.createWithGeneration();
         network.setCaseDate(DateTime.parse("2020-07-16T10:08:48.321+02:00"));
+        network.getDanglingLine("DL").setProperty("test", "test");
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::read, getVersionedNetworkPath("danglingLineWithGeneration.xml", IidmXmlVersion.V_1_3));
 
         // check it fails for all versions < 1.3
