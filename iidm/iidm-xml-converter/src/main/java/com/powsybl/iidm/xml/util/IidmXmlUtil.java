@@ -21,6 +21,20 @@ import java.util.Objects;
  */
 public final class IidmXmlUtil {
 
+    public interface IidmXmlRunnable extends Runnable {
+
+        @Override
+        default void run() {
+            try {
+                runWithXmlStreamException();
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        }
+
+        void runWithXmlStreamException() throws XMLStreamException;
+    }
+
     public enum ErrorMessage {
         NOT_SUPPORTED("not supported"),
         MANDATORY("mandatory"),
@@ -103,7 +117,7 @@ public final class IidmXmlUtil {
      */
     public static <C extends AbstractNetworkXmlContext> void assertMinimumVersionAndRunIfNotDefault(boolean valueIsNotDefault, String rootElementName,
                                                                                                     String elementName, ErrorMessage type, IidmXmlVersion minVersion,
-                                                                                                    C context, Runnable runnable) {
+                                                                                                    C context, IidmXmlRunnable runnable) {
         if (valueIsNotDefault) {
             assertMinimumVersion(rootElementName, elementName, type, minVersion, context);
             runnable.run();
@@ -123,7 +137,7 @@ public final class IidmXmlUtil {
     /**
      * Run a given runnable if the context's IIDM-XML version equals or is more recent than a given minimum IIDM-XML version.
      */
-    public static <C extends AbstractNetworkXmlContext> void runFromMinimumVersion(IidmXmlVersion minVersion, C context, Runnable runnable) {
+    public static <C extends AbstractNetworkXmlContext> void runFromMinimumVersion(IidmXmlVersion minVersion, C context, IidmXmlRunnable runnable) {
         if (context.getVersion().compareTo(minVersion) >= 0) {
             runnable.run();
         }
@@ -133,7 +147,7 @@ public final class IidmXmlUtil {
     /**
      * Run a given runnable if the context's IIDM-XML version equals or is older than a given maximum IIDM-XML version.
      */
-    public static <C extends AbstractNetworkXmlContext> void runUntilMaximumVersion(IidmXmlVersion maxVersion, C context, Runnable runnable) {
+    public static <C extends AbstractNetworkXmlContext> void runUntilMaximumVersion(IidmXmlVersion maxVersion, C context, IidmXmlRunnable runnable) {
         if (context.getVersion().compareTo(maxVersion) <= 0) {
             runnable.run();
         }
@@ -146,13 +160,8 @@ public final class IidmXmlUtil {
      */
     public static void writeBooleanAttributeFromMinimumVersion(String rootElementName, String attributeName, boolean value, boolean defaultValue,
                                                                ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context) {
-        writeAttributeFromMinimumVersion(rootElementName, attributeName, value != defaultValue, type, minVersion, context, () -> {
-            try {
-                context.getWriter().writeAttribute(attributeName, Boolean.toString(value));
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        writeAttributeFromMinimumVersion(rootElementName, attributeName, value != defaultValue, type,
+                minVersion, context, () -> context.getWriter().writeAttribute(attributeName, Boolean.toString(value)));
     }
 
     /**
@@ -172,18 +181,13 @@ public final class IidmXmlUtil {
      */
     public static void writeDoubleAttributeFromMinimumVersion(String rootElementName, String attributeName, double value, double defaultValue,
                                                               ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context) {
-        writeAttributeFromMinimumVersion(rootElementName, attributeName, !Objects.equals(value, defaultValue), type, minVersion, context, () -> {
-            try {
-                XmlUtil.writeDouble(attributeName, value, context.getWriter());
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        writeAttributeFromMinimumVersion(rootElementName, attributeName, !Objects.equals(value, defaultValue), type,
+                minVersion, context, () -> XmlUtil.writeDouble(attributeName, value, context.getWriter()));
     }
 
     private static void writeAttributeFromMinimumVersion(String rootElementName, String attributeName, boolean isNotDefaultValue,
                                                          ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context,
-                                                         Runnable write) {
+                                                         IidmXmlRunnable write) {
         if (context.getVersion().compareTo(minVersion) >= 0) {
             write.run();
         } else {
