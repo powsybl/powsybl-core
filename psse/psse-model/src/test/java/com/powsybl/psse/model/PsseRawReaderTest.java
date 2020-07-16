@@ -35,9 +35,47 @@ public class PsseRawReaderTest {
     }
 
     @Test
-    public void ieeeRawxTest() throws IOException {
-        String jsonFile = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE.rawx")), StandardCharsets.UTF_8);
+    public void minimalExampleRawxTest() throws IOException {
+        String jsonFile = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/MinimalExample.rawx")), StandardCharsets.UTF_8);
         assertNotNull(jsonFile);
         PsseRawModel rawData = new PsseRawReader().readx(jsonFile);
+
+        double tol = 0.000001;
+        assertEquals("PSS(R)E MINIMUM RAWX CASE", rawData.getCaseIdentification().getTitle1());
+
+        assertEquals(2, rawData.getBuses().size());
+        assertEquals(101, rawData.getBuses().get(0).getI());
+        assertEquals("Source", rawData.getBuses().get(0).getName());
+        assertEquals(3, rawData.getBuses().get(0).getIde());
+        assertEquals(102, rawData.getBuses().get(1).getI());
+        assertEquals("Sink", rawData.getBuses().get(1).getName());
+        assertEquals(1, rawData.getBuses().get(1).getIde());
+
+        assertEquals(1, rawData.getLoads().size());
+        assertEquals(102, rawData.getLoads().get(0).getI());
+        assertEquals("1", rawData.getLoads().get(0).getId());
+        assertEquals(500.0, rawData.getLoads().get(0).getPl(), tol);
+        assertEquals(200.0, rawData.getLoads().get(0).getQl(), tol);
+
+        assertEquals(1, rawData.getGenerators().size());
+        assertEquals(101, rawData.getGenerators().get(0).getI());
+        assertEquals("1", rawData.getGenerators().get(0).getId());
+
+        assertEquals(1, rawData.getNonTransformerBranches().size());
+        assertEquals(101, rawData.getNonTransformerBranches().get(0).getI());
+        assertEquals(102, rawData.getNonTransformerBranches().get(0).getJ());
+        assertEquals("1", rawData.getNonTransformerBranches().get(0).getCkt());
+        assertEquals(0.01, rawData.getNonTransformerBranches().get(0).getX(), tol);
+    }
+
+    @Test
+    public void ieee14BusRev35RawxTest() throws IOException {
+        String jsonFile = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_rev35.rawx")), StandardCharsets.UTF_8);
+        assertNotNull(jsonFile);
+        PsseRawModel rawData = new PsseRawReader().readx(jsonFile);
+
+        String jsonRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_rev35.json")), StandardCharsets.UTF_8);
+        String json = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(rawData);
+        assertEquals(jsonRef, json);
     }
 }

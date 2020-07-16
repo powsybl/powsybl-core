@@ -64,7 +64,7 @@ class GeneratorData extends BlockData {
 
     private static String[] generatorDataHeaders(PsseVersion version) {
         if (version == PsseVersion.VERSION_35) {
-            return new String[] {"i", "id", "pg", "qg", "qt", "qb", "vs", "ireg", "nreg", "mbase", "zr", "zx", "rt",
+            return new String[] {"ibus", "machid", "pg", "qg", "qt", "qb", "vs", "ireg", "nreg", "mbase", "zr", "zx", "rt",
                 "xt", "gtap", "stat", "rmpct", "pt", "pb", "baslod", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "wmod", "wpf"};
 
         } else { // Version 33

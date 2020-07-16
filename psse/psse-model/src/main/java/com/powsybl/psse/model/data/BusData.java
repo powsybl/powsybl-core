@@ -14,6 +14,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseBus;
 import com.powsybl.psse.model.PsseContext;
+import com.powsybl.psse.model.data.BlockData.PsseVersion;
 
 /**
  *
@@ -33,7 +34,7 @@ class BusData extends BlockData {
     List<PsseBus> read(BufferedReader reader, PsseContext context) throws IOException {
         assertMinimumExpectedVersion(PsseBlockData.BusData, PsseVersion.VERSION_33);
 
-        String[] headers = busDataHeaders();
+        String[] headers = busDataHeaders(this.getPsseVersion());
         List<String> records = readRecordBlock(reader);
 
         context.setBusDataReadFields(readFields(records, headers, context.getDelimiter()));
@@ -55,7 +56,11 @@ class BusData extends BlockData {
         return parseRecordsHeader(records, PsseBus.class, headers);
     }
 
-    private static String[] busDataHeaders() {
-        return new String[] {"i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo"};
+    private static String[] busDataHeaders(PsseVersion version) {
+        if (version == PsseVersion.VERSION_35) {
+            return new String[] {"ibus", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo"};
+        } else {
+            return new String[] {"i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo"};
+        }
     }
 }

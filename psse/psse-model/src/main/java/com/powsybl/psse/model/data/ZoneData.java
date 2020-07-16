@@ -14,6 +14,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseZone;
+import com.powsybl.psse.model.data.BlockData.PsseVersion;
 
 /**
  *
@@ -33,7 +34,7 @@ class ZoneData extends BlockData {
     List<PsseZone> read(BufferedReader reader, PsseContext context) throws IOException {
         assertMinimumExpectedVersion(PsseBlockData.ZoneData, PsseVersion.VERSION_33);
 
-        String[] headers = zoneDataHeaders();
+        String[] headers = zoneDataHeaders(this.getPsseVersion());
         List<String> records = readRecordBlock(reader);
 
         context.setZoneDataReadFields(readFields(records, headers, context.getDelimiter()));
@@ -55,7 +56,11 @@ class ZoneData extends BlockData {
         return parseRecordsHeader(records, PsseZone.class, headers);
     }
 
-    private static String[] zoneDataHeaders() {
-        return new String[] {"i", "zoname"};
+    private static String[] zoneDataHeaders(PsseVersion version) {
+        if (version == PsseVersion.VERSION_35) {
+            return new String[] {"izone", "zoname"};
+        } else {
+            return new String[] {"i", "zoname"};
+        }
     }
 }

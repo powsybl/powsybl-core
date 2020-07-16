@@ -64,7 +64,7 @@ class LoadData extends BlockData {
 
     private static String[] loadDataHeaders(PsseVersion version) {
         if (version == PsseVersion.VERSION_35) {
-            return new String[] {"i", "id", "status", "area", "zone", "pl", "ql", "ip", "iq", "yp", "yq", "owner", "scale", "intrpt",
+            return new String[] {"ibus", "loadid", "stat", "area", "zone", "pl", "ql", "ip", "iq", "yp", "yq", "owner", "scale", "intrpt",
                 "dgenp", "dgenq", "dgenm", "loadtype"};
         } else { // Version 33
             return new String[] {"i", "id", "status", "area", "zone", "pl", "ql", "ip", "iq", "yp", "yq", "owner", "scale", "intrpt"};

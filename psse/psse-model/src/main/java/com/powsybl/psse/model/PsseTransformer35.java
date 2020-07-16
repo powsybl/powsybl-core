@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.univocity.parsers.annotations.Parsed;
 
@@ -165,6 +166,7 @@ public class PsseTransformer35 extends PsseTransformer {
             rate93, rate103, rate113, rate123, cod3, cont3, node3, rma3, rmi3, vma3, vmi3, ntp3, tab3, cr3, cx3, cnxa3);
     }
 
+    @JsonIgnoreProperties({ "rata", "ratb", "ratc" })
     public static class WindingRecord35 extends WindingRecord {
         private final double rate1;
         private final double rate2;

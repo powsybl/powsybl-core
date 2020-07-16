@@ -14,6 +14,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseOwner;
+import com.powsybl.psse.model.data.BlockData.PsseVersion;
 
 /**
  *
@@ -33,7 +34,7 @@ class OwnerData extends BlockData {
     List<PsseOwner> read(BufferedReader reader, PsseContext context) throws IOException {
         assertMinimumExpectedVersion(PsseBlockData.OwnerData, PsseVersion.VERSION_33);
 
-        String[] headers = ownerDataHeaders();
+        String[] headers = ownerDataHeaders(this.getPsseVersion());
         List<String> records = readRecordBlock(reader);
 
         context.setOwnerDataReadFields(readFields(records, headers, context.getDelimiter()));
@@ -55,7 +56,11 @@ class OwnerData extends BlockData {
         return parseRecordsHeader(records, PsseOwner.class, headers);
     }
 
-    private static String[] ownerDataHeaders() {
-        return new String[] {"i", "owname"};
+    private static String[] ownerDataHeaders(PsseVersion version) {
+        if (version == PsseVersion.VERSION_35) {
+            return new String[] {"iowner", "owname"};
+        } else {
+            return new String[] {"i", "owname"};
+        }
     }
 }

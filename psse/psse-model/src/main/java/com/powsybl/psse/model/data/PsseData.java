@@ -15,7 +15,6 @@ import com.powsybl.psse.model.PsseCaseIdentification;
 import com.powsybl.psse.model.PsseConstants;
 import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseLoad35;
 import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseRawModel35;
 import com.powsybl.psse.model.data.BlockData.PsseFileFormat;
@@ -103,10 +102,6 @@ public class PsseData {
         // q record (nothing to do)
         BlockData.readDiscardedRecordBlock(reader);
 
-        System.err.printf("Loads %d %n", model.getLoads().size());
-        System.err.printf("Generators %d %n", model.getGenerators().size());
-        System.err.printf("NonTransformerBranches %d %n", model.getNonTransformerBranches().size());
-
         return model;
     }
 
@@ -134,18 +129,6 @@ public class PsseData {
         model.addOwners(new OwnerData(version, format).read(networkNode, context));
 
         model.addSwitchedShunts(new SwitchedShuntData(version, format).read(networkNode, context));
-
-        System.err.printf("Loads %d %n", model.getLoads().size());
-        System.err.printf("Generators %d %n", model.getGenerators().size());
-        System.err.printf("NonTransformerBranches %d %n", model.getNonTransformerBranches().size());
-        System.err.printf("Transformers %d %n", model.getTransformers().size());
-        System.err.printf("Zones %d %n", model.getZones().size());
-        System.err.printf("Owners %d %n", model.getOwners().size());
-        System.err.printf("SwitchedShunts %d %n", model.getSwitchedShunts().size());
-        model.getLoads().forEach(load -> {
-            PsseLoad35 load35 = (PsseLoad35) load;
-            load35.print();
-        });
 
         return model;
     }

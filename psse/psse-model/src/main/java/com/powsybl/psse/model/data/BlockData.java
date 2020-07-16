@@ -186,13 +186,28 @@ class BlockData {
         return newLine.toString().trim();
     }
 
-    private static String cleanRawxString(String data) {
+    private static String cleanRawxFieldString(String data) {
         StringBuffer newData = new StringBuffer();
         Pattern p = Pattern.compile("(\"[^\"]+\")|( )+");
-        Matcher m = p.matcher(removeComment(data));
+        Matcher m = p.matcher(data);
         while (m.find()) {
             if (m.group().contains("\"")) {
                 m.appendReplacement(newData, m.group().replace("\"",  ""));
+            } else {
+                m.appendReplacement(newData, "");
+            }
+        }
+        m.appendTail(newData);
+        return newData.toString();
+    }
+
+    private static String cleanRawxDataString(String data) {
+        StringBuffer newData = new StringBuffer();
+        Pattern p = Pattern.compile("(\"[^\"]+\")|( )+");
+        Matcher m = p.matcher(data);
+        while (m.find()) {
+            if (m.group().contains("\"")) {
+                m.appendReplacement(newData, m.group());
             } else {
                 m.appendReplacement(newData, "");
             }
@@ -205,18 +220,18 @@ class BlockData {
 
     static String[] nodeFields(JsonNode jsonNode) {
         String fieldsNode = jsonNode.get("fields").toString();
-        String fieldsNodeClean = cleanRawxString(fieldsNode.substring(1, fieldsNode.length() - 1));
+        String fieldsNodeClean = cleanRawxFieldString(fieldsNode.substring(1, fieldsNode.length() - 1));
         return fieldsNodeClean.split(",");
     }
 
     static List<String> nodeRecords(JsonNode jsonNode) {
         String dataNode = jsonNode.get("data").toString();
-        String dataNodeClean = cleanRawxString(dataNode.substring(1, dataNode.length() - 1));
+        String dataNodeClean = cleanRawxDataString(dataNode.substring(1, dataNode.length() - 1));
 
         String[] dataNodeArray = StringUtils.substringsBetween(dataNodeClean, "[", "]");
         List<String> records = new ArrayList<>();
         if (dataNodeArray == null) {
-            records.add(cleanRawxString(dataNodeClean));
+            records.add(dataNodeClean);
         } else {
             records.addAll(Arrays.asList(dataNodeArray));
         }

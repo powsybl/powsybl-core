@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
@@ -13,6 +14,9 @@ import com.univocity.parsers.annotations.Parsed;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
+
+@JsonIgnoreProperties({ "ratea", "rateb", "ratec" })
+
 public class PsseNonTransformerBranch35 extends PsseNonTransformerBranch {
 
     @Parsed

@@ -9,7 +9,6 @@ package com.powsybl.psse.model.data;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -91,12 +90,6 @@ class TransformerData extends BlockData {
             context.set2wTransformerDataReadFields(readFields(twtRecord, headers, context.getDelimiter()));
         }
 
-        System.err.printf("record1 (%s) %n", record1);
-        System.err.printf("record2 (%s) %n", record2);
-        System.err.printf("record3 (%s) %n", record3);
-        System.err.printf("record4 (%s) %n", record4);
-        System.err.printf("twtRecord (%s) %n", twtRecord);
-        System.err.printf("Headers (%s) %n", Arrays.toString(headers));
         if (version == PsseVersion.VERSION_35) {
             return parseRecordHeader(twtRecord, PsseTransformer35.class, headers);
         } else {

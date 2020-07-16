@@ -14,6 +14,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseFixedShunt;
+import com.powsybl.psse.model.data.BlockData.PsseVersion;
 
 /**
  *
@@ -34,7 +35,7 @@ class FixedBusShuntData extends BlockData {
         assertMinimumExpectedVersion(PsseBlockData.FixedBusShuntData, PsseVersion.VERSION_33);
 
         List<String> records = readRecordBlock(reader);
-        String[] headers = fixedBusShuntDataHeaders();
+        String[] headers = fixedBusShuntDataHeaders(this.getPsseVersion());
         context.setLoadDataReadFields(readFields(records, headers, context.getDelimiter()));
 
         return parseRecordsHeader(records, PsseFixedShunt.class, headers);
@@ -55,7 +56,11 @@ class FixedBusShuntData extends BlockData {
         return parseRecordsHeader(records, PsseFixedShunt.class, headers);
     }
 
-    static String[] fixedBusShuntDataHeaders() {
-        return new String[] {"i", "id", "status", "gl", "bl"};
+    static String[] fixedBusShuntDataHeaders(PsseVersion version) {
+        if (version == PsseVersion.VERSION_35) {
+            return new String[] {"ibus", "shntid", "stat", "gl", "bl"};
+        } else {
+            return new String[] {"i", "id", "status", "gl", "bl"};
+        }
     }
 }

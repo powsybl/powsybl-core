@@ -14,6 +14,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseArea;
 import com.powsybl.psse.model.PsseContext;
+import com.powsybl.psse.model.data.BlockData.PsseVersion;
 
 /**
  *
@@ -33,7 +34,7 @@ class AreaInterchangeData extends BlockData {
     List<PsseArea> read(BufferedReader reader, PsseContext context) throws IOException {
         assertMinimumExpectedVersion(PsseBlockData.AreaInterchangeData, PsseVersion.VERSION_33);
 
-        String[] headers = areaInterchangeDataHeaders();
+        String[] headers = areaInterchangeDataHeaders(this.getPsseVersion());
         List<String> records = readRecordBlock(reader);
 
         context.setAreaInterchangeDataReadFields(readFields(records, headers, context.getDelimiter()));
@@ -55,7 +56,11 @@ class AreaInterchangeData extends BlockData {
         return parseRecordsHeader(records, PsseArea.class, headers);
     }
 
-    private static String[] areaInterchangeDataHeaders() {
-        return new String[] {"i", "isw", "pdes", "ptol", "arname"};
+    private static String[] areaInterchangeDataHeaders(PsseVersion version) {
+        if (version == PsseVersion.VERSION_35) {
+            return new String[] {"iarea", "isw", "pdes", "ptol", "arname"};
+        } else {
+            return new String[] {"i", "isw", "pdes", "ptol", "arname"};
+        }
     }
 }

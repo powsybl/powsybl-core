@@ -48,9 +48,9 @@ public class PsseRawModel35 extends PsseRawModel {
     public void addNonTransformerBranches(List<PsseNonTransformerBranch> nonTransformerBranches) {
         nonTransformerBranches.forEach(nonTransformerBranch -> {
             if (nonTransformerBranch instanceof PsseNonTransformerBranch35) {
-                System.err.printf("es PsseGenerator35 %n");
+                System.err.printf("es NonTransformerBranche35 %n");
             } else {
-                System.err.printf("es PsseGenerator %n");
+                System.err.printf("es NonTransformerBranche %n");
             }
         });
         getNonTransformerBranches().addAll(nonTransformerBranches);

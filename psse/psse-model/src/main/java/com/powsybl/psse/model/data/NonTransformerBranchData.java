@@ -64,9 +64,9 @@ class NonTransformerBranchData extends BlockData {
 
     private static String[] nonTransformerBranchDataHeaders(PsseVersion version) {
         if (version == PsseVersion.VERSION_35) {
-            return new String[] {"i", "j", "ckt", "r", "x", "b", "name", "rate1", "rate2", "rate3", "rate4", "rate5",
+            return new String[] {"ibus", "jbus", "ckt", "rpu", "xpu", "bpu", "name", "rate1", "rate2", "rate3", "rate4", "rate5",
                 "rate6", "rate7", "rate8", "rate9", "rate10", "rate11", "rate12", "gi", "bi", "gj", "bj",
-                "st", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
+                "stat", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
         } else { // Version 33
             return new String[] {"i", "j", "ckt", "r", "x", "b", "ratea", "rateb", "ratec", "gi", "bi", "gj", "bj",
                 "st", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
