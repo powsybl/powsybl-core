@@ -159,7 +159,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         }
     }
 
-    private static DanglingLine readGeneration(DanglingLineAdder adder, XMLStreamReader reader, NetworkXmlReaderContext context) throws XMLStreamException {
+    private DanglingLine readGeneration(DanglingLineAdder adder, XMLStreamReader reader, NetworkXmlReaderContext context) throws XMLStreamException {
         double minP = XmlUtil.readOptionalDoubleAttribute(reader, "minP");
         double maxP = XmlUtil.readOptionalDoubleAttribute(reader, "maxP");
         boolean voltageRegulationOn = XmlUtil.readBoolAttribute(reader, "voltageRegulationOn");
@@ -175,7 +175,16 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
                 .setTargetQ(targetQ)
                 .add();
         DanglingLine danglingLine = adder.add();
-        ReactiveLimitsXml.INSTANCE.read(danglingLine.getGeneration(), context);
+        XmlUtil.readUntilEndElement(GENERATION, reader, () -> {
+            switch (context.getReader().getLocalName()) {
+                case "reactiveCapabilityCurve":
+                case "minMaxReactiveLimits":
+                    ReactiveLimitsXml.INSTANCE.read(danglingLine.getGeneration(), context);
+                    break;
+                default:
+                    throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + danglingLine.getId() + ".generation>");
+            }
+        });
         return danglingLine;
     }
 
