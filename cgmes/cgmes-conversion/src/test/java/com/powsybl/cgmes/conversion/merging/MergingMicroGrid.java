@@ -62,6 +62,12 @@ public class MergingMicroGrid {
         checkFlows(mergingView(), mustContainMergedLines);
     }
 
+    @Test
+    public void testFlowsDestructiveMerge() {
+        boolean mustContainMergedLines = true;
+        checkFlows(destructiveMerge(), mustContainMergedLines);
+    }
+
     private static void checkFlows(Network network, boolean mustContainMergedLines) {
         ConversionTester.invalidateFlows(network);
         // XXX LUMA Missing BusAdapter getLines in MergingView
@@ -82,6 +88,15 @@ public class MergingMicroGrid {
         MergingView merged = MergingView.create("BE-NL", "CGMES");
         merged.merge(be, nl);
         return merged;
+    }
+
+    private static Network destructiveMerge() {
+        Properties iparams = new Properties();
+        iparams.put(CgmesImport.PROFILE_USED_FOR_INITIAL_STATE_VALUES, "SV");
+        Network be = Importers.importData("CGMES", CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), iparams);
+        Network nl = Importers.importData("CGMES", CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(), iparams);
+        be.merge(nl);
+        return be;
     }
 
     private static Network assembledKeepingBoundaries() {
@@ -106,6 +121,7 @@ public class MergingMicroGrid {
         int countMergedLines = 0;
         for (Line l : network.getLines()) {
             double diffl = 0;
+            ExpectedFlow[] expected = null;
             if (isMergedLine(l)) {
                 countMergedLines++;
 
@@ -126,14 +142,20 @@ public class MergingMicroGrid {
                 ExpectedFlow[] expected21 = findExpectedFlowsMergedLine(l, false);
                 double diff12 = diffFlow(expected12, l);
                 double diff21 = diffFlow(expected21, l);
-                diffl = diff12 < diff21 ? diff12 : diff21;
+                if (diff12 < diff21) {
+                    diffl = diff12;
+                    expected = expected12;
+                } else {
+                    diffl = diff21;
+                    expected = expected21;
+                }
             } else {
-                ExpectedFlow[] expected = new ExpectedFlow[2];
+                expected = new ExpectedFlow[2];
                 expected[0] = expectedFlows.findBestCandidate(l, Branch.Side.ONE);
                 expected[1] = expectedFlows.findBestCandidate(l, Branch.Side.TWO);
                 diffl = diffFlow(expected, l);
             }
-
+            logDiffFlow(expected, l);
             diff += diffl;
         }
         if (mustContainMergedLines && countMergedLines == 0) {
@@ -144,6 +166,29 @@ public class MergingMicroGrid {
 
     private static boolean isMergedLine(Line line) {
         return line.getId().contains(" + ");
+    }
+
+    private static ExpectedFlow[] findExpectedFlowsMergedLine(Line mergedLine, boolean assumeIdOrder12) {
+        String[] igmLines = mergedLine.getId().split(" \\+ ");
+        String id1 = assumeIdOrder12 ? igmLines[0] : igmLines[1];
+        String id2 = assumeIdOrder12 ? igmLines[1] : igmLines[0];
+
+        ExpectedFlow[] expected = new ExpectedFlow[2];
+        expected[0] = expectedFlows.findBestCandidate(id1, mergedLine.getTerminal1().getP());
+        expected[1] = expectedFlows.findBestCandidate(id2, mergedLine.getTerminal2().getP());
+        return expected;
+    }
+
+    private static double diffFlow(ExpectedFlow[] flows, Branch<?> b) {
+        return diffFlow(flows[0], b.getTerminal1()) + diffFlow(flows[1], b.getTerminal2());
+    }
+
+    private static double diffFlow(ExpectedFlow f, Terminal t) {
+        return diffFlow(f.p, t.getP()) + diffFlow(f.q, t.getQ());
+    }
+
+    private static double diffFlow(double expected, double actual) {
+        return Math.abs(expected - actual);
     }
 
     private static void logExpectedFlowCandidatesForMergedLine(Line mergedLine) {
@@ -163,28 +208,15 @@ public class MergingMicroGrid {
         return String.format("%8.2f", p);
     }
 
-    private static ExpectedFlow[] findExpectedFlowsMergedLine(Line mergedLine, boolean assumeIdOrder12) {
-        String[] igmLines = mergedLine.getId().split(" \\+ ");
-        String id1 = assumeIdOrder12 ? igmLines[0] : igmLines[1];
-        String id2 = assumeIdOrder12 ? igmLines[1] : igmLines[0];
-
-        ExpectedFlow[] expected = new ExpectedFlow[2];
-        expected[0] = expectedFlows.findBestCandidate(id1, mergedLine.getTerminal1().getP());
-        expected[1] = expectedFlows.findBestCandidate(id2, mergedLine.getTerminal2().getP());
-        return expected;
+    private static void logDiffFlow(ExpectedFlow[] flows, Branch<?> b) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Line {}, diff with expected flows {}", b.getNameOrId(), b.getId());
+            LOG.debug("        expected  actual--  diff----");
+            LOG.debug("    P1  {}  {}  {}", formatP(flows[0].p), formatP(b.getTerminal1().getP()), formatP(Math.abs(flows[0].p - b.getTerminal1().getP())));
+            LOG.debug("    Q1  {}  {}  {}", formatP(flows[0].q), formatP(b.getTerminal1().getQ()), formatP(Math.abs(flows[0].q - b.getTerminal1().getQ())));
+            LOG.debug("    P2  {}  {}  {}", formatP(flows[1].p), formatP(b.getTerminal2().getP()), formatP(Math.abs(flows[1].p - b.getTerminal2().getP())));
+            LOG.debug("    Q2  {}  {}  {}", formatP(flows[1].q), formatP(b.getTerminal2().getQ()), formatP(Math.abs(flows[1].q - b.getTerminal2().getQ())));
+            LOG.debug("    tot ________  ________  {}", formatP(diffFlow(flows[0], b.getTerminal1()) + diffFlow(flows[1], b.getTerminal2())));
+        }
     }
-
-    private static double diffFlow(ExpectedFlow[] flows, Branch<?> b) {
-        return diffFlow(flows[0], b.getTerminal1()) + diffFlow(flows[1], b.getTerminal2());
-
-    }
-
-    private static double diffFlow(ExpectedFlow f, Terminal t) {
-        return diffFlow(f.p, t.getP()) + diffFlow(f.q, t.getQ());
-    }
-
-    private static double diffFlow(double expected, double actual) {
-        return Math.abs(expected - actual);
-    }
-
 }
