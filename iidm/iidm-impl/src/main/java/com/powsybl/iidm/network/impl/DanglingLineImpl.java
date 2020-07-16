@@ -197,6 +197,36 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         public String getMessageHeader() {
             return danglingLine.getMessageHeader();
         }
+
+        void extendVariantArraySize(int number, int sourceIndex) {
+            targetP.ensureCapacity(targetP.size() + number);
+            targetQ.ensureCapacity(targetQ.size() + number);
+            voltageRegulationOn.ensureCapacity(voltageRegulationOn.size() + number);
+            targetV.ensureCapacity(targetV.size() + number);
+            for (int i = 0; i < number; i++) {
+                targetP.add(targetP.get(sourceIndex));
+                targetQ.add(targetQ.get(sourceIndex));
+                voltageRegulationOn.add(voltageRegulationOn.get(sourceIndex));
+                targetV.add(targetV.get(sourceIndex));
+            }
+        }
+
+        void reduceVariantArraySize(int number) {
+            targetP.remove(targetP.size() - number, number);
+            targetQ.remove(targetQ.size() - number, number);
+            voltageRegulationOn.remove(voltageRegulationOn.size() - number, number);
+            targetV.remove(targetV.size() - number, number);
+
+        }
+
+        void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+            for (int index : indexes) {
+                targetP.set(index, targetP.get(sourceIndex));
+                targetQ.set(index, targetQ.get(sourceIndex));
+                voltageRegulationOn.set(index, voltageRegulationOn.get(sourceIndex));
+                targetV.set(index, targetV.get(sourceIndex));
+            }
+        }
     }
 
     private final Ref<? extends VariantManagerHolder> network;
@@ -378,16 +408,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             q0.add(q0.get(sourceIndex));
         }
         if (generation != null) {
-            generation.targetP.ensureCapacity(generation.targetP.size() + number);
-            generation.targetQ.ensureCapacity(generation.targetQ.size() + number);
-            generation.voltageRegulationOn.ensureCapacity(generation.voltageRegulationOn.size() + number);
-            generation.targetV.ensureCapacity(generation.targetV.size() + number);
-            for (int i = 0; i < number; i++) {
-                generation.targetP.add(generation.targetP.get(sourceIndex));
-                generation.targetQ.add(generation.targetQ.get(sourceIndex));
-                generation.voltageRegulationOn.add(generation.voltageRegulationOn.get(sourceIndex));
-                generation.targetV.add(generation.targetV.get(sourceIndex));
-            }
+            generation.extendVariantArraySize(number, sourceIndex);
         }
     }
 
@@ -397,10 +418,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         p0.remove(p0.size() - number, number);
         q0.remove(q0.size() - number, number);
         if (generation != null) {
-            generation.targetP.remove(generation.targetP.size() - number, number);
-            generation.targetQ.remove(generation.targetQ.size() - number, number);
-            generation.voltageRegulationOn.remove(generation.voltageRegulationOn.size() - number, number);
-            generation.targetV.remove(generation.targetV.size() - number, number);
+            generation.reduceVariantArraySize(number);
         }
     }
 
@@ -418,12 +436,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             q0.set(index, q0.get(sourceIndex));
         }
         if (generation != null) {
-            for (int index : indexes) {
-                generation.targetP.set(index, generation.targetP.get(sourceIndex));
-                generation.targetQ.set(index, generation.targetQ.get(sourceIndex));
-                generation.voltageRegulationOn.set(index, generation.voltageRegulationOn.get(sourceIndex));
-                generation.targetV.set(index, generation.targetV.get(sourceIndex));
-            }
+            generation.allocateVariantArrayElement(indexes, sourceIndex);
         }
     }
 }
