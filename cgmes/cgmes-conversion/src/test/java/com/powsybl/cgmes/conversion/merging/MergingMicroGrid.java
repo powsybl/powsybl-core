@@ -7,8 +7,11 @@
 package com.powsybl.cgmes.conversion.merging;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Properties;
+import java.util.function.Consumer;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -63,6 +66,20 @@ public class MergingMicroGrid {
     }
 
     @Test
+    public void testMergingViewMergedLinesNotModifiable() {
+        for (Line l : mergingView().getLines()) {
+            if (isMergedLine(l)) {
+                checkModificationThrowsException(l::setR);
+                checkModificationThrowsException(l::setX);
+                checkModificationThrowsException(l::setG1);
+                checkModificationThrowsException(l::setB1);
+                checkModificationThrowsException(l::setG2);
+                checkModificationThrowsException(l::setB2);
+            }
+        }
+    }
+
+    @Test
     public void testFlowsDestructiveMerge() {
         boolean mustContainMergedLines = true;
         checkFlows(destructiveMerge(), mustContainMergedLines);
@@ -78,6 +95,15 @@ public class MergingMicroGrid {
         // as we do not have z0 branches
         ConversionTester.computeMissingFlows(network);
         assertEquals(0, calcDiffExpectedFlows(network, mustContainMergedLines), TOLERANCE);
+    }
+
+    private static void checkModificationThrowsException(Consumer<Double> setter) {
+        try {
+            setter.accept(1.0);
+            fail();
+        } catch (PowsyblException x) {
+            assertTrue(x.getMessage().contains("cannot be modified"));
+        }
     }
 
     private static Network mergingView() {
