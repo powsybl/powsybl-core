@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertFalse;
@@ -125,6 +126,8 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(transformer1.getG()).thenReturn(g1 * (1 - g1 / 100));
         Mockito.when(transformer1.getB()).thenReturn(b1 * 2 * (1 - b1 / 100));
         Mockito.when(transformer1.getRatioTapChanger()).thenReturn(ratioTapChanger);
+        Mockito.when(transformer1.getOptionalRatioTapChanger()).thenReturn(Optional.of(ratioTapChanger));
+        Mockito.when(transformer1.hasRatioTapChanger()).thenReturn(true);
         Mockito.when(transformer1.getRatedU1()).thenReturn(ratedU1);
         Mockito.when(transformer1.getRatedU2()).thenReturn(ratedU2);
 
@@ -231,6 +234,8 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(transformer2.getG()).thenReturn(g1 * (1 - g1 / 100));
         Mockito.when(transformer2.getB()).thenReturn(b1 * 2 * (1 - b1 / 100));
         Mockito.when(transformer2.getRatioTapChanger()).thenReturn(ratioTapChanger);
+        Mockito.when(transformer2.getOptionalRatioTapChanger()).thenReturn(Optional.ofNullable(ratioTapChanger));
+        Mockito.when(transformer2.hasRatioTapChanger()).thenReturn(true);
         Mockito.when(transformer2.getRatedU1()).thenReturn(ratedU1);
         Mockito.when(transformer2.getRatedU2()).thenReturn(ratedU2);
 

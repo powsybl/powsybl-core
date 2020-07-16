@@ -164,7 +164,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public void setCurrentLimits(Void side, CurrentLimitsImpl limits) {
-        CurrentLimitsImpl oldValue = limits;
+        CurrentLimitsImpl oldValue = this.limits;
         this.limits = limits;
         notifyUpdate("currentlimits", oldValue, limits);
     }
