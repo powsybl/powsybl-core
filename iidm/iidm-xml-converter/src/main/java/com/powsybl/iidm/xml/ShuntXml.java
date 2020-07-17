@@ -14,6 +14,8 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import javax.xml.stream.XMLStreamException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -133,16 +135,21 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         String[] regId = new String[1];
         String[] regSide = new String[1];
         Map<String, String> properties = new HashMap<>();
+        Set<String> aliases = new TreeSet<>();
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case REGULATING_TERMINAL:
                     regId[0] = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                     regSide[0] = context.getReader().getAttributeValue(null, "side");
                     break;
-                case "property":
+                case PropertiesXml.PROPERTY:
                     String name = context.getReader().getAttributeValue(null, "name");
                     String value = context.getReader().getAttributeValue(null, "value");
                     properties.put(name, value);
+                    break;
+                case AliasesXml.ALIAS:
+                    String alias = context.getAnonymizer().deanonymizeString(context.getReader().getElementText());
+                    aliases.add(alias);
                     break;
                 case SHUNT_LINEAR_MODEL:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
@@ -178,9 +185,10 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         });
         ShuntCompensator sc = adder.add();
         if (regId[0] != null) {
-            context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefXml.readTerminalRef(sc.getTerminal().getVoltageLevel().getSubstation().getNetwork(), regId[0], regSide[0])));
+            context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefXml.readTerminalRef(sc.getNetwork(), regId[0], regSide[0])));
         }
         properties.forEach(sc::setProperty);
+        aliases.forEach(sc::addAlias);
         sc.getTerminal().setP(p).setQ(q);
     }
 }

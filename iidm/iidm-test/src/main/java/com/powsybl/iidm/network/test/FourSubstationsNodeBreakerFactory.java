@@ -593,7 +593,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setBmin(-5e-2)
                 .setBmax(5e-2)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setVoltageSetPoint(400)
+                .setVoltageSetpoint(400)
                 .add();
         svc.getTerminal().setQ(-12.5415);
 

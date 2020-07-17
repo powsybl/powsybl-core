@@ -159,7 +159,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         @Override
         public NetworkImpl getNetwork() {
-            return transformer.getSubstation().getNetwork();
+            return transformer.getNetwork();
         }
 
         @Override

@@ -239,7 +239,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a substation.
      *
-     * @param id the id of the substation
+     * @param id the id or an alias of the substation
      */
     Substation getSubstation(String id);
 
@@ -261,7 +261,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a substation voltage level.
      *
-     * @param id the id of the substation voltage level
+     * @param id the id or an alias of the substation voltage level
      */
     VoltageLevel getVoltageLevel(String id);
 
@@ -309,7 +309,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a AC line.
      *
-     * @param id the name of the AC line
+     * @param id the id or an alias of the AC line
      */
     Line getLine(String id);
 
@@ -336,7 +336,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a two windings transformer.
      *
-     * @param id the id of the two windings transformer
+     * @param id the id or an alias of the two windings transformer
      */
     TwoWindingsTransformer getTwoWindingsTransformer(String id);
 
@@ -358,7 +358,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a 3 windings transformer.
      *
-     * @param id the id of the 3 windings transformer
+     * @param id the id or an alias of the 3 windings transformer
      */
     ThreeWindingsTransformer getThreeWindingsTransformer(String id);
 
@@ -380,7 +380,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a generator.
      *
-     * @param id the id of the generator
+     * @param id the id or an alias of the generator
      */
     Generator getGenerator(String id);
 
@@ -402,7 +402,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a battery.
      *
-     * @param id the id of the battery
+     * @param id the id or an alias of the battery
      */
     Battery getBattery(String id);
 
@@ -424,7 +424,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a load.
      *
-     * @param id the id the load
+     * @param id the id or an alias of the load
      */
     Load getLoad(String id);
 
@@ -446,7 +446,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a compensator shunt.
      *
-     * @param id the id of the compensator shunt
+     * @param id the id or an alias of the compensator shunt
      */
     ShuntCompensator getShuntCompensator(String id);
 
@@ -468,7 +468,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a dangling line.
      *
-     * @param id the id of the dangling line
+     * @param id the id or an alias of the dangling line
      */
     DanglingLine getDanglingLine(String id);
 
@@ -490,13 +490,13 @@ public interface Network extends Container<Network> {
     /**
      * Get a static var compensator.
      *
-     * @param id the id of the static var compensator
+     * @param id the id or an alias of the static var compensator
      */
     StaticVarCompensator getStaticVarCompensator(String id);
 
     /**
-     * Get a switch from its id.
-     * @param id id of the switch
+     * Get a switch from its id or an alias.
+     * @param id id or an alias of the switch
      * @return the switch
      */
     Switch getSwitch(String id);
@@ -521,8 +521,8 @@ public interface Network extends Container<Network> {
     int getSwitchCount();
 
     /**
-     * Get a busbar section from its id.
-     * @param id id of the busbar section
+     * Get a busbar section from its id or an alias.
+     * @param id the id or an alias of the busbar section
      * @return the busbar section
      */
     BusbarSection getBusbarSection(String id);
@@ -565,7 +565,7 @@ public interface Network extends Container<Network> {
 
     /**
      * Get an HVDC converter station.
-     * @param id the id of the HVDC converter station
+     * @param id the id or an alias of the HVDC converter station
      * @return the HVDC converter station or null if not found
      */
     HvdcConverterStation<?> getHvdcConverterStation(String id);
@@ -590,7 +590,7 @@ public interface Network extends Container<Network> {
 
     /**
      * Get an LCC converter station.
-     * @param id the id of the LCC converter station
+     * @param id the id or an alias of the LCC converter station
      * @return the LCC converter station or null if not found
      */
     LccConverterStation getLccConverterStation(String id);
@@ -615,7 +615,7 @@ public interface Network extends Container<Network> {
 
     /**
      * Get an VSC converter station.
-     * @param id the id of the VSC converter station
+     * @param id the id or an alias of the VSC converter station
      * @return the VSC converter station or null if not found
      */
     VscConverterStation getVscConverterStation(String id);
@@ -640,7 +640,7 @@ public interface Network extends Container<Network> {
 
     /**
      * Get an HVDC line.
-     * @param id the id of the HVDC line
+     * @param id the id or an alias of the HVDC line
      * @return the HVDC line or null if not found
      */
     HvdcLine getHvdcLine(String id);
@@ -661,9 +661,9 @@ public interface Network extends Container<Network> {
     HvdcLineAdder newHvdcLine();
 
     /**
-     * Get a equipment.
+     * Get an equipment by its ID or alias
      *
-     * @param id the id of the equipment
+     * @param id the id or an alias of the equipment
      */
     Identifiable<?> getIdentifiable(String id);
 
