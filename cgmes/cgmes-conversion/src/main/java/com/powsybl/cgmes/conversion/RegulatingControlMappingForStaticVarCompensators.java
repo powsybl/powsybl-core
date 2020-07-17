@@ -116,8 +116,8 @@ public class RegulatingControlMappingForStaticVarCompensators {
             regulationMode = StaticVarCompensator.RegulationMode.OFF;
         }
 
-        svc.setVoltageSetPoint(targetVoltage);
-        svc.setReactivePowerSetPoint(targetReactivePower);
+        svc.setVoltageSetpoint(targetVoltage);
+        svc.setReactivePowerSetpoint(targetReactivePower);
         if (control.enabled && rc.controlEnabledProperty) {
             svc.setRegulationMode(regulationMode);
         }
@@ -143,8 +143,8 @@ public class RegulatingControlMappingForStaticVarCompensators {
             regulationMode = StaticVarCompensator.RegulationMode.OFF;
         }
 
-        svc.setVoltageSetPoint(targetVoltage);
-        svc.setReactivePowerSetPoint(targetReactivePower);
+        svc.setVoltageSetpoint(targetVoltage);
+        svc.setReactivePowerSetpoint(targetReactivePower);
         if (rc.controlEnabledProperty) {
             svc.setRegulationMode(regulationMode);
         }

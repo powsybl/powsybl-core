@@ -883,7 +883,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setBmax(1 / 5062.5)
                 .setBmin(1 / (-5062.5))
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setVoltageSetPoint(229.5)
+                .setVoltageSetpoint(229.5)
                 .add();
 
         double p = -118.0;
