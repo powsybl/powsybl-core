@@ -287,6 +287,7 @@ public class UcteExporter implements Exporter {
         double generatorTargetQ = danglingLine.getGeneration().getTargetQ();
         ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : (float) -generatorTargetQ);
         if (danglingLine.getGeneration().isVoltageRegulationOn()) {
+            ucteNode.setTypeCode(UcteNodeTypeCode.PU);
             ucteNode.setVoltageReference((float) danglingLine.getGeneration().getTargetV());
             float minP = (float) danglingLine.getGeneration().getMinP();
             float maxP = (float) danglingLine.getGeneration().getMaxP();
