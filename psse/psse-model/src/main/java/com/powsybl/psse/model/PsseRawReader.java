@@ -29,12 +29,24 @@ public class PsseRawReader {
         Objects.requireNonNull(reader);
         PsseContext context = new PsseContext();
 
+        return read(reader, context);
+    }
+
+    public PsseRawModel read(BufferedReader reader, PsseContext context) throws IOException {
+        Objects.requireNonNull(reader);
+        Objects.requireNonNull(context);
         return new PsseData().read33(reader, context);
     }
 
     public PsseRawModel readx(String jsonFile) throws IOException {
         Objects.requireNonNull(jsonFile);
         PsseContext context = new PsseContext();
+        return readx(jsonFile, context);
+    }
+
+    public PsseRawModel readx(String jsonFile, PsseContext context) throws IOException {
+        Objects.requireNonNull(jsonFile);
+        Objects.requireNonNull(context);
 
         return new PsseData().readx35(jsonFile, context);
     }

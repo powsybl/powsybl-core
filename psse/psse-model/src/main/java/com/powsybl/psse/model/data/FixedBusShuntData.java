@@ -36,7 +36,7 @@ class FixedBusShuntData extends BlockData {
 
         List<String> records = readRecordBlock(reader);
         String[] headers = fixedBusShuntDataHeaders(this.getPsseVersion());
-        context.setLoadDataReadFields(readFields(records, headers, context.getDelimiter()));
+        context.setFixedBusShuntDataReadFields(readFields(records, headers, context.getDelimiter()));
 
         return parseRecordsHeader(records, PsseFixedShunt.class, headers);
     }
