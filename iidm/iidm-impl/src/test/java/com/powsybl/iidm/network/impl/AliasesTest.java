@@ -32,6 +32,24 @@ public class AliasesTest {
         assertTrue(load.getAliases().contains("Load alias"));
         assertNotNull(network.getLoad("Load alias"));
         assertEquals(network.getLoad("Load alias"), load);
+        assertFalse(network.getLoad("load1").getAliasType("Load alias").isPresent());
+    }
+
+    @Test
+    public void canAddAliasesWithTypes() {
+        Network network = NetworkTest1Factory.create();
+        Load load = network.getLoad("load1");
+        assertTrue(load.getAliases().isEmpty());
+        assertTrue(load.getAliases("alias type").isEmpty());
+        load.addAlias("Load alias", "alias type");
+
+        assertEquals(1, load.getAliases().size());
+        assertEquals(1, load.getAliases("alias type").size());
+        assertTrue(load.getAliases().contains("Load alias"));
+        assertTrue(load.getAliases("alias type").contains("Load alias"));
+        assertNotNull(network.getLoad("Load alias"));
+        assertEquals(network.getLoad("Load alias"), load);
+        assertEquals("alias type", network.getLoad("load1").getAliasType("Load alias").orElse(null));
     }
 
     @Test
@@ -108,5 +126,12 @@ public class AliasesTest {
         network.getTwoWindingsTransformer("NHV2_NLOAD").addAlias("Alias");
         otherNetwork.getGenerator("GH1").addAlias("Alias");
         network.merge(otherNetwork);
+    }
+
+    @Test(expected = PowsyblException.class)
+    public void failGetNonExistentAliasType() {
+        Network network = NetworkTest1Factory.create();
+        Load load = network.getLoad("load1");
+        load.getAliasType("nonExistentAlias");
     }
 }
