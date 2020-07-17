@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
@@ -69,6 +70,9 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public Optional<String> getAliasType(String alias) {
+        if (!aliases.contains(alias)) {
+            throw new PowsyblException("Alias " + alias + " does not exist for " + id);
+        }
         return Optional.ofNullable(aliasesTypeByAlias.get(alias));
     }
 
