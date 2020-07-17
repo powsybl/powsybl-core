@@ -274,8 +274,8 @@ public class CgmesDcConversion {
     }
 
     private static double getPowerFactor(LccConverterStation iconverter) {
-        return iconverter.getTerminal().getP()
-            / Math.hypot(iconverter.getTerminal().getP(), iconverter.getTerminal().getQ());
+        return iconverter.getP()
+            / Math.hypot(iconverter.getP(), iconverter.getQ());
     }
 
     private void debugHvdc(Adjacency adjacency, TPnodeEquipments tpNodeEquipments, Islands islands,

@@ -172,10 +172,10 @@ public class LineAdapterTest {
         assertNotNull(dl1);
         assertNotNull(dl2);
         // Check initial P & Q
-        assertEquals(Double.NaN, dl1.getTerminal().getP(), 0.0);
-        assertEquals(Double.NaN, dl1.getTerminal().getQ(), 0.0);
-        assertEquals(Double.NaN, dl2.getTerminal().getP(), 0.0);
-        assertEquals(Double.NaN, dl2.getTerminal().getQ(), 0.0);
+        assertEquals(Double.NaN, dl1.getP(), 0.0);
+        assertEquals(Double.NaN, dl1.getQ(), 0.0);
+        assertEquals(Double.NaN, dl2.getP(), 0.0);
+        assertEquals(Double.NaN, dl2.getQ(), 0.0);
         double p1 = -605.0;
         double q1 = -302.5;
         double p2 = 600.0;

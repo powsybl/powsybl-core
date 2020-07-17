@@ -127,6 +127,14 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         default Leg setRatedS(double ratedS) {
             throw new UnsupportedOperationException();
         }
+
+        default double getP() {
+            return getTerminal().getP();
+        }
+
+        default double getQ() {
+            return getTerminal().getQ();
+        }
     }
 
     Terminal getTerminal(Side side);

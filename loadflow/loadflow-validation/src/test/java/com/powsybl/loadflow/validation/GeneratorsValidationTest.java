@@ -79,6 +79,8 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         Mockito.when(generator.getMaxP()).thenReturn(maxP);
         Mockito.when(generator.getMinP()).thenReturn(minP);
         Mockito.when(generator.getReactiveLimits()).thenReturn(genReactiveLimits);
+        Mockito.when(generator.getP()).thenReturn(p);
+        Mockito.when(generator.getQ()).thenReturn(q);
     }
 
     @Test
@@ -172,7 +174,7 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
     public void checkGenerators() {
         // active power should be equal to setpoint
         assertTrue(GeneratorsValidation.INSTANCE.checkGenerators(generator, strictConfig, NullWriter.NULL_WRITER));
-        Mockito.when(genTerminal.getP()).thenReturn(-39.8);
+        Mockito.when(generator.getP()).thenReturn(-39.8);
         assertFalse(GeneratorsValidation.INSTANCE.checkGenerators(generator, strictConfig, NullWriter.NULL_WRITER));
 
         // the unit is disconnected
@@ -208,6 +210,8 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         Mockito.when(generator1.getMaxP()).thenReturn(maxP);
         Mockito.when(generator1.getMinP()).thenReturn(minP);
         Mockito.when(generator1.getReactiveLimits()).thenReturn(genReactiveLimits1);
+        Mockito.when(generator1.getP()).thenReturn(p);
+        Mockito.when(generator1.getQ()).thenReturn(q);
 
         assertTrue(GeneratorsValidation.INSTANCE.checkGenerators(generator1, strictConfig, NullWriter.NULL_WRITER));
 
@@ -249,6 +253,8 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         Mockito.when(generator2.getMaxP()).thenReturn(227.5);
         Mockito.when(generator2.getMinP()).thenReturn(-227.5);
         Mockito.when(generator2.getReactiveLimits()).thenReturn(genReactiveLimits1);
+        Mockito.when(generator2.getP()).thenReturn(-155.236);
+        Mockito.when(generator2.getQ()).thenReturn(q);
 
         Mockito.when(network.getGeneratorStream()).thenAnswer(dummy -> Stream.of(generator, generator1, generator2));
 

@@ -34,6 +34,7 @@ public class BalanceTypeGuesserTest {
         Mockito.when(generator1.getTargetP()).thenReturn(126.0);
         Mockito.when(generator1.getMaxP()).thenReturn(500.0);
         Mockito.when(generator1.getMinP()).thenReturn(0.0);
+        Mockito.when(generator1.getP()).thenReturn(-126.083);
 
         Terminal genTerminal2 = Mockito.mock(Terminal.class);
         Mockito.when(genTerminal2.getP()).thenReturn(-129.085);
@@ -43,6 +44,7 @@ public class BalanceTypeGuesserTest {
         Mockito.when(generator2.getTargetP()).thenReturn(129.0);
         Mockito.when(generator2.getMaxP()).thenReturn(500.0);
         Mockito.when(generator2.getMinP()).thenReturn(0.0);
+        Mockito.when(generator2.getP()).thenReturn(-129.085);
 
         Network network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
@@ -60,6 +62,7 @@ public class BalanceTypeGuesserTest {
         Mockito.when(generator3.getTargetP()).thenReturn(195.107);
         Mockito.when(generator3.getMaxP()).thenReturn(227.5);
         Mockito.when(generator3.getMinP()).thenReturn(-227.5);
+        Mockito.when(generator3.getP()).thenReturn(-155.236);
 
         Mockito.when(network.getGeneratorStream()).thenAnswer(dummy -> Stream.of(generator1, generator2, generator3));
 

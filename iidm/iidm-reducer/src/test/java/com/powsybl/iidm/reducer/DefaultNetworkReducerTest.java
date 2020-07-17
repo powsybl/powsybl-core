@@ -56,16 +56,16 @@ public class DefaultNetworkReducerTest {
         assertEquals(LoadType.FICTITIOUS, load1.getLoadType());
         assertEquals(302.4440612792969, load1.getP0(), 0.0);
         assertEquals(98.74027252197266, load1.getQ0(), 0.0);
-        assertEquals(302.4440612792969, load1.getTerminal().getP(), 0.0);
-        assertEquals(98.74027252197266, load1.getTerminal().getQ(), 0.0);
+        assertEquals(302.4440612792969, load1.getP(), 0.0);
+        assertEquals(98.74027252197266, load1.getQ(), 0.0);
 
         Load load2 = network.getLoad(NHV1_NHV2_2);
         assertNotNull(load2);
         assertEquals(LoadType.FICTITIOUS, load2.getLoadType());
         assertEquals(302.4440612792969, load2.getP0(), 0.0);
         assertEquals(98.74027252197266, load2.getQ0(), 0.0);
-        assertEquals(302.4440612792969, load2.getTerminal().getP(), 0.0);
-        assertEquals(98.74027252197266, load2.getTerminal().getQ(), 0.0);
+        assertEquals(302.4440612792969, load2.getP(), 0.0);
+        assertEquals(98.74027252197266, load2.getQ(), 0.0);
 
         assertEquals(1, observer.getSubstationRemovedCount());
         assertEquals(2, observer.getVoltageLevelRemovedCount());
@@ -104,16 +104,16 @@ public class DefaultNetworkReducerTest {
         assertEquals(LoadType.FICTITIOUS, load1.getLoadType());
         assertEquals(-604.8909301757812, load1.getP0(), 0.0);
         assertEquals(-197.48046875, load1.getQ0(), 0.0);
-        assertEquals(-604.8909301757812, load1.getTerminal().getP(), 0.0);
-        assertEquals(-197.48046875, load1.getTerminal().getQ(), 0.0);
+        assertEquals(-604.8909301757812, load1.getP(), 0.0);
+        assertEquals(-197.48046875, load1.getQ(), 0.0);
 
         Load load2 = network.getLoad("NHV2_NLOAD");
         assertNotNull(load2);
         assertEquals(LoadType.FICTITIOUS, load2.getLoadType());
         assertEquals(600.8677978515625, load2.getP0(), 0.0);
         assertEquals(274.3769836425781, load2.getQ0(), 0.0);
-        assertEquals(600.8677978515625, load2.getTerminal().getP(), 0.0);
-        assertEquals(274.3769836425781, load2.getTerminal().getQ(), 0.0);
+        assertEquals(600.8677978515625, load2.getP(), 0.0);
+        assertEquals(274.3769836425781, load2.getQ(), 0.0);
 
         assertEquals(0, observer.getSubstationRemovedCount());
         assertEquals(2, observer.getVoltageLevelRemovedCount());
@@ -154,8 +154,8 @@ public class DefaultNetworkReducerTest {
         assertEquals(1.93e-4, dl1.getB(), 0.0);
         assertEquals(-300.43389892578125, dl1.getP0(), 0.0);
         assertEquals(-137.18849182128906, dl1.getQ0(), 0.0);
-        assertEquals(-300.43389892578125, dl1.getTerminal().getP(), 0.0);
-        assertEquals(-137.18849182128906, dl1.getTerminal().getQ(), 0.0);
+        assertEquals(-300.43389892578125, dl1.getP(), 0.0);
+        assertEquals(-137.18849182128906, dl1.getQ(), 0.0);
 
         DanglingLine dl2 = network.getDanglingLine(NHV1_NHV2_2);
         assertNotNull(dl2);
@@ -165,8 +165,8 @@ public class DefaultNetworkReducerTest {
         assertEquals(1.93e-4, dl2.getB(), 0.0);
         assertEquals(-300.43389892578125, dl2.getP0(), 0.0);
         assertEquals(-137.18849182128906, dl2.getQ0(), 0.0);
-        assertEquals(-300.43389892578125, dl2.getTerminal().getP(), 0.0);
-        assertEquals(-137.18849182128906, dl2.getTerminal().getQ(), 0.0);
+        assertEquals(-300.43389892578125, dl2.getP(), 0.0);
+        assertEquals(-137.18849182128906, dl2.getQ(), 0.0);
     }
 
     @Test
@@ -202,14 +202,14 @@ public class DefaultNetworkReducerTest {
         Load load1 = network.getLoad(NHV1_NHV2_1);
         assertEquals(0.0, load1.getP0(), 0.0);
         assertEquals(0.0, load1.getQ0(), 0.0);
-        assertTrue(Double.isNaN(load1.getTerminal().getP()));
-        assertTrue(Double.isNaN(load1.getTerminal().getQ()));
+        assertTrue(Double.isNaN(load1.getP()));
+        assertTrue(Double.isNaN(load1.getQ()));
 
         Load load2 = network.getLoad(NHV1_NHV2_2);
         assertEquals(0.0, load2.getP0(), 0.0);
         assertEquals(0.0, load2.getQ0(), 0.0);
-        assertTrue(Double.isNaN(load2.getTerminal().getP()));
-        assertTrue(Double.isNaN(load2.getTerminal().getQ()));
+        assertTrue(Double.isNaN(load2.getP()));
+        assertTrue(Double.isNaN(load2.getQ()));
     }
 
     @Test

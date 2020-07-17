@@ -103,6 +103,8 @@ public class TwtTestData {
         Mockito.when(leg1.getB()).thenReturn(B11 + B12);
         Mockito.when(leg1.getG()).thenReturn(G11 + G12);
         Mockito.when(leg1.getTerminal()).thenReturn(leg1Terminal);
+        Mockito.when(leg1.getP()).thenReturn(P1);
+        Mockito.when(leg1.getQ()).thenReturn(Q1);
 
         Bus leg2Bus = Mockito.mock(Bus.class);
         Mockito.when(leg2Bus.getV()).thenReturn(U2);
@@ -125,6 +127,8 @@ public class TwtTestData {
         Mockito.when(leg2.getG()).thenReturn(G21 + G22);
         Mockito.when(leg2.getRatedU()).thenReturn(RATED_U2);
         Mockito.when(leg2.getTerminal()).thenReturn(leg2Terminal);
+        Mockito.when(leg2.getP()).thenReturn(P2);
+        Mockito.when(leg2.getQ()).thenReturn(Q2);
 
         Bus leg3Bus = Mockito.mock(Bus.class);
         Mockito.when(leg3Bus.getV()).thenReturn(U3);
@@ -147,6 +151,8 @@ public class TwtTestData {
         Mockito.when(leg3.getG()).thenReturn(G31 + G32);
         Mockito.when(leg3.getRatedU()).thenReturn(RATED_U3);
         Mockito.when(leg3.getTerminal()).thenReturn(leg3Terminal);
+        Mockito.when(leg3.getP()).thenReturn(P3);
+        Mockito.when(leg3.getQ()).thenReturn(Q3);
 
         twt3w = Mockito.mock(ThreeWindingsTransformer.class);
         Mockito.when(twt3w.getId()).thenReturn("twt3w");
@@ -162,6 +168,7 @@ public class TwtTestData {
 
     public void setNanLeg1P() {
         Mockito.when(leg1Terminal.getP()).thenReturn(Double.NaN);
+        Mockito.when(twt3w.getLeg1().getP()).thenReturn(Double.NaN);
     }
 
     public void setLeg1Disconnected() {

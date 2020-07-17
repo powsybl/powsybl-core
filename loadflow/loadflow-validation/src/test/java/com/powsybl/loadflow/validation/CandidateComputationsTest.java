@@ -71,7 +71,7 @@ public class CandidateComputationsTest {
         assertEquals("dummy", computation.getName());
 
         computation.run(network, null);
-        assertEquals(126f, network.getGenerator("GEN").getTerminal().getP(), 0f);
+        assertEquals(126f, network.getGenerator("GEN").getP(), 0f);
     }
 
     @Test
@@ -107,6 +107,6 @@ public class CandidateComputationsTest {
         assertEquals("loadflow", computation.getName());
 
         computation.run(network, Mockito.mock(ComputationManager.class));
-        assertEquals(92f, network.getGenerator("GEN").getTerminal().getP(), 0f);
+        assertEquals(92f, network.getGenerator("GEN").getP(), 0f);
     }
 }

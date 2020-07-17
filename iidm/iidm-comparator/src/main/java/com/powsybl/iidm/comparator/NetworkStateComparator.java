@@ -80,8 +80,8 @@ public class NetworkStateComparator {
 
         @Override
         public void setValue(Branch branch, Cell cell) {
-            if (!Double.isNaN(branch.getTerminal1().getP())) {
-                cell.setCellValue(branch.getTerminal1().getP());
+            if (!Double.isNaN(branch.getP1())) {
+                cell.setCellValue(branch.getP1());
             }
         }
     }
@@ -95,8 +95,8 @@ public class NetworkStateComparator {
 
         @Override
         public void setValue(Branch branch, Cell cell) {
-            if (!Double.isNaN(branch.getTerminal1().getQ())) {
-                cell.setCellValue(branch.getTerminal1().getQ());
+            if (!Double.isNaN(branch.getQ1())) {
+                cell.setCellValue(branch.getQ1());
             }
         }
     }
@@ -110,8 +110,8 @@ public class NetworkStateComparator {
 
         @Override
         public void setValue(Branch branch, Cell cell) {
-            if (!Double.isNaN(branch.getTerminal2().getP())) {
-                cell.setCellValue(branch.getTerminal2().getP());
+            if (!Double.isNaN(branch.getP2())) {
+                cell.setCellValue(branch.getP2());
             }
         }
     }
@@ -125,8 +125,8 @@ public class NetworkStateComparator {
 
         @Override
         public void setValue(Branch branch, Cell cell) {
-            if (!Double.isNaN(branch.getTerminal2().getQ())) {
-                cell.setCellValue(branch.getTerminal2().getQ());
+            if (!Double.isNaN(branch.getQ2())) {
+                cell.setCellValue(branch.getQ2());
             }
         }
     }
@@ -234,8 +234,8 @@ public class NetworkStateComparator {
 
         @Override
         public void setValue(Injection inj, Cell cell) {
-            if (!Double.isNaN(inj.getTerminal().getP())) {
-                cell.setCellValue(inj.getTerminal().getP());
+            if (!Double.isNaN(inj.getP())) {
+                cell.setCellValue(inj.getP());
             }
         }
     }
@@ -249,8 +249,8 @@ public class NetworkStateComparator {
 
         @Override
         public void setValue(Injection inj, Cell cell) {
-            if (!Double.isNaN(inj.getTerminal().getQ())) {
-                cell.setCellValue(inj.getTerminal().getQ());
+            if (!Double.isNaN(inj.getQ())) {
+                cell.setCellValue(inj.getQ());
             }
         }
     }

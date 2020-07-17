@@ -37,14 +37,14 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
         Network network = createNetwork();
 
         Line loop = network.getLine("L1-1");
-        assertTrue(Double.isNaN(loop.getTerminal1().getP()));
+        assertTrue(Double.isNaN(loop.getP1()));
 
         completeResults(network);
 
-        assertEquals(0, loop.getTerminal1().getP(), 0);
-        assertEquals(0, loop.getTerminal1().getQ(), 0);
-        assertEquals(0, loop.getTerminal2().getP(), 0);
-        assertEquals(0, loop.getTerminal2().getQ(), 0);
+        assertEquals(0, loop.getP1(), 0);
+        assertEquals(0, loop.getQ1(), 0);
+        assertEquals(0, loop.getP2(), 0);
+        assertEquals(0, loop.getQ2(), 0);
 
         assertTrue(validateBuses(network));
     }

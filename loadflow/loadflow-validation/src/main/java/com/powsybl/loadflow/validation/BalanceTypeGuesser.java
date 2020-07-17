@@ -81,7 +81,7 @@ public class BalanceTypeGuesser {
     }
 
     private int isMovedGenerator(Generator generator, double threshold) {
-        double p = -generator.getTerminal().getP();
+        double p = -generator.getP();
         double targetP = generator.getTargetP();
         double maxP = generator.getMaxP();
         double minP = generator.getMinP();

@@ -183,8 +183,8 @@ public abstract class AbstractLineTest {
             .add();
         verify(mockedListener, times(1)).onCreation(acLine);
         // Get initial values
-        double p0OldValue = acLine.getTerminal1().getP();
-        double q0OldValue = acLine.getTerminal1().getQ();
+        double p0OldValue = acLine.getP1();
+        double q0OldValue = acLine.getQ1();
         // Change values P1 & Q1
         acLine.getTerminal1().setP(1.0);
         acLine.getTerminal1().setQ(Math.sqrt(2.0));

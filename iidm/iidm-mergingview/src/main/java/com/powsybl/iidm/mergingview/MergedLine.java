@@ -105,8 +105,8 @@ class MergedLine implements Line {
     }
 
     void computeAndSetP0() {
-        double p1 = dl1.getTerminal().getP();
-        double p2 = dl2.getTerminal().getP();
+        double p1 = dl1.getP();
+        double p2 = dl2.getP();
         if (!Double.isNaN(p1) && !Double.isNaN(p2)) {
             double losses = p1 + p2;
             dl1.setP0((p1 + losses / 2.0) * sign(p2));
@@ -115,8 +115,8 @@ class MergedLine implements Line {
     }
 
     void computeAndSetQ0() {
-        double q1 = dl1.getTerminal().getQ();
-        double q2 = dl2.getTerminal().getQ();
+        double q1 = dl1.getQ();
+        double q2 = dl2.getQ();
         if (!Double.isNaN(q1) && !Double.isNaN(q2)) {
             double losses = q1 + q2;
             dl1.setQ0((q1 + losses / 2.0) * sign(q2));

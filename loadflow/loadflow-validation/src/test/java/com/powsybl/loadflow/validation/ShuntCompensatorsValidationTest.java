@@ -75,6 +75,8 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
         Mockito.when(shunt.getModelType()).thenReturn(ShuntCompensatorModelType.LINEAR);
         Mockito.when(shunt.getModel()).thenReturn(shuntModel);
         Mockito.when(shunt.getModel(ShuntCompensatorLinearModel.class)).thenReturn(shuntModel);
+        Mockito.when(shunt.getP()).thenReturn(p);
+        Mockito.when(shunt.getQ()).thenReturn(q);
     }
 
     @Test
@@ -110,13 +112,13 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     public void checkShunts() {
         // “q” = - bPerSection * currentSectionCount * v^2
         assertTrue(ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.NULL_WRITER));
-        Mockito.when(shuntTerminal.getQ()).thenReturn(171.52);
+        Mockito.when(shunt.getQ()).thenReturn(171.52);
         assertFalse(ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.NULL_WRITER));
 
         // if the shunt is disconnected then either “q” is not defined or “q” is 0
         Mockito.when(shuntBusView.getBus()).thenReturn(null);
         assertFalse(ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.NULL_WRITER));
-        Mockito.when(shuntTerminal.getQ()).thenReturn(Double.NaN);
+        Mockito.when(shunt.getQ()).thenReturn(Double.NaN);
         assertTrue(ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.NULL_WRITER));
     }
 

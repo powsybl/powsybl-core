@@ -1263,8 +1263,8 @@ public class AmplNetworkWriter {
                         .writeCell(actionNum)
                         .writeCell(dl.getId() + "_load")
                         .writeCell("")
-                        .writeCell(dl.getTerminal().getP())
-                        .writeCell(dl.getTerminal().getQ());
+                        .writeCell(dl.getP())
+                        .writeCell(dl.getQ());
             }
             if (!skipped.isEmpty()) {
                 LOGGER.trace("Skip loads {} because not connected and not connectable", skipped);

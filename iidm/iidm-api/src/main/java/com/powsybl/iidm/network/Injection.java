@@ -18,4 +18,11 @@ public interface Injection<I extends Injection<I>> extends Connectable<I> {
      */
     Terminal getTerminal();
 
+    default double getP() {
+        return getTerminal().getP();
+    }
+
+    default double getQ() {
+        return getTerminal().getQ();
+    }
 }

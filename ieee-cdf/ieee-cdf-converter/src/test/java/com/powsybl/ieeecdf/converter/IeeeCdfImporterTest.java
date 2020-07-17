@@ -92,7 +92,7 @@ public class IeeeCdfImporterTest extends AbstractConverterTest {
         }
         for (Generator g : network.getGenerators()) {
             g.getTerminal().setP(-g.getTargetP());
-            if (Double.isNaN(g.getTerminal().getQ())) {
+            if (Double.isNaN(g.getQ())) {
                 g.getTerminal().setQ(-g.getTargetQ());
             }
         }

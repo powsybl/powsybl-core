@@ -449,7 +449,7 @@ public class ConditionDslLoaderTest {
 
     @Test
     public void testExpressionVariableLister() {
-        String script = "line('NHV1_NHV2_1').terminal1.p > 0 || line('NHV1_NHV2_1').getTerminal2().getP() > 0 && actionTaken('action1')";
+        String script = "line('NHV1_NHV2_1').terminal1.p > 0 || line('NHV1_NHV2_1').getP2() > 0 && actionTaken('action1')";
         ExpressionNode node = (ExpressionNode) new ConditionDslLoader(script).load(network);
         assertNotNull(node);
         List<NetworkNode> nodes = ExpressionVariableLister.list(node);

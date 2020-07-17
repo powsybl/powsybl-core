@@ -77,6 +77,8 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
         Mockito.when(svc.getRegulationMode()).thenReturn(regulationMode);
         Mockito.when(svc.getBmin()).thenReturn(bMin);
         Mockito.when(svc.getBmax()).thenReturn(bMax);
+        Mockito.when(svc.getP()).thenReturn(p);
+        Mockito.when(svc.getQ()).thenReturn(q);
     }
 
     @Test
@@ -163,7 +165,7 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
     public void checkSvcs() {
         // active power should be equal to 0
         assertTrue(StaticVarCompensatorsValidation.INSTANCE.checkSVCs(svc, strictConfig, NullWriter.NULL_WRITER));
-        Mockito.when(svcTerminal.getP()).thenReturn(-39.8);
+        Mockito.when(svc.getP()).thenReturn(-39.8);
         assertFalse(StaticVarCompensatorsValidation.INSTANCE.checkSVCs(svc, strictConfig, NullWriter.NULL_WRITER));
 
         // the unit is disconnected

@@ -56,7 +56,7 @@ abstract class AbstractInjectionScalable extends AbstractScalable {
 
         Injection injection = getInjectionOrNull(n);
         if (injection != null) {
-            return !Double.isNaN(injection.getTerminal().getP()) ? injection.getTerminal().getP() : 0;
+            return !Double.isNaN(injection.getP()) ? injection.getP() : 0;
         } else {
             return 0;
         }

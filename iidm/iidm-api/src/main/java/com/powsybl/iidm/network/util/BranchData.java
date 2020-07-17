@@ -141,10 +141,11 @@ public class BranchData {
         g2 = line.getG2();
         b1 = line.getB1();
         b2 = line.getB2();
-        p1 = line.getTerminal1().getP();
-        q1 = line.getTerminal1().getQ();
-        p2 = line.getTerminal2().getP();
-        q2 = line.getTerminal2().getQ();
+
+        p1 = line.getP1();
+        q1 = line.getQ1();
+        p2 = line.getP2();
+        q2 = line.getQ2();
 
         phaseAngleClock = 0;
 
@@ -199,10 +200,10 @@ public class BranchData {
         g2 = getG2(twt, twtSplitShuntAdmittance);
         b1 = getB1(twt, twtSplitShuntAdmittance);
         b2 = getB2(twt, twtSplitShuntAdmittance);
-        p1 = twt.getTerminal1().getP();
-        q1 = twt.getTerminal1().getQ();
-        p2 = twt.getTerminal2().getP();
-        q2 = twt.getTerminal2().getQ();
+        p1 = twt.getP1();
+        q1 = twt.getQ1();
+        p2 = twt.getP2();
+        q2 = twt.getQ2();
 
         this.phaseAngleClock = phaseAngleClock;
 

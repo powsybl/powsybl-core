@@ -85,8 +85,8 @@ public final class StaticVarCompensatorsValidation {
         Objects.requireNonNull(svc);
         Objects.requireNonNull(config);
         Objects.requireNonNull(svcsWriter);
-        double p = svc.getTerminal().getP();
-        double q = svc.getTerminal().getQ();
+        double p = svc.getP();
+        double q = svc.getQ();
         Bus bus = svc.getTerminal().getBusView().getBus();
         double reactivePowerSetpoint = svc.getReactivePowerSetPoint();
         double voltageSetpoint = svc.getVoltageSetPoint();

@@ -88,8 +88,8 @@ public final class ShuntCompensatorsValidation {
             throw new PowsyblException("non linear shunt not supported yet");
         }
 
-        double p = shunt.getTerminal().getP();
-        double q = shunt.getTerminal().getQ();
+        double p = shunt.getP();
+        double q = shunt.getQ();
         int currentSectionCount = shunt.getSectionCount();
         int maximumSectionCount = shunt.getMaximumSectionCount();
         double bPerSection = shunt.getModel(ShuntCompensatorLinearModel.class).getBPerSection();

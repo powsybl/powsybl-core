@@ -96,4 +96,20 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
     Overload checkTemporaryLimits2(float limitReduction);
 
     Overload checkTemporaryLimits2();
+
+    default double getP1() {
+        return getTerminal1().getP();
+    }
+
+    default double getQ1() {
+        return getTerminal1().getQ();
+    }
+
+    default double getP2() {
+        return getTerminal2().getP();
+    }
+
+    default double getQ2() {
+        return getTerminal2().getQ();
+    }
 }

@@ -28,6 +28,11 @@ import static org.junit.Assert.assertTrue;
  */
 public class FlowsValidationTest extends AbstractValidationTest {
 
+    private final double p1 = 39.5056;
+    private final double q1 = -3.72344;
+    private final double p2 = -39.5122;
+    private final double q2 = 3.7746;
+
     private final double r = 0.04;
     private final double x = 0.423;
     private final double g1 = 0.0;
@@ -63,11 +68,6 @@ public class FlowsValidationTest extends AbstractValidationTest {
     @Before
     public void setUp() throws IOException {
         super.setUp();
-
-        double p1 = 39.5056;
-        double q1 = -3.72344;
-        double p2 = -39.5122;
-        double q2 = 3.7746;
 
         bus1 = Mockito.mock(Bus.class);
         Mockito.when(bus1.getV()).thenReturn(u1);
@@ -105,6 +105,10 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(line1.getG2()).thenReturn(g2);
         Mockito.when(line1.getB1()).thenReturn(b1);
         Mockito.when(line1.getB2()).thenReturn(b2);
+        Mockito.when(line1.getP1()).thenReturn(p1);
+        Mockito.when(line1.getQ1()).thenReturn(q1);
+        Mockito.when(line1.getP2()).thenReturn(p2);
+        Mockito.when(line1.getQ2()).thenReturn(q2);
 
         RatioTapChangerStep step = Mockito.mock(RatioTapChangerStep.class);
         Mockito.when(step.getR()).thenReturn(r);
@@ -127,6 +131,10 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(transformer1.getRatioTapChanger()).thenReturn(ratioTapChanger);
         Mockito.when(transformer1.getRatedU1()).thenReturn(ratedU1);
         Mockito.when(transformer1.getRatedU2()).thenReturn(ratedU2);
+        Mockito.when(transformer1.getP1()).thenReturn(p1);
+        Mockito.when(transformer1.getQ1()).thenReturn(q1);
+        Mockito.when(transformer1.getP2()).thenReturn(p2);
+        Mockito.when(transformer1.getQ2()).thenReturn(q2);
 
         looseConfigSpecificCompatibility = new ValidationConfig(0.1, true, "LoadFlowMock", ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                 ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT,
@@ -221,6 +229,10 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(line2.getG2()).thenReturn(g2);
         Mockito.when(line2.getB1()).thenReturn(b1);
         Mockito.when(line2.getB2()).thenReturn(b2);
+        Mockito.when(line2.getP1()).thenReturn(p1);
+        Mockito.when(line2.getP2()).thenReturn(p2);
+        Mockito.when(line2.getQ1()).thenReturn(q1);
+        Mockito.when(line2.getQ2()).thenReturn(q2);
 
         TwoWindingsTransformer transformer2 = Mockito.mock(TwoWindingsTransformer.class);
         Mockito.when(transformer2.getId()).thenReturn("transformer2");
@@ -233,6 +245,10 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(transformer2.getRatioTapChanger()).thenReturn(ratioTapChanger);
         Mockito.when(transformer2.getRatedU1()).thenReturn(ratedU1);
         Mockito.when(transformer2.getRatedU2()).thenReturn(ratedU2);
+        Mockito.when(transformer2.getP1()).thenReturn(p1);
+        Mockito.when(transformer2.getP2()).thenReturn(p2);
+        Mockito.when(transformer2.getQ1()).thenReturn(q1);
+        Mockito.when(transformer2.getQ2()).thenReturn(q2);
 
         assertTrue(FlowsValidation.INSTANCE.checkFlows(transformer2, looseConfig, NullWriter.NULL_WRITER));
         assertFalse(FlowsValidation.INSTANCE.checkFlows(transformer2, strictConfig, NullWriter.NULL_WRITER));

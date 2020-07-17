@@ -86,8 +86,8 @@ public final class GeneratorsValidation {
         Objects.requireNonNull(gen);
         Objects.requireNonNull(config);
         Objects.requireNonNull(generatorsWriter);
-        double p = gen.getTerminal().getP();
-        double q = gen.getTerminal().getQ();
+        double p = gen.getP();
+        double q = gen.getQ();
         Bus bus = gen.getTerminal().getBusView().getBus();
         double targetP = gen.getTargetP();
         double targetQ = gen.getTargetQ();

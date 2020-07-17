@@ -198,8 +198,8 @@ public class Comparison {
         compare("p0", expected.getP0(), actual.getP0());
         compare("q0", expected.getQ0(), actual.getQ0());
         // TODO Should we check terminals ? (we are not setting terminal id)
-        compare("p", expected.getTerminal().getP(), actual.getTerminal().getP());
-        compare("q", expected.getTerminal().getQ(), actual.getTerminal().getQ());
+        compare("p", expected.getP(), actual.getP());
+        compare("q", expected.getQ(), actual.getQ());
         compareLoadDetails(expected.getExtension(LoadDetail.class), actual.getExtension(LoadDetail.class));
     }
 
@@ -349,8 +349,8 @@ public class Comparison {
 
         compare("energySource", expected.getEnergySource(), actual.getEnergySource());
         compare("ratedS", expected.getRatedS(), actual.getRatedS());
-        compare("terminalP", expected.getTerminal().getP(), actual.getTerminal().getP());
-        compare("terminalQ", expected.getTerminal().getQ(), actual.getTerminal().getQ());
+        compare("terminalP", expected.getP(), actual.getP());
+        compare("terminalQ", expected.getQ(), actual.getQ());
         compareQPercents(expected.getExtension(CoordinatedReactiveControl.class), actual.getExtension(CoordinatedReactiveControl.class));
     }
 

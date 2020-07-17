@@ -173,17 +173,17 @@ public class AmplNetworkReaderTest {
 
         assertEquals(24.5, generator.getTargetV(), 0.0);
         assertEquals(607.0, generator.getTargetP(), 0.0);
-        assertTrue(Double.isNaN(generator.getTerminal().getP()));
+        assertTrue(Double.isNaN(generator.getP()));
         assertEquals(301.0, generator.getTargetQ(), 0.0);
-        assertTrue(Double.isNaN(generator.getTerminal().getQ()));
+        assertTrue(Double.isNaN(generator.getQ()));
 
         reader.readGenerators();
 
         assertEquals(voltageLevel.getNominalV() * 1.01000, generator.getTargetV(), 0.0);
         assertEquals(300.0, generator.getTargetP(), 0.0);
-        assertEquals(300.0, generator.getTerminal().getP(), 0.0);
+        assertEquals(300.0, generator.getP(), 0.0);
         assertEquals(150.0, generator.getTargetQ(), 0.0);
-        assertEquals(150.0, generator.getTerminal().getQ(), 0.0);
+        assertEquals(150.0, generator.getQ(), 0.0);
     }
 
     private void testBatteries(Network network, AmplNetworkReader reader) throws IOException {
@@ -193,31 +193,31 @@ public class AmplNetworkReaderTest {
         assertEquals(9999.99, battery.getQ0(), 0.0);
         assertEquals(-9999.99, battery.getMinP(), 0.0);
         assertEquals(9999.99, battery.getMaxP(), 0.0);
-        assertEquals(-605.0, battery.getTerminal().getP(), 0.0);
-        assertEquals(-225.0, battery.getTerminal().getQ(), 0.0);
+        assertEquals(-605.0, battery.getP(), 0.0);
+        assertEquals(-225.0, battery.getQ(), 0.0);
 
         reader.readBatteries();
 
         assertEquals(12.0, battery.getP0(), 0.0);
         assertEquals(13.0, battery.getQ0(), 0.0);
-        assertEquals(300.0, battery.getTerminal().getP(), 0.0);
-        assertEquals(150.0, battery.getTerminal().getQ(), 0.0);
+        assertEquals(300.0, battery.getP(), 0.0);
+        assertEquals(150.0, battery.getQ(), 0.0);
     }
 
     private void testLoads(Network network, AmplNetworkReader reader) throws IOException {
         Load load = network.getLoad("LOAD");
 
         assertEquals(600.0, load.getP0(), 0.0);
-        assertTrue(Double.isNaN(load.getTerminal().getP()));
+        assertTrue(Double.isNaN(load.getP()));
         assertEquals(200.0, load.getQ0(), 0.0);
-        assertTrue(Double.isNaN(load.getTerminal().getQ()));
+        assertTrue(Double.isNaN(load.getQ()));
 
         reader.readLoads();
 
         assertEquals(300.0, load.getP0(), 0.0);
-        assertEquals(305.0, load.getTerminal().getP(), 0.0);
+        assertEquals(305.0, load.getP(), 0.0);
         assertEquals(150.0, load.getQ0(), 0.0);
-        assertEquals(155.0, load.getTerminal().getQ(), 0.0);
+        assertEquals(155.0, load.getQ(), 0.0);
     }
 
     private void testRatioTapChanger(Network network, AmplNetworkReader reader) throws IOException {
@@ -287,62 +287,63 @@ public class AmplNetworkReaderTest {
 
     private void testBranches(Network network, AmplNetworkReader reader) throws IOException {
         Line l = network.getLine("NHV1_NHV2_1");
-        assertTrue(Double.isNaN(l.getTerminal1().getP()));
-        assertTrue(Double.isNaN(l.getTerminal1().getQ()));
-        assertTrue(Double.isNaN(l.getTerminal2().getP()));
-        assertTrue(Double.isNaN(l.getTerminal2().getQ()));
+        assertTrue(Double.isNaN(l.getP1()));
+        assertTrue(Double.isNaN(l.getQ1()));
+        assertTrue(Double.isNaN(l.getP2()));
+        assertTrue(Double.isNaN(l.getQ2()));
 
         //NHV2_NLOAD
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("NHV2_NLOAD");
-        assertTrue(Double.isNaN(twt.getTerminal1().getP()));
-        assertTrue(Double.isNaN(twt.getTerminal1().getQ()));
-        assertTrue(Double.isNaN(twt.getTerminal2().getP()));
-        assertTrue(Double.isNaN(twt.getTerminal2().getQ()));
+        assertTrue(Double.isNaN(twt.getP1()));
+        assertTrue(Double.isNaN(twt.getQ1()));
+        assertTrue(Double.isNaN(twt.getP2()));
+        assertTrue(Double.isNaN(twt.getQ2()));
 
         reader.readBranches();
 
         Line l2 = network.getLine("NHV1_NHV2_1");
-        assertEquals(-100, l2.getTerminal1().getP(), 0.0);
-        assertEquals(-110, l2.getTerminal1().getQ(), 0.0);
-        assertEquals(-200, l2.getTerminal2().getP(), 0.0);
-        assertEquals(-120, l2.getTerminal2().getQ(), 0.0);
+        assertEquals(-100, l2.getP1(), 0.0);
+        assertEquals(-100, l2.getP1(), 0.0);
+        assertEquals(-110, l2.getQ1(), 0.0);
+        assertEquals(-200, l2.getP2(), 0.0);
+        assertEquals(-120, l2.getQ2(), 0.0);
         TwoWindingsTransformer twt2 = network.getTwoWindingsTransformer("NHV2_NLOAD");
-        assertEquals(-100, twt2.getTerminal1().getP(), 0.0);
-        assertEquals(-110, twt2.getTerminal1().getQ(), 0.0);
-        assertEquals(-200, twt2.getTerminal2().getP(), 0.0);
-        assertEquals(-120, twt2.getTerminal2().getQ(), 0.0);
+        assertEquals(-100, twt2.getP1(), 0.0);
+        assertEquals(-110, twt2.getQ1(), 0.0);
+        assertEquals(-200, twt2.getP2(), 0.0);
+        assertEquals(-120, twt2.getQ2(), 0.0);
     }
 
     private void testThreeWindingTransBranches(Network network, AmplNetworkReader reader) throws IOException {
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
-        assertTrue(Double.isNaN(twt.getLeg1().getTerminal().getP()));
-        assertTrue(Double.isNaN(twt.getLeg1().getTerminal().getQ()));
-        assertTrue(Double.isNaN(twt.getLeg2().getTerminal().getP()));
-        assertTrue(Double.isNaN(twt.getLeg2().getTerminal().getQ()));
-        assertTrue(Double.isNaN(twt.getLeg3().getTerminal().getP()));
-        assertTrue(Double.isNaN(twt.getLeg3().getTerminal().getQ()));
+        assertTrue(Double.isNaN(twt.getLeg1().getP()));
+        assertTrue(Double.isNaN(twt.getLeg1().getQ()));
+        assertTrue(Double.isNaN(twt.getLeg2().getP()));
+        assertTrue(Double.isNaN(twt.getLeg2().getQ()));
+        assertTrue(Double.isNaN(twt.getLeg3().getP()));
+        assertTrue(Double.isNaN(twt.getLeg3().getQ()));
 
         reader.readBranches();
 
         ThreeWindingsTransformer twt2 = network.getThreeWindingsTransformer("3WT");
-        assertEquals(-101, twt2.getLeg1().getTerminal().getP(), 0.0);
-        assertEquals(-111, twt2.getLeg1().getTerminal().getQ(), 0.0);
-        assertEquals(-102, twt2.getLeg2().getTerminal().getP(), 0.0);
-        assertEquals(-112, twt2.getLeg2().getTerminal().getQ(), 0.0);
-        assertEquals(-103, twt2.getLeg3().getTerminal().getP(), 0.0);
-        assertEquals(-113, twt2.getLeg3().getTerminal().getQ(), 0.0);
+        assertEquals(-101, twt2.getLeg1().getP(), 0.0);
+        assertEquals(-111, twt2.getLeg1().getQ(), 0.0);
+        assertEquals(-102, twt2.getLeg2().getP(), 0.0);
+        assertEquals(-112, twt2.getLeg2().getQ(), 0.0);
+        assertEquals(-103, twt2.getLeg3().getP(), 0.0);
+        assertEquals(-113, twt2.getLeg3().getQ(), 0.0);
     }
 
     private void testDLBranches(Network network, AmplNetworkReader reader) throws IOException {
         DanglingLine dl = network.getDanglingLine("DL");
-        assertTrue(Double.isNaN(dl.getTerminal().getP()));
-        assertTrue(Double.isNaN(dl.getTerminal().getQ()));
+        assertTrue(Double.isNaN(dl.getP()));
+        assertTrue(Double.isNaN(dl.getQ()));
 
         reader.readBranches();
 
         DanglingLine dl2 = network.getDanglingLine("DL");
-        assertEquals(-100, dl2.getTerminal().getP(), 0.0);
-        assertEquals(-110, dl2.getTerminal().getQ(), 0.0);
+        assertEquals(-100, dl2.getP(), 0.0);
+        assertEquals(-110, dl2.getQ(), 0.0);
     }
 
     private void testHvdc(Network network, AmplNetworkReader reader) throws IOException {
@@ -360,28 +361,28 @@ public class AmplNetworkReaderTest {
 
     private void testLcc(Network network, AmplNetworkReader reader) throws IOException {
         LccConverterStation lc = network.getLccConverterStation("C1");
-        assertEquals(100, lc.getTerminal().getP(), 0.0);
-        assertEquals(50, lc.getTerminal().getQ(), 0.0);
+        assertEquals(100, lc.getP(), 0.0);
+        assertEquals(50, lc.getQ(), 0.0);
 
         reader.readLccConverterStations();
 
-        assertEquals(200, lc.getTerminal().getP(), 0.0);
-        assertEquals(75, lc.getTerminal().getQ(), 0.0);
+        assertEquals(200, lc.getP(), 0.0);
+        assertEquals(75, lc.getQ(), 0.0);
 
     }
 
     private void testVsc(Network network, AmplNetworkReader reader) throws IOException {
         VscConverterStation vc = network.getVscConverterStation("C1");
-        assertEquals(100, vc.getTerminal().getP(), 0.0);
-        assertEquals(50, vc.getTerminal().getQ(), 0.0);
+        assertEquals(100, vc.getP(), 0.0);
+        assertEquals(50, vc.getQ(), 0.0);
         assertTrue(vc.isVoltageRegulatorOn());
         assertTrue(Double.isNaN(vc.getReactivePowerSetpoint()));
         assertEquals(405, vc.getVoltageSetpoint(), 0.0);
 
         reader.readVscConverterStations();
 
-        assertEquals(200, vc.getTerminal().getP(), 0.0);
-        assertEquals(75, vc.getTerminal().getQ(), 0.0);
+        assertEquals(200, vc.getP(), 0.0);
+        assertEquals(75, vc.getQ(), 0.0);
         assertTrue(vc.isVoltageRegulatorOn());
         assertEquals(30, vc.getReactivePowerSetpoint(), 0.0);
         assertEquals(400 * 1.01000, vc.getVoltageSetpoint(), 0.0);
@@ -390,13 +391,13 @@ public class AmplNetworkReaderTest {
     private void testShunts(Network network, AmplNetworkReader reader) throws IOException {
         ShuntCompensator sc = network.getShuntCompensator("C1_Filter1");
 
-        assertEquals(25.0, sc.getTerminal().getQ(), 0.0);
+        assertEquals(25.0, sc.getQ(), 0.0);
 
         reader.readShunts();
 
         ShuntCompensator sc2 = network.getShuntCompensator("C1_Filter1");
 
-        assertEquals(30.0, sc2.getTerminal().getQ(), 0.0);
+        assertEquals(30.0, sc2.getQ(), 0.0);
     }
 
     private void testSvc(Network network, AmplNetworkReader reader) throws IOException {
@@ -404,7 +405,7 @@ public class AmplNetworkReaderTest {
 
         assertEquals(RegulationMode.VOLTAGE, sv.getRegulationMode());
         assertEquals(390.0, sv.getVoltageSetPoint(), 0.0);
-        assertTrue(Double.isNaN(sv.getTerminal().getQ()));
+        assertTrue(Double.isNaN(sv.getQ()));
 
         reader.readStaticVarcompensator();
 
@@ -412,7 +413,7 @@ public class AmplNetworkReaderTest {
         assertEquals(RegulationMode.REACTIVE_POWER, sv2.getRegulationMode());
         assertEquals(1.080000 * sv.getTerminal().getVoltageLevel().getNominalV(), sv2.getVoltageSetPoint(), 0.0);
         assertEquals(-30.0, sv2.getReactivePowerSetPoint(), 0.0);
-        assertEquals(30.0, sv2.getTerminal().getQ(), 0.0);
+        assertEquals(30.0, sv2.getQ(), 0.0);
     }
 
 }

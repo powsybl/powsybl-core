@@ -106,12 +106,12 @@ public class TwtData {
         Objects.requireNonNull(twt);
         id = twt.getId();
 
-        p1 = twt.getLeg1().getTerminal().getP();
-        q1 = twt.getLeg1().getTerminal().getQ();
-        p2 = twt.getLeg2().getTerminal().getP();
-        q2 = twt.getLeg2().getTerminal().getQ();
-        p3 = twt.getLeg3().getTerminal().getP();
-        q3 = twt.getLeg3().getTerminal().getQ();
+        p1 = twt.getLeg1().getP();
+        q1 = twt.getLeg1().getQ();
+        p2 = twt.getLeg2().getP();
+        q2 = twt.getLeg2().getQ();
+        p3 = twt.getLeg3().getP();
+        q3 = twt.getLeg3().getQ();
 
         u1 = getV(twt.getLeg1());
         theta1 = getTheta(twt.getLeg1());
