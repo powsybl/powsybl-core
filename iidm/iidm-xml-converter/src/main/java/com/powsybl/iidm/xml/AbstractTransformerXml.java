@@ -112,7 +112,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             switch (context.getReader().getLocalName()) {
                 case ELEM_TERMINAL_REF:
                     readTerminalRef(context, hasTerminalRef, (id, side) -> {
-                        adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(terminal.getVoltageLevel().getSubstation().getNetwork(), id, side));
+                        adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(terminal.getVoltageLevel().getNetwork(), id, side));
                         adder.add();
                     });
                     break;
@@ -185,7 +185,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             switch (context.getReader().getLocalName()) {
                 case ELEM_TERMINAL_REF:
                     readTerminalRef(context, hasTerminalRef, (id, side) -> {
-                        adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(terminal.getVoltageLevel().getSubstation().getNetwork(), id, side));
+                        adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(terminal.getVoltageLevel().getNetwork(), id, side));
                         adder.add();
                     });
                     break;

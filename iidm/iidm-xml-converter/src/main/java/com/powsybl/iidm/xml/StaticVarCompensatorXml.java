@@ -85,7 +85,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
                 String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                 String side = context.getReader().getAttributeValue(null, "side");
                 context.getEndTasks().add(() -> svc.setRegulatingTerminal(TerminalRefXml
-                        .readTerminalRef(svc.getTerminal().getVoltageLevel().getSubstation().getNetwork(), id, side)));
+                        .readTerminalRef(svc.getNetwork(), id, side)));
             } else {
                 super.readSubElements(svc, context);
             }
