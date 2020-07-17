@@ -185,7 +185,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         });
         ShuntCompensator sc = adder.add();
         if (regId[0] != null) {
-            context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefXml.readTerminalRef(sc.getTerminal().getVoltageLevel().getSubstation().getNetwork(), regId[0], regSide[0])));
+            context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefXml.readTerminalRef(sc.getNetwork(), regId[0], regSide[0])));
         }
         properties.forEach(sc::setProperty);
         aliases.forEach(sc::addAlias);
