@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 class NetworkIndex {
 
     private final Map<String, Identifiable<?>> objectsById = new HashMap<>();
+    private final Map<String, String> idByAlias = new HashMap<>();
 
     private final Map<Class<? extends Identifiable>, Set<Identifiable<?>>> objectsByClass = new HashMap<>();
 
@@ -42,6 +43,8 @@ class NetworkIndex {
                     + ") '" + obj.getId() + "' already exists");
         }
         objectsById.put(obj.getId(), obj);
+        obj.getAliases().forEach(alias -> addAlias(obj, alias));
+
         Set<Identifiable<?>> all = objectsByClass.get(obj.getClass());
         if (all == null) {
             all = new LinkedHashSet<>();
@@ -50,14 +53,57 @@ class NetworkIndex {
         all.add(obj);
     }
 
-    Identifiable get(String id) {
+    boolean addAlias(Identifiable<?> obj, String alias) {
+        Identifiable<?> aliasConflict = objectsById.get(alias);
+        if (aliasConflict != null) {
+            if (aliasConflict.equals(obj)) {
+                // Silently ignore affecting the objects id to its own aliases
+                return false;
+            }
+            String message = String.format("Object (%s) with alias '%s' cannot be created because alias already refers to object (%s) with ID '%s'",
+                    obj.getClass(),
+                    alias,
+                    aliasConflict.getClass(),
+                    aliasConflict.getId());
+            throw new PowsyblException(message);
+        }
+        String idForAlias = idByAlias.get(alias);
+        if (idForAlias != null) {
+            aliasConflict = objectsById.get(idForAlias);
+            if (aliasConflict.equals(obj)) {
+                // Silently ignore affecting the same alias twice to an object
+                return false;
+            }
+            String message = String.format("Object (%s) with alias '%s' cannot be created because alias already refers to object (%s) with ID '%s'",
+                    obj.getClass(),
+                    alias,
+                    aliasConflict.getClass(),
+                    aliasConflict.getId());
+            throw new PowsyblException(message);
+        }
+        idByAlias.put(alias, obj.getId());
+        return true;
+    }
+
+    public <I extends Identifiable<I>> void removeAlias(Identifiable<?> obj, String alias) {
+        String idForAlias = idByAlias.get(alias);
+        if (idForAlias == null) {
+            throw new PowsyblException(String.format("No alias '%s' found in the network", alias));
+        } else if (!idForAlias.equals(obj.getId())) {
+            throw new PowsyblException(String.format("Alias '%s' do not correspond to object '%s'", alias, obj.getId()));
+        } else {
+            idByAlias.remove(alias);
+        }
+    }
+
+    Identifiable get(String idOrAlias) {
+        String id = idByAlias.getOrDefault(idOrAlias, idOrAlias);
         checkId(id);
         return objectsById.get(id);
     }
 
     <T extends Identifiable> T get(String id, Class<T> clazz) {
-        checkId(id);
-        Identifiable obj = objectsById.get(id);
+        Identifiable<?> obj = get(id);
         if (obj != null && clazz.isAssignableFrom(obj.getClass())) {
             return (T) obj;
         } else {
@@ -78,8 +124,9 @@ class NetworkIndex {
     }
 
     boolean contains(String id) {
-        checkId(id);
-        return objectsById.containsKey(id);
+        String idFromPotentialAlias = idByAlias.getOrDefault(id, id);
+        checkId(idFromPotentialAlias);
+        return objectsById.containsKey(idFromPotentialAlias);
     }
 
     void remove(Identifiable obj) {
@@ -89,6 +136,7 @@ class NetworkIndex {
             throw new PowsyblException("Object (" + obj.getClass().getName()
                     + ") '" + obj.getId() + "' not found");
         }
+        obj.getAliases().forEach(idByAlias::remove);
         Set<Identifiable<?>> all = objectsByClass.get(obj.getClass());
         if (all != null) {
             all.remove(obj);
@@ -103,7 +151,7 @@ class NetworkIndex {
     /**
      * Compute intersection between this index and another one.
      * @param other the other index
-     * @return list of objects id that exist in both indexes organized by class.
+     * @return list of objects id or alias that exist in both indexes organized by class.
      */
     Multimap<Class<? extends Identifiable>, String> intersection(NetworkIndex other) {
         Multimap<Class<? extends Identifiable>, String> intersection = HashMultimap.create();
@@ -111,8 +159,14 @@ class NetworkIndex {
             Class<? extends Identifiable> clazz = entry.getKey();
             Set<Identifiable<?>> objects = entry.getValue();
             for (Identifiable obj : objects) {
-                if (objectsById.containsKey(obj.getId())) {
+                if (objectsById.containsKey(obj.getId()) || idByAlias.containsKey(obj.getId())) {
                     intersection.put(clazz, obj.getId());
+                }
+                Set<String> aliases = obj.getAliases();
+                for (String alias : aliases) {
+                    if (objectsById.containsKey(alias) || idByAlias.containsKey(alias)) {
+                        intersection.put(clazz, alias);
+                    }
                 }
             }
         }
@@ -139,5 +193,4 @@ class NetworkIndex {
             out.println(entry.getKey() + " " + entry.getValue().stream().map(System::identityHashCode).collect(Collectors.toList()));
         }
     }
-
 }

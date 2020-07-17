@@ -33,6 +33,8 @@ public class VariantManagerImplTest {
 
         private final String id;
 
+        private final Set<String> aliases = new HashSet<>();
+
         private final Set<Integer> extended = new HashSet<>();
 
         private final Set<Integer> deleted = new HashSet<>();
@@ -56,6 +58,11 @@ public class VariantManagerImplTest {
         @Override
         public String getNameOrId() {
             return id;
+        }
+
+        @Override
+        public Set<String> getAliases() {
+            return Collections.unmodifiableSet(aliases);
         }
 
         @Override

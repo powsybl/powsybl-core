@@ -20,6 +20,7 @@
     <xs:element name="network">
         <xs:complexType>
             <xs:sequence>
+                <xs:element name="alias" type="iidm:nonEmptyString" minOccurs="0" maxOccurs="unbounded" />
                 <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
                 <xs:element name="substation" type="iidm:Substation" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -44,6 +45,7 @@
     </xs:element>
     <xs:complexType name="Identifiable">
         <xs:sequence>
+            <xs:element name="alias" type="iidm:nonEmptyString" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
         <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
