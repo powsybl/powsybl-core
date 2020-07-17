@@ -6,8 +6,6 @@
  */
 package com.powsybl.psse.model;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 /**
  *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -174,67 +172,5 @@ public class PsseContext {
 
     String[] getSwitchedShuntDataReadFields() {
         return this.switchedShuntDataReadFields;
-    }
-
-    static String[] caseIdentificationDataHeaders(int firstRecordFields) {
-        String[] first = new String[] {"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq"};
-        return ArrayUtils.addAll(ArrayUtils.subarray(first, 0, firstRecordFields), "title1", "title2");
-    }
-
-    static String[] caseIdentificationDataHeaders() {
-        return new String[] {"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2"};
-    }
-
-    static String[] busDataHeaders() {
-        return new String[] {"i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo"};
-    }
-
-    static String[] loadDataHeaders() {
-        return new String[] {"i", "id", "status", "area", "zone", "pl", "ql", "ip", "iq", "yp", "yq", "owner", "scale", "intrpt"};
-    }
-
-    static String[] fixedBusShuntDataHeaders() {
-        return new String[] {"i", "id", "status", "gl", "bl"};
-    }
-
-    static String[] generatorDataHeaders() {
-        return new String[] {"i", "id", "pg", "qg", "qt", "qb", "vs", "ireg", "mbase", "zr", "zx", "rt",
-            "xt", "gtap", "stat", "rmpct", "pt", "pb", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "wmod", "wpf"};
-    }
-
-    static String[] nonTransformerBranchDataHeaders() {
-        return new String[] {"i", "j", "ckt", "r", "x", "b", "ratea", "rateb", "ratec", "gi", "bi", "gj", "bj",
-            "st", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
-    }
-
-    static String[] transformerDataHeaders(int firstRecordFields) {
-        String[] first = new String[] {"i", "j", "k", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmetr", "name", "stat",
-            "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "vecgrp"};
-        String[] second = new String[] {"r12", "x12", "sbase12", "r23", "x23", "sbase23", "r31", "x31", "sbase31",
-            "vmstar", "anstar"};
-
-        return ArrayUtils.addAll(ArrayUtils.subarray(first, 0, firstRecordFields), second);
-    }
-
-    static String[] transformerWindingDataHeaders() {
-        return new String[] {"windv", "nomv", "ang", "rata", "ratb", "ratc", "cod", "cont", "rma", "rmi", "vma", "vmi",
-            "ntp", "tab", "cr", "cx", "cnxa"};
-    }
-
-    static String[] areaInterchangeDataHeaders() {
-        return new String[] {"i", "isw", "pdes", "ptol", "arname"};
-    }
-
-    static String[] zoneDataHeaders() {
-        return new String[] {"i", "zoname"};
-    }
-
-    static String[] ownerDataHeaders() {
-        return new String[] {"i", "owname"};
-    }
-
-    static String[] switchedShuntDataHeaders() {
-        return new String[] {"i", "modsw", "adjm", "stat", "vswhi", "vswlo", "swrem", "rmpct", "rmidnt", "binit",
-            "n1", "b1", "n2", "b2", "n3", "b3", "n4", "b4", "n5", "b5", "n6", "b6", "n7", "b7", "n8", "b8"};
     }
 }

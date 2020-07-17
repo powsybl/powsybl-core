@@ -59,8 +59,13 @@ public class PsseRawReader {
     }
 
     public PsseRawModel read(BufferedReader reader) throws IOException {
-        Objects.requireNonNull(reader);
         PsseContext context = new PsseContext();
+        return read(reader, context);
+    }
+
+    public PsseRawModel read(BufferedReader reader, PsseContext context) throws IOException {
+        Objects.requireNonNull(reader);
+        Objects.requireNonNull(context);
 
         PsseCaseIdentification caseIdentification = readCaseIdentificationData(reader, context);
         PsseRawModel model = new PsseRawModel(caseIdentification);
@@ -117,7 +122,7 @@ public class PsseRawReader {
 
         context.setDelimiter(detectDelimiter(line));
 
-        String[] headers = PsseContext.caseIdentificationDataHeaders(line.split(context.getDelimiter()).length);
+        String[] headers = caseIdentificationDataHeaders(line.split(context.getDelimiter()).length);
         PsseCaseIdentification caseIdentification = parseRecordHeader(line, PsseCaseIdentification.class, headers);
         caseIdentification.setTitle1(reader.readLine());
         caseIdentification.setTitle2(reader.readLine());
@@ -130,7 +135,7 @@ public class PsseRawReader {
         String line = readLineAndRemoveComment(reader);
         Objects.requireNonNull(line);
 
-        String[] headers = PsseContext.caseIdentificationDataHeaders();
+        String[] headers = caseIdentificationDataHeaders();
         PsseCaseIdentification caseIdentification = parseRecordHeader(line, PsseCaseIdentification.class, headers);
         caseIdentification.setTitle1(reader.readLine());
         caseIdentification.setTitle2(reader.readLine());
@@ -139,7 +144,7 @@ public class PsseRawReader {
     }
 
     private static List<PsseBus> readBusData(BufferedReader reader, PsseContext context) throws IOException {
-        String[] headers = PsseContext.busDataHeaders();
+        String[] headers = busDataHeaders();
         List<String> records = readRecordBlock(reader);
 
         context.setBusDataReadFields(readFields(records, headers, context.getDelimiter()));
@@ -147,7 +152,7 @@ public class PsseRawReader {
     }
 
     private static List<PsseLoad> readLoadData(BufferedReader reader, PsseContext context) throws IOException {
-        String[] headers = PsseContext.loadDataHeaders();
+        String[] headers = loadDataHeaders();
         List<String> records = readRecordBlock(reader);
 
         context.setLoadDataReadFields(readFields(records, headers, context.getDelimiter()));
@@ -155,7 +160,7 @@ public class PsseRawReader {
     }
 
     private static List<PsseFixedShunt> readFixedBusShuntData(BufferedReader reader, PsseContext context) throws IOException {
-        String[] headers = PsseContext.fixedBusShuntDataHeaders();
+        String[] headers = fixedBusShuntDataHeaders();
         List<String> records = readRecordBlock(reader);
 
         context.setFixedBusShuntDataReadFields(readFields(records, headers, context.getDelimiter()));
@@ -163,7 +168,7 @@ public class PsseRawReader {
     }
 
     private static List<PsseGenerator> readGeneratorData(BufferedReader reader, PsseContext context) throws IOException {
-        String[] headers = PsseContext.generatorDataHeaders();
+        String[] headers = generatorDataHeaders();
         List<String> records = readRecordBlock(reader);
 
         context.setGeneratorDataReadFields(readFields(records, headers, context.getDelimiter()));
@@ -171,7 +176,7 @@ public class PsseRawReader {
     }
 
     private static List<PsseNonTransformerBranch> readNonTransformerBranchData(BufferedReader reader, PsseContext context) throws IOException {
-        String[] headers = PsseContext.nonTransformerBranchDataHeaders();
+        String[] headers = nonTransformerBranchDataHeaders();
         List<String> records = readRecordBlock(reader);
 
         context.setNonTransformerBranchDataReadFields(readFields(records, headers, context.getDelimiter()));
@@ -180,7 +185,7 @@ public class PsseRawReader {
 
     private static List<PsseTransformer> readTransformerData(BufferedReader reader, PsseContext context) throws IOException {
 
-        String[] windingHeaders = PsseContext.transformerWindingDataHeaders();
+        String[] windingHeaders = transformerWindingDataHeaders();
         List<PsseTransformer> transformers = new ArrayList<>();
 
         List<String> records = readRecordBlock(reader);
@@ -192,7 +197,7 @@ public class PsseRawReader {
             String record4 = records.get(i++);
             String twtRecord = String.join(context.getDelimiter(), record1, record2);
 
-            String[] headers = PsseContext.transformerDataHeaders(record1.split(context.getDelimiter()).length);
+            String[] headers = transformerDataHeaders(record1.split(context.getDelimiter()).length);
             PsseTransformer transformer = parseRecordHeader(twtRecord, PsseTransformer.class, headers);
 
             transformer.setWindingRecord1(parseRecordHeader(record3, PsseTransformer.WindingRecord.class, windingHeaders));
@@ -203,14 +208,18 @@ public class PsseRawReader {
                 transformer
                     .setWindingRecord3(parseRecordHeader(record5, PsseTransformer.WindingRecord.class, windingHeaders));
 
-                context.set3wTransformerDataReadFields(readFields(twtRecord, headers, context.getDelimiter()),
-                    readFields(record3, windingHeaders, context.getDelimiter()),
-                    readFields(record4, windingHeaders, context.getDelimiter()),
-                    readFields(record5, windingHeaders, context.getDelimiter()));
+                if (context.is3wTransformerDataReadFieldsEmpty()) {
+                    context.set3wTransformerDataReadFields(readFields(twtRecord, headers, context.getDelimiter()),
+                        readFields(record3, windingHeaders, context.getDelimiter()),
+                        readFields(record4, windingHeaders, context.getDelimiter()),
+                        readFields(record5, windingHeaders, context.getDelimiter()));
+                }
             } else {
-                context.set2wTransformerDataReadFields(readFields(twtRecord, headers, context.getDelimiter()),
-                    readFields(record3, windingHeaders, context.getDelimiter()),
-                    readFields(record4, windingHeaders, context.getDelimiter()));
+                if (context.is2wTransformerDataReadFieldsEmpty()) {
+                    context.set2wTransformerDataReadFields(readFields(twtRecord, headers, context.getDelimiter()),
+                        readFields(record3, windingHeaders, context.getDelimiter()),
+                        readFields(record4, windingHeaders, context.getDelimiter()));
+                }
             }
             transformers.add(transformer);
         }
@@ -219,7 +228,7 @@ public class PsseRawReader {
     }
 
     private static List<PsseArea> readAreaInterchangeData(BufferedReader reader, PsseContext context) throws IOException {
-        String[] headers = PsseContext.areaInterchangeDataHeaders();
+        String[] headers = areaInterchangeDataHeaders();
         List<String> records = readRecordBlock(reader);
 
         context.setAreaInterchangeDataReadFields(readFields(records, headers, context.getDelimiter()));
@@ -227,7 +236,7 @@ public class PsseRawReader {
     }
 
     private static List<PsseZone> readZoneData(BufferedReader reader, PsseContext context) throws IOException {
-        String[] headers = PsseContext.zoneDataHeaders();
+        String[] headers = zoneDataHeaders();
         List<String> records = readRecordBlock(reader);
 
         context.setZoneDataReadFields(readFields(records, headers, context.getDelimiter()));
@@ -235,7 +244,7 @@ public class PsseRawReader {
     }
 
     private static List<PsseOwner> readOwnerData(BufferedReader reader, PsseContext context) throws IOException {
-        String[] headers = PsseContext.ownerDataHeaders();
+        String[] headers = ownerDataHeaders();
         List<String> records = readRecordBlock(reader);
 
         context.setOwnerDataReadFields(readFields(records, headers, context.getDelimiter()));
@@ -243,7 +252,7 @@ public class PsseRawReader {
     }
 
     private static List<PsseSwitchedShunt> readSwitchedShuntData(BufferedReader reader, PsseContext context) throws IOException {
-        String[] headers = PsseContext.switchedShuntDataHeaders();
+        String[] headers = switchedShuntDataHeaders();
         List<String> records = readRecordBlock(reader);
 
         context.setSwitchedShuntDataReadFields(readFields(records, headers, context.getDelimiter()));
@@ -351,5 +360,69 @@ public class PsseRawReader {
 
     private static String[] readFields(String record, String[] headers, String delimiter) {
         return ArrayUtils.subarray(headers, 0, record.split(delimiter).length);
+    }
+
+    // Block fields
+
+    private static String[] caseIdentificationDataHeaders(int firstRecordFields) {
+        String[] first = new String[] {"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq"};
+        return ArrayUtils.addAll(ArrayUtils.subarray(first, 0, firstRecordFields), "title1", "title2");
+    }
+
+    private static String[] caseIdentificationDataHeaders() {
+        return new String[] {"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2"};
+    }
+
+    private static String[] busDataHeaders() {
+        return new String[] {"i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo"};
+    }
+
+    private static String[] loadDataHeaders() {
+        return new String[] {"i", "id", "status", "area", "zone", "pl", "ql", "ip", "iq", "yp", "yq", "owner", "scale", "intrpt"};
+    }
+
+    private static String[] fixedBusShuntDataHeaders() {
+        return new String[] {"i", "id", "status", "gl", "bl"};
+    }
+
+    private static String[] generatorDataHeaders() {
+        return new String[] {"i", "id", "pg", "qg", "qt", "qb", "vs", "ireg", "mbase", "zr", "zx", "rt",
+            "xt", "gtap", "stat", "rmpct", "pt", "pb", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "wmod", "wpf"};
+    }
+
+    private static String[] nonTransformerBranchDataHeaders() {
+        return new String[] {"i", "j", "ckt", "r", "x", "b", "ratea", "rateb", "ratec", "gi", "bi", "gj", "bj",
+            "st", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
+    }
+
+    private static String[] transformerDataHeaders(int firstRecordFields) {
+        String[] first = new String[] {"i", "j", "k", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmetr", "name", "stat",
+            "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "vecgrp"};
+        String[] second = new String[] {"r12", "x12", "sbase12", "r23", "x23", "sbase23", "r31", "x31", "sbase31",
+            "vmstar", "anstar"};
+
+        return ArrayUtils.addAll(ArrayUtils.subarray(first, 0, firstRecordFields), second);
+    }
+
+    private static String[] transformerWindingDataHeaders() {
+        return new String[] {"windv", "nomv", "ang", "rata", "ratb", "ratc", "cod", "cont", "rma", "rmi", "vma", "vmi",
+            "ntp", "tab", "cr", "cx", "cnxa"};
+    }
+
+    private static String[] areaInterchangeDataHeaders() {
+        return new String[] {"i", "isw", "pdes", "ptol", "arname"};
+    }
+
+    private static String[] zoneDataHeaders() {
+        return new String[] {"i", "zoname"};
+    }
+
+    private static String[] ownerDataHeaders() {
+        return new String[] {"i", "owname"};
+    }
+
+    private static String[] switchedShuntDataHeaders() {
+        return new String[] {"i", "modsw", "adjm", "stat", "vswhi", "vswlo", "swrem", "rmpct", "rmidnt", "binit",
+            "n1", "b1", "n2", "b2", "n3", "b3", "n4", "b4", "n5", "b5", "n6", "b6", "n7", "b7", "n8", "b8"};
     }
 }
