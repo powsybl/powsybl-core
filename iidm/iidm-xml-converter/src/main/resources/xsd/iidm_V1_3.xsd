@@ -20,7 +20,7 @@
     <xs:element name="network">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="alias" type="iidm:nonEmptyString" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="alias" type="iidm:Alias" minOccurs="0" maxOccurs="unbounded" />
                 <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
                 <xs:element name="substation" type="iidm:Substation" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -45,12 +45,19 @@
     </xs:element>
     <xs:complexType name="Identifiable">
         <xs:sequence>
-            <xs:element name="alias" type="iidm:nonEmptyString" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="alias" type="iidm:Alias" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
         <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
         <xs:attribute name="name" use="optional" type="xs:string"/>
         <xs:attribute name="fictitious" use="optional" type="xs:boolean" default="false"/>
+    </xs:complexType>
+    <xs:complexType name="Alias">
+        <xs:simpleContent>
+            <xs:extension base="iidm:nonEmptyString">
+                <xs:attribute name="type" use="optional" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
     </xs:complexType>
     <xs:complexType name="Property">
         <xs:attribute name="name" use="required" type="iidm:nonEmptyString"/>

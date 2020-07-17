@@ -14,8 +14,6 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import javax.xml.stream.XMLStreamException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -135,7 +133,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         String[] regId = new String[1];
         String[] regSide = new String[1];
         Map<String, String> properties = new HashMap<>();
-        Set<String> aliases = new TreeSet<>();
+        Map<String, String> aliases = new HashMap<>();
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case REGULATING_TERMINAL:
@@ -149,8 +147,9 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
                     break;
                 case AliasesXml.ALIAS:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+                    String aliasType = context.getReader().getAttributeValue(null, "type");
                     String alias = context.getAnonymizer().deanonymizeString(context.getReader().getElementText());
-                    aliases.add(alias);
+                    aliases.put(alias, aliasType);
                     break;
                 case SHUNT_LINEAR_MODEL:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
