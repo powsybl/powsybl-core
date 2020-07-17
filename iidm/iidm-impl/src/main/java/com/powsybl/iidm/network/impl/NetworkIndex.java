@@ -96,7 +96,7 @@ class NetworkIndex {
         }
     }
 
-    Identifiable<?> get(String idOrAlias) {
+    Identifiable get(String idOrAlias) {
         String id = idByAlias.getOrDefault(idOrAlias, idOrAlias);
         checkId(id);
         return objectsById.get(id);
