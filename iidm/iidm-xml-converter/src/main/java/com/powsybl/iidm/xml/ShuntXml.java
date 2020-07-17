@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
@@ -54,21 +53,11 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
             IidmXmlUtil.assertMinimumVersion(getRootElementName(), SHUNT_NON_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
         }
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
-            try {
-                XmlUtil.writeDouble(B_PER_SECTION, sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), context.getWriter());
-                context.getWriter().writeAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(sc.getMaximumSectionCount()));
-                context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getSectionCount()));
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
+            XmlUtil.writeDouble(B_PER_SECTION, sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), context.getWriter());
+            context.getWriter().writeAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(sc.getMaximumSectionCount()));
+            context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getSectionCount()));
         });
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-            try {
-                context.getWriter().writeAttribute("sectionCount", Integer.toString(sc.getSectionCount()));
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> context.getWriter().writeAttribute("sectionCount", Integer.toString(sc.getSectionCount())));
         IidmXmlUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", sc.isVoltageRegulatorOn(), false, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "targetV", sc.getTargetV(),
                 IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
@@ -80,13 +69,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     @Override
     protected void writeSubElements(ShuntCompensator sc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-            try {
-                writeModel(sc, context);
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> writeModel(sc, context));
         if (sc != sc.getRegulatingTerminal().getConnectable()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
             TerminalRefXml.writeTerminalRef(sc.getRegulatingTerminal(), context, REGULATING_TERMINAL);

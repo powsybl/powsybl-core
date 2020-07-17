@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
@@ -52,13 +51,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     protected void writeSubElements(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) {
         IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(!Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()),
                 ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED,
-                IidmXmlVersion.V_1_1, context, () -> {
-                try {
-                    TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL);
-                } catch (XMLStreamException e) {
-                    throw new UncheckedXmlStreamException(e);
-                }
-            });
+                IidmXmlVersion.V_1_1, context, () -> TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
     }
 
     @Override
