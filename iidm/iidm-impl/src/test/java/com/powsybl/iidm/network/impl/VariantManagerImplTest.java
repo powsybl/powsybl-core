@@ -62,7 +62,7 @@ public class VariantManagerImplTest {
 
         @Override
         public Set<String> getAliases() {
-            return aliases;
+            return Collections.unmodifiableSet(aliases);
         }
 
         @Override

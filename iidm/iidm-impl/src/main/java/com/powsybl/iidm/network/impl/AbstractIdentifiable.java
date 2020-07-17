@@ -55,7 +55,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public Set<String> getAliases() {
-        return aliases;
+        return Collections.unmodifiableSet(aliases);
     }
 
     @Override
