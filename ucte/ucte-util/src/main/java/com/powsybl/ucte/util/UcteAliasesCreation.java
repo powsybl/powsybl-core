@@ -42,7 +42,7 @@ public final class UcteAliasesCreation {
         network.getDanglingLineStream().forEach(dl -> addElementNameAlias(dl, duplicatedAliases));
     }
 
-    private static void addElementNameAlias(Identifiable identifiable, Set<String> duplicatedAliases) {
+    private static void addElementNameAlias(Identifiable<?> identifiable, Set<String> duplicatedAliases) {
         String elementNameProperty = identifiable.getProperty(ELEMENT_NAME_PROPERTY_KEY);
         if (elementNameProperty != null && !elementNameProperty.isEmpty()) {
             Optional<UcteElementId> ucteElementIdOptional = parseUcteElementId(identifiable.getId());
@@ -72,12 +72,12 @@ public final class UcteAliasesCreation {
         }
     }
 
-    private static void safeAddAlias(Identifiable identifiable, Set<String> duplicatedAliases, String alias) {
+    private static void safeAddAlias(Identifiable<?> identifiable, Set<String> duplicatedAliases, String alias) {
         if (duplicatedAliases.contains(alias)) {
             return;
         }
 
-        Identifiable alreadyAssignedIdentifiable = identifiable.getNetwork().getIdentifiable(alias);
+        Identifiable<?> alreadyAssignedIdentifiable = identifiable.getNetwork().getIdentifiable(alias);
         if (alreadyAssignedIdentifiable != null && alreadyAssignedIdentifiable != identifiable) {
             if (!alreadyAssignedIdentifiable.getId().equals(alias)) {
                 alreadyAssignedIdentifiable.removeAlias(alias);

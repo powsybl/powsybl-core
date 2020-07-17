@@ -25,7 +25,7 @@ public final class AliasesXml {
         }
     }
 
-    public static void read(Identifiable identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
+    public static void read(Identifiable<?> identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
         assert context.getReader().getLocalName().equals(ALIAS);
         String alias = context.getAnonymizer().deanonymizeString(context.getReader().getElementText());
         identifiable.addAlias(alias);
