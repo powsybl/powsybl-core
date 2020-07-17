@@ -185,7 +185,7 @@ public class VariantManagerImplTest {
         }
 
         private NetworkImpl getNetwork() {
-            return (NetworkImpl) getExtendable().getTerminal().getVoltageLevel().getSubstation().getNetwork();
+            return (NetworkImpl) getExtendable().getNetwork();
         }
     }
 

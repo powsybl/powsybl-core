@@ -51,13 +51,7 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
             }
         });
 
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
-            try {
-                XmlUtil.writeOptionalBoolean("fictitious", identifiable.isFictitious(), false, context.getWriter());
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> XmlUtil.writeOptionalBoolean("fictitious", identifiable.isFictitious(), false, context.getWriter()));
 
         writeRootElementAttributes(identifiable, parent, context);
 

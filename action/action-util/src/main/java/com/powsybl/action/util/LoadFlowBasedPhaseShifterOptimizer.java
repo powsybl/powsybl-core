@@ -66,7 +66,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
         if (phaseShifter == null) {
             throw new PowsyblException("Phase shifter '" + phaseShifterId + "' not found");
         }
-        if (phaseShifter.getPhaseTapChanger() == null) {
+        if (!phaseShifter.hasPhaseTapChanger()) {
             throw new PowsyblException("Transformer '" + phaseShifterId + "' is not a phase shifter");
         }
 

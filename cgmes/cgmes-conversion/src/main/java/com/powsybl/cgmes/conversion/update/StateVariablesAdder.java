@@ -226,18 +226,18 @@ public class StateVariablesAdder {
 
     private boolean hasPhaseTapChanger(Object leg) {
         if (leg instanceof Leg) {
-            return ((Leg) leg).getPhaseTapChanger() != null;
+            return ((Leg) leg).hasPhaseTapChanger();
         } else if (leg instanceof TwoWindingsTransformer) {
-            return ((TwoWindingsTransformer) leg).getPhaseTapChanger() != null;
+            return ((TwoWindingsTransformer) leg).hasPhaseTapChanger();
         }
         return false;
     }
 
     private boolean hasRatioTapChanger(Object leg) {
         if (leg instanceof Leg) {
-            return ((Leg) leg).getRatioTapChanger() != null;
+            return ((Leg) leg).hasRatioTapChanger();
         } else if (leg instanceof TwoWindingsTransformer) {
-            return ((TwoWindingsTransformer) leg).getRatioTapChanger() != null;
+            return ((TwoWindingsTransformer) leg).hasRatioTapChanger();
         }
         return false;
     }
