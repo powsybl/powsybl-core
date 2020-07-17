@@ -282,6 +282,30 @@ public class UcteExporter implements Exporter {
         UcteNode ucteNode = convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
         ucteNode.setActiveLoad((float) danglingLine.getP0());
         ucteNode.setReactiveLoad((float) danglingLine.getQ0());
+        double generatorTargetP = danglingLine.getGeneration().getTargetP();
+        ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : (float) -generatorTargetP);
+        double generatorTargetQ = danglingLine.getGeneration().getTargetQ();
+        ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : (float) -generatorTargetQ);
+        if (danglingLine.getGeneration().isVoltageRegulationOn()) {
+            ucteNode.setTypeCode(UcteNodeTypeCode.PU);
+            ucteNode.setVoltageReference((float) danglingLine.getGeneration().getTargetV());
+            float minP = (float) danglingLine.getGeneration().getMinP();
+            float maxP = (float) danglingLine.getGeneration().getMaxP();
+            float minQ = (float) danglingLine.getGeneration().getReactiveLimits().getMinQ(danglingLine.getGeneration().getTargetP());
+            float maxQ = (float) danglingLine.getGeneration().getReactiveLimits().getMaxQ(danglingLine.getGeneration().getTargetP());
+            if (minP != -DEFAULT_POWER_LIMIT) {
+                ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
+            }
+            if (maxP != DEFAULT_POWER_LIMIT) {
+                ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
+            }
+            if (minQ != -DEFAULT_POWER_LIMIT) {
+                ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);
+            }
+            if (maxQ != DEFAULT_POWER_LIMIT) {
+                ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
+            }
+        }
     }
 
     /**
