@@ -80,6 +80,7 @@ public abstract class AbstractTapChangerTest {
                                                 .endStep()
                                             .add();
         assertEquals(2, phaseTapChanger.getStepCount());
+        assertEquals(2, phaseTapChanger.getAllSteps().size());
         assertEquals(0, phaseTapChanger.getLowTapPosition());
         assertEquals(1, phaseTapChanger.getHighTapPosition());
         assertTrue(phaseTapChanger.isRegulating());
@@ -382,6 +383,7 @@ public abstract class AbstractTapChangerTest {
                                             .add();
         assertEquals(0, ratioTapChanger.getLowTapPosition());
         assertEquals(1, ratioTapChanger.getTapPosition());
+        assertEquals(3, ratioTapChanger.getAllSteps().size());
         assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
         assertTrue(ratioTapChanger.isRegulating());
         assertEquals(1.0, ratioTapChanger.getTargetDeadband(), 0.0);

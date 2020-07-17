@@ -37,6 +37,20 @@ public interface TieLine extends Line {
          */
         HalfLine setXnodeQ(double q);
 
+        /**
+         * Get the fictitious status
+         */
+        default boolean isFictitious() {
+            return false;
+        }
+
+        /**
+         * Set the fictitious status
+         */
+        default HalfLine setFictitious(boolean fictitious) {
+            throw new UnsupportedOperationException();
+        }
+
     }
 
     /**
@@ -54,5 +68,10 @@ public interface TieLine extends Line {
      * Get second half of the line characteristics
      */
     HalfLine getHalf2();
+
+    /**
+     * Get a given side half of the line characteristics
+     */
+    HalfLine getHalf(Side side);
 
 }
