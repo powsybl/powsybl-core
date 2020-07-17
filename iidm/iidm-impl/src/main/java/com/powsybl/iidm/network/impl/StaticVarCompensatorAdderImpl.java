@@ -24,9 +24,9 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
 
     private double bMax = Double.NaN;
 
-    private double voltageSetPoint = Double.NaN;
+    private double voltageSetpoint = Double.NaN;
 
-    private double reactivePowerSetPoint = Double.NaN;
+    private double reactivePowerSetpoint = Double.NaN;
 
     private StaticVarCompensator.RegulationMode regulationMode;
 
@@ -59,14 +59,14 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
     }
 
     @Override
-    public StaticVarCompensatorAdderImpl setVoltageSetPoint(double voltageSetPoint) {
-        this.voltageSetPoint = voltageSetPoint;
+    public StaticVarCompensatorAdderImpl setVoltageSetpoint(double voltageSetpoint) {
+        this.voltageSetpoint = voltageSetpoint;
         return this;
     }
 
     @Override
-    public StaticVarCompensatorAdderImpl setReactivePowerSetPoint(double reactivePowerSetPoint) {
-        this.reactivePowerSetPoint = reactivePowerSetPoint;
+    public StaticVarCompensatorAdderImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        this.reactivePowerSetpoint = reactivePowerSetpoint;
         return this;
     }
 
@@ -90,8 +90,8 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         ValidationUtil.checkBmin(this, bMin);
         ValidationUtil.checkBmax(this, bMax);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        ValidationUtil.checkSvcRegulator(this, voltageSetPoint, reactivePowerSetPoint, regulationMode);
-        StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, isFictitious(), bMin, bMax, voltageSetPoint, reactivePowerSetPoint,
+        ValidationUtil.checkSvcRegulator(this, voltageSetpoint, reactivePowerSetpoint, regulationMode);
+        StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, isFictitious(), bMin, bMax, voltageSetpoint, reactivePowerSetpoint,
                 regulationMode, regulatingTerminal != null ? regulatingTerminal : terminal,
                 getNetwork().getRef());
         svc.addTerminal(terminal);

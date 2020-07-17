@@ -295,12 +295,12 @@ public class Comparison {
         compare("Bmax",
                 expected.getBmax(),
                 actual.getBmax());
-        compare("voltageSetPoint",
-                expected.getVoltageSetPoint(),
-                actual.getVoltageSetPoint());
-        compare("reactivePowerSetPoint",
-                expected.getReactivePowerSetPoint(),
-                actual.getReactivePowerSetPoint());
+        compare("voltageSetpoint",
+                expected.getVoltageSetpoint(),
+                actual.getVoltageSetpoint());
+        compare("reactivePowerSetpoint",
+                expected.getReactivePowerSetpoint(),
+                actual.getReactivePowerSetpoint());
         compare("regulationMode",
                 expected.getRegulationMode(),
                 actual.getRegulationMode());
