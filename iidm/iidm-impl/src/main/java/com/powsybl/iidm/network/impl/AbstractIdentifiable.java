@@ -24,9 +24,10 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     protected boolean fictitious = false;
 
-    protected Set<String> aliases = new TreeSet<>();
-
     protected final Properties properties = new Properties();
+
+    private final Set<String> aliases = new TreeSet<>();
+    private final Map<String, String> aliasesTypeByAlias = new HashMap<>();
 
     AbstractIdentifiable(String id, String name) {
         this.id = id;
@@ -59,16 +60,40 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     }
 
     @Override
+    public Set<String> getAliases(String aliasType) {
+        return aliasesTypeByAlias.entrySet().stream()
+                .filter(aliasTypeEntry -> (aliasType == null && aliasTypeEntry.getValue() == null) || (aliasType != null && aliasType.equals(aliasTypeEntry.getValue())))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Optional<String> getAliasType(String alias) {
+        return Optional.ofNullable(aliasesTypeByAlias.get(alias));
+    }
+
+    @Override
     public void addAlias(String alias) {
+        Objects.requireNonNull(alias);
         if (getNetwork().getIndex().addAlias(this, alias)) {
             aliases.add(alias);
         }
     }
 
     @Override
+    public void addAlias(String alias, String aliasType) {
+        addAlias(alias);
+        if (aliasType != null) {
+            aliasesTypeByAlias.put(alias, aliasType);
+        }
+    }
+
+    @Override
     public void removeAlias(String alias) {
+        Objects.requireNonNull(alias);
         getNetwork().getIndex().removeAlias(this, alias);
         aliases.remove(alias);
+        aliasesTypeByAlias.remove(alias);
     }
 
     @Override
