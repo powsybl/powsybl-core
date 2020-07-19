@@ -404,6 +404,12 @@
             <artifactId>powsybl-ucte-network</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-ucte-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

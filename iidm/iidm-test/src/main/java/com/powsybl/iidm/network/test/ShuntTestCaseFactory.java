@@ -40,7 +40,8 @@ public final class ShuntTestCaseFactory {
                         .setMaximumSectionCount(1)
                         .setBPerSection(1e-5)
                     .add()
-                .add();
+                .add()
+                .addAlias("Alias");
 
         return network;
     }

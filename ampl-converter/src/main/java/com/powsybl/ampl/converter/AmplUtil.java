@@ -130,11 +130,11 @@ public final class AmplUtil {
     private static void fillTwoWindingsTransformers(StringToIntMapper<AmplSubset> mapper, Network network) {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             mapper.newInt(AmplSubset.BRANCH, twt.getId());
-            if (twt.getRatioTapChanger() != null) {
+            if (twt.hasRatioTapChanger()) {
                 mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_ratio_table");
                 mapper.newInt(AmplSubset.RATIO_TAP_CHANGER, twt.getId());
             }
-            if (twt.getPhaseTapChanger() != null) {
+            if (twt.hasPhaseTapChanger()) {
                 mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_phase_table");
                 mapper.newInt(AmplSubset.PHASE_TAP_CHANGER, twt.getId());
             }
@@ -157,11 +157,11 @@ public final class AmplUtil {
             mapper.newInt(AmplSubset.BRANCH, twt.getId() + AmplConstants.LEG1_SUFFIX);
             mapper.newInt(AmplSubset.BRANCH, twt.getId() + AmplConstants.LEG2_SUFFIX);
             mapper.newInt(AmplSubset.BRANCH, twt.getId() + AmplConstants.LEG3_SUFFIX);
-            if (twt.getLeg2().getRatioTapChanger() != null) {
+            if (twt.getLeg2().hasRatioTapChanger()) {
                 mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_leg2_ratio_table");
                 mapper.newInt(AmplSubset.RATIO_TAP_CHANGER, twt.getId() + AmplConstants.LEG2_SUFFIX);
             }
-            if (twt.getLeg3().getRatioTapChanger() != null) {
+            if (twt.getLeg3().hasRatioTapChanger()) {
                 mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_leg3_ratio_table");
                 mapper.newInt(AmplSubset.RATIO_TAP_CHANGER, twt.getId() + AmplConstants.LEG3_SUFFIX);
             }
