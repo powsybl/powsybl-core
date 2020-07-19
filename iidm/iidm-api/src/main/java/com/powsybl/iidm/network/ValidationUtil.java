@@ -331,7 +331,7 @@ public final class ValidationUtil {
                 throw new ValidationException(validable,
                         "a regulation terminal has to be set for a regulating ratio tap changer");
             }
-            if (regulationTerminal.getVoltageLevel().getSubstation().getNetwork() != network) {
+            if (regulationTerminal.getVoltageLevel().getNetwork() != network) {
                 throw new ValidationException(validable, "regulation terminal is not part of the network");
             }
         }
@@ -349,7 +349,7 @@ public final class ValidationUtil {
         if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && regulationTerminal == null) {
             throw new ValidationException(validable, "phase regulation is on and regulated terminal is not set");
         }
-        if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getSubstation().getNetwork() != network) {
+        if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getNetwork() != network) {
             throw new ValidationException(validable, "phase regulation terminal is not part of the network");
         }
         if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP && regulating) {

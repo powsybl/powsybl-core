@@ -21,43 +21,23 @@ import org.apache.commons.math3.complex.ComplexUtils;
 public class SV {
 
     public static double getRatio(TwoWindingsTransformer twt) {
-        double rho = twt.getRatedU2() / twt.getRatedU1();
-        if (twt.getRatioTapChanger() != null) {
-            rho *= twt.getRatioTapChanger().getCurrentStep().getRho();
-        }
-        return rho;
+        return twt.getRatedU2() / twt.getRatedU1() * twt.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getRho()).orElse(1d);
     }
 
     public static double getR(TwoWindingsTransformer twt) {
-        double r = twt.getR();
-        if (twt.getRatioTapChanger() != null) {
-            r *= 1 + twt.getRatioTapChanger().getCurrentStep().getR() / 100;
-        }
-        return r;
+        return twt.getR() * twt.getOptionalRatioTapChanger().map(rtc -> 1 + rtc.getCurrentStep().getR() / 100).orElse(1d);
     }
 
     public static double getX(TwoWindingsTransformer twt) {
-        double x = twt.getX();
-        if (twt.getRatioTapChanger() != null) {
-            x *= 1 + twt.getRatioTapChanger().getCurrentStep().getX() / 100;
-        }
-        return x;
+        return twt.getX() * twt.getOptionalRatioTapChanger().map(rtc -> 1 + rtc.getCurrentStep().getX() / 100).orElse(1d);
     }
 
     public static double getG(TwoWindingsTransformer twt) {
-        double g = twt.getG();
-        if (twt.getRatioTapChanger() != null) {
-            g *= 1 + twt.getRatioTapChanger().getCurrentStep().getG() / 100;
-        }
-        return g;
+        return twt.getG() * twt.getOptionalRatioTapChanger().map(rtc -> 1 + rtc.getCurrentStep().getG() / 100).orElse(1d);
     }
 
     public static double getB(TwoWindingsTransformer twt) {
-        double b = twt.getB();
-        if (twt.getRatioTapChanger() != null) {
-            b *= 1 + twt.getRatioTapChanger().getCurrentStep().getB() / 100;
-        }
-        return b;
+        return twt.getB() * twt.getOptionalRatioTapChanger().map(rtc -> 1 + rtc.getCurrentStep().getB() / 100).orElse(1d);
     }
 
     double p;
@@ -142,7 +122,7 @@ public class SV {
     }
 
     public SV otherSide(DanglingLine dl) {
-        return otherSide(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 1);
+        return otherSide(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, dl.getG() / 2.0, dl.getB() / 2.0, 1);
     }
 
     @Override
