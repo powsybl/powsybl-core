@@ -15,8 +15,8 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseSwitchedShunt35 extends PsseSwitchedShunt {
 
-    @Parsed(field = {"id", "shntid"})
-    private String id = "1";
+    @Parsed(field = {"id", "shntid"}, defaultNullRead = "1")
+    private String id;
 
     @Parsed
     private int swreg = 0;

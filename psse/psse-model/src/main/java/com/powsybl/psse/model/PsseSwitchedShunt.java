@@ -40,8 +40,8 @@ public class PsseSwitchedShunt {
     @Parsed
     private double rmpct = 100.0;
 
-    @Parsed
-    private String rmidnt = " ";
+    @Parsed(defaultNullRead = " ")
+    private String rmidnt;
 
     @Parsed
     private double binit = 0.0;

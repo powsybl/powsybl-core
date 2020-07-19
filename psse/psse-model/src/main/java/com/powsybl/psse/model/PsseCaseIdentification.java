@@ -32,11 +32,11 @@ public class PsseCaseIdentification {
     @Parsed
     private double basfrq = Double.NaN;
 
-    @Parsed
-    private String title1 = "";
+    @Parsed(defaultNullRead = "")
+    private String title1;
 
-    @Parsed
-    private String title2 = "";
+    @Parsed(defaultNullRead = "")
+    private String title2;
 
     public int getIc() {
         return ic;

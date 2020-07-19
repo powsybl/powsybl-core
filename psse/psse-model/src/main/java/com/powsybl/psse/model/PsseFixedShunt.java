@@ -19,8 +19,8 @@ public class PsseFixedShunt {
     @Validate
     private int i;
 
-    @Parsed(field = {"id", "shntid"})
-    private String id = "1";
+    @Parsed(field = {"id", "shntid"}, defaultNullRead = "1")
+    private String id;
 
     @Parsed(field = {"status", "stat"})
     private int status = 1;

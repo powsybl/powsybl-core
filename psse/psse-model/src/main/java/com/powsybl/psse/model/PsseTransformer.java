@@ -31,8 +31,8 @@ public class PsseTransformer {
     @Parsed(field = {"k", "kbus"})
     private int k = 0;
 
-    @Parsed
-    private String ckt = "1";
+    @Parsed(defaultNullRead = "1")
+    private String ckt;
 
     @Parsed
     private int cw = 1;
@@ -52,8 +52,8 @@ public class PsseTransformer {
     @Parsed(field = {"nmetr", "nmet"})
     private int nmetr = 2;
 
-    @Parsed
-    private String name = "            ";
+    @Parsed(defaultNullRead = "            ")
+    private String name;
 
     @Parsed
     private int stat = 1;
@@ -82,8 +82,8 @@ public class PsseTransformer {
     @Parsed
     private double f4 = 1;
 
-    @Parsed
-    private String vecgrp = "            ";
+    @Parsed(defaultNullRead = "            ")
+    private String vecgrp;
 
     @Parsed(field = {"r12", "r1_2"})
     private double r12 = 0;

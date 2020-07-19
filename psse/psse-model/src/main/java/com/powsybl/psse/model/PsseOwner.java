@@ -19,8 +19,8 @@ public class PsseOwner {
     @Validate
     private int i;
 
-    @Parsed(field = {"owname", "owner"})
-    private String owname = "            ";
+    @Parsed(field = {"owname", "owner"}, defaultNullRead = "            ")
+    private String owname;
 
     public int getI() {
         return i;

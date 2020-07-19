@@ -19,8 +19,8 @@ public class PsseGenerator {
     @Validate
     private int i;
 
-    @Parsed(field = {"id", "machid"})
-    private String id = "1";
+    @Parsed(field = {"id", "machid"}, defaultNullRead = "1")
+    private String id;
 
     @Parsed
     private double pg = 0;

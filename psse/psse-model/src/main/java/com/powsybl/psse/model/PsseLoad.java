@@ -19,8 +19,8 @@ public class PsseLoad {
     @Validate
     private int i;
 
-    @Parsed(field = {"id", "loadid"})
-    private String id = "1";
+    @Parsed(field = {"id", "loadid"}, defaultNullRead = "1")
+    private String id;
 
     @Parsed(field = {"status", "stat"})
     private int status = 1;

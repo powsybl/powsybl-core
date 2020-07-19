@@ -24,8 +24,8 @@ public class PsseLoad35 extends PsseLoad {
     @Parsed
     private double dgenm = 0;
 
-    @Parsed
-    private String loadtype = "            ";
+    @Parsed(defaultNullRead = "            ")
+    private String loadtype;
 
     public double getDgenp() {
         return dgenp;

@@ -19,8 +19,8 @@ import com.univocity.parsers.annotations.Parsed;
 
 public class PsseNonTransformerBranch35 extends PsseNonTransformerBranch {
 
-    @Parsed
-    private String name = " ";
+    @Parsed(defaultNullRead = " ")
+    private String name;
 
     @Parsed
     private double rate1 = 0;

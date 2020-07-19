@@ -19,8 +19,8 @@ public class PsseBus {
     @Validate
     private int i;
 
-    @Parsed
-    private String name = "            ";
+    @Parsed(defaultNullRead = "            ")
+    private String name;
 
     @Parsed
     private double baskv = 0;

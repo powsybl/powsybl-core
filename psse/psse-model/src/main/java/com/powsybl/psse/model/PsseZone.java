@@ -19,8 +19,8 @@ public class PsseZone {
     @Validate
     private int i;
 
-    @Parsed
-    private String zoname = "            ";
+    @Parsed(defaultNullRead = "            ")
+    private String zoname;
 
     public int getI() {
         return i;

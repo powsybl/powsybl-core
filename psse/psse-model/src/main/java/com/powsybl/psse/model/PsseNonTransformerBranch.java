@@ -23,8 +23,8 @@ public class PsseNonTransformerBranch {
     @Validate
     private int j;
 
-    @Parsed
-    private String ckt = "1";
+    @Parsed(defaultNullRead = "1")
+    private String ckt;
 
     @Parsed(field = {"r", "rpu"})
     private double r = 0.0;

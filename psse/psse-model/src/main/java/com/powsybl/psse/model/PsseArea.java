@@ -28,8 +28,8 @@ public class PsseArea {
     @Parsed
     private double ptol = 10;
 
-    @Parsed
-    private String arname = "            ";
+    @Parsed(defaultNullRead = "            ")
+    private String arname;
 
     public int getI() {
         return i;
