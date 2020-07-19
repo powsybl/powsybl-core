@@ -9,6 +9,8 @@ package com.powsybl.psse.model.data;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.psse.model.PsseCaseIdentification;
@@ -60,8 +62,7 @@ public class PsseData {
         int rev = caseIdentification.getRev();
         double basfrq = caseIdentification.getBasfrq();
 
-        if (ic == 0 && sbase > 0. && rev >= PsseConstants.MIN_SUPPORTED_VERSION
-            && rev <= PsseConstants.MAX_SUPPORTED_VERSION && basfrq > 0.) {
+        if (ic == 0 && sbase > 0. && ArrayUtils.contains(PsseConstants.SUPPORTED_VERSIONS, rev) && basfrq > 0.) {
             return true;
         }
 
@@ -76,8 +77,10 @@ public class PsseData {
 
         if (caseIdentification.getRev() == 33) {
             return read33(reader, caseIdentification, context);
-        } else {
+        } else if (caseIdentification.getRev() == 35) {
             return read35(reader, caseIdentification, context);
+        } else {
+            throw new PsseException("Psse: unexpected version: " + caseIdentification.getRev());
         }
     }
 

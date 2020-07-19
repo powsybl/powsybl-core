@@ -21,6 +21,7 @@ import com.powsybl.iidm.parameters.ParameterType;
 import com.powsybl.psse.model.*;
 import com.powsybl.psse.model.PsseConstants.PsseFileFormat;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,16 +84,10 @@ public class PsseImporter implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            String ext = findExtension(dataSource, false);
-            if (ext != null) {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
-                    return new PsseRawReader().checkCaseIdentification(reader);
-                }
-            }
+            return checkCaseIdentificationModel(dataSource);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return false;
     }
 
     private boolean checkCaseIdentificationModel(ReadOnlyDataSource dataSource) throws IOException {
@@ -727,11 +722,9 @@ public class PsseImporter implements Importer {
         }
 
         // check version
-        if (psseModel.getCaseIdentification().getRev() < PsseConstants.MIN_SUPPORTED_VERSION) {
-            throw new PsseException("PSS/E version lower than " + PsseConstants.MIN_SUPPORTED_VERSION + " not supported");
-        }
-        if (psseModel.getCaseIdentification().getRev() > PsseConstants.MAX_SUPPORTED_VERSION) {
-            throw new PsseException("PSS/E version higher than " + PsseConstants.MAX_SUPPORTED_VERSION + " not supported");
+        if (!ArrayUtils.contains(PsseConstants.SUPPORTED_VERSIONS, psseModel.getCaseIdentification().getRev())) {
+            throw new PsseException("PSS/E version " + psseModel.getCaseIdentification().getRev()
+                + " not supported. Supported Versions " + ArrayUtils.toString(PsseConstants.SUPPORTED_VERSIONS));
         }
         if (psseModel.getCaseIdentification().getIc() == 1) {
             throw new PsseException("Incremental load of PSS/E data option (IC = 1) not supported");
