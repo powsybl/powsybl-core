@@ -15,5 +15,16 @@ public final class PsseConstants {
     private PsseConstants() {
     }
 
-    public static final int SUPPORTED_VERSION = 33;
+    public enum PsseVersion {
+        VERSION_33,
+        VERSION_35
+    }
+
+    public enum PsseFileFormat {
+        FORMAT_RAW,
+        FORMAT_RAWX
+    }
+
+    public static final int MIN_SUPPORTED_VERSION = 33;
+    public static final int MAX_SUPPORTED_VERSION = 35;
 }

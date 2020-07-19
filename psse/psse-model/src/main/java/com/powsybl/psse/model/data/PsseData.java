@@ -13,12 +13,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.psse.model.PsseCaseIdentification;
 import com.powsybl.psse.model.PsseConstants;
+import com.powsybl.psse.model.PsseConstants.PsseFileFormat;
+import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseRawModel35;
-import com.powsybl.psse.model.data.BlockData.PsseFileFormat;
-import com.powsybl.psse.model.data.BlockData.PsseVersion;
 
 /**
  *
@@ -27,11 +27,9 @@ import com.powsybl.psse.model.data.BlockData.PsseVersion;
  */
 public class PsseData {
 
-    public PsseData() {
-    }
+    public boolean checkCase(BufferedReader reader) throws IOException {
 
-    public boolean checkCase33(BufferedReader reader) throws IOException {
-
+     // CaseIdentification does not change, so it is read using version 33
         PsseVersion version = PsseVersion.VERSION_33;
 
         // just check the first record if this file is in PSS/E format
@@ -41,31 +39,98 @@ public class PsseData {
         } catch (PsseException e) {
             return false; // invalid PSS/E content
         }
+        return checkCaseIdentification(caseIdentification);
+    }
 
+    public boolean checkCasex(String jsonFile) throws IOException {
+        PsseVersion version = PsseVersion.VERSION_35;
+        PsseFileFormat format = PsseFileFormat.FORMAT_RAWX;
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(jsonFile);
+        JsonNode networkNode = rootNode.get("network");
+
+        PsseCaseIdentification caseIdentification = new CaseIdentificationData(version, format).read(networkNode);
+        return checkCaseIdentification(caseIdentification);
+    }
+
+    private boolean checkCaseIdentification(PsseCaseIdentification caseIdentification) {
         int ic = caseIdentification.getIc();
         double sbase = caseIdentification.getSbase();
         int rev = caseIdentification.getRev();
         double basfrq = caseIdentification.getBasfrq();
 
-        if (ic == 0 && sbase > 0. && rev <= PsseConstants.SUPPORTED_VERSION && basfrq > 0.) {
+        if (ic == 0 && sbase > 0. && rev >= PsseConstants.MIN_SUPPORTED_VERSION
+            && rev <= PsseConstants.MAX_SUPPORTED_VERSION && basfrq > 0.) {
             return true;
         }
 
         return false;
     }
 
-    public PsseRawModel read33(BufferedReader reader, PsseContext context) throws IOException {
+    public PsseRawModel read(BufferedReader reader, PsseContext context) throws IOException {
+
+        // CaseIdentification does not change, so it is read using version 33
+        PsseVersion version = PsseVersion.VERSION_33;
+        PsseCaseIdentification caseIdentification = new CaseIdentificationData(version).read(reader, context);
+
+        if (caseIdentification.getRev() == 33) {
+            return read33(reader, caseIdentification, context);
+        } else {
+            return read35(reader, caseIdentification, context);
+        }
+    }
+
+    public PsseRawModel read33(BufferedReader reader,  PsseCaseIdentification caseIdentification, PsseContext context) throws IOException {
 
         PsseVersion version = PsseVersion.VERSION_33;
-
-        PsseCaseIdentification caseIdentification = new CaseIdentificationData(version).read(reader, context);
         PsseRawModel model = new PsseRawModel(caseIdentification);
+
+        readBlocksA(reader, model, version, context);
+        readBlocksB(reader, model, version, context);
+
+        // q record (nothing to do)
+        BlockData.readDiscardedRecordBlock(reader);
+
+        return model;
+    }
+
+    public PsseRawModel read35(BufferedReader reader, PsseCaseIdentification caseIdentification, PsseContext context) throws IOException {
+        PsseVersion version = PsseVersion.VERSION_35;
+        PsseRawModel model = new PsseRawModel(caseIdentification);
+
+        // System-Wide data
+        BlockData.readDiscardedRecordBlock(reader); // TODO
+
+        readBlocksA(reader, model, version, context);
+
+        // System Switching device data
+        BlockData.readDiscardedRecordBlock(reader); // TODO
+
+        readBlocksB(reader, model, version, context);
+
+        // Substation data
+        BlockData.readDiscardedRecordBlock(reader); // TODO
+
+        // q record (nothing to do)
+        BlockData.readDiscardedRecordBlock(reader);
+
+        return model;
+    }
+
+    private void readBlocksA(BufferedReader reader, PsseRawModel model, PsseVersion version, PsseContext context)
+        throws IOException {
 
         model.addBuses(new BusData(version).read(reader, context));
         model.addLoads(new LoadData(version).read(reader, context));
         model.addFixedShunts(new FixedBusShuntData(version).read(reader, context));
         model.addGenerators(new GeneratorData(version).read(reader, context));
         model.addNonTransformerBranches(new NonTransformerBranchData(version).read(reader, context));
+    }
+
+    private void readBlocksB(BufferedReader reader, PsseRawModel model, PsseVersion version, PsseContext context)
+        throws IOException {
+
         model.addTransformers(new TransformerData(version).read(reader, context));
         model.addAreas(new AreaInterchangeData(version).read(reader, context));
 
@@ -99,13 +164,11 @@ public class PsseData {
         // gne device data
         BlockData.readDiscardedRecordBlock(reader); // TODO
 
-        // q record (nothing to do)
-        BlockData.readDiscardedRecordBlock(reader);
-
-        return model;
+        // Induction Machine data
+        BlockData.readDiscardedRecordBlock(reader); // TODO
     }
 
-    public PsseRawModel readx35(String jsonFile, PsseContext context) throws IOException {
+    public PsseRawModel readx(String jsonFile, PsseContext context) throws IOException {
 
         PsseVersion version = PsseVersion.VERSION_35;
         PsseFileFormat format = PsseFileFormat.FORMAT_RAWX;

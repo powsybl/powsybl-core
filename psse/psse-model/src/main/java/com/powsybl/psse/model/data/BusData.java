@@ -13,8 +13,9 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseBus;
+import com.powsybl.psse.model.PsseConstants.PsseFileFormat;
+import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseContext;
-import com.powsybl.psse.model.data.BlockData.PsseVersion;
 
 /**
  *

@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import java.util.Objects;
+
 import com.powsybl.psse.model.data.PsseData;
 
 /**
@@ -21,8 +22,12 @@ public class PsseRawReader {
 
     public boolean checkCaseIdentification(BufferedReader reader) throws IOException {
         Objects.requireNonNull(reader);
+        return new PsseData().checkCase(reader);
+    }
 
-        return new PsseData().checkCase33(reader);
+    public boolean checkCaseIdentificationx(String jsonFile) throws IOException {
+        Objects.requireNonNull(jsonFile);
+        return new PsseData().checkCasex(jsonFile);
     }
 
     public PsseRawModel read(BufferedReader reader) throws IOException {
@@ -35,7 +40,7 @@ public class PsseRawReader {
     public PsseRawModel read(BufferedReader reader, PsseContext context) throws IOException {
         Objects.requireNonNull(reader);
         Objects.requireNonNull(context);
-        return new PsseData().read33(reader, context);
+        return new PsseData().read(reader, context);
     }
 
     public PsseRawModel readx(String jsonFile) throws IOException {
@@ -48,6 +53,6 @@ public class PsseRawReader {
         Objects.requireNonNull(jsonFile);
         Objects.requireNonNull(context);
 
-        return new PsseData().readx35(jsonFile, context);
+        return new PsseData().readx(jsonFile, context);
     }
 }

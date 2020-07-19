@@ -15,6 +15,8 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseCaseIdentification;
+import com.powsybl.psse.model.PsseConstants.PsseFileFormat;
+import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseException;
 
@@ -62,6 +64,24 @@ class CaseIdentificationData extends BlockData {
         caseIdentification.setTitle2(reader.readLine());
 
         return caseIdentification;
+    }
+
+    PsseCaseIdentification read(JsonNode networkNode) throws IOException {
+        assertMinimumExpectedVersion(PsseBlockData.CaseIdentificationData, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
+
+        JsonNode caseIdentificationNode = networkNode.get("caseid");
+        if (caseIdentificationNode == null) {
+            throw new PsseException("Psse: CaseIdentificationBlock does not exist");
+        }
+
+        String[] headers = nodeFields(caseIdentificationNode);
+        List<String> records = nodeRecords(caseIdentificationNode);
+        List<PsseCaseIdentification> caseIdentificationList = parseRecordsHeader(records, PsseCaseIdentification.class, headers);
+        if (caseIdentificationList.size() != 1) {
+            throw new PsseException("Psse: CaseIdentificationBlock, unexpected size " + caseIdentificationList.size());
+        }
+
+        return caseIdentificationList.get(0);
     }
 
     PsseCaseIdentification read(JsonNode networkNode, PsseContext context) throws IOException {

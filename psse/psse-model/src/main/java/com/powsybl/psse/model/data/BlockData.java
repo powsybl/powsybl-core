@@ -21,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.powsybl.psse.model.PsseConstants.PsseFileFormat;
+import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseException;
 import com.univocity.parsers.common.DataProcessingException;
 import com.univocity.parsers.common.ParsingContext;
@@ -37,16 +39,6 @@ import com.univocity.parsers.csv.CsvParserSettings;
 class BlockData {
 
     private static final String PSSE = "Psse: ";
-
-    enum PsseVersion {
-        VERSION_33,
-        VERSION_35
-    }
-
-    enum PsseFileFormat {
-        FORMAT_RAW,
-        FORMAT_RAWX
-    }
 
     enum PsseBlockData {
         CaseIdentificationData,

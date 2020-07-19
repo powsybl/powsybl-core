@@ -6,8 +6,8 @@
     "xfrrat" : 0.0,
     "nxfrat" : 0.0,
     "basfrq" : 60.0,
-    "title1" : "08/19/93 UW ARCHIVE           100.0  1962 W IEEE 14 Bus Test Case",
-    "title2" : null
+    "title1" : " 08/19/93 UW ARCHIVE           100.0  1962 W IEEE 14 Bus Test Case",
+    "title2" : ""
   },
   "buses" : [ {
     "i" : 1,
