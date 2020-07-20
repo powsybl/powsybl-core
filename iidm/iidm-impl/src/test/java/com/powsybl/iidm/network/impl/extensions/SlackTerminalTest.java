@@ -1,7 +1,9 @@
-package com.powsybl.iidm.network.extensions;
+package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import org.joda.time.DateTime;
 import org.junit.Test;
 

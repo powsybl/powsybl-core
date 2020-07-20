@@ -106,6 +106,7 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-xml-converter</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
