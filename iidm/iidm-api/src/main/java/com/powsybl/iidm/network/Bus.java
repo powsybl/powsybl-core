@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.stream.Stream;
 
 /**
@@ -245,7 +245,7 @@ public interface Bus extends Identifiable<Bus> {
      * Get an iterable of the terminals connected to the bus.
      */
     default Iterable<? extends Terminal> getConnectedTerminals() {
-        return new LinkedList<>();
+        return Collections.emptyList();
     }
 
     /**
