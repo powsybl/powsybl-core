@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesContainer;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.DanglingLineAdder;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.SwitchKind;
@@ -31,7 +33,13 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
 
     @Override
     public boolean valid() {
-        if (!super.valid()) {
+        // FIXME(Luma)
+        // super.valid checks nodes and voltage levels of all terminals
+        // boundary switches do not have voltage level of boundary terminal
+        //        if (!super.valid()) {
+        //            return false;
+        //        }
+        if (!validNodes()) {
             return false;
         }
         if (busId(1).equals(busId(2))) {
@@ -52,7 +60,28 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
     public void convert() {
         boolean normalOpen = p.asBoolean("normalOpen", false);
         boolean open = p.asBoolean("open", normalOpen);
-        if (convertToLowImpedanceLine()) {
+        if (isBoundary(1) || isBoundary(2)) {
+            int networkTerminal = isBoundary(1) ? 2 : 1;
+            int boundaryTerminal = 3 - networkTerminal;
+            warnDanglingLineCreated();
+            VoltageLevel vl = voltageLevel(networkTerminal);
+            LOG.warn("    powerFlow at boundary terminal {} {}", powerFlow(boundaryTerminal).p(), powerFlow(boundaryTerminal).q());
+            DanglingLineAdder dladder = vl.newDanglingLine()
+                    .setR(0)
+                    .setX(0)
+                    .setG(0.0)
+                    .setB(0)
+                    // XXX LUMA should be filled with the equivalent injection
+                    // XXX LUMA -powerFlow(boundaryTerminal) ???
+                    .setP0(0)
+                    .setQ0(0);
+            identify(dladder);
+            // XXX LUMA assume always closed
+            boolean danglingLineFromSwitchIsClosed = !open;
+            connect(dladder, networkTerminal /*, danglingLineFromSwitchIsClosed */);
+            DanglingLine dline = dladder.add();
+            context.convertedTerminal(terminalId(networkTerminal), dline.getTerminal(), networkTerminal, powerFlow(networkTerminal));
+        } else if (convertToLowImpedanceLine()) {
             warnLowImpedanceLineCreated();
             LineAdder adder = context.network().newLine()
                     .setR(context.config().lowImpedanceLineR())
@@ -116,6 +145,10 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
                 cgmesVoltageLevelId(1),
                 cgmesVoltageLevelId(2));
         fixed("Low impedance line", reason);
+    }
+
+    private void warnDanglingLineCreated() {
+        fixed("Dangling line with low impedance", "Connected to a boundary node");
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SwitchConversion.class);

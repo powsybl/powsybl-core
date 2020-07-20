@@ -124,6 +124,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return true;
     }
 
+    boolean validNodes() {
+        for (int k = 1; k <= numTerminals; k++) {
+            if (nodeId(k) == null) {
+                missing(nodeIdPropertyName() + k);
+                return false;
+            }
+        }
+        return true;
+    }
+
     String nodeIdPropertyName() {
         return context.nodeBreaker() ? "ConnectivityNode" : "TopologicalNode";
     }
