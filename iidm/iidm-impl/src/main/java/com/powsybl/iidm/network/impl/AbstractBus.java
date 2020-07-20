@@ -52,8 +52,10 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
         return voltageLevel;
     }
 
+    @Override
     public abstract Iterable<TerminalExt> getConnectedTerminals();
 
+    @Override
     public abstract Stream<TerminalExt> getConnectedTerminalStream();
 
     public abstract Collection<? extends TerminalExt> getTerminals();
