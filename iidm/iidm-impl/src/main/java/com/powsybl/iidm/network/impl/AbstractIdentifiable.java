@@ -62,9 +62,8 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public Set<String> getAliases(String aliasType) {
-        return aliasesTypeByAlias.entrySet().stream()
-                .filter(aliasTypeEntry -> (aliasType == null && aliasTypeEntry.getValue() == null) || (aliasType != null && aliasType.equals(aliasTypeEntry.getValue())))
-                .map(Map.Entry::getKey)
+        return aliases.stream()
+                .filter(alias -> (aliasType == null && !aliasesTypeByAlias.containsKey(alias)) || (aliasType != null && aliasType.equals(aliasesTypeByAlias.get(alias))))
                 .collect(Collectors.toSet());
     }
 
