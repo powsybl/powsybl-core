@@ -1,54 +1,41 @@
 /**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
 /**
- * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Jérémy Labous <jlabous at silicom.fr>
  */
-public class ThreeWindingsTransformerPhaseAngleClock extends AbstractExtension<ThreeWindingsTransformer> {
-
-    private int phaseAngleClockLeg2;
-    private int phaseAngleClockLeg3;
-
-    public ThreeWindingsTransformerPhaseAngleClock(ThreeWindingsTransformer twt, int phaseAngleClockLeg2, int phaseAngleClockLeg3) {
-        super(twt);
-        this.phaseAngleClockLeg2 = checkPhaseAngleClock(phaseAngleClockLeg2);
-        this.phaseAngleClockLeg3 = checkPhaseAngleClock(phaseAngleClockLeg3);
-    }
+public interface ThreeWindingsTransformerPhaseAngleClock extends Extension<ThreeWindingsTransformer> {
 
     @Override
-    public String getName() {
+    default String getName() {
         return "threeWindingsTransformerPhaseAngleClock";
     }
 
-    public int getPhaseAngleClockLeg2() {
-        return phaseAngleClockLeg2;
-    }
+    /**
+     * Get the phase angle displacement represented in clock hours for leg 2.
+     */
+    int getPhaseAngleClockLeg2();
 
-    public int getPhaseAngleClockLeg3() {
-        return phaseAngleClockLeg3;
-    }
+    /**
+     * Get the phase angle displacement represented in clock hours for leg 3.
+     */
+    int getPhaseAngleClockLeg3();
 
-    public void setPhaseAngleClockLeg2(int phaseAngleClock) {
-        this.phaseAngleClockLeg2 = checkPhaseAngleClock(phaseAngleClock);
-    }
+    /**
+     * Set the phase angle displacement represented in clock hours for leg 2.
+     */
+    void setPhaseAngleClockLeg2(int phaseAngleClock);
 
-    public void setPhaseAngleClockLeg3(int phaseAngleClock) {
-        this.phaseAngleClockLeg3 = checkPhaseAngleClock(phaseAngleClock);
-    }
-
-    private static int checkPhaseAngleClock(int phaseAngleClock) {
-        if (phaseAngleClock < 0 || phaseAngleClock > 11) {
-            throw new PowsyblException("Unexpected value for phaseAngleClock: " + phaseAngleClock);
-        }
-        return phaseAngleClock;
-    }
+    /**
+     * Set the phase angle displacement represented in clock hours for leg 3.
+     */
+    void setPhaseAngleClockLeg3(int phaseAngleClock);
 }

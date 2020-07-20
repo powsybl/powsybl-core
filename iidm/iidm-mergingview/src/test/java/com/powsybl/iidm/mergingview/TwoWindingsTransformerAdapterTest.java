@@ -88,6 +88,7 @@ public class TwoWindingsTransformerAdapterTest {
                     .endStep()
                 .add();
         assertTrue(ratioTapChanger instanceof RatioTapChangerAdapter);
+        assertTrue(twt.hasRatioTapChanger());
         assertSame(ratioTapChanger, twt.getRatioTapChanger());
 
         final PhaseTapChanger phaseTapChanger = twt.newPhaseTapChanger()
@@ -116,6 +117,7 @@ public class TwoWindingsTransformerAdapterTest {
                     .endStep()
                 .add();
         assertTrue(phaseTapChanger instanceof PhaseTapChangerAdapter);
+        assertTrue(twt.hasPhaseTapChanger());
         assertSame(phaseTapChanger, twt.getPhaseTapChanger());
 
         // setter getter

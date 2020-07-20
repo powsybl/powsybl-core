@@ -564,7 +564,7 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public String terminalForEquipment(String conductingEquipmentId) {
+    public String terminalForEquipment(String conductingEquipmentId, int sequenceNumber) {
         return null;
     }
 

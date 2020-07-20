@@ -44,24 +44,24 @@ public class StaticVarCompensatorAdapter extends AbstractInjectionAdapter<Static
     }
 
     @Override
-    public double getVoltageSetPoint() {
-        return getDelegate().getVoltageSetPoint();
+    public double getVoltageSetpoint() {
+        return getDelegate().getVoltageSetpoint();
     }
 
     @Override
-    public StaticVarCompensator setVoltageSetPoint(final double voltageSetPoint) {
-        getDelegate().setVoltageSetPoint(voltageSetPoint);
+    public StaticVarCompensator setVoltageSetpoint(final double voltageSetpoint) {
+        getDelegate().setVoltageSetpoint(voltageSetpoint);
         return this;
     }
 
     @Override
-    public double getReactivePowerSetPoint() {
-        return getDelegate().getReactivePowerSetPoint();
+    public double getReactivePowerSetpoint() {
+        return getDelegate().getReactivePowerSetpoint();
     }
 
     @Override
-    public StaticVarCompensator setReactivePowerSetPoint(final double reactivePowerSetPoint) {
-        getDelegate().setReactivePowerSetPoint(reactivePowerSetPoint);
+    public StaticVarCompensator setReactivePowerSetpoint(final double reactivePowerSetpoint) {
+        getDelegate().setReactivePowerSetpoint(reactivePowerSetpoint);
         return this;
     }
 

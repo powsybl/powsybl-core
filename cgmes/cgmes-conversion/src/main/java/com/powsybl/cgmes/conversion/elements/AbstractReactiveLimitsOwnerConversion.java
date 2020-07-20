@@ -9,8 +9,8 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.google.common.collect.Range;
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
+import com.powsybl.iidm.network.ReactiveLimitsHolder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -30,7 +30,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         super(type, p, context);
     }
 
-    protected void convertReactiveLimits(Generator g) {
+    protected void convertReactiveLimits(ReactiveLimitsHolder g) {
         // IIDM only accepts one definition of limits,
         // either MinMaxReactiveLimits or ReactiveCapabilityCurve.
         // If an element has both definitions we will select the
@@ -95,7 +95,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         }
     }
 
-    private void convertMinMaxQ(Generator g) {
+    private void convertMinMaxQ(ReactiveLimitsHolder g) {
         if (p.containsKey("minQ") && p.containsKey("maxQ")) {
             double minQ = p.asDouble("minQ");
             double maxQ = p.asDouble("maxQ");

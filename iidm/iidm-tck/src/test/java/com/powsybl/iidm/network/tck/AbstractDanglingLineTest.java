@@ -95,6 +95,7 @@ public abstract class AbstractDanglingLineTest {
         assertEquals(name, danglingLine.getOptionalName().orElse(null));
         assertEquals(name, danglingLine.getNameOrId());
         assertEquals(ucteXnodeCode, danglingLine.getUcteXnodeCode());
+        assertNull(danglingLine.getGeneration());
 
         // setter getter
         double r2 = 11.0;
@@ -226,6 +227,53 @@ public abstract class AbstractDanglingLineTest {
         } catch (Exception ignored) {
             // ignore
         }
+    }
+
+    @Test
+    public void withRegulatingCapabilityTests() {
+        double r = 10.0;
+        double x = 20.0;
+        double g = 0.0;
+        double b = 0.0;
+        double p0 = 0.0;
+        double q0 = 0.0;
+        String id = "danglingId";
+        String name = "danlingName";
+        String ucteXnodeCode = "code";
+        DanglingLine dl = voltageLevel.newDanglingLine()
+                .setId(id)
+                .setName(name)
+                .setR(r)
+                .setX(x)
+                .setG(g)
+                .setB(b)
+                .setP0(p0)
+                .setQ0(q0)
+                .setUcteXnodeCode(ucteXnodeCode)
+                .setBus(BUS_VL_ID)
+                .setConnectableBus(BUS_VL_ID)
+                .newGeneration()
+                    .setTargetP(440)
+                    .setMaxP(900)
+                    .setMinP(0)
+                    .setTargetV(400)
+                    .setVoltageRegulationOn(true)
+                .add()
+                .add();
+
+        DanglingLine.Generation generation = dl.getGeneration();
+        assertNotNull(generation);
+        assertEquals(440, generation.getTargetP(), 0.0);
+        assertEquals(900, generation.getMaxP(), 0.0);
+        assertEquals(0, generation.getMinP(), 0.0);
+        assertEquals(400, generation.getTargetV(), 0.0);
+        assertTrue(generation.isVoltageRegulationOn());
+        generation.newMinMaxReactiveLimits()
+                .setMaxQ(500)
+                .setMinQ(-500)
+                .add();
+        assertNotNull(generation.getReactiveLimits());
+        assertTrue(generation.getReactiveLimits() instanceof MinMaxReactiveLimits);
     }
 
     private void createDanglingLine(String id, String name, double r, double x, double g, double b,

@@ -10,7 +10,6 @@ import com.powsybl.commons.exceptions.UncheckedClassCastExceptionException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
 
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
@@ -22,7 +21,7 @@ public abstract class AbstractMultiVariantConnectableExtension<T extends Connect
     }
 
     protected VariantManagerHolder getVariantManagerHolder() {
-        Network network = ((Terminal) getExtendable().getTerminals().get(0)).getVoltageLevel().getSubstation().getNetwork();
+        Network network = getExtendable().getNetwork();
 
         if (network instanceof VariantManagerHolder) {
             return (VariantManagerHolder) network;

@@ -6,14 +6,6 @@
  */
 package com.powsybl.dynamicsimulation.json;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.IOException;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -22,6 +14,12 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
+import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -44,7 +42,7 @@ public class JsonDynamicSimulationParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readExtension() throws IOException {
+    public void readExtension() {
         DynamicSimulationParameters parameters = JsonDynamicSimulationParameters.read(getClass().getResourceAsStream("/DynamicSimulationParametersWithExtension.json"));
         assertEquals(1, parameters.getExtensions().size());
         assertNotNull(parameters.getExtension(DummyExtension.class));
@@ -52,12 +50,10 @@ public class JsonDynamicSimulationParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readError() throws IOException {
-        try {
-            JsonDynamicSimulationParameters.read(getClass().getResourceAsStream("/DynamicSimulationParametersError.json"));
-            Assert.fail();
-        } catch (AssertionError ignored) {
-        }
+    public void readError() {
+        expected.expect(AssertionError.class);
+        expected.expectMessage("Unexpected field: unknownParameter");
+        JsonDynamicSimulationParameters.read(getClass().getResourceAsStream("/DynamicSimulationParametersError.json"));
     }
 
     static class DummyExtension extends AbstractExtension<DynamicSimulationParameters> {

@@ -10,6 +10,9 @@ import com.google.common.collect.Sets;
 import com.powsybl.iidm.network.Country;
 import org.junit.Test;
 
+import java.util.Collections;
+import java.util.Set;
+
 import static org.junit.Assert.*;
 
 /**
@@ -18,11 +21,14 @@ import static org.junit.Assert.*;
 public class EntsoeGeographicalCodeTest {
 
     @Test
-    public void testForCountry() throws Exception {
-        assertTrue(EntsoeGeographicalCode.forCountry(Country.FR).equals(Sets.newHashSet(EntsoeGeographicalCode.FR)));
-        assertTrue(EntsoeGeographicalCode.forCountry(Country.DE).equals(Sets.newHashSet(
+    public void testForCountry() {
+        assertEquals(Collections.singleton(EntsoeGeographicalCode.FR), EntsoeGeographicalCode.forCountry(Country.FR));
+
+        Set<EntsoeGeographicalCode> expected = Sets.newHashSet(
                 EntsoeGeographicalCode.DE, EntsoeGeographicalCode.D1, EntsoeGeographicalCode.D2,
-                EntsoeGeographicalCode.D4, EntsoeGeographicalCode.D7, EntsoeGeographicalCode.D8)));
+                EntsoeGeographicalCode.D4, EntsoeGeographicalCode.D7, EntsoeGeographicalCode.D8);
+        assertEquals(expected, EntsoeGeographicalCode.forCountry(Country.DE));
+
         assertEquals(37 + 5, EntsoeGeographicalCode.values().length);
     }
 }

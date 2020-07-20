@@ -87,6 +87,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .add();
         Bus busAnvers220 = vlAnvers220.getBusBreakerView().newBus()
                 .setId("_f70f6bad-eb8d-4b8f-8431-4ab93581514e")
+                .setName("BE-Busbar_2")
                 .add();
         busAnvers220.setV(224.871595);
         busAnvers220.setAngle(-7.624900);
@@ -142,6 +143,7 @@ public final class CgmesConformity1NetworkCatalog {
 
         Bus busBrussels225 = vlBrussels225.getBusBreakerView().newBus()
                 .setId("_99b219f3-4593-428b-a4da-124a54630178")
+                .setName("BE_TR_BUS4")
                 .add();
         busBrussels225.setV(224.315268);
         busBrussels225.setAngle(-8.770120);
@@ -157,6 +159,7 @@ public final class CgmesConformity1NetworkCatalog {
         loadBrussels225.getTerminal().setQ(50.0);
         Bus busBrussels110 = vlBrussels110.getBusBreakerView().newBus()
                 .setId("_5c74cb26-ce2f-40c6-951d-89091eb781b6")
+                .setName("BE-Busbar_6")
                 .add();
         busBrussels110.setV(115.5);
         busBrussels110.setAngle(-9.391330);
@@ -172,6 +175,7 @@ public final class CgmesConformity1NetworkCatalog {
         loadBrussels110.getTerminal().setQ(90.0);
         Bus busBrussels380 = vlBrussels380.getBusBreakerView().newBus()
                 .setId("_e44141af-f1dc-44d3-bfa4-b674e5c953d7")
+                .setName("BE_TR_BUS2")
                 .add();
         busBrussels380.setV(412.989001);
         busBrussels380.setAngle(-6.780710);
@@ -180,9 +184,12 @@ public final class CgmesConformity1NetworkCatalog {
                 .setName("BE_S2")
                 .setConnectableBus(busBrussels380.getId())
                 .setBus(busBrussels380.getId())
-                .setbPerSection(3.46e-4)
-                .setMaximumSectionCount(1)
-                .setCurrentSectionCount(1)
+                .setSectionCount(1)
+                .newLinearModel()
+                    .setBPerSection(3.46e-4)
+                    .setGPerSection(7.0e-6)
+                    .setMaximumSectionCount(1)
+                    .add()
                 .add();
         shBrussels380.getTerminal().setQ(-59.058144);
         DanglingLine be3 = vlBrussels380.newDanglingLine()
@@ -268,13 +275,17 @@ public final class CgmesConformity1NetworkCatalog {
                 .setName("BE_S1")
                 .setConnectableBus(busBrussels110.getId())
                 .setBus(busBrussels110.getId())
-                .setbPerSection(0.024793)
-                .setMaximumSectionCount(1)
-                .setCurrentSectionCount(1)
+                .setSectionCount(1)
+                .newLinearModel()
+                    .setBPerSection(0.024793)
+                    .setGPerSection(0.0)
+                    .setMaximumSectionCount(1)
+                    .add()
                 .add();
         shBrussels110.getTerminal().setQ(-330.75);
         Bus busBrussels21 = vlBrussels21.getBusBreakerView().newBus()
                 .setId("_f96d552a-618d-4d0c-a39a-2dea3c411dee")
+                .setName("BE-Busbar_5")
                 .add();
         busBrussels21.setV(21.987000);
         busBrussels21.setAngle(-6.650800);
@@ -283,7 +294,7 @@ public final class CgmesConformity1NetworkCatalog {
             double q = -18.720301;
             Generator genBrussels21 = vlBrussels21.newGenerator()
                     .setId("_550ebe0d-f2b2-48c1-991f-cebea43a21aa")
-                    .setName("Gen-1229753024")
+                    .setName("BE-G2")
                     .setConnectableBus(busBrussels21.getId())
                     .setBus(busBrussels21.getId())
                     .setMinP(50)
@@ -303,6 +314,7 @@ public final class CgmesConformity1NetworkCatalog {
         }
         Bus busBrussels10 = vlBrussels10.getBusBreakerView().newBus()
                 .setId("_a81d08ed-f51d-4538-8d1e-fb2d0dbd128e")
+                .setName("BE-Busbar_4")
                 .add();
         busBrussels10.setV(10.820805);
         busBrussels10.setAngle(-7.057180);
@@ -629,7 +641,7 @@ public final class CgmesConformity1NetworkCatalog {
             double q = -100.256;
             Generator genBrussels10 = vlBrussels10.newGenerator()
                     .setId("_3a3b27be-b18b-4385-b557-6735d733baf0")
-                    .setName("Gen-1229753060")
+                    .setName("BE-G1")
                     .setConnectableBus(busBrussels10.getId())
                     .setBus(busBrussels10.getId())
                     .setMinP(50)
@@ -809,7 +821,7 @@ public final class CgmesConformity1NetworkCatalog {
         VoltageLevel vlAnvers225 = network.getSubstation("_87f7002b-056f-4a6a-a872-1744eea757e3")
                 .newVoltageLevel()
                 .setId("_69ef0dbd-da79-4eef-a02f-690cb8a28361")
-                .setName("225 kV")
+                .setName("225.0")
                 .setNominalV(225.0)
                 .setLowVoltageLimit(202.5)
                 .setHighVoltageLimit(247.5)
@@ -817,6 +829,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .add();
         Bus busAnvers225 = vlAnvers225.getBusBreakerView().newBus()
                 .setId("_23b65c6b-2351-4673-89e9-1895c7291543")
+                .setName("Series Compensator")
                 .add()
                 .setV(223.435281)
                 .setAngle(-17.412200);
@@ -870,7 +883,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setBmax(1 / 5062.5)
                 .setBmin(1 / (-5062.5))
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setVoltageSetPoint(229.5)
+                .setVoltageSetpoint(229.5)
                 .add();
 
         double p = -118.0;
@@ -1028,6 +1041,37 @@ public final class CgmesConformity1NetworkCatalog {
                 .setP0(-11.518776)
                 .setQ0(67.377544);
 
+        network.getShuntCompensator("_002b0a40-3957-46db-b84a-30420083558f").remove();
+        network.getVoltageLevel("_469df5f7-058f-4451-a998-57a48e8a56fe")
+                .newShuntCompensator()
+                    .setId("_002b0a40-3957-46db-b84a-30420083558f")
+                    .setName("BE_S2")
+                    .setConnectableBus(busBrussels380.getId())
+                    .setBus(busBrussels380.getId())
+                    .setSectionCount(1)
+                    .newNonLinearModel()
+                        .beginSection()
+                            .setB(3.46e-4)
+                            .setG(7.0e-6)
+                        .endSection()
+                        .beginSection()
+                            .setB(5.19E-4)
+                            .setG(9.0E-6)
+                        .endSection()
+                        .beginSection()
+                            .setB(6.58E-4)
+                            .setG(9.999999999999999E-6)
+                        .endSection()
+                        .beginSection()
+                            .setB(7.27E-4)
+                            .setG(1.06E-5)
+                        .endSection()
+                        .beginSection()
+                            .setB(7.620000000000001E-4)
+                            .setG(1.09E-5)
+                        .endSection()
+                    .add()
+                .add();
         return network;
     }
 

@@ -34,4 +34,9 @@ public class TieLineAdapter extends LineAdapter implements TieLine {
     public HalfLine getHalf2() {
         return ((TieLine) getDelegate()).getHalf2();
     }
+
+    @Override
+    public HalfLine getHalf(Side side) {
+        return ((TieLine) getDelegate()).getHalf(side);
+    }
 }

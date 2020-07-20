@@ -966,6 +966,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         if (dl1 != null) {
             MergedLine l = new MergedLine();
             l.id = dl1.getId().compareTo(dl2.getId()) < 0 ? dl1.getId() + " + " + dl2.getId() : dl2.getId() + " + " + dl1.getId();
+            l.aliases = new HashSet<>();
+            l.aliases.add(dl1.getId());
+            l.aliases.add(dl2.getId());
+            l.aliases.addAll(dl1.getAliases());
+            l.aliases.addAll(dl2.getAliases());
             Terminal t1 = dl1.getTerminal();
             Terminal t2 = dl2.getTerminal();
             VoltageLevel vl1 = t1.getVoltageLevel();
@@ -983,6 +988,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half1.b2 = 0;
             l.half1.xnodeP = dl1.getP0();
             l.half1.xnodeQ = dl1.getQ0();
+            l.half1.fictitious = dl1.isFictitious();
             l.half2.id = dl2.getId();
             l.half2.name = dl2.getNameOrId();
             l.half2.r = dl2.getR();
@@ -993,6 +999,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half2.b1 = 0;
             l.half2.xnodeP = dl2.getP0();
             l.half2.xnodeQ = dl2.getQ0();
+            l.half2.fictitious = dl2.isFictitious();
             l.limits1 = dl1.getCurrentLimits();
             l.limits2 = dl2.getCurrentLimits();
             if (t1.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
@@ -1038,13 +1045,13 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             if (dl1.getProperty(prop).equals(dl2.getProperty(prop))) {
                 properties.setProperty(prop, dl1.getProperty(prop));
             } else if (dl1.getProperty(prop).isEmpty()) {
-                LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
+                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
                 properties.setProperty(prop, dl2.getProperty(prop));
             } else if (dl2.getProperty(prop).isEmpty()) {
-                LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
+                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
                 properties.setProperty(prop, dl1.getProperty(prop));
             } else {
-                LOGGER.error("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
+                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
             }
         });
         dl1Properties.forEach(prop -> properties.setProperty(prop + "_1", dl1.getProperty(prop)));
@@ -1070,6 +1077,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                         .setB2(mergedLine.half1.b2)
                         .setXnodeP(mergedLine.half1.xnodeP)
                         .setXnodeQ(mergedLine.half1.xnodeQ)
+                        .setFictitious(mergedLine.half1.fictitious)
                     .line2().setId(mergedLine.half2.id)
                         .setName(mergedLine.half2.name)
                         .setR(mergedLine.half2.r)
@@ -1080,6 +1088,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                         .setB2(mergedLine.half2.b2)
                         .setXnodeP(mergedLine.half2.xnodeP)
                         .setXnodeQ(mergedLine.half2.xnodeQ)
+                        .setFictitious(mergedLine.half2.fictitious)
                     .setUcteXnodeCode(mergedLine.xnode);
             if (mergedLine.bus1 != null) {
                 la.setBus1(mergedLine.bus1);
@@ -1101,6 +1110,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.getTerminal1().setP(mergedLine.p1).setQ(mergedLine.q1);
             l.getTerminal2().setP(mergedLine.p2).setQ(mergedLine.q2);
             mergedLine.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
+            mergedLine.aliases.forEach(l::addAlias);
 
             mergedLineByBoundary.put(new Boundary(mergedLine.country1, mergedLine.country2), mergedLine);
         }
@@ -1108,6 +1118,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     class MergedLine {
         String id;
+        Set<String> aliases;
         String voltageLevel1;
         String voltageLevel2;
         String xnode;
@@ -1130,6 +1141,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             double b2;
             double xnodeP;
             double xnodeQ;
+            boolean fictitious;
         }
 
         final HalfMergedLine half1 = new HalfMergedLine();

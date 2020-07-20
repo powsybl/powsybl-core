@@ -41,6 +41,10 @@ public interface CurrentLimitsAdder {
         return Double.NaN;
     }
 
+    default boolean hasTemporaryLimits() {
+        return false;
+    }
+
     CurrentLimits add();
 
 }

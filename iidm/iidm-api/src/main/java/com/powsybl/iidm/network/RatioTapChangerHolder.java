@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Optional;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -25,4 +27,17 @@ public interface RatioTapChangerHolder {
      */
     RatioTapChanger getRatioTapChanger();
 
+    /**
+     * Get the optional ratio tap changer.
+     */
+    default Optional<RatioTapChanger> getOptionalRatioTapChanger() {
+        return Optional.ofNullable(getRatioTapChanger());
+    }
+
+    /**
+     * Check if a phase tap changer is present
+     */
+    default boolean hasRatioTapChanger() {
+        return getRatioTapChanger() != null;
+    }
 }

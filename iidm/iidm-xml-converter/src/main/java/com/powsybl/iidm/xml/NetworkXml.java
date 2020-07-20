@@ -356,7 +356,7 @@ public final class NetworkXml {
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
             int state = reader.next();
-            while (state == XMLStreamReader.COMMENT) {
+            while (state == XMLStreamConstants.COMMENT) {
                 state = reader.next();
             }
 
@@ -618,11 +618,23 @@ public final class NetworkXml {
      * @return the copy of the network
      */
     public static Network copy(Network network) {
-        return copy(network, ForkJoinPool.commonPool());
+        return copy(network, NetworkFactory.findDefault());
     }
 
-    public static Network copy(Network network, ExecutorService executor) {
+    /**
+     * Deep copy of the network using XML converter.
+     *
+     * @param network the network to copy
+     * @param networkFactory the network factory to use for the copy
+     * @return the copy of the network
+     */
+    public static Network copy(Network network, NetworkFactory networkFactory) {
+        return copy(network, networkFactory, ForkJoinPool.commonPool());
+    }
+
+    public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor) {
         Objects.requireNonNull(network);
+        Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(executor);
         PipedOutputStream pos = new PipedOutputStream();
         try (InputStream is = new PipedInputStream(pos)) {
@@ -639,7 +651,7 @@ public final class NetworkXml {
                     }
                 }
             });
-            return read(is);
+            return read(is, new ImportOptions(), null, networkFactory);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

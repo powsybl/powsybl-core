@@ -19,7 +19,9 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.xml.XMLExporter;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -104,28 +106,17 @@ public class ConversionTester {
     }
 
     public void testConversion(Network expected, TestGridModel gm) throws IOException {
-        //testConversion(expected, gm, this.networkComparison);
-        boolean useNewTransformerConversion = true;
-        testConversion(expected, gm, this.networkComparison, useNewTransformerConversion);
-        Network nNew = lastConvertedNetwork();
-
-        useNewTransformerConversion = false;
-        testConversion(expected, gm, this.networkComparison, useNewTransformerConversion);
-        Network nCurrent = lastConvertedNetwork();
-
-        if (nCurrent != null && nNew != null) {
-            new Comparison(nCurrent, nNew, this.networkComparison).compare();
-        }
+        testConversion(expected, gm, this.networkComparison);
     }
 
-    public void testConversion(Network expected, TestGridModel gm, ComparisonConfig config, boolean useNewTransformerConversion)
+    public void testConversion(Network expected, TestGridModel gm, ComparisonConfig config)
         throws IOException {
         if (onlyReport) {
             testConversionOnlyReport(gm);
         } else {
             for (String impl : tripleStoreImplementations) {
                 LOG.info("testConversion. TS implementation {}, grid model {}", impl, gm.name());
-                testConversion(expected, gm, config, impl, useNewTransformerConversion);
+                testConversion(expected, gm, config, impl);
             }
         }
     }
@@ -134,7 +125,7 @@ public class ConversionTester {
         return lastConvertedNetwork;
     }
 
-    private void testConversion(Network expected, TestGridModel gm, ComparisonConfig cconfig, String impl, boolean useNewTransformerConversion)
+    private void testConversion(Network expected, TestGridModel gm, ComparisonConfig cconfig, String impl)
         throws IOException {
         Properties iparams = importParams == null ? new Properties() : importParams;
         iparams.put("storeCgmesModelAsNetworkExtension", "true");
@@ -142,7 +133,6 @@ public class ConversionTester {
         // This is to be able to easily compare the topology computed
         // by powsybl against the topology present in the CGMES model
         iparams.put("createBusbarSectionForEveryConnectivityNode", "true");
-        iparams.put("tempUseNewTransformerConversion", Boolean.toString(useNewTransformerConversion));
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             CgmesImport i = new CgmesImport();
             ReadOnlyDataSource ds = gm.dataSource();
@@ -238,6 +228,10 @@ public class ConversionTester {
         return config;
     }
 
+    public static void computeMissingFlows(Network network) {
+        computeMissingFlows(network, new LoadFlowParameters());
+    }
+
     public static void computeMissingFlows(Network network, LoadFlowParameters lfparams) {
         LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(
             LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,
@@ -249,6 +243,31 @@ public class ConversionTester {
         } catch (Exception e) {
             LOG.error("computeFlows, error {}", e.getMessage());
         }
+    }
+
+    public static void invalidateFlows(Network n) {
+        n.getLineStream().forEach(line -> {
+            invalidateFlow(line.getTerminal(Side.ONE));
+            invalidateFlow(line.getTerminal(Side.TWO));
+        });
+        n.getTwoWindingsTransformerStream().forEach(twt -> {
+            invalidateFlow(twt.getTerminal(Side.ONE));
+            invalidateFlow(twt.getTerminal(Side.TWO));
+        });
+        n.getShuntCompensatorStream().forEach(sh -> {
+            Terminal terminal = sh.getTerminal();
+            terminal.setQ(Double.NaN);
+        });
+        n.getThreeWindingsTransformerStream().forEach(twt -> {
+            invalidateFlow(twt.getLeg1().getTerminal());
+            invalidateFlow(twt.getLeg2().getTerminal());
+            invalidateFlow(twt.getLeg3().getTerminal());
+        });
+    }
+
+    static void invalidateFlow(Terminal t) {
+        t.setP(Double.NaN);
+        t.setQ(Double.NaN);
     }
 
     private final Properties importParams;

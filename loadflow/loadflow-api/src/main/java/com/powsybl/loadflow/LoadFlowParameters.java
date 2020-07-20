@@ -53,6 +53,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_NO_GENERATOR_REACTIVE_LIMITS = false;
     public static final boolean DEFAULT_PHASE_SHIFTER_REGULATION_ON = false;
     public static final boolean DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE = false;
+    public static final boolean DEFAULT_SIMUL_SHUNT = false;
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "loadflow-parameters"));
@@ -92,6 +93,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
                 // keep old tag name "specificCompatibility" for compatibility
                 parameters.setTwtSplitShuntAdmittance(config.getBooleanProperty("twtSplitShuntAdmittance", config.getBooleanProperty("specificCompatibility", DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE)));
+                parameters.setSimulShunt(config.getBooleanProperty("simulShunt", DEFAULT_SIMUL_SHUNT));
+
             });
     }
 
@@ -105,15 +108,23 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     private boolean twtSplitShuntAdmittance;
 
-    public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
-        boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
-        boolean twtSplitShuntAdmittance) {
+    private boolean simulShunt;
 
+    public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
+                              boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
+                              boolean twtSplitShuntAdmittance, boolean simulShunt) {
         this.voltageInitMode = voltageInitMode;
         this.transformerVoltageControlOn = transformerVoltageControlOn;
         this.noGeneratorReactiveLimits = noGeneratorReactiveLimits;
         this.phaseShifterRegulationOn = phaseShifterRegulationOn;
         this.twtSplitShuntAdmittance = twtSplitShuntAdmittance;
+        this.simulShunt = simulShunt;
+    }
+
+    public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
+        boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
+        boolean twtSplitShuntAdmittance) {
+        this(voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, DEFAULT_SIMUL_SHUNT);
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn) {
@@ -135,6 +146,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         noGeneratorReactiveLimits = other.noGeneratorReactiveLimits;
         phaseShifterRegulationOn = other.phaseShifterRegulationOn;
         twtSplitShuntAdmittance = other.twtSplitShuntAdmittance;
+        simulShunt = other.simulShunt;
     }
 
     public VoltageInitMode getVoltageInitMode() {
@@ -214,12 +226,25 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
+    public boolean isSimulShunt() {
+        return simulShunt;
+    }
+
+    public LoadFlowParameters setSimulShunt(boolean simulShunt) {
+        this.simulShunt = simulShunt;
+        return this;
+    }
+
     protected Map<String, Object> toMap() {
-        return ImmutableMap.of("voltageInitMode", voltageInitMode,
-            "transformerVoltageControlOn", transformerVoltageControlOn,
-            "noGeneratorReactiveLimits", noGeneratorReactiveLimits,
-            "phaseShifterRegulationOn", phaseShifterRegulationOn,
-            "twtSplitShuntAdmittance", twtSplitShuntAdmittance);
+        ImmutableMap.Builder<String, Object> immutableMapBuilder = ImmutableMap.builder();
+        immutableMapBuilder
+                .put("voltageInitMode", voltageInitMode)
+                .put("transformerVoltageControlOn", transformerVoltageControlOn)
+                .put("noGeneratorReactiveLimits", noGeneratorReactiveLimits)
+                .put("phaseShifterRegulationOn", phaseShifterRegulationOn)
+                .put("twtSplitShuntAdmittance", twtSplitShuntAdmittance)
+                .put("simulShunt", simulShunt);
+        return immutableMapBuilder.build();
     }
 
     /**
