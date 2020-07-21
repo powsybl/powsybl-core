@@ -48,6 +48,7 @@ public class Boundary {
             nodes = Collections.emptySet();
         }
         nodesLines = new HashMap<>();
+        nodesEquivalentInjections = new HashMap<>();
         nodesPowerFlow = new HashMap<>();
         nodesVoltage = new HashMap<>();
     }
@@ -68,6 +69,10 @@ public class Boundary {
         List<PropertyBag> lines;
         lines = nodesLines.computeIfAbsent(node, ls -> new ArrayList<>(2));
         lines.add(line);
+    }
+
+    public void addEquivalentInjectionAtNode(PropertyBag equivalentInjection, String node) {
+        nodesEquivalentInjections.computeIfAbsent(node, ls -> new ArrayList<>(2)).add(equivalentInjection);
     }
 
     public void addPowerFlowAtNode(String node, PowerFlow f) {
@@ -97,6 +102,10 @@ public class Boundary {
         return nodesLines.getOrDefault(node, Collections.emptyList());
     }
 
+    public List<PropertyBag> equivalentInjectionsAtNode(String node) {
+        return nodesEquivalentInjections.getOrDefault(node, Collections.emptyList());
+    }
+
     public String nameAtBoundary(String node) {
         return nodesName.containsKey(node) ? nodesName.get(node) : "XnodeCode-unknown";
     }
@@ -108,6 +117,7 @@ public class Boundary {
 
     private final Set<String> nodes;
     private final Map<String, List<PropertyBag>> nodesLines;
+    private final Map<String, List<PropertyBag>> nodesEquivalentInjections;
     private final Map<String, PowerFlow> nodesPowerFlow;
     private final Map<String, Voltage> nodesVoltage;
     private final Map<String, String> nodesName;

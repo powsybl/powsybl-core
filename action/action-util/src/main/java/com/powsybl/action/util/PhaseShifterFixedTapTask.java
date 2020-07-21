@@ -32,7 +32,7 @@ public class PhaseShifterFixedTapTask implements ModificationTask {
         if (phaseShifter == null) {
             throw new PowsyblException("Transformer '" + phaseShifterId + "' not found");
         }
-        if (phaseShifter.getPhaseTapChanger() == null) {
+        if (!phaseShifter.hasPhaseTapChanger()) {
             throw new PowsyblException("Transformer '" + phaseShifterId + "' is not a phase shifter");
         }
         phaseShifter.getPhaseTapChanger().setTapPosition(tapPosition);

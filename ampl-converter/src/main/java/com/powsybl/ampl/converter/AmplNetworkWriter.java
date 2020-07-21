@@ -1404,7 +1404,7 @@ public class AmplNetworkWriter {
 
                 int conBusNum = AmplUtil.getConnectableBusNum(mapper, t);
 
-                double vlSet = svc.getVoltageSetPoint();
+                double vlSet = svc.getVoltageSetpoint();
                 double vb = t.getVoltageLevel().getNominalV();
                 double zb = vb * vb / AmplConstants.SB; // Base impedance
 
@@ -1418,7 +1418,7 @@ public class AmplNetworkWriter {
                         .writeCell(svc.getBmax() * zb)
                         .writeCell(svc.getRegulationMode().equals(RegulationMode.VOLTAGE))
                         .writeCell(vlSet / vb)
-                        .writeCell(svc.getReactivePowerSetPoint())
+                        .writeCell(svc.getReactivePowerSetpoint())
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)

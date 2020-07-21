@@ -161,8 +161,8 @@ public class VoltageLevelAdapterTest {
                     .setBmax(0.0008)
                     .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                     .setRegulatingTerminal(mergingView.getLoad("LOAD").getTerminal())
-                    .setVoltageSetPoint(390.0)
-                    .setReactivePowerSetPoint(1.0)
+                    .setVoltageSetpoint(390.0)
+                    .setReactivePowerSetpoint(1.0)
                     .setEnsureIdUnicity(false)
                 .add();
         vlActual.getStaticVarCompensators().forEach(s -> {

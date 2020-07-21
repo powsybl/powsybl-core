@@ -131,7 +131,9 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         // _5150a037-e241-421f-98b2-fe60e5c90303 XQ1-N1
         // ends in a boundary node where there is no other line,
         // does not have energy consumer or equivalent injection
-        if (terminalConnected(boundarySide) && !context.boundary().hasPowerFlow(boundaryNode)) {
+        if (terminalConnected(boundarySide)
+                && !context.boundary().hasPowerFlow(boundaryNode)
+                && context.boundary().equivalentInjectionsAtNode(boundaryNode).isEmpty()) {
             missing("Equipment for modeling consumption/injection at boundary node");
         }
 
@@ -139,18 +141,31 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         double x = p.asDouble("x");
         double bch = p.asDouble("bch");
         double gch = p.asDouble("gch", 0.0);
-        DanglingLineAdder adder = voltageLevel(modelSide).newDanglingLine()
+        DanglingLineAdder dlAdder = voltageLevel(modelSide).newDanglingLine()
                 .setEnsureIdUnicity(false)
                 .setR(r)
                 .setX(x)
                 .setG(gch)
                 .setB(bch)
-                .setUcteXnodeCode(findUcteXnodeCode(boundaryNode))
-                .setP0(f.p())
-                .setQ0(f.q());
-        identify(adder);
-        connect(adder, modelSide);
-        DanglingLine dl = adder.add();
+                .setUcteXnodeCode(findUcteXnodeCode(boundaryNode));
+        identify(dlAdder);
+        connect(dlAdder, modelSide);
+        EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(boundaryNode);
+        DanglingLine dl;
+        if (equivalentInjectionConversion != null) {
+            dl = equivalentInjectionConversion.convertOverDanglingLine(dlAdder, f);
+            equivalentInjectionConversion.convertReactiveLimits(dl.getGeneration());
+        } else {
+            dl = dlAdder.setP0(f.p())
+                    .setQ0(f.q())
+                    .newGeneration()
+                        .setTargetP(0.0)
+                        .setTargetQ(0.0)
+                        .setTargetV(Double.NaN)
+                        .setVoltageRegulationOn(false)
+                    .add()
+                    .add();
+        }
         context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
 
         // If we do not have power flow at model side and we can compute it,
@@ -164,7 +179,9 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             // The net sum of power flow "entering" at boundary is "exiting"
             // through the line, we have to change the sign of the sum of flows
             // at the node when we consider flow at line end
-            SV svboundary = new SV(-f.p(), -f.q(), v, angle);
+            double p = dl.getP0() - dl.getGeneration().getTargetP();
+            double q = dl.getQ0() - dl.getGeneration().getTargetQ();
+            SV svboundary = new SV(-p, -q, v, angle);
             // The other side power flow must be computed taking into account
             // the same criteria used for ACLineSegment: total shunt admittance
             // is divided in 2 equal shunt admittance at each side of series impedance
@@ -173,6 +190,22 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             SV svmodel = svboundary.otherSide(dl.getR(), dl.getX(), g, b, g, b, 1);
             dl.getTerminal().setP(svmodel.getP());
             dl.getTerminal().setQ(svmodel.getQ());
+        }
+    }
+
+    private EquivalentInjectionConversion getEquivalentInjectionConversionForDanglingLine(String boundaryNode) {
+        List<PropertyBag> eis = context.boundary().equivalentInjectionsAtNode(boundaryNode);
+        if (eis.isEmpty()) {
+            return null;
+        } else if (eis.size() > 1) {
+            // This should not happen
+            // We have decided to create a dangling line,
+            // so only one MAS at this boundary point,
+            // so there must be only one equivalent injection
+            invalid("Multiple equivalent injections at boundary node");
+            return null;
+        } else {
+            return new EquivalentInjectionConversion(eis.get(0), context);
         }
     }
 
