@@ -20,6 +20,7 @@
     <xs:element name="network">
         <xs:complexType>
             <xs:sequence>
+                <xs:element name="alias" type="iidm:nonEmptyString" minOccurs="0" maxOccurs="unbounded" />
                 <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
                 <xs:element name="substation" type="iidm:Substation" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -44,6 +45,7 @@
     </xs:element>
     <xs:complexType name="Identifiable">
         <xs:sequence>
+            <xs:element name="alias" type="iidm:nonEmptyString" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
         <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
@@ -308,6 +310,10 @@
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
+                    <xs:choice minOccurs="0">
+                        <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
+                        <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
+                    </xs:choice>
                     <xs:element name="currentLimits" type="iidm:CurrentLimit" minOccurs="0"/>
                 </xs:sequence>
                 <xs:attribute name="p0" use="required" type="xs:double"/>
@@ -316,6 +322,12 @@
                 <xs:attribute name="x" use="required" type="xs:double"/>
                 <xs:attribute name="g" use="required" type="xs:double"/>
                 <xs:attribute name="b" use="required" type="xs:double"/>
+                <xs:attribute name="generationMinP" use="optional" type="xs:double"/>
+                <xs:attribute name="generationMaxP" use="optional" type="xs:double"/>
+                <xs:attribute name="generationVoltageRegulationOn" use="optional" type="xs:boolean"/>
+                <xs:attribute name="generationTargetP" use="optional" type="xs:double"/>
+                <xs:attribute name="generationTargetV" use="optional" type="xs:double"/>
+                <xs:attribute name="generationTargetQ" use="optional" type="xs:double"/>
                 <xs:attribute name="ucteXnodeCode" use="optional" type="iidm:nonEmptyString"/>
             </xs:extension>
         </xs:complexContent>
@@ -335,8 +347,8 @@
                 </xs:sequence>
                 <xs:attribute name="bMin" use="required" type="xs:double"/>
                 <xs:attribute name="bMax" use="required" type="xs:double"/>
-                <xs:attribute name="voltageSetPoint" use="optional" type="xs:double"/>
-                <xs:attribute name="reactivePowerSetPoint" use="optional" type="xs:double"/>
+                <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
+                <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>
                 <xs:attribute name="regulationMode" use="required" type="iidm:StaticVarCompensatorRegulationMode"/>
             </xs:extension>
         </xs:complexContent>
