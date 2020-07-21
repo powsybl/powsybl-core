@@ -46,7 +46,7 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
     @Override
     public void reduceVariantArraySize(int number) {
         for (int i = 0; i < number; i++) {
-            terminals.remove(terminals.size() - 1);
+            terminals.remove(terminals.size() - 1); // remove elements from the top to avoid moves inside the array
         }
     }
 

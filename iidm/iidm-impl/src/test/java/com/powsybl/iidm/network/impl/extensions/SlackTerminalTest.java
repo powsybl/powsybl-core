@@ -4,13 +4,14 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.util.Iterator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
+import static org.junit.Assert.*;
 
 /**
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
@@ -90,8 +91,8 @@ public class SlackTerminalTest {
     @Test
     public void test() {
         Network network = createBusBreakerNetwork();
-        VoltageLevel vlB = network.getVoltageLevel("VL");
-        SlackTerminalAdder adder = vlB.newExtension(SlackTerminalAdder.class);
+        VoltageLevel vl0 = network.getVoltageLevel("VL");
+        SlackTerminalAdder adder = vl0.newExtension(SlackTerminalAdder.class);
 
         // error test
         try {
@@ -115,4 +116,48 @@ public class SlackTerminalTest {
         }
     }
 
+    @Test
+    public void variantsTest() {
+        String variant1 = "variant1";
+        String variant2 = "variant2";
+
+        Network network = EurostagTutorialExample1Factory.create();
+        VoltageLevel vl = network.getVoltageLevel("VLHV1");
+        vl.newExtension(SlackTerminalAdder.class)
+            .setTerminal(getBestTerminal(network, "NLOAD"))
+            .add();
+
+        SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
+        assertNotNull(slackTerminal);
+
+        final Terminal t0 = slackTerminal.getTerminal();
+
+        VariantManager variantManager = network.getVariantManager();
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, variant1);
+
+        variantManager.setWorkingVariant(variant1);
+        assertEquals(t0, slackTerminal.getTerminal());
+
+        variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
+        assertEquals(t0, slackTerminal.getTerminal());
+
+        variantManager.cloneVariant(variant1, variant2);
+
+        variantManager.setWorkingVariant(variant1);
+        assertEquals(t0, slackTerminal.getTerminal());
+
+        variantManager.setWorkingVariant(variant2);
+        assertEquals(t0, slackTerminal.getTerminal());
+
+        variantManager.removeVariant(variant1);
+        assertEquals(t0, slackTerminal.getTerminal());
+
+        variantManager.removeVariant(variant2);
+        try {
+            slackTerminal.getTerminal();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Variant index not set", e.getMessage());
+        }
+    }
 }
