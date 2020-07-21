@@ -8,7 +8,9 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.Assert.*;
@@ -120,6 +122,7 @@ public class SlackTerminalTest {
     public void variantsTest() {
         String variant1 = "variant1";
         String variant2 = "variant2";
+        String variant3 = "variant3";
 
         Network network = EurostagTutorialExample1Factory.create();
         VoltageLevel vl = network.getVoltageLevel("VLHV1");
@@ -152,7 +155,18 @@ public class SlackTerminalTest {
         variantManager.removeVariant(variant1);
         assertEquals(t0, slackTerminal.getTerminal());
 
-        variantManager.removeVariant(variant2);
+        List<String> targetVariantIds = new ArrayList<>();
+        targetVariantIds.add(variant1);
+        targetVariantIds.add(variant3);
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, targetVariantIds);
+
+        variantManager.setWorkingVariant(variant1);
+        assertEquals(t0, slackTerminal.getTerminal());
+
+        variantManager.setWorkingVariant(variant3);
+        assertEquals(t0, slackTerminal.getTerminal());
+
+        variantManager.removeVariant(variant3);
         try {
             slackTerminal.getTerminal();
             fail();
@@ -160,4 +174,5 @@ public class SlackTerminalTest {
             assertEquals("Variant index not set", e.getMessage());
         }
     }
+
 }

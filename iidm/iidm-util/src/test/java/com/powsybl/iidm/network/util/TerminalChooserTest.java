@@ -6,12 +6,10 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.Test;
 
@@ -26,25 +24,81 @@ import static org.junit.Assert.*;
 public class TerminalChooserTest {
 
     @Test
-    public void test() {
+    public void testBbsTerminal() {
         Network network = FictitiousSwitchFactory.create();
         VoltageLevel vlN = network.getVoltageLevel("N");
-        Optional<Terminal> optTerminal = vlN.getNodeBreakerView().getOptionalTerminal(0);
-        assertTrue(optTerminal.isPresent());
+        Optional<Terminal> optTerminalN0 = vlN.getNodeBreakerView().getOptionalTerminal(0);
+        assertTrue(optTerminalN0.isPresent());
 
-        Stream<? extends Terminal> terminalStream = optTerminal.get().getBusBreakerView().getBus().getConnectedTerminalStream();
+        Stream<? extends Terminal> terminalStream = optTerminalN0.get().getBusBreakerView().getBus().getConnectedTerminalStream();
 
         TerminalChooser slackTerminalChooser = TerminalChooser.getDefaultSlackTerminalChooser();
         vlN.newExtension(SlackTerminalAdder.class)
             .setTerminal(slackTerminalChooser.choose(terminalStream))
             .add();
 
-        SlackTerminal slackTerminal = vlN.getExtension(SlackTerminal.class);
-        assertNotNull(slackTerminal);
+        SlackTerminal slackTerminalN = vlN.getExtension(SlackTerminal.class);
+        assertNotNull(slackTerminalN);
 
-        assertEquals(ConnectableType.BUSBAR_SECTION, slackTerminal.getTerminal().getConnectable().getType());
-        assertEquals("N_0", slackTerminal.getTerminal().getBusBreakerView().getBus().getId());
-        assertEquals("N_0", slackTerminal.getTerminal().getBusView().getBus().getId());
+        assertEquals(ConnectableType.BUSBAR_SECTION, slackTerminalN.getTerminal().getConnectable().getType());
+        assertEquals("N_0", slackTerminalN.getTerminal().getBusBreakerView().getBus().getId());
+        assertEquals("N_0", slackTerminalN.getTerminal().getBusView().getBus().getId());
+    }
+
+    @Test
+    public void testNoTerminal() {
+        Network network = FictitiousSwitchFactory.create();
+        VoltageLevel vlN = network.getVoltageLevel("N");
+
+        TerminalChooser slackTerminalChooser = TerminalChooser.getDefaultSlackTerminalChooser();
+
+        Bus bus = vlN.getBusBreakerView().getBus("N_13");
+        assertNotNull(bus);
+
+        Iterable<? extends Terminal> terminalIter = bus.getConnectedTerminals();
+        assertNull(slackTerminalChooser.choose(terminalIter));
+    }
+
+    @Test
+    public void testLineTerminal() {
+        Network network = EurostagTutorialExample1Factory.create();
+        VoltageLevel vlhv2 = network.getVoltageLevel("VLHV2");
+
+        Bus bus = vlhv2.getBusBreakerView().getBus("NHV2");
+        assertNotNull(bus);
+
+        TerminalChooser slackTerminalChooser = TerminalChooser.getDefaultSlackTerminalChooser();
+        vlhv2.newExtension(SlackTerminalAdder.class)
+            .setTerminal(slackTerminalChooser.choose(bus.getConnectedTerminals()))
+            .add();
+
+        SlackTerminal slackTerminalN = vlhv2.getExtension(SlackTerminal.class);
+        assertNotNull(slackTerminalN);
+
+        assertEquals(ConnectableType.LINE, slackTerminalN.getTerminal().getConnectable().getType());
+        assertEquals("NHV2", slackTerminalN.getTerminal().getBusBreakerView().getBus().getId());
+        assertEquals("VLHV2_0", slackTerminalN.getTerminal().getBusView().getBus().getId());
+    }
+
+    @Test
+    public void testGeneratorTerminal() {
+        Network network = EurostagTutorialExample1Factory.create();
+        VoltageLevel vlhv2 = network.getVoltageLevel("VLGEN");
+
+        Bus bus = vlhv2.getBusBreakerView().getBus("NGEN");
+        assertNotNull(bus);
+
+        TerminalChooser slackTerminalChooser = TerminalChooser.getDefaultSlackTerminalChooser();
+        vlhv2.newExtension(SlackTerminalAdder.class)
+            .setTerminal(slackTerminalChooser.choose(bus.getConnectedTerminals()))
+            .add();
+
+        SlackTerminal slackTerminalN = vlhv2.getExtension(SlackTerminal.class);
+        assertNotNull(slackTerminalN);
+
+        assertEquals(ConnectableType.GENERATOR, slackTerminalN.getTerminal().getConnectable().getType());
+        assertEquals("NGEN", slackTerminalN.getTerminal().getBusBreakerView().getBus().getId());
+        assertEquals("VLGEN_0", slackTerminalN.getTerminal().getBusView().getBus().getId());
     }
 
 }
