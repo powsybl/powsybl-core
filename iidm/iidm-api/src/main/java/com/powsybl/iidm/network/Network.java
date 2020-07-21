@@ -16,6 +16,57 @@ import java.util.stream.Stream;
 /**
  * A power network model.
  *
+ * <p>
+ *  Characteristics
+ * </p>
+ *
+ * <table style="border: 1px solid black; border-collapse: collapse">
+ *     <thead>
+ *         <tr>
+ *             <th style="border: 1px solid black">Attribute</th>
+ *             <th style="border: 1px solid black">Type</th>
+ *             <th style="border: 1px solid black">Unit</th>
+ *             <th style="border: 1px solid black">Required</th>
+ *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Description</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td style="border: 1px solid black">Id</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Unique identifier of the network</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Name</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Human-readable name of the network</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">CaseDate</td>
+ *             <td style="border: 1px solid black">DateTime</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> Now </td>
+ *             <td style="border: 1px solid black">The date of the case</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">ForecastDistance</td>
+ *             <td style="border: 1px solid black">integer</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> 0 </td>
+ *             <td style="border: 1px solid black">The number of minutes between the date of the case generation and the date of the case</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
  * To create a new empty network with default implementation:
  *<pre>
  *    Network n = Network.create("test", "test");
