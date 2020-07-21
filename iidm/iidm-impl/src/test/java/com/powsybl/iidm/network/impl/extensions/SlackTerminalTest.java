@@ -82,7 +82,7 @@ public class SlackTerminalTest {
     }
 
     private static Terminal getBestTerminal(Network network, String busBusBreaker) {
-        // TODO: create utility rules function to decide which terminal to choose from a given bus
+        // TODO: use the utility rules function which decides which terminal to choose from a given bus: see TerminalChooser in iidm-util module
         Iterator<? extends Terminal> connectedTerminals =
             network.getBusBreakerView().getBus(busBusBreaker).getConnectedTerminals().iterator();
         return connectedTerminals.next();
