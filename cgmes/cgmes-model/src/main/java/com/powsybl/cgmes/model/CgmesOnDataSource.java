@@ -12,6 +12,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -74,8 +75,8 @@ public class CgmesOnDataSource {
     }
 
     private boolean containsValidNamespace(String name) {
-        try {
-            Set<String> ns = NamespaceReader.namespaces1(dataSource.newInputStream(name));
+        try (InputStream is = dataSource.newInputStream(name)) {
+            Set<String> ns = NamespaceReader.namespaces1(is);
             return ns.contains(RDF_NAMESPACE) && (ns.contains(CIM_16_NAMESPACE) || ns.contains(CIM_14_NAMESPACE));
         } catch (XMLStreamException e) {
             return false;
@@ -87,8 +88,8 @@ public class CgmesOnDataSource {
     public Set<String> namespaces() {
         Set<String> ns = new HashSet<>();
         names().forEach(n -> {
-            try {
-                ns.addAll(NamespaceReader.namespaces(dataSource.newInputStream(n)));
+            try (InputStream is = dataSource.newInputStream(n)) {
+                ns.addAll(NamespaceReader.namespaces(is));
             } catch (IOException x) {
                 throw new UncheckedIOException(x);
             }
