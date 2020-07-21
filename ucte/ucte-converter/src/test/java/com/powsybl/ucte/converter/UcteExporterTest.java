@@ -154,4 +154,11 @@ public class UcteExporterTest extends AbstractConverterTest {
         Network network = loadNetworkFromResourceFile("/multipleStatusTests.uct");
         testExporter(network, "/multipleStatusTests.uct");
     }
+
+    @Test
+    public void testVoltageRegulatingXnode() throws IOException {
+        Network network = loadNetworkFromResourceFile("/frVoltageRegulatingXnode.uct");
+        testExporter(network, "/frVoltageRegulatingXnode.uct");
+    }
+
 }

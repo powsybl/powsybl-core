@@ -29,7 +29,7 @@ final class VoltageLevels {
      * one {@link ThreeWindingsTransformer} or one {@link HvdcConverterStation}.
      */
     static void checkRemovability(VoltageLevel voltageLevel) {
-        Network network = voltageLevel.getSubstation().getNetwork();
+        Network network = voltageLevel.getNetwork();
 
         for (Connectable connectable : voltageLevel.getConnectables()) {
             ConnectableType type = connectable.getType();

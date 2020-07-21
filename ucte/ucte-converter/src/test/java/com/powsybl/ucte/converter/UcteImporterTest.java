@@ -12,10 +12,7 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.entsoe.util.MergedXnode;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.*;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -164,6 +161,20 @@ public class UcteImporterTest {
         exceptionRule.expectMessage("with two different nominal voltages");
 
         new UcteImporter().importData(dataSource, null);
+    }
+
+    @Test
+    public void testVoltageRegulatingXnode() {
+        ResourceDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
+        Network network = new UcteImporter().importData(dataSource, null);
+        DanglingLine dl = network.getDanglingLine("FFFFFF13 XXXXXX14 1");
+        assertEquals(true, dl.getGeneration().isVoltageRegulationOn());
+        assertEquals(409.08, dl.getGeneration().getTargetV(), 0.01);
+        assertEquals(1.0, dl.getGeneration().getTargetP(), 0.01);
+        assertEquals(2.0, dl.getGeneration().getMaxP(), 0.01);
+        assertEquals(-2.0, dl.getGeneration().getMinP(), 0.01);
+        assertEquals(1.0, dl.getGeneration().getReactiveLimits().getMaxQ(dl.getGeneration().getTargetP()), 0.01);
+        assertEquals(-1.0, dl.getGeneration().getReactiveLimits().getMinQ(dl.getGeneration().getTargetP()), 0.01);
     }
 }
 
