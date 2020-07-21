@@ -63,12 +63,12 @@ public abstract class AbstractConverterTest {
         assertFalse(hasDiff);
     }
 
-    private static String normalizeLineSeparator(String str) {
+    public static String normalizeLineSeparator(String str) {
         return str.replace("\r\n", "\n")
                 .replace("\r", "\n");
     }
 
-    protected static void compareTxt(InputStream expected, InputStream actual) {
+    public static void compareTxt(InputStream expected, InputStream actual) {
         try {
             compareTxt(expected, new String(ByteStreams.toByteArray(actual), StandardCharsets.UTF_8));
         } catch (IOException e) {
@@ -111,7 +111,7 @@ public abstract class AbstractConverterTest {
         return writeTest(data, out, AbstractConverterTest::compareXml, ref);
     }
 
-    protected <T> Path writeTest(T data, BiConsumer<T, Path> out, BiConsumer<InputStream, InputStream> compare, String ref) throws IOException {
+    public <T> Path writeTest(T data, BiConsumer<T, Path> out, BiConsumer<InputStream, InputStream> compare, String ref) throws IOException {
         Path xmlFile = tmpDir.resolve("data");
         out.accept(data, xmlFile);
         try (InputStream is = Files.newInputStream(xmlFile)) {
