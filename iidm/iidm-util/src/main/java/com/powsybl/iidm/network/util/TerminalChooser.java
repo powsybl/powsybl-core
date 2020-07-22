@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.Terminal;
 
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -28,6 +27,7 @@ public final class TerminalChooser {
         List<Predicate<Terminal>> rules = new ArrayList<>();
         rules.add(t -> t.getConnectable().getType() == ConnectableType.BUSBAR_SECTION);
         rules.add(t -> t.getConnectable() instanceof Injection);
+        rules.add(t -> true);
         return new TerminalChooser(rules);
     }
 
@@ -41,16 +41,7 @@ public final class TerminalChooser {
      * @return the first terminal satisfying a rule (rules are checked in ascending order)
      */
     public Terminal choose(Iterable<? extends Terminal> terminals) {
-        for (Predicate<Terminal> predicate : rules) {
-            Optional<? extends Terminal> terminal = StreamSupport.stream(terminals.spliterator(), false)
-                .filter(predicate)
-                .findFirst();
-            if (terminal.isPresent()) {
-                return terminal.get();
-            }
-        }
-        Iterator<? extends Terminal> it = terminals.iterator();
-        return it.hasNext() ? it.next() : null;
+        return choose(StreamSupport.stream(terminals.spliterator(), false));
     }
 
     /**
@@ -58,7 +49,24 @@ public final class TerminalChooser {
      * @return the first terminal satisfying a rule (rules are checked in ascending order)
      */
     public Terminal choose(Stream<? extends Terminal> terminals) {
-        return choose(terminals.collect(Collectors.toList()));
+        Map<Predicate<Terminal>, Terminal> resultMap = new HashMap<>();
+        List<Predicate<Terminal>> rulesNotFound = new LinkedList<>(rules);
+        terminals.forEach(t -> {
+            Iterator<Predicate<Terminal>> iterator = rulesNotFound.iterator();
+            while (iterator.hasNext()) {
+                Predicate<Terminal> predicate = iterator.next();
+                if (predicate.test(t)) {
+                    resultMap.put(predicate, t);
+                    iterator.remove();
+                }
+            }
+        });
+        for (Predicate<Terminal> predicate : rules) {
+            if (resultMap.containsKey(predicate)) {
+                return resultMap.get(predicate);
+            }
+        }
+        return null;
     }
 
 }
