@@ -57,7 +57,7 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
             try {
-                AliasesXml.write(identifiable, context);
+                AliasesXml.write(identifiable, getRootElementName(), context);
             } catch (XMLStreamException e) {
                 throw new UncheckedXmlStreamException(e);
             }
@@ -85,6 +85,7 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         if (context.getReader().getLocalName().equals(PropertiesXml.PROPERTY)) {
             PropertiesXml.read(identifiable, context);
         } else if (context.getReader().getLocalName().equals(AliasesXml.ALIAS)) {
+            IidmXmlUtil.assertMinimumVersion(getRootElementName(), AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
             AliasesXml.read(identifiable, context);
         } else {
             throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + identifiable.getId() + ">");
