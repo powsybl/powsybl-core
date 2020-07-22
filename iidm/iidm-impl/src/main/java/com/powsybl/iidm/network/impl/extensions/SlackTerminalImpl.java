@@ -20,7 +20,7 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
 
     private final ArrayList<Terminal> terminals;
 
-    SlackTerminalImpl(Terminal terminal, VoltageLevel voltageLevel) {
+    SlackTerminalImpl(VoltageLevel voltageLevel, Terminal terminal) {
         super(voltageLevel);
 
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();

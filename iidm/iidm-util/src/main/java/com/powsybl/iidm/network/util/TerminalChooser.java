@@ -10,10 +10,7 @@ import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Terminal;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,6 +32,7 @@ public final class TerminalChooser {
     }
 
     public TerminalChooser(List<Predicate<Terminal>> rules) {
+        Objects.requireNonNull(rules);
         this.rules = rules;
     }
 

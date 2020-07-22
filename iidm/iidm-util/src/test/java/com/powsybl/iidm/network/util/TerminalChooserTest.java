@@ -34,7 +34,7 @@ public class TerminalChooserTest {
 
         TerminalChooser slackTerminalChooser = TerminalChooser.getDefaultSlackTerminalChooser();
         vlN.newExtension(SlackTerminalAdder.class)
-            .setTerminal(slackTerminalChooser.choose(terminalStream))
+            .withTerminal(slackTerminalChooser.choose(terminalStream))
             .add();
 
         SlackTerminal slackTerminalN = vlN.getExtension(SlackTerminal.class);
@@ -69,7 +69,7 @@ public class TerminalChooserTest {
 
         TerminalChooser slackTerminalChooser = TerminalChooser.getDefaultSlackTerminalChooser();
         vlhv2.newExtension(SlackTerminalAdder.class)
-            .setTerminal(slackTerminalChooser.choose(bus.getConnectedTerminals()))
+            .withTerminal(slackTerminalChooser.choose(bus.getConnectedTerminals()))
             .add();
 
         SlackTerminal slackTerminalN = vlhv2.getExtension(SlackTerminal.class);
@@ -90,7 +90,7 @@ public class TerminalChooserTest {
 
         TerminalChooser slackTerminalChooser = TerminalChooser.getDefaultSlackTerminalChooser();
         vlhv2.newExtension(SlackTerminalAdder.class)
-            .setTerminal(slackTerminalChooser.choose(bus.getConnectedTerminals()))
+            .withTerminal(slackTerminalChooser.choose(bus.getConnectedTerminals()))
             .add();
 
         SlackTerminal slackTerminalN = vlhv2.getExtension(SlackTerminal.class);

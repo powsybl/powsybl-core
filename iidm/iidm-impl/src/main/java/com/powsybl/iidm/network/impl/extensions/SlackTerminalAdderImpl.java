@@ -25,7 +25,7 @@ public class SlackTerminalAdderImpl extends AbstractExtensionAdder<VoltageLevel,
     }
 
     @Override
-    public SlackTerminalAdder setTerminal(Terminal terminal) {
+    public SlackTerminalAdder withTerminal(Terminal terminal) {
         this.terminal = terminal;
         return this;
     }
@@ -35,6 +35,6 @@ public class SlackTerminalAdderImpl extends AbstractExtensionAdder<VoltageLevel,
         if (terminal == null) {
             throw new PowsyblException("Terminal needs to be set to create a SlackTerminal extension");
         }
-        return new SlackTerminalImpl(terminal, voltageLevel);
+        return new SlackTerminalImpl(voltageLevel, terminal);
     }
 }

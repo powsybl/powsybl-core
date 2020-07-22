@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
@@ -106,7 +112,7 @@ public class SlackTerminalTest {
 
         // extends voltage level
         String busBusBreakerId = "B";
-        adder.setTerminal(getBestTerminal(network, busBusBreakerId)).add();
+        adder.withTerminal(getBestTerminal(network, busBusBreakerId)).add();
 
         SlackTerminal slackTerminal;
         for (VoltageLevel vl : network.getVoltageLevels()) {
@@ -127,7 +133,7 @@ public class SlackTerminalTest {
         Network network = EurostagTutorialExample1Factory.create();
         VoltageLevel vl = network.getVoltageLevel("VLHV1");
         vl.newExtension(SlackTerminalAdder.class)
-            .setTerminal(getBestTerminal(network, "NLOAD"))
+            .withTerminal(getBestTerminal(network, "NLOAD"))
             .add();
 
         SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);

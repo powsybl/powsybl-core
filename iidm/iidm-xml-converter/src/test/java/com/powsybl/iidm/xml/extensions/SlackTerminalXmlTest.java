@@ -44,7 +44,7 @@ public class SlackTerminalXmlTest extends AbstractConverterTest {
         Terminal t = bus.getConnectedTerminals().iterator().next();
         assertNotNull(t);
 
-        vl.newExtension(SlackTerminalAdder.class).setTerminal(t).add();
+        vl.newExtension(SlackTerminalAdder.class).withTerminal(t).add();
 
         Network network2 = roundTripTest(network,
                 NetworkXml::writeAndValidate,
