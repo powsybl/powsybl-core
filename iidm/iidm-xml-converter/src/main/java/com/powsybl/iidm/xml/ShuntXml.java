@@ -148,6 +148,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
                     properties.put(name, value);
                     break;
                 case AliasesXml.ALIAS:
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
                     String alias = context.getAnonymizer().deanonymizeString(context.getReader().getElementText());
                     aliases.add(alias);
                     break;
