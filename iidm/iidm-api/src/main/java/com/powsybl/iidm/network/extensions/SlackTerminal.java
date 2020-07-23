@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 
@@ -14,6 +15,36 @@ import com.powsybl.iidm.network.VoltageLevel;
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
 public interface SlackTerminal extends Extension<VoltageLevel> {
+
+    /**
+     * Remove all SlackTerminal extensions from given network
+     * @param network the network to remove the slackTerminal extensions from
+     */
+    static void removeAllFrom(Network network) {
+        network.getVoltageLevels().forEach(SlackTerminal::removeFrom);
+    }
+
+    /**
+     * Remove all SlackTerminal extensions from given voltageLevel
+     * @param voltageLevel the voltageLevel to remove the slackTerminal extension from
+     */
+    static void removeFrom(VoltageLevel voltageLevel) {
+        reset(voltageLevel, null);
+    }
+
+    /**
+     * Reset the slackTerminal extension to the given terminal (may be null)
+     * @param voltageLevel the voltageLevel to reset the slackTerminal extension from
+     * @param terminal the terminal to reset the extension to (may be null)
+     */
+    static void reset(VoltageLevel voltageLevel, Terminal terminal) {
+        voltageLevel.removeExtension(SlackTerminal.class);
+        if (terminal != null) {
+            voltageLevel.newExtension(SlackTerminalAdder.class)
+                    .withTerminal(terminal)
+                    .add();
+        }
+    }
 
     @Override
     default String getName() {
@@ -25,5 +56,16 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
      * @return the corresponding terminal
      */
     Terminal getTerminal();
+
+    /**
+     * Set the terminal pointed by the current SlackTerminal
+     * @param terminal the corresponding terminal
+     */
+    void setTerminal(Terminal terminal);
+
+    /**
+     * Returns if the current SlackTerminal can be cleaned, that is, if the extension is unused
+     */
+    boolean isCleanable();
 
 }

@@ -36,10 +36,26 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
     }
 
     @Override
+    public void setTerminal(Terminal terminal) {
+        terminals.set(getVariantIndex(), terminal);
+    }
+
+    @Override
+    public boolean isCleanable() {
+        for (Terminal t : terminals) {
+            if (t != null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         terminals.ensureCapacity(terminals.size() + number);
+        Terminal sourceTerminal = terminals.get(sourceIndex);
         for (int i = 0; i < number; ++i) {
-            terminals.add(terminals.get(sourceIndex));
+            terminals.add(sourceTerminal);
         }
     }
 

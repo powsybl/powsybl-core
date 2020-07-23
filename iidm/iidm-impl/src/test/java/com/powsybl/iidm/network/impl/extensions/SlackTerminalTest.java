@@ -125,53 +125,40 @@ public class SlackTerminalTest {
     }
 
     @Test
-    public void variantsTest() {
+    public void variantsCloneTest() {
         String variant1 = "variant1";
         String variant2 = "variant2";
         String variant3 = "variant3";
 
+        // Creates the extension
         Network network = EurostagTutorialExample1Factory.create();
         VoltageLevel vl = network.getVoltageLevel("VLHV1");
         vl.newExtension(SlackTerminalAdder.class)
             .withTerminal(getBestTerminal(network, "NLOAD"))
             .add();
-
         SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
         assertNotNull(slackTerminal);
-
         final Terminal t0 = slackTerminal.getTerminal();
 
+        // Testing variant cloning
         VariantManager variantManager = network.getVariantManager();
         variantManager.cloneVariant(INITIAL_VARIANT_ID, variant1);
-
-        variantManager.setWorkingVariant(variant1);
-        assertEquals(t0, slackTerminal.getTerminal());
-
-        variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
-        assertEquals(t0, slackTerminal.getTerminal());
-
         variantManager.cloneVariant(variant1, variant2);
-
         variantManager.setWorkingVariant(variant1);
         assertEquals(t0, slackTerminal.getTerminal());
 
-        variantManager.setWorkingVariant(variant2);
-        assertEquals(t0, slackTerminal.getTerminal());
-
+        // Removes a variant then adds another variant to test variant recycling (hence calling allocateVariantArrayElement)
         variantManager.removeVariant(variant1);
-        assertEquals(t0, slackTerminal.getTerminal());
-
         List<String> targetVariantIds = new ArrayList<>();
         targetVariantIds.add(variant1);
         targetVariantIds.add(variant3);
         variantManager.cloneVariant(INITIAL_VARIANT_ID, targetVariantIds);
-
         variantManager.setWorkingVariant(variant1);
         assertEquals(t0, slackTerminal.getTerminal());
-
         variantManager.setWorkingVariant(variant3);
         assertEquals(t0, slackTerminal.getTerminal());
 
+        // Test removing current variant
         variantManager.removeVariant(variant3);
         try {
             slackTerminal.getTerminal();
@@ -181,4 +168,70 @@ public class SlackTerminalTest {
         }
     }
 
+    @Test
+    public void variantsResetTest() {
+        String variant1 = "variant1";
+        String variant2 = "variant2";
+
+        // Creates 2 variants
+        Network network = EurostagTutorialExample1Factory.create();
+        VariantManager variantManager = network.getVariantManager();
+        List<String> targetVariantIds = new ArrayList<>();
+        targetVariantIds.add(variant1);
+        targetVariantIds.add(variant2);
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, targetVariantIds);
+
+        // Creates the extension
+        VoltageLevel vlgen = network.getVoltageLevel("VLGEN");
+        vlgen.newExtension(SlackTerminalAdder.class)
+                .withTerminal(getBestTerminal(network, "NGEN"))
+                .add();
+        SlackTerminal stGen = vlgen.getExtension(SlackTerminal.class);
+        assertNotNull(stGen);
+        final Terminal tGen = stGen.getTerminal();
+
+        // Testing the cleanable property of the slackTerminal
+        variantManager.setWorkingVariant(variant2);
+        stGen.setTerminal(null);
+        assertFalse(stGen.isCleanable());
+
+        variantManager.setWorkingVariant(variant1);
+        stGen.setTerminal(null);
+        assertFalse(stGen.isCleanable());
+
+        variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
+        stGen.setTerminal(null);
+        assertTrue(stGen.isCleanable());
+
+        stGen.setTerminal(tGen);
+        assertFalse(stGen.isCleanable());
+
+        // Creates an extension on another voltageLevel
+        VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
+        vlhv1.newExtension(SlackTerminalAdder.class)
+                .withTerminal(getBestTerminal(network, "NLOAD"))
+                .add();
+        SlackTerminal stLoad = vlhv1.getExtension(SlackTerminal.class);
+        assertNotNull(stLoad);
+        assertEquals("NLOAD", stLoad.getTerminal().getBusBreakerView().getBus().getId());
+        assertFalse(stLoad.isCleanable());
+
+        // Removes all SlackTerminals from network
+        SlackTerminal.removeAllFrom(network);
+        assertNull(vlgen.getExtension(SlackTerminal.class));
+        assertNull(vlhv1.getExtension(SlackTerminal.class));
+
+        // Reset the SlackTerminal of VLGEN voltageLevel to its previous value
+        SlackTerminal.reset(vlgen, tGen);
+        stGen = vlgen.getExtension(SlackTerminal.class);
+        assertNotNull(stGen);
+        assertEquals(tGen, stGen.getTerminal());
+        variantManager.setWorkingVariant(variant2);
+        assertEquals(tGen, stGen.getTerminal());
+
+        // Removes the SlackTerminal from VLGEN voltageLevel
+        SlackTerminal.removeFrom(vlgen);
+        assertNull(vlgen.getExtension(SlackTerminal.class));
+
+    }
 }
