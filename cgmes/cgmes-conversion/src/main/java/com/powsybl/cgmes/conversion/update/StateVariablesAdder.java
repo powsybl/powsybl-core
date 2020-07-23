@@ -9,9 +9,11 @@ package com.powsybl.cgmes.conversion.update;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
@@ -26,15 +28,20 @@ import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChangerHolder;
+import com.powsybl.iidm.network.RatioTapChangerHolder;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.LinkData;
+import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -54,6 +61,7 @@ public class StateVariablesAdder {
         this.originalFullModel = cgmes.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
         this.originalTopologicalIslands = cgmes.topologicalIslands();
         this.originalSVcontext = originalSVcontext();
+        this.originalTopologicalNodes = cgmes.topologicalNodes();
         this.boundaryNodesFromDanglingLines = boundaryNodesFromDanglingLines();
     }
 
@@ -69,11 +77,6 @@ public class StateVariablesAdder {
     }
 
     public void addStateVariablesToCgmes() {
-        if (cgmes.isNodeBreaker()) {
-            // TODO we need to export SV file data for NodeBraker
-            LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
-            return;
-        }
         // Clear the previous SV data in CGMES model
         // and fill it with the Network current state values
         cgmes.clear(CgmesSubset.STATE_VARIABLES);
@@ -87,185 +90,213 @@ public class StateVariablesAdder {
 
         addVoltagesForBoundaryNodes();
 
-        addPowerFlowToCgmes();
+        addPowerFlows();
 
-        addShuntCompensatorSectionsToCgmes();
+        addShuntCompensatorSections();
 
-        addTapStepToCgmes();
+        addTapSteps();
 
-        addStatusToCgmes();
+        addStatus();
     }
 
     private void addVoltagesForTopologicalNodes() {
-        PropertyBags voltages = new PropertyBags();
-        // add voltages for TpNodes existing in the Model
-        for (PropertyBag tn : cgmes.topologicalNodes()) {
-            Bus b = network.getBusBreakerView().getBus(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
-            PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
-            if (b != null) {
-                p.put(CgmesNames.ANGLE, fs(b.getAngle()));
-                p.put(CgmesNames.VOLTAGE, fs(b.getV()));
-                p.put(CgmesNames.TOPOLOGICAL_NODE, tn.getId(CgmesNames.TOPOLOGICAL_NODE));
-                voltages.add(p);
-            }
+        // Try to add voltages for all TP nodes existing in the CGMES model
+        PropertyBags svVoltages = new PropertyBags();
+        if (cgmes.isNodeBreaker()) {
+            addVoltagesForTopologicalNodesNodeBreaker(svVoltages);
+        } else {
+            // For CGMES bus-branch models:
+            // In IIDM there is a bus at bus-breaker view
+            // for each CGMES topological node
+            cgmes.topologicalNodes().stream().forEach(tp -> {
+                String tpId = tp.getId(CgmesNames.TOPOLOGICAL_NODE);
+                Bus b = network.getBusBreakerView().getBus(tpId);
+                if (b != null) {
+                    svVoltages.add(buildSvVoltage(tp.getId(CgmesNames.TOPOLOGICAL_NODE), b.getV(), b.getAngle()));
+                } else {
+                    // If no IIDM bus has been found it may correspond
+                    // to a boundary, that will be added later
+                    // FIXME(Luma) We should have uniform processing of TP nodes
+                    // present in the original data that have not received an SvVoltage
+                    // this processing should be common to node-breaker and bus-branch
+                }
+            });
         }
-        cgmes.add(originalSVcontext, "SvVoltage", voltages);
+        cgmes.add(originalSVcontext, "SvVoltage", svVoltages);
+    }
+
+    private void addVoltagesForTopologicalNodesNodeBreaker(PropertyBags svVoltages) {
+        Set<String> processedTPNodes = new HashSet<>();
+        // Try to find an IIDM bus for every TP node
+        // In the CGMES model we have cached
+        // for every IIDM voltage level and node
+        // the original related TP node
+        cgmes.iidmNodesForTopologicalNodes().forEach((iidmVlNode, tp) -> {
+            if (processedTPNodes.contains(tp)) {
+                return;
+            }
+            VoltageLevel vl = network.getVoltageLevel(iidmVlNode.getLeft());
+            int iidmNode = iidmVlNode.getRight().intValue();
+            Bus b = getBusViewBus(vl, iidmNode);
+            if (b != null) {
+                svVoltages.add(buildSvVoltage(tp, b.getV(), b.getAngle()));
+                processedTPNodes.add(tp);
+            }
+        });
+        // FIXME(Luma) This processing should be common to bus-branch
+        // Buses not processed will be exported with the same values of the original CGMES data
+        originalTopologicalNodes.stream()
+            .filter(tn -> tn.get(CgmesNames.ANGLE) != null && tn.get(CgmesNames.VOLTAGE) != null)
+            .filter(tn -> !processedTPNodes.contains(tn.getId(CgmesNames.TOPOLOGICAL_NODE)))
+            .filter(tn -> !boundaryNodesFromDanglingLines.values().contains(tn.getId(CgmesNames.TOPOLOGICAL_NODE)))
+            .forEach(pb -> {
+                String tnId = pb.getId(CgmesNames.TOPOLOGICAL_NODE);
+                double v = pb.asDouble(CgmesNames.VOLTAGE);
+                double angle = pb.asDouble(CgmesNames.ANGLE);
+                svVoltages.add(buildSvVoltage(tnId, v, angle));
+            });
+    }
+
+    private static Bus getBusViewBus(VoltageLevel vl, int iidmNode) {
+        // We use IIDM API to locate node-breaker buses
+        VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
+        if (!topo.hasAttachedEquipment(iidmNode)) {
+            LOG.error("IIDM node {} not valid", iidmNode);
+            return null;
+        }
+        // If there is no Terminal at this IIDM node,
+        // then find from it the first connected node with a Terminal
+        Terminal t = topo.getOptionalTerminal(iidmNode)
+                .orElseGet(() -> Networks.getEquivalentTerminal(vl, iidmNode));
+        if (t == null) {
+            LOG.error("Can't find a Terminal for IIDM node {}", iidmNode);
+            return null;
+        }
+        return t.getBusView().getBus();
     }
 
     private void addVoltagesForBoundaryNodes() {
-        PropertyBags voltages = new PropertyBags();
-        // add voltages for TpNodes existing in the Model's boundaries
-        boundaryNodesFromDanglingLines.forEach((line, bnode) -> {
-            PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
+        // Add voltages for TP nodes located at boundaries
+        PropertyBags svVoltages = new PropertyBags();
+        boundaryNodesFromDanglingLines.forEach((line, tpNodeId) -> {
             DanglingLine dl = network.getDanglingLine(line);
             Bus b = dl.getTerminal().getBusBreakerView().getBus();
+            double v;
+            double angle;
             if (b != null) {
-                // calculate complex voltage value: abs for VOLTAGE, degrees for ANGLE
-                Complex v2 = complexVoltage(dl.getR(), dl.getX(), dl.getG(), dl.getB(), b.getV(), b.getAngle(),
+                Complex v2 = calcVoltage(dl.getR(), dl.getX(), dl.getG(), dl.getB(), b.getV(), b.getAngle(),
                     dl.getP0(), dl.getQ0());
-                p.put(CgmesNames.ANGLE, fs(Math.toDegrees(v2.getArgument())));
-                p.put(CgmesNames.VOLTAGE, fs(v2.abs()));
-                p.put(CgmesNames.TOPOLOGICAL_NODE, bnode);
+                v = v2.abs();
+                angle = Math.toDegrees(v2.getArgument());
             } else {
-                p.put(CgmesNames.ANGLE, fs(0.0));
-                p.put(CgmesNames.VOLTAGE, fs(0.0));
-                p.put(CgmesNames.TOPOLOGICAL_NODE, bnode);
+                // TODO(Luma) No bus for the dangling line, assume voltage is 0 ?
+                v = 0;
+                angle = 0;
             }
-            voltages.add(p);
+            svVoltages.add(buildSvVoltage(tpNodeId, v, angle));
         });
-        cgmes.add(originalSVcontext, "SvVoltage", voltages);
+        cgmes.add(originalSVcontext, "SvVoltage", svVoltages);
     }
 
-    private void addPowerFlowToCgmes() {
-        PropertyBags powerFlows = new PropertyBags();
-        addInjectionPowerFlowToCgmes(powerFlows, network.getLoads());
-        addInjectionPowerFlowToCgmes(powerFlows, network.getGenerators());
-        addInjectionPowerFlowToCgmes(powerFlows, network.getShuntCompensators());
-        addInjectionPowerFlowToCgmes(powerFlows, network.getStaticVarCompensators());
-        addInjectionPowerFlowToCgmes(powerFlows, network.getBatteries());
+    private void addPowerFlows() {
+        PropertyBags svPowerFlows = new PropertyBags();
+        addPowerFlows(svPowerFlows, network.getLoads());
+        addPowerFlows(svPowerFlows, network.getGenerators());
+        addPowerFlows(svPowerFlows, network.getShuntCompensators());
+        addPowerFlows(svPowerFlows, network.getStaticVarCompensators());
+        addPowerFlows(svPowerFlows, network.getBatteries());
 
-        // PowerFlow at boundaries set as it was in original cgmes.
+        // FIXME(Luma) This has to be reviewed
+        // Now, SvPowerFlow at boundaries are set as they were in original CGMES
+        // Also, there is a loop through boundary nodes for each terminal
         for (PropertyBag terminal : originalTerminals) {
             if (terminal.getId("SvPowerFlow") == null) {
                 continue;
             }
             boundaryNodesFromDanglingLines.values().forEach(value -> {
                 if (CgmesTerminal.topologicalNode(terminal).equals(value)) {
-                    PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
-                    p.put("p", terminal.getId("p"));
-                    p.put("q", terminal.getId("q"));
-                    p.put(CgmesNames.TERMINAL, terminal.getId(CgmesNames.TERMINAL));
-                    powerFlows.add(p);
+                    svPowerFlows.add(buildSvPowerFlow(terminal));
                 }
             });
         }
-        cgmes.add(originalSVcontext, "SvPowerFlow", powerFlows);
+        cgmes.add(originalSVcontext, "SvPowerFlow", svPowerFlows);
     }
 
-    private <I extends Injection> void addInjectionPowerFlowToCgmes(PropertyBags powerFlows,
-        Iterable<I> injectionStream) {
-        injectionStream.forEach(i -> {
+    private <I extends Injection<?>> void addPowerFlows(PropertyBags svPowerFlows,
+        Iterable<I> injections) {
+        injections.forEach(i -> {
             int sequenceNumber = 1;
-            PropertyBag p = createPowerFlowProperties(i.getTerminal(), sequenceNumber);
+            PropertyBag p = buildSvPowerFlow(i.getTerminal(), sequenceNumber);
             if (p != null) {
-                powerFlows.add(p);
+                svPowerFlows.add(p);
             } else if (i instanceof Load) {
-                // FIXME CGMES SvInjection objects created as loads
+                // FIXME(Luma) CGMES SvInjection objects were created as loads
                 LOG.error("No SvPowerFlow created for load {}", i.getId());
             }
         });
     }
 
-    private void addShuntCompensatorSectionsToCgmes() {
-        PropertyBags shuntCompensatorSections = new PropertyBags();
+    private void addShuntCompensatorSections() {
+        PropertyBags svShuntCompensatorSections = new PropertyBags();
         for (ShuntCompensator s : network.getShuntCompensators()) {
-            PropertyBag p = new PropertyBag(SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES);
-            p.put("continuousSections", is(s.getSectionCount()));
-            p.put("ShuntCompensator", s.getId());
-            shuntCompensatorSections.add(p);
+            svShuntCompensatorSections.add(buildSvShuntCompensatorSections(s));
         }
-        cgmes.add(originalSVcontext, "SvShuntCompensatorSections", shuntCompensatorSections);
+        cgmes.add(originalSVcontext, "SvShuntCompensatorSections", svShuntCompensatorSections);
     }
 
-    private void addTapStepToCgmes() {
-        PropertyBags tapSteps = new PropertyBags();
-        String tapChangerPositionName = getTapChangerPositionName();
-        final List<String> svTapStepProperties = Arrays.asList(tapChangerPositionName, CgmesNames.TAP_CHANGER);
-        for (TwoWindingsTransformer t : network.getTwoWindingsTransformers()) {
-            PropertyBag p = new PropertyBag(svTapStepProperties);
-            // TODO If we could store an identifier for the tap changer in IIDM
-            // then we would not need to query the CGMES model
-            if (hasPhaseTapChanger(t)) {
-                p.put(tapChangerPositionName, is(t.getPhaseTapChanger().getTapPosition()));
-                p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerForPowerTransformer(t.getId()));
-                tapSteps.add(p);
-            } else if (hasRatioTapChanger(t)) {
-                p.put(tapChangerPositionName, is(t.getRatioTapChanger().getTapPosition()));
-                p.put(CgmesNames.TAP_CHANGER, cgmes.ratioTapChangerForPowerTransformer(t.getId()));
-                tapSteps.add(p);
-            }
-        }
+    private void addTapSteps() {
+        // Tap position property name is different on some CIM versions
+        String positionPropertyName = getTapChangerPositionName();
+        final List<String> tapStepPropertyNames = Arrays.asList(positionPropertyName, CgmesNames.TAP_CHANGER);
 
+        PropertyBags svTapSteps = new PropertyBags();
+        for (TwoWindingsTransformer t : network.getTwoWindingsTransformers()) {
+            addRatioTapStep(t, t, tapStepPropertyNames, positionPropertyName, svTapSteps);
+            addPhaseTapStep(t, t, tapStepPropertyNames, positionPropertyName, svTapSteps);
+        }
         for (ThreeWindingsTransformer t : network.getThreeWindingsTransformers()) {
-            PropertyBag p = new PropertyBag(svTapStepProperties);
             Arrays.asList(t.getLeg1(), t.getLeg2(), t.getLeg3()).forEach(leg -> {
-                if (hasPhaseTapChanger(leg)) {
-                    p.put(tapChangerPositionName, is(leg.getPhaseTapChanger().getTapPosition()));
-                    p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerForPowerTransformer(t.getId()));
-                    tapSteps.add(p);
-                } else if (hasRatioTapChanger(leg)) {
-                    p.put(tapChangerPositionName, is(leg.getRatioTapChanger().getTapPosition()));
-                    p.put(CgmesNames.TAP_CHANGER, cgmes.ratioTapChangerForPowerTransformer(t.getId()));
-                    tapSteps.add(p);
-                }
+                addRatioTapStep(leg, t, tapStepPropertyNames, positionPropertyName, svTapSteps);
+                addPhaseTapStep(leg, t, tapStepPropertyNames, positionPropertyName, svTapSteps);
             });
         }
-
-        cgmes.add(originalSVcontext, "SvTapStep", tapSteps);
+        cgmes.add(originalSVcontext, "SvTapStep", svTapSteps);
     }
 
-    private boolean hasPhaseTapChanger(Object leg) {
-        if (leg instanceof Leg) {
-            return ((Leg) leg).hasPhaseTapChanger();
-        } else if (leg instanceof TwoWindingsTransformer) {
-            return ((TwoWindingsTransformer) leg).hasPhaseTapChanger();
-        }
-        return false;
+    private void addRatioTapStep(RatioTapChangerHolder tch, Identifiable<?> transformer, List<String> tapStepPropertyNames, String positionPropertyName, PropertyBags tapSteps) {
+        tch.getOptionalRatioTapChanger().ifPresent(tc -> {
+            // We do not have an identifier for the tap changer in IIDM
+            // We need to query the CGMES model for the original tap changer identifier
+            String tcId = cgmes.ratioTapChangerForPowerTransformer(transformer.getId());
+            tapSteps.add(buildSvTapPosition(tapStepPropertyNames, positionPropertyName, tc, tcId));
+        });
     }
 
-    private boolean hasRatioTapChanger(Object leg) {
-        if (leg instanceof Leg) {
-            return ((Leg) leg).hasRatioTapChanger();
-        } else if (leg instanceof TwoWindingsTransformer) {
-            return ((TwoWindingsTransformer) leg).hasRatioTapChanger();
-        }
-        return false;
+    private void addPhaseTapStep(PhaseTapChangerHolder tch, Identifiable<?> transformer, List<String> tapStepPropertyNames, String positionPropertyName, PropertyBags tapSteps) {
+        tch.getOptionalPhaseTapChanger().ifPresent(tc -> {
+            String tcId = cgmes.phaseTapChangerForPowerTransformer(transformer.getId());
+            tapSteps.add(buildSvTapPosition(tapStepPropertyNames, positionPropertyName, tc, tcId));
+        });
     }
 
-    private void addStatusToCgmes() {
-        // create SvStatus, iterate on Connectables, check Terminal status, add
-        // to SvStatus
+    private void addStatus() {
         PropertyBags svStatus = new PropertyBags();
         network.getConnectableStream()
             .forEach(c -> {
-                PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
-                p.put(IN_SERVICE,
-                    Boolean.toString(((Connectable<?>) c).getTerminals().stream().anyMatch(Terminal::isConnected)));
-                p.put(CgmesNames.CONDUCTING_EQUIPMENT, c.getId());
-                svStatus.add(p);
+                svStatus.add(buildSvStatus(c));
             });
 
-        // SvStatus at boundaries set as it was in original cgmes.
+        // SvStatus at boundaries set as it was in original CGMES
+        // FIXME(Luma) This double loop could be lengthy
+        // Confirm if there is a better way of obtaining
+        // all equipment connected at boundary nodes
         for (PropertyBag terminal : originalTerminals) {
             if (terminal.getId("SvStatus") == null) {
                 continue;
             }
             boundaryNodesFromDanglingLines.values().forEach(value -> {
-                if (terminal.getId(CgmesNames.TOPOLOGICAL_NODE).equals(value)) {
-                    PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
-                    p.put(IN_SERVICE, terminal.getId(IN_SERVICE));
-                    p.put(CgmesNames.CONDUCTING_EQUIPMENT, terminal.getId(CgmesNames.CONDUCTING_EQUIPMENT));
-                    svStatus.add(p);
+                if (CgmesTerminal.topologicalNode(terminal).equals(value)) {
+                    svStatus.add(buildSvStatus(terminal));
                 }
             });
         }
@@ -294,7 +325,8 @@ public class StateVariablesAdder {
         return nodesFromLines;
     }
 
-    private static Complex complexVoltage(double r, double x, double g, double b,
+    // FIXME(Luma) Consider having this method in LinkData or SV
+    private static Complex calcVoltage(double r, double x, double g, double b,
         double v, double angle, double p, double q) {
         BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0,
             new Complex(g * 0.5, b * 0.5), new Complex(g * 0.5, b * 0.5));
@@ -309,20 +341,6 @@ public class StateVariablesAdder {
         } else {
             return CgmesNames.POSITION;
         }
-    }
-
-    private PropertyBag createPowerFlowProperties(Terminal terminal, int sequenceNumber) {
-        // TODO If we could store a terminal identifier in IIDM
-        // we would not need to obtain it querying CGMES for the related equipment
-        String cgmesTerminal = cgmes.terminalForEquipment(terminal.getConnectable().getId(), sequenceNumber);
-        if (cgmesTerminal == null) {
-            return null;
-        }
-        PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
-        p.put("p", fs(terminal.getP()));
-        p.put("q", fs(terminal.getQ()));
-        p.put(CgmesNames.TERMINAL, cgmesTerminal);
-        return p;
     }
 
     // added TopologicalIsland as it was in cgmes : original topology is
@@ -392,11 +410,69 @@ public class StateVariablesAdder {
         }
     }
 
-    private static String fs(double value) {
+    private static PropertyBag buildSvVoltage(String tpNode, double voltage, double angle) {
+        PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
+        p.put(CgmesNames.TOPOLOGICAL_NODE, tpNode);
+        p.put(CgmesNames.VOLTAGE, fstr(voltage));
+        p.put(CgmesNames.ANGLE, fstr(angle));
+        return p;
+    }
+
+    private PropertyBag buildSvPowerFlow(Terminal terminal, int sequenceNumber) {
+        // TODO If we could store a terminal identifier in IIDM
+        // we would not need to obtain it querying CGMES for the related equipment
+        String cgmesTerminal = cgmes.terminalForEquipment(terminal.getConnectable().getId(), sequenceNumber);
+        if (cgmesTerminal == null) {
+            return null;
+        }
+        PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
+        p.put("p", fstr(terminal.getP()));
+        p.put("q", fstr(terminal.getQ()));
+        p.put(CgmesNames.TERMINAL, cgmesTerminal);
+        return p;
+    }
+
+    private static PropertyBag buildSvPowerFlow(PropertyBag terminal) {
+        PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
+        p.put("p", terminal.getId("p"));
+        p.put("q", terminal.getId("q"));
+        p.put(CgmesNames.TERMINAL, terminal.getId(CgmesNames.TERMINAL));
+        return p;
+    }
+
+    private static PropertyBag buildSvTapPosition(List<String> properties, String tapPositionName, TapChanger<?, ?> tc, String tcId) {
+        PropertyBag p = new PropertyBag(properties);
+        p.put(tapPositionName, istr(tc.getTapPosition()));
+        p.put(CgmesNames.TAP_CHANGER, tcId);
+        return p;
+    }
+
+    private static PropertyBag buildSvShuntCompensatorSections(ShuntCompensator s) {
+        PropertyBag p = new PropertyBag(SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES);
+        p.put("continuousSections", istr(s.getSectionCount()));
+        p.put("ShuntCompensator", s.getId());
+        return p;
+    }
+
+    private static PropertyBag buildSvStatus(Connectable<?> c) {
+        PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
+        p.put(IN_SERVICE, Boolean.toString(c.getTerminals().stream().anyMatch(Terminal::isConnected)));
+        p.put(CgmesNames.CONDUCTING_EQUIPMENT, c.getId());
+        return p;
+    }
+
+    private static PropertyBag buildSvStatus(PropertyBag terminal) {
+        PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
+        p.put(IN_SERVICE, terminal.getId(IN_SERVICE));
+        p.put(CgmesNames.CONDUCTING_EQUIPMENT, terminal.getId(CgmesNames.CONDUCTING_EQUIPMENT));
+        return p;
+    }
+
+    private static String fstr(double value) {
         return Double.isNaN(value) ? String.valueOf(0.0) : String.valueOf(value);
     }
 
-    private static String is(int value) {
+    private static String istr(int value) {
         return String.valueOf(value);
     }
 
@@ -406,6 +482,7 @@ public class StateVariablesAdder {
     private final PropertyBags originalTerminals;
     private final PropertyBags originalFullModel;
     private final PropertyBags originalTopologicalIslands;
+    private final PropertyBags originalTopologicalNodes;
     private final String originalSVcontext;
     private final Map<String, String> boundaryNodesFromDanglingLines;
     private static final String IN_SERVICE = "inService";

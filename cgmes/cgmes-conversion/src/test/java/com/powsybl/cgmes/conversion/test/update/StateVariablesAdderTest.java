@@ -7,7 +7,6 @@
 package com.powsybl.cgmes.conversion.test.update;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -26,18 +25,17 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
+import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
+import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
@@ -60,6 +58,11 @@ public class StateVariablesAdderTest {
     @Test
     public void conformityMicroGridBaseCase() throws IOException {
         importExportTest(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource());
+    }
+
+    @Test
+    public void smallGrigNodeBreaker() throws IOException {
+        importExportTest(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
     }
 
     void importExportTest(ReadOnlyDataSource ds) throws IOException {
@@ -96,7 +99,7 @@ public class StateVariablesAdderTest {
         // Compare
         assertEquals(topologicalIslands0, topologicalIslands1);
         assertEquals(fullModel0, fullModel1);
-        assertTrue(networkVoltagesChangesInCgmes(network0, cgmes1));
+        compareVoltages(network0, network1);
     }
 
     private Properties importParameters(String convertBoundary) {
@@ -105,16 +108,8 @@ public class StateVariablesAdderTest {
         return importParameters;
     }
 
-    private boolean networkVoltagesChangesInCgmes(Network network0, CgmesModel cgmes1) {
-        for (PropertyBag tn : cgmes1.topologicalNodes()) {
-            Bus b = network0.getBusBreakerView().getBus(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
-            if (b != null) {
-                String.valueOf(b.getV()).equals(tn.getId(CgmesNames.VOLTAGE));
-                String.valueOf(b.getAngle()).equals(tn.getId(CgmesNames.ANGLE));
-                return true;
-            }
-        }
-        return false;
+    private void compareVoltages(Network network0, Network network1) {
+        new Comparison(network0, network1, new ComparisonConfig()).compareBuses();
     }
 
     private DataSource tmpDataSource(String impl) throws IOException {
