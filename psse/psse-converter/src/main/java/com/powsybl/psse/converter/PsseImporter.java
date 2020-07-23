@@ -615,9 +615,10 @@ public class PsseImporter implements Importer {
             }
 
             //set the init value at the star point
-            tfo3W.setProperty(V_PROPERTY, Float.toString((float) psseTfo.getSecondRecord().getVmstar())); //TODO: check the right base to put the voltage module
-            tfo3W.setProperty(ANGLE_PROPERTY, Float.toString((float) psseTfo.getSecondRecord().getAnstar()));
-
+            //tfo3W.setStringProperty(V_PROPERTY, String.valueOf(psseTfo.getSecondRecord().getVmstar())); //TODO: check the right base to put the voltage module
+            //tfo3W.setStringProperty(ANGLE_PROPERTY, String.valueOf(psseTfo.getSecondRecord().getAnstar()));
+            tfo3W.setDoubleProperty(V_PROPERTY, psseTfo.getSecondRecord().getVmstar()); //TODO: check the right base to put the voltage module
+            tfo3W.setDoubleProperty(ANGLE_PROPERTY, psseTfo.getSecondRecord().getAnstar());
         }
     }
 

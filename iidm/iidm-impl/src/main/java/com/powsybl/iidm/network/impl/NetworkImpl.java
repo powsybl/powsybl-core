@@ -916,36 +916,13 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.q2 = t2.getQ();
             l.country1 = vl1.getSubstation().getCountry().orElse(null);
             l.country2 = vl2.getSubstation().getCountry().orElse(null);
-            mergeProperties(dl1, dl2, l.properties);
+            Property.mergeProperties(dl1, dl2, l.properties);
             lines.add(l);
 
             // remove the 2 dangling lines
             dl1.remove();
             dl2.remove();
         }
-    }
-
-    private void mergeProperties(DanglingLine dl1, DanglingLine dl2, Properties properties) {
-        Set<String> dl1Properties = dl1.getPropertyNames();
-        Set<String> dl2Properties = dl2.getPropertyNames();
-        Set<String> commonProperties = Sets.intersection(dl1Properties, dl2Properties);
-        Sets.difference(dl1Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl1.getProperty(prop)));
-        Sets.difference(dl2Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl2.getProperty(prop)));
-        commonProperties.forEach(prop -> {
-            if (dl1.getProperty(prop).equals(dl2.getProperty(prop))) {
-                properties.setProperty(prop, dl1.getProperty(prop));
-            } else if (dl1.getProperty(prop).isEmpty()) {
-                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
-                properties.setProperty(prop, dl2.getProperty(prop));
-            } else if (dl2.getProperty(prop).isEmpty()) {
-                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
-                properties.setProperty(prop, dl1.getProperty(prop));
-            } else {
-                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
-            }
-        });
-        dl1Properties.forEach(prop -> properties.setProperty(prop + "_1", dl1.getProperty(prop)));
-        dl2Properties.forEach(prop -> properties.setProperty(prop + "_2", dl2.getProperty(prop)));
     }
 
     private void replaceDanglingLineByLine(List<MergedLine> lines, Multimap<Boundary, MergedLine> mergedLineByBoundary) {
@@ -999,9 +976,26 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.setCurrentLimits(Side.TWO, (CurrentLimitsImpl) mergedLine.limits2);
             l.getTerminal1().setP(mergedLine.p1).setQ(mergedLine.q1);
             l.getTerminal2().setP(mergedLine.p2).setQ(mergedLine.q2);
-            mergedLine.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
-            mergedLine.aliases.forEach(l::addAlias);
+            mergedLine.properties.keySet().forEach(key -> {
 
+                switch (mergedLine.properties.get(key).propertyType()) {
+                    case STRING:
+                        l.setStringProperty(key, mergedLine.properties.get(key).stringValue());
+                        break;
+                    case INTEGER:
+                        l.setIntegerProperty(key, mergedLine.properties.get(key).intValue());
+                        break;
+                    case DOUBLE:
+                        l.setDoubleProperty(key, mergedLine.properties.get(key).doubleValue());
+                        break;
+                    case BOOLEAN:
+                        l.setBooleanProperty(key, mergedLine.properties.get(key).booleanValue());
+                        break;
+                    default:
+                        break;
+                }
+            });
+            mergedLine.aliases.forEach(l::addAlias);
             mergedLineByBoundary.put(new Boundary(mergedLine.country1, mergedLine.country2), mergedLine);
         }
     }
@@ -1018,7 +1012,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         String connectableBus2;
         Integer node1;
         Integer node2;
-        Properties properties = new Properties();
+        Map<String, Property> properties = new HashMap<>();
 
         class HalfMergedLine {
             String id;

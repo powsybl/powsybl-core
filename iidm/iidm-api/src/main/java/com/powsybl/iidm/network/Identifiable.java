@@ -18,6 +18,23 @@ import com.powsybl.commons.extensions.Extendable;
  */
 public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
 
+    enum PropertyType {
+        STRING("string"),
+        INTEGER("integer"),
+        DOUBLE("double"),
+        BOOLEAN("boolean");
+
+        private String name;
+        PropertyType(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
     /**
      * Get the network associated to the object.
      */
@@ -116,14 +133,12 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     boolean hasProperty();
 
     /**
-     * Get properties associated to the object.
-     *
-     * @deprecated Use {@link #getProperty(String)} & {@link #setProperty(String, String)} instead.
+     * Get the type of the property.
      */
-    @Deprecated
-    default Properties getProperties() {
-        throw new UnsupportedOperationException("Deprecated");
+    default PropertyType getPropertyType(String key) {
+        return PropertyType.STRING;
     }
+
 
     /**
      * Check that this object has property with specified name.
@@ -132,18 +147,134 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
 
     /**
      * Get property associated to specified key.
+     *
+     * @deprecated Use {@link #getStringProperty(String)} instead.
      */
-    String getProperty(String key);
+    @Deprecated
+    default String getProperty(String key) {
+        return getStringProperty(key);
+    }
 
     /**
      * Get property associated to specified key, with default value.
+     *
+     * @deprecated Use {@link #getStringProperty(String, String)} instead.
      */
-    String getProperty(String key, String defaultValue);
+    @Deprecated
+    default String getProperty(String key, String defaultValue) {
+        return getStringProperty(key, defaultValue);
+    }
 
     /**
      * Set property value associated to specified key.
+     *
+     * @deprecated Use {@link #setStringProperty(String, String)} instead.
      */
-    String setProperty(String key, String value);
+    @Deprecated
+    default String setProperty(String key, String value) {
+        return setStringProperty(key, value);
+    }
+
+    /**
+     * Get string property associated to specified key.
+     */
+    String getStringProperty(String key);
+
+    /**
+     * Get string property associated to specified key, with default value.
+     */
+    String getStringProperty(String key, String defaultValue);
+
+    /**
+     * Get string property associated to specified key.
+     */
+    Optional<String> getOptionalStringProperty(String key);
+
+    /**
+     * Set string property value associated to specified key.
+     */
+    String setStringProperty(String key, String value);
+
+    /**
+     * Get integer property associated to specified key.
+     */
+    default OptionalInt getOptionalIntegerProperty(String key) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    default int getIntegerProperty(String key) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
+     * Get integer property associated to specified key, with default value.
+     */
+    default int getIntegerProperty(String key, int defaultValue) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
+     * Get integer property associated to specified key.
+     */
+    default int setIntegerProperty(String key, int value) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
+     * Get double property associated to specified key.
+     */
+    default double getDoubleProperty(String key) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
+     * Get double property associated to specified key, with default value.
+     */
+    default double getDoubleProperty(String key, double defaultValue) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
+     * Get double property associated to specified key.
+     */
+    default OptionalDouble getOptionalDoubleProperty(String key) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
+     * Set double property value associated to specified key.
+     */
+    default double setDoubleProperty(String key, double value) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
+     * Get boolean property associated to specified key.
+     */
+    default boolean getBooleanProperty(String key) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
+     * Get boolean property associated to specified key, with default value.
+     */
+    default boolean getBooleanProperty(String key, boolean defaultValue) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
+     * Get boolean property associated to specified key.
+     */
+    default Optional<Boolean> getOptionalBooleanProperty(String key) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
+     * Set boolean property value associated to specified key.
+     */
+    default boolean setBooleanProperty(String key, boolean value) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 
     /**
      * Get properties key values.

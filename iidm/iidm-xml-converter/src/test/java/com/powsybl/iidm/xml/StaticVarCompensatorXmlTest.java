@@ -70,6 +70,6 @@ public class StaticVarCompensatorXmlTest extends AbstractXmlConverterTest {
 
     private static void addProperties(Network network) {
         network.getStaticVarCompensator("SVC2")
-                .setProperty("test", "test");
+                .setStringProperty("test", "test");
     }
 }

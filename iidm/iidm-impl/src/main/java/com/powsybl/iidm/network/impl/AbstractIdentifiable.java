@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -25,7 +24,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     protected boolean fictitious = false;
 
-    protected final Properties properties = new Properties();
+    protected final Map<String, Property> properties = new HashMap<>();
 
     private final Set<String> aliasesWithoutType = new HashSet<>();
     private final Map<String, String> aliasesByType = new HashMap<>();
@@ -137,10 +136,6 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         return getTypeDescription() + " '" + id + "': ";
     }
 
-    public Properties getProperties() {
-        return properties;
-    }
-
     @Override
     public boolean hasProperty() {
         return !properties.isEmpty();
@@ -152,31 +147,144 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     }
 
     @Override
-    public String getProperty(String key) {
-        Object val = properties.get(key);
-        return val != null ? val.toString() : null;
-    }
-
-    @Override
-    public String getProperty(String key, String defaultValue) {
-        Object val = properties.getOrDefault(key, defaultValue);
-        return val != null ? val.toString() : null;
-    }
-
-    @Override
-    public String setProperty(String key, String value) {
-        String oldValue = (String) properties.put(key, value);
-        if (Objects.isNull(oldValue)) {
-            getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", value);
-        } else {
-            getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, value);
-        }
-        return oldValue;
-    }
-
-    @Override
     public Set<String> getPropertyNames() {
-        return properties.keySet().stream().map(Object::toString).collect(Collectors.toSet());
+        return properties.keySet();
+    }
+
+    @Override
+    public PropertyType getPropertyType(String key) {
+        if (properties.containsKey(key)) {
+            return properties.get(key).propertyType();
+        }
+        return null;
+    }
+
+    @Override
+    public String getStringProperty(String key) {
+        return getStringProperty(key, null);
+    }
+
+    @Override
+    public String getStringProperty(String key, String defaultValue) {
+        if (properties.containsKey(key)) {
+            return properties.get(key).stringValue();
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<String> getOptionalStringProperty(String key) {
+        return Optional.ofNullable(getStringProperty(key));
+    }
+
+    @Override
+    public String setStringProperty(String key, String value) {
+        notifyElementModification(key, value);
+        Property property = properties.put(key, new Property(value));
+        if (property != null && property.propertyType() == PropertyType.STRING) {
+            return property.stringValue();
+        }
+        return null;
+    }
+
+    @Override
+    public int getIntegerProperty(String key) {
+        return getIntegerProperty(key, 0);
+    }
+
+    @Override
+    public int getIntegerProperty(String key, int defaultValue) {
+        if (properties.containsKey(key)) {
+            return properties.get(key).intValue();
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public OptionalInt getOptionalIntegerProperty(String key) {
+        return OptionalInt.of(getIntegerProperty(key));
+    }
+
+    @Override
+    public int setIntegerProperty(String key, int value) {
+        notifyElementModification(key, value);
+        Property property = properties.put(key, new Property(value));
+        if (property != null && property.propertyType() == PropertyType.INTEGER) {
+            return property.intValue();
+        }
+        return 0;
+    }
+
+    @Override
+    public double getDoubleProperty(String key) {
+        return getDoubleProperty(key, Double.NaN);
+    }
+
+    @Override
+    public double getDoubleProperty(String key, double defaultValue) {
+        if (properties.containsKey(key)) {
+            return properties.get(key).doubleValue();
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public OptionalDouble getOptionalDoubleProperty(String key) {
+        return OptionalDouble.of(getDoubleProperty(key));
+    }
+
+    @Override
+    public double setDoubleProperty(String key, double value) {
+        notifyElementModification(key, value);
+        Property property = properties.put(key, new Property(value));
+        if (property != null && property.propertyType() == PropertyType.DOUBLE) {
+            return property.doubleValue();
+        }
+        return Double.NaN;
+    }
+
+    @Override
+    public boolean getBooleanProperty(String key) {
+        return getBooleanProperty(key, false);
+    }
+
+    @Override
+    public boolean getBooleanProperty(String key, boolean defaultValue) {
+        if (properties.containsKey(key)) {
+            return properties.get(key).booleanValue();
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public Optional<Boolean> getOptionalBooleanProperty(String key) {
+        return Optional.of(getBooleanProperty(key));
+    }
+
+    @Override
+    public boolean setBooleanProperty(String key, boolean value) {
+        notifyElementModification(key, value);
+        Property property = properties.put(key, new Property(value));
+        if (property != null && property.propertyType() == PropertyType.INTEGER) {
+            return property.booleanValue();
+        }
+        return false;
+    }
+
+    private void notifyElementModification(String key, Object value) {
+        if (properties.containsKey(key)) {
+            notifyElementReplaced(key, properties.get(key).getValue(), value);
+        } else {
+            notifyElementAdded(key, value);
+        }
+    }
+
+    private void notifyElementAdded(String key, Object newValue) {
+        getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", newValue);
+    }
+
+    private void notifyElementReplaced(String key, Object oldValue, Object newValue) {
+        getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, newValue);
     }
 
     @Override

@@ -187,7 +187,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         if (regId[0] != null) {
             context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefXml.readTerminalRef(sc.getNetwork(), regId[0], regSide[0])));
         }
-        properties.forEach(sc::setProperty);
+        properties.forEach(sc::setStringProperty);
         aliases.forEach(sc::addAlias);
         sc.getTerminal().setP(p).setQ(q);
     }

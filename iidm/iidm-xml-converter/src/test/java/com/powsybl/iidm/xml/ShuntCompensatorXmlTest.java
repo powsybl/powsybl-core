@@ -33,7 +33,7 @@ public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
     public void linearShuntTest() throws IOException {
         Network network = ShuntTestCaseFactory.create();
         ShuntCompensator sc = network.getShuntCompensator("SHUNT");
-        sc.setProperty("test", "test");
+        sc.setStringProperty("test", "test");
         roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
@@ -47,7 +47,7 @@ public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
     public void nonLinearShuntTest() throws IOException {
         Network network = ShuntTestCaseFactory.createNonLinear();
         ShuntCompensator sc = network.getShuntCompensator("SHUNT");
-        sc.setProperty("test", "test");
+        sc.setStringProperty("test", "test");
         roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,

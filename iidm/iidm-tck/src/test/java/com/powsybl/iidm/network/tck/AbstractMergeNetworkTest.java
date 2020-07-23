@@ -66,10 +66,49 @@ public abstract class AbstractMergeNetworkTest {
     public void testMerge() {
         addSubstationAndVoltageLevel();
         addDanglingLine("dl1", "code", "dl2", "code");
+
+        DanglingLine dl1 = n1.getDanglingLine("dl1");
+        dl1.setStringProperty("network", "noEquipNetwork");
+        dl1.setStringProperty("vl", "");
+        dl1.setStringProperty("OneSideProp", "one side prop");
+        dl1.setIntegerProperty("diffTypeProp", 1);
+        dl1.setStringProperty("str", "test");
+        dl1.setStringProperty("str2", "");
+        dl1.setStringProperty("str3", "test*");
+        dl1.setStringProperty("strError", "error");
+        dl1.setIntegerProperty("int", 5);
+        dl1.setIntegerProperty("int3", 10);
+        dl1.setIntegerProperty("intError", 54);
+        dl1.setDoubleProperty("double", 5d);
+        dl1.setDoubleProperty("double3", 8d);
+        dl1.setDoubleProperty("doubleError", 10d);
+        dl1.setBooleanProperty("bool", true);
+        dl1.setBooleanProperty("bool3", true);
+        dl1.setBooleanProperty("boolError", true);
+
+        DanglingLine dl2 = n2.getDanglingLine("dl2");
+        dl2.setStringProperty("network", "");
+        dl2.setStringProperty("vl", "vl2");
+        dl2.setDoubleProperty("diffTypeProp", 12d);
+        dl2.setStringProperty("str", "test");
+        dl2.setStringProperty("str2", "test*");
+        dl2.setStringProperty("str3", "");
+        dl2.setStringProperty("strError", "errorDiff");
+        dl2.setIntegerProperty("int", 5);
+        dl2.setIntegerProperty("int2", 10);
+        dl2.setIntegerProperty("intError", 55);
+        dl2.setDoubleProperty("double", 5d);
+        dl2.setDoubleProperty("double2", 8d);
+        dl2.setDoubleProperty("doubleError", 11d);
+        dl2.setBooleanProperty("bool", true);
+        dl2.setBooleanProperty("bool2", true);
+        dl2.setBooleanProperty("boolError", false);
+
         merge.merge(n1, n2);
         assertNotNull(merge.getLine("dl1 + dl2"));
         assertEquals("dl1_name + dl2_name", merge.getLine("dl1 + dl2").getOptionalName().orElse(null));
         assertEquals("dl1_name + dl2_name", merge.getLine("dl1 + dl2").getNameOrId());
+        assertEquals(48, merge.getLine("dl1 + dl2").getPropertyNames().size());
     }
 
     private void addSubstation(Network network, String substationId) {

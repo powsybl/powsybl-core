@@ -14,18 +14,49 @@ import com.powsybl.iidm.network.Identifiable
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class IdentifiableExtension {
-
     static Object propertyMissing(Identifiable self, String name) {
         // first check if an extension exist then a property
         Extension extension = self.getExtensionByName(name)
-        extension != null ? extension : self.properties[name]
+        if (extension != null) {
+            extension
+        } else {
+            try {
+                switch (self.getPropertyType(name)) {
+                    case Identifiable.PropertyType.BOOLEAN:
+                        self.getBooleanProperty(name)
+                        break
+                    case Identifiable.PropertyType.DOUBLE:
+                        self.getDoubleProperty(name)
+                        break
+                    case Identifiable.PropertyType.INTEGER:
+                        self.getIntegerProperty(name)
+                        break
+                    default:
+                        self.getStringProperty(name)
+                }
+            } catch (PowsyblException pe) {
+                return null
+            }
+        }
     }
 
     static void propertyMissing(Identifiable self, String name, Object value) {
-        if (value == null) {
-            self.properties.remove(name)
-        } else {
-            self.properties[name] = value;
+        switch(value.getClass().getSimpleName()) {
+            case "String":
+                self.setStringProperty(name, (String) value)
+                break
+            case "Double":
+                self.setDoubleProperty(name, (double) value)
+                break
+            case "Integer":
+                self.setIntegerProperty(name, (int) value)
+                break
+            case "Boolean":
+                self.setBooleanProperty(name, (boolean) value)
+                break
+            default:
+                self.setStringProperty(name, value)
+                break
         }
     }
 

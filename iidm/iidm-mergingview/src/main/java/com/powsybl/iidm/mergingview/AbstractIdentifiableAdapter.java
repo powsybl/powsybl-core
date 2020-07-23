@@ -10,9 +10,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Identifiable;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -42,38 +40,103 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     }
 
     @Override
-    public String getNameOrId() {
-        return getDelegate().getNameOrId();
-    }
-
-    @Override
     public boolean hasProperty() {
         return getDelegate().hasProperty();
     }
 
     @Override
-    public boolean hasProperty(final String key) {
+    public boolean hasProperty(String key) {
         return getDelegate().hasProperty(key);
-    }
-
-    @Override
-    public String getProperty(final String key) {
-        return getDelegate().getProperty(key);
-    }
-
-    @Override
-    public String getProperty(final String key, final String defaultValue) {
-        return getDelegate().getProperty(key, defaultValue);
-    }
-
-    @Override
-    public String setProperty(final String key, final String value) {
-        return getDelegate().setProperty(key, value);
     }
 
     @Override
     public Set<String> getPropertyNames() {
         return getDelegate().getPropertyNames();
+    }
+
+    @Override
+    public PropertyType getPropertyType(String key) {
+        return getDelegate().getPropertyType(key);
+    }
+
+    @Override
+    public String getStringProperty(String key) {
+        return getDelegate().getStringProperty(key);
+    }
+
+    @Override
+    public String getStringProperty(String key, String defaultValue) {
+        return getDelegate().getStringProperty(key, defaultValue);
+    }
+
+    @Override
+    public Optional<String> getOptionalStringProperty(String key) {
+        return getDelegate().getOptionalStringProperty(key);
+    }
+
+    @Override
+    public String setStringProperty(String key, String value) {
+        return getDelegate().setStringProperty(key, value);
+    }
+
+    @Override
+    public int getIntegerProperty(String key) {
+        return getDelegate().getIntegerProperty(key);
+    }
+
+    @Override
+    public int getIntegerProperty(String key, int defaultValue) {
+        return getDelegate().getIntegerProperty(key, defaultValue);
+    }
+
+    @Override
+    public OptionalInt getOptionalIntegerProperty(String key) {
+        return getDelegate().getOptionalIntegerProperty(key);
+    }
+
+    @Override
+    public int setIntegerProperty(String key, int value) {
+        return getDelegate().setIntegerProperty(key, value);
+    }
+
+    @Override
+    public double getDoubleProperty(String key) {
+        return getDelegate().getDoubleProperty(key);
+    }
+
+    @Override
+    public double getDoubleProperty(String key, double defaultValue) {
+        return getDelegate().getDoubleProperty(key, defaultValue);
+    }
+
+    @Override
+    public OptionalDouble getOptionalDoubleProperty(String key) {
+        return getDelegate().getOptionalDoubleProperty(key);
+    }
+
+    @Override
+    public double setDoubleProperty(String key, double value) {
+        return getDelegate().setDoubleProperty(key, value);
+    }
+
+    @Override
+    public boolean getBooleanProperty(String key) {
+        return getDelegate().getBooleanProperty(key);
+    }
+
+    @Override
+    public boolean getBooleanProperty(String key, boolean defaultValue) {
+        return getDelegate().getBooleanProperty(key, defaultValue);
+    }
+
+    @Override
+    public Optional<Boolean> getOptionalBooleanProperty(String key) {
+        return getDelegate().getOptionalBooleanProperty(key);
+    }
+
+    @Override
+    public boolean setBooleanProperty(String key, boolean value) {
+        return getDelegate().setBooleanProperty(key, value);
     }
 
     @Override
@@ -109,11 +172,6 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     @Override
     public <E extends Extension<I>> Collection<E> getExtensions() {
         return getDelegate().getExtensions();
-    }
-
-    @Override
-    public String getImplementationName() {
-        return "MergingView";
     }
 
     @Override

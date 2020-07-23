@@ -151,49 +151,42 @@ public abstract class AbstractNetworkTest {
         assertEquals(0, busCalc.getConnectedComponent().getNum());
 
         // Changes listener
-        NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementAdded(any(), anyString(), any());
-        doThrow(new UnsupportedOperationException()).when(exceptionListener).onElementReplaced(any(), anyString(),
-                any(), any());
         NetworkListener mockedListener = mock(DefaultNetworkListener.class);
 
         // Identifiable properties
         String key = "keyTest";
         String value = "ValueTest";
-        assertFalse(busCalc.hasProperty());
-        assertTrue(busCalc.getPropertyNames().isEmpty());
         // Test without listeners registered
-        busCalc.setProperty("listeners", "no listeners");
+        busCalc.setStringProperty("listeners", "no listeners");
         // Test without listeners registered & same values
-        busCalc.setProperty("listeners", "no listeners");
+        busCalc.setStringProperty("listeners", "no listeners");
         verifyNoMoreInteractions(mockedListener);
-        verifyNoMoreInteractions(exceptionListener);
         // Add observer changes to current network
         network.addListener(mockedListener);
-        network.addListener(exceptionListener);
         // Test with listeners registered
-        busCalc.setProperty(key, value);
+        busCalc.setStringProperty(key, value);
         assertTrue(busCalc.hasProperty());
         assertTrue(busCalc.hasProperty(key));
-        assertEquals(value, busCalc.getProperty(key));
-        assertEquals("default", busCalc.getProperty("invalid", "default"));
+        assertTrue(busCalc.getOptionalStringProperty(key).isPresent());
+        assertEquals(value, busCalc.getOptionalStringProperty(key).get());
+        assertEquals("default", busCalc.getStringProperty("invalid", "default"));
         assertEquals(2, busCalc.getPropertyNames().size());
 
         // Check notification done
         verify(mockedListener, times(1))
-                .onElementAdded(busCalc, "properties[" + key + "]", value);
+               .onElementAdded(busCalc, "properties[" + key + "]", value);
         // Check no notification on same property
         String value2 = "ValueTest2";
-        busCalc.setProperty(key, value2);
+        busCalc.setStringProperty(key, value2);
         verify(mockedListener, times(1))
-                .onElementReplaced(busCalc, "properties[" + key + "]", value, value2);
+               .onElementReplaced(busCalc, "properties[" + key + "]", value, value2);
         // Check no notification on same property
-        busCalc.setProperty(key, value2);
+        busCalc.setStringProperty(key, value2);
         verifyNoMoreInteractions(mockedListener);
         // Remove changes observer
         network.removeListener(mockedListener);
         // Adding same property without listener registered
-        busCalc.setProperty(key, value);
+        busCalc.setStringProperty(key, value);
         // Check no notification
         verifyNoMoreInteractions(mockedListener);
     }
@@ -483,6 +476,53 @@ public abstract class AbstractNetworkTest {
         assertEquals(3, network.getForecastDistance());
         assertEquals(sourceFormat, network.getSourceFormat());
         assertEquals(ContainerType.NETWORK, network.getContainerType());
+
+        String keyBool = "bool";
+        String keyInt = "int";
+        String keyDouble = "double";
+        String keyString = "string";
+
+        int intValue = 5;
+        double doubleValue = 5d;
+        String stringValue = "test";
+        int intValue2 = 52;
+        double doubleValue2 = 51d;
+
+        String stringValue2 = "test2";
+
+        network.setBooleanProperty(keyBool, true);
+        network.setIntegerProperty(keyInt, intValue);
+        network.setDoubleProperty(keyDouble, doubleValue);
+        network.setStringProperty(keyString, stringValue);
+
+        assertTrue(network.getOptionalBooleanProperty(keyBool).isPresent());
+        assertTrue(network.getOptionalBooleanProperty(keyBool).get());
+
+        assertTrue(network.getOptionalIntegerProperty(keyInt).isPresent());
+        assertEquals(intValue, network.getOptionalIntegerProperty(keyInt).getAsInt());
+
+        assertTrue(network.getOptionalDoubleProperty(keyDouble).isPresent());
+        assertEquals(doubleValue, network.getOptionalDoubleProperty(keyDouble).getAsDouble(), 0.001d);
+
+        assertTrue(network.getOptionalStringProperty(keyString).isPresent());
+        assertEquals(stringValue, network.getOptionalStringProperty(keyString).get());
+
+        assertEquals(4, network.getPropertyNames().size());
+
+        network.setBooleanProperty(keyBool, false);
+        network.setIntegerProperty(keyInt, intValue2);
+        network.setDoubleProperty(keyDouble, doubleValue2);
+        network.setStringProperty(keyString, stringValue2);
+        assertFalse(network.getBooleanProperty(keyBool));
+        assertEquals(intValue2, (int) network.getIntegerProperty(keyInt));
+        assertEquals(doubleValue2, network.getDoubleProperty(keyDouble), 0.001d);
+        assertEquals(stringValue2, network.getStringProperty(keyString));
+        assertEquals(4, network.getPropertyNames().size());
+
+        assertTrue(network.getBooleanProperty("notFound", true));
+        assertEquals(intValue2, (int) network.getIntegerProperty("notFound", intValue2));
+        assertEquals(doubleValue2, network.getDoubleProperty("notFound", doubleValue2), 0.001d);
+        assertEquals(stringValue2, network.getStringProperty("notFound", stringValue2));
     }
 
     @Test

@@ -17,6 +17,14 @@
             <xs:minLength value='1'/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:simpleType name="propertyType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="string" />
+            <xs:enumeration value="integer" />
+            <xs:enumeration value="double" />
+            <xs:enumeration value="boolean" />
+        </xs:restriction>
+    </xs:simpleType>
     <xs:element name="network">
         <xs:complexType>
             <xs:sequence>
@@ -61,6 +69,7 @@
     </xs:complexType>
     <xs:complexType name="Property">
         <xs:attribute name="name" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="type" use="required" type="iidm:propertyType"/>
         <xs:attribute name="value" use="required" type="xs:string"/>
     </xs:complexType>
     <xs:complexType name="Substation">

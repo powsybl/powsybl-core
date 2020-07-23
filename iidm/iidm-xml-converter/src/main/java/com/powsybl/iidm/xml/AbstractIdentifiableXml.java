@@ -66,6 +66,7 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         PropertiesXml.write(identifiable, context);
 
         writeSubElements(identifiable, parent, context);
+
         if (isNotEmptyElement) {
             context.getWriter().writeEndElement();
         }

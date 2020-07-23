@@ -202,11 +202,6 @@ public final class MergingView implements Network, MultiVariantObject {
     }
 
     @Override
-    public String getNameOrId() {
-        return workingNetwork.getNameOrId();
-    }
-
-    @Override
     public DateTime getCaseDate() {
         return workingNetwork.getCaseDate();
     }
@@ -236,49 +231,150 @@ public final class MergingView implements Network, MultiVariantObject {
     public Network getNetwork(String id) {
         return index.getNetwork(n -> n.getId().equals(id));
     }
+    
+    @Override
+    public PropertyType getPropertyType(String key) {
+        return index.getNetworkStream()
+            .map(n -> n.getPropertyType(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
 
     @Override
     public boolean hasProperty() {
         return index.getNetworkStream()
-                .anyMatch(Network::hasProperty);
+            .anyMatch(Network::hasProperty);
     }
 
     @Override
-    public boolean hasProperty(final String key) {
+    public boolean hasProperty(String key) {
         return index.getNetworkStream()
-                .anyMatch(n -> n.hasProperty(key));
-    }
-
-    @Override
-    public String getProperty(final String key) {
-        return index.getNetworkStream()
-                .map(n -> n.getProperty(key))
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
-    }
-
-    @Override
-    public String getProperty(final String key, final String defaultValue) {
-        return index.getNetworkStream()
-                .map(n -> n.getProperty(key, defaultValue))
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(defaultValue);
-    }
-
-    @Override
-    public String setProperty(final String key, final String value) {
-        index.getNetworkStream().forEach(n -> n.setProperty(key, value));
-        return null;
+                    .anyMatch(n -> n.hasProperty(key));
     }
 
     @Override
     public Set<String> getPropertyNames() {
         return index.getNetworkStream()
-                .map(Network::getPropertyNames)
-                .flatMap(Set<String>::stream)
-                .collect(Collectors.toSet());
+            .map(Network::getPropertyNames)
+            .flatMap(Set<String>::stream)
+            .collect(Collectors.toSet());
+    }
+
+    @Override
+    public String getStringProperty(String key) {
+        return getStringProperty(key, null);
+    }
+
+    @Override
+    public String getStringProperty(String key, String defaultValue) {
+        return index.getNetworkStream()
+            .map(n -> n.getStringProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(defaultValue);
+    }
+
+    @Override
+    public Optional<String> getOptionalStringProperty(String key) {
+        return index.getNetworkStream()
+            .map(n -> n.getOptionalStringProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public String setStringProperty(String key, String value) {
+        index.getNetworkStream().forEach(n -> n.setStringProperty(key, value));
+        return null;
+    }
+
+    @Override
+    public int getIntegerProperty(String key) {
+        return getIntegerProperty(key, 0);
+    }
+
+    @Override
+    public int getIntegerProperty(String key, int defaultValue) {
+        return index.getNetworkStream()
+            .map(n -> n.getIntegerProperty(key))
+            .filter(number -> number != 0)
+            .findFirst()
+            .orElse(defaultValue);
+    }
+
+    @Override
+    public OptionalInt getOptionalIntegerProperty(String key) {
+        return index.getNetworkStream()
+                    .map(n -> n.getOptionalIntegerProperty(key))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+    }
+
+    @Override
+    public int setIntegerProperty(String key, int value) {
+        index.getNetworkStream().forEach(n -> n.setIntegerProperty(key, value));
+        return 0;
+    }
+
+    @Override
+    public double getDoubleProperty(String key) {
+        return getDoubleProperty(key, Double.NaN);
+    }
+
+    @Override
+    public double getDoubleProperty(String key, double defaultValue) {
+        return index.getNetworkStream()
+            .map(n -> n.getDoubleProperty(key))
+            .filter(number -> !Double.isNaN(number))
+            .findFirst()
+            .orElse(defaultValue);
+    }
+
+    @Override
+    public OptionalDouble getOptionalDoubleProperty(String key) {
+        return index.getNetworkStream()
+                    .map(n -> n.getOptionalDoubleProperty(key))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+    }
+
+    @Override
+    public double setDoubleProperty(String key, double value) {
+        index.getNetworkStream().forEach(n -> n.setDoubleProperty(key, value));
+        return Double.NaN;
+    }
+
+    @Override
+    public boolean getBooleanProperty(String key) {
+        return getBooleanProperty(key, false);
+    }
+
+    @Override
+    public boolean getBooleanProperty(String key, boolean defaultValue) {
+        return index.getNetworkStream()
+            .filter(n -> n.hasProperty(key))
+            .map(n -> n.getBooleanProperty(key))
+            .findFirst()
+            .orElse(defaultValue);
+    }
+
+    @Override
+    public Optional<Boolean> getOptionalBooleanProperty(String key) {
+        return index.getNetworkStream()
+            .map(n -> n.getOptionalBooleanProperty(key))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public boolean setBooleanProperty(String key, boolean value) {
+        index.getNetworkStream().forEach(n -> n.setBooleanProperty(key, value));
+        return true;
     }
 
     @Override
@@ -392,11 +488,11 @@ public final class MergingView implements Network, MultiVariantObject {
     @Override
     public Iterable<Substation> getSubstations(final String country, final String tsoId, final String... geographicalTags) {
         return index.getNetworkStream()
-                .map(n -> n.getSubstations(country, tsoId, geographicalTags))
-                .flatMap(x -> StreamSupport.stream(x.spliterator(), false))
-                .filter(Objects::nonNull)
-                .map(index::getSubstation)
-                .collect(Collectors.toList());
+                    .map(n -> n.getSubstations(country, tsoId, geographicalTags))
+                    .flatMap(x -> StreamSupport.stream(x.spliterator(), false))
+                    .filter(Objects::nonNull)
+                    .map(index::getSubstation)
+                    .collect(Collectors.toList());
     }
 
     @Override
@@ -806,11 +902,6 @@ public final class MergingView implements Network, MultiVariantObject {
     @Override
     public <E extends Extension<Network>> Collection<E> getExtensions() {
         return workingNetwork.getExtensions();
-    }
-
-    @Override
-    public String getImplementationName() {
-        return "MergingView";
     }
 
     @Override

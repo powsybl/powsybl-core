@@ -43,7 +43,7 @@ public final class UcteAliasesCreation {
     }
 
     private static void addElementNameAlias(Identifiable<?> identifiable, Set<String> duplicatedAliases) {
-        String elementNameProperty = identifiable.getProperty(ELEMENT_NAME_PROPERTY_KEY);
+        String elementNameProperty = identifiable.getStringProperty(ELEMENT_NAME_PROPERTY_KEY);
         if (elementNameProperty != null && !elementNameProperty.isEmpty()) {
             Optional<UcteElementId> ucteElementIdOptional = parseUcteElementId(identifiable.getId());
             if (ucteElementIdOptional.isPresent()) {
@@ -54,7 +54,7 @@ public final class UcteAliasesCreation {
     }
 
     private static void addHalfElementNameAliases(TieLine tieLine, Set<String> duplicatedAliases) {
-        String elementName1Property = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1");
+        String elementName1Property = tieLine.getStringProperty(ELEMENT_NAME_PROPERTY_KEY + "_1");
         if (elementName1Property != null && !elementName1Property.isEmpty()) {
             Optional<UcteElementId> ucteElementIdOptional = parseUcteElementId(tieLine.getHalf1().getId());
             if (ucteElementIdOptional.isPresent()) {
@@ -62,7 +62,7 @@ public final class UcteAliasesCreation {
                 safeAddAlias(tieLine, duplicatedAliases, String.format(ALIAS_TRIPLET_TEMPLATE, ucteElementId.getNodeCode1(), ucteElementId.getNodeCode2(), elementName1Property));
             }
         }
-        String elementName2Property = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2");
+        String elementName2Property = tieLine.getStringProperty(ELEMENT_NAME_PROPERTY_KEY + "_2");
         if (elementName2Property != null && !elementName2Property.isEmpty()) {
             Optional<UcteElementId> ucteElementIdOptional = parseUcteElementId(tieLine.getHalf2().getId());
             if (ucteElementIdOptional.isPresent()) {

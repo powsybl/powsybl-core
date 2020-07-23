@@ -15,10 +15,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.*;
@@ -61,13 +58,13 @@ public class VariantManagerImplTest {
         }
 
         @Override
-        public Set<String> getAliases() {
-            return Collections.unmodifiableSet(aliases);
+        public Network getNetwork() {
+            return null;
         }
 
         @Override
-        public Network getNetwork() {
-            return null;
+        public Set<String> getAliases() {
+            return Collections.unmodifiableSet(aliases);
         }
 
         @Override
@@ -81,23 +78,83 @@ public class VariantManagerImplTest {
         }
 
         @Override
-        public String getProperty(String key) {
-            return null;
-        }
-
-        @Override
-        public String getProperty(String key, String defaultValue) {
-            return null;
-        }
-
-        @Override
-        public String setProperty(String key, String value) {
-            return null;
-        }
-
-        @Override
         public Set<String> getPropertyNames() {
-            return Collections.emptySet();
+            return null;
+        }
+
+        @Override
+        public PropertyType getPropertyType(String key) {
+            return null;
+        }
+
+        @Override
+        public String getStringProperty(String key) {
+            return null;
+        }
+
+        @Override
+        public String getStringProperty(String key, String defaultValue) {
+            return null;
+        }
+
+        @Override
+        public Optional<String> getOptionalStringProperty(String key) {
+            return Optional.empty();
+        }
+
+        @Override
+        public String setStringProperty(String key, String value) {
+            return null;
+        }
+
+        @Override
+        public int getIntegerProperty(String key) {
+            return 0;
+        }
+
+        @Override
+        public OptionalInt getOptionalIntegerProperty(String key) {
+            return OptionalInt.empty();
+        }
+
+        @Override
+        public int setIntegerProperty(String key, int value) {
+            return 0;
+        }
+
+        @Override
+        public double getDoubleProperty(String key) {
+            return Double.NaN;
+        }
+
+        @Override
+        public OptionalDouble getOptionalDoubleProperty(String key) {
+            return OptionalDouble.empty();
+        }
+
+        @Override
+        public double setDoubleProperty(String key, double value) {
+            return Double.NaN;
+        }
+
+        @Override
+        public boolean getBooleanProperty(String key) {
+            return false;
+        }
+
+        @Override
+        public boolean getBooleanProperty(String key, boolean defaultValue) {
+            return false;
+        }
+
+        @Override
+        public Optional<Boolean> getOptionalBooleanProperty(String key) {
+            return Optional.empty();
+        }
+
+        @Override
+        public boolean setBooleanProperty(String key, boolean value) {
+            return false;
         }
 
         @Override

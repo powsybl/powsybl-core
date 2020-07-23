@@ -38,7 +38,7 @@ class MergedLine implements TieLine {
 
     private final String name;
 
-    private final Properties properties = new Properties();
+    private static final String INCONSISTENCY_PROPERTY = "Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line";
 
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2, boolean ensureIdUnicity) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
@@ -46,7 +46,6 @@ class MergedLine implements TieLine {
         this.half2 = new HalfLineAdapter(dl2);
         this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildId(dl1, dl2), index::contains) : buildId(dl1, dl2);
         this.name = buildName(dl1, dl2);
-        mergeProperties(dl1, dl2);
     }
 
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2) {
@@ -80,27 +79,6 @@ class MergedLine implements TieLine {
         } else {
             return name2 + " + " + name1;
         }
-    }
-
-    private void mergeProperties(DanglingLine dl1, DanglingLine dl2) {
-        Set<String> dl1Properties = dl1.getPropertyNames();
-        Set<String> dl2Properties = dl2.getPropertyNames();
-        Set<String> commonProperties = Sets.intersection(dl1Properties, dl2Properties);
-        Sets.difference(dl1Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl1.getProperty(prop)));
-        Sets.difference(dl2Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl2.getProperty(prop)));
-        commonProperties.forEach(prop -> {
-            if (dl1.getProperty(prop).equals(dl2.getProperty(prop))) {
-                properties.setProperty(prop, dl1.getProperty(prop));
-            } else if (dl1.getProperty(prop).isEmpty()) {
-                LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
-                properties.setProperty(prop, dl2.getProperty(prop));
-            } else if (dl2.getProperty(prop).isEmpty()) {
-                LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
-                properties.setProperty(prop, dl1.getProperty(prop));
-            } else {
-                LOGGER.error("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
-            }
-        });
     }
 
     void computeAndSetP0() {
@@ -439,19 +417,80 @@ class MergedLine implements TieLine {
         return getOptionalName().orElse(id);
     }
 
-    @Override
-    public boolean hasProperty() {
-        return !properties.isEmpty();
+    private <P> boolean isMergedProperty(P prop1, P prop2) {
+        if ((prop1 != null && prop2 == null) || (prop1 != null && prop2 instanceof String && ((String) prop2).isEmpty())) {
+            return true;
+        }
+        if ((prop1 == null && prop2 != null) || (prop2 != null && prop1 instanceof String && ((String) prop1).isEmpty())) {
+            return true;
+        }
+        if (prop1 == null) {
+            return false;
+        }
+        return prop1.equals(prop2);
     }
 
     @Override
-    public boolean hasProperty(final String key) {
-        return properties.containsKey(key);
+    public boolean hasProperty() {
+        boolean prop1 = getDanglingLine1().hasProperty();
+        boolean prop2 = getDanglingLine2().hasProperty();
+        if (prop1 && !prop2) {
+            return true;
+        }
+        if (!prop1 && prop2) {
+            return true;
+        }
+        if (prop1) {
+            for (String key : getPropertyNames()) {
+                if (hasProperty(key)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean hasProperty(String key) {
+        return getPropertyNames().contains(key);
     }
 
     @Override
     public Set<String> getPropertyNames() {
-        return properties.keySet().stream().map(Object::toString).collect(Collectors.toSet());
+        Set<String> dl1PropertyNames = getDanglingLine1().getPropertyNames();
+        Set<String> dl2PropertyNames = getDanglingLine2().getPropertyNames();
+
+        Set<String> commonProperties = Sets.intersection(dl1PropertyNames, dl2PropertyNames);
+        Set<String> properties = new HashSet<>(Sets.difference(dl1PropertyNames, commonProperties));
+        properties.addAll(Sets.difference(dl2PropertyNames, commonProperties));
+        for (String key : commonProperties) {
+            PropertyType type = getDanglingLine1().getPropertyType(key);
+            if (type == getDanglingLine2().getPropertyType(key)) {
+                switch (type) {
+                    case STRING:
+                        if (isMergedProperty(getDanglingLine1().getStringProperty(key), getDanglingLine2().getStringProperty(key))) {
+                            properties.add(key);
+                        }
+                        break;
+                    case INTEGER:
+                        if (isMergedProperty(getDanglingLine1().getIntegerProperty(key), getDanglingLine2().getIntegerProperty(key))) {
+                            properties.add(key);
+                        }
+                        break;
+                    case DOUBLE:
+                        if (isMergedProperty(getDanglingLine1().getDoubleProperty(key), getDanglingLine2().getDoubleProperty(key))) {
+                            properties.add(key);
+                        }
+                        break;
+                    case BOOLEAN:
+                        if (isMergedProperty(getDanglingLine1().getBooleanProperty(key), getDanglingLine2().getBooleanProperty(key))) {
+                            properties.add(key);
+                        }
+                        break;
+                }
+            }
+        }
+        return properties;
     }
 
     @Override
@@ -464,24 +503,181 @@ class MergedLine implements TieLine {
         getDanglingLine1().setFictitious(fictitious);
         getDanglingLine2().setFictitious(fictitious);
     }
-
+    
     @Override
-    public String getProperty(final String key) {
-        Object val = properties.get(key);
-        return val != null ? val.toString() : null;
+    public PropertyType getPropertyType(String key) {
+        PropertyType type1 = getDanglingLine1().getPropertyType(key);
+        PropertyType type2 = getDanglingLine2().getPropertyType(key);
+        if (type1 != null && type2 == null) {
+            return type1;
+        }
+        if (type2 != null && type1 == null) {
+            return type2;
+        }
+        if (type1 != null && type1.equals(type2)) {
+            boolean isMergedProperty = false;
+            switch (type1) {
+                case STRING:
+                    isMergedProperty = getDanglingLine1().getStringProperty(key).equals(getDanglingLine2().getStringProperty(key));
+                    break;
+                case INTEGER:
+                    isMergedProperty = getDanglingLine1().getIntegerProperty(key) == getDanglingLine2().getIntegerProperty(key);
+                    break;
+                case DOUBLE:
+                    isMergedProperty = getDanglingLine1().getDoubleProperty(key) == getDanglingLine2().getDoubleProperty(key);
+                    break;
+                case BOOLEAN:
+                    isMergedProperty = getDanglingLine1().getBooleanProperty(key) == getDanglingLine2().getBooleanProperty(key);
+                    break;
+            }
+            if (isMergedProperty) {
+                return type1;
+            }
+        }
+        return null;
     }
 
     @Override
-    public String getProperty(final String key, final String defaultValue) {
-        Object val = properties.getOrDefault(key, defaultValue);
-        return val != null ? val.toString() : null;
+    public String getStringProperty(String key) {
+        String prop1 = getDanglingLine1().getStringProperty(key);
+        String prop2 = getDanglingLine2().getStringProperty(key);
+        if ((prop1 != null && prop2 == null) || (prop1 != null && prop2.isEmpty())) {
+            return prop1;
+        }
+        if ((prop1 == null && prop2 != null) || (prop2 != null && prop1.isEmpty())) {
+            return prop2;
+        }
+        if (prop1 != null) {
+            if (prop1.equals(prop2)) {
+                return prop1;
+            }
+            LOGGER.error(INCONSISTENCY_PROPERTY, key, prop1, prop2);
+        }
+        return null;
     }
 
     @Override
-    public String setProperty(final String key, final String value) {
-        getDanglingLine1().setProperty(key, value);
-        getDanglingLine2().setProperty(key, value);
-        return (String) properties.setProperty(key, value);
+    public String getStringProperty(String key, String defaultValue) {
+        String value = getStringProperty(key);
+        return value == null ? defaultValue : value;
+    }
+
+    @Override
+    public Optional<String> getOptionalStringProperty(String key) {
+        return Optional.ofNullable(getStringProperty(key));
+    }
+
+    @Override
+    public String setStringProperty(String key, String value) {
+        getDanglingLine1().setStringProperty(key, value);
+        return getDanglingLine2().setStringProperty(key, value);
+    }
+
+    @Override
+    public int getIntegerProperty(String key) {
+        int prop1 = getDanglingLine1().getIntegerProperty(key);
+        int prop2 = getDanglingLine2().getIntegerProperty(key);
+        if (getDanglingLine1().hasProperty(key) && !getDanglingLine2().hasProperty(key)) {
+            return prop1;
+        }
+        if (getDanglingLine2().hasProperty(key) && !getDanglingLine1().hasProperty(key)) {
+            return prop2;
+        }
+        if (getDanglingLine1().hasProperty(key)) {
+            if (prop1 == prop2) {
+                return prop1;
+            }
+            LOGGER.error(INCONSISTENCY_PROPERTY, key, prop1, prop2);
+        }
+        return 0;
+    }
+
+    @Override
+    public int getIntegerProperty(String key, int defaultValue) {
+        int value = getIntegerProperty(key);
+        return value == 0 ? defaultValue : value;
+    }
+
+    @Override
+    public OptionalInt getOptionalIntegerProperty(String key) {
+        return OptionalInt.of(getIntegerProperty(key));
+    }
+
+    @Override
+    public int setIntegerProperty(String key, int value) {
+        getDanglingLine1().setIntegerProperty(key, value);
+        return getDanglingLine2().setIntegerProperty(key, value);
+    }
+
+    @Override
+    public double getDoubleProperty(String key) {
+        double prop1 = getDanglingLine1().getDoubleProperty(key);
+        double prop2 = getDanglingLine2().getDoubleProperty(key);
+        if (!Double.isNaN(prop1) && Double.isNaN(prop2)) {
+            return prop1;
+        }
+        if (!Double.isNaN(prop2) && Double.isNaN(prop1)) {
+            return prop2;
+        }
+        if (!Double.isNaN(prop1)) {
+            if (prop1 == prop2) {
+                return prop1;
+            }
+            LOGGER.error(INCONSISTENCY_PROPERTY, key, prop1, prop2);
+        }
+        return Double.NaN;
+    }
+
+    @Override
+    public double getDoubleProperty(String key, double defaultValue) {
+        double value = getDoubleProperty(key);
+        return Double.isNaN(value) ? defaultValue : value;
+    }
+
+    @Override
+    public OptionalDouble getOptionalDoubleProperty(String key) {
+        return OptionalDouble.of(getDoubleProperty(key));
+    }
+
+    @Override
+    public double setDoubleProperty(String key, double value) {
+        getDanglingLine1().setDoubleProperty(key, value);
+        return getDanglingLine2().setDoubleProperty(key, value);
+    }
+
+    @Override
+    public boolean getBooleanProperty(String key) {
+        boolean prop1 = getDanglingLine1().getBooleanProperty(key);
+        boolean prop2 = getDanglingLine2().getBooleanProperty(key);
+        if (getDanglingLine1().hasProperty(key) && !getDanglingLine2().hasProperty(key)) {
+            return prop1;
+        }
+        if (getDanglingLine2().hasProperty(key) && !getDanglingLine1().hasProperty(key)) {
+            return prop2;
+        }
+        if (getDanglingLine1().hasProperty(key)) {
+            if (prop1 == prop2) {
+                return prop1;
+            }
+            LOGGER.error(INCONSISTENCY_PROPERTY, key, prop1, prop2);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean getBooleanProperty(String key, boolean defaultValue) {
+        boolean value = getBooleanProperty(key);
+        return value ? value : defaultValue;
+    }
+
+    @Override
+    public Optional<Boolean> getOptionalBooleanProperty(String key) {
+        return Optional.of(getBooleanProperty(key));
+    }
+
+    @Override
+    public boolean setBooleanProperty(String key, boolean value) {
+        return getDanglingLine1().setBooleanProperty(key, value) && getDanglingLine2().setBooleanProperty(key, value);
     }
 
     // -------------------------------
