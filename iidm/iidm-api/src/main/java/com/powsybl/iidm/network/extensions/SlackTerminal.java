@@ -21,15 +21,7 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
      * @param network the network to remove the slackTerminal extensions from
      */
     static void removeAllFrom(Network network) {
-        network.getVoltageLevels().forEach(SlackTerminal::removeFrom);
-    }
-
-    /**
-     * Remove all SlackTerminal extensions from given voltageLevel
-     * @param voltageLevel the voltageLevel to remove the slackTerminal extension from
-     */
-    static void removeFrom(VoltageLevel voltageLevel) {
-        reset(voltageLevel, null);
+        network.getVoltageLevels().forEach(vl -> vl.removeExtension(SlackTerminal.class));
     }
 
     /**
@@ -38,11 +30,13 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
      * @param terminal the terminal to reset the extension to (may be null)
      */
     static void reset(VoltageLevel voltageLevel, Terminal terminal) {
-        voltageLevel.removeExtension(SlackTerminal.class);
-        if (terminal != null) {
+        SlackTerminal st = voltageLevel.getExtension(SlackTerminal.class);
+        if (st == null) {
             voltageLevel.newExtension(SlackTerminalAdder.class)
-                    .withTerminal(terminal)
-                    .add();
+                .withTerminal(terminal)
+                .add();
+        } else {
+            st.setTerminal(terminal, true);
         }
     }
 
@@ -60,8 +54,27 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
     /**
      * Set the terminal pointed by the current SlackTerminal
      * @param terminal the corresponding terminal
+     * @return the current SlackTerminal
      */
-    void setTerminal(Terminal terminal);
+    SlackTerminal setTerminal(Terminal terminal);
+
+    /**
+     * Set the terminal pointed by the current SlackTerminal
+     * @param terminal the corresponding terminal (may be null)
+     * @param cleanIfCleanable if true and if the slackTerminal is cleanable, removes the SlackTerminal extension from
+     *                         the corresponding VoltageLevel
+     * @return the current SlackTerminal
+     */
+    default SlackTerminal setTerminal(Terminal terminal, boolean cleanIfCleanable) {
+        if (cleanIfCleanable) {
+            if (setTerminal(terminal).isCleanable()) {
+                getExtendable().removeExtension(SlackTerminal.class);
+            }
+        } else {
+            setTerminal(terminal);
+        }
+        return this;
+    }
 
     /**
      * Returns if the current SlackTerminal can be cleaned, that is, if the extension is unused

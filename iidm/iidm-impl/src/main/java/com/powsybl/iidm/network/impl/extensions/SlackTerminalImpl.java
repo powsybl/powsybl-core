@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Objects;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
@@ -22,12 +24,9 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
 
     SlackTerminalImpl(VoltageLevel voltageLevel, Terminal terminal) {
         super(voltageLevel);
-
-        int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-        this.terminals = new ArrayList<>(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.terminals.add(terminal);
-        }
+        this.terminals = new ArrayList<>(
+            Collections.nCopies(getVariantManagerHolder().getVariantManager().getVariantArraySize(), null));
+        this.setTerminal(terminal);
     }
 
     @Override
@@ -36,18 +35,14 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
     }
 
     @Override
-    public void setTerminal(Terminal terminal) {
+    public SlackTerminal setTerminal(Terminal terminal) {
         terminals.set(getVariantIndex(), terminal);
+        return this;
     }
 
     @Override
     public boolean isCleanable() {
-        for (Terminal t : terminals) {
-            if (t != null) {
-                return false;
-            }
-        }
-        return true;
+        return terminals.stream().noneMatch(Objects::nonNull);
     }
 
     @Override
