@@ -62,12 +62,15 @@ public class WeakListenerList<L> {
     public void notify(Consumer<L> notifier) {
         Objects.requireNonNull(notifier);
         lock.lock();
+        HashSet<L> cachedListeners;
         try {
-            for (L listener : new HashSet<>(listeners.keySet())) {
-                notifier.accept(listener);
-            }
+            cachedListeners = new HashSet<>(listeners.keySet());
         } finally {
             lock.unlock();
+        }
+
+        for (L listener : cachedListeners) {
+            notifier.accept(listener);
         }
     }
 
