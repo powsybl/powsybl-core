@@ -34,7 +34,7 @@ class LoadData extends BlockData {
     }
 
     List<PsseLoad> read(BufferedReader reader, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.LoadData, PsseVersion.VERSION_33);
+        assertMinimumExpectedVersion(PsseBlockData.LOAD_DATA, PsseVersion.VERSION_33);
 
         List<String> records = readRecordBlock(reader);
         String[] headers = loadDataHeaders(this.getPsseVersion());
@@ -48,8 +48,8 @@ class LoadData extends BlockData {
         }
     }
 
-    List<PsseLoad> read(JsonNode networkNode, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.LoadData, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
+    List<PsseLoad> readx(JsonNode networkNode, PsseContext context) {
+        assertMinimumExpectedVersion(PsseBlockData.LOAD_DATA, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
 
         JsonNode loadNode = networkNode.get("load");
         if (loadNode == null) {

@@ -33,7 +33,7 @@ class BusData extends BlockData {
     }
 
     List<PsseBus> read(BufferedReader reader, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.BusData, PsseVersion.VERSION_33);
+        assertMinimumExpectedVersion(PsseBlockData.BUS_DATA, PsseVersion.VERSION_33);
 
         String[] headers = busDataHeaders(this.getPsseVersion());
         List<String> records = readRecordBlock(reader);
@@ -42,8 +42,8 @@ class BusData extends BlockData {
         return parseRecordsHeader(records, PsseBus.class, headers);
     }
 
-    List<PsseBus> read(JsonNode networkNode, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.BusData, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
+    List<PsseBus> readx(JsonNode networkNode, PsseContext context) {
+        assertMinimumExpectedVersion(PsseBlockData.BUS_DATA, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
 
         JsonNode busNode = networkNode.get("bus");
         if (busNode == null) {

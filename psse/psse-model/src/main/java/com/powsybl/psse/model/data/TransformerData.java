@@ -36,7 +36,7 @@ class TransformerData extends BlockData {
     }
 
     List<PsseTransformer> read(BufferedReader reader, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.TransformerData, PsseVersion.VERSION_33);
+        assertMinimumExpectedVersion(PsseBlockData.TRANSFORMER_DATA, PsseVersion.VERSION_33);
 
         List<PsseTransformer> transformers = new ArrayList<>();
 
@@ -99,8 +99,8 @@ class TransformerData extends BlockData {
         }
     }
 
-    List<PsseTransformer> read(JsonNode networkNode, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.TransformerData, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
+    List<PsseTransformer> readx(JsonNode networkNode, PsseContext context) {
+        assertMinimumExpectedVersion(PsseBlockData.TRANSFORMER_DATA, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
 
         JsonNode transformerDataNode = networkNode.get("transformer");
         if (transformerDataNode == null) {

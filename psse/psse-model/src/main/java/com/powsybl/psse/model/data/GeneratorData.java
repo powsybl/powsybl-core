@@ -34,7 +34,7 @@ class GeneratorData extends BlockData {
     }
 
     List<PsseGenerator> read(BufferedReader reader, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.GeneratorData, PsseVersion.VERSION_33);
+        assertMinimumExpectedVersion(PsseBlockData.GENERATOR_DATA, PsseVersion.VERSION_33);
 
         List<String> records = readRecordBlock(reader);
         String[] headers = generatorDataHeaders(this.getPsseVersion());
@@ -48,8 +48,8 @@ class GeneratorData extends BlockData {
         }
     }
 
-    List<PsseGenerator> read(JsonNode networkNode, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.GeneratorData, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
+    List<PsseGenerator> readx(JsonNode networkNode, PsseContext context) {
+        assertMinimumExpectedVersion(PsseBlockData.GENERATOR_DATA, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
 
         JsonNode generatorNode = networkNode.get("generator");
         if (generatorNode == null) {

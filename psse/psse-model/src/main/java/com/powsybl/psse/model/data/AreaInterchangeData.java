@@ -33,7 +33,7 @@ class AreaInterchangeData extends BlockData {
     }
 
     List<PsseArea> read(BufferedReader reader, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.AreaInterchangeData, PsseVersion.VERSION_33);
+        assertMinimumExpectedVersion(PsseBlockData.AREA_INTERCHANGE_DATA, PsseVersion.VERSION_33);
 
         String[] headers = areaInterchangeDataHeaders(this.getPsseVersion());
         List<String> records = readRecordBlock(reader);
@@ -42,8 +42,8 @@ class AreaInterchangeData extends BlockData {
         return parseRecordsHeader(records, PsseArea.class, headers);
     }
 
-    List<PsseArea> read(JsonNode networkNode, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.AreaInterchangeData, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
+    List<PsseArea> readx(JsonNode networkNode, PsseContext context) {
+        assertMinimumExpectedVersion(PsseBlockData.AREA_INTERCHANGE_DATA, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
 
         JsonNode areaInterchangeNode = networkNode.get("area");
         if (areaInterchangeNode == null) {

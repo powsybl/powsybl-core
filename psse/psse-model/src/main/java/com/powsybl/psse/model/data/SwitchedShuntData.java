@@ -34,7 +34,7 @@ class SwitchedShuntData extends BlockData {
     }
 
     List<PsseSwitchedShunt> read(BufferedReader reader, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.SwitchedShuntData, PsseVersion.VERSION_33);
+        assertMinimumExpectedVersion(PsseBlockData.SWITCHED_SHUNT_DATA, PsseVersion.VERSION_33);
 
         String[] headers = switchedShuntDataDataHeaders(this.getPsseVersion());
         List<String> records = readRecordBlock(reader);
@@ -48,8 +48,8 @@ class SwitchedShuntData extends BlockData {
         }
     }
 
-    List<PsseSwitchedShunt> read(JsonNode networkNode, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.SwitchedShuntData, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
+    List<PsseSwitchedShunt> readx(JsonNode networkNode, PsseContext context) {
+        assertMinimumExpectedVersion(PsseBlockData.SWITCHED_SHUNT_DATA, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
 
         JsonNode switchedShuntDataNode = networkNode.get("swshunt");
         if (switchedShuntDataNode == null) {

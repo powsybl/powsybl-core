@@ -39,29 +39,30 @@ import com.univocity.parsers.csv.CsvParserSettings;
 class BlockData {
 
     private static final String PSSE = "Psse: ";
+    private static final String EXPECTED_FORMAT = ". Expected format ";
 
     enum PsseBlockData {
-        CaseIdentificationData,
-        BusData,
-        LoadData,
-        FixedBusShuntData,
-        GeneratorData,
-        NonTransformerBranchData,
-        TransformerData,
-        AreaInterchangeData,
-        TwoTerminalDcTransmissionLineData,
-        VoltageSourceConverterDcTransmissionLineData,
-        TransformerImpedanceCorrectionTables,
-        MultiTerminalDcTransmissionLineData,
-        MultiSectionLineGrupingData,
-        ZoneData,
-        InterareaTransferData,
-        OwnerData,
-        FactsDeviceData,
-        SwitchedShuntData,
-        GneDeviceData,
-        InductionMachineData,
-        Qrecord
+        CASE_IDENTIFICATION_DATA,
+        BUS_DATA,
+        LOAD_DATA,
+        FIXED_BUS_SHUNT_DATA,
+        GENERATOR_DATA,
+        NON_TRANSFORMER_BRANCH_DATA,
+        TRANSFORMER_DATA,
+        AREA_INTERCHANGE_DATA,
+        TWO_TERMINAL_DC_TRANSMISSION_LINE_DATA,
+        VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_DATA,
+        TRANSFORMER_IMPEDANCE_CORRECTION_TABLES,
+        MULTI_TERMINAL_DC_TRANSMISSION_LINE_DATA,
+        MULTI_SECTION_LINE_GROUPING_DATA,
+        ZONE_DATA,
+        INTERAREA_TRANSFER_DATA,
+        OWNER_DATA,
+        FACTS_DEVICE_DATA,
+        SWITCHED_SHUNT_DATA,
+        GNE_DEVICE_DATA,
+        INDUCTION_MACHINE_DATA,
+        Q_RECORD
     }
 
     private final PsseVersion psseVersion;
@@ -252,7 +253,7 @@ class BlockData {
             return;
         }
         throw new PsseException(PSSE + blockData + ". Wrong version, expected version between (" + minimumVersion
-            + ", " + maximumVersion + ") actual version " + psseVersion + ". Expected format "
+            + ", " + maximumVersion + ") actual version " + psseVersion + EXPECTED_FORMAT
             + PsseFileFormat.FORMAT_RAW + " actual format" + psseFileFormat);
     }
 
@@ -263,7 +264,7 @@ class BlockData {
             return;
         }
         throw new PsseException(PSSE + blockData + ". Wrong version, expected version between (" + minimumVersion
-            + ", " + maximumVersion + ") actual version " + psseVersion + ". Expected format "
+            + ", " + maximumVersion + ") actual version " + psseVersion + EXPECTED_FORMAT
             + fileFormat + " actual format" + psseFileFormat);
     }
 
@@ -272,7 +273,7 @@ class BlockData {
             return;
         }
         throw new PsseException(PSSE + blockData + ". Wrong version, minimum expected version" + version + " actual version "
-            + psseVersion + ". Expected format " + PsseFileFormat.FORMAT_RAW + " actual format " + psseFileFormat);
+            + psseVersion + EXPECTED_FORMAT + PsseFileFormat.FORMAT_RAW + " actual format " + psseFileFormat);
     }
 
     void assertMinimumExpectedVersion(PsseBlockData blockData, PsseVersion version, PsseFileFormat fileFormat) {
@@ -280,7 +281,7 @@ class BlockData {
             return;
         }
         throw new PsseException(PSSE + blockData + ". Wrong version, minimum expected version " + version + " actual version "
-            + psseVersion + ". Expected format " + fileFormat + " actual format " + psseFileFormat);
+            + psseVersion + EXPECTED_FORMAT + fileFormat + " actual format " + psseFileFormat);
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BlockData.class);

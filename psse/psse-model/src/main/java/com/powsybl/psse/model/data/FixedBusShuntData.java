@@ -33,7 +33,7 @@ class FixedBusShuntData extends BlockData {
     }
 
     List<PsseFixedShunt> read(BufferedReader reader, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.FixedBusShuntData, PsseVersion.VERSION_33);
+        assertMinimumExpectedVersion(PsseBlockData.FIXED_BUS_SHUNT_DATA, PsseVersion.VERSION_33);
 
         List<String> records = readRecordBlock(reader);
         String[] headers = fixedBusShuntDataHeaders(this.getPsseVersion());
@@ -42,8 +42,8 @@ class FixedBusShuntData extends BlockData {
         return parseRecordsHeader(records, PsseFixedShunt.class, headers);
     }
 
-    List<PsseFixedShunt> read(JsonNode networkNode, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.FixedBusShuntData, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
+    List<PsseFixedShunt> readx(JsonNode networkNode, PsseContext context) {
+        assertMinimumExpectedVersion(PsseBlockData.FIXED_BUS_SHUNT_DATA, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
 
         JsonNode fixedShuntNode = networkNode.get("fixshunt");
         if (fixedShuntNode == null) {

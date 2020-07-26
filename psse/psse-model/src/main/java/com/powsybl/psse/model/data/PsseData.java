@@ -52,7 +52,7 @@ public class PsseData {
         JsonNode rootNode = objectMapper.readTree(jsonFile);
         JsonNode networkNode = rootNode.get("network");
 
-        PsseCaseIdentification caseIdentification = new CaseIdentificationData(version, format).read(networkNode);
+        PsseCaseIdentification caseIdentification = new CaseIdentificationData(version, format).readx(networkNode);
         return checkCaseIdentification(caseIdentification);
     }
 
@@ -180,21 +180,21 @@ public class PsseData {
         JsonNode rootNode = objectMapper.readTree(jsonFile);
         JsonNode networkNode = rootNode.get("network");
 
-        PsseCaseIdentification caseIdentification = new CaseIdentificationData(version, format).read(networkNode, context);
+        PsseCaseIdentification caseIdentification = new CaseIdentificationData(version, format).readx(networkNode, context);
         PsseRawModel model = new PsseRawModel35(caseIdentification);
 
-        model.addBuses(new BusData(version, format).read(networkNode, context));
-        model.addLoads(new LoadData(version, format).read(networkNode, context));
-        model.addFixedShunts(new FixedBusShuntData(version, format).read(networkNode, context));
-        model.addGenerators(new GeneratorData(version, format).read(networkNode, context));
-        model.addNonTransformerBranches(new NonTransformerBranchData(version, format).read(networkNode, context));
-        model.addTransformers(new TransformerData(version, format).read(networkNode, context));
+        model.addBuses(new BusData(version, format).readx(networkNode, context));
+        model.addLoads(new LoadData(version, format).readx(networkNode, context));
+        model.addFixedShunts(new FixedBusShuntData(version, format).readx(networkNode, context));
+        model.addGenerators(new GeneratorData(version, format).readx(networkNode, context));
+        model.addNonTransformerBranches(new NonTransformerBranchData(version, format).readx(networkNode, context));
+        model.addTransformers(new TransformerData(version, format).readx(networkNode, context));
 
-        model.addAreas(new AreaInterchangeData(version, format).read(networkNode, context));
-        model.addZones(new ZoneData(version, format).read(networkNode, context));
-        model.addOwners(new OwnerData(version, format).read(networkNode, context));
+        model.addAreas(new AreaInterchangeData(version, format).readx(networkNode, context));
+        model.addZones(new ZoneData(version, format).readx(networkNode, context));
+        model.addOwners(new OwnerData(version, format).readx(networkNode, context));
 
-        model.addSwitchedShunts(new SwitchedShuntData(version, format).read(networkNode, context));
+        model.addSwitchedShunts(new SwitchedShuntData(version, format).readx(networkNode, context));
 
         return model;
     }

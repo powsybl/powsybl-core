@@ -33,7 +33,7 @@ class ZoneData extends BlockData {
     }
 
     List<PsseZone> read(BufferedReader reader, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.ZoneData, PsseVersion.VERSION_33);
+        assertMinimumExpectedVersion(PsseBlockData.ZONE_DATA, PsseVersion.VERSION_33);
 
         String[] headers = zoneDataHeaders(this.getPsseVersion());
         List<String> records = readRecordBlock(reader);
@@ -42,8 +42,8 @@ class ZoneData extends BlockData {
         return parseRecordsHeader(records, PsseZone.class, headers);
     }
 
-    List<PsseZone> read(JsonNode networkNode, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.ZoneData, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
+    List<PsseZone> readx(JsonNode networkNode, PsseContext context) {
+        assertMinimumExpectedVersion(PsseBlockData.ZONE_DATA, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
 
         JsonNode zoneNode = networkNode.get("zone");
         if (zoneNode == null) {
