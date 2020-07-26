@@ -32,7 +32,9 @@ public final class MatpowerReader {
     }
 
     public static MatpowerModel read(Path file, String caseName) throws IOException {
-        return read(Files.newInputStream(file), caseName);
+        try (InputStream stream = Files.newInputStream(file)) {
+            return read(stream, caseName);
+        }
     }
 
     public static MatpowerModel read(InputStream iStream, String caseName) throws IOException {

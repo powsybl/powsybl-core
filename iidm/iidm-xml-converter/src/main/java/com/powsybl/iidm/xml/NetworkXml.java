@@ -24,6 +24,7 @@ import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -267,6 +268,7 @@ public final class NetworkXml {
         // Consider the network has been exported so its extensions will be written also
         context.addExportedEquipment(n);
 
+        AliasesXml.write(n, NETWORK_ROOT_ELEMENT_NAME, context);
         PropertiesXml.write(n, context);
 
         for (Substation s : n.getSubstations()) {
@@ -381,6 +383,11 @@ public final class NetworkXml {
 
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
                 switch (reader.getLocalName()) {
+                    case AliasesXml.ALIAS:
+                        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+                        AliasesXml.read(network, context);
+                        break;
+
                     case PropertiesXml.PROPERTY:
                         PropertiesXml.read(network, context);
                         break;

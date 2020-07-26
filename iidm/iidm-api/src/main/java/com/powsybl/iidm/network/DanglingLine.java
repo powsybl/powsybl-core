@@ -17,6 +17,98 @@ package com.powsybl.iidm.network;
  * orginal line.
  * <p>r, x, g, b have to be consistent with the declared length of the dangling
  * line.
+ *
+ * <p>
+ *  Characteristics
+ * </p>
+ *
+ * <table style="border: 1px solid black; border-collapse: collapse">
+ *     <thead>
+ *         <tr>
+ *             <th style="border: 1px solid black">Attribute</th>
+ *             <th style="border: 1px solid black">Type</th>
+ *             <th style="border: 1px solid black">Unit</th>
+ *             <th style="border: 1px solid black">Required</th>
+ *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Description</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td style="border: 1px solid black">Id</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Unique identifier of the dangling line</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Name</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Human-readable name of the dangling line</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">P0</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">MW</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The active power setpoint</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Q0</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">MVar</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The reactive power setpoint</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">R</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">&Omega;</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The series resistance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">X</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">&Omega;</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The series reactance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">G</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">S</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The shunt conductance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">B</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">S</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The shunt susceptance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">UcteXnodeCode</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The dangling line's UCTE Xnode code</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
  * <p>To create a dangling line, see {@link DanglingLineAdder}
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -17,7 +18,8 @@ public final class AliasesXml {
 
     static final String ALIAS = "alias";
 
-    public static void write(Identifiable<?> identifiable, NetworkXmlWriterContext context) throws XMLStreamException {
+    public static void write(Identifiable<?> identifiable, String rootElementName, NetworkXmlWriterContext context) throws XMLStreamException {
+        IidmXmlUtil.assertMinimumVersionIfNotDefault(!identifiable.getAliases().isEmpty(), rootElementName, ALIAS, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
         for (String alias : identifiable.getAliases()) {
             context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), ALIAS);
             context.getWriter().writeCharacters(context.getAnonymizer().anonymizeString(alias));

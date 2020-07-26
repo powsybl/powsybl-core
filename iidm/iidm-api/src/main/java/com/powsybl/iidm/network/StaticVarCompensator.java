@@ -9,6 +9,89 @@ package com.powsybl.iidm.network;
 /**
  * Static VAR compensator model.
  *
+ * <p>
+ *  Characteristics
+ * </p>
+ *
+ * <table style="border: 1px solid black; border-collapse: collapse">
+ *     <thead>
+ *         <tr>
+ *             <th style="border: 1px solid black">Attribute</th>
+ *             <th style="border: 1px solid black">Type</th>
+ *             <th style="border: 1px solid black">Unit</th>
+ *             <th style="border: 1px solid black">Required</th>
+ *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Description</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td style="border: 1px solid black">Id</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Unique identifier of the static VAR compensator</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Name</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Human-readable name of the static VAR compensator</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Bmin</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">S</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The minimum susceptance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Bmax</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">S</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The maximum susceptance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">VoltageSetPoint</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black">only if RegulationMode is set to VOLTAGE</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The voltage setpoint</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">ReactivePowerSetpoint</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">MVar</td>
+ *             <td style="border: 1px solid black">only if RegulationMode is set to REACTIVE_POWER</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The reactive power setpoint</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">RegulatingTerminal</td>
+ *             <td style="border: 1px solid black">Terminal</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> The static VAR compensator's terminal </td>
+ *             <td style="border: 1px solid black">The terminal used for regulation</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">RegulationMode</td>
+ *             <td style="border: 1px solid black">RegulationMode</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The regulation mode</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
