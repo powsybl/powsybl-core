@@ -26,8 +26,6 @@ import javax.xml.stream.XMLStreamException;
 // @AutoService(ExtensionXmlSerializer.class)
 public class SlackTerminalXmlSerializer extends AbstractExtensionXmlSerializer<VoltageLevel, SlackTerminal> {
 
-    private static final String ELEM_TERMINAL_REF = "terminalRef";
-
     public SlackTerminalXmlSerializer() {
         super("slackTerminal", "network", SlackTerminal.class, false, "slackTerminal.xsd",
             "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_0", "slt");
