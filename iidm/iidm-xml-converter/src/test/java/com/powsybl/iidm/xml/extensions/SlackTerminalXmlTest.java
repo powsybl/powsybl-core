@@ -28,9 +28,8 @@ import static org.junit.Assert.*;
  */
 public class SlackTerminalXmlTest extends AbstractConverterTest {
 
-    // FIXME(floriand-e2r) Remove ignore annotation once extension export is done only if exportable (that is, non-cleanable for the SlackTerminal)
     @Test
-    @Ignore
+    @Ignore("Remove ignore annotation once extension export is done only if exportable (that is, non-cleanable for the SlackTerminal)")
     public void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
@@ -62,9 +61,8 @@ public class SlackTerminalXmlTest extends AbstractConverterTest {
         assertEquals(s.getTerminal().getBusBreakerView().getBus().getId(), busId);
     }
 
-    // FIXME(floriand-e2r) Remove ignore annotation once extension export is done only if exportable (that is, non-cleanable for the SlackTerminal)
     @Test
-    @Ignore
+    @Ignore("Remove ignore annotation once extension export is done only if exportable (that is, non-cleanable for the SlackTerminal)")
     public void testNoTerminal() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
 
