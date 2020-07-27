@@ -4,13 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.util;
+package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
+import com.powsybl.iidm.network.util.TerminalFinder;
 import org.junit.Test;
 
 import java.util.Optional;
@@ -21,7 +22,7 @@ import static org.junit.Assert.*;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class TerminalFinderTest {
+public abstract class AbstractTerminalFinderTest {
 
     @Test
     public void testBbsTerminal() {

@@ -44,6 +44,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -206,29 +207,27 @@ public final class NetworkXml {
                 .orElseGet(extensionXmlSerializer::getNamespaceUri);
     }
 
-    private static Set<String> getExtensionsName(Collection<? extends Extension<? extends Identifiable<?>>> extensions) {
-        Set<String> extensionsSet = new HashSet<>();
-        for (Extension<? extends Identifiable<?>> extension : extensions) {
-            extensionsSet.add(extension.getName());
-        }
-        return extensionsSet;
-    }
-
     private static void writeExtensions(Network n, NetworkXmlWriterContext context, ExportOptions options) throws XMLStreamException {
 
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
-            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions();
-            if (!context.isExportedEquipment(identifiable) || extensions.isEmpty() || !options.hasAtLeastOneExtension(getExtensionsName(extensions))) {
+            if (!context.isExportedEquipment(identifiable)) {
                 continue;
             }
-            context.getExtensionsWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);
-            context.getExtensionsWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
-            for (Extension<? extends Identifiable<?>> extension : extensions) {
-                if (options.withExtension(extension.getName())) {
-                    writeExtension(extension, context);
+
+            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
+                    .filter(e -> options.withExtension(e.getName()))
+                    .filter(e -> getExtensionXmlSerializer(options, e.getName()) != null)
+                    .collect(Collectors.toList());
+            if (!extensions.isEmpty()) {
+                context.getExtensionsWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);
+                context.getExtensionsWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
+                for (Extension<? extends Identifiable<?>> extension : extensions) {
+                    if (options.withExtension(extension.getName())) {
+                        writeExtension(extension, context);
+                    }
                 }
+                context.getExtensionsWriter().writeEndElement();
             }
-            context.getExtensionsWriter().writeEndElement();
         }
     }
 

@@ -15,6 +15,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
@@ -172,9 +173,7 @@ public class SlackTerminalTest {
         // Creates 2 variants before creating the extension
         Network network = EurostagTutorialExample1Factory.create();
         VariantManager variantManager = network.getVariantManager();
-        List<String> targetVariantIds = new ArrayList<>();
-        targetVariantIds.add(variant1);
-        targetVariantIds.add(variant2);
+        List<String> targetVariantIds = Arrays.asList(variant1, variant2);
         variantManager.cloneVariant(INITIAL_VARIANT_ID, targetVariantIds);
         variantManager.setWorkingVariant(variant2);
 
@@ -232,7 +231,8 @@ public class SlackTerminalTest {
         assertNull(stGen.getTerminal());
 
         // Removes all SlackTerminals from network
-        SlackTerminal.removeAllFrom(network);
+        variantManager.setWorkingVariant(variant1);
+        SlackTerminal.reset(network);
         assertNull(vlgen.getExtension(SlackTerminal.class));
         assertNull(vlhv1.getExtension(SlackTerminal.class));
 

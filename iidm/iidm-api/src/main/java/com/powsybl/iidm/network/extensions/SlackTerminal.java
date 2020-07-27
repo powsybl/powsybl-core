@@ -7,9 +7,13 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.util.TerminalFinder;
+
+import java.util.Objects;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
@@ -17,11 +21,26 @@ import com.powsybl.iidm.network.VoltageLevel;
 public interface SlackTerminal extends Extension<VoltageLevel> {
 
     /**
-     * Remove all SlackTerminal extensions from given network
-     * @param network the network to remove the slackTerminal extensions from
+     * Set the terminal of all SlackTerminal extensions from the given network to null. If the extension is cleanable,
+     * this method automatically remove the extension.
+     *
+     * @param network A network to cleanup
      */
-    static void removeAllFrom(Network network) {
-        network.getVoltageLevels().forEach(vl -> vl.removeExtension(SlackTerminal.class));
+    static void reset(Network network) {
+        network.getVoltageLevels().forEach(vl -> reset(vl, null));
+    }
+
+    /**
+     * Create a SlackTerminal extension attached to the voltage level of the given bus, using the default
+     * {@link com.powsybl.iidm.network.util.TerminalFinder} strategy.
+     */
+    static void attach(Bus bus) {
+        VoltageLevel vl = bus.getVoltageLevel();
+        Terminal terminal = TerminalFinder.getDefault().find(bus.getConnectedTerminals());
+
+        vl.newExtension(SlackTerminalAdder.class)
+                .withTerminal(terminal)
+                .add();
     }
 
     /**
@@ -30,12 +49,14 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
      * @param terminal the terminal to reset the extension to (may be null)
      */
     static void reset(VoltageLevel voltageLevel, Terminal terminal) {
+        Objects.requireNonNull(voltageLevel);
+
         SlackTerminal st = voltageLevel.getExtension(SlackTerminal.class);
-        if (st == null) {
+        if (st == null && terminal != null) {
             voltageLevel.newExtension(SlackTerminalAdder.class)
-                .withTerminal(terminal)
-                .add();
-        } else {
+                    .withTerminal(terminal)
+                    .add();
+        } else if (st != null) {
             st.setTerminal(terminal, true);
         }
     }
