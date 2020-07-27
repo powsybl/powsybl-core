@@ -23,6 +23,7 @@ import static org.junit.Assert.*;
 
 /**
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
 public class SlackTerminalTest {
 
@@ -89,10 +90,6 @@ public class SlackTerminalTest {
         return network;
     }
 
-    private static Terminal getFirstTerminal(Network network, String busBusBreaker) {
-        return network.getBusBreakerView().getBus(busBusBreaker).getConnectedTerminals().iterator().next();
-    }
-
     @Test
     public void test() {
         Network network = createBusBreakerNetwork();
@@ -107,9 +104,10 @@ public class SlackTerminalTest {
             assertEquals("Terminal needs to be set to create a SlackTerminal extension", e.getMessage());
         }
 
-        // extends voltage level
+        // Defining the slackTerminal on the first Terminal
         String busBusBreakerId = "B";
-        adder.withTerminal(getFirstTerminal(network, busBusBreakerId)).add();
+        Terminal terminal = network.getBusBreakerView().getBus(busBusBreakerId).getConnectedTerminals().iterator().next();
+        adder.withTerminal(terminal).add();
 
         SlackTerminal slackTerminal;
         for (VoltageLevel vl : network.getVoltageLevels()) {
@@ -129,10 +127,8 @@ public class SlackTerminalTest {
 
         // Creates the extension
         Network network = EurostagTutorialExample1Factory.create();
-        VoltageLevel vl = network.getVoltageLevel("VLHV1");
-        vl.newExtension(SlackTerminalAdder.class)
-            .withTerminal(getFirstTerminal(network, "NLOAD"))
-            .add();
+        VoltageLevel vl = network.getVoltageLevel("VLLOAD");
+        SlackTerminal.attach(network.getBusBreakerView().getBus("NLOAD"));
         SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
         assertNotNull(slackTerminal);
         final Terminal t0 = slackTerminal.getTerminal();
@@ -179,9 +175,7 @@ public class SlackTerminalTest {
 
         // Creates the extension
         VoltageLevel vlgen = network.getVoltageLevel("VLGEN");
-        vlgen.newExtension(SlackTerminalAdder.class)
-                .withTerminal(getFirstTerminal(network, "NGEN"))
-                .add();
+        SlackTerminal.attach(network.getBusBreakerView().getBus("NGEN"));
         SlackTerminal stGen = vlgen.getExtension(SlackTerminal.class);
         assertNotNull(stGen);
         final Terminal tGen = stGen.getTerminal();
@@ -213,10 +207,8 @@ public class SlackTerminalTest {
         assertNull(vlgen.getExtension(SlackTerminal.class));
 
         // Creates an extension on another voltageLevel
-        VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
-        vlhv1.newExtension(SlackTerminalAdder.class)
-                .withTerminal(getFirstTerminal(network, "NLOAD"))
-                .add();
+        VoltageLevel vlhv1 = network.getVoltageLevel("VLLOAD");
+        SlackTerminal.attach(network.getBusBreakerView().getBus("NLOAD"));
         SlackTerminal stLoad = vlhv1.getExtension(SlackTerminal.class);
         assertNotNull(stLoad);
         assertEquals("NLOAD", stLoad.getTerminal().getBusBreakerView().getBus().getId());
