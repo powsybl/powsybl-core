@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class TerminalChooserTest {
+public class TerminalFinderTest {
 
     @Test
     public void testBbsTerminal() {
@@ -32,9 +32,9 @@ public class TerminalChooserTest {
 
         Stream<? extends Terminal> terminalStream = optTerminalN0.get().getBusBreakerView().getBus().getConnectedTerminalStream();
 
-        TerminalChooser slackTerminalChooser = TerminalChooser.getDefaultSlackTerminalChooser();
+        TerminalFinder slackTerminalFinder = TerminalFinder.getDefault();
         vlN.newExtension(SlackTerminalAdder.class)
-            .withTerminal(slackTerminalChooser.choose(terminalStream))
+            .withTerminal(slackTerminalFinder.find(terminalStream))
             .add();
 
         SlackTerminal slackTerminalN = vlN.getExtension(SlackTerminal.class);
@@ -50,26 +50,47 @@ public class TerminalChooserTest {
         Network network = FictitiousSwitchFactory.create();
         VoltageLevel vlN = network.getVoltageLevel("N");
 
-        TerminalChooser slackTerminalChooser = TerminalChooser.getDefaultSlackTerminalChooser();
+        TerminalFinder slackTerminalFinder = TerminalFinder.getDefault();
 
         Bus bus = vlN.getBusBreakerView().getBus("N_13");
         assertNotNull(bus);
 
         Iterable<? extends Terminal> terminalIter = bus.getConnectedTerminals();
-        assertNull(slackTerminalChooser.choose(terminalIter));
+        assertNull(slackTerminalFinder.find(terminalIter));
     }
 
     @Test
-    public void testLineTerminal() {
+    public void testLineTerminal1() {
+        Network network = EurostagTutorialExample1Factory.create();
+        VoltageLevel vlhv2 = network.getVoltageLevel("VLHV1");
+
+        Bus bus = vlhv2.getBusBreakerView().getBus("NHV1");
+        assertNotNull(bus);
+
+        TerminalFinder slackTerminalFinder = TerminalFinder.getDefault();
+        vlhv2.newExtension(SlackTerminalAdder.class)
+            .withTerminal(slackTerminalFinder.find(bus.getConnectedTerminals()))
+            .add();
+
+        SlackTerminal slackTerminalN = vlhv2.getExtension(SlackTerminal.class);
+        assertNotNull(slackTerminalN);
+
+        assertEquals(ConnectableType.LINE, slackTerminalN.getTerminal().getConnectable().getType());
+        assertEquals("NHV1", slackTerminalN.getTerminal().getBusBreakerView().getBus().getId());
+        assertEquals("VLHV1_0", slackTerminalN.getTerminal().getBusView().getBus().getId());
+    }
+
+    @Test
+    public void testLineTerminal2() {
         Network network = EurostagTutorialExample1Factory.create();
         VoltageLevel vlhv2 = network.getVoltageLevel("VLHV2");
 
         Bus bus = vlhv2.getBusBreakerView().getBus("NHV2");
         assertNotNull(bus);
 
-        TerminalChooser slackTerminalChooser = TerminalChooser.getDefaultSlackTerminalChooser();
+        TerminalFinder slackTerminalFinder = TerminalFinder.getDefault();
         vlhv2.newExtension(SlackTerminalAdder.class)
-            .withTerminal(slackTerminalChooser.choose(bus.getConnectedTerminals()))
+            .withTerminal(slackTerminalFinder.find(bus.getConnectedTerminals()))
             .add();
 
         SlackTerminal slackTerminalN = vlhv2.getExtension(SlackTerminal.class);
@@ -88,9 +109,9 @@ public class TerminalChooserTest {
         Bus bus = vlhv2.getBusBreakerView().getBus("NGEN");
         assertNotNull(bus);
 
-        TerminalChooser slackTerminalChooser = TerminalChooser.getDefaultSlackTerminalChooser();
+        TerminalFinder slackTerminalFinder = TerminalFinder.getDefault();
         vlhv2.newExtension(SlackTerminalAdder.class)
-            .withTerminal(slackTerminalChooser.choose(bus.getConnectedTerminals()))
+            .withTerminal(slackTerminalFinder.find(bus.getConnectedTerminals()))
             .add();
 
         SlackTerminal slackTerminalN = vlhv2.getExtension(SlackTerminal.class);
@@ -101,4 +122,4 @@ public class TerminalChooserTest {
         assertEquals("VLGEN_0", slackTerminalN.getTerminal().getBusView().getBus().getId());
     }
 
-}
+ }
