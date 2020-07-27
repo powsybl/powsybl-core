@@ -66,12 +66,9 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
      * @return the current SlackTerminal
      */
     default SlackTerminal setTerminal(Terminal terminal, boolean cleanIfCleanable) {
-        if (cleanIfCleanable) {
-            if (setTerminal(terminal).isCleanable()) {
-                getExtendable().removeExtension(SlackTerminal.class);
-            }
-        } else {
-            setTerminal(terminal);
+        setTerminal(terminal);
+        if (cleanIfCleanable && terminal == null && isCleanable()) {
+            getExtendable().removeExtension(SlackTerminal.class);
         }
         return this;
     }
