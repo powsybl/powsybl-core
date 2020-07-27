@@ -15,9 +15,9 @@
     <xs:import namespace="http://www.powsybl.org/schema/iidm/1_3" schemaLocation="iidm_V1_3.xsd"/>
     <xs:element name="slackTerminal">
         <xs:complexType>
-            <xs:sequence>
-                <xs:element name="terminalRef" type="iidm:TerminalRef"/>
-            </xs:sequence>
+            <xs:complexContent>
+                <xs:extension base="iidm:TerminalRef"/>
+            </xs:complexContent>
         </xs:complexType>
     </xs:element>
- </xs:schema>
+</xs:schema>
