@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
@@ -36,6 +37,10 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
 
     @Override
     public SlackTerminal setTerminal(Terminal terminal) {
+        if (terminal != null && !terminal.getVoltageLevel().equals(getExtendable())) {
+            throw new PowsyblException("Terminal given is not in the right VoltageLevel ("
+                + terminal.getVoltageLevel().getId() + " instead of " + getExtendable().getId() + ")");
+        }
         terminals.set(getVariantIndex(), terminal);
         return this;
     }

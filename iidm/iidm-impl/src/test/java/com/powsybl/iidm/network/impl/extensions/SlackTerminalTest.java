@@ -162,6 +162,37 @@ public class SlackTerminalTest {
     }
 
     @Test
+    public void vlErrorTest() {
+        Network network = EurostagTutorialExample1Factory.create();
+        VoltageLevel vl = network.getVoltageLevel("VLHV1");
+
+        // Adding a terminal in the wrong voltage level
+        Terminal wrongTerminal = network.getBusBreakerView().getBus("NLOAD").getConnectedTerminals().iterator().next();
+        SlackTerminalAdder slackTerminalAdder = vl.newExtension(SlackTerminalAdder.class).withTerminal(wrongTerminal);
+        try {
+            slackTerminalAdder.add();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Terminal given is not in the right VoltageLevel (VLLOAD instead of VLHV1)", e.getMessage());
+        }
+
+        // First adding a terminal in the right voltage level...
+        Terminal terminal = network.getBusBreakerView().getBus("NHV1").getConnectedTerminals().iterator().next();
+        slackTerminalAdder.withTerminal(terminal).add();
+        SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
+        assertNotNull(slackTerminal);
+
+        // ... then setting a terminal in the wrong voltage level
+        Terminal wrongTerminal2 = network.getBusBreakerView().getBus("NHV2").getConnectedTerminals().iterator().next();
+        try {
+            slackTerminal.setTerminal(wrongTerminal2, true);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Terminal given is not in the right VoltageLevel (VLHV2 instead of VLHV1)", e.getMessage());
+        }
+    }
+
+    @Test
     public void variantsResetTest() {
         String variant1 = "variant1";
         String variant2 = "variant2";
