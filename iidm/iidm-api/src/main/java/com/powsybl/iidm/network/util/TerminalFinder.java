@@ -21,9 +21,36 @@ public final class TerminalFinder {
 
     private final Comparator<Terminal> comparator;
 
-    private static final Comparator<Terminal> DEFAULT_COMPARATOR = getComparator(getDefaultRules());
+    public static TerminalFinder getDefault() {
+        return new TerminalFinder(getDefaultRules());
+    }
+
+    public TerminalFinder(Comparator<Terminal> comparator) {
+        this.comparator = Objects.requireNonNull(comparator);
+    }
+
+    public TerminalFinder(List<Predicate<Terminal>> predicates) {
+        this.comparator = getComparator(predicates);
+    }
+
+    /**
+     * @param terminals the terminals among which a terminal has to be chosen
+     * @return the first terminal satisfying a rule (rules are checked in ascending order)
+     */
+    public Optional<? extends Terminal> find(Iterable<? extends Terminal> terminals) {
+        return find(StreamSupport.stream(terminals.spliterator(), false));
+    }
+
+    /**
+     * @param terminals the terminals among which a terminal has to be chosen
+     * @return the first terminal satisfying a rule (rules are checked in ascending order)
+     */
+    public Optional<? extends Terminal> find(Stream<? extends Terminal> terminals) {
+        return terminals.max(comparator);
+    }
 
     private static Comparator<Terminal> getComparator(List<Predicate<Terminal>> predicates) {
+        Objects.requireNonNull(predicates);
         return (o1, o2) -> {
             if (o1.equals(o2)) {
                 return 0;
@@ -49,29 +76,4 @@ public final class TerminalFinder {
         rules.add(Objects::nonNull);
         return rules;
     }
-
-    public static TerminalFinder getDefault() {
-        return new TerminalFinder(DEFAULT_COMPARATOR);
-    }
-
-    public TerminalFinder(Comparator<Terminal> comparator) {
-        this.comparator = Objects.requireNonNull(comparator);
-    }
-
-    /**
-     * @param terminals the terminals among which a terminal has to be chosen
-     * @return the first terminal satisfying a rule (rules are checked in ascending order)
-     */
-    public Terminal find(Iterable<? extends Terminal> terminals) {
-        return find(StreamSupport.stream(terminals.spliterator(), false));
-    }
-
-    /**
-     * @param terminals the terminals among which a terminal has to be chosen
-     * @return the first terminal satisfying a rule (rules are checked in ascending order)
-     */
-    public Terminal find(Stream<? extends Terminal> terminals) {
-        return terminals.max(comparator).orElse(null);
-    }
-
 }

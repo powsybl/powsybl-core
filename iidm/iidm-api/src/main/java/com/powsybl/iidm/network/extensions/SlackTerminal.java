@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
@@ -31,19 +32,6 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
     }
 
     /**
-     * Create a SlackTerminal extension attached to the voltage level of the given bus, using the default
-     * {@link com.powsybl.iidm.network.util.TerminalFinder} strategy.
-     */
-    static void attach(Bus bus) {
-        VoltageLevel vl = bus.getVoltageLevel();
-        Terminal terminal = TerminalFinder.getDefault().find(bus.getConnectedTerminals());
-
-        vl.newExtension(SlackTerminalAdder.class)
-                .withTerminal(terminal)
-                .add();
-    }
-
-    /**
      * Reset the slackTerminal extension to the given terminal (may be null)
      * @param voltageLevel the voltageLevel to reset the slackTerminal extension from
      * @param terminal the terminal to reset the extension to (may be null)
@@ -59,6 +47,21 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
         } else if (st != null) {
             st.setTerminal(terminal, true);
         }
+    }
+
+    /**
+     * Create a SlackTerminal extension attached to the voltage level of the given bus, using the default
+     * {@link com.powsybl.iidm.network.util.TerminalFinder} strategy.
+     */
+    static void attach(Bus bus) {
+        VoltageLevel vl = bus.getVoltageLevel();
+        Terminal terminal = TerminalFinder.getDefault()
+                .find(bus.getConnectedTerminals())
+                .orElseThrow(() -> new PowsyblException("Unable to find a terminal in the bus " + bus.getId()));
+
+        vl.newExtension(SlackTerminalAdder.class)
+                .withTerminal(terminal)
+                .add();
     }
 
     @Override
@@ -95,7 +98,7 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
     }
 
     /**
-     * Returns if the current SlackTerminal can be cleaned, that is, if the extension is unused
+     * Returns true if the current SlackTerminal can be cleaned, meaning that this extension is unused
      */
     boolean isCleanable();
 
