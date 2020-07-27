@@ -122,4 +122,4 @@ public class TerminalFinderTest {
         assertEquals("VLGEN_0", slackTerminalN.getTerminal().getBusView().getBus().getId());
     }
 
- }
+}
