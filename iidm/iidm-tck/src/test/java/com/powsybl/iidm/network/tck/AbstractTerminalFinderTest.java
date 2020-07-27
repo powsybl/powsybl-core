@@ -35,7 +35,7 @@ public abstract class AbstractTerminalFinderTest {
 
         TerminalFinder slackTerminalFinder = TerminalFinder.getDefault();
         vlN.newExtension(SlackTerminalAdder.class)
-            .withTerminal(slackTerminalFinder.find(terminalStream))
+            .withTerminal(slackTerminalFinder.find(terminalStream).orElse(null))
             .add();
 
         SlackTerminal slackTerminalN = vlN.getExtension(SlackTerminal.class);
@@ -57,7 +57,7 @@ public abstract class AbstractTerminalFinderTest {
         assertNotNull(bus);
 
         Iterable<? extends Terminal> terminalIter = bus.getConnectedTerminals();
-        assertNull(slackTerminalFinder.find(terminalIter));
+        assertFalse(slackTerminalFinder.find(terminalIter).isPresent());
     }
 
     @Test
@@ -70,7 +70,7 @@ public abstract class AbstractTerminalFinderTest {
 
         TerminalFinder slackTerminalFinder = TerminalFinder.getDefault();
         vlhv2.newExtension(SlackTerminalAdder.class)
-            .withTerminal(slackTerminalFinder.find(bus.getConnectedTerminals()))
+            .withTerminal(slackTerminalFinder.find(bus.getConnectedTerminals()).orElse(null))
             .add();
 
         SlackTerminal slackTerminalN = vlhv2.getExtension(SlackTerminal.class);
@@ -91,7 +91,7 @@ public abstract class AbstractTerminalFinderTest {
 
         TerminalFinder slackTerminalFinder = TerminalFinder.getDefault();
         vlhv2.newExtension(SlackTerminalAdder.class)
-            .withTerminal(slackTerminalFinder.find(bus.getConnectedTerminals()))
+            .withTerminal(slackTerminalFinder.find(bus.getConnectedTerminals()).orElse(null))
             .add();
 
         SlackTerminal slackTerminalN = vlhv2.getExtension(SlackTerminal.class);
@@ -112,7 +112,7 @@ public abstract class AbstractTerminalFinderTest {
 
         TerminalFinder slackTerminalFinder = TerminalFinder.getDefault();
         vlhv2.newExtension(SlackTerminalAdder.class)
-            .withTerminal(slackTerminalFinder.find(bus.getConnectedTerminals()))
+            .withTerminal(slackTerminalFinder.find(bus.getConnectedTerminals()).orElse(null))
             .add();
 
         SlackTerminal slackTerminalN = vlhv2.getExtension(SlackTerminal.class);
