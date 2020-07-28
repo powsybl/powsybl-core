@@ -54,14 +54,14 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
      * {@link com.powsybl.iidm.network.util.TerminalFinder} strategy.
      */
     static void attach(Bus bus) {
+        Objects.requireNonNull(bus);
+
         VoltageLevel vl = bus.getVoltageLevel();
         Terminal terminal = TerminalFinder.getDefault()
                 .find(bus.getConnectedTerminals())
                 .orElseThrow(() -> new PowsyblException("Unable to find a terminal in the bus " + bus.getId()));
 
-        vl.newExtension(SlackTerminalAdder.class)
-                .withTerminal(terminal)
-                .add();
+        reset(vl, terminal);
     }
 
     @Override
