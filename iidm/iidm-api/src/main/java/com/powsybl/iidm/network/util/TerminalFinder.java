@@ -14,7 +14,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * A class which allows to choose the best terminal, according to given comparator, among several terminals.
+ * A class which allows to find the best terminal, according to given comparator or list of predicate, among several
+ * terminals.
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
 public final class TerminalFinder {
@@ -29,13 +30,19 @@ public final class TerminalFinder {
         this.comparator = Objects.requireNonNull(comparator);
     }
 
+    /**
+     * Constructs a TerminalFinder based on the given list of predicates, which defines a comparator based on the
+     * following rules: a terminal t1 is better than a terminal t2 if the first predicate in the list on which t1 is
+     * satisfied is before the first predicate in the list on which t2 is satisfied.
+     * @param predicates the list of predicates
+     */
     public TerminalFinder(List<Predicate<Terminal>> predicates) {
         this.comparator = getComparator(predicates);
     }
 
     /**
      * @param terminals the terminals among which a terminal has to be chosen
-     * @return the first terminal satisfying a rule (rules are checked in ascending order)
+     * @return a terminal among the best ones based on the comparator field
      */
     public Optional<? extends Terminal> find(Iterable<? extends Terminal> terminals) {
         return find(StreamSupport.stream(terminals.spliterator(), false));
@@ -43,26 +50,34 @@ public final class TerminalFinder {
 
     /**
      * @param terminals the terminals among which a terminal has to be chosen
-     * @return the first terminal satisfying a rule (rules are checked in ascending order)
+     * @return a terminal among the best ones based on the comparator field
      */
     public Optional<? extends Terminal> find(Stream<? extends Terminal> terminals) {
         return terminals.max(comparator);
     }
 
+    /**
+     * Constructs a comparator based on a list of predicates, based on the following: a terminal t1 is better than a
+     * terminal t2 if the first predicate in the list on which t1 is satisfied is before the first predicate in the list
+     * on which t2 is satisfied.
+     * @param predicates the list of predicates on which the comparator is based
+     * @return the corresponding comparator
+     */
     private static Comparator<Terminal> getComparator(List<Predicate<Terminal>> predicates) {
         Objects.requireNonNull(predicates);
-        return (o1, o2) -> {
-            if (o1.equals(o2)) {
+        return (t1, t2) -> {
+            if (t1.equals(t2)) {
                 return 0;
             }
+            // Looping over the predicates to find the first predicate which is satisfied on t1 or t2
             for (Predicate<Terminal> p : predicates) {
-                if (p.test(o1)) {
-                    return 1;
-                } else if (p.test(o2)) {
-                    return -1;
+                if (p.test(t1)) {
+                    return 1; // t1 is better as t2 didn't satisfy any previous predicate (t1 is then considered better even if t2 satisfies current predicate)
+                } else if (p.test(t2)) {
+                    return -1;  // t2 is better as t1 didn't satisfy current predicate nor any previous predicate
                 }
             }
-            return 1;
+            return 1; // no predicate is verified by t1 or t2, the first is then considered better than the latter
         };
     }
 
