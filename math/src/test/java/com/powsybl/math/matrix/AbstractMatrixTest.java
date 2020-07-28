@@ -149,7 +149,12 @@ public abstract class AbstractMatrixTest {
     }
 
     @Test
-    public void testDecompose() throws Exception {
+    public void testDecompose() {
+        // 2  3  0  0  0
+        // 3  0  4  0  6
+        // 0 -1 -3  2  0
+        // 0  0  1  0  0
+        // 0  4  2  0  1
         Matrix matrix = getMatrixFactory().create(5, 5, 12);
 
         matrix.set(0, 0, 2);
@@ -208,10 +213,68 @@ public abstract class AbstractMatrixTest {
     }
 
     @Test
+    public void testTransposedDecompose() {
+        // 2  3  0  0  0
+        // 3  0 -1  0  4
+        // 0  4 -3  1  2
+        // 0  0  2  0  0
+        // 0  6  0  0  1
+        Matrix matrix = getMatrixFactory().create(5, 5, 12);
+
+        matrix.set(0, 0, 2);
+        matrix.set(1, 0, 3);
+
+        matrix.set(0, 1, 3);
+        matrix.set(2, 1, 4);
+        matrix.set(4, 1, 6);
+
+        matrix.set(1, 2, -1);
+        matrix.set(2, 2, -3);
+        matrix.set(3, 2, 2);
+
+        matrix.set(2, 3, 1);
+
+        matrix.set(1, 4, 4);
+        matrix.set(2, 4, 2);
+        matrix.set(4, 4, 1);
+
+        try (LUDecomposition decomposition = matrix.decomposeLU()) {
+            double[] x = {8, 45, -3, 3, 19};
+            decomposition.solveTransposed(x);
+            assertArrayEquals(new double[]{1, 2, 3, 4, 5}, x, EPSILON);
+
+            DenseMatrix x2 = new DenseMatrix(5, 2);
+            x2.set(0, 0, 8);
+            x2.set(1, 0, 45);
+            x2.set(2, 0, -3);
+            x2.set(3, 0, 3);
+            x2.set(4, 0, 19);
+            x2.set(0, 1, 8);
+            x2.set(1, 1, 45);
+            x2.set(2, 1, -3);
+            x2.set(3, 1, 3);
+            x2.set(4, 1, 19);
+
+            decomposition.solveTransposed(x2);
+            assertEquals(1, x2.get(0, 0), EPSILON);
+            assertEquals(2, x2.get(1, 0), EPSILON);
+            assertEquals(3, x2.get(2, 0), EPSILON);
+            assertEquals(4, x2.get(3, 0), EPSILON);
+            assertEquals(5, x2.get(4, 0), EPSILON);
+            assertEquals(1, x2.get(0, 1), EPSILON);
+            assertEquals(2, x2.get(1, 1), EPSILON);
+            assertEquals(3, x2.get(2, 1), EPSILON);
+            assertEquals(4, x2.get(3, 1), EPSILON);
+            assertEquals(5, x2.get(4, 1), EPSILON);
+        }
+    }
+
+    @Test
     public void testDecomposeNonSquare() {
         Matrix matrix = getMatrixFactory().create(1, 2, 4);
         try {
-            matrix.decomposeLU();
+            LUDecomposition luDecomposition = matrix.decomposeLU();
+            luDecomposition.solve(new double[] {});
             fail();
         } catch (Exception ignored) {
         }
