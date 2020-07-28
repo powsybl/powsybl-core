@@ -7,7 +7,6 @@
 package com.powsybl.cgmes.conversion.test.update;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -28,9 +27,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
+import org.xmlunit.diff.ComparisonResult;
+import org.xmlunit.diff.ComparisonType;
 import org.xmlunit.diff.DefaultNodeMatcher;
 import org.xmlunit.diff.Diff;
 import org.xmlunit.diff.Difference;
+import org.xmlunit.diff.ElementSelector;
 import org.xmlunit.diff.ElementSelectors;
 
 import com.google.common.jimfs.Configuration;
@@ -79,7 +81,7 @@ public class StateVariablesAdderTest {
     }
 
     @Test
-    public void svAlternatives() throws IOException {
+    public void testSvExportAlternatives() throws IOException {
         exportUsingCgmesModelUsingOnlyNetworkAndCompareSV(CgmesConformity1Catalog.smallBusBranch().dataSource());
         exportUsingCgmesModelUsingOnlyNetworkAndCompareSV(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
     }
@@ -87,7 +89,7 @@ public class StateVariablesAdderTest {
     private void exportUsingCgmesModelUsingOnlyNetworkAndCompareSV(ReadOnlyDataSource ds) throws IOException {
         Network network0 = cgmesImport.importData(ds, NetworkFactory.findDefault(), importParameters("false"));
         NetworkChanges.modifyStateVariables(network0);
-        network0.setProperty("baseName",  ds.getBaseName());
+        network0.setProperty("baseName", ds.getBaseName());
 
         CgmesExport e = new CgmesExport();
 
@@ -108,58 +110,72 @@ public class StateVariablesAdderTest {
         System.err.println("   using CGMES " + sv2);
         assertTrue(sv1.contains(ds.getBaseName()));
         assertTrue(sv2.contains(ds.getBaseName()));
-        try (InputStream is1 = tmpUsingCgmes.newInputStream(sv1)) {
-            try (InputStream is2 = tmpUsingOnlyNetwork.newInputStream(sv2)) {
-                compareXmlStepByStep(is1, is2);
+        try (InputStream expected = tmpUsingCgmes.newInputStream(sv1)) {
+            try (InputStream actual = tmpUsingOnlyNetwork.newInputStream(sv2)) {
+                isOk(compare(diffSv(expected, actual).checkForSimilar()));
+                onlyNodeListSequenceDiffs(compare(diffSv(expected, actual).checkForIdentical()));
             }
         }
     }
 
-    protected static void compareXmlStepByStep(InputStream expected, InputStream actual) {
+    DiffBuilder diffSv(InputStream expected, InputStream actual) {
+        return selectingSvVoltageSameTopologicalNode(ignoringSvIds(onlySvVoltages(diff(expected, actual))));
+    }
+
+    private void isOk(Diff diff) {
+        assertTrue(!diff.hasDifferences());
+    }
+
+    private void onlyNodeListSequenceDiffs(Diff diff) {
+        for (Difference d : diff.getDifferences()) {
+            assertEquals(ComparisonType.CHILD_NODELIST_SEQUENCE, d.getComparison().getType());
+            assertEquals(ComparisonResult.SIMILAR, d.getResult());
+        }
+    }
+
+    private DiffBuilder diff(InputStream expected, InputStream actual) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
+        return DiffBuilder.compare(control).withTest(test).ignoreWhitespace().ignoreComments();
+    }
+
+    private DiffBuilder onlySvVoltages(DiffBuilder diffBuilder) {
+        return diffBuilder.withNodeFilter(n -> {
+            return n.getLocalName().equals("RDF") || n.getLocalName().equals("SvVoltage");
+        });
+    }
+
+    private static DiffBuilder ignoringSvIds(DiffBuilder diffBuilder) {
+        return diffBuilder.withAttributeFilter(attr -> {
+            // Identifiers of SV objects are not persistent,
+            // can be completely ignored for comparison with control
+            String elementName = attr.getOwnerElement().getLocalName();
+            boolean isSvId = elementName != null && elementName.startsWith("Sv") && attr.getLocalName().equals("ID");
+            return !isSvId;
+        });
+    }
+
+    private static DiffBuilder selectingSvVoltageSameTopologicalNode(DiffBuilder diffBuilder) {
         Map<String, String> prefixUris = new HashMap<>(2);
         prefixUris.put("cim", CgmesExport.CIM_NAMESPACE);
         prefixUris.put("rdf", CgmesExport.RDF_NAMESPACE);
-        Diff myDiff = DiffBuilder.compare(control).withTest(test)
-                .ignoreWhitespace()
-                .ignoreComments()
-                .withNodeFilter(node -> {
-                    String localName = node.getLocalName();
-                    // FIXME(Luma) Only checking voltages at this stage
-                    return localName != null && (localName.equals("RDF") || localName.startsWith("SvVoltage"));
-                })
-                .withAttributeFilter(attr -> {
-                    // Identifiers of SV objects are not persistent,
-                    // can be completely ignored for comparison with control
-                    String elementName = attr.getOwnerElement().getLocalName();
-                    boolean ignored = elementName != null && elementName.startsWith("Sv") && attr.getLocalName().equals("ID");
-                    System.err.println("elem " + elementName + ", attr " + attr + ", ignored ? " + ignored);
-                    return !ignored;
-                })
-                // FIXME(Luma) Trying to compare SvVoltage objects
-                // that have same topological node
-                // (does not work)
-                .withNodeMatcher(new DefaultNodeMatcher(
-                        ElementSelectors.conditionalBuilder()
-                            .whenElementIsNamed("SvVoltage")
-                            .thenUse(ElementSelectors.byXPath("./cim:SvVoltage.TopologicalNode/@rdf:resource", prefixUris, ElementSelectors.byNameAndText))
-                            .elseUse(ElementSelectors.byName)
-                            .build()))
-                .withComparisonListeners((comparison, outcome) -> {
-                    System.err.println("comparison " + comparison.getType() + " was " + outcome);
-                    System.err.println("    " + comparison.getControlDetails().getXPath());
-                    System.err.println("    " + comparison.getTestDetails().getXPath());
-                    System.err.printf("");
-                })
-                .build();
-        boolean hasDiff = myDiff.hasDifferences();
+        ElementSelector elementSelector = ElementSelectors.conditionalBuilder().whenElementIsNamed("SvVoltage")
+                .thenUse(ElementSelectors.byXPath("./cim:SvVoltage.TopologicalNode", prefixUris,
+                        ElementSelectors.byNameAndAllAttributes))
+                .elseUse(ElementSelectors.byName).build();
+        return diffBuilder.withNodeMatcher(new DefaultNodeMatcher(elementSelector));
+    }
+
+    private static Diff compare(DiffBuilder diffBuilder) {
+        Diff diff = diffBuilder.build();
+        boolean hasDiff = diff.hasDifferences();
         if (hasDiff) {
-            for (Difference diff : myDiff.getDifferences()) {
-                System.out.println(diff.getComparison().toString());
+            System.err.println("Differences:");
+            for (Difference d : diff.getDifferences()) {
+                System.err.printf("  %s%n", d.getComparison().toString());
             }
         }
-        assertFalse(hasDiff);
+        return diff;
     }
 
     private void importExportTest(ReadOnlyDataSource ds) throws IOException {
