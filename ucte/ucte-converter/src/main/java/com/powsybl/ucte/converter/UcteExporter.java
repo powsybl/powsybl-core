@@ -16,6 +16,7 @@ import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
@@ -163,7 +164,6 @@ public class UcteExporter implements Exporter {
         String geographicalName = bus.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
 
         // FIXME(mathbagu): how to initialize active/reactive load and generation: 0 vs NaN vs DEFAULT_MAX_POWER?
-        // FIXME(mathbagu): how to find the slack node?
         UcteNode ucteNode = new UcteNode(
                 ucteNodeCode,
                 geographicalName,
@@ -188,6 +188,10 @@ public class UcteExporter implements Exporter {
 
         convertLoads(ucteNode, bus);
         convertGenerators(ucteNode, bus);
+
+        if (isSlackBus(bus)) {
+            ucteNode.setTypeCode(UcteNodeTypeCode.UT);
+        }
     }
 
     /**
@@ -656,6 +660,16 @@ public class UcteExporter implements Exporter {
         } else {
             return UcteElementStatus.BUSBAR_COUPLER_IN_OPERATION;
         }
+    }
+
+    private static boolean isSlackBus(Bus bus) {
+        VoltageLevel vl = bus.getVoltageLevel();
+        SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
+        if (slackTerminal != null) {
+            Terminal terminal = slackTerminal.getTerminal();
+            return terminal.getBusBreakerView().getBus() == bus;
+        }
+        return false;
     }
 
     /**
