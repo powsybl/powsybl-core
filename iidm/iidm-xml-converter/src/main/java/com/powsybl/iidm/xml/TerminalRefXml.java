@@ -27,11 +27,19 @@ public final class TerminalRefXml {
     }
 
     public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeEmptyElement(namespace, elementName);
+        writeTerminalRefAttribute(t, context, writer);
+    }
+
+    public static void writeTerminalRefAttribute(Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
+        writeTerminalRefAttribute(t, context, context.getWriter());
+    }
+
+    public static void writeTerminalRefAttribute(Terminal t, NetworkXmlWriterContext context, XMLStreamWriter writer) throws XMLStreamException {
         Connectable c = t.getConnectable();
         if (!context.getFilter().test(c)) {
             throw new PowsyblException("Oups, terminal ref point to a filtered equipment " + c.getId());
         }
-        writer.writeEmptyElement(namespace, elementName);
         writer.writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
         if (c.getTerminals().size() > 1) {
             if (c instanceof Injection) {
