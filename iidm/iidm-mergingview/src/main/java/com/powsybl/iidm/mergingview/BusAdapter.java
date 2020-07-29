@@ -187,6 +187,16 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     }
 
     @Override
+    public Iterable<Terminal> getConnectedTerminals() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public Stream<Terminal> getConnectedTerminalStream() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
     public Iterable<Line> getLines() {
         throw MergingView.createNotImplementedException();
     }

@@ -10,6 +10,96 @@ package com.powsybl.iidm.network;
  * A HVDC line connected to two HVDC converters on DC side.
  * It has to be connected to the same <code>{@link HvdcConverterStation}</code> subclass.
  *
+ * <p>
+ *  Characteristics
+ * </p>
+ * <table style="border: 1px solid black; border-collapse: collapse">
+ *     <thead>
+ *         <tr>
+ *             <th style="border: 1px solid black">Attribute</th>
+ *             <th style="border: 1px solid black">Type</th>
+ *             <th style="border: 1px solid black">Unit</th>
+ *             <th style="border: 1px solid black">Required</th>
+ *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Description</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td style="border: 1px solid black">Id</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Unique identifier of the HVDC line</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Name</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Human-readable name of the HVDC line</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">R</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">&Omega;</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The resistance of the HVDC line</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">ConvertersMode</td>
+ *             <td style="border: 1px solid black">ConvertersMode</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The converter's mode</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">NominalV</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The nominal voltage</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">ActivePowerSetpoint</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">MW</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The active power setpoint</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">MaxP</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">MW</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The maximum active power</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">ConverterStationId1</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The ID of the HVDC converter station connected on side 1</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">ConverterStationId2</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The ID of the HVDC converter station connected on side 2</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */

@@ -14,6 +14,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
@@ -697,6 +698,15 @@ public class PsseImporter implements Importer {
 
                 for (PsseTransformer psseTfo : psseModel.getTransformers()) {
                     createTransformer(psseTfo, containerMapping, perUnitContext, network, busNumToPsseBus, psseModel.getCaseIdentification().getSbase());
+                }
+
+                // Attach a slack bus
+                for (PsseArea psseArea : psseModel.getAreas()) {
+                    if (psseArea.getIsw() != 0) {
+                        String busId = getBusId(psseArea.getIsw());
+                        Bus bus = network.getBusBreakerView().getBus(busId);
+                        SlackTerminal.attach(bus);
+                    }
                 }
 
                 return network;
