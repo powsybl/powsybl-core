@@ -65,7 +65,7 @@ public class Boundary {
         return nodesPowerFlow.get(node);
     }
 
-    public void addLineAtNode(PropertyBag line, String node) {
+    public void addEquipmentAtNode(PropertyBag line, String node) {
         List<PropertyBag> lines;
         lines = nodesLines.computeIfAbsent(node, ls -> new ArrayList<>(2));
         lines.add(line);
@@ -98,7 +98,7 @@ public class Boundary {
         return nodesVoltage.containsKey(node) ? nodesVoltage.get(node).angle : Double.NaN;
     }
 
-    public List<PropertyBag> linesAtNode(String node) {
+    public List<PropertyBag> equipmentAtNode(String node) {
         return nodesLines.getOrDefault(node, Collections.emptyList());
     }
 

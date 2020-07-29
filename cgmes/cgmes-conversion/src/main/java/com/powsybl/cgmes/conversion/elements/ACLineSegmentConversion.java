@@ -59,36 +59,21 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
     @Override
     public void convert() {
         if (isBoundary(1)) {
-            convertLineOnBoundary(1);
+            convertLineAtBoundary(1);
         } else if (isBoundary(2)) {
-            convertLineOnBoundary(2);
+            convertLineAtBoundary(2);
         } else {
             convertLine();
         }
     }
 
-    private void convertLineOnBoundary(int boundarySide) {
-        String boundaryNode = nodeId(boundarySide);
-        List<PropertyBag> lines = context.boundary().linesAtNode(boundaryNode);
-
+    private void convertLineAtBoundary(int boundarySide) {
         // If we have created buses and substations for boundary nodes,
-        // convert as regular lines both lines at boundary node
+        // convert as a regular line
         if (context.config().convertBoundary()) {
-            // Convert this line
             convertLine();
-            if (lines.size() == 2) {
-                // Convert the other line
-                PropertyBag other = lines.get(0).getId(CgmesNames.AC_LINE_SEGMENT).equals(id)
-                        ? lines.get(1)
-                        : lines.get(0);
-                new ACLineSegmentConversion(other, context).convertLine();
-            }
         } else {
-            if (lines.size() == 2) {
-                convertMergedLinesAtNode(lines, boundaryNode);
-            } else {
-                convertDanglingLine(boundarySide);
-            }
+            convertToDanglingLine(boundarySide);
         }
     }
 
@@ -111,7 +96,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         convertedTerminals(l.getTerminal1(), l.getTerminal2());
     }
 
-    private void convertDanglingLine(int boundarySide) {
+    private void convertToDanglingLine(int boundarySide) {
         // Non-boundary side (other side) of the line
         int modelSide = 3 - boundarySide;
         String boundaryNode = nodeId(boundarySide);
@@ -213,10 +198,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         return context.boundary().nameAtBoundary(boundaryNode);
     }
 
-    private void convertMergedLinesAtNode(List<PropertyBag> lines, String boundaryNode) {
-        PropertyBag other = lines.get(0).getId(CgmesNames.AC_LINE_SEGMENT).equals(id)
-                ? lines.get(1)
-                : lines.get(0);
+    public void convertMergedLinesAtNode(PropertyBag other, String boundaryNode) {
         String otherId = other.getId(CgmesNames.AC_LINE_SEGMENT);
         String otherName = other.getId("name");
         ACLineSegmentConversion otherc = new ACLineSegmentConversion(other, context);

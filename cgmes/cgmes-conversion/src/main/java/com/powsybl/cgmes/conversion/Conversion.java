@@ -14,6 +14,8 @@ import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformer
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -173,8 +175,14 @@ public class Conversion {
         convert(cgmes.asynchronousMachines(), convf);
         convert(cgmes.synchronousMachines(), sm -> new SynchronousMachineConversion(sm, context));
 
-        convert(cgmes.switches(), sw -> new SwitchConversion(sw, context));
-        convertACLineSegmentsToLines(context);
+        // We will delay the conversion of some lines/switches that have an end at boundary
+        // They have to be processed after all lines/switches have been reviewed
+        // FIXME(Luma) store delayedBoundaryNodes in context
+        Set<String> delayedBoundaryNodes = new HashSet<>();
+        convertSwitches(context, delayedBoundaryNodes);
+        convertACLineSegmentsToLines(context, delayedBoundaryNodes);
+        delayedBoundaryNodes.forEach(node -> convertEquipmentAtBoundaryNode(context, node));
+
         convert(cgmes.equivalentBranches(), eqb -> new EquivalentBranchConversion(eqb, context));
         convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
 
@@ -278,46 +286,107 @@ public class Conversion {
         LOG.info("network forecastDistance : {}", context.network().getForecastDistance());
     }
 
-    private void convertACLineSegmentsToLines(Context context) {
-        PropertyBags lines = cgmes.acLineSegments();
-
-        // Context stores some statistics about line conversion
-        context.startLinesConversion();
-
-        // We will delay the conversion of some lines that have an end point on boundary
-        // They have to be processed after all lines have been reviewed
-        // (in fact we should review after all potential elements that could be present
-        // in the model boundary have been put there, not only lines)
-        Set<String> delayedBoundaryNodes = new HashSet<>();
-
-        Iterator<PropertyBag> k = lines.stream().iterator();
+    private void convertACLineSegmentsToLines(Context context, Set<String> delayedBoundaryNodes) {
+        Iterator<PropertyBag> k = cgmes.acLineSegments().iterator();
         while (k.hasNext()) {
             PropertyBag line = k.next();
             if (LOG.isDebugEnabled()) {
                 LOG.debug(line.tabulateLocals("ACLineSegment"));
             }
             ACLineSegmentConversion c = new ACLineSegmentConversion(line, context);
-            context.anotherLineConversion(c);
             if (c.valid()) {
                 String node = c.boundaryNode();
                 if (node != null) {
-                    context.boundary().addLineAtNode(line, node);
+                    context.boundary().addEquipmentAtNode(line, node);
                     delayedBoundaryNodes.add(node);
                 } else {
                     c.convert();
                 }
             }
         }
-        delayedBoundaryNodes.forEach(node -> {
-            // At least each delayed boundary node should have one line
-            PropertyBag line = context.boundary().linesAtNode(node).get(0);
+    }
+
+    private void convertSwitches(Context context, Set<String> delayedBoundaryNodes) {
+        Iterator<PropertyBag> k = cgmes.switches().iterator();
+        while (k.hasNext()) {
+            PropertyBag sw = k.next();
             if (LOG.isDebugEnabled()) {
-                LOG.debug(line.tabulateLocals("Line"));
+                LOG.debug(sw.tabulateLocals("Switch"));
             }
-            ACLineSegmentConversion c = new ACLineSegmentConversion(line, context);
-            c.convert();
-        });
-        context.endLinesConversion();
+            SwitchConversion c = new SwitchConversion(sw, context);
+            if (c.valid()) {
+                String node = c.boundaryNode();
+                if (node != null) {
+                    context.boundary().addEquipmentAtNode(sw, node);
+                    delayedBoundaryNodes.add(node);
+                } else {
+                    c.convert();
+                }
+            }
+        }
+    }
+
+    private void convertEquipmentAtBoundaryNode(Context context, String node) {
+        // At least each delayed boundary node should have one equipment attached to it
+        // Currently supported equipment at boundary are lines and switches
+        List<PropertyBag> beqs = context.boundary().equipmentAtNode(node);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Delayed boundary node {} with {} equipment at it", node, beqs.size());
+            beqs.forEach(beq -> {
+                LOG.debug(beq.tabulateLocals("EquipmentAtBoundary")); });
+        }
+        if (beqs.size() > 2) {
+            context.invalid(node, "Too many equipment at boundary node");
+            return;
+        }
+        // FIXME(Luma) Supported conversions:
+        // Only one line (--> create dangling line)
+        // Only one switch (--> create dangling line with z0)
+        // Two lines (--> merge both lines and replace by equivalent)
+        // Line and switch (--> switch to z0 line and merge both lines)
+        if (beqs.size() == 1) {
+            // FIXME(Luma) check it is a line
+            PropertyBag beq = beqs.get(0);
+            String lineId = beq.getId(CgmesNames.AC_LINE_SEGMENT);
+            String switchId = beq.getId("Switch");
+            if (lineId != null) {
+                new ACLineSegmentConversion(beq, context).convert();
+            } else if (switchId != null) {
+                new SwitchConversion(beq, context).convert();
+            } else {
+                // Should have been a line or a switch
+                context.invalid(node, "Unexpected equipment at boundary node. Expected ACLineSegment or Switch");
+            }
+        } else {
+            // Exactly two equipment at boundary node
+            String lineId0 = beqs.get(0).getId(CgmesNames.AC_LINE_SEGMENT);
+            String lineId1 = beqs.get(1).getId(CgmesNames.AC_LINE_SEGMENT);
+            String switchId0 = beqs.get(0).getId("Switch");
+            String switchId1 = beqs.get(1).getId("Switch");
+            if (lineId0 != null && lineId1 != null) {
+                PropertyBag line0 = beqs.get(0);
+                PropertyBag line1 = beqs.get(1);
+                new ACLineSegmentConversion(line0, context).convertMergedLinesAtNode(line1, node);
+            } else if (switchId0 != null && switchId1 != null) {
+                context.ignored(node, "Found two Switches at boundary node. Boundary configuration not supported");
+            } else {
+                // Must be a switch and a line
+                PropertyBag line;
+                PropertyBag sw;
+                if (lineId0 != null && switchId1 != null) {
+                    line = beqs.get(0);
+                    sw = beqs.get(1);
+                } else if (lineId1 != null && switchId0 != null) {
+                    line = beqs.get(1);
+                    sw = beqs.get(0);
+                } else {
+                    throw new PowsyblException("Not supported ???");
+                }
+                throw new PowsyblException("Implementation pending convertLineAndSwitchAtNode " + line + "," + sw);
+                // FIXME(Luma) implement
+                // new ACLineSegmentConversion(line, context).convertLineAndSwitchAtNode(sw, node);
+            }
+        }
     }
 
     private void convertTransformers(Context context) {
