@@ -33,7 +33,6 @@ import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TopologyKind;
 
 import javanet.staxutils.IndentingXMLStreamWriter;
 
@@ -83,8 +82,6 @@ public class CgmesExport implements Exporter {
         // FIXME(Luma)
         // Node-breaker: build topological nodes
         // Bus-branch: reuse topological nodes (stored in bus-breaker view buses)
-        boolean nodeBreaker = network.getVoltageLevelStream().anyMatch(vl -> vl.getTopologyKind() == TopologyKind.NODE_BREAKER);
-        System.err.println("node-breaker : " + nodeBreaker);
         for (Bus b : network.getBusBreakerView().getBuses()) {
             // FIXME(Luma) for bus-branch the bus id in the bus-breaker view contains the topoNode id
             // For node-breaker, we can try to use aliases or properties???
@@ -93,8 +90,8 @@ public class CgmesExport implements Exporter {
         }
         // Voltages at boundary nodes of dangling lines
         for (DanglingLine dl : network.getDanglingLines()) {
-            // FIXME(Luma) We should store an alias for the topological node for the boundary bus of the dangling line
-            String topologicalNode = "XXX";
+            // FIXME(Luma) Obtain from typed alias cgmes.topologicalNode
+            String topologicalNode = dl.getAliases().iterator().next();
             writeSvVoltage(writer, topologicalNode, Double.valueOf(dl.getProperty("v", "NaN")), Double.valueOf(dl.getProperty("angle", "NaN")));
         }
         writer.writeEndElement();

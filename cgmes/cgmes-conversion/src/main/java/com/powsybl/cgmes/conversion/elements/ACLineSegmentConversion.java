@@ -152,6 +152,10 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
                     .add();
         }
         context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
+        // FIXME(Luma) use typed Alias "cgmes.node"
+        // Consider asking explicitly for the topologicalNodeId() instead of nodeId()
+        // and then use alias "cgmes.topologicalNode"
+        dl.addAlias(nodeId(boundarySide));
 
         // If we do not have power flow at model side and we can compute it,
         // do it and assign the result at the terminal of the dangling line
