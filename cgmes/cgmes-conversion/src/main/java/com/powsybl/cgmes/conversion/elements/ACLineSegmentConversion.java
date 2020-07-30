@@ -301,6 +301,110 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         context.convertedTerminal(otherc.terminalId(otherEnd), mline.getTerminal2(), 2, otherc.powerFlow(otherEnd));
     }
 
+    public void convertLineAndSwitchAtNode(PropertyBag other, String boundaryNode) {
+        // FIXME(Luma) review duplicated code with convertMergedLinesAtNode
+        String otherId = other.getId("Switch");
+        String otherName = other.getId("name");
+        ACLineSegmentConversion otherc = new ACLineSegmentConversion(other, context);
+
+        // Boundary node is common to both equipment,
+        // identify the end that will be preserved for this line and the other equipment
+        int thisEnd = 1;
+        if (nodeId(1).equals(boundaryNode)) {
+            thisEnd = 2;
+        }
+        int otherEnd = 1;
+        if (otherc.nodeId(1).equals(boundaryNode)) {
+            otherEnd = 2;
+        }
+
+        String iidmVoltageLevelId1 = iidmVoltageLevelId(thisEnd);
+        String iidmVoltageLevelId2 = otherc.iidmVoltageLevelId(otherEnd);
+        boolean mt1connected = terminalConnected(thisEnd);
+        boolean mt2connected = otherc.terminalConnected(otherEnd);
+        String mbus1 = busId(thisEnd);
+        String mbus2 = otherc.busId(otherEnd);
+        int mnode1 = -1;
+        int mnode2 = -1;
+        if (context.nodeBreaker()) {
+            mnode1 = iidmNode(thisEnd);
+            mnode2 = otherc.iidmNode(otherEnd);
+        }
+
+        double lineR = p.asDouble("r");
+        double lineX = p.asDouble("x");
+        double lineGch = p.asDouble("gch", 0);
+        double lineBch = p.asDouble("bch", 0);
+        double otherR = 0.0;
+        double otherX = 0.0;
+        double otherGch = 0.0;
+        double otherBch = 0.0;
+
+        String id1 = context.namingStrategy().getId("Line", id);
+        String id2 = context.namingStrategy().getId("Switch", otherId);
+        String name1 = context.namingStrategy().getName("Line", name);
+        String name2 = context.namingStrategy().getName("Switch", otherName);
+
+        Line mline;
+        if (context.config().mergeLinesUsingQuadripole()) {
+            PiModel pi1 = new PiModel();
+            pi1.r = lineR;
+            pi1.x = lineX;
+            pi1.g1 = lineGch / 2.0;
+            pi1.b1 = lineBch / 2.0;
+            pi1.g2 = pi1.g1;
+            pi1.b2 = pi1.b1;
+            PiModel pi2 = new PiModel();
+            pi2.r = otherR;
+            pi2.x = otherX;
+            pi2.g1 = otherGch / 2.0;
+            pi2.b1 = otherBch / 2.0;
+            pi2.g2 = pi2.g1;
+            pi2.b2 = pi2.b1;
+            PiModel pim = Quadripole.from(pi1).cascade(Quadripole.from(pi2)).toPiModel();
+            LineAdder adder = context.network().newLine()
+                    .setR(pim.r)
+                    .setX(pim.x)
+                    .setG1(pim.g1)
+                    .setG2(pim.g2)
+                    .setB1(pim.b1)
+                    .setB2(pim.b2);
+            identify(adder, id1 + " + " + id2, name1 + " + " + name2);
+            connect(adder, iidmVoltageLevelId1, mbus1, mt1connected, mnode1, iidmVoltageLevelId2, mbus2, mt2connected, mnode2);
+            mline = adder.add();
+        } else {
+            TieLineAdder adder = context.network().newTieLine()
+                    .line1()
+                    .setId(id1)
+                    .setName(name1)
+                    .setR(lineR)
+                    .setX(lineX)
+                    .setG1(lineGch / 2)
+                    .setG2(lineGch / 2)
+                    .setB1(lineBch / 2)
+                    .setB2(lineBch / 2)
+                    .setXnodeP(0)
+                    .setXnodeQ(0)
+                    .line2()
+                    .setId(id2)
+                    .setName(name2)
+                    .setR(otherR)
+                    .setX(otherX)
+                    .setG1(otherGch / 2)
+                    .setG2(otherGch / 2)
+                    .setB1(otherBch / 2)
+                    .setB2(otherBch / 2)
+                    .setXnodeP(0)
+                    .setXnodeQ(0)
+                    .setUcteXnodeCode(findUcteXnodeCode(boundaryNode));
+            identify(adder, id1 + " + " + id2, name1 + " + " + name2);
+            connect(adder, iidmVoltageLevelId1, mbus1, mt1connected, mnode1, iidmVoltageLevelId2, mbus2, mt2connected, mnode2);
+            mline = adder.add();
+        }
+        context.convertedTerminal(terminalId(thisEnd), mline.getTerminal1(), 1, powerFlow(thisEnd));
+        context.convertedTerminal(otherc.terminalId(otherEnd), mline.getTerminal2(), 2, otherc.powerFlow(otherEnd));
+    }
+
     static class PiModel {
         double r;
         double x;
@@ -368,4 +472,5 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             return pi;
         }
     }
+
 }

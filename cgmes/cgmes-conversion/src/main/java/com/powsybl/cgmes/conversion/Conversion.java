@@ -15,7 +15,6 @@ import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -368,11 +367,11 @@ public class Conversion {
                 PropertyBag line1 = beqs.get(1);
                 new ACLineSegmentConversion(line0, context).convertMergedLinesAtNode(line1, node);
             } else if (switchId0 != null && switchId1 != null) {
-                context.ignored(node, "Found two Switches at boundary node. Boundary configuration not supported");
+                context.invalid(node, "Found two Switches at boundary node. Boundary configuration not supported");
             } else {
                 // Must be a switch and a line
-                PropertyBag line;
-                PropertyBag sw;
+                PropertyBag line = null;
+                PropertyBag sw = null;
                 if (lineId0 != null && switchId1 != null) {
                     line = beqs.get(0);
                     sw = beqs.get(1);
@@ -380,11 +379,11 @@ public class Conversion {
                     line = beqs.get(1);
                     sw = beqs.get(0);
                 } else {
-                    throw new PowsyblException("Not supported ???");
+                    context.invalid(node, "Found equipment not supported at boundary node");
                 }
-                throw new PowsyblException("Implementation pending convertLineAndSwitchAtNode " + line + "," + sw);
-                // FIXME(Luma) implement
-                // new ACLineSegmentConversion(line, context).convertLineAndSwitchAtNode(sw, node);
+                if (line != null && sw != null) {
+                    new ACLineSegmentConversion(line, context).convertLineAndSwitchAtNode(sw, node);
+                }
             }
         }
     }
