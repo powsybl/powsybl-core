@@ -490,8 +490,13 @@ public class Conversion {
             return this;
         }
 
-        public boolean mergeLinesUsingQuadripole() {
-            return true;
+        public boolean mergeBoundariesUsingTieLines() {
+            return mergeBoundariesUsingTieLines;
+        }
+
+        public Config setMergeBoundariesUsingTieLines(boolean b) {
+            this.mergeBoundariesUsingTieLines = b;
+            return this;
         }
 
         public boolean changeSignForShuntReactivePowerFlowInitialState() {
@@ -609,6 +614,7 @@ public class Conversion {
 
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
+        private boolean mergeBoundariesUsingTieLines = true;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
         private double lowImpedanceLineR = 7.0E-5;
         private double lowImpedanceLineX = 7.0E-5;

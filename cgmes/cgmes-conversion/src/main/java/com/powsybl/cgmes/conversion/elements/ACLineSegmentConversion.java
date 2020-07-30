@@ -242,34 +242,10 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         String name2 = context.namingStrategy().getName("Line", otherName);
 
         Line mline;
-        if (context.config().mergeLinesUsingQuadripole()) {
-            PiModel pi1 = new PiModel();
-            pi1.r = lineR;
-            pi1.x = lineX;
-            pi1.g1 = lineGch / 2.0;
-            pi1.b1 = lineBch / 2.0;
-            pi1.g2 = pi1.g1;
-            pi1.b2 = pi1.b1;
-            PiModel pi2 = new PiModel();
-            pi2.r = otherR;
-            pi2.x = otherX;
-            pi2.g1 = otherGch / 2.0;
-            pi2.b1 = otherBch / 2.0;
-            pi2.g2 = pi2.g1;
-            pi2.b2 = pi2.b1;
-            PiModel pim = Quadripole.from(pi1).cascade(Quadripole.from(pi2)).toPiModel();
-            LineAdder adder = context.network().newLine()
-                    .setR(pim.r)
-                    .setX(pim.x)
-                    .setG1(pim.g1)
-                    .setG2(pim.g2)
-                    .setB1(pim.b1)
-                    .setB2(pim.b2);
-            identify(adder, id1 + " + " + id2, name1 + " + " + name2);
-            connect(adder, iidmVoltageLevelId1, mbus1, mt1connected, mnode1, iidmVoltageLevelId2, mbus2, mt2connected, mnode2);
-            mline = adder.add();
-        } else {
+        if (context.config().mergeBoundariesUsingTieLines()) {
             TieLineAdder adder = context.network().newTieLine()
+                    .setId(id1 + " + " + id2)
+                    .setName(name1 + " + " + name2)
                     .line1()
                     .setId(id1)
                     .setName(name1)
@@ -293,6 +269,32 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
                     .setXnodeP(0)
                     .setXnodeQ(0)
                     .setUcteXnodeCode(findUcteXnodeCode(boundaryNode));
+            identify(adder, id1 + " + " + id2, name1 + " + " + name2);
+            connect(adder, iidmVoltageLevelId1, mbus1, mt1connected, mnode1, iidmVoltageLevelId2, mbus2, mt2connected, mnode2);
+            mline = adder.add();
+        } else {
+            PiModel pi1 = new PiModel();
+            pi1.r = lineR;
+            pi1.x = lineX;
+            pi1.g1 = lineGch / 2.0;
+            pi1.b1 = lineBch / 2.0;
+            pi1.g2 = pi1.g1;
+            pi1.b2 = pi1.b1;
+            PiModel pi2 = new PiModel();
+            pi2.r = otherR;
+            pi2.x = otherX;
+            pi2.g1 = otherGch / 2.0;
+            pi2.b1 = otherBch / 2.0;
+            pi2.g2 = pi2.g1;
+            pi2.b2 = pi2.b1;
+            PiModel pim = Quadripole.from(pi1).cascade(Quadripole.from(pi2)).toPiModel();
+            LineAdder adder = context.network().newLine()
+                    .setR(pim.r)
+                    .setX(pim.x)
+                    .setG1(pim.g1)
+                    .setG2(pim.g2)
+                    .setB1(pim.b1)
+                    .setB2(pim.b2);
             identify(adder, id1 + " + " + id2, name1 + " + " + name2);
             connect(adder, iidmVoltageLevelId1, mbus1, mt1connected, mnode1, iidmVoltageLevelId2, mbus2, mt2connected, mnode2);
             mline = adder.add();
@@ -346,34 +348,10 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         String name2 = context.namingStrategy().getName("Switch", otherName);
 
         Line mline;
-        if (context.config().mergeLinesUsingQuadripole()) {
-            PiModel pi1 = new PiModel();
-            pi1.r = lineR;
-            pi1.x = lineX;
-            pi1.g1 = lineGch / 2.0;
-            pi1.b1 = lineBch / 2.0;
-            pi1.g2 = pi1.g1;
-            pi1.b2 = pi1.b1;
-            PiModel pi2 = new PiModel();
-            pi2.r = otherR;
-            pi2.x = otherX;
-            pi2.g1 = otherGch / 2.0;
-            pi2.b1 = otherBch / 2.0;
-            pi2.g2 = pi2.g1;
-            pi2.b2 = pi2.b1;
-            PiModel pim = Quadripole.from(pi1).cascade(Quadripole.from(pi2)).toPiModel();
-            LineAdder adder = context.network().newLine()
-                    .setR(pim.r)
-                    .setX(pim.x)
-                    .setG1(pim.g1)
-                    .setG2(pim.g2)
-                    .setB1(pim.b1)
-                    .setB2(pim.b2);
-            identify(adder, id1 + " + " + id2, name1 + " + " + name2);
-            connect(adder, iidmVoltageLevelId1, mbus1, mt1connected, mnode1, iidmVoltageLevelId2, mbus2, mt2connected, mnode2);
-            mline = adder.add();
-        } else {
+        if (context.config().mergeBoundariesUsingTieLines()) {
             TieLineAdder adder = context.network().newTieLine()
+                    .setId(id1 + " + " + id2)
+                    .setName(name1 + " + " + name2)
                     .line1()
                     .setId(id1)
                     .setName(name1)
@@ -397,6 +375,32 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
                     .setXnodeP(0)
                     .setXnodeQ(0)
                     .setUcteXnodeCode(findUcteXnodeCode(boundaryNode));
+            identify(adder, id1 + " + " + id2, name1 + " + " + name2);
+            connect(adder, iidmVoltageLevelId1, mbus1, mt1connected, mnode1, iidmVoltageLevelId2, mbus2, mt2connected, mnode2);
+            mline = adder.add();
+        } else {
+            PiModel pi1 = new PiModel();
+            pi1.r = lineR;
+            pi1.x = lineX;
+            pi1.g1 = lineGch / 2.0;
+            pi1.b1 = lineBch / 2.0;
+            pi1.g2 = pi1.g1;
+            pi1.b2 = pi1.b1;
+            PiModel pi2 = new PiModel();
+            pi2.r = otherR;
+            pi2.x = otherX;
+            pi2.g1 = otherGch / 2.0;
+            pi2.b1 = otherBch / 2.0;
+            pi2.g2 = pi2.g1;
+            pi2.b2 = pi2.b1;
+            PiModel pim = Quadripole.from(pi1).cascade(Quadripole.from(pi2)).toPiModel();
+            LineAdder adder = context.network().newLine()
+                    .setR(pim.r)
+                    .setX(pim.x)
+                    .setG1(pim.g1)
+                    .setG2(pim.g2)
+                    .setB1(pim.b1)
+                    .setB2(pim.b2);
             identify(adder, id1 + " + " + id2, name1 + " + " + name2);
             connect(adder, iidmVoltageLevelId1, mbus1, mt1connected, mnode1, iidmVoltageLevelId2, mbus2, mt2connected, mnode2);
             mline = adder.add();
