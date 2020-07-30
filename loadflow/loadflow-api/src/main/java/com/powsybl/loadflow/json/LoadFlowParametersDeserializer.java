@@ -86,9 +86,21 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     break;
 
                 case "simulShunt":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: simulShunt", version, "1.1");
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: simulShunt", version, "1.2");
                     parser.nextToken();
                     parameters.setSimulShunt(parser.readValueAs(Boolean.class));
+                    break;
+
+                case "readSlackBus":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: readSlackBus", version, "1.2");
+                    parser.nextToken();
+                    parameters.setReadSlackBus(parser.readValueAs(Boolean.class));
+                    break;
+
+                case "writeSlackBus":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: writeSlackBus", version, "1.2");
+                    parser.nextToken();
+                    parameters.setWriteSlackBus(parser.readValueAs(Boolean.class));
                     break;
 
                 case "extensions":
