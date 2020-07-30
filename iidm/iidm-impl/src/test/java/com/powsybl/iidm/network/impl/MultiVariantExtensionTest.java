@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class MultiVariantExtensionTest {
 
-    static class LoadExt extends AbstractMultiVariantConnectableExtension<Load> {
+    static class LoadExt extends AbstractMultiVariantIdentifiableExtension<Load> {
 
         private final TIntArrayList values;
 
