@@ -6,6 +6,8 @@
  */
 package com.powsybl.commons.xml;
 
+import com.powsybl.commons.PowsyblException;
+
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -31,6 +33,46 @@ public final class XmlUtil {
     public interface XmlEventHandlerWithDepth {
 
         void onStartElement(int elementDepth) throws XMLStreamException;
+    }
+
+    public static void readUntilStartElement(String path, XMLStreamReader reader, XmlEventHandler handler) throws XMLStreamException {
+        StringBuilder currentPath = new StringBuilder();
+        String[] elements = path.split("/");
+        for (int i = 1; i < elements.length; ++i) {
+            currentPath.append("/").append(elements[i]);
+            if (!readUntilStartElement(elements[i], elements[i-1], reader)) {
+                throw new PowsyblException("Unable to find " + currentPath.toString() + ": parent element " + elements[i-1] + " has been closed");
+            }
+        }
+        if (handler != null) {
+            handler.onStartElement();
+        }
+    }
+
+    private static boolean readUntilStartElement(String startElement, String endElement, XMLStreamReader reader) throws XMLStreamException {
+        int event;
+        while ((event = reader.next()) != XMLStreamConstants.END_DOCUMENT) {
+            switch (event) {
+                case XMLStreamConstants.START_ELEMENT:
+                    if (reader.getLocalName().equals(startElement)) {
+                        return true;
+                    } else {
+                        // Skip the current element
+                        readUntilEndElement(reader.getLocalName(), reader, null);
+                    }
+                    break;
+
+                case XMLStreamConstants.END_ELEMENT:
+                    if (reader.getLocalName().equals(endElement)) {
+                        return false;
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        throw new PowsyblException("Unable to find " + startElement + ": end of document has been reached");
     }
 
     public static String readUntilEndElement(String endElementName, XMLStreamReader reader, XmlEventHandler eventHandler) throws XMLStreamException {
