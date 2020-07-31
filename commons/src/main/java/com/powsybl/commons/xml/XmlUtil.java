@@ -40,8 +40,8 @@ public final class XmlUtil {
         String[] elements = path.split("/");
         for (int i = 1; i < elements.length; ++i) {
             currentPath.append("/").append(elements[i]);
-            if (!readUntilStartElement(elements[i], elements[i-1], reader)) {
-                throw new PowsyblException("Unable to find " + currentPath.toString() + ": parent element " + elements[i-1] + " has been closed");
+            if (!readUntilStartElement(elements[i], elements[i - 1], reader)) {
+                throw new PowsyblException("Unable to find " + currentPath.toString() + ": parent element " + elements[i - 1] + " has been closed");
             }
         }
         if (handler != null) {
