@@ -106,4 +106,17 @@ public class XmlUtilTest {
             assertEquals("Unable to find " + path + ": parent element " + parent + " has been closed", e.getMessage());
         }
     }
+
+    @Test
+    public void readTextTest() throws XMLStreamException {
+        String xml = "<a>hello</a>";
+        try (StringReader reader = new StringReader(xml)) {
+            XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
+            try {
+                assertEquals("hello", XmlUtil.readText("a", xmlReader));
+            } finally {
+                xmlReader.close();
+            }
+        }
+    }
 }
