@@ -36,8 +36,17 @@ public final class XmlUtil {
     }
 
     public static void readUntilStartElement(String path, XMLStreamReader reader, XmlEventHandler handler) throws XMLStreamException {
-        StringBuilder currentPath = new StringBuilder();
+        Objects.requireNonNull(path);
         String[] elements = path.split("/");
+        readUntilStartElement(elements, reader, handler);
+    }
+
+    public static void readUntilStartElement(String[] elements, XMLStreamReader reader, XmlEventHandler handler) throws XMLStreamException {
+        Objects.requireNonNull(elements);
+        if (elements.length == 0) {
+            throw new PowsyblException("Empty element list");
+        }
+        StringBuilder currentPath = new StringBuilder();
         for (int i = 1; i < elements.length; ++i) {
             currentPath.append("/").append(elements[i]);
             if (!readUntilStartElement(elements[i], elements[i - 1], reader)) {
