@@ -183,7 +183,7 @@ public class FullModel {
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
-        // the other attributes validity are be validated in the constructor
+        // the other attributes are checked in the constructor
         if (context.version == null) {
             throw new PowsyblException("Version is missing");
         }
