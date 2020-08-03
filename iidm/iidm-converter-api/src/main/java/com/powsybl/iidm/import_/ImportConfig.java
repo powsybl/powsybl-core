@@ -15,6 +15,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ *
+ * Generic configuration for network importing. Specifically, this allows to configure
+ * {@link ImportPostProcessor}s to be applied after networks are imported.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ImportConfig {
@@ -51,6 +55,10 @@ public class ImportConfig {
         this.postProcessors = Objects.requireNonNull(postProcessors);
     }
 
+    /**
+     * The list of enabled {@link ImportPostProcessor}, defined by their name.
+     * @return the list of enabled {@link ImportPostProcessor}, defined by their name.
+     */
     public List<String> getPostProcessors() {
         return postProcessors;
     }
