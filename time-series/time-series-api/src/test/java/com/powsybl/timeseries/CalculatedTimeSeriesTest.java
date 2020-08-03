@@ -202,6 +202,9 @@ public class CalculatedTimeSeriesTest {
         evaluate("timeSeries['foo'].time() == time('2015-01-01T00:00:00Z')", 1);
         evaluate("timeSeries['foo'].time() <= time('2015-01-01T00:15:00Z')", 1);
         evaluate("timeSeries['foo'].time() < time('2014-01-01T00:00:00Z')", 0);
+        evaluate("timeSeries['foo'] = 1", 1);
+        evaluate("timeSeries['foo'] = 1.5d", 1.5d);
+        evaluate("timeSeries['foo'] = 1.5", 1.5d);
     }
 
     @Test
