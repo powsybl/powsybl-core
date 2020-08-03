@@ -36,6 +36,7 @@ public final class XmlUtil {
     }
 
     public static void readUntilStartElement(String path, XMLStreamReader reader, XmlEventHandler handler) throws XMLStreamException {
+        Objects.requireNonNull(path);
         String[] elements = path.split("/");
         readUntilStartElement(elements, reader, handler);
     }
