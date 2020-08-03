@@ -47,15 +47,18 @@ public class FullModel {
 
     public FullModel(String id, ZonedDateTime scenarioTime, ZonedDateTime created, String description, int version, List<String> profiles,
                      List<String> dependentOn, List<String> supersedes, String modelingAuthoritySet) {
-        this.id = Objects.requireNonNull(id);
-        this.scenarioTime = Objects.requireNonNull(scenarioTime);
-        this.created = Objects.requireNonNull(created);
+        this.id = Objects.requireNonNull(id, "ID is missing");
+        this.scenarioTime = Objects.requireNonNull(scenarioTime, "Scenario time is missing");
+        this.created = Objects.requireNonNull(created, "Created time is missing");
         this.description = description;
         this.version = version;
-        this.profiles = Objects.requireNonNull(profiles);
-        this.dependentOn = Objects.requireNonNull(dependentOn);
-        this.supersedes = Objects.requireNonNull(supersedes);
-        this.modelingAuthoritySet = Objects.requireNonNull(modelingAuthoritySet);
+        if (profiles == null || profiles.isEmpty()) {
+            throw new PowsyblException("At least one profile is required");
+        }
+        this.profiles = new ArrayList<>(profiles);
+        this.dependentOn = new ArrayList<>(Objects.requireNonNull(dependentOn));
+        this.supersedes = new ArrayList<>(Objects.requireNonNull(supersedes));
+        this.modelingAuthoritySet = Objects.requireNonNull(modelingAuthoritySet, "Modeling authority set is missing");
     }
 
     public String getId() {
@@ -128,27 +131,6 @@ public class FullModel {
         private final List<String> supersedes = new ArrayList<>();
 
         private String modelingAuthoritySet;
-
-        private void validate() {
-            if (id == null) {
-                throw new PowsyblException("ID is missing");
-            }
-            if (scenarioTime == null) {
-                throw new PowsyblException("Scenario time is missing");
-            }
-            if (created == null) {
-                throw new PowsyblException("Created time is missing");
-            }
-            if (version == null) {
-                throw new PowsyblException("Version is missing");
-            }
-            if (profiles.isEmpty()) {
-                throw new PowsyblException("At least one profile is required");
-            }
-            if (modelingAuthoritySet == null) {
-                throw new PowsyblException("Modeling authority set is missing");
-            }
-        }
     }
 
     public static FullModel parse(Reader reader) {
@@ -166,19 +148,19 @@ public class FullModel {
                     XmlUtil.readUntilEndElement(CgmesNames.FULL_MODEL, xmlReader, () -> {
                         switch (xmlReader.getLocalName()) {
                             case CgmesNames.SCENARIO_TIME:
-                                context.scenarioTime = ZonedDateTime.parse(XmlUtil.readUntilEndElement(CgmesNames.SCENARIO_TIME, xmlReader, () -> { }));
+                                context.scenarioTime = ZonedDateTime.parse(XmlUtil.readText(CgmesNames.SCENARIO_TIME, xmlReader));
                                 break;
                             case CgmesNames.CREATED:
-                                context.created = ZonedDateTime.parse(XmlUtil.readUntilEndElement(CgmesNames.CREATED, xmlReader, () -> { }));
+                                context.created = ZonedDateTime.parse(XmlUtil.readText(CgmesNames.CREATED, xmlReader));
                                 break;
                             case CgmesNames.DESCRIPTION:
-                                context.description = XmlUtil.readUntilEndElement(CgmesNames.DESCRIPTION, xmlReader, () -> { });
+                                context.description = XmlUtil.readText(CgmesNames.DESCRIPTION, xmlReader);
                                 break;
                             case CgmesNames.VERSION:
-                                context.version = Integer.parseInt(XmlUtil.readUntilEndElement(CgmesNames.VERSION, xmlReader, () -> { }));
+                                context.version = Integer.parseInt(XmlUtil.readText(CgmesNames.VERSION, xmlReader));
                                 break;
                             case CgmesNames.PROFILE:
-                                context.profiles.add(XmlUtil.readUntilEndElement(CgmesNames.PROFILE, xmlReader, () -> { }));
+                                context.profiles.add(XmlUtil.readText(CgmesNames.PROFILE, xmlReader));
                                 break;
                             case CgmesNames.DEPENDENT_ON:
                                 context.dependentOn.add(xmlReader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, CgmesNames.RESOURCE));
@@ -187,7 +169,7 @@ public class FullModel {
                                 context.supersedes.add(xmlReader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, CgmesNames.RESOURCE));
                                 break;
                             case CgmesNames.MODELING_AUTHORITY_SET:
-                                context.modelingAuthoritySet = XmlUtil.readUntilEndElement(CgmesNames.MODELING_AUTHORITY_SET, xmlReader, () -> { });
+                                context.modelingAuthoritySet = XmlUtil.readText(CgmesNames.MODELING_AUTHORITY_SET, xmlReader);
                                 break;
                             default:
                                 // not yet interesting like superseded
@@ -201,7 +183,10 @@ public class FullModel {
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
-        context.validate();
+        // the other attributes validity are be validated in the constructor
+        if (context.version == null) {
+            throw new PowsyblException("Version is missing");
+        }
         return new FullModel(context.id, context.scenarioTime, context.created, context.description, context.version,
                              context.profiles, context.dependentOn, context.supersedes, context.modelingAuthoritySet);
     }

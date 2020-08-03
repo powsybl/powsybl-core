@@ -130,6 +130,10 @@ public final class XmlUtil {
         return text;
     }
 
+    public static String readText(String endElementName, XMLStreamReader reader) throws XMLStreamException {
+        return readUntilEndElement(endElementName, reader, () -> { });
+    }
+
     public static void writeOptionalBoolean(String name, boolean value, boolean absentValue, XMLStreamWriter writer) throws XMLStreamException {
         if (value != absentValue) {
             writer.writeAttribute(name, Boolean.toString(value));
