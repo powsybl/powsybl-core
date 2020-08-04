@@ -6,28 +6,18 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
-
-import java.util.Objects;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class CgmesConversionContextExtension extends AbstractExtension<Network> {
+public interface CgmesConversionContextExtension extends Extension<Network> {
 
-    private final Context context;
-
-    public CgmesConversionContextExtension(Context context) {
-        this.context = Objects.requireNonNull(context);
-    }
-
-    public Context getContext() {
-        return context;
-    }
+    Context getContext();
 
     @Override
-    public String getName() {
+    default String getName() {
         return "CgmesConversionContext";
     }
 }

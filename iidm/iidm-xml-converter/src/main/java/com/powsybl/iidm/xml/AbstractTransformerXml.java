@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
@@ -44,22 +43,10 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     }
 
     private static void writeTargetDeadband(double targetDeadband, NetworkXmlWriterContext context) {
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> {
-            try {
-                // in IIDM-XML version 1.0, 0 as targetDeadband is ignored for backwards compatibility
-                // (i.e. ensuring round trips in IIDM-XML version 1.0)
-                XmlUtil.writeOptionalDouble(TARGET_DEADBAND, targetDeadband, 0, context.getWriter());
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
-            try {
-                XmlUtil.writeDouble(TARGET_DEADBAND, targetDeadband, context.getWriter());
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        // in IIDM-XML version 1.0, 0 as targetDeadband is ignored for backwards compatibility
+        // (i.e. ensuring round trips in IIDM-XML version 1.0)
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> XmlUtil.writeOptionalDouble(TARGET_DEADBAND, targetDeadband, 0, context.getWriter()));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> XmlUtil.writeDouble(TARGET_DEADBAND, targetDeadband, context.getWriter()));
     }
 
     private static double readTargetDeadband(boolean regulating, NetworkXmlReaderContext context) {
@@ -125,7 +112,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             switch (context.getReader().getLocalName()) {
                 case ELEM_TERMINAL_REF:
                     readTerminalRef(context, hasTerminalRef, (id, side) -> {
-                        adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(terminal.getVoltageLevel().getSubstation().getNetwork(), id, side));
+                        adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(terminal.getVoltageLevel().getNetwork(), id, side));
                         adder.add();
                     });
                     break;
@@ -198,7 +185,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             switch (context.getReader().getLocalName()) {
                 case ELEM_TERMINAL_REF:
                     readTerminalRef(context, hasTerminalRef, (id, side) -> {
-                        adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(terminal.getVoltageLevel().getSubstation().getNetwork(), id, side));
+                        adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(terminal.getVoltageLevel().getNetwork(), id, side));
                         adder.add();
                     });
                     break;
@@ -266,12 +253,6 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
      * @param context the XMLStreamWriter accessor
      */
     protected static void writeRatedS(String name, double ratedS, NetworkXmlWriterContext context) {
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
-            try {
-                XmlUtil.writeOptionalDouble(name, ratedS, Double.NaN, context.getWriter());
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> XmlUtil.writeOptionalDouble(name, ratedS, Double.NaN, context.getWriter()));
     }
 }

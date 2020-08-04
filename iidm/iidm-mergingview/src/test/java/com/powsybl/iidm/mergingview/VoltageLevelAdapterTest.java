@@ -138,9 +138,11 @@ public class VoltageLevelAdapterTest {
                     .setId("SHUNT")
                     .setConnectableBus("busA")
                     .setBus("busA")
-                    .setbPerSection(1e-5)
-                    .setCurrentSectionCount(1)
-                    .setMaximumSectionCount(1)
+                    .setSectionCount(1)
+                    .newLinearModel()
+                        .setBPerSection(1e-5)
+                        .setMaximumSectionCount(1)
+                    .add()
                 .add();
         vlActual.getShuntCompensators().forEach(s -> {
             assertTrue(s instanceof ShuntCompensatorAdapter);
@@ -159,8 +161,8 @@ public class VoltageLevelAdapterTest {
                     .setBmax(0.0008)
                     .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                     .setRegulatingTerminal(mergingView.getLoad("LOAD").getTerminal())
-                    .setVoltageSetPoint(390.0)
-                    .setReactivePowerSetPoint(1.0)
+                    .setVoltageSetpoint(390.0)
+                    .setReactivePowerSetpoint(1.0)
                     .setEnsureIdUnicity(false)
                 .add();
         vlActual.getStaticVarCompensators().forEach(s -> {

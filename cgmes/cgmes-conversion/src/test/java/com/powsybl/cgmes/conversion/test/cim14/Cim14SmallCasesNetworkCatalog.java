@@ -59,11 +59,13 @@ public final class Cim14SmallCasesNetworkCatalog {
             .add();
         Bus busGrid = vlGrid.getBusBreakerView().newBus()
             .setId("_GRID_____TN")
+            .setName("GRID")
             .add();
         busGrid.setV(419);
         busGrid.setAngle(0);
         Bus busGen = vlGen.getBusBreakerView().newBus()
             .setId("_GEN______TN")
+            .setName("GEN")
             .add();
         busGen.setV(21);
         busGen.setAngle(0);
@@ -88,6 +90,7 @@ public final class Cim14SmallCasesNetworkCatalog {
         gen.setRegulatingTerminal(gen.getTerminal());
         Bus busInf = vlInf.getBusBreakerView().newBus()
             .setId("_INF______TN")
+            .setName("INF")
             .add();
         busInf.setV(419);
         busInf.setAngle(0);

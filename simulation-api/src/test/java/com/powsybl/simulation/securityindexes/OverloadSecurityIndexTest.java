@@ -6,6 +6,7 @@
  */
 package com.powsybl.simulation.securityindexes;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import javax.xml.stream.XMLInputFactory;
@@ -15,11 +16,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class OverloadSecurityIndexTest {
@@ -40,8 +37,8 @@ public class OverloadSecurityIndexTest {
                 xmlReader.close();
             }
         }
-        assertTrue(index.getIndexValue() == 0.5d);
-        assertEquals(xml, index.toXml());
+        Assert.assertEquals(0.5d, index.getIndexValue(), 1e-6);
+        Assert.assertEquals(xml, index.toXml());
     }
 
 }

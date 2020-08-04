@@ -19,25 +19,51 @@ class DenseLUDecomposition implements LUDecomposition {
 
     private Jama.LUDecomposition decomposition;
 
+    private Jama.LUDecomposition transposedDecomposition;
+
     DenseLUDecomposition(DenseMatrix matrix) {
         this.matrix = Objects.requireNonNull(matrix);
-        decomposition = matrix.toJamaMatrix().lu();
     }
 
     @Override
     public void update() {
-        decomposition = matrix.toJamaMatrix().lu();
+        decomposition = null;
+        transposedDecomposition = null;
     }
 
     @Override
     public void solve(double[] b) {
+        if (decomposition == null) {
+            decomposition = matrix.toJamaMatrix().lu();
+        }
         Jama.Matrix x = decomposition.solve(new Jama.Matrix(b, b.length));
         System.arraycopy(x.getColumnPackedCopy(), 0, b, 0, b.length);
     }
 
     @Override
+    public void solveTransposed(double[] b) {
+        if (transposedDecomposition == null) {
+            transposedDecomposition = matrix.toJamaMatrix().transpose().lu();
+        }
+        Jama.Matrix x = transposedDecomposition.solve(new Jama.Matrix(b, b.length));
+        System.arraycopy(x.getColumnPackedCopy(), 0, b, 0, b.length);
+    }
+
+    @Override
     public void solve(DenseMatrix b) {
+        if (decomposition == null) {
+            decomposition = matrix.toJamaMatrix().lu();
+        }
         Jama.Matrix x = decomposition.solve(b.toJamaMatrix());
+        b.setValues(x.getColumnPackedCopy());
+    }
+
+    @Override
+    public void solveTransposed(DenseMatrix b) {
+        if (transposedDecomposition == null) {
+            transposedDecomposition = matrix.toJamaMatrix().transpose().lu();
+        }
+        Jama.Matrix x = transposedDecomposition.solve(b.toJamaMatrix());
         b.setValues(x.getColumnPackedCopy());
     }
 

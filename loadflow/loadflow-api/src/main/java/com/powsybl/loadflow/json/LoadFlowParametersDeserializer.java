@@ -24,9 +24,7 @@ import java.util.List;
  */
 public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowParameters> {
 
-    static final String CONTEXT_NAME = "LoadFlowParameters";
-    static final String REFERENCE_VERSION = "1.0";
-    static final String REFERENCE_VERSION_T2WT = "1.1";
+    private static final String CONTEXT_NAME = "LoadFlowParameters";
 
     LoadFlowParametersDeserializer() {
         super(LoadFlowParameters.class);
@@ -69,22 +67,40 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     break;
 
                 case "specificCompatibility":
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", version, REFERENCE_VERSION);
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", version, "1.0");
                     parser.nextToken();
                     parameters.setTwtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
                     break;
 
                 case "t2wtSplitShuntAdmittance":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: t2wtSplitShuntAdmittance", version, REFERENCE_VERSION);
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: t2wtSplitShuntAdmittance", version, REFERENCE_VERSION_T2WT);
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: t2wtSplitShuntAdmittance", version, "1.0");
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: t2wtSplitShuntAdmittance", version, "1.1");
                     parser.nextToken();
                     parameters.setTwtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
                     break;
 
                 case "twtSplitShuntAdmittance":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: twtSplitShuntAdmittance", version, REFERENCE_VERSION_T2WT);
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: twtSplitShuntAdmittance", version, "1.1");
                     parser.nextToken();
                     parameters.setTwtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
+                    break;
+
+                case "simulShunt":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: simulShunt", version, "1.2");
+                    parser.nextToken();
+                    parameters.setSimulShunt(parser.readValueAs(Boolean.class));
+                    break;
+
+                case "readSlackBus":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: readSlackBus", version, "1.2");
+                    parser.nextToken();
+                    parameters.setReadSlackBus(parser.readValueAs(Boolean.class));
+                    break;
+
+                case "writeSlackBus":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: writeSlackBus", version, "1.2");
+                    parser.nextToken();
+                    parameters.setWriteSlackBus(parser.readValueAs(Boolean.class));
                     break;
 
                 case "extensions":

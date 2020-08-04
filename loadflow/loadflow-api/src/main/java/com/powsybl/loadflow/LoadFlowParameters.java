@@ -46,13 +46,18 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     // VERSION = 1.0 specificCompatibility
     // VERSION = 1.1 t2wtSplitShuntAdmittance
-    public static final String VERSION = "1.2";
+    // VERSION = 1.2 twtSplitShuntAdmittance,
+    // VERSION = 1.3 simulShunt, read/write slack bus
+    public static final String VERSION = "1.3";
 
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
     public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
     public static final boolean DEFAULT_NO_GENERATOR_REACTIVE_LIMITS = false;
     public static final boolean DEFAULT_PHASE_SHIFTER_REGULATION_ON = false;
     public static final boolean DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE = false;
+    public static final boolean DEFAULT_SIMUL_SHUNT = false;
+    public static final boolean DEFAULT_READ_SLACK_BUS = false;
+    public static final boolean DEFAULT_WRITE_SLACK_BUS = false;
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "loadflow-parameters"));
@@ -92,6 +97,9 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
                 // keep old tag name "specificCompatibility" for compatibility
                 parameters.setTwtSplitShuntAdmittance(config.getBooleanProperty("twtSplitShuntAdmittance", config.getBooleanProperty("specificCompatibility", DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE)));
+                parameters.setSimulShunt(config.getBooleanProperty("simulShunt", DEFAULT_SIMUL_SHUNT));
+                parameters.setReadSlackBus(config.getBooleanProperty("readSlackBus", DEFAULT_READ_SLACK_BUS));
+                parameters.setWriteSlackBus(config.getBooleanProperty("writeSlackBus", DEFAULT_WRITE_SLACK_BUS));
             });
     }
 
@@ -105,15 +113,29 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     private boolean twtSplitShuntAdmittance;
 
-    public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
-        boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
-        boolean twtSplitShuntAdmittance) {
+    private boolean simulShunt;
 
+    private boolean readSlackBus;
+
+    private boolean writeSlackBus;
+
+    public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
+                              boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
+                              boolean twtSplitShuntAdmittance, boolean simulShunt, boolean readSlackBus, boolean writeSlackBus) {
         this.voltageInitMode = voltageInitMode;
         this.transformerVoltageControlOn = transformerVoltageControlOn;
         this.noGeneratorReactiveLimits = noGeneratorReactiveLimits;
         this.phaseShifterRegulationOn = phaseShifterRegulationOn;
         this.twtSplitShuntAdmittance = twtSplitShuntAdmittance;
+        this.simulShunt = simulShunt;
+        this.readSlackBus = readSlackBus;
+        this.writeSlackBus = writeSlackBus;
+    }
+
+    public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
+        boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
+        boolean twtSplitShuntAdmittance) {
+        this(voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, DEFAULT_SIMUL_SHUNT, DEFAULT_READ_SLACK_BUS, DEFAULT_WRITE_SLACK_BUS);
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn) {
@@ -135,6 +157,9 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         noGeneratorReactiveLimits = other.noGeneratorReactiveLimits;
         phaseShifterRegulationOn = other.phaseShifterRegulationOn;
         twtSplitShuntAdmittance = other.twtSplitShuntAdmittance;
+        simulShunt = other.simulShunt;
+        readSlackBus = other.readSlackBus;
+        writeSlackBus = other.writeSlackBus;
     }
 
     public VoltageInitMode getVoltageInitMode() {
@@ -214,12 +239,45 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
+    public boolean isSimulShunt() {
+        return simulShunt;
+    }
+
+    public LoadFlowParameters setSimulShunt(boolean simulShunt) {
+        this.simulShunt = simulShunt;
+        return this;
+    }
+
+    public boolean isReadSlackBus() {
+        return readSlackBus;
+    }
+
+    public LoadFlowParameters setReadSlackBus(boolean readSlackBus) {
+        this.readSlackBus = readSlackBus;
+        return this;
+    }
+
+    public boolean isWriteSlackBus() {
+        return writeSlackBus;
+    }
+
+    public LoadFlowParameters setWriteSlackBus(boolean writeSlackBus) {
+        this.writeSlackBus = writeSlackBus;
+        return this;
+    }
+
     protected Map<String, Object> toMap() {
-        return ImmutableMap.of("voltageInitMode", voltageInitMode,
-            "transformerVoltageControlOn", transformerVoltageControlOn,
-            "noGeneratorReactiveLimits", noGeneratorReactiveLimits,
-            "phaseShifterRegulationOn", phaseShifterRegulationOn,
-            "twtSplitShuntAdmittance", twtSplitShuntAdmittance);
+        ImmutableMap.Builder<String, Object> immutableMapBuilder = ImmutableMap.builder();
+        immutableMapBuilder
+                .put("voltageInitMode", voltageInitMode)
+                .put("transformerVoltageControlOn", transformerVoltageControlOn)
+                .put("noGeneratorReactiveLimits", noGeneratorReactiveLimits)
+                .put("phaseShifterRegulationOn", phaseShifterRegulationOn)
+                .put("twtSplitShuntAdmittance", twtSplitShuntAdmittance)
+                .put("simulShunt", simulShunt)
+                .put("readSlackBus", readSlackBus)
+                .put("writeSlackBus", writeSlackBus);
+        return immutableMapBuilder.build();
     }
 
     /**

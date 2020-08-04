@@ -265,9 +265,9 @@ public class HvdcConversionTest {
     }
 
     private boolean containsVscConverter(Network n, String id, String name,
-        String hvdcLineId, double lossFactor, double voltageSetPoint, double reactivePowerSetPoint) {
+        String hvdcLineId, double lossFactor, double voltageSetpoint, double reactivePowerSetpoint) {
         ReferenceHvdcConverter referenceHvdcConverter = new ReferenceHvdcConverter(id, HvdcConverterStation.HvdcType.VSC, name,
-            hvdcLineId, lossFactor, voltageSetPoint, reactivePowerSetPoint);
+            hvdcLineId, lossFactor, voltageSetpoint, reactivePowerSetpoint);
         return containsVscConverter(n, referenceHvdcConverter);
     }
 
@@ -294,21 +294,21 @@ public class HvdcConversionTest {
             LOG.info("Different lossFactor {} reference {}", vscConverter.getLossFactor(), referenceConverter.lossFactor);
             return false;
         }
-        if (Math.abs(referenceConverter.voltageSetPoint - vscConverter.getVoltageSetpoint()) > tolerance) {
-            LOG.info("Different voltageSetPoint {} reference {}", vscConverter.getVoltageSetpoint(), referenceConverter.voltageSetPoint);
+        if (Math.abs(referenceConverter.voltageSetpoint - vscConverter.getVoltageSetpoint()) > tolerance) {
+            LOG.info("Different voltageSetpoint {} reference {}", vscConverter.getVoltageSetpoint(), referenceConverter.voltageSetpoint);
             return false;
         }
-        if (Math.abs(referenceConverter.reactivePowerSetPoint - vscConverter.getReactivePowerSetpoint()) > tolerance) {
-            LOG.info("Different reactivePowerSetPoint {} reference {}", vscConverter.getReactivePowerSetpoint(), referenceConverter.reactivePowerSetPoint);
+        if (Math.abs(referenceConverter.reactivePowerSetpoint - vscConverter.getReactivePowerSetpoint()) > tolerance) {
+            LOG.info("Different reactivePowerSetpoint {} reference {}", vscConverter.getReactivePowerSetpoint(), referenceConverter.reactivePowerSetpoint);
             return false;
         }
         return true;
     }
 
     private boolean containsHvdcLine(Network n, String id, HvdcLine.ConvertersMode convertersMode, String name,
-        String converterStation1, String converterStation2, double r, double activePowerSetPoint, double maxP) {
+        String converterStation1, String converterStation2, double r, double activePowerSetpoint, double maxP) {
         ReferenceHvdcLine referenceHvdcLine = new ReferenceHvdcLine(id, convertersMode, name,
-            converterStation1, converterStation2, r, activePowerSetPoint, maxP);
+            converterStation1, converterStation2, r, activePowerSetpoint, maxP);
         return containsHvdcLine(n, referenceHvdcLine);
     }
 
@@ -339,8 +339,8 @@ public class HvdcConversionTest {
             LOG.info("Different R {} reference {}", hvdcLine.getR(), referenceHvdcLine.r);
             return false;
         }
-        if (Math.abs(referenceHvdcLine.activePowerSetPoint - hvdcLine.getActivePowerSetpoint()) > tolerance) {
-            LOG.info("Different activePowerSetPoint {} reference {}", hvdcLine.getActivePowerSetpoint(), referenceHvdcLine.activePowerSetPoint);
+        if (Math.abs(referenceHvdcLine.activePowerSetpoint - hvdcLine.getActivePowerSetpoint()) > tolerance) {
+            LOG.info("Different activePowerSetpoint {} reference {}", hvdcLine.getActivePowerSetpoint(), referenceHvdcLine.activePowerSetpoint);
             return false;
         }
         if (Math.abs(referenceHvdcLine.maxP - hvdcLine.getMaxP()) > tolerance) {
@@ -366,8 +366,8 @@ public class HvdcConversionTest {
             LOG.info("PowerFactor: {}", lccConverterStation.getPowerFactor());
         } else if (hvdcConverterStation.getHvdcType() == HvdcConverterStation.HvdcType.VSC) {
             VscConverterStation vscConverterStation = n.getVscConverterStation(hvdcConverterStation.getId());
-            LOG.info("voltageSetPoint: {}", vscConverterStation.getVoltageSetpoint());
-            LOG.info("reactivePowerSetPoint: {}", vscConverterStation.getReactivePowerSetpoint());
+            LOG.info("voltageSetpoint: {}", vscConverterStation.getVoltageSetpoint());
+            LOG.info("reactivePowerSetpoint: {}", vscConverterStation.getReactivePowerSetpoint());
         }
     }
 
@@ -383,7 +383,7 @@ public class HvdcConversionTest {
         LOG.info("converterStationId1: {}", hvdcLine.getConverterStation1().getId());
         LOG.info("converterStationId2: {}", hvdcLine.getConverterStation2().getId());
         LOG.info("R: {}", hvdcLine.getR());
-        LOG.info("activePowerSetPoint: {}", hvdcLine.getActivePowerSetpoint());
+        LOG.info("activePowerSetpoint: {}", hvdcLine.getActivePowerSetpoint());
         LOG.info("MaxP: {}", hvdcLine.getMaxP());
     }
 
@@ -394,8 +394,8 @@ public class HvdcConversionTest {
         String hvdcLineId;
         double lossFactor = 0.0;
         double powerFactor = 0.0;
-        double voltageSetPoint = 0.0;
-        double reactivePowerSetPoint = 0.0;
+        double voltageSetpoint = 0.0;
+        double reactivePowerSetpoint = 0.0;
 
         ReferenceHvdcConverter(String id, HvdcConverterStation.HvdcType hvdcType, String name, String hvdcLineId,
             double lossFactor, double powerFactor) {
@@ -408,14 +408,14 @@ public class HvdcConversionTest {
         }
 
         ReferenceHvdcConverter(String id, HvdcConverterStation.HvdcType hvdcType, String name, String hvdcLineId,
-            double lossFactor, double voltageSetPoint, double reactivePowerSetPoint) {
+            double lossFactor, double voltageSetpoint, double reactivePowerSetpoint) {
             this.id = id;
             this.hvdcType = hvdcType;
             this.name = name;
             this.hvdcLineId = hvdcLineId;
             this.lossFactor = lossFactor;
-            this.voltageSetPoint = voltageSetPoint;
-            this.reactivePowerSetPoint = reactivePowerSetPoint;
+            this.voltageSetpoint = voltageSetpoint;
+            this.reactivePowerSetpoint = reactivePowerSetpoint;
         }
     }
 
@@ -426,18 +426,18 @@ public class HvdcConversionTest {
         String converterStation1;
         String converterStation2;
         double r = 0.0;
-        double activePowerSetPoint = 0.0;
+        double activePowerSetpoint = 0.0;
         double maxP = 0.0;
 
         ReferenceHvdcLine(String id, HvdcLine.ConvertersMode convertersMode, String name, String converterStation1,
-            String converterStation2, double r, double activePowerSetPoint, double maxP) {
+            String converterStation2, double r, double activePowerSetpoint, double maxP) {
             this.id = id;
             this.convertersMode = convertersMode;
             this.name = name;
             this.converterStation1 = converterStation1;
             this.converterStation2 = converterStation2;
             this.r = r;
-            this.activePowerSetPoint = activePowerSetPoint;
+            this.activePowerSetpoint = activePowerSetpoint;
             this.maxP = maxP;
         }
     }

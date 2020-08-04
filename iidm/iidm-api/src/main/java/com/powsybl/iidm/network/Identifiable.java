@@ -6,12 +6,9 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import com.powsybl.commons.extensions.Extendable;
-
-import java.util.Properties;
 
 /**
  * An object that is part of the network model and that is identified uniquely
@@ -39,6 +36,33 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     @Deprecated
     default String getName() {
         return getNameOrId();
+    }
+
+    /**
+     * Get the aliases of the object.
+     */
+    default Set<String> getAliases() {
+        return Collections.emptySet();
+    }
+
+    /**
+     * Add an alias to the object. Aliases must be unique in associated Network, and different
+     * from any identifiable ID.
+     */
+    default void addAlias(String alias) {
+    }
+
+    /**
+     * Remove an alias of the object.
+     */
+    default void removeAlias(String alias) {
+    }
+
+    /**
+     * Return true if identifiable has aliases.
+     */
+    default boolean hasAliases() {
+        return false;
     }
 
     /**

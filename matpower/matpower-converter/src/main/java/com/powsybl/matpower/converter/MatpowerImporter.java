@@ -210,14 +210,16 @@ public class MatpowerImporter implements Importer {
             String busId = getId(BUS_PREFIX, mBus.getNumber());
             String shuntId = getId(SHUNT_PREFIX, mBus.getNumber());
             double zb = voltageLevel.getNominalV() * voltageLevel.getNominalV() / perUnitContext.getBaseMva();
-            ShuntCompensator newShunt = voltageLevel.newShuntCompensator()
+            ShuntCompensatorAdder adder = voltageLevel.newShuntCompensator()
                     .setId(shuntId)
                     .setConnectableBus(busId)
                     .setBus(busId)
-                    .setbPerSection(mBus.getShuntSusceptance() / perUnitContext.getBaseMva() / zb)
-                    .setCurrentSectionCount(1)
+                    .setSectionCount(1);
+            adder.newLinearModel()
+                    .setBPerSection(mBus.getShuntSusceptance() / perUnitContext.getBaseMva() / zb)
                     .setMaximumSectionCount(1)
                     .add();
+            ShuntCompensator newShunt = adder.add();
             LOGGER.debug("Created shunt {}", newShunt.getId());
         }
     }
@@ -338,7 +340,7 @@ public class MatpowerImporter implements Importer {
                 LOGGER.debug("MATPOWER model {}", model.getCaseName());
 
                 ContainersMapping containerMapping = ContainersMapping.create(model.getBuses(), model.getBranches(),
-                    MBus::getNumber, MBranch::getFrom, MBranch::getTo, MBranch::getR, MBranch::getX, MatpowerImporter::isTransformer,
+                    MBus::getNumber, MBranch::getFrom, MBranch::getTo, branch -> 0, MBranch::getR, MBranch::getX, MatpowerImporter::isTransformer,
                     busNums -> getId(VOLTAGE_LEVEL_PREFIX, busNums.iterator().next()), substationNum -> getId(SUBSTATION_PREFIX, substationNum));
 
                 boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,

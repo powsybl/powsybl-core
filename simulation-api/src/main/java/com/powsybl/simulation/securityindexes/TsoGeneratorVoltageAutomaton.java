@@ -8,10 +8,10 @@ package com.powsybl.simulation.securityindexes;
 
 import com.google.common.collect.ImmutableMap;
 
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-import javax.xml.stream.events.XMLEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,11 +37,11 @@ public class TsoGeneratorVoltageAutomaton extends AbstractTsoGeneratorAutomaton 
         while (xmlsr.hasNext()) {
             int eventType = xmlsr.next();
             switch (eventType) {
-                case XMLEvent.CHARACTERS:
+                case XMLStreamConstants.CHARACTERS:
                     text = xmlsr.getText();
                     break;
 
-                case XMLEvent.START_ELEMENT:
+                case XMLStreamConstants.START_ELEMENT:
                     switch (xmlsr.getLocalName()) {
                         case ON_UNDER_VOLTAGE_DISCONNECTED_GENERATORS:
                             state = LimitsXmlParsingState.UNDER;
@@ -61,7 +61,7 @@ public class TsoGeneratorVoltageAutomaton extends AbstractTsoGeneratorAutomaton 
                     }
                     break;
 
-                case XMLEvent.END_ELEMENT:
+                case XMLStreamConstants.END_ELEMENT:
                     switch (xmlsr.getLocalName()) {
                         case ON_UNDER_VOLTAGE_DISCONNECTED_GENERATORS:
                         case ON_OVER_VOLTAGE_DISCONNECTED_GENERATORS:

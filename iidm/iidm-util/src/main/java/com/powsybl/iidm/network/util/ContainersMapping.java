@@ -45,7 +45,7 @@ public class ContainersMapping {
     }
 
     public static <N, B> ContainersMapping create(List<N> buses, List<B> branches, ToIntFunction<N> busToNum,
-                                                  ToIntFunction<B> branchToNum1, ToIntFunction<B> branchToNum2,
+                                                  ToIntFunction<B> branchToNum1, ToIntFunction<B> branchToNum2, ToIntFunction<B> branchToNum3,
                                                   ToDoubleFunction<B> branchToResistance, ToDoubleFunction<B> branchToReactance,
                                                   Predicate<B> branchToIsTransformer, Function<Set<Integer>, String> busesToVoltageLevelId,
                                                   IntFunction<String> substationNumToId) {
@@ -67,7 +67,7 @@ public class ContainersMapping {
                 busesToVoltageLevelId, containersMapping);
 
         // group voltage levels connected by transformers to substations
-        createSubstationMapping(branches, branchToNum1, branchToNum2, branchToIsTransformer, substationNumToId, containersMapping);
+        createSubstationMapping(branches, branchToNum1, branchToNum2, branchToNum3, branchToIsTransformer, substationNumToId, containersMapping);
 
         return containersMapping;
     }
@@ -94,7 +94,7 @@ public class ContainersMapping {
         }
     }
 
-    private static <B> void createSubstationMapping(List<B> branches, ToIntFunction<B> branchToNum1, ToIntFunction<B> branchToNum2,
+    private static <B> void createSubstationMapping(List<B> branches, ToIntFunction<B> branchToNum1, ToIntFunction<B> branchToNum2, ToIntFunction<B> branchToNum3,
                                                     Predicate<B> branchToIsTransformer, IntFunction<String> substationNumToId,
                                                     ContainersMapping containersMapping) {
         UndirectedGraph<String, Object> sGraph = new Pseudograph<>(Object.class);
@@ -105,6 +105,11 @@ public class ContainersMapping {
             if (branchToIsTransformer.test(branch)) {
                 sGraph.addEdge(containersMapping.busNumToVoltageLevelId.get(branchToNum1.applyAsInt(branch)),
                         containersMapping.busNumToVoltageLevelId.get(branchToNum2.applyAsInt(branch)));
+                // Three winding Tfo
+                if (branchToNum3.applyAsInt(branch) != 0) {
+                    sGraph.addEdge(containersMapping.busNumToVoltageLevelId.get(branchToNum1.applyAsInt(branch)),
+                            containersMapping.busNumToVoltageLevelId.get(branchToNum3.applyAsInt(branch)));
+                }
             }
         }
         int substationNum = 1;

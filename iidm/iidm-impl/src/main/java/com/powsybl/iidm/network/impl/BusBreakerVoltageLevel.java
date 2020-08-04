@@ -196,11 +196,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     case TWO_WINDINGS_TRANSFORMER:
                     case THREE_WINDINGS_TRANSFORMER:
                     case HVDC_CONVERTER_STATION:
+                    case DANGLING_LINE:
                         branchCount++;
                         feederCount++;
                         break;
 
-                    case DANGLING_LINE:
                     case LOAD:
                     case GENERATOR:
                     case BATTERY:
@@ -845,21 +845,25 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         variants.push(number, () -> variants.copy(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
         variants.pop(number);
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
         variants.delete(index);
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
         variants.allocate(indexes, () -> variants.copy(sourceIndex));
     }
 

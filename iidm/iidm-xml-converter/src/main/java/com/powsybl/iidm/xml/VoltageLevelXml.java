@@ -303,7 +303,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     BusbarSectionXml.INSTANCE.read(vl, context);
                     break;
 
-                case NodeBreakerViewSwitchXml.ROOT_ELEMENT_NAME:
+                case AbstractSwitchXml.ROOT_ELEMENT_NAME:
                     NodeBreakerViewSwitchXml.INSTANCE.read(vl, context);
                     break;
 
@@ -348,7 +348,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     BusXml.INSTANCE.read(vl, context);
                     break;
 
-                case BusBreakerViewSwitchXml.ROOT_ELEMENT_NAME:
+                case AbstractSwitchXml.ROOT_ELEMENT_NAME:
                     BusBreakerViewSwitchXml.INSTANCE.read(vl, context);
                     break;
 

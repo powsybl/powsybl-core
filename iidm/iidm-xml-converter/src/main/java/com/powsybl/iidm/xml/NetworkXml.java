@@ -45,6 +45,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -207,29 +208,27 @@ public final class NetworkXml {
                 .orElseGet(extensionXmlSerializer::getNamespaceUri);
     }
 
-    private static Set<String> getExtensionsName(Collection<? extends Extension<? extends Identifiable<?>>> extensions) {
-        Set<String> extensionsSet = new HashSet<>();
-        for (Extension<? extends Identifiable<?>> extension : extensions) {
-            extensionsSet.add(extension.getName());
-        }
-        return extensionsSet;
-    }
-
     private static void writeExtensions(Network n, NetworkXmlWriterContext context, ExportOptions options) throws XMLStreamException {
 
-        for (Identifiable<?> identifiable : IidmXmlUtil.sorted(n.getIdentifiables(), options)) {
-            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions();
-            if (!context.isExportedEquipment(identifiable) || extensions.isEmpty() || !options.hasAtLeastOneExtension(getExtensionsName(extensions))) {
+        for (Identifiable<?> identifiable : IidmXmlUtil.sorted(n.getIdentifiables())) {
+            if (!context.isExportedEquipment(identifiable)) {
                 continue;
             }
-            context.getExtensionsWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);
-            context.getExtensionsWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
-            for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, options)) {
-                if (options.withExtension(extension.getName())) {
-                    writeExtension(extension, context);
+
+            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
+                    .filter(e -> options.withExtension(e.getName()))
+                    .filter(e -> getExtensionXmlSerializer(options, e.getName()) != null)
+                    .collect(Collectors.toList());
+            if (!extensions.isEmpty()) {
+                context.getExtensionsWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);
+                context.getExtensionsWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
+                for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, options)) {
+                    if (options.withExtension(extension.getName())) {
+                        writeExtension(extension, context);
+                    }
                 }
+                context.getExtensionsWriter().writeEndElement();
             }
-            context.getExtensionsWriter().writeEndElement();
         }
     }
 
@@ -268,6 +267,7 @@ public final class NetworkXml {
         // Consider the network has been exported so its extensions will be written also
         context.addExportedEquipment(n);
 
+        AliasesXml.write(n, NETWORK_ROOT_ELEMENT_NAME, context);
         PropertiesXml.write(n, context);
 
         for (Substation s : IidmXmlUtil.sorted(n.getSubstations(), context.getOptions())) {
@@ -357,7 +357,7 @@ public final class NetworkXml {
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
             int state = reader.next();
-            while (state == XMLStreamReader.COMMENT) {
+            while (state == XMLStreamConstants.COMMENT) {
                 state = reader.next();
             }
 
@@ -382,6 +382,11 @@ public final class NetworkXml {
 
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
                 switch (reader.getLocalName()) {
+                    case AliasesXml.ALIAS:
+                        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+                        AliasesXml.read(network, context);
+                        break;
+
                     case PropertiesXml.PROPERTY:
                         PropertiesXml.read(network, context);
                         break;
@@ -619,11 +624,23 @@ public final class NetworkXml {
      * @return the copy of the network
      */
     public static Network copy(Network network) {
-        return copy(network, ForkJoinPool.commonPool());
+        return copy(network, NetworkFactory.findDefault());
     }
 
-    public static Network copy(Network network, ExecutorService executor) {
+    /**
+     * Deep copy of the network using XML converter.
+     *
+     * @param network the network to copy
+     * @param networkFactory the network factory to use for the copy
+     * @return the copy of the network
+     */
+    public static Network copy(Network network, NetworkFactory networkFactory) {
+        return copy(network, networkFactory, ForkJoinPool.commonPool());
+    }
+
+    public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor) {
         Objects.requireNonNull(network);
+        Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(executor);
         PipedOutputStream pos = new PipedOutputStream();
         try (InputStream is = new PipedInputStream(pos)) {
@@ -640,7 +657,7 @@ public final class NetworkXml {
                     }
                 }
             });
-            return read(is);
+            return read(is, new ImportOptions(), null, networkFactory);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

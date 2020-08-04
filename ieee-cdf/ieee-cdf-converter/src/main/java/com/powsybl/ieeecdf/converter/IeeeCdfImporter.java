@@ -14,6 +14,7 @@ import com.powsybl.ieeecdf.model.*;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
@@ -137,7 +138,7 @@ public class IeeeCdfImporter implements Importer {
             VoltageLevel voltageLevel = createVoltageLevel(ieeeCdfBus, perUnitContext, voltageLevelId, substation, network);
 
             // create bus
-            createBus(ieeeCdfBus, voltageLevel);
+            Bus bus = createBus(ieeeCdfBus, voltageLevel);
 
             // create load
             createLoad(ieeeCdfBus, voltageLevel);
@@ -178,6 +179,11 @@ public class IeeeCdfImporter implements Importer {
 
                 default:
                     throw new IllegalStateException("Unexpected bus type: " + ieeeCdfBus.getType());
+            }
+
+            // Attach a slack bus
+            if (ieeeCdfBus.getType() == IeeeCdfBus.Type.HOLD_VOLTAGE_AND_ANGLE) {
+                SlackTerminal.attach(bus);
             }
         }
     }
@@ -249,9 +255,11 @@ public class IeeeCdfImporter implements Importer {
                     .setId(busId + "-SH")
                     .setConnectableBus(busId)
                     .setBus(busId)
-                    .setbPerSection(ieeeCdfBus.getShuntSusceptance() / zb)
-                    .setCurrentSectionCount(1)
-                    .setMaximumSectionCount(1)
+                    .setSectionCount(1)
+                    .newLinearModel()
+                        .setMaximumSectionCount(1)
+                        .setBPerSection(ieeeCdfBus.getShuntSusceptance() / zb)
+                        .add()
                     .add();
         }
     }
@@ -466,7 +474,7 @@ public class IeeeCdfImporter implements Importer {
 
             // build container to fit IIDM requirements
             ContainersMapping containerMapping = ContainersMapping.create(ieeeCdfModel.getBuses(), ieeeCdfModel.getBranches(),
-                IeeeCdfBus::getNumber, IeeeCdfBranch::getTapBusNumber, IeeeCdfBranch::getzBusNumber, IeeeCdfBranch::getResistance,
+                IeeeCdfBus::getNumber, IeeeCdfBranch::getTapBusNumber, IeeeCdfBranch::getzBusNumber, branch -> 0,  IeeeCdfBranch::getResistance,
                 IeeeCdfBranch::getReactance, IeeeCdfImporter::isTransformer, busNums -> "VL" + busNums.iterator().next(),
                 substationNum -> "S" + substationNum++);
 

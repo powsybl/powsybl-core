@@ -141,8 +141,8 @@ public class NetworkStateComparator {
         @Override
         public void setValue(Branch branch, Cell cell) {
             if (branch instanceof TwoWindingsTransformer
-                    && (((TwoWindingsTransformer) branch).getRatioTapChanger() != null ||
-                        ((TwoWindingsTransformer) branch).getPhaseTapChanger() != null)) {
+                    && (((TwoWindingsTransformer) branch).hasRatioTapChanger() ||
+                        ((TwoWindingsTransformer) branch).hasPhaseTapChanger())) {
                 Bus b1 = branch.getTerminal1().getBusView().getBus();
                 Bus b2 = branch.getTerminal2().getBusView().getBus();
                 if (b1 != null && !Double.isNaN(b1.getV()) && b2 != null && !Double.isNaN(b2.getV()) && b2.getV() != 0) {
@@ -162,8 +162,8 @@ public class NetworkStateComparator {
         @Override
         public void setValue(Branch branch, Cell cell) {
             if (branch instanceof TwoWindingsTransformer
-                    && (((TwoWindingsTransformer) branch).getRatioTapChanger() != null ||
-                    ((TwoWindingsTransformer) branch).getPhaseTapChanger() != null)) {
+                    && (((TwoWindingsTransformer) branch).hasRatioTapChanger() ||
+                    ((TwoWindingsTransformer) branch).hasPhaseTapChanger())) {
                 Bus b1 = branch.getTerminal1().getBusView().getBus();
                 Bus b2 = branch.getTerminal2().getBusView().getBus();
                 if (b1 != null && !Double.isNaN(b1.getAngle()) && b2 != null && !Double.isNaN(b2.getAngle())) {
@@ -296,7 +296,7 @@ public class NetworkStateComparator {
 
         @Override
         public void setValue(ShuntCompensator sc, Cell cell) {
-            cell.setCellValue(sc.getCurrentSectionCount());
+            cell.setCellValue(sc.getSectionCount());
         }
     };
 

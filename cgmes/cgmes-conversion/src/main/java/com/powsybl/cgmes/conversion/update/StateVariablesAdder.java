@@ -165,7 +165,8 @@ public class StateVariablesAdder {
     private <I extends Injection> void addInjectionPowerFlowToCgmes(PropertyBags powerFlows,
         Iterable<I> injectionStream) {
         injectionStream.forEach(i -> {
-            PropertyBag p = createPowerFlowProperties(i.getTerminal());
+            int sequenceNumber = 1;
+            PropertyBag p = createPowerFlowProperties(i.getTerminal(), sequenceNumber);
             if (p != null) {
                 powerFlows.add(p);
             } else if (i instanceof Load) {
@@ -179,7 +180,7 @@ public class StateVariablesAdder {
         PropertyBags shuntCompensatorSections = new PropertyBags();
         for (ShuntCompensator s : network.getShuntCompensators()) {
             PropertyBag p = new PropertyBag(SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES);
-            p.put("continuousSections", is(s.getCurrentSectionCount()));
+            p.put("continuousSections", is(s.getSectionCount()));
             p.put("ShuntCompensator", s.getId());
             shuntCompensatorSections.add(p);
         }
@@ -225,18 +226,18 @@ public class StateVariablesAdder {
 
     private boolean hasPhaseTapChanger(Object leg) {
         if (leg instanceof Leg) {
-            return ((Leg) leg).getPhaseTapChanger() != null;
+            return ((Leg) leg).hasPhaseTapChanger();
         } else if (leg instanceof TwoWindingsTransformer) {
-            return ((TwoWindingsTransformer) leg).getPhaseTapChanger() != null;
+            return ((TwoWindingsTransformer) leg).hasPhaseTapChanger();
         }
         return false;
     }
 
     private boolean hasRatioTapChanger(Object leg) {
         if (leg instanceof Leg) {
-            return ((Leg) leg).getRatioTapChanger() != null;
+            return ((Leg) leg).hasRatioTapChanger();
         } else if (leg instanceof TwoWindingsTransformer) {
-            return ((TwoWindingsTransformer) leg).getRatioTapChanger() != null;
+            return ((TwoWindingsTransformer) leg).hasRatioTapChanger();
         }
         return false;
     }
@@ -310,10 +311,10 @@ public class StateVariablesAdder {
         }
     }
 
-    private PropertyBag createPowerFlowProperties(Terminal terminal) {
+    private PropertyBag createPowerFlowProperties(Terminal terminal, int sequenceNumber) {
         // TODO If we could store a terminal identifier in IIDM
         // we would not need to obtain it querying CGMES for the related equipment
-        String cgmesTerminal = cgmes.terminalForEquipment(terminal.getConnectable().getId());
+        String cgmesTerminal = cgmes.terminalForEquipment(terminal.getConnectable().getId(), sequenceNumber);
         if (cgmesTerminal == null) {
             return null;
         }

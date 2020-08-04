@@ -290,6 +290,7 @@ GRAPH ?graph {
         cim:Equipment.MemberOf_EquipmentContainer ?VoltageLevel .
     ?Terminal cim:Terminal.ConductingEquipment ?EnergyConsumer .
 }
+BIND ( "EnergyConsumer" AS ?type )
 }
 
 # query: svInjections
@@ -323,6 +324,7 @@ OPTIONAL { GRAPH ?graphSV  {
         cim:SvShuntCompensatorSections.ShuntCompensator ?ShuntCompensator ;
         cim:SvShuntCompensatorSections.continuousSections ?SVsections
 }}
+BIND ( "LinearShuntCompensator" AS ?type )
 }
 
 # query: synchronousMachines

@@ -28,8 +28,8 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
 
     @Override
     protected boolean hasSubElements(TwoWindingsTransformer twt) {
-        return twt.getRatioTapChanger() != null
-                || twt.getPhaseTapChanger() != null
+        return twt.hasRatioTapChanger()
+                || twt.hasPhaseTapChanger()
                 || twt.getCurrentLimits1() != null
                 || twt.getCurrentLimits2() != null;
     }

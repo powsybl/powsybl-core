@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
@@ -21,7 +20,9 @@ import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSer
 
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
@@ -38,11 +39,13 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
                         .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of("1.0"))
                         .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of("1.1"))
                         .put(IidmXmlVersion.V_1_2, ImmutableSortedSet.of("1.2"))
+                        .put(IidmXmlVersion.V_1_3, ImmutableSortedSet.of("1.3"))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_0")
                         .put("1.1", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_1")
                         .put("1.2", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_2")
+                        .put("1.3", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_3")
                         .build());
     }
 
@@ -53,9 +56,9 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
 
     @Override
     public List<InputStream> getXsdAsStreamList() {
-        return ImmutableList.of(getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_0) + "xsd/terminalMock.xsd"),
-                getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_1) + "xsd/terminalMock.xsd"),
-                getClass().getResourceAsStream(getVersionDir(IidmXmlVersion.V_1_2) + "xsd/terminalMock.xsd"));
+        return Arrays.stream(IidmXmlVersion.values())
+                .map(v -> getClass().getResourceAsStream(getVersionDir(v) + "xsd/terminalMock.xsd"))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -77,7 +80,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
                 String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
                 String side = networkContext.getReader().getAttributeValue(null, "side");
                 networkContext.getEndTasks().add(() -> {
-                    Network network = extendable.getTerminal().getVoltageLevel().getSubstation().getNetwork();
+                    Network network = extendable.getNetwork();
                     terminalMockExt.setTerminal(TerminalRefXml.readTerminalRef(network, id, side));
                 });
             } else {

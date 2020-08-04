@@ -32,55 +32,55 @@ public final class DynamicSimulation {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, CurvesSupplier curvesSupplier, String workingVariantId,
+        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId,
                                                                    ComputationManager computationManager, DynamicSimulationParameters parameters) {
-            return provider.run(network, curvesSupplier, workingVariantId, computationManager, parameters);
+            return provider.run(network, dynamicModelsSupplier, curvesSupplier, workingVariantId, computationManager, parameters);
         }
 
-        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, CurvesSupplier curvesSupplier, String workingVariantId,
+        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId,
                                                                    DynamicSimulationParameters parameters) {
-            return runAsync(network, curvesSupplier, workingVariantId, LocalComputationManager.getDefault(), parameters);
+            return runAsync(network, dynamicModelsSupplier, curvesSupplier, workingVariantId, LocalComputationManager.getDefault(), parameters);
         }
 
-        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, CurvesSupplier curvesSupplier, DynamicSimulationParameters parameters) {
-            return runAsync(network, curvesSupplier, network.getVariantManager().getWorkingVariantId(), parameters);
+        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier, DynamicSimulationParameters parameters) {
+            return runAsync(network, dynamicModelsSupplier, curvesSupplier, network.getVariantManager().getWorkingVariantId(), parameters);
         }
 
-        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicSimulationParameters parameters) {
-            return runAsync(network, CurvesSupplier.empty(), parameters);
+        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, DynamicSimulationParameters parameters) {
+            return runAsync(network, dynamicModelsSupplier, CurvesSupplier.empty(), parameters);
         }
 
-        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, CurvesSupplier curvesSupplier) {
-            return runAsync(network, curvesSupplier, DynamicSimulationParameters.load());
+        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier) {
+            return runAsync(network, dynamicModelsSupplier, curvesSupplier, DynamicSimulationParameters.load());
         }
 
-        public CompletableFuture<DynamicSimulationResult> runAsync(Network network) {
-            return runAsync(network, DynamicSimulationParameters.load());
+        public CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier) {
+            return runAsync(network, dynamicModelsSupplier, DynamicSimulationParameters.load());
         }
 
-        public DynamicSimulationResult run(Network network, CurvesSupplier curvesSupplier, String workingVariantId, ComputationManager computationManager,
+        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId, ComputationManager computationManager,
                                            DynamicSimulationParameters parameters) {
-            return runAsync(network, curvesSupplier, workingVariantId, computationManager, parameters).join();
+            return runAsync(network, dynamicModelsSupplier, curvesSupplier, workingVariantId, computationManager, parameters).join();
         }
 
-        public DynamicSimulationResult run(Network network, CurvesSupplier curvesSupplier, String workingVariantId, DynamicSimulationParameters parameters) {
-            return runAsync(network, curvesSupplier, workingVariantId, parameters).join();
+        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId, DynamicSimulationParameters parameters) {
+            return runAsync(network, dynamicModelsSupplier, curvesSupplier, workingVariantId, parameters).join();
         }
 
-        public DynamicSimulationResult run(Network network, CurvesSupplier curvesSupplier, DynamicSimulationParameters parameters) {
-            return runAsync(network, curvesSupplier, parameters).join();
+        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier, DynamicSimulationParameters parameters) {
+            return runAsync(network, dynamicModelsSupplier, curvesSupplier, parameters).join();
         }
 
-        public DynamicSimulationResult run(Network network, DynamicSimulationParameters parameters) {
-            return runAsync(network, parameters).join();
+        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, DynamicSimulationParameters parameters) {
+            return runAsync(network, dynamicModelsSupplier, parameters).join();
         }
 
-        public DynamicSimulationResult run(Network network, CurvesSupplier curvesSupplier) {
-            return runAsync(network, curvesSupplier).join();
+        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier) {
+            return runAsync(network, dynamicModelsSupplier, curvesSupplier).join();
         }
 
-        public DynamicSimulationResult run(Network network) {
-            return runAsync(network).join();
+        public DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier) {
+            return runAsync(network, dynamicModelsSupplier).join();
         }
 
         @Override
@@ -104,55 +104,55 @@ public final class DynamicSimulation {
         return find(null);
     }
 
-    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, CurvesSupplier curvesSupplier, String workingVariantId,
+    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId,
                                                                ComputationManager computationManager, DynamicSimulationParameters parameters) {
-        return find().runAsync(network, curvesSupplier, workingVariantId, computationManager, parameters);
+        return find().runAsync(network, dynamicModelsSupplier, curvesSupplier, workingVariantId, computationManager, parameters);
     }
 
-    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, CurvesSupplier curvesSupplier, String workingVariantId,
+    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId,
                                                                DynamicSimulationParameters parameters) {
-        return find().runAsync(network, curvesSupplier, workingVariantId, parameters);
+        return find().runAsync(network, dynamicModelsSupplier, curvesSupplier, workingVariantId, parameters);
     }
 
-    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, CurvesSupplier curvesSupplier, DynamicSimulationParameters parameters) {
-        return find().runAsync(network, curvesSupplier, parameters);
+    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier, DynamicSimulationParameters parameters) {
+        return find().runAsync(network, dynamicModelsSupplier, curvesSupplier, parameters);
     }
 
-    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicSimulationParameters parameters) {
-        return find().runAsync(network, parameters);
+    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, DynamicSimulationParameters parameters) {
+        return find().runAsync(network, dynamicModelsSupplier, parameters);
     }
 
-    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, CurvesSupplier curvesSupplier) {
-        return find().runAsync(network, curvesSupplier);
+    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier) {
+        return find().runAsync(network, dynamicModelsSupplier, curvesSupplier);
     }
 
-    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network) {
-        return find().runAsync(network);
+    public static CompletableFuture<DynamicSimulationResult> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier) {
+        return find().runAsync(network, dynamicModelsSupplier);
     }
 
-    public static DynamicSimulationResult run(Network network, CurvesSupplier curvesSupplier, String workingVariantId,
+    public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId,
                                        ComputationManager computationManager, DynamicSimulationParameters parameters) {
-        return find().run(network, curvesSupplier, workingVariantId, computationManager, parameters);
+        return find().run(network, dynamicModelsSupplier, curvesSupplier, workingVariantId, computationManager, parameters);
     }
 
-    public static DynamicSimulationResult run(Network network, CurvesSupplier curvesSupplier, String workingVariantId,
+    public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId,
                                        DynamicSimulationParameters parameters) {
-        return find().run(network, curvesSupplier, workingVariantId, parameters);
+        return find().run(network, dynamicModelsSupplier, curvesSupplier, workingVariantId, parameters);
     }
 
-    public static DynamicSimulationResult run(Network network, CurvesSupplier curvesSupplier, DynamicSimulationParameters parameters) {
-        return find().run(network, curvesSupplier, parameters);
+    public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier, DynamicSimulationParameters parameters) {
+        return find().run(network, dynamicModelsSupplier, curvesSupplier, parameters);
     }
 
-    public static DynamicSimulationResult run(Network network, DynamicSimulationParameters parameters) {
-        return find().run(network, parameters);
+    public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, DynamicSimulationParameters parameters) {
+        return find().run(network, dynamicModelsSupplier, parameters);
     }
 
-    public static DynamicSimulationResult run(Network network, CurvesSupplier curvesSupplier) {
-        return find().run(network, curvesSupplier);
+    public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier, CurvesSupplier curvesSupplier) {
+        return find().run(network, dynamicModelsSupplier, curvesSupplier);
     }
 
-    public static DynamicSimulationResult run(Network network) {
-        return find().run(network);
+    public static DynamicSimulationResult run(Network network, DynamicModelsSupplier dynamicModelsSupplier) {
+        return find().run(network, dynamicModelsSupplier);
     }
 }
