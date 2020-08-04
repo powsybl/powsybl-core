@@ -210,7 +210,7 @@ public final class NetworkXml {
 
     private static void writeExtensions(Network n, NetworkXmlWriterContext context, ExportOptions options) throws XMLStreamException {
 
-        for (Identifiable<?> identifiable : IidmXmlUtil.sorted(n.getIdentifiables())) {
+        for (Identifiable<?> identifiable : IidmXmlUtil.sorted(n.getIdentifiables(), options)) {
             if (!context.isExportedEquipment(identifiable)) {
                 continue;
             }
