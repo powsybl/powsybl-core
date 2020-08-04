@@ -166,23 +166,21 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     /**
      * @deprecated Use {@link #writeCurrentLimits(Integer, CurrentLimits, XMLStreamWriter, IidmXmlVersion, ExportOptions)} instead.
      */
-    @Deprecated
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, ExportOptions exportOptions) throws XMLStreamException {
-        writeCurrentLimits(index, limits, writer, IidmXmlConstants.CURRENT_IIDM_XML_VERSION, exportOptions);
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, IidmXmlVersion version) throws XMLStreamException {
+        writeCurrentLimits(index, limits, writer, version, new ExportOptions());
+    }
+
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, IidmXmlVersion version,
+                                          ExportOptions exportOptions) throws XMLStreamException {
+        writeCurrentLimits(index, limits, writer, version.getNamespaceURI(), version, exportOptions);
     }
 
     /**
      * @deprecated Use {@link #writeCurrentLimits(Integer, CurrentLimits, XMLStreamWriter, String, IidmXmlVersion, ExportOptions)} instead.
      */
     @Deprecated
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri,
-                                          ExportOptions exportOptions) throws XMLStreamException {
-        writeCurrentLimits(index, limits, writer, nsUri, IidmXmlConstants.CURRENT_IIDM_XML_VERSION, exportOptions);
-    }
-
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, IidmXmlVersion version,
-                                          ExportOptions exportOptions) throws XMLStreamException {
-        writeCurrentLimits(index, limits, writer, version.getNamespaceURI(), version, exportOptions);
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri, IidmXmlVersion version) throws XMLStreamException {
+        writeCurrentLimits(index, limits, writer, nsUri, version, new ExportOptions());
     }
 
     public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri, IidmXmlVersion version,

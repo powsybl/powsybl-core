@@ -214,6 +214,30 @@ public final class IidmXmlUtil {
         }
     }
 
+    /**
+     * Sort identifiables by their ids.
+     */
+    public static <T extends Identifiable> Iterable<T> sorted(Iterable<T> identifiables, ExportOptions exportOptions) {
+        Objects.requireNonNull(identifiables);
+        Objects.requireNonNull(exportOptions);
+        return exportOptions.isSorted() ? StreamSupport.stream(identifiables.spliterator(), false)
+                .sorted(Comparator.comparing(Identifiable::getId))
+                .collect(Collectors.toList())
+                : identifiables;
+    }
+
+    /**
+     * Sort identifiables by their ids.
+     */
+    public static <T extends Identifiable<T>> Stream<T> sorted(Stream<T> stream, ExportOptions exportOptions) {
+        Objects.requireNonNull(stream);
+        Objects.requireNonNull(exportOptions);
+        return exportOptions.isSorted() ? stream.sorted(Comparator.comparing(Identifiable::getId)) : stream;
+    }
+
+    /**
+     * Sort extensions by their names.
+     */
     public static Iterable<? extends Extension<? extends Identifiable<?>>> sortedExtensions(Iterable<? extends Extension<? extends Identifiable<?>>> extensions, ExportOptions exportOptions) {
         Objects.requireNonNull(exportOptions);
         Objects.requireNonNull(exportOptions);
@@ -223,15 +247,9 @@ public final class IidmXmlUtil {
                 : extensions;
     }
 
-    public static <T extends Identifiable> Iterable<T> sorted(Iterable<T> identifiables, ExportOptions exportOptions) {
-        Objects.requireNonNull(identifiables);
-        Objects.requireNonNull(exportOptions);
-        return exportOptions.isSorted() ? StreamSupport.stream(identifiables.spliterator(), false)
-                                                       .sorted(Comparator.comparing(Identifiable::getId))
-                                                       .collect(Collectors.toList())
-                                        : identifiables;
-    }
-
+    /**
+     * Sort temporary limits by their names.
+     */
     public static Iterable<CurrentLimits.TemporaryLimit> sortedTemporaryLimits(Iterable<CurrentLimits.TemporaryLimit> temporaryLimits, ExportOptions exportOptions) {
         Objects.requireNonNull(temporaryLimits);
         Objects.requireNonNull(exportOptions);
@@ -241,6 +259,9 @@ public final class IidmXmlUtil {
                                         : temporaryLimits;
     }
 
+    /**
+     * Sort internal connections first by their side one node value then by their side 2 node value.
+     */
     public static Iterable<VoltageLevel.NodeBreakerView.InternalConnection> sortedInternalConnections(Iterable<VoltageLevel.NodeBreakerView.InternalConnection> internalConnections, ExportOptions exportOptions) {
         Objects.requireNonNull(internalConnections);
         Objects.requireNonNull(exportOptions);
@@ -249,12 +270,6 @@ public final class IidmXmlUtil {
                                                                          .thenComparing(VoltageLevel.NodeBreakerView.InternalConnection::getNode2))
                                                        .collect(Collectors.toList())
                 : internalConnections;
-    }
-
-    public static <T extends Identifiable<T>> Stream<T> sorted(Stream<T> stream, ExportOptions exportOptions) {
-        Objects.requireNonNull(stream);
-        Objects.requireNonNull(exportOptions);
-        return exportOptions.isSorted() ? stream.sorted(Comparator.comparing(Identifiable::getId)) : stream;
     }
 
     private IidmXmlUtil() {
