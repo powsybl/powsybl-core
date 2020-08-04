@@ -160,13 +160,14 @@ class BlockData {
         return line.substring(0, slashIndex);
     }
 
+    // '' Is allowed as a comment
     static String readLineAndRemoveComment(BufferedReader reader) throws IOException {
         String line = reader.readLine();
         if (line == null) {
             return null;
         }
         StringBuffer newLine = new StringBuffer();
-        Pattern p = Pattern.compile("('[^']+')|( )+");
+        Pattern p = Pattern.compile("('[^']*')|( )+");
         Matcher m = p.matcher(removeComment(line));
         while (m.find()) {
             if (m.group().contains("'")) {
@@ -179,6 +180,7 @@ class BlockData {
         return newLine.toString().trim();
     }
 
+    // "" Is not allowed as a field
     private static String cleanRawxFieldString(String data) {
         StringBuffer newData = new StringBuffer();
         Pattern p = Pattern.compile("(\"[^\"]+\")|( )+");
@@ -194,9 +196,10 @@ class BlockData {
         return newData.toString();
     }
 
+    // "" Is allowed as data
     private static String cleanRawxDataString(String data) {
         StringBuffer newData = new StringBuffer();
-        Pattern p = Pattern.compile("(\"[^\"]+\")|( )+");
+        Pattern p = Pattern.compile("(\"[^\"]*\")|( )+");
         Matcher m = p.matcher(data);
         while (m.find()) {
             if (m.group().contains("\"")) {
