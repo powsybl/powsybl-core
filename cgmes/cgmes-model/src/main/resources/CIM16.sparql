@@ -292,16 +292,6 @@ SELECT *
 SELECT *
 WHERE
 { GRAPH ?graph {
-    {
-        ?Terminal a cim:Terminal .
-        ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal .
-    }
-    # operational limit sets can also be attached directly to equipments
-    UNION
-    {
-        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
-        ?Equipment a ?EquipmentClass .
-    }
     ?OperationalLimit
         cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
         cim:OperationalLimit.OperationalLimitType ?OperationalLimitType ;
@@ -321,6 +311,16 @@ WHERE
             {
                 ?OperationalLimit a cim:VoltageLimit ;
                 cim:VoltageLimit.value ?value .
+            }
+            {
+                ?Terminal a cim:Terminal .
+                ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal .
+            }
+            # operational limit sets can also be attached directly to equipments
+            UNION
+            {
+                ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
+                ?Equipment a ?EquipmentClass .
             }
         }
     ?OperationalLimitType
@@ -352,11 +352,13 @@ WHERE {
     VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch } .
     ?Terminal1
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?Switch .
+        cim:Terminal.ConductingEquipment ?Switch ;
+        cim:ACDCTerminal.sequenceNumber ?sequenceNumber1 .
     ?Terminal2
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?Switch .
-    FILTER ( STR(?Terminal1) < STR(?Terminal2) )
+        cim:Terminal.ConductingEquipment ?Switch ;
+        cim:ACDCTerminal.sequenceNumber ?sequenceNumber2 .
+    FILTER ( ?sequenceNumber1 < ?sequenceNumber2 )
 }}
 OPTIONAL { GRAPH ?graphSSH {
     ?Switch cim:Switch.open ?open
@@ -425,11 +427,13 @@ WHERE {
         cim:IdentifiedObject.name ?name .
     ?Terminal1
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?SeriesCompensator .
+        cim:Terminal.ConductingEquipment ?SeriesCompensator ;
+        cim:ACDCTerminal.sequenceNumber ?sequenceNumber1 .
     ?Terminal2
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?SeriesCompensator .
-    FILTER ( STR (?Terminal1) < STR (?Terminal2) )
+        cim:Terminal.ConductingEquipment ?SeriesCompensator ;
+        cim:ACDCTerminal.sequenceNumber ?sequenceNumber2 .
+    FILTER ( ?sequenceNumber1 < ?sequenceNumber2 )
 }}
 }
 
