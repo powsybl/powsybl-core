@@ -16,10 +16,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.Reader;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  *
@@ -82,15 +79,15 @@ public class FullModel {
     }
 
     public List<String> getProfiles() {
-        return profiles;
+        return Collections.unmodifiableList(profiles);
     }
 
     public List<String> getDependentOn() {
-        return dependentOn;
+        return Collections.unmodifiableList(dependentOn);
     }
 
     public List<String> getSupersedes() {
-        return supersedes;
+        return Collections.unmodifiableList(supersedes);
     }
 
     public String getModelingAuthoritySet() {
