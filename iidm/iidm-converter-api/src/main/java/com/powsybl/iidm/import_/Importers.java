@@ -20,6 +20,7 @@ import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -89,13 +90,16 @@ public final class Importers {
     }
 
     /**
-     * Get an importer.
+     * Get an importer for the specified format name. The returned importer will apply configured
+     * {@link ImportPostProcessor}s on imported networks.
      *
-     * @param format the import format
-     * @return the importer if one exists for the given format or
-     * <code>null</code> otherwise.
+     * @param loader             the loader responsible for providing the list of available importers and post processors
+     * @param format             the import format
+     * @param computationManager a computation manager which may be used by configured {@link ImportPostProcessor}s
+     * @param config             the import configuration
+     * @return the importer if one exists for the given format or <code>null</code> otherwise.
      */
-    public static Importer getImporter(ImportersLoader loader, String format, ComputationManager computationManager, ImportConfig config) {
+    public static Importer getImporter(ImportersLoader loader, String format, @Nullable ComputationManager computationManager, ImportConfig config) {
         Objects.requireNonNull(format);
         Objects.requireNonNull(loader);
         for (Importer importer : loader.loadImporters()) {
@@ -106,14 +110,48 @@ public final class Importers {
         return null;
     }
 
-    public static Importer getImporter(String format, ComputationManager computationManager, ImportConfig config) {
+    /**
+     * Get an importer for the specified format name. The returned importer will apply configured
+     * {@link ImportPostProcessor}s on imported networks.
+     *
+     * <p>All declared services implementing the {@link Importer} interface are available.
+     *
+     * @param format             the import format
+     * @param computationManager a computation manager which may be used by configured {@link ImportPostProcessor}s
+     * @param config             the import configuration
+     * @return the importer if one exists for the given format or <code>null</code> otherwise.
+     */
+    public static Importer getImporter(String format, @Nullable ComputationManager computationManager, ImportConfig config) {
         return getImporter(LOADER.get(), format, computationManager, config);
     }
 
-    public static Importer getImporter(String format, ComputationManager computationManager) {
+    /**
+     * Get an importer for the specified format name. The returned importer will apply configured
+     * {@link ImportPostProcessor}s on imported networks.
+     *
+     * <p>All declared services implementing the {@link Importer} interface are available.
+     * The import configuration is loaded from default platform config.
+     *
+     * @param format             the import format
+     * @param computationManager a computation manager which may be used by configured {@link ImportPostProcessor}s
+     * @return the importer if one exists for the given format or <code>null</code> otherwise.
+     */
+    public static Importer getImporter(String format, @Nullable ComputationManager computationManager) {
         return getImporter(format, computationManager, CONFIG.get());
     }
 
+    /**
+     * Get an importer for the specified format name. The returned importer will apply configured
+     * {@link ImportPostProcessor}s on imported networks.
+     *
+     * <p>All declared services implementing the {@link Importer} interface are available.
+     * The import configuration is loaded from default platform config.
+     * Import post processors will use the default instance of {@link LocalComputationManager},
+     * as configured in default platform config.
+     *
+     * @param format             the import format
+     * @return the importer if one exists for the given format or <code>null</code> otherwise.
+     */
     public static Importer getImporter(String format) {
         return getImporter(format, LocalComputationManager.getDefault());
     }
@@ -257,11 +295,11 @@ public final class Importers {
     /**
      * A convenient method to create a model from data in a given format.
      *
-     * @param format the import format
-     * @param directory the directory where input files are
-     * @param baseName a base name for all input files
+     * @param format     the import format
+     * @param directory  the directory where input files are
+     * @param baseName   a base name for all input files
      * @param parameters some properties to configure the import
-     * @return the model
+     * @return           the model
      */
     public static Network importData(String format, String directory, String baseName, Properties parameters) {
         return importData(format, new FileDataSource(Paths.get(directory), baseName), parameters);
@@ -383,6 +421,16 @@ public final class Importers {
         return findImporter(dataSource, LOADER.get(), computationManager, CONFIG.get());
     }
 
+    /**
+     * Loads a network from the specified file, trying to guess its format.
+     *
+     * @param file               The file to be loaded.
+     * @param computationManager A computation manager which may be used by import post-processors
+     * @param config             The import config, in particular definition of post processors
+     * @param parameters         Import-specific parameters
+     * @param loader             Provides the list of available importers and post-processors
+     * @return                   The loaded network
+     */
     public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
         ReadOnlyDataSource dataSource = createDataSource(file);
         Importer importer = findImporter(dataSource, loader, computationManager, config);
@@ -392,18 +440,56 @@ public final class Importers {
         throw new PowsyblException("Unsupported file format or invalid file.");
     }
 
+    /**
+     * Loads a network from the specified file, trying to guess its format,
+     * and using importers and post processors defined as services.
+     *
+     * @param file               The file to be loaded.
+     * @param computationManager A computation manager which may be used by import post-processors
+     * @param config             The import config, in particular definition of post processors
+     * @param parameters         Import-specific parameters
+     * @return                   The loaded network
+     */
     public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters) {
         return loadNetwork(file, computationManager, config, parameters, LOADER.get());
     }
 
+    /**
+     * Loads a network from the specified file, trying to guess its format,
+     * and using importers and post processors defined as services.
+     * Import will be performed using import configuration defined in default platform config,
+     * and with no importer-specific parameters.
+     * Post processors will use the default {@link LocalComputationManager}, as defined in
+     * default platform config.
+     *
+     * @param file               The file to be loaded.
+     * @return                   The loaded network
+     */
     public static Network loadNetwork(Path file) {
         return loadNetwork(file, LocalComputationManager.getDefault(), CONFIG.get(), null);
     }
 
+    /**
+     * Loads a network from the specified file path, see {@link #loadNetwork(Path)}.
+     *
+     * @param file               The file to be loaded.
+     * @return                   The loaded network
+     */
     public static Network loadNetwork(String file) {
         return loadNetwork(Paths.get(file));
     }
 
+    /**
+     * Loads a network from a raw input stream, trying to guess the format from the specified filename.
+     *
+     * @param filename           The name of the file to be imported.
+     * @param data               The raw data from which the network should be loaded
+     * @param computationManager A computation manager which may be used by import post-processors
+     * @param config             The import config, in particular definition of post processors
+     * @param parameters         Import-specific parameters
+     * @param loader             Provides the list of available importers and post-processors
+     * @return                   The loaded network
+     */
     public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
         ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
         dataSource.putData(filename, data);
@@ -414,14 +500,48 @@ public final class Importers {
         throw new PowsyblException("Unsupported file format or invalid file.");
     }
 
+    /**
+     * Loads a network from a raw input stream, trying to guess the format from the specified filename,
+     * and using importers and post processors defined as services.
+     *
+     * @param filename           The name of the file to be imported.
+     * @param data               The raw data from which the network should be loaded
+     * @param computationManager A computation manager which may be used by import post-processors
+     * @param config             The import config, in particular definition of post processors
+     * @param parameters         Import-specific parameters
+     * @return                   The loaded network
+     */
     public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters) {
         return loadNetwork(filename, data, computationManager, config, parameters, LOADER.get());
     }
 
+    /**
+     * Loads a network from a raw input stream, trying to guess the format from the specified filename,
+     * and using importers and post processors defined as services.
+     * Import will be performed using import configuration defined in default platform config,
+     * and with no importer-specific parameters.
+     *
+     * @param filename           The name of the file to be imported.
+     * @param data               The raw data from which the network should be loaded
+     * @param computationManager A computation manager which may be used by import post-processors
+     * @return                   The loaded network
+     */
     public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager) {
         return loadNetwork(filename, data, computationManager, CONFIG.get(), null);
     }
 
+    /**
+     * Loads a network from a raw input stream, trying to guess the format from the specified filename,
+     * and using importers and post processors defined as services.
+     * Import will be performed using import configuration defined in default platform config,
+     * and with no importer-specific parameters.
+     * Post processors will use the default {@link LocalComputationManager}, as defined in
+     * default platform config.
+     *
+     * @param filename           The name of the file to be imported.
+     * @param data               The raw data from which the network should be loaded
+     * @return                   The loaded network
+     */
     public static Network loadNetwork(String filename, InputStream data) {
         return loadNetwork(filename, data, LocalComputationManager.getDefault());
     }
