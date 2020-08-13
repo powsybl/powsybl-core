@@ -20,7 +20,7 @@ import com.powsybl.dynamicsimulation.groovy.EventModelGroovyExtension;
 import com.powsybl.dynamicsimulation.groovy.DynamicModelGroovyExtension;
 import com.powsybl.dynamicsimulation.groovy.GroovyCurvesSupplier;
 import com.powsybl.dynamicsimulation.groovy.GroovyExtension;
-import com.powsybl.dynamicsimulation.groovy.GroovyDynamicEventModelsSupplier;
+import com.powsybl.dynamicsimulation.groovy.GroovyEventModelsSupplier;
 import com.powsybl.dynamicsimulation.groovy.GroovyDynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.json.DynamicSimulationResultSerializer;
 import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
@@ -185,7 +185,7 @@ public class DynamicSimulationTool implements Tool {
     private EventModelsSupplier createEventSupplier(Path path, String providerName) {
         String extension = FilenameUtils.getExtension(path.toString());
         if (extension.equals("groovy")) {
-            return new GroovyDynamicEventModelsSupplier(path, GroovyExtension.find(EventModelGroovyExtension.class, providerName));
+            return new GroovyEventModelsSupplier(path, GroovyExtension.find(EventModelGroovyExtension.class, providerName));
         } else {
             throw new PowsyblException("Unsupported events format: " + extension);
         }

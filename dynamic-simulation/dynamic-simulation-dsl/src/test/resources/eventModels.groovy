@@ -9,10 +9,10 @@ import com.powsybl.iidm.network.Line
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-Logger logger = LoggerFactory.getLogger("com.powsybl.dynamicsimulation.groovy.GroovyDynamicEventModelSupplier")
+Logger logger = LoggerFactory.getLogger("com.powsybl.dynamicsimulation.groovy.GroovyEventModelSupplier")
 
 for (Line line : network.lines) {
-    dummyDynamicEventModel {
+    dummyEventModel {
         id line.id
     }
 }

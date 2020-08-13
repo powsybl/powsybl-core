@@ -28,17 +28,17 @@ import groovy.lang.GroovyShell;
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public class GroovyDynamicEventModelsSupplier implements EventModelsSupplier {
+public class GroovyEventModelsSupplier implements EventModelsSupplier {
 
     private final GroovyCodeSource codeSource;
 
     private final List<EventModelGroovyExtension> extensions;
 
-    public GroovyDynamicEventModelsSupplier(Path path) {
+    public GroovyEventModelsSupplier(Path path) {
         this(path, Collections.emptyList());
     }
 
-    public GroovyDynamicEventModelsSupplier(Path path, List<EventModelGroovyExtension> extensions) {
+    public GroovyEventModelsSupplier(Path path, List<EventModelGroovyExtension> extensions) {
         this.codeSource = GroovyScripts.load(path);
         this.extensions = Objects.requireNonNull(extensions);
     }
@@ -50,17 +50,17 @@ public class GroovyDynamicEventModelsSupplier implements EventModelsSupplier {
 
     @Override
     public List<EventModel> get(Network network) {
-        List<EventModel> dynamicEventModels = new ArrayList<>();
+        List<EventModel> eventModels = new ArrayList<>();
 
         Binding binding = new Binding();
         binding.setVariable("network", network);
 
         ExpressionDslLoader.prepareClosures(binding);
-        extensions.forEach(e -> e.load(binding, dynamicEventModels::add));
+        extensions.forEach(e -> e.load(binding, eventModels::add));
 
         GroovyShell shell = new GroovyShell(binding, new CompilerConfiguration());
         shell.evaluate(codeSource);
 
-        return dynamicEventModels;
+        return eventModels;
     }
 }

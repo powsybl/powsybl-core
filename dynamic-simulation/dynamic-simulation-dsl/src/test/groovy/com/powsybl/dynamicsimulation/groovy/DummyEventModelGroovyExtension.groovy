@@ -16,9 +16,9 @@ import com.powsybl.dynamicsimulation.EventModel
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 @AutoService(EventModelGroovyExtension.class)
-class DummyDynamicEventModelGroovyExtension implements EventModelGroovyExtension {
+class DummyEventModelGroovyExtension implements EventModelGroovyExtension {
 
-    static class DummyDynamicEventModelSpec {
+    static class DummyEventModelSpec {
         String id
         
         void id(String id) {
@@ -27,18 +27,18 @@ class DummyDynamicEventModelGroovyExtension implements EventModelGroovyExtension
     }
 
     void load(Binding binding, Consumer<EventModel> consumer) {
-        binding.dummyDynamicEventModel = { Closure<Void> closure ->
+        binding.dummyEventModel = { Closure<Void> closure ->
             def cloned = closure.clone()
 
-            DummyDynamicEventModelSpec dynamicEventModelSpec = new DummyDynamicEventModelSpec()
+            DummyEventModelSpec eventModelSpec = new DummyEventModelSpec()
 
-            cloned.delegate = dynamicEventModelSpec
+            cloned.delegate = eventModelSpec
             cloned()
-            if (!dynamicEventModelSpec.id) {
+            if (!eventModelSpec.id) {
                 throw new DslException("'id' field is not set")
             }
 
-            consumer.accept(new DummyEventModel(dynamicEventModelSpec.id))
+            consumer.accept(new DummyEventModel(eventModelSpec.id))
         }
     }
 }

@@ -35,7 +35,7 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
     public static class DynamicSimulationProviderMock implements DynamicSimulationProvider {
 
         @Override
-        public CompletableFuture<DynamicSimulationResult> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier dynamicEventModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters) {
+        public CompletableFuture<DynamicSimulationResult> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier, String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters) {
             return CompletableFuture.completedFuture(new DynamicSimulationResultImpl(true, ""));
         }
 
@@ -82,7 +82,7 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
 
         Files.copy(getClass().getResourceAsStream("/network.xiidm"), fileSystem.getPath("/network.xiidm"));
         Files.createFile(fileSystem.getPath("/dynamicModels.groovy"));
-        Files.createFile(fileSystem.getPath("/dynamicEventModels.groovy"));
+        Files.createFile(fileSystem.getPath("/eventModels.groovy"));
         Files.createFile(fileSystem.getPath("/curves.groovy"));
         Files.createFile(fileSystem.getPath("/curves.json"));
     }
@@ -106,10 +106,10 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
     @Test
     public void testDynamicSimulationWithEvents() throws IOException {
         // Run with events in groovy
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--event-models-file", "/dynamicEventModels.groovy"}, 0, null, "");
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--event-models-file", "/eventModels.groovy"}, 0, null, "");
 
         // Run with events in JSON (not supported)
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--event-models-file", "/dynamicEventModels.json"}, 3, null, "Unsupported events format: json");
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--event-models-file", "/eventModels.json"}, 3, null, "Unsupported events format: json");
     }
 
     @Test
