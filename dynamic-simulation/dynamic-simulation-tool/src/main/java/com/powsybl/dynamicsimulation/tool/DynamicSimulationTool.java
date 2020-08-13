@@ -187,7 +187,7 @@ public class DynamicSimulationTool implements Tool {
         if (extension.equals("groovy")) {
             return new GroovyDynamicEventModelsSupplier(path, GroovyExtension.find(DynamicEventModelGroovyExtension.class, providerName));
         } else {
-            throw new PowsyblException("Unsupported dynamic model format: " + extension);
+            throw new PowsyblException("Unsupported events format: " + extension);
         }
     }
 

@@ -82,6 +82,7 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
 
         Files.copy(getClass().getResourceAsStream("/network.xiidm"), fileSystem.getPath("/network.xiidm"));
         Files.createFile(fileSystem.getPath("/dynamicModels.groovy"));
+        Files.createFile(fileSystem.getPath("/dynamicEventModels.groovy"));
         Files.createFile(fileSystem.getPath("/curves.groovy"));
         Files.createFile(fileSystem.getPath("/curves.json"));
     }
@@ -100,6 +101,15 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
 
         // Run with curves
         assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-model-file", "/dynamicModels.groovy", "--curves-file", "/curves.groovy"}, 0, expectedOut, "");
+    }
+
+    @Test
+    public void testDynamicSimulationWithEvents() throws IOException {
+        // Run with events in groovy
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-model-file", "/dynamicModels.groovy", "--events-file", "/dynamicEventModels.groovy"}, 0, null, "");
+
+        // Run with events in JSON (not supported)
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-model-file", "/dynamicModels.groovy", "--events-file", "/dynamicEventModels.json"}, 3, null, "Unsupported events format: json");
     }
 
     @Test
