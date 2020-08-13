@@ -48,7 +48,7 @@ import java.util.Properties;
 public class DynamicSimulationTool implements Tool {
 
     private static final String CASE_FILE = "case-file";
-    private static final String DYNAMIC_MODEL_FILE = "dynamic-model-file";
+    private static final String DYNAMIC_MODEL_FILE = "dynamic-models-file";
     private static final String CURVES_FILE = "curves-file";
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_FILE = "output-file";
