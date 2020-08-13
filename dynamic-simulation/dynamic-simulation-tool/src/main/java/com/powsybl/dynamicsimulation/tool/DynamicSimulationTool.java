@@ -10,13 +10,13 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.*;
 import com.powsybl.dynamicsimulation.CurvesSupplier;
-import com.powsybl.dynamicsimulation.DynamicEventModelsSupplier;
+import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.dynamicsimulation.DynamicSimulation;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.groovy.CurveGroovyExtension;
-import com.powsybl.dynamicsimulation.groovy.DynamicEventModelGroovyExtension;
+import com.powsybl.dynamicsimulation.groovy.EventModelGroovyExtension;
 import com.powsybl.dynamicsimulation.groovy.DynamicModelGroovyExtension;
 import com.powsybl.dynamicsimulation.groovy.GroovyCurvesSupplier;
 import com.powsybl.dynamicsimulation.groovy.GroovyExtension;
@@ -51,8 +51,8 @@ import java.util.Properties;
 public class DynamicSimulationTool implements Tool {
 
     private static final String CASE_FILE = "case-file";
-    private static final String DYNAMIC_MODEL_FILE = "dynamic-models-file";
-    private static final String DYNAMIC_EVENT_MODEL_FILE = "events-file";
+    private static final String DYNAMIC_MODELS_FILE = "dynamic-models-file";
+    private static final String EVENT_MODELS_FILE = "event-models-file";
     private static final String CURVES_FILE = "curves-file";
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_FILE = "output-file";
@@ -85,13 +85,13 @@ public class DynamicSimulationTool implements Tool {
                     .argName("FILE")
                     .required()
                     .build());
-                options.addOption(Option.builder().longOpt(DYNAMIC_MODEL_FILE)
+                options.addOption(Option.builder().longOpt(DYNAMIC_MODELS_FILE)
                     .desc("dynamic models description as a Groovy file: defines the dynamic models to be associated to chosen equipments of the network")
                     .hasArg()
                     .argName("FILE")
                     .required()
                     .build());
-                options.addOption(Option.builder().longOpt(DYNAMIC_EVENT_MODEL_FILE)
+                options.addOption(Option.builder().longOpt(EVENT_MODELS_FILE)
                     .desc("dynamic event models description as a Groovy file: defines the dynamic event models to be associated to chosen equipments of the network")
                     .hasArg()
                     .argName("FILE")
@@ -143,12 +143,12 @@ public class DynamicSimulationTool implements Tool {
 
         DynamicSimulation.Runner runner = DynamicSimulation.find();
 
-        Path dydFile = context.getFileSystem().getPath(line.getOptionValue(DYNAMIC_MODEL_FILE));
-        DynamicModelsSupplier dydSupplier = createMappingSupplier(dydFile, runner.getName());
+        Path dydFile = context.getFileSystem().getPath(line.getOptionValue(DYNAMIC_MODELS_FILE));
+        DynamicModelsSupplier dynamicModelsSupplier = createMappingSupplier(dydFile, runner.getName());
 
-        DynamicEventModelsSupplier eventSupplier = DynamicEventModelsSupplier.empty();
-        if (line.hasOption(DYNAMIC_EVENT_MODEL_FILE)) {
-            Path eventFile = context.getFileSystem().getPath(line.getOptionValue(DYNAMIC_EVENT_MODEL_FILE));
+        EventModelsSupplier eventSupplier = EventModelsSupplier.empty();
+        if (line.hasOption(EVENT_MODELS_FILE)) {
+            Path eventFile = context.getFileSystem().getPath(line.getOptionValue(EVENT_MODELS_FILE));
             eventSupplier = createEventSupplier(eventFile, runner.getName());
         }
 
@@ -164,7 +164,7 @@ public class DynamicSimulationTool implements Tool {
             JsonDynamicSimulationParameters.update(params, parametersFile);
         }
 
-        DynamicSimulationResult result = runner.run(network, dydSupplier, eventSupplier, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params);
+        DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params);
 
         if (outputFile != null) {
             exportResult(result, context, outputFile);
@@ -182,10 +182,10 @@ public class DynamicSimulationTool implements Tool {
         }
     }
 
-    private DynamicEventModelsSupplier createEventSupplier(Path path, String providerName) {
+    private EventModelsSupplier createEventSupplier(Path path, String providerName) {
         String extension = FilenameUtils.getExtension(path.toString());
         if (extension.equals("groovy")) {
-            return new GroovyDynamicEventModelsSupplier(path, GroovyExtension.find(DynamicEventModelGroovyExtension.class, providerName));
+            return new GroovyDynamicEventModelsSupplier(path, GroovyExtension.find(EventModelGroovyExtension.class, providerName));
         } else {
             throw new PowsyblException("Unsupported events format: " + extension);
         }

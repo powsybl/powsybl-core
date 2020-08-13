@@ -9,16 +9,16 @@ package com.powsybl.dynamicsimulation.groovy;
 
 import java.util.Objects;
 
-import com.powsybl.dynamicsimulation.DynamicEventModel;
+import com.powsybl.dynamicsimulation.EventModel;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public class DummyDynamicEventModel implements DynamicEventModel {
+public class DummyEventModel implements EventModel {
 
     private final String id;
 
-    public DummyDynamicEventModel(String id) {
+    public DummyEventModel(String id) {
         this.id = Objects.requireNonNull(id);
     }
 

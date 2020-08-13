@@ -21,8 +21,8 @@ import org.junit.Test;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.dynamicsimulation.DynamicEventModel;
-import com.powsybl.dynamicsimulation.DynamicEventModelsSupplier;
+import com.powsybl.dynamicsimulation.EventModel;
+import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 
@@ -49,21 +49,21 @@ public class GroovyDynamicEventModelSupplierTest {
     public void test() {
         Network network = EurostagTutorialExample1Factory.create();
 
-        List<DynamicEventModelGroovyExtension> extensions = GroovyExtension.find(DynamicEventModelGroovyExtension.class, "dummy");
+        List<EventModelGroovyExtension> extensions = GroovyExtension.find(EventModelGroovyExtension.class, "dummy");
         assertEquals(1, extensions.size());
-        assertTrue(extensions.get(0) instanceof DynamicEventModelGroovyExtension);
+        assertTrue(extensions.get(0) instanceof EventModelGroovyExtension);
 
-        DynamicEventModelsSupplier supplier = new GroovyDynamicEventModelsSupplier(fileSystem.getPath("/dynamicEventModels.groovy"), extensions);
+        EventModelsSupplier supplier = new GroovyDynamicEventModelsSupplier(fileSystem.getPath("/dynamicEventModels.groovy"), extensions);
 
-        List<DynamicEventModel> dynamicEventModels = supplier.get(network);
+        List<EventModel> dynamicEventModels = supplier.get(network);
         assertEquals(2, dynamicEventModels.size());
 
-        assertTrue(dynamicEventModels.get(0) instanceof DummyDynamicEventModel);
-        DummyDynamicEventModel dynamicModel1 = (DummyDynamicEventModel) dynamicEventModels.get(0);
+        assertTrue(dynamicEventModels.get(0) instanceof DummyEventModel);
+        DummyEventModel dynamicModel1 = (DummyEventModel) dynamicEventModels.get(0);
         assertEquals("NHV1_NHV2_1", dynamicModel1.getId());
 
-        assertTrue(dynamicEventModels.get(1) instanceof DummyDynamicEventModel);
-        DummyDynamicEventModel dynamicModel2 = (DummyDynamicEventModel) dynamicEventModels.get(1);
+        assertTrue(dynamicEventModels.get(1) instanceof DummyEventModel);
+        DummyEventModel dynamicModel2 = (DummyEventModel) dynamicEventModels.get(1);
         assertEquals("NHV1_NHV2_2", dynamicModel2.getId());
     }
 }

@@ -17,8 +17,8 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 
 import com.powsybl.dsl.ExpressionDslLoader;
 import com.powsybl.dsl.GroovyScripts;
-import com.powsybl.dynamicsimulation.DynamicEventModelsSupplier;
-import com.powsybl.dynamicsimulation.DynamicEventModel;
+import com.powsybl.dynamicsimulation.EventModelsSupplier;
+import com.powsybl.dynamicsimulation.EventModel;
 import com.powsybl.iidm.network.Network;
 
 import groovy.lang.Binding;
@@ -28,17 +28,17 @@ import groovy.lang.GroovyShell;
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public class GroovyDynamicEventModelsSupplier implements DynamicEventModelsSupplier {
+public class GroovyDynamicEventModelsSupplier implements EventModelsSupplier {
 
     private final GroovyCodeSource codeSource;
 
-    private final List<DynamicEventModelGroovyExtension> extensions;
+    private final List<EventModelGroovyExtension> extensions;
 
     public GroovyDynamicEventModelsSupplier(Path path) {
         this(path, Collections.emptyList());
     }
 
-    public GroovyDynamicEventModelsSupplier(Path path, List<DynamicEventModelGroovyExtension> extensions) {
+    public GroovyDynamicEventModelsSupplier(Path path, List<EventModelGroovyExtension> extensions) {
         this.codeSource = GroovyScripts.load(path);
         this.extensions = Objects.requireNonNull(extensions);
     }
@@ -49,8 +49,8 @@ public class GroovyDynamicEventModelsSupplier implements DynamicEventModelsSuppl
     }
 
     @Override
-    public List<DynamicEventModel> get(Network network) {
-        List<DynamicEventModel> dynamicEventModels = new ArrayList<>();
+    public List<EventModel> get(Network network) {
+        List<EventModel> dynamicEventModels = new ArrayList<>();
 
         Binding binding = new Binding();
         binding.setVariable("network", network);

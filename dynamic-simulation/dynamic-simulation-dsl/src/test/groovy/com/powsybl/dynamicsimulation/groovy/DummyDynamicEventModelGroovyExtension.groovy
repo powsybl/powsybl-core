@@ -10,13 +10,13 @@ import java.util.function.Consumer
 
 import com.google.auto.service.AutoService
 import com.powsybl.dsl.DslException
-import com.powsybl.dynamicsimulation.DynamicEventModel
+import com.powsybl.dynamicsimulation.EventModel
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-@AutoService(DynamicEventModelGroovyExtension.class)
-class DummyDynamicEventModelGroovyExtension implements DynamicEventModelGroovyExtension {
+@AutoService(EventModelGroovyExtension.class)
+class DummyDynamicEventModelGroovyExtension implements EventModelGroovyExtension {
 
     static class DummyDynamicEventModelSpec {
         String id
@@ -26,7 +26,7 @@ class DummyDynamicEventModelGroovyExtension implements DynamicEventModelGroovyEx
         }
     }
 
-    void load(Binding binding, Consumer<DynamicEventModel> consumer) {
+    void load(Binding binding, Consumer<EventModel> consumer) {
         binding.dummyDynamicEventModel = { Closure<Void> closure ->
             def cloned = closure.clone()
 
@@ -38,7 +38,7 @@ class DummyDynamicEventModelGroovyExtension implements DynamicEventModelGroovyEx
                 throw new DslException("'id' field is not set")
             }
 
-            consumer.accept(new DummyDynamicEventModel(dynamicEventModelSpec.id))
+            consumer.accept(new DummyEventModel(dynamicEventModelSpec.id))
         }
     }
 }

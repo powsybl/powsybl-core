@@ -5,12 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.dynamicsimulation.groovy;
-
-import com.powsybl.dynamicsimulation.DynamicEventModel;
+package com.powsybl.dynamicsimulation;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public interface DynamicEventModelGroovyExtension extends GroovyExtension<DynamicEventModel> {
+public interface EventModel {
 }
