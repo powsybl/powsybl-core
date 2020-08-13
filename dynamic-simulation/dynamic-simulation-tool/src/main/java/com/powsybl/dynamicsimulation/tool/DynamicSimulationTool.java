@@ -144,12 +144,12 @@ public class DynamicSimulationTool implements Tool {
         DynamicSimulation.Runner runner = DynamicSimulation.find();
 
         Path dydFile = context.getFileSystem().getPath(line.getOptionValue(DYNAMIC_MODELS_FILE));
-        DynamicModelsSupplier dynamicModelsSupplier = createMappingSupplier(dydFile, runner.getName());
+        DynamicModelsSupplier dynamicModelsSupplier = createDynamicModelsSupplier(dydFile, runner.getName());
 
         EventModelsSupplier eventSupplier = EventModelsSupplier.empty();
         if (line.hasOption(EVENT_MODELS_FILE)) {
             Path eventFile = context.getFileSystem().getPath(line.getOptionValue(EVENT_MODELS_FILE));
-            eventSupplier = createEventSupplier(eventFile, runner.getName());
+            eventSupplier = createEventModelsSupplier(eventFile, runner.getName());
         }
 
         CurvesSupplier curvesSupplier = CurvesSupplier.empty();
@@ -173,7 +173,7 @@ public class DynamicSimulationTool implements Tool {
         }
     }
 
-    private DynamicModelsSupplier createMappingSupplier(Path path, String providerName) {
+    private DynamicModelsSupplier createDynamicModelsSupplier(Path path, String providerName) {
         String extension = FilenameUtils.getExtension(path.toString());
         if (extension.equals("groovy")) {
             return new GroovyDynamicModelsSupplier(path, GroovyExtension.find(DynamicModelGroovyExtension.class, providerName));
@@ -182,7 +182,7 @@ public class DynamicSimulationTool implements Tool {
         }
     }
 
-    private EventModelsSupplier createEventSupplier(Path path, String providerName) {
+    private EventModelsSupplier createEventModelsSupplier(Path path, String providerName) {
         String extension = FilenameUtils.getExtension(path.toString());
         if (extension.equals("groovy")) {
             return new GroovyEventModelsSupplier(path, GroovyExtension.find(EventModelGroovyExtension.class, providerName));
