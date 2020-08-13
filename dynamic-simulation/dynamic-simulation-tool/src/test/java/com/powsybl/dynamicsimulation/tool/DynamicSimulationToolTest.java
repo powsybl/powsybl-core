@@ -69,7 +69,7 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
         assertEquals("Run dynamic simulation", command.getDescription());
         assertNull(command.getUsageFooter());
         assertOption(command.getOptions(), "case-file", true, true);
-        assertOption(command.getOptions(), "dynamic-model-file", true, true);
+        assertOption(command.getOptions(), "dynamic-models-file", true, true);
         assertOption(command.getOptions(), "events-file", false, true);
         assertOption(command.getOptions(), "curves-file", false, true);
         assertOption(command.getOptions(), "output-file", false, true);
@@ -97,28 +97,28 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
                 "+--------+",
                 "| true   |",
                 "+--------+");
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-model-file", "/dynamicModels.groovy"}, 0, expectedOut, "");
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy"}, 0, expectedOut, "");
 
         // Run with curves
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-model-file", "/dynamicModels.groovy", "--curves-file", "/curves.groovy"}, 0, expectedOut, "");
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--curves-file", "/curves.groovy"}, 0, expectedOut, "");
     }
 
     @Test
     public void testDynamicSimulationWithEvents() throws IOException {
         // Run with events in groovy
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-model-file", "/dynamicModels.groovy", "--events-file", "/dynamicEventModels.groovy"}, 0, null, "");
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--events-file", "/dynamicEventModels.groovy"}, 0, null, "");
 
         // Run with events in JSON (not supported)
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-model-file", "/dynamicModels.groovy", "--events-file", "/dynamicEventModels.json"}, 3, null, "Unsupported events format: json");
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--events-file", "/dynamicEventModels.json"}, 3, null, "Unsupported events format: json");
     }
 
     @Test
     public void testDynamicSimulationWithCurves() throws IOException {
         // Run with curves in groovy
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-model-file", "/dynamicModels.groovy", "--curves-file", "/curves.groovy"}, 0, null, "");
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--curves-file", "/curves.groovy"}, 0, null, "");
 
         // Run with curves in JSON (not supported)
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-model-file", "/dynamicModels.groovy", "--curves-file", "/curves.json"}, 3, null, "Unsupported curves format: json");
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--curves-file", "/curves.json"}, 3, null, "Unsupported curves format: json");
     }
 
 }
