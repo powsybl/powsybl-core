@@ -6,15 +6,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.TapChanger;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
@@ -138,5 +133,14 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     protected String getTapChangerAttribute() {
         return "ratio" + parent.getTapChangerAttribute();
+    }
+
+    @Override
+    public Map<Integer, RatioTapChangerStep> getAllSteps() {
+        Map<Integer, RatioTapChangerStep> allSteps = new HashMap<>();
+        for (int i = 0; i < steps.size(); i++) {
+            allSteps.put(i + lowTapPosition, steps.get(i));
+        }
+        return allSteps;
     }
 }

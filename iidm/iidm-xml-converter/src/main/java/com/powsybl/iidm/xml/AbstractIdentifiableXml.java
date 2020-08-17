@@ -36,8 +36,8 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
     }
 
     public final void write(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException {
-        boolean hasSubElements = hasSubElements(identifiable, context);
-        if (hasSubElements || identifiable.hasProperty()) {
+        boolean isNotEmptyElement = hasSubElements(identifiable, context) || identifiable.hasProperty() || identifiable.hasAliases();
+        if (isNotEmptyElement) {
             context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), getRootElementName());
         } else {
             context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), getRootElementName());
@@ -51,20 +51,22 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
             }
         });
 
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> XmlUtil.writeOptionalBoolean("fictitious", identifiable.isFictitious(), false, context.getWriter()));
+
+        writeRootElementAttributes(identifiable, parent, context);
+
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
             try {
-                XmlUtil.writeOptionalBoolean("fictitious", identifiable.isFictitious(), false, context.getWriter());
+                AliasesXml.write(identifiable, getRootElementName(), context);
             } catch (XMLStreamException e) {
                 throw new UncheckedXmlStreamException(e);
             }
         });
 
-        writeRootElementAttributes(identifiable, parent, context);
-
         PropertiesXml.write(identifiable, context);
 
         writeSubElements(identifiable, parent, context);
-        if (hasSubElements || identifiable.hasProperty()) {
+        if (isNotEmptyElement) {
             context.getWriter().writeEndElement();
         }
 
@@ -80,8 +82,11 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
     protected abstract T readRootElementAttributes(A adder, NetworkXmlReaderContext context);
 
     protected void readSubElements(T identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
-        if (context.getReader().getLocalName().equals("property")) {
+        if (context.getReader().getLocalName().equals(PropertiesXml.PROPERTY)) {
             PropertiesXml.read(identifiable, context);
+        } else if (context.getReader().getLocalName().equals(AliasesXml.ALIAS)) {
+            IidmXmlUtil.assertMinimumVersion(getRootElementName(), AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+            AliasesXml.read(identifiable, context);
         } else {
             throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + identifiable.getId() + ">");
         }

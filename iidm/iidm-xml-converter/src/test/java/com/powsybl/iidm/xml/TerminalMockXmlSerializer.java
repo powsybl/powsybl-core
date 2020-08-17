@@ -80,7 +80,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
                 String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
                 String side = networkContext.getReader().getAttributeValue(null, "side");
                 networkContext.getEndTasks().add(() -> {
-                    Network network = extendable.getTerminal().getVoltageLevel().getSubstation().getNetwork();
+                    Network network = extendable.getNetwork();
                     terminalMockExt.setTerminal(TerminalRefXml.readTerminalRef(network, id, side));
                 });
             } else {

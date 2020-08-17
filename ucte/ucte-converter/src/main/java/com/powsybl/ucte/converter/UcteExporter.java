@@ -17,6 +17,7 @@ import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
@@ -164,7 +165,6 @@ public class UcteExporter implements Exporter {
         String geographicalName = bus.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
 
         // FIXME(mathbagu): how to initialize active/reactive load and generation: 0 vs NaN vs DEFAULT_MAX_POWER?
-        // FIXME(mathbagu): how to find the slack node?
         UcteNode ucteNode = new UcteNode(
                 ucteNodeCode,
                 geographicalName,
@@ -189,6 +189,10 @@ public class UcteExporter implements Exporter {
 
         convertLoads(ucteNode, bus);
         convertGenerators(ucteNode, bus);
+
+        if (isSlackBus(bus)) {
+            ucteNode.setTypeCode(UcteNodeTypeCode.UT);
+        }
     }
 
     /**
@@ -283,6 +287,30 @@ public class UcteExporter implements Exporter {
         UcteNode ucteNode = convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
         ucteNode.setActiveLoad((float) danglingLine.getP0());
         ucteNode.setReactiveLoad((float) danglingLine.getQ0());
+        double generatorTargetP = danglingLine.getGeneration().getTargetP();
+        ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : (float) -generatorTargetP);
+        double generatorTargetQ = danglingLine.getGeneration().getTargetQ();
+        ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : (float) -generatorTargetQ);
+        if (danglingLine.getGeneration().isVoltageRegulationOn()) {
+            ucteNode.setTypeCode(UcteNodeTypeCode.PU);
+            ucteNode.setVoltageReference((float) danglingLine.getGeneration().getTargetV());
+            float minP = (float) danglingLine.getGeneration().getMinP();
+            float maxP = (float) danglingLine.getGeneration().getMaxP();
+            float minQ = (float) danglingLine.getGeneration().getReactiveLimits().getMinQ(danglingLine.getGeneration().getTargetP());
+            float maxQ = (float) danglingLine.getGeneration().getReactiveLimits().getMaxQ(danglingLine.getGeneration().getTargetP());
+            if (minP != -DEFAULT_POWER_LIMIT) {
+                ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
+            }
+            if (maxP != DEFAULT_POWER_LIMIT) {
+                ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
+            }
+            if (minQ != -DEFAULT_POWER_LIMIT) {
+                ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);
+            }
+            if (maxQ != DEFAULT_POWER_LIMIT) {
+                ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
+            }
+        }
     }
 
     /**
@@ -635,6 +663,16 @@ public class UcteExporter implements Exporter {
         }
     }
 
+    private static boolean isSlackBus(Bus bus) {
+        VoltageLevel vl = bus.getVoltageLevel();
+        SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
+        if (slackTerminal != null) {
+            Terminal terminal = slackTerminal.getTerminal();
+            return terminal.getBusBreakerView().getBus() == bus;
+        }
+        return false;
+    }
+
     /**
      * Converts the {@link TwoWindingsTransformer} into a {@link UcteTransformer} and adds it to the ucteNetwork.
      * Also creates the adds the linked {@link UcteRegulation}
@@ -678,15 +716,11 @@ public class UcteExporter implements Exporter {
      * @param twoWindingsTransformer The TwoWindingTransformer we want to convert
      */
     private static void convertRegulation(UcteNetwork ucteNetwork, UcteElementId ucteElementId, TwoWindingsTransformer twoWindingsTransformer) {
-        if (twoWindingsTransformer.getRatioTapChanger() != null || twoWindingsTransformer.getPhaseTapChanger() != null) {
-            UctePhaseRegulation uctePhaseRegulation = null;
-            UcteAngleRegulation ucteAngleRegulation = null;
-            if (twoWindingsTransformer.getRatioTapChanger() != null) {
-                uctePhaseRegulation = convertRatioTapChanger(twoWindingsTransformer);
-            }
-            if (twoWindingsTransformer.getPhaseTapChanger() != null) {
-                ucteAngleRegulation = convertPhaseTapChanger(twoWindingsTransformer);
-            }
+        if (twoWindingsTransformer.hasRatioTapChanger() || twoWindingsTransformer.hasPhaseTapChanger()) {
+            UctePhaseRegulation uctePhaseRegulation = twoWindingsTransformer.getOptionalRatioTapChanger()
+                    .map(rtc -> convertRatioTapChanger(twoWindingsTransformer)).orElse(null);
+            UcteAngleRegulation ucteAngleRegulation = twoWindingsTransformer.getOptionalPhaseTapChanger()
+                    .map(ptc -> convertPhaseTapChanger(twoWindingsTransformer)).orElse(null);
             UcteRegulation ucteRegulation = new UcteRegulation(ucteElementId, uctePhaseRegulation, ucteAngleRegulation);
             ucteNetwork.addRegulation(ucteRegulation);
         }

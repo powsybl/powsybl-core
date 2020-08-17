@@ -64,15 +64,14 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
     public void assertCommand() {
         Command command = tool.getCommand();
 
-        assertCommand(command, "dynamic-simulation", 8, 2);
+        assertCommand(command, "dynamic-simulation", 7, 2);
         assertEquals("Computation", command.getTheme());
         assertEquals("Run dynamic simulation", command.getDescription());
         assertNull(command.getUsageFooter());
         assertOption(command.getOptions(), "case-file", true, true);
-        assertOption(command.getOptions(), "dynamic-model-file", true, true);
+        assertOption(command.getOptions(), "dynamic-models-file", true, true);
         assertOption(command.getOptions(), "curves-file", false, true);
         assertOption(command.getOptions(), "output-file", false, true);
-        assertOption(command.getOptions(), "skip-postproc", false, false);
     }
 
     @Before
@@ -96,19 +95,19 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
                 "+--------+",
                 "| true   |",
                 "+--------+");
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-model-file", "/dynamicModels.groovy"}, 0, expectedOut, "");
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy"}, 0, expectedOut, "");
 
         // Run with curves
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-model-file", "/dynamicModels.groovy", "--curves-file", "/curves.groovy"}, 0, expectedOut, "");
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--curves-file", "/curves.groovy"}, 0, expectedOut, "");
     }
 
     @Test
     public void testDynamicSimulationWithCurves() throws IOException {
         // Run with curves in groovy
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-model-file", "/dynamicModels.groovy", "--curves-file", "/curves.groovy"}, 0, null, "");
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--curves-file", "/curves.groovy"}, 0, null, "");
 
         // Run with curves in JSON (not supported)
-        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-model-file", "/dynamicModels.groovy", "--curves-file", "/curves.json"}, 3, null, "Unsupported curves format: json");
+        assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--curves-file", "/curves.json"}, 3, null, "Unsupported curves format: json");
     }
 
 }

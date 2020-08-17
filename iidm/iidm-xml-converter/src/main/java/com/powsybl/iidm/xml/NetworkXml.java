@@ -29,6 +29,7 @@ import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
 
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -37,6 +38,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -53,9 +55,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_PREFIX;
-import static com.powsybl.iidm.xml.IidmXmlConstants.INDENT;
+import static com.powsybl.iidm.xml.IidmXmlConstants.*;
 import static com.powsybl.iidm.xml.XiidmDataResolver.SUFFIX_MAPPING;
 
 /**
@@ -214,29 +214,27 @@ public final class NetworkXml {
                 .orElseGet(extensionXmlSerializer::getNamespaceUri);
     }
 
-    private static Set<String> getExtensionsName(Collection<? extends Extension<? extends Identifiable<?>>> extensions) {
-        Set<String> extensionsSet = new HashSet<>();
-        for (Extension<? extends Identifiable<?>> extension : extensions) {
-            extensionsSet.add(extension.getName());
-        }
-        return extensionsSet;
-    }
-
     private static void writeExtensions(Network n, NetworkXmlWriterContext context, ExportOptions options) throws XMLStreamException {
 
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
-            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions();
-            if (!context.isExportedEquipment(identifiable) || extensions.isEmpty() || !options.hasAtLeastOneExtension(getExtensionsName(extensions))) {
+            if (!context.isExportedEquipment(identifiable)) {
                 continue;
             }
-            context.getExtensionsWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);
-            context.getExtensionsWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
-            for (Extension<? extends Identifiable<?>> extension : extensions) {
-                if (options.withExtension(extension.getName())) {
-                    writeExtension(extension, context);
+
+            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
+                    .filter(e -> options.withExtension(e.getName()))
+                    .filter(e -> getExtensionXmlSerializer(options, e.getName()) != null)
+                    .collect(Collectors.toList());
+            if (!extensions.isEmpty()) {
+                context.getExtensionsWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);
+                context.getExtensionsWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
+                for (Extension<? extends Identifiable<?>> extension : extensions) {
+                    if (options.withExtension(extension.getName())) {
+                        writeExtension(extension, context);
+                    }
                 }
+                context.getExtensionsWriter().writeEndElement();
             }
-            context.getExtensionsWriter().writeEndElement();
         }
     }
 
@@ -275,6 +273,7 @@ public final class NetworkXml {
         // Consider the network has been exported so its extensions will be written also
         context.addExportedEquipment(n);
 
+        AliasesXml.write(n, NETWORK_ROOT_ELEMENT_NAME, context);
         PropertiesXml.write(n, context);
 
         for (Substation s : n.getSubstations()) {
@@ -404,6 +403,11 @@ public final class NetworkXml {
 
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
                 switch (reader.getLocalName()) {
+                    case AliasesXml.ALIAS:
+                        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+                        AliasesXml.read(network, context);
+                        break;
+
                     case PropertiesXml.PROPERTY:
                         PropertiesXml.read(network, context);
                         break;

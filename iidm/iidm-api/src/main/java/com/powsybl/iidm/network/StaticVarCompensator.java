@@ -9,6 +9,89 @@ package com.powsybl.iidm.network;
 /**
  * Static VAR compensator model.
  *
+ * <p>
+ *  Characteristics
+ * </p>
+ *
+ * <table style="border: 1px solid black; border-collapse: collapse">
+ *     <thead>
+ *         <tr>
+ *             <th style="border: 1px solid black">Attribute</th>
+ *             <th style="border: 1px solid black">Type</th>
+ *             <th style="border: 1px solid black">Unit</th>
+ *             <th style="border: 1px solid black">Required</th>
+ *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Description</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td style="border: 1px solid black">Id</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Unique identifier of the static VAR compensator</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Name</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Human-readable name of the static VAR compensator</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Bmin</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">S</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The minimum susceptance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Bmax</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">S</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The maximum susceptance</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">VoltageSetPoint</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black">only if RegulationMode is set to VOLTAGE</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The voltage setpoint</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">ReactivePowerSetpoint</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">MVar</td>
+ *             <td style="border: 1px solid black">only if RegulationMode is set to REACTIVE_POWER</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The reactive power setpoint</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">RegulatingTerminal</td>
+ *             <td style="border: 1px solid black">Terminal</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> The static VAR compensator's terminal </td>
+ *             <td style="border: 1px solid black">The terminal used for regulation</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">RegulationMode</td>
+ *             <td style="border: 1px solid black">RegulationMode</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The regulation mode</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
@@ -51,16 +134,37 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * <p>Depends on the working variant.</p>
      * @return the voltage setpoint
      */
-    double getVoltageSetPoint();
+    default double getVoltageSetpoint() {
+        return getVoltageSetpoint();
+    }
+
+    /**
+     * @deprecated use {@link #getVoltageSetpoint()} instead.
+     */
+    @Deprecated
+    default double getVoltageSetPoint() {
+        return getVoltageSetpoint();
+    }
+
 
     /**
      * <p>Set the voltage setpoint in Kv.</p>
      * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
      * <p>Depends on the working variant.</p>
-     * @param voltageSetPoint the voltage setpoint
+     * @param voltageSetpoint the voltage setpoint
      * @return this to allow method chaining
      */
-    StaticVarCompensator setVoltageSetPoint(double voltageSetPoint);
+    default StaticVarCompensator setVoltageSetpoint(double voltageSetpoint) {
+        return setVoltageSetPoint(voltageSetpoint);
+    }
+
+    /**
+     * @deprecated use {@link #setVoltageSetpoint(double voltageSetpoint)} instead.
+     */
+    @Deprecated
+    default StaticVarCompensator setVoltageSetPoint(double voltageSetPoint) {
+        return setVoltageSetpoint(voltageSetPoint);
+    }
 
     /**
      * <p>Get the reactive power setpoint in MVAR.</p>
@@ -68,16 +172,36 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * <p>Depends on the working variant.</p>
      * @return the reactive power setpoint
      */
-    double getReactivePowerSetPoint();
+    default double getReactivePowerSetpoint() {
+        return getReactivePowerSetPoint();
+    }
+
+    /**
+     * @deprecated use {@link #getReactivePowerSetpoint()} instead.
+     */
+    @Deprecated
+    default double getReactivePowerSetPoint() {
+        return getReactivePowerSetpoint();
+    }
 
     /**
      * <p>Set the reactive power setpoint in MVAR.</p>
      * <p>Needed only when regulating mode is set to {@link RegulationMode#REACTIVE_POWER}.</p>
      * <p>Depends on the working variant.</p>
-     * @param reactivePowerSetPoint the reactive power setpoint
+     * @param reactivePowerSetpoint the reactive power setpoint
      * @return this to allow method chaining
      */
-    StaticVarCompensator setReactivePowerSetPoint(double reactivePowerSetPoint);
+    default StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        return setReactivePowerSetPoint(reactivePowerSetpoint);
+    }
+
+    /**
+     * @deprecated use {@link #setReactivePowerSetpoint(double reactivePowerSetpoint)} instead.
+     */
+    @Deprecated
+    default StaticVarCompensator setReactivePowerSetPoint(double reactivePowerSetPoint) {
+        return setReactivePowerSetpoint(reactivePowerSetPoint);
+    }
 
     /**
      * <p>Get the regulating mode.</p>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" >
+    <md:FullModel rdf:about="urn:uuid:9e46ebef-179e-433a-b423-7ec9ce62cc65">
+        <md:Model.scenarioTime>2020-07-02T00:30:00Z</md:Model.scenarioTime>
+        <md:Model.created>2020-06-30T15:36:00Z</md:Model.created>
+        <md:Model.description></md:Model.description>
+        <md:Model.version>001</md:Model.version>
+        <md:Model.profile>http://entsoe.eu/CIM/StateVariables/4/1</md:Model.profile>
+        <md:Model.DependentOn rdf:resource="urn:uuid:223128a4-6c0b-4da2-9715-b5b54eb02cef" />
+        <md:Model.DependentOn rdf:resource="urn:uuid:7e5b1fd4-cbaa-4364-b72a-ea57f269137e" />
+        <md:Model.DependentOn rdf:resource="urn:uuid:d8074bbe-d1ad-4e1e-8a2e-bad45abaf021" />
+        <md:Model.modelingAuthoritySet>http://www.rte-france.com/OperationalPlanning</md:Model.modelingAuthoritySet>
+    </md:FullModel>
+</rdf:RDF>

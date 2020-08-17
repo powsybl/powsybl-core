@@ -24,6 +24,8 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     protected boolean fictitious = false;
 
+    protected Set<String> aliases = new TreeSet<>();
+
     protected final Properties properties = new Properties();
 
     AbstractIdentifiable(String id, String name) {
@@ -49,6 +51,29 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     @Override
     public String getNameOrId() {
         return name != null ? name : id;
+    }
+
+    @Override
+    public Set<String> getAliases() {
+        return Collections.unmodifiableSet(aliases);
+    }
+
+    @Override
+    public void addAlias(String alias) {
+        if (getNetwork().getIndex().addAlias(this, alias)) {
+            aliases.add(alias);
+        }
+    }
+
+    @Override
+    public void removeAlias(String alias) {
+        getNetwork().getIndex().removeAlias(this, alias);
+        aliases.remove(alias);
+    }
+
+    @Override
+    public boolean hasAliases() {
+        return !aliases.isEmpty();
     }
 
     @Override

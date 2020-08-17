@@ -1053,21 +1053,25 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         variants.push(number, VariantImpl::new);
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
         variants.pop(number);
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
         variants.delete(index);
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
         variants.allocate(indexes, VariantImpl::new);
     }
 

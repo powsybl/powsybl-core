@@ -53,15 +53,15 @@ public class StaticVarCompensatorAdapterTest {
         assertTrue(svcActual.setBmax(++bMax) instanceof StaticVarCompensatorAdapter);
         assertEquals(bMax, svcActual.getBmax(), 0.0d);
 
-        double voltageSetPoint = svcExpected.getVoltageSetPoint();
-        assertEquals(voltageSetPoint, svcActual.getVoltageSetPoint(), 0.0d);
-        assertTrue(svcActual.setVoltageSetPoint(++voltageSetPoint) instanceof StaticVarCompensatorAdapter);
-        assertEquals(voltageSetPoint, svcActual.getVoltageSetPoint(), 0.0d);
+        double voltageSetpoint = svcExpected.getVoltageSetpoint();
+        assertEquals(voltageSetpoint, svcActual.getVoltageSetpoint(), 0.0d);
+        assertTrue(svcActual.setVoltageSetpoint(++voltageSetpoint) instanceof StaticVarCompensatorAdapter);
+        assertEquals(voltageSetpoint, svcActual.getVoltageSetpoint(), 0.0d);
 
-        double reactivePowerSetPoint = svcExpected.getReactivePowerSetPoint();
-        assertEquals(reactivePowerSetPoint, svcActual.getReactivePowerSetPoint(), 0.0d);
-        assertTrue(svcActual.setReactivePowerSetPoint(++reactivePowerSetPoint) instanceof StaticVarCompensatorAdapter);
-        assertEquals(reactivePowerSetPoint, svcActual.getReactivePowerSetPoint(), 0.0d);
+        double reactivePowerSetpoint = svcExpected.getReactivePowerSetpoint();
+        assertEquals(reactivePowerSetpoint, svcActual.getReactivePowerSetpoint(), 0.0d);
+        assertTrue(svcActual.setReactivePowerSetpoint(++reactivePowerSetpoint) instanceof StaticVarCompensatorAdapter);
+        assertEquals(reactivePowerSetpoint, svcActual.getReactivePowerSetpoint(), 0.0d);
 
         StaticVarCompensator.RegulationMode regulationMode = svcExpected.getRegulationMode();
         assertEquals(regulationMode, svcActual.getRegulationMode());

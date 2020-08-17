@@ -7,6 +7,7 @@
 package com.powsybl.commons.xml;
 
 import com.google.common.collect.ImmutableMap;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import org.junit.Test;
 
@@ -71,4 +72,51 @@ public class XmlUtilTest {
         assertEquals(ImmutableMap.of("a", 0, "b", 1, "d", 1), depths);
     }
 
+    @Test
+    public void readUntilStartElementTest() throws XMLStreamException {
+        readUntilStartElementTest("/a", "a");
+        readUntilStartElementTest("/a/b/c", "c");
+        readUntilStartElementTest("/a/d", "d");
+
+        readUntilStartElementNotFoundTest("/a/e", "a");
+        readUntilStartElementNotFoundTest("/a/b/a", "b");
+
+        try {
+            readUntilStartElementTest("/b", null);
+        } catch (PowsyblException e) {
+            assertEquals("Unable to find b: end of document has been reached", e.getMessage());
+        }
+    }
+
+    private void readUntilStartElementTest(String path, String expected) throws XMLStreamException {
+        try (StringReader reader = new StringReader(XML)) {
+            XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
+            try {
+                XmlUtil.readUntilStartElement(path, xmlReader, () -> assertEquals(expected, xmlReader.getLocalName()));
+            } finally {
+                xmlReader.close();
+            }
+        }
+    }
+
+    private void readUntilStartElementNotFoundTest(String path, String parent) throws XMLStreamException {
+        try {
+            readUntilStartElementTest(path, null);
+        } catch (PowsyblException e) {
+            assertEquals("Unable to find " + path + ": parent element " + parent + " has been closed", e.getMessage());
+        }
+    }
+
+    @Test
+    public void readTextTest() throws XMLStreamException {
+        String xml = "<a>hello</a>";
+        try (StringReader reader = new StringReader(xml)) {
+            XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
+            try {
+                assertEquals("hello", XmlUtil.readText("a", xmlReader));
+            } finally {
+                xmlReader.close();
+            }
+        }
+    }
 }
