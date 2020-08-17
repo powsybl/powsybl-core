@@ -546,4 +546,16 @@ class MergedLine implements TieLine {
     public HalfLine getHalf2() {
         return half2;
     }
+
+    @Override
+    public HalfLine getHalf(Side side) {
+        switch (side) {
+            case ONE:
+                return half1;
+            case TWO:
+                return half2;
+            default:
+                throw new AssertionError("Unknown branch side " + side);
+        }
+    }
 }
