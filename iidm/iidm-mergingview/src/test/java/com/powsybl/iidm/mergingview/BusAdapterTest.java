@@ -255,11 +255,9 @@ public class BusAdapterTest {
         VoltageLevel vl2 = network2.getVoltageLevel("S2_VL");
         Bus b3 = vl2.getBusBreakerView().getBus("B3");
 
-        assertNull(load.getTerminal().getBusView().getBus());
-
         assertTrue(b1.isInMainConnectedComponent());
         assertTrue(b2.isInMainConnectedComponent());
-        assertFalse(b3.isInMainConnectedComponent());
+        assertTrue(b3.isInMainConnectedComponent());
         assertEquals(0, b1.getConnectedComponent().getNum());
         assertEquals(0, b2.getConnectedComponent().getNum());
 
