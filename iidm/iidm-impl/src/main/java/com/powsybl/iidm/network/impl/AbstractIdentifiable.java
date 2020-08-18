@@ -27,8 +27,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     protected final Properties properties = new Properties();
 
-    private final Set<String> aliases = new TreeSet<>();
-    private final Map<String, String> aliasesTypeByAlias = new HashMap<>();
+    private final Map<String, String> aliases = new HashMap<>();
 
     AbstractIdentifiable(String id, String name) {
         this.id = id;
@@ -57,37 +56,35 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public Set<String> getAliases() {
-        return Collections.unmodifiableSet(aliases);
+        return Collections.unmodifiableSet(aliases.keySet());
     }
 
     @Override
     public Set<String> getAliases(String aliasType) {
-        return aliases.stream()
-                .filter(alias -> (aliasType == null && !aliasesTypeByAlias.containsKey(alias)) || (aliasType != null && aliasType.equals(aliasesTypeByAlias.get(alias))))
+        return aliases.entrySet().stream()
+                .filter(entry -> (aliasType == null && entry.getValue() == null) || (aliasType != null && aliasType.equals(entry.getValue())))
+                .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
     }
 
     @Override
     public Optional<String> getAliasType(String alias) {
-        if (!aliases.contains(alias)) {
+        if (!aliases.containsKey(alias)) {
             throw new PowsyblException("Alias " + alias + " does not exist for " + id);
         }
-        return Optional.ofNullable(aliasesTypeByAlias.get(alias));
+        return Optional.ofNullable(aliases.get(alias));
     }
 
     @Override
     public void addAlias(String alias) {
-        Objects.requireNonNull(alias);
-        if (getNetwork().getIndex().addAlias(this, alias)) {
-            aliases.add(alias);
-        }
+        addAlias(alias, null);
     }
 
     @Override
     public void addAlias(String alias, String aliasType) {
-        addAlias(alias);
-        if (aliasType != null) {
-            aliasesTypeByAlias.put(alias, aliasType);
+        Objects.requireNonNull(alias);
+        if (getNetwork().getIndex().addAlias(this, alias)) {
+            aliases.put(alias, aliasType);
         }
     }
 
@@ -96,7 +93,6 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         Objects.requireNonNull(alias);
         getNetwork().getIndex().removeAlias(this, alias);
         aliases.remove(alias);
-        aliasesTypeByAlias.remove(alias);
     }
 
     @Override
