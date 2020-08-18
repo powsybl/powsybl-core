@@ -28,7 +28,7 @@ import com.powsybl.commons.util.Filenames;
 public class GzipFileDataStore implements DataStore {
 
     private final Path path;
-    private String entryFilename;
+    private final String entryFilename;
 
     public GzipFileDataStore(Path path) {
         this.path = Objects.requireNonNull(path);
