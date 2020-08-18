@@ -22,6 +22,14 @@ import net.java.truevfs.comp.zip.ZipFile;
 import net.java.truevfs.comp.zip.ZipOutputStream;
 
 /**
+ * OutputStream wrapper to add an entry to a zip file. 
+ * The rewrite parameter specifies whether append the entry to the existing
+ * file or rewrite the whole file. 
+ * Appending the entry to an existing file that already contains an entry with
+ * the same name may produce redundant data in the resulting archive file.
+ * Rewriting the zip file each time an entry is added may cause performance
+ * issues
+ * 
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
  */
 public final class ZipEntryOutputStream extends ForwardingOutputStream<ZipOutputStream> {
@@ -34,6 +42,12 @@ public final class ZipEntryOutputStream extends ForwardingOutputStream<ZipOutput
 
     private boolean rewrite;
 
+    /**
+     * @param zipFilePath the path of the zip file
+     * @param fileName the file name of the entry
+     * @param rewrite flag to enable zip file rewriting
+     * @throws IOException
+     */
     public ZipEntryOutputStream(Path zipFilePath, String fileName, boolean rewrite) throws IOException {
         super(newZipOutputStream(zipFilePath, rewrite));
 

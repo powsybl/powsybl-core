@@ -14,6 +14,10 @@ import java.io.OutputStream;
  */
 public interface DataStore extends ReadOnlyDataStore {
 
+    /**
+     * @param entryName The name of the entry, subfolders are not supported
+     * @param append Append to an existing entry
+     */
     OutputStream newOutputStream(String entryName, boolean append) throws IOException;
 
 }
