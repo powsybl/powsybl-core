@@ -22,7 +22,7 @@ import java.util.Objects;
 public interface SlackTerminal extends Extension<VoltageLevel> {
 
     /**
-     * Set the terminal of all SlackTerminal extensions from the given network to null. If the extension is cleanable,
+     * Set the terminal of all SlackTerminal extensions from the given network to null. If the extension is empty,
      * this method automatically remove the extension.
      *
      * @param network A network to cleanup
@@ -85,21 +85,16 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
     /**
      * Set the terminal pointed by the current SlackTerminal
      * @param terminal the corresponding terminal (may be null)
-     * @param cleanIfCleanable if true and if the slackTerminal is cleanable, removes the SlackTerminal extension from
-     *                         the corresponding VoltageLevel
+     * @param cleanIfEmpty if true and if the slackTerminal is empty, removes the SlackTerminal extension from
+     *                     the corresponding VoltageLevel
      * @return the current SlackTerminal
      */
-    default SlackTerminal setTerminal(Terminal terminal, boolean cleanIfCleanable) {
+    default SlackTerminal setTerminal(Terminal terminal, boolean cleanIfEmpty) {
         setTerminal(terminal);
-        if (cleanIfCleanable && terminal == null && isCleanable()) {
+        if (cleanIfEmpty && terminal == null && isEmpty()) {
             getExtendable().removeExtension(SlackTerminal.class);
         }
         return this;
     }
-
-    /**
-     * Returns true if the current SlackTerminal can be cleaned, meaning that this extension is unused
-     */
-    boolean isCleanable();
 
 }

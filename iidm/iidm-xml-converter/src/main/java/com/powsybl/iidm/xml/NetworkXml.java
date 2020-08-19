@@ -78,9 +78,7 @@ public final class NetworkXml {
     private static Set<String> getNetworkExtensions(Network n) {
         Set<String> extensions = new TreeSet<>();
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
-            for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
-                extensions.add(extension.getName());
-            }
+            identifiable.getExtensions().stream().filter(e -> !e.isEmpty()).forEach(e -> extensions.add(e.getName()));
         }
         return extensions;
     }
@@ -216,15 +214,14 @@ public final class NetworkXml {
 
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
                     .filter(e -> options.withExtension(e.getName()))
+                    .filter(e -> !e.isEmpty())
                     .filter(e -> getExtensionXmlSerializer(options, e.getName()) != null)
                     .collect(Collectors.toList());
             if (!extensions.isEmpty()) {
                 context.getExtensionsWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);
                 context.getExtensionsWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
                 for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, options)) {
-                    if (options.withExtension(extension.getName())) {
-                        writeExtension(extension, context);
-                    }
+                    writeExtension(extension, context);
                 }
                 context.getExtensionsWriter().writeEndElement();
             }
