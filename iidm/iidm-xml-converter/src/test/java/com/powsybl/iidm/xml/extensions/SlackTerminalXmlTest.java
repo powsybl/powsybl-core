@@ -16,11 +16,12 @@ import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionedNetworkPath;
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.*;
 
 /**
@@ -29,7 +30,6 @@ import static org.junit.Assert.*;
 public class SlackTerminalXmlTest extends AbstractConverterTest {
 
     @Test
-    @Ignore("Remove ignore annotation once extension export is done only if exportable (that is, non-cleanable for the SlackTerminal)")
     public void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
@@ -62,9 +62,9 @@ public class SlackTerminalXmlTest extends AbstractConverterTest {
     }
 
     @Test
-    @Ignore("Remove ignore annotation once extension export is done only if exportable (that is, non-cleanable for the SlackTerminal)")
     public void testNoTerminal() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
 
         String voltageLevelId = "VLHV2";
         VoltageLevel vl = network.getVoltageLevel(voltageLevelId);
@@ -81,20 +81,20 @@ public class SlackTerminalXmlTest extends AbstractConverterTest {
 
         SlackTerminal st = vl.getExtension(SlackTerminal.class);
         assertNotNull(st);
-        assertTrue(st.setTerminal(null).isCleanable());
+
+        // Removing slackTerminal from current variant
+        assertTrue(st.setTerminal(null).isEmpty());
 
         Network network2 = roundTripTest(network,
             NetworkXml::writeAndValidate,
             NetworkXml::read,
-            AbstractConverterTest::compareTxt,
-            "/slackTerminal.xml");
+            AbstractConverterTest::compareXml,
+            getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_XML_VERSION));
 
         VoltageLevel vl2 = network2.getVoltageLevel(voltageLevelId);
         assertNotNull(vl2);
         SlackTerminal s = vl2.getExtension(SlackTerminal.class);
-        assertNotNull(s);
-
-        assertEquals(s.getTerminal().getBusBreakerView().getBus().getId(), busId);
+        assertNull(s);
     }
 
 }

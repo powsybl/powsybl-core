@@ -6,7 +6,9 @@
  */
 package com.powsybl.iidm.xml.extensions;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
+import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Terminal;
@@ -22,8 +24,7 @@ import javax.xml.stream.XMLStreamException;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-// FIXME(floriand-e2r): uncomment line below once extension export is done only if exportable (that is, non-cleanable for the SlackTerminal)
-// @AutoService(ExtensionXmlSerializer.class)
+@AutoService(ExtensionXmlSerializer.class)
 public class SlackTerminalXmlSerializer extends AbstractExtensionXmlSerializer<VoltageLevel, SlackTerminal> {
 
     public SlackTerminalXmlSerializer() {
