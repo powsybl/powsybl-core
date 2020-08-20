@@ -31,7 +31,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.powsybl.ucte.converter.util.UcteConstants.*;
+import static com.powsybl.ucte.facilities.UcteConstants.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

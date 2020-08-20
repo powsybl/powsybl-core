@@ -25,6 +25,7 @@
 
     <modules>
         <module>ucte-converter</module>
+        <module>ucte-facilities</module>
         <module>ucte-network</module>
         <module>ucte-util</module>
     </modules>

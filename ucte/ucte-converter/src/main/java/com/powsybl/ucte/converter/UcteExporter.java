@@ -36,7 +36,7 @@ import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.powsybl.ucte.converter.util.UcteConstants.*;
+import static com.powsybl.ucte.facilities.UcteConstants.*;
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
 
 /**
