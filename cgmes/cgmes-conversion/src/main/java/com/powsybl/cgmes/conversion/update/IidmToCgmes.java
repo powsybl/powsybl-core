@@ -38,7 +38,10 @@ public class IidmToCgmes {
     public List<TripleStoreChange> convertUpdate(IidmChangeUpdate change) {
         TripleStoreSimpleUpdateReference simpleUpdateReference = simpleUpdateReference(change);
         if (simpleUpdateReference != null) {
-            String subject = change.getIdentifiable().getId();
+            String subject = simpleUpdateReference.subject(change.getIdentifiable());
+            if (subject == null) {
+                return Collections.emptyList();
+            }
             String value = simpleUpdateReference.value(change);
             TripleStoreChangeParams updateParams = new TripleStoreChangeParams(simpleUpdateReference, value);
             TripleStoreChange tschange = new TripleStoreChange("update", subject, updateParams);
@@ -62,6 +65,15 @@ public class IidmToCgmes {
         // "EQ", "SSH", "SV", ...
         simpleUpdateReferences.put(attribute,
             new TripleStoreSimpleUpdateReference(predicate, subset.getIdentifier()));
+    }
+
+    protected void simpleUpdate(String attribute, String predicate, CgmesSubset subset, Function<Identifiable<?>, String> subject) {
+
+        // The reference to the context in which the change must be applied
+        // is the identifier of the CGMES subset
+        // "EQ", "SSH", "SV", ...
+        simpleUpdateReferences.put(attribute,
+                new TripleStoreSimpleUpdateReference(predicate, subset.getIdentifier(), subject));
     }
 
     protected void computedValueUpdate(String attribute, String predicate, CgmesSubset subset, Function<Identifiable, String> valueComputation) {

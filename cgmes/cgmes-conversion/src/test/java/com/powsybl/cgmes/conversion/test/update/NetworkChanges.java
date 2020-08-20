@@ -94,6 +94,7 @@ public final class NetworkChanges {
             modifyGeneratorVoltageRegulation(network);
         }
         modifyShuntCompensatorSections(network);
+        modifySwitchesStatus(network);
     }
 
     public static void modifyShuntCompensatorSections(Network network) {
@@ -108,6 +109,14 @@ public final class NetworkChanges {
         if (!found) {
             LOG.warn("Did not find a ShuntCompensator to test");
         }
+    }
+
+    public static void modifySwitchesStatus(Network network) {
+        network.getSwitchStream().forEach(ss -> {
+            if (!ss.isFictitious()) { //does not change status for fictitious switches (open internal connections)
+                ss.setOpen(!ss.isOpen());
+            }
+        });
     }
 
     public static void modifyTwoWindingsTransformerRatedU(Network network) {

@@ -6,18 +6,12 @@
  */
 package com.powsybl.cgmes.conversion.update.elements16;
 
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.update.IidmChange;
 import com.powsybl.cgmes.conversion.update.IidmToCgmes;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -38,6 +32,8 @@ public class IidmToCgmes16 {
             return shunt;
         } else if (o instanceof VoltageLevel) {
             return vl;
+        } else if (o instanceof Switch) {
+            return sswitch;
         } else {
             LOG.warn("Currently not supported conversion for {}", o.getClass().getSimpleName());
             return null;
@@ -50,6 +46,7 @@ public class IidmToCgmes16 {
     private final IidmToCgmes t2 = new TwoWindingsTransformerToPowerTransformer();
     private final IidmToCgmes shunt = new ShuntCompensatorToShuntCompensator();
     private final IidmToCgmes vl = new VoltageLevelToVoltageLevel();
+    private final IidmToCgmes sswitch = new SwitchToSwitch();
 
     private static final Logger LOG = LoggerFactory.getLogger(IidmToCgmes16.class);
 }

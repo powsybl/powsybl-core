@@ -7,17 +7,15 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesContainer;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -27,6 +25,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
 
     public SwitchConversion(PropertyBag sw, Context context) {
         super("Switch", sw, context, 2);
+        terminal1 = Objects.requireNonNull(sw.getId("Terminal1"));
+        terminal2 = Objects.requireNonNull(sw.getId("Terminal2"));
     }
 
     @Override
@@ -67,20 +67,23 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
             Line line = adder.add();
             convertedTerminals(line.getTerminal1(), line.getTerminal2());
         } else {
+            Switch s;
             if (context.nodeBreaker()) {
                 VoltageLevel.NodeBreakerView.SwitchAdder adder;
                 adder = voltageLevel().getNodeBreakerView().newSwitch()
                         .setKind(kind());
                 identify(adder);
                 connect(adder, open);
-                adder.add();
+                s = adder.add();
             } else {
                 VoltageLevel.BusBreakerView.SwitchAdder adder;
                 adder = voltageLevel().getBusBreakerView().newSwitch();
                 identify(adder);
                 connect(adder, open);
-                adder.add();
+                s = adder.add();
             }
+            s.addAlias(terminal1, "Terminal1");
+            s.addAlias(terminal2, "Terminal2");
         }
     }
 
@@ -119,4 +122,6 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SwitchConversion.class);
+    private final String terminal1;
+    private final String terminal2;
 }

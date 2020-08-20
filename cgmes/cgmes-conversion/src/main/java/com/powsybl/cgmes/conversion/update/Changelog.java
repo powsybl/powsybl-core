@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkListener;
+import com.powsybl.iidm.network.Switch;
 
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>
@@ -66,6 +67,10 @@ public class Changelog implements NetworkListener {
         if (!ignoredAttribute(identifiable, attribute)) {
             changesByVariant.computeIfAbsent(variantId, k -> new ArrayList<>())
                 .add(new IidmChangeUpdate(identifiable, attribute, oldValue, newValue));
+            if (identifiable instanceof Switch && attribute.equals("open")) {
+                changesByVariant.get(variantId).add(new IidmChangeUpdate(identifiable, "open1", oldValue, newValue));
+                changesByVariant.get(variantId).add(new IidmChangeUpdate(identifiable, "open2", oldValue, newValue));
+            }
         }
     }
 

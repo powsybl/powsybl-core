@@ -419,6 +419,7 @@ public class Comparison {
 
     private void compareSwitches(Switch expected, Switch actual) {
         equivalent("VoltageLevel", expected.getVoltageLevel(), actual.getVoltageLevel());
+        compare("open", expected.isOpen(), actual.isOpen());
         // No additional properties to check
     }
 

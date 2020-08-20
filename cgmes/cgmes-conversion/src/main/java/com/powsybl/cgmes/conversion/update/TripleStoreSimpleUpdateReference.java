@@ -6,7 +6,10 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
+import com.powsybl.iidm.network.Identifiable;
+
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -17,10 +20,23 @@ public class TripleStoreSimpleUpdateReference {
         this(predicate, contextReference, false);
     }
 
+    public TripleStoreSimpleUpdateReference(String predicate, String contextReference, Function<Identifiable<?>, String> subject) {
+        this(predicate, contextReference, false, subject);
+    }
+
     public TripleStoreSimpleUpdateReference(String predicate, String contextReference, boolean valueIsUri) {
+        this(predicate, contextReference, valueIsUri, Identifiable::getId);
+    }
+
+    public TripleStoreSimpleUpdateReference(String predicate, String contextReference, boolean valueIsUri, Function<Identifiable<?>, String> subject) {
         this.predicate = Objects.requireNonNull(predicate);
         this.contextReference = Objects.requireNonNull(contextReference);
-        this.valueIsUri = Objects.requireNonNull(valueIsUri);
+        this.valueIsUri = valueIsUri;
+        this.subject = Objects.requireNonNull(subject);
+    }
+
+    public String subject(Identifiable<?> identifiable) {
+        return subject.apply(identifiable);
     }
 
     public String predicate() {
@@ -39,6 +55,7 @@ public class TripleStoreSimpleUpdateReference {
         return valueIsUri;
     }
 
+    private final Function<Identifiable<?>, String> subject;
     private final String predicate;
     private final String contextReference;
     private final boolean valueIsUri;
