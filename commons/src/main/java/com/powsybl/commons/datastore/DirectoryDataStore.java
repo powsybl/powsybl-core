@@ -18,10 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
-import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.commons.util.Filenames;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
@@ -68,11 +65,6 @@ public class DirectoryDataStore implements DataStore {
     @Override
     public boolean exists(String entryName) {
         return Files.exists(path.resolve(entryName));
-    }
-
-    @Override
-    public DataSource toDataSource(String filename) {
-        return new FileDataSource(path, Filenames.getBasename(filename));
     }
 
 }

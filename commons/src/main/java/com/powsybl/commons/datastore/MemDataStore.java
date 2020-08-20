@@ -11,17 +11,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.compress.utils.IOUtils;
-
-import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DefaultDataSourceObserver;
-import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ObservableOutputStream;
 
 /**
@@ -61,19 +56,6 @@ public class MemDataStore implements DataStore {
                 entries.put(entryName, os.toByteArray());
             }
         });
-    }
-
-    @Override
-    public DataSource toDataSource(String filename) {
-        MemDataSource dataSource = new MemDataSource();
-        entries.forEach((k, v) -> {
-            try (OutputStream out = dataSource.newOutputStream(k, false)) {
-                IOUtils.copy(new ByteArrayInputStream(v), out);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
-        return dataSource;
     }
 
 }

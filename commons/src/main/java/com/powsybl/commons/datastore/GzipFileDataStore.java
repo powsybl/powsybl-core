@@ -17,9 +17,7 @@ import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
-import com.powsybl.commons.datasource.GzFileDataSource;
 import com.powsybl.commons.util.Filenames;
 
 /**
@@ -53,11 +51,6 @@ public class GzipFileDataStore implements DataStore {
     @Override
     public OutputStream newOutputStream(String entryName, boolean append) throws IOException {
         return new GZIPOutputStream(Files.newOutputStream(path, DataSourceUtil.getOpenOptions(append)));
-    }
-
-    @Override
-    public DataSource toDataSource(String filename) {
-        return new GzFileDataSource(path.getParent(), filename);
     }
 
 }

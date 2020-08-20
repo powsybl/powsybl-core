@@ -26,6 +26,8 @@ import com.google.common.io.ByteStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.StoreDataSource;
+import com.powsybl.commons.util.Filenames;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
@@ -91,7 +93,7 @@ public abstract class AbstractDataStoreTest {
     }
 
     private void dataSourceConversionTest(String entryName) throws IOException {
-        DataSource dataSource = dataStore.toDataSource(entryName);
+        DataSource dataSource = new StoreDataSource(dataStore, Filenames.getBasename(entryName));
         assertTrue(dataSource.exists(entryName));
 
         try (InputStream is = dataSource.newInputStream(entryName)) {

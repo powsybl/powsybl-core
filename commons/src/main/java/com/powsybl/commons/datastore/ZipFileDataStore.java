@@ -17,9 +17,6 @@ import java.util.List;
 import java.util.Objects;
 
 import com.google.common.collect.Iterators;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.ZipFileDataSource;
-import com.powsybl.commons.util.Filenames;
 import com.powsybl.commons.util.ZipEntryInputStream;
 import com.powsybl.commons.util.ZipEntryOutputStream;
 
@@ -77,11 +74,6 @@ public class ZipFileDataStore implements DataStore {
         }
 
         return new ZipEntryOutputStream(path, entryName, exists(entryName));
-    }
-
-    @Override
-    public DataSource toDataSource(String filename) {
-        return new ZipFileDataSource(path.getParent(), Filenames.getBasename(path.getFileName().toString()));
     }
 
 }

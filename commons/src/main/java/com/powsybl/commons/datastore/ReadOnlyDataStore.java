@@ -10,8 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import com.powsybl.commons.datasource.DataSource;
-
 /**
  * ReadOnlyDataStore is a read-only view of a DataStore
  *
@@ -25,5 +23,4 @@ public interface ReadOnlyDataStore {
 
     InputStream newInputStream(String entryName) throws IOException;
 
-    DataSource toDataSource(String filename);
 }

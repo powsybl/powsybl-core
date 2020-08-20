@@ -9,6 +9,7 @@ package com.powsybl.iidm.export;
 import java.util.Properties;
 
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.StoreDataSource;
 import com.powsybl.commons.datastore.DataStore;
 import com.powsybl.iidm.network.Network;
 
@@ -54,7 +55,7 @@ public interface Exporter {
      * @param basename exported files base name
      */
     default void export(Network network, Properties parameters, DataStore dataStore, String basename) {
-        export(network, parameters, dataStore.toDataSource(basename));
+        export(network, parameters, new StoreDataSource(dataStore, basename));
     }
 
 }

@@ -18,8 +18,6 @@ import java.util.Objects;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 
-import com.powsybl.commons.datasource.Bzip2FileDataSource;
-import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 
 /**
@@ -58,8 +56,4 @@ public class Bzip2FileDataStore implements DataStore {
         return fileName.substring(0, fileName.lastIndexOf(".bz2"));
     }
 
-    @Override
-    public DataSource toDataSource(String filename) {
-        return new Bzip2FileDataSource(path.getParent(), filename);
-    }
 }
