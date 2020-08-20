@@ -19,24 +19,8 @@
     </parent>
 
     <artifactId>powsybl-ucte-facilities</artifactId>
-    <name>UCTE facilities implementation</name>
-   
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.ucte.facilities</Automatic-Module-Name>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <name>UCTE facilities</name>
+    <description>Utility classes for UCTE constants</description>
 
     <dependencies>
         <!-- Compilation dependencies -->
