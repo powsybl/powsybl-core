@@ -19,6 +19,7 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 
 import com.powsybl.commons.datasource.DataSourceUtil;
+import com.powsybl.commons.util.Filenames;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
@@ -26,34 +27,37 @@ import com.powsybl.commons.datasource.DataSourceUtil;
 public class Bzip2FileDataStore implements DataStore {
 
     private final Path path;
+    private final String entryFilename;
 
     public Bzip2FileDataStore(Path path) {
         this.path = Objects.requireNonNull(path);
+        entryFilename = Filenames.getBasename(path.getFileName().toString());
     }
 
     @Override
     public List<String> getEntryNames() throws IOException {
-        return Collections.singletonList(getEntryName());
+        return Collections.singletonList(entryFilename);
     }
 
     @Override
     public boolean exists(String entryName) {
-        return getEntryName().equals(entryName);
+        return entryFilename.equals(entryName);
     }
 
     @Override
     public InputStream newInputStream(String entryName) throws IOException {
+        if (!exists(entryName)) {
+            throw new IOException("Entry name does not exists");
+        }
         return new BZip2CompressorInputStream(Files.newInputStream(path));
     }
 
     @Override
     public OutputStream newOutputStream(String entryName, boolean append) throws IOException {
+        if (!entryFilename.equals(entryName)) {
+            throw new IOException("Entry name does not match");
+        }
         return new BZip2CompressorOutputStream(Files.newOutputStream(path, DataSourceUtil.getOpenOptions(append)));
-    }
-
-    private String getEntryName() {
-        String fileName = path.getFileName().toString();
-        return fileName.substring(0, fileName.lastIndexOf(".bz2"));
     }
 
 }

@@ -45,11 +45,17 @@ public class GzipFileDataStore implements DataStore {
 
     @Override
     public InputStream newInputStream(String entryName) throws IOException {
+        if (!exists(entryName)) {
+            throw new IOException("Entry name does not exists");
+        }
         return new GZIPInputStream(Files.newInputStream(path));
     }
 
     @Override
     public OutputStream newOutputStream(String entryName, boolean append) throws IOException {
+        if (!entryFilename.equals(entryName)) {
+            throw new IOException("Entry name does not match");
+        }
         return new GZIPOutputStream(Files.newOutputStream(path, DataSourceUtil.getOpenOptions(append)));
     }
 
