@@ -6,14 +6,11 @@
  */
 package com.powsybl.iidm.import_;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.AbstractConvertersTest;
-import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.Network;
-import org.junit.*;
-import org.mockito.Mockito;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,7 +20,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.exceptions.NetworkImportException;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.AbstractConvertersTest;
+import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.Network;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -127,7 +134,7 @@ public class ImportersTest extends AbstractConvertersTest {
 
     @Test
     public void importBadData() {
-        expected.expect(PowsyblException.class);
+        expected.expect(NetworkImportException.class);
         expected.expectMessage("Import format " + UNSUPPORTED_FORMAT + " not supported");
         Importers.importData(loader, UNSUPPORTED_FORMAT, null, null, computationManager, importConfigMock);
     }
@@ -182,7 +189,7 @@ public class ImportersTest extends AbstractConvertersTest {
 
     @Test
     public void loadNullNetwork1() {
-        expected.expect(PowsyblException.class);
+        expected.expect(NetworkImportException.class);
         expected.expectMessage("Unsupported file format or invalid file.");
         Importers.loadNetwork(badPath, computationManager, importConfigMock, null, loader);
     }
@@ -196,7 +203,7 @@ public class ImportersTest extends AbstractConvertersTest {
 
     @Test
     public void loadNullNetwork2() throws IOException {
-        expected.expect(PowsyblException.class);
+        expected.expect(NetworkImportException.class);
         expected.expectMessage("Unsupported file format or invalid file.");
         Importers.loadNetwork("baz.txt", Importers.createDataSource(badPath).newInputStream(null, "txt"), computationManager, importConfigMock, null, loader);
     }
