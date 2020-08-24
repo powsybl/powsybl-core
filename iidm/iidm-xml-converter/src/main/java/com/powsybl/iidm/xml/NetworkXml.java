@@ -210,7 +210,7 @@ public final class NetworkXml {
 
     private static void writeExtensions(Network n, NetworkXmlWriterContext context, ExportOptions options) throws XMLStreamException {
 
-        for (Identifiable<?> identifiable : n.getIdentifiables()) {
+        for (Identifiable<?> identifiable : IidmXmlUtil.sorted(n.getIdentifiables(), options)) {
             if (!context.isExportedEquipment(identifiable)) {
                 continue;
             }
@@ -222,7 +222,7 @@ public final class NetworkXml {
             if (!extensions.isEmpty()) {
                 context.getExtensionsWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);
                 context.getExtensionsWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
-                for (Extension<? extends Identifiable<?>> extension : extensions) {
+                for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, options)) {
                     if (options.withExtension(extension.getName())) {
                         writeExtension(extension, context);
                     }
@@ -270,10 +270,10 @@ public final class NetworkXml {
         AliasesXml.write(n, NETWORK_ROOT_ELEMENT_NAME, context);
         PropertiesXml.write(n, context);
 
-        for (Substation s : n.getSubstations()) {
+        for (Substation s : IidmXmlUtil.sorted(n.getSubstations(), context.getOptions())) {
             SubstationXml.INSTANCE.write(s, null, context);
         }
-        for (Line l : n.getLines()) {
+        for (Line l : IidmXmlUtil.sorted(n.getLines(), context.getOptions())) {
             if (!filter.test(l)) {
                 continue;
             }
@@ -283,7 +283,7 @@ public final class NetworkXml {
                 LineXml.INSTANCE.write(l, n, context);
             }
         }
-        for (HvdcLine l : n.getHvdcLines()) {
+        for (HvdcLine l : IidmXmlUtil.sorted(n.getHvdcLines(), context.getOptions())) {
             if (!filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
                 continue;
             }
