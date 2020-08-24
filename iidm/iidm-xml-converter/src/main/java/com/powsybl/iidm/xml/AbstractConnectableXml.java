@@ -166,6 +166,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     /**
      * @deprecated Use {@link #writeCurrentLimits(Integer, CurrentLimits, XMLStreamWriter, IidmXmlVersion, ExportOptions)} instead.
      */
+    @Deprecated
     public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, IidmXmlVersion version) throws XMLStreamException {
         writeCurrentLimits(index, limits, writer, version, new ExportOptions());
     }
