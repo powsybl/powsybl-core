@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.ucte.facilities;
+package com.powsybl.ucte.converter.util;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -24,6 +24,6 @@ public final class UcteConstants {
     public static final String NOT_POSSIBLE_TO_IMPORT = "It's not possible to import this network";
     public static final String ORDER_CODE = "orderCode";
     public static final String POWER_PLANT_TYPE_PROPERTY_KEY = "powerPlantType";
-    public static final double DEFAULT_MAX_CURRENT = 999999.0;
+    public static final Integer DEFAULT_MAX_CURRENT = 999999;
     public static final int DEFAULT_POWER_LIMIT = 9999;
 }

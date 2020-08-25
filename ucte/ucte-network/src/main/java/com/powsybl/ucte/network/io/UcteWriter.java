@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.ucte.facilities.UcteConstants.*;
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -105,7 +104,7 @@ public class UcteWriter {
             writer.writeFloat(ucteLine.getResistance(), 22, 28);
             writer.writeFloat(ucteLine.getReactance(), 29, 35);
             writer.writeFloat((float) (ucteLine.getSusceptance() / Math.pow(10, -6)), 36, 44);
-            writer.writeInteger(ucteLine.getCurrentLimit() == DEFAULT_MAX_CURRENT ? null : ucteLine.getCurrentLimit(), 45, 51);
+            writer.writeInteger(ucteLine.getCurrentLimit(), 45, 51);
             writer.writeString(ucteLine.getElementName(), 52, 64);
             writer.newLine();
         }
@@ -127,7 +126,7 @@ public class UcteWriter {
             writer.writeFloat(t.getReactance(), 47, 53);
             writer.writeFloat((float) (t.getSusceptance() / Math.pow(10, -6)), 54, 62);
             writer.writeFloat((float) (t.getConductance() / Math.pow(10, -6)), 63, 69);
-            writer.writeInteger(t.getCurrentLimit() == DEFAULT_MAX_CURRENT ? null : t.getCurrentLimit(), 70, 76);
+            writer.writeInteger(t.getCurrentLimit(), 70, 76);
             writer.writeString(t.getElementName(), 77, 89);
             writer.newLine();
         }

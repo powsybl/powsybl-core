@@ -29,14 +29,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.powsybl.ucte.facilities.UcteConstants.*;
+import static com.powsybl.ucte.converter.util.UcteConstants.*;
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
 
 /**
@@ -86,11 +83,34 @@ public class UcteExporter implements Exporter {
 
         UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy);
 
+        filterDefaultMaxCurrentFromLines(ucteNetwork);
+        filterDefaultMaxCurrentFromTransformers(ucteNetwork);
+
         try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
             new UcteWriter(ucteNetwork).write(writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    private void filterDefaultMaxCurrentFromLines(UcteNetwork ucteNetwork){
+        Collection<UcteLine> lines = ucteNetwork.getLines();
+        Iterator<UcteLine> iterator = lines.iterator();
+        while(iterator.hasNext()){
+            UcteLine line = (UcteLine)iterator.next();
+            if(line.getCurrentLimit() != null && line.getCurrentLimit().intValue() == DEFAULT_MAX_CURRENT.intValue())
+                line.setCurrentLimit(null);
+        }
+    }
+
+    private void filterDefaultMaxCurrentFromTransformers(UcteNetwork ucteNetwork){
+        Collection<UcteTransformer> transformers = ucteNetwork.getTransformers();
+        Iterator<UcteTransformer> iterator2 = transformers.iterator();
+        while(iterator2.hasNext()){
+            UcteTransformer transformer = (UcteTransformer)iterator2.next();
+            if(transformer.getCurrentLimit() != null && transformer.getCurrentLimit().intValue() == DEFAULT_MAX_CURRENT.intValue())
+                transformer.setCurrentLimit(null);
         }
     }
 
@@ -424,7 +444,7 @@ public class UcteExporter implements Exporter {
                 (float) line.getR(),
                 (float) line.getX(),
                 (float) line.getB1() + (float) line.getB2(),
-                (int) getPermanentLimit(line),
+                getPermanentLimit(line),
                 elementName);
         ucteNetwork.addLine(ucteLine);
     }
@@ -685,7 +705,6 @@ public class UcteExporter implements Exporter {
         UcteElementId elementId = context.getNamingStrategy().getUcteElementId(twoWindingsTransformer);
         UcteElementStatus status = getStatus(twoWindingsTransformer);
         String elementName = twoWindingsTransformer.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-        double currentLimits = getPermanentLimit(twoWindingsTransformer);
         float nominalPower = Float.parseFloat(twoWindingsTransformer.getProperty(NOMINAL_POWER_KEY, null));
 
         UcteTransformer ucteTransformer = new UcteTransformer(
@@ -694,7 +713,7 @@ public class UcteExporter implements Exporter {
                 (float) twoWindingsTransformer.getR(),
                 (float) twoWindingsTransformer.getX(),
                 (float) twoWindingsTransformer.getB(),
-                (int) currentLimits,
+                getPermanentLimit(twoWindingsTransformer),
                 elementName,
                 (float) twoWindingsTransformer.getRatedU2(),
                 (float) twoWindingsTransformer.getRatedU1(),
@@ -839,11 +858,18 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    private static double getPermanentLimit(Branch<?> branch) {
-        double permanentLimit1 = Optional.ofNullable(branch.getCurrentLimits1()).map(CurrentLimits::getPermanentLimit).orElse(DEFAULT_MAX_CURRENT);
-        double permanentLimit2 = Optional.ofNullable(branch.getCurrentLimits2()).map(CurrentLimits::getPermanentLimit).orElse(DEFAULT_MAX_CURRENT);
-
-        return Double.min(permanentLimit1, permanentLimit2);
+    private static Integer getPermanentLimit(Branch<?> branch) {
+        Optional<Double> permanentLimit1 = Optional.ofNullable(branch.getCurrentLimits1()).map(CurrentLimits::getPermanentLimit);
+        Optional<Double> permanentLimit2 = Optional.ofNullable(branch.getCurrentLimits2()).map(CurrentLimits::getPermanentLimit);
+        if (permanentLimit1.isPresent() && permanentLimit2.isPresent()) {
+            return (int) Double.min(permanentLimit1.get(), permanentLimit2.get());
+        } else if (permanentLimit1.isPresent()) {
+            return permanentLimit1.get().intValue();
+        } else if (permanentLimit2.isPresent()) {
+            return permanentLimit2.get().intValue();
+        } else {
+            return null;
+        }
     }
 
     static NamingStrategy findNamingStrategy(String name, List<NamingStrategy> namingStrategies) {
