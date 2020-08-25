@@ -1055,11 +1055,6 @@ public class UcteImporter implements Importer {
     }
 
     @Override
-    public Network importDataStore(ReadOnlyDataStore dataStore, String fileName, Properties parameters) {
-        return importDataStore(dataStore, fileName, NetworkFactory.findDefault(), parameters);
-    }
-
-    @Override
     public DataFormat getDataFormat() {
         return UcteDataFormat.INSTANCE;
     }

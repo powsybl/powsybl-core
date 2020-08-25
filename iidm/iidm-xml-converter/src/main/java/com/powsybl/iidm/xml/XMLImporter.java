@@ -223,16 +223,6 @@ public class XMLImporter implements Importer {
         return network;
     }
 
-    @Override
-    public Network importDataStore(ReadOnlyDataStore dataStore, Properties parameters) {
-        return importDataStore(dataStore,  null, NetworkFactory.findDefault(), parameters);
-    }
-
-    @Override
-    public Network importDataStore(ReadOnlyDataStore dataStore, String fileName, Properties parameters) {
-        return importDataStore(dataStore, fileName,  NetworkFactory.findDefault(), parameters);
-    }
-
     private ImportOptions createImportOptions(Properties parameters) {
         return new ImportOptions()
                 .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
