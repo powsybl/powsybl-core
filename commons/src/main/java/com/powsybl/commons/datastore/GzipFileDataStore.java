@@ -11,36 +11,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import com.powsybl.commons.datasource.DataSourceUtil;
-import com.powsybl.commons.util.Filenames;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
  */
-public class GzipFileDataStore implements DataStore {
-
-    private final Path path;
-    private final String entryFilename;
+public class GzipFileDataStore extends AbstractSingleCompressedFileDataStore {
 
     public GzipFileDataStore(Path path) {
-        this.path = Objects.requireNonNull(path);
-        entryFilename = Filenames.getBasename(path.getFileName().toString());
-    }
-
-    @Override
-    public List<String> getEntryNames() throws IOException {
-        return Collections.singletonList(entryFilename);
-    }
-
-    @Override
-    public boolean exists(String entryName) {
-        return entryFilename.equals(entryName);
+        super(path);
     }
 
     @Override
@@ -48,15 +30,15 @@ public class GzipFileDataStore implements DataStore {
         if (!exists(entryName)) {
             throw new IOException("Entry name does not exists");
         }
-        return new GZIPInputStream(Files.newInputStream(path));
+        return new GZIPInputStream(Files.newInputStream(getPath()));
     }
 
     @Override
     public OutputStream newOutputStream(String entryName, boolean append) throws IOException {
-        if (!entryFilename.equals(entryName)) {
+        if (!getEntryFilename().equals(entryName)) {
             throw new IOException("Entry name does not match");
         }
-        return new GZIPOutputStream(Files.newOutputStream(path, DataSourceUtil.getOpenOptions(append)));
+        return new GZIPOutputStream(Files.newOutputStream(getPath(), DataSourceUtil.getOpenOptions(append)));
     }
 
 }

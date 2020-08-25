@@ -11,37 +11,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 
 import com.powsybl.commons.datasource.DataSourceUtil;
-import com.powsybl.commons.util.Filenames;
 
 /**
  * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
  */
-public class Bzip2FileDataStore implements DataStore {
-
-    private final Path path;
-    private final String entryFilename;
+public class Bzip2FileDataStore extends AbstractSingleCompressedFileDataStore {
 
     public Bzip2FileDataStore(Path path) {
-        this.path = Objects.requireNonNull(path);
-        entryFilename = Filenames.getBasename(path.getFileName().toString());
-    }
-
-    @Override
-    public List<String> getEntryNames() throws IOException {
-        return Collections.singletonList(entryFilename);
-    }
-
-    @Override
-    public boolean exists(String entryName) {
-        return entryFilename.equals(entryName);
+        super(path);
     }
 
     @Override
@@ -49,15 +31,15 @@ public class Bzip2FileDataStore implements DataStore {
         if (!exists(entryName)) {
             throw new IOException("Entry name does not exists");
         }
-        return new BZip2CompressorInputStream(Files.newInputStream(path));
+        return new BZip2CompressorInputStream(Files.newInputStream(getPath()));
     }
 
     @Override
     public OutputStream newOutputStream(String entryName, boolean append) throws IOException {
-        if (!entryFilename.equals(entryName)) {
+        if (!getEntryFilename().equals(entryName)) {
             throw new IOException("Entry name does not match");
         }
-        return new BZip2CompressorOutputStream(Files.newOutputStream(path, DataSourceUtil.getOpenOptions(append)));
+        return new BZip2CompressorOutputStream(Files.newOutputStream(getPath(), DataSourceUtil.getOpenOptions(append)));
     }
 
 }
