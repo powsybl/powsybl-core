@@ -65,7 +65,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
             ReactiveLimitsXml.INSTANCE.write(dl.getGeneration(), context);
         }
         if (dl.getCurrentLimits() != null) {
-            writeCurrentLimits(null, dl.getCurrentLimits(), context.getWriter(), context.getVersion());
+            writeCurrentLimits(null, dl.getCurrentLimits(), context.getWriter(), context.getVersion(), context.getOptions());
         }
     }
 

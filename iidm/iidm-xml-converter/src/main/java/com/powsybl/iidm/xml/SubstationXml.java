@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Arrays;
@@ -53,17 +54,17 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
 
     @Override
     protected void writeSubElements(Substation s, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (VoltageLevel vl : s.getVoltageLevels()) {
+        for (VoltageLevel vl : IidmXmlUtil.sorted(s.getVoltageLevels(), context.getOptions())) {
             VoltageLevelXml.INSTANCE.write(vl, null, context);
         }
-        Iterable<TwoWindingsTransformer> twts = s.getTwoWindingsTransformers();
+        Iterable<TwoWindingsTransformer> twts = IidmXmlUtil.sorted(s.getTwoWindingsTransformers(), context.getOptions());
         for (TwoWindingsTransformer twt : twts) {
             if (!context.getFilter().test(twt)) {
                 continue;
             }
             TwoWindingsTransformerXml.INSTANCE.write(twt, null, context);
         }
-        Iterable<ThreeWindingsTransformer> twts2 = s.getThreeWindingsTransformers();
+        Iterable<ThreeWindingsTransformer> twts2 = IidmXmlUtil.sorted(s.getThreeWindingsTransformers(), context.getOptions());
         for (ThreeWindingsTransformer twt : twts2) {
             if (!context.getFilter().test(twt)) {
                 continue;

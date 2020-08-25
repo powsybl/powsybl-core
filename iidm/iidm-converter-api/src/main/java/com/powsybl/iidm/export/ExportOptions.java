@@ -39,6 +39,16 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private Map<String, String> extensionsVersions = new HashMap<>();
 
+    /**
+     * Sort IIDM objects so that generated XML does not depend on data model object order. Depending on object types the
+     * following sorting key has been chosen:
+     *  - the id for identifiables
+     *  - the name for extensions
+     *  - the name for temporary limits
+     *  - node1 then node2 for internal connections
+     */
+    private boolean sorted = false;
+
     public ExportOptions() {
     }
 
@@ -165,5 +175,14 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
      */
     public Optional<String> getExtensionVersion(String extensionName) {
         return Optional.ofNullable(extensionsVersions.get(extensionName));
+    }
+
+    public boolean isSorted() {
+        return sorted;
+    }
+
+    public ExportOptions setSorted(boolean sorted) {
+        this.sorted = sorted;
+        return this;
     }
 }
