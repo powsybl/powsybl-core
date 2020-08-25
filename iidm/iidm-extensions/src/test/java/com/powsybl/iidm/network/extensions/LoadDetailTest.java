@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
@@ -115,9 +115,7 @@ public class LoadDetailTest {
 
         // Removes a variant then adds another variant to test variant recycling (hence calling allocateVariantArrayElement)
         variantManager.removeVariant(variant1);
-        List<String> targetVariantIds = new ArrayList<>();
-        targetVariantIds.add(variant1);
-        targetVariantIds.add(variant3);
+        List<String> targetVariantIds = Arrays.asList(variant1, variant3);
         variantManager.cloneVariant(INITIAL_VARIANT_ID, targetVariantIds);
         variantManager.setWorkingVariant(variant1);
         assertEquals(40f, ld.getFixedActivePower(), 0f);

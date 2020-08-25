@@ -9,29 +9,29 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
-import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.list.array.TFloatArrayList;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Load> implements LoadDetail {
 
-    private final TDoubleArrayList fixedActivePower;
+    private final TFloatArrayList fixedActivePower;
 
-    private final TDoubleArrayList fixedReactivePower;
+    private final TFloatArrayList fixedReactivePower;
 
-    private final TDoubleArrayList variableActivePower;
+    private final TFloatArrayList variableActivePower;
 
-    private final TDoubleArrayList variableReactivePower;
+    private final TFloatArrayList variableReactivePower;
 
     public LoadDetailImpl(Load load, float fixedActivePower, float fixedReactivePower,
                           float variableActivePower, float variableReactivePower) {
         super(load);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-        this.fixedActivePower = new TDoubleArrayList(variantArraySize);
-        this.fixedReactivePower = new TDoubleArrayList(variantArraySize);
-        this.variableActivePower = new TDoubleArrayList(variantArraySize);
-        this.variableReactivePower = new TDoubleArrayList(variantArraySize);
+        this.fixedActivePower = new TFloatArrayList(variantArraySize);
+        this.fixedReactivePower = new TFloatArrayList(variantArraySize);
+        this.variableActivePower = new TFloatArrayList(variantArraySize);
+        this.variableReactivePower = new TFloatArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.fixedActivePower.add(checkPower(fixedActivePower, "Invalid fixedActivePower"));
             this.fixedReactivePower.add(checkPower(fixedReactivePower, "Invalid fixedReactivePower"));
@@ -41,7 +41,7 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
     }
 
     public float getFixedActivePower() {
-        return (float) fixedActivePower.get(getVariantIndex());
+        return fixedActivePower.get(getVariantIndex());
     }
 
     @Override
@@ -53,7 +53,7 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
 
     @Override
     public float getFixedReactivePower() {
-        return (float) fixedReactivePower.get(getVariantIndex());
+        return fixedReactivePower.get(getVariantIndex());
     }
 
     @Override
@@ -65,7 +65,7 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
 
     @Override
     public float getVariableActivePower() {
-        return (float) variableActivePower.get(getVariantIndex());
+        return variableActivePower.get(getVariantIndex());
     }
 
     @Override
@@ -77,7 +77,7 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
 
     @Override
     public float getVariableReactivePower() {
-        return (float) variableReactivePower.get(getVariantIndex());
+        return variableReactivePower.get(getVariantIndex());
     }
 
     @Override
@@ -118,7 +118,8 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
 
     @Override
     public void deleteVariantArrayElement(int index) {
-        // Nothing to do
+        // Does nothing
+        // TODO: maybe set default/undefined values for deleted variant index
     }
 
     @Override
