@@ -83,34 +83,11 @@ public class UcteExporter implements Exporter {
 
         UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy);
 
-        filterDefaultMaxCurrentFromLines(ucteNetwork);
-        filterDefaultMaxCurrentFromTransformers(ucteNetwork);
-
         try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
             new UcteWriter(ucteNetwork).write(writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
-        }
-    }
-
-    private void filterDefaultMaxCurrentFromLines(UcteNetwork ucteNetwork){
-        Collection<UcteLine> lines = ucteNetwork.getLines();
-        Iterator<UcteLine> iterator = lines.iterator();
-        while(iterator.hasNext()){
-            UcteLine line = (UcteLine)iterator.next();
-            if(line.getCurrentLimit() != null && line.getCurrentLimit().intValue() == DEFAULT_MAX_CURRENT.intValue())
-                line.setCurrentLimit(null);
-        }
-    }
-
-    private void filterDefaultMaxCurrentFromTransformers(UcteNetwork ucteNetwork){
-        Collection<UcteTransformer> transformers = ucteNetwork.getTransformers();
-        Iterator<UcteTransformer> iterator2 = transformers.iterator();
-        while(iterator2.hasNext()){
-            UcteTransformer transformer = (UcteTransformer)iterator2.next();
-            if(transformer.getCurrentLimit() != null && transformer.getCurrentLimit().intValue() == DEFAULT_MAX_CURRENT.intValue())
-                transformer.setCurrentLimit(null);
         }
     }
 
@@ -572,7 +549,6 @@ public class UcteExporter implements Exporter {
         UcteElementId elementId = context.getNamingStrategy().getUcteElementId(danglingLine);
         String elementName = danglingLine.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         UcteElementStatus ucteElementStatus = getStatus(danglingLine);
-        double permanentLimit = danglingLine.getCurrentLimits() == null ? DEFAULT_MAX_CURRENT : danglingLine.getCurrentLimits().getPermanentLimit();
 
         UcteLine ucteLine = new UcteLine(
                 elementId,
@@ -580,7 +556,7 @@ public class UcteExporter implements Exporter {
                 (float) danglingLine.getR(),
                 (float) danglingLine.getX(),
                 (float) danglingLine.getB(),
-                (int) permanentLimit,
+                danglingLine.getCurrentLimits() == null ? null : (int)danglingLine.getCurrentLimits().getPermanentLimit(),
                 elementName);
         ucteNetwork.addLine(ucteLine);
     }
@@ -831,12 +807,12 @@ public class UcteExporter implements Exporter {
             try {
                 ucteLine.setCurrentLimit(Integer.parseInt(sw.getProperty(CURRENT_LIMIT_PROPERTY_KEY)));
             } catch (NumberFormatException exception) {
-                ucteLine.setCurrentLimit((int) DEFAULT_MAX_CURRENT);
-                LOGGER.warn("Switch {}: No current limit, set value to {}", sw.getId(), DEFAULT_MAX_CURRENT);
+                ucteLine.setCurrentLimit(null);
+                LOGGER.warn("Switch {}: No current limit, set value to {}", sw.getId(), null);
             }
         } else {
-            ucteLine.setCurrentLimit((int) DEFAULT_MAX_CURRENT);
-            LOGGER.warn("Switch {}: No current limit, set value to {}", sw.getId(), DEFAULT_MAX_CURRENT);
+            ucteLine.setCurrentLimit(null);
+            LOGGER.warn("Switch {}: No current limit, set value to {}", sw.getId(), null);
         }
     }
 
