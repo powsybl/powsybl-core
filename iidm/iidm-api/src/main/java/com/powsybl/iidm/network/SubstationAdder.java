@@ -31,7 +31,7 @@ public interface SubstationAdder extends IdentifiableAdder<SubstationAdder> {
     SubstationAdder setTso(String tso);
 
     /**
-     * @deprecated uses properties to store geographical tags.
+     * @deprecated use substation properties to store geographical tags.
      */
     @Deprecated
     default SubstationAdder setGeographicalTags(String... tags) {

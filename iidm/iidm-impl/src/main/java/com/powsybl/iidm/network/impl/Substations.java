@@ -33,13 +33,8 @@ final class Substations {
             if (tso != null && !tso.equals(substation.getTso())) {
                 return false;
             }
-            for (String tag : geographicalTags) {
-                String geographicalTagsStr = substation.getProperty("geographicalTags");
-                if (geographicalTagsStr != null && !Arrays.asList(geographicalTagsStr.split(",")).contains(tag)) {
-                    return false;
-                }
-            }
-            return true;
+            String geographicalTagsStr = substation.getProperty("geographicalTags");
+            return geographicalTagsStr == null || Arrays.asList(geographicalTagsStr.split(",")).containsAll(Arrays.asList(geographicalTags));
         }).collect(Collectors.toList());
     }
 
