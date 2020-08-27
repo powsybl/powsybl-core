@@ -9,6 +9,8 @@ package com.powsybl.iidm.mergingview;
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -16,8 +18,17 @@ import java.util.stream.Stream;
  */
 class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
+    private final List<TerminalAdapter> terminals = new ArrayList<>();
+
     BusAdapter(final Bus delegate, final MergingViewIndex index) {
         super(delegate, index);
+
+        delegate.visitConnectedEquipments(new AbstractTerminalTopologyVisitor() {
+            @Override
+            public void visitTerminal(Terminal t) {
+                terminals.add(getIndex().getTerminal(t));
+            }
+        });
     }
 
     @Override
@@ -66,6 +77,26 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     public Stream<Battery> getBatteryStream() {
         return getDelegate().getBatteryStream()
                             .map(getIndex()::getBattery);
+    }
+
+    @Override
+    public Iterable<DanglingLine> getDanglingLines() {
+        return MergingViewUtil.getDanglingLines(getDelegate().getDanglingLines(), getIndex());
+    }
+
+    @Override
+    public Stream<DanglingLine> getDanglingLineStream() {
+        return MergingViewUtil.getDanglingLineStream(getDelegate().getDanglingLineStream(), getIndex());
+    }
+
+    @Override
+    public Iterable<Line> getLines() {
+        return MergingViewUtil.getLines(getDelegate().getLines(), getDelegate().getDanglingLines(), getIndex());
+    }
+
+    @Override
+    public Stream<Line> getLineStream() {
+        return MergingViewUtil.getLineStream(getDelegate().getLineStream(), getDelegate().getDanglingLineStream(), getIndex());
     }
 
     @Override
@@ -178,12 +209,12 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
         getDelegate().visitConnectedOrConnectableEquipments(new TopologyVisitorAdapter(visitor, getIndex()));
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
-    public int getConnectedTerminalCount() {
-        throw MergingView.createNotImplementedException();
+    public Component getConnectedComponent() {
+        ConnectedComponentsManager ccm = getIndex().getView().getConnectedComponentsManager();
+        ccm.update();
+
+        return terminals.isEmpty() ? null : ccm.getComponent(terminals.get(0).getConnectedComponentNumber());
     }
 
     @Override
@@ -196,43 +227,39 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
         throw MergingView.createNotImplementedException();
     }
 
-    @Override
-    public Iterable<Line> getLines() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public Stream<Line> getLineStream() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public Component getSynchronousComponent() {
-        throw MergingView.createNotImplementedException();
-    }
-
-    @Override
-    public Component getConnectedComponent() {
-        throw MergingView.createNotImplementedException();
+    void setConnectedComponentNumber(int connectedComponentNumber) {
+        terminals.forEach(t -> t.setConnectedComponentNumber(connectedComponentNumber));
     }
 
     @Override
     public boolean isInMainConnectedComponent() {
-        throw MergingView.createNotImplementedException();
+        Component cc = getConnectedComponent();
+        return cc != null && cc.getNum() == ComponentConstants.MAIN_NUM;
+    }
+
+    @Override
+    public Component getSynchronousComponent() {
+        SynchronousComponentsManager ccm = getIndex().getView().getSynchronousComponentsManager();
+        ccm.update();
+
+        return terminals.isEmpty() ? null : ccm.getComponent(terminals.get(0).getSynchronousComponentNumber());
+    }
+
+    void setSynchronousComponentNumber(int synchronousComponentNumber) {
+        terminals.forEach(t -> t.setSynchronousComponentNumber(synchronousComponentNumber));
     }
 
     @Override
     public boolean isInMainSynchronousComponent() {
+        Component sc = getSynchronousComponent();
+        return sc != null && sc.getNum() == ComponentConstants.MAIN_NUM;
+    }
+
+    // -------------------------------
+    // Not implemented methods -------
+    // -------------------------------
+    @Override
+    public int getConnectedTerminalCount() {
         throw MergingView.createNotImplementedException();
     }
 }
