@@ -808,11 +808,11 @@ public class UcteExporter implements Exporter {
                 ucteLine.setCurrentLimit(Integer.parseInt(sw.getProperty(CURRENT_LIMIT_PROPERTY_KEY)));
             } catch (NumberFormatException exception) {
                 ucteLine.setCurrentLimit(null);
-                LOGGER.warn("Switch {}: No current limit, set value to {}", sw.getId(), null);
+                LOGGER.warn("Switch {}: No current limit provided", sw.getId(), null);
             }
         } else {
             ucteLine.setCurrentLimit(null);
-            LOGGER.warn("Switch {}: No current limit, set value to {}", sw.getId(), null);
+            LOGGER.warn("Switch {}: No current limit provided", sw.getId(), null);
         }
     }
 
