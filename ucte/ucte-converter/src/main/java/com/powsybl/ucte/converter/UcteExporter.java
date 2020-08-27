@@ -556,7 +556,7 @@ public class UcteExporter implements Exporter {
                 (float) danglingLine.getR(),
                 (float) danglingLine.getX(),
                 (float) danglingLine.getB(),
-                danglingLine.getCurrentLimits() == null ? null : (int)danglingLine.getCurrentLimits().getPermanentLimit(),
+                danglingLine.getCurrentLimits() == null ? null : (int) danglingLine.getCurrentLimits().getPermanentLimit(),
                 elementName);
         ucteNetwork.addLine(ucteLine);
     }
