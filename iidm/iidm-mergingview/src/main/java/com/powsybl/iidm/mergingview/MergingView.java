@@ -744,7 +744,7 @@ public final class MergingView implements Network, MultiVariantObject {
     @Override
     public DanglingLine getDanglingLine(final String id) {
         final DanglingLine dl = index.get(n -> n.getDanglingLine(id), index::getDanglingLine);
-        return index.isMerged(dl) ? null : dl;
+        return dl == null || index.isMerged(dl) ? null : dl;
     }
 
     // HvdcLines
@@ -819,7 +819,7 @@ public final class MergingView implements Network, MultiVariantObject {
     }
 
     @Override
-    public MergingVariantManager getVariantManager() {
+    public VariantManager getVariantManager() {
         return variantManager;
     }
 
