@@ -46,19 +46,19 @@ public class PropertyBagTest {
     public void testHashCodeEquals() {
         // Same property names and different values
         assertNotEquals(locals.hashCode(), localsWithUnderscore.hashCode());
-        assertFalse(locals.equals(localsWithUnderscore));
+        assertNotEquals(locals, localsWithUnderscore);
 
         // Same property names and same elements
         PropertyBag locals1 = new PropertyBag(Arrays.asList("id", "name", "enum"), true);
         locals.entrySet().forEach(r -> locals1.put(r.getKey(), r.getValue()));
         assertEquals(locals.hashCode(), locals1.hashCode());
-        assertTrue(locals.equals(locals1));
+        assertEquals(locals, locals1);
 
         // Same elements but different property names
         PropertyBag locals2 = new PropertyBag(Arrays.asList("identifier", "name", "enum"), true);
         locals.entrySet().forEach(r -> locals2.put(r.getKey(), r.getValue()));
         assertNotEquals(locals.hashCode(), locals2.hashCode());
-        assertFalse(locals.equals(locals2));
+        assertNotEquals(locals, locals2);
     }
 
     @Test

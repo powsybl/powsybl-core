@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>3.5.0-SNAPSHOT</version>
+        <version>3.6.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -26,6 +26,7 @@
     <modules>
         <module>ucte-converter</module>
         <module>ucte-network</module>
+        <module>ucte-util</module>
     </modules>
 
 </project>

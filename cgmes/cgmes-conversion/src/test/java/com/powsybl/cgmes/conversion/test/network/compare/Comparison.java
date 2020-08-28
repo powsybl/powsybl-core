@@ -12,10 +12,10 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
+import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 
@@ -187,8 +187,8 @@ public class Comparison {
 
     private void compareBuses(Bus expected, Bus actual) {
         equivalent("VoltageLevel", expected.getVoltageLevel(), actual.getVoltageLevel());
-        compare(CgmesNames.VOLTAGE, expected.getV(), actual.getV());
-        compare(CgmesNames.ANGLE, expected.getAngle(), actual.getAngle());
+        compare("v", expected.getV(), actual.getV());
+        compare("angle", expected.getAngle(), actual.getAngle());
     }
 
     private void compareLoads(Load expected, Load actual) {
@@ -200,6 +200,25 @@ public class Comparison {
         // TODO Should we check terminals ? (we are not setting terminal id)
         compare("p", expected.getTerminal().getP(), actual.getTerminal().getP());
         compare("q", expected.getTerminal().getQ(), actual.getTerminal().getQ());
+        compareLoadDetails(expected.getExtension(LoadDetail.class), actual.getExtension(LoadDetail.class));
+    }
+
+    private void compareLoadDetails(LoadDetail expected, LoadDetail actual) {
+        if (expected == null) {
+            if (actual != null) {
+                diff.unexpected("expected conform or not conform load (is energyConsumer)");
+                return;
+            }
+            return;
+        }
+        if (actual == null) {
+            diff.unexpected("expected energyConsumer (is conform or not conform load)");
+            return;
+        }
+        diff.compare("fixedActivePower", expected.getFixedActivePower(), actual.getFixedActivePower());
+        diff.compare("fixedReactivePower", expected.getFixedReactivePower(), actual.getFixedReactivePower());
+        diff.compare("variableActivePower", expected.getVariableActivePower(), actual.getVariableActivePower());
+        diff.compare("variableReactivePower", expected.getVariableReactivePower(), actual.getVariableReactivePower());
     }
 
     private void compareShunts(ShuntCompensator expected, ShuntCompensator actual) {
@@ -276,12 +295,12 @@ public class Comparison {
         compare("Bmax",
                 expected.getBmax(),
                 actual.getBmax());
-        compare("voltageSetPoint",
-                expected.getVoltageSetPoint(),
-                actual.getVoltageSetPoint());
-        compare("reactivePowerSetPoint",
-                expected.getReactivePowerSetPoint(),
-                actual.getReactivePowerSetPoint());
+        compare("voltageSetpoint",
+                expected.getVoltageSetpoint(),
+                actual.getVoltageSetpoint());
+        compare("reactivePowerSetpoint",
+                expected.getReactivePowerSetpoint(),
+                actual.getReactivePowerSetpoint());
         compare("regulationMode",
                 expected.getRegulationMode(),
                 actual.getRegulationMode());
@@ -662,7 +681,7 @@ public class Comparison {
         // The names could be different only in trailing whitespace
         // Blazegraph does not preserve whitespace in input XML text
         String expected1 = expected.trim();
-        String actual1 = expected.trim();
+        String actual1 = actual.trim();
         if (config.compareNamesAllowSuffixes) {
             int endIndex = Math.min(expected.length(), actual.length());
             compare(context,

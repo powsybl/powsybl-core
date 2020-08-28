@@ -15,6 +15,97 @@ package com.powsybl.iidm.network;
  * </div>
  * <p>b, g, r, x shall be specified at the side 2 voltage.
  * <p>b and g unit is siemens, r and x unit is ohm.
+ *
+ * <p>
+ *  Characteristics
+ * </p>
+ * <table style="border: 1px solid black; border-collapse: collapse">
+ *     <thead>
+ *         <tr>
+ *             <th style="border: 1px solid black">Attribute</th>
+ *             <th style="border: 1px solid black">Type</th>
+ *             <th style="border: 1px solid black">Unit</th>
+ *             <th style="border: 1px solid black">Required</th>
+ *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Description</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td style="border: 1px solid black">Id</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Unique identifier of the transformer</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Name</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Human-readable name of the transformer</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Rnom</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">&Omega;</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The nominal series resistance at the side 2 of the transformer </td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Xnom</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">&Omega;</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The nominal series reactance at the side 2 of the transformer</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Gnom</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">S</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The nominal magnetizing conductance at the side 2 of the transformer</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Bnom</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">S</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The nominal magnetizing susceptance at the side 2 of the transformer</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">V1nom</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The rated voltage at side 1</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">V2nom</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The rated voltage at side 2</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">RatedS</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black"> MVA </td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The normal apparent power</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
  * <p>b, g, r, x, &#961; and &#945; variables in the model can be computed with
  * the following Java code supposing <code>transfo</code> is an instance of
  * <code>TwoWindingsTransformer</code>.
@@ -121,14 +212,14 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
     TwoWindingsTransformer setRatedU2(double ratedU2);
 
     /**
-     * Get the apparent power in kVA (optional).
+     * Get the normal apparent power rating in MVA (optional).
      */
     default double getRatedS() {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * Set the apparent power in kVA (optional).
+     * Set the normal apparent power rating in MVA (optional).
      */
     default TwoWindingsTransformer setRatedS(double ratedS) {
         throw new UnsupportedOperationException();

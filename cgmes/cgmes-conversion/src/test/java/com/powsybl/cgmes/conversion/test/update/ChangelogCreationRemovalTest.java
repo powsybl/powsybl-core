@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.test.update;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
@@ -51,7 +52,7 @@ public final class ChangelogCreationRemovalTest {
         assertTrue(currentChanges.size() == 1 && currentChanges.get(0) instanceof IidmChangeCreation);
         // Expected to be TwoWindingsTransformer, with right name and id
         assertTrue(currentChanges.get(0).getIdentifiable() instanceof TwoWindingsTransformer);
-        assertTrue(expected("create").equals(actual(currentChanges)));
+        assertEquals(expected("create"), actual(currentChanges));
     }
 
     @Test
@@ -66,7 +67,7 @@ public final class ChangelogCreationRemovalTest {
         assertTrue(removeChanges.size() == 1 && removeChanges.get(0) instanceof IidmChangeRemoval);
         // Expected to be Line, with right name and id
         assertTrue(currentChanges.get(0).getIdentifiable() instanceof Line);
-        assertTrue(expected("remove").equals(actual(currentChanges)));
+        assertEquals(expected("remove"), actual(currentChanges));
     }
 
     private Map<String, String> expected(String event) {

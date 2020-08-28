@@ -10,6 +10,7 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TieLineAdder;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -46,6 +47,8 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         XmlUtil.writeDouble("b2_" + side, halfLine.getB2(), context.getWriter());
         XmlUtil.writeDouble("xnodeP_" + side, halfLine.getXnodeP(), context.getWriter());
         XmlUtil.writeDouble("xnodeQ_" + side, halfLine.getXnodeQ(), context.getWriter());
+
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> XmlUtil.writeOptionalBoolean("fictitious_" + side, halfLine.isFictitious(), false, context.getWriter()));
     }
 
     @Override
@@ -64,10 +67,10 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
     @Override
     protected void writeSubElements(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         if (tl.getCurrentLimits1() != null) {
-            writeCurrentLimits(1, tl.getCurrentLimits1(), context.getWriter(), context.getVersion());
+            writeCurrentLimits(1, tl.getCurrentLimits1(), context.getWriter(), context.getVersion(), context.getOptions());
         }
         if (tl.getCurrentLimits2() != null) {
-            writeCurrentLimits(2, tl.getCurrentLimits2(), context.getWriter(), context.getVersion());
+            writeCurrentLimits(2, tl.getCurrentLimits2(), context.getWriter(), context.getVersion(), context.getOptions());
         }
     }
 
@@ -97,6 +100,11 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
                 .setB2(b2)
                 .setXnodeP(xnodeP)
                 .setXnodeQ(xnodeQ);
+
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
+            boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious_" + side, false);
+            adder.setFictitious(fictitious);
+        });
     }
 
     @Override

@@ -12,6 +12,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.function.BiFunction;
 
 /**
@@ -59,6 +60,8 @@ public class ParameterDefaultValueConfig {
                 return getStringValue(format, parameter);
             case STRING_LIST:
                 return getStringListValue(format, parameter);
+            case DOUBLE:
+                return getDoubleValue(format, parameter);
             default:
                 throw new AssertionError();
         }
@@ -74,6 +77,13 @@ public class ParameterDefaultValueConfig {
 
     public List<String> getStringListValue(String format, Parameter parameter) {
         return getValue(format, parameter.getStringListDefaultValue(), parameter, ModuleConfig::getOptionalStringListProperty);
+    }
+
+    public double getDoubleValue(String format, Parameter parameter) {
+        return getValue(format, parameter.getDoubleDefaultValue(), parameter, (moduleConfig, name) -> {
+            OptionalDouble optionalDouble = moduleConfig.getOptionalDoubleProperty(name);
+            return optionalDouble.isPresent() ? Optional.of(optionalDouble.getAsDouble()) : Optional.empty();
+        });
     }
 
     private <T> T getValue(String format, T defaultValue, Parameter parameter, BiFunction<ModuleConfig, String, Optional<T>> supplier) {

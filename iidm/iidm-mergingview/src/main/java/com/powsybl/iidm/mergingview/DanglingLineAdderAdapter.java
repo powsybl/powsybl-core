@@ -9,10 +9,63 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.DanglingLineAdder;
 
+import java.util.Objects;
+
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class DanglingLineAdderAdapter extends AbstractInjectionAdderAdapter<DanglingLineAdder> implements DanglingLineAdder {
+
+    class GenerationAdderAdapter implements GenerationAdder {
+
+        private final GenerationAdder delegate;
+
+        GenerationAdderAdapter(GenerationAdder delegate) {
+            this.delegate = Objects.requireNonNull(delegate);
+        }
+
+        @Override
+        public GenerationAdder setTargetP(double targetP) {
+            delegate.setTargetP(targetP);
+            return this;
+        }
+
+        @Override
+        public GenerationAdder setMaxP(double maxP) {
+            delegate.setMaxP(maxP);
+            return this;
+        }
+
+        @Override
+        public GenerationAdder setMinP(double minP) {
+            delegate.setMinP(minP);
+            return this;
+        }
+
+        @Override
+        public GenerationAdder setTargetQ(double targetQ) {
+            delegate.setTargetQ(targetQ);
+            return this;
+        }
+
+        @Override
+        public GenerationAdder setVoltageRegulationOn(boolean voltageRegulationOn) {
+            delegate.setVoltageRegulationOn(voltageRegulationOn);
+            return this;
+        }
+
+        @Override
+        public GenerationAdder setTargetV(double targetV) {
+            delegate.setTargetV(targetV);
+            return this;
+        }
+
+        @Override
+        public DanglingLineAdder add() {
+            delegate.add();
+            return DanglingLineAdderAdapter.this;
+        }
+    }
 
     DanglingLineAdderAdapter(final DanglingLineAdder delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -69,5 +122,10 @@ public class DanglingLineAdderAdapter extends AbstractInjectionAdderAdapter<Dang
     public DanglingLineAdder setUcteXnodeCode(final String ucteXnodeCode) {
         getDelegate().setUcteXnodeCode(ucteXnodeCode);
         return this;
+    }
+
+    @Override
+    public GenerationAdder newGeneration() {
+        return new GenerationAdderAdapter(getDelegate().newGeneration());
     }
 }

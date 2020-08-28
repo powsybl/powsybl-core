@@ -28,8 +28,8 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
 
     @Override
     protected boolean hasSubElements(TwoWindingsTransformer twt) {
-        return twt.getRatioTapChanger() != null
-                || twt.getPhaseTapChanger() != null
+        return twt.hasRatioTapChanger()
+                || twt.hasPhaseTapChanger()
                 || twt.getCurrentLimits1() != null
                 || twt.getCurrentLimits2() != null;
     }
@@ -62,10 +62,10 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
             writePhaseTapChanger("phaseTapChanger", ptc, context);
         }
         if (twt.getCurrentLimits1() != null) {
-            writeCurrentLimits(1, twt.getCurrentLimits1(), context.getWriter(), context.getVersion());
+            writeCurrentLimits(1, twt.getCurrentLimits1(), context.getWriter(), context.getVersion(), context.getOptions());
         }
         if (twt.getCurrentLimits2() != null) {
-            writeCurrentLimits(2, twt.getCurrentLimits2(), context.getWriter(), context.getVersion());
+            writeCurrentLimits(2, twt.getCurrentLimits2(), context.getWriter(), context.getVersion(), context.getOptions());
         }
     }
 

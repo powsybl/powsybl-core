@@ -16,6 +16,57 @@ import java.util.stream.Stream;
 /**
  * A power network model.
  *
+ * <p>
+ *  Characteristics
+ * </p>
+ *
+ * <table style="border: 1px solid black; border-collapse: collapse">
+ *     <thead>
+ *         <tr>
+ *             <th style="border: 1px solid black">Attribute</th>
+ *             <th style="border: 1px solid black">Type</th>
+ *             <th style="border: 1px solid black">Unit</th>
+ *             <th style="border: 1px solid black">Required</th>
+ *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Description</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td style="border: 1px solid black">Id</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Unique identifier of the network</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Name</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Human-readable name of the network</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">CaseDate</td>
+ *             <td style="border: 1px solid black">DateTime</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> Now </td>
+ *             <td style="border: 1px solid black">The date of the case</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">ForecastDistance</td>
+ *             <td style="border: 1px solid black">integer</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> 0 </td>
+ *             <td style="border: 1px solid black">The number of minutes between the date of the case generation and the date of the case</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
  * To create a new empty network with default implementation:
  *<pre>
  *    Network n = Network.create("test", "test");
@@ -239,7 +290,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a substation.
      *
-     * @param id the id of the substation
+     * @param id the id or an alias of the substation
      */
     Substation getSubstation(String id);
 
@@ -261,7 +312,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a substation voltage level.
      *
-     * @param id the id of the substation voltage level
+     * @param id the id or an alias of the substation voltage level
      */
     VoltageLevel getVoltageLevel(String id);
 
@@ -309,7 +360,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a AC line.
      *
-     * @param id the name of the AC line
+     * @param id the id or an alias of the AC line
      */
     Line getLine(String id);
 
@@ -336,7 +387,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a two windings transformer.
      *
-     * @param id the id of the two windings transformer
+     * @param id the id or an alias of the two windings transformer
      */
     TwoWindingsTransformer getTwoWindingsTransformer(String id);
 
@@ -358,7 +409,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a 3 windings transformer.
      *
-     * @param id the id of the 3 windings transformer
+     * @param id the id or an alias of the 3 windings transformer
      */
     ThreeWindingsTransformer getThreeWindingsTransformer(String id);
 
@@ -380,7 +431,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a generator.
      *
-     * @param id the id of the generator
+     * @param id the id or an alias of the generator
      */
     Generator getGenerator(String id);
 
@@ -402,7 +453,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a battery.
      *
-     * @param id the id of the battery
+     * @param id the id or an alias of the battery
      */
     Battery getBattery(String id);
 
@@ -424,7 +475,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a load.
      *
-     * @param id the id the load
+     * @param id the id or an alias of the load
      */
     Load getLoad(String id);
 
@@ -446,7 +497,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a compensator shunt.
      *
-     * @param id the id of the compensator shunt
+     * @param id the id or an alias of the compensator shunt
      */
     ShuntCompensator getShuntCompensator(String id);
 
@@ -468,7 +519,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a dangling line.
      *
-     * @param id the id of the dangling line
+     * @param id the id or an alias of the dangling line
      */
     DanglingLine getDanglingLine(String id);
 
@@ -490,13 +541,13 @@ public interface Network extends Container<Network> {
     /**
      * Get a static var compensator.
      *
-     * @param id the id of the static var compensator
+     * @param id the id or an alias of the static var compensator
      */
     StaticVarCompensator getStaticVarCompensator(String id);
 
     /**
-     * Get a switch from its id.
-     * @param id id of the switch
+     * Get a switch from its id or an alias.
+     * @param id id or an alias of the switch
      * @return the switch
      */
     Switch getSwitch(String id);
@@ -521,8 +572,8 @@ public interface Network extends Container<Network> {
     int getSwitchCount();
 
     /**
-     * Get a busbar section from its id.
-     * @param id id of the busbar section
+     * Get a busbar section from its id or an alias.
+     * @param id the id or an alias of the busbar section
      * @return the busbar section
      */
     BusbarSection getBusbarSection(String id);
@@ -565,7 +616,7 @@ public interface Network extends Container<Network> {
 
     /**
      * Get an HVDC converter station.
-     * @param id the id of the HVDC converter station
+     * @param id the id or an alias of the HVDC converter station
      * @return the HVDC converter station or null if not found
      */
     HvdcConverterStation<?> getHvdcConverterStation(String id);
@@ -590,7 +641,7 @@ public interface Network extends Container<Network> {
 
     /**
      * Get an LCC converter station.
-     * @param id the id of the LCC converter station
+     * @param id the id or an alias of the LCC converter station
      * @return the LCC converter station or null if not found
      */
     LccConverterStation getLccConverterStation(String id);
@@ -615,7 +666,7 @@ public interface Network extends Container<Network> {
 
     /**
      * Get an VSC converter station.
-     * @param id the id of the VSC converter station
+     * @param id the id or an alias of the VSC converter station
      * @return the VSC converter station or null if not found
      */
     VscConverterStation getVscConverterStation(String id);
@@ -640,7 +691,7 @@ public interface Network extends Container<Network> {
 
     /**
      * Get an HVDC line.
-     * @param id the id of the HVDC line
+     * @param id the id or an alias of the HVDC line
      * @return the HVDC line or null if not found
      */
     HvdcLine getHvdcLine(String id);
@@ -661,9 +712,9 @@ public interface Network extends Container<Network> {
     HvdcLineAdder newHvdcLine();
 
     /**
-     * Get a equipment.
+     * Get an equipment by its ID or alias
      *
-     * @param id the id of the equipment
+     * @param id the id or an alias of the equipment
      */
     Identifiable<?> getIdentifiable(String id);
 

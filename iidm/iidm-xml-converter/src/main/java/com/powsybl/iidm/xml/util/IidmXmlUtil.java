@@ -8,18 +8,41 @@ package com.powsybl.iidm.xml.util;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.export.ExportOptions;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.AbstractNetworkXmlContext;
 import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
 import javax.xml.stream.XMLStreamException;
+import java.util.Comparator;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public final class IidmXmlUtil {
+
+    public interface IidmXmlRunnable extends Runnable {
+
+        @Override
+        default void run() {
+            try {
+                runWithXmlStreamException();
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        }
+
+        void runWithXmlStreamException() throws XMLStreamException;
+    }
 
     public enum ErrorMessage {
         NOT_SUPPORTED("not supported"),
@@ -103,7 +126,7 @@ public final class IidmXmlUtil {
      */
     public static <C extends AbstractNetworkXmlContext> void assertMinimumVersionAndRunIfNotDefault(boolean valueIsNotDefault, String rootElementName,
                                                                                                     String elementName, ErrorMessage type, IidmXmlVersion minVersion,
-                                                                                                    C context, Runnable runnable) {
+                                                                                                    C context, IidmXmlRunnable runnable) {
         if (valueIsNotDefault) {
             assertMinimumVersion(rootElementName, elementName, type, minVersion, context);
             runnable.run();
@@ -123,7 +146,7 @@ public final class IidmXmlUtil {
     /**
      * Run a given runnable if the context's IIDM-XML version equals or is more recent than a given minimum IIDM-XML version.
      */
-    public static <C extends AbstractNetworkXmlContext> void runFromMinimumVersion(IidmXmlVersion minVersion, C context, Runnable runnable) {
+    public static <C extends AbstractNetworkXmlContext> void runFromMinimumVersion(IidmXmlVersion minVersion, C context, IidmXmlRunnable runnable) {
         if (context.getVersion().compareTo(minVersion) >= 0) {
             runnable.run();
         }
@@ -133,7 +156,7 @@ public final class IidmXmlUtil {
     /**
      * Run a given runnable if the context's IIDM-XML version equals or is older than a given maximum IIDM-XML version.
      */
-    public static <C extends AbstractNetworkXmlContext> void runUntilMaximumVersion(IidmXmlVersion maxVersion, C context, Runnable runnable) {
+    public static <C extends AbstractNetworkXmlContext> void runUntilMaximumVersion(IidmXmlVersion maxVersion, C context, IidmXmlRunnable runnable) {
         if (context.getVersion().compareTo(maxVersion) <= 0) {
             runnable.run();
         }
@@ -146,13 +169,8 @@ public final class IidmXmlUtil {
      */
     public static void writeBooleanAttributeFromMinimumVersion(String rootElementName, String attributeName, boolean value, boolean defaultValue,
                                                                ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context) {
-        writeAttributeFromMinimumVersion(rootElementName, attributeName, value != defaultValue, type, minVersion, context, () -> {
-            try {
-                context.getWriter().writeAttribute(attributeName, Boolean.toString(value));
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        writeAttributeFromMinimumVersion(rootElementName, attributeName, value != defaultValue, type,
+                minVersion, context, () -> context.getWriter().writeAttribute(attributeName, Boolean.toString(value)));
     }
 
     /**
@@ -172,18 +190,13 @@ public final class IidmXmlUtil {
      */
     public static void writeDoubleAttributeFromMinimumVersion(String rootElementName, String attributeName, double value, double defaultValue,
                                                               ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context) {
-        writeAttributeFromMinimumVersion(rootElementName, attributeName, !Objects.equals(value, defaultValue), type, minVersion, context, () -> {
-            try {
-                XmlUtil.writeDouble(attributeName, value, context.getWriter());
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        writeAttributeFromMinimumVersion(rootElementName, attributeName, !Objects.equals(value, defaultValue), type,
+                minVersion, context, () -> XmlUtil.writeDouble(attributeName, value, context.getWriter()));
     }
 
     private static void writeAttributeFromMinimumVersion(String rootElementName, String attributeName, boolean isNotDefaultValue,
                                                          ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context,
-                                                         Runnable write) {
+                                                         IidmXmlRunnable write) {
         if (context.getVersion().compareTo(minVersion) >= 0) {
             write.run();
         } else {
@@ -199,6 +212,64 @@ public final class IidmXmlUtil {
         if (context.getVersion().compareTo(maxVersion) <= 0) {
             XmlUtil.writeInt(attributeName, value, context.getWriter());
         }
+    }
+
+    /**
+     * Sort identifiables by their ids.
+     */
+    public static <T extends Identifiable> Iterable<T> sorted(Iterable<T> identifiables, ExportOptions exportOptions) {
+        Objects.requireNonNull(identifiables);
+        Objects.requireNonNull(exportOptions);
+        return exportOptions.isSorted() ? StreamSupport.stream(identifiables.spliterator(), false)
+                .sorted(Comparator.comparing(Identifiable::getId))
+                .collect(Collectors.toList())
+                : identifiables;
+    }
+
+    /**
+     * Sort identifiables by their ids.
+     */
+    public static <T extends Identifiable<T>> Stream<T> sorted(Stream<T> stream, ExportOptions exportOptions) {
+        Objects.requireNonNull(stream);
+        Objects.requireNonNull(exportOptions);
+        return exportOptions.isSorted() ? stream.sorted(Comparator.comparing(Identifiable::getId)) : stream;
+    }
+
+    /**
+     * Sort extensions by their names.
+     */
+    public static Iterable<? extends Extension<? extends Identifiable<?>>> sortedExtensions(Iterable<? extends Extension<? extends Identifiable<?>>> extensions, ExportOptions exportOptions) {
+        Objects.requireNonNull(exportOptions);
+        Objects.requireNonNull(exportOptions);
+        return exportOptions.isSorted() ? StreamSupport.stream(extensions.spliterator(), false)
+                                                       .sorted(Comparator.comparing(Extension::getName))
+                                                       .collect(Collectors.toList())
+                : extensions;
+    }
+
+    /**
+     * Sort temporary limits by their names.
+     */
+    public static Iterable<CurrentLimits.TemporaryLimit> sortedTemporaryLimits(Iterable<CurrentLimits.TemporaryLimit> temporaryLimits, ExportOptions exportOptions) {
+        Objects.requireNonNull(temporaryLimits);
+        Objects.requireNonNull(exportOptions);
+        return exportOptions.isSorted() ? StreamSupport.stream(temporaryLimits.spliterator(), false)
+                                                       .sorted(Comparator.comparing(CurrentLimits.TemporaryLimit::getName))
+                                                       .collect(Collectors.toList())
+                                        : temporaryLimits;
+    }
+
+    /**
+     * Sort internal connections first by their side one node value then by their side 2 node value.
+     */
+    public static Iterable<VoltageLevel.NodeBreakerView.InternalConnection> sortedInternalConnections(Iterable<VoltageLevel.NodeBreakerView.InternalConnection> internalConnections, ExportOptions exportOptions) {
+        Objects.requireNonNull(internalConnections);
+        Objects.requireNonNull(exportOptions);
+        return exportOptions.isSorted() ? StreamSupport.stream(internalConnections.spliterator(), false)
+                                                       .sorted(Comparator.comparing(VoltageLevel.NodeBreakerView.InternalConnection::getNode1)
+                                                                         .thenComparing(VoltageLevel.NodeBreakerView.InternalConnection::getNode2))
+                                                       .collect(Collectors.toList())
+                : internalConnections;
     }
 
     private IidmXmlUtil() {

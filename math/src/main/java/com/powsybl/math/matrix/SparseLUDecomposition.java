@@ -21,6 +21,8 @@ import java.util.UUID;
  */
 class SparseLUDecomposition implements LUDecomposition {
 
+    private static final double RGROWTH_THRESHOLD = 1e-10;
+
     private final SparseMatrix matrix;
 
     private final String id;
@@ -46,11 +48,11 @@ class SparseLUDecomposition implements LUDecomposition {
 
     private native void release(String id);
 
-    private native void update(String id, int[] ap, int[] ai, double[] ax);
+    private native void update(String id, int[] ap, int[] ai, double[] ax, double rgrowthThreshold);
 
-    private native void solve(String id, double[] b);
+    private native void solve(String id, double[] b, boolean transpose);
 
-    private native void solve2(String id, int m, int n, ByteBuffer b);
+    private native void solve2(String id, int m, int n, ByteBuffer b, boolean transpose);
 
     /**
      * Check no elements have been added since first decomposition
@@ -69,17 +71,27 @@ class SparseLUDecomposition implements LUDecomposition {
     @Override
     public void update() {
         checkMatrixStructure();
-        update(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues());
+        update(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues(), RGROWTH_THRESHOLD);
     }
 
     @Override
     public void solve(double[] b) {
-        solve(id, b);
+        solve(id, b, false);
+    }
+
+    @Override
+    public void solveTransposed(double[] b) {
+        solve(id, b, true);
     }
 
     @Override
     public void solve(DenseMatrix b) {
-        solve2(id, b.getRowCount(), b.getColumnCount(), b.getBuffer());
+        solve2(id, b.getRowCount(), b.getColumnCount(), b.getBuffer(), false);
+    }
+
+    @Override
+    public void solveTransposed(DenseMatrix b) {
+        solve2(id, b.getRowCount(), b.getColumnCount(), b.getBuffer(), true);
     }
 
     @Override

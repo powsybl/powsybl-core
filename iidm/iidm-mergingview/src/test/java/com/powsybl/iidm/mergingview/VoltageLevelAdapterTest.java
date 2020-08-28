@@ -6,23 +6,21 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Random;
-
 import java.util.Objects;
+import java.util.Random;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -46,7 +44,7 @@ public class VoltageLevelAdapterTest {
         VoltageLevel vlActual = mergingView.getVoltageLevel(vlId);
 
         // Setter / Getter
-        assertTrue(vlActual instanceof VoltageLevelAdapter);
+        assertTrue(vlActual instanceof BusBreakerVoltageLevelAdapter);
         assertSame(mergingView, vlActual.getNetwork());
         assertSame(mergingView.getSubstation("sub"), vlActual.getSubstation());
         assertSame(mergingView.getIdentifiable(vlId), vlActual);
@@ -81,7 +79,7 @@ public class VoltageLevelAdapterTest {
         assertEquals(vlExpected.getVscConverterStationStream().count(), vlActual.getVscConverterStationStream().count());
 
         // Battery
-        vlActual.newBattery()
+        Battery battery = vlActual.newBattery()
                     .setId("BAT")
                     .setConnectableBus("busA")
                     .setBus("busA")
@@ -161,8 +159,8 @@ public class VoltageLevelAdapterTest {
                     .setBmax(0.0008)
                     .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                     .setRegulatingTerminal(mergingView.getLoad("LOAD").getTerminal())
-                    .setVoltageSetPoint(390.0)
-                    .setReactivePowerSetPoint(1.0)
+                    .setVoltageSetpoint(390.0)
+                    .setReactivePowerSetpoint(1.0)
                     .setEnsureIdUnicity(false)
                 .add();
         vlActual.getStaticVarCompensators().forEach(s -> {
@@ -197,7 +195,7 @@ public class VoltageLevelAdapterTest {
         assertEquals(vlExpected.getSwitchCount(), vlActual.getSwitchCount());
 
         // DanglingLine
-        vlActual.newDanglingLine()
+        DanglingLine dl = vlActual.newDanglingLine()
                 .setId("DLL1")
                 .setName("DLL1")
                 .setR(1)
@@ -229,48 +227,79 @@ public class VoltageLevelAdapterTest {
         verify(visitor, times(2)).visitHvdcConverterStation(any(HvdcConverterStation.class));
         verify(visitor, times(1)).visitDanglingLine(any(DanglingLine.class));
 
-        vlActual.printTopology();
-        vlActual.printTopology(System.out, mock(ShortIdDictionary.class));
-        try {
-            vlActual.exportTopology(mock(Writer.class), mock(Random.class));
-            vlActual.exportTopology(mock(Writer.class));
-        } catch (IOException e) {
-            // Ignored
-        }
+        TestUtil.notImplemented(() -> vlActual.printTopology());
+        TestUtil.notImplemented(() -> vlActual.printTopology(System.out, mock(ShortIdDictionary.class)));
+        TestUtil.notImplemented(() -> {
+            try {
+                vlActual.exportTopology(mock(Writer.class), mock(Random.class));
+                vlActual.exportTopology(mock(Writer.class));
+            } catch (IOException e) {
+                // Ignored
+            }
+        });
 
-        // Not implemented yet !
-        // Connectables
-        TestUtil.notImplemented(() -> vlActual.getConnectable("", null));
-        TestUtil.notImplemented(() -> vlActual.getConnectables(null));
-        TestUtil.notImplemented(() -> vlActual.getConnectableStream(null));
-        TestUtil.notImplemented(() -> vlActual.getConnectableCount(null));
-        TestUtil.notImplemented(vlActual::getConnectables);
-        TestUtil.notImplemented(vlActual::getConnectableStream);
-        TestUtil.notImplemented(vlActual::getConnectableCount);
+        assertSame(battery, vlActual.getConnectable("BAT", Battery.class));
+        assertEquals(1, Iterables.size(vlActual.getConnectables(Battery.class)));
+        assertSame(dl, vlActual.getConnectable("DLL1", DanglingLine.class));
+        assertEquals(1, Iterables.size(vlActual.getConnectables(DanglingLine.class)));
+        assertEquals(8, Iterables.size(vlActual.getConnectables()));
+        assertEquals(8, vlActual.getConnectableStream().count());
+
+        MergingView cgm = MergingViewFactory.createCGM(null);
+        VoltageLevel vl1 = cgm.getVoltageLevel("VL1");
+        VoltageLevel vl2 = cgm.getVoltageLevel("VL2");
+
+        assertNull(cgm.getDanglingLine("DL1"));
+        assertNull(vl1.getConnectable("DL1", DanglingLine.class));
+        assertEquals(0, Iterables.size(vl1.getConnectables(DanglingLine.class)));
+
+        assertNull(cgm.getDanglingLine("DL2"));
+        assertNull(vl2.getConnectable("DL2", DanglingLine.class));
+        assertEquals(0, Iterables.size(vl2.getConnectables(DanglingLine.class)));
+
+        assertNotNull(cgm.getLine("DL1 + DL2"));
+        assertEquals(1, Iterables.size(vl1.getConnectables(Line.class)));
+        assertEquals(1, vl1.getConnectableCount(Line.class));
+        assertNotNull(vl1.getConnectable("DL1 + DL2", Line.class));
+        assertEquals(1, Iterables.size(vl2.getConnectables(Line.class)));
+        assertEquals(1, vl2.getConnectableCount(Line.class));
+        assertNotNull(vl2.getConnectable("DL1 + DL2", Line.class));
     }
 
     @Test
     public void busViewTests() {
-        final VoltageLevel voltageLevelBB = mergingView.getVoltageLevel("vl1");
-        final VoltageLevel.BusView bv = voltageLevelBB.getBusView();
-        assertTrue(bv instanceof VoltageLevelAdapter.BusViewAdapter);
+        MergingView cgm = MergingViewFactory.createCGM(null);
 
-        // Not implemented
-        TestUtil.notImplemented(bv::getBuses);
-        TestUtil.notImplemented(bv::getBusStream);
-        TestUtil.notImplemented(() -> bv.getBus(""));
-        TestUtil.notImplemented(() -> bv.getMergedBus(""));
+        // Buses in VL.BusView, Terminal.BusView and Network.BusView are shared
+        busViewTests(cgm, "VL1", "VL1_1", "LOAD1");
+        // FIXME(mathbagu): In Bus/Breaker voltage level, the definition of a bus in the BusView is: branchCount >= 1. The DL are not considered as branch, bus as feeder
+        // busViewTests(cgm, "VL2", "VL2_1", "LOAD2");
+    }
+
+    private void busViewTests(MergingView cgm, String voltageLevelId, String busId, String loadId) {
+        VoltageLevel vl = cgm.getVoltageLevel(voltageLevelId);
+        assertEquals(1, Iterables.size(vl.getBusView().getBuses()));
+        assertEquals(1, vl.getBusView().getBusStream().count());
+        Bus bus = vl.getBusView().getBus(busId);
+        assertNotNull(bus);
+        Bus cgmBus = cgm.getBusView().getBus(busId);
+        assertNotNull(cgmBus);
+        Bus terminalBus = cgm.getLoad(loadId).getTerminal().getBusView().getBus();
+        assertNotNull(terminalBus);
+        assertSame(bus, cgmBus);
+        assertSame(bus, terminalBus);
     }
 
     @Test
     public void busBreakerViewTests() {
         final VoltageLevel voltageLevelBB = mergingView.getVoltageLevel("vl1");
         final VoltageLevel.BusBreakerView bbv = voltageLevelBB.getBusBreakerView();
-        assertTrue(bbv instanceof VoltageLevelAdapter.BusBreakerViewAdapter);
+        assertTrue(bbv instanceof BusBreakerVoltageLevelAdapter.BusBreakerViewAdapter);
 
         final String switchId = "BBV_SW1";
         final String busId1 = "BBV_B1";
         final String busId2 = "BBV_B2";
+
         final Bus busB1 = voltageLevelBB.getBusBreakerView().newBus()
                     .setId(busId1)
                     .setName(busId1)
@@ -308,11 +337,30 @@ public class VoltageLevelAdapterTest {
         assertSame(busB1, bbv.getBus1(switchId));
         assertSame(busB2, bbv.getBus2(switchId));
 
+        // Buses in VL.BusView, Terminal.BusView and Network.BusView are shared
+        MergingView cgm = MergingViewFactory.createCGM(null);
+        busBreakerViewTests(cgm, "VL1", 1, "VL1_1", "LOAD1");
+        busBreakerViewTests(cgm, "VL2", 3, "BUS3_2", "LOAD2");
+
         // Not implemented
         TestUtil.notImplemented(() -> bbv.removeBus(""));
         TestUtil.notImplemented(bbv::removeAllBuses);
         TestUtil.notImplemented(() -> bbv.removeSwitch(""));
         TestUtil.notImplemented(bbv::removeAllSwitches);
+    }
+
+    private void busBreakerViewTests(MergingView cgm, String voltageLevelId, int busCount, String busId, String loadId) {
+        VoltageLevel vl = cgm.getVoltageLevel(voltageLevelId);
+        assertEquals(busCount, Iterables.size(vl.getBusBreakerView().getBuses()));
+        assertEquals(busCount, vl.getBusBreakerView().getBusStream().count());
+        Bus bus = vl.getBusBreakerView().getBus(busId);
+        assertNotNull(bus);
+        Bus cgmBus = cgm.getBusBreakerView().getBus(busId);
+        assertNotNull(cgmBus);
+        Bus terminalBus = cgm.getLoad(loadId).getTerminal().getBusBreakerView().getBus();
+        assertNotNull(terminalBus);
+        assertSame(bus, cgmBus);
+        assertSame(bus, terminalBus);
     }
 
     @Test
@@ -330,7 +378,7 @@ public class VoltageLevelAdapterTest {
                                                                                  .add();
 
         final VoltageLevel.NodeBreakerView nbv = voltageLevelNB.getNodeBreakerView();
-        assertTrue(nbv instanceof VoltageLevelAdapter.NodeBreakerViewAdapter);
+        assertTrue(nbv instanceof NodeBreakerVoltageLevelAdapter.NodeBreakerViewAdapter);
 
         nbv.newInternalConnection()
                .setNode1(0)

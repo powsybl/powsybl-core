@@ -38,6 +38,9 @@ public class Parameter {
         if (this.type == ParameterType.BOOLEAN && defaultValue == null) {
             throw new PowsyblException("With Boolean parameter you are not allowed to pass a null default value");
         }
+        if (this.type == ParameterType.DOUBLE && defaultValue == null) {
+            throw new PowsyblException("With Double parameter you are not allowed to pass a null default value");
+        }
     }
 
     public Parameter addAdditionalNames(String... names) {
@@ -77,6 +80,10 @@ public class Parameter {
 
     public List<String> getStringListDefaultValue() {
         return (List<String>) defaultValue;
+    }
+
+    public double getDoubleDefaultValue() {
+        return (double) defaultValue;
     }
 
 }

@@ -89,6 +89,12 @@ class CalculatedTimeSeriesDslLoader {
             nodes.put(name, new DoubleNodeCalc(aDouble))
         }
 
+        void putAt(String name, BigDecimal aBigDecimal) {
+            assert name != null
+            assert aBigDecimal != null
+            nodes.put(name, new DoubleNodeCalc(aBigDecimal.doubleValue()))
+        }
+
         String[] getNames() {
             store.getTimeSeriesNames(new TimeSeriesFilter())
         }
