@@ -209,9 +209,6 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
         this.synchronousComponentNumber.put(variantId, synchronousComponentNumber);
     }
 
-    // -------------------------------
-    // Not implemented methods -------
-    // -------------------------------
     @Override
     public void traverse(final TopologyTraverser traverser) {
         getDelegate().traverse(new TopologyTraverserAdapter(traverser, getIndex()));
