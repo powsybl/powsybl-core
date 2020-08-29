@@ -104,7 +104,7 @@ public class MergingNetworkTest {
 
         // VoltageLevel
         mergingView.merge(NoEquipmentNetworkFactory.create());
-        assertTrue(mergingView.getVoltageLevel("vl1") instanceof VoltageLevelAdapter);
+        assertTrue(mergingView.getVoltageLevel("vl1") instanceof BusBreakerVoltageLevelAdapter);
         assertTrue(mergingView.getVoltageLevels().iterator().hasNext());
         assertEquals(2, mergingView.getVoltageLevelStream().count());
         assertEquals(2, mergingView.getVoltageLevelCount());
