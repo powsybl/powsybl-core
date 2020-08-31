@@ -205,21 +205,12 @@ public class XMLImporter implements Importer {
     }
 
     @Override
-    public Network importDataStore(ReadOnlyDataStore dataStore, String fileName, NetworkFactory networkFactory, Properties parameters) {
-        Objects.requireNonNull(dataStore);
-        Network network = null;
-
+    public Network importDataPack(DataPack dataPack, NetworkFactory networkFactory, Properties parameters) {
+        Objects.requireNonNull(dataPack);
         ImportOptions options = createImportOptions(parameters);
         long startTime = System.currentTimeMillis();
-        try {
-            Optional<DataPack> dp = XiidmDataFormat.INSTANCE.newDataResolver().resolve(dataStore, fileName, parameters);
-            if (dp.isPresent()) {
-                network = NetworkXml.read(dp.get(), networkFactory, options);
-                LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);
-            }
-        } catch (IOException | NonUniqueResultException e) {
-            throw new PowsyblException(e);
-        }
+        Network network = NetworkXml.read(dataPack, networkFactory, options);
+        LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);
         return network;
     }
 

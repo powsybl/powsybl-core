@@ -13,6 +13,7 @@ import java.util.Properties;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datastore.DataFormat;
 import com.powsybl.commons.datastore.DataPack;
 import com.powsybl.commons.datastore.NonUniqueResultException;
 import com.powsybl.commons.datastore.ReadOnlyDataStore;
@@ -62,7 +63,13 @@ public class TestImporter implements Importer {
     }
 
     @Override
-    public Network importDataStore(ReadOnlyDataStore dataStore, String fileName, Properties parameters) {
+    public Network importDataPack(DataPack dataPack, NetworkFactory networkFactory, Properties parameters) {
         return EurostagTutorialExample1Factory.create();
     }
+
+    @Override
+    public DataFormat getDataFormat() {
+        return new TstDataFormat(getFormat());
+    }
+
 }

@@ -6,6 +6,32 @@
  */
 package com.powsybl.ucte.converter;
 
+import static com.powsybl.ucte.converter.util.UcteConstants.CURRENT_LIMIT_PROPERTY_KEY;
+import static com.powsybl.ucte.converter.util.UcteConstants.ELEMENT_NAME_PROPERTY_KEY;
+import static com.powsybl.ucte.converter.util.UcteConstants.GEOGRAPHICAL_NAME_PROPERTY_KEY;
+import static com.powsybl.ucte.converter.util.UcteConstants.IS_COUPLER_PROPERTY_KEY;
+import static com.powsybl.ucte.converter.util.UcteConstants.NOMINAL_POWER_KEY;
+import static com.powsybl.ucte.converter.util.UcteConstants.NOT_POSSIBLE_TO_IMPORT;
+import static com.powsybl.ucte.converter.util.UcteConstants.ORDER_CODE;
+import static com.powsybl.ucte.converter.util.UcteConstants.POWER_PLANT_TYPE_PROPERTY_KEY;
+import static com.powsybl.ucte.converter.util.UcteConstants.STATUS_PROPERTY_KEY;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.auto.service.AutoService;
 import com.google.common.base.Enums;
 import com.google.common.base.Stopwatch;
@@ -30,14 +56,6 @@ import com.powsybl.ucte.network.ext.UcteNetworkExt;
 import com.powsybl.ucte.network.ext.UcteSubstation;
 import com.powsybl.ucte.network.ext.UcteVoltageLevel;
 import com.powsybl.ucte.network.io.UcteReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import static com.powsybl.ucte.converter.util.UcteConstants.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -1010,35 +1028,31 @@ public class UcteImporter implements Importer {
     }
 
     @Override
-    public Network importDataStore(ReadOnlyDataStore dataStore, String fileName, NetworkFactory networkFactory,
-            Properties parameters) {
-        try {
-            Optional<DataPack> dp = UcteDataFormat.INSTANCE.newDataResolver().resolve(dataStore, fileName, parameters);
-            if (dp.isPresent()) {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataStore.newInputStream(fileName)))) {
+    public Network importDataPack(DataPack dataPack, NetworkFactory networkFactory, Properties parameters) {
+        Network network = null;
+        Optional<DataEntry> mainEntryOp = dataPack.getMainEntry();
+        if (mainEntryOp.isPresent()) {
+            String mainFileName = mainEntryOp.get().getName();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataPack.getSource().newInputStream(mainFileName)))) {
 
-                    Stopwatch stopwatch = Stopwatch.createStarted();
+                Stopwatch stopwatch = Stopwatch.createStarted();
 
-                    UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader), LINE_MIN_Z);
+                UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader), LINE_MIN_Z);
 
-                    Optional<DataEntry> mainEntryOp = dp.get().getMainEntry();
-                    if (mainEntryOp.isPresent()) {
-                        EntsoeFileName ucteFileName = EntsoeFileName.parse(mainEntryOp.get().getName());
+                if (mainEntryOp.isPresent()) {
+                    EntsoeFileName ucteFileName = EntsoeFileName.parse(mainFileName);
 
-                        Network network = createNetwork(fileName, ucteFileName, networkFactory, ucteNetwork);
+                    network = createNetwork(mainFileName, ucteFileName, networkFactory, ucteNetwork);
 
-                        stopwatch.stop();
-                        LOGGER.debug("UCTE import from DataStore done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-
-                        return network;
-                    }
+                    stopwatch.stop();
+                    LOGGER.debug("UCTE import from DataStore done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
                 }
+            } catch (IOException e) {
+                throw new PowsyblException(e);
             }
-
-        } catch (IOException | NonUniqueResultException e) {
-            throw new PowsyblException(e);
         }
-        return null;
+
+        return network;
     }
 
     private Network createNetwork(String fileName, EntsoeFileName ucteFileName, NetworkFactory networkFactory, UcteNetworkExt ucteNetwork) {
