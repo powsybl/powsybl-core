@@ -1039,14 +1039,13 @@ public class UcteImporter implements Importer {
 
                 UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader), LINE_MIN_Z);
 
-                if (mainEntryOp.isPresent()) {
-                    EntsoeFileName ucteFileName = EntsoeFileName.parse(mainFileName);
+                EntsoeFileName ucteFileName = EntsoeFileName.parse(mainFileName);
 
-                    network = createNetwork(mainFileName, ucteFileName, networkFactory, ucteNetwork);
+                network = createNetwork(mainFileName, ucteFileName, networkFactory, ucteNetwork);
 
-                    stopwatch.stop();
-                    LOGGER.debug("UCTE import from DataStore done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-                }
+                stopwatch.stop();
+                LOGGER.debug("UCTE import from DataStore done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
             } catch (IOException e) {
                 throw new PowsyblException(e);
             }
