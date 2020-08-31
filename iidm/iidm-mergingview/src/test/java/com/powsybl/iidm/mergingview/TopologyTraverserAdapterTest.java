@@ -32,9 +32,9 @@ public class TopologyTraverserAdapterTest {
         List<String> traversed1bis = recordTraversed(start1, aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() != SwitchKind.BREAKER);
         assertEquals(Collections.singletonList("LOAD1"), traversed1bis);
 
-        Terminal start2 = cgm.getLoad("LOAD1").getTerminal();
+        Terminal start2 = cgm.getLoad("LOAD2").getTerminal();
         List<String> traversed2 = recordTraversed(start2, s -> true);
-        assertEquals(Arrays.asList("LOAD1", "BBS1", "DL1 + DL2"), traversed2);
+        assertEquals(Arrays.asList("LOAD2", "DL1 + DL2"), traversed2);
     }
 
     private List<String> recordTraversed(Terminal start, Predicate<Switch> switchPredicate) {
