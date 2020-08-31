@@ -764,7 +764,7 @@ public class UcteImporter implements Importer {
 
     private static void addCurrentLimitProperty(UcteLine ucteLine, Switch aSwitch) {
         if (ucteLine.getCurrentLimit() != null) {
-            aSwitch.setStringProperty(CURRENT_LIMIT_PROPERTY_KEY, String.valueOf(ucteLine.getCurrentLimit()));
+            aSwitch.setIntegerProperty(CURRENT_LIMIT_PROPERTY_KEY, ucteLine.getCurrentLimit());
         }
     }
 
@@ -791,7 +791,7 @@ public class UcteImporter implements Importer {
     }
 
     private static void addNominalPowerProperty(UcteTransformer transformer, TwoWindingsTransformer twoWindingsTransformer) {
-        twoWindingsTransformer.setStringProperty(NOMINAL_POWER_KEY, String.valueOf(transformer.getNominalPower()));
+        twoWindingsTransformer.setDoubleProperty(NOMINAL_POWER_KEY, transformer.getNominalPower());
     }
 
     private static void addXnodeStatusProperty(UcteNode ucteNode, Identifiable identifiable) {
@@ -806,13 +806,13 @@ public class UcteImporter implements Importer {
         switch (ucteLine.getStatus()) {
             case BUSBAR_COUPLER_IN_OPERATION:
             case BUSBAR_COUPLER_OUT_OF_OPERATION:
-                danglingLine.setStringProperty(IS_COUPLER_PROPERTY_KEY, "true");
+                danglingLine.setBooleanProperty(IS_COUPLER_PROPERTY_KEY, true);
                 break;
             case REAL_ELEMENT_IN_OPERATION:
             case REAL_ELEMENT_OUT_OF_OPERATION:
             case EQUIVALENT_ELEMENT_IN_OPERATION:
             case EQUIVALENT_ELEMENT_OUT_OF_OPERATION:
-                danglingLine.setStringProperty(IS_COUPLER_PROPERTY_KEY, "false");
+                danglingLine.setBooleanProperty(IS_COUPLER_PROPERTY_KEY, false);
                 break;
         }
     }

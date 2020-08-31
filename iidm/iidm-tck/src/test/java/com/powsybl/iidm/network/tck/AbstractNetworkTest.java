@@ -174,12 +174,12 @@ public abstract class AbstractNetworkTest {
 
         // Check notification done
         verify(mockedListener, times(1))
-               .onElementAdded(busCalc, "properties[" + key + "]", value);
+                .onElementAdded(busCalc, "properties[" + key + "]", value);
         // Check no notification on same property
         String value2 = "ValueTest2";
         busCalc.setStringProperty(key, value2);
         verify(mockedListener, times(1))
-               .onElementReplaced(busCalc, "properties[" + key + "]", value, value2);
+                .onElementReplaced(busCalc, "properties[" + key + "]", value, value2);
         // Check no notification on same property
         busCalc.setStringProperty(key, value2);
         verifyNoMoreInteractions(mockedListener);

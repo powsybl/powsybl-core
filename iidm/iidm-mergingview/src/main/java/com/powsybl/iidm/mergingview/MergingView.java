@@ -269,19 +269,19 @@ public final class MergingView implements Network, MultiVariantObject {
     @Override
     public String getStringProperty(String key, String defaultValue) {
         return index.getNetworkStream()
-            .map(n -> n.getStringProperty(key))
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(defaultValue);
+                .map(n -> n.getStringProperty(key))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(defaultValue);
     }
 
     @Override
     public Optional<String> getOptionalStringProperty(String key) {
         return index.getNetworkStream()
-            .map(n -> n.getOptionalStringProperty(key))
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(null);
+                .map(n -> n.getOptionalStringProperty(key))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -488,11 +488,11 @@ public final class MergingView implements Network, MultiVariantObject {
     @Override
     public Iterable<Substation> getSubstations(final String country, final String tsoId, final String... geographicalTags) {
         return index.getNetworkStream()
-                    .map(n -> n.getSubstations(country, tsoId, geographicalTags))
-                    .flatMap(x -> StreamSupport.stream(x.spliterator(), false))
-                    .filter(Objects::nonNull)
-                    .map(index::getSubstation)
-                    .collect(Collectors.toList());
+                .map(n -> n.getSubstations(country, tsoId, geographicalTags))
+                .flatMap(x -> StreamSupport.stream(x.spliterator(), false))
+                .filter(Objects::nonNull)
+                .map(index::getSubstation)
+                .collect(Collectors.toList());
     }
 
     @Override

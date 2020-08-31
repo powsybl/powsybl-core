@@ -630,7 +630,7 @@ public class UcteExporter implements Exporter {
     }
 
     private static UcteElementStatus getStatus(DanglingLine danglingLine) {
-        if (Boolean.parseBoolean(danglingLine.getStringProperty(IS_COUPLER_PROPERTY_KEY, "false"))) {
+        if (danglingLine.getBooleanProperty(IS_COUPLER_PROPERTY_KEY, false)) {
             if (danglingLine.getTerminal().isConnected()) {
                 return UcteElementStatus.BUSBAR_COUPLER_IN_OPERATION;
             } else {
@@ -684,7 +684,8 @@ public class UcteExporter implements Exporter {
         UcteElementId elementId = context.getNamingStrategy().getUcteElementId(twoWindingsTransformer);
         UcteElementStatus status = getStatus(twoWindingsTransformer);
         String elementName = twoWindingsTransformer.getStringProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-        float nominalPower = Float.parseFloat(twoWindingsTransformer.getStringProperty(NOMINAL_POWER_KEY, null));
+        double nominalPower = twoWindingsTransformer.getDoubleProperty(NOMINAL_POWER_KEY, Double.NaN);
+
         UcteTransformer ucteTransformer = new UcteTransformer(
                 elementId,
                 status,
@@ -695,7 +696,7 @@ public class UcteExporter implements Exporter {
                 elementName,
                 (float) twoWindingsTransformer.getRatedU2(),
                 (float) twoWindingsTransformer.getRatedU1(),
-                nominalPower,
+                (float) nominalPower,
                 (float) twoWindingsTransformer.getG());
         ucteNetwork.addTransformer(ucteTransformer);
 
@@ -807,7 +808,7 @@ public class UcteExporter implements Exporter {
     private static void setSwitchCurrentLimit(UcteLine ucteLine, Switch sw) {
         if (sw.hasProperty(CURRENT_LIMIT_PROPERTY_KEY)) {
             try {
-                ucteLine.setCurrentLimit(Integer.parseInt(sw.getStringProperty(CURRENT_LIMIT_PROPERTY_KEY)));
+                ucteLine.setCurrentLimit(sw.getIntegerProperty(CURRENT_LIMIT_PROPERTY_KEY));
             } catch (NumberFormatException exception) {
                 ucteLine.setCurrentLimit(null);
                 LOGGER.warn("Switch {}: No current limit provided", sw.getId());
