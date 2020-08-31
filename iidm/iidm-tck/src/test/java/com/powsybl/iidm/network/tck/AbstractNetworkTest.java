@@ -495,6 +495,11 @@ public abstract class AbstractNetworkTest {
         network.setDoubleProperty(keyDouble, doubleValue);
         network.setStringProperty(keyString, stringValue);
 
+        assertTrue(network.setBooleanProperty(keyBool, true));
+        assertEquals(intValue, network.setIntegerProperty(keyInt, intValue));
+        assertEquals(doubleValue, network.setDoubleProperty(keyDouble, doubleValue), 0.0d);
+        assertEquals(stringValue, network.setStringProperty(keyString, stringValue));
+
         assertTrue(network.getOptionalBooleanProperty(keyBool).isPresent());
         assertTrue(network.getOptionalBooleanProperty(keyBool).get());
 

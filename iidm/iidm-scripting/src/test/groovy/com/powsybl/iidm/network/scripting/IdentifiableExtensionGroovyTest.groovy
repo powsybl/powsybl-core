@@ -45,23 +45,20 @@ class IdentifiableExtensionGroovyTest {
     void testStringProperty() {
         assertFalse(s.hasProperty())
         assertNull(s.greeting)
-        s.setStringProperty("greeting", "hello")
-        assertEquals("hello", s.greeting)
+        s.greeting = "hello"
         assertEquals("hello", s.getStringProperty("greeting"))
+        assertEquals("hello", s.greeting)
     }
 
     @Test
     void testBooleanProperty() {
         assertFalse(s.hasProperty())
         assertNull(s.ok)
-        s.setBooleanProperty("ok", true)
-        assertEquals(true, s.ok)
+        s.ok = true
         assertEquals(true, s.getBooleanProperty("ok"))
+        assertEquals(true, s.ok)
         s.ok = null
         assertNull(s.ok)
-        s.ko = false
-        assertEquals(false, s.ko)
-        assertEquals(false, s.getBooleanProperty("ko"))
     }
 
     @Test

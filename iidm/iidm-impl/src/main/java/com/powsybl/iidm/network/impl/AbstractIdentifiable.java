@@ -265,7 +265,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     public boolean setBooleanProperty(String key, boolean value) {
         notifyElementModification(key, value);
         Property property = properties.put(key, new Property(value));
-        if (property != null && property.propertyType() == PropertyType.INTEGER) {
+        if (property != null && property.propertyType() == PropertyType.BOOLEAN) {
             return property.booleanValue();
         }
         return false;
@@ -273,18 +273,10 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     private void notifyElementModification(String key, Object value) {
         if (properties.containsKey(key)) {
-            notifyElementReplaced(key, properties.get(key).getValue(), value);
+            getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", properties.get(key).getValue(), value);
         } else {
-            notifyElementAdded(key, value);
+            getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", value);
         }
-    }
-
-    private void notifyElementAdded(String key, Object newValue) {
-        getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", newValue);
-    }
-
-    private void notifyElementReplaced(String key, Object oldValue, Object newValue) {
-        getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, newValue);
     }
 
     @Override

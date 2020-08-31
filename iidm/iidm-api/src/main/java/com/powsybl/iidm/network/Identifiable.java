@@ -24,7 +24,7 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
         DOUBLE("double"),
         BOOLEAN("boolean");
 
-        private String name;
+        private final String name;
         PropertyType(String name) {
             this.name = name;
         }
@@ -130,7 +130,9 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     /**
      * Check that this object has some properties.
      */
-    boolean hasProperty();
+    default boolean hasProperty() {
+        return false;
+    }
 
     /**
      * Get the type of the property.
@@ -139,11 +141,12 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
         return PropertyType.STRING;
     }
 
-
     /**
      * Check that this object has property with specified name.
      */
-    boolean hasProperty(String key);
+    default boolean hasProperty(String key) {
+        return false;
+    }
 
     /**
      * Get property associated to specified key.
@@ -178,22 +181,30 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     /**
      * Get string property associated to specified key.
      */
-    String getStringProperty(String key);
+    default String getStringProperty(String key) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 
     /**
      * Get string property associated to specified key, with default value.
      */
-    String getStringProperty(String key, String defaultValue);
+    default String getStringProperty(String key, String defaultValue) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 
     /**
      * Get string property associated to specified key.
      */
-    Optional<String> getOptionalStringProperty(String key);
+    default Optional<String> getOptionalStringProperty(String key) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 
     /**
      * Set string property value associated to specified key.
      */
-    String setStringProperty(String key, String value);
+    default String setStringProperty(String key, String value) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 
     /**
      * Get integer property associated to specified key.
@@ -279,7 +290,9 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     /**
      * Get properties key values.
      */
-    Set<String> getPropertyNames();
+    default Set<String> getPropertyNames() {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 
     /**
      * Get the fictitious status
